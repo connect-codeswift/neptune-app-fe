@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentProps, MouseEvent } from "react";
+import { ehsLinkClass } from "@/components/ui/ehs-classes";
 
 export type ScrollLinkProps = Readonly<ComponentProps<typeof Link>>;
 
@@ -31,7 +32,7 @@ export function ScrollLink(props: Readonly<ScrollLinkProps>) {
     <Link
       href={href}
       onClick={handleClick}
-      className={["ehs-link", className].filter(Boolean).join(" ")}
+      className={[ehsLinkClass, className].filter(Boolean).join(" ")}
       {...rest}
     />
   );

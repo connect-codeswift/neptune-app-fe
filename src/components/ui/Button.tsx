@@ -1,4 +1,10 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import {
+  ehsButtonBaseClass,
+  ehsButtonPrimaryClass,
+  ehsButtonSecondaryClass,
+  ehsButtonTertiaryClass,
+} from "@/components/ui/ehs-classes";
 
 export type ButtonProps = Readonly<
   ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -9,9 +15,9 @@ export type ButtonProps = Readonly<
 >;
 
 const variantClassName: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "ehs-btn-primary",
-  secondary: "ehs-btn-secondary",
-  tertiary: "ehs-btn-tertiary",
+  primary: ehsButtonPrimaryClass,
+  secondary: ehsButtonSecondaryClass,
+  tertiary: ehsButtonTertiaryClass,
 };
 
 export function Button(props: Readonly<ButtonProps>) {
@@ -20,7 +26,9 @@ export function Button(props: Readonly<ButtonProps>) {
   return (
     <button
       type={type}
-      className={["ehs-btn", variantClassName[variant], className].filter(Boolean).join(" ")}
+      className={[ehsButtonBaseClass, variantClassName[variant], className]
+        .filter(Boolean)
+        .join(" ")}
       {...rest}
     >
       {children}

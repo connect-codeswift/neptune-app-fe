@@ -1,37 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --ehs-light-bg: #F3F5F8;
-  --ehs-dark-bg: #0B1320;
+  --font-inter: var(--font-inter);
 
-  --ehs-border: #E5E7EB;
+  --ehs-light-bg: #f3f5f8;
+  --ehs-dark-bg: #0b1320;
 
-  --ehs-icon-bg: #0891A620; /* IT IS OPAQUE */
+  --ehs-border: #e5e7eb;
 
-  --ehs-light-text: #FFFFFF;
+  --ehs-icon-bg: #0891a620; /* IT IS OPAQUE */
 
-  --ehs-muted-text: #8892A3;
+  --ehs-light-text: #ffffff;
+
+  --ehs-muted-text: #8892a3;
   --ehs-gray: #566072;
 
-  --ehs-green: #10B981;
-  --ehs-red: #EF4444;
-  --ehs-yellow: #F59E0B;
-  --ehs-navy: #1D3557;
-  --ehs-purple: #7C3AED;
+  --ehs-green: #10b981;
+  --ehs-red: #ef4444;
+  --ehs-yellow: #f59e0b;
+  --ehs-navy: #1d3557;
+  --ehs-purple: #7c3aed;
 
-  --ehs-light-blue: #E6F4F6;
-  --ehs-light-blue-hover: #DAEFF2;
-  --ehs-light-blue-active: #B2DDE3;
+  --ehs-light-blue: #e6f4f6;
+  --ehs-light-blue-hover: #daeff2;
+  --ehs-light-blue-active: #b2dde3;
 
-  --ehs-normal-blue: #0891A6;
+  --ehs-normal-blue: #0891a6;
   --ehs-normal-blue-hover: #078395;
   --ehs-normal-blue-active: #067485;
 
-  --ehs-dark-blue: #066D7D;
+  --ehs-dark-blue: #066d7d;
   --ehs-dark-blue-hover: #055764;
-  --ehs-dark-blue-active: #04414B;
+  --ehs-dark-blue-active: #04414b;
 
-  --ehs-darker: #03333A;
+  --ehs-darker: #03333a;
 }
 
 @theme inline {
@@ -72,139 +74,5 @@
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer components {
-  /* ── Fields ── */
-  .ehs-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-  }
-
-  .ehs-label {
-    display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--ehs-gray);
-  }
-
-  .ehs-input {
-    width: 100%;
-    border: 1px solid var(--ehs-border);
-    border-radius: 0.5rem;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    outline: none;
-    background-color: var(--ehs-light-text);
-    color: var(--ehs-darker);
-    transition:
-      color 150ms ease,
-      background-color 150ms ease,
-      border-color 150ms ease,
-      box-shadow 150ms ease;
-  }
-
-  .ehs-input::placeholder {
-    color: var(--ehs-muted-text);
-  }
-
-  .ehs-input:focus {
-    border-color: var(--ehs-normal-blue);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ehs-normal-blue) 20%, transparent);
-  }
-
-  .ehs-input-password {
-    padding-right: 2.5rem;
-  }
-
-  .ehs-icon-btn {
-    color: var(--ehs-muted-text);
-    transition: color 150ms ease;
-  }
-
-  .ehs-icon-btn:hover {
-    color: var(--ehs-gray);
-  }
-
-  /* ── Links ── */
-  .ehs-link {
-    color: var(--ehs-normal-blue);
-    transition: color 150ms ease;
-  }
-
-  .ehs-link:hover {
-    color: var(--ehs-normal-blue-hover);
-  }
-
-  /* ── Buttons ── */
-  .ehs-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border: none;
-    border-radius: 0.5rem;
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 600;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    cursor: pointer;
-    transition:
-      color 150ms ease,
-      background-color 150ms ease,
-      border-color 150ms ease,
-      box-shadow 150ms ease;
-  }
-
-  .ehs-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ehs-normal-blue) 20%, transparent);
-  }
-
-  .ehs-btn:disabled {
-    pointer-events: none;
-    opacity: 0.5;
-  }
-
-  .ehs-btn-primary {
-    background-color: var(--ehs-normal-blue);
-    color: var(--ehs-light-text);
-  }
-
-  .ehs-btn-primary:hover {
-    background-color: var(--ehs-normal-blue-hover);
-  }
-
-  .ehs-btn-primary:active {
-    background-color: var(--ehs-normal-blue-active);
-  }
-
-  .ehs-btn-secondary {
-    background-color: var(--ehs-light-blue);
-    color: var(--ehs-darker);
-  }
-
-  .ehs-btn-secondary:hover {
-    background-color: var(--ehs-light-blue-hover);
-  }
-
-  .ehs-btn-secondary:active {
-    background-color: var(--ehs-light-blue-active);
-  }
-
-  .ehs-btn-tertiary {
-    border: 1px solid var(--ehs-border);
-    background-color: var(--ehs-light-text);
-    color: var(--ehs-gray);
-  }
-
-  .ehs-btn-tertiary:hover {
-    background-color: var(--ehs-light-bg);
-  }
+  font-family: var(--font-inter);
 }

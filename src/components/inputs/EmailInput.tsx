@@ -1,4 +1,5 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
+import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/components/ui/ehs-classes";
 
 export type EmailInputProps = Readonly<
   Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
@@ -11,8 +12,8 @@ export type EmailInputProps = Readonly<
 export function EmailInput(props: Readonly<EmailInputProps>) {
   const {
     label,
-    labelClassName = "ehs-label",
-    wrapperClassName = "ehs-field",
+    labelClassName = ehsLabelClass,
+    wrapperClassName = ehsFieldClass,
     className,
     autoComplete = "email",
     id: idProp,
@@ -27,7 +28,7 @@ export function EmailInput(props: Readonly<EmailInputProps>) {
       id={id}
       type="email"
       autoComplete={autoComplete}
-      className={["ehs-input", className].filter(Boolean).join(" ")}
+      className={[ehsInputClass, className].filter(Boolean).join(" ")}
       {...rest}
     />
   );
