@@ -17,7 +17,7 @@ function resolveHref(href: ScrollLinkProps["href"]): string {
 }
 
 export function ScrollLink(props: Readonly<ScrollLinkProps>) {
-  const { href, onClick, ...rest } = props;
+  const { href, onClick, className, ...rest } = props;
   const pathname = usePathname();
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -27,5 +27,12 @@ export function ScrollLink(props: Readonly<ScrollLinkProps>) {
     onClick?.(e);
   };
 
-  return <Link href={href} onClick={handleClick} {...rest} />;
+  return (
+    <Link
+      href={href}
+      onClick={handleClick}
+      className={["ehs-link", className].filter(Boolean).join(" ")}
+      {...rest}
+    />
+  );
 }

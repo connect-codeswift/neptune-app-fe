@@ -151,7 +151,7 @@ function RightPanel() {
     >
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold text-gray-900">Welcome back.</h2>
+          <h2 className="text-3xl font-bold text-ehs-darker">Welcome back.</h2>
           <p className="text-ehs-muted-text text-sm">
             Sign in to your Neptune workspace.
           </p>
@@ -160,7 +160,7 @@ function RightPanel() {
         {/* Google SSO */}
         <Button
           type="button"
-          variant="outline"
+          variant="tertiary"
           className="w-full gap-3 font-medium"
         >
           <Icon icon="flat-color-icons:google" className="text-lg" />
@@ -168,11 +168,11 @@ function RightPanel() {
         </Button>
 
         <div className="flex items-center gap-3">
-          <hr className="flex-1 border-gray-200" />
+          <hr className="flex-1 border-ehs-border" />
           <span className="text-ehs-muted-text text-xs">
             or sign in with email
           </span>
-          <hr className="flex-1 border-gray-200" />
+          <hr className="flex-1 border-ehs-border" />
         </div>
 
         <form className="space-y-4">
@@ -192,12 +192,8 @@ function RightPanel() {
               placeholder="Enter your password"
               required
             />
-            <ScrollLink
-              href="/forgot-password"
-              className="text-ehs-normal-blue flex w-full justify-between text-sm font-medium"
-            >
-              <div></div>
-              <div>Forgot password?</div>
+            <ScrollLink href="/forgot-password" className="ml-auto block text-sm font-medium">
+              Forgot password?
             </ScrollLink>
           </div>
 
@@ -207,12 +203,9 @@ function RightPanel() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-ehs-muted-text">
           Don&apos;t have an account?{" "}
-          <ScrollLink
-            href="/signup"
-            className="text-ehs-normal-blue font-semibold"
-          >
+          <ScrollLink href="/signup" className="font-semibold">
             Sign up
           </ScrollLink>
         </p>

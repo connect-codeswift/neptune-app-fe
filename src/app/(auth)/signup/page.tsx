@@ -84,7 +84,7 @@ export default function SignupPage() {
       >
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-ehs-darker">
               Create your account.
             </h2>
             <p className="text-ehs-muted-text text-sm">
@@ -94,7 +94,7 @@ export default function SignupPage() {
 
           <Button
             type="button"
-            variant="outline"
+            variant="tertiary"
             className="w-full gap-3 font-medium"
           >
             <Icon icon="flat-color-icons:google" className="text-lg" />
@@ -102,11 +102,11 @@ export default function SignupPage() {
           </Button>
 
           <div className="flex items-center gap-3">
-            <hr className="flex-1 border-gray-200" />
+            <hr className="flex-1 border-ehs-border" />
             <span className="text-ehs-muted-text text-xs">
               or sign up with email
             </span>
-            <hr className="flex-1 border-gray-200" />
+            <hr className="flex-1 border-ehs-border" />
           </div>
 
           <form className="space-y-4">
@@ -152,12 +152,9 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-ehs-muted-text">
             Already have an account?{" "}
-            <ScrollLink
-              href="/login"
-              className="text-ehs-normal-blue font-semibold"
-            >
+            <ScrollLink href="/login" className="font-semibold">
               Sign in
             </ScrollLink>
           </p>
