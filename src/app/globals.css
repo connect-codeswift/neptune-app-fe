@@ -76,3 +76,12 @@
 body {
   font-family: var(--font-inter);
 }
+
+@utility scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
