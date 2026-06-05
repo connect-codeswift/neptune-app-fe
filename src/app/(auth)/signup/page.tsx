@@ -1,12 +1,14 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { LogoIcon } from "@/components/LogoIcon";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
+import { authLinkClass } from "@/lib/auth-cqw-classes";
+import { ShadeBall } from "@/components/ShadeBall";
 
 const features = [
   {
@@ -29,37 +31,43 @@ const features = [
 
 function LeftPanel() {
   return (
-    <div className="from-ehs-light-blue relative hidden h-full flex-col justify-between overflow-hidden bg-linear-to-br via-white to-ehs-light-blue/60 p-10 lg:flex">
-      <div className="relative z-10 space-y-10">
-        <LogoIcon />
+    <div className="from-ehs-light-blue to-ehs-light-blue/60 relative hidden h-full flex-col justify-center overflow-hidden bg-linear-to-br via-white p-[2.664cqw] lg:flex">
+      <ShadeBall
+        positionAsClassName="bottom-[-150px] right-[-150px]"
+        blur={120}
+      />
+      <div className="relative z-10 flex flex-col gap-[1cqw]">
+        <Logo fluid />
 
-        <div className="max-w-md space-y-4">
-          <h1 className="text-ehs-darker text-4xl leading-tight font-bold">
+        <div className="flex max-w-[26cqw] flex-col gap-[1.064cqw]">
+          <h1 className="text-ehs-darker text-[2.4cqw] leading-tight font-bold">
             Safety management, finally unified.
           </h1>
-          <p className="text-ehs-muted-text text-sm leading-relaxed">
+          <p className="text-ehs-muted-text text-[0.936cqw] leading-relaxed">
             Join 2,400+ sites using Neptune to manage incidents, audits, CAPAs,
             and sustainability — all in one place.
           </p>
         </div>
 
-        <ul className="max-w-md space-y-5">
+        <ul className="flex max-w-[28cqw] flex-col gap-[1.336cqw]">
           {features.map((item) => (
-            <li key={item.title} className="space-y-1">
-              <p className="text-ehs-darker text-sm font-semibold">
+            <li key={item.title} className="flex flex-col gap-[0.264cqw]">
+              <p className="text-ehs-darker text-[0.936cqw] font-semibold">
                 {item.title}
               </p>
-              <p className="text-ehs-muted-text text-sm">{item.description}</p>
+              <p className="text-ehs-muted-text text-[0.936cqw]">
+                {item.description}
+              </p>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="bg-ehs-light-blue relative z-10 mt-10 max-w-md rounded-xl px-5 py-4">
-        <p className="text-ehs-darker text-sm font-semibold">
+      <div className="bg-ehs-normal-blue/15 relative backdrop-blur-lg z-10 mt-[1cqw] rounded-xl px-[1.336cqw] py-[1.064cqw]">
+        <p className="text-ehs-darker text-[0.936cqw] font-semibold">
           30-day free trial, full access
         </p>
-        <p className="text-ehs-muted-text mt-1 text-sm">
+        <p className="text-ehs-muted-text mt-[0.264cqw] text-[0.936cqw]">
           No credit card required. Cancel anytime.
         </p>
       </div>
@@ -70,15 +78,21 @@ function LeftPanel() {
 function RightPanel() {
   return (
     <div
-      className="flex items-center justify-center p-8"
+      className="flex h-full items-center justify-center p-[2.136cqw]"
       style={{ background: "var(--ehs-light-bg)" }}
     >
-      <div className="w-full max-w-sm space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-ehs-darker text-3xl font-bold">
+      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+      <ShadeBall
+        positionAsClassName="bottom-[-150px] left-[-150px]"
+        blur={120}
+      />
+
+      <div className="flex w-full max-w-[25.6cqw] flex-col gap-[1.6cqw]">
+        <div className="flex flex-col gap-[0.264cqw]">
+          <h2 className="text-ehs-darker text-[2cqw] font-bold">
             Create your account.
           </h2>
-          <p className="text-ehs-muted-text text-sm">
+          <p className="text-ehs-muted-text text-[0.936cqw]">
             Start your Neptune workspace in minutes.
           </p>
         </div>
@@ -86,21 +100,22 @@ function RightPanel() {
         <Button
           type="button"
           variant="tertiary"
-          className="w-full gap-3 font-medium"
+          scale="auth"
+          className="w-full font-medium"
         >
-          <Icon icon="flat-color-icons:google" className="text-lg" />
+          <Icon icon="flat-color-icons:google" className="text-[1.2cqw]" />
           Continue with Google
         </Button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[0.8cqw]">
           <hr className="border-ehs-border flex-1" />
-          <span className="text-ehs-muted-text text-xs">
+          <span className="text-ehs-muted-text text-[0.8cqw]">
             or sign up with email
           </span>
           <hr className="border-ehs-border flex-1" />
         </div>
 
-        <form className="space-y-4">
+        <form className="flex flex-col gap-[1.064cqw]">
           <TextInput
             id="name"
             name="name"
@@ -108,6 +123,7 @@ function RightPanel() {
             type="text"
             autoComplete="name"
             placeholder="Sarah Nordvik"
+            scale="auth"
             required
           />
 
@@ -116,6 +132,7 @@ function RightPanel() {
             name="email"
             label="Email address"
             placeholder="sarah@nordvik.com"
+            scale="auth"
             required
           />
 
@@ -125,6 +142,7 @@ function RightPanel() {
             label="Password"
             autoComplete="new-password"
             placeholder="Create a password"
+            scale="auth"
             required
           />
 
@@ -134,18 +152,27 @@ function RightPanel() {
             label="Confirm password"
             autoComplete="new-password"
             placeholder="Confirm your password"
+            scale="auth"
             required
           />
 
-          <Button type="submit" variant="primary" className="w-full">
+          <Button
+            type="submit"
+            variant="primary"
+            scale="auth"
+            className="w-full"
+          >
             Create account
-            <Icon icon="mdi:arrow-right" />
+            <Icon icon="mdi:arrow-right" className="text-[1.2cqw]" />
           </Button>
         </form>
 
-        <p className="text-ehs-muted-text text-center text-sm">
+        <p className="text-ehs-muted-text text-center text-[0.936cqw]">
           Already have an account?{" "}
-          <ScrollLink href="/login" className="font-semibold">
+          <ScrollLink
+            href="/login"
+            className={`${authLinkClass} font-semibold`}
+          >
             Sign in
           </ScrollLink>
         </p>
@@ -156,11 +183,11 @@ function RightPanel() {
 
 export default function SignupPage() {
   return (
-    <div className="relative grid h-screen lg:grid-cols-2">
-      <div className="relative h-screen overflow-y-hidden">
+    <div className="relative grid h-full w-full lg:grid-cols-2">
+      <div className="relative hidden h-full overflow-hidden lg:block">
         <LeftPanel />
       </div>
-      <div className="relative min-h-screen overflow-y-auto">
+      <div className="relative h-full overflow-hidden">
         <RightPanel />
       </div>
     </div>

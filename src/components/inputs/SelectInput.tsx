@@ -1,4 +1,9 @@
 import { useId, type ReactNode, type SelectHTMLAttributes } from "react";
+import {
+  authFieldClass,
+  authLabelClass,
+  authSelectClass,
+} from "@/lib/auth-cqw-classes";
 import { ehsFieldClass, ehsLabelClass, ehsSelectClass } from "@/lib/ehs-classes";
 
 export type SelectOption = Readonly<{
@@ -13,6 +18,7 @@ export type SelectInputProps = Readonly<
     options: readonly SelectOption[];
     labelClassName?: string;
     wrapperClassName?: string;
+    scale?: "auth";
   }
 >;
 
@@ -21,13 +27,21 @@ export function SelectInput(props: Readonly<SelectInputProps>) {
     label,
     placeholder,
     options,
-    labelClassName = ehsLabelClass,
-    wrapperClassName = ehsFieldClass,
+    scale,
+    labelClassName,
+    wrapperClassName,
     className,
     value,
     id: idProp,
     ...rest
   } = props;
+
+  const isAuthScale = scale === "auth";
+  const resolvedLabelClassName =
+    labelClassName ?? (isAuthScale ? authLabelClass : ehsLabelClass);
+  const resolvedWrapperClassName =
+    wrapperClassName ?? (isAuthScale ? authFieldClass : ehsFieldClass);
+  const baseSelectClass = isAuthScale ? authSelectClass : ehsSelectClass;
 
   const generatedId = useId();
   const id = idProp ?? generatedId;
@@ -38,7 +52,7 @@ export function SelectInput(props: Readonly<SelectInputProps>) {
       id={id}
       value={value}
       className={[
-        ehsSelectClass,
+        baseSelectClass,
         hasValue ? "text-ehs-darker" : "text-ehs-muted-text",
         className,
       ]
@@ -60,8 +74,8 @@ export function SelectInput(props: Readonly<SelectInputProps>) {
   }
 
   return (
-    <div className={wrapperClassName}>
-      <label htmlFor={id} className={labelClassName}>
+    <div className={resolvedWrapperClassName}>
+      <label htmlFor={id} className={resolvedLabelClassName}>
         {label}
       </label>
       {select}

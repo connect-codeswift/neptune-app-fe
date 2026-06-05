@@ -8,6 +8,11 @@ import {
   type ReactNode,
 } from "react";
 import {
+  authFieldClass,
+  authInputClass,
+  authLabelClass,
+} from "@/lib/auth-cqw-classes";
+import {
   ehsFieldClass,
   ehsIconButtonClass,
   ehsInputClass,
@@ -20,6 +25,7 @@ export type PasswordProps = Readonly<
     placeholder: string;
     labelClassName?: string;
     wrapperClassName?: string;
+    scale?: "auth";
   }
 >;
 
@@ -27,13 +33,21 @@ export function Password(props: Readonly<PasswordProps>) {
   const {
     label,
     placeholder,
-    labelClassName = ehsLabelClass,
-    wrapperClassName = ehsFieldClass,
+    scale,
+    labelClassName,
+    wrapperClassName,
     className,
     autoComplete = "current-password",
     id: idProp,
     ...rest
   } = props;
+
+  const isAuthScale = scale === "auth";
+  const resolvedLabelClassName =
+    labelClassName ?? (isAuthScale ? authLabelClass : ehsLabelClass);
+  const resolvedWrapperClassName =
+    wrapperClassName ?? (isAuthScale ? authFieldClass : ehsFieldClass);
+  const baseInputClass = isAuthScale ? authInputClass : ehsInputClass;
 
   const generatedId = useId();
   const id = idProp ?? generatedId;
@@ -46,7 +60,11 @@ export function Password(props: Readonly<PasswordProps>) {
         type={visible ? "text" : "password"}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        className={[ehsInputClass, "pr-10", className]
+        className={[
+          baseInputClass,
+          isAuthScale ? "pr-[2.136cqw]" : "pr-10",
+          className,
+        ]
           .filter(Boolean)
           .join(" ")}
         {...rest}
@@ -55,7 +73,7 @@ export function Password(props: Readonly<PasswordProps>) {
         type="button"
         tabIndex={-1}
         aria-label={visible ? "Hide password" : "Show password"}
-        className={`absolute top-1/2 right-3 -translate-y-1/2 ${ehsIconButtonClass}`}
+        className={`absolute top-1/2 -translate-y-1/2 ${ehsIconButtonClass} ${isAuthScale ? "right-[0.8cqw] text-[1.064cqw]" : "right-3"}`}
         onClick={() => setVisible((v) => !v)}
       >
         <Icon icon={visible ? "mdi:eye-off-outline" : "mdi:eye-outline"} />
@@ -68,8 +86,8 @@ export function Password(props: Readonly<PasswordProps>) {
   }
 
   return (
-    <div className={wrapperClassName}>
-      <label htmlFor={id} className={labelClassName}>
+    <div className={resolvedWrapperClassName}>
+      <label htmlFor={id} className={resolvedLabelClassName}>
         {label}
       </label>
       {field}
