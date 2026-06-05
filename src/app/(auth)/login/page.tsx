@@ -1,31 +1,32 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { LogoIcon } from "@/components/LogoIcon";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
+
+const panelCardClass =
+  "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm";
 
 const incidents = [
   {
     title: "Chemical spill — Storage B",
     location: "Birmingham Plant",
     time: "12 min ago",
-    color: "bg-red-500",
   },
   {
     title: "Machine stoppage — Line 4",
     location: "Leeds Plant",
     time: "1 hr ago",
-    color: "bg-yellow-500",
   },
   {
     title: "Near miss — Loading bay",
     location: "Manchester Depot",
     time: "3 hrs ago",
-    color: "bg-yellow-500",
   },
-];
+] as const;
 
 const capas = [
   {
@@ -33,110 +34,97 @@ const capas = [
     assignee: "J. Harris",
     due: "Jun 4",
   },
-  { title: "Retrain Line 4 operators", assignee: "M. Price", due: "Jun 7" },
-];
+  {
+    title: "Retrain Line 4 operators",
+    assignee: "M. Price",
+    due: "Jun 3",
+  },
+] as const;
 
 function LeftPanel() {
   return (
-    <div className="bg-ehs-dark-bg relative hidden flex-col justify-between overflow-hidden p-10 lg:flex">
-      {/* Subtle radial glow */}
-      <div className="bg-ehs-normal-blue pointer-events-none absolute -top-32 -left-32 h-125 w-125 rounded-full opacity-20 blur-3xl" />
+    <div className="bg-ehs-dark-bg relative hidden h-full flex-col overflow-hidden px-12 py-6 lg:flex">
+      <div className="bg-ehs-normal-blue pointer-events-none absolute -top-32 -left-32 h-125 w-125 rounded-full opacity-15 blur-3xl" />
+      <div className="from-ehs-normal-blue/10 pointer-events-none absolute inset-0 bg-linear-to-b via-transparent to-black/20" />
 
-      {/* Logo */}
-      <div className="relative z-10 flex items-center gap-2">
-        <div className="bg-ehs-normal-blue flex h-8 w-8 items-center justify-center rounded-lg">
-          <Icon
-            icon="mdi:shield-check"
-            className="text-ehs-light-text text-lg"
-          />
-        </div>
-        <span className="text-ehs-light-text text-base font-semibold tracking-tight">
-          Neptune
-        </span>
-      </div>
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-4">
+        <LogoIcon variant="light" />
 
-      {/* Hero text */}
-      <div className="relative z-10 mt-6 space-y-3">
-        <p className="text-ehs-muted-text text-xs font-semibold tracking-widest uppercase">
-          Your workspace is waiting
-        </p>
-        <h1 className="text-ehs-light-text text-4xl leading-tight font-bold">
-          Items requiring
-          <br />
-          your attention.
-        </h1>
-      </div>
-
-      {/* Cards */}
-      <div className="relative z-10 space-y-4 pb-2">
-        {/* Open incidents */}
-        <div className="border-px space-y-3 rounded-xl border-[#ffffff14] bg-[#ffffff50] p-4">
-          <p className="text-ehs-muted-text text-xs font-semibold">
-            Open incidents
+        <div className="space-y-3">
+          <p className="text-ehs-muted-text text-xs font-semibold tracking-widest uppercase">
+            Your workspace is waiting
           </p>
-          <ul className="space-y-3">
-            {incidents.map((inc) => (
-              <li key={inc.title} className="flex items-start gap-3">
-                <span
-                  className={`mt-1 h-2 w-2 shrink-0 rounded-full ${inc.color}`}
-                />
-                <div>
-                  <p className="text-ehs-light-text text-sm leading-tight font-medium">
-                    {inc.title}
-                  </p>
-                  <p className="text-ehs-muted-text text-xs">
-                    {inc.location} · {inc.time}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <h1 className="text-ehs-light-text max-w-md text-4xl leading-tight font-bold">
+            Items requiring
+            <br />
+            your attention.
+          </h1>
         </div>
 
-        {/* Pending CAPAs */}
-        <div className="border-px space-y-3 rounded-xl border-[#ffffff14] bg-[#ffffff50] p-4">
-          <p className="text-ehs-muted-text text-xs font-semibold">
-            Pending CAPAs
-          </p>
-          <ul className="space-y-2">
-            {capas.map((c) => (
-              <li key={c.title} className="flex items-center gap-3">
-                <div className="bg-ehs-icon-bg flex h-6 w-6 shrink-0 items-center justify-center rounded-md">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
+          <section className={panelCardClass}>
+            <h2 className="text-ehs-light-text mb-3 text-sm font-semibold">
+              Open Incidents
+            </h2>
+            <ul className="divide-y divide-white/10">
+              {incidents.map((incident) => (
+                <li key={incident.title} className="py-2 first:pt-0 last:pb-0">
+                  <p className="text-ehs-light-text text-sm font-medium">
+                    {incident.title}
+                  </p>
+                  <p className="text-ehs-muted-text mt-1 text-xs">
+                    {incident.location} · {incident.time}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className={panelCardClass}>
+            <h2 className="text-ehs-light-text mb-3 text-sm font-semibold">
+              Pending CAPAs
+            </h2>
+            <ul className="divide-y divide-white/10">
+              {capas.map((capa) => (
+                <li key={capa.title} className="flex items-start gap-2 py-2 first:pt-0 last:pb-0">
                   <Icon
-                    icon="mdi:clipboard-check-outline"
-                    className="text-ehs-normal-blue text-xs"
+                    icon="mdi:bullhorn-outline"
+                    className="text-ehs-muted-text shrink-0 text-base"
+                    aria-hidden="true"
                   />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-ehs-light-text truncate text-sm">
-                    {c.title}
-                  </p>
-                  <p className="text-ehs-muted-text text-xs">{c.assignee}</p>
-                </div>
-                <span
-                  className="shrink-0 text-xs"
-                  style={{ color: "var(--ehs-muted-text)" }}
-                >
-                  {c.due}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-ehs-light-text text-sm font-medium">
+                      {capa.title}
+                    </p>
+                    <p className="text-ehs-muted-text text-xs">
+                      {capa.assignee}
+                    </p>
+                  </div>
+                  <span className="text-ehs-muted-text shrink-0 text-xs">
+                    {capa.due}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        {/* Upcoming inspection */}
-        <div className="border-px flex items-center gap-3 rounded-xl border-[#ffffff14] bg-[#ffffff50] p-4">
-          <div className="bg-ehs-icon-bg flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-            <Icon icon="mdi:calendar-check" className="text-ehs-normal-blue" />
-          </div>
-          <div>
-            <p className="text-ehs-light-text text-sm font-medium">
-              OSHA inspection — Leeds Plant
-            </p>
-            <p className="text-ehs-muted-text text-xs">
-              Scheduled for Thu 5 Jun · Preparation 70% complete
-            </p>
-          </div>
+          <section className={`${panelCardClass} flex items-start gap-3`}>
+            <div className="bg-ehs-normal-blue/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+              <Icon
+                icon="mdi:clipboard-text-outline"
+                className="text-ehs-normal-blue text-lg"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-ehs-light-text text-sm font-semibold">
+                OSHA inspection — Leeds Plant
+              </p>
+              <p className="text-ehs-muted-text text-xs leading-relaxed">
+                Scheduled for Thu 5 Jun · Preparation 78% complete
+              </p>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -146,7 +134,7 @@ function LeftPanel() {
 function RightPanel() {
   return (
     <div
-      className="flex items-center justify-center p-8"
+      className="flex items-center justify-center h-full p-8"
       style={{ background: "var(--ehs-light-bg)" }}
     >
       <div className="w-full max-w-sm space-y-6">
@@ -216,11 +204,12 @@ function RightPanel() {
 export default function LoginPage() {
   return (
     <div className="grid h-screen lg:grid-cols-2">
-      {/* ── Left panel ── */}
-      <LeftPanel />
-
-      {/* ── Right panel ── */}
-      <RightPanel />
+      <div className="relative h-screen overflow-hidden">
+        <LeftPanel />
+      </div>
+      <div className="relative min-h-screen overflow-y-auto">
+        <RightPanel />
+      </div>
     </div>
   );
 }
