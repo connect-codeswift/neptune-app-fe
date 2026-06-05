@@ -25,12 +25,12 @@ function getStepBadgeClass(isCompleted: boolean, isActive: boolean) {
 
 function getStepLabelClass(isCompleted: boolean, isActive: boolean) {
   if (isCompleted) {
-    return "text-sm font-medium text-ehs-green";
+    return "text-[0.936cqw] font-medium text-ehs-green";
   }
   if (isActive) {
-    return "text-sm font-semibold text-ehs-darker";
+    return "text-[0.936cqw] font-semibold text-ehs-darker";
   }
-  return "text-sm text-ehs-muted-text";
+  return "text-[0.936cqw] text-ehs-muted-text";
 }
 
 export function Stepper(props: Readonly<StepperProps>) {
@@ -41,7 +41,7 @@ export function Stepper(props: Readonly<StepperProps>) {
       aria-label={ariaLabel}
       className={["w-full max-w-2xl", className].filter(Boolean).join(" ")}
     >
-      <ol className="bg-ehs-light-bg space-x-2 flex items-center rounded-xl p-2">
+      <ol className="flex items-center gap-[0.4cqw] rounded-xl border border-white/60 bg-white/40 p-[0.4cqw] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_8px_24px_-12px_rgba(15,76,92,0.25)] backdrop-blur-xl backdrop-saturate-150">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
           const isActive = stepNumber === currentStep;
@@ -52,7 +52,7 @@ export function Stepper(props: Readonly<StepperProps>) {
               key={`${stepNumber}-${step.label}`}
               aria-current={isActive ? "step" : undefined}
               className={[
-                "flex flex-1 items-center gap-2 rounded-lg px-3 py-2.5 transition-colors",
+                "flex flex-1 items-center gap-[0.4cqw] rounded-lg px-[0.664cqw] py-[0.4cqw] transition-colors",
                 isActive ? "bg-white shadow-sm" : "",
               ]
                 .filter(Boolean)
@@ -61,12 +61,12 @@ export function Stepper(props: Readonly<StepperProps>) {
               <span
                 aria-hidden="true"
                 className={[
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                  "flex h-[1.6cqw] w-[1.6cqw] shrink-0 items-center justify-center rounded-full text-[0.8cqw] font-semibold",
                   getStepBadgeClass(isCompleted, isActive),
                 ].join(" ")}
               >
                 {isCompleted ? (
-                  <Icon icon="mdi:check" className="text-sm" />
+                  <Icon icon="mdi:check" className="text-[0.936cqw]" />
                 ) : (
                   stepNumber
                 )}

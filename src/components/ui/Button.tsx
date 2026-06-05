@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { authButtonSizeClass } from "@/lib/auth-cqw-classes";
 import {
   ehsButtonBaseClass,
   ehsButtonPrimaryClass,
@@ -11,6 +12,7 @@ export type ButtonProps = Readonly<
     children: ReactNode;
     variant: "primary" | "secondary" | "tertiary";
     type: "button" | "submit" | "reset";
+    scale?: "auth";
   }
 >;
 
@@ -21,12 +23,17 @@ const variantClassName: Record<NonNullable<ButtonProps["variant"]>, string> = {
 };
 
 export function Button(props: Readonly<ButtonProps>) {
-  const { children, variant, className, type, ...rest } = props;
+  const { children, variant, className, type, scale, ...rest } = props;
 
   return (
     <button
       type={type}
-      className={[ehsButtonBaseClass, variantClassName[variant], className]
+      className={[
+        ehsButtonBaseClass,
+        variantClassName[variant],
+        scale === "auth" ? authButtonSizeClass : "",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
       {...rest}

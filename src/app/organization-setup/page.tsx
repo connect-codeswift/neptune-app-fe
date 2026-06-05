@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { LogoIcon } from "@/components/LogoIcon";
 import { Stepper } from "@/components/Stepper";
 import { CompanySetupStep } from "@/components/organization-setup/CompanySetupStep";
 import { InviteTeamStep } from "@/components/organization-setup/InviteTeamStep";
@@ -15,6 +14,7 @@ import {
   type SiteInfo,
 } from "@/components/organization-setup/constants";
 import { useUnloadWarning } from "@/hooks/useUnloadWarning";
+import { ShadeBall } from "@/components/ShadeBall";
 
 export default function OrganizationSetupPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,17 +31,19 @@ export default function OrganizationSetupPage() {
   };
 
   return (
-    <main className="from-ehs-light-blue min-h-screen bg-linear-to-b via-white to-white px-4 py-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-8">
-        <LogoIcon />
+    <main className="relative flex h-screen w-full flex-col overflow-hidden">
+      <ShadeBall positionAsClassName="top-[-150px] left-[-150px]" />
+      <ShadeBall positionAsClassName="bottom-[-150px] right-[-150px]" />
+
+      <div className="mx-auto flex min-h-0 w-full max-w-[50cqw] flex-1 flex-col items-center gap-[0.8cqw] overflow-hidden py-[1cqw]">
         <Stepper
           steps={ONBOARDING_STEPS}
           currentStep={currentStep}
           ariaLabel="Onboarding progress"
-          className="max-w-none"
+          className="max-w-none shrink-0"
         />
 
-        <div className="w-full rounded-2xl bg-white p-12 shadow-lg">
+        <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
           {currentStep === 1 ? (
             <CompanySetupStep
               organizationName={organizationName}
