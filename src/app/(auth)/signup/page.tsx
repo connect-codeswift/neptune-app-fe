@@ -1,164 +1,167 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { LogoIcon } from "@/components/LogoIcon";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
 
-const benefits = [
+const features = [
   {
-    icon: "mdi:clipboard-check-outline",
-    title: "Incident tracking",
-    description: "Log and triage events across every site in one place.",
+    title: "Incident Management",
+    description: "Report and close incidents faster",
   },
   {
-    icon: "mdi:shield-check",
-    title: "CAPA workflows",
-    description: "Assign corrective actions and track completion.",
+    title: "Compliance Audits",
+    description: "300+ templates, audit-ready instantly",
   },
   {
-    icon: "mdi:calendar-check",
-    title: "Inspection readiness",
-    description: "Stay ahead of audits with scheduled checklists.",
+    title: "Sustainability & ESG",
+    description: "Track emissions, generate GRI reports",
   },
-];
+  {
+    title: "SOC 2 Type II",
+    description: "Enterprise-grade security, always on",
+  },
+] as const;
 
-export default function SignupPage() {
+function LeftPanel() {
   return (
-    <div className="grid h-screen lg:grid-cols-2">
-      {/* ── Left panel ── */}
-      <div className="bg-ehs-dark-bg relative hidden flex-col justify-between overflow-hidden p-10 lg:flex">
-        <div className="bg-ehs-normal-blue pointer-events-none absolute -top-32 -right-32 h-125 w-125 rounded-full opacity-20 blur-3xl" />
+    <div className="from-ehs-light-blue relative hidden h-full flex-col justify-between overflow-hidden bg-linear-to-br via-white to-ehs-light-blue/60 p-10 lg:flex">
+      <div className="relative z-10 space-y-10">
+        <LogoIcon />
 
-        <div className="relative z-10 flex items-center gap-2">
-          <div className="bg-ehs-normal-blue flex h-8 w-8 items-center justify-center rounded-lg">
-            <Icon
-              icon="mdi:shield-check"
-              className="text-ehs-light-text text-lg"
-            />
-          </div>
-          <span className="text-ehs-light-text text-base font-semibold tracking-tight">
-            Neptune
-          </span>
-        </div>
-
-        <div className="relative z-10 mt-6 space-y-3">
-          <p className="text-ehs-muted-text text-xs font-semibold tracking-widest uppercase">
-            Built for EHS teams
-          </p>
-          <h1 className="text-ehs-light-text text-4xl leading-tight font-bold">
-            One workspace for
-            <br />
-            safety and compliance.
+        <div className="max-w-md space-y-4">
+          <h1 className="text-ehs-darker text-4xl leading-tight font-bold">
+            Safety management, finally unified.
           </h1>
+          <p className="text-ehs-muted-text text-sm leading-relaxed">
+            Join 2,400+ sites using Neptune to manage incidents, audits, CAPAs,
+            and sustainability — all in one place.
+          </p>
         </div>
 
-        <ul className="relative z-10 space-y-4 pb-2">
-          {benefits.map((item) => (
-            <li
-              key={item.title}
-              className="border-px flex items-start gap-3 rounded-xl border-[#ffffff14] bg-[#ffffff50] p-4"
-            >
-              <div className="bg-ehs-icon-bg flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-                <Icon icon={item.icon} className="text-ehs-normal-blue" />
-              </div>
-              <div>
-                <p className="text-ehs-light-text text-sm font-medium">
-                  {item.title}
-                </p>
-                <p className="text-ehs-muted-text mt-0.5 text-xs">
-                  {item.description}
-                </p>
-              </div>
+        <ul className="max-w-md space-y-5">
+          {features.map((item) => (
+            <li key={item.title} className="space-y-1">
+              <p className="text-ehs-darker text-sm font-semibold">
+                {item.title}
+              </p>
+              <p className="text-ehs-muted-text text-sm">{item.description}</p>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* ── Right panel ── */}
-      <div
-        className="flex items-center justify-center p-8"
-        style={{ background: "var(--ehs-light-bg)" }}
-      >
-        <div className="w-full max-w-sm space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-3xl font-bold text-ehs-darker">
-              Create your account.
-            </h2>
-            <p className="text-ehs-muted-text text-sm">
-              Start your Neptune workspace in minutes.
-            </p>
-          </div>
+      <div className="bg-ehs-light-blue relative z-10 mt-10 max-w-md rounded-xl px-5 py-4">
+        <p className="text-ehs-darker text-sm font-semibold">
+          30-day free trial, full access
+        </p>
+        <p className="text-ehs-muted-text mt-1 text-sm">
+          No credit card required. Cancel anytime.
+        </p>
+      </div>
+    </div>
+  );
+}
 
-          <Button
-            type="button"
-            variant="tertiary"
-            className="w-full gap-3 font-medium"
-          >
-            <Icon icon="flat-color-icons:google" className="text-lg" />
-            Continue with Google
-          </Button>
-
-          <div className="flex items-center gap-3">
-            <hr className="flex-1 border-ehs-border" />
-            <span className="text-ehs-muted-text text-xs">
-              or sign up with email
-            </span>
-            <hr className="flex-1 border-ehs-border" />
-          </div>
-
-          <form className="space-y-4">
-            <TextInput
-              id="name"
-              name="name"
-              label="Full name"
-              type="text"
-              autoComplete="name"
-              placeholder="Sarah Nordvik"
-              required
-            />
-
-            <EmailInput
-              id="email"
-              name="email"
-              label="Email address"
-              placeholder="sarah@nordvik.com"
-              required
-            />
-
-            <Password
-              id="password"
-              name="password"
-              label="Password"
-              autoComplete="new-password"
-              placeholder="Create a password"
-              required
-            />
-
-            <Password
-              id="confirm-password"
-              name="confirmPassword"
-              label="Confirm password"
-              autoComplete="new-password"
-              placeholder="Confirm your password"
-              required
-            />
-
-            <Button type="submit" variant="primary" className="w-full">
-              Create account
-              <Icon icon="mdi:arrow-right" />
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-ehs-muted-text">
-            Already have an account?{" "}
-            <ScrollLink href="/login" className="font-semibold">
-              Sign in
-            </ScrollLink>
+function RightPanel() {
+  return (
+    <div
+      className="flex items-center justify-center p-8"
+      style={{ background: "var(--ehs-light-bg)" }}
+    >
+      <div className="w-full max-w-sm space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-ehs-darker text-3xl font-bold">
+            Create your account.
+          </h2>
+          <p className="text-ehs-muted-text text-sm">
+            Start your Neptune workspace in minutes.
           </p>
         </div>
+
+        <Button
+          type="button"
+          variant="tertiary"
+          className="w-full gap-3 font-medium"
+        >
+          <Icon icon="flat-color-icons:google" className="text-lg" />
+          Continue with Google
+        </Button>
+
+        <div className="flex items-center gap-3">
+          <hr className="border-ehs-border flex-1" />
+          <span className="text-ehs-muted-text text-xs">
+            or sign up with email
+          </span>
+          <hr className="border-ehs-border flex-1" />
+        </div>
+
+        <form className="space-y-4">
+          <TextInput
+            id="name"
+            name="name"
+            label="Full name"
+            type="text"
+            autoComplete="name"
+            placeholder="Sarah Nordvik"
+            required
+          />
+
+          <EmailInput
+            id="email"
+            name="email"
+            label="Email address"
+            placeholder="sarah@nordvik.com"
+            required
+          />
+
+          <Password
+            id="password"
+            name="password"
+            label="Password"
+            autoComplete="new-password"
+            placeholder="Create a password"
+            required
+          />
+
+          <Password
+            id="confirm-password"
+            name="confirmPassword"
+            label="Confirm password"
+            autoComplete="new-password"
+            placeholder="Confirm your password"
+            required
+          />
+
+          <Button type="submit" variant="primary" className="w-full">
+            Create account
+            <Icon icon="mdi:arrow-right" />
+          </Button>
+        </form>
+
+        <p className="text-ehs-muted-text text-center text-sm">
+          Already have an account?{" "}
+          <ScrollLink href="/login" className="font-semibold">
+            Sign in
+          </ScrollLink>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <div className="relative grid h-screen lg:grid-cols-2">
+      <div className="relative h-screen overflow-y-hidden">
+        <LeftPanel />
+      </div>
+      <div className="relative min-h-screen overflow-y-auto">
+        <RightPanel />
       </div>
     </div>
   );
