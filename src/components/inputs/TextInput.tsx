@@ -1,9 +1,10 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
-import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/components/ui/ehs-classes";
+import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/lib/ehs-classes";
 
 export type TextInputProps = Readonly<
-  InputHTMLAttributes<HTMLInputElement> & {
+  Omit<InputHTMLAttributes<HTMLInputElement>, "placeholder"> & {
     label?: ReactNode;
+    placeholder: string;
     labelClassName?: string;
     wrapperClassName?: string;
   }
@@ -12,6 +13,7 @@ export type TextInputProps = Readonly<
 export function TextInput(props: Readonly<TextInputProps>) {
   const {
     label,
+    placeholder,
     labelClassName = ehsLabelClass,
     wrapperClassName = ehsFieldClass,
     className,
@@ -27,6 +29,7 @@ export function TextInput(props: Readonly<TextInputProps>) {
     <input
       id={id}
       type={type}
+      placeholder={placeholder}
       className={[ehsInputClass, className].filter(Boolean).join(" ")}
       {...rest}
     />
