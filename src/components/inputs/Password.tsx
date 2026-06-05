@@ -15,8 +15,9 @@ import {
 } from "@/lib/ehs-classes";
 
 export type PasswordProps = Readonly<
-  Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
+  Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "placeholder"> & {
     label?: ReactNode;
+    placeholder: string;
     labelClassName?: string;
     wrapperClassName?: string;
   }
@@ -25,6 +26,7 @@ export type PasswordProps = Readonly<
 export function Password(props: Readonly<PasswordProps>) {
   const {
     label,
+    placeholder,
     labelClassName = ehsLabelClass,
     wrapperClassName = ehsFieldClass,
     className,
@@ -42,6 +44,7 @@ export function Password(props: Readonly<PasswordProps>) {
       <input
         id={id}
         type={visible ? "text" : "password"}
+        placeholder={placeholder}
         autoComplete={autoComplete}
         className={[ehsInputClass, "pr-10", className]
           .filter(Boolean)
