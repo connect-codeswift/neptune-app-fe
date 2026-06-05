@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentProps, MouseEvent } from "react";
-import { ehsLinkClass } from "@/components/ui/ehs-classes";
+import { ehsLinkClass } from "@/lib/ehs-classes";
 
 export type ScrollLinkProps = Readonly<ComponentProps<typeof Link>>;
 

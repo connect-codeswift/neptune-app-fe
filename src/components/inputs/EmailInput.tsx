@@ -1,5 +1,5 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
-import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/components/ui/ehs-classes";
+import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/lib/ehs-classes";
 
 export type EmailInputProps = Readonly<
   Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {

@@ -24,3 +24,21 @@ export const ehsButtonSecondaryClass =
 
 export const ehsButtonTertiaryClass =
   "border border-ehs-border bg-ehs-light-text text-ehs-gray hover:bg-ehs-light-bg";
+
+export const ehsIconButtonBaseClass =
+  "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:pointer-events-none disabled:opacity-50";
+
+export const ehsIconButtonPrimaryClass =
+  "bg-ehs-normal-blue text-ehs-light-text shadow-sm hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
+
+export const ehsIconButtonSecondaryClass =
+  "bg-ehs-light-blue text-ehs-darker shadow-sm hover:bg-ehs-light-blue-hover active:bg-ehs-light-blue-active";
+
+export const ehsIconButtonTertiaryClass =
+  "border border-ehs-border bg-ehs-light-text text-ehs-gray shadow-sm hover:bg-ehs-light-bg";
+
+export const ehsIconButtonGhostClass =
+  "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-gray";
+
+export const ehsTextButtonClass =
+  "inline-flex items-center gap-1 rounded bg-transparent p-0 text-sm font-medium text-ehs-normal-blue transition-colors hover:text-ehs-normal-blue-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:pointer-events-none disabled:opacity-50";

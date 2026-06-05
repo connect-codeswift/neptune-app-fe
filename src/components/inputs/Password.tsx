@@ -1,13 +1,18 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useId, useState, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useId,
+  useState,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 import {
   ehsFieldClass,
   ehsIconButtonClass,
   ehsInputClass,
   ehsLabelClass,
-} from "@/components/ui/ehs-classes";
+} from "@/lib/ehs-classes";
 
 export type PasswordProps = Readonly<
   Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & {
@@ -38,14 +43,16 @@ export function Password(props: Readonly<PasswordProps>) {
         id={id}
         type={visible ? "text" : "password"}
         autoComplete={autoComplete}
-        className={[ehsInputClass, "pr-10", className].filter(Boolean).join(" ")}
+        className={[ehsInputClass, "pr-10", className]
+          .filter(Boolean)
+          .join(" ")}
         {...rest}
       />
       <button
         type="button"
         tabIndex={-1}
         aria-label={visible ? "Hide password" : "Show password"}
-        className={`absolute right-3 top-1/2 -translate-y-1/2 ${ehsIconButtonClass}`}
+        className={`absolute top-1/2 right-3 -translate-y-1/2 ${ehsIconButtonClass}`}
         onClick={() => setVisible((v) => !v)}
       >
         <Icon icon={visible ? "mdi:eye-off-outline" : "mdi:eye-outline"} />

@@ -4,7 +4,7 @@ import {
   ehsButtonPrimaryClass,
   ehsButtonSecondaryClass,
   ehsButtonTertiaryClass,
-} from "@/components/ui/ehs-classes";
+} from "@/lib/ehs-classes";
 
 export type ButtonProps = Readonly<
   ButtonHTMLAttributes<HTMLButtonElement> & {
