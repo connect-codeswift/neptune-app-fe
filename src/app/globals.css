@@ -77,12 +77,3 @@ body {
   font-family: var(--font-inter);
   min-height: 100vh;
 }
-
-@utility scrollbar-hidden {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}

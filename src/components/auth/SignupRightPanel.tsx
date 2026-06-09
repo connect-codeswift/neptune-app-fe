@@ -61,7 +61,12 @@ export default function SignupRightPanel() {
           </p>
         </div>
 
-        <Button type="button" variant="tertiary" className="w-full font-medium">
+        <Button
+          onClick={() => router.push("/onboarding")}
+          type="button"
+          variant="tertiary"
+          className="w-full font-medium"
+        >
           <Icon icon="flat-color-icons:google" className="text-sm" />
           Continue with Google
         </Button>
@@ -98,7 +103,8 @@ export default function SignupRightPanel() {
             name="password"
             label="Password"
             autoComplete="new-password"
-            placeholder="Create a password"
+            placeholder="Create a strong password"
+            showStrengthMeter
             required
           />
 
@@ -111,6 +117,29 @@ export default function SignupRightPanel() {
             required
             onChange={() => setPasswordMismatch("")}
           />
+
+          <div className="flex items-start gap-2">
+            <input
+              id="accept-terms"
+              type="checkbox"
+              name="acceptTerms"
+              required
+              className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 mt-0.5 size-4 shrink-0 rounded focus:ring-2"
+            />
+            <p className="text-ehs-muted-text text-xs leading-relaxed">
+              <label htmlFor="accept-terms" className="cursor-pointer">
+                I agree to Neptune&apos;s{" "}
+              </label>
+              <ScrollLink href="/tos" className="font-semibold">
+                Terms of Service
+              </ScrollLink>{" "}
+              and{" "}
+              <ScrollLink href="/privacy" className="font-semibold">
+                Privacy Policy
+              </ScrollLink>
+              .
+            </p>
+          </div>
 
           {passwordMismatch ? (
             <Text as="p" className="text-ehs-red text-xs" role="alert">
