@@ -13,7 +13,7 @@ export function Accordion(props: Readonly<AccordionProps>) {
 
   return (
     <div
-      className={["flex flex-col gap-[0.4cqw]", className]
+      className={["flex flex-col gap-1", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -58,23 +58,23 @@ export function AccordionItem(props: Readonly<AccordionItemProps>) {
             : "border-ehs-border bg-white",
       ].join(" ")}
     >
-      <div className="flex items-center gap-[0.4cqw] px-[0.8cqw] py-[0.536cqw]">
+      <div className="flex items-center gap-1 px-2 py-1.5">
         <button
           type="button"
           id={triggerId}
           aria-expanded={isOpen}
           aria-controls={panelId}
           onClick={onToggle}
-          className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-[0.536cqw] text-left"
+          className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-1.5 text-left"
         >
-          <div className="min-w-0 flex flex-col gap-[0.264cqw]">
+          <div className="min-w-0 flex flex-col gap-1">
             {title}
             {!isOpen && subtitle ? subtitle : null}
           </div>
           <Icon
             icon="mdi:chevron-down"
             className={[
-              "text-ehs-muted-text shrink-0 text-[1.2cqw] transition-transform",
+              "text-ehs-muted-text shrink-0 text-lg transition-transform",
               isOpen ? "rotate-180" : "",
             ].join(" ")}
             aria-hidden="true"
@@ -87,7 +87,7 @@ export function AccordionItem(props: Readonly<AccordionItemProps>) {
         <div
           id={panelId}
           aria-labelledby={triggerId}
-          className="border-ehs-border border-t px-[0.8cqw] pt-[0.536cqw] pb-[0.8cqw]"
+          className="border-ehs-border border-t px-2 pt-1.5 pb-2"
         >
           {children}
         </div>

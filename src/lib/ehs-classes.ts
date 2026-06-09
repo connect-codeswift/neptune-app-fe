@@ -11,7 +11,7 @@ export const ehsSelectClass =
   "w-full cursor-pointer rounded-lg border border-ehs-border bg-ehs-light-text px-3.5 py-2.5 text-sm text-ehs-darker shadow-sm outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
 export const ehsLinkClass =
-  "text-ehs-normal-blue transition-colors hover:text-ehs-normal-blue-hover";
+  "text-sm text-ehs-normal-blue transition-colors hover:text-ehs-normal-blue-hover";
 
 export const ehsIconButtonClass =
   "cursor-pointer text-ehs-muted-text transition-colors hover:text-ehs-gray";
