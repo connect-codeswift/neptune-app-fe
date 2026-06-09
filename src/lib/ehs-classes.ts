@@ -20,7 +20,7 @@ export const ehsButtonBaseClass =
   "inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50";
 
 export const ehsButtonPrimaryClass =
-  "bg-ehs-normal-blue text-ehs-light-text shadow-md shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
+  "btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-md shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
 
 export const ehsButtonSecondaryClass =
   "bg-ehs-light-blue text-ehs-darker shadow-sm hover:bg-ehs-light-blue-hover active:bg-ehs-light-blue-active";

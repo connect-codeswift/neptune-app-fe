@@ -1,44 +1,50 @@
 export const ONBOARDING_STEPS = [
-  { label: "Company setup" },
-  { label: "Modules" },
-  { label: "Invite team" },
+  { label: "Company setup", description: "Org & sites" },
+  { label: "Modules", description: "Pick your tools" },
+  { label: "Invite team", description: "Bring people in" },
 ] as const;
 
 export const MODULES = [
   {
     id: "incident-management",
     title: "Incident Management",
-    description: "Report, investigate, and close safety incidents.",
+    description: "Report, route & close incidents",
+    icon: "mdi:alert-outline",
     defaultEnabled: true,
   },
   {
-    id: "capa-tracking",
-    title: "CAPA Tracking",
-    description: "Assign corrective actions and track completion.",
+    id: "hazard-near-miss",
+    title: "Hazard & Near-Miss",
+    description: "Spot risks before they escalate",
+    icon: "mdi:alert-outline",
     defaultEnabled: true,
   },
   {
-    id: "compliance-audits",
-    title: "Compliance Audits",
-    description: "300+ audit templates, mobile evidence capture.",
+    id: "capa-investigations",
+    title: "CAPA & Investigations",
+    description: "Corrective & preventive actions",
+    icon: "mdi:clipboard-text-outline",
     defaultEnabled: true,
   },
   {
-    id: "permit-management",
-    title: "Permit Management",
-    description: "Digital permits-to-work with approval workflows.",
+    id: "inspections-audits",
+    title: "Inspections & Audits",
+    description: "Scheduled checks & compliance",
+    icon: "mdi:shield-check-outline",
     defaultEnabled: false,
   },
   {
-    id: "sustainability-esg",
-    title: "Sustainability & ESG",
-    description: "Carbon, waste, water tracking and GRI reports.",
+    id: "training-competency",
+    title: "Training & Competency",
+    description: "Certifications & refreshers",
+    icon: "mdi:medal-outline",
     defaultEnabled: false,
   },
   {
-    id: "training-records",
-    title: "Training Records",
-    description: "Competency tracking with expiry notifications.",
+    id: "environmental",
+    title: "Environmental",
+    description: "Emissions, waste & water",
+    icon: "mdi:leaf",
     defaultEnabled: false,
   },
 ] as const;
@@ -174,6 +180,18 @@ export type SiteInfo = Readonly<{
   industry: Industry;
   companySize: CompanySize;
 }>;
+
+export function countConfiguredSites(sites: readonly SiteInfo[]) {
+  const configured = sites.filter(
+    (site) =>
+      site.siteName.trim() ||
+      site.region.trim() ||
+      site.industry ||
+      site.companySize,
+  ).length;
+
+  return configured > 0 ? configured : sites.length;
+}
 
 export const emptySiteInfo = (id: string): SiteInfo => ({
   id,

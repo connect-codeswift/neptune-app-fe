@@ -17,7 +17,7 @@ export function ShadeBall(props: Readonly<ShadeBallProps>) {
     <div
       aria-hidden="true"
       className={[
-        "bg-ehs-normal-blue/12 pointer-events-none absolute -z-10 overflow-clip rounded-full",
+        "bg-ehs-normal-blue/12 pointer-events-none absolute overflow-clip rounded-full",
         positionAsClassName,
         className,
       ]
