@@ -25,6 +25,8 @@ export function Accordion(props: Readonly<AccordionProps>) {
 export type AccordionItemProps = Readonly<{
   title: ReactNode;
   subtitle?: ReactNode;
+  /** Leading visual rendered before the title, e.g. an icon badge */
+  icon?: ReactNode;
   isOpen: boolean;
   onToggle: () => void;
   children: ReactNode;
@@ -34,10 +36,21 @@ export type AccordionItemProps = Readonly<{
   hasError?: boolean;
 }>;
 
+function getAccordionItemClass(hasError: boolean, isOpen: boolean) {
+  if (hasError) {
+    return "border-ehs-red bg-ehs-red/5";
+  }
+  if (isOpen) {
+    return "border-ehs-light-blue-active/60 bg-ehs-light-blue/20";
+  }
+  return "border-ehs-border bg-white";
+}
+
 export function AccordionItem(props: Readonly<AccordionItemProps>) {
   const {
     title,
     subtitle,
+    icon,
     isOpen,
     onToggle,
     children,
@@ -50,12 +63,8 @@ export function AccordionItem(props: Readonly<AccordionItemProps>) {
   return (
     <section
       className={[
-        "overflow-hidden rounded-xl border transition-colors",
-        hasError
-          ? "border-ehs-red bg-ehs-red/5"
-          : isOpen
-            ? "border-ehs-light-blue-active/60 bg-ehs-light-blue/20"
-            : "border-ehs-border bg-white",
+        "overflow-hidden rounded-xl border mt-2 transition-colors",
+        getAccordionItemClass(hasError, isOpen),
       ].join(" ")}
     >
       <div className="flex items-center gap-1 px-2 py-1.5">
@@ -67,9 +76,12 @@ export function AccordionItem(props: Readonly<AccordionItemProps>) {
           onClick={onToggle}
           className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-1.5 text-left"
         >
-          <div className="min-w-0 flex flex-col gap-1">
-            {title}
-            {!isOpen && subtitle ? subtitle : null}
+          <div className="flex min-w-0 items-center gap-2">
+            {icon ?? null}
+            <div className="flex min-w-0 flex-col gap-1">
+              {title}
+              {!isOpen && subtitle ? subtitle : null}
+            </div>
           </div>
           <Icon
             icon="mdi:chevron-down"

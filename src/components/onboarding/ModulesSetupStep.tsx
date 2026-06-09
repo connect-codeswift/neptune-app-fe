@@ -11,7 +11,7 @@ import {
   type ModuleState,
 } from "@/components/onboarding/constants";
 import { Button } from "@/components/ui/Button";
-import { Toggle } from "@/components/ui/Toggle";
+import { Check } from "@/components/ui/Check";
 
 const MODULE_REQUIRED_MESSAGE = "Select at least one module to continue.";
 
@@ -51,95 +51,97 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
     <>
       <div className="flex flex-col gap-1">
         <Text as="h1" className="text-ehs-darker text-2xl font-bold">
-          Activate your modules.
+          Which modules do you need?
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text text-sm leading-snug"
+          className="text-ehs-muted-text max-w-xl text-sm leading-snug"
         >
-          Toggle the EHSS modules your organisation needs. You can activate or
-          deactivate modules at any time.
+          Pick the areas to switch on for your team. You can add or remove
+          modules anytime in settings.
         </Text>
       </div>
 
-      <ul className="mt-2 flex flex-col gap-2">
+      <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-4">
         {MODULES.map((module) => {
           const isActive = moduleState[module.id];
 
           return (
-            <li
-              key={module.id}
-              className={[
-                "flex items-center justify-between gap-2 rounded-xl border px-2 py-1.5 transition-colors",
-                isActive
-                  ? "border-ehs-light-blue-active/60 bg-ehs-light-blue/40"
-                  : "border-ehs-border bg-white",
-              ].join(" ")}
-            >
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <Text
-                  as="h2"
-                  className="text-ehs-darker text-sm leading-snug font-semibold"
-                >
-                  {module.title}
-                </Text>
-                <Text
-                  as="p"
-                  className="text-ehs-muted-text text-xs leading-snug"
-                >
-                  {module.description}
-                </Text>
-              </div>
-              <Toggle
-                id={module.id}
-                checked={moduleState[module.id]}
-                onChange={(checked) => handleModuleToggle(module.id, checked)}
-                aria-label={`Toggle ${module.title}`}
-              />
+            <li key={module.id}>
+              <button
+                type="button"
+                aria-pressed={isActive}
+                aria-label={`${isActive ? "Deselect" : "Select"} ${module.title}`}
+                onClick={() => handleModuleToggle(module.id, !isActive)}
+                className={[
+                  "focus-visible:ring-ehs-normal-blue/20 cursor-pointer flex h-full w-full items-center gap-4 rounded-xl border px-4 py-4 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none",
+                  isActive
+                    ? "border-ehs-normal-blue/40 bg-ehs-light-blue"
+                    : "border-ehs-border bg-white",
+                ].join(" ")}
+              >
+                <span className="border-ehs-border flex size-13 shrink-0 items-center justify-center rounded-2xl border bg-white">
+                  <Icon
+                    icon={module.icon}
+                    className="text-ehs-gray text-2xl"
+                    aria-hidden="true"
+                  />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <Text
+                    as="span"
+                    className="text-ehs-darker block text-sm leading-snug font-semibold lg:text-base"
+                  >
+                    {module.title}
+                  </Text>
+                  <Text
+                    as="span"
+                    className="text-ehs-muted-text block text-xs leading-snug lg:text-sm"
+                  >
+                    {module.description}
+                  </Text>
+                </div>
+                <Check checked={isActive} />
+              </button>
             </li>
           );
         })}
       </ul>
 
       {error ? (
-        <Text
-          as="p"
-          className="text-ehs-red mt-1.5 text-sm"
-          role="alert"
-        >
+        <Text as="p" className="text-ehs-red mt-2 text-sm" role="alert">
           {error}
         </Text>
       ) : null}
 
-      <div className="mt-2 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-ehs-gray border-ehs-border hover:text-ehs-darker cursor-pointer rounded-lg border px-2 py-1 text-sm font-medium transition-colors"
-        >
-          Back
-        </button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={handleContinue}
-          disabled={!hasActiveModule(moduleState)}
-        >
-          Continue
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
+        <Button type="button" variant="tertiary" onClick={onBack}>
           <Icon
-            icon="mdi:chevron-right"
+            icon="mdi:chevron-left"
             className="text-lg"
             aria-hidden="true"
           />
+          Back
         </Button>
-      </div>
 
-      <Text
-        as="p"
-        className="text-ehs-muted-text mt-2 text-center text-sm"
-      >
-        Step 2 of 3 · Your progress is saved automatically
-      </Text>
+        <div className="flex items-center gap-4">
+          <span className="text-ehs-muted-text flex items-center gap-2 text-sm">
+            <span
+              aria-hidden="true"
+              className="bg-ehs-green size-2 rounded-full"
+            />
+            <span>Progress saved automatically</span>
+          </span>
+          <Button type="submit" variant="primary" onClick={handleContinue}>
+            Continue
+            <Icon
+              icon="mdi:chevron-right"
+              className="text-lg"
+              aria-hidden="true"
+            />
+          </Button>
+        </div>
+      </div>
     </>
   );
 }
