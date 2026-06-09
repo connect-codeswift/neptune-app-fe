@@ -7,17 +7,17 @@ const panelCardClass =
 
 const incidents = [
   {
-    title: "Chemical spill - Storage B",
+    title: "Chemical spill — Storage B",
     location: "Birmingham Plant",
     time: "12 min ago",
   },
   {
-    title: "Machine stoppage - Line 4",
+    title: "Machine stoppage — Line 4",
     location: "Leeds Plant",
     time: "1 hr ago",
   },
   {
-    title: "Near miss - Loading bay",
+    title: "Near miss — Loading bay",
     location: "Manchester Depot",
     time: "3 hrs ago",
   },
@@ -36,7 +36,7 @@ const capas = [
   },
 ] as const;
 
-export default function LoginLeftPanel() {
+export default function ForgotPasswordLeftPanel() {
   return (
     <div className="bg-ehs-dark-bg relative hidden h-full flex-col justify-center overflow-hidden px-12 py-2 lg:flex">
       <ShadeBall positionAsClassName="top-[-150px] left-[-150px]" blur={40} />

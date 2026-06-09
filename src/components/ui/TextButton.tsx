@@ -1,23 +1,20 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { authTextButtonClass } from "@/lib/auth-cqw-classes";
 import { ehsTextButtonClass } from "@/lib/ehs-classes";
 
 export type TextButtonProps = Readonly<
   ButtonHTMLAttributes<HTMLButtonElement> & {
     children: ReactNode;
     type: "button" | "submit" | "reset";
-    scale?: "auth";
   }
 >;
 
 export function TextButton(props: Readonly<TextButtonProps>) {
-  const { children, className, type, scale, ...rest } = props;
-  const baseClass = scale === "auth" ? authTextButtonClass : ehsTextButtonClass;
+  const { children, className, type, ...rest } = props;
 
   return (
     <button
       type={type}
-      className={[baseClass, className].filter(Boolean).join(" ")}
+      className={[ehsTextButtonClass, className].filter(Boolean).join(" ")}
       {...rest}
     >
       {children}

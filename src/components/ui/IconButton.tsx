@@ -1,5 +1,4 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { authIconButtonSizeClass } from "@/lib/auth-cqw-classes";
 import {
   ehsIconButtonBaseClass,
   ehsIconButtonGhostClass,
@@ -14,7 +13,6 @@ export type IconButtonProps = Readonly<
     variant: "primary" | "secondary" | "tertiary" | "ghost";
     type: "button" | "submit" | "reset";
     "aria-label": string;
-    scale?: "auth";
   }
 >;
 
@@ -26,18 +24,12 @@ const variantClassName: Record<IconButtonProps["variant"], string> = {
 };
 
 export function IconButton(props: Readonly<IconButtonProps>) {
-  const { children, variant, className, type, scale, ...rest } = props;
+  const { children, variant, className, type, ...rest } = props;
 
   return (
     <button
       type={type}
-      className={[
-        scale === "auth"
-          ? authIconButtonSizeClass
-          : ehsIconButtonBaseClass,
-        variantClassName[variant],
-        className,
-      ]
+      className={[ehsIconButtonBaseClass, variantClassName[variant], className]
         .filter(Boolean)
         .join(" ")}
       {...rest}

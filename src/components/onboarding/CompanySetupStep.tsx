@@ -14,7 +14,7 @@ import {
   type CompanySize,
   type Industry,
   type SiteInfo,
-} from "@/components/organization-setup/constants";
+} from "@/components/onboarding/constants";
 import { Accordion, AccordionItem } from "@/components/ui/Accordion";
 import { Button } from "@/components/ui/Button";
 import { TextButton } from "@/components/ui/TextButton";
@@ -30,16 +30,45 @@ type CompanySetupErrors = Readonly<{
 
 type SiteInfoFieldsProps = Readonly<{
   site: SiteInfo;
-  isPrimary: boolean;
   regionError?: string;
   onFieldChange: (field: keyof Omit<SiteInfo, "id">, value: string) => void;
 }>;
 
 function SiteInfoFields(props: Readonly<SiteInfoFieldsProps>) {
-  const { site, isPrimary, regionError, onFieldChange } = props;
+  const { site, regionError, onFieldChange } = props;
 
   return (
-    <div className="grid grid-cols-1 gap-[0.664cqw] sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <TextInput
+        id={`${site.id}-siteName`}
+        name={`${site.id}-siteName`}
+        label="Site name"
+        placeholder="Leeds Plant"
+        value={site.siteName}
+        onChange={(e) => onFieldChange("siteName", e.target.value)}
+      />
+      <div className="flex flex-col gap-1">
+        <TextInput
+          id={`${site.id}-region`}
+          name={`${site.id}-region`}
+          label="Region"
+          placeholder="United Kingdom"
+          value={site.region}
+          onChange={(e) => onFieldChange("region", e.target.value)}
+          aria-invalid={regionError ? true : undefined}
+          aria-describedby={regionError ? `${site.id}-region-error` : undefined}
+        />
+        {regionError ? (
+          <Text
+            as="p"
+            id={`${site.id}-region-error`}
+            className="text-ehs-red text-xs"
+            role="alert"
+          >
+            {regionError}
+          </Text>
+        ) : null}
+      </div>
       <SelectInput
         id={`${site.id}-industry`}
         name={`${site.id}-industry`}
@@ -47,7 +76,6 @@ function SiteInfoFields(props: Readonly<SiteInfoFieldsProps>) {
         placeholder="Select industry"
         options={INDUSTRY_OPTIONS}
         value={site.industry}
-        scale="auth"
         onChange={(e) => onFieldChange("industry", e.target.value as Industry)}
       />
       <SelectInput
@@ -57,50 +85,19 @@ function SiteInfoFields(props: Readonly<SiteInfoFieldsProps>) {
         placeholder="Select company size"
         options={COMPANY_SIZE_OPTIONS}
         value={site.companySize}
-        scale="auth"
         onChange={(e) =>
           onFieldChange("companySize", e.target.value as CompanySize)
         }
-      />
-      <div className="flex flex-col gap-[0.264cqw]">
-        <TextInput
-          id={`${site.id}-region`}
-          name={`${site.id}-region`}
-          label={isPrimary ? "Primary region" : "Region"}
-          placeholder="United Kingdom"
-          value={site.region}
-          scale="auth"
-          onChange={(e) => onFieldChange("region", e.target.value)}
-          aria-invalid={regionError ? true : undefined}
-          aria-describedby={regionError ? `${site.id}-region-error` : undefined}
-        />
-        {regionError ? (
-          <Text
-            as="p"
-            id={`${site.id}-region-error`}
-            className="text-ehs-red text-[0.864cqw]"
-            role="alert"
-          >
-            {regionError}
-          </Text>
-        ) : null}
-      </div>
-      <TextInput
-        id={`${site.id}-numberOfEmployees`}
-        name={`${site.id}-numberOfEmployees`}
-        label="Number of Employees"
-        type="number"
-        min={0}
-        placeholder="250"
-        value={site.numberOfEmployees}
-        scale="auth"
-        onChange={(e) => onFieldChange("numberOfEmployees", e.target.value)}
       />
     </div>
   );
 }
 
 function getSiteSummary(site: SiteInfo) {
+  if (site.siteName.trim()) {
+    return site.siteName.trim();
+  }
+
   if (site.region.trim()) {
     return site.region.trim();
   }
@@ -228,10 +225,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
           regionBySiteId: prev.regionBySiteId,
         };
 
-        if (
-          !next.sites &&
-          Object.keys(next.regionBySiteId).length === 0
-        ) {
+        if (!next.sites && Object.keys(next.regionBySiteId).length === 0) {
           return null;
         }
 
@@ -272,13 +266,13 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="flex shrink-0 flex-col gap-[0.264cqw]">
-        <Text as="h1" className="text-ehs-darker text-[1.6cqw] font-bold">
+      <div className="flex shrink-0 flex-col gap-1">
+        <Text as="h1" className="text-ehs-darker text-2xl font-bold">
           Let&apos;s set up your workspace.
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text text-[0.936cqw] leading-snug"
+          className="text-ehs-muted-text text-sm leading-snug"
         >
           Tell us about your organisation so Neptune can pre-configure
           compliance templates and defaults for you.
@@ -286,17 +280,16 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
       </div>
 
       <form
-        className="scrollbar-hidden mt-[0.8cqw] flex min-h-0 flex-1 flex-col gap-[0.8cqw] overflow-auto py-4"
+        className="scrollbar-hidden mt-2 flex min-h-0 flex-1 flex-col gap-2 overflow-auto py-4"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col gap-[0.264cqw]">
+        <div className="flex flex-col gap-1">
           <TextInput
             id="organizationName"
             name="organizationName"
             label="Organization Name"
             placeholder="CodeSwift"
             value={organizationName}
-            scale="auth"
             onChange={(e) => handleOrganizationNameChange(e.target.value)}
             aria-invalid={errors?.organizationName ? true : undefined}
             aria-describedby={
@@ -307,7 +300,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
             <Text
               as="p"
               id="organizationName-error"
-              className="text-ehs-red text-[0.864cqw]"
+              className="text-ehs-red text-xs"
               role="alert"
             >
               {errors.organizationName}
@@ -315,7 +308,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-[0.264cqw]">
+        <div className="flex flex-col gap-1">
           <Accordion>
             {sites.map((site, index) => {
               const isOpen = expandedSiteId === site.id;
@@ -335,7 +328,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
                   title={
                     <Text
                       as="span"
-                      className="text-ehs-darker text-[1.064cqw] font-semibold"
+                      className="text-ehs-darker text-sm font-semibold"
                     >
                       {getSiteSectionTitle(index)}
                     </Text>
@@ -343,7 +336,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
                   subtitle={
                     <Text
                       as="span"
-                      className="text-ehs-muted-text text-[0.936cqw]"
+                      className="text-ehs-muted-text text-sm"
                     >
                       {getSiteSummary(site)}
                     </Text>
@@ -351,7 +344,6 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
                   headerAction={
                     <TextButton
                       type="button"
-                      scale="auth"
                       onClick={() => handleClearSite(site.id)}
                     >
                       Clear
@@ -360,7 +352,6 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
                 >
                   <SiteInfoFields
                     site={site}
-                    isPrimary={index === 0}
                     regionError={isOpen ? regionError : undefined}
                     onFieldChange={(field, value) =>
                       handleSiteFieldChange(site.id, field, value)
@@ -372,11 +363,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
           </Accordion>
 
           {errors?.sites && expandedSiteId !== primarySiteId ? (
-            <Text
-              as="p"
-              className="text-ehs-red text-[0.864cqw]"
-              role="alert"
-            >
+            <Text as="p" className="text-ehs-red text-xs" role="alert">
               {errors.sites}
             </Text>
           ) : null}
@@ -386,32 +373,28 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
           <Button
             type="button"
             variant="tertiary"
-            scale="auth"
             onClick={handleAddSite}
-            className="border-ehs-normal-blue text-ehs-normal-blue gap-[0.4cqw] px-[0.8cqw] py-[0.4cqw] text-[0.8cqw]"
+            className="border-ehs-normal-blue text-ehs-normal-blue gap-1 px-2 py-1 text-xs"
           >
             <Icon
               icon="mdi:plus"
-              className="text-[1.064cqw]"
+              className="text-sm"
               aria-hidden="true"
             />
             Add Site
           </Button>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-[0.664cqw] pt-[0.8cqw]">
-          <Button type="submit" variant="primary" scale="auth">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+          <Button type="submit" variant="primary">
             Continue
             <Icon
               icon="mdi:chevron-right"
-              className="text-[1.2cqw]"
+              className="text-lg"
               aria-hidden="true"
             />
           </Button>
-          <Text
-            as="p"
-            className="text-ehs-muted-text text-[0.936cqw]"
-          >
+          <Text as="p" className="text-ehs-muted-text text-sm">
             Step 1 of 3 — Your progress is saved automatically
           </Text>
         </div>
