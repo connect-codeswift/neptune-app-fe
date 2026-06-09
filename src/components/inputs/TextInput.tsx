@@ -1,9 +1,4 @@
 import { useId, type InputHTMLAttributes, type ReactNode } from "react";
-import {
-  authFieldClass,
-  authInputClass,
-  authLabelClass,
-} from "@/lib/auth-cqw-classes";
 import { ehsFieldClass, ehsInputClass, ehsLabelClass } from "@/lib/ehs-classes";
 
 export type TextInputProps = Readonly<
@@ -12,7 +7,6 @@ export type TextInputProps = Readonly<
     placeholder: string;
     labelClassName?: string;
     wrapperClassName?: string;
-    scale?: "auth";
   }
 >;
 
@@ -20,21 +14,13 @@ export function TextInput(props: Readonly<TextInputProps>) {
   const {
     label,
     placeholder,
-    scale,
-    labelClassName,
-    wrapperClassName,
+    labelClassName = ehsLabelClass,
+    wrapperClassName = ehsFieldClass,
     className,
     type = "text",
     id: idProp,
     ...rest
   } = props;
-
-  const isAuthScale = scale === "auth";
-  const resolvedLabelClassName =
-    labelClassName ?? (isAuthScale ? authLabelClass : ehsLabelClass);
-  const resolvedWrapperClassName =
-    wrapperClassName ?? (isAuthScale ? authFieldClass : ehsFieldClass);
-  const baseInputClass = isAuthScale ? authInputClass : ehsInputClass;
 
   const generatedId = useId();
   const id = idProp ?? generatedId;
@@ -44,7 +30,7 @@ export function TextInput(props: Readonly<TextInputProps>) {
       id={id}
       type={type}
       placeholder={placeholder}
-      className={[baseInputClass, className].filter(Boolean).join(" ")}
+      className={[ehsInputClass, className].filter(Boolean).join(" ")}
       {...rest}
     />
   );
@@ -54,8 +40,8 @@ export function TextInput(props: Readonly<TextInputProps>) {
   }
 
   return (
-    <div className={resolvedWrapperClassName}>
-      <label htmlFor={id} className={resolvedLabelClassName}>
+    <div className={wrapperClassName}>
+      <label htmlFor={id} className={labelClassName}>
         {label}
       </label>
       {input}

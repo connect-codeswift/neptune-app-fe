@@ -2,17 +2,22 @@
 
 import { useState } from "react";
 import { Stepper } from "@/components/Stepper";
-import { CompanySetupStep } from "@/components/organization-setup/CompanySetupStep";
-import { InviteTeamStep } from "@/components/organization-setup/InviteTeamStep";
-import { ModulesSetupStep } from "@/components/organization-setup/ModulesSetupStep";
+import { CompanySetupStep } from "@/components/onboarding/CompanySetupStep";
+import { InviteTeamStep } from "@/components/onboarding/InviteTeamStep";
+import { MobileModulesSetupStep } from "@/components/onboarding/MobileModulesSetupStep";
+import { MobileStepper } from "@/components/onboarding/MobileStepper";
+import { ModulesSetupStep } from "@/components/onboarding/ModulesSetupStep";
 import {
   ONBOARDING_STEPS,
+  initialMobileModuleState,
   initialModuleState,
   initialSites,
+  type MobileModuleId,
+  type MobileModuleState,
   type ModuleId,
   type ModuleState,
   type SiteInfo,
-} from "@/components/organization-setup/constants";
+} from "@/components/onboarding/constants";
 import { useUnloadWarning } from "@/hooks/useUnloadWarning";
 import { ShadeBall } from "@/components/ShadeBall";
 
@@ -22,6 +27,8 @@ export default function OrganizationSetupPage() {
   const [sites, setSites] = useState<SiteInfo[]>(initialSites);
   const [moduleState, setModuleState] =
     useState<ModuleState>(initialModuleState);
+  const [mobileModuleState, setMobileModuleState] =
+    useState<MobileModuleState>(initialMobileModuleState);
   const [allowLeave, setAllowLeave] = useState(false);
 
   useUnloadWarning(!allowLeave);
@@ -30,17 +37,33 @@ export default function OrganizationSetupPage() {
     setModuleState((prev) => ({ ...prev, [id]: checked }));
   };
 
+  const handleMobileModuleToggle = (id: MobileModuleId, checked: boolean) => {
+    setMobileModuleState((prev) => ({ ...prev, [id]: checked }));
+  };
+
+  const handleBack = () => {
+    setCurrentStep((step) => Math.max(1, step - 1));
+  };
+
   return (
     <main className="relative flex h-screen w-full flex-col overflow-hidden">
       <ShadeBall positionAsClassName="top-[-150px] left-[-150px]" />
       <ShadeBall positionAsClassName="bottom-[-150px] right-[-150px]" />
 
-      <div className="mx-auto flex min-h-0 w-full max-w-[50cqw] flex-1 flex-col items-center gap-[0.8cqw] overflow-hidden py-[1cqw]">
+      <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col items-center gap-2 overflow-hidden px-4 py-2 lg:px-0">
         <Stepper
           steps={ONBOARDING_STEPS}
           currentStep={currentStep}
           ariaLabel="Onboarding progress"
           className="max-w-none shrink-0"
+        />
+
+        <MobileStepper
+          currentStep={currentStep}
+          totalSteps={ONBOARDING_STEPS.length}
+          onBack={currentStep > 1 ? handleBack : undefined}
+          ariaLabel="Onboarding progress"
+          className="w-full shrink-0 lg:hidden"
         />
 
         <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
@@ -55,12 +78,23 @@ export default function OrganizationSetupPage() {
           ) : null}
 
           {currentStep === 2 ? (
-            <ModulesSetupStep
-              moduleState={moduleState}
-              onModuleToggle={handleModuleToggle}
-              onBack={() => setCurrentStep(1)}
-              onContinue={() => setCurrentStep(3)}
-            />
+            <>
+              <div className="hidden min-h-0 flex-1 flex-col lg:flex">
+                <ModulesSetupStep
+                  moduleState={moduleState}
+                  onModuleToggle={handleModuleToggle}
+                  onBack={handleBack}
+                  onContinue={() => setCurrentStep(3)}
+                />
+              </div>
+              <div className="flex min-h-0 flex-1 flex-col lg:hidden">
+                <MobileModulesSetupStep
+                  moduleState={mobileModuleState}
+                  onModuleToggle={handleMobileModuleToggle}
+                  onContinue={() => setCurrentStep(3)}
+                />
+              </div>
+            </>
           ) : null}
 
           {currentStep === 3 ? (
