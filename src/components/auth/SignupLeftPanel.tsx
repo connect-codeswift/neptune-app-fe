@@ -47,9 +47,7 @@ export default function SignupLeftPanel() {
               <p className="text-ehs-darker text-sm font-semibold">
                 {item.title}
               </p>
-              <p className="text-ehs-muted-text text-sm">
-                {item.description}
-              </p>
+              <p className="text-ehs-muted-text text-sm">{item.description}</p>
             </li>
           ))}
         </ul>
