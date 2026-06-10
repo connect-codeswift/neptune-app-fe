@@ -29,6 +29,14 @@ import {
   saveOnboardingState,
   type OnboardingPersistedState,
 } from "@/lib/onboarding-storage";
+import {
+  clearSignupState,
+  loadSignupState,
+} from "@/lib/signup-storage";
+import {
+  getMutationErrorMessage,
+  useCompleteRegistrationMutation,
+} from "@/hooks/use-auth-mutations";
 import { ShadeBall } from "@/components/ShadeBall";
 import { Logo } from "@/components/Logo";
 import { TextButton } from "@/components/ui/TextButton";
@@ -49,6 +57,7 @@ export default function OrganizationSetupPage() {
   const [allowLeave, setAllowLeave] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const router = useRouter();
+  const completeRegistrationMutation = useCompleteRegistrationMutation();
 
   useUnloadWarning(!allowLeave);
 
@@ -59,7 +68,11 @@ export default function OrganizationSetupPage() {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage
       setOnboarding(saved);
     }
-  }, []);
+
+    if (!loadSignupState()) {
+      router.replace("/signup");
+    }
+  }, [router]);
 
   useEffect(() => {
     saveOnboardingState(onboarding);
@@ -119,13 +132,31 @@ export default function OrganizationSetupPage() {
     return countActiveModules(moduleState);
   };
 
-  const handleFinishSetup = () => {
-    setAllowLeave(true);
-    setShowCompleteModal(true);
+  const handleFinishSetup = async () => {
+    const signup = loadSignupState();
+    if (!signup) {
+      router.replace("/signup");
+      return;
+    }
+
+    try {
+      await completeRegistrationMutation.mutateAsync({
+        signup,
+        onboarding,
+        preferMobileModules:
+          globalThis.window?.matchMedia("(max-width: 1023px)")?.matches ??
+          false,
+      });
+      setAllowLeave(true);
+      setShowCompleteModal(true);
+    } catch {
+      // Error state is exposed via completeRegistrationMutation.error
+    }
   };
 
   const handleEnterWorkspace = () => {
     clearOnboardingState();
+    clearSignupState();
     setAllowLeave(true);
     router.push("/");
   };
@@ -154,11 +185,11 @@ export default function OrganizationSetupPage() {
       />
 
       <div className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center gap-10 px-4 py-8 lg:px-0">
-        <div className="grid w-full grid-cols-4 place-items-center gap-4">
-          <div className="col-span-1 h-24">
+        <div className="grid w-full grid-cols-1 lg:grid-cols-4 place-items-center gap-4">
+          <div className="col-span-1 h-24 lg:block hidden">
             <Logo text="Workspace setup" />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 lg:col-span-2">
             <Stepper
               steps={ONBOARDING_STEPS}
               currentStep={currentStep}
@@ -171,12 +202,11 @@ export default function OrganizationSetupPage() {
               steps={ONBOARDING_STEPS}
               currentStep={currentStep}
               onStepChange={handleStepChange}
-              onBack={currentStep > 1 ? handleBack : undefined}
               ariaLabel="Onboarding progress"
               className="w-full shrink-0 lg:hidden"
             />
           </div>
-          <div className="col-span-1 pb-12">
+          <div className="col-span-1 hidden pb-12 lg:block">
             <TextButton
               type="button"
               onClick={handleSaveAndExit}
@@ -241,6 +271,15 @@ export default function OrganizationSetupPage() {
                 }
                 onBack={() => handleStepChange(2)}
                 onLeaveSetup={handleFinishSetup}
+                isSubmitting={completeRegistrationMutation.isPending}
+                submitError={
+                  completeRegistrationMutation.error
+                    ? getMutationErrorMessage(
+                        completeRegistrationMutation.error,
+                        "Registration failed. Please try again.",
+                      )
+                    : undefined
+                }
               />
             ) : null}
           </div>

@@ -656,7 +656,7 @@ export function CompanySetupStep(props: Readonly<CompanySetupStepProps>) {
           </Button>
 
           <div className="flex items-center gap-4">
-            <span className="text-ehs-muted-text flex items-center gap-2 text-sm">
+            <span className="text-ehs-muted-text hidden items-center gap-2 text-sm lg:flex">
               <span
                 aria-hidden="true"
                 className="bg-ehs-green size-2 rounded-full"

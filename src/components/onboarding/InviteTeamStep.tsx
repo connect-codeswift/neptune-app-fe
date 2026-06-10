@@ -45,12 +45,21 @@ export type InviteTeamStepProps = Readonly<{
   invites: Invite[];
   onInvitesChange: (invites: Invite[]) => void;
   onBack: () => void;
-  onLeaveSetup: () => void;
+  onLeaveSetup: () => void | Promise<void>;
+  isSubmitting?: boolean;
+  submitError?: string;
 }>;
 
 export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
-  const { organizationName, invites, onInvitesChange, onBack, onLeaveSetup } =
-    props;
+  const {
+    organizationName,
+    invites,
+    onInvitesChange,
+    onBack,
+    onLeaveSetup,
+    isSubmitting = false,
+    submitError,
+  } = props;
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteRole>(DEFAULT_ROLE);
 
@@ -182,8 +191,14 @@ export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
         </div>
       )}
 
+      {submitError ? (
+        <Text as="p" className="text-ehs-red mt-2 text-sm" role="alert">
+          {submitError}
+        </Text>
+      ) : null}
+
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
-        <Button type="button" variant="tertiary" onClick={onBack}>
+        <Button type="button" variant="tertiary" onClick={onBack} disabled={isSubmitting}>
           <Icon
             icon="mdi:chevron-left"
             className="text-lg"
@@ -193,15 +208,20 @@ export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
         </Button>
 
         <div className="flex items-center gap-4">
-          <span className="text-ehs-muted-text flex items-center gap-2 text-sm">
+          <span className="text-ehs-muted-text hidden items-center gap-2 text-sm lg:flex">
             <span
               aria-hidden="true"
               className="bg-ehs-green size-2 rounded-full"
             />
             <span>Progress saved automatically</span>
           </span>
-          <Button type="button" variant="primary" onClick={onLeaveSetup}>
-            Finish setup
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => void onLeaveSetup()}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Finishing setup..." : "Finish setup"}
           </Button>
         </div>
       </div>
