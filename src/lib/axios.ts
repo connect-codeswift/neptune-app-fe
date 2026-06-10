@@ -5,6 +5,7 @@ import axios, {
 } from "axios";
 
 const ACCESS_TOKEN_KEY = "neptune-access-token";
+const REFRESH_TOKEN_KEY = "neptune-refresh-token";
 
 const configuredApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api";
@@ -51,6 +52,7 @@ export class HttpError extends Error {
 }
 
 let inMemoryAccessToken: string | null = null;
+let inMemoryRefreshToken: string | null = null;
 
 export function getAccessToken() {
   if (inMemoryAccessToken) {
@@ -77,6 +79,38 @@ export function setAccessToken(token: string | null) {
   }
 
   globalThis.localStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
+export function getRefreshToken() {
+  if (inMemoryRefreshToken) {
+    return inMemoryRefreshToken;
+  }
+
+  if (globalThis.window === undefined) {
+    return null;
+  }
+
+  return globalThis.localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function setRefreshToken(token: string | null) {
+  inMemoryRefreshToken = token;
+
+  if (globalThis.window === undefined) {
+    return;
+  }
+
+  if (token) {
+    globalThis.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    return;
+  }
+
+  globalThis.localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+export function clearAuthTokens() {
+  setAccessToken(null);
+  setRefreshToken(null);
 }
 
 function attachAuthHeader(config: InternalAxiosRequestConfig) {

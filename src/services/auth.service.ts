@@ -1,7 +1,7 @@
 import type { LoginRequestDto, RegisterRequestDto } from "@/dtos/req/auth-request.dto";
 import type { LoginResponseDto } from "@/dtos/res/auth-response.dto";
 import { buildRegisterRequest } from "@/lib/build-register-request";
-import http, { setAccessToken } from "@/lib/axios";
+import http, { setAccessToken, setRefreshToken } from "@/lib/axios";
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
 
@@ -25,6 +25,15 @@ export async function loginUser(credentials: LoginRequestDto) {
   return data;
 }
 
+export async function authenticateUser(credentials: LoginRequestDto) {
+  const tokens = await loginUser(credentials);
+
+  setAccessToken(tokens.accessToken);
+  setRefreshToken(tokens.refreshToken);
+
+  return tokens;
+}
+
 export async function completeRegistration(
   signup: SignupPersistedState,
   onboarding: OnboardingPersistedState,
@@ -34,12 +43,8 @@ export async function completeRegistration(
 
   await registerUser(payload);
 
-  const tokens = await loginUser({
+  return authenticateUser({
     email: signup.email,
     password: signup.password,
   });
-
-  setAccessToken(tokens.accessToken);
-
-  return tokens;
 }

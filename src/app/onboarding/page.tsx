@@ -158,7 +158,7 @@ export default function OrganizationSetupPage() {
     clearOnboardingState();
     clearSignupState();
     setAllowLeave(true);
-    router.push("/");
+    router.push("/dashboard");
   };
 
   return (
