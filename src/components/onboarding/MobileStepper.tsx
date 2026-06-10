@@ -7,21 +7,75 @@ export type MobileStepperProps = Readonly<{
   /** 1-based step index */
   currentStep: number;
   onStepChange?: (step: number) => void;
-  onBack?: () => void;
   ariaLabel?: string;
   className?: string;
 }>;
 
-function getMobileStepButtonClass(isActive: boolean, isCompleted: boolean) {
+type MobileStepSlotProps = Readonly<{
+  step: Step;
+  stepNumber: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  onStepChange?: (step: number) => void;
+}>;
+
+function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
+  const { step, stepNumber, isActive, isCompleted, onStepChange } = props;
+
   if (isActive) {
-    return "border-ehs-normal-blue/25 bg-white text-ehs-darker shadow-sm shadow-ehs-normal-blue/15";
+    return (
+      <button
+        type="button"
+        aria-current="step"
+        onClick={() => onStepChange?.(stepNumber)}
+        className="border-ehs-light-blue-active/70 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-2 py-1 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <span
+          aria-hidden="true"
+          className="bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/35 flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
+        >
+          {stepNumber}
+        </span>
+        <Text as="span" className="text-ehs-darker whitespace-nowrap text-sm font-bold">
+          {step.label}
+        </Text>
+      </button>
+    );
   }
 
   if (isCompleted) {
-    return "border-ehs-normal-blue/20 bg-ehs-light-blue/80 text-ehs-dark-blue";
+    return (
+      <button
+        type="button"
+        aria-label={`Go to step ${stepNumber}: ${step.label}`}
+        onClick={() => onStepChange?.(stepNumber)}
+        className="focus-visible:ring-ehs-normal-blue/30 px-2 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+      >
+        <span
+          aria-hidden="true"
+          className="bg-ehs-green shadow-ehs-green/40 flex size-8 items-center justify-center rounded-full text-white shadow-md"
+        >
+          <Icon icon="mdi:check" className="text-base" />
+        </span>
+      </button>
+    );
   }
 
-  return "border-white/60 bg-white/45 text-ehs-muted-text";
+  return (
+    <button
+      type="button"
+      aria-label={`Go to step ${stepNumber}: ${step.label}`}
+      onClick={() => onStepChange?.(stepNumber)}
+      className="focus-visible:ring-ehs-normal-blue/30 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+    >
+      <span
+        aria-hidden="true"
+        className="bg-ehs-light-bg text-ehs-muted-text flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+      >
+        {stepNumber}
+      </span>
+    </button>
+  );
 }
 
 export function MobileStepper(props: Readonly<MobileStepperProps>) {
@@ -29,95 +83,37 @@ export function MobileStepper(props: Readonly<MobileStepperProps>) {
     steps,
     currentStep,
     onStepChange,
-    onBack,
     ariaLabel = "Onboarding progress",
     className = "",
   } = props;
-  const totalSteps = steps.length;
-  const activeStep = steps[currentStep - 1];
 
   return (
     <nav
       aria-label={ariaLabel}
-      className={["flex w-full flex-col gap-3", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={["w-full", className].filter(Boolean).join(" ")}
     >
-      <div className="flex items-center justify-between px-1">
-        {onBack ? (
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-ehs-gray hover:text-ehs-darker inline-flex cursor-pointer items-center gap-1 text-sm font-medium transition-colors"
-          >
-            <Icon icon="mdi:chevron-left" className="text-lg" aria-hidden="true" />
-            Back
-          </button>
-        ) : (
-          <span aria-hidden="true" />
-        )}
+      <ol className="shadow-ehs-normal-blue/15 flex items-center justify-between rounded-full border border-white/70 bg-white/60 px-5 py-2 shadow-lg backdrop-blur-xl">
+        {steps.map((step, index) => {
+          const stepNumber = index + 1;
+          const isActive = stepNumber === currentStep;
+          const isCompleted = stepNumber < currentStep;
 
-        <Text as="span" className="text-ehs-muted-text text-xs font-semibold">
-          {`${currentStep} of ${totalSteps}`}
-        </Text>
-      </div>
-
-      <div className="shadow-ehs-normal-blue/15 rounded-3xl border border-white/70 bg-white/60 p-2 shadow-lg backdrop-blur-xl">
-        <div className="flex items-center gap-3 rounded-2xl bg-white/75 p-3 shadow-sm">
-          <span
-            aria-hidden="true"
-            className="bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/30 flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
-          >
-            {currentStep}
-          </span>
-          <span className="min-w-0">
-            <Text as="span" className="text-ehs-darker block truncate text-sm font-bold">
-              {activeStep.label}
-            </Text>
-            {activeStep.description ? (
-              <Text
-                as="span"
-                className="text-ehs-normal-blue block truncate text-xs font-medium"
-              >
-                {activeStep.description}
-              </Text>
-            ) : null}
-          </span>
-        </div>
-
-        <ol className="mt-2 grid grid-cols-3 gap-1.5">
-          {steps.map((step, index) => {
-            const stepNumber = index + 1;
-            const isActive = stepNumber === currentStep;
-            const isCompleted = stepNumber < currentStep;
-
-            return (
-              <li key={`${stepNumber}-${step.label}`} className="min-w-0">
-                <button
-                  type="button"
-                  aria-current={isActive ? "step" : undefined}
-                  aria-label={`Go to step ${stepNumber}: ${step.label}`}
-                  onClick={() => onStepChange?.(stepNumber)}
-                  className={[
-                    "flex h-10 w-full cursor-pointer items-center justify-center rounded-2xl border text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/30",
-                    getMobileStepButtonClass(isActive, isCompleted),
-                  ].join(" ")}
-                >
-                  {isCompleted ? (
-                    <Icon
-                      icon="mdi:check"
-                      className="text-base"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    stepNumber
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
+          return (
+            <li
+              key={`${stepNumber}-${step.label}`}
+              className="flex shrink-0 items-center px-2 justify-center"
+            >
+              <MobileStepSlot
+                step={step}
+                stepNumber={stepNumber}
+                isActive={isActive}
+                isCompleted={isCompleted}
+                onStepChange={onStepChange}
+              />
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }
