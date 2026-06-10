@@ -2,14 +2,16 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { type SubmitEvent, useState } from "react";
+import { useState, type SubmitEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
+import { safeParseSignupForm } from "@/dtos/req/auth-request.dto";
 import { ehsLinkClass } from "@/lib/ehs-classes";
+import { saveSignupState } from "@/lib/signup-storage";
 import { ShadeBall } from "@/components/ShadeBall";
 
 function getFormString(formData: FormData, name: string) {
@@ -19,7 +21,7 @@ function getFormString(formData: FormData, name: string) {
 
 export default function SignupRightPanel() {
   const router = useRouter();
-  const [passwordMismatch, setPasswordMismatch] = useState("");
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,15 +33,28 @@ export default function SignupRightPanel() {
     }
 
     const formData = new FormData(form);
-    const password = getFormString(formData, "password");
-    const confirmPassword = getFormString(formData, "confirmPassword");
+    const parsed = safeParseSignupForm({
+      fullName: getFormString(formData, "name"),
+      email: getFormString(formData, "email"),
+      password: getFormString(formData, "password"),
+      confirmPassword: getFormString(formData, "confirmPassword"),
+      acceptTerms: formData.get("acceptTerms") === "on",
+    });
 
-    if (password !== confirmPassword) {
-      setPasswordMismatch("Passwords do not match.");
+    if (!parsed.success) {
+      const firstError =
+        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
+      setFormError(firstError);
       return;
     }
 
-    setPasswordMismatch("");
+    saveSignupState({
+      fullName: parsed.data.fullName,
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+
+    setFormError("");
     router.push("/onboarding");
   };
 
@@ -115,7 +130,7 @@ export default function SignupRightPanel() {
             autoComplete="new-password"
             placeholder="Confirm your password"
             required
-            onChange={() => setPasswordMismatch("")}
+            onChange={() => setFormError("")}
           />
 
           <div className="flex items-start gap-2">
@@ -141,9 +156,9 @@ export default function SignupRightPanel() {
             </p>
           </div>
 
-          {passwordMismatch ? (
+          {formError ? (
             <Text as="p" className="text-ehs-red text-xs" role="alert">
-              {passwordMismatch}
+              {formError}
             </Text>
           ) : null}
 

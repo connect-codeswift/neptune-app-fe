@@ -74,7 +74,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
                 aria-label={`${isActive ? "Deselect" : "Select"} ${module.title}`}
                 onClick={() => handleModuleToggle(module.id, !isActive)}
                 className={[
-                  "focus-visible:ring-ehs-normal-blue/20 cursor-pointer flex h-full w-full items-center gap-4 rounded-xl border px-4 py-4 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none",
+                  "focus-visible:ring-ehs-normal-blue/20 flex h-full w-full cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none",
                   isActive
                     ? "border-ehs-normal-blue/40 bg-ehs-light-blue"
                     : "border-ehs-border bg-white",
@@ -125,13 +125,13 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
         </Button>
 
         <div className="flex items-center gap-4">
-          <span className="text-ehs-muted-text flex items-center gap-2 text-sm">
+          <span className="text-ehs-muted-text hidden items-center gap-2 text-sm lg:flex">
             <span
               aria-hidden="true"
               className="bg-ehs-green size-2 rounded-full"
             />
             <span>Progress saved automatically</span>
-          </span>
+          </span>   
           <Button type="submit" variant="primary" onClick={handleContinue}>
             Continue
             <Icon
