@@ -2,18 +2,31 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
+import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
+import { safeParseLoginRequest } from "@/dtos/req/auth-request.dto";
+import {
+  getMutationErrorMessage,
+  useLoginMutation,
+} from "@/hooks/use-auth-mutations";
 import { ehsLinkClass } from "@/lib/ehs-classes";
 import { ShadeBall } from "@/components/ShadeBall";
 
+function getFormString(formData: FormData, name: string) {
+  const value = formData.get(name);
+  return typeof value === "string" ? value : "";
+}
+
 export default function LoginRightPanel() {
   const router = useRouter();
+  const [formError, setFormError] = useState("");
+  const loginMutation = useLoginMutation();
 
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
 
@@ -22,8 +35,39 @@ export default function LoginRightPanel() {
       return;
     }
 
-    router.push("/onboarding");
+    const formData = new FormData(form);
+    const parsed = safeParseLoginRequest({
+      email: getFormString(formData, "email"),
+      password: getFormString(formData, "password"),
+    });
+
+    if (!parsed.success) {
+      const firstError =
+        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
+      setFormError(firstError);
+      return;
+    }
+
+    setFormError("");
+
+    try {
+      await loginMutation.mutateAsync(parsed.data);
+      router.push("/dashboard");
+    } catch (error) {
+      setFormError(
+        getMutationErrorMessage(error, "Sign in failed. Please try again."),
+      );
+    }
   };
+
+  const submitError =
+    formError ||
+    (loginMutation.error
+      ? getMutationErrorMessage(
+          loginMutation.error,
+          "Sign in failed. Please try again.",
+        )
+      : "");
 
   return (
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center p-8">
@@ -63,6 +107,7 @@ export default function LoginRightPanel() {
             label="Email address"
             placeholder="sarah@nordvik.com"
             required
+            disabled={loginMutation.isPending}
           />
 
           <div className="flex w-full flex-col gap-1">
@@ -72,6 +117,7 @@ export default function LoginRightPanel() {
               label="Password"
               placeholder="Enter your password"
               required
+              disabled={loginMutation.isPending}
             />
             <ScrollLink
               href="/forget-password"
@@ -81,9 +127,26 @@ export default function LoginRightPanel() {
             </ScrollLink>
           </div>
 
-          <Button type="submit" variant="primary" className="w-full">
-            Sign in
-            <Icon icon="mdi:arrow-right" className="text-lg" />
+          {submitError ? (
+            <Text as="p" className="text-ehs-red text-xs" role="alert">
+              {submitError}
+            </Text>
+          ) : null}
+
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full"
+            disabled={loginMutation.isPending}
+          >
+            {loginMutation.isPending ? (
+              "Signing in..."
+            ) : (
+              <>
+                Sign in
+                <Icon icon="mdi:arrow-right" className="text-lg" />
+              </>
+            )}
           </Button>
         </form>
 

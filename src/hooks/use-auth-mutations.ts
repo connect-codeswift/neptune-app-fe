@@ -3,7 +3,7 @@ import type { LoginRequestDto } from "@/dtos/req/auth-request.dto";
 import { isApiError } from "@/lib/axios";
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
-import { completeRegistration, loginUser } from "@/services/auth.service";
+import { completeRegistration, authenticateUser } from "@/services/auth.service";
 
 type CompleteRegistrationVariables = Readonly<{
   signup: SignupPersistedState;
@@ -24,7 +24,7 @@ export function useCompleteRegistrationMutation() {
 
 export function useLoginMutation() {
   return useMutation({
-    mutationFn: (credentials: LoginRequestDto) => loginUser(credentials),
+    mutationFn: (credentials: LoginRequestDto) => authenticateUser(credentials),
   });
 }
 
