@@ -24,7 +24,7 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
     items: [
       {
         label: "Dashboard",
-        href: "/dashboard/allpages",
+        href: "/dashboard",
         icon: "mdi:view-grid-outline",
       },
     ],
@@ -139,8 +139,8 @@ export type SidebarProps = Readonly<{
 }>;
 
 function isActivePath(pathname: string, href: string) {
-  if (href === "/dashboard/allpages") {
-    return pathname === href || pathname === "/dashboard";
+  if (href === "/dashboard") {
+    return pathname === href;
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -179,7 +179,7 @@ function SidebarNavLink(
   );
 }
 
-export function Sidebar(props: Readonly<SidebarProps>) {
+export function DashboardSidebar(props: Readonly<SidebarProps>) {
   const { className = "" } = props;
   const pathname = usePathname();
 
