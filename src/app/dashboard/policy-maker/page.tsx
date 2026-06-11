@@ -1,6 +1,6 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 
-export default function DocumentControlPage() {
+export default function PolicyMakerPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col">
       <DashboardHeader
