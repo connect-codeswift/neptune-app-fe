@@ -1,40 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Logo } from "@/components/Logo";
 import { ShadeBall } from "@/components/ShadeBall";
-
-const panelCardClass =
-  "rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm";
-
-const incidents = [
-  {
-    title: "Chemical spill - Storage B",
-    location: "Birmingham Plant",
-    time: "12 min ago",
-  },
-  {
-    title: "Machine stoppage - Line 4",
-    location: "Leeds Plant",
-    time: "1 hr ago",
-  },
-  {
-    title: "Near miss - Loading bay",
-    location: "Manchester Depot",
-    time: "3 hrs ago",
-  },
-] as const;
-
-const capas = [
-  {
-    title: "Install secondary containment",
-    assignee: "J. Harris",
-    due: "Jun 4",
-  },
-  {
-    title: "Retrain Line 4 operators",
-    assignee: "M. Price",
-    due: "Jun 3",
-  },
-] as const;
+import { capas, incidents } from "@/lib/hardcoded-data";
 
 export default function LoginLeftPanel() {
   return (
@@ -61,7 +28,7 @@ export default function LoginLeftPanel() {
         </h1>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-          <section className={panelCardClass}>
+          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
             <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
               Open Incidents
             </h2>
@@ -82,7 +49,7 @@ export default function LoginLeftPanel() {
             </ul>
           </section>
 
-          <section className={panelCardClass}>
+          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
             <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
               Pending CAPAs
             </h2>

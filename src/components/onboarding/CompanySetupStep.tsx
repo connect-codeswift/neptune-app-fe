@@ -11,8 +11,6 @@ import {
   getSiteSectionTitle,
   INDUSTRY_OPTIONS,
   emptySiteInfo,
-  type CompanySize,
-  type Industry,
   type SiteInfo,
 } from "@/components/onboarding/constants";
 import { Accordion, AccordionItem } from "@/components/ui/Accordion";
@@ -110,9 +108,7 @@ function SiteInfoFields(props: Readonly<SiteInfoFieldsProps>) {
           placeholder="Select industry"
           options={INDUSTRY_OPTIONS}
           value={site.industry}
-          onChange={(e) =>
-            onFieldChange("industry", e.target.value as Industry)
-          }
+          onChange={(e) => onFieldChange("industry", e.target.value)}
           aria-invalid={fieldErrors?.industry ? true : undefined}
           aria-describedby={
             fieldErrors?.industry ? `${site.id}-industry-error` : undefined
@@ -132,9 +128,7 @@ function SiteInfoFields(props: Readonly<SiteInfoFieldsProps>) {
           placeholder="Select company size"
           options={COMPANY_SIZE_OPTIONS}
           value={site.companySize}
-          onChange={(e) =>
-            onFieldChange("companySize", e.target.value as CompanySize)
-          }
+          onChange={(e) => onFieldChange("companySize", e.target.value)}
           aria-invalid={fieldErrors?.companySize ? true : undefined}
           aria-describedby={
             fieldErrors?.companySize

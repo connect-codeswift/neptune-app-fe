@@ -8,7 +8,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
-import { PasswordStrengthMeter } from "@/components/inputs/PasswordStrengthMeter";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import {
   ehsFieldClass,
   ehsIconButtonClass,
