@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { getAccessToken } from "@/lib/axios";
+import { useEffect } from "react";
 
 export default function DashboardLayout({
   children,

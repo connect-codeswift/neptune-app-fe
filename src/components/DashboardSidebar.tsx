@@ -61,11 +61,6 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         icon: "mdi:steering",
       },
       {
-        label: "Inspections",
-        href: "/dashboard/inspections",
-        icon: "mdi:clipboard-text-outline",
-      },
-      {
         label: "CAPA",
         href: "/dashboard/capa",
         icon: "mdi:refresh",
@@ -76,9 +71,14 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
     title: "Compliance",
     items: [
       {
-        label: "Audits & Inspections",
-        href: "/dashboard/audits-inspections",
+        label: "Audits",
+        href: "/dashboard/audits",
         icon: "mdi:shield-check-outline",
+      },
+      {
+        label: "Inspections",
+        href: "/dashboard/inspections",
+        icon: "mdi:clipboard-text-outline",
       },
       {
         label: "Regulatory Compliance",
@@ -91,8 +91,8 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         icon: "mdi:tshirt-crew-outline",
       },
       {
-        label: "Document Control",
-        href: "/dashboard/document-control",
+        label: "Policy Maker",
+        href: "/dashboard/policy-maker",
         icon: "mdi:folder-outline",
       },
     ],
