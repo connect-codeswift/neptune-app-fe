@@ -1,6 +1,6 @@
 "use client";
 
-import ForgotPasswordLeftPanel from "@/components/auth/ForgotPasswordLeftPanel copy";
+import ForgotPasswordLeftPanel from "@/components/auth/ForgotPasswordLeftPanel";
 import ForgotPasswordRightPanel from "@/components/auth/ForgotPasswordRightPanel";
 
 export default function ForgetPasswordPage() {
