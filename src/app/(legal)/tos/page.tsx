@@ -1,8 +1,4 @@
 import type { Metadata } from "next";
-import {
-  LegalPageLayout,
-  LegalSection,
-} from "@/components/legal/LegalPageLayout";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -13,8 +9,14 @@ export const metadata: Metadata = {
 
 export default function TermsOfServicePage() {
   return (
-    <LegalPageLayout title="Terms of Service" lastUpdated="June 4, 2026">
-      <LegalSection title="1. Agreement to these terms">
+    <>
+      <div>
+        <h1>Terms of Service</h1>
+        <p>Last updated: June 4, 2026</p>
+      </div>
+
+      <div>
+        <h2>1. Agreement to these terms</h2>
         <p>
           These Terms of Service (&quot;Terms&quot;) govern your access to and
           use of Neptune, a cloud-based environment, health, safety, and
@@ -23,9 +25,10 @@ export default function TermsOfServicePage() {
           account or using the service, you agree to these Terms on behalf of
           yourself and the organization you represent.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="2. The Neptune service">
+      <div>
+        <h2>2. The Neptune service</h2>
         <p>
           Neptune provides organizations with tools to manage EHSS programs,
           including but not limited to incident reporting and investigation,
@@ -39,9 +42,10 @@ export default function TermsOfServicePage() {
           will make reasonable efforts to notify workspace administrators of
           material changes that affect how you use the platform.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="3. Accounts and workspaces">
+      <div>
+        <h2>3. Accounts and workspaces</h2>
         <p>
           You must provide accurate registration information and keep your
           account credentials secure. You are responsible for all activity that
@@ -53,9 +57,10 @@ export default function TermsOfServicePage() {
           You represent that you have authority to bind your organization to
           these Terms when you create or administer a Neptune workspace.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="4. Customer data and responsibilities">
+      <div>
+        <h2>4. Customer data and responsibilities</h2>
         <p>
           Your organization retains ownership of the data you submit to Neptune,
           including incident records, audit evidence, permits, training records,
@@ -70,11 +75,12 @@ export default function TermsOfServicePage() {
           content that infringes third-party rights or violates applicable
           regulations.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="5. Acceptable use">
+      <div>
+        <h2>5. Acceptable use</h2>
         <p>You agree not to:</p>
-        <ul className="list-disc space-y-2 pl-5">
+        <ul>
           <li>Use Neptune for unlawful purposes or to store malicious code.</li>
           <li>
             Attempt to access another customer&apos;s workspace or data without
@@ -94,33 +100,30 @@ export default function TermsOfServicePage() {
           rules have been violated or if continued use poses a security or legal
           risk.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="6. Subscriptions and fees">
+      <div>
+        <h2>6. Subscriptions and fees</h2>
         <p>
           Paid plans, billing cycles, and usage limits are described at the time
           of purchase or in your order form. Fees are non-refundable except
           where required by law or expressly stated in your agreement. Failure
           to pay may result in suspension of access after reasonable notice.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="7. Confidentiality and security">
+      <div>
+        <h2>7. Confidentiality and security</h2>
         <p>
           We implement administrative, technical, and organizational measures
           designed to protect Customer Data. Details about how we collect and
           process personal information are described in our{" "}
-          <Link
-            href="/privacy"
-            className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover"
-          >
-            Privacy Policy
-          </Link>
-          .
+          <Link href="/privacy">Privacy Policy</Link>.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="8. Disclaimers and limitation of liability">
+      <div>
+        <h2>8. Disclaimers and limitation of liability</h2>
         <p>
           Neptune is provided on an &quot;as is&quot; and &quot;as
           available&quot; basis. While the platform supports EHSS workflows, it
@@ -137,9 +140,10 @@ export default function TermsOfServicePage() {
           claim relating to the service is limited to the fees you paid to us in
           the twelve months before the event giving rise to the claim.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="9. Term and termination">
+      <div>
+        <h2>9. Term and termination</h2>
         <p>
           You may stop using Neptune at any time. We may terminate or suspend
           access for breach of these Terms or upon reasonable notice if we
@@ -147,29 +151,25 @@ export default function TermsOfServicePage() {
           Data within the period described in your plan or agreement, after
           which we may delete data in accordance with our retention practices.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="10. Changes to these Terms">
+      <div>
+        <h2>10. Changes to these Terms</h2>
         <p>
           We may update these Terms from time to time. If changes are material,
           we will provide notice through the application or by email to
           workspace administrators. Continued use after the effective date
           constitutes acceptance of the revised Terms.
         </p>
-      </LegalSection>
+      </div>
 
-      <LegalSection title="11. Contact">
+      <div>
+        <h2>11. Contact</h2>
         <p>
           Questions about these Terms can be sent to{" "}
-          <Link
-            href="mailto:legal@neptune-ehss.com"
-            className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover"
-          >
-            legal@neptune-ehss.com
-          </Link>
-          .
+          <a href="mailto:legal@neptune-ehss.com">legal@neptune-ehss.com</a>.
         </p>
-      </LegalSection>
-    </LegalPageLayout>
+      </div>
+    </>
   );
 }

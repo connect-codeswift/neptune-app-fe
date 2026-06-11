@@ -3,17 +3,11 @@ import { Logo } from "@/components/Logo";
 import { ScrollLink } from "@/components/ScrollLink";
 import { ehsLinkClass } from "@/lib/ehs-classes";
 
-type LegalPageLayoutProps = Readonly<{
-  title: string;
-  lastUpdated: string;
-  children: React.ReactNode;
-}>;
-
-export function LegalPageLayout({
-  title,
-  lastUpdated,
+export default function LegalLayout({
   children,
-}: LegalPageLayoutProps) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <div className="bg-ehs-light-bg min-h-screen">
       <header className="border-ehs-border border-b bg-white px-6 py-4">
@@ -28,11 +22,7 @@ export function LegalPageLayout({
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-ehs-darker text-3xl font-bold">{title}</h1>
-        <p className="text-ehs-muted-text mt-2 text-sm">
-          Last updated: {lastUpdated}
-        </p>
-        <article className="text-ehs-gray mt-8 flex flex-col gap-8 text-sm leading-relaxed">
+        <article className="text-ehs-gray flex flex-col gap-8 text-sm leading-relaxed">
           {children}
         </article>
       </main>
@@ -49,20 +39,5 @@ export function LegalPageLayout({
         </p>
       </footer>
     </div>
-  );
-}
-
-export function LegalSection({
-  title,
-  children,
-}: Readonly<{
-  title: string;
-  children: React.ReactNode;
-}>) {
-  return (
-    <section>
-      <h2 className="text-ehs-darker mb-3 text-lg font-semibold">{title}</h2>
-      <div className="flex flex-col gap-3">{children}</div>
-    </section>
   );
 }
