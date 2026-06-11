@@ -19,8 +19,10 @@ export default function DashboardLayout({
   }, [router]);
 
   return (
-    <div className="bg-ehs-light-bg flex min-h-screen">
-      <DashboardSidebar />
+    <div className="bg-ehs-light-bg ml-68 flex min-h-screen">
+      <div className="bg-ehs-light-bg fixed top-0 left-0 w-68">
+        <DashboardSidebar />
+      </div>
       {children}
     </div>
   );
