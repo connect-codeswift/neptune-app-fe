@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Neptune EHSS",
+  title: "Terms & Conditions | Neptune EHSS",
   description:
-    "Terms of Service for Neptune, the environment, health, safety, and sustainability management platform.",
+    "Terms & Conditions for Neptune, the environment, health, safety, and sustainability management platform.",
 };
 
-export default function TermsOfServicePage() {
+export default function TermsAndConditionsPage() {
   return (
     <>
       <div>
-        <h1>Terms of Service</h1>
+        <h1>Terms & Conditions</h1>
         <p>Last updated: June 4, 2026</p>
       </div>
 

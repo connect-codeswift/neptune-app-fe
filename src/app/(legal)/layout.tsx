@@ -15,9 +15,6 @@ export default function LegalLayout({
           <Link href="/" aria-label="Neptune home">
             <Logo />
           </Link>
-          <ScrollLink href="/signup" className={`${ehsLinkClass} font-medium`}>
-            Back to sign up
-          </ScrollLink>
         </div>
       </header>
 
@@ -30,7 +27,7 @@ export default function LegalLayout({
       <footer className="border-ehs-border border-t px-6 py-6 text-center">
         <p className="text-ehs-muted-text text-sm">
           <ScrollLink href="/tos" className={ehsLinkClass}>
-            Terms of Service
+            Terms & Conditions
           </ScrollLink>
           {" · "}
           <ScrollLink href="/privacy" className={ehsLinkClass}>
