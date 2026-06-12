@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "@/fonts/inter";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +21,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen w-full">
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <ToastProvider />
+        </QueryProvider>
       </body>
     </html>
   );

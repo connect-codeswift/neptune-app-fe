@@ -19,12 +19,12 @@ export default function LoginLeftPanel() {
         <Logo variant="light" />
 
         <p className="text-ehs-muted-text mt-2 text-xs font-medium tracking-widest uppercase">
-          Your workspace is waiting
+          Your Workspace is waiting
         </p>
         <h1 className="text-ehs-light-text text-xl leading-tight font-medium lg:text-2xl">
-          Items requiring
+          Items Requiring
           <br />
-          your attention.
+          Your Attention.
         </h1>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">

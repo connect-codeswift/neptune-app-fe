@@ -1,10 +1,4 @@
-import {
-  MODULES,
-  MOBILE_MODULES,
-  type ModuleState,
-  type MobileModuleState,
-  type SiteInfo,
-} from "@/components/onboarding/constants";
+import { MODULES, type SiteInfo } from "@/components/onboarding/constants";
 import {
   parseRegisterRequest,
   type RegisterRequestDto,
@@ -14,10 +8,6 @@ import type { SignupPersistedState } from "@/lib/signup-storage";
 
 const DEFAULT_ROLE_ID = 1;
 const DEFAULT_ORGANIZATION_ID = 0;
-
-type BuildRegisterRequestOptions = Readonly<{
-  preferMobileModules?: boolean;
-}>;
 
 function siteHasRegisterableData(site: SiteInfo) {
   return Boolean(
@@ -33,18 +23,8 @@ function getRegisterableSites(sites: readonly SiteInfo[]) {
   return configuredSites.length > 0 ? configuredSites : sites.slice(0, 1);
 }
 
-function getActivatedModules(
-  moduleState: ModuleState,
-  mobileModuleState: MobileModuleState,
-  preferMobileModules: boolean,
-) {
-  if (preferMobileModules) {
-    return MOBILE_MODULES.filter((module) => mobileModuleState[module.id])
-      .map((module) => module.id)
-      .join(",");
-  }
-
-  return MODULES.filter((module) => moduleState[module.id])
+function getActivatedModules(onboarding: OnboardingPersistedState) {
+  return MODULES.filter((module) => onboarding.moduleState[module.id])
     .map((module) => module.id)
     .join(",");
 }
@@ -52,14 +32,8 @@ function getActivatedModules(
 export function buildRegisterRequest(
   signup: SignupPersistedState,
   onboarding: OnboardingPersistedState,
-  options?: BuildRegisterRequestOptions,
 ): RegisterRequestDto {
-  const preferMobileModules = options?.preferMobileModules ?? false;
-  const activatedModules = getActivatedModules(
-    onboarding.moduleState,
-    onboarding.mobileModuleState,
-    preferMobileModules,
-  );
+  const activatedModules = getActivatedModules(onboarding);
 
   const subcompany = getRegisterableSites(onboarding.sites).map((site) => ({
     industryType: site.industry || "other",

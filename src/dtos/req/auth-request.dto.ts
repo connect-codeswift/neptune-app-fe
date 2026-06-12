@@ -17,10 +17,7 @@ export const registerRequestSchema = z.object({
   passwordHash: z.string().min(8, "Password must be at least 8 characters."),
   roleId: z.number().int().nonnegative(),
   organizationId: z.number().int().nonnegative(),
-  organizationName: z
-    .string()
-    .trim()
-    .min(1, "Organization name is required."),
+  organizationName: z.string().trim().min(1, "Organization name is required."),
   activatedModules: z.string().trim().min(1, "Select at least one module."),
   subcompany: z
     .array(subcompanyRequestSchema)
@@ -47,21 +44,37 @@ export const loginRequestSchema = z.object({
   password: z.string().min(1, "Password is required."),
 });
 
+export const forgotPasswordRequestSchema = z.object({
+  email: z.email("Enter a valid email address."),
+});
+
+export const resetPasswordRequestSchema = z.object({
+  email: z.email("Enter a valid email address."),
+  otp: z.string().min(1, "OTP is required."),
+  newPassword: z.string().min(8, "Password must be at least 8 characters."),
+});
+
+// =====================================================
+
 export type SubcompanyRequestDto = z.infer<typeof subcompanyRequestSchema>;
 export type RegisterRequestDto = z.infer<typeof registerRequestSchema>;
 export type SignupFormDto = z.infer<typeof signupFormSchema>;
 export type LoginRequestDto = z.infer<typeof loginRequestSchema>;
+export type ResetPasswordRequestDto = z.infer<
+  typeof resetPasswordRequestSchema
+>;
+export type ForgotPasswordRequestDto = z.infer<
+  typeof forgotPasswordRequestSchema
+>;
 
-export function parseRegisterRequest(data: unknown) {
+// =====================================================
+
+export function parseRegisterRequest(data: unknown): RegisterRequestDto {
   return registerRequestSchema.parse(data);
 }
 
-export function parseSignupForm(data: unknown) {
-  return signupFormSchema.parse(data);
-}
-
-export function parseLoginRequest(data: unknown) {
-  return loginRequestSchema.parse(data);
+export function safeParseRegisterRequest(data: unknown) {
+  return registerRequestSchema.safeParse(data);
 }
 
 export function safeParseSignupForm(data: unknown) {
@@ -70,4 +83,12 @@ export function safeParseSignupForm(data: unknown) {
 
 export function safeParseLoginRequest(data: unknown) {
   return loginRequestSchema.safeParse(data);
+}
+
+export function safeParseResetPasswordRequest(data: unknown) {
+  return resetPasswordRequestSchema.safeParse(data);
+}
+
+export function safeParseForgotPasswordRequest(data: unknown) {
+  return forgotPasswordRequestSchema.safeParse(data);
 }

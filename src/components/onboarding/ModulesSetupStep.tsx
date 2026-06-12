@@ -4,7 +4,6 @@ import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { Text } from "@/components/Text";
 import {
-  countActiveModules,
   hasActiveModule,
   MODULES,
   type ModuleId,
@@ -26,14 +25,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
   const { moduleState, onModuleToggle, onBack, onContinue } = props;
   const [error, setError] = useState("");
 
-  const activeModuleCount = countActiveModules(moduleState);
-
   const handleModuleToggle = (id: ModuleId, checked: boolean) => {
-    if (!checked && activeModuleCount === 1 && moduleState[id]) {
-      setError(MODULE_REQUIRED_MESSAGE);
-      return;
-    }
-
     setError("");
     onModuleToggle(id, checked);
   };
@@ -48,7 +40,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
   };
 
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-1">
         <Text as="h1" className="text-ehs-darker text-2xl font-bold">
           Which modules do you need?
@@ -62,7 +54,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
         </Text>
       </div>
 
-      <ul className="mt-6 grid grid-cols-2 gap-x-3 gap-y-4">
+      <ul className="mt-6 grid grid-cols-1 gap-x-4 gap-y-0 md:grid-cols-2 md:gap-y-4">
         {MODULES.map((module) => {
           const isActive = moduleState[module.id];
 
@@ -74,33 +66,37 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
                 aria-label={`${isActive ? "Deselect" : "Select"} ${module.title}`}
                 onClick={() => handleModuleToggle(module.id, !isActive)}
                 className={[
-                  "focus-visible:ring-ehs-normal-blue/20 flex h-full w-full cursor-pointer items-center gap-4 rounded-xl border px-4 py-4 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none",
+                  "border-ehs-border flex w-full cursor-pointer items-center justify-between gap-3 py-4 text-left",
+                  "max-md:border-b max-md:last:border-b-0",
+                  "md:rounded-xl md:border md:px-4",
                   isActive
-                    ? "border-ehs-normal-blue/40 bg-ehs-light-blue"
-                    : "border-ehs-border bg-white",
+                    ? "md:border-ehs-normal-blue/40 md:bg-ehs-light-blue"
+                    : "md:border-ehs-border md:bg-white",
                 ].join(" ")}
               >
-                <span className="border-ehs-border flex size-13 shrink-0 items-center justify-center rounded-2xl border bg-white">
+                <span className="flex min-w-0 flex-1 items-center gap-3">
                   <Icon
                     icon={module.icon}
-                    className="text-ehs-gray text-2xl"
+                    className="text-ehs-gray shrink-0 text-xl md:text-2xl"
                     aria-hidden="true"
                   />
+                  <span className="min-w-0">
+                    <Text
+                      as="span"
+                      className="text-ehs-darker block text-sm font-medium md:text-base md:font-semibold"
+                    >
+                      {module.title}
+                    </Text>
+                    {"description" in module && module.description ? (
+                      <Text
+                        as="span"
+                        className="text-ehs-muted-text mt-0.5 hidden text-xs leading-snug md:block md:text-sm"
+                      >
+                        {module.description}
+                      </Text>
+                    ) : null}
+                  </span>
                 </span>
-                <div className="min-w-0 flex-1">
-                  <Text
-                    as="span"
-                    className="text-ehs-darker block text-sm leading-snug font-semibold lg:text-base"
-                  >
-                    {module.title}
-                  </Text>
-                  <Text
-                    as="span"
-                    className="text-ehs-muted-text block text-xs leading-snug lg:text-sm"
-                  >
-                    {module.description}
-                  </Text>
-                </div>
                 <Check checked={isActive} />
               </button>
             </li>
@@ -131,7 +127,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
               className="bg-ehs-green size-2 rounded-full"
             />
             <span>Progress saved automatically</span>
-          </span>   
+          </span>
           <Button type="submit" variant="primary" onClick={handleContinue}>
             Continue
             <Icon
@@ -142,6 +138,6 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -1,4 +1,9 @@
-import type { LoginRequestDto, RegisterRequestDto } from "@/dtos/req/auth-request.dto";
+import type {
+  ForgotPasswordRequestDto,
+  LoginRequestDto,
+  RegisterRequestDto,
+  ResetPasswordRequestDto,
+} from "@/dtos/req/auth-request.dto";
 import type { LoginResponseDto } from "@/dtos/res/auth-response.dto";
 import { buildRegisterRequest } from "@/lib/build-register-request";
 import http, { setAccessToken, setRefreshToken } from "@/lib/axios";
@@ -7,10 +12,10 @@ import type { SignupPersistedState } from "@/lib/signup-storage";
 
 const AUTH_REGISTER_PATH = "/Auth/register";
 const AUTH_LOGIN_PATH = "/Auth/login";
-
-type CompleteRegistrationOptions = Readonly<{
-  preferMobileModules?: boolean;
-}>;
+const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset password
+const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
+const AUTH_LOGOUT_PATH = "/Auth/logout";
+const AUTH_REFRESH_TOKEN_PATH = "/Auth/refresh-token";
 
 export async function registerUser(payload: RegisterRequestDto) {
   await http.post(AUTH_REGISTER_PATH, payload);
@@ -37,9 +42,8 @@ export async function authenticateUser(credentials: LoginRequestDto) {
 export async function completeRegistration(
   signup: SignupPersistedState,
   onboarding: OnboardingPersistedState,
-  options?: CompleteRegistrationOptions,
 ) {
-  const payload = buildRegisterRequest(signup, onboarding, options);
+  const payload = buildRegisterRequest(signup, onboarding);
 
   await registerUser(payload);
 
@@ -47,4 +51,20 @@ export async function completeRegistration(
     email: signup.email,
     password: signup.password,
   });
+}
+
+export async function resetPassword(payload: ResetPasswordRequestDto) {
+  await http.post(AUTH_RESET_PASSWORD_PATH, payload);
+}
+
+export async function forgotPassword(payload: ForgotPasswordRequestDto) {
+  await http.post(AUTH_FORGOT_PASSWORD_PATH, payload);
+}
+
+export async function logout() {
+  await http.post(AUTH_LOGOUT_PATH);
+}
+
+export async function refreshToken() {
+  await http.post(AUTH_REFRESH_TOKEN_PATH);
 }
