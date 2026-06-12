@@ -14,11 +14,11 @@ export default function SignupLeftPanel() {
 
         <div className="flex max-w-sm flex-col gap-6">
           <h1 className="text-ehs-darker md:tex-2xl text-xl leading-tight font-bold lg:text-3xl">
-            Safety management, finally unified.
+            Safety Management, Finally Unified.
           </h1>
           <p className="text-ehs-muted-text text-sm leading-relaxed">
-            Join 2,400+ sites using Neptune to manage incidents, audits, CAPAs,
-            and sustainability — all in one place.
+            Join 2,400+ sites using Neptune to manage Incidents, Audits, CAPAs,
+            and Sustainability — all in one place.
           </p>
         </div>
 
@@ -39,7 +39,7 @@ export default function SignupLeftPanel() {
           30-day free trial, full access
         </p>
         <p className="text-ehs-muted-text mt-1 text-sm">
-          No credit card required. Cancel anytime.
+          No Credit Card Required. Cancel Anytime.
         </p>
       </div>
     </div>

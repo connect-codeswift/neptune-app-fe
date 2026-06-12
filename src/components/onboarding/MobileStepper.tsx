@@ -28,7 +28,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
         type="button"
         aria-current="step"
         onClick={() => onStepChange?.(stepNumber)}
-        className="border-ehs-light-blue-active/70 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-2 py-1 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="border-ehs-light-blue-active/70 py-3 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-6 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <span
           aria-hidden="true"
@@ -70,7 +70,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
     >
       <span
         aria-hidden="true"
-        className="bg-ehs-light-bg text-ehs-muted-text flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+        className="bg-gray-200 text-ehs-muted-text flex size-8 items-center justify-center rounded-full text-sm font-semibold"
       >
         {stepNumber}
       </span>

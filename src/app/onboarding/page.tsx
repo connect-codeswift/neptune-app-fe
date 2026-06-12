@@ -7,18 +7,14 @@ import {
   InviteTeamStep,
   type Invite,
 } from "@/components/onboarding/InviteTeamStep";
-import { MobileModulesSetupStep } from "@/components/onboarding/MobileModulesSetupStep";
 import { MobileStepper } from "@/components/onboarding/MobileStepper";
 import { ModulesSetupStep } from "@/components/onboarding/ModulesSetupStep";
 import {
   ONBOARDING_STEPS,
-  countActiveMobileModules,
   countActiveModules,
   countConfiguredSites,
-  initialMobileModuleState,
   initialModuleState,
   initialSites,
-  type MobileModuleId,
   type ModuleId,
 } from "@/components/onboarding/constants";
 import { SetupCompleteModal } from "@/components/onboarding/SetupCompleteModal";
@@ -47,7 +43,6 @@ const defaultOnboardingState: OnboardingPersistedState = {
   organizationName: "",
   sites: initialSites,
   moduleState: initialModuleState,
-  mobileModuleState: initialMobileModuleState,
   invites: [],
 };
 
@@ -83,7 +78,6 @@ export default function OrganizationSetupPage() {
     organizationName,
     sites,
     moduleState,
-    mobileModuleState,
     invites,
   } = onboarding;
 
@@ -97,12 +91,6 @@ export default function OrganizationSetupPage() {
   const handleModuleToggle = (id: ModuleId, checked: boolean) => {
     persistOnboarding({
       moduleState: { ...moduleState, [id]: checked },
-    });
-  };
-
-  const handleMobileModuleToggle = (id: MobileModuleId, checked: boolean) => {
-    persistOnboarding({
-      mobileModuleState: { ...mobileModuleState, [id]: checked },
     });
   };
 
@@ -124,14 +112,6 @@ export default function OrganizationSetupPage() {
     setAllowLeave(true);
   };
 
-  const getActiveModuleCount = () => {
-    if (globalThis.window?.matchMedia("(max-width: 1023px)")?.matches) {
-      return countActiveMobileModules(mobileModuleState);
-    }
-
-    return countActiveModules(moduleState);
-  };
-
   const handleFinishSetup = async () => {
     const signup = loadSignupState();
     if (!signup) {
@@ -143,9 +123,6 @@ export default function OrganizationSetupPage() {
       await completeRegistrationMutation.mutateAsync({
         signup,
         onboarding,
-        preferMobileModules:
-          globalThis.window?.matchMedia("(max-width: 1023px)")?.matches ??
-          false,
       });
       setAllowLeave(true);
       setShowCompleteModal(true);
@@ -243,23 +220,12 @@ export default function OrganizationSetupPage() {
             ) : null}
 
             {currentStep === 2 ? (
-              <>
-                <div className="hidden min-h-0 flex-1 flex-col lg:flex">
-                  <ModulesSetupStep
-                    moduleState={moduleState}
-                    onModuleToggle={handleModuleToggle}
-                    onBack={handleBack}
-                    onContinue={() => handleStepChange(3)}
-                  />
-                </div>
-                <div className="flex min-h-0 flex-1 flex-col lg:hidden">
-                  <MobileModulesSetupStep
-                    moduleState={mobileModuleState}
-                    onModuleToggle={handleMobileModuleToggle}
-                    onContinue={() => handleStepChange(3)}
-                  />
-                </div>
-              </>
+              <ModulesSetupStep
+                moduleState={moduleState}
+                onModuleToggle={handleModuleToggle}
+                onBack={handleBack}
+                onContinue={() => handleStepChange(3)}
+              />
             ) : null}
 
             {currentStep === 3 ? (
@@ -290,7 +256,7 @@ export default function OrganizationSetupPage() {
         <SetupCompleteModal
           organizationName={organizationName}
           siteCount={countConfiguredSites(sites)}
-          moduleCount={getActiveModuleCount()}
+          moduleCount={countActiveModules(moduleState)}
           invitedCount={invites.length}
           onEnterWorkspace={handleEnterWorkspace}
         />

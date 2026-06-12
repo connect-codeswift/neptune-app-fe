@@ -6,6 +6,22 @@ export type SignupPersistedState = Readonly<{
   password: string;
 }>;
 
+export type SignupFormInitialValues = Readonly<{
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+}>;
+
+const emptySignupFormInitialValues: SignupFormInitialValues = {
+  fullName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  acceptTerms: false,
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -25,6 +41,22 @@ function normalizeSignupState(value: unknown): SignupPersistedState | null {
   }
 
   return { fullName, email, password };
+}
+
+export function getSignupFormInitialValues(): SignupFormInitialValues {
+  const saved = loadSignupState();
+
+  if (!saved) {
+    return emptySignupFormInitialValues;
+  }
+
+  return {
+    fullName: saved.fullName,
+    email: saved.email,
+    password: saved.password,
+    confirmPassword: saved.password,
+    acceptTerms: true,
+  };
 }
 
 export function loadSignupState(): SignupPersistedState | null {

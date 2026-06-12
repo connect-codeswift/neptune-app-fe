@@ -11,7 +11,11 @@ import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
 import { safeParseSignupForm } from "@/dtos/req/auth-request.dto";
 import { ehsLinkClass } from "@/lib/ehs-classes";
-import { saveSignupState } from "@/lib/signup-storage";
+import {
+  getSignupFormInitialValues,
+  saveSignupState,
+  type SignupFormInitialValues,
+} from "@/lib/signup-storage";
 import { ShadeBall } from "@/components/ShadeBall";
 
 function getFormString(formData: FormData, name: string) {
@@ -22,6 +26,9 @@ function getFormString(formData: FormData, name: string) {
 export default function SignupRightPanel() {
   const router = useRouter();
   const [formError, setFormError] = useState("");
+  const [formValues, setFormValues] = useState<SignupFormInitialValues>(
+    getSignupFormInitialValues,
+  );
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,7 +50,8 @@ export default function SignupRightPanel() {
 
     if (!parsed.success) {
       const firstError =
-        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
+        parsed.error.issues[0]?.message ??
+        "Please check the form and try again.";
       setFormError(firstError);
       return;
     }
@@ -69,10 +77,10 @@ export default function SignupRightPanel() {
       <div className="flex w-full max-w-sm flex-col gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="text-ehs-darker text-2xl font-bold lg:text-4xl">
-            Create your account.
+            Create Your Account.
           </h2>
           <p className="text-ehs-muted-text text-xs lg:text-sm">
-            Start your Neptune workspace in minutes.
+            Start Your Neptune Workspace in Minutes.
           </p>
         </div>
 
@@ -83,13 +91,13 @@ export default function SignupRightPanel() {
           className="w-full font-medium"
         >
           <Icon icon="flat-color-icons:google" className="text-sm" />
-          Continue with Google
+          Continue With Google
         </Button>
 
         <div className="flex items-center gap-2">
           <hr className="border-ehs-border flex-1" />
           <span className="text-ehs-muted-text text-xs">
-            or sign up with email
+            or Sign Up With Email
           </span>
           <hr className="border-ehs-border flex-1" />
         </div>
@@ -98,18 +106,32 @@ export default function SignupRightPanel() {
           <TextInput
             id="name"
             name="name"
-            label="Full name"
+            label="Full Name"
             type="text"
             autoComplete="name"
-            placeholder="Sarah Nordvik"
+            placeholder="Enter Your Full Name"
+            value={formValues.fullName}
+            onChange={(event) =>
+              setFormValues((current) => ({
+                ...current,
+                fullName: event.target.value,
+              }))
+            }
             required
           />
 
           <EmailInput
             id="email"
             name="email"
-            label="Email address"
-            placeholder="sarah@nordvik.com"
+            label="Email Address"
+            placeholder="Enter Your Email Address"
+            value={formValues.email}
+            onChange={(event) =>
+              setFormValues((current) => ({
+                ...current,
+                email: event.target.value,
+              }))
+            }
             required
           />
 
@@ -118,19 +140,33 @@ export default function SignupRightPanel() {
             name="password"
             label="Password"
             autoComplete="new-password"
-            placeholder="Create a strong password"
+            placeholder="Create A Strong Password"
             showStrengthMeter
+            value={formValues.password}
+            onChange={(event) =>
+              setFormValues((current) => ({
+                ...current,
+                password: event.target.value,
+              }))
+            }
             required
           />
 
           <Password
             id="confirm-password"
             name="confirmPassword"
-            label="Confirm password"
+            label="Confirm Password"
             autoComplete="new-password"
-            placeholder="Confirm your password"
+            placeholder="Confirm Your Password"
+            value={formValues.confirmPassword}
+            onChange={(event) => {
+              setFormError("");
+              setFormValues((current) => ({
+                ...current,
+                confirmPassword: event.target.value,
+              }));
+            }}
             required
-            onChange={() => setFormError("")}
           />
 
           <div className="flex items-start gap-2">
@@ -138,15 +174,25 @@ export default function SignupRightPanel() {
               id="accept-terms"
               type="checkbox"
               name="acceptTerms"
+              checked={formValues.acceptTerms}
+              onChange={(event) =>
+                setFormValues((current) => ({
+                  ...current,
+                  acceptTerms: event.target.checked,
+                }))
+              }
               required
               className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 mt-0.5 size-4 shrink-0 rounded focus:ring-2"
             />
             <p className="text-ehs-muted-text text-xs leading-relaxed">
               <label htmlFor="accept-terms" className="cursor-pointer">
-                I agree to Neptune&apos;s{" "}
+                I agree with the Neptune&apos;s{" "}
               </label>
-              <ScrollLink href="/tos" className="font-semibold">
-                Terms of Service
+              <ScrollLink
+                href="/terms-and-conditions"
+                className="font-semibold"
+              >
+                Terms & Conditions
               </ScrollLink>{" "}
               and{" "}
               <ScrollLink href="/privacy" className="font-semibold">
@@ -169,9 +215,9 @@ export default function SignupRightPanel() {
         </form>
 
         <p className="text-ehs-muted-text text-center text-sm">
-          Already have an account?{" "}
+          Already Have an Account?{" "}
           <ScrollLink href="/login" className={`${ehsLinkClass} font-semibold`}>
-            Sign in
+            Sign In
           </ScrollLink>
         </p>
       </div>

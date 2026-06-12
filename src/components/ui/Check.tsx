@@ -12,7 +12,7 @@ export function Check(props: Readonly<CheckProps>) {
     <span
       aria-hidden="true"
       className={[
-        "flex size-7 cursor-pointer shrink-0 items-center justify-center rounded-md border transition-colors",
+        "pointer-events-none flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors",
         checked
           ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-light-text"
           : "border-ehs-border bg-white",
