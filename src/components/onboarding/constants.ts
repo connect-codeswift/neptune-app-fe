@@ -10,27 +10,27 @@ export const MODULES = [
     title: "Incident Management",
     description: "Report, route & close incidents",
     icon: "mdi:alert-outline",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "hazard-near-miss",
     title: "Hazard & Near-Miss",
     description: "Spot risks before they escalate",
     icon: "mdi:alert-outline",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
     id: "capa-investigations",
     title: "CAPA & Investigations",
     description: "Corrective & preventive actions",
     icon: "mdi:clipboard-text-outline",
-    defaultEnabled: true,
+    defaultEnabled: false,
   },
   {
-    id: "inspections-audits",
-    title: "Inspections & Audits",
+    id: "audits & inspection",
+    title: "Audits & Inspection",
     description: "Scheduled checks & compliance",
-    icon: "mdi:shield-check-outline",
+    icon: "mdi:clipboard-check-outline",
     defaultEnabled: false,
   },
   {
@@ -63,67 +63,6 @@ export function hasActiveModule(moduleState: ModuleState) {
 
 export function countActiveModules(moduleState: ModuleState) {
   return MODULES.filter((module) => moduleState[module.id]).length;
-}
-
-export const MOBILE_MODULES = [
-  {
-    id: "incident-reporting",
-    title: "Incident Reporting",
-    icon: "mdi:alert-outline",
-    defaultEnabled: true,
-  },
-  {
-    id: "near-miss-hazard",
-    title: "Near Miss & Hazard ID",
-    icon: "mdi:eye-outline",
-    defaultEnabled: false,
-  },
-  {
-    id: "ehs-kpi-analytics",
-    title: "EHS KPI Analytics",
-    icon: "mdi:lock-outline",
-    defaultEnabled: true,
-  },
-  {
-    id: "document-control",
-    title: "Document Control",
-    icon: "mdi:flash-outline",
-    defaultEnabled: true,
-  },
-  {
-    id: "audits-inspection",
-    title: "Audits & Inspection",
-    icon: "mdi:clipboard-check-outline",
-    defaultEnabled: false,
-  },
-  {
-    id: "compliance",
-    title: "Compliance",
-    icon: "mdi:alert-circle-outline",
-    defaultEnabled: true,
-  },
-  {
-    id: "capa-rac",
-    title: "CAPA & RAC",
-    icon: "mdi:checkbox-marked-outline",
-    defaultEnabled: false,
-  },
-] as const;
-
-export type MobileModuleId = (typeof MOBILE_MODULES)[number]["id"];
-
-export type MobileModuleState = Record<MobileModuleId, boolean>;
-
-export const initialMobileModuleState: MobileModuleState = Object.fromEntries(
-  MOBILE_MODULES.map((module) => [module.id, module.defaultEnabled]),
-) as MobileModuleState;
-
-export function hasActiveMobileModule(moduleState: MobileModuleState) {
-  return MOBILE_MODULES.some((module) => moduleState[module.id]);
-}
-
-export function countActiveMobileModules(moduleState: MobileModuleState) {
-  return MOBILE_MODULES.filter((module) => moduleState[module.id]).length;
 }
 
 export const INDUSTRY_OPTIONS = [

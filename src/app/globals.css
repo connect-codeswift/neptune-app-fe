@@ -78,6 +78,26 @@ body {
   min-height: 100vh;
 }
 
+[data-sonner-toaster] {
+  font-family: var(--font-inter);
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--ehs-green);
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--ehs-red);
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: var(--ehs-yellow);
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: var(--ehs-normal-blue);
+}
+
 /* Light sweep that travels across primary buttons on hover */
 @utility btn-sweep {
   position: relative;

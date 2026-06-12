@@ -1,17 +1,19 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type SubmitEvent } from "react";
 import { ShadeBall } from "@/components/ShadeBall";
 import { Text } from "@/components/Text";
 import { EmailInput } from "@/components/inputs/EmailInput";
+import { Password } from "@/components/inputs/Password";
+import { TextInput } from "@/components/inputs/TextInput";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
-import { safeParseForgotPasswordRequest } from "@/dtos/req/auth-request.dto";
+import { safeParseResetPasswordRequest } from "@/dtos/req/auth-request.dto";
 import {
   getMutationErrorMessage,
-  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } from "@/hooks/use-auth-mutations";
 import { ehsLinkClass } from "@/lib/ehs-classes";
 import { toast } from "@/lib/toast";
@@ -21,10 +23,12 @@ function getFormString(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
-export default function ForgotPasswordRightPanel() {
+export default function ResetPasswordRightPanel() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailFromQuery = searchParams.get("email") ?? "";
   const [formError, setFormError] = useState("");
-  const forgotPasswordMutation = useForgotPasswordMutation();
+  const resetPasswordMutation = useResetPasswordMutation();
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,14 +40,23 @@ export default function ForgotPasswordRightPanel() {
     }
 
     const formData = new FormData(form);
-    const parsed = safeParseForgotPasswordRequest({
+    const newPassword = getFormString(formData, "newPassword");
+    const confirmPassword = getFormString(formData, "confirmPassword");
+
+    if (newPassword !== confirmPassword) {
+      setFormError("Passwords do not match.");
+      return;
+    }
+
+    const parsed = safeParseResetPasswordRequest({
       email: getFormString(formData, "email"),
+      otp: getFormString(formData, "otp"),
+      newPassword,
     });
 
     if (!parsed.success) {
       const firstError =
-        parsed.error.issues[0]?.message ??
-        "Please check the form and try again.";
+        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
       setFormError(firstError);
       return;
     }
@@ -51,19 +64,14 @@ export default function ForgotPasswordRightPanel() {
     setFormError("");
 
     try {
-      await forgotPasswordMutation.mutateAsync(parsed.data);
-      toast.success(
-        "Reset code sent",
-        "Check your inbox for the code to reset your password.",
-      );
-      router.push(
-        `/reset-password?email=${encodeURIComponent(parsed.data.email)}`,
-      );
+      await resetPasswordMutation.mutateAsync(parsed.data);
+      toast.success("Password updated", "You can now sign in with your new password.");
+      router.push("/login");
     } catch (error) {
       setFormError(
         getMutationErrorMessage(
           error,
-          "Could not send reset code. Please try again.",
+          "Could not reset password. Please try again.",
         ),
       );
     }
@@ -71,10 +79,10 @@ export default function ForgotPasswordRightPanel() {
 
   const submitError =
     formError ||
-    (forgotPasswordMutation.error
+    (resetPasswordMutation.error
       ? getMutationErrorMessage(
-          forgotPasswordMutation.error,
-          "Could not send reset code. Please try again.",
+          resetPasswordMutation.error,
+          "Could not reset password. Please try again.",
         )
       : "");
 
@@ -93,11 +101,10 @@ export default function ForgotPasswordRightPanel() {
         <div className="flex w-full max-w-sm flex-col gap-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-ehs-darker text-2xl font-bold">
-              Forgot Password?
+              Reset Password
             </h2>
             <p className="text-ehs-muted-text mt-1.5 text-sm">
-              Enter your email and we&apos;ll send you a code to reset your
-              password.
+              Enter the code from your email and choose a new password.
             </p>
           </div>
 
@@ -107,8 +114,40 @@ export default function ForgotPasswordRightPanel() {
               name="email"
               label="Email Address"
               placeholder="Enter Your Email Address"
+              defaultValue={emailFromQuery}
               required
-              disabled={forgotPasswordMutation.isPending}
+              disabled={resetPasswordMutation.isPending}
+            />
+
+            <TextInput
+              id="otp"
+              name="otp"
+              label="Reset Code"
+              placeholder="Enter The Code From Your Email"
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              required
+              disabled={resetPasswordMutation.isPending}
+            />
+
+            <Password
+              id="newPassword"
+              name="newPassword"
+              label="New Password"
+              placeholder="Enter Your New Password"
+              autoComplete="new-password"
+              required
+              disabled={resetPasswordMutation.isPending}
+            />
+
+            <Password
+              id="confirmPassword"
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Confirm Your New Password"
+              autoComplete="new-password"
+              required
+              disabled={resetPasswordMutation.isPending}
             />
 
             {submitError ? (
@@ -121,13 +160,13 @@ export default function ForgotPasswordRightPanel() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={forgotPasswordMutation.isPending}
+              disabled={resetPasswordMutation.isPending}
             >
-              {forgotPasswordMutation.isPending ? (
-                "Sending..."
+              {resetPasswordMutation.isPending ? (
+                "Updating..."
               ) : (
                 <>
-                  Send Reset Code
+                  Reset Password
                   <Icon
                     icon="mdi:arrow-right"
                     className="text-lg"
@@ -139,12 +178,12 @@ export default function ForgotPasswordRightPanel() {
           </form>
 
           <p className="text-ehs-muted-text text-center text-sm">
-            Remember Your Password?{" "}
+            Didn&apos;t Get A Code?{" "}
             <ScrollLink
-              href="/login"
+              href="/forget-password"
               className={`${ehsLinkClass} font-semibold`}
             >
-              Sign In
+              Request A New One
             </ScrollLink>
           </p>
         </div>

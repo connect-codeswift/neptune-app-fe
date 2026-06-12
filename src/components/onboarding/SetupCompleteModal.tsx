@@ -57,13 +57,13 @@ function SuccessConfetti() {
   }
 
   return (
-    <div className="pointer-events-none absolute left-1/2 top-[34%] z-20 size-0">
+    <div className="pointer-events-none absolute top-[34%] left-1/2 z-20 size-0">
       {pieces.map((piece) => (
         <span
           key={piece.id}
           aria-hidden="true"
           className={[
-            "animate-confetti-burst absolute left-0 top-0 rounded-sm",
+            "animate-confetti-burst absolute top-0 left-0 rounded-sm",
             piece.wide ? "h-1 w-2.5" : "h-2.5 w-1",
           ].join(" ")}
           style={
@@ -108,18 +108,15 @@ function SuccessCheckIcon() {
   const [showRipples, setShowRipples] = useState(true);
 
   return (
-    <div
-      className="relative size-40 overflow-visible"
-      aria-hidden="true"
-    >
+    <div className="relative size-40 overflow-visible" aria-hidden="true">
       {showRipples ? (
         <>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="border-ehs-normal-blue/45 pointer-events-none size-14 animate-check-ripple rounded-full border-2" />
+            <span className="border-ehs-normal-blue/45 animate-check-ripple pointer-events-none size-14 rounded-full border-2" />
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
             <span
-              className="border-ehs-normal-blue/35 pointer-events-none size-14 animate-check-ripple rounded-full border-2 [animation-delay:0.1s]"
+              className="border-ehs-normal-blue/35 animate-check-ripple pointer-events-none size-14 rounded-full border-2 [animation-delay:0.1s]"
               onAnimationEnd={() => setShowRipples(false)}
             />
           </div>
@@ -128,7 +125,11 @@ function SuccessCheckIcon() {
       <SuccessConfetti />
       <div className="relative z-10 flex size-full items-center justify-center">
         <span className="bg-ehs-normal-blue shadow-ehs-normal-blue/30 flex size-24 items-center justify-center rounded-full shadow-md">
-          <Icon icon="mdi:check" strokeWidth={3} className="text-ehs-light-text text-5xl" />
+          <Icon
+            icon="mdi:check"
+            strokeWidth={3}
+            className="text-ehs-light-text text-5xl"
+          />
         </span>
       </div>
     </div>

@@ -1,10 +1,7 @@
 import {
-  initialMobileModuleState,
   initialModuleState,
   initialSites,
-  MOBILE_MODULES,
   MODULES,
-  type MobileModuleState,
   type ModuleState,
   type SiteInfo,
 } from "@/components/onboarding/constants";
@@ -22,7 +19,6 @@ export type OnboardingPersistedState = Readonly<{
   organizationName: string;
   sites: SiteInfo[];
   moduleState: ModuleState;
-  mobileModuleState: MobileModuleState;
   invites: OnboardingInvite[];
 }>;
 
@@ -45,23 +41,6 @@ function normalizeModuleState(value: unknown): ModuleState {
         : defaults[module.id],
     ]),
   ) as ModuleState;
-}
-
-function normalizeMobileModuleState(value: unknown): MobileModuleState {
-  const defaults = initialMobileModuleState;
-
-  if (!isRecord(value)) {
-    return defaults;
-  }
-
-  return Object.fromEntries(
-    MOBILE_MODULES.map((module) => [
-      module.id,
-      typeof value[module.id] === "boolean"
-        ? value[module.id]
-        : defaults[module.id],
-    ]),
-  ) as MobileModuleState;
 }
 
 function normalizeSites(value: unknown): SiteInfo[] {
@@ -116,7 +95,6 @@ function normalizePersistedState(value: unknown): OnboardingPersistedState | nul
       typeof value.organizationName === "string" ? value.organizationName : "",
     sites: normalizeSites(value.sites),
     moduleState: normalizeModuleState(value.moduleState),
-    mobileModuleState: normalizeMobileModuleState(value.mobileModuleState),
     invites: normalizeInvites(value.invites),
   };
 }
