@@ -11,6 +11,7 @@ import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
 import { safeParseSignupForm } from "@/dtos/req/auth-request.dto";
 import { ehsLinkClass } from "@/lib/ehs-classes";
+import { isStrongPassword } from "@/lib/password-strength";
 import {
   getSignupFormInitialValues,
   saveSignupState,
@@ -29,6 +30,8 @@ export default function SignupRightPanel() {
   const [formValues, setFormValues] = useState<SignupFormInitialValues>(
     getSignupFormInitialValues,
   );
+
+  const canCreateAccount = isStrongPassword(formValues.password);
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -208,7 +211,12 @@ export default function SignupRightPanel() {
             </Text>
           ) : null}
 
-          <Button type="submit" variant="primary" className="w-full">
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full"
+            disabled={!canCreateAccount}
+          >
             Create account
             <Icon icon="mdi:arrow-right" className="text-lg" />
           </Button>
