@@ -1,35 +1,34 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-
-export type IncidentView = "dashboard" | "list";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export type IncidentViewTabsProps = Readonly<{
-  activeView?: IncidentView;
-  onViewChange?: (view: IncidentView) => void;
   className?: string;
 }>;
 
 const TABS = [
   {
-    id: "dashboard" as const,
+    href: "/incidents/dashboard",
     label: "Dashboard",
     icon: "mdi:view-dashboard-outline",
   },
   {
-    id: "list" as const,
+    href: "/incidents/list",
     label: "Incident list",
     icon: "mdi:format-list-bulleted",
   },
 ] as const;
 
 export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
-  const { activeView = "dashboard", onViewChange, className = "" } = props;
+  const { className = "" } = props;
+  const pathname = usePathname();
 
   return (
     <div
       className={[
-        "inline-flex w-fit shrink-0 gap-1 self-start rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/60 p-[5px]",
+        "inline-flex max-w-full shrink-0 gap-1 self-start overflow-x-auto rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/60 p-[5px]",
         className,
       ]
         .filter(Boolean)
@@ -38,15 +37,15 @@ export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
       aria-label="Incident views"
     >
       {TABS.map((tab) => {
-        const isActive = activeView === tab.id;
+        const isActive =
+          pathname === tab.href || pathname.startsWith(`${tab.href}/`);
 
         return (
-          <button
-            key={tab.id}
-            type="button"
+          <Link
+            key={tab.href}
+            href={tab.href}
             role="tab"
             aria-selected={isActive}
-            onClick={() => onViewChange?.(tab.id)}
             className={[
               "inline-flex w-fit items-center gap-[7px] rounded-[9px] px-4 py-[9px] text-[13px] font-bold transition-colors",
               isActive
@@ -56,7 +55,7 @@ export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
           >
             <Icon icon={tab.icon} className="text-sm" aria-hidden="true" />
             {tab.label}
-          </button>
+          </Link>
         );
       })}
     </div>

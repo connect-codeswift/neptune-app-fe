@@ -3,8 +3,8 @@ import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
 import {
   TargetProgress,
   resolveTargetStatus,
-} from "@/components/incidents/TargetProgress";
-import type { HeroKpiMetric } from "@/components/incidents/incident-kpis-data";
+} from "@/components/incidents/dashboard/TargetProgress";
+import type { HeroKpiMetric } from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type HeroKpiCardProps = Readonly<{
   metric: HeroKpiMetric;

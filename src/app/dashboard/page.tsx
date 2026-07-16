@@ -34,7 +34,7 @@ export default function DashboardPage() {
             title="Recent Activity"
             subtitle="Live feed"
             items={RECENT_ACTIVITY_ITEMS}
-            viewAllHref="/incidents"
+            viewAllHref="/incidents/list"
             showDividers
           />
         </div>

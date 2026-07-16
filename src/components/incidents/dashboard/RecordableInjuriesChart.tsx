@@ -5,7 +5,7 @@ import {
   RECORDABLE_MONTHS,
   RECORDABLE_SERIES,
   RECORDABLE_TARGET,
-} from "@/components/incidents/incident-kpis-data";
+} from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type RecordableInjuriesChartProps = Readonly<{
   className?: string;

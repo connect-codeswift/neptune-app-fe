@@ -3,7 +3,7 @@ import { Text } from "@/components/Text";
 import type {
   TargetDirection,
   TargetStatus,
-} from "@/components/incidents/incident-kpis-data";
+} from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type TargetProgressProps = Readonly<{
   current: number;

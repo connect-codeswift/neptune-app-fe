@@ -20,11 +20,13 @@ export function AppShell(props: Readonly<AppShellProps>) {
   }, [router]);
 
   return (
-    <div className="bg-ehs-light-bg ml-68 flex min-h-screen">
+    <div className="bg-ehs-light-bg ml-68 flex min-h-screen min-w-0">
       <div className="bg-ehs-light-bg fixed top-0 left-0 w-68">
         <DashboardSidebar />
       </div>
-      {children}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden">
+        {children}
+      </div>
     </div>
   );
 }

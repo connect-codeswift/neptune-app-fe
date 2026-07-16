@@ -3,7 +3,7 @@ import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
 import {
   INJURY_MIX,
   INJURY_MIX_TOTAL,
-} from "@/components/incidents/incident-kpis-data";
+} from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type InjuryMixCardProps = Readonly<{
   className?: string;
