@@ -192,8 +192,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="border-b border-white/40 px-5 py-5">
-        <Logo text="EHS PLATFORM" />
+      <div className="flex flex-col items-center px-5 pt-5">
+        <Logo />
+        <div
+          className="border-ehs-border mt-4 w-full border-t"
+          aria-hidden="true"
+        />
       </div>
 
       <nav className="flex flex-1 scrollbar-none flex-col gap-6 overflow-y-auto px-4 py-5">

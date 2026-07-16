@@ -164,7 +164,7 @@ export default function OrganizationSetupPage() {
       <div className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center gap-10 px-4 py-8 lg:px-0">
         <div className="grid w-full grid-cols-1 lg:grid-cols-4 place-items-center gap-4">
           <div className="col-span-1 h-24 lg:block hidden">
-            <Logo text="Workspace setup" />
+            <Logo />
           </div>
           <div className="col-span-1 lg:col-span-2">
             <Stepper

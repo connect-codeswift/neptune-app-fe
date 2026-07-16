@@ -30,7 +30,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     onDateRangeClick,
     onNotificationsClick,
     hasUnreadNotifications = true,
-    reportHref = "/dashboard/incidents/report-incident",
+    reportHref = "/incidents/report",
     className = "",
   } = props;
 

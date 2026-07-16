@@ -1,0 +1,205 @@
+"use client";
+
+import { Icon } from "@iconify/react";
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
+import { Text } from "@/components/Text";
+
+export const reportFieldInputClass =
+  "h-9 w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] text-[13px] text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+
+const fieldInputClass = reportFieldInputClass;
+
+export type ReportFieldLabelProps = Readonly<{
+  label: string;
+  required?: boolean;
+  hint?: string;
+  trailing?: ReactNode;
+}>;
+
+export function ReportFieldLabel(props: Readonly<ReportFieldLabelProps>) {
+  const { label, required = false, hint, trailing } = props;
+
+  return (
+    <div className="flex min-h-7 flex-wrap items-end gap-1.5">
+      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+        {label}
+      </Text>
+      {required ? (
+        <Text as="span" className="text-ehs-red text-[12px]">
+          *
+        </Text>
+      ) : null}
+      {hint ? (
+        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
+          <Icon icon="mdi:information-outline" className="size-3" aria-hidden="true" />
+          {hint}
+        </span>
+      ) : null}
+      {trailing ? <span className="ml-auto">{trailing}</span> : null}
+    </div>
+  );
+}
+
+export type ReportTextFieldProps = Readonly<
+  Omit<InputHTMLAttributes<HTMLInputElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    helperText?: string;
+    trailingHint?: string;
+    endIcon?: string;
+    className?: string;
+  }
+>;
+
+export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
+  const {
+    label,
+    required,
+    helperText,
+    trailingHint,
+    endIcon,
+    className = "",
+    id,
+    ...rest
+  } = props;
+
+  return (
+    <div className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}>
+      <ReportFieldLabel
+        label={label}
+        required={required}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <div className="relative">
+        <input id={id} className={[fieldInputClass, endIcon ? "pr-9" : ""].join(" ")} {...rest} />
+        {endIcon ? (
+          <Icon
+            icon={endIcon}
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[13px] -translate-y-1/2"
+            aria-hidden="true"
+          />
+        ) : null}
+      </div>
+      {helperText ? (
+        <Text as="p" className="text-ehs-muted-text text-[10px]">
+          {helperText}
+        </Text>
+      ) : null}
+    </div>
+  );
+}
+
+export type ReportSelectFieldProps = Readonly<
+  Omit<SelectHTMLAttributes<HTMLSelectElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    hint?: string;
+    trailingHint?: string;
+    options: readonly { value: string; label: string }[];
+    className?: string;
+  }
+>;
+
+export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
+  const {
+    label,
+    required,
+    hint,
+    trailingHint,
+    options,
+    className = "",
+    id,
+    ...rest
+  } = props;
+
+  return (
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
+      <ReportFieldLabel
+        label={label}
+        required={required}
+        hint={hint}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <div className="relative">
+        <select
+          id={id}
+          className={`${fieldInputClass} appearance-none pr-8`}
+          {...rest}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <Icon
+          icon="mdi:chevron-down"
+          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 size-[13px] -translate-y-1/2"
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
+}
+
+export type ReportTextareaFieldProps = Readonly<
+  Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    trailingHint?: string;
+    className?: string;
+  }
+>;
+
+export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
+  const {
+    label,
+    required,
+    trailingHint,
+    className = "",
+    id,
+    ...rest
+  } = props;
+
+  return (
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
+      <ReportFieldLabel
+        label={label}
+        required={required}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <textarea
+        id={id}
+        className="min-h-[110px] w-full resize-y rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] py-[10.5px] text-[13px] leading-[19.5px] text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+        {...rest}
+      />
+    </div>
+  );
+}
