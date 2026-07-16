@@ -5,7 +5,7 @@ export default function ReportIncidentPage() {
     <div className="flex min-h-screen flex-1 flex-col gap-4 px-4 pb-8 pt-4">
       <BreadCrumbTab
         breadcrumbs={[
-          { label: "Incidents", href: "/dashboard/incidents" },
+          { label: "Incidents", href: "/incidents" },
           { label: "Report" },
         ]}
         title="Report an incident"

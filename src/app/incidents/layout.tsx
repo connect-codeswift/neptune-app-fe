@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/AppShell";
 
-export default function DashboardLayout({
+export default function IncidentsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
