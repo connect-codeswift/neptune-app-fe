@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import {
@@ -20,9 +21,7 @@ export type ReportBodyPartFieldProps = Readonly<{
   className?: string;
 }>;
 
-export function ReportBodyPartField(
-  props: Readonly<ReportBodyPartFieldProps>,
-) {
+export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
   const {
     bodyParts,
     bodySide,
@@ -32,6 +31,8 @@ export function ReportBodyPartField(
     onMultiSelectChange,
     className = "",
   } = props;
+
+  const [activeTab, setActiveTab] = useState<"front" | "back">("front");
 
   const selectPart = (part: BodyPartId, side?: BodySide) => {
     if (side) {
@@ -56,38 +57,65 @@ export function ReportBodyPartField(
 
   return (
     <div
-      className={["flex flex-col gap-1.5 pt-[18px]", className]
+      className={["flex flex-col gap-2.5 pt-[18px]", className]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex shrink-0 items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <Text as="span" className="text-[13px] font-bold text-[#2a3446]">
           Body part affected
         </Text>
-        <Text
-          as="span"
-          className="text-ehs-muted-text ml-auto text-[11px]"
-        >
+        <Text as="span" className="text-ehs-muted-text ml-auto text-[11px]">
           Tap a region on the figure, or pick from the list.
         </Text>
       </div>
 
-      <div className="flex h-[600px] w-full min-h-[600px] flex-col rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-5">
-        <div className="grid h-full min-h-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1.45fr)_minmax(220px,0.85fr)] xl:items-stretch">
+      <div className="flex w-full flex-col gap-4 rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4 sm:p-5">
+        {/* View Switcher for Mobile Devices */}
+        <div className="flex w-full rounded-[10px] bg-[rgba(15,23,42,0.04)] p-1 sm:hidden">
+          <button
+            type="button"
+            onClick={() => setActiveTab("front")}
+            className={[
+              "flex-1 rounded-[8px] py-1.5 text-[12px] font-bold transition-all duration-200",
+              activeTab === "front"
+                ? "bg-white text-[#056e7e] shadow-sm"
+                : "text-ehs-gray hover:text-[#2a3446]",
+            ].join(" ")}
+          >
+            Front view
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("back")}
+            className={[
+              "flex-1 rounded-[8px] py-1.5 text-[12px] font-bold transition-all duration-200",
+              activeTab === "back"
+                ? "bg-white text-[#056e7e] shadow-sm"
+                : "text-ehs-gray hover:text-[#2a3446]",
+            ].join(" ")}
+          >
+            Back view
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1.45fr)_minmax(220px,0.85fr)]">
           <ReportBodyMapFigure
             view="front"
             selectedParts={bodyParts}
             bodySide={bodySide}
             onSelectPart={selectPart}
+            className={activeTab === "front" ? "flex" : "hidden sm:flex"}
           />
           <ReportBodyMapFigure
             view="back"
             selectedParts={bodyParts}
             bodySide={bodySide}
             onSelectPart={selectPart}
+            className={activeTab === "back" ? "flex" : "hidden sm:flex"}
           />
 
-          <div className="flex min-h-0 min-w-0 flex-col gap-3 self-stretch overflow-hidden">
+          <div className="col-span-1 flex min-w-0 flex-col gap-4 self-stretch sm:col-span-2 2xl:col-span-1">
             <div className="flex shrink-0 flex-col gap-2">
               <Text
                 as="p"
@@ -96,8 +124,8 @@ export function ReportBodyPartField(
                 Selected
               </Text>
 
-              <div className="flex w-full items-center gap-2.5 rounded-[10px] border border-ehs-normal-blue bg-ehs-normal-blue/18 px-3.5 py-2.5">
-                <span className="size-2.5 shrink-0 rounded-[2px] bg-ehs-normal-blue" />
+              <div className="border-ehs-normal-blue bg-ehs-normal-blue/18 flex w-full items-center gap-2.5 rounded-[10px] border px-3.5 py-2.5">
+                <span className="bg-ehs-normal-blue size-2.5 shrink-0 rounded-[2px]" />
                 <Text
                   as="span"
                   className="text-[13px] font-bold text-[#056e7e]"
@@ -135,7 +163,7 @@ export function ReportBodyPartField(
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+            <div className="flex flex-col gap-2">
               <Text
                 as="p"
                 className="text-ehs-muted-text shrink-0 text-[11px] font-bold tracking-[1.2px] uppercase"
@@ -143,7 +171,7 @@ export function ReportBodyPartField(
                 Or pick from list
               </Text>
 
-              <div className="flex min-h-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto">
+              <div className="flex flex-wrap content-start gap-2">
                 {BODY_PART_OPTIONS.map((part) => {
                   const isSelected = bodyParts.includes(part.id);
                   return (
@@ -161,9 +189,7 @@ export function ReportBodyPartField(
                       <span
                         className={[
                           "size-2 shrink-0 rounded-[3px]",
-                          isSelected
-                            ? "bg-ehs-normal-blue"
-                            : "bg-[#b3bbc8]",
+                          isSelected ? "bg-ehs-normal-blue" : "bg-[#b3bbc8]",
                         ].join(" ")}
                       />
                       {part.label}

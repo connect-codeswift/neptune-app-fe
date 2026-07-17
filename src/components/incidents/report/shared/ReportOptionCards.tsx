@@ -65,7 +65,7 @@ export function ReportOptionCards<T extends string>(
       <div
         className={
           variant === "tile"
-            ? "grid grid-cols-2 gap-2.5"
+            ? "grid grid-cols-1 sm:grid-cols-2 gap-2.5"
             : "flex flex-wrap gap-[11px]"
         }
         role="radiogroup"

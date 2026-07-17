@@ -32,7 +32,7 @@ export function ReportIncidentStepThree(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[29px]"
+      paddingClassName="p-4 sm:p-[29px]"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-7">

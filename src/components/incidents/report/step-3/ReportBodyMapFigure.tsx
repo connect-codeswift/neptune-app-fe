@@ -38,7 +38,7 @@ export function ReportBodyMapFigure(
   return (
     <div
       className={[
-        "flex h-full min-h-0 w-full flex-col items-center gap-1.5 self-stretch rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-3 pt-2.5 pb-3",
+        "flex w-full flex-col items-center gap-1 sm:gap-1.5 self-stretch rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:px-3 sm:pt-2.5",
         className,
       ]
         .filter(Boolean)
@@ -51,7 +51,7 @@ export function ReportBodyMapFigure(
         {label}
       </Text>
 
-      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden">
+      <div className="relative flex w-full items-center justify-center overflow-hidden">
         <ReportBodyMapSvg
           view={view}
           selectedParts={selectedParts}
