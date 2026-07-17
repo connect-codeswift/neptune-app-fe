@@ -1,94 +1,22 @@
 "use client";
 
-import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   createInitialReportFormState,
-  REPORT_STEPS,
   SEVERITY_OPTIONS,
   type ReportIncidentFormState,
   type ReportStepId,
-} from "@/components/incidents/report/report-incident-data";
-import { ReportIncidentAside } from "@/components/incidents/report/ReportIncidentAside";
-import { ReportIncidentPageHeader } from "@/components/incidents/report/ReportIncidentPageHeader";
-import { ReportIncidentStepOne } from "@/components/incidents/report/ReportIncidentStepOne";
-import { ReportIncidentStepTwo } from "@/components/incidents/report/ReportIncidentStepTwo";
-import { ReportIncidentSteps } from "@/components/incidents/report/ReportIncidentSteps";
-import { ReportIncidentToolbar } from "@/components/incidents/report/ReportIncidentToolbar";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
-import { Button } from "@/components/ui/Button";
-import { Text } from "@/components/Text";
-
-function ComingSoonStep(
-  props: Readonly<{
-    step: ReportStepId;
-    onBack: () => void;
-    onContinue: () => void;
-  }>,
-) {
-  const { step, onBack, onContinue } = props;
-  const stepMeta = REPORT_STEPS.find((item) => item.id === step);
-
-  return (
-    <IncidentGlassCard paddingClassName="p-[29px]" className="min-w-0 flex-1">
-      <div className="flex min-h-[420px] flex-col gap-7">
-        <div>
-          <Text
-            as="p"
-            className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
-          >
-            {`Step ${String(step)}`}
-          </Text>
-          <Text
-            as="h2"
-            className="text-ehs-dark-bg mt-1.5 text-[21.3px] font-bold tracking-[-0.44px]"
-          >
-            {stepMeta?.title ?? "Next step"}
-          </Text>
-          <Text as="p" className="text-ehs-gray mt-1.5 text-[12px]">
-            {stepMeta?.description ??
-              "This step will be available in a following iteration."}
-          </Text>
-        </div>
-
-        <div className="mt-auto border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Button
-              type="button"
-              variant="tertiary"
-              onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
-            >
-              <Icon
-                icon="mdi:chevron-left"
-                className="size-[13px]"
-                aria-hidden="true"
-              />
-              Back
-            </Button>
-            <div className="min-w-0 flex-1" />
-            {step < 5 ? (
-              <Button
-                type="button"
-                variant="primary"
-                onClick={onContinue}
-                className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
-              >
-                Continue
-                <Icon
-                  icon="mdi:chevron-right"
-                  className="size-[13px]"
-                  aria-hidden="true"
-                />
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </IncidentGlassCard>
-  );
-}
+} from "@/components/incidents/report/shared/report-incident-data";
+import { ReportIncidentAside } from "@/components/incidents/report/shared/ReportIncidentAside";
+import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
+import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
+import { ReportIncidentToolbar } from "@/components/incidents/report/shared/ReportIncidentToolbar";
+import { ReportIncidentStepOne } from "@/components/incidents/report/step-1";
+import { ReportIncidentStepTwo } from "@/components/incidents/report/step-2";
+import { ReportIncidentStepThree } from "@/components/incidents/report/step-3";
+import { ReportIncidentStepFour } from "@/components/incidents/report/step-4";
+import { ReportIncidentStepFive } from "@/components/incidents/report/step-5";
 
 function renderStepForm(
   currentStep: ReportStepId,
@@ -97,35 +25,27 @@ function renderStepForm(
   handleBack: () => void,
   handleContinue: () => void,
 ) {
-  if (currentStep === 1) {
-    return (
-      <ReportIncidentStepOne
-        form={form}
-        onChange={updateForm}
-        onBack={handleBack}
-        onContinue={handleContinue}
-      />
-    );
-  }
+  const sharedProps = {
+    form,
+    onChange: updateForm,
+    onBack: handleBack,
+    onContinue: handleContinue,
+  };
 
-  if (currentStep === 2) {
-    return (
-      <ReportIncidentStepTwo
-        form={form}
-        onChange={updateForm}
-        onBack={handleBack}
-        onContinue={handleContinue}
-      />
-    );
+  switch (currentStep) {
+    case 1:
+      return <ReportIncidentStepOne {...sharedProps} />;
+    case 2:
+      return <ReportIncidentStepTwo {...sharedProps} />;
+    case 3:
+      return <ReportIncidentStepThree {...sharedProps} />;
+    case 4:
+      return <ReportIncidentStepFour {...sharedProps} />;
+    case 5:
+      return <ReportIncidentStepFive {...sharedProps} />;
+    default:
+      return null;
   }
-
-  return (
-    <ComingSoonStep
-      step={currentStep}
-      onBack={handleBack}
-      onContinue={handleContinue}
-    />
-  );
 }
 
 export function ReportIncidentView() {

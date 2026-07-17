@@ -4,7 +4,7 @@ import { Text } from "@/components/Text";
 import {
   SEVERITY_OPTIONS,
   type SeverityId,
-} from "@/components/incidents/report/report-incident-data";
+} from "@/components/incidents/report/shared/report-incident-data";
 
 export type ReportSeverityPickerProps = Readonly<{
   value: SeverityId;

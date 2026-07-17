@@ -105,10 +105,24 @@ export const SITE_STATS = [
   { label: "Site supervisor", value: "Alicia Chen" },
 ] as const;
 
+export type ReportAttachmentKind = "image" | "pdf";
+
 export type ReportPhotoFile = Readonly<{
   id: string;
+  publicId?: string;
   name: string;
   sizeLabel: string;
+  bytes?: number;
+  url?: string;
+  secureUrl?: string;
+  mimeType?: string;
+  format?: string;
+  resourceType?: "image" | "raw" | "video" | "auto";
+  kind?: ReportAttachmentKind;
+  /** Local object URL used while uploading / as optimistic preview */
+  previewUrl?: string;
+  isUploading?: boolean;
+  error?: string;
 }>;
 
 export const INITIAL_TREATMENT_OPTIONS = [
@@ -137,11 +151,7 @@ export const NATURE_OF_INJURY_OPTIONS = [
   { value: "none", label: "No injury" },
 ] as const;
 
-export const DEFAULT_REPORT_PHOTOS: readonly ReportPhotoFile[] = [
-  { id: "img-2207", name: "IMG_2207", sizeLabel: "2 MB" },
-  { id: "img-2208", name: "IMG_2208", sizeLabel: "2 MB" },
-  { id: "img-2209", name: "IMG_2209", sizeLabel: "2 MB" },
-];
+export const DEFAULT_REPORT_PHOTOS: readonly ReportPhotoFile[] = [];
 
 export const STEP_TIPS: Record<ReportStepId, string> = {
   1: "Pick a type that fits — when unsure, choose the higher severity. EHS will adjust if needed.",

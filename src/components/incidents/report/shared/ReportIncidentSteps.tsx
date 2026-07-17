@@ -6,7 +6,7 @@ import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
 import {
   REPORT_STEPS,
   type ReportStepId,
-} from "@/components/incidents/report/report-incident-data";
+} from "@/components/incidents/report/shared/report-incident-data";
 
 export type ReportIncidentStepsProps = Readonly<{
   currentStep: ReportStepId;

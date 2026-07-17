@@ -10,14 +10,13 @@ import {
   NATURE_OF_INJURY_OPTIONS,
   YES_NO_OPTIONS,
   type ReportIncidentFormState,
-  type ReportPhotoFile,
-} from "@/components/incidents/report/report-incident-data";
+} from "@/components/incidents/report/shared/report-incident-data";
 import {
   ReportSelectField,
   ReportTextareaField,
   ReportTextField,
-} from "@/components/incidents/report/ReportFormField";
-import { ReportPhotosField } from "@/components/incidents/report/ReportPhotosField";
+} from "@/components/incidents/report/shared/ReportFormField";
+import { ReportPhotosField } from "@/components/incidents/report/step-2/ReportPhotosField";
 
 export type ReportIncidentStepTwoProps = Readonly<{
   form: ReportIncidentFormState;
@@ -32,25 +31,6 @@ export function ReportIncidentStepTwo(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
   const photos = form.photos ?? [];
-
-  const removePhoto = (id: string) => {
-    onChange({
-      photos: photos.filter((photo) => photo.id !== id),
-    });
-  };
-
-  const addPhoto = () => {
-    if (photos.length >= 10) {
-      return;
-    }
-    const nextIndex = photos.length + 1;
-    const photo: ReportPhotoFile = {
-      id: `img-new-${String(Date.now())}`,
-      name: `IMG_${String(2210 + nextIndex)}`,
-      sizeLabel: "1 MB",
-    };
-    onChange({ photos: [...photos, photo] });
-  };
 
   return (
     <IncidentGlassCard
@@ -162,8 +142,7 @@ export function ReportIncidentStepTwo(
 
           <ReportPhotosField
             photos={photos}
-            onRemove={removePhoto}
-            onAdd={addPhoto}
+            onChange={(nextPhotos) => onChange({ photos: nextPhotos })}
           />
 
           <ReportTextField

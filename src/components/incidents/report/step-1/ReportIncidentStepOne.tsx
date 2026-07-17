@@ -9,12 +9,12 @@ import {
   YES_NO_OPTIONS,
   type ReportIncidentFormState,
   type SeverityId,
-} from "@/components/incidents/report/report-incident-data";
+} from "@/components/incidents/report/shared/report-incident-data";
 import {
   ReportSelectField,
   ReportTextField,
-} from "@/components/incidents/report/ReportFormField";
-import { ReportSeverityPicker } from "@/components/incidents/report/ReportSeverityPicker";
+} from "@/components/incidents/report/shared/ReportFormField";
+import { ReportSeverityPicker } from "@/components/incidents/report/step-1/ReportSeverityPicker";
 
 export type ReportIncidentStepOneProps = Readonly<{
   form: ReportIncidentFormState;
