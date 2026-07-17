@@ -20,3 +20,7 @@ export * from "./FilePreviewModal";
 export * from "./IncidentDetailInvestigationCard";
 export * from "./IncidentDetailInvestigationStatusCard";
 export * from "./IncidentDetailSignOffCard";
+export * from "./IncidentDetailHrcaBoard";
+export * from "./IncidentDetailCapaListCard";
+export * from "./IncidentDetailCapaSummaryCard";
+export * from "./IncidentDetailCapaControlCoverageCard";

@@ -14,6 +14,7 @@ export type WhyChainItem = Readonly<{
 
 export type IncidentDetailInvestigationCardProps = Readonly<{
   whyChain?: readonly WhyChainItem[];
+  onOpenHrca?: () => void;
   className?: string;
 }>;
 
@@ -49,11 +50,11 @@ const DEFAULT_WHY_CHAIN: readonly WhyChainItem[] = [
 export function IncidentDetailInvestigationCard(
   props: Readonly<IncidentDetailInvestigationCardProps>,
 ) {
-  const { whyChain = DEFAULT_WHY_CHAIN, className = "" } = props;
+  const { whyChain = DEFAULT_WHY_CHAIN, onOpenHrca, className = "" } = props;
 
-  const handleOpenHrca = () => {
+  const handleOpenHrca = onOpenHrca ?? (() => {
     toast.success("HRCA Worksheet Opened", "Loading HRCA worksheet details...");
-  };
+  });
 
   return (
     <div className={["flex flex-col gap-[18px]", className].filter(Boolean).join(" ")}>

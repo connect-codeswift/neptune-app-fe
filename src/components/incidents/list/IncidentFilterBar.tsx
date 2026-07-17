@@ -17,9 +17,8 @@ export type IncidentFilterBarProps = Readonly<{
   className?: string;
 }>;
 
-/** Figma 1518:2576 — desktop 1150×90; stacks/wraps below xl */
 const shellClass =
-  "relative flex min-h-[90px] items-center rounded-[20px] border border-white/90 bg-white/[0.62] px-3 py-4 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] xl:min-h-[96px] xl:py-0 xl:pr-[9px]";
+  "relative flex h-auto min-h-[72px] w-full min-w-0 items-center rounded-[20px] border border-white/90 bg-white/[0.62] px-3.5 py-3.5 sm:px-4 sm:py-4 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] xl:min-h-[96px] xl:py-0 xl:pr-[9px]";
 
 export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
   const {
@@ -34,8 +33,8 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
 
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
-      <div className="relative z-[1] flex w-full min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:gap-[9px]">
-        <span className="inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-[8px] border border-ehs-border bg-white/[0.82] px-[9px] text-[11px] font-bold text-ehs-gray">
+      <div className="relative z-[1] flex w-full min-w-0 flex-col gap-3.5 xl:flex-row xl:items-center xl:gap-3">
+        <span className="border-ehs-border text-ehs-gray inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-[8px] border bg-white/[0.82] px-[9px] text-[11px] font-bold">
           <img
             src="/icons/filter-variant.svg"
             alt=""
@@ -47,13 +46,13 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
           Filters
         </span>
 
-        <div className="flex min-w-0 w-full flex-1 flex-col gap-3 sm:flex-row sm:items-center xl:gap-4">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3 xl:flex xl:flex-1 xl:items-center xl:gap-3">
           <IncidentSegmentedControl
             label="State"
             options={STATE_FILTERS}
             value={state}
             onChange={onStateChange}
-            className="sm:flex-1"
+            className="w-full xl:flex-1"
           />
 
           <IncidentSegmentedControl
@@ -61,7 +60,7 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
             options={STAGE_FILTERS}
             value={stage}
             onChange={onStageChange}
-            className="sm:flex-[1.4]"
+            className="w-full xl:flex-[1.4]"
           />
 
           <IncidentSegmentedControl
@@ -69,7 +68,7 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
             options={SEVERITY_FILTERS}
             value={severity}
             onChange={onSeverityChange}
-            className="sm:flex-[1.7]"
+            className="w-full md:col-span-2 lg:col-span-1 xl:flex-[1.7]"
           />
         </div>
       </div>

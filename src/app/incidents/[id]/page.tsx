@@ -24,6 +24,10 @@ import {
   IncidentDetailInvestigationCard,
   IncidentDetailInvestigationStatusCard,
   IncidentDetailSignOffCard,
+  IncidentDetailHrcaBoard,
+  IncidentDetailCapaListCard,
+  IncidentDetailCapaSummaryCard,
+  IncidentDetailCapaControlCoverageCard,
   type AttachmentItem,
   type TabId,
 } from "@/components/incidents/detail";
@@ -35,6 +39,7 @@ export default function IncidentDetailPage() {
     typeof params.id === "string" ? params.id : "INC-2025-DET-001";
 
   const [activeTab, setActiveTab] = useState<TabId>("details");
+  const [showHrca, setShowHrca] = useState(false);
   const [previewFile, setPreviewFile] = useState<AttachmentItem | null>(null);
 
   // Reactive State variables populated from localStorage
@@ -218,6 +223,11 @@ export default function IncidentDetailPage() {
     }
   }, []);
 
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab);
+    setShowHrca(false);
+  };
+
   const handleUploadSuccess = (item: AttachmentItem) => {
     setAttachments((prev) => [...prev, item]);
   };
@@ -231,7 +241,7 @@ export default function IncidentDetailPage() {
         <IncidentDetailHeader
           incidentId={incidentId}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
 
         {/* Tab-based View Content Layout */}
@@ -312,17 +322,37 @@ export default function IncidentDetailPage() {
           </div>
         )}
 
-        {activeTab === "investigation" && (
+        {activeTab === "investigation" &&
+          (showHrca ? (
+            <IncidentDetailHrcaBoard onClose={() => setShowHrca(false)} />
+          ) : (
+            <div className="mt-[18px] grid grid-cols-1 items-start gap-[18px] xl:grid-cols-[1fr_340px]">
+              {/* Left Column (5-Whys and Why-chain mapping) */}
+              <div className="flex flex-col gap-[18px]">
+                <IncidentDetailInvestigationCard
+                  onOpenHrca={() => setShowHrca(true)}
+                />
+              </div>
+
+              {/* Right Sidebar Column */}
+              <div className="flex flex-col gap-[18px]">
+                <IncidentDetailInvestigationStatusCard />
+                <IncidentDetailSignOffCard />
+              </div>
+            </div>
+          ))}
+
+        {activeTab === "linked-capa" && (
           <div className="mt-[18px] grid grid-cols-1 items-start gap-[18px] xl:grid-cols-[1fr_340px]">
-            {/* Left Column (5-Whys and Why-chain mapping) */}
+            {/* Left Column (Linked CAPA Actions List) */}
             <div className="flex flex-col gap-[18px]">
-              <IncidentDetailInvestigationCard />
+              <IncidentDetailCapaListCard />
             </div>
 
             {/* Right Sidebar Column */}
             <div className="flex flex-col gap-[18px]">
-              <IncidentDetailInvestigationStatusCard />
-              <IncidentDetailSignOffCard />
+              <IncidentDetailCapaSummaryCard />
+              <IncidentDetailCapaControlCoverageCard />
             </div>
           </div>
         )}
@@ -331,7 +361,8 @@ export default function IncidentDetailPage() {
           activeTab !== "timeline" &&
           activeTab !== "people" &&
           activeTab !== "attachments" &&
-          activeTab !== "investigation" && (
+          activeTab !== "investigation" &&
+          activeTab !== "linked-capa" && (
             <div className="mt-6 flex min-h-[200px] items-center justify-center rounded-[12px] border border-[rgba(15,23,42,0.06)] bg-white/42 p-6">
               <span className="text-ehs-muted-text text-[13px]">
                 Content for this tab is coming soon.
