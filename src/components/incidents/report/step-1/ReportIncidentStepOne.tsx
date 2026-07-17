@@ -55,6 +55,7 @@ export function ReportIncidentStepOne(
           <ReportSeverityPicker
             value={form.severity}
             onChange={(severity: SeverityId) => onChange({ severity })}
+            className="pt-3"
           />
 
           <div className="flex flex-col gap-4 pt-[18px]">

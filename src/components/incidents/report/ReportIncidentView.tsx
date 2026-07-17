@@ -61,6 +61,7 @@ export function ReportIncidentView() {
     ...formDefaults,
     ...form,
     photos: form.photos ?? formDefaults.photos,
+    bodyParts: form.bodyParts ?? formDefaults.bodyParts,
   };
 
   const severityOption =

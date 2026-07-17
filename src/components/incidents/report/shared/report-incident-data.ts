@@ -153,16 +153,94 @@ export const NATURE_OF_INJURY_OPTIONS = [
 
 export const DEFAULT_REPORT_PHOTOS: readonly ReportPhotoFile[] = [];
 
+export type InjuryLevelId =
+  | "no-injury"
+  | "first-aid"
+  | "medical-treatment"
+  | "lost-time";
+
+export type InjuryLevelOption = Readonly<{
+  id: InjuryLevelId;
+  label: string;
+  description: string;
+}>;
+
+export const INJURY_LEVEL_OPTIONS: readonly InjuryLevelOption[] = [
+  {
+    id: "no-injury",
+    label: "No injury",
+    description: "No one was hurt",
+  },
+  {
+    id: "first-aid",
+    label: "First aid only",
+    description: "Treated on-site",
+  },
+  {
+    id: "medical-treatment",
+    label: "Medical treatment",
+    description: "Off-site care needed",
+  },
+  {
+    id: "lost-time",
+    label: "Lost time",
+    description: "Could not return to work",
+  },
+];
+
+export const GENDER_OPTIONS = [
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
+  { value: "Non-binary", label: "Non-binary" },
+  { value: "Prefer not to say", label: "Prefer not to say" },
+] as const;
+
+export type BodyPartId =
+  | "head-face"
+  | "neck"
+  | "chest-shoulders"
+  | "arm"
+  | "hand-wrist"
+  | "abdomen"
+  | "hip-pelvis"
+  | "leg-knee"
+  | "foot-ankle"
+  | "back";
+
+export type BodyPartOption = Readonly<{
+  id: BodyPartId;
+  label: string;
+  sided?: boolean;
+}>;
+
+export const BODY_PART_OPTIONS: readonly BodyPartOption[] = [
+  { id: "head-face", label: "Head / face" },
+  { id: "neck", label: "Neck" },
+  { id: "chest-shoulders", label: "Chest / shoulders" },
+  { id: "arm", label: "Arm", sided: true },
+  { id: "hand-wrist", label: "Hand / wrist", sided: true },
+  { id: "abdomen", label: "Abdomen" },
+  { id: "hip-pelvis", label: "Hip / pelvis" },
+  { id: "leg-knee", label: "Leg / knee", sided: true },
+  { id: "foot-ankle", label: "Foot / ankle", sided: true },
+  { id: "back", label: "Back" },
+];
+
+export type BodySide = "Left" | "Right";
+
 export const STEP_TIPS: Record<ReportStepId, string> = {
   1: "Pick a type that fits — when unsure, choose the higher severity. EHS will adjust if needed.",
   2: 'A clear title beats a perfect one. "Hose rupture, Line 2" is great. Photos help everyone.',
-  3: "Capture who was involved and any treatment details while they’re fresh.",
+  3: "First aid means treatment beyond a band-aid. Lost time = unable to return for the next shift.",
   4: "Note actions already taken — isolation, LOTO, notifications, and containment.",
   5: "Review classifications and attachments before submitting to EHS.",
 };
 
 export const DEFAULT_INCIDENT_DESCRIPTION =
   "During second-shift operation, the high-pressure hose on press #4 ruptured at the coupling. Fluid contained within the guarding; no operator contact. Press isolated under LOTO pending hose replacement.";
+
+export const DEFAULT_INJURY_DESCRIPTION =
+  "Minor laceration on dorsal side of left hand, ~2cm. Bandaged on-site; sent to clinic for evaluation as a precaution.";
 
 export type ReportIncidentFormState = Readonly<{
   severity: SeverityId;
@@ -184,6 +262,12 @@ export type ReportIncidentFormState = Readonly<{
   oshaNotificationRequired: "Yes" | "No";
   witnesses: string;
   photos: readonly ReportPhotoFile[];
+  injuryLevel: InjuryLevelId;
+  gender: string;
+  bodyParts: readonly BodyPartId[];
+  bodySide: BodySide;
+  bodyMultiSelect: boolean;
+  injuryDescription: string;
 }>;
 
 export function createInitialReportFormState(): ReportIncidentFormState {
@@ -209,5 +293,37 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     oshaNotificationRequired: "No",
     witnesses: "Maria Lopez, Jake Bell",
     photos: DEFAULT_REPORT_PHOTOS,
+    injuryLevel: "medical-treatment",
+    gender: "Male",
+    bodyParts: ["hand-wrist"],
+    bodySide: "Left",
+    bodyMultiSelect: false,
+    injuryDescription: DEFAULT_INJURY_DESCRIPTION,
   };
+}
+
+export function formatBodyPartSelection(
+  bodyParts: readonly BodyPartId[],
+  bodySide: BodySide,
+): string {
+  if (bodyParts.length === 0) {
+    return "None selected";
+  }
+
+  const labels = bodyParts.map(
+    (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
+  );
+  const primary = BODY_PART_OPTIONS.find((part) => part.id === bodyParts[0]);
+  const showSide = primary?.sided !== false && bodyParts.some((id) => {
+    const option = BODY_PART_OPTIONS.find((part) => part.id === id);
+    return option?.sided;
+  });
+
+  if (labels.length === 1) {
+    return showSide ? `${labels[0]} · ${bodySide}` : labels[0];
+  }
+
+  return showSide
+    ? `${labels.join(", ")} · ${bodySide}`
+    : labels.join(", ");
 }
