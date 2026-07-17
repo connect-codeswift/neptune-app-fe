@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   SITE_STATS,
   STEP_TIPS,

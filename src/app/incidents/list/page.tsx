@@ -1,6 +1,8 @@
-import { IncidentViewTabs } from "@/components/incidents/IncidentViewTabs";
-import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
-import { IncidentListView } from "@/components/incidents/list/IncidentListView";
+import {
+  IncidentListHeader,
+  IncidentListView,
+} from "@/components/incidents/list";
+import { IncidentViewTabs } from "@/components/incidents/shared";
 
 export default function IncidentsListPage() {
   return (

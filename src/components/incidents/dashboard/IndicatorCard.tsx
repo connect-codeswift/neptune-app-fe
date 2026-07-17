@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { TargetProgress } from "@/components/incidents/dashboard/TargetProgress";
 import type { IndicatorMetric } from "@/components/incidents/dashboard/incident-kpis-data";
 

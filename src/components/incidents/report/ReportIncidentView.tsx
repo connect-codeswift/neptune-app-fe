@@ -12,11 +12,13 @@ import { ReportIncidentAside } from "@/components/incidents/report/shared/Report
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
 import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
 import { ReportIncidentToolbar } from "@/components/incidents/report/shared/ReportIncidentToolbar";
-import { ReportIncidentStepOne } from "@/components/incidents/report/step-1";
-import { ReportIncidentStepTwo } from "@/components/incidents/report/step-2";
-import { ReportIncidentStepThree } from "@/components/incidents/report/step-3";
-import { ReportIncidentStepFour } from "@/components/incidents/report/step-4";
-import { ReportIncidentStepFive } from "@/components/incidents/report/step-5";
+import {
+  ReportIncidentStepFive,
+  ReportIncidentStepFour,
+  ReportIncidentStepOne,
+  ReportIncidentStepThree,
+  ReportIncidentStepTwo,
+} from "@/components/incidents/report/steps";
 
 function renderStepForm(
   currentStep: ReportStepId,
