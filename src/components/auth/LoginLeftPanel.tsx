@@ -1,69 +1,44 @@
 import { Icon } from "@iconify/react";
-import { LogoIcon } from "@/components/LogoIcon";
+import { Logo } from "@/components/Logo";
+import { ShadeBall } from "@/components/ShadeBall";
+import { capas, incidents } from "@/lib/hardcoded-data";
 
-const panelCardClass =
-  "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm";
-
-const incidents = [
-  {
-    title: "Chemical spill — Storage B",
-    location: "Birmingham Plant",
-    time: "12 min ago",
-  },
-  {
-    title: "Machine stoppage — Line 4",
-    location: "Leeds Plant",
-    time: "1 hr ago",
-  },
-  {
-    title: "Near miss — Loading bay",
-    location: "Manchester Depot",
-    time: "3 hrs ago",
-  },
-] as const;
-
-const capas = [
-  {
-    title: "Install secondary containment",
-    assignee: "J. Harris",
-    due: "Jun 4",
-  },
-  {
-    title: "Retrain Line 4 operators",
-    assignee: "M. Price",
-    due: "Jun 3",
-  },
-] as const;
-
-export function LoginLeftPanel() {
+export default function LoginLeftPanel() {
   return (
-    <div className="bg-ehs-dark-bg relative hidden h-full flex-col overflow-hidden px-12 py-6 lg:flex">
-      <div className="bg-ehs-normal-blue pointer-events-none absolute -top-32 -left-32 h-125 w-125 rounded-full opacity-15 blur-3xl" />
+    <div className="bg-ehs-dark-bg relative hidden h-full flex-col justify-center overflow-hidden px-12 py-2 lg:flex">
+      <ShadeBall positionAsClassName="top-[-150px] left-[-150px]" blur={40} />
+      <ShadeBall
+        positionAsClassName="bottom-[-150px] right-[-150px]"
+        blur={40}
+      />
+
+      {/* over the top gradient */}
       <div className="from-ehs-normal-blue/10 pointer-events-none absolute inset-0 bg-linear-to-b via-transparent to-black/20" />
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-4">
-        <LogoIcon variant="light" />
+      <div className="relative z-10 flex min-h-0 flex-col gap-3">
+        <Logo variant="light" />
 
-        <div className="space-y-3">
-          <p className="text-ehs-muted-text text-xs font-semibold tracking-widest uppercase">
-            Your workspace is waiting
-          </p>
-          <h1 className="text-ehs-light-text max-w-md text-4xl leading-tight font-bold">
-            Items requiring
-            <br />
-            your attention.
-          </h1>
-        </div>
+        <p className="text-ehs-muted-text mt-2 text-xs font-medium tracking-widest uppercase">
+          Your Workspace is waiting
+        </p>
+        <h1 className="text-ehs-light-text text-xl leading-tight font-medium lg:text-2xl">
+          Items Requiring
+          <br />
+          Your Attention.
+        </h1>
 
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto">
-          <section className={panelCardClass}>
-            <h2 className="text-ehs-light-text mb-3 text-sm font-semibold">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
+            <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
               Open Incidents
             </h2>
             <ul className="divide-y divide-white/10">
               {incidents.map((incident) => (
-                <li key={incident.title} className="py-2 first:pt-0 last:pb-0">
-                  <p className="text-ehs-light-text text-sm font-medium">
+                <li
+                  key={incident.title}
+                  className="py-1.5 first:pt-0 last:pb-0"
+                >
+                  <p className="text-ehs-light-text text-xs font-medium">
                     {incident.title}
                   </p>
                   <p className="text-ehs-muted-text mt-1 text-xs">
@@ -74,23 +49,23 @@ export function LoginLeftPanel() {
             </ul>
           </section>
 
-          <section className={panelCardClass}>
-            <h2 className="text-ehs-light-text mb-3 text-sm font-semibold">
+          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
+            <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
               Pending CAPAs
             </h2>
             <ul className="divide-y divide-white/10">
               {capas.map((capa) => (
                 <li
                   key={capa.title}
-                  className="flex items-start gap-2 py-2 first:pt-0 last:pb-0"
+                  className="flex items-start gap-1.5 py-1.5 first:pt-0 last:pb-0"
                 >
                   <Icon
                     icon="mdi:bullhorn-outline"
-                    className="text-ehs-muted-text shrink-0 text-base"
+                    className="text-ehs-muted-text shrink-0 text-sm"
                     aria-hidden="true"
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-ehs-light-text text-sm font-medium">
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <p className="text-ehs-light-text text-xs font-medium">
                       {capa.title}
                     </p>
                     <p className="text-ehs-muted-text text-xs">
@@ -105,7 +80,9 @@ export function LoginLeftPanel() {
             </ul>
           </section>
 
-          <section className={`${panelCardClass} flex items-start gap-3`}>
+          <section
+            className={`hidden items-start gap-2 rounded-2xl border-t border-white/60 bg-black/20 px-3 py-2 backdrop-blur-sm lg:min-[1200px]:flex`}
+          >
             <div className="bg-ehs-normal-blue/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
               <Icon
                 icon="mdi:clipboard-text-outline"
@@ -114,8 +91,8 @@ export function LoginLeftPanel() {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-ehs-light-text text-sm font-semibold">
-                OSHA inspection — Leeds Plant
+              <p className="text-ehs-light-text text-xs font-semibold">
+                OSHA inspection - Leeds Plant
               </p>
               <p className="text-ehs-muted-text text-xs leading-relaxed">
                 Scheduled for Thu 5 Jun · Preparation 78% complete
