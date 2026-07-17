@@ -29,6 +29,9 @@ export function ReportIncidentStepFive(
   const router = useRouter();
 
   const handleSubmit = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("reported_incident_form", JSON.stringify(form));
+    }
     toast.success(
       "Incident Report Submitted",
       "Incident has been successfully routed to EHS.",
