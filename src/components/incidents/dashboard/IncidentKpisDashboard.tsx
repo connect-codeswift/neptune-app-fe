@@ -49,9 +49,7 @@ export function IncidentKpisDashboard(
       </div>
 
       <div className="grid gap-x-3 gap-y-6 xl:grid-cols-[minmax(0,0.7fr)_minmax(0,3.3fr)]">
-        {HAZARD_INDICATOR ? (
-          <IndicatorCard metric={HAZARD_INDICATOR} />
-        ) : null}
+        {HAZARD_INDICATOR ? <IndicatorCard metric={HAZARD_INDICATOR} /> : null}
         <InjuryMixCard />
       </div>
 

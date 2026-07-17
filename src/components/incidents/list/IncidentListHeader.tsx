@@ -51,7 +51,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
       </Text>
 
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
-        <div className="relative min-w-0 w-full sm:w-[220px] lg:w-[280px]">
+        <div className="relative w-full min-w-0 sm:w-[220px] lg:w-[280px]">
           <Icon
             icon="mdi:magnify"
             className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
@@ -67,7 +67,11 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
           </kbd>
         </div>
 
-        <button type="button" onClick={onDateRangeClick} className={controlClass}>
+        <button
+          type="button"
+          onClick={onDateRangeClick}
+          className={controlClass}
+        >
           <Icon
             icon="mdi:calendar-outline"
             className="text-ehs-muted-text text-sm"

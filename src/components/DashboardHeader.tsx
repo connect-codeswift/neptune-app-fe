@@ -52,7 +52,7 @@ function DateRangeButton(
     <button
       type="button"
       onClick={onClick}
-      className={`${headerControlClass} text-ehs-gray gap-1.5 rounded-lg border px-3 py-2 text-[10px]`}
+      className={`${headerControlClass} text-ehs-gray gap-1.5 rounded-lg border px-3 py-2 text-sm`}
     >
       <Icon
         icon="mdi:calendar-outline"
