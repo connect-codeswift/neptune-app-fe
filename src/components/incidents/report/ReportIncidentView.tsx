@@ -103,7 +103,7 @@ export function ReportIncidentView() {
           onSaveExit={() => router.push("/incidents/list")}
         />
 
-        <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
+        <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
           <ReportIncidentSteps
             currentStep={currentStep}
             onStepChange={goToStep}
@@ -123,6 +123,7 @@ export function ReportIncidentView() {
             title={currentStep >= 2 ? normalizedForm.title : ""}
             description={currentStep >= 2 ? normalizedForm.description : ""}
             currentStep={currentStep}
+            className="col-span-1 md:col-span-2 xl:col-span-1"
           />
         </div>
       </div>
