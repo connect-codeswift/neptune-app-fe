@@ -33,7 +33,7 @@ export function ReportIncidentStepFive(
       "Incident Report Submitted",
       "Incident has been successfully routed to EHS.",
     );
-    router.push("/incidents/list");
+    router.push("/incidents/INC-2025-DET-001");
   };
 
   // Helper values to parse dynamic preview details from form state
