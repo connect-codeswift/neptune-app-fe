@@ -24,7 +24,10 @@ function getApiBaseUrl() {
     return configuredApiBaseUrl.replace(/\/$/, "");
   }
 
-  if (globalThis.window !== undefined && process.env.NODE_ENV === "development") {
+  if (
+    globalThis.window !== undefined &&
+    process.env.NODE_ENV === "development"
+  ) {
     return "/api";
   }
 

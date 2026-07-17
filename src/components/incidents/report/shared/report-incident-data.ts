@@ -34,12 +34,7 @@ export const REPORT_STEPS: readonly ReportStep[] = [
   },
 ];
 
-export type SeverityId =
-  | "first-aid"
-  | "osha"
-  | "lost-time"
-  | "sia"
-  | "sip";
+export type SeverityId = "first-aid" | "osha" | "lost-time" | "sia" | "sip";
 
 export type SeverityOption = Readonly<{
   id: SeverityId;
@@ -49,7 +44,12 @@ export type SeverityOption = Readonly<{
 }>;
 
 export const SEVERITY_OPTIONS: readonly SeverityOption[] = [
-  { id: "first-aid", label: "First Aid", lines: ["First Aid"], previewBadge: "Low" },
+  {
+    id: "first-aid",
+    label: "First Aid",
+    lines: ["First Aid"],
+    previewBadge: "Low",
+  },
   {
     id: "osha",
     label: "OSHA Recordable",

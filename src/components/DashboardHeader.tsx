@@ -16,6 +16,7 @@ export type DashboardHeaderProps = Readonly<{
   onDateRangeClick?: () => void;
   onSiteChangerClick?: () => void;
   hasUnreadNotifications?: boolean;
+  searchonleft?: boolean;
 }>;
 
 const headerControlClass =
@@ -25,16 +26,16 @@ function SearchField(props: Readonly<{ placeholder: string }>) {
   const { placeholder } = props;
 
   return (
-    <div className="relative w-60 min-w-0">
+    <div className="relative w-88 min-w-0">
       <Icon
         icon="mdi:magnify"
-        className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+        className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
         aria-hidden="true"
       />
       <input
         type="search"
         placeholder={placeholder}
-        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-14 pl-9 text-[10px] shadow-sm transition outline-none focus:ring-2"
+        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-14 pl-9 text-sm shadow-sm transition outline-none focus:ring-2"
       />
       <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1 py-px text-[8px] font-medium sm:inline">
         ⌘K
@@ -146,6 +147,7 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
     onSiteChangerClick,
     hasUnreadNotifications,
     className = "",
+    searchonleft,
   } = props;
 
   const showNotifications =
@@ -176,11 +178,22 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
           {title}
         </Text>
       ) : null}
+      {searchonleft ? (
+        <>
+          {searchPlaceholder ? (
+            <SearchField placeholder={searchPlaceholder} />
+          ) : null}
+        </>
+      ) : null}
 
       {hasActions ? (
         <div className="flex flex-wrap items-center gap-2">
-          {searchPlaceholder ? (
-            <SearchField placeholder={searchPlaceholder} />
+          {!searchonleft ? (
+            <>
+              {searchPlaceholder ? (
+                <SearchField placeholder={searchPlaceholder} />
+              ) : null}
+            </>
           ) : null}
 
           {dateRangeLabel ? (

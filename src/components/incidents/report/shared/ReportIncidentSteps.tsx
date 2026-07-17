@@ -46,9 +46,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
               onClick={() => onStepChange(step.id)}
               className={[
                 "flex w-full items-start gap-2.5 rounded-[10px] p-[10px] text-left transition-colors",
-                isActive
-                  ? "bg-ehs-normal-blue/18"
-                  : "hover:bg-ehs-light-bg/80",
+                isActive ? "bg-ehs-normal-blue/18" : "hover:bg-ehs-light-bg/80",
               ].join(" ")}
             >
               <span
@@ -58,7 +56,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
                     ? "bg-ehs-green text-white"
                     : isActive
                       ? "bg-ehs-normal-blue text-white"
-                      : "border border-[rgba(15,23,42,0.14)] bg-white/82 text-ehs-gray",
+                      : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-white/82",
                 ].join(" ")}
               >
                 {isComplete ? (

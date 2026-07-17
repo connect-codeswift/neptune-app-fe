@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const apiProxyTarget =
-  process.env.API_PROXY_TARGET ??
-  "https://neptune-be-stag.codeswift.org/api";
+  process.env.API_PROXY_TARGET ?? "https://neptune-be-stag.codeswift.org/api";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,

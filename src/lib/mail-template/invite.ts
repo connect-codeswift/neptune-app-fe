@@ -42,7 +42,9 @@ function resolveInviteEmailData(data: InviteEmailTemplateData) {
     roleName: escapeHtml(data.roleName.trim()),
     setupUrl: escapeHtml(data.setupUrl.trim()),
     expirationDays: data.expirationDays ?? DEFAULT_EXPIRATION_DAYS,
-    platformName: escapeHtml(data.platformName?.trim() || DEFAULT_PLATFORM_NAME),
+    platformName: escapeHtml(
+      data.platformName?.trim() || DEFAULT_PLATFORM_NAME,
+    ),
     senderEmail: escapeHtml(data.senderEmail?.trim() || DEFAULT_SENDER_EMAIL),
   };
 }

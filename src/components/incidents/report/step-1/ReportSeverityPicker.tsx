@@ -18,7 +18,11 @@ export function ReportSeverityPicker(
   const { value, onChange, className = "" } = props;
 
   return (
-    <div className={["flex flex-col gap-1.5 pt-3", className].filter(Boolean).join(" ")}>
+    <div
+      className={["flex flex-col gap-1.5 pt-3", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <div className="flex items-end gap-1.5">
         <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
           Severity
@@ -26,10 +30,7 @@ export function ReportSeverityPicker(
         <Text as="span" className="text-ehs-red text-[12px]">
           *
         </Text>
-        <Text
-          as="span"
-          className="text-ehs-muted-text ml-auto text-[9.8px]"
-        >
+        <Text as="span" className="text-ehs-muted-text ml-auto text-[9.8px]">
           Drives routing & recordability. You can change it later.
         </Text>
       </div>

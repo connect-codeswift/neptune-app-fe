@@ -27,21 +27,21 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[17px]"
+      paddingClassName="p-4"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-1.5">
         <div className="flex items-start justify-between gap-3">
           <Text
             as="p"
-            className="text-ehs-muted-text py-px text-[11px] font-bold tracking-[0.2px] uppercase"
+            className="text-ehs-muted-text py-px text-xs font-bold tracking-wide uppercase"
           >
             {title}
           </Text>
 
           <span
             className={[
-              "inline-flex shrink-0 items-center rounded-full px-[9px] py-[2.5px] text-[10px] font-bold tracking-[0.2px]",
+              "inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
               trendToneClass[trendTone],
             ].join(" ")}
           >
@@ -51,7 +51,7 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
 
         <Text
           as="p"
-          className="text-ehs-darker text-[30px] leading-[29px] tracking-[-0.6px] tabular-nums"
+          className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
         >
           {String(value)}
         </Text>

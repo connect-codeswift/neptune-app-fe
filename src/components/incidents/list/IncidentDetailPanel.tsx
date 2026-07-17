@@ -67,7 +67,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Text as="span" className="text-ehs-muted-text text-[12px] font-semibold">
+            <Text
+              as="span"
+              className="text-ehs-muted-text text-[12px] font-semibold"
+            >
               {incident.id}
             </Text>
             <IncidentBadge
@@ -91,7 +94,11 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             aria-label="More actions"
             className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-6 items-center justify-center rounded-md"
           >
-            <Icon icon="mdi:dots-horizontal" className="text-lg" aria-hidden="true" />
+            <Icon
+              icon="mdi:dots-horizontal"
+              className="text-lg"
+              aria-hidden="true"
+            />
           </button>
         </div>
 
@@ -101,7 +108,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         >
           {incident.title}
         </Text>
-        <Text as="p" className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]">
+        <Text
+          as="p"
+          className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]"
+        >
           {`Equipment failure · ${incident.site}`}
         </Text>
       </div>
@@ -149,7 +159,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
           >
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Text as="span" className="text-ehs-muted-text text-[11px] font-semibold">
+              <Text
+                as="span"
+                className="text-ehs-muted-text text-[11px] font-semibold"
+              >
                 {capa.id}
               </Text>
               <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
@@ -161,11 +174,19 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             </Text>
             <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-[11px]">
               <span className="inline-flex items-center gap-1">
-                <Icon icon="mdi:account-outline" className="text-xs" aria-hidden="true" />
+                <Icon
+                  icon="mdi:account-outline"
+                  className="text-xs"
+                  aria-hidden="true"
+                />
                 {capa.assignee}
               </span>
               <span className="inline-flex items-center gap-1">
-                <Icon icon="mdi:calendar-outline" className="text-xs" aria-hidden="true" />
+                <Icon
+                  icon="mdi:calendar-outline"
+                  className="text-xs"
+                  aria-hidden="true"
+                />
                 {capa.dueDate}
               </span>
               <span>· {capa.type}</span>
@@ -197,7 +218,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
                 />
               </div>
               <div className="min-w-0 pt-1">
-                <Text as="p" className="text-ehs-darker text-[12px] leading-[14px]">
+                <Text
+                  as="p"
+                  className="text-ehs-darker text-[12px] leading-[14px]"
+                >
                   {item.title}
                 </Text>
                 <Text as="p" className="text-ehs-muted-text mt-1 text-[11px]">

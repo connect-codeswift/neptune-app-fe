@@ -34,7 +34,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.11px] whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
@@ -43,26 +43,11 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
     >
       {showDot ? (
         <span
-          className={[
-            "size-1.5 shrink-0 rounded-[3px]",
-            dotClassName[tone],
-          ].join(" ")}
+          className={["shrink-0 rounded-full", dotClassName[tone]].join(" ")}
           aria-hidden="true"
         />
       ) : null}
       {label}
     </span>
   );
-}
-
-export function severityTone(_severity: string): IncidentBadgeTone {
-  return "neutral";
-}
-
-export function stateTone(state: string): IncidentBadgeTone {
-  return state === "Open" ? "teal" : "muted";
-}
-
-export function stageTone(_stage: string): IncidentBadgeTone {
-  return "muted";
 }

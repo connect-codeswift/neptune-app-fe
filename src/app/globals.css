@@ -34,6 +34,7 @@
   --ehs-dark-blue-active: #04414b;
 
   --ehs-darker: #03333a;
+  --ehs-form-classes-bg: #eef1f6;
 }
 
 @theme inline {

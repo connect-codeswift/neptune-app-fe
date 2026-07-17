@@ -28,7 +28,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
         type="button"
         aria-current="step"
         onClick={() => onStepChange?.(stepNumber)}
-        className="border-ehs-light-blue-active/70 py-3 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-6 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="border-ehs-light-blue-active/70 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-6 py-3 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <span
           aria-hidden="true"
@@ -36,7 +36,10 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
         >
           {stepNumber}
         </span>
-        <Text as="span" className="text-ehs-darker whitespace-nowrap text-sm font-bold">
+        <Text
+          as="span"
+          className="text-ehs-darker text-sm font-bold whitespace-nowrap"
+        >
           {step.label}
         </Text>
       </button>
@@ -49,7 +52,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
         type="button"
         aria-label={`Go to step ${stepNumber}: ${step.label}`}
         onClick={() => onStepChange?.(stepNumber)}
-        className="focus-visible:ring-ehs-normal-blue/30 px-2 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="focus-visible:ring-ehs-normal-blue/30 shrink-0 cursor-pointer rounded-full px-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <span
           aria-hidden="true"
@@ -70,7 +73,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
     >
       <span
         aria-hidden="true"
-        className="bg-gray-200 text-ehs-muted-text flex size-8 items-center justify-center rounded-full text-sm font-semibold"
+        className="text-ehs-muted-text flex size-8 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold"
       >
         {stepNumber}
       </span>
@@ -101,7 +104,7 @@ export function MobileStepper(props: Readonly<MobileStepperProps>) {
           return (
             <li
               key={`${stepNumber}-${step.label}`}
-              className="flex shrink-0 items-center px-2 justify-center"
+              className="flex shrink-0 items-center justify-center px-2"
             >
               <MobileStepSlot
                 step={step}

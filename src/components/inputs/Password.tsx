@@ -65,7 +65,9 @@ export function Password(props: Readonly<PasswordProps>) {
           type={visible ? "text" : "password"}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={[ehsInputClass, "pr-10", className].filter(Boolean).join(" ")}
+          className={[ehsInputClass, "pr-10", className]
+            .filter(Boolean)
+            .join(" ")}
           onChange={handleChange}
           value={value}
           {...rest}

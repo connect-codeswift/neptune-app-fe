@@ -198,7 +198,12 @@ export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
       ) : null}
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
-        <Button type="button" variant="tertiary" onClick={onBack} disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="tertiary"
+          onClick={onBack}
+          disabled={isSubmitting}
+        >
           <Icon
             icon="mdi:chevron-left"
             className="text-lg"

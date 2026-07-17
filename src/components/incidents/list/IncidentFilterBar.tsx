@@ -35,7 +35,7 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
       <div className="relative z-[1] flex w-full min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:gap-[9px]">
-        <span className="inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-[8px] border border-ehs-border bg-white/[0.82] px-[9px] text-[11px] font-bold text-ehs-gray">
+        <span className="border-ehs-border text-ehs-gray inline-flex h-6 w-fit shrink-0 items-center gap-1.5 rounded-[8px] border bg-white/[0.82] px-[9px] text-[11px] font-bold">
           <img
             src="/icons/filter-variant.svg"
             alt=""
@@ -47,7 +47,7 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
           Filters
         </span>
 
-        <div className="flex min-w-0 w-full flex-1 flex-col gap-3 sm:flex-row sm:items-center xl:gap-4">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center xl:gap-4">
           <IncidentSegmentedControl
             label="State"
             options={STATE_FILTERS}

@@ -85,7 +85,10 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
     >
       <div className="flex h-full flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text text-[12px] font-semibold">
+          <Text
+            as="p"
+            className="text-ehs-muted-text text-[12px] font-semibold"
+          >
             {title}
           </Text>
           <span className="bg-ehs-green/14 text-ehs-green inline-flex shrink-0 items-center gap-1 rounded-full px-[9px] py-[2.5px] text-[11px] font-bold">

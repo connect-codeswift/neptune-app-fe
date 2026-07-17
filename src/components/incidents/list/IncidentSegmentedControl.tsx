@@ -18,7 +18,7 @@ export function IncidentSegmentedControl(
   return (
     <div
       className={[
-        "flex min-w-0 w-full flex-col items-stretch gap-1.5 sm:flex-row sm:items-center sm:gap-2.5",
+        "flex w-full min-w-0 flex-col items-stretch gap-1.5 sm:flex-row sm:items-center sm:gap-2.5",
         className,
       ]
         .filter(Boolean)
@@ -33,7 +33,7 @@ export function IncidentSegmentedControl(
         </Text>
       </div>
 
-      <div className="flex min-w-0 w-full flex-1 items-stretch gap-[2px] rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-[3px]">
+      <div className="flex w-full min-w-0 flex-1 items-stretch gap-[2px] rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-[3px]">
         {options.map((option) => {
           const isActive = value === option;
 

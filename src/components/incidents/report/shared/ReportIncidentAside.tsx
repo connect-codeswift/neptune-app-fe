@@ -89,7 +89,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
           {locationPreview}
         </Text>
 
-        <div className="bg-[rgba(15,23,42,0.08)] h-px w-full" />
+        <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
 
         <p
           className={[
