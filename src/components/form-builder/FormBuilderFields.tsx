@@ -12,7 +12,7 @@ import type {
 } from "./types";
 
 const inputClass =
-  "h-10 w-full rounded-[10px] border border-slate-900/10 bg-ehs-light-bg/40 px-3 text-sm text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+  "p-3 w-full rounded-[10px] border border-slate-900/10 bg-ehs-light-bg/40 text-base text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
 const errorRingClass =
   "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
@@ -22,7 +22,7 @@ function FieldLabel(
 ) {
   const { label, required, htmlFor } = props;
   return (
-    <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700">
+    <label htmlFor={htmlFor} className="text-slate-70 mb-1 font-medium">
       {label}
       {required ? <span className="text-ehs-red"> *</span> : null}
     </label>
@@ -175,7 +175,7 @@ function TextareaControl(
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[
-        "bg-ehs-light-bg/40 text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 px-3 py-2.5 text-sm leading-6 transition outline-none focus:ring-2",
+        "bg-ehs-light-bg/40 text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 px-3 py-2.5 text-base leading-6 transition outline-none focus:ring-2",
         error ? errorRingClass : "",
       ]
         .filter(Boolean)
@@ -236,7 +236,7 @@ function CheckboxGroupControl(
             >
               {checked ? <Icon icon="mdi:check" className="size-3" /> : null}
             </span>
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-base font-medium text-slate-700">
               {option.label}
             </span>
           </label>
