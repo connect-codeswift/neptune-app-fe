@@ -48,12 +48,13 @@ function normalizeSeverity(value: string | null | undefined): IncidentSeverity {
 }
 
 function deriveState(incident: IncidentDto): IncidentState {
-  if (incident.isDrop) {
+  const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
+  if (disposition.includes("close") || disposition === "closed") {
     return "Closed";
   }
 
-  const disposition = incident.caseDisposition?.trim().toLowerCase();
-  if (disposition?.includes("close")) {
+  // Soft-deleted / dropped records are not treated as filterable "Closed".
+  if (incident.isDrop) {
     return "Closed";
   }
 
@@ -61,13 +62,9 @@ function deriveState(incident: IncidentDto): IncidentState {
 }
 
 function deriveStage(incident: IncidentDto): IncidentStage {
-  if (incident.isDrop) {
-    return "Closed";
-  }
-
   const disposition = incident.caseDisposition?.trim();
   if (!disposition) {
-    return "New";
+    return incident.isDrop ? "Closed" : "New";
   }
 
   const known: IncidentStage[] = [
@@ -82,7 +79,15 @@ function deriveStage(incident: IncidentDto): IncidentStage {
     (item) => item.toLowerCase() === disposition.toLowerCase(),
   );
 
-  return match ?? "Open";
+  if (match) {
+    return match;
+  }
+
+  if (disposition.toLowerCase().includes("close")) {
+    return "Closed";
+  }
+
+  return "Open";
 }
 
 function buildTitle(incident: IncidentDto): string {

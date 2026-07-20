@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
+  CASE_DISPOSITION_OPTIONS,
+  FIT_FOR_DUTY_OPTIONS,
   INITIAL_TREATMENT_OPTIONS,
   MECHANISM_OPTIONS,
   NATURE_OF_INJURY_OPTIONS,
+  TREATMENT_LOCATION_OPTIONS,
+  TREATMENT_PROVIDER_OPTIONS,
+  WHAT_TREATMENT_GIVEN_OPTIONS,
   YES_NO_OPTIONS,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -31,6 +36,7 @@ export function ReportIncidentStepTwo(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
   const photos = form.photos ?? [];
+  const isFirstAid = form.severity === "first-aid";
 
   return (
     <IncidentGlassCard
@@ -117,6 +123,80 @@ export function ReportIncidentStepTwo(
             </div>
           </div>
 
+          {isFirstAid ? (
+            <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="What treatment was given?"
+                  required
+                  value={form.whatTreatmentWasGiven}
+                  onChange={(event) =>
+                    onChange({ whatTreatmentWasGiven: event.target.value })
+                  }
+                  options={[...WHAT_TREATMENT_GIVEN_OPTIONS]}
+                />
+              </div>
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="Treatment provided by?"
+                  required
+                  value={form.treatmentProvidedBy}
+                  onChange={(event) =>
+                    onChange({ treatmentProvidedBy: event.target.value })
+                  }
+                  options={[...TREATMENT_PROVIDER_OPTIONS]}
+                />
+              </div>
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="Treatment location?"
+                  required
+                  value={form.treatmentLocation}
+                  onChange={(event) =>
+                    onChange({ treatmentLocation: event.target.value })
+                  }
+                  options={[...TREATMENT_LOCATION_OPTIONS]}
+                />
+              </div>
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="Is employee able to return to full duty?"
+                  required
+                  value={form.isFitForFullDuty}
+                  onChange={(event) =>
+                    onChange({ isFitForFullDuty: event.target.value })
+                  }
+                  options={[...FIT_FOR_DUTY_OPTIONS]}
+                />
+              </div>
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="Case disposition?"
+                  required
+                  value={form.caseDisposition}
+                  onChange={(event) =>
+                    onChange({ caseDisposition: event.target.value })
+                  }
+                  options={[...CASE_DISPOSITION_OPTIONS]}
+                />
+              </div>
+              <div className="pb-[18px]">
+                <ReportSelectField
+                  label="Was further medical attention recommended"
+                  value={form.furtherMedicalRecommended}
+                  onChange={(event) =>
+                    onChange({
+                      furtherMedicalRecommended: event.target.value as
+                        | "Yes"
+                        | "No",
+                    })
+                  }
+                  options={[...YES_NO_OPTIONS]}
+                />
+              </div>
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 gap-x-4 py-[18px] sm:grid-cols-2">
             <ReportTextField
               label="Object Involved"
@@ -153,6 +233,23 @@ export function ReportIncidentStepTwo(
             onChange={(event) => onChange({ witnesses: event.target.value })}
             placeholder="Name or employee ID"
           />
+
+          {isFirstAid ? (
+            <ReportSelectField
+              className="pt-[18px]"
+              label="Emergency Service Called?"
+              value={form.classifications.emergency ?? "No"}
+              onChange={(event) =>
+                onChange({
+                  classifications: {
+                    ...form.classifications,
+                    emergency: event.target.value as "Yes" | "No",
+                  },
+                })
+              }
+              options={[...YES_NO_OPTIONS]}
+            />
+          ) : null}
         </div>
 
         <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">

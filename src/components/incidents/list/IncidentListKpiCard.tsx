@@ -1,16 +1,36 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import type { KpiMetricCardProps } from "@/components/KpiMetricCard";
+
+export type IncidentListKpiTone = "positive" | "negative";
+
+export type IncidentListKpiMetric = Readonly<{
+  id: string;
+  title: string;
+  value: string;
+  unit?: string;
+  trendValue: string;
+  trendDirection: "up" | "down";
+  trendTone: IncidentListKpiTone;
+  targetLabel: string;
+  chartData: readonly number[];
+}>;
 
 export type IncidentListKpiCardProps = Readonly<
-  KpiMetricCardProps & {
+  IncidentListKpiMetric & {
     className?: string;
   }
 >;
 
-function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
-  const { data } = props;
+function MiniSparkline(
+  props: Readonly<{
+    data: readonly number[];
+    tone: IncidentListKpiTone;
+  }>,
+) {
+  const { data, tone } = props;
   const width = 70;
   const height = 22;
   const padding = 2;
@@ -43,6 +63,8 @@ function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
   }
 
   const areaPath = `${linePath} L ${lastPoint.x} ${height - padding} L ${firstPoint.x} ${height - padding} Z`;
+  const strokeClass = tone === "positive" ? "stroke-ehs-green" : "stroke-ehs-red";
+  const fillClass = tone === "positive" ? "fill-ehs-green/15" : "fill-ehs-red/15";
 
   return (
     <svg
@@ -50,11 +72,11 @@ function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
       className="h-[22px] w-[70px] shrink-0"
       aria-hidden="true"
     >
-      <path d={areaPath} className="fill-ehs-green/15" />
+      <path d={areaPath} className={fillClass} />
       <path
         d={linePath}
         fill="none"
-        className="stroke-ehs-green"
+        className={strokeClass}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -70,6 +92,7 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
     unit,
     trendValue,
     trendDirection,
+    trendTone,
     targetLabel,
     chartData,
     className = "",
@@ -77,42 +100,66 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
 
   const trendIcon =
     trendDirection === "up" ? "mdi:trending-up" : "mdi:trending-down";
+  const trendClass =
+    trendTone === "positive"
+      ? "bg-ehs-green/14 text-ehs-green"
+      : "bg-ehs-red/14 text-ehs-red";
 
   return (
     <IncidentGlassCard
       paddingClassName="p-[19px]"
-      className={["min-h-[141px] min-w-0", className].filter(Boolean).join(" ")}
+      className={[
+        "min-h-[141px] min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div className="flex h-full flex-col gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text text-[12px] font-semibold">
+      <div className="flex h-full flex-col gap-[10px]">
+        <div className="flex w-full items-start justify-between gap-3">
+          <Text
+            as="p"
+            className="text-ehs-gray py-px text-[11px] font-bold tracking-[0.22px] uppercase"
+          >
             {title}
           </Text>
-          <span className="bg-ehs-green/14 text-ehs-green inline-flex shrink-0 items-center gap-1 rounded-full px-[9px] py-[2.5px] text-[11px] font-bold">
-            <Icon icon={trendIcon} className="text-[11px]" aria-hidden="true" />
+          <span
+            className={[
+              "inline-flex shrink-0 items-center gap-[6px] rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+              trendClass,
+            ].join(" ")}
+          >
+            <Icon
+              icon={trendIcon}
+              className="size-[11px] shrink-0"
+              aria-hidden="true"
+            />
             {trendValue}
           </span>
         </div>
 
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex h-10 w-full items-baseline">
           <Text
             as="p"
-            className="text-ehs-darker text-[40px] leading-none font-medium tracking-[-1px] tabular-nums"
+            className="text-ehs-dark-bg text-[40px] leading-[40px] tracking-[-1.2px] tabular-nums"
           >
-            {String(value)}
+            {value}
           </Text>
           {unit ? (
-            <Text as="span" className="text-ehs-gray text-sm font-medium">
+            <Text
+              as="span"
+              className="text-ehs-gray ml-1.5 text-[12px] tracking-[0.48px]"
+            >
               {unit}
             </Text>
           ) : null}
         </div>
 
-        <div className="mt-auto flex items-end justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <div className="mt-auto flex w-full items-end justify-between gap-3">
+          <Text as="p" className="text-ehs-muted-text py-px text-[10px]">
             {targetLabel}
           </Text>
-          <MiniSparkline data={chartData} />
+          <MiniSparkline data={chartData} tone={trendTone} />
         </div>
       </div>
     </IncidentGlassCard>

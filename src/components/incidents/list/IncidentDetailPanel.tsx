@@ -16,7 +16,9 @@ import type { IncidentRecord } from "@/components/incidents/list/incident-list-t
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
-  onClose?: () => void;
+  /** Sets the incident status to Closed (does not dismiss the sidebar). */
+  onCloseIncident?: () => void;
+  isClosingIncident?: boolean;
   className?: string;
 }>;
 
@@ -39,7 +41,12 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 }
 
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
-  const { incident, onClose, className = "" } = props;
+  const {
+    incident,
+    onCloseIncident,
+    isClosingIncident = false,
+    className = "",
+  } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
 
   if (!incident) {
@@ -239,15 +246,30 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         <Button
           type="button"
           variant="primary"
-          onClick={onClose}
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap sm:px-3 sm:text-[13px]"
+          onClick={onCloseIncident}
+          disabled={
+            isClosingIncident ||
+            incident.state === "Closed" ||
+            incident.stage === "Closed"
+          }
+          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap disabled:opacity-50 sm:px-3 sm:text-[13px]"
         >
           <Icon
-            icon="mdi:check"
+            icon={
+              incident.state === "Closed" || incident.stage === "Closed"
+                ? "mdi:lock-check-outline"
+                : "mdi:check"
+            }
             className="size-3.5 shrink-0 sm:size-4"
             aria-hidden="true"
           />
-          <span className="truncate">Close incident</span>
+          <span className="truncate">
+            {isClosingIncident
+              ? "Closing…"
+              : incident.state === "Closed" || incident.stage === "Closed"
+                ? "Closed"
+                : "Close incident"}
+          </span>
         </Button>
         <Button
           type="button"

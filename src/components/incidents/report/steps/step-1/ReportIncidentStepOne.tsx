@@ -10,10 +10,12 @@ import {
   type ReportIncidentFormState,
   type SeverityId,
 } from "@/components/incidents/report/shared/report-incident-data";
+import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
 import {
   ReportSelectField,
   ReportTextField,
 } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportTimeField } from "@/components/incidents/report/shared/ReportTimeField";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 
 export type ReportIncidentStepOneProps = Readonly<{
@@ -101,36 +103,23 @@ export function ReportIncidentStepOne(
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <ReportTextField
+              <ReportDateField
                 label="Date of Incident"
                 required
                 value={form.incidentDate}
-                onChange={(event) =>
-                  onChange({ incidentDate: event.target.value })
-                }
-                endIcon="mdi:calendar-outline"
-                placeholder="MM/DD/YYYY"
+                onChange={(incidentDate) => onChange({ incidentDate })}
               />
-              <ReportTextField
+              <ReportTimeField
                 label="Time of Incident"
                 required
                 value={form.incidentTime}
-                onChange={(event) =>
-                  onChange({ incidentTime: event.target.value })
-                }
-                endIcon="mdi:clock-outline"
-                trailingHint="ⓘ 24-hour"
-                placeholder="HH:MM"
+                onChange={(incidentTime) => onChange({ incidentTime })}
               />
-              <ReportTextField
+              <ReportDateField
                 label="Report Date"
                 required
                 value={form.reportDate}
-                onChange={(event) =>
-                  onChange({ reportDate: event.target.value })
-                }
-                endIcon="mdi:calendar-outline"
-                placeholder="MM/DD/YYYY"
+                onChange={(reportDate) => onChange({ reportDate })}
               />
             </div>
           </div>

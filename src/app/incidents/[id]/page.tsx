@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import {
   IncidentDetailHeader,
@@ -31,12 +31,11 @@ import {
   type AttachmentItem,
   type TabId,
 } from "@/components/incidents/detail";
-import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-data";
 
 export default function IncidentDetailPage() {
   const params = useParams();
   const incidentId =
-    typeof params.id === "string" ? params.id : "INC-2025-DET-001";
+    typeof params.id === "string" ? params.id : "—";
 
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [showHrca, setShowHrca] = useState(false);
@@ -84,144 +83,6 @@ export default function IncidentDetailPage() {
   >([]);
 
   const [attachments, setAttachments] = useState<readonly AttachmentItem[]>([]);
-
-  // Load uploaded items and metadata from localStorage upon mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("reported_incident_form");
-      if (stored) {
-        try {
-          const form = JSON.parse(stored) as ReportIncidentFormState;
-
-          // 1. Sync attachments (Fetch uploaded files from report uploader)
-          if (
-            form.photos &&
-            Array.isArray(form.photos) &&
-            form.photos.length > 0
-          ) {
-            const mappedPhotos: readonly AttachmentItem[] = form.photos.map(
-              (p) => {
-                let kind: "image" | "video" | "pdf" = "pdf";
-                if (
-                  p.kind === "image" ||
-                  p.resourceType === "image" ||
-                  p.mimeType?.startsWith("image/")
-                ) {
-                  kind = "image";
-                } else if (
-                  p.kind === "video" ||
-                  p.resourceType === "video" ||
-                  p.mimeType?.startsWith("video/")
-                ) {
-                  kind = "video";
-                }
-
-                return {
-                  id: p.id || String(Math.random()),
-                  name: p.name || "uploaded_file",
-                  description: `Uploaded during report - ${
-                    p.name?.replace(/\.[^.]+$/, "") || "file"
-                  }`,
-                  sizeLabel: p.sizeLabel || "0 KB",
-                  bytes: p.bytes || 0,
-                  addedBy: form.reportedBy || "Maria Lopez",
-                  time: form.incidentTime || "09:14",
-                  secureUrl: p.secureUrl || p.url,
-                  kind,
-                };
-              },
-            );
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setAttachments(mappedPhotos);
-          }
-
-          // 2. Sync incident description text
-          if (form.description) {
-            setSummaryText(form.description);
-          }
-
-          // 3. Sync incident details grid info
-          if (form.location || form.objectInvolved || form.reportedBy) {
-            const affectedSplit = (
-              form.affectedPerson || "Maria Lopez · EMP-04821"
-            ).split("·");
-            const opName = affectedSplit[0]?.trim() || "Maria Lopez";
-            const opId = affectedSplit[1]?.trim() || "EMP-04821";
-
-            setInfoItems([
-              {
-                label: "Equipment",
-                value:
-                  form.objectInvolved || "Hydraulic Press #4 - ASSET-PRS-014",
-              },
-              { label: "Energy involved", value: "Hydraulic - 2,800 psi" },
-              { label: "Hose age", value: "14 months (warranty: 24)" },
-              { label: "Last inspection", value: "2026-03-12 (passed)" },
-              { label: "Operator on shift", value: `${opName} - ${opId}` },
-              { label: "Supervisor", value: form.reportedBy || "Alicia Chen" },
-              { label: "Weather", value: "Indoor - n/a" },
-              { label: "Lighting", value: "Adequate" },
-            ]);
-
-            // Sync affected person details
-            setAffectedName(opName);
-            setAffectedRole("Operator - Plant A - Press");
-            setAffectedEmpId(opId);
-          }
-
-          // 4. Sync immediate response checkboxes
-          if (form.immediateActions && Array.isArray(form.immediateActions)) {
-            const actions = [
-              { id: "area-cordoned", label: "Area cordoned off" },
-              { id: "loto", label: "Equipment locked out (LOTO)" },
-              { id: "first-aid", label: "First aid administered" },
-              { id: "supervisor-notified", label: "Supervisor notified" },
-              { id: "spill-contained", label: "Spill contained" },
-              { id: "photos-captured", label: "Photos captured" },
-            ].map((act) => ({
-              ...act,
-              completed: form.immediateActions.includes(act.id),
-            }));
-            setResponseActions(actions);
-          }
-
-          // 5. Sync injury details
-          if (form.injuryLevel) {
-            setTreatment(
-              form.injuryLevel === "no-injury"
-                ? "None required"
-                : "First aid administered",
-            );
-          }
-          if (form.bodyParts && Array.isArray(form.bodyParts)) {
-            setBodyPart(form.bodyParts.join(", ") || "—");
-          }
-
-          // 6. Sync witnesses
-          if (form.witnesses) {
-            const list = form.witnesses.split(",").map((name: string) => {
-              const cleaned = name.trim();
-              const initials = cleaned
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .toUpperCase();
-              return {
-                name: cleaned,
-                role: "Incident Witness",
-                initials: initials || "W",
-                badgeLabel: "Statement",
-                badgeTone: "green" as const,
-              };
-            });
-            setWitnessList(list);
-          }
-        } catch (e) {
-          console.error("Failed to parse incident form state:", e);
-        }
-      }
-    }
-  }, []);
 
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);

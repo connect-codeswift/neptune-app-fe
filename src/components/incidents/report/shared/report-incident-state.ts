@@ -5,12 +5,6 @@ import type { BodyPartId, BodySide } from "./report-body-parts";
 import { CLASSIFICATION_FIELDS } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
 
-export const DEFAULT_INCIDENT_DESCRIPTION =
-  "During second-shift operation, the high-pressure hose on press #4 ruptured at the coupling. Fluid contained within the guarding; no operator contact. Press isolated under LOTO pending hose replacement.";
-
-export const DEFAULT_INJURY_DESCRIPTION =
-  "Minor laceration on dorsal side of left hand, ~2cm. Bandaged on-site; sent to clinic for evaluation as a precaution.";
-
 export type ReportIncidentFormState = Readonly<{
   severity: SeverityId;
   affectedPerson: string;
@@ -40,39 +34,56 @@ export type ReportIncidentFormState = Readonly<{
   immediateActions: readonly string[];
   actionNotes: string;
   suggestedFollowUp: readonly string[];
+  /** First Aid Step 2 + API required fields */
+  whatTreatmentWasGiven: string;
+  treatmentProvidedBy: string;
+  treatmentLocation: string;
+  furtherMedicalRecommended: "Yes" | "No";
+  feedback: string;
+  caseDisposition: string;
+  isFitForFullDuty: string;
 }>;
 
+/** Empty form — no demo/mock incident content. */
 export function createInitialReportFormState(): ReportIncidentFormState {
   return {
-    severity: "osha",
-    affectedPerson: "Maria Lopez · EMP-04821",
-    location: "Plant A · Line 2 — Press #4",
-    reportedBy: "Nadir Khan",
-    reporterEmail: "nadir.khan@codeswift.org",
-    incidentDate: "04/24/2026",
-    incidentTime: "09:12 AM",
-    reportDate: "04/24/2026",
+    severity: "first-aid",
+    affectedPerson: "",
+    location: "",
+    reportedBy: "",
+    reporterEmail: "",
+    incidentDate: "",
+    incidentTime: "",
+    reportDate: "",
     classifications: Object.fromEntries(
       CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, "Yes" | "No">,
-    description: DEFAULT_INCIDENT_DESCRIPTION,
-    title: "Hydraulic press hose rupture — Line 2",
-    initialTreatment: "minor-clinic",
+    description: "",
+    title: "",
+    initialTreatment: "",
     secondaryTreatment: "No",
-    mechanismOfInjury: "equipment-failure",
-    natureOfInjury: "laceration",
-    objectInvolved: "Hydraulic hose coupling",
+    mechanismOfInjury: "",
+    natureOfInjury: "",
+    objectInvolved: "",
     oshaNotificationRequired: "No",
-    witnesses: "Maria Lopez, Jake Bell",
+    witnesses: "",
     photos: DEFAULT_REPORT_PHOTOS,
-    injuryLevel: "medical-treatment",
-    gender: "Male",
-    bodyParts: ["hand-wrist"],
+    injuryLevel: "no-injury",
+    gender: "",
+    bodyParts: [],
     bodySide: "Left",
     bodyMultiSelect: false,
-    injuryDescription: DEFAULT_INJURY_DESCRIPTION,
-    immediateActions: ["area-cordoned", "loto", "first-aid", "photos-captured"],
-    actionNotes: "Maintenance dispatched, ETA 2h. Replacement hose ordered. Press will remain isolated under LOTO until repair complete and verified.",
-    suggestedFollowUp: ["root-cause", "sop-review", "brief-operators"],
+    injuryDescription: "",
+    immediateActions: [],
+    actionNotes: "",
+    suggestedFollowUp: [],
+    whatTreatmentWasGiven: "",
+    treatmentProvidedBy: "",
+    treatmentLocation: "",
+    furtherMedicalRecommended: "No",
+    // API-required strings (also collected on First Aid Step 2 where applicable)
+    feedback: "N/A",
+    caseDisposition: "",
+    isFitForFullDuty: "",
   };
 }

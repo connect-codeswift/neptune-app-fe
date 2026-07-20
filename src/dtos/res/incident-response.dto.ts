@@ -41,7 +41,7 @@ export type IncidentDto = {
   whatTreatmentWasGiven?: string | null;
   treatmentProvidedBy?: string | null;
   treatmentLocation?: string | null;
-  isFitForFullDuty?: string | null;
+  isFitForFullDuty?: string | boolean | null;
   caseDisposition?: string | null;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;

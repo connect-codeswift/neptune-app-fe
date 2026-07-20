@@ -5,14 +5,21 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { toast } from "@/lib/toast";
 import {
   type ReportIncidentFormState,
   SEVERITY_OPTIONS,
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
+  SUGGESTED_FOLLOW_UP_OPTIONS,
   formatBodyPartSelection,
 } from "@/components/incidents/report/shared/report-incident-data";
+import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
+import {
+  getMutationErrorMessage,
+} from "@/hooks/use-auth-mutations";
+import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
+import { getAccessToken } from "@/lib/axios";
+import { toast } from "@/lib/toast";
 
 export type ReportIncidentStepFiveProps = Readonly<{
   form: ReportIncidentFormState;
@@ -22,62 +29,153 @@ export type ReportIncidentStepFiveProps = Readonly<{
   className?: string;
 }>;
 
+function validateReportForm(form: ReportIncidentFormState): string | null {
+  if (!form.description.trim() && !form.title.trim()) {
+    return "Add an incident title or description before submitting.";
+  }
+  if (!form.location.trim()) {
+    return "Location is required.";
+  }
+  if (!form.incidentDate.trim()) {
+    return "Incident date is required.";
+  }
+  return null;
+}
+
+function splitSiteAndArea(location: string): {
+  site: string;
+  area: string;
+} {
+  const trimmed = location.trim();
+  if (!trimmed) {
+    return { site: "—", area: "—" };
+  }
+
+  const separatorIndex = trimmed.indexOf("·");
+  if (separatorIndex === -1) {
+    return { site: trimmed, area: "—" };
+  }
+
+  return {
+    site: trimmed.slice(0, separatorIndex).trim() || "—",
+    area: trimmed.slice(separatorIndex + 1).trim() || "—",
+  };
+}
+
+function previewTitle(form: ReportIncidentFormState): string {
+  const titled = form.title.trim();
+  if (titled) {
+    return titled;
+  }
+
+  const description = form.description.trim();
+  if (!description) {
+    return "Untitled incident";
+  }
+
+  const firstLine = description.split(/\r?\n/)[0]?.trim() ?? description;
+  return firstLine.length > 80 ? `${firstLine.slice(0, 77)}…` : firstLine;
+}
+
 export function ReportIncidentStepFive(
   props: Readonly<ReportIncidentStepFiveProps>,
 ) {
   const { form, onBack, className = "" } = props;
   const router = useRouter();
+  const createIncidentMutation = useCreateIncidentMutation();
 
-  const handleSubmit = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("reported_incident_form", JSON.stringify(form));
+  const handleSubmit = async () => {
+    if (!getAccessToken()) {
+      toast.error("Sign in required", "Please sign in to submit an incident.");
+      router.push("/login");
+      return;
     }
-    toast.success(
-      "Incident Report Submitted",
-      "Incident has been successfully routed to EHS.",
-    );
-    router.push("/incidents/INC-2025-DET-001");
+
+    const validationError = validateReportForm(form);
+    if (validationError) {
+      toast.error("Missing required fields", validationError);
+      return;
+    }
+
+    try {
+      const created = await createIncidentMutation.mutateAsync(form);
+      const createdId = created.id;
+
+      toast.success(
+        "Incident report submitted",
+        "The incident has been recorded successfully.",
+      );
+
+      if (typeof createdId === "number" && createdId > 0) {
+        router.push(`/incidents/${String(createdId)}`);
+        return;
+      }
+
+      router.push("/incidents/list");
+    } catch (error) {
+      toast.error(
+        "Submit failed",
+        getMutationErrorMessage(
+          error,
+          "Could not submit the incident. Please try again.",
+        ),
+      );
+    }
   };
 
-  // Helper values to parse dynamic preview details from form state
   const severityBadge =
     SEVERITY_OPTIONS.find((o) => o.id === form.severity)?.previewBadge ??
-    "Medium";
+    SEVERITY_OPTIONS.find((o) => o.id === form.severity)?.label ??
+    "—";
   const typeBadge = form.injuryLevel !== "no-injury" ? "Injury" : "Near miss";
-  const siteBadge = form.location.split("·")[0]?.trim() || "Plant A";
-
-  const site = form.location.split("·")[0]?.trim() || "Plant A";
-  const area = form.location.split("·")[1]?.trim() || "Line 2 — Press";
-  const when = `${form.incidentDate} · ${form.incidentTime}`;
-
+  const { site, area } = splitSiteAndArea(form.location);
+  const siteBadge = site;
+  const when =
+    form.incidentDate || form.incidentTime
+      ? `${form.incidentDate || "—"} · ${form.incidentTime || "—"}`
+      : "—";
   const injuryLevelLabel =
-    INJURY_LEVEL_OPTIONS.find((o) => o.id === form.injuryLevel)?.label ??
-    "Medical treatment";
-  const bodyPartsLabel = formatBodyPartSelection(form.bodyParts, form.bodySide);
-  const witnessesLabel = form.witnesses || "None";
+    INJURY_LEVEL_OPTIONS.find((o) => o.id === form.injuryLevel)?.label ?? "—";
+  const bodyPartsLabel =
+    formatBodyPartSelection(form.bodyParts, form.bodySide) || "—";
+  const affectedPersonLabel = form.affectedPerson.trim() || "—";
+  const witnessesLabel = form.witnesses.trim() || "None";
 
   const actionsLabel =
     form.immediateActions
-      .map((id) => {
-        if (id === "area-cordoned") return "Cordoned";
-        if (id === "loto") return "LOTO";
-        if (id === "first-aid") return "First aid";
-        if (id === "supervisor-notified") return "Notified";
-        if (id === "spill-contained") return "Contained";
-        if (id === "photos-captured") return "Photos";
-        return id;
-      })
+      .map(
+        (id) =>
+          IMMEDIATE_ACTION_OPTIONS.find((option) => option.id === id)?.label ??
+          id,
+      )
       .join(" · ") || "None";
 
   const photosCountLabel =
-    form.photos.length > 0 ? `${form.photos.length} attached` : "3 attached";
-  const followUpsCountLabel = `${form.suggestedFollowUp.length} suggested`;
+    form.photos.length > 0
+      ? `${String(form.photos.length)} attached`
+      : "None";
+  const followUpsLabel =
+    form.suggestedFollowUp.length > 0
+      ? form.suggestedFollowUp
+          .map(
+            (id) =>
+              SUGGESTED_FOLLOW_UP_OPTIONS.find((option) => option.id === id)
+                ?.label ?? id,
+          )
+          .join(" · ")
+      : "None";
 
-  const reporterName = form.reportedBy || "Nadir Khan";
-  const reporterDept = form.reporterEmail
-    ? "Plant A · Press"
-    : "Plant A · Press";
-  const isAnonymous = "No";
+  const reporterName = form.reportedBy.trim() || "—";
+  // Figma Reporter card: Department = site · area (from Plant / Location).
+  const departmentLabel =
+    site !== "—" && area !== "—"
+      ? `${site} · ${area}`
+      : site !== "—"
+        ? site
+        : form.location.trim() || "—";
+  // No anonymous toggle in the wizard yet — default matches Figma preview.
+  const anonymousLabel = "No";
+  const incidentTitle = previewTitle(form);
 
   return (
     <IncidentGlassCard
@@ -123,131 +221,54 @@ export function ReportIncidentStepFive(
               as="h3"
               className="text-ehs-dark-bg text-[15.8px] leading-normal font-bold"
             >
-              {form.title}
+              {incidentTitle}
             </Text>
 
             <p className="text-ehs-gray text-[11.5px] leading-[17.5px]">
-              {form.description}
+              {form.description.trim() || "No description provided."}
             </p>
           </div>
 
-          {/* Section 2: 2x2 Stats details grid */}
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-            {/* Card 1: WHERE & WHEN */}
-            <div className="flex flex-col gap-2 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4">
-              <Text
-                as="p"
-                className="text-ehs-muted-text pb-1 text-[10px] font-bold tracking-[1.05px] uppercase"
-              >
-                Where & when
-              </Text>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] pb-1.5 text-[11.5px] sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Site</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {site}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] py-1.5 pb-1.5 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Area</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {area}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 py-1.5 pb-0 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">When</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {when}
-                </span>
-              </div>
-            </div>
-
-            {/* Card 2: PEOPLE */}
-            <div className="flex flex-col gap-2 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4">
-              <Text
-                as="p"
-                className="text-ehs-muted-text pb-1 text-[10px] font-bold tracking-[1.05px] uppercase"
-              >
-                People
-              </Text>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] pb-1.5 text-[11.5px] sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Injury</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {injuryLevelLabel}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] py-1.5 pb-1.5 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Body part</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {bodyPartsLabel}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 py-1.5 pb-0 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Witnesses</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {witnessesLabel}
-                </span>
-              </div>
-            </div>
-
-            {/* Card 3: RESPONSE */}
-            <div className="flex flex-col gap-2 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4">
-              <Text
-                as="p"
-                className="text-ehs-muted-text pb-1 text-[10px] font-bold tracking-[1.05px] uppercase"
-              >
-                Response
-              </Text>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] pb-1.5 text-[11.5px] sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Actions</span>
-                <span className="text-ehs-dark-bg max-w-full truncate text-left font-bold sm:max-w-[70%] sm:text-right">
-                  {actionsLabel}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] py-1.5 pb-1.5 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Photos</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {photosCountLabel}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 py-1.5 pb-0 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Follow-ups</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {followUpsCountLabel}
-                </span>
-              </div>
-            </div>
-
-            {/* Card 4: REPORTER */}
-            <div className="flex flex-col gap-2 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4">
-              <Text
-                as="p"
-                className="text-ehs-muted-text pb-1 text-[10px] font-bold tracking-[1.05px] uppercase"
-              >
-                Reporter
-              </Text>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] pb-1.5 text-[11.5px] sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Reported by</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {reporterName}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.04)] py-1.5 pb-1.5 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Department</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {reporterDept}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5 py-1.5 pb-0 text-[11.5px] last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                <span className="text-ehs-muted-text">Anonymous</span>
-                <span className="text-ehs-dark-bg text-left font-bold sm:text-right">
-                  {isAnonymous}
-                </span>
-              </div>
-            </div>
+          {/* Section 2: 2x2 detail cards — Figma 616:9073 */}
+          <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
+            <ReportReviewDetailCard
+              title="Where & when"
+              rows={[
+                { label: "Site", value: site },
+                { label: "Area", value: area },
+                { label: "When", value: when },
+              ]}
+            />
+            <ReportReviewDetailCard
+              title="People"
+              rows={[
+                { label: "Affected", value: affectedPersonLabel },
+                { label: "Injury", value: injuryLevelLabel },
+                { label: "Body part", value: bodyPartsLabel },
+                { label: "Witnesses", value: witnessesLabel },
+              ]}
+            />
+            <ReportReviewDetailCard
+              title="Response"
+              rows={[
+                { label: "Actions", value: actionsLabel },
+                { label: "Photos", value: photosCountLabel },
+                { label: "Follow-ups", value: followUpsLabel },
+              ]}
+            />
+            <ReportReviewDetailCard
+              title="Reporter"
+              paddingClassName="px-[15px] pt-[15px] pb-[29px]"
+              rows={[
+                { label: "Reported by", value: reporterName },
+                { label: "Department", value: departmentLabel },
+                { label: "Anonymous", value: anonymousLabel },
+              ]}
+            />
           </div>
 
           {/* Section 3: Routing preview banner */}
-          <div className="flex items-start gap-3 rounded-[12px] border border-[#0891a6]/15 bg-[#0891a6]/5 p-3.5">
+          <div className="flex items-start gap-3 rounded-[12px] border border-ehs-border bg---ehs-light-bg p-3.5">
             <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-[#0891a6]/10">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
@@ -259,15 +280,9 @@ export function ReportIncidentStepFive(
                 Routing preview
               </Text>
               <p className="text-ehs-gray text-[10.8px] leading-normal">
-                Will be assigned to{" "}
-                <span className="font-bold text-[#2a3446]">
-                  Sarah Mitchell (EHS Manager, Plant A)
-                </span>{" "}
-                and copied to{" "}
-                <span className="font-bold text-[#2a3446]">
-                  Site Supervisor
-                </span>
-                .
+                After submit, this report will be routed to the site EHS
+                owner and relevant supervisors based on your organization
+                settings.
               </p>
             </div>
           </div>
@@ -285,10 +300,8 @@ export function ReportIncidentStepFive(
                 AI summary ready
               </Text>
               <p className="text-[10.8px] leading-[15px] text-[#2a3446]">
-                Mid-shift hydraulic hose failure on Plant A · Line 2. No
-                operator contact; minor first-aid level injury. Equipment
-                isolated, replacement parts en route. Recommend RCA + SOP
-                review.
+                {form.description.trim() ||
+                  "AI summary will be generated from your report after submit."}
               </p>
             </div>
           </div>
@@ -301,6 +314,7 @@ export function ReportIncidentStepFive(
               type="button"
               variant="tertiary"
               onClick={onBack}
+              disabled={createIncidentMutation.isPending}
               className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
             >
               <Icon
@@ -319,15 +333,29 @@ export function ReportIncidentStepFive(
             <Button
               type="button"
               variant="primary"
-              onClick={handleSubmit}
+              onClick={() => void handleSubmit()}
+              disabled={createIncidentMutation.isPending}
               className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
             >
-              Submit report
-              <Icon
-                icon="mdi:check"
-                className="size-[13px]"
-                aria-hidden="true"
-              />
+              {createIncidentMutation.isPending ? (
+                <>
+                  Submitting…
+                  <Icon
+                    icon="mdi:loading"
+                    className="size-[13px] animate-spin"
+                    aria-hidden="true"
+                  />
+                </>
+              ) : (
+                <>
+                  Submit report
+                  <Icon
+                    icon="mdi:check"
+                    className="size-[13px]"
+                    aria-hidden="true"
+                  />
+                </>
+              )}
             </Button>
           </div>
         </div>
