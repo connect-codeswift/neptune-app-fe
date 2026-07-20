@@ -1,7 +1,5 @@
-import {
-  IncidentListHeader,
-  IncidentListView,
-} from "@/components/incidents/list";
+import { IncidentListHeader } from "@/components/incidents/list";
+import { IncidentListViewClient } from "@/components/incidents/list/IncidentListViewClient";
 import { IncidentViewTabs } from "@/components/incidents/shared";
 
 export default function IncidentsListPage() {
@@ -10,7 +8,7 @@ export default function IncidentsListPage() {
       <IncidentListHeader />
       <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 sm:px-4">
         <IncidentViewTabs />
-        <IncidentListView />
+        <IncidentListViewClient />
       </div>
     </div>
   );

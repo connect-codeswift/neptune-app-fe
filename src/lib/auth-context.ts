@@ -1,0 +1,133 @@
+import { getAccessToken } from "@/lib/axios";
+
+export type AuthContext = Readonly<{
+  userId: number;
+  subCompanyId: number;
+  organizationId: number | null;
+  email: string | null;
+  fullName: string | null;
+}>;
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) {
+      return null;
+    }
+
+    const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+    const json = globalThis.atob(padded);
+    const parsed: unknown = JSON.parse(json);
+
+    if (typeof parsed !== "object" || parsed === null) {
+      return null;
+    }
+
+    return parsed as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function readClaim(
+  payload: Record<string, unknown>,
+  keys: readonly string[],
+): unknown {
+  for (const key of keys) {
+    if (key in payload) {
+      return payload[key];
+    }
+  }
+
+  return undefined;
+}
+
+function toNonNegativeInt(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+    return Math.trunc(value);
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      return Math.trunc(parsed);
+    }
+  }
+
+  return null;
+}
+
+function toOptionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
+}
+
+/**
+ * Reads tenant/user ids from the access-token JWT.
+ * Falls back to `0` for missing claims (matches Swagger GetAllIncidents example).
+ */
+export function getAuthContext(): AuthContext | null {
+  const token = getAccessToken();
+  if (!token) {
+    return null;
+  }
+
+  const payload = decodeJwtPayload(token);
+
+  if (!payload) {
+    return {
+      userId: 0,
+      subCompanyId: 0,
+      organizationId: null,
+      email: null,
+      fullName: null,
+    };
+  }
+
+  return {
+    userId:
+      toNonNegativeInt(
+        readClaim(payload, [
+          "userId",
+          "UserId",
+          "nameid",
+          "sub",
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+        ]),
+      ) ?? 0,
+    subCompanyId:
+      toNonNegativeInt(
+        readClaim(payload, [
+          "subCompanyId",
+          "SubCompanyId",
+          "subcompanyId",
+          "SubCompId",
+          "subCompId",
+        ]),
+      ) ?? 0,
+    organizationId: toNonNegativeInt(
+      readClaim(payload, [
+        "organizationId",
+        "OrganizationId",
+        "orgId",
+        "OrgId",
+      ]),
+    ),
+    email: toOptionalString(
+      readClaim(payload, [
+        "email",
+        "Email",
+        "unique_name",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+      ]),
+    ),
+    fullName: toOptionalString(
+      readClaim(payload, ["fullName", "FullName", "name", "Name"]),
+    ),
+  };
+}

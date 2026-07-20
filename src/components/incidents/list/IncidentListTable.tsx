@@ -15,7 +15,7 @@ import {
   stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
-import type { IncidentRecord } from "@/components/incidents/list/incident-list-data";
+import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
 export type IncidentListTableProps = Readonly<{
   incidents: readonly IncidentRecord[];

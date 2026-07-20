@@ -1,5 +1,7 @@
 export { IncidentListView } from "./IncidentListView";
 export type { IncidentListViewProps } from "./IncidentListView";
+export { IncidentListViewClient } from "./IncidentListViewClient";
+
 export { IncidentListHeader } from "./IncidentListHeader";
 export type { IncidentListHeaderProps } from "./IncidentListHeader";
 export { IncidentListTable } from "./IncidentListTable";
@@ -8,6 +10,7 @@ export { IncidentFilterBar } from "./IncidentFilterBar";
 export { IncidentDetailPanel } from "./IncidentDetailPanel";
 export { IncidentBadge } from "./IncidentBadge";
 export { IncidentSegmentedControl } from "./IncidentSegmentedControl";
+export * from "./incident-list-types";
 export * from "./incident-list-data";
 export { AddCapaModal } from "./capa/AddCapaModal";
 export { CapaHierarchySelector } from "./capa/CapaHierarchySelector";
