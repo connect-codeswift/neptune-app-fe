@@ -9,6 +9,19 @@ import {
 } from "@tanstack/react-table";
 import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
 
+/**
+ * Server-side pagination state. The rows in `data` are already the current
+ * page, so the table never slices — it only renders controls and reports
+ * the page the user asked for.
+ */
+export type TablePagination = Readonly<{
+  pageNumber: number;
+  pageSize: number;
+  totalRecords: number;
+  onPageChange: (pageNumber: number) => void;
+  isLoading?: boolean;
+}>;
+
 export type TableProps<TData> = {
   data: readonly TData[];
   columns: ColumnDef<TData, unknown>[];
@@ -18,6 +31,7 @@ export type TableProps<TData> = {
   getRowId?: (row: TData) => string;
   className?: string;
   containerClassName?: string;
+  pagination?: TablePagination;
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -30,6 +44,7 @@ export function Table<TData>(props: TableProps<TData>) {
     getRowId,
     className = "",
     containerClassName = "",
+    pagination,
   } = props;
 
   const table = useReactTable({
@@ -161,6 +176,60 @@ export function Table<TData>(props: TableProps<TData>) {
           </tbody>
         </table>
       </div>
+
+      {pagination ? <TablePaginationBar {...pagination} /> : null}
     </IncidentGlassCard>
+  );
+}
+
+const pageButtonClass =
+  "inline-flex cursor-pointer items-center gap-1 rounded-lg border border-ehs-border bg-ehs-light-text px-3 py-1.5 text-xs font-medium text-ehs-gray transition-colors hover:bg-ehs-light-bg disabled:cursor-not-allowed disabled:opacity-50";
+
+function TablePaginationBar(props: Readonly<TablePagination>) {
+  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading } = props;
+
+  // The API is 1-based; guard against a 0/negative page size so the maths
+  // below can't divide by zero or produce a negative page count.
+  const safePageSize = pageSize > 0 ? pageSize : 10;
+  const pageCount = Math.max(1, Math.ceil(totalRecords / safePageSize));
+  const currentPage = Math.min(Math.max(pageNumber, 1), pageCount);
+
+  const firstRow =
+    totalRecords === 0 ? 0 : (currentPage - 1) * safePageSize + 1;
+  const lastRow = Math.min(currentPage * safePageSize, totalRecords);
+
+  const canGoBack = currentPage > 1 && !isLoading;
+  const canGoForward = currentPage < pageCount && !isLoading;
+
+  return (
+    <div className="border-ehs-border/45 flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3">
+      <span className="text-ehs-muted-text text-xs">
+        {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
+      </span>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className={pageButtonClass}
+          disabled={!canGoBack}
+          onClick={() => onPageChange(currentPage - 1)}
+        >
+          Previous
+        </button>
+
+        <span className="text-ehs-muted-text px-1 text-xs tabular-nums">
+          {`Page ${currentPage} of ${pageCount}`}
+        </span>
+
+        <button
+          type="button"
+          className={pageButtonClass}
+          disabled={!canGoForward}
+          onClick={() => onPageChange(currentPage + 1)}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 }

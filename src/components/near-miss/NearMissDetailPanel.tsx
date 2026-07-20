@@ -52,9 +52,8 @@ export function NearMissDetailPanel(props: Readonly<NearMissDetailPanelProps>) {
   }
 
   let statusTone: "neutral" | "teal" | "muted" | "danger" | "warn" = "neutral";
-  if (record.status === "Triage") statusTone = "neutral";
+  if (record.status === "Open") statusTone = "neutral";
   else if (record.status === "Investigating") statusTone = "warn";
-  else if (record.status === "Mitigated") statusTone = "teal";
   else if (record.status === "Closed") statusTone = "muted";
 
   return (
@@ -105,7 +104,7 @@ export function NearMissDetailPanel(props: Readonly<NearMissDetailPanelProps>) {
       <div className="border-ehs-border grid grid-cols-2 gap-x-4 gap-y-4 border-b px-5 py-4">
         <MetaField label="Reported" value={record.age + " ago"} />
         <MetaField label="Reporter" value={record.reporter} />
-        <MetaField label="Severity" value={record.severity} />
+        <MetaField label="Hazard Type" value={record.hazardType} />
         <MetaField label="Site" value={record.site} />
       </div>
 

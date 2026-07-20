@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { useState, type ReactNode } from "react";
+import { Button, type ButtonProps } from "@/components/ui/Button";
 import { FieldRenderer } from "./FormBuilderFields";
 import {
   createInitialValues,
@@ -20,6 +20,10 @@ export type FormBuilderProps = Readonly<{
   cancelLabel?: string;
   isSubmitting?: boolean;
   className?: string;
+  /** Variant for the submit button. Defaults to "primary". */
+  submitVariant?: ButtonProps["variant"];
+  /** Content rendered between the fields and the action row. */
+  beforeActions?: ReactNode;
 }>;
 
 // Static class map so Tailwind can see every span variant at build time.
@@ -63,6 +67,8 @@ export function FormBuilder(props: FormBuilderProps) {
     cancelLabel = "Cancel",
     isSubmitting = false,
     className = "",
+    submitVariant = "primary",
+    beforeActions,
   } = props;
 
   const [values, setValues] = useState<FormValues>(
@@ -114,6 +120,8 @@ export function FormBuilder(props: FormBuilderProps) {
         ))}
       </div>
 
+      {beforeActions}
+
       <div className="flex flex-wrap items-center justify-end gap-3">
         {onCancel ? (
           <Button
@@ -127,9 +135,16 @@ export function FormBuilder(props: FormBuilderProps) {
         ) : null}
         <Button
           type="submit"
-          variant="primary"
+          variant={submitVariant}
           disabled={isSubmitting}
-          className="rounded-[10px] px-5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+          className={[
+            "rounded-[10px] px-5 py-2 text-sm font-semibold",
+            submitVariant === "primary"
+              ? "shadow-[0px_6px_18px_-6px_#0891a6]"
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {submitLabel}
         </Button>

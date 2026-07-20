@@ -80,18 +80,71 @@ const SUB_COMPANY_ID_CLAIM_KEYS = [
   "companyId",
 ] as const;
 
-export type CurrentUser = Readonly<{ userId: number; subCompanyId: number }>;
+// Adjust if the backend embeds the role under a different claim name.
+const ROLE_CLAIM_KEYS = [
+  "role",
+  "Role",
+  "roleName",
+  "RoleName",
+  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+] as const;
+
+/** Return the first claim (by candidate key) that is a non-empty string. */
+function readStringClaim(
+  claims: JwtClaims,
+  keys: readonly string[],
+): string | null {
+  for (const key of keys) {
+    const value = claims[key];
+    // A role claim can be an array (multiple roles); take the first entry.
+    if (Array.isArray(value) && typeof value[0] === "string") {
+      return value[0];
+    }
+    if (typeof value === "string" && value.trim() !== "") {
+      return value;
+    }
+  }
+  return null;
+}
+
+export type CurrentUser = Readonly<{
+  userId: number;
+  subCompanyId: number;
+  role: string | null;
+}>;
 
 /**
- * Extract `userId` / `subCompanyId` from the access token's claims.
- * Falls back to 0 when the token is missing or a claim isn't present.
+ * Extract `userId` / `subCompanyId` / `role` from the access token's claims.
+ * Falls back to 0 / null when the token is missing or a claim isn't present.
  */
 export function getCurrentUser(): CurrentUser {
   const claims = decodeAccessTokenClaims();
-  if (!claims) return { userId: 0, subCompanyId: 0 };
+  if (!claims) return { userId: 0, subCompanyId: 0, role: null };
 
   return {
     userId: readNumericClaim(claims, USER_ID_CLAIM_KEYS) ?? 0,
     subCompanyId: readNumericClaim(claims, SUB_COMPANY_ID_CLAIM_KEYS) ?? 0,
+    role: readStringClaim(claims, ROLE_CLAIM_KEYS),
   };
+}
+
+/** Normalize a role label for comparison: lowercase, single-spaced. */
+function normalizeRole(role: string): string {
+  return role.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
+}
+
+/** Roles permitted to convert a near-miss into a full incident. */
+const CONVERT_INCIDENT_ROLES: readonly string[] = [
+  "ehs manager",
+  "ehs director",
+  "lead",
+];
+
+/**
+ * True when the signed-in user's role may convert a near-miss to an incident
+ * (EHS Manager, EHS Director, or Lead).
+ */
+export function canConvertNearMissToIncident(): boolean {
+  const { role } = getCurrentUser();
+  return role !== null && CONVERT_INCIDENT_ROLES.includes(normalizeRole(role));
 }

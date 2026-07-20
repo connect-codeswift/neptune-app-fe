@@ -2,16 +2,14 @@
 
 import { Icon } from "@iconify/react";
 
-export type NearMissFilterBarProps = Readonly<{
+export type HazardFilterBarProps = Readonly<{
   status: string;
   onStatusChange: (value: string) => void;
-  onReportNearMiss: () => void;
+  onReportHazard: () => void;
   className?: string;
 }>;
 
-export const SEVERITY_OPTIONS = ["All", "High", "Medium", "Low"] as const;
-
-export const STATUS_OPTIONS = [
+export const HAZARD_STATUS_OPTIONS = [
   "All",
   "Open",
   "Investigating",
@@ -62,8 +60,8 @@ function FilterSegment(props: FilterSegmentProps) {
   );
 }
 
-export function NearMissFilterBar(props: NearMissFilterBarProps) {
-  const { status, onStatusChange, onReportNearMiss, className = "" } = props;
+export function HazardFilterBar(props: HazardFilterBarProps) {
+  const { status, onStatusChange, onReportHazard, className = "" } = props;
 
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
@@ -78,18 +76,18 @@ export function NearMissFilterBar(props: NearMissFilterBarProps) {
 
       <FilterSegment
         label="Status"
-        options={STATUS_OPTIONS}
+        options={HAZARD_STATUS_OPTIONS}
         value={status}
         onChange={onStatusChange}
       />
 
       <button
         type="button"
-        onClick={onReportNearMiss}
+        onClick={onReportHazard}
         className="btn-sweep bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active ml-auto flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm"
       >
         <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
-        Report Near Miss
+        Report Hazard
       </button>
     </div>
   );

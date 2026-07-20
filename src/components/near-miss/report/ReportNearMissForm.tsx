@@ -22,7 +22,6 @@ function toCreateRequest(
   const { userId, subCompanyId } = getCurrentUser();
 
   return {
-    id: 0,
     dateOfEvent: report.dateOfEvent,
     hazardType: report.hazardType,
     location: report.location,
