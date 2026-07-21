@@ -137,15 +137,36 @@ function buildSite(incident: IncidentDto): string {
   return site || location || "—";
 }
 
+/** Display name from an email local-part: `franklin@…` → `Franklin`. */
+function displayNameFromEmail(email: string): string {
+  const local = email.split("@")[0]?.trim();
+  if (!local) {
+    return "";
+  }
+
+  return local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
 function buildReporter(incident: IncidentDto): string {
-  const fromPeople = incident.people?.find((person) =>
-    person.name?.trim(),
-  )?.name;
+  // Prefer an explicit Reporter role — never the first affected/witness person.
+  const fromPeople = incident.people?.find((person) => {
+    const role = person.role?.trim().toLowerCase() ?? "";
+    return role.includes("reporter") && Boolean(person.name?.trim());
+  })?.name;
   if (fromPeople?.trim()) {
     return fromPeople.trim();
   }
 
-  return incident.incidentReporterEmail?.trim() || "—";
+  const email = incident.incidentReporterEmail?.trim();
+  if (email) {
+    return displayNameFromEmail(email) || email;
+  }
+
+  return "—";
 }
 
 function buildInjury(incident: IncidentDto): string {
@@ -164,10 +185,23 @@ function buildInjury(incident: IncidentDto): string {
   );
 }
 
+function toNumericId(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.trunc(value);
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return Math.trunc(parsed);
+    }
+  }
+  return 0;
+}
+
 export function mapIncidentDtoToListRecord(
   incident: IncidentDto,
 ): IncidentRecord {
-  const numericId = incident.id ?? 0;
+  const numericId = toNumericId(incident.id);
   const description =
     incident.description?.trim() || "No description provided.";
 

@@ -18,22 +18,22 @@ export type IncidentDetailNotificationsCardProps = Readonly<{
 
 const DEFAULT_NOTIFICATIONS: readonly NotificationRow[] = [
   {
-    target: "On-call EHS lead",
+    target: "MOCK: On-call EHS lead",
     channel: "Page + SMS",
-    time: "09:10",
-    icon: "mdi:cellphone-message",
+    time: "09:18",
+    icon: "mdi:bell-outline",
   },
   {
-    target: "Site Supervisor",
+    target: "MOCK: Site Supervisor",
     channel: "Email",
     time: "09:18",
-    icon: "mdi:email-outline",
+    icon: "mdi:bell-outline",
   },
   {
-    target: "Plant Manager",
+    target: "MOCK: Plant Manager",
     channel: "Email",
     time: "09:35",
-    icon: "mdi:email-outline",
+    icon: "mdi:bell-outline",
   },
 ];
 
@@ -43,48 +43,41 @@ export function IncidentDetailNotificationsCard(
   const { notifications = DEFAULT_NOTIFICATIONS, className = "" } = props;
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-4 sm:p-5"
-      className={className}
-    >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg border-b border-[rgba(15,23,42,0.06)] pb-2.5 text-[15px] font-bold"
-      >
-        Notifications sent
-      </Text>
+    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+      <div className="pb-[14px]">
+        <Text
+          as="h3"
+          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        >
+          Notifications sent
+        </Text>
+      </div>
 
-      <div className="flex flex-col pt-1">
-        {notifications.map((notif, index) => (
-          <div
-            key={notif.target}
-            className={[
-              "flex items-center justify-between gap-3 py-3",
-              index === notifications.length - 1
-                ? "pb-1"
-                : "border-b border-[rgba(15,23,42,0.05)]",
-            ].join(" ")}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[rgba(15,23,42,0.04)] text-ehs-gray">
-                <Icon icon={notif.icon} className="size-4" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[13px] font-bold text-ehs-dark-bg leading-snug">
-                  {notif.target}
-                </span>
-                <span className="text-[11px] text-ehs-gray truncate leading-normal">
-                  {notif.channel}
-                </span>
-              </div>
-            </div>
-
-            <span className="text-[10px] font-semibold text-ehs-muted-text shrink-0">
-              {notif.time}
+      {notifications.map((notif, index) => (
+        <div
+          key={`${notif.target}-${notif.time}-${String(index)}`}
+          className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px]"
+        >
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)] text-[#566072]">
+            <Icon
+              icon={notif.icon}
+              className="size-[13px]"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-[12px] leading-normal text-[#0b1320]">
+              {notif.target}
+            </span>
+            <span className="truncate text-[11px] leading-normal text-[#8892a3]">
+              {notif.channel}
             </span>
           </div>
-        ))}
-      </div>
+          <span className="shrink-0 text-[11px] leading-normal text-[#8892a3]">
+            {notif.time}
+          </span>
+        </div>
+      ))}
     </IncidentGlassCard>
   );
 }

@@ -21,6 +21,8 @@ export type IncidentListTableProps = Readonly<{
   incidents: readonly IncidentRecord[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Opens the full incident detail page (double-click). */
+  onOpenDetail?: (id: string) => void;
   /** When true (detail panel closed), columns and text use a wider layout */
   expanded?: boolean;
   className?: string;
@@ -190,6 +192,7 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
     incidents,
     selectedId,
     onSelect,
+    onOpenDetail,
     expanded = false,
     className = "",
   } = props;
@@ -264,6 +267,12 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
                 <tr
                   key={row.id}
                   onClick={() => onSelect(row.original.id)}
+                  onDoubleClick={() => onOpenDetail?.(row.original.id)}
+                  title={
+                    onOpenDetail
+                      ? "Double-click to open details"
+                      : undefined
+                  }
                   className={[
                     "cursor-pointer border-t border-[rgba(15,23,42,0.08)] transition-colors",
                     isSelected

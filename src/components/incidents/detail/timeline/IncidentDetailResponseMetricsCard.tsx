@@ -24,30 +24,32 @@ export function IncidentDetailResponseMetricsCard(
   props: Readonly<IncidentDetailResponseMetricsCardProps>,
 ) {
   const { metrics = DEFAULT_METRICS, className = "" } = props;
+  const rows = metrics.length > 0 ? metrics : DEFAULT_METRICS;
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-4 sm:p-5"
-      className={className}
-    >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg border-b border-[rgba(15,23,42,0.06)] pb-2.5 text-[15px] font-bold"
-      >
-        Response metrics
-      </Text>
-
-      <div className="flex flex-col gap-0.5 pt-2">
-        {metrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="flex items-center justify-between border-b border-[rgba(15,23,42,0.04)] py-2.5 last:border-b-0 text-[12px]"
-          >
-            <span className="text-ehs-muted-text">{metric.label}</span>
-            <span className="font-bold text-ehs-dark-bg">{metric.value}</span>
-          </div>
-        ))}
+    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+      <div className="pb-[14px]">
+        <Text
+          as="h3"
+          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        >
+          Response metrics
+        </Text>
       </div>
+
+      {rows.map((metric) => (
+        <div
+          key={metric.label}
+          className="flex items-center justify-between border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
+        >
+          <span className="text-[12px] leading-normal text-[#566072]">
+            {metric.label}
+          </span>
+          <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+            {metric.value}
+          </span>
+        </div>
+      ))}
     </IncidentGlassCard>
   );
 }

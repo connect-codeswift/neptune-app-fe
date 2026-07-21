@@ -196,6 +196,17 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
     form.bodyPartSides,
   );
 
+  const reporterName = form.reportedBy.trim();
+  if (reporterName) {
+    people.push({
+      name: reporterName,
+      role: "Reporter",
+      injuryLevel: null,
+      bodyPartAffected: null,
+      injuryDescription: null,
+    });
+  }
+
   if (name || form.injuryDescription.trim() || form.bodyParts.length > 0) {
     people.push({
       name: name || null,
@@ -249,9 +260,7 @@ export function mapReportFormToIncidentDto(
   );
 
   const bodyPartLabels = source.bodyParts
-    .map(
-      (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
-    )
+    .map((id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id)
     .join(", ");
 
   const images = source.photos
@@ -279,10 +288,7 @@ export function mapReportFormToIncidentDto(
       source.initialTreatment,
     ),
     isSecondaryTreatmentSought: yes(source.secondaryTreatment),
-    mechanismOfInjury: optionLabel(
-      MECHANISM_OPTIONS,
-      source.mechanismOfInjury,
-    ),
+    mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, source.mechanismOfInjury),
     natureOfInjury: optionLabel(
       NATURE_OF_INJURY_OPTIONS,
       source.natureOfInjury,
@@ -299,10 +305,7 @@ export function mapReportFormToIncidentDto(
     occurredInCanada: yes(source.classifications.canada),
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
-      optionLabel(
-        WHAT_TREATMENT_GIVEN_OPTIONS,
-        source.whatTreatmentWasGiven,
-      ) ||
+      optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||
       optionLabel(INITIAL_TREATMENT_OPTIONS, source.initialTreatment) ||
       "N/A",
     treatmentProvidedBy:

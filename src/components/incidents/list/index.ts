@@ -19,5 +19,10 @@ export { IncidentSegmentedControl } from "./IncidentSegmentedControl";
 export * from "./incident-list-types";
 export * from "./incident-list-data";
 export { AddCapaModal } from "./capa/AddCapaModal";
+export {
+  IncidentModalShell,
+  IncidentModalCancelButton,
+  IncidentModalPrimaryButton,
+} from "./capa/IncidentModalShell";
 export { CapaHierarchySelector } from "./capa/CapaHierarchySelector";
 export { CapaSegmentedToggle } from "./capa/CapaSegmentedToggle";

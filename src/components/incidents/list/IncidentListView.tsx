@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -19,10 +20,12 @@ import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
+  useIncidentByIdQuery,
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
+import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
 export type IncidentListViewProps = Readonly<{
   searchQuery?: string;
@@ -31,6 +34,7 @@ export type IncidentListViewProps = Readonly<{
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
+  const router = useRouter();
   const [stateFilter, setStateFilter] = useState("All");
   const [stageFilter, setStageFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
@@ -93,26 +97,52 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [filteredIncidents]);
 
-  const selectedIncident =
+  const selectedListIncident =
     selectedId == null
       ? null
       : (filteredIncidents.find((incident) => incident.id === selectedId) ??
         filteredIncidents[0] ??
         null);
 
-  const isPanelOpen = selectedIncident != null;
+  // Sidebar details come from GetIncidentById — not the list-row payload alone.
+  const selectedDetailQuery = useIncidentByIdQuery({
+    id: selectedListIncident?.numericId ?? null,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      selectedListIncident != null &&
+      selectedListIncident.numericId > 0,
+  });
+
+  const selectedIncident =
+    selectedDetailQuery.data?.dto != null
+      ? mapIncidentDtoToListRecord(selectedDetailQuery.data.dto)
+      : selectedListIncident;
+
+  const isPanelOpen = selectedListIncident != null;
+
+  const openIncidentDetail = (listId: string) => {
+    const incident = filteredIncidents.find((row) => row.id === listId);
+    if (!incident || incident.numericId <= 0) {
+      return;
+    }
+
+    router.push(`/incidents/${String(incident.numericId)}`);
+  };
 
   const handleCloseIncident = async () => {
-    if (!selectedIncident) {
+    const target = selectedIncident ?? selectedListIncident;
+    if (!target) {
       return;
     }
 
     try {
-      await closeIncidentMutation.mutateAsync(selectedIncident.numericId);
+      await closeIncidentMutation.mutateAsync(target.numericId);
       toast.success(
         "Incident closed",
-        `${selectedIncident.id} is now Closed and still available in filters.`,
+        `${target.id} is now Closed and still available in filters.`,
       );
+      await selectedDetailQuery.refetch();
     } catch (error) {
       toast.error(
         "Could not close incident",
@@ -120,6 +150,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       );
     }
   };
+
   const kpiMetrics = useMemo(
     () => buildIncidentListKpis(incidentsQuery.data?.items ?? []),
     [incidentsQuery.data?.items],
@@ -229,8 +260,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               <div className="flex min-w-0 flex-col gap-3">
                 <IncidentListTable
                   incidents={filteredIncidents}
-                  selectedId={selectedIncident?.id ?? null}
+                  selectedId={selectedListIncident?.id ?? null}
                   onSelect={setSelectedId}
+                  onOpenDetail={openIncidentDetail}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />

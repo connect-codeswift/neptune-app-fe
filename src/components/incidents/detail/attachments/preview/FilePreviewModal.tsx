@@ -3,10 +3,10 @@
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
+import { stripAttachmentDisplayName } from "@/lib/attachment-url";
 
 const FilePreviewPdf = dynamic(
-  () =>
-    import("./FilePreviewPdf").then((module) => module.FilePreviewPdf),
+  () => import("./FilePreviewPdf").then((module) => module.FilePreviewPdf),
   {
     ssr: false,
     loading: () => (
@@ -33,7 +33,9 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
   const isVideo = file.kind === "video";
   const isPdf = file.kind === "pdf";
 
-  const fileUrl = file.secureUrl || "/images/sample-coupling.jpg";
+  const fileUrl = file.secureUrl
+    ? stripAttachmentDisplayName(file.secureUrl)
+    : "/images/sample-coupling.jpg";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">

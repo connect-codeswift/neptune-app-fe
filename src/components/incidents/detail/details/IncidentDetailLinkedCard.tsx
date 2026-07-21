@@ -42,69 +42,78 @@ export function IncidentDetailLinkedCard(
     className = "",
   } = props;
 
-  const handleAddCapa = onAddCapa ?? (() => {
-    toast.info("Add CAPA coming soon", "This feature is being developed.");
-  });
+  const handleAddCapa =
+    onAddCapa ??
+    (() => {
+      toast.info("Add CAPA coming soon", "This feature is being developed.");
+    });
 
-  const handleViewAll = onViewAll ?? (() => {
-    toast.info("View all linked items coming soon", "This feature is being developed.");
-  });
+  const handleViewAll =
+    onViewAll ??
+    (() => {
+      toast.info(
+        "View all linked items coming soon",
+        "This feature is being developed.",
+      );
+    });
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-4 sm:p-5"
-      className={className}
-    >
-      <div className="flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-2.5">
+    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+      <div className="flex items-center justify-between pb-[14px]">
         <Text
           as="h3"
-          className="text-ehs-dark-bg text-[15px] font-bold"
+          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
         >
           Linked items
         </Text>
         <button
           type="button"
           onClick={handleAddCapa}
-          className="flex items-center gap-0.5 rounded-[6px] border border-[#0891a6]/20 bg-[#0891a6]/5 px-2 py-0.5 text-[11px] font-bold text-[#056e7e] transition-colors hover:bg-[#0891a6]/10"
+          className="inline-flex items-center gap-2 rounded-[10px] bg-[#0891a6] px-[11px] py-[6.5px] text-[11px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485]"
         >
-          <Icon icon="mdi:plus" className="size-3" />
-          <span>Add CAPA</span>
+          <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
+          Add CAPA
         </button>
       </div>
 
-      <div className="flex flex-col gap-2 pt-3">
-        {linkedItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex cursor-pointer items-center gap-3 rounded-[10px] border border-[rgba(15,23,42,0.06)] bg-white/50 p-2.5 transition-colors hover:border-[rgba(15,23,42,0.12)] hover:bg-white/80"
-          >
-            <div className="text-ehs-gray flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[rgba(15,23,42,0.04)]">
-              <Icon icon={item.icon} className="size-4" />
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-ehs-dark-bg text-[11.5px] leading-snug font-bold">
-                {item.id}
-              </span>
-              <span className="text-ehs-gray truncate text-[10px]">
-                {item.label}
-              </span>
-            </div>
-            <Icon
-              icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
-            />
+      {linkedItems.map((item, index) => (
+        <button
+          key={item.id}
+          type="button"
+          className={[
+            "flex w-full items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] text-left transition-colors hover:bg-white/30",
+            index === linkedItems.length - 1 ? "pb-[14px]" : "pb-[10px]",
+          ].join(" ")}
+        >
+          <div className="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)] text-[#566072]">
+            <Icon icon={item.icon} className="size-3.5" aria-hidden="true" />
           </div>
-        ))}
-      </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-[12px] leading-normal font-bold text-[#0b1320]">
+              {item.id}
+            </span>
+            <span className="truncate text-[11px] leading-normal text-[#8892a3]">
+              {item.label}
+            </span>
+          </div>
+          <Icon
+            icon="mdi:chevron-right"
+            className="size-3.5 shrink-0 text-[#8892a3]"
+            aria-hidden="true"
+          />
+        </button>
+      ))}
 
-      <button
-        type="button"
-        onClick={handleViewAll}
-        className="mt-3.5 inline-flex items-center gap-1 text-[11.5px] font-bold text-[#056e7e] transition-colors hover:text-[#067485]"
-      >
-        <span>View all linked items</span>
-        <Icon icon="mdi:arrow-right" className="size-3.5" />
-      </button>
+      <div className="border-t border-[rgba(15,23,42,0.08)] pt-[9px]">
+        <button
+          type="button"
+          onClick={handleViewAll}
+          className="mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text-[11px] font-bold text-[#566072] transition-colors hover:text-[#0b1320]"
+        >
+          View all linked items
+          <Icon icon="mdi:arrow-right" className="size-3" aria-hidden="true" />
+        </button>
+      </div>
     </IncidentGlassCard>
   );
 }

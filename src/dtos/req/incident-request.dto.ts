@@ -23,6 +23,12 @@ export type GetAllIncidentsRequestDto = z.infer<
 /** Request body for POST /api/Incident/incident (`IncidentDto`). */
 export type CreateIncidentRequestDto = IncidentDto;
 
+/**
+ * Request body for PUT /api/Incident/UpdateIncident/{id}.
+ * Same shape as `IncidentDto` / create payload.
+ */
+export type UpdateIncidentRequestDto = IncidentDto;
+
 /** Tenant context used by incident close/update calls. */
 export const tenantUserContextSchema = z.object({
   subCompanyId: z.number().int().nonnegative(),

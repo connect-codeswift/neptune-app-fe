@@ -5,3 +5,4 @@ export * from "./people";
 export * from "./attachments";
 export * from "./investigations";
 export * from "./linked-capa";
+export * from "./IncidentDetailContent";
