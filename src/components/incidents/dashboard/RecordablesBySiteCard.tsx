@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { RECORDABLES_BY_SITE } from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type RecordablesBySiteCardProps = Readonly<{

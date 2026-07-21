@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +9,8 @@ import { Text } from "@/components/Text";
 export type IncidentListHeaderProps = Readonly<{
   title?: string;
   searchPlaceholder?: string;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
   dateRangeLabel?: string;
   onDateRangeClick?: () => void;
   onNotificationsClick?: () => void;
@@ -26,6 +29,8 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
   const {
     title = "Incidents",
     searchPlaceholder = "Search incidents, actions, docs…",
+    searchQuery = "",
+    onSearchChange,
     dateRangeLabel = "March 25 — April 24, 2026",
     onDateRangeClick,
     onNotificationsClick,
@@ -33,6 +38,23 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     reportHref = "/incidents/report",
     className = "",
   } = props;
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") {
+        return;
+      }
+
+      event.preventDefault();
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <header
@@ -58,8 +80,12 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
             aria-hidden="true"
           />
           <input
+            ref={searchInputRef}
             type="search"
+            value={searchQuery}
+            onChange={(event) => onSearchChange?.(event.target.value)}
             placeholder={searchPlaceholder}
+            aria-label="Search incidents"
             className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-[13px] shadow-sm outline-none focus:ring-2"
           />
           <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-[10px] font-medium sm:inline">

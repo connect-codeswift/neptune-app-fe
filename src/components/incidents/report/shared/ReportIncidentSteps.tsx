@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   REPORT_STEPS,
   type ReportStepId,
@@ -21,7 +21,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
     <IncidentGlassCard
       paddingClassName="p-[14px]"
       className={[
-        "w-full lg:sticky lg:top-0 lg:w-[220px] lg:shrink-0",
+        "w-full md:sticky md:top-0 md:w-[220px] md:shrink-0",
         className,
       ]
         .filter(Boolean)

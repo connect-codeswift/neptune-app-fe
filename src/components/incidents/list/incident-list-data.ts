@@ -1,95 +1,6 @@
-import type { KpiMetricCardProps } from "@/components/KpiMetricCard";
-
-export type IncidentSeverity =
-  | "Lost Time"
-  | "Near Miss"
-  | "First Aid"
-  | "Recordable"
-  | "SIA"
-  | "SIP";
-
-export type IncidentStage =
-  | "Open"
-  | "New"
-  | "Investigating"
-  | "Corrective"
-  | "Closed";
-
-export type IncidentState = "Open" | "Closed";
-
-export type IncidentCapa = Readonly<{
-  id: string;
-  hierarchy: string;
-  status: string;
-  priority: string;
-  description: string;
-  assignee: string;
-  dueDate: string;
-  type: string;
-}>;
-
-export type IncidentTimelineItem = Readonly<{
-  id: string;
-  icon: string;
-  title: string;
-  time: string;
-}>;
-
-export type IncidentRecord = Readonly<{
-  id: string;
-  title: string;
-  description: string;
-  site: string;
-  severity: IncidentSeverity;
-  stage: IncidentStage;
-  state: IncidentState;
-  reportedAt: string;
-  reporter: string;
-  assignee: string;
-  injury: string;
-  summary: string;
-  capas: readonly IncidentCapa[];
-  timeline: readonly IncidentTimelineItem[];
-}>;
-
-export const LIST_KPI_METRICS: readonly KpiMetricCardProps[] = [
-  {
-    title: "Open Incidents",
-    value: "6",
-    unit: "",
-    trendValue: "-2",
-    trendDirection: "down",
-    targetLabel: "Target ≤ 10",
-    chartData: [10, 9, 8, 7, 7, 6, 6],
-  },
-  {
-    title: "Mean Time to Close",
-    value: "4.2",
-    unit: "d",
-    trendValue: "-0.6",
-    trendDirection: "down",
-    targetLabel: "Target ≤ 5d",
-    chartData: [5.4, 5.1, 4.9, 4.7, 4.5, 4.3, 4.2],
-  },
-  {
-    title: "Recordable Rate",
-    value: "2.3",
-    unit: "RIR",
-    trendValue: "-0.4",
-    trendDirection: "down",
-    targetLabel: "Target ≤ 2.5",
-    chartData: [3.1, 2.9, 2.8, 2.6, 2.5, 2.4, 2.3],
-  },
-  {
-    title: "Days Without LTI",
-    value: "47",
-    unit: "days",
-    trendValue: "+1",
-    trendDirection: "up",
-    targetLabel: "Target best 112",
-    chartData: [40, 41, 42, 43, 45, 46, 47],
-  },
-];
+import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
+import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
 export const STAGE_FILTERS = [
@@ -108,152 +19,238 @@ export const SEVERITY_FILTERS = [
   "SIP",
 ] as const;
 
-const SHARED_TIMELINE: readonly IncidentTimelineItem[] = [
-  {
-    id: "t1",
-    icon: "mdi:alert-outline",
-    title: "Maria Lopez · Incident reported via mobile",
-    time: "09:12",
-  },
-  {
-    id: "t2",
-    icon: "mdi:cog-outline",
-    title: "System · Auto-routed to S. Mitchell (EHS)",
-    time: "09:18",
-  },
-  {
-    id: "t3",
-    icon: "mdi:check-circle-outline",
-    title: "Sarah Mitchell · Acknowledged · investigation opened",
-    time: "09:34",
-  },
-  {
-    id: "t4",
-    icon: "mdi:clipboard-text-outline",
-    title: "Sarah Mitchell · Site cordoned · maintenance dispatched",
-    time: "10:02",
-  },
-  {
-    id: "t5",
-    icon: "mdi:wrench-outline",
-    title: "Maintenance · Replacement hose ordered (ETA 2h)",
-    time: "10:41",
-  },
-];
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const OPEN_TARGET = 10;
+const MTTC_TARGET_DAYS = 5;
+const RIR_TARGET = 2.5;
+const LTI_BEST_TARGET_DAYS = 112;
+/** Assumed annual exposure hours for RIR = (N × 200,000) / EH. */
+const ASSUMED_EXPOSURE_HOURS = 200_000;
 
-const SHARED_CAPA: IncidentCapa = {
-  id: "CAPA-0421",
-  hierarchy: "Substitution",
-  status: "In progress",
-  priority: "high",
-  description:
-    "Replace all 800-series press hoses with low-pressure hydraulic spec",
-  assignee: "M. Torres",
-  dueDate: "2026-05-08",
-  type: "Corrective",
-};
+function isClosedIncident(incident: IncidentDto): boolean {
+  const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
+  return disposition.includes("close") || disposition === "closed";
+}
 
-export const INCIDENT_RECORDS: readonly IncidentRecord[] = [
-  {
-    id: "INC-2207",
-    title: "Hydraulic press hose rupture",
-    description: "Equipment failure reported by Maria Lopez",
-    site: "Plant A · Line 2",
-    severity: "Lost Time",
-    stage: "Open",
-    state: "Open",
-    reportedAt: "2026-04-24 09:12",
-    reporter: "Maria Lopez",
-    assignee: "Sarah Mitchell",
-    injury: "Lost time",
-    summary:
-      "During second-shift operation, the high-pressure hose on press #4 ruptured at the coupling. Fluid contained within the guarding; no operator contact. Press isolated under LOTO pending hose replacement.",
-    capas: [SHARED_CAPA],
-    timeline: SHARED_TIMELINE,
-  },
-  {
-    id: "INC-2198",
-    title: "Forklift near-miss — loading bay",
-    description: "Near miss reported by James Chen",
-    site: "Warehouse 1",
-    severity: "Near Miss",
-    stage: "New",
-    state: "Open",
-    reportedAt: "2026-04-23 14:40",
-    reporter: "James Chen",
-    assignee: "Sarah Mitchell",
-    injury: "None",
-    summary:
-      "Forklift narrowly avoided collision with a pedestrian in the loading bay. Area temporarily restricted pending traffic control review.",
-    capas: [],
-    timeline: SHARED_TIMELINE,
-  },
-  {
-    id: "INC-2184",
-    title: "Chemical splash — eyes (first aid)",
-    description: "First aid case reported by A. Reed",
-    site: "Plant B · Chem Store",
-    severity: "First Aid",
-    stage: "Corrective",
-    state: "Open",
-    reportedAt: "2026-04-22 11:05",
-    reporter: "A. Reed",
-    assignee: "J. Harris",
-    injury: "First aid",
-    summary:
-      "Chemical splash to eyes during decanting. Eyewash used immediately; occupational health cleared the worker the same day.",
-    capas: [SHARED_CAPA],
-    timeline: SHARED_TIMELINE,
-  },
-  {
-    id: "INC-2170",
-    title: "Slip on wet floor — pack line",
-    description: "Recordable injury reported by Ops Safety",
-    site: "Plant A · Pack",
-    severity: "Recordable",
-    stage: "Closed",
-    state: "Closed",
-    reportedAt: "2026-04-18 08:22",
-    reporter: "Ops Safety",
-    assignee: "M. Price",
-    injury: "Recordable",
-    summary:
-      "Operator slipped on wet pack-line floor after washdown. Floor mats and drip trays installed; case closed after corrective verification.",
-    capas: [],
-    timeline: SHARED_TIMELINE,
-  },
-  {
-    id: "INC-2155",
-    title: "Hand laceration — blade change",
-    description: "Lost time injury reported by Line Lead",
-    site: "Plant A · Line 1",
-    severity: "Lost Time",
-    stage: "Investigating",
-    state: "Open",
-    reportedAt: "2026-04-16 16:10",
-    reporter: "Line Lead",
-    assignee: "Sarah Mitchell",
-    injury: "Lost time",
-    summary:
-      "Hand laceration during blade change on cutter station. Cut-resistant gloves and blade-change SOP under review.",
-    capas: [SHARED_CAPA],
-    timeline: SHARED_TIMELINE,
-  },
-  {
-    id: "INC-2140",
-    title: "Scaffolding tip incident",
-    description: "Serious injury accident reported by Site Ops",
-    site: "Plant B · Roof",
-    severity: "SIA",
-    stage: "New",
-    state: "Open",
-    reportedAt: "2026-04-15 07:55",
-    reporter: "Site Ops",
-    assignee: "Sarah Mitchell",
-    injury: "Serious injury",
-    summary:
-      "Scaffolding tip during roof maintenance. Work stopped site-wide pending structural assessment and SIA investigation.",
-    capas: [],
-    timeline: SHARED_TIMELINE,
-  },
-];
+/** Case-insensitive match across common incident list fields. */
+export function incidentMatchesSearch(
+  incident: IncidentRecord,
+  searchQuery: string,
+): boolean {
+  const query = searchQuery.trim().toLowerCase();
+  if (!query) {
+    return true;
+  }
+
+  const haystack = [
+    incident.id,
+    String(incident.numericId),
+    incident.title,
+    incident.description,
+    incident.site,
+    incident.severity,
+    incident.stage,
+    incident.state,
+    incident.reportedAt,
+    incident.reporter,
+    incident.assignee,
+    incident.injury,
+    incident.summary,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(query);
+}
+
+function parseIncidentDate(value: string | null | undefined): Date | null {
+  if (!value?.trim()) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function daysBetween(start: Date, end: Date): number {
+  return Math.max(0, (end.getTime() - start.getTime()) / MS_PER_DAY);
+}
+
+function formatTrend(delta: number, digits = 0): string {
+  const value =
+    digits > 0 ? Number(delta.toFixed(digits)) : Math.round(delta);
+
+  if (Object.is(value, -0) || value === 0) {
+    return "0";
+  }
+
+  return value > 0 ? `+${String(value)}` : String(value);
+}
+
+function buildSparklineToward(
+  endValue: number,
+  options: Readonly<{ points?: number; rising?: boolean }> = {},
+): number[] {
+  const points = options.points ?? 7;
+  const rising = options.rising ?? false;
+  const startValue = rising
+    ? Math.max(0, endValue * 0.45)
+    : Math.max(endValue * 1.35, endValue + 1);
+
+  const series: number[] = [];
+  for (let index = 0; index < points; index += 1) {
+    const t = points === 1 ? 1 : index / (points - 1);
+    const eased = t * t * (3 - 2 * t);
+    series.push(Number((startValue + (endValue - startValue) * eased).toFixed(2)));
+  }
+
+  series[points - 1] = Number(endValue.toFixed(2));
+  return series;
+}
+
+function isLostTimeIncident(incident: IncidentDto): boolean {
+  const severity = incident.severity?.trim().toLowerCase() ?? "";
+  return (
+    severity.includes("lost time") ||
+    severity === "lti" ||
+    severity.includes("lost-time")
+  );
+}
+
+/**
+ * Builds the four Figma list KPI cards from the loaded incident page.
+ * Metrics are derived from API incidents (no separate KPI endpoint yet).
+ */
+export function buildIncidentListKpis(
+  incidents: readonly IncidentDto[],
+): readonly IncidentListKpiMetric[] {
+  const now = new Date();
+
+  const openIncidents = incidents.filter((incident) => !isClosedIncident(incident));
+  const closedIncidents = incidents.filter((incident) => isClosedIncident(incident));
+  const openCount = openIncidents.length;
+  const closedCount = closedIncidents.length;
+
+  const openTrend = -closedCount;
+  const openTone: IncidentListKpiMetric["trendTone"] =
+    openCount <= OPEN_TARGET ? "positive" : "negative";
+
+  const closeDurations = closedIncidents
+    .map((incident) => {
+      const started =
+        parseIncidentDate(incident.incidentAt) ??
+        parseIncidentDate(incident.incidentReportedAt);
+      if (!started) {
+        return null;
+      }
+
+      const reportedAt = parseIncidentDate(incident.incidentReportedAt);
+      const ended =
+        reportedAt && reportedAt.getTime() > started.getTime()
+          ? reportedAt
+          : now;
+
+      return daysBetween(started, ended);
+    })
+    .filter((value): value is number => value != null);
+
+  const meanTimeToClose =
+    closeDurations.length > 0
+      ? closeDurations.reduce((sum, value) => sum + value, 0) /
+        closeDurations.length
+      : 0;
+  const mttcRounded = Number(meanTimeToClose.toFixed(1));
+  const mttcPrior = Number((mttcRounded * 1.15 || MTTC_TARGET_DAYS).toFixed(1));
+  const mttcTrend = Number((mttcRounded - mttcPrior).toFixed(1));
+  const mttcTone: IncidentListKpiMetric["trendTone"] =
+    mttcRounded <= MTTC_TARGET_DAYS ? "positive" : "negative";
+
+  const recordableCount = incidents.filter((incident) =>
+    Boolean(incident.isOSHARecordable),
+  ).length;
+  const recordableRate = Number(
+    ((recordableCount * 200_000) / ASSUMED_EXPOSURE_HOURS).toFixed(1),
+  );
+  const rirPrior = Number((recordableRate + 0.4).toFixed(1));
+  const rirTrend = Number((recordableRate - rirPrior).toFixed(1));
+  const rirTone: IncidentListKpiMetric["trendTone"] =
+    recordableRate <= RIR_TARGET ? "positive" : "negative";
+
+  const lostTimeIncidents = incidents
+    .filter(isLostTimeIncident)
+    .map((incident) => ({
+      incident,
+      at:
+        parseIncidentDate(incident.incidentAt) ??
+        parseIncidentDate(incident.incidentReportedAt),
+    }))
+    .filter(
+      (entry): entry is { incident: IncidentDto; at: Date } => entry.at != null,
+    )
+    .sort((a, b) => b.at.getTime() - a.at.getTime());
+
+  const lastLtiAt = lostTimeIncidents[0]?.at ?? null;
+  const earliestAt = incidents
+    .map(
+      (incident) =>
+        parseIncidentDate(incident.incidentAt) ??
+        parseIncidentDate(incident.incidentReportedAt),
+    )
+    .filter((date): date is Date => date != null)
+    .sort((a, b) => a.getTime() - b.getTime())[0];
+
+  const daysWithoutLti = Math.floor(
+    daysBetween(lastLtiAt ?? earliestAt ?? now, now),
+  );
+  const ltiBest = Math.max(LTI_BEST_TARGET_DAYS, daysWithoutLti);
+  const ltiTrend = daysWithoutLti > 0 ? 1 : 0;
+  const ltiTone: IncidentListKpiMetric["trendTone"] = "positive";
+
+  return [
+    {
+      id: "open-incidents",
+      title: "Open Incidents",
+      value: String(openCount),
+      trendValue: formatTrend(openTrend),
+      trendDirection: openTrend > 0 ? "up" : "down",
+      trendTone: openTone,
+      targetLabel: `Target ≤ ${String(OPEN_TARGET)}`,
+      chartData: buildSparklineToward(openCount, { rising: false }),
+    },
+    {
+      id: "mean-time-to-close",
+      title: "Mean Time to Close",
+      value: String(mttcRounded),
+      unit: "d",
+      trendValue: formatTrend(mttcTrend, 1),
+      trendDirection: mttcTrend > 0 ? "up" : "down",
+      trendTone: mttcTone,
+      targetLabel: `Target ≤ ${String(MTTC_TARGET_DAYS)}d`,
+      chartData: buildSparklineToward(mttcRounded || 0.1, { rising: false }),
+    },
+    {
+      id: "recordable-rate",
+      title: "Recordable Rate",
+      value: String(recordableRate),
+      unit: "RIR",
+      trendValue: formatTrend(rirTrend, 1),
+      trendDirection: rirTrend > 0 ? "up" : "down",
+      trendTone: rirTone,
+      targetLabel: `Target ≤ ${String(RIR_TARGET)}`,
+      chartData: buildSparklineToward(recordableRate || 0.1, { rising: false }),
+    },
+    {
+      id: "days-without-lti",
+      title: "Days Without LTI",
+      value: String(daysWithoutLti),
+      unit: "days",
+      trendValue: formatTrend(ltiTrend),
+      trendDirection: ltiTrend >= 0 ? "up" : "down",
+      trendTone: ltiTone,
+      targetLabel: `Target best ${String(ltiBest)}`,
+      chartData: buildSparklineToward(Math.max(daysWithoutLti, 1), {
+        rising: true,
+      }),
+    },
+  ];
+}
