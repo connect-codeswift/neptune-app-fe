@@ -1,6 +1,8 @@
-import { IncidentKpisDashboard } from "@/components/incidents/dashboard/IncidentKpisDashboard";
-import { IncidentKpisHeader } from "@/components/incidents/dashboard/IncidentKpisHeader";
-import { IncidentViewTabs } from "@/components/incidents/IncidentViewTabs";
+import {
+  IncidentKpisDashboard,
+  IncidentKpisHeader,
+} from "@/components/incidents/dashboard";
+import { IncidentViewTabs } from "@/components/incidents/shared";
 
 export default function IncidentsDashboardPage() {
   return (

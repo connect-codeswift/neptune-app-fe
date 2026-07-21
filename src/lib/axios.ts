@@ -144,10 +144,8 @@ function createHttpClient(): AxiosInstance {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json; charset=utf-8",
-      "Accept-Encoding": "gzip, deflate, br, zstd",
     },
     timeout: 30_000,
-    decompress: true,
   });
 
   client.interceptors.request.use(attachAuthHeader);

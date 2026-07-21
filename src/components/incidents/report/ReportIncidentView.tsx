@@ -12,11 +12,13 @@ import { ReportIncidentAside } from "@/components/incidents/report/shared/Report
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
 import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
 import { ReportIncidentToolbar } from "@/components/incidents/report/shared/ReportIncidentToolbar";
-import { ReportIncidentStepOne } from "@/components/incidents/report/step-1";
-import { ReportIncidentStepTwo } from "@/components/incidents/report/step-2";
-import { ReportIncidentStepThree } from "@/components/incidents/report/step-3";
-import { ReportIncidentStepFour } from "@/components/incidents/report/step-4";
-import { ReportIncidentStepFive } from "@/components/incidents/report/step-5";
+import {
+  ReportIncidentStepFive,
+  ReportIncidentStepFour,
+  ReportIncidentStepOne,
+  ReportIncidentStepThree,
+  ReportIncidentStepTwo,
+} from "@/components/incidents/report/steps";
 
 function renderStepForm(
   currentStep: ReportStepId,
@@ -61,6 +63,7 @@ export function ReportIncidentView() {
     ...formDefaults,
     ...form,
     photos: form.photos ?? formDefaults.photos,
+    bodyParts: form.bodyParts ?? formDefaults.bodyParts,
   };
 
   const severityOption =
@@ -102,7 +105,7 @@ export function ReportIncidentView() {
           onSaveExit={() => router.push("/incidents/list")}
         />
 
-        <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
+        <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
           <ReportIncidentSteps
             currentStep={currentStep}
             onStepChange={goToStep}
@@ -122,6 +125,7 @@ export function ReportIncidentView() {
             title={currentStep >= 2 ? normalizedForm.title : ""}
             description={currentStep >= 2 ? normalizedForm.description : ""}
             currentStep={currentStep}
+            className="col-span-1 md:col-span-2 xl:col-span-1"
           />
         </div>
       </div>

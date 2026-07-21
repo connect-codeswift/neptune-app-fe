@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   SITE_STATS,
   STEP_TIPS,
@@ -39,7 +39,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
   return (
     <aside
       className={[
-        "flex w-full flex-col gap-3.5 lg:sticky lg:top-0 lg:w-[320px] lg:shrink-0",
+        "flex w-full flex-col gap-3.5 xl:sticky xl:top-0 xl:w-[320px] xl:shrink-0",
         className,
       ]
         .filter(Boolean)

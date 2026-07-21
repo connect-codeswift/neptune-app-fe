@@ -1,4 +1,4 @@
-import { ReportIncidentView } from "@/components/incidents/report/ReportIncidentView";
+import { ReportIncidentView } from "@/components/incidents/report";
 
 export default function ReportIncidentPage() {
   return <ReportIncidentView />;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   IncidentBadge,
   severityTone,
@@ -12,11 +12,13 @@ import {
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import { AddCapaModal } from "@/components/incidents/list/capa/AddCapaModal";
-import type { IncidentRecord } from "@/components/incidents/list/incident-list-data";
+import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
-  onClose?: () => void;
+  /** Sets the incident status to Closed (does not dismiss the sidebar). */
+  onCloseIncident?: () => void;
+  isClosingIncident?: boolean;
   className?: string;
 }>;
 
@@ -39,7 +41,12 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 }
 
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
-  const { incident, onClose, className = "" } = props;
+  const {
+    incident,
+    onCloseIncident,
+    isClosingIncident = false,
+    className = "",
+  } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
 
   if (!incident) {
@@ -102,7 +109,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           {incident.title}
         </Text>
         <Text as="p" className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]">
-          {`Equipment failure · ${incident.site}`}
+          {incident.site}
         </Text>
       </div>
 
@@ -143,35 +150,52 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           </button>
         </div>
 
-        {incident.capas.map((capa) => (
-          <div
-            key={capa.id}
-            className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
-          >
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <Text as="span" className="text-ehs-muted-text text-[11px] font-semibold">
-                {capa.id}
+        {incident.capas.length === 0 ? (
+          <Text as="p" className="text-ehs-muted-text text-[12px]">
+            No linked CAPAs yet.
+          </Text>
+        ) : (
+          incident.capas.map((capa) => (
+            <div
+              key={capa.id}
+              className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <Text
+                  as="span"
+                  className="text-ehs-muted-text text-[11px] font-semibold"
+                >
+                  {capa.id}
+                </Text>
+                <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
+                <IncidentBadge label={capa.status} tone="muted" />
+                <IncidentBadge label={capa.priority} tone="neutral" />
+              </div>
+              <Text as="p" className="text-ehs-darker text-[12px] leading-[17px]">
+                {capa.description}
               </Text>
-              <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
-              <IncidentBadge label={capa.status} tone="muted" />
-              <IncidentBadge label={capa.priority} tone="neutral" />
+              <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-[11px]">
+                <span className="inline-flex items-center gap-1">
+                  <Icon
+                    icon="mdi:account-outline"
+                    className="text-xs"
+                    aria-hidden="true"
+                  />
+                  {capa.assignee}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Icon
+                    icon="mdi:calendar-outline"
+                    className="text-xs"
+                    aria-hidden="true"
+                  />
+                  {capa.dueDate}
+                </span>
+                <span>· {capa.type}</span>
+              </div>
             </div>
-            <Text as="p" className="text-ehs-darker text-[12px] leading-[17px]">
-              {capa.description}
-            </Text>
-            <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-[11px]">
-              <span className="inline-flex items-center gap-1">
-                <Icon icon="mdi:account-outline" className="text-xs" aria-hidden="true" />
-                {capa.assignee}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Icon icon="mdi:calendar-outline" className="text-xs" aria-hidden="true" />
-                {capa.dueDate}
-              </span>
-              <span>· {capa.type}</span>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="flex-1 px-5 py-3.5">
@@ -182,46 +206,70 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           Timeline
         </Text>
 
-        <div className="relative flex flex-col gap-3 pl-1">
-          <div
-            className="bg-ehs-border absolute top-2 bottom-2 left-[12px] w-px"
-            aria-hidden="true"
-          />
-          {incident.timeline.map((item) => (
-            <div key={item.id} className="relative flex gap-3">
-              <div className="border-ehs-border bg-ehs-light-text relative z-[1] flex size-[26px] shrink-0 items-center justify-center rounded-full border shadow-sm">
-                <Icon
-                  icon={item.icon}
-                  className="text-ehs-gray text-xs"
-                  aria-hidden="true"
-                />
+        {incident.timeline.length === 0 ? (
+          <Text as="p" className="text-ehs-muted-text text-[12px]">
+            No timeline events yet.
+          </Text>
+        ) : (
+          <div className="relative flex flex-col gap-3 pl-1">
+            <div
+              className="bg-ehs-border absolute top-2 bottom-2 left-[12px] w-px"
+              aria-hidden="true"
+            />
+            {incident.timeline.map((item) => (
+              <div key={item.id} className="relative flex gap-3">
+                <div className="border-ehs-border bg-ehs-light-text relative z-[1] flex size-[26px] shrink-0 items-center justify-center rounded-full border shadow-sm">
+                  <Icon
+                    icon={item.icon}
+                    className="text-ehs-gray text-xs"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="min-w-0 pt-1">
+                  <Text
+                    as="p"
+                    className="text-ehs-darker text-[12px] leading-[14px]"
+                  >
+                    {item.title}
+                  </Text>
+                  <Text as="p" className="text-ehs-muted-text mt-1 text-[11px]">
+                    {item.time}
+                  </Text>
+                </div>
               </div>
-              <div className="min-w-0 pt-1">
-                <Text as="p" className="text-ehs-darker text-[12px] leading-[14px]">
-                  {item.title}
-                </Text>
-                <Text as="p" className="text-ehs-muted-text mt-1 text-[11px]">
-                  {item.time}
-                </Text>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="border-ehs-border flex min-w-0 flex-nowrap items-center gap-1.5 border-t px-3 py-3 sm:gap-2 sm:px-5">
         <Button
           type="button"
           variant="primary"
-          onClick={onClose}
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap sm:px-3 sm:text-[13px]"
+          onClick={onCloseIncident}
+          disabled={
+            isClosingIncident ||
+            incident.state === "Closed" ||
+            incident.stage === "Closed"
+          }
+          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap disabled:opacity-50 sm:px-3 sm:text-[13px]"
         >
           <Icon
-            icon="mdi:check"
+            icon={
+              incident.state === "Closed" || incident.stage === "Closed"
+                ? "mdi:lock-check-outline"
+                : "mdi:check"
+            }
             className="size-3.5 shrink-0 sm:size-4"
             aria-hidden="true"
           />
-          <span className="truncate">Close incident</span>
+          <span className="truncate">
+            {isClosingIncident
+              ? "Closing…"
+              : incident.state === "Closed" || incident.stage === "Closed"
+                ? "Closed"
+                : "Close incident"}
+          </span>
         </Button>
         <Button
           type="button"
