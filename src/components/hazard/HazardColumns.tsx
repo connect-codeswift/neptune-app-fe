@@ -20,11 +20,12 @@ export const hazardColumns: ColumnDef<HazardRecord, any>[] = [
     header: "HAZARD",
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg font-normal">
-          {row.original.title}
+        <span className="text-ehs-dark-bg font-normal capitalize">
+          {`${row.original.title} · ${row.original.hazardType}`}
         </span>
+        {/* Static placeholder: the backend sends a userId, not a reporter name. */}
         <span className="text-ehs-muted-text text-sm">
-          {`Hazard · ${row.original.reporter}`}
+          Near miss · Dana Kim
         </span>
       </div>
     ),
@@ -41,7 +42,13 @@ export const hazardColumns: ColumnDef<HazardRecord, any>[] = [
   columnHelper.accessor("status", {
     header: "STATUS",
     size: 130,
-    cell: (info) => <IncidentBadge label={info.getValue()} tone="muted" />,
+    cell: (info) => (
+      <IncidentBadge
+        label={info.getValue()}
+        tone="muted"
+        className="w-fit rounded-full px-2 py-0.5 text-sm! tracking-[0.11px]"
+      />
+    ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("age", {

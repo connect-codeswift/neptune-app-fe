@@ -40,7 +40,7 @@ export default function NearMissPage() {
     pageNumber,
     pageSize: PAGE_SIZE,
   });
-
+  console.log("nearMissListQuery", nearMissListQuery.data?.dataModel);
   const deleteMutation = useDeleteNearMissMutation();
 
   const page = nearMissListQuery.data?.dataModel;

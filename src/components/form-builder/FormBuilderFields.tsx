@@ -1,6 +1,8 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { PhotoUploadControl } from "./PhotoUploadControl";
+import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import type {
   CheckboxGroupFieldConfig,
   DateFieldConfig,
@@ -12,7 +14,7 @@ import type {
 } from "./types";
 
 const inputClass =
-  "p-3 w-full rounded-[10px] border border-slate-900/10 bg-ehs-light-bg/40 text-base text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+  "p-3 w-full rounded-lg border border-slate-900/10 bg-ehs-light-bg/40 text-base text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
 const errorRingClass =
   "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
@@ -33,10 +35,12 @@ function FieldShell(
   props: Readonly<{
     field: FieldConfig;
     error?: string;
+    /** Set false when the control renders its own error/helper text. */
+    showMessages?: boolean;
     children: React.ReactNode;
   }>,
 ) {
-  const { field, error, children } = props;
+  const { field, error, showMessages = true, children } = props;
   return (
     <div className="flex flex-col gap-1.5">
       <FieldLabel
@@ -45,7 +49,7 @@ function FieldShell(
         htmlFor={field.name}
       />
       {children}
-      {error ? (
+      {!showMessages ? null : error ? (
         <p className="text-ehs-red text-xs">{error}</p>
       ) : field.helperText ? (
         <p className="text-ehs-muted-text text-xs">{field.helperText}</p>
@@ -117,6 +121,21 @@ function SelectControl(
   }>,
 ) {
   const { field, value, error, onChange } = props;
+
+  if (field.allowCustom) {
+    return (
+      <SelectWithCustomControl
+        field={field}
+        value={value}
+        invalid={Boolean(error)}
+        onChange={onChange}
+        triggerClassName={[inputClass, error ? errorRingClass : ""]
+          .filter(Boolean)
+          .join(" ")}
+      />
+    );
+  }
+
   return (
     <div className="relative">
       <select
@@ -289,6 +308,17 @@ export function FieldRenderer(props: FieldRendererProps) {
           <TextareaControl
             field={field}
             value={value as string}
+            error={error}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "photo":
+      return (
+        <FieldShell field={field} error={error} showMessages={false}>
+          <PhotoUploadControl
+            field={field}
+            value={value as string[]}
             error={error}
             onChange={onChange}
           />

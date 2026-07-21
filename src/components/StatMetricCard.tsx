@@ -6,7 +6,8 @@ export type StatMetricTone = "positive" | "negative";
 export type StatMetricCardProps = Readonly<{
   title: string;
   value: string | number;
-  trendValue: string;
+  /** Omit to hide the trend badge (e.g. when the API returns no delta). */
+  trendValue?: string;
   trendTone?: StatMetricTone;
   className?: string;
 }>;
@@ -39,14 +40,16 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
             {title}
           </Text>
 
-          <span
-            className={[
-              "inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
-              trendToneClass[trendTone],
-            ].join(" ")}
-          >
-            {trendValue}
-          </span>
+          {trendValue ? (
+            <span
+              className={[
+                "inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
+                trendToneClass[trendTone],
+              ].join(" ")}
+            >
+              {trendValue}
+            </span>
+          ) : null}
         </div>
 
         <Text

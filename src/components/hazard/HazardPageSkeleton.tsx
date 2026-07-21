@@ -45,17 +45,15 @@ function RecognitionRowSkeleton() {
 }
 
 /**
- * Full-page loading placeholder for the Near Miss dashboard. Mirrors the real
- * layout (header, 4 KPIs, filter bar, table + insights) so the swap to real
- * content doesn't shift the page around.
+ * Full-page loading placeholder for the Hazard dashboard. Mirrors the real
+ * layout (2 KPIs, filter bar, table + insights) so the swap to real content
+ * doesn't shift the page around.
  */
-export function NearMissPageSkeleton() {
+export function HazardPageSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
       {/* KPI Metrics */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
+      <div className="grid gap-4 sm:grid-cols-2">
         <KpiCardSkeleton />
         <KpiCardSkeleton />
       </div>
@@ -65,7 +63,7 @@ export function NearMissPageSkeleton() {
         <Skeleton className="h-6 w-16 rounded-lg" />
         <span className="h-5 w-px bg-white/90" aria-hidden="true" />
         <Skeleton className="h-6 w-24 rounded-lg" />
-        <Skeleton className="h-6 w-20 rounded-lg" />
+        <Skeleton className="ml-auto h-6 w-28 rounded-lg" />
       </div>
 
       {/* Table + Insights */}

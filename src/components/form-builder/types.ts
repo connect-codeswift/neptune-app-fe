@@ -5,10 +5,15 @@
  * maps to a value in {@link FormValues} keyed by its `name`.
  */
 
-export type SelectOption = Readonly<{ value: string; label: string }>;
+export type SelectOption = Readonly<{
+  value: string;
+  label: string;
+  /** Optional short code rendered as a badge before the label (e.g. "H201"). */
+  code?: string;
+}>;
 
 /** Every field value is either a string (text/date/select/textarea) or a
- * string[] (checkbox-group of selected option values). */
+ * string[] (checkbox-group selections, or uploaded photo URLs). */
 export type FieldValue = string | string[];
 
 export type FormValues = Record<string, FieldValue>;
@@ -43,6 +48,13 @@ export type SelectFieldConfig = BaseField &
     type: "select";
     placeholder?: string;
     options: readonly SelectOption[];
+    /** Render the richer listbox that lets users append their own option to
+     * this field. Custom entries live for the lifetime of the form. */
+    allowCustom?: boolean;
+    /** Footer action label shown when {@link allowCustom} is set. */
+    addCustomLabel?: string;
+    /** Placeholder for the custom-entry input opened by that footer action. */
+    addCustomPlaceholder?: string;
   }>;
 
 export type TextareaFieldConfig = BaseField &
@@ -60,12 +72,24 @@ export type CheckboxGroupFieldConfig = BaseField &
     columns?: 1 | 2 | 3;
   }>;
 
+/** Image upload field. Files go straight to Cloudinary and the field value is
+ * the list of resulting secure URLs. */
+export type PhotoFieldConfig = BaseField &
+  Readonly<{
+    type: "photo";
+    /** Headline shown inside the drop zone. */
+    placeholder?: string;
+    /** Maximum number of images. Defaults to {@link CLOUDINARY_MAX_FILES}. */
+    maxFiles?: number;
+  }>;
+
 export type FieldConfig =
   | TextFieldConfig
   | DateFieldConfig
   | SelectFieldConfig
   | TextareaFieldConfig
-  | CheckboxGroupFieldConfig;
+  | CheckboxGroupFieldConfig
+  | PhotoFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
 
@@ -73,7 +97,8 @@ export type FormSchema = readonly FieldConfig[];
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
   for (const field of schema) {
-    values[field.name] = field.type === "checkbox-group" ? [] : "";
+    values[field.name] =
+      field.type === "checkbox-group" || field.type === "photo" ? [] : "";
   }
   return values;
 }

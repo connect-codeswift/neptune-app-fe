@@ -58,7 +58,13 @@ export function makeNearMissColumns(
     columnHelper.accessor("status", {
       header: "STATUS",
       size: 130,
-      cell: (info) => <IncidentBadge label={info.getValue()} tone="muted" />,
+      cell: (info) => (
+        <IncidentBadge
+          label={info.getValue()}
+          tone="muted"
+          className="w-fit rounded-full px-2 py-0.5 text-sm! tracking-[0.11px]"
+        />
+      ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("dateOfEvent", {

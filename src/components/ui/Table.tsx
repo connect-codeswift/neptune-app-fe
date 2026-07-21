@@ -139,7 +139,7 @@ export function Table<TData>(props: TableProps<TData>) {
                       onRowClick ? "cursor-pointer" : "",
                       isSelected
                         ? "bg-ehs-normal-blue/18"
-                        : "hover:bg-ehs-light-bg/50",
+                        : "hover:bg-ehs-normal-blue/18",
                     ].join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
