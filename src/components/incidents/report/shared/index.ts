@@ -1,5 +1,7 @@
 export { ReportComingSoonStep } from "./ReportComingSoonStep";
 export type { ReportComingSoonStepProps } from "./ReportComingSoonStep";
+export { ReportDateField } from "./ReportDateField";
+export type { ReportDateFieldProps } from "./ReportDateField";
 export {
   ReportFieldLabel,
   ReportSelectField,
@@ -13,6 +15,9 @@ export type {
   ReportTextFieldProps,
   ReportTextareaFieldProps,
 } from "./ReportFormField";
+export { ReportTimeField } from "./ReportTimeField";
+export type { ReportTimeFieldProps } from "./ReportTimeField";
+export * from "./report-date-time";
 export { ReportIncidentAside } from "./ReportIncidentAside";
 export type { ReportIncidentAsideProps } from "./ReportIncidentAside";
 export { ReportIncidentPageHeader } from "./ReportIncidentPageHeader";

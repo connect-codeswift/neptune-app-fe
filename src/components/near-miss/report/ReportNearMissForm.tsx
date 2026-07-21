@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateNearMissMutation } from "@/hooks/use-near-miss-mutations";

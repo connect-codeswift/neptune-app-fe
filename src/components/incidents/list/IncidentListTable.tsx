@@ -8,14 +8,14 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   IncidentBadge,
   severityTone,
   stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
-import type { IncidentRecord } from "@/components/incidents/list/incident-list-data";
+import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
 export type IncidentListTableProps = Readonly<{
   incidents: readonly IncidentRecord[];
