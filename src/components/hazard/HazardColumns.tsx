@@ -20,7 +20,7 @@ export const hazardColumns: ColumnDef<HazardRecord, any>[] = [
     header: "HAZARD",
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg/62 font-normal">
+        <span className="text-ehs-dark-bg font-normal">
           {row.original.title}
         </span>
         <span className="text-ehs-muted-text text-sm">

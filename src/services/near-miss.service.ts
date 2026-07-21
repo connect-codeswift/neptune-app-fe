@@ -37,3 +37,11 @@ export async function getNearMissById(id: string) {
 
   return data;
 }
+
+export async function deleteNearMiss(id: string) {
+  const { data } = await http.delete(
+    `${NEAR_MISS_BY_ID_PATH}/${encodeURIComponent(id)}`,
+  );
+
+  return data;
+}
