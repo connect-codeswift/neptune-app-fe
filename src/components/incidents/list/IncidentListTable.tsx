@@ -74,14 +74,12 @@ function createColumns(expanded: boolean) {
       minSize: 140,
       meta: { align: "left" as const },
       cell: ({ row }) => (
-        <div className="flex min-w-0 w-full flex-col gap-1">
+        <div className="flex w-full min-w-0 flex-col gap-1">
           <Text
             as="p"
             className={[
               "text-ehs-dark-bg leading-normal font-normal",
-              expanded
-                ? "text-[14px] leading-5"
-                : "line-clamp-2 text-[11.6px]",
+              expanded ? "text-[14px] leading-5" : "line-clamp-2 text-[11.6px]",
             ].join(" ")}
           >
             {row.original.title}
@@ -109,7 +107,7 @@ function createColumns(expanded: boolean) {
         const [sitePrimary, siteSecondary] = siteLines(info.getValue());
 
         return (
-          <div className="min-w-0 w-full">
+          <div className="w-full min-w-0">
             <Text
               as="p"
               className={[
@@ -214,7 +212,7 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
   return (
     <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
-      className={["h-fit min-w-0 w-full", className].filter(Boolean).join(" ")}
+      className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table className="w-full table-fixed border-collapse text-left">
@@ -285,15 +283,13 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
                         )}
                         className={[
                           "min-w-0 align-middle",
-                          expanded
-                            ? "h-[108px] px-5"
-                            : "h-[97px] px-3 sm:px-4",
+                          expanded ? "h-[108px] px-5" : "h-[97px] px-3 sm:px-4",
                           alignClass(align),
                         ].join(" ")}
                       >
                         <div
                           className={[
-                            "flex min-w-0 w-full items-center",
+                            "flex w-full min-w-0 items-center",
                             align === "center"
                               ? "justify-center"
                               : align === "right"

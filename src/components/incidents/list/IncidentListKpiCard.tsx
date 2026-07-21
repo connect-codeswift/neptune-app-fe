@@ -63,8 +63,10 @@ function MiniSparkline(
   }
 
   const areaPath = `${linePath} L ${lastPoint.x} ${height - padding} L ${firstPoint.x} ${height - padding} Z`;
-  const strokeClass = tone === "positive" ? "stroke-ehs-green" : "stroke-ehs-red";
-  const fillClass = tone === "positive" ? "fill-ehs-green/15" : "fill-ehs-red/15";
+  const strokeClass =
+    tone === "positive" ? "stroke-ehs-green" : "stroke-ehs-red";
+  const fillClass =
+    tone === "positive" ? "fill-ehs-green/15" : "fill-ehs-red/15";
 
   return (
     <svg

@@ -232,7 +232,6 @@ export const INDICATOR_METRICS: readonly IndicatorMetric[] = [
   },
 ];
 
-
 export const INJURY_MIX = [
   { label: "First aid", value: 132, color: "var(--ehs-green)" },
   { label: "Medical only", value: 11, color: "var(--ehs-normal-blue)" },

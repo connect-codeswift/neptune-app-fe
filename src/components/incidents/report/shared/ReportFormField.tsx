@@ -36,7 +36,11 @@ export function ReportFieldLabel(props: Readonly<ReportFieldLabelProps>) {
       ) : null}
       {hint ? (
         <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
-          <Icon icon="mdi:information-outline" className="size-3" aria-hidden="true" />
+          <Icon
+            icon="mdi:information-outline"
+            className="size-3"
+            aria-hidden="true"
+          />
           {hint}
         </span>
       ) : null}
@@ -69,7 +73,9 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
   } = props;
 
   return (
-    <div className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}>
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
       <ReportFieldLabel
         label={label}
         required={required}
@@ -82,7 +88,11 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         }
       />
       <div className="relative">
-        <input id={id} className={[fieldInputClass, endIcon ? "pr-9" : ""].join(" ")} {...rest} />
+        <input
+          id={id}
+          className={[fieldInputClass, endIcon ? "pr-9" : ""].join(" ")}
+          {...rest}
+        />
         {endIcon ? (
           <Icon
             icon={endIcon}
@@ -171,14 +181,7 @@ export type ReportTextareaFieldProps = Readonly<
 >;
 
 export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
-  const {
-    label,
-    required,
-    trailingHint,
-    className = "",
-    id,
-    ...rest
-  } = props;
+  const { label, required, trailingHint, className = "", id, ...rest } = props;
 
   return (
     <div
@@ -197,7 +200,7 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
       />
       <textarea
         id={id}
-        className="min-h-[110px] w-full resize-y rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] py-[10.5px] text-[13px] leading-[19.5px] text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+        className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-h-[110px] w-full resize-y rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] py-[10.5px] text-[13px] leading-[19.5px] backdrop-blur-[5px] transition outline-none focus:ring-2"
         {...rest}
       />
     </div>

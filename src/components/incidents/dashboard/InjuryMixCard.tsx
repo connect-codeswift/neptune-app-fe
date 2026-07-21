@@ -90,10 +90,7 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
 
         <div className="grid min-w-0 flex-1 grid-cols-1 gap-x-2 gap-y-[22px] sm:grid-cols-2">
           {INJURY_MIX.map((item) => (
-            <div
-              key={item.label}
-              className="flex min-w-0 items-center gap-2"
-            >
+            <div key={item.label} className="flex min-w-0 items-center gap-2">
               <span
                 className="size-2 shrink-0 rounded-[2px]"
                 style={{ backgroundColor: item.color }}

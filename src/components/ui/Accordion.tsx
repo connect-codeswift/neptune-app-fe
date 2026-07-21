@@ -13,9 +13,7 @@ export function Accordion(props: Readonly<AccordionProps>) {
 
   return (
     <div
-      className={["flex flex-col gap-1", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={["flex flex-col gap-1", className].filter(Boolean).join(" ")}
     >
       {children}
     </div>
@@ -63,7 +61,7 @@ export function AccordionItem(props: Readonly<AccordionItemProps>) {
   return (
     <section
       className={[
-        "overflow-hidden rounded-xl border mt-2 transition-colors",
+        "mt-2 overflow-hidden rounded-xl border transition-colors",
         getAccordionItemClass(hasError, isOpen),
       ].join(" ")}
     >

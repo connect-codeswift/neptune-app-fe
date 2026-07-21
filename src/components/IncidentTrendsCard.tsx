@@ -54,12 +54,8 @@ function getPlotPoints(data: readonly number[]) {
   const plotHeight = CHART.height - CHART.padTop - CHART.padBottom;
 
   return data.map((value, index) => {
-    const x =
-      CHART.padLeft + (index / (data.length - 1)) * plotWidth;
-    const y =
-      CHART.padTop +
-      plotHeight -
-      (value / CHART.yMax) * plotHeight;
+    const x = CHART.padLeft + (index / (data.length - 1)) * plotWidth;
+    const y = CHART.padTop + plotHeight - (value / CHART.yMax) * plotHeight;
 
     return { x, y };
   });
@@ -190,10 +186,12 @@ function TrendChart(props: Readonly<{ filter: TrendFilter }>) {
   );
 }
 
-function FilterToggle(props: Readonly<{
-  value: TrendFilter;
-  onChange: (value: TrendFilter) => void;
-}>) {
+function FilterToggle(
+  props: Readonly<{
+    value: TrendFilter;
+    onChange: (value: TrendFilter) => void;
+  }>,
+) {
   const { value, onChange } = props;
 
   return (
@@ -204,7 +202,7 @@ function FilterToggle(props: Readonly<{
           type="button"
           onClick={() => onChange(option)}
           className={[
-            "rounded-full px-3 cursor-pointer py-1 text-[10px] font-semibold transition-colors",
+            "cursor-pointer rounded-full px-3 py-1 text-[10px] font-semibold transition-colors",
             value === option
               ? "bg-ehs-darker text-ehs-light-text"
               : "text-ehs-muted-text hover:text-ehs-gray",

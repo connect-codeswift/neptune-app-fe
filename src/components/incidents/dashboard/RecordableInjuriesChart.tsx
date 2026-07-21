@@ -27,8 +27,7 @@ function getPoint(value: number, index: number, count: number) {
   const plotWidth = CHART.width - CHART.padLeft - CHART.padRight;
   const plotHeight = CHART.height - CHART.padTop - CHART.padBottom;
   const x = CHART.padLeft + (index / (count - 1)) * plotWidth;
-  const y =
-    CHART.padTop + plotHeight - (value / CHART.yMax) * plotHeight;
+  const y = CHART.padTop + plotHeight - (value / CHART.yMax) * plotHeight;
 
   return { x, y };
 }
@@ -84,9 +83,7 @@ function RecordablesLineChart() {
         );
       })}
 
-      {areaPath ? (
-        <path d={areaPath} fill="rgba(194, 85, 85, 0.1)" />
-      ) : null}
+      {areaPath ? <path d={areaPath} fill="rgba(194, 85, 85, 0.1)" /> : null}
 
       <line
         x1={CHART.padLeft}
@@ -106,7 +103,7 @@ function RecordablesLineChart() {
             cx={point.x}
             cy={point.y}
             r="2.5"
-            className="fill-white stroke-ehs-green"
+            className="stroke-ehs-green fill-white"
           />
         );
       })}
@@ -126,7 +123,7 @@ function RecordablesLineChart() {
           cx={point.x}
           cy={point.y}
           r="3"
-          className="fill-white stroke-ehs-normal-blue"
+          className="stroke-ehs-normal-blue fill-white"
           strokeWidth="1.5"
         />
       ))}
@@ -174,7 +171,11 @@ export function RecordableInjuriesChart(
         </div>
 
         <span className="bg-ehs-green/14 text-ehs-green inline-flex items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[11px] font-bold">
-          <Icon icon="mdi:trending-down" className="text-[11px]" aria-hidden="true" />
+          <Icon
+            icon="mdi:trending-down"
+            className="text-[11px]"
+            aria-hidden="true"
+          />
           Improving
         </span>
       </div>
@@ -183,11 +184,17 @@ export function RecordableInjuriesChart(
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         <span className="text-ehs-gray inline-flex items-center gap-1.5 text-[11px]">
-          <span className="bg-ehs-normal-blue size-2 rounded-[2px]" aria-hidden="true" />
+          <span
+            className="bg-ehs-normal-blue size-2 rounded-[2px]"
+            aria-hidden="true"
+          />
           Recordables
         </span>
         <span className="text-ehs-gray inline-flex items-center gap-1.5 text-[11px]">
-          <span className="bg-ehs-green size-2 rounded-[2px]" aria-hidden="true" />
+          <span
+            className="bg-ehs-green size-2 rounded-[2px]"
+            aria-hidden="true"
+          />
           Monthly target
         </span>
       </div>

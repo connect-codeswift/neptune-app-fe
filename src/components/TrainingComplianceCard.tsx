@@ -27,7 +27,10 @@ function TrainingProgressRow(props: Readonly<TrainingProgram>) {
         <Text as="span" className="text-ehs-darker text-sm font-medium">
           {label}
         </Text>
-        <Text as="span" className="text-ehs-muted-text shrink-0 text-xs tabular-nums">
+        <Text
+          as="span"
+          className="text-ehs-muted-text shrink-0 text-xs tabular-nums"
+        >
           {`${current}% / ${target}%`}
         </Text>
       </div>
@@ -86,7 +89,11 @@ export function TrainingComplianceCard(
           className="text-ehs-gray hover:text-ehs-darker inline-flex items-center gap-0.5 text-xs font-medium transition-colors"
         >
           View all
-          <Icon icon="mdi:chevron-right" className="text-sm" aria-hidden="true" />
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-sm"
+            aria-hidden="true"
+          />
         </Link>
       </div>
 

@@ -76,7 +76,7 @@ function AttachmentTile(
       ) : null}
 
       {file.error ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-ehs-red/80 px-1">
+        <div className="bg-ehs-red/80 absolute inset-0 flex items-center justify-center px-1">
           <span className="text-center text-[9px] leading-tight text-white">
             Failed
           </span>
@@ -114,7 +114,9 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
 
   const openPicker = () => {
     if (photos.length >= CLOUDINARY_MAX_FILES) {
-      toast.error(`You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`);
+      toast.error(
+        `You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`,
+      );
       return;
     }
     inputRef.current?.click();
@@ -127,7 +129,9 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
 
     const remaining = CLOUDINARY_MAX_FILES - photos.length;
     if (remaining <= 0) {
-      toast.error(`You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`);
+      toast.error(
+        `You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`,
+      );
       return;
     }
 
@@ -265,7 +269,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
           type="button"
           onClick={openPicker}
           disabled={isUploading || photos.length >= CLOUDINARY_MAX_FILES}
-          className="flex size-[88px] shrink-0 flex-col items-center justify-center gap-[5px] rounded-[10px] border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 flex size-[88px] shrink-0 flex-col items-center justify-center gap-[5px] rounded-[10px] border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon
             icon={isUploading ? "mdi:loading" : "mdi:plus"}

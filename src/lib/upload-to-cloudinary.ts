@@ -58,16 +58,19 @@ export async function uploadFileToCloudinary(
 
   const payload = (await response.json()) as CloudinaryApiResponse;
 
-  if (!response.ok || payload.error || !payload.public_id || !payload.secure_url) {
+  if (
+    !response.ok ||
+    payload.error ||
+    !payload.public_id ||
+    !payload.secure_url
+  ) {
     throw new Error(
       payload.error?.message ?? "Cloudinary upload failed. Please try again.",
     );
   }
 
   const displayName =
-    file.name.replace(/\.[^.]+$/, "") ||
-    payload.original_filename ||
-    "file";
+    file.name.replace(/\.[^.]+$/, "") || payload.original_filename || "file";
 
   const bytes = payload.bytes ?? file.size;
   const format = payload.format ?? (isPdf ? "pdf" : "");

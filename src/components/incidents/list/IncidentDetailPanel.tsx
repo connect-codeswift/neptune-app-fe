@@ -74,7 +74,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Text as="span" className="text-ehs-muted-text text-[12px] font-semibold">
+            <Text
+              as="span"
+              className="text-ehs-muted-text text-[12px] font-semibold"
+            >
               {incident.id}
             </Text>
             <IncidentBadge
@@ -98,7 +101,11 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             aria-label="More actions"
             className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-6 items-center justify-center rounded-md"
           >
-            <Icon icon="mdi:dots-horizontal" className="text-lg" aria-hidden="true" />
+            <Icon
+              icon="mdi:dots-horizontal"
+              className="text-lg"
+              aria-hidden="true"
+            />
           </button>
         </div>
 

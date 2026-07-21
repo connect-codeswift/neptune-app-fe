@@ -53,7 +53,7 @@ export function ReportIncidentPageHeader(
         type="button"
         variant="tertiary"
         onClick={onSaveExit}
-        className="relative z-[1] rounded-[10px] border-[rgba(11,19,32,0.14)] px-[15px] py-2.5 text-[12.8px] font-bold text-ehs-dark-bg"
+        className="text-ehs-dark-bg relative z-[1] rounded-[10px] border-[rgba(11,19,32,0.14)] px-[15px] py-2.5 text-[12.8px] font-bold"
       >
         Save & exit
       </Button>

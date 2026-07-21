@@ -84,7 +84,7 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
   return (
     <article
       className={[
-        "border-ehs-border flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border bg-[#fafafa] py-4 px-5 shadow-sm shadow-white backdrop-blur-3xl",
+        "border-ehs-border flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border bg-[#fafafa] px-5 py-4 shadow-sm shadow-white backdrop-blur-3xl",
         className,
       ]
         .filter(Boolean)
@@ -117,7 +117,7 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
       </div>
 
       <div className="flex items-end justify-between gap-3">
-        <Text as="p" className="pb-2 text-ehs-muted-text text-xs">
+        <Text as="p" className="text-ehs-muted-text pb-2 text-xs">
           {targetLabel}
         </Text>
         <MiniAreaChart data={chartData} />

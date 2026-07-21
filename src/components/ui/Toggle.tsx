@@ -17,7 +17,7 @@ export function Toggle(props: Readonly<ToggleProps>) {
       aria-label={ariaLabel}
       onClick={() => onChange(!checked)}
       className={[
-        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:cursor-not-allowed",
+        "focus-visible:ring-ehs-normal-blue/20 relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed",
         checked ? "bg-ehs-normal-blue" : "bg-ehs-border",
       ].join(" ")}
     >

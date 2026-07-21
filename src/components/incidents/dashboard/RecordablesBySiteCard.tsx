@@ -10,7 +10,10 @@ export function RecordablesBySiteCard(
   props: Readonly<RecordablesBySiteCardProps>,
 ) {
   const { className = "" } = props;
-  const maxCount = Math.max(...RECORDABLES_BY_SITE.map((item) => item.count), 1);
+  const maxCount = Math.max(
+    ...RECORDABLES_BY_SITE.map((item) => item.count),
+    1,
+  );
 
   return (
     <IncidentGlassCard
@@ -36,10 +39,13 @@ export function RecordablesBySiteCard(
           return (
             <div key={item.site} className="flex flex-col gap-[5px]">
               <div className="flex items-center justify-between gap-2">
-                <Text as="span" className="text-[#2a3446] text-xs">
+                <Text as="span" className="text-xs text-[#2a3446]">
                   {item.site}
                 </Text>
-                <Text as="span" className="text-ehs-gray text-[11px] tabular-nums">
+                <Text
+                  as="span"
+                  className="text-ehs-gray text-[11px] tabular-nums"
+                >
                   {String(item.count)}
                 </Text>
               </div>

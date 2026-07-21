@@ -6,7 +6,11 @@ import type {
 } from "@/dtos/req/auth-request.dto";
 import type { LoginResponseDto } from "@/dtos/res/auth-response.dto";
 import { buildRegisterRequest } from "@/lib/build-register-request";
-import http, { setAccessToken, setRefreshToken } from "@/lib/axios";
+import http, {
+  refreshAccessToken,
+  setAccessToken,
+  setRefreshToken,
+} from "@/lib/axios";
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
 
@@ -15,7 +19,6 @@ const AUTH_LOGIN_PATH = "/Auth/login";
 const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset password
 const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
 const AUTH_LOGOUT_PATH = "/Auth/logout";
-const AUTH_REFRESH_TOKEN_PATH = "/Auth/refresh-token";
 
 export async function registerUser(payload: RegisterRequestDto) {
   await http.post(AUTH_REGISTER_PATH, payload);
@@ -32,6 +35,15 @@ export async function loginUser(credentials: LoginRequestDto) {
 
 export async function authenticateUser(credentials: LoginRequestDto) {
   const tokens = await loginUser(credentials);
+
+  // Fail loudly here: if the response shape ever drifts, `setAccessToken`
+  // would otherwise be handed `undefined` and quietly *clear* the stored
+  // token, leaving every later call to 401 with no clue as to why.
+  if (typeof tokens?.accessToken !== "string" || tokens.accessToken === "") {
+    throw new Error(
+      `Login succeeded but returned no accessToken. Response keys: ${Object.keys(tokens ?? {}).join(", ") || "(none)"}`,
+    );
+  }
 
   setAccessToken(tokens.accessToken);
   setRefreshToken(tokens.refreshToken);
@@ -65,6 +77,11 @@ export async function logout() {
   await http.post(AUTH_LOGOUT_PATH);
 }
 
+/**
+ * Exchange the stored refresh token for a new access token.
+ * Returns null when there's no usable refresh token — the caller should
+ * treat that as "session over" and send the user back to login.
+ */
 export async function refreshToken() {
-  await http.post(AUTH_REFRESH_TOKEN_PATH);
+  return refreshAccessToken();
 }

@@ -28,6 +28,9 @@ export const ehsButtonSecondaryClass =
 export const ehsButtonTertiaryClass =
   "border border-ehs-border bg-ehs-light-text text-ehs-gray shadow-sm hover:bg-ehs-light-bg";
 
+export const ehsButtonDangerClass =
+  "btn-sweep bg-ehs-red text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-red),inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] hover:bg-ehs-red/90 active:bg-ehs-red/80 focus-visible:ring-ehs-red/30";
+
 export const ehsIconButtonBaseClass =
   "inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50";
 
