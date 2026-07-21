@@ -11,6 +11,7 @@ import { IncidentListTable } from "@/components/incidents/list/IncidentListTable
 import {
   buildIncidentListKpis,
   incidentMatchesSearch,
+  incidentMatchesSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -64,12 +65,12 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         stateFilter === "All" || incident.state === stateFilter;
       const matchesStage =
         stageFilter === "All" || incident.stage === stageFilter;
-      const matchesSeverity =
-        severityFilter === "All" || incident.severity === severityFilter;
-
-      return (
-        matchesSearch && matchesState && matchesStage && matchesSeverity
+      const matchesSeverity = incidentMatchesSeverityFilter(
+        incident,
+        severityFilter,
       );
+
+      return matchesSearch && matchesState && matchesStage && matchesSeverity;
     });
   }, [incidents, searchQuery, severityFilter, stageFilter, stateFilter]);
 

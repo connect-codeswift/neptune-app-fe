@@ -31,6 +31,25 @@ function normalizeSeverity(value: string | null | undefined): IncidentSeverity {
     return "Near Miss";
   }
 
+  const lower = trimmed.toLowerCase();
+
+  // Report form stores "OSHA Recordable"; list filter uses "Recordable".
+  if (lower.includes("recordable") || lower === "osha") {
+    return "Recordable";
+  }
+
+  if (
+    lower.includes("lost time") ||
+    lower === "lti" ||
+    lower.includes("lost-time")
+  ) {
+    return "Lost Time";
+  }
+
+  if (lower.includes("first aid") || lower === "first-aid") {
+    return "First Aid";
+  }
+
   const known: IncidentSeverity[] = [
     "Lost Time",
     "Near Miss",
@@ -40,9 +59,7 @@ function normalizeSeverity(value: string | null | undefined): IncidentSeverity {
     "SIP",
   ];
 
-  const match = known.find(
-    (item) => item.toLowerCase() === trimmed.toLowerCase(),
-  );
+  const match = known.find((item) => item.toLowerCase() === lower);
 
   return match ?? (trimmed as IncidentSeverity);
 }
@@ -121,8 +138,9 @@ function buildSite(incident: IncidentDto): string {
 }
 
 function buildReporter(incident: IncidentDto): string {
-  const fromPeople = incident.people?.find((person) => person.name?.trim())
-    ?.name;
+  const fromPeople = incident.people?.find((person) =>
+    person.name?.trim(),
+  )?.name;
   if (fromPeople?.trim()) {
     return fromPeople.trim();
   }
@@ -131,8 +149,9 @@ function buildReporter(incident: IncidentDto): string {
 }
 
 function buildInjury(incident: IncidentDto): string {
-  const fromPeople = incident.people?.find((person) => person.injuryLevel)
-    ?.injuryLevel;
+  const fromPeople = incident.people?.find(
+    (person) => person.injuryLevel,
+  )?.injuryLevel;
   if (fromPeople?.trim()) {
     return fromPeople.trim();
   }
@@ -149,7 +168,8 @@ export function mapIncidentDtoToListRecord(
   incident: IncidentDto,
 ): IncidentRecord {
   const numericId = incident.id ?? 0;
-  const description = incident.description?.trim() || "No description provided.";
+  const description =
+    incident.description?.trim() || "No description provided.";
 
   return {
     id: numericId > 0 ? `INC-${String(numericId)}` : "INC-—",

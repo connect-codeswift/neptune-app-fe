@@ -137,7 +137,11 @@ export function ReportIncidentStepFive(
   const injuryLevelLabel =
     INJURY_LEVEL_OPTIONS.find((o) => o.id === form.injuryLevel)?.label ?? "—";
   const bodyPartsLabel =
-    formatBodyPartSelection(form.bodyParts, form.bodySide) || "—";
+    formatBodyPartSelection(
+      form.bodyParts,
+      form.bodySide,
+      form.bodyPartSides,
+    ) || "—";
   const affectedPersonLabel = form.affectedPerson.trim() || "—";
   const witnessesLabel = form.witnesses.trim() || "None";
 

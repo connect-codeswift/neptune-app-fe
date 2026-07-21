@@ -32,6 +32,26 @@ function isClosedIncident(incident: IncidentDto): boolean {
   return disposition.includes("close") || disposition === "closed";
 }
 
+/** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */
+export function incidentMatchesSeverityFilter(
+  incident: IncidentRecord,
+  severityFilter: string,
+): boolean {
+  if (severityFilter === "All") {
+    return true;
+  }
+
+  if (severityFilter === "Recordable") {
+    return (
+      incident.isOshaRecordable ||
+      incident.severity === "Recordable" ||
+      incident.severity.toLowerCase().includes("recordable")
+    );
+  }
+
+  return incident.severity === severityFilter;
+}
+
 /** Case-insensitive match across common incident list fields. */
 export function incidentMatchesSearch(
   incident: IncidentRecord,

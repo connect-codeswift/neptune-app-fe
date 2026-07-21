@@ -1,4 +1,7 @@
-import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-state";
+import {
+  applySeverityFieldDefaults,
+  type ReportIncidentFormState,
+} from "@/components/incidents/report/shared/report-incident-state";
 import {
   formatBodyPartSelection,
   BODY_PART_OPTIONS,
@@ -190,6 +193,7 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
   const bodyPartAffected = formatBodyPartSelection(
     form.bodyParts,
     form.bodySide,
+    form.bodyPartSides,
   );
 
   if (name || form.injuryDescription.trim() || form.bodyParts.length > 0) {
@@ -225,30 +229,32 @@ export function mapReportFormToIncidentDto(
   form: ReportIncidentFormState,
   auth: AuthContext | null,
 ): IncidentDto {
-  const { site, location } = splitSiteLocation(form.location);
+  // Non–First Aid severities get First Aid field defaults from form state.
+  const source = applySeverityFieldDefaults(form);
+  const { site, location } = splitSiteLocation(source.location);
   const { name: affectedName, affectedPersonId } = parseAffectedPerson(
-    form.affectedPerson,
+    source.affectedPerson,
   );
   const severityLabel =
-    SEVERITY_OPTIONS.find((option) => option.id === form.severity)?.label ??
-    form.severity;
+    SEVERITY_OPTIONS.find((option) => option.id === source.severity)?.label ??
+    source.severity;
 
   const incidentAt = parseReportDateTime(
-    form.incidentDate,
-    form.incidentTime,
+    source.incidentDate,
+    source.incidentTime,
   );
   const incidentReportedAt = parseReportDateTime(
-    form.reportDate || form.incidentDate,
-    form.incidentTime,
+    source.reportDate || source.incidentDate,
+    source.incidentTime,
   );
 
-  const bodyPartLabels = form.bodyParts
+  const bodyPartLabels = source.bodyParts
     .map(
       (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
     )
     .join(", ");
 
-  const images = form.photos
+  const images = source.photos
     .map((photo) => photo.secureUrl || photo.url)
     .filter((url): url is string => Boolean(url));
 
@@ -257,61 +263,67 @@ export function mapReportFormToIncidentDto(
     severity: severityLabel,
     site,
     location,
-    description: buildDescription(form),
+    description: buildDescription(source),
     isDrop: false,
     incidentAt,
     incidentReportedAt,
-    isOSHARecordable: yes(form.classifications.osha),
-    isWorkRelated: yes(form.classifications.workRelated),
-    isDrugOrAlcoholRelated: yes(form.classifications.drugAlcohol),
-    isFleetVehicleInvolved: yes(form.classifications.fleet),
-    isSeriousIncident: yes(form.classifications.serious),
-    isEmergencyServiceCalled: yes(form.classifications.emergency),
-    isThirdPartyInvolved: yes(form.classifications.tempWorker),
+    isOSHARecordable: yes(source.classifications.osha),
+    isWorkRelated: yes(source.classifications.workRelated),
+    isDrugOrAlcoholRelated: yes(source.classifications.drugAlcohol),
+    isFleetVehicleInvolved: yes(source.classifications.fleet),
+    isSeriousIncident: yes(source.classifications.serious),
+    isEmergencyServiceCalled: yes(source.classifications.emergency),
+    isThirdPartyInvolved: yes(source.classifications.tempWorker),
     initialTreatment: optionLabel(
       INITIAL_TREATMENT_OPTIONS,
-      form.initialTreatment,
+      source.initialTreatment,
     ),
-    isSecondaryTreatmentSought: yes(form.secondaryTreatment),
+    isSecondaryTreatmentSought: yes(source.secondaryTreatment),
     mechanismOfInjury: optionLabel(
       MECHANISM_OPTIONS,
-      form.mechanismOfInjury,
+      source.mechanismOfInjury,
     ),
-    natureOfInjury: optionLabel(NATURE_OF_INJURY_OPTIONS, form.natureOfInjury),
-    objectInvolved: form.objectInvolved.trim(),
-    isOSHANotificationRequired: yes(form.oshaNotificationRequired),
+    natureOfInjury: optionLabel(
+      NATURE_OF_INJURY_OPTIONS,
+      source.natureOfInjury,
+    ),
+    objectInvolved: source.objectInvolved.trim(),
+    isOSHANotificationRequired: yes(source.oshaNotificationRequired),
     affectedPersonId: affectedPersonId || affectedName || null,
     reportedById: auth?.userId ?? 0,
     userId: auth?.userId ?? 0,
     subCompanyId: auth?.subCompanyId ?? 0,
     injuredBodyPart: bodyPartLabels || null,
-    injuryDescription: form.injuryDescription.trim() || null,
-    incidentReporterEmail: form.reporterEmail.trim() || auth?.email || null,
-    occurredInCanada: yes(form.classifications.canada),
-    nonEmployeInvolved: yes(form.classifications.tempWorker),
+    injuryDescription: source.injuryDescription.trim() || null,
+    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    occurredInCanada: yes(source.classifications.canada),
+    nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
-      optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, form.whatTreatmentWasGiven) ||
-      optionLabel(INITIAL_TREATMENT_OPTIONS, form.initialTreatment) ||
-      null,
+      optionLabel(
+        WHAT_TREATMENT_GIVEN_OPTIONS,
+        source.whatTreatmentWasGiven,
+      ) ||
+      optionLabel(INITIAL_TREATMENT_OPTIONS, source.initialTreatment) ||
+      "N/A",
     treatmentProvidedBy:
-      optionLabel(TREATMENT_PROVIDER_OPTIONS, form.treatmentProvidedBy) ||
-      form.reportedBy.trim() ||
-      null,
+      optionLabel(TREATMENT_PROVIDER_OPTIONS, source.treatmentProvidedBy) ||
+      source.reportedBy.trim() ||
+      "N/A",
     treatmentLocation:
-      optionLabel(TREATMENT_LOCATION_OPTIONS, form.treatmentLocation) ||
+      optionLabel(TREATMENT_LOCATION_OPTIONS, source.treatmentLocation) ||
       location ||
       site ||
-      null,
-    furtherMedicalRecommendations: form.furtherMedicalRecommended === "Yes",
-    images,
-    people: buildPeople(form),
-    actionTaken: buildActionTaken(form) || null,
-    otherNotes: buildOtherNotes(form) || null,
-    isFitForFullDuty: form.isFitForFullDuty.trim() || "N/A",
-    caseDisposition:
-      optionLabel(CASE_DISPOSITION_OPTIONS, form.caseDisposition) ||
-      form.caseDisposition.trim() ||
       "N/A",
-    feedback: form.feedback.trim() || "N/A",
+    furtherMedicalRecommendations: source.furtherMedicalRecommended === "Yes",
+    images,
+    people: buildPeople(source),
+    actionTaken: buildActionTaken(source) || null,
+    otherNotes: buildOtherNotes(source) || null,
+    isFitForFullDuty: source.isFitForFullDuty.trim() || "N/A",
+    caseDisposition:
+      optionLabel(CASE_DISPOSITION_OPTIONS, source.caseDisposition) ||
+      source.caseDisposition.trim() ||
+      "N/A",
+    feedback: source.feedback.trim() || "N/A",
   };
 }
