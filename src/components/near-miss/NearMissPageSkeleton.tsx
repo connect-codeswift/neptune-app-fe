@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card placeholder: label + trend dot, then a value bar. */

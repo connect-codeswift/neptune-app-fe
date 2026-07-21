@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 
 const AREAS = ["Mech", "Elec", "Chem", "Ergo", "Slip"] as const;
 

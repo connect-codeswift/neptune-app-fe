@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 
 type Reporter = Readonly<{
   initials: string;

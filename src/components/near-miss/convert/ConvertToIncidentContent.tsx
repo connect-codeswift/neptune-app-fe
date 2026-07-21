@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
 import { canConvertNearMissToIncident } from "@/lib/current-user";
