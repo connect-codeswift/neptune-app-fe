@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type {
   NearMissRecord,

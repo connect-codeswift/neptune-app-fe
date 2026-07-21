@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
 
