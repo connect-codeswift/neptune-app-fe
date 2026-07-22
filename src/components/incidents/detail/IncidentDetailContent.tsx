@@ -47,7 +47,8 @@ import {
 import { useIncidentByIdQuery } from "@/hooks/use-incident-queries";
 import { getAccessToken } from "@/lib/axios";
 import { formatFileSize } from "@/lib/cloudinary-constants";
-import { fetchRemoteFileBytes } from "@/lib/fetch-remote-file-bytes";
+import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
+import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import { EMPTY_LINKED_CAPA_VIEW } from "@/services/mappers/capa.mapper";
 import {
@@ -170,7 +171,7 @@ export function IncidentDetailContent(
     setInfoItems(detail.infoItems);
   }, [detail, editScope]);
 
-  // API only stores image URLs — resolve byte size via HEAD/Range on each URL.
+  // API only stores image URLs — resolve size (+ Last-Modified fallback) client-side.
   useEffect(() => {
     if (!detail) {
       return;
@@ -178,10 +179,15 @@ export function IncidentDetailContent(
 
     const pending = detail.attachments.flatMap((item) => {
       const url = item.secureUrl?.trim();
-      if (!url || item.bytes > 0) {
+      if (!url) {
         return [];
       }
-      return [{ id: item.id, url }];
+      const needsSize = item.bytes <= 0;
+      const needsTime = !item.time || item.time === "—";
+      if (!needsSize && !needsTime) {
+        return [];
+      }
+      return [{ id: item.id, url, needsSize, needsTime }];
     });
     if (pending.length === 0) {
       return;
@@ -192,14 +198,27 @@ export function IncidentDetailContent(
     void (async () => {
       const updates = await Promise.all(
         pending.map(async (item) => {
-          const bytes = await fetchRemoteFileBytes(item.url);
-          if (bytes == null) {
+          const meta = await fetchRemoteFileMeta(item.url);
+          const sizeUpdate =
+            item.needsSize && meta.bytes != null
+              ? {
+                  bytes: meta.bytes,
+                  sizeLabel: formatFileSize(meta.bytes),
+                }
+              : null;
+          const timeUpdate =
+            item.needsTime && meta.lastModified
+              ? { time: formatShortDateTime(meta.lastModified) }
+              : null;
+
+          if (!sizeUpdate && !timeUpdate) {
             return null;
           }
+
           return {
             id: item.id,
-            bytes,
-            sizeLabel: formatFileSize(bytes),
+            ...sizeUpdate,
+            ...timeUpdate,
           };
         }),
       );
@@ -213,8 +232,12 @@ export function IncidentDetailContent(
           .filter(
             (
               update,
-            ): update is { id: string; bytes: number; sizeLabel: string } =>
-              update != null,
+            ): update is {
+              id: string;
+              bytes?: number;
+              sizeLabel?: string;
+              time?: string;
+            } => update != null,
           )
           .map((update) => [update.id, update]),
       );
@@ -226,10 +249,18 @@ export function IncidentDetailContent(
       setAttachments((prev) =>
         prev.map((item) => {
           const next = byId.get(item.id);
-          if (!next || item.bytes > 0) {
+          if (!next) {
             return item;
           }
-          return { ...item, bytes: next.bytes, sizeLabel: next.sizeLabel };
+          return {
+            ...item,
+            bytes: next.bytes ?? item.bytes,
+            sizeLabel: next.sizeLabel ?? item.sizeLabel,
+            time:
+              item.time && item.time !== "—"
+                ? item.time
+                : (next.time ?? item.time),
+          };
         }),
       );
     })();

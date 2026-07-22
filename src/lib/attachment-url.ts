@@ -82,7 +82,7 @@ export function fileNameFromAttachmentUrl(
   }
 
   try {
-    const pathname = new URL(url).pathname;
+    const pathname = new URL(stripAttachmentDisplayName(url)).pathname;
     const segment = pathname.split("/").filter(Boolean).pop();
     if (segment) {
       return decodeURIComponent(segment);
@@ -92,4 +92,27 @@ export function fileNameFromAttachmentUrl(
   }
 
   return `Attachment ${String(index + 1)}`;
+}
+
+/**
+ * Cloudinary delivery URLs embed a unix version: `/upload/v1716234567/...`.
+ * That version is set at upload time and is our best persisted timestamp.
+ */
+export function uploadedAtFromAttachmentUrl(url: string): Date | null {
+  try {
+    const pathname = new URL(stripAttachmentDisplayName(url)).pathname;
+    // Cloudinary version segment: `/upload/v1716234567/public_id`
+    const match = /\/v(\d{9,13})\//.exec(pathname);
+    const seconds = match?.[1] ? Number(match[1]) : NaN;
+    if (!Number.isFinite(seconds)) {
+      return null;
+    }
+    // Guard against non-timestamp version strings.
+    if (seconds < 1_000_000_000 || seconds > 4_102_444_800) {
+      return null;
+    }
+    return new Date(seconds * 1000);
+  } catch {
+    return null;
+  }
 }

@@ -25,7 +25,9 @@ import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {
   fileNameFromAttachmentUrl,
   guessAttachmentKind,
+  uploadedAtFromAttachmentUrl,
 } from "@/lib/attachment-url";
+import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
 export type IncidentInvestigationView = Readonly<{
@@ -210,6 +212,7 @@ function mapImagesToAttachments(
     .map((url, index) => {
       const kind = guessAttachmentKind(url);
       const name = fileNameFromAttachmentUrl(url, index);
+      const uploadedAt = uploadedAtFromAttachmentUrl(url);
 
       return {
         id: `att-${String(index)}`,
@@ -220,7 +223,8 @@ function mapImagesToAttachments(
         sizeLabel: "—",
         bytes: 0,
         addedBy,
-        time: "—",
+        // Prefer Cloudinary version timestamp; Last-Modified filled client-side if missing.
+        time: formatShortDateTime(uploadedAt),
         secureUrl: url,
         kind,
       };
