@@ -11,9 +11,7 @@ import { Table } from "@/components/ui/Table";
 import { HazardFilterBar } from "@/components/hazard/HazardFilterBar";
 import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
-import {
-  makeHazardColumns,
-} from "@/components/hazard/HazardColumns";
+import { makeHazardColumns } from "@/components/hazard/HazardColumns";
 import { HazardPageSkeleton } from "@/components/hazard/HazardPageSkeleton";
 import {
   useHazardKpiQuery,
@@ -87,10 +85,7 @@ export default function HazardPage() {
     );
   }, [records, selectedStatus]);
 
-  const columns = useMemo(
-    () => makeHazardColumns({ userNames }),
-    [userNames],
-  );
+  const columns = useMemo(() => makeHazardColumns({ userNames }), [userNames]);
 
   const handleReportHazard = () => {
     router.push("/dashboard/hazard/report");
@@ -101,7 +96,7 @@ export default function HazardPage() {
     hazardListQuery.isPending || (canViewInsights && kpiQuery.isPending);
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5">
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Hazard Reporting"
         dateRangeLabel="March 25 — April 24, 2026"

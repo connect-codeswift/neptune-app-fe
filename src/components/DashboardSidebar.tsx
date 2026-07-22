@@ -186,7 +186,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   return (
     <aside
       className={[
-        "my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col rounded-3xl bg-[#fafafa] shadow-lg backdrop-blur-3xl",
+        "my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col rounded-3xl bg-[#FFFFFF] shadow-lg backdrop-blur-3xl",
         className,
       ]
         .filter(Boolean)

@@ -35,6 +35,12 @@ export type TextFieldConfig = BaseField &
     type: "text";
     placeholder?: string;
     inputType?: "text" | "email" | "tel" | "number";
+    /** Caps input length and shows a "0/100" counter beside the label. */
+    maxLength?: number;
+    /** Render the value as an uneditable panel (auto-filled fields). */
+    readOnly?: boolean;
+    /** Muted note shown beside a read-only value, e.g. "(auto-filled)". */
+    note?: string;
   }>;
 
 export type DateFieldConfig = BaseField &
@@ -62,6 +68,18 @@ export type TextareaFieldConfig = BaseField &
     type: "textarea";
     placeholder?: string;
     rows?: number;
+    /** Caps input length and shows a "0/500" counter beside the label. */
+    maxLength?: number;
+  }>;
+
+/** Tag picker: options render as toggleable pills, value is the chosen set. */
+export type ChipsFieldConfig = BaseField &
+  Readonly<{
+    type: "chips";
+    options: readonly SelectOption[];
+    /** Show an input for appending tags that aren't in {@link options}. */
+    allowCustom?: boolean;
+    addCustomPlaceholder?: string;
   }>;
 
 export type CheckboxGroupFieldConfig = BaseField &
@@ -89,6 +107,7 @@ export type FieldConfig =
   | SelectFieldConfig
   | TextareaFieldConfig
   | CheckboxGroupFieldConfig
+  | ChipsFieldConfig
   | PhotoFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
@@ -97,8 +116,12 @@ export type FormSchema = readonly FieldConfig[];
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
   for (const field of schema) {
-    values[field.name] =
-      field.type === "checkbox-group" || field.type === "photo" ? [] : "";
+    const isMultiValue =
+      field.type === "checkbox-group" ||
+      field.type === "photo" ||
+      field.type === "chips";
+
+    values[field.name] = isMultiValue ? [] : "";
   }
   return values;
 }

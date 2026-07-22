@@ -7,6 +7,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
+import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
 
 /**
@@ -32,6 +33,8 @@ export type TableProps<TData> = {
   className?: string;
   containerClassName?: string;
   pagination?: TablePagination;
+  /** Toolbar rendered inside the card, above the table (title, filters, …). */
+  header?: ReactNode;
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -45,6 +48,7 @@ export function Table<TData>(props: TableProps<TData>) {
     className = "",
     containerClassName = "",
     pagination,
+    header,
   } = props;
 
   const table = useReactTable({
@@ -65,6 +69,12 @@ export function Table<TData>(props: TableProps<TData>) {
         .filter(Boolean)
         .join(" ")}
     >
+      {header ? (
+        <div className="border-b border-[rgba(15,23,42,0.08)] px-4 py-2.5">
+          {header}
+        </div>
+      ) : null}
+
       <div className="w-full min-w-0 overflow-x-auto">
         <table
           className={["w-full border-collapse text-left text-sm", className]

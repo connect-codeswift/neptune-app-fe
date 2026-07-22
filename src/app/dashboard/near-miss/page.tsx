@@ -88,7 +88,7 @@ export default function NearMissPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5">
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Near Miss Reporting"
         dateRangeLabel="March 25 — April 24, 2026"
@@ -169,7 +169,6 @@ export default function NearMissPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

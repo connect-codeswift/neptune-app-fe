@@ -24,6 +24,14 @@ export type FormBuilderProps = Readonly<{
   submitVariant?: ButtonProps["variant"];
   /** Content rendered between the fields and the action row. */
   beforeActions?: ReactNode;
+  /** Called with the full value map whenever a field changes, for live
+   * previews and the like. The form still owns the state. */
+  onChange?: (values: FormValues) => void;
+  /** Hide the built-in action row. Pair with {@link formId} so a button
+   * elsewhere on the page can submit (and so validate) the form. */
+  hideActions?: boolean;
+  /** `id` for the underlying `<form>`, letting outside buttons target it. */
+  formId?: string;
 }>;
 
 // Static class map so Tailwind can see every span variant at build time.
@@ -69,6 +77,9 @@ export function FormBuilder(props: FormBuilderProps) {
     className = "",
     submitVariant = "primary",
     beforeActions,
+    onChange,
+    hideActions = false,
+    formId,
   } = props;
 
   const [values, setValues] = useState<FormValues>(
@@ -77,7 +88,10 @@ export function FormBuilder(props: FormBuilderProps) {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const setValue = (name: string, value: FieldValue) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+    const next = { ...values, [name]: value };
+    setValues(next);
+    onChange?.(next);
+
     // Clear a field's error as soon as the user edits it.
     setErrors((prev) => {
       if (!prev[name]) return prev;
@@ -98,6 +112,7 @@ export function FormBuilder(props: FormBuilderProps) {
 
   return (
     <form
+      id={formId}
       noValidate
       onSubmit={handleSubmit}
       className={["flex flex-col gap-5", className].filter(Boolean).join(" ")}
@@ -122,7 +137,12 @@ export function FormBuilder(props: FormBuilderProps) {
 
       {beforeActions}
 
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div
+        className={[
+          "flex-wrap items-center justify-end gap-3",
+          hideActions ? "hidden" : "flex",
+        ].join(" ")}
+      >
         {onCancel ? (
           <Button
             type="button"

@@ -6,6 +6,7 @@ const apiProxyTarget =
 const nextConfig: NextConfig = {
   devIndicators: false,
   reactCompiler: true,
+  allowedDevOrigins: ["192.168.18.87"],
   images: {
     remotePatterns: [
       {

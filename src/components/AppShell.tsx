@@ -22,13 +22,7 @@ export function AppShell(props: Readonly<AppShellProps>) {
   }, [router]);
 
   return (
-    <div
-      className="flex min-h-screen min-w-0 flex-col lg:ml-68 lg:flex-row"
-      style={{
-        background:
-          "radial-gradient(ellipse 60% 50% at 0% 0%, #cde9f5 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 100% 100%, #cde9f5 0%, transparent 70%), #f0f8fc",
-      }}
-    >
+    <div className="flex min-h-screen min-w-0 flex-col lg:ml-68 lg:flex-row">
       {/* Mobile top navigation header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 backdrop-blur-[14px] lg:hidden">
         <button
@@ -60,7 +54,7 @@ export function AppShell(props: Readonly<AppShellProps>) {
         <DashboardSidebar />
       </div>
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden px-1.5 py-2">
         {children}
       </div>
     </div>

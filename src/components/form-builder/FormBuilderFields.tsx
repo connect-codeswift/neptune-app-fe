@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import type {
   CheckboxGroupFieldConfig,
+  ChipsFieldConfig,
   DateFieldConfig,
   FieldConfig,
   FieldValue,
@@ -24,10 +26,21 @@ function FieldLabel(
 ) {
   const { label, required, htmlFor } = props;
   return (
-    <label htmlFor={htmlFor} className="text-slate-70 mb-1 font-medium">
+    <label htmlFor={htmlFor} className="text-slate-70 font-medium">
       {label}
       {required ? <span className="text-ehs-red"> *</span> : null}
     </label>
+  );
+}
+
+/** "12/100" counter shown beside the label of a length-capped field. */
+function CharacterCount(props: Readonly<{ value: string; maxLength: number }>) {
+  const { value, maxLength } = props;
+
+  return (
+    <span className="text-ehs-muted-text text-xs tabular-nums">
+      {`${String(value.length)}/${String(maxLength)}`}
+    </span>
   );
 }
 
@@ -37,17 +50,22 @@ function FieldShell(
     error?: string;
     /** Set false when the control renders its own error/helper text. */
     showMessages?: boolean;
+    /** Rendered opposite the label, e.g. a character counter. */
+    trailing?: React.ReactNode;
     children: React.ReactNode;
   }>,
 ) {
-  const { field, error, showMessages = true, children } = props;
+  const { field, error, showMessages = true, trailing, children } = props;
   return (
     <div className="flex flex-col gap-1.5">
-      <FieldLabel
-        label={field.label}
-        required={field.required}
-        htmlFor={field.name}
-      />
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <FieldLabel
+          label={field.label}
+          required={field.required}
+          htmlFor={field.name}
+        />
+        {trailing}
+      </div>
       {children}
       {!showMessages ? null : error ? (
         <p className="text-ehs-red text-xs">{error}</p>
@@ -74,12 +92,32 @@ function TextControl(
   }>,
 ) {
   const { field, value, error, onChange } = props;
+
+  if (field.readOnly) {
+    return (
+      <div
+        id={field.name}
+        className={[inputClass, "text-ehs-gray flex items-center gap-2"].join(
+          " ",
+        )}
+      >
+        <span>{value}</span>
+        {field.note ? (
+          <span className="text-ehs-muted-text text-xs">{field.note}</span>
+        ) : null}
+        {/* Keeps the value in the DOM for native form semantics. */}
+        <input type="hidden" name={field.name} value={value} />
+      </div>
+    );
+  }
+
   return (
     <input
       id={field.name}
       name={field.name}
       type={field.inputType ?? "text"}
       value={value}
+      maxLength={field.maxLength}
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[inputClass, error ? errorRingClass : ""]
@@ -191,6 +229,7 @@ function TextareaControl(
       name={field.name}
       value={value}
       rows={field.rows ?? 4}
+      maxLength={field.maxLength}
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[
@@ -200,6 +239,93 @@ function TextareaControl(
         .filter(Boolean)
         .join(" ")}
     />
+  );
+}
+
+function ChipsControl(
+  props: Readonly<{
+    field: ChipsFieldConfig;
+    value: string[];
+    onChange: (v: string[]) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+  const [draft, setDraft] = useState("");
+
+  // Custom tags aren't in `options`, so surface them alongside the presets.
+  const optionValues = new Set(field.options.map((option) => option.value));
+  const customTags = value.filter((tag) => !optionValues.has(tag));
+  const chips = [
+    ...field.options,
+    ...customTags.map((tag) => ({ value: tag, label: tag })),
+  ];
+
+  const toggle = (tag: string) => {
+    onChange(
+      value.includes(tag)
+        ? value.filter((entry) => entry !== tag)
+        : [...value, tag],
+    );
+  };
+
+  const addDraft = () => {
+    const tag = draft.trim();
+    if (tag === "") return;
+    if (!value.includes(tag)) onChange([...value, tag]);
+    setDraft("");
+  };
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div className="flex flex-wrap items-center gap-2">
+        {chips.map((option) => {
+          const isSelected = value.includes(option.value);
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => toggle(option.value)}
+              className={[
+                "cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors",
+                isSelected
+                  ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue font-semibold"
+                  : "text-ehs-gray border-slate-900/10 bg-white hover:bg-black/5",
+              ].join(" ")}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {field.allowCustom ? (
+        <div className="flex items-center gap-2">
+          <input
+            value={draft}
+            placeholder={field.addCustomPlaceholder ?? "Add custom tag..."}
+            aria-label={`Add a custom ${field.label}`}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                addDraft();
+              }
+            }}
+            className={inputClass}
+          />
+          <button
+            type="button"
+            onClick={addDraft}
+            disabled={draft.trim() === ""}
+            className="bg-ehs-normal-blue/15 text-ehs-dark-blue hover:bg-ehs-normal-blue/25 shrink-0 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Add
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -271,7 +397,18 @@ export function FieldRenderer(props: FieldRendererProps) {
   switch (field.type) {
     case "text":
       return (
-        <FieldShell field={field} error={error}>
+        <FieldShell
+          field={field}
+          error={error}
+          trailing={
+            field.maxLength ? (
+              <CharacterCount
+                value={value as string}
+                maxLength={field.maxLength}
+              />
+            ) : null
+          }
+        >
           <TextControl
             field={field}
             value={value as string}
@@ -304,11 +441,32 @@ export function FieldRenderer(props: FieldRendererProps) {
       );
     case "textarea":
       return (
-        <FieldShell field={field} error={error}>
+        <FieldShell
+          field={field}
+          error={error}
+          trailing={
+            field.maxLength ? (
+              <CharacterCount
+                value={value as string}
+                maxLength={field.maxLength}
+              />
+            ) : null
+          }
+        >
           <TextareaControl
             field={field}
             value={value as string}
             error={error}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "chips":
+      return (
+        <FieldShell field={field} error={error}>
+          <ChipsControl
+            field={field}
+            value={value as string[]}
             onChange={onChange}
           />
         </FieldShell>
