@@ -30,9 +30,22 @@ export function formatNearMissDisplayId(id: string): string {
 
 export { formatAge };
 
-// Neither field exists on the backend response yet, so every mapped row gets
-// the same placeholder. Remove these once the API returns them.
-const PLACEHOLDER_STATUS: NearMissStatus = "Open";
+const NEAR_MISS_STATUSES: readonly NearMissStatus[] = [
+  "Open",
+  "Investigating",
+  "Closed",
+];
+
+/** Older records come back with a null status; treat those as still open. */
+function toStatus(value: string | null | undefined): NearMissStatus {
+  if (!value) return "Open";
+
+  return (
+    NEAR_MISS_STATUSES.find(
+      (status) => status.toLowerCase() === value.trim().toLowerCase(),
+    ) ?? "Open"
+  );
+}
 
 export function mapNearMissDtoToRecord(
   dto: CreateNearMissResponseDto,
@@ -46,7 +59,7 @@ export function mapNearMissDtoToRecord(
     // Placeholder until the caller resolves the id against /User/dropdown.
     reporter: `User ${String(dto.userId)}`,
     reporterId: dto.userId,
-    status: PLACEHOLDER_STATUS,
+    status: toStatus(dto.status),
     // Age counts from when the report was filed, falling back to the event date
     // for records created before the API returned `createdAt`.
     age: formatAge(dto.createdAt ?? dto.dateOfEvent),

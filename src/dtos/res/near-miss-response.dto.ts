@@ -5,6 +5,8 @@ import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
   /** Server-side creation timestamp; drives the table's Age column. */
   createdAt?: string;
+  /** "Open" | "Investigating" | "Closed"; null on records created before it existed. */
+  status?: string | null;
 };
 
 /** Matches backend response for POST /api/NearMiss/GetAllNearMiss. */

@@ -6,7 +6,6 @@ import {
   useNearMissKpiQuery,
   useNearMissListQuery,
 } from "@/hooks/use-near-miss-queries";
-import { useDeleteNearMissMutation } from "@/hooks/use-near-miss-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import {
@@ -14,21 +13,15 @@ import {
   type StatMetricCardProps,
 } from "@/components/StatMetricCard";
 import { Table } from "@/components/ui/Table";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { NearMissFilterBar } from "@/components/near-miss/NearMissFilterBar";
 import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard";
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
 import { NearMissPageSkeleton } from "@/components/near-miss/NearMissPageSkeleton";
 import { makeNearMissColumns } from "@/components/near-miss/NearMissColumns";
-import {
-  mapNearMissDtoToRecord,
-  formatNearMissDisplayId,
-} from "@/lib/map-near-miss";
+import { mapNearMissDtoToRecord } from "@/lib/map-near-miss";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { canViewNearMissInsights } from "@/lib/current-user";
 import { toUserNameLookup } from "@/lib/map-user";
-import { toast } from "@/lib/toast";
-import type { NearMissRecord } from "./near-miss-data";
 
 const PAGE_SIZE = 10;
 
@@ -36,10 +29,6 @@ export default function NearMissPage() {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [recordToDelete, setRecordToDelete] = useState<NearMissRecord | null>(
-    null,
-  );
-
   const [pageNumber, setPageNumber] = useState(1);
 
   const nearMissListQuery = useNearMissListQuery({
@@ -59,7 +48,6 @@ export default function NearMissPage() {
   // Only elevated roles see the KPI cards, so nobody else pays for the call.
   const nearMissKpiQuery = useNearMissKpiQuery(canViewInsights);
   const kpi = nearMissKpiQuery.data?.dataModel;
-  const deleteMutation = useDeleteNearMissMutation();
 
   // The list carries a userId, not a reporter name — resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
@@ -91,38 +79,12 @@ export default function NearMissPage() {
   }, [records, selectedStatus]);
 
   const columns = useMemo(
-    () =>
-      makeNearMissColumns({
-        onDelete: setRecordToDelete,
-        deletingId: deleteMutation.isPending
-          ? (deleteMutation.variables ?? null)
-          : null,
-        userNames,
-      }),
-    [deleteMutation.isPending, deleteMutation.variables, userNames],
+    () => makeNearMissColumns({ userNames }),
+    [userNames],
   );
 
   const handleReportNearMiss = () => {
     router.push("/dashboard/near-miss/report");
-  };
-
-  const handleConfirmDelete = () => {
-    if (!recordToDelete) return;
-
-    deleteMutation.mutate(recordToDelete.id, {
-      onSuccess: () => {
-        toast.success(`${formatNearMissDisplayId(recordToDelete.id)} deleted`);
-        setRecordToDelete(null);
-      },
-      onError: (error) => {
-        toast.error(
-          getMutationErrorMessage(
-            error,
-            "Could not delete the near miss. Please try again.",
-          ),
-        );
-      },
-    });
   };
 
   return (
@@ -208,21 +170,6 @@ export default function NearMissPage() {
         </div>
       )}
 
-      <ConfirmDialog
-        open={recordToDelete !== null}
-        title="Delete near miss?"
-        description={
-          recordToDelete
-            ? `${formatNearMissDisplayId(recordToDelete.id)} will be permanently removed. This can't be undone.`
-            : undefined
-        }
-        confirmLabel="Delete"
-        isConfirming={deleteMutation.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => {
-          if (!deleteMutation.isPending) setRecordToDelete(null);
-        }}
-      />
     </div>
   );
 }

@@ -154,6 +154,11 @@ export function canConvertNearMissToIncident(): boolean {
   return hasElevatedRole();
 }
 
+/** True when the signed-in user's role may close a near miss — same roles. */
+export function canCloseNearMiss(): boolean {
+  return hasElevatedRole();
+}
+
 /** True when the signed-in user's role may edit a hazard — same roles. */
 export function canEditHazard(): boolean {
   return hasElevatedRole();
