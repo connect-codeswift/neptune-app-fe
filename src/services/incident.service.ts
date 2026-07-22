@@ -166,9 +166,6 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
       asString(
         readProp(raw, "incidentReporterEmail", "IncidentReporterEmail"),
       ) ?? null,
-    occurredInCanada: asBoolean(
-      readProp(raw, "occurredInCanada", "OccurredInCanada"),
-    ),
     nonEmployeInvolved: asBoolean(
       readProp(raw, "nonEmployeInvolved", "NonEmployeInvolved"),
     ),

@@ -312,7 +312,6 @@ export function mapReportFormToIncidentDto(
     injuryDescription: source.injuryDescription.trim() || null,
     incidentReporterEmail:
       source.reporterEmail.trim() || auth?.email || null,
-    occurredInCanada: yes(source.classifications.canada),
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
       optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||

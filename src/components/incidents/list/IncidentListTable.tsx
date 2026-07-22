@@ -80,7 +80,7 @@ function createColumns(expanded: boolean) {
           <Text
             as="p"
             className={[
-              "text-ehs-dark-bg leading-normal font-normal",
+              "text-ehs-dark-bg leading-normal font-normal first-letter:uppercase",
               expanded ? "text-[14px] leading-5" : "line-clamp-2 text-[11.6px]",
             ].join(" ")}
           >
@@ -89,7 +89,7 @@ function createColumns(expanded: boolean) {
           <Text
             as="p"
             className={[
-              "text-ehs-muted-text leading-normal font-normal",
+              "text-ehs-muted-text leading-normal font-normal first-letter:uppercase",
               expanded
                 ? "text-[12px] leading-[16px]"
                 : "line-clamp-2 text-[10px]",
