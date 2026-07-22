@@ -1,25 +1,19 @@
-import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
 import type {
+  AttachmentItem,
+  HrcaMeta,
+  HrcaRow,
   IncidentDetailInfoItem,
   IncidentDetailResponseAction,
   IncidentRoutingMember,
-} from "@/components/incidents/detail/details";
-import type {
-  ResponderMember,
-  WitnessRow,
-} from "@/components/incidents/detail/people";
-import type { WhyChainItem } from "@/components/incidents/detail/investigations/IncidentDetailInvestigationCard";
-import type { StatusChecklistRow } from "@/components/incidents/detail/investigations/IncidentDetailInvestigationStatusCard";
-import type { SignOffRow } from "@/components/incidents/detail/investigations/IncidentDetailSignOffCard";
-import type {
-  HrcaMeta,
-  HrcaRow,
-} from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import type {
   MetricRow,
+  ResponderMember,
+  SignOffRow,
+  StatusChecklistRow,
   TimelineEvent,
-} from "@/components/incidents/detail/timeline";
+  WhyChainItem,
+  WitnessRow,
+} from "@/components/incidents/detail/incident-detail-types";
+import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
 import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {

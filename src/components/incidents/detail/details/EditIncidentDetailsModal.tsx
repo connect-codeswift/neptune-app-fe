@@ -5,7 +5,7 @@ import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
   IncidentModalShell,
-} from "@/components/incidents/list/capa/IncidentModalShell";
+} from "@/components/incidents/shared/capa/IncidentModalShell";
 
 export type EditIncidentDetailsPayload = Readonly<{
   summary: string;

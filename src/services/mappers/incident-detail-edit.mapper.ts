@@ -1,9 +1,9 @@
-import type { IncidentDetailInfoItem } from "@/components/incidents/detail/details";
 import type {
+  AttachmentItem,
+  IncidentDetailInfoItem,
   ResponderMember,
   WitnessRow,
-} from "@/components/incidents/detail/people";
-import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
+} from "@/components/incidents/detail/incident-detail-types";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 
 export type IncidentDetailEditDraft = Readonly<{

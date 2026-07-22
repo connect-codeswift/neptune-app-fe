@@ -2,19 +2,11 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { TimelineEvent } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { toast } from "@/lib/toast";
 
-export type TimelineEvent = Readonly<{
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  actorName: string;
-  actorInitials: string;
-  actorRole?: string;
-  icon: string;
-}>;
+export type { TimelineEvent };
 
 export type IncidentDetailTimelineCardProps = Readonly<{
   events?: readonly TimelineEvent[];

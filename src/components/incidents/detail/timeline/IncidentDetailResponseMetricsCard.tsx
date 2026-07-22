@@ -1,12 +1,10 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type { MetricRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type MetricRow = Readonly<{
-  label: string;
-  value: string;
-}>;
+export type { MetricRow };
 
 export type IncidentDetailResponseMetricsCardProps = Readonly<{
   metrics?: readonly MetricRow[];

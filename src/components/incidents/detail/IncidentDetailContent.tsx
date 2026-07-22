@@ -1,42 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Icon } from "@iconify/react";
-import {
-  FilePreviewModal,
-  IncidentDetailAddTimelineCard,
-  IncidentDetailAiCard,
-  IncidentDetailCapaControlCoverageCard,
-  IncidentDetailCapaListCard,
-  IncidentDetailCapaSummaryCard,
-  IncidentDetailFilesTable,
-  IncidentDetailHeader,
-  IncidentDetailHrcaBoard,
-  IncidentDetailInfoCard,
-  IncidentDetailInvestigationCard,
-  IncidentDetailInvestigationStatusCard,
-  IncidentDetailLinkedCard,
-  IncidentDetailNotificationsCard,
-  IncidentDetailPeopleCard,
-  IncidentDetailPhotosCard,
-  IncidentDetailResponseCard,
-  IncidentDetailResponseMetricsCard,
-  IncidentDetailRoutingCard,
-  IncidentDetailSignOffCard,
-  IncidentDetailStorageCard,
-  IncidentDetailSummaryCard,
-  IncidentDetailTimelineCard,
-  IncidentDetailUploadCard,
-  IncidentDetailWitnessesCard,
-  type AttachmentItem,
-  type IncidentDetailInfoItem,
-  type ResponderMember,
-  type TabId,
-  type TimelineEvent,
-  type WitnessRow,
-} from "@/components/incidents/detail";
-import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import type {
+  AttachmentItem,
+  IncidentDetailInfoItem,
+  ResponderMember,
+  TimelineEvent,
+  WitnessRow,
+} from "@/components/incidents/detail/incident-detail-types";
+import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
+import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
@@ -79,6 +52,10 @@ function initialsFromName(name: string): string {
   return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
+/**
+ * Detail page orchestrator (near-miss DetailContent pattern).
+ * Owns queries, mutations, and editable local state; renders IncidentDetailView.
+ */
 export function IncidentDetailContent(
   props: Readonly<IncidentDetailContentProps>,
 ) {
@@ -142,13 +119,11 @@ export function IncidentDetailContent(
       (detail?.numericId != null || numericId != null),
   });
   const linkedCapa = capaQuery.data ?? EMPTY_LINKED_CAPA_VIEW;
-  // Guard stale React Query cache from before investigation was mapped.
   const investigation = detail?.investigation ?? EMPTY_INCIDENT_INVESTIGATION;
   const displayId =
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
 
-  // Seed editable local state from the API payload whenever it loads/refetches.
   useEffect(() => {
     if (!detail || editScope != null) {
       return;
@@ -171,7 +146,6 @@ export function IncidentDetailContent(
     setInfoItems(detail.infoItems);
   }, [detail, editScope]);
 
-  // API only stores image URLs — resolve size (+ Last-Modified fallback) client-side.
   useEffect(() => {
     if (!detail) {
       return;
@@ -485,389 +459,147 @@ export function IncidentDetailContent(
             : null;
 
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
-        <IncidentDetailHeader
-          incidentId={displayId}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          onEdit={() => {
-            void handleEditOrSave();
-          }}
-          isEditing={isEditing}
-          isSaving={updateIncidentMutation.isPending}
-          readOnly={
-            activeTab !== "details" &&
-            activeTab !== "people" &&
-            activeTab !== "attachments"
-          }
-          onCloseIncident={() => {
-            void handleCloseIncident();
-          }}
-          isClosingIncident={closeIncidentMutation.isPending}
-          closeDisabled={!detail || detail.isClosed}
-        />
-
-        {errorMessage ? (
-          <IncidentGlassCard className="mt-[18px] min-h-[180px] items-center justify-center gap-2 text-center">
-            <Icon
-              icon="mdi:alert-circle-outline"
-              className="text-ehs-red size-8"
-              aria-hidden="true"
-            />
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
-              Couldn’t load incident
-            </Text>
-            <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
-              {errorMessage}
-            </Text>
-            {hasToken && numericId != null ? (
-              <button
-                type="button"
-                onClick={() => void detailQuery.refetch()}
-                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-[13px] font-semibold"
-              >
-                <Icon
-                  icon="mdi:refresh"
-                  className="size-4"
-                  aria-hidden="true"
-                />
-                Retry
-              </button>
-            ) : null}
-          </IncidentGlassCard>
-        ) : null}
-
-        {(showBootLoading || showQueryLoading) && !errorMessage ? (
-          <IncidentGlassCard className="mt-[18px] min-h-[240px] items-center justify-center gap-2">
-            <Icon
-              icon="mdi:loading"
-              className="text-ehs-dark-blue size-7 animate-spin"
-              aria-hidden="true"
-            />
-            <Text as="p" className="text-ehs-muted-text text-sm">
-              Loading incident details…
-            </Text>
-          </IncidentGlassCard>
-        ) : null}
-
-        {detail && !errorMessage && !showBootLoading && !showQueryLoading ? (
-          <>
-            {activeTab === "details" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <div className="flex flex-col gap-[14px]">
-                  <IncidentDetailSummaryCard
-                    summaryText={summaryText}
-                    isEditing={isEditingDetails}
-                    onChangeSummary={setSummaryText}
-                  />
-                  <IncidentDetailInfoCard
-                    items={infoItems}
-                    isEditing={isEditingDetails}
-                    onChangeItem={(key, value) => {
-                      setInfoItems((prev) =>
-                        prev.map((item) =>
-                          item.key === key ? { ...item, value } : item,
-                        ),
-                      );
-                    }}
-                  />
-                  <IncidentDetailResponseCard
-                    actions={detail.responseActions}
-                  />
-                  {responseNotes || isEditingDetails ? (
-                    <IncidentGlassCard
-                      paddingClassName="p-[23px]"
-                      incidentGlassCardClassName="gap-[13px]"
-                      className={
-                        isEditingDetails ? "ring-1 ring-[#0891a6]/25" : ""
-                      }
-                    >
-                      <Text
-                        as="h3"
-                        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
-                      >
-                        Response notes
-                      </Text>
-                      {isEditingDetails ? (
-                        <textarea
-                          value={responseNotes}
-                          onChange={(event) =>
-                            setResponseNotes(event.target.value)
-                          }
-                          rows={4}
-                          placeholder="Add response notes…"
-                          className="min-h-[100px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-[13px] leading-[20.8px] text-[#2a3446] transition outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
-                        />
-                      ) : (
-                        <Text
-                          as="p"
-                          className="text-[13px] leading-[20.8px] whitespace-pre-wrap text-[#2a3446]"
-                        >
-                          {responseNotes}
-                        </Text>
-                      )}
-                    </IncidentGlassCard>
-                  ) : null}
-                </div>
-
-                <div className="flex flex-col gap-[14px]">
-                  <IncidentDetailRoutingCard members={detail.routingMembers} />
-                  <IncidentDetailLinkedCard />
-                  <IncidentDetailAiCard />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "timeline" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <IncidentDetailTimelineCard events={timelineEvents} />
-                <div className="flex flex-col gap-[14px]">
-                  <IncidentDetailResponseMetricsCard
-                    metrics={detail.responseMetrics}
-                  />
-                  <IncidentDetailAddTimelineCard
-                    onAddPost={handleAddTimelinePost}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "people" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <IncidentDetailPeopleCard
-                  affectedName={
-                    isEditingPeople ? affectedName : detail.affectedName
-                  }
-                  affectedRole={detail.affectedRole}
-                  affectedEmpId={
-                    isEditingPeople ? affectedEmpId : detail.affectedEmpId
-                  }
-                  affectedInitials={
-                    isEditingPeople
-                      ? initialsFromName(affectedName)
-                      : detail.affectedInitials
-                  }
-                  affectedInjuryLabel={
-                    isEditingPeople
-                      ? affectedInjuryLabel
-                      : detail.affectedInjuryLabel
-                  }
-                  bodyPart={isEditingPeople ? bodyPart : detail.bodyPart}
-                  treatment={isEditingPeople ? treatment : detail.treatment}
-                  daysAway={detail.daysAway}
-                  responders={isEditingPeople ? responders : detail.responders}
-                  isEditing={isEditingPeople}
-                  onChangeAffectedName={setAffectedName}
-                  onChangeAffectedEmpId={setAffectedEmpId}
-                  onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
-                  onChangeBodyPart={setBodyPart}
-                  onChangeTreatment={setTreatment}
-                  onChangeResponder={(index, patch) => {
-                    setResponders((prev) =>
-                      prev.map((member, memberIndex) => {
-                        if (memberIndex !== index) {
-                          return member;
-                        }
-                        const name = patch.name ?? member.name;
-                        return {
-                          ...member,
-                          ...patch,
-                          name,
-                          initials: initialsFromName(name),
-                        };
-                      }),
-                    );
-                  }}
-                />
-                <div className="flex flex-col gap-[14px]">
-                  <IncidentDetailWitnessesCard
-                    witnesses={witnesses}
-                    isEditing={isEditingPeople}
-                    onAddWitness={() => {
-                      setWitnesses((prev) => [
-                        ...prev,
-                        {
-                          name: "",
-                          role: "Witness",
-                          initials: "—",
-                          badgeLabel: "Pending",
-                          badgeTone: "gray",
-                        },
-                      ]);
-                    }}
-                    onChangeWitness={(index, patch) => {
-                      setWitnesses((prev) =>
-                        prev.map((witness, witnessIndex) => {
-                          if (witnessIndex !== index) {
-                            return witness;
-                          }
-                          const name = patch.name ?? witness.name;
-                          return {
-                            ...witness,
-                            ...patch,
-                            name,
-                            initials: initialsFromName(name),
-                          };
-                        }),
-                      );
-                    }}
-                    onRemoveWitness={(index) => {
-                      setWitnesses((prev) =>
-                        prev.filter(
-                          (_, witnessIndex) => witnessIndex !== index,
-                        ),
-                      );
-                    }}
-                  />
-                  <IncidentDetailNotificationsCard />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "attachments" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <IncidentGlassCard
-                  paddingClassName="p-[23px]"
-                  incidentGlassCardClassName="gap-[14px]"
-                  className={
-                    isEditingAttachments ? "ring-1 ring-[#0891a6]/25" : ""
-                  }
-                >
-                  <IncidentDetailPhotosCard
-                    attachments={attachments}
-                    onSelectFile={setPreviewFile}
-                    onAddFile={() => openUploadPickerRef.current?.()}
-                    onDeleteFile={handleDeleteAttachment}
-                    isEditing={isEditingAttachments}
-                    embedded
-                  />
-                  <IncidentDetailFilesTable
-                    attachments={attachments}
-                    onSelectFile={setPreviewFile}
-                    onDeleteFile={handleDeleteAttachment}
-                    isEditing={isEditingAttachments}
-                    embedded
-                  />
-                </IncidentGlassCard>
-                <div className="flex flex-col gap-[14px]">
-                  {!isEditingAttachments ? (
-                    <IncidentDetailUploadCard
-                      onUploadSuccess={handleUploadSuccess}
-                      onRegisterOpen={registerUploadOpen}
-                    />
-                  ) : (
-                    <IncidentGlassCard
-                      paddingClassName="p-[19px]"
-                      incidentGlassCardClassName="gap-2"
-                    >
-                      <Text
-                        as="h3"
-                        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
-                      >
-                        Delete files
-                      </Text>
-                      <span className="text-[12px] leading-normal text-[#566072]">
-                        Remove photos or documents, then click Save. Uploads are
-                        disabled while editing.
-                      </span>
-                    </IncidentGlassCard>
-                  )}
-                  <IncidentDetailStorageCard usedBytes={usedBytes} />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "investigation" &&
-              (showHrca ? (
-                <IncidentDetailHrcaBoard
-                  onClose={() => setShowHrca(false)}
-                  meta={investigation.hrcaMeta}
-                  initialRows={investigation.hrcaRows}
-                  incidentLabel={displayId}
-                />
-              ) : (
-                <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                  <IncidentDetailInvestigationCard
-                    whyChain={investigation.whyChain}
-                    contributingFactors={investigation.hrcaRows.map((row) => ({
-                      category: row.category,
-                      text: row.contributingFactor,
-                      accent: row.accent,
-                    }))}
-                    methodLine={investigation.methodLine}
-                    statusLabel={investigation.statusLabel}
-                    onOpenHrca={() => setShowHrca(true)}
-                  />
-                  <div className="flex flex-col gap-[14px]">
-                    <IncidentDetailInvestigationStatusCard
-                      steps={investigation.statusSteps}
-                    />
-                    <IncidentDetailSignOffCard
-                      signoffs={investigation.signoffs}
-                    />
-                  </div>
-                </div>
-              ))}
-
-            {activeTab === "linked-capa" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <IncidentDetailCapaListCard
-                  incidentId={displayId}
-                  incidentTitle={detail.title}
-                  capas={linkedCapa.items}
-                  isLoading={capaQuery.isPending}
-                  isSubmitting={createCapaMutation.isPending}
-                  onSubmitCapa={async (payload) => {
-                    try {
-                      await createCapaMutation.mutateAsync({
-                        incidentId: detail.numericId,
-                        controlLevel: payload.controlLevel,
-                        description: payload.description,
-                        type: payload.type,
-                        owner: payload.owner,
-                        dueDate: payload.dueDate,
-                        priority: payload.priority,
-                      });
-                      toast.success(
-                        "CAPA created",
-                        `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
-                      );
-                    } catch (error) {
-                      toast.error(
-                        "Could not create CAPA",
-                        getMutationErrorMessage(error, "Please try again."),
-                      );
-                      throw error;
-                    }
-                  }}
-                />
-                <div className="flex flex-col gap-[14px]">
-                  <IncidentDetailCapaSummaryCard
-                    totalCount={linkedCapa.summary.totalCount}
-                    inProgressCount={linkedCapa.summary.inProgressCount}
-                    verifiedCount={linkedCapa.summary.verifiedCount}
-                    planningCount={linkedCapa.summary.planningCount}
-                    isLoading={capaQuery.isLoading}
-                  />
-                  <IncidentDetailCapaControlCoverageCard
-                    hierarchyControls={linkedCapa.hierarchy}
-                    noticeMessage={linkedCapa.noticeMessage}
-                    isLoading={capaQuery.isLoading}
-                  />
-                </div>
-              </div>
-            )}
-          </>
-        ) : null}
-      </div>
-
-      {previewFile ? (
-        <FilePreviewModal
-          file={previewFile}
-          onClose={() => setPreviewFile(null)}
-        />
-      ) : null}
-    </div>
+    <IncidentDetailView
+      displayId={displayId}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+      onEditOrSave={() => {
+        void handleEditOrSave();
+      }}
+      isEditing={isEditing}
+      isSaving={updateIncidentMutation.isPending}
+      onCloseIncident={() => {
+        void handleCloseIncident();
+      }}
+      isClosingIncident={closeIncidentMutation.isPending}
+      closeDisabled={!detail || detail.isClosed}
+      errorMessage={errorMessage}
+      showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
+      hasToken={hasToken}
+      canRetry={numericId != null}
+      onRetry={() => {
+        void detailQuery.refetch();
+      }}
+      detail={detail}
+      investigation={investigation}
+      showHrca={showHrca}
+      onOpenHrca={() => setShowHrca(true)}
+      onCloseHrca={() => setShowHrca(false)}
+      isEditingDetails={isEditingDetails}
+      isEditingPeople={isEditingPeople}
+      isEditingAttachments={isEditingAttachments}
+      summaryText={summaryText}
+      onChangeSummary={setSummaryText}
+      responseNotes={responseNotes}
+      onChangeResponseNotes={setResponseNotes}
+      infoItems={infoItems}
+      onChangeInfoItem={(key, value) => {
+        setInfoItems((prev) =>
+          prev.map((item) => (item.key === key ? { ...item, value } : item)),
+        );
+      }}
+      timelineEvents={timelineEvents}
+      onAddTimelinePost={handleAddTimelinePost}
+      affectedName={affectedName}
+      affectedEmpId={affectedEmpId}
+      affectedInjuryLabel={affectedInjuryLabel}
+      affectedInitials={initialsFromName(affectedName)}
+      bodyPart={bodyPart}
+      treatment={treatment}
+      responders={responders}
+      witnesses={witnesses}
+      onChangeAffectedName={setAffectedName}
+      onChangeAffectedEmpId={setAffectedEmpId}
+      onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
+      onChangeBodyPart={setBodyPart}
+      onChangeTreatment={setTreatment}
+      onChangeResponder={(index, patch) => {
+        setResponders((prev) =>
+          prev.map((member, memberIndex) => {
+            if (memberIndex !== index) {
+              return member;
+            }
+            const name = patch.name ?? member.name;
+            return {
+              ...member,
+              ...patch,
+              name,
+              initials: initialsFromName(name),
+            };
+          }),
+        );
+      }}
+      onAddWitness={() => {
+        setWitnesses((prev) => [
+          ...prev,
+          {
+            name: "",
+            role: "Witness",
+            initials: "—",
+            badgeLabel: "Pending",
+            badgeTone: "gray",
+          },
+        ]);
+      }}
+      onChangeWitness={(index, patch) => {
+        setWitnesses((prev) =>
+          prev.map((witness, witnessIndex) => {
+            if (witnessIndex !== index) {
+              return witness;
+            }
+            const name = patch.name ?? witness.name;
+            return {
+              ...witness,
+              ...patch,
+              name,
+              initials: initialsFromName(name),
+            };
+          }),
+        );
+      }}
+      onRemoveWitness={(index) => {
+        setWitnesses((prev) =>
+          prev.filter((_, witnessIndex) => witnessIndex !== index),
+        );
+      }}
+      attachments={attachments}
+      usedBytes={usedBytes}
+      onSelectFile={setPreviewFile}
+      onAddFile={() => openUploadPickerRef.current?.()}
+      onDeleteFile={handleDeleteAttachment}
+      onUploadSuccess={handleUploadSuccess}
+      onRegisterUploadOpen={registerUploadOpen}
+      linkedCapa={linkedCapa}
+      isCapaLoading={capaQuery.isPending}
+      isCapaSubmitting={createCapaMutation.isPending}
+      onSubmitCapa={async (payload) => {
+        if (!detail) {
+          return;
+        }
+        try {
+          await createCapaMutation.mutateAsync({
+            incidentId: detail.numericId,
+            controlLevel: payload.controlLevel,
+            description: payload.description,
+            type: payload.type,
+            owner: payload.owner,
+            dueDate: payload.dueDate,
+            priority: payload.priority,
+          });
+          toast.success(
+            "CAPA created",
+            `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
+          );
+        } catch (error) {
+          toast.error(
+            "Could not create CAPA",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+          throw error;
+        }
+      }}
+      previewFile={previewFile}
+      onClosePreview={() => setPreviewFile(null)}
+    />
   );
 }

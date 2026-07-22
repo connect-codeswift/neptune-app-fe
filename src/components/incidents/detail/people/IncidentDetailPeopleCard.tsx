@@ -1,16 +1,10 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type ResponderMember = Readonly<{
-  role: string;
-  name: string;
-  initials: string;
-  empId: string;
-  badgeLabel: string;
-  badgeTone: "teal" | "green" | "gray" | "blue";
-}>;
+export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;

@@ -5,13 +5,13 @@ import { Text } from "@/components/Text";
 import {
   CapaHierarchySelector,
   type ControlLevel,
-} from "@/components/incidents/list/capa/CapaHierarchySelector";
-import { CapaSegmentedToggle } from "@/components/incidents/list/capa/CapaSegmentedToggle";
+} from "@/components/incidents/shared/capa/CapaHierarchySelector";
+import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
   IncidentModalShell,
-} from "@/components/incidents/list/capa/IncidentModalShell";
+} from "@/components/incidents/shared/capa/IncidentModalShell";
 
 export type AddCapaModalProps = Readonly<{
   incidentId: string;

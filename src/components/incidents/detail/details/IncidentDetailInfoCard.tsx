@@ -1,16 +1,13 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type {
+  IncidentDetailInfoItem,
+  IncidentDetailInfoItemKind,
+} from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type IncidentDetailInfoItemKind = "text" | "yesno" | "readonly";
-
-export type IncidentDetailInfoItem = Readonly<{
-  key: string;
-  label: string;
-  value: string;
-  kind?: IncidentDetailInfoItemKind;
-}>;
+export type { IncidentDetailInfoItem, IncidentDetailInfoItemKind };
 
 export type IncidentDetailInfoCardProps = Readonly<{
   items?: readonly IncidentDetailInfoItem[];

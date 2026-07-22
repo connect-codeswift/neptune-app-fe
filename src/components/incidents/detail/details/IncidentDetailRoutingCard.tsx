@@ -1,14 +1,10 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type { IncidentRoutingMember } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type IncidentRoutingMember = Readonly<{
-  role: string;
-  name: string;
-  initials: string;
-  subtitle?: string;
-}>;
+export type { IncidentRoutingMember };
 
 export type IncidentDetailRoutingCardProps = Readonly<{
   members?: readonly IncidentRoutingMember[];

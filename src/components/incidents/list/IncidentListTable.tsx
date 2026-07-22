@@ -269,9 +269,7 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
                   onClick={() => onSelect(row.original.id)}
                   onDoubleClick={() => onOpenDetail?.(row.original.id)}
                   title={
-                    onOpenDetail
-                      ? "Double-click to open details"
-                      : undefined
+                    onOpenDetail ? "Double-click to open details" : undefined
                   }
                   className={[
                     "cursor-pointer border-t border-[rgba(15,23,42,0.08)] transition-colors",

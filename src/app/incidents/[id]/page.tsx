@@ -1,16 +1,13 @@
-"use client";
-
-import { useParams } from "next/navigation";
 import { IncidentDetailContent } from "@/components/incidents/detail/IncidentDetailContent";
 
-export default function IncidentDetailPage() {
-  const params = useParams();
-  const incidentIdParam =
-    typeof params.id === "string"
-      ? params.id
-      : Array.isArray(params.id)
-        ? (params.id[0] ?? "")
-        : "";
+export default async function IncidentDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-  return <IncidentDetailContent incidentIdParam={incidentIdParam} />;
+  return (
+    <IncidentDetailContent incidentIdParam={decodeURIComponent(id)} />
+  );
 }
