@@ -2,13 +2,17 @@ export type BodyPartId =
   | "head-face"
   | "neck"
   | "chest-shoulders"
-  | "arm"
+  | "upper-arm"
+  | "forearm"
   | "hand-wrist"
   | "abdomen"
   | "hip-pelvis"
-  | "leg-knee"
+  | "thigh"
+  | "lower-leg"
   | "foot-ankle"
-  | "back";
+  | "upper-back"
+  | "mid-back"
+  | "lower-back";
 
 export type BodyPartOption = Readonly<{
   id: BodyPartId;
@@ -20,13 +24,17 @@ export const BODY_PART_OPTIONS: readonly BodyPartOption[] = [
   { id: "head-face", label: "Head / face" },
   { id: "neck", label: "Neck" },
   { id: "chest-shoulders", label: "Chest / shoulders" },
-  { id: "arm", label: "Arm", sided: true },
+  { id: "upper-back", label: "Upper back" },
+  { id: "mid-back", label: "Mid back" },
+  { id: "lower-back", label: "Lower back" },
+  { id: "upper-arm", label: "Upper arm", sided: true },
+  { id: "forearm", label: "Forearm", sided: true },
   { id: "hand-wrist", label: "Hand / wrist", sided: true },
   { id: "abdomen", label: "Abdomen" },
   { id: "hip-pelvis", label: "Hip / pelvis" },
-  { id: "leg-knee", label: "Leg / knee", sided: true },
+  { id: "thigh", label: "Thigh", sided: true },
+  { id: "lower-leg", label: "Lower leg / knee", sided: true },
   { id: "foot-ankle", label: "Foot / ankle", sided: true },
-  { id: "back", label: "Back" },
 ];
 
 export type BodySide = "Left" | "Right";

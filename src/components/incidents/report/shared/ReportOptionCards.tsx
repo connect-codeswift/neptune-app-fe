@@ -115,22 +115,22 @@ export function ReportOptionCards<T extends string>(
               aria-checked={isSelected}
               onClick={() => onChange(option.id)}
               className={[
-                "flex min-h-[66px] w-[96px] min-w-[96px] flex-col items-start gap-1.5 rounded-[10px] border px-[13px] py-[11px] text-left transition-colors",
+                "flex h-[67px] w-[96px] min-w-[96px] flex-col items-start gap-1.5 rounded-[10px] border px-[13px] py-[11px] text-left transition-all duration-200",
                 isSelected
-                  ? "border-ehs-normal-blue bg-ehs-normal-blue/14"
-                  : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)]",
+                  ? "border-[#0891a6] bg-[rgba(8,145,166,0.14)] shadow-[0_0_0_1px_rgba(8,145,166,0.08)]"
+                  : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/80",
               ].join(" ")}
             >
               <span
                 className={[
-                  "size-2 shrink-0 rounded",
-                  isSelected ? "bg-ehs-normal-blue" : "bg-ehs-gray",
+                  "size-2 shrink-0 rounded-[4px] transition-colors",
+                  isSelected ? "bg-[#0891a6]" : "bg-[#566072]",
                 ].join(" ")}
               />
               <span
                 className={[
                   "text-[12.5px] leading-[15px] font-bold",
-                  isSelected ? "text-ehs-normal-blue" : "text-ehs-dark-bg",
+                  isSelected ? "text-[#0891a6]" : "text-[#0b1320]",
                 ].join(" ")}
               >
                 {titleLines.map((line) => (

@@ -20,7 +20,7 @@ import {
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
-import type { AuthContext } from "@/lib/auth-context";
+import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
 function yes(value: "Yes" | "No" | undefined): boolean {
   return value === "Yes";
@@ -310,7 +310,8 @@ export function mapReportFormToIncidentDto(
     subCompanyId: auth?.subCompanyId ?? 0,
     injuredBodyPart: bodyPartLabels || null,
     injuryDescription: source.injuryDescription.trim() || null,
-    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    incidentReporterEmail:
+      source.reporterEmail.trim() || auth?.email || null,
     occurredInCanada: yes(source.classifications.canada),
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
@@ -320,7 +321,7 @@ export function mapReportFormToIncidentDto(
     treatmentProvidedBy:
       optionLabel(TREATMENT_PROVIDER_OPTIONS, source.treatmentProvidedBy) ||
       source.reportedBy.trim() ||
-      "N/A",
+      getAuthDisplayName("N/A"),
     treatmentLocation:
       optionLabel(TREATMENT_LOCATION_OPTIONS, source.treatmentLocation) ||
       location ||

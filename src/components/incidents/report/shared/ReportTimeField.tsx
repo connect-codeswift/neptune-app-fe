@@ -2,7 +2,6 @@
 
 import { Icon } from "@iconify/react";
 import { useId, useRef } from "react";
-import { Text } from "@/components/Text";
 import {
   ReportFieldLabel,
   reportFieldInputClass,
@@ -62,13 +61,7 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
       <ReportFieldLabel
         label={label}
         required={required}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
+        hint={trailingHint}
       />
       <div className="relative">
         <input

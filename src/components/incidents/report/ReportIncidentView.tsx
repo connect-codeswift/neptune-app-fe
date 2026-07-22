@@ -83,17 +83,24 @@ export function ReportIncidentView() {
       };
 
       // Severity changed: First Aid → collect fields; other severities → defaults.
+      // Also keep form.title in sync so Live preview / review use Severity as title.
       if (next.severity !== undefined && next.severity !== prev.severity) {
+        const severityTitle =
+          SEVERITY_OPTIONS.find((option) => option.id === next.severity)
+            ?.label ?? merged.title;
+
         if (next.severity === "first-aid") {
           return {
             ...merged,
             ...EMPTY_FIRST_AID_FIELDS,
+            title: severityTitle,
           };
         }
 
         return {
           ...merged,
           ...NON_FIRST_AID_FIELD_DEFAULTS,
+          title: severityTitle,
         };
       }
 
@@ -145,8 +152,10 @@ export function ReportIncidentView() {
           <ReportIncidentAside
             severityBadge={severityOption.previewBadge}
             location={normalizedForm.location}
-            title={currentStep >= 2 ? normalizedForm.title : ""}
-            description={currentStep >= 2 ? normalizedForm.description : ""}
+            title={
+              normalizedForm.title.trim() || severityOption.label
+            }
+            description={normalizedForm.description}
             currentStep={currentStep}
             className="col-span-1 md:col-span-2 xl:col-span-1"
           />
