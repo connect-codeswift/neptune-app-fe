@@ -62,6 +62,7 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     id: formatHazardDisplayId(dto.id),
     title: dto.description,
     reporter: `User ${String(dto.userId)}`,
+    reporterId: dto.userId,
     site: location,
     // The API carries no severity yet; the detail view falls back to this.
     severity: "Medium",

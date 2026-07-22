@@ -68,7 +68,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             </DetailField> */}
             <DetailField label="Status">
               <IncidentBadge
-                label={record.stage}
+                label={record.status}
                 tone="muted"
                 showDot
                 className="w-fit px-2.5 py-0.5 text-sm! tracking-[0.11px]"

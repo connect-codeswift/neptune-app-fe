@@ -11,7 +11,9 @@ import { Table } from "@/components/ui/Table";
 import { HazardFilterBar } from "@/components/hazard/HazardFilterBar";
 import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
-import { hazardColumns } from "@/components/hazard/HazardColumns";
+import {
+  makeHazardColumns,
+} from "@/components/hazard/HazardColumns";
 import { HazardPageSkeleton } from "@/components/hazard/HazardPageSkeleton";
 import {
   useHazardKpiQuery,
@@ -19,6 +21,8 @@ import {
 } from "@/hooks/use-hazard-queries";
 import { canViewHazardInsights, getCurrentUser } from "@/lib/current-user";
 import { mapHazardDtoToRecord } from "@/lib/map-hazard";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { toUserNameLookup } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +39,12 @@ export default function HazardPage() {
     subCompanyId,
     userId,
   });
+
+  // The list carries a userId, not a reporter name — resolve it for display.
+  const userDropdownQuery = useUserDropdownQuery();
+  const users = userDropdownQuery.data?.dataModel;
+  const userNames = useMemo(() => toUserNameLookup(users ?? []), [users]);
+
   // Resolve the role after mount: the token lives in localStorage, so reading
   // it during render would mismatch the server-rendered HTML.
   const [canViewInsights, setCanViewInsights] = useState(false);
@@ -47,7 +57,6 @@ export default function HazardPage() {
   const kpiQuery = useHazardKpiQuery(canViewInsights);
 
   const page = hazardListQuery.data?.dataModel;
-
   const metrics: readonly StatMetricCardProps[] = useMemo(() => {
     const kpi = kpiQuery.data?.dataModel;
 
@@ -77,6 +86,11 @@ export default function HazardPage() {
       (record) => selectedStatus === "All" || record.status === selectedStatus,
     );
   }, [records, selectedStatus]);
+
+  const columns = useMemo(
+    () => makeHazardColumns({ userNames }),
+    [userNames],
+  );
 
   const handleReportHazard = () => {
     router.push("/dashboard/hazard/report");
@@ -127,7 +141,7 @@ export default function HazardPage() {
           >
             <Table
               data={filteredRecords}
-              columns={hazardColumns}
+              columns={columns}
               onRowClick={(row) =>
                 router.push(`/dashboard/hazard/${encodeURIComponent(row.id)}`)
               }

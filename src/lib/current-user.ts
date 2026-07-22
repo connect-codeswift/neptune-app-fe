@@ -164,6 +164,11 @@ export function canEditHazard(): boolean {
   return hasElevatedRole();
 }
 
+/** True when the signed-in user's role may close a hazard — same roles. */
+export function canCloseHazard(): boolean {
+  return hasElevatedRole();
+}
+
 /**
  * True when the signed-in user may see the near-miss insight widgets (KPIs,
  * heatmap, recognition) — same roles.

@@ -22,6 +22,8 @@ export type HazardRecord = Readonly<{
   id: string;
   title: string;
   reporter: string;
+  /** Raw user id behind {@link reporter}; resolved to a name via /User/dropdown. */
+  reporterId?: number;
   site: string;
   severity: HazardSeverity;
   status: HazardStatus;

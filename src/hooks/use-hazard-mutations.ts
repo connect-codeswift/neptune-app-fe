@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { SaveHazardRequestDto } from "@/dtos/req/hazard-request.dto";
-import { createHazard } from "@/services/hazard.service";
+import {
+  closeHazard,
+  createHazard,
+  dropHazard,
+} from "@/services/hazard.service";
 
 /** Creates a hazard, or updates one when the payload carries an `id`. */
 export function useCreateHazardMutation() {
@@ -14,3 +18,34 @@ export function useCreateHazardMutation() {
     },
   });
 }
+
+export function useDropHazardMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      subCompanyId,
+      userId,
+    }: {
+      id: string;
+      subCompanyId: number;
+      userId: number;
+    }) => dropHazard(id, { subCompanyId, userId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hazard"] });
+    },
+  });
+}
+
+export function useCloseHazardMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => closeHazard(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["hazard"] });
+    },
+  });
+}
+

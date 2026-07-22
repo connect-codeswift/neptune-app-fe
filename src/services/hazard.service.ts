@@ -71,3 +71,24 @@ export async function getHazardById(
 
   return data;
 }
+
+export async function dropHazard(
+  id: string,
+  payload: Readonly<{ subCompanyId: number; userId: number }>,
+) {
+  const { data } = await http.put<unknown>(
+    `/Hazard/DropHazard/${encodeURIComponent(id)}`,
+    payload,
+  );
+
+  return data;
+}
+
+export async function closeHazard(id: string) {
+  const { data } = await http.put<unknown>(
+    `/Hazard/CloseHazard/${encodeURIComponent(id)}`,
+  );
+
+  return data;
+}
+
