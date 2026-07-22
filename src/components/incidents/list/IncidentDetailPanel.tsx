@@ -11,7 +11,7 @@ import {
   stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
-import { AddCapaModal } from "@/components/incidents/list/capa/AddCapaModal";
+import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
 export type IncidentDetailPanelProps = Readonly<{

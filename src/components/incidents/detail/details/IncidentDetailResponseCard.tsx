@@ -2,13 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type IncidentDetailResponseAction = Readonly<{
-  id: string;
-  label: string;
-  completed: boolean;
-}>;
+export type { IncidentDetailResponseAction };
 
 export type IncidentDetailResponseCardProps = Readonly<{
   actions?: readonly IncidentDetailResponseAction[];

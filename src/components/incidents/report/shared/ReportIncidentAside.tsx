@@ -28,10 +28,8 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
     className = "",
   } = props;
 
-  const locationPreview = location
-    ? location.replace(/\s*—\s*Press\s*#?\d+/i, " — Press").trim()
-    : "Plant / location…";
-
+  const locationPreview = location.trim() || "Plant / location…";
+  const hasLocation = location.trim().length > 0;
   const hasTitle = title.trim().length > 0;
   const hasDescription = description.trim().length > 0;
   const tip = STEP_TIPS[currentStep];
@@ -84,7 +82,12 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
 
         <Text
           as="p"
-          className="text-ehs-muted-text pb-[7px] text-[11px] leading-normal"
+          className={[
+            "pb-[7px] text-[11px] leading-normal",
+            hasLocation
+              ? "text-ehs-muted-text not-italic"
+              : "text-ehs-muted-text italic",
+          ].join(" ")}
         >
           {locationPreview}
         </Text>

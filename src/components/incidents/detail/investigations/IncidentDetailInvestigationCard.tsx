@@ -2,21 +2,14 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type {
+  ContributingFactorItem,
+  WhyChainItem,
+} from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { toast } from "@/lib/toast";
 
-export type WhyChainItem = Readonly<{
-  step: number;
-  label: string;
-  text: string;
-  isRootCause?: boolean;
-}>;
-
-export type ContributingFactorItem = Readonly<{
-  category: string;
-  text: string;
-  accent: string;
-}>;
+export type { WhyChainItem, ContributingFactorItem };
 
 export type IncidentDetailInvestigationCardProps = Readonly<{
   whyChain?: readonly WhyChainItem[];

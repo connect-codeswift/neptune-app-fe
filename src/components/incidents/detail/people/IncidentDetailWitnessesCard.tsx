@@ -2,15 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { WitnessRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type WitnessRow = Readonly<{
-  name: string;
-  role: string;
-  initials: string;
-  badgeLabel: string;
-  badgeTone: "green" | "gray";
-}>;
+export type { WitnessRow };
 
 export type IncidentDetailWitnessesCardProps = Readonly<{
   witnesses?: readonly WitnessRow[];

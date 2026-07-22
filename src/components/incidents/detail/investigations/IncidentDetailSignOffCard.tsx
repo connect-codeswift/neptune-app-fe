@@ -2,16 +2,11 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { SignOffRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { toast } from "@/lib/toast";
 
-export type SignOffRow = Readonly<{
-  name: string;
-  role: string;
-  initials: string;
-  badgeLabel: string;
-  badgeTone: "green" | "gray";
-}>;
+export type { SignOffRow };
 
 export type IncidentDetailSignOffCardProps = Readonly<{
   signoffs?: readonly SignOffRow[];

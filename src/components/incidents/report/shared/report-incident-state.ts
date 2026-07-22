@@ -91,7 +91,8 @@ export function createInitialReportFormState(): ReportIncidentFormState {
       CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, "Yes" | "No">,
     description: "",
-    title: "",
+    // Mirrors default severity so Live preview title is populated from the start.
+    title: "First Aid",
     initialTreatment: "",
     secondaryTreatment: "No",
     mechanismOfInjury: "",

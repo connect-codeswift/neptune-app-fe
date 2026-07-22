@@ -2,12 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { StatusChecklistRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type StatusChecklistRow = Readonly<{
-  label: string;
-  completed: boolean;
-}>;
+export type { StatusChecklistRow };
 
 export type IncidentDetailInvestigationStatusCardProps = Readonly<{
   steps?: readonly StatusChecklistRow[];

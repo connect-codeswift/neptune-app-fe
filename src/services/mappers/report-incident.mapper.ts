@@ -19,7 +19,8 @@ import {
 } from "@/components/incidents/report/shared/report-treatment";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
-import type { AuthContext } from "@/lib/auth-context";
+import { withAttachmentDisplayName } from "@/lib/attachment-url";
+import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
 function yes(value: "Yes" | "No" | undefined): boolean {
   return value === "Yes";
@@ -263,8 +264,16 @@ export function mapReportFormToIncidentDto(
     .map((id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id)
     .join(", ");
 
+  // Persist original filename on the URL (`?n=`) — API only stores string URLs.
   const images = source.photos
-    .map((photo) => photo.secureUrl || photo.url)
+    .map((photo) => {
+      const url = (photo.secureUrl || photo.url)?.trim();
+      if (!url) {
+        return null;
+      }
+      const fileName = photo.name?.trim() || "file";
+      return withAttachmentDisplayName(url, fileName);
+    })
     .filter((url): url is string => Boolean(url));
 
   return {
@@ -301,7 +310,8 @@ export function mapReportFormToIncidentDto(
     subCompanyId: auth?.subCompanyId ?? 0,
     injuredBodyPart: bodyPartLabels || null,
     injuryDescription: source.injuryDescription.trim() || null,
-    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    incidentReporterEmail:
+      source.reporterEmail.trim() || auth?.email || null,
     occurredInCanada: yes(source.classifications.canada),
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
@@ -311,7 +321,7 @@ export function mapReportFormToIncidentDto(
     treatmentProvidedBy:
       optionLabel(TREATMENT_PROVIDER_OPTIONS, source.treatmentProvidedBy) ||
       source.reportedBy.trim() ||
-      "N/A",
+      getAuthDisplayName("N/A"),
     treatmentLocation:
       optionLabel(TREATMENT_LOCATION_OPTIONS, source.treatmentLocation) ||
       location ||

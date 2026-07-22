@@ -50,8 +50,12 @@ export async function uploadFileToCloudinary(
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
-  formData.append("use_filename", "true");
-  formData.append("unique_filename", "true");
+  // Unsigned presets reject `use_filename` / `unique_filename`.
+  // `filename_override` is allowed and keeps the original name in metadata.
+  const originalName = file.name.trim();
+  if (originalName) {
+    formData.append("filename_override", originalName);
+  }
 
   const response = await fetch(endpoint, {
     method: "POST",

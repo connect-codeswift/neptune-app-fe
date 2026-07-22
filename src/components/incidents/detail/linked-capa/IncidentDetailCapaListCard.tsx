@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { AddCapaModal } from "@/components/incidents/list/capa/AddCapaModal";
+import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 
 export type { CapaItem };

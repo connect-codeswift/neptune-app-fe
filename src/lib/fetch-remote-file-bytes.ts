@@ -1,23 +1,32 @@
 import { stripAttachmentDisplayName } from "@/lib/attachment-url";
 
+export type RemoteFileMeta = Readonly<{
+  bytes: number | null;
+  lastModified: Date | null;
+}>;
+
 /**
- * Best-effort remote byte size for a public file URL (e.g. Cloudinary).
- * Uses HEAD `Content-Length`, then a Range GET `Content-Range` fallback.
+ * Best-effort remote byte size + Last-Modified for a public file URL (e.g. Cloudinary).
+ * Uses HEAD, then a Range GET fallback for size.
  */
-export async function fetchRemoteFileBytes(
+export async function fetchRemoteFileMeta(
   url: string,
-): Promise<number | null> {
+): Promise<RemoteFileMeta> {
   const trimmed = stripAttachmentDisplayName(url.trim());
   if (!trimmed) {
-    return null;
+    return { bytes: null, lastModified: null };
   }
+
+  let bytes: number | null = null;
+  let lastModified: Date | null = null;
 
   try {
     const head = await fetch(trimmed, { method: "HEAD", mode: "cors" });
     if (head.ok) {
-      const fromLength = parsePositiveInt(head.headers.get("content-length"));
-      if (fromLength != null) {
-        return fromLength;
+      bytes = parsePositiveInt(head.headers.get("content-length"));
+      lastModified = parseHttpDate(head.headers.get("last-modified"));
+      if (bytes != null) {
+        return { bytes, lastModified };
       }
     }
   } catch {
@@ -31,17 +40,27 @@ export async function fetchRemoteFileBytes(
       headers: { Range: "bytes=0-0" },
     });
 
-    const fromRange = parseContentRangeTotal(
-      range.headers.get("content-range"),
-    );
-    if (fromRange != null) {
-      return fromRange;
-    }
-
-    return parsePositiveInt(range.headers.get("content-length"));
+    bytes =
+      parseContentRangeTotal(range.headers.get("content-range")) ??
+      parsePositiveInt(range.headers.get("content-length"));
+    lastModified =
+      lastModified ?? parseHttpDate(range.headers.get("last-modified"));
   } catch {
-    return null;
+    // ignore
   }
+
+  return { bytes, lastModified };
+}
+
+/**
+ * Best-effort remote byte size for a public file URL (e.g. Cloudinary).
+ * Uses HEAD `Content-Length`, then a Range GET `Content-Range` fallback.
+ */
+export async function fetchRemoteFileBytes(
+  url: string,
+): Promise<number | null> {
+  const meta = await fetchRemoteFileMeta(url);
+  return meta.bytes;
 }
 
 function parsePositiveInt(value: string | null): number | null {
@@ -65,4 +84,12 @@ function parseContentRangeTotal(value: string | null): number | null {
     return null;
   }
   return parsePositiveInt(match[1]);
+}
+
+function parseHttpDate(value: string | null): Date | null {
+  if (!value?.trim()) {
+    return null;
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
