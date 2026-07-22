@@ -122,6 +122,36 @@ function displayOrDash(value: string | null | undefined): string {
   return trimmed ? trimmed : "—";
 }
 
+/** Backend placeholders for First Aid–only fields on non–First Aid creates. */
+function isNaPlaceholder(value: string | null | undefined): boolean {
+  return value?.trim().toLowerCase() === "n/a";
+}
+
+function isFirstAidSeverity(severity: string | null | undefined): boolean {
+  const lower = severity?.trim().toLowerCase() ?? "";
+  return lower.includes("first aid") || lower === "first-aid";
+}
+
+/**
+ * First Aid Step 2 fields that are auto-filled with N/A (or unused defaults)
+ * when severity is not First Aid. Hide these on the detail page for other severities.
+ */
+const FIRST_AID_ONLY_INFO_KEYS = new Set([
+  "whatTreatmentWasGiven",
+  "treatmentProvidedBy",
+  "treatmentLocation",
+  "isFitForFullDuty",
+  "furtherMedicalRecommendations",
+]);
+
+function meaningfulText(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed || isNaPlaceholder(trimmed)) {
+    return null;
+  }
+  return trimmed;
+}
+
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) {
@@ -427,25 +457,21 @@ function buildTimelineEvents(
     });
   }
 
-  if (incident.whatTreatmentWasGiven?.trim()) {
+  const treatmentGiven = meaningfulText(incident.whatTreatmentWasGiven);
+  if (treatmentGiven) {
+    const treatmentBy = meaningfulText(incident.treatmentProvidedBy);
+    const treatmentAt = meaningfulText(incident.treatmentLocation);
     push(reportedAt, {
       title: "Treatment recorded",
       description: [
-        incident.whatTreatmentWasGiven.trim(),
-        incident.treatmentProvidedBy?.trim()
-          ? `By ${incident.treatmentProvidedBy.trim()}`
-          : null,
-        incident.treatmentLocation?.trim()
-          ? `at ${incident.treatmentLocation.trim()}`
-          : null,
+        treatmentGiven,
+        treatmentBy ? `By ${treatmentBy}` : null,
+        treatmentAt ? `at ${treatmentAt}` : null,
       ]
         .filter(Boolean)
         .join(" · "),
       icon: "mdi:medical-bag",
-      ...actorFromName(
-        incident.treatmentProvidedBy?.trim() || reporterName,
-        "Treatment",
-      ),
+      ...actorFromName(treatmentBy || reporterName, "Treatment"),
     });
   }
 
@@ -478,7 +504,7 @@ function buildTimelineEvents(
     });
   }
 
-  const disposition = incident.caseDisposition?.trim();
+  const disposition = meaningfulText(incident.caseDisposition);
   if (disposition) {
     push(reportedAt, {
       title: listMeta.isClosed ? "Incident closed" : "Case disposition updated",
@@ -731,13 +757,12 @@ function buildHrcaRows(incident: IncidentDto): readonly HrcaRow[] {
       })),
   );
 
+  const treatmentForHrca = meaningfulText(incident.whatTreatmentWasGiven);
   const actions = [
     incident.actionTaken?.trim()
       ? truncateText(incident.actionTaken, 120)
       : null,
-    incident.whatTreatmentWasGiven?.trim()
-      ? `Treatment: ${incident.whatTreatmentWasGiven.trim()}`
-      : null,
+    treatmentForHrca ? `Treatment: ${treatmentForHrca}` : null,
   ].filter((value): value is string => Boolean(value));
 
   return [
@@ -817,8 +842,9 @@ function buildInfoItems(
   incident: IncidentDto,
 ): readonly IncidentDetailInfoItem[] {
   const listRecord = mapIncidentDtoToListRecord(incident);
+  const firstAid = isFirstAidSeverity(listRecord.severity);
 
-  return [
+  const items: IncidentDetailInfoItem[] = [
     {
       key: "severity",
       label: "Severity",
@@ -970,6 +996,21 @@ function buildInfoItems(
       kind: "yesno",
     },
   ];
+
+  if (firstAid) {
+    return items;
+  }
+
+  // Non–First Aid: omit First Aid–only fields and any predefined N/A placeholders.
+  return items.filter((item) => {
+    if (FIRST_AID_ONLY_INFO_KEYS.has(item.key)) {
+      return false;
+    }
+    if (isNaPlaceholder(item.value)) {
+      return false;
+    }
+    return true;
+  });
 }
 
 function buildResponders(
@@ -1115,8 +1156,8 @@ export function mapIncidentDtoToDetailView(
     incident.injuredBodyPart?.trim() ||
     "—";
   const treatment =
-    incident.whatTreatmentWasGiven?.trim() ||
-    incident.initialTreatment?.trim() ||
+    meaningfulText(incident.whatTreatmentWasGiven) ||
+    meaningfulText(incident.initialTreatment) ||
     "None required";
   const isClosed = listRecord.state === "Closed";
   const responseActions = parseResponseActions(incident.actionTaken);
