@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useNearMissListQuery } from "@/hooks/use-near-miss-queries";
+import {
+  useNearMissKpiQuery,
+  useNearMissListQuery,
+} from "@/hooks/use-near-miss-queries";
 import { useDeleteNearMissMutation } from "@/hooks/use-near-miss-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -40,7 +43,10 @@ export default function NearMissPage() {
     pageNumber,
     pageSize: PAGE_SIZE,
   });
-  console.log("nearMissListQuery", nearMissListQuery.data?.dataModel);
+  // console.log("nearMissListQuery", nearMissListQuery.data?.dataModel);
+
+  const nearMissKpiQuery = useNearMissKpiQuery();
+  const kpi = nearMissKpiQuery.data?.dataModel;
   const deleteMutation = useDeleteNearMissMutation();
 
   const page = nearMissListQuery.data?.dataModel;
@@ -51,15 +57,11 @@ export default function NearMissPage() {
   const NEAR_MISS_METRICS: readonly StatMetricCardProps[] = [
     {
       title: "Total near misses",
-      value: page?.totalRecords ?? 0,
-      trendValue: "-4",
-      trendTone: "negative",
+      value: kpi?.totalNearMissCount ?? 0,
     },
     {
       title: "Converted to incidents",
-      value: 48,
-      trendValue: "+12",
-      trendTone: "positive",
+      value: kpi?.convertedToIncidents ?? 0,
     },
   ];
   // Filter records by stage and site before passing to the table

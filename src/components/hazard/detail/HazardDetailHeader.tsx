@@ -7,9 +7,14 @@ const crumbClass =
   "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";
 
 export function HazardDetailHeader(
-  props: Readonly<{ record: HazardRecord; editHref: string }>,
+  props: Readonly<{
+    record: HazardRecord;
+    editHref: string;
+    /** Hides the Edit button for roles that may not edit a hazard. */
+    canEdit?: boolean;
+  }>,
 ) {
-  const { record, editHref } = props;
+  const { record, editHref, canEdit = false } = props;
 
   return (
     <div className="relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
@@ -47,12 +52,14 @@ export function HazardDetailHeader(
           </Text>
         </div>
 
-        <Link
-          href={editHref}
-          className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex shrink-0 items-center justify-center rounded-[10px] px-8 py-2 text-sm font-medium text-white transition-colors"
-        >
-          Edit
-        </Link>
+        {canEdit ? (
+          <Link
+            href={editHref}
+            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex shrink-0 items-center justify-center rounded-[10px] px-8 py-2 text-sm font-medium text-white transition-colors"
+          >
+            Edit
+          </Link>
+        ) : null}
       </div>
     </div>
   );

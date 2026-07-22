@@ -124,7 +124,7 @@ export function getCurrentUser(): CurrentUser {
   return {
     userId: readNumericClaim(claims, USER_ID_CLAIM_KEYS) ?? 0,
     subCompanyId: readNumericClaim(claims, SUB_COMPANY_ID_CLAIM_KEYS) ?? 0,
-    role: readStringClaim(claims, ROLE_CLAIM_KEYS),
+    role: readStringClaim(claims, ROLE_CLAIM_KEYS) ?? null,
   };
 }
 
@@ -133,18 +133,28 @@ function normalizeRole(role: string): string {
   return role.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
 }
 
-/** Roles permitted to convert a near-miss into a full incident. */
-const CONVERT_INCIDENT_ROLES: readonly string[] = [
+/** Roles trusted with elevated safety actions. */
+const ELEVATED_ROLES: readonly string[] = [
   "ehs manager",
   "ehs director",
   "lead",
 ];
+
+/** True when the signed-in user holds one of {@link ELEVATED_ROLES}. */
+function hasElevatedRole(): boolean {
+  const { role } = getCurrentUser();
+  return role !== null && ELEVATED_ROLES.includes(normalizeRole(role));
+}
 
 /**
  * True when the signed-in user's role may convert a near-miss to an incident
  * (EHS Manager, EHS Director, or Lead).
  */
 export function canConvertNearMissToIncident(): boolean {
-  const { role } = getCurrentUser();
-  return role !== null && CONVERT_INCIDENT_ROLES.includes(normalizeRole(role));
+  return hasElevatedRole();
+}
+
+/** True when the signed-in user's role may edit a hazard — same roles. */
+export function canEditHazard(): boolean {
+  return hasElevatedRole();
 }

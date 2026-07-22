@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
@@ -7,7 +8,7 @@ import { HazardDetailHeader } from "./HazardDetailHeader";
 import { HazardDetailView } from "./HazardDetailView";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
-import { getCurrentUser } from "@/lib/current-user";
+import { canEditHazard, getCurrentUser } from "@/lib/current-user";
 import { mapHazardDtoToRecord, toHazardApiId } from "@/lib/map-hazard";
 
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
@@ -26,6 +27,14 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
 
   const dto = detailQuery.data?.dataModel ?? null;
   const record = dto ? mapHazardDtoToRecord(dto) : null;
+
+  // Resolve the role after mount: the token lives in localStorage, so reading
+  // it during render would mismatch the server-rendered HTML.
+  const [canEdit, setCanEdit] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time role read from localStorage token
+    setCanEdit(canEditHazard());
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-5">
@@ -70,6 +79,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
           <>
             <HazardDetailHeader
               record={record}
+              canEdit={canEdit}
               editHref={`${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
             />
             <HazardDetailView record={record} />

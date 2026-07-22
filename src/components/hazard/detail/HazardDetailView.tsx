@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { HazardWorkflow } from "./HazardWorkflow";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";

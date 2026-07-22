@@ -32,5 +32,17 @@ export type HazardKpiDto = {
   converted?: number;
 };
 
+/** One row of GET /api/Hazard/TopHazardUsers. */
+export type TopHazardUserDto = {
+  userId: number;
+  userName: string;
+  hazardCount: number;
+};
+
+/** Matches backend response for GET /api/Hazard/TopHazardUsers. */
+export type GetTopHazardUsersResponseDto = ApiEnvelopeDto<
+  TopHazardUserDto[] | null
+>;
+
 /** Matches backend response for GET /api/Hazard/HazardKpi. */
 export type GetHazardKpiResponseDto = ApiEnvelopeDto<HazardKpiDto | null>;

@@ -4,6 +4,7 @@ import {
   getAllHazard,
   getHazardById,
   getHazardKpi,
+  getTopHazardUsers,
 } from "@/services/hazard.service";
 
 export function useHazardListQuery(payload: GetAllHazardRequestDto) {
@@ -17,6 +18,13 @@ export function useHazardKpiQuery() {
   return useQuery({
     queryKey: ["hazard", "kpi"] as const,
     queryFn: () => getHazardKpi(),
+  });
+}
+
+export function useTopHazardUsersQuery() {
+  return useQuery({
+    queryKey: ["hazard", "top-users"] as const,
+    queryFn: () => getTopHazardUsers(),
   });
 }
 

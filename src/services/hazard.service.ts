@@ -7,6 +7,7 @@ import type {
   GetAllHazardResponseDto,
   GetHazardByIdResponseDto,
   GetHazardKpiResponseDto,
+  GetTopHazardUsersResponseDto,
 } from "@/dtos/res/hazard-response.dto";
 import http from "@/lib/axios";
 
@@ -14,6 +15,7 @@ const HAZARD_CREATE_PATH = "/Hazard/Hazards";
 const HAZARD_GET_ALL_PATH = "/Hazard/GetAllHazard";
 const HAZARD_BY_ID_PATH = "/Hazard/Hazard";
 const HAZARD_KPI_PATH = "/Hazard/HazardKpi";
+const HAZARD_TOP_USERS_PATH = "/Hazard/TopHazardUsers";
 
 export async function createHazard(payload: SaveHazardRequestDto) {
   const { data } = await http.post<CreateHazardResponseDto>(
@@ -38,6 +40,14 @@ export async function getAllHazard(payload: GetAllHazardRequestDto) {
 export async function getHazardKpi() {
   const { data } = await http.get<GetHazardKpiResponseDto>(HAZARD_KPI_PATH);
   console.log("getHazardKpi", data);
+
+  return data;
+}
+
+export async function getTopHazardUsers() {
+  const { data } = await http.get<GetTopHazardUsersResponseDto>(
+    HAZARD_TOP_USERS_PATH,
+  );
 
   return data;
 }

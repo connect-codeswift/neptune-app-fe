@@ -9,6 +9,34 @@ export type GetAllNearMissResponseDto = ApiEnvelopeDto<
   PagedDataDto<CreateNearMissResponseDto>
 >;
 
+/**
+ * KPI counters from GET /api/NearMiss/NearMissKpi. Key names aren't pinned
+ * down yet, so the likely spellings are optional here.
+ */
+export type NearMissKpiDto = {
+  totalNearMissCount?: number;
+  totalNearMisses?: number;
+  total?: number;
+  convertedToIncidents?: number;
+  convertedIncidents?: number;
+  converted?: number;
+};
+
+/** Matches backend response for GET /api/NearMiss/NearMissKpi. */
+export type GetNearMissKpiResponseDto = ApiEnvelopeDto<NearMissKpiDto | null>;
+
+/** One row of GET /api/NearMiss/TopNearMissUsers. */
+export type TopNearMissUserDto = {
+  userId: number;
+  userName: string;
+  nearMissCount: number;
+};
+
+/** Matches backend response for GET /api/NearMiss/TopNearMissUsers. */
+export type GetTopNearMissUsersResponseDto = ApiEnvelopeDto<
+  TopNearMissUserDto[] | null
+>;
+
 /** Matches backend response for GET /api/NearMiss/NearMiss/{id}. */
 export type GetNearMissByIdResponseDto =
   ApiEnvelopeDto<CreateNearMissResponseDto | null>;
