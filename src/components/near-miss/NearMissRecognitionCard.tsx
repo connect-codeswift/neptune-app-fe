@@ -24,7 +24,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
 
   return (
     <IncidentGlassCard className={className}>
-      <header className="mb-3 flex flex-col gap-0.5 pb-1">
+      <header className="mb-3 flex flex-col gap-0.5">
         <h3 className="text-ehs-dark-bg font-bold">Recognition</h3>
         <p className="text-ehs-muted-text text-sm">Top reporters this month</p>
       </header>
@@ -34,7 +34,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
           {reporters.map((reporter) => (
             <li
               key={reporter.userId}
-              className="flex items-center gap-2.5 border-t border-slate-900/10 py-2"
+              className="flex items-center gap-2.5 border-t border-slate-900/10 py-4"
             >
               <span className="bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold">
                 {initialsOf(reporter.userName)}

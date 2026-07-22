@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useNearMissKpiQuery,
@@ -24,6 +24,9 @@ import {
   mapNearMissDtoToRecord,
   formatNearMissDisplayId,
 } from "@/lib/map-near-miss";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { canViewNearMissInsights } from "@/lib/current-user";
+import { toUserNameLookup } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import type { NearMissRecord } from "./near-miss-data";
 
@@ -43,12 +46,26 @@ export default function NearMissPage() {
     pageNumber,
     pageSize: PAGE_SIZE,
   });
-  // console.log("nearMissListQuery", nearMissListQuery.data?.dataModel);
+  console.log("nearMissListQuery", nearMissListQuery.data?.dataModel);
 
-  const nearMissKpiQuery = useNearMissKpiQuery();
+  // Resolve the role after mount: the token lives in localStorage, so reading
+  // it during render would mismatch the server-rendered HTML.
+  const [canViewInsights, setCanViewInsights] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time role read from localStorage token
+    setCanViewInsights(canViewNearMissInsights());
+  }, []);
+
+  // Only elevated roles see the KPI cards, so nobody else pays for the call.
+  const nearMissKpiQuery = useNearMissKpiQuery(canViewInsights);
   const kpi = nearMissKpiQuery.data?.dataModel;
   const deleteMutation = useDeleteNearMissMutation();
 
+  // The list carries a userId, not a reporter name — resolve it for display.
+  const userDropdownQuery = useUserDropdownQuery();
+  const users = userDropdownQuery.data?.dataModel;
+  const userNames = useMemo(() => toUserNameLookup(users ?? []), [users]);
+  console.log("userNames", userNames);
   const page = nearMissListQuery.data?.dataModel;
   const records = useMemo(
     () => (page?.data ?? []).map(mapNearMissDtoToRecord),
@@ -80,8 +97,9 @@ export default function NearMissPage() {
         deletingId: deleteMutation.isPending
           ? (deleteMutation.variables ?? null)
           : null,
+        userNames,
       }),
-    [deleteMutation.isPending, deleteMutation.variables],
+    [deleteMutation.isPending, deleteMutation.variables, userNames],
   );
 
   const handleReportNearMiss = () => {
@@ -119,12 +137,14 @@ export default function NearMissPage() {
         <NearMissPageSkeleton />
       ) : (
         <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics */}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {NEAR_MISS_METRICS.map((metric) => (
-              <StatMetricCard key={metric.title} {...metric} />
-            ))}
-          </div>
+          {/* KPI Metrics — elevated roles only */}
+          {canViewInsights ? (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {NEAR_MISS_METRICS.map((metric) => (
+                <StatMetricCard key={metric.title} {...metric} />
+              ))}
+            </div>
+          ) : null}
 
           {/* Dedicated Filter Bar */}
           <NearMissFilterBar
@@ -136,8 +156,17 @@ export default function NearMissPage() {
             onReportNearMiss={handleReportNearMiss}
           />
 
-          {/* Records Table + Insights */}
-          <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          {/* Records Table + Insights — the table spans full width without them */}
+          <div
+            className={[
+              "grid min-w-0 items-start gap-5",
+              canViewInsights
+                ? "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
             <div className="flex min-w-0 flex-col gap-2">
               {nearMissListQuery.isError && (
                 <p className="text-ehs-red text-sm">
@@ -169,10 +198,12 @@ export default function NearMissPage() {
               />
             </div>
 
-            <div className="flex min-w-0 flex-col gap-5">
-              <NearMissHeatmapCard />
-              <NearMissRecognitionCard />
-            </div>
+            {canViewInsights ? (
+              <div className="flex min-w-0 flex-col gap-5">
+                <NearMissHeatmapCard />
+                <NearMissRecognitionCard />
+              </div>
+            ) : null}
           </div>
         </div>
       )}

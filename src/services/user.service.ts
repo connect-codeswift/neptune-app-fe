@@ -6,7 +6,6 @@ const USER_DROPDOWN_PATH = "/User/dropdown";
 export async function getUserDropdown() {
   const { data } =
     await http.get<GetUserDropdownResponseDto>(USER_DROPDOWN_PATH);
-  console.log("getUserDropdown", data);
 
   return data;
 }

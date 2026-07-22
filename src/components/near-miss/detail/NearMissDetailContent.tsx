@@ -10,8 +10,10 @@ import { NearMissDetailView } from "@/components/near-miss/detail/NearMissDetail
 import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMissHeader";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { canConvertNearMissToIncident } from "@/lib/current-user";
 import { mapNearMissDtoToRecord } from "@/lib/map-near-miss";
+import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 export type NearMissDetailContentProps = Readonly<{
   nearMissId: string;
@@ -24,7 +26,15 @@ export function NearMissDetailContent(
   const router = useRouter();
   const detailQuery = useNearMissDetailQuery(nearMissId);
   const dto = detailQuery.data?.dataModel ?? null;
-  const record = dto ? mapNearMissDtoToRecord(dto) : null;
+
+  // The record carries a userId, not a reporter name — resolve it for display.
+  const userDropdownQuery = useUserDropdownQuery();
+  const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
+
+  const mapped = dto ? mapNearMissDtoToRecord(dto) : null;
+  const record = mapped
+    ? { ...mapped, reporter: userNameFor(userNames, mapped.reporterId ?? "") }
+    : null;
 
   // Resolve the role after mount: the token lives in localStorage, so reading
   // it during render would mismatch the server-rendered HTML.

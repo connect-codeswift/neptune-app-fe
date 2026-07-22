@@ -1,3 +1,4 @@
+import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
 import type { HazardDto } from "@/dtos/res/hazard-response.dto";
 import {
@@ -29,25 +30,7 @@ export function toHazardApiId(displayId: string): string {
   return displayId.replace(/^HZ-/i, "");
 }
 
-/**
- * Age since creation, e.g. "45m" / "6h" / "3d". The backend sends a naive
- * timestamp (no offset), which .NET writes in UTC — parse it as such.
- */
-export function formatAge(createdDate: string): string {
-  const hasZone = /(?:Z|[+-]\d{2}:?\d{2})$/.test(createdDate);
-  const created = new Date(hasZone ? createdDate : `${createdDate}Z`).getTime();
-
-  if (Number.isNaN(created)) return "—";
-
-  const minutes = Math.floor((Date.now() - created) / (1000 * 60));
-  if (minutes < 1) return "0m";
-  if (minutes < 60) return `${String(minutes)}m`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${String(hours)}h`;
-
-  return `${String(Math.floor(hours / 24))}d`;
-}
+export { formatAge };
 
 const HAZARD_STATUSES: readonly HazardStatus[] = [
   "Open",

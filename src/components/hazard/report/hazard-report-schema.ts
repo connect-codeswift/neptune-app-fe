@@ -8,8 +8,18 @@ export const HAZARD_TYPE_OPTIONS: readonly SelectOption[] = [
   { value: "ergonomic", label: "Ergonomic" },
   { value: "fire-explosion", label: "Fire / Explosion" },
   { value: "environmental", label: "Environmental" },
-  { value: "other", label: "Other" },
 ];
+
+/** Compact type labels for tight layouts like the heatmap columns. */
+export const HAZARD_TYPE_SHORT_LABELS: Readonly<Record<string, string>> = {
+  "slip-trip-fall": "Slip",
+  electrical: "Elec",
+  chemical: "Chem",
+  mechanical: "Mech",
+  ergonomic: "Ergo",
+  "fire-explosion": "Fire",
+  environmental: "Envt",
+};
 
 export const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "plant-a-line-1", label: "Plant A · Line 1" },

@@ -19,3 +19,37 @@ export function toAssigneeOptions(
     return [{ value: String(id), label: label ?? `User ${String(id)}` }];
   });
 }
+
+/**
+ * Map of user id -> display name, for resolving the `userId` the near-miss and
+ * hazard payloads carry instead of a reporter name.
+ *
+ * Every id-ish field is indexed, not just the first one present: a row may
+ * carry both a table `id` and a `userId`, and only the latter matches the
+ * `userId` on a report.
+ */
+export function toUserNameLookup(
+  items: readonly UserDropdownItemDto[],
+): ReadonlyMap<string, string> {
+  const lookup = new Map<string, string>();
+  for (const item of items) {
+    const name =
+      item.name ?? item.fullName ?? item.userName ?? item.label ?? item.email;
+    if (!name) continue;
+
+    for (const id of [item.userId, item.id, item.value]) {
+      if (id !== undefined && id !== null) lookup.set(String(id), name);
+    }
+  }
+
+  return lookup;
+}
+
+/** Display name for a user id, falling back to "User 3" when unknown. */
+export function userNameFor(
+  lookup: ReadonlyMap<string, string> | undefined,
+  userId: number | string,
+): string {
+  const id = String(userId);
+  return lookup?.get(id) ?? `User ${id}`;
+}

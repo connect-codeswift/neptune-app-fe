@@ -4,6 +4,7 @@ import {
   getAllHazard,
   getHazardById,
   getHazardKpi,
+  getHazardHeatMap,
   getTopHazardUsers,
 } from "@/services/hazard.service";
 
@@ -14,10 +15,11 @@ export function useHazardListQuery(payload: GetAllHazardRequestDto) {
   });
 }
 
-export function useHazardKpiQuery() {
+export function useHazardKpiQuery(enabled = true) {
   return useQuery({
     queryKey: ["hazard", "kpi"] as const,
     queryFn: () => getHazardKpi(),
+    enabled,
   });
 }
 
@@ -25,6 +27,13 @@ export function useTopHazardUsersQuery() {
   return useQuery({
     queryKey: ["hazard", "top-users"] as const,
     queryFn: () => getTopHazardUsers(),
+  });
+}
+
+export function useHazardHeatMapQuery() {
+  return useQuery({
+    queryKey: ["hazard", "heat-map"] as const,
+    queryFn: () => getHazardHeatMap(),
   });
 }
 

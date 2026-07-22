@@ -4,6 +4,7 @@ import {
   getAllNearMiss,
   getNearMissById,
   getNearMissKpi,
+  getNearMissHeatMap,
   getTopNearMissUsers,
 } from "@/services/near-miss.service";
 
@@ -14,10 +15,11 @@ export function useNearMissListQuery(payload: GetAllNearMissRequestDto) {
   });
 }
 
-export function useNearMissKpiQuery() {
+export function useNearMissKpiQuery(enabled = true) {
   return useQuery({
     queryKey: ["near-miss", "kpi"] as const,
     queryFn: () => getNearMissKpi(),
+    enabled,
   });
 }
 
@@ -25,6 +27,13 @@ export function useTopNearMissUsersQuery() {
   return useQuery({
     queryKey: ["near-miss", "top-users"] as const,
     queryFn: () => getTopNearMissUsers(),
+  });
+}
+
+export function useNearMissHeatMapQuery() {
+  return useQuery({
+    queryKey: ["near-miss", "heat-map"] as const,
+    queryFn: () => getNearMissHeatMap(),
   });
 }
 

@@ -42,10 +42,6 @@ export function ReportNearMissForm() {
     const payload = toCreateRequest(values as NearMissReportValues);
 
     createNearMiss.mutate(payload, {
-      onSuccess: () => {
-        toast.success("Near-miss report submitted");
-        router.push(NEAR_MISS_LIST_ROUTE);
-      },
       onError: (error) => {
         toast.error(
           getMutationErrorMessage(

@@ -1,3 +1,4 @@
+import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
 import type { CreateNearMissResponseDto } from "@/dtos/res/near-miss-response.dto";
 import {
@@ -27,18 +28,7 @@ export function formatNearMissDisplayId(id: string): string {
   return id.startsWith("NM-") ? id : `NM-${id}`;
 }
 
-/** Whole hours between `dateOfEvent` and now, rendered as e.g. "36h". */
-export function formatAgeInHours(dateOfEvent: string): string {
-  const eventTime = new Date(dateOfEvent).getTime();
-
-  if (Number.isNaN(eventTime)) {
-    return "—";
-  }
-
-  const hours = Math.floor((Date.now() - eventTime) / (1000 * 60 * 60));
-
-  return hours < 0 ? "0h" : `${hours}h`;
-}
+export { formatAge };
 
 // Neither field exists on the backend response yet, so every mapped row gets
 // the same placeholder. Remove these once the API returns them.
@@ -53,9 +43,13 @@ export function mapNearMissDtoToRecord(
     hazardType: labelFor(HAZARD_TYPE_OPTIONS, dto.hazardType),
     location: labelFor(LOCATION_OPTIONS, dto.location),
     site: `${dto.subCompanyId}`,
-    reporter: `User ${dto.userId}`,
+    // Placeholder until the caller resolves the id against /User/dropdown.
+    reporter: `User ${String(dto.userId)}`,
+    reporterId: dto.userId,
     status: PLACEHOLDER_STATUS,
-    age: formatAgeInHours(dto.dateOfEvent),
+    // Age counts from when the report was filed, falling back to the event date
+    // for records created before the API returned `createdAt`.
+    age: formatAge(dto.createdAt ?? dto.dateOfEvent),
     description: dto.whatHappened,
     dateOfEvent: dto.dateOfEvent,
     contributingFactors: dto.contributingFactor.map((factor) =>

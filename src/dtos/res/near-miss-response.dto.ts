@@ -2,7 +2,10 @@ import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto"
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
 /** Created near-miss record returned by POST /api/NearMiss/NearMiss. */
-export type CreateNearMissResponseDto = CreateNearMissRequestDto;
+export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
+  /** Server-side creation timestamp; drives the table's Age column. */
+  createdAt?: string;
+};
 
 /** Matches backend response for POST /api/NearMiss/GetAllNearMiss. */
 export type GetAllNearMissResponseDto = ApiEnvelopeDto<
@@ -24,6 +27,18 @@ export type NearMissKpiDto = {
 
 /** Matches backend response for GET /api/NearMiss/NearMissKpi. */
 export type GetNearMissKpiResponseDto = ApiEnvelopeDto<NearMissKpiDto | null>;
+
+/** One cell of GET /api/NearMiss/NearMissApiForHeatMap — a location/type tally. */
+export type NearMissHeatMapCellDto = {
+  location: string;
+  type: string;
+  count: number;
+};
+
+/** Matches backend response for GET /api/NearMiss/NearMissApiForHeatMap. */
+export type GetNearMissHeatMapResponseDto = ApiEnvelopeDto<
+  NearMissHeatMapCellDto[] | null
+>;
 
 /** One row of GET /api/NearMiss/TopNearMissUsers. */
 export type TopNearMissUserDto = {

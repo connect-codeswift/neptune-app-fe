@@ -158,3 +158,14 @@ export function canConvertNearMissToIncident(): boolean {
 export function canEditHazard(): boolean {
   return hasElevatedRole();
 }
+
+/**
+ * True when the signed-in user may see the near-miss insight widgets (KPIs,
+ * heatmap, recognition) — same roles.
+ */
+export function canViewNearMissInsights(): boolean {
+  return hasElevatedRole();
+}
+export function canViewHazardInsights(): boolean {
+  return hasElevatedRole();
+}

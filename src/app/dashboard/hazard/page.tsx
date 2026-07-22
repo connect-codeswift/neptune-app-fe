@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import {
@@ -17,7 +17,7 @@ import {
   useHazardKpiQuery,
   useHazardListQuery,
 } from "@/hooks/use-hazard-queries";
-import { getCurrentUser } from "@/lib/current-user";
+import { canViewHazardInsights, getCurrentUser } from "@/lib/current-user";
 import { mapHazardDtoToRecord } from "@/lib/map-hazard";
 
 const PAGE_SIZE = 10;
@@ -35,7 +35,16 @@ export default function HazardPage() {
     subCompanyId,
     userId,
   });
-  const kpiQuery = useHazardKpiQuery();
+  // Resolve the role after mount: the token lives in localStorage, so reading
+  // it during render would mismatch the server-rendered HTML.
+  const [canViewInsights, setCanViewInsights] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time role read from localStorage token
+    setCanViewInsights(canViewHazardInsights());
+  }, []);
+
+  // Only elevated roles see the KPI cards, so nobody else pays for the call.
+  const kpiQuery = useHazardKpiQuery(canViewInsights);
 
   const page = hazardListQuery.data?.dataModel;
 
@@ -73,7 +82,9 @@ export default function HazardPage() {
     router.push("/dashboard/hazard/report");
   };
 
-  const isPageLoading = hazardListQuery.isPending || kpiQuery.isPending;
+  // A disabled query stays "pending" forever, so only wait on it when enabled.
+  const isPageLoading =
+    hazardListQuery.isPending || (canViewInsights && kpiQuery.isPending);
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-5">
@@ -87,12 +98,14 @@ export default function HazardPage() {
         <HazardPageSkeleton />
       ) : (
         <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {metrics.map((metric) => (
-              <StatMetricCard key={metric.title} {...metric} />
-            ))}
-          </div>
+          {/* KPI Metrics — elevated roles only */}
+          {canViewInsights ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {metrics.map((metric) => (
+                <StatMetricCard key={metric.title} {...metric} />
+              ))}
+            </div>
+          ) : null}
 
           {/* Filter Bar */}
           <HazardFilterBar
@@ -101,8 +114,17 @@ export default function HazardPage() {
             onReportHazard={handleReportHazard}
           />
 
-          {/* Records Table + Insights */}
-          <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          {/* Records Table + Insights — the table spans full width without them */}
+          <div
+            className={[
+              "grid min-w-0 items-start gap-5",
+              canViewInsights
+                ? "xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
             <Table
               data={filteredRecords}
               columns={hazardColumns}
@@ -120,10 +142,12 @@ export default function HazardPage() {
               }}
             />
 
-            <div className="flex min-w-0 flex-col gap-5">
-              <HazardHeatmapCard />
-              <HazardRecognitionCard />
-            </div>
+            {canViewInsights ? (
+              <div className="flex min-w-0 flex-col gap-5">
+                <HazardHeatmapCard />
+                <HazardRecognitionCard />
+              </div>
+            ) : null}
           </div>
         </div>
       )}

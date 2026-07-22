@@ -32,6 +32,18 @@ export type HazardKpiDto = {
   converted?: number;
 };
 
+/** One cell of GET /api/Hazard/HazardApiForHeatMap — a location/type tally. */
+export type HazardHeatMapCellDto = {
+  location: string;
+  type: string;
+  count: number;
+};
+
+/** Matches backend response for GET /api/Hazard/HazardApiForHeatMap. */
+export type GetHazardHeatMapResponseDto = ApiEnvelopeDto<
+  HazardHeatMapCellDto[] | null
+>;
+
 /** One row of GET /api/Hazard/TopHazardUsers. */
 export type TopHazardUserDto = {
   userId: number;

@@ -14,6 +14,8 @@ export type NearMissRecord = Readonly<{
   /** Display label for where the event happened, e.g. "Plant A · Line 2". */
   location: string;
   reporter: string;
+  /** Raw user id behind {@link reporter}; resolved to a name via /User/dropdown. */
+  reporterId?: number;
   site: string;
   status: NearMissStatus;
   age: string;
