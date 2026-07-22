@@ -4,183 +4,159 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { toast } from "@/lib/toast";
 import { AddCapaModal } from "@/components/incidents/list/capa/AddCapaModal";
+import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 
-export type CapaItem = Readonly<{
-  id: string;
-  code: string;
-  controlCategory: string; // e.g. "Substitution", "Engineering Controls", "Administrative Controls"
-  actionType: "Corrective" | "Preventive";
-  status: "In progress" | "Planning" | "Verified" | "Closed";
-  statusTone?: "blue" | "gray" | "green";
-  title: string;
-  assignee: string;
-  dueDate: string;
-  progressPercent: number;
-}>;
+export type { CapaItem };
 
 export type IncidentDetailCapaListCardProps = Readonly<{
-  capas?: readonly CapaItem[];
-  onAddCapa?: () => void;
-  incidentId?: string;
-  incidentTitle?: string;
+  capas: readonly CapaItem[];
+  incidentId: string;
+  incidentTitle: string;
+  isLoading?: boolean;
+  isSubmitting?: boolean;
+  onSubmitCapa?: (payload: {
+    controlLevel: string;
+    description: string;
+    type: string;
+    owner: string;
+    dueDate: string;
+    priority: string;
+  }) => void | Promise<void>;
   className?: string;
 }>;
-
-const DEFAULT_CAPAS: readonly CapaItem[] = [
-  {
-    id: "capa-1",
-    code: "CAPA-512",
-    controlCategory: "Substitution",
-    actionType: "Corrective",
-    status: "In progress",
-    statusTone: "gray",
-    title:
-      "Replace all 800-series press hoses with low-pressure hydraulic spec",
-    assignee: "M. Torres",
-    dueDate: "2026-05-08",
-    progressPercent: 45,
-  },
-  {
-    id: "capa-2",
-    code: "CAPA-514",
-    controlCategory: "Engineering Controls",
-    actionType: "Preventive",
-    status: "Planning",
-    statusTone: "gray",
-    title: "Install burst shielding + pressure-relief sensor with auto-shutoff",
-    assignee: "D. Park",
-    dueDate: "2026-06-04",
-    progressPercent: 10,
-  },
-  {
-    id: "capa-3",
-    code: "CAPA-515",
-    controlCategory: "Administrative Controls",
-    actionType: "Corrective",
-    status: "Verified",
-    statusTone: "green",
-    title: "Revise SOP-204 — condition-based hose inspection each shift",
-    assignee: "S. Mitchell",
-    dueDate: "2026-05-10",
-    progressPercent: 100,
-  },
-];
 
 export function IncidentDetailCapaListCard(
   props: Readonly<IncidentDetailCapaListCardProps>,
 ) {
   const {
-    capas = DEFAULT_CAPAS,
-    onAddCapa,
-    incidentId = "INC-2025-DET-001",
-    incidentTitle = "Hydraulic Press Hose Rupture & Fluid Release",
+    capas,
+    incidentId,
+    incidentTitle,
+    isLoading = false,
+    isSubmitting = false,
+    onSubmitCapa,
     className = "",
   } = props;
 
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
 
-  const handleAdd = onAddCapa ?? (() => setIsAddCapaOpen(true));
-
   return (
     <>
-      <IncidentGlassCard paddingClassName="p-4 sm:p-5" className={className}>
-        {/* Header Bar */}
-        <div className="mb-4 flex flex-col gap-3 border-b border-[rgba(15,23,42,0.06)] pb-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-0.5">
-            <Text as="h3" className="text-ehs-dark-bg text-[15px] font-bold">
+      <IncidentGlassCard
+        paddingClassName="p-[23px]"
+        incidentGlassCardClassName="gap-[14px]"
+        className={["bg-white/62", className].filter(Boolean).join(" ")}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text
+              as="h3"
+              className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            >
               Linked corrective & preventive actions
             </Text>
-            <span className="text-ehs-muted-text text-[11px]">
-              {capas.length} linked to {incidentId}
+            <span className="text-[11px] leading-normal text-[#8892a3]">
+              {isLoading
+                ? `Loading CAPAs for ${incidentId}…`
+                : `${String(capas.length)} linked to ${incidentId}`}
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="inline-flex items-center gap-1 self-start rounded-[6px] bg-[#0891a6] px-3.5 py-1.5 text-[11.5px] font-bold text-white shadow-[0px_4px_12px_-4px_#0891a6] transition-colors hover:bg-[#067485] sm:self-auto"
-          >
-            <Icon icon="mdi:plus" className="size-4" />
-            <span>Add CAPA</span>
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsAddCapaOpen(true)}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 rounded-[10px] bg-[#0891a6] px-3 py-[7.5px] text-[12px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067a8c] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Icon
+                icon="mdi:plus"
+                className="size-[13px]"
+                aria-hidden="true"
+              />
+              Add CAPA
+            </button>
+          </div>
         </div>
 
-        {/* CAPA Action Cards List */}
-        <div className="flex flex-col gap-3.5">
-          {capas.length === 0 ? (
-            <div className="text-ehs-muted-text py-8 text-center text-[12px]">
+        <div className="flex flex-col gap-3">
+          {isLoading ? (
+            <div className="py-8 text-center text-[12px] text-[#8892a3]">
+              Loading linked CAPAs…
+            </div>
+          ) : capas.length === 0 ? (
+            <div className="py-8 text-center text-[12px] text-[#8892a3]">
               No linked CAPA actions found for this incident.
             </div>
           ) : (
             capas.map((item) => {
-              const isCompleted = item.progressPercent === 100;
+              const isCompleted =
+                item.progressPercent === 100 || item.status === "Verified";
+
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-2.5 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/60 p-3.5 shadow-sm transition-all hover:border-[rgba(15,23,42,0.15)] sm:p-4"
+                  className="flex flex-col gap-[7px] rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] p-[17px]"
                 >
-                  {/* Row 1: Code, Control Category Pill, Type Pill, Status Badge */}
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-ehs-dark-bg text-[12px] font-bold">
-                        {item.code}
-                      </span>
-                      <span className="text-ehs-dark-bg inline-flex items-center gap-1 rounded-full bg-[rgba(15,23,42,0.06)] px-2.5 py-0.5 text-[10px] font-semibold">
-                        <span className="size-1.5 rounded-full bg-slate-500" />
-                        {item.controlCategory}
-                      </span>
-                      <span className="text-ehs-gray rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-0.5 text-[10px] font-semibold">
-                        {item.actionType}
-                      </span>
-                    </div>
-
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                    <span className="text-[11px] font-bold text-[#8892a3]">
+                      {item.code}
+                    </span>
+                    <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] py-[3px] text-[10.5px] font-bold text-[#566072]">
+                      <span className="size-1.5 rounded-[3px] bg-[#566072]" />
+                      {item.controlCategory}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-[rgba(86,96,114,0.14)] px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]">
+                      {item.actionType}
+                    </span>
                     <span
                       className={[
-                        "inline-flex shrink-0 items-center gap-0.5 rounded-[6px] px-2.5 py-0.5 text-[10px] font-bold tracking-[0.2px]",
-                        item.statusTone === "green" ||
-                        item.status === "Verified"
-                          ? "bg-[#10b981]/12 text-[#0f766e]"
-                          : "text-ehs-gray bg-[rgba(15,23,42,0.07)]",
+                        "ml-auto inline-flex items-center rounded-full px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]",
+                        item.status === "Planning"
+                          ? "bg-[rgba(86,96,114,0.14)]"
+                          : "bg-[rgba(11,19,32,0.14)]",
                       ].join(" ")}
                     >
                       {item.status}
                     </span>
                   </div>
 
-                  {/* Row 2: Title */}
-                  <h4 className="text-ehs-dark-bg text-[13px] leading-snug font-bold">
+                  <h4 className="text-[13.5px] leading-[19.58px] font-normal text-[#0b1320]">
                     {item.title}
                   </h4>
 
-                  {/* Row 3: Assignee, Due Date, Progress Bar */}
-                  <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-ehs-gray flex items-center gap-4 text-[11px] font-semibold">
-                      <span className="inline-flex items-center gap-1">
-                        <Icon icon="mdi:account-outline" className="size-3.5" />
+                  <div className="flex flex-col gap-2 pt-[3px] sm:flex-row sm:items-center sm:gap-[14px]">
+                    <div className="flex shrink-0 items-center gap-[14px]">
+                      <span className="inline-flex items-center gap-[5px] text-[11px] text-[#566072]">
+                        <Icon
+                          icon="mdi:account-outline"
+                          className="size-3"
+                          aria-hidden="true"
+                        />
                         {item.assignee}
                       </span>
-                      <span className="inline-flex items-center gap-1">
+                      <span className="inline-flex items-center gap-[5px] text-[11px] text-[#566072]">
                         <Icon
                           icon="mdi:calendar-outline"
-                          className="size-3.5"
+                          className="size-3"
+                          aria-hidden="true"
                         />
                         {item.dueDate}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:w-[220px]">
-                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]">
                         <div
                           className={[
                             "h-full rounded-full transition-all duration-300",
                             isCompleted ? "bg-[#10b981]" : "bg-[#0891a6]",
                           ].join(" ")}
-                          style={{ width: `${item.progressPercent}%` }}
+                          style={{ width: `${String(item.progressPercent)}%` }}
                         />
                       </div>
-                      <span className="text-ehs-gray min-w-[32px] shrink-0 text-right text-[10.5px] font-bold">
+                      <span className="min-w-[30px] shrink-0 text-right text-[11px] text-[#8892a3]">
                         {item.progressPercent}%
                       </span>
                     </div>
@@ -192,21 +168,15 @@ export function IncidentDetailCapaListCard(
         </div>
       </IncidentGlassCard>
 
-      {/* Shared Add CAPA Modal Portal */}
-      {isAddCapaOpen && (
+      {isAddCapaOpen ? (
         <AddCapaModal
           incidentId={incidentId}
           incidentTitle={incidentTitle}
+          isSubmitting={isSubmitting}
           onClose={() => setIsAddCapaOpen(false)}
-          onSubmit={(payload) => {
-            toast.success(
-              "CAPA Action Created",
-              `Added new ${payload.type} action assigned to ${payload.owner}.`,
-            );
-            setIsAddCapaOpen(false);
-          }}
+          onSubmit={onSubmitCapa}
         />
-      )}
+      ) : null}
     </>
   );
 }

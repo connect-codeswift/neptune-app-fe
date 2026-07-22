@@ -22,6 +22,7 @@ import {
   ReportTextField,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
+import { toast } from "@/lib/toast";
 
 export type ReportIncidentStepTwoProps = Readonly<{
   form: ReportIncidentFormState;
@@ -31,12 +32,31 @@ export type ReportIncidentStepTwoProps = Readonly<{
   className?: string;
 }>;
 
+function validateStepTwo(form: ReportIncidentFormState): string | null {
+  if (!form.mechanismOfInjury.trim()) {
+    return "Select a mechanism of injury.";
+  }
+  if (!form.natureOfInjury.trim()) {
+    return "Select a nature of injury.";
+  }
+  return null;
+}
+
 export function ReportIncidentStepTwo(
   props: Readonly<ReportIncidentStepTwoProps>,
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
   const photos = form.photos ?? [];
   const isFirstAid = form.severity === "first-aid";
+
+  const handleContinue = () => {
+    const validationError = validateStepTwo(form);
+    if (validationError) {
+      toast.error("Missing required fields", validationError);
+      return;
+    }
+    onContinue?.();
+  };
 
   return (
     <IncidentGlassCard
@@ -276,7 +296,7 @@ export function ReportIncidentStepTwo(
             <Button
               type="button"
               variant="primary"
-              onClick={onContinue}
+              onClick={handleContinue}
               className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
             >
               Continue

@@ -2,6 +2,7 @@
 
 import type {
   BodyPartId,
+  BodyPartSideMap,
   BodySide,
 } from "@/components/incidents/report/shared/report-incident-data";
 
@@ -257,17 +258,21 @@ function isPathSelected(
   path: BodyPath,
   view: ReportBodyMapView,
   selectedParts: readonly BodyPartId[],
-  bodySide: BodySide,
+  bodyPartSides: BodyPartSideMap,
+  fallbackSide: BodySide,
 ) {
   if (path.decorative) return false;
   if (!selectedParts.includes(path.part)) return false;
   if (!path.lane || path.lane === "center") return true;
-  return laneToBodySide(view, path.lane) === bodySide;
+  const pathSide = laneToBodySide(view, path.lane);
+  const stored = bodyPartSides[path.part] ?? fallbackSide;
+  return stored === "Both" || stored === pathSide;
 }
 
 export type ReportBodyMapSvgProps = Readonly<{
   view: ReportBodyMapView;
   selectedParts: readonly BodyPartId[];
+  bodyPartSides: BodyPartSideMap;
   bodySide: BodySide;
   onSelectPart: (part: BodyPartId, side?: BodySide) => void;
   className?: string;
@@ -277,6 +282,7 @@ export function ReportBodyMapSvg(props: Readonly<ReportBodyMapSvgProps>) {
   const {
     view,
     selectedParts,
+    bodyPartSides,
     bodySide,
     onSelectPart,
     className = "",
@@ -299,6 +305,7 @@ export function ReportBodyMapSvg(props: Readonly<ReportBodyMapSvgProps>) {
           path,
           view,
           selectedParts,
+          bodyPartSides,
           bodySide,
         );
 

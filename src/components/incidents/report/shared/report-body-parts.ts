@@ -31,28 +31,36 @@ export const BODY_PART_OPTIONS: readonly BodyPartOption[] = [
 
 export type BodySide = "Left" | "Right";
 
+/** Per-part side for multi-select (e.g. Right hand + Left foot). */
+export type BodyPartSideValue = BodySide | "Both";
+export type BodyPartSideMap = Readonly<
+  Partial<Record<BodyPartId, BodyPartSideValue>>
+>;
+
+export function isBodyPartSided(part: BodyPartId): boolean {
+  return BODY_PART_OPTIONS.find((option) => option.id === part)?.sided === true;
+}
+
 export function formatBodyPartSelection(
   bodyParts: readonly BodyPartId[],
   bodySide: BodySide,
+  bodyPartSides: BodyPartSideMap = {},
 ): string {
   if (bodyParts.length === 0) {
     return "None selected";
   }
 
-  const labels = bodyParts.map(
-    (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
-  );
-  const primary = BODY_PART_OPTIONS.find((part) => part.id === bodyParts[0]);
-  const showSide = primary?.sided !== false && bodyParts.some((id) => {
-    const option = BODY_PART_OPTIONS.find((part) => part.id === id);
-    return option?.sided;
-  });
+  return bodyParts
+    .map((id) => {
+      const option = BODY_PART_OPTIONS.find((part) => part.id === id);
+      const label = option?.label ?? id;
+      if (!option?.sided) {
+        return label;
+      }
 
-  if (labels.length === 1) {
-    return showSide ? `${labels[0]} · ${bodySide}` : labels[0];
-  }
-
-  return showSide
-    ? `${labels.join(", ")} · ${bodySide}`
-    : labels.join(", ");
+      const side = bodyPartSides[id] ?? bodySide;
+      const sideLabel = side === "Both" ? "Left & Right" : side;
+      return `${label} · ${sideLabel}`;
+    })
+    .join(", ");
 }

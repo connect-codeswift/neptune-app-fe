@@ -3,6 +3,7 @@
 import { Text } from "@/components/Text";
 import type {
   BodyPartId,
+  BodyPartSideMap,
   BodySide,
 } from "@/components/incidents/report/shared/report-incident-data";
 import {
@@ -15,6 +16,7 @@ export type { ReportBodyMapView };
 export type ReportBodyMapFigureProps = Readonly<{
   view: ReportBodyMapView;
   selectedParts: readonly BodyPartId[];
+  bodyPartSides: BodyPartSideMap;
   bodySide: BodySide;
   onSelectPart: (part: BodyPartId, side?: BodySide) => void;
   className?: string;
@@ -29,6 +31,7 @@ export function ReportBodyMapFigure(
   const {
     view,
     selectedParts,
+    bodyPartSides,
     bodySide,
     onSelectPart,
     className = "",
@@ -38,7 +41,7 @@ export function ReportBodyMapFigure(
   return (
     <div
       className={[
-        "flex w-full flex-col items-center gap-1 sm:gap-1.5 self-stretch rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:px-3 sm:pt-2.5",
+        "flex w-full flex-col items-center gap-1 self-stretch rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:gap-1.5 sm:px-3 sm:pt-2.5",
         className,
       ]
         .filter(Boolean)
@@ -55,6 +58,7 @@ export function ReportBodyMapFigure(
         <ReportBodyMapSvg
           view={view}
           selectedParts={selectedParts}
+          bodyPartSides={bodyPartSides}
           bodySide={bodySide}
           onSelectPart={onSelectPart}
         />

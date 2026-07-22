@@ -50,6 +50,8 @@ export async function uploadFileToCloudinary(
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
+  formData.append("use_filename", "true");
+  formData.append("unique_filename", "true");
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -69,8 +71,7 @@ export async function uploadFileToCloudinary(
     );
   }
 
-  const displayName =
-    file.name.replace(/\.[^.]+$/, "") || payload.original_filename || "file";
+  const displayName = file.name.trim() || payload.original_filename || "file";
 
   const bytes = payload.bytes ?? file.size;
   const format = payload.format ?? (isPdf ? "pdf" : "");

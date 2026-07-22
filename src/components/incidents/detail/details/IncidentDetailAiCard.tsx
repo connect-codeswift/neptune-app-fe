@@ -7,29 +7,51 @@ export type IncidentDetailAiCardProps = Readonly<{
   className?: string;
 }>;
 
+const DEFAULT_INSIGHT =
+  "This is the third hose-related incident on Press #4 in 18 months. Consider preventive replacement schedule + supplier review.";
+
 export function IncidentDetailAiCard(props: Readonly<IncidentDetailAiCardProps>) {
-  const {
-    insightText = "This is the third hose-related incident on Press #4 in 18 months. Consider preventive replacement schedule + supplier review.",
-    className = "",
-  } = props;
+  const { insightText = DEFAULT_INSIGHT, className = "" } = props;
+  const text = insightText.trim() || DEFAULT_INSIGHT;
+
+  const highlight = "third hose-related incident";
+  const highlightIndex = text.toLowerCase().indexOf(highlight);
+  const before =
+    highlightIndex >= 0 ? text.slice(0, highlightIndex) : text;
+  const matched =
+    highlightIndex >= 0
+      ? text.slice(highlightIndex, highlightIndex + highlight.length)
+      : "";
+  const after =
+    highlightIndex >= 0
+      ? text.slice(highlightIndex + highlight.length)
+      : "";
 
   return (
     <div
       className={[
-        "from-ehs-light-blue to-ehs-light-blue-hover border-ehs-light-blue-active flex flex-col gap-2 rounded-[12px] border bg-gradient-to-r p-4 shadow-sm",
+        "flex flex-col gap-[7px] rounded-[20px] border border-[rgba(8,145,166,0.3)] bg-[rgba(8,145,166,0.18)] p-[19px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="text-ehs-normal-blue flex items-center gap-1.5">
-        <Icon icon="mdi:creation-outline" className="size-3.5" />
-        <span className="text-[9.5px] font-bold tracking-[1px] uppercase">
-          AI INSIGHT
+      <div className="flex items-center gap-1.5 text-[#056e7e]">
+        <Icon icon="mdi:creation-outline" className="size-[13px]" aria-hidden="true" />
+        <span className="text-[10px] font-bold tracking-[1px] uppercase">
+          AI insight
         </span>
       </div>
-      <p className="text-[11.5px] leading-relaxed text-[#2a3446]">
-        {insightText}
+      <p className="text-[12px] leading-[18.6px] text-[#2a3446]">
+        {matched ? (
+          <>
+            {before}
+            <span className="font-bold">{matched}</span>
+            {after}
+          </>
+        ) : (
+          text
+        )}
       </p>
     </div>
   );
