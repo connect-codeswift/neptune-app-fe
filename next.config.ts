@@ -4,6 +4,7 @@ const apiProxyTarget =
   process.env.API_PROXY_TARGET ?? "https://neptune-be-stag.codeswift.org/api";
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   reactCompiler: true,
   images: {
     remotePatterns: [
