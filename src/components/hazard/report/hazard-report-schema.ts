@@ -8,8 +8,18 @@ export const HAZARD_TYPE_OPTIONS: readonly SelectOption[] = [
   { value: "ergonomic", label: "Ergonomic" },
   { value: "fire-explosion", label: "Fire / Explosion" },
   { value: "environmental", label: "Environmental" },
-  { value: "other", label: "Other" },
 ];
+
+/** Compact type labels for tight layouts like the heatmap columns. */
+export const HAZARD_TYPE_SHORT_LABELS: Readonly<Record<string, string>> = {
+  "slip-trip-fall": "Slip",
+  electrical: "Elec",
+  chemical: "Chem",
+  mechanical: "Mech",
+  ergonomic: "Ergo",
+  "fire-explosion": "Fire",
+  environmental: "Envt",
+};
 
 export const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "plant-a-line-1", label: "Plant A · Line 1" },
@@ -25,6 +35,8 @@ export type HazardReportValues = {
   hazardType: string;
   location: string;
   description: string;
+  /** Secure Cloudinary URLs of the attached photo evidence. */
+  photos: string[];
 };
 
 export const hazardReportSchema: FormSchema = [
@@ -36,6 +48,9 @@ export const hazardReportSchema: FormSchema = [
     colSpan: 6,
     placeholder: "Select hazard type",
     options: HAZARD_TYPE_OPTIONS,
+    allowCustom: true,
+    addCustomLabel: "Add custom hazard type",
+    addCustomPlaceholder: "e.g. Confined space entry",
   },
   {
     type: "select",
@@ -45,6 +60,9 @@ export const hazardReportSchema: FormSchema = [
     colSpan: 6,
     placeholder: "Select location",
     options: LOCATION_OPTIONS,
+    allowCustom: true,
+    addCustomLabel: "Add custom location",
+    addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
   },
   {
     type: "textarea",
@@ -55,5 +73,15 @@ export const hazardReportSchema: FormSchema = [
     rows: 4,
     placeholder:
       "Describe the hazard in detail. What did you observe? Where exactly? What is the potential risk?",
+  },
+  {
+    type: "photo",
+    name: "photos",
+    label: "Photo Evidence",
+    colSpan: 12,
+    // The create endpoint stores a single image URL.
+    maxFiles: 1,
+    placeholder: "Attach Photo Evidence",
+    helperText: "Photos greatly improve resolution speed",
   },
 ];

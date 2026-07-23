@@ -1,32 +1,74 @@
-import { Fragment } from "react";
+"use client";
+
+import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { useHazardHeatMapQuery } from "@/hooks/use-hazard-queries";
+import {
+  HAZARD_TYPE_SHORT_LABELS,
+  LOCATION_OPTIONS,
+} from "@/components/hazard/report/hazard-report-schema";
+import type { SelectOption } from "@/components/form-builder";
+import type { HazardHeatMapCellDto } from "@/dtos/res/hazard-response.dto";
 
-const AREAS = ["Mech", "Elec", "Chem", "Ergo", "Slip"] as const;
+/** Slugs come back from the API; show the label the reporter picked. */
+function labelFor(options: readonly SelectOption[], value: string): string {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
 
-type HeatmapRow = Readonly<{
-  label: string;
-  values: readonly (number | null)[];
-}>;
+/**
+ * Short column label for a hazard type, e.g. "mechanical" -> "Mech". Custom
+ * types aren't in the map, so fall back to their first four letters.
+ */
+function shortTypeLabel(type: string): string {
+  const known = HAZARD_TYPE_SHORT_LABELS[type];
+  if (known) return known;
 
-const HEATMAP_ROWS: readonly HeatmapRow[] = [
-  { label: "Plant A", values: [4, 2, 5, 1, 3] },
-  { label: "Plant B", values: [6, 3, 1, 2, 2] },
-  { label: "Whse 1", values: [2, 1, null, 3, 4] },
-  { label: "Whse 2", values: [1, 1, 1, null, 2] },
-  { label: "Whse 3", values: [3, 2, 1, 1, 1] },
-];
+  const word = type.split(/[-\s/]+/)[0] ?? type;
+  return word.slice(0, 4).replace(/^./, (char) => char.toUpperCase());
+}
 
-// Map a report count to the teal fill opacity used in the Figma heatmap.
-function cellStyle(value: number | null) {
+/** Map a report count to the teal fill opacity used in the Figma heatmap. */
+function cellStyle(value: number | null, max: number) {
   if (value == null) return { backgroundColor: "rgba(255,255,255,0.62)" };
-  const alpha = Math.min(0.22 + (value - 1) * 0.116, 0.8);
-  return { backgroundColor: `rgba(8,145,166,${alpha.toFixed(3)})` };
+  const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
+  return {
+    backgroundColor: `rgba(8,145,166,${(0.22 + ratio * 0.58).toFixed(3)})`,
+  };
+}
+
+/** Pivot the flat location/type tallies into the grid the card renders. */
+function toGrid(cells: readonly HazardHeatMapCellDto[]) {
+  const locations = [...new Set(cells.map((cell) => cell.location))];
+  const types = [...new Set(cells.map((cell) => cell.type))];
+
+  const counts = new Map(
+    cells.map((cell) => [`${cell.location}|${cell.type}`, cell.count]),
+  );
+
+  const rows = locations.map((location) => ({
+    key: location,
+    label: labelFor(LOCATION_OPTIONS, location),
+    values: types.map((type) => counts.get(`${location}|${type}`) ?? null),
+  }));
+
+  return {
+    columns: types.map((type) => ({
+      key: type,
+      label: shortTypeLabel(type),
+    })),
+    rows,
+    max: Math.max(1, ...cells.map((cell) => cell.count)),
+  };
 }
 
 export type HazardHeatmapCardProps = Readonly<{ className?: string }>;
 
 export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
   const { className = "" } = props;
+
+  const heatMapQuery = useHazardHeatMapQuery();
+  const cells = heatMapQuery.data?.dataModel;
+  const { columns, rows, max } = useMemo(() => toGrid(cells ?? []), [cells]);
 
   return (
     <IncidentGlassCard className={className}>
@@ -35,44 +77,57 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
         <p className="text-ehs-muted-text text-sm">Reports last 30 days</p>
       </header>
 
-      <div
-        className="grid gap-1"
-        style={{ gridTemplateColumns: "auto repeat(5, minmax(0, 1fr))" }}
-      >
-        {/* Column header row: empty corner + category labels */}
-        <span aria-hidden="true" />
-        {AREAS.map((area) => (
-          <span key={area} className="text-ehs-muted-text text-center text-sm">
-            {area}
-          </span>
-        ))}
-
-        {/* Data rows: area label + heat cells */}
-        {HEATMAP_ROWS.map((row) => (
-          <Fragment key={row.label}>
-            <span className="text-ehs-muted-text flex items-center pr-2 text-sm whitespace-nowrap">
-              {row.label}
+      {rows.length > 0 ? (
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `auto repeat(${String(columns.length)}, minmax(0, 1fr))`,
+          }}
+        >
+          {/* Column header row: empty corner + hazard type labels */}
+          <span aria-hidden="true" />
+          {columns.map((column) => (
+            <span
+              key={column.key}
+              className="text-ehs-muted-text truncate text-center text-sm"
+            >
+              {column.label}
             </span>
-            {row.values.map((value, index) => (
-              <div
-                key={AREAS[index]}
-                style={cellStyle(value)}
-                className="flex h-8 items-center justify-center rounded border border-slate-900/10 text-xs font-bold"
-              >
-                <span
-                  className={
-                    value != null && value >= 4
-                      ? "text-white"
-                      : "text-slate-700"
-                  }
+          ))}
+
+          {/* Data rows: location label + heat cells */}
+          {rows.map((row) => (
+            <Fragment key={row.key}>
+              <span className="text-ehs-muted-text flex items-center pr-2 text-sm whitespace-nowrap">
+                {row.label}
+              </span>
+              {row.values.map((value, index) => (
+                <div
+                  key={columns[index].key}
+                  style={cellStyle(value, max)}
+                  className="flex h-8 items-center justify-center rounded border border-slate-900/10 text-xs font-bold"
                 >
-                  {value ?? ""}
-                </span>
-              </div>
-            ))}
-          </Fragment>
-        ))}
-      </div>
+                  <span
+                    className={
+                      value != null && value >= max * 0.75
+                        ? "text-white"
+                        : "text-slate-700"
+                    }
+                  >
+                    {value ?? ""}
+                  </span>
+                </div>
+              ))}
+            </Fragment>
+          ))}
+        </div>
+      ) : (
+        <p className="text-ehs-muted-text text-sm">
+          {heatMapQuery.isPending
+            ? "Loading heatmap..."
+            : "No hazards reported in this period."}
+        </p>
+      )}
     </IncidentGlassCard>
   );
 }

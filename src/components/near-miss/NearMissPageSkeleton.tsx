@@ -90,7 +90,7 @@ export function NearMissPageSkeleton() {
 
         <div className="flex min-w-0 flex-col gap-5">
           {/* Heatmap placeholder */}
-          <IncidentGlassCard className="min-w-0 gap-7">
+          <IncidentGlassCard incidentGlassCardClassName="min-w-0 gap-3">
             <Skeleton className="h-3 w-36" />
             <div className="flex flex-col gap-3">
               {Array.from({ length: 5 }).map((_, rowIndex) => (

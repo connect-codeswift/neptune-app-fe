@@ -22,13 +22,13 @@ export function AppShell(props: Readonly<AppShellProps>) {
   }, [router]);
 
   return (
-    <div className="bg-ehs-light-bg lg:ml-68 flex min-h-screen min-w-0 flex-col lg:flex-row">
+    <div className="flex min-h-screen min-w-0 flex-col lg:ml-68 lg:flex-row">
       {/* Mobile top navigation header */}
-      <header className="border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 backdrop-blur-[14px] flex h-14 shrink-0 items-center gap-3 border-b lg:hidden z-30">
+      <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 backdrop-blur-[14px] lg:hidden">
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.08)] text-ehs-gray hover:bg-ehs-light-bg"
+          className="text-ehs-gray hover:bg-ehs-light-bg inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.08)]"
           aria-label="Open navigation menu"
         >
           <Icon icon="mdi:menu" className="text-xl" />
@@ -47,14 +47,14 @@ export function AppShell(props: Readonly<AppShellProps>) {
       {/* Sidebar container */}
       <div
         className={[
-          "bg-ehs-light-bg fixed top-0 left-0 w-68 h-full z-50 transition-transform duration-300 lg:translate-x-0 lg:block",
+          "bg-ehs-light-bg fixed top-0 left-0 z-50 h-full w-68 transition-transform duration-300 lg:block lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         <DashboardSidebar />
       </div>
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden px-1.5 py-2">
         {children}
       </div>
     </div>

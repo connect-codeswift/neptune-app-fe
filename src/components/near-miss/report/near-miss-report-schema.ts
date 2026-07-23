@@ -8,7 +8,6 @@ export const HAZARD_TYPE_OPTIONS: readonly SelectOption[] = [
   { value: "ergonomic", label: "Ergonomic" },
   { value: "fire-explosion", label: "Fire / Explosion" },
   { value: "environmental", label: "Environmental" },
-  { value: "other", label: "Other" },
 ];
 
 export const LOCATION_OPTIONS: readonly SelectOption[] = [
@@ -56,6 +55,9 @@ export const nearMissReportSchema: FormSchema = [
     colSpan: 6,
     placeholder: "Select hazard type",
     options: HAZARD_TYPE_OPTIONS,
+    allowCustom: true,
+    addCustomLabel: "Add custom hazard type",
+    addCustomPlaceholder: "e.g. Confined space entry",
   },
   {
     type: "select",
@@ -65,6 +67,9 @@ export const nearMissReportSchema: FormSchema = [
     colSpan: 12,
     placeholder: "Select location",
     options: LOCATION_OPTIONS,
+    allowCustom: true,
+    addCustomLabel: "Add custom location",
+    addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
   },
   {
     type: "textarea",
