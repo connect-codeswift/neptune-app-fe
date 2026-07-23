@@ -26,7 +26,7 @@ function SearchField(props: Readonly<{ placeholder: string }>) {
   const { placeholder } = props;
 
   return (
-    <div className="relative w-88 min-w-0">
+    <div className="relative w-full min-w-0 sm:w-88">
       <Icon
         icon="mdi:magnify"
         className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
@@ -53,17 +53,19 @@ function DateRangeButton(
     <button
       type="button"
       onClick={onClick}
-      className={`${headerControlClass} text-ehs-dark-bg gap-1.5 rounded-lg border px-3 py-2.5 text-sm`}
+      className={`${headerControlClass} text-ehs-dark-bg min-w-0 gap-1.5 rounded-lg border px-2.5 py-2 text-sm sm:px-3 sm:py-2.5`}
     >
       <Icon
         icon="mdi:calendar-outline"
-        className="text-ehs-muted-text text-base"
+        className="text-ehs-muted-text shrink-0 text-base"
         aria-hidden="true"
       />
-      <span className="whitespace-nowrap">{label}</span>
+      <span className="max-w-[9rem] truncate whitespace-nowrap sm:max-w-none">
+        {label}
+      </span>
       <Icon
         icon="mdi:chevron-down"
-        className="text-ehs-muted-text text-base"
+        className="text-ehs-muted-text shrink-0 text-base"
         aria-hidden="true"
       />
     </button>
@@ -153,47 +155,42 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
   const showNotifications =
     onNotificationsClick !== undefined || hasUnreadNotifications !== undefined;
 
-  const hasActions =
-    Boolean(searchPlaceholder) ||
+  const showRightControls =
     Boolean(dateRangeLabel) ||
     Boolean(siteChangerLabel) ||
     Boolean(actionLabel) ||
-    showNotifications;
+    showNotifications ||
+    (!searchonleft && Boolean(searchPlaceholder));
 
   return (
     <header
       className={[
-        "flex flex-wrap items-center gap-4 px-4 py-4",
-        hasActions ? "justify-between" : "",
+        "flex min-w-0 flex-col gap-3 px-3 py-4 sm:px-4",
+        "lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {title ? (
-        <Text
-          as="h1"
-          className="text-ehs-darker text-2xl font-bold tracking-tight"
-        >
-          {title}
-        </Text>
-      ) : null}
-      {searchonleft ? (
-        <>
-          {searchPlaceholder ? (
-            <SearchField placeholder={searchPlaceholder} />
-          ) : null}
-        </>
-      ) : null}
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        {title ? (
+          <Text
+            as="h1"
+            className="text-ehs-darker shrink-0 text-xl font-bold tracking-tight sm:text-2xl"
+          >
+            {title}
+          </Text>
+        ) : null}
 
-      {hasActions ? (
-        <div className="flex flex-wrap items-center gap-3">
-          {!searchonleft ? (
-            <>
-              {searchPlaceholder ? (
-                <SearchField placeholder={searchPlaceholder} />
-              ) : null}
-            </>
+        {searchonleft && searchPlaceholder ? (
+          <SearchField placeholder={searchPlaceholder} />
+        ) : null}
+      </div>
+
+      {showRightControls ? (
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
+          {!searchonleft && searchPlaceholder ? (
+            <SearchField placeholder={searchPlaceholder} />
           ) : null}
 
           {dateRangeLabel ? (

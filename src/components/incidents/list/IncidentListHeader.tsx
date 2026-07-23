@@ -15,7 +15,12 @@ export type IncidentListHeaderProps = Readonly<{
   onDateRangeClick?: () => void;
   onNotificationsClick?: () => void;
   hasUnreadNotifications?: boolean;
+  /** Primary CTA href (incidents report, document upload, etc.). */
   reportHref?: string;
+  /** Primary CTA label. Defaults to “Report incident”. */
+  actionLabel?: string;
+  /** Short label for small screens. Defaults to first word of actionLabel / “Report”. */
+  actionLabelShort?: string;
   className?: string;
 }>;
 
@@ -36,8 +41,13 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     onNotificationsClick,
     hasUnreadNotifications = true,
     reportHref = "/incidents/report",
+    actionLabel = "Report incident",
+    actionLabelShort,
     className = "",
   } = props;
+
+  const shortLabel =
+    actionLabelShort ?? actionLabel.split(/\s+/)[0] ?? "Report";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -139,8 +149,8 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
             className="w-full rounded-lg px-3 py-2 text-[13px] sm:w-auto sm:px-4"
           >
             <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
-            <span className="sm:hidden">Report</span>
-            <span className="hidden sm:inline">Report incident</span>
+            <span className="sm:hidden">{shortLabel}</span>
+            <span className="hidden sm:inline">{actionLabel}</span>
           </Button>
         </Link>
       </div>
