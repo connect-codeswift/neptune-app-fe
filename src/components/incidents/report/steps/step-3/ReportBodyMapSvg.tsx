@@ -2,6 +2,7 @@
 
 import type {
   BodyPartId,
+  BodyPartSideMap,
   BodySide,
 } from "@/components/incidents/report/shared/report-incident-data";
 
@@ -89,12 +90,12 @@ const FRONT_PATHS: readonly BodyPath[] = [
     d: "M43.1785 103.113H89.4007L85.8451 128.002H46.734L43.1785 103.113Z",
   },
   {
-    part: "arm",
+    part: "upper-arm",
     lane: "left",
     d: "M36.0672 48.8887L30.7338 53.3331L28.9561 83.5553H36.0672V48.8887Z",
   },
   {
-    part: "arm",
+    part: "forearm",
     lane: "left",
     d: "M28.9559 83.5566H36.0671L34.2893 120.89L25.4004 122.668L28.9559 83.5566Z",
   },
@@ -104,12 +105,12 @@ const FRONT_PATHS: readonly BodyPath[] = [
     d: "M27.1781 124.447C25.4004 126.225 24.5115 128.595 24.5115 131.558V138.669C24.5115 142.225 25.993 144.595 28.9559 145.781H32.5115C34.8818 145.781 36.067 144.003 36.067 140.447V126.225L27.1781 124.447Z",
   },
   {
-    part: "arm",
+    part: "upper-arm",
     lane: "right",
     d: "M96.5127 48.8887L101.846 53.3331L103.624 83.5553H96.5127V48.8887Z",
   },
   {
-    part: "arm",
+    part: "forearm",
     lane: "right",
     d: "M103.624 83.5566H96.5127L98.2905 120.89L107.179 122.668L103.624 83.5566Z",
   },
@@ -119,12 +120,12 @@ const FRONT_PATHS: readonly BodyPath[] = [
     d: "M105.402 124.447C107.179 126.225 108.068 128.595 108.068 131.558V138.669C108.068 142.225 106.587 144.595 103.624 145.781H100.068C97.6979 145.781 96.5127 144.003 96.5127 140.447V126.225L105.402 124.447Z",
   },
   {
-    part: "leg-knee",
+    part: "thigh",
     lane: "left",
     d: "M46.7341 128.002H64.5119L62.7341 181.335H50.2897L46.7341 128.002Z",
   },
   {
-    part: "leg-knee",
+    part: "lower-leg",
     lane: "left",
     d: "M50.2898 181.336H62.7342L60.9565 222.225H52.0676L50.2898 181.336Z",
   },
@@ -134,12 +135,12 @@ const FRONT_PATHS: readonly BodyPath[] = [
     d: "M50.2897 222.225H60.9564L62.7341 232.891C62.7341 235.262 61.5489 236.447 59.1786 236.447H50.2897C47.9193 236.447 46.7341 235.262 46.7341 232.891L50.2897 222.225Z",
   },
   {
-    part: "leg-knee",
+    part: "thigh",
     lane: "right",
     d: "M68.0679 128.002H85.8456L82.2901 181.335H69.8456L68.0679 128.002Z",
   },
   {
-    part: "leg-knee",
+    part: "lower-leg",
     lane: "right",
     d: "M69.8457 181.336H82.2901L80.5124 222.225H71.6235L69.8457 181.336Z",
   },
@@ -162,27 +163,27 @@ const BACK_PATHS: readonly BodyPath[] = [
     d: "M70.7346 32.8887H61.8457V40.8887H70.7346V32.8887Z",
   },
   {
-    part: "back",
+    part: "upper-back",
     lane: "center",
     d: "M91.1794 40.8887C94.7349 40.8887 96.5127 43.5553 96.5127 48.8887L92.9571 74.6665H39.6238L36.0682 48.8887C36.0682 43.5553 37.846 40.8887 41.4016 40.8887H91.1794Z",
   },
   {
-    part: "back",
+    part: "mid-back",
     lane: "center",
     d: "M92.957 74.668H39.6237L43.1793 103.112H89.4015L92.957 74.668Z",
   },
   {
-    part: "back",
+    part: "lower-back",
     lane: "center",
     d: "M89.4016 103.113H43.1794L46.7349 128.002H85.8461L89.4016 103.113Z",
   },
   {
-    part: "arm",
+    part: "upper-arm",
     lane: "right",
     d: "M96.5129 48.8887L101.846 53.3331L103.624 83.5553H96.5129V48.8887Z",
   },
   {
-    part: "arm",
+    part: "forearm",
     lane: "right",
     d: "M103.624 83.5566H96.513L98.2908 120.89L107.18 122.668L103.624 83.5566Z",
   },
@@ -192,12 +193,12 @@ const BACK_PATHS: readonly BodyPath[] = [
     d: "M105.402 124.447C107.18 126.225 108.069 128.595 108.069 131.558V138.669C108.069 142.225 106.587 144.595 103.624 145.781H100.069C97.6982 145.781 96.513 144.003 96.513 140.447V126.225L105.402 124.447Z",
   },
   {
-    part: "arm",
+    part: "upper-arm",
     lane: "left",
     d: "M36.0674 48.8887L30.734 53.3331L28.9563 83.5553H36.0674V48.8887Z",
   },
   {
-    part: "arm",
+    part: "forearm",
     lane: "left",
     d: "M28.9563 83.5566H36.0674L34.2896 120.89L25.4007 122.668L28.9563 83.5566Z",
   },
@@ -207,12 +208,12 @@ const BACK_PATHS: readonly BodyPath[] = [
     d: "M27.1785 124.447C25.4007 126.225 24.5118 128.595 24.5118 131.558V138.669C24.5118 142.225 25.9933 144.595 28.9563 145.781H32.5118C34.8822 145.781 36.0674 144.003 36.0674 140.447V126.225L27.1785 124.447Z",
   },
   {
-    part: "leg-knee",
+    part: "thigh",
     lane: "right",
     d: "M85.8459 128.002H68.0682L69.8459 181.335H82.2904L85.8459 128.002Z",
   },
   {
-    part: "leg-knee",
+    part: "lower-leg",
     lane: "right",
     d: "M82.2903 181.336H69.8458L71.6236 222.225H80.5125L82.2903 181.336Z",
   },
@@ -222,12 +223,12 @@ const BACK_PATHS: readonly BodyPath[] = [
     d: "M82.2904 222.225H71.6237L69.8459 232.891C69.8459 235.262 71.0311 236.447 73.4015 236.447H82.2904C84.6608 236.447 85.8459 235.262 85.8459 232.891L82.2904 222.225Z",
   },
   {
-    part: "leg-knee",
+    part: "thigh",
     lane: "left",
     d: "M64.5122 128.002H46.7344L50.29 181.335H62.7344L64.5122 128.002Z",
   },
   {
-    part: "leg-knee",
+    part: "lower-leg",
     lane: "left",
     d: "M62.7344 181.336H50.2899L52.0677 222.225H60.9566L62.7344 181.336Z",
   },
@@ -257,17 +258,21 @@ function isPathSelected(
   path: BodyPath,
   view: ReportBodyMapView,
   selectedParts: readonly BodyPartId[],
-  bodySide: BodySide,
+  bodyPartSides: BodyPartSideMap,
+  fallbackSide: BodySide,
 ) {
   if (path.decorative) return false;
   if (!selectedParts.includes(path.part)) return false;
   if (!path.lane || path.lane === "center") return true;
-  return laneToBodySide(view, path.lane) === bodySide;
+  const pathSide = laneToBodySide(view, path.lane);
+  const stored = bodyPartSides[path.part] ?? fallbackSide;
+  return stored === "Both" || stored === pathSide;
 }
 
 export type ReportBodyMapSvgProps = Readonly<{
   view: ReportBodyMapView;
   selectedParts: readonly BodyPartId[];
+  bodyPartSides: BodyPartSideMap;
   bodySide: BodySide;
   onSelectPart: (part: BodyPartId, side?: BodySide) => void;
   className?: string;
@@ -277,6 +282,7 @@ export function ReportBodyMapSvg(props: Readonly<ReportBodyMapSvgProps>) {
   const {
     view,
     selectedParts,
+    bodyPartSides,
     bodySide,
     onSelectPart,
     className = "",
@@ -299,6 +305,7 @@ export function ReportBodyMapSvg(props: Readonly<ReportBodyMapSvgProps>) {
           path,
           view,
           selectedParts,
+          bodyPartSides,
           bodySide,
         );
 

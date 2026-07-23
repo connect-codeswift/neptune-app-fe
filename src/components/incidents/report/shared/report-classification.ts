@@ -9,7 +9,6 @@ export const CLASSIFICATION_FIELDS: readonly ClassificationField[] = [
   { id: "osha", label: "OSHA Recordable?", defaultValue: "No" },
   { id: "workRelated", label: "Work Related?", defaultValue: "No" },
   { id: "drugAlcohol", label: "Drug or Alcohol Related?", defaultValue: "No" },
-  { id: "canada", label: "Occurred in Canada?", defaultValue: "No" },
   { id: "fleet", label: "Fleet Vehicle Involved?", defaultValue: "No" },
   {
     id: "serious",

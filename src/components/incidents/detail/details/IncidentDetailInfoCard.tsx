@@ -1,60 +1,106 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type {
+  IncidentDetailInfoItem,
+  IncidentDetailInfoItemKind,
+} from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type IncidentDetailInfoItem = Readonly<{
-  label: string;
-  value: string;
-}>;
+export type { IncidentDetailInfoItem, IncidentDetailInfoItemKind };
 
 export type IncidentDetailInfoCardProps = Readonly<{
   items?: readonly IncidentDetailInfoItem[];
+  isEditing?: boolean;
+  onChangeItem?: (key: string, value: string) => void;
   className?: string;
 }>;
 
-const DEFAULT_INFO_ITEMS: readonly IncidentDetailInfoItem[] = [
-  { label: "Equipment", value: "Hydraulic Press #4 - ASSET-PRS-014" },
-  { label: "Energy involved", value: "Hydraulic - 2,800 psi" },
-  { label: "Hose age", value: "14 months (warranty: 24)" },
-  { label: "Last inspection", value: "2026-03-12 (passed)" },
-  { label: "Operator on shift", value: "Maria Lopez - EMP-04821" },
-  { label: "Supervisor", value: "Alicia Chen" },
-  { label: "Weather", value: "Indoor - n/a" },
-  { label: "Lighting", value: "Adequate" },
-];
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1.5 text-[13px] text-[#0b1320] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20";
+
+function editableDisplayValue(value: string): string {
+  return value === "—" ? "" : value;
+}
 
 export function IncidentDetailInfoCard(
   props: Readonly<IncidentDetailInfoCardProps>,
 ) {
-  const { items = DEFAULT_INFO_ITEMS, className = "" } = props;
+  const {
+    items = [],
+    isEditing = false,
+    onChangeItem,
+    className = "",
+  } = props;
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4 sm:p-5"
-      className={className}
+      paddingClassName="p-[23px]"
+      incidentGlassCardClassName="gap-[14px]"
+      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+        .filter(Boolean)
+        .join(" ")}
     >
       <Text
         as="h3"
-        className="text-ehs-dark-bg border-b border-[rgba(15,23,42,0.06)] pb-2.5 text-[15px] font-bold"
+        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
       >
         Incident details
       </Text>
 
-      <div className="grid grid-cols-1 gap-x-6 gap-y-4 pt-3.5 sm:grid-cols-2">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className="flex flex-col gap-0.5 border-b border-[rgba(15,23,42,0.03)] pb-2 last:border-0 sm:pb-3"
-          >
-            <span className="text-ehs-muted-text text-[9.5px] font-bold tracking-[0.8px] uppercase">
-              {item.label}
-            </span>
-            <span className="text-[13px] font-semibold text-[#2a3446]">
-              {item.value}
-            </span>
+      <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
+        {items.length === 0 ? (
+          <div className="col-span-full py-6 text-center text-[12px] text-[#8892a3]">
+            No incident detail fields returned by the API.
           </div>
-        ))}
+        ) : (
+          items.map((item) => {
+            const kind = item.kind ?? "text";
+            const canEdit = isEditing && kind !== "readonly";
+
+            return (
+              <div key={item.key} className="flex flex-col gap-[3px]">
+                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                  {item.label}
+                </span>
+                {canEdit && kind === "yesno" ? (
+                  <select
+                    value={
+                      item.value === "Yes" || item.value === "No"
+                        ? item.value
+                        : ""
+                    }
+                    onChange={(event) =>
+                      onChangeItem?.(item.key, event.target.value)
+                    }
+                    className={fieldInputClass}
+                    aria-label={item.label}
+                  >
+                    <option value="">Select…</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                ) : null}
+                {canEdit && kind === "text" ? (
+                  <input
+                    type="text"
+                    value={editableDisplayValue(item.value)}
+                    onChange={(event) =>
+                      onChangeItem?.(item.key, event.target.value)
+                    }
+                    className={fieldInputClass}
+                    aria-label={item.label}
+                  />
+                ) : null}
+                {!canEdit ? (
+                  <span className="text-[13px] leading-normal text-[#0b1320]">
+                    {item.value}
+                  </span>
+                ) : null}
+              </div>
+            );
+          })
+        )}
       </div>
     </IncidentGlassCard>
   );

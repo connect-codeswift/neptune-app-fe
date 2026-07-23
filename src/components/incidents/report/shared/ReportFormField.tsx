@@ -10,7 +10,7 @@ import type {
 import { Text } from "@/components/Text";
 
 export const reportFieldInputClass =
-  "h-9 w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] text-[13px] text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+  "h-9 w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] text-[13px] text-[#0b1320] outline-none backdrop-blur-[5px] transition placeholder:text-[#8892a3] hover:border-[rgba(15,23,42,0.16)] focus:border-[#0891a6] focus:ring-2 focus:ring-[rgba(8,145,166,0.2)]";
 
 const fieldInputClass = reportFieldInputClass;
 

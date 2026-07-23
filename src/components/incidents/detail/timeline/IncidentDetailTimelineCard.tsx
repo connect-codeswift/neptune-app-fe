@@ -2,186 +2,125 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type { TimelineEvent } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { toast } from "@/lib/toast";
 
-export type TimelineEvent = Readonly<{
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  actorName: string;
-  actorInitials: string;
-  actorRole?: string;
-  icon: string;
-}>;
+export type { TimelineEvent };
 
 export type IncidentDetailTimelineCardProps = Readonly<{
   events?: readonly TimelineEvent[];
   className?: string;
 }>;
 
-const DEFAULT_EVENTS: readonly TimelineEvent[] = [
-  {
-    id: "ev1",
-    title: "Incident reported via mobile",
-    description:
-      "Hydraulic press hose ruptured at coupling on Line 2 — Press #4. Submitted with 2 photos.",
-    time: "Apr 24 · 09:12",
-    actorName: "Maria Lopez",
-    actorInitials: "ML",
-    actorRole: "Operator",
-    icon: "mdi:alert-outline",
-  },
-  {
-    id: "ev2",
-    title: "Photos attached",
-    description: "IMG_2207.jpg, IMG_2208.jpg added to the report.",
-    time: "Apr 24 · 09:14",
-    actorName: "Maria Lopez",
-    actorInitials: "ML",
-    actorRole: "Operator",
-    icon: "mdi:image-outline",
-  },
-  {
-    id: "ev3",
-    title: "Auto-routed to EHS",
-    description:
-      "Severity classified Lost Time → assigned to Sarah Mitchell (EHS Manager, Plant A).",
-    time: "Apr 24 · 09:18",
-    actorName: "System",
-    actorInitials: "SYS",
-    actorRole: "Auto-routing",
-    icon: "mdi:shuffle-variant",
-  },
-  {
-    id: "ev4",
-    title: "Acknowledged · investigation opened",
-    description: "Status moved to Investigating. Watchers notified.",
-    time: "Apr 24 · 09:34",
-    actorName: "Sarah Mitchell",
-    actorInitials: "SM",
-    actorRole: "EHS Manager",
-    icon: "mdi:check-circle-outline",
-  },
-  {
-    id: "ev5",
-    title: "Equipment locked out (LOTO)",
-    description:
-      "Press #4 isolated under lockout/tagout. Tag #LT-4471 applied.",
-    time: "Apr 24 · 09:42",
-    actorName: "Mike Reyes",
-    actorInitials: "MR",
-    actorRole: "Maintenance",
-    icon: "mdi:lock-outline",
-  },
-  {
-    id: "ev6",
-    title: "Replacement hose ordered",
-    description: "Part #HD-800-2 ordered. ETA 2 hours. Press remains isolated.",
-    time: "Apr 24 · 10:02",
-    actorName: "Maintenance",
-    actorInitials: "MNT",
-    actorRole: "Team",
-    icon: "mdi:wrench-outline",
-  },
-  {
-    id: "ev7",
-    title: "Witness statement filed",
-    description:
-      "Corroborated the sequence of events; no operator contact with fluid.",
-    time: "Apr 24 · 11:30",
-    actorName: "Jake Bell",
-    actorInitials: "JB",
-    actorRole: "Witness",
-    icon: "mdi:account-voice",
-  },
-  {
-    id: "ev8",
-    title: "CAPA-512 created",
-    description:
-      "Root-cause analysis initiated; preventive replacement schedule under review.",
-    time: "Apr 24 · 14:20",
-    actorName: "Sarah Mitchell",
-    actorInitials: "SM",
-    actorRole: "EHS Manager",
-    icon: "mdi:plus-circle-outline",
-  },
-];
-
 export function IncidentDetailTimelineCard(
   props: Readonly<IncidentDetailTimelineCardProps>,
 ) {
-  const { events = DEFAULT_EVENTS, className = "" } = props;
+  const { events = [], className = "" } = props;
 
   const handleExport = () => {
-    toast.success("Timeline Exported", "Activity logs exported successfully.");
+    if (events.length === 0) {
+      toast.info("Nothing to export", "No timeline events are available yet.");
+      return;
+    }
+
+    const lines = events.map(
+      (event) =>
+        `${event.time}\t${event.title}\t${event.actorName}\t${event.description}`,
+    );
+    const content = [
+      ["Time", "Title", "Actor", "Description"].join("\t"),
+      ...lines,
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "incident-timeline.txt";
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success("Timeline exported", "Activity log downloaded.");
   };
 
   return (
-    <IncidentGlassCard paddingClassName="p-4 sm:p-5" className={className}>
-      {/* Header section with export button */}
-      <div className="mb-4 flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-4">
-        <div className="flex flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-dark-bg text-[15px] font-bold">
+    <IncidentGlassCard
+      paddingClassName="p-[23px]"
+      incidentGlassCardClassName="gap-[14px]"
+      className={className}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text
+            as="h3"
+            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          >
             Activity timeline
           </Text>
-          <span className="text-ehs-muted-text text-[11px]">
+          <span className="text-[11px] leading-normal text-[#8892a3]">
             {events.length} events · most recent last
           </span>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          className="text-ehs-gray flex items-center gap-1.5 rounded-[6px] border border-[rgba(15,23,42,0.08)] bg-white/70 px-2.5 py-1 text-[11px] font-bold transition-colors hover:bg-white"
+          className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-[#0b1320] backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
-          <Icon icon="mdi:export" className="size-3.5" />
-          <span>Export log</span>
+          <Icon icon="mdi:export-variant" className="size-[13px]" aria-hidden="true" />
+          Export log
         </button>
       </div>
 
-      {/* Activity list connected by vertical line */}
-      <div className="flex flex-col">
-        {events.map((event, index) => (
-          <div key={event.id} className="relative flex gap-3.5">
-            <div className="flex flex-col items-center">
-              <div className="text-ehs-gray z-10 flex size-[26px] shrink-0 items-center justify-center rounded-full border border-[rgba(15,23,42,0.06)] bg-[rgba(15,23,42,0.03)]">
-                <Icon icon={event.icon} className="size-3.5" />
-              </div>
-              {index < events.length - 1 && (
-                <div className="my-1 min-h-[44px] w-px flex-1 bg-[rgba(15,23,42,0.08)]" />
-              )}
-            </div>
+      {events.length === 0 ? (
+        <div className="py-10 text-center text-[12px] text-[#8892a3]">
+          No activity recorded for this incident yet.
+        </div>
+      ) : (
+        <div className="relative pl-1">
+          <div
+            aria-hidden="true"
+            className="absolute top-1.5 bottom-1.5 left-[21px] w-0.5 bg-[rgba(15,23,42,0.04)]"
+          />
+          <div className="relative flex flex-col gap-1">
+            {events.map((event) => (
+              <div
+                key={event.id}
+                className="flex items-start gap-[14px] py-2"
+              >
+                <div className="relative z-1 flex size-9 shrink-0 items-center justify-center rounded-[11px] border-2 border-[#eef1f6] bg-[rgba(11,19,32,0.14)] text-[#566072]">
+                  <Icon icon={event.icon} className="size-4" aria-hidden="true" />
+                </div>
 
-            <div className="min-w-0 flex-1 pt-0.5 pb-6 last:pb-2">
-              <div className="flex items-start justify-between gap-2">
-                <span className="text-ehs-dark-bg text-[12.5px] leading-tight font-bold">
-                  {event.title}
-                </span>
-                <span className="text-ehs-muted-text shrink-0 text-[10px] leading-tight">
-                  {event.time}
-                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-[3px] pb-1.5">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+                      {event.title}
+                    </span>
+                    <span className="ml-auto text-[11px] leading-normal whitespace-nowrap text-[#8892a3]">
+                      {event.time}
+                    </span>
+                  </div>
+                  <p className="text-[12px] leading-[18px] text-[#566072]">
+                    {event.description}
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-[3px]">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-[rgba(8,145,166,0.18)] text-[7px] font-bold text-[#056e7e]">
+                      {event.actorInitials}
+                    </span>
+                    <span className="text-[11px] leading-normal text-[#566072]">
+                      {event.actorName}
+                    </span>
+                    {event.actorRole ? (
+                      <span className="text-[11px] leading-normal text-[#8892a3]">
+                        · {event.actorRole}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-              <p className="text-ehs-gray mt-1 text-[11.5px] leading-relaxed">
-                {event.description}
-              </p>
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <span className="flex size-[18px] shrink-0 items-center justify-center rounded-md bg-[#0891a6]/10 text-[9px] font-bold text-[#056e7e]">
-                  {event.actorInitials}
-                </span>
-                <span className="text-ehs-dark-bg text-[10.5px] font-semibold">
-                  {event.actorName}
-                </span>
-                {event.actorRole && (
-                  <span className="text-ehs-muted-text text-[10.5px]">
-                    · {event.actorRole}
-                  </span>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </IncidentGlassCard>
   );
 }

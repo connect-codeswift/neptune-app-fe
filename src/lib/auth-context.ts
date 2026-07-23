@@ -131,3 +131,30 @@ export function getAuthContext(): AuthContext | null {
     ),
   };
 }
+
+/** Display name for the signed-in user (full name → email local-part → fallback). */
+export function getAuthDisplayName(fallback = "You"): string {
+  const auth = getAuthContext();
+  if (!auth) {
+    return fallback;
+  }
+
+  if (auth.fullName) {
+    return auth.fullName;
+  }
+
+  if (auth.email) {
+    const local = auth.email.split("@")[0]?.trim();
+    if (local) {
+      return local
+        .split(/[._-]+/)
+        .filter(Boolean)
+        .map(
+          (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase(),
+        )
+        .join(" ");
+    }
+  }
+
+  return fallback;
+}

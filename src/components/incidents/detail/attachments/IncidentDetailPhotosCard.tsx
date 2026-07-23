@@ -1,112 +1,224 @@
+"use client";
+
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
+import { stripAttachmentDisplayName } from "@/lib/attachment-url";
 
 export type IncidentDetailPhotosCardProps = Readonly<{
   attachments: readonly AttachmentItem[];
   onSelectFile?: (file: AttachmentItem) => void;
   onAddFile?: () => void;
+  onDeleteFile?: (file: AttachmentItem) => void;
+  isEditing?: boolean;
+  readOnly?: boolean;
+  /** When true, renders section content without an outer glass card. */
+  embedded?: boolean;
   className?: string;
 }>;
+
+function PhotosContent(
+  props: Readonly<{
+    attachments: readonly AttachmentItem[];
+    onSelectFile?: (file: AttachmentItem) => void;
+    onAddFile?: () => void;
+    onDeleteFile?: (file: AttachmentItem) => void;
+    isEditing: boolean;
+    readOnly: boolean;
+  }>,
+) {
+  const {
+    attachments,
+    onSelectFile,
+    onAddFile,
+    onDeleteFile,
+    isEditing,
+    readOnly,
+  } = props;
+  // Always show every attachment — do not hide PDFs when images exist.
+  const displayItems = attachments;
+
+  return (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text
+            as="h3"
+            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          >
+            Photos, video & files
+          </Text>
+          <span className="text-[11px] leading-normal text-[#8892a3]">
+            {isEditing
+              ? "Remove files, then save"
+              : `${String(attachments.length)} files attached`}
+          </span>
+        </div>
+        {!readOnly && !isEditing ? (
+          <button
+            type="button"
+            onClick={onAddFile}
+            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-[#0b1320] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          >
+            <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
+            Add file
+          </button>
+        ) : null}
+      </div>
+
+      {displayItems.length === 0 ? (
+        <div className="py-8 text-center text-[12px] text-[#8892a3]">
+          No media files uploaded.
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-4">
+          {displayItems.map((item, index) => {
+            const isVideo = item.kind === "video";
+            const isPdf = item.kind === "pdf";
+            const hasImage = item.kind === "image" && Boolean(item.secureUrl);
+            const gradients = [
+              "linear-gradient(135deg, rgb(69, 100, 126) 0%, rgb(34, 50, 71) 100%)",
+              "linear-gradient(155deg, rgb(68, 103, 130) 0%, rgb(35, 52, 74) 100%)",
+              "linear-gradient(175deg, rgb(66, 106, 133) 0%, rgb(35, 55, 78) 100%)",
+              "linear-gradient(195deg, rgb(65, 109, 137) 0%, rgb(36, 58, 81) 100%)",
+            ];
+
+            return (
+              <div
+                key={item.id}
+                className="relative aspect-[152/114] w-full overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.08)]"
+                style={{
+                  backgroundImage: gradients[index % gradients.length],
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => onSelectFile?.(item)}
+                  className="absolute inset-0 text-left"
+                  aria-label={`Preview ${item.name}`}
+                >
+                  {hasImage ? (
+                    <Image
+                      src={stripAttachmentDisplayName(item.secureUrl!)}
+                      alt={item.name}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                    />
+                  ) : null}
+
+                  {isPdf || (!hasImage && !isVideo) ? (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-[rgba(11,19,32,0.45)]">
+                      <Icon
+                        icon={
+                          isPdf ? "mdi:file-pdf-box" : "mdi:file-document-outline"
+                        }
+                        className="size-8 text-white/90"
+                        aria-hidden="true"
+                      />
+                      <span className="text-[9px] font-bold tracking-wider text-white/80 uppercase">
+                        {isPdf ? "PDF" : "FILE"}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  {isVideo ? (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
+                      <div className="flex size-9 items-center justify-center rounded-[18px] bg-[rgba(255,255,255,0.92)] text-[#0b1320]">
+                        <Icon
+                          icon="mdi:play"
+                          className="size-4"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="absolute inset-x-2 bottom-[3px] z-20 flex items-start justify-between gap-1">
+                    <span className="truncate text-[10px] leading-normal text-[rgba(255,255,255,0.9)]">
+                      {item.name.replace(/\.[^.]+$/, "")}
+                    </span>
+                    <span className="shrink-0 text-[10px] leading-normal text-[rgba(255,255,255,0.9)]">
+                      {item.sizeLabel}
+                    </span>
+                  </div>
+                </button>
+
+                {isEditing ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteFile?.(item);
+                    }}
+                    className="absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full bg-[rgba(11,19,32,0.72)] text-white shadow-sm transition-colors hover:bg-[#b42318]"
+                    aria-label={`Delete ${item.name}`}
+                  >
+                    <Icon
+                      icon="mdi:close"
+                      className="size-3.5"
+                      aria-hidden="true"
+                    />
+                  </button>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
 
 export function IncidentDetailPhotosCard(
   props: Readonly<IncidentDetailPhotosCardProps>,
 ) {
-  const { attachments, onSelectFile, onAddFile, className = "" } = props;
+  const {
+    attachments,
+    onSelectFile,
+    onAddFile,
+    onDeleteFile,
+    isEditing = false,
+    readOnly = false,
+    embedded = false,
+    className = "",
+  } = props;
+
+  const content = (
+    <PhotosContent
+      attachments={attachments}
+      onSelectFile={onSelectFile}
+      onAddFile={onAddFile}
+      onDeleteFile={onDeleteFile}
+      isEditing={isEditing}
+      readOnly={readOnly}
+    />
+  );
+
+  if (embedded) {
+    return (
+      <div
+        className={["flex flex-col gap-[14px]", className]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {content}
+      </div>
+    );
+  }
 
   return (
-    <IncidentGlassCard paddingClassName="p-4 sm:p-5" className={className}>
-      <div className="mb-3.5 flex items-center justify-between border-b border-[rgba(15,23,42,0.06)] pb-3.5">
-        <div className="flex flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-dark-bg text-[15px] font-bold">
-            Photos & video
-          </Text>
-          <span className="text-ehs-muted-text text-[11px]">
-            {attachments.length} files attached
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onAddFile}
-          className="text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1.5 rounded-[6px] border border-[rgba(15,23,42,0.08)] bg-white/70 px-2.5 py-1 text-[11px] font-bold transition-colors hover:bg-white"
-        >
-          <Icon icon="mdi:plus" className="size-3.5" />
-          <span>Add file</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-4 pt-1">
-        {attachments.length === 0 ? (
-          <div className="col-span-full py-8 text-center text-ehs-muted-text text-[12px]">
-            No media files uploaded.
-          </div>
-        ) : (
-          attachments.map((item) => {
-            const isVideo = item.kind === "video";
-            const isPdf = item.kind === "pdf";
-            const hasImage = item.kind === "image" && Boolean(item.secureUrl);
-
-          return (
-            <div
-              key={item.id}
-              onClick={() => onSelectFile?.(item)}
-              className="relative aspect-[4/3] w-full overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[linear-gradient(135deg,#446580_0%,#223349_100%)] cursor-pointer group"
-            >
-              {/* Actual Image Render */}
-              {hasImage && (
-                <Image
-                  src={item.secureUrl!}
-                  alt={item.name}
-                  fill
-                  unoptimized
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, 25vw"
-                />
-              )}
-
-              {/* PDF Document Render */}
-              {isPdf && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[linear-gradient(135deg,#3b4f66_0%,#1c2a3d_100%)] p-2">
-                  <Icon
-                    icon="mdi:file-pdf-box"
-                    className="size-8 text-white/90"
-                    aria-hidden="true"
-                  />
-                  <span className="text-[9px] font-bold text-white/80 mt-1 uppercase tracking-wider">
-                    PDF
-                  </span>
-                </div>
-              )}
-
-              {/* Optional overlay / play icon for videos */}
-              {isVideo && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/15 z-10">
-                  <Icon
-                    icon="mdi:play"
-                    className="size-7 text-white/90 drop-shadow-sm group-hover:scale-110 transition-transform"
-                    aria-hidden="true"
-                  />
-                </div>
-              )}
-
-              {/* Bottom detail text bar */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2.5 pt-4 pb-1.5 z-20">
-                <div className="flex items-end justify-between gap-1 text-[9.5px] text-white">
-                  <span className="truncate font-semibold tracking-wide uppercase">
-                    {item.name.replace(/\.[^.]+$/, "")}
-                  </span>
-                  <span className="shrink-0 text-white/80 font-medium">
-                    {item.sizeLabel}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })
-        )}
-      </div>
+    <IncidentGlassCard
+      paddingClassName="p-[23px]"
+      incidentGlassCardClassName="gap-[14px]"
+      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {content}
     </IncidentGlassCard>
   );
 }

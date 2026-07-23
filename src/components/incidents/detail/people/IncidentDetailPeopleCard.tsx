@@ -1,186 +1,312 @@
 "use client";
 
 import { Text } from "@/components/Text";
+import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
-export type ResponderMember = Readonly<{
-  role: string;
-  name: string;
-  initials: string;
-  empId: string;
-  badgeLabel: string;
-  badgeTone: "teal" | "green" | "gray" | "blue";
-}>;
+export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
   affectedRole?: string;
   affectedEmpId?: string;
+  affectedInitials?: string;
+  affectedInjuryLabel?: string;
   bodyPart?: string;
   treatment?: string;
   daysAway?: string | number;
   responders?: readonly ResponderMember[];
+  isEditing?: boolean;
+  onChangeAffectedName?: (value: string) => void;
+  onChangeAffectedEmpId?: (value: string) => void;
+  onChangeAffectedInjuryLabel?: (value: string) => void;
+  onChangeBodyPart?: (value: string) => void;
+  onChangeTreatment?: (value: string) => void;
+  onChangeResponder?: (
+    index: number,
+    patch: Partial<Pick<ResponderMember, "name" | "role" | "empId">>,
+  ) => void;
   className?: string;
 }>;
 
-const DEFAULT_RESPONDERS: readonly ResponderMember[] = [
-  {
-    role: "EHS Manager - Assignee",
-    name: "Sarah Mitchell",
-    initials: "SM",
-    empId: "EMP-00214",
-    badgeLabel: "Lead",
-    badgeTone: "teal",
-  },
-  {
-    role: "Maintenance",
-    name: "Mike Reyes",
-    initials: "MR",
-    empId: "EMP-03110",
-    badgeLabel: "LOTO",
-    badgeTone: "green",
-  },
-  {
-    role: "Site Supervisor",
-    name: "Alicia Chen",
-    initials: "AC",
-    empId: "EMP-00891",
-    badgeLabel: "Watcher",
-    badgeTone: "blue",
-  },
-];
+const fieldInputClass =
+  "w-full rounded-[10px] border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1.5 text-[13px] text-[#0b1320] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20";
+
+function responderBadgeClass(tone: ResponderMember["badgeTone"]): string {
+  if (tone === "teal" || tone === "green" || tone === "blue") {
+    return "bg-[rgba(8,145,166,0.18)] text-[#056e7e]";
+  }
+  return "bg-[rgba(11,19,32,0.14)] text-[#566072]";
+}
+
+function editableDisplayValue(value: string): string {
+  return value === "—" ? "" : value;
+}
 
 export function IncidentDetailPeopleCard(
   props: Readonly<IncidentDetailPeopleCardProps>,
 ) {
   const {
-    affectedName = "Maria Lopez",
-    affectedRole = "Affected / Operator - Plant A - Press",
-    affectedEmpId = "EMP-04821",
+    affectedName = "",
+    affectedRole = "Affected person",
+    affectedEmpId = "—",
+    affectedInitials = "—",
+    affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
     daysAway = 0,
-    responders = DEFAULT_RESPONDERS,
+    responders = [],
+    isEditing = false,
+    onChangeAffectedName,
+    onChangeAffectedEmpId,
+    onChangeAffectedInjuryLabel,
+    onChangeBodyPart,
+    onChangeTreatment,
+    onChangeResponder,
     className = "",
   } = props;
 
-  const toneClass = (tone: string) => {
-    if (tone === "teal") return "bg-[#0891a6]/10 text-[#056e7e]";
-    if (tone === "green") return "bg-[#10b981]/10 text-[#0f766e]";
-    if (tone === "blue") return "bg-[#2563eb]/10 text-[#1d4ed8]";
-    return "bg-[rgba(15,23,42,0.06)] text-ehs-gray";
-  };
+  const hasAffected =
+    isEditing ||
+    (Boolean(affectedName.trim()) &&
+      affectedName !== "No affected person logged");
 
   return (
-    <div className={["flex flex-col gap-[18px]", className].filter(Boolean).join(" ")}>
-      {/* Affected Person Card */}
-      <IncidentGlassCard paddingClassName="p-4 sm:p-5">
-        <Text as="h3" className="text-ehs-dark-bg pb-2.5 text-[15px] font-bold border-b border-[rgba(15,23,42,0.06)]">
+    <div
+      className={["flex flex-col gap-[14px]", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <IncidentGlassCard
+        paddingClassName="p-[23px]"
+        incidentGlassCardClassName="gap-[14px]"
+        className={isEditing ? "ring-1 ring-[#0891a6]/25" : ""}
+      >
+        <Text
+          as="h3"
+          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        >
           Affected person
         </Text>
 
-        <div className="flex items-center justify-between gap-3 pt-3.5">
-          <div className="flex items-center gap-3">
-            <div className="bg-ehs-normal-blue/14 flex size-[34px] shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-[#056e7e]">
-              ML
+        {hasAffected ? (
+          <>
+            <div className="flex items-center gap-[14px]">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-[14.4px] bg-[rgba(8,145,166,0.18)] text-[16px] font-bold text-[#056e7e]">
+                {affectedInitials}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editableDisplayValue(
+                        affectedName === "No affected person logged"
+                          ? ""
+                          : affectedName,
+                      )}
+                      onChange={(event) =>
+                        onChangeAffectedName?.(event.target.value)
+                      }
+                      placeholder="Affected person name"
+                      className={fieldInputClass}
+                      aria-label="Affected person name"
+                    />
+                    <span className="truncate text-[12px] leading-normal text-[#566072]">
+                      {affectedRole}
+                    </span>
+                    <input
+                      type="text"
+                      value={editableDisplayValue(affectedEmpId)}
+                      onChange={(event) =>
+                        onChangeAffectedEmpId?.(event.target.value)
+                      }
+                      placeholder="Employee / person ID"
+                      className={fieldInputClass}
+                      aria-label="Employee ID"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[15px] leading-normal font-bold text-[#0b1320]">
+                      {affectedName}
+                    </span>
+                    <span className="truncate text-[12px] leading-normal text-[#566072]">
+                      {affectedRole}
+                    </span>
+                    <span className="text-[11px] leading-normal text-[#8892a3]">
+                      {affectedEmpId}
+                    </span>
+                  </>
+                )}
+              </div>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editableDisplayValue(affectedInjuryLabel)}
+                  onChange={(event) =>
+                    onChangeAffectedInjuryLabel?.(event.target.value)
+                  }
+                  placeholder="Injury"
+                  className={`${fieldInputClass} max-w-[140px] shrink-0`}
+                  aria-label="Injury level"
+                />
+              ) : (
+                <span className="shrink-0 rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px] text-[#566072]">
+                  {affectedInjuryLabel}
+                </span>
+              )}
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[13px] font-bold text-ehs-dark-bg leading-snug">
-                {affectedName}
-              </span>
-              <span className="text-[11px] text-ehs-gray leading-normal truncate">
-                {affectedRole}
-              </span>
-              <span className="text-[10px] text-ehs-muted-text">{affectedEmpId}</span>
+
+            <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
+              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                  Body part
+                </span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editableDisplayValue(bodyPart)}
+                    onChange={(event) => onChangeBodyPart?.(event.target.value)}
+                    className={fieldInputClass}
+                    aria-label="Body part"
+                  />
+                ) : (
+                  <span className="text-[15px] leading-normal text-[#0b1320]">
+                    {bodyPart}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                  Treatment
+                </span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editableDisplayValue(treatment)}
+                    onChange={(event) =>
+                      onChangeTreatment?.(event.target.value)
+                    }
+                    className={fieldInputClass}
+                    aria-label="Treatment"
+                  />
+                ) : (
+                  <span className="text-[15px] leading-normal text-[#0b1320]">
+                    {treatment}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                  Days away
+                </span>
+                <span className="text-[15px] leading-normal text-[#0b1320]">
+                  {daysAway}
+                </span>
+              </div>
             </div>
+          </>
+        ) : (
+          <div className="py-6 text-center text-[12px] text-[#8892a3]">
+            No affected person returned by the API.
           </div>
-          <span className="rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-[10px] font-bold tracking-[0.2px] text-ehs-gray shrink-0">
-            No Injury
-          </span>
-        </div>
-
-        {/* 3 Metric Boxes */}
-        <div className="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-3">
-          <div className="rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/42 p-3 text-left">
-            <span className="text-[9px] font-bold text-ehs-muted-text uppercase tracking-[0.6px]">
-              Body Part
-            </span>
-            <p className="text-[12.5px] font-bold text-ehs-dark-bg mt-0.5">
-              {bodyPart}
-            </p>
-          </div>
-
-          <div className="rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/42 p-3 text-left">
-            <span className="text-[9px] font-bold text-ehs-muted-text uppercase tracking-[0.6px]">
-              Treatment
-            </span>
-            <p className="text-[12.5px] font-bold text-ehs-dark-bg mt-0.5">
-              {treatment}
-            </p>
-          </div>
-
-          <div className="rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/42 p-3 text-left">
-            <span className="text-[9px] font-bold text-ehs-muted-text uppercase tracking-[0.6px]">
-              Days Away
-            </span>
-            <p className="text-[12.5px] font-bold text-ehs-dark-bg mt-0.5">
-              {daysAway}
-            </p>
-          </div>
-        </div>
+        )}
       </IncidentGlassCard>
 
-      {/* Responders & Assignees Card */}
-      <IncidentGlassCard paddingClassName="p-4 sm:p-5">
-        <div className="flex flex-col border-b border-[rgba(15,23,42,0.06)] pb-2.5">
-          <Text as="h3" className="text-ehs-dark-bg text-[15px] font-bold">
+      <IncidentGlassCard
+        paddingClassName="p-[23px]"
+        className={isEditing ? "ring-1 ring-[#0891a6]/25" : ""}
+      >
+        <div className="pb-[14px]">
+          <Text
+            as="h3"
+            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          >
             Responders & assignees
           </Text>
-          <span className="text-[11px] text-ehs-muted-text">
+          <span className="text-[11px] leading-normal text-[#8892a3]">
             {responders.length} people
           </span>
         </div>
 
-        <div className="flex flex-col pt-1">
-          {responders.map((person, index) => (
+        {responders.length === 0 ? (
+          <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-[12px] text-[#8892a3]">
+            No responders returned by the API.
+          </div>
+        ) : (
+          responders.map((person, index) => (
             <div
-              key={person.empId}
-              className={[
-                "flex items-center justify-between gap-3 py-3",
-                index === responders.length - 1
-                  ? "pb-1"
-                  : "border-b border-[rgba(15,23,42,0.05)]",
-              ].join(" ")}
+              key={`${person.role}-${person.name}-${String(index)}`}
+              className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="bg-ehs-normal-blue/14 flex size-[34px] shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-[#056e7e]">
-                  {person.initials}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[13px] font-bold text-ehs-dark-bg leading-snug">
-                    {person.name}
-                  </span>
-                  <span className="text-[11px] text-ehs-gray truncate leading-normal">
-                    {person.role}
-                  </span>
-                </div>
+              <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] bg-[rgba(8,145,166,0.18)] text-[11.6px] font-bold text-[#056e7e]">
+                {person.initials}
               </div>
-              <div className="flex items-center gap-2.5 shrink-0">
-                <span className="text-[10px] font-semibold text-ehs-muted-text">
+              <div className="flex min-w-0 flex-1 flex-col gap-px">
+                {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      value={person.name}
+                      onChange={(event) =>
+                        onChangeResponder?.(index, {
+                          name: event.target.value,
+                        })
+                      }
+                      className={fieldInputClass}
+                      aria-label={`${person.role} name`}
+                    />
+                    <input
+                      type="text"
+                      value={person.role}
+                      onChange={(event) =>
+                        onChangeResponder?.(index, {
+                          role: event.target.value,
+                        })
+                      }
+                      className={`${fieldInputClass} mt-1 text-[11px]`}
+                      aria-label="Role"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+                      {person.name}
+                    </span>
+                    <span className="truncate text-[11px] leading-normal text-[#566072]">
+                      {person.role}
+                    </span>
+                  </>
+                )}
+              </div>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editableDisplayValue(person.empId)}
+                  onChange={(event) =>
+                    onChangeResponder?.(index, { empId: event.target.value })
+                  }
+                  placeholder="ID / email"
+                  className={`${fieldInputClass} max-w-[140px] shrink-0 text-[11px]`}
+                  aria-label="Employee ID or email"
+                />
+              ) : (
+                <span className="shrink-0 text-[11px] leading-normal text-[#8892a3]">
                   {person.empId}
                 </span>
-                <span
-                  className={[
-                    "rounded-[6px] px-2.5 py-0.5 text-[9.5px] font-bold tracking-[0.2px]",
-                    toneClass(person.badgeTone),
-                  ].join(" ")}
-                >
-                  {person.badgeLabel}
-                </span>
-              </div>
+              )}
+              <span
+                className={[
+                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+                  responderBadgeClass(person.badgeTone),
+                ].join(" ")}
+              >
+                {person.badgeLabel}
+              </span>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </IncidentGlassCard>
     </div>
   );

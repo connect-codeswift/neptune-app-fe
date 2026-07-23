@@ -3,7 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-state";
 import { getAuthContext } from "@/lib/auth-context";
-import { closeIncident, createIncident } from "@/services/incident.service";
+import type { IncidentDto } from "@/dtos/res/incident-response.dto";
+import {
+  closeIncident,
+  createIncident,
+  updateIncident,
+} from "@/services/incident.service";
 import { mapReportFormToIncidentDto } from "@/services/mappers/report-incident.mapper";
 import { incidentQueryKeys } from "@/hooks/use-incident-queries";
 
@@ -37,6 +42,35 @@ export function useCloseIncidentMutation() {
         userId: auth.userId,
         subCompanyId: auth.subCompanyId,
       });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });
+    },
+  });
+}
+
+/** Updates incident fields via PUT /Incident/UpdateIncident/{id}. */
+export function useUpdateIncidentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      incidentId: number;
+      patch: Partial<IncidentDto>;
+    }) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to update an incident.");
+      }
+
+      return updateIncident(
+        input.incidentId,
+        {
+          userId: auth.userId,
+          subCompanyId: auth.subCompanyId,
+        },
+        input.patch,
+      );
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });

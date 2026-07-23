@@ -7,8 +7,8 @@ import { HrcaHeaderCard } from "@/components/incidents/detail/investigations/hrc
 import { HrcaTable } from "@/components/incidents/detail/investigations/hrca/HrcaTable";
 import {
   HRCA_META,
-  INITIAL_HRCA_ROWS,
   markRootCauses,
+  type HrcaMeta,
   type HrcaRow,
 } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
@@ -16,14 +16,23 @@ export type { HrcaRow, HrcaWhyStep } from "@/components/incidents/detail/investi
 
 export type IncidentDetailHrcaBoardProps = Readonly<{
   onClose?: () => void;
+  meta?: HrcaMeta;
+  initialRows?: readonly HrcaRow[];
+  incidentLabel?: string;
   className?: string;
 }>;
 
 export function IncidentDetailHrcaBoard(
   props: Readonly<IncidentDetailHrcaBoardProps>,
 ) {
-  const { onClose, className = "" } = props;
-  const [rows, setRows] = useState<readonly HrcaRow[]>(INITIAL_HRCA_ROWS);
+  const {
+    onClose,
+    meta = HRCA_META,
+    initialRows = [],
+    incidentLabel,
+    className = "",
+  } = props;
+  const [rows, setRows] = useState<readonly HrcaRow[]>(initialRows);
 
   const totalCategories = rows.length;
   const totalWhySteps = rows.reduce((sum, row) => sum + row.whys.length, 0);
@@ -158,7 +167,7 @@ export function IncidentDetailHrcaBoard(
         .join(" ")}
     >
       <HrcaHeaderCard
-        meta={HRCA_META}
+        meta={meta}
         categories={totalCategories}
         whySteps={totalWhySteps}
         actions={totalActions}
@@ -178,12 +187,20 @@ export function IncidentDetailHrcaBoard(
         </span>
       </div>
 
-      <HrcaTable rows={rows} handlers={handlers} />
+      {rows.length === 0 ? (
+        <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-[12px]">
+          No HRCA factors recorded for this incident yet. Open findings will
+          appear here once investigation fields are captured.
+        </div>
+      ) : (
+        <HrcaTable rows={rows} handlers={handlers} />
+      )}
 
       <p className="text-ehs-muted-text px-1 pb-1 text-center text-[11px] leading-relaxed font-medium">
         Read each lane left → right: the contributing factor, then ask
         &quot;Why?&quot; until you reach the root cause (yellow). Edits persist
-        on this device. Sample bound to INC-2025.
+        on this device
+        {incidentLabel ? ` · Bound to ${incidentLabel}` : ""}.
       </p>
     </div>
   );

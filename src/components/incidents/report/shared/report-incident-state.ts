@@ -1,7 +1,11 @@
 import type { SeverityId } from "./report-severity";
 import type { ReportPhotoFile } from "./report-attachments";
 import type { InjuryLevelId } from "./report-injury-level";
-import type { BodyPartId, BodySide } from "./report-body-parts";
+import type {
+  BodyPartId,
+  BodyPartSideMap,
+  BodySide,
+} from "./report-body-parts";
 import { CLASSIFICATION_FIELDS } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
 
@@ -28,7 +32,10 @@ export type ReportIncidentFormState = Readonly<{
   injuryLevel: InjuryLevelId;
   gender: string;
   bodyParts: readonly BodyPartId[];
+  /** Last / default side for list picks and non-mapped parts. */
   bodySide: BodySide;
+  /** Side chosen per body part (allows Left foot + Right hand together). */
+  bodyPartSides: BodyPartSideMap;
   bodyMultiSelect: boolean;
   injuryDescription: string;
   immediateActions: readonly string[];
@@ -43,6 +50,31 @@ export type ReportIncidentFormState = Readonly<{
   caseDisposition: string;
   isFitForFullDuty: string;
 }>;
+
+/**
+ * Default values for First Aid–only Step 2 fields when severity is not First Aid.
+ * Backend still requires these on create; the UI does not collect them otherwise.
+ */
+export const NON_FIRST_AID_FIELD_DEFAULTS = {
+  whatTreatmentWasGiven: "N/A",
+  treatmentProvidedBy: "N/A",
+  treatmentLocation: "N/A",
+  furtherMedicalRecommended: "No" as const,
+  isFitForFullDuty: "N/A",
+  caseDisposition: "N/A",
+  feedback: "N/A",
+} satisfies Partial<ReportIncidentFormState>;
+
+/** Empty First Aid–only fields — used when switching back to First Aid. */
+export const EMPTY_FIRST_AID_FIELDS = {
+  whatTreatmentWasGiven: "",
+  treatmentProvidedBy: "",
+  treatmentLocation: "",
+  furtherMedicalRecommended: "No" as const,
+  isFitForFullDuty: "",
+  caseDisposition: "",
+  feedback: "N/A",
+} satisfies Partial<ReportIncidentFormState>;
 
 /** Empty form — no demo/mock incident content. */
 export function createInitialReportFormState(): ReportIncidentFormState {
@@ -59,7 +91,8 @@ export function createInitialReportFormState(): ReportIncidentFormState {
       CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, "Yes" | "No">,
     description: "",
-    title: "",
+    // Mirrors default severity so Live preview title is populated from the start.
+    title: "First Aid",
     initialTreatment: "",
     secondaryTreatment: "No",
     mechanismOfInjury: "",
@@ -72,6 +105,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     gender: "",
     bodyParts: [],
     bodySide: "Left",
+    bodyPartSides: {},
     bodyMultiSelect: false,
     injuryDescription: "",
     immediateActions: [],
@@ -85,5 +119,41 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     feedback: "N/A",
     caseDisposition: "",
     isFitForFullDuty: "",
+  };
+}
+
+/**
+ * Ensures non–First Aid severities always carry API-required First Aid field defaults
+ * in form state. First Aid keeps user-entered values (or cleared defaults when
+ * switching into First Aid).
+ */
+export function applySeverityFieldDefaults(
+  form: ReportIncidentFormState,
+): ReportIncidentFormState {
+  if (form.severity === "first-aid") {
+    return form;
+  }
+
+  return {
+    ...form,
+    whatTreatmentWasGiven:
+      form.whatTreatmentWasGiven.trim() ||
+      NON_FIRST_AID_FIELD_DEFAULTS.whatTreatmentWasGiven,
+    treatmentProvidedBy:
+      form.treatmentProvidedBy.trim() ||
+      NON_FIRST_AID_FIELD_DEFAULTS.treatmentProvidedBy,
+    treatmentLocation:
+      form.treatmentLocation.trim() ||
+      NON_FIRST_AID_FIELD_DEFAULTS.treatmentLocation,
+    furtherMedicalRecommended:
+      form.furtherMedicalRecommended ||
+      NON_FIRST_AID_FIELD_DEFAULTS.furtherMedicalRecommended,
+    isFitForFullDuty:
+      form.isFitForFullDuty.trim() ||
+      NON_FIRST_AID_FIELD_DEFAULTS.isFitForFullDuty,
+    caseDisposition:
+      form.caseDisposition.trim() ||
+      NON_FIRST_AID_FIELD_DEFAULTS.caseDisposition,
+    feedback: form.feedback.trim() || NON_FIRST_AID_FIELD_DEFAULTS.feedback,
   };
 }

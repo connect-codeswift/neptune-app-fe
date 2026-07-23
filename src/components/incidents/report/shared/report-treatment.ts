@@ -1,4 +1,5 @@
 export const INITIAL_TREATMENT_OPTIONS = [
+  { value: "", label: "Select treatment…" },
   {
     value: "minor-clinic",
     label: "Minor clinic/hospital medical remedies and diagnostic testing",
@@ -9,6 +10,7 @@ export const INITIAL_TREATMENT_OPTIONS = [
 ] as const;
 
 export const MECHANISM_OPTIONS = [
+  { value: "", label: "Select mechanism…" },
   { value: "equipment-failure", label: "Equipment Failure" },
   { value: "slip-trip-fall", label: "Slip / trip / fall" },
   { value: "struck-by", label: "Struck by object" },
@@ -17,6 +19,7 @@ export const MECHANISM_OPTIONS = [
 ] as const;
 
 export const NATURE_OF_INJURY_OPTIONS = [
+  { value: "", label: "Select nature…" },
   { value: "laceration", label: "Laceration / cut" },
   { value: "bruise", label: "Bruise / contusion" },
   { value: "sprain", label: "Sprain / strain" },
