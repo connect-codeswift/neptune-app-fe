@@ -4,46 +4,24 @@ import type {
   LibraryCategory,
   PolicyDocument,
 } from "@/components/policy-maker/policy-maker-types";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
 
-export const POLICY_MAKER_METRICS: readonly StatMetricCardProps[] = [
-  { title: "Active docs", value: 169, trendValue: "+6", trendTone: "positive" },
-  {
-    title: "Pending review",
-    value: 14,
-    trendValue: "-2",
-    trendTone: "positive",
-  },
-  {
-    title: "Expiring (30d)",
-    value: 7,
-    trendValue: "+3",
-    trendTone: "negative",
-  },
-  {
-    title: "Acknowledgement rate",
-    value: "94%",
-    trendValue: "+1pp",
-    trendTone: "positive",
-  },
-];
-
+/** Base library nav labels/icons — counts are computed from API data in the view. */
 export const LIBRARY_CATEGORIES: readonly LibraryCategory[] = [
   {
     id: "policies",
     label: "Policies",
     icon: "mdi:file-document-outline",
-    count: 12,
+    count: 0,
   },
-  { id: "sops", label: "SOPs", icon: "mdi:clipboard-list-outline", count: 84 },
-  { id: "training", label: "Training", icon: "mdi:school-outline", count: 31 },
+  { id: "sops", label: "SOPs", icon: "mdi:clipboard-list-outline", count: 0 },
+  { id: "training", label: "Training", icon: "mdi:school-outline", count: 0 },
   {
     id: "permits",
     label: "Permits",
     icon: "mdi:card-account-details-outline",
-    count: 18,
+    count: 0,
   },
-  { id: "forms", label: "Forms", icon: "mdi:form-select", count: 24 },
+  { id: "forms", label: "Forms", icon: "mdi:form-select", count: 0 },
 ];
 
 export const STATUS_FILTERS: readonly DocumentStatusFilter[] = [
@@ -81,7 +59,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
         version: "v4.1",
         author: "Sarah M.",
         date: "Jul 02",
-        badge: "archived",
+        badge: "review",
       },
     ],
   },
@@ -108,7 +86,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
     acknowledgmentTotal: 28,
     versions: [
       { version: "v2.1", author: "Mike R.", date: "Feb 18", badge: "current" },
-      { version: "v2.0", author: "Mike R.", date: "Sep 04", badge: "archived" },
+      { version: "v2.0", author: "Mike R.", date: "Sep 04", badge: "review" },
     ],
   },
   {
@@ -149,7 +127,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
         authorFullName: "David Chen",
         date: "Jun 15",
         publishedAt: "2024-06-15",
-        badge: "archived",
+        badge: "review",
         changeLog:
           "Major revision: Added energy control for pneumatic systems, updated training requirements",
       },
@@ -159,7 +137,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
         authorFullName: "Sarah Mitchell",
         date: "Nov 20",
         publishedAt: "2023-11-20",
-        badge: "archived",
+        badge: "review",
         changeLog: "Minor editorial corrections and formatting updates",
       },
       {
@@ -168,7 +146,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
         authorFullName: "Tom Bradley",
         date: "Mar 05",
         publishedAt: "2023-03-05",
-        badge: "archived",
+        badge: "review",
         changeLog:
           "Added group lockout procedure section per OSHA 1910.147 update",
       },
@@ -206,7 +184,7 @@ export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
         version: "v1.7",
         author: "J. Merrick",
         date: "Mar 08",
-        badge: "archived",
+        badge: "review",
       },
     ],
   },
