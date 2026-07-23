@@ -107,20 +107,33 @@ function deriveStage(incident: IncidentDto): IncidentStage {
   return "Open";
 }
 
+function capitalizeFirst(text: string | null | undefined): string {
+  if (!text) {
+    return "";
+  }
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return "";
+  }
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
 function buildTitle(incident: IncidentDto): string {
   const description = incident.description?.trim();
   if (description) {
     const firstSentence = description.split(/[.?\n]/)[0]?.trim();
     if (firstSentence) {
-      return firstSentence.length > 80
-        ? `${firstSentence.slice(0, 77)}...`
-        : firstSentence;
+      const truncated =
+        firstSentence.length > 80
+          ? `${firstSentence.slice(0, 77)}...`
+          : firstSentence;
+      return capitalizeFirst(truncated);
     }
   }
 
   const location = incident.location?.trim() || incident.site?.trim();
   if (location) {
-    return `Incident at ${location}`;
+    return capitalizeFirst(`Incident at ${location}`);
   }
 
   return incident.id != null ? `Incident #${String(incident.id)}` : "Incident";
@@ -202,13 +215,15 @@ export function mapIncidentDtoToListRecord(
   incident: IncidentDto,
 ): IncidentRecord {
   const numericId = toNumericId(incident.id);
-  const description =
+  const rawDescription =
     incident.description?.trim() || "No description provided.";
+  const description = capitalizeFirst(rawDescription);
+  const title = capitalizeFirst(buildTitle(incident));
 
   return {
     id: numericId > 0 ? `INC-${String(numericId)}` : "INC-—",
     numericId,
-    title: buildTitle(incident),
+    title,
     description,
     site: buildSite(incident),
     severity: normalizeSeverity(incident.severity),
