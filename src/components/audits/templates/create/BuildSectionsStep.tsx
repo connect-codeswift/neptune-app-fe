@@ -16,7 +16,7 @@ import {
 } from "./template-builder-data";
 
 const labelClass =
-  "text-ehs-muted-text text-xs font-bold tracking-wider uppercase";
+  "text-ehs-muted-text text-sm font-bold tracking-wider uppercase";
 
 const inputClass =
   "w-full rounded-lg border border-slate-900/10 bg-white px-3 py-2.5 text-sm text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
@@ -213,66 +213,68 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
   };
 
   return (
-    <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+    <div className="grid min-w-0 gap-3.5 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
       {/* Section rail */}
       <IncidentGlassCard
         paddingClassName="p-4"
-        incidentGlassCardClassName="gap-3"
+        incidentGlassCardClassName="gap-3 justify-between"
       >
-        <h3 className={labelClass}>
-          {`Sections (${String(sections.length)})`}
-        </h3>
+        <div className="flex flex-col gap-1.5">
+          <h3 className={labelClass}>
+            {`Sections (${String(sections.length)})`}
+          </h3>
 
-        <ul className="flex flex-col gap-2">
-          {sections.map((section) => {
-            const isActive = section.id === activeSection.id;
+          <ul className="flex flex-col gap-2">
+            {sections.map((section) => {
+              const isActive = section.id === activeSection.id;
 
-            return (
-              <li key={section.id}>
-                <div
-                  className={[
-                    "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors",
-                    isActive
-                      ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
-                      : "border-transparent hover:bg-black/5",
-                  ].join(" ")}
-                  onClick={() => setActiveSectionId(section.id)}
-                >
-                  <Icon
-                    icon="mdi:drag-vertical"
-                    className="text-ehs-muted-text size-4 shrink-0"
-                    aria-hidden="true"
-                  />
+              return (
+                <li key={section.id}>
+                  <div
+                    className={[
+                      "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors",
+                      isActive
+                        ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
+                        : "border-transparent hover:bg-black/5",
+                    ].join(" ")}
+                    onClick={() => setActiveSectionId(section.id)}
+                  >
+                    <Icon
+                      icon="mdi:drag-vertical"
+                      className="text-ehs-muted-text size-4 shrink-0"
+                      aria-hidden="true"
+                    />
 
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span
-                      className={[
-                        "truncate text-sm font-semibold",
-                        isActive ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
-                      ].join(" ")}
-                    >
-                      {section.title}
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span
+                        className={[
+                          "truncate font-semibold",
+                          isActive ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
+                        ].join(" ")}
+                      >
+                        {section.title}
+                      </span>
+                      <span className="text-ehs-muted-text text-xs">
+                        {`${String(section.items.length)} items`}
+                      </span>
                     </span>
-                    <span className="text-ehs-muted-text text-xs">
-                      {`${String(section.items.length)} items`}
-                    </span>
-                  </span>
 
-                  <IconButton
-                    icon="mdi:trash-can-outline"
-                    label={`Delete ${section.title}`}
-                    onClick={() => handleDeleteSection(section.id)}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                    <IconButton
+                      icon="mdi:trash-can-outline"
+                      label={`Delete ${section.title}`}
+                      onClick={() => handleDeleteSection(section.id)}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
         <button
           type="button"
           onClick={handleAddSection}
-          className="text-ehs-normal-blue inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-black/5"
+          className="text-ehs-normal-blue inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-semibold transition-colors"
         >
           <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
           Add Section

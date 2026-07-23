@@ -75,6 +75,7 @@ export function CreateTemplateContent() {
   const [sections, setSections] = useState<TemplateSection[]>(
     createInitialSections,
   );
+  console.log(sections);
 
   const handleSaveDraft = () => {
     toast.success("Draft saved");
