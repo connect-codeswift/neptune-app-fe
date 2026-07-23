@@ -2,162 +2,236 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import type {
+  ContributingFactorItem,
+  WhyChainItem,
+} from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { toast } from "@/lib/toast";
 
-export type WhyChainItem = Readonly<{
-  step: number;
-  label: string;
-  text: string;
-  isRootCause?: boolean;
-}>;
+export type { WhyChainItem, ContributingFactorItem };
 
 export type IncidentDetailInvestigationCardProps = Readonly<{
   whyChain?: readonly WhyChainItem[];
+  contributingFactors?: readonly ContributingFactorItem[];
+  methodLine?: string;
+  statusLabel?: "Not started" | "In progress" | "Complete";
   onOpenHrca?: () => void;
   className?: string;
 }>;
 
-const DEFAULT_WHY_CHAIN: readonly WhyChainItem[] = [
-  {
-    step: 1,
-    label: "WHY 1",
-    text: "The high-pressure hose ruptured at the coupling.",
-  },
-  {
-    step: 2,
-    label: "WHY 2",
-    text: "The hose had fatigue cracking near the crimp.",
-  },
-  {
-    step: 3,
-    label: "WHY 3",
-    text: "It had been in service 14 months under cyclic load.",
-  },
-  {
-    step: 4,
-    label: "WHY 4",
-    text: "No condition-based replacement schedule existed.",
-  },
-  {
-    step: 5,
-    label: "ROOT CAUSE",
-    text: "Inspections were visual-only and missed internal fatigue.",
-    isRootCause: true,
-  },
-];
-
 export function IncidentDetailInvestigationCard(
   props: Readonly<IncidentDetailInvestigationCardProps>,
 ) {
-  const { whyChain = DEFAULT_WHY_CHAIN, onOpenHrca, className = "" } = props;
+  const {
+    whyChain = [],
+    contributingFactors = [],
+    methodLine = "Method: 5 Whys · Linked to HRCA worksheet",
+    statusLabel = "Not started",
+    onOpenHrca,
+    className = "",
+  } = props;
 
-  const handleOpenHrca = onOpenHrca ?? (() => {
-    toast.success("HRCA Worksheet Opened", "Loading HRCA worksheet details...");
-  });
+  const handleOpenHrca =
+    onOpenHrca ??
+    (() => {
+      toast.success(
+        "HRCA Worksheet Opened",
+        "Loading HRCA worksheet details...",
+      );
+    });
+
+  const statusTone =
+    statusLabel === "Complete"
+      ? "bg-[rgba(16,185,129,0.14)] text-[#0f766e]"
+      : statusLabel === "In progress"
+        ? "bg-[rgba(59,130,246,0.14)] text-[#3b82f6]"
+        : "bg-[rgba(11,19,32,0.1)] text-[#566072]";
+
+  const statusDot =
+    statusLabel === "Complete"
+      ? "bg-[#10b981]"
+      : statusLabel === "In progress"
+        ? "bg-[#3b82f6]"
+        : "bg-[#8892a3]";
 
   return (
-    <div className={["flex flex-col gap-[18px]", className].filter(Boolean).join(" ")}>
-      {/* 5-Why root cause analysis header card */}
-      <IncidentGlassCard paddingClassName="p-4 sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-3">
-            <div className="flex size-[38px] shrink-0 items-center justify-center rounded-lg bg-ehs-normal-blue/10 text-ehs-normal-blue">
-              <Icon icon="mdi:sitemap-outline" className="size-5 animate-pulse" />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <Text as="h3" className="text-ehs-dark-bg text-[14.8px] font-bold leading-snug">
-                5-Why root cause analysis
-              </Text>
-              <span className="text-[11px] text-ehs-muted-text leading-normal break-words sm:truncate">
-                Method: 5 Whys · Led by Sarah Mitchell · Linked to HRCA worksheet
-              </span>
-            </div>
+    <div
+      className={["flex flex-col gap-[14px]", className].filter(Boolean).join(" ")}
+    >
+      <IncidentGlassCard paddingClassName="p-[19px]">
+        <div className="flex flex-wrap items-center gap-[14px]">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[rgba(8,145,166,0.18)] text-[#056e7e]">
+            <Icon
+              icon="mdi:star-four-points"
+              className="size-5"
+              aria-hidden="true"
+            />
           </div>
-          <div className="flex flex-wrap items-center gap-3.5 sm:shrink-0 sm:justify-end justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/50 bg-[#2563eb]/8 px-2.5 py-0.5 text-[10.5px] font-bold text-[#2563eb]">
-              <span className="size-1.5 rounded-full bg-[#2563eb]" />
-              In progress
-            </span>
-            <button
-              type="button"
-              onClick={handleOpenHrca}
-              className="bg-ehs-normal-blue inline-flex items-center gap-1 rounded-[6px] px-3.5 py-1.5 text-[11.5px] font-bold text-white transition-colors hover:bg-ehs-normal-blue-hover shadow-[0px_4px_12px_-4px_#0891a6]"
+
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <Text
+              as="h3"
+              className="text-[14px] leading-normal font-bold text-[#0b1320]"
             >
-              <Icon icon="mdi:export" className="size-3.5" />
-              <span>Open HRCA</span>
-            </button>
+              5-Why root cause analysis
+            </Text>
+            <span className="text-[12px] leading-normal text-[#566072]">
+              {methodLine}
+            </span>
           </div>
+
+          <span
+            className={[
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+              statusTone,
+            ].join(" ")}
+          >
+            <span
+              className={["size-1.5 shrink-0 rounded-[3px]", statusDot].join(
+                " ",
+              )}
+            />
+            {statusLabel}
+          </span>
+
+          <button
+            type="button"
+            onClick={handleOpenHrca}
+            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] bg-[#0891a6] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067a8c]"
+          >
+            <Icon
+              icon="mdi:open-in-new"
+              className="size-[13px]"
+              aria-hidden="true"
+            />
+            Open HRCA
+          </button>
         </div>
       </IncidentGlassCard>
 
-      {/* Why-chain mapping card */}
-      <IncidentGlassCard paddingClassName="p-4 sm:p-5">
-        <div className="flex flex-col border-b border-[rgba(15,23,42,0.06)] pb-3 mb-4">
-          <Text as="h3" className="text-ehs-dark-bg text-[14px] font-bold">
+      <IncidentGlassCard
+        paddingClassName="p-[23px]"
+        incidentGlassCardClassName="gap-[14px]"
+        className="bg-white/62"
+      >
+        <div className="flex flex-col gap-0.5">
+          <Text
+            as="h3"
+            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          >
             Why-chain
           </Text>
-          <span className="text-[11px] text-ehs-muted-text">
+          <span className="text-[10.8px] leading-normal text-[#8892a3]">
             Drill from event to root cause
           </span>
         </div>
 
-        <div className="flex flex-col">
-          {whyChain.map((item, index) => {
-            const isRoot = item.isRootCause;
-            return (
-              <div key={item.step} className="relative flex gap-3.5">
-                {/* Vertical timeline line */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className={[
-                      "z-10 flex size-[26px] shrink-0 items-center justify-center rounded-full border text-[11px] font-bold leading-none",
-                      isRoot
-                        ? "border-[#0891a6] bg-ehs-normal-blue text-white"
-                        : "border-[rgba(15,23,42,0.12)] bg-white text-ehs-gray",
-                    ].join(" ")}
-                  >
-                    {item.step}
-                  </div>
-                  {index < whyChain.length - 1 && (
-                    <div className="my-1.5 min-h-[38px] w-px flex-1 bg-[rgba(15,23,42,0.08)]" />
-                  )}
-                </div>
+        {whyChain.length === 0 ? (
+          <div className="py-8 text-center text-[12px] text-[#8892a3]">
+            No investigation findings recorded for this incident yet.
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {whyChain.map((item, index) => {
+              const isRoot = Boolean(item.isRootCause);
+              const isLast = index === whyChain.length - 1;
 
-                {/* Text blocks inside rounded boxes */}
-                <div className="min-w-0 flex-1 pb-4 last:pb-2">
-                  <div
-                    className={[
-                      "rounded-[10px] border p-3 text-left transition-all",
-                      isRoot
-                        ? "border-[#0891a6]/30 bg-[#0891a6]/5"
-                        : "border-[rgba(15,23,42,0.06)] bg-white/42",
-                    ].join(" ")}
-                  >
-                    <span
+              return (
+                <div key={item.step} className="flex items-start gap-3">
+                  <div className="flex flex-col items-center self-stretch">
+                    <div
                       className={[
-                        "text-[8.5px] font-bold tracking-[0.6px] uppercase inline-flex items-center gap-0.5",
-                        isRoot ? "text-[#056e7e]" : "text-ehs-muted-text",
+                        "flex size-7 shrink-0 items-center justify-center rounded-[14px] text-[12px] font-bold",
+                        isRoot
+                          ? "bg-[#0891a6] text-white"
+                          : "border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)] text-[#566072]",
                       ].join(" ")}
                     >
-                      {isRoot && <Icon icon="mdi:arrow-right" className="size-3" />}
-                      {item.label}
-                    </span>
-                    <p
+                      {item.step}
+                    </div>
+                    {!isLast ? (
+                      <div className="min-h-[14px] w-0.5 flex-1 bg-[rgba(15,23,42,0.08)]" />
+                    ) : null}
+                  </div>
+
+                  <div className={isLast ? "min-w-0 flex-1" : "min-w-0 flex-1 pb-3"}>
+                    <div
                       className={[
-                        "text-[12px] mt-0.5 leading-relaxed",
-                        isRoot ? "font-bold text-[#056e7e]" : "font-semibold text-ehs-dark-bg",
+                        "flex flex-col gap-0.5 rounded-[10px] border px-[15px] py-[11px]",
+                        isRoot
+                          ? "border-[#0891a6] bg-[rgba(8,145,166,0.18)]"
+                          : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
                       ].join(" ")}
                     >
-                      {item.text}
-                    </p>
+                      <span
+                        className={[
+                          "inline-flex items-center gap-1 text-[9.5px] font-bold tracking-[0.76px] uppercase",
+                          isRoot ? "text-[#056e7e]" : "text-[#8892a3]",
+                        ].join(" ")}
+                      >
+                        {isRoot ? (
+                          <Icon
+                            icon="mdi:target"
+                            className="size-3"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                        {item.label}
+                      </span>
+                      <p
+                        className={[
+                          "text-[13px] leading-[18.85px]",
+                          isRoot
+                            ? "font-bold text-[#0b1320]"
+                            : "font-normal text-[#0b1320]",
+                        ].join(" ")}
+                      >
+                        {item.text}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </IncidentGlassCard>
+
+      {contributingFactors.length > 0 ? (
+        <IncidentGlassCard
+          paddingClassName="p-[23px]"
+          incidentGlassCardClassName="gap-[14px]"
+          className="bg-white/62"
+        >
+          <Text
+            as="h3"
+            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          >
+            Contributing factors
+          </Text>
+
+          <div className="flex flex-col gap-[10px]">
+            {contributingFactors.map((factor) => (
+              <div
+                key={`${factor.category}-${factor.text}`}
+                className="flex items-start gap-3 rounded-[10px] border border-[rgba(15,23,42,0.08)] border-l-[3px] bg-[rgba(255,255,255,0.62)] py-[13px] pr-[13px] pl-[15px]"
+                style={{ borderLeftColor: factor.accent }}
+              >
+                <span
+                  className="min-w-[86px] shrink-0 text-[10px] font-bold tracking-[0.6px] uppercase"
+                  style={{ color: factor.accent }}
+                >
+                  {factor.category}
+                </span>
+                <span className="text-[12.5px] leading-[18.13px] text-[#2a3446]">
+                  {factor.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </IncidentGlassCard>
+      ) : null}
     </div>
   );
 }

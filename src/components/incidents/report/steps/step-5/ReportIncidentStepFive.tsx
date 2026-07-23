@@ -39,6 +39,12 @@ function validateReportForm(form: ReportIncidentFormState): string | null {
   if (!form.incidentDate.trim()) {
     return "Incident date is required.";
   }
+  if (!form.mechanismOfInjury.trim()) {
+    return "Mechanism of injury is required.";
+  }
+  if (!form.natureOfInjury.trim()) {
+    return "Nature of injury is required.";
+  }
   return null;
 }
 
@@ -137,7 +143,11 @@ export function ReportIncidentStepFive(
   const injuryLevelLabel =
     INJURY_LEVEL_OPTIONS.find((o) => o.id === form.injuryLevel)?.label ?? "—";
   const bodyPartsLabel =
-    formatBodyPartSelection(form.bodyParts, form.bodySide) || "—";
+    formatBodyPartSelection(
+      form.bodyParts,
+      form.bodySide,
+      form.bodyPartSides,
+    ) || "—";
   const affectedPersonLabel = form.affectedPerson.trim() || "—";
   const witnessesLabel = form.witnesses.trim() || "None";
 

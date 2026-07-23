@@ -5,6 +5,8 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 
 export type IncidentDetailSummaryCardProps = Readonly<{
   summaryText?: string;
+  isEditing?: boolean;
+  onChangeSummary?: (value: string) => void;
   className?: string;
 }>;
 
@@ -12,24 +14,39 @@ export function IncidentDetailSummaryCard(
   props: Readonly<IncidentDetailSummaryCardProps>,
 ) {
   const {
-    summaryText = "During second-shift operation, the high-pressure hose on press #4 ruptured at the coupling. Fluid was contained within the guarding; no operator contact occurred. The press was isolated under LOTO pending hose replacement. Maintenance dispatched within 30 minutes. No injuries reported.",
+    summaryText = "",
+    isEditing = false,
+    onChangeSummary,
     className = "",
   } = props;
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4 sm:p-5"
-      className={className}
+      paddingClassName="p-[23px]"
+      incidentGlassCardClassName="gap-[13px]"
+      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+        .filter(Boolean)
+        .join(" ")}
     >
       <Text
         as="h3"
-        className="text-ehs-dark-bg border-b border-[rgba(15,23,42,0.06)] pb-2.5 text-[15px] font-bold"
+        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
       >
         Summary
       </Text>
-      <p className="text-ehs-gray pt-3 text-[12px] leading-relaxed">
-        {summaryText}
-      </p>
+      {isEditing ? (
+        <textarea
+          value={summaryText}
+          onChange={(event) => onChangeSummary?.(event.target.value)}
+          rows={5}
+          placeholder="Describe what happened…"
+          className="min-h-[120px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-[13px] leading-[20.8px] text-[#2a3446] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+        />
+      ) : (
+        <p className="text-[13px] leading-[20.8px] whitespace-pre-wrap text-[#2a3446]">
+          {summaryText.trim() || "No summary provided."}
+        </p>
+      )}
     </IncidentGlassCard>
   );
 }

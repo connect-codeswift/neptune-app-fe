@@ -8,6 +8,10 @@ import { Text } from "@/components/Text";
 import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
 import type { ReportPhotoFile } from "@/components/incidents/report/shared/report-incident-data";
 import {
+  stripAttachmentDisplayName,
+  withAttachmentDisplayName,
+} from "@/lib/attachment-url";
+import {
   CLOUDINARY_MAX_BYTES,
   CLOUDINARY_MAX_FILES,
   isAllowedMimeType,
@@ -36,7 +40,12 @@ function AttachmentTile(
 ) {
   const { file, onRemove } = props;
   const isPdf = file.kind === "pdf" || file.format === "pdf";
-  const imageSrc = file.secureUrl ?? file.url ?? file.previewUrl;
+  const rawSrc = file.secureUrl ?? file.url ?? file.previewUrl;
+  const imageSrc = rawSrc
+    ? rawSrc.startsWith("blob:")
+      ? rawSrc
+      : stripAttachmentDisplayName(rawSrc)
+    : undefined;
   const showImage = !isPdf && Boolean(imageSrc);
 
   return (
@@ -182,16 +191,24 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
 
         try {
           const uploaded = await uploadFileToCloudinary(file);
+          const originalName = file.name.trim() || uploaded.name;
+          const secureUrl = withAttachmentDisplayName(
+            uploaded.secureUrl,
+            originalName,
+          );
           nextPhotos = nextPhotos.map((item) =>
             item.id === placeholder.id
               ? {
                   id: uploaded.id,
                   publicId: uploaded.publicId,
-                  name: uploaded.name,
+                  name: originalName,
                   sizeLabel: uploaded.sizeLabel,
                   bytes: uploaded.bytes,
-                  url: uploaded.url,
-                  secureUrl: uploaded.secureUrl,
+                  url: withAttachmentDisplayName(
+                    uploaded.url || uploaded.secureUrl,
+                    originalName,
+                  ),
+                  secureUrl,
                   mimeType: uploaded.mimeType,
                   format: uploaded.format,
                   resourceType: uploaded.resourceType,

@@ -36,7 +36,6 @@ export type IncidentDto = {
   injuredBodyPart?: string | null;
   injuryDescription?: string | null;
   incidentReporterEmail?: string | null;
-  occurredInCanada?: boolean;
   nonEmployeInvolved?: boolean;
   whatTreatmentWasGiven?: string | null;
   treatmentProvidedBy?: string | null;

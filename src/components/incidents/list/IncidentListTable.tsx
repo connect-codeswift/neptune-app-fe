@@ -21,6 +21,8 @@ export type IncidentListTableProps = Readonly<{
   incidents: readonly IncidentRecord[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** Opens the full incident detail page (second click on the selected row). */
+  onOpenDetail?: (id: string) => void;
   /** When true (detail panel closed), columns and text use a wider layout */
   expanded?: boolean;
   className?: string;
@@ -78,7 +80,7 @@ function createColumns(expanded: boolean) {
           <Text
             as="p"
             className={[
-              "text-ehs-dark-bg leading-normal font-normal",
+              "text-ehs-dark-bg leading-normal font-normal first-letter:uppercase",
               expanded ? "text-[14px] leading-5" : "line-clamp-2 text-[11.6px]",
             ].join(" ")}
           >
@@ -87,7 +89,7 @@ function createColumns(expanded: boolean) {
           <Text
             as="p"
             className={[
-              "text-ehs-muted-text leading-normal font-normal",
+              "text-ehs-muted-text leading-normal font-normal first-letter:uppercase",
               expanded
                 ? "text-[12px] leading-[16px]"
                 : "line-clamp-2 text-[10px]",
@@ -190,6 +192,7 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
     incidents,
     selectedId,
     onSelect,
+    onOpenDetail,
     expanded = false,
     className = "",
   } = props;
@@ -263,7 +266,20 @@ export function IncidentListTable(props: Readonly<IncidentListTableProps>) {
               return (
                 <tr
                   key={row.id}
-                  onClick={() => onSelect(row.original.id)}
+                  onClick={() => {
+                    if (isSelected && onOpenDetail) {
+                      onOpenDetail(row.original.id);
+                      return;
+                    }
+                    onSelect(row.original.id);
+                  }}
+                  title={
+                    onOpenDetail
+                      ? isSelected
+                        ? "Click again to open details"
+                        : "Click to preview"
+                      : undefined
+                  }
                   className={[
                     "cursor-pointer border-t border-[rgba(15,23,42,0.08)] transition-colors",
                     isSelected

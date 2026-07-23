@@ -50,6 +50,12 @@ export async function uploadFileToCloudinary(
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
+  // Unsigned presets reject `use_filename` / `unique_filename`.
+  // `filename_override` is allowed and keeps the original name in metadata.
+  const originalName = file.name.trim();
+  if (originalName) {
+    formData.append("filename_override", originalName);
+  }
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -69,8 +75,7 @@ export async function uploadFileToCloudinary(
     );
   }
 
-  const displayName =
-    file.name.replace(/\.[^.]+$/, "") || payload.original_filename || "file";
+  const displayName = file.name.trim() || payload.original_filename || "file";
 
   const bytes = payload.bytes ?? file.size;
   const format = payload.format ?? (isPdf ? "pdf" : "");

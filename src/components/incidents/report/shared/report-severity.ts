@@ -17,7 +17,7 @@ export const SEVERITY_OPTIONS: readonly SeverityOption[] = [
   {
     id: "osha",
     label: "OSHA Recordable",
-    lines: ["OSHA", "Recordable"],
+    lines: ["OSHA Recordable"],
     previewBadge: "Medium",
   },
   {

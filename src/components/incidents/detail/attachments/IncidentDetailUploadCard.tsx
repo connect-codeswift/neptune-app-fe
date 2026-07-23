@@ -1,26 +1,38 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { withAttachmentDisplayName } from "@/lib/attachment-url";
+import { getAuthDisplayName } from "@/lib/auth-context";
 import { isAllowedMimeType } from "@/lib/cloudinary-constants";
+import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
 
 export type IncidentDetailUploadCardProps = Readonly<{
-  onUploadSuccess: (item: AttachmentItem) => void;
+  onUploadSuccess: (item: AttachmentItem) => void | Promise<void>;
+  /** Registers a function that opens the native file picker. */
+  onRegisterOpen?: (open: () => void) => void;
   className?: string;
 }>;
 
 export function IncidentDetailUploadCard(
   props: Readonly<IncidentDetailUploadCardProps>,
 ) {
-  const { onUploadSuccess, className = "" } = props;
+  const { onUploadSuccess, onRegisterOpen, className = "" } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  useEffect(() => {
+    onRegisterOpen?.(() => {
+      fileInputRef.current?.click();
+    });
+  }, [onRegisterOpen]);
 
   const handleUploadFile = async (file: File) => {
     if (!isAllowedMimeType(file.type)) {
@@ -36,74 +48,86 @@ export function IncidentDetailUploadCard(
       toast.info("Uploading file...", "Transferring to Cloudinary server.");
       const result = await uploadFileToCloudinary(file);
 
-      // Determine kind
       let kind: "image" | "video" | "pdf" = "pdf";
-      if (result.resourceType === "video") kind = "video";
-      else if (result.kind === "image") kind = "image";
+      if (result.resourceType === "video") {
+        kind = "video";
+      } else if (result.kind === "pdf" || result.resourceType === "raw") {
+        kind = "pdf";
+      } else if (result.kind === "image") {
+        kind = "image";
+      }
 
+      const originalName = file.name.trim() || result.name;
       const newItem: AttachmentItem = {
         id: result.id,
-        name: file.name,
-        description: `Uploaded document - ${file.name.replace(/\.[^.]+$/, "")}`,
+        name: originalName,
+        description:
+          kind === "pdf" ? "Document" : kind === "video" ? "Video" : "Photo",
         sizeLabel: result.sizeLabel,
         bytes: result.bytes,
-        addedBy: "Sarah Mitchell", // Mock current user
-        time: new Date().toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        }),
-        secureUrl: result.secureUrl,
+        addedBy: getAuthDisplayName(),
+        time: formatShortDateTime(new Date()),
+        secureUrl: withAttachmentDisplayName(result.secureUrl, originalName),
         kind,
       };
 
-      onUploadSuccess(newItem);
+      await onUploadSuccess(newItem);
       toast.success(
-        "Upload Successful",
-        `File "${file.name}" uploaded successfully.`,
+        "Upload saved",
+        `File "${file.name}" was uploaded and saved to this incident.`,
       );
     } catch (error: unknown) {
       toast.error(
         "Upload Failed",
-        (error as Error).message || "Failed to upload file to Cloudinary.",
+        getMutationErrorMessage(
+          error,
+          (error as Error).message || "Failed to upload file to Cloudinary.",
+        ),
       );
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleUploadFile(e.target.files[0]);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files?.[0]) {
+      void handleUploadFile(event.target.files[0]);
     }
   };
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+  const handleDrag = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.type === "dragenter" || event.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (event.type === "dragleave") {
       setDragActive(false);
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleUploadFile(e.dataTransfer.files[0]);
+    if (event.dataTransfer.files?.[0]) {
+      void handleUploadFile(event.dataTransfer.files[0]);
     }
   };
 
   return (
-    <IncidentGlassCard paddingClassName="p-4 sm:p-5" className={className}>
-      <div className="mb-2.5 flex flex-col border-b border-[rgba(15,23,42,0.06)] pb-2.5">
-        <Text as="h3" className="text-ehs-dark-bg text-[15px] font-bold">
+    <IncidentGlassCard
+      paddingClassName="p-[19px]"
+      incidentGlassCardClassName="gap-[14px]"
+      className={className}
+    >
+      <div className="flex flex-col gap-0.5">
+        <Text
+          as="h3"
+          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        >
           Upload
         </Text>
-        <span className="text-ehs-muted-text text-[11px]">
+        <span className="text-[11px] leading-normal text-[#8892a3]">
           Drag & drop or browse
         </span>
       </div>
@@ -125,8 +149,8 @@ export function IncidentDetailUploadCard(
         className={[
           "relative flex min-h-[174px] cursor-pointer flex-col items-center justify-center rounded-[12px] border-2 border-dashed p-6 text-center transition-all",
           dragActive
-            ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
-            : "border-[rgba(15,23,42,0.12)] bg-white/42 hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
+            ? "border-[#0891a6] bg-[rgba(8,145,166,0.08)]"
+            : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
           isUploading ? "pointer-events-none opacity-60" : "",
         ].join(" ")}
       >
@@ -135,23 +159,24 @@ export function IncidentDetailUploadCard(
             <Icon
               icon="mdi:loading"
               className="size-8 animate-spin text-[#0891a6]"
+              aria-hidden="true"
             />
-            <span className="text-ehs-dark-bg text-[11.5px] font-bold">
+            <span className="text-[11.5px] font-bold text-[#0b1320]">
               Uploading...
             </span>
           </div>
         ) : (
           <>
-            <div className="bg-ehs-normal-blue/14 text-ehs-normal-blue flex size-[34px] shrink-0 items-center justify-center rounded-full">
-              <Icon icon="mdi:plus" className="size-5" />
+            <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)] text-[#056e7e]">
+              <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="text-ehs-dark-bg mt-2.5 text-[13px] font-bold">
+            <span className="mt-2.5 text-[13px] font-bold text-[#0b1320]">
               Drop files here
             </span>
-            <span className="text-ehs-muted-text mt-1 text-[10px]">
+            <span className="mt-1 text-[10px] text-[#8892a3]">
               JPG, PNG, MP4, PDF up to 50 MB
             </span>
-            <span className="mt-3.5 text-[11.5px] font-bold text-[#056e7e] transition-colors hover:text-[#067485]">
+            <span className="mt-3.5 text-[11.5px] font-bold text-[#056e7e]">
               Browse files
             </span>
           </>

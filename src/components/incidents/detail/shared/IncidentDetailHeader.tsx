@@ -20,6 +20,13 @@ export type IncidentDetailHeaderProps = Readonly<{
   onTabChange: (tab: TabId) => void;
   onCloseIncident?: () => void;
   onEdit?: () => void;
+  /** When true, the Edit control shows as Save. */
+  isEditing?: boolean;
+  isSaving?: boolean;
+  /** Hides Edit and treats the page as view-only. */
+  readOnly?: boolean;
+  isClosingIncident?: boolean;
+  closeDisabled?: boolean;
   className?: string;
 }>;
 
@@ -30,6 +37,11 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
     onTabChange,
     onCloseIncident,
     onEdit,
+    isEditing = false,
+    isSaving = false,
+    readOnly = false,
+    isClosingIncident = false,
+    closeDisabled = false,
     className = "",
   } = props;
   const router = useRouter();
@@ -128,21 +140,33 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
         </Text>
 
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={handleEdit}
-            className="rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-[13px] font-bold text-[#2a3446] transition-colors hover:bg-white/70"
-          >
-            Edit
-          </Button>
+          {!readOnly ? (
+            <Button
+              type="button"
+              variant={isEditing ? "primary" : "tertiary"}
+              onClick={handleEdit}
+              disabled={isSaving}
+              className={
+                isEditing
+                  ? "rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
+                  : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-[13px] font-bold text-[#2a3446] transition-colors hover:bg-white/70 disabled:opacity-50"
+              }
+            >
+              {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="primary"
             onClick={handleClose}
-            className="rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485]"
+            disabled={closeDisabled || isClosingIncident}
+            className="rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
           >
-            Close Incident
+            {isClosingIncident
+              ? "Closing…"
+              : closeDisabled
+                ? "Closed"
+                : "Close Incident"}
           </Button>
         </div>
       </div>

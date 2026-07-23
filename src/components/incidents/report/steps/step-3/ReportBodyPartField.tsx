@@ -6,27 +6,43 @@ import { Text } from "@/components/Text";
 import {
   BODY_PART_OPTIONS,
   formatBodyPartSelection,
+  isBodyPartSided,
   type BodyPartId,
+  type BodyPartSideMap,
+  type BodyPartSideValue,
   type BodySide,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportBodyMapFigure } from "@/components/incidents/report/steps/step-3/ReportBodyMapFigure";
 
 export type ReportBodyPartFieldProps = Readonly<{
   bodyParts: readonly BodyPartId[];
+  bodyPartSides: BodyPartSideMap;
   bodySide: BodySide;
   multiSelect: boolean;
   onBodyPartsChange: (parts: readonly BodyPartId[]) => void;
+  onBodyPartSidesChange: (sides: BodyPartSideMap) => void;
   onBodySideChange: (side: BodySide) => void;
   onMultiSelectChange: (enabled: boolean) => void;
   className?: string;
 }>;
 
+function omitPartSide(
+  sides: BodyPartSideMap,
+  part: BodyPartId,
+): BodyPartSideMap {
+  const next: Partial<Record<BodyPartId, BodyPartSideValue>> = { ...sides };
+  delete next[part];
+  return next;
+}
+
 export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
   const {
     bodyParts,
+    bodyPartSides,
     bodySide,
     multiSelect,
     onBodyPartsChange,
+    onBodyPartSidesChange,
     onBodySideChange,
     onMultiSelectChange,
     className = "",
@@ -35,25 +51,69 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
   const [activeTab, setActiveTab] = useState<"front" | "back">("front");
 
   const selectPart = (part: BodyPartId, side?: BodySide) => {
-    if (side) {
-      onBodySideChange(side);
-    }
+    const sided = isBodyPartSided(part);
+    const effectiveSide = sided ? (side ?? bodySide) : undefined;
+
     if (multiSelect) {
-      if (bodyParts.includes(part)) {
+      const alreadySelected = bodyParts.includes(part);
+
+      if (alreadySelected) {
+        const currentSide = bodyPartSides[part];
+
+        // Same part, opposite side → keep both (e.g. Left + Right hand).
+        if (
+          effectiveSide &&
+          currentSide &&
+          currentSide !== "Both" &&
+          currentSide !== effectiveSide
+        ) {
+          onBodyPartSidesChange({ ...bodyPartSides, [part]: "Both" });
+          onBodySideChange(effectiveSide);
+          return;
+        }
+
+        // Both selected → remove only the clicked side.
+        if (effectiveSide && currentSide === "Both") {
+          const remaining: BodySide =
+            effectiveSide === "Left" ? "Right" : "Left";
+          onBodyPartSidesChange({ ...bodyPartSides, [part]: remaining });
+          onBodySideChange(remaining);
+          return;
+        }
+
+        // Toggle off this part entirely.
         onBodyPartsChange(bodyParts.filter((id) => id !== part));
+        onBodyPartSidesChange(omitPartSide(bodyPartSides, part));
         return;
       }
+
       onBodyPartsChange([...bodyParts, part]);
+      if (effectiveSide) {
+        onBodyPartSidesChange({ ...bodyPartSides, [part]: effectiveSide });
+        onBodySideChange(effectiveSide);
+      }
       return;
     }
+
+    // Single-select: replace selection.
     onBodyPartsChange([part]);
+    if (effectiveSide) {
+      onBodyPartSidesChange({ [part]: effectiveSide });
+      onBodySideChange(effectiveSide);
+    } else {
+      onBodyPartSidesChange({});
+    }
   };
 
   const switchSide = () => {
     onBodySideChange(bodySide === "Left" ? "Right" : "Left");
   };
 
-  const selectionLabel = formatBodyPartSelection(bodyParts, bodySide);
+  const selectionLabel = formatBodyPartSelection(
+    bodyParts,
+    bodySide,
+    bodyPartSides,
+  );
 
   return (
     <div
@@ -71,7 +131,6 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
       </div>
 
       <div className="flex w-full flex-col gap-4 rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4 sm:p-5">
-        {/* View Switcher for Mobile Devices */}
         <div className="flex w-full rounded-[10px] bg-[rgba(15,23,42,0.04)] p-1 sm:hidden">
           <button
             type="button"
@@ -103,6 +162,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
           <ReportBodyMapFigure
             view="front"
             selectedParts={bodyParts}
+            bodyPartSides={bodyPartSides}
             bodySide={bodySide}
             onSelectPart={selectPart}
             className={activeTab === "front" ? "flex" : "hidden sm:flex"}
@@ -110,6 +170,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
           <ReportBodyMapFigure
             view="back"
             selectedParts={bodyParts}
+            bodyPartSides={bodyPartSides}
             bodySide={bodySide}
             onSelectPart={selectPart}
             className={activeTab === "back" ? "flex" : "hidden sm:flex"}
