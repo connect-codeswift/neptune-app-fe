@@ -7,8 +7,6 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
-import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useCreateAuditTemplateMutation } from "@/hooks/use-audit-template-mutations";
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
@@ -32,9 +30,8 @@ import {
   createTemplateInitialValues,
   createTemplateSchema,
 } from "./create-template-schema";
-import { toAuditTemplatePayload } from "./to-template-payload";
 
-const TEMPLATES_ROUTE = "/dashboard/audits/template";
+const TEMPLATES_ROUTE = "/dashboard/inspections/template";
 const BASIC_INFO_FORM_ID = "create-template-basic-info";
 
 /** Live preview of how the template will present in the templates grid. */
@@ -91,36 +88,8 @@ export function CreateTemplateContent() {
   const [settings, setSettings] = useState<TemplateSettings>(createSettings);
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
-  const createTemplate = useCreateAuditTemplateMutation();
-
-  /** POST the wizard state as a draft or a published template. */
-  const submitTemplate = (publish: boolean) => {
-    const draft = { values, sections, scoring, rules, settings };
-    const payload = toAuditTemplatePayload(draft, { publish });
-
-    console.log("Template wizard data", draft);
-    console.log("Audit template payload", payload);
-
-    createTemplate.mutate(payload, {
-      onSuccess: () => {
-        toast.success(publish ? "Template published" : "Draft saved");
-        if (publish) router.push(TEMPLATES_ROUTE);
-      },
-      onError: (error) => {
-        toast.error(
-          getMutationErrorMessage(
-            error,
-            publish
-              ? "Could not publish the template. Please try again."
-              : "Could not save the draft. Please try again.",
-          ),
-        );
-      },
-    });
-  };
-
   const handleSaveDraft = () => {
-    submitTemplate(false);
+    toast.success("Draft saved");
   };
 
   /** Step 1's Next: only fires once FormBuilder's validation passes. */
@@ -150,7 +119,9 @@ export function CreateTemplateContent() {
   };
 
   const handlePublish = () => {
-    submitTemplate(true);
+    // TODO: wire to a create-template mutation once the service exists.
+    toast.success("Template published");
+    router.push(TEMPLATES_ROUTE);
   };
 
   /** Advance/finish depending on the current step. */
@@ -193,7 +164,7 @@ export function CreateTemplateContent() {
             as="h1"
             className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
           >
-            Create Audit Template
+            Create Inspection Template
           </Text>
 
           <Text as="p" className="text-ehs-muted-text text-sm">
@@ -204,8 +175,7 @@ export function CreateTemplateContent() {
         <button
           type="button"
           onClick={handleSaveDraft}
-          disabled={createTemplate.isPending}
-          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors"
         >
           <Icon
             icon="mdi:content-save-outline"
@@ -275,7 +245,6 @@ export function CreateTemplateContent() {
           scoring={scoring}
           rules={rules}
           settings={settings}
-          isSubmitting={createTemplate.isPending}
           onEditStep={setStep}
           onPublish={handlePublish}
           onSaveDraft={handleSaveDraft}

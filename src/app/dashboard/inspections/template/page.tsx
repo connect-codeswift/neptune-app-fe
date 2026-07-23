@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import { AuditTemplateCard } from "@/components/audits/templates/AuditTemplateCard";
-import { AuditTemplatesHeader } from "@/components/audits/templates/AuditTemplatesHeader";
-import { AUDIT_TEMPLATES } from "./audit-templates-data";
+import { InspectionTemplateCard } from "@/components/inspections/templates/InspectionTemplateCard";
+import { InspectionTemplatesHeader } from "@/components/inspections/templates/InspectionTemplatesHeader";
+import { INSPECTION_TEMPLATES } from "./inspection-templates-data";
 
-const START_AUDIT_ROUTE = "/dashboard/audits/new";
+const START_INSPECTION_ROUTE = "/dashboard/inspections/start";
 
-export default function AuditTemplatesPage() {
+export default function InspectionTemplatesPage() {
   const router = useRouter();
 
   return (
@@ -18,25 +18,25 @@ export default function AuditTemplatesPage() {
         searchonleft={true}
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        actionLabel="Start Audit"
-        onActionClick={() => router.push(START_AUDIT_ROUTE)}
+        actionLabel="Start Inspection"
+        onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-        <AuditTemplatesHeader
+        <InspectionTemplatesHeader
           onCreateTemplate={() =>
-            router.push("/dashboard/audits/templates/create")
+            router.push("/dashboard/inspections/template/create")
           }
         />
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {AUDIT_TEMPLATES.map((template) => (
-            <AuditTemplateCard
+          {INSPECTION_TEMPLATES.map((template) => (
+            <InspectionTemplateCard
               key={template.id}
               template={template}
               onUse={(used) =>
                 router.push(
-                  `/dashboard/audits/checklist/${encodeURIComponent(used.id)}`,
+                  `/dashboard/inspections/checklist/${encodeURIComponent(used.id)}`,
                 )
               }
             />

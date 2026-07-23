@@ -66,7 +66,7 @@ export default function AuditsPage() {
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
         actionLabel="Start Audit"
-        onActionClick={() => router.push("/dashboard/audits/new")}
+        onActionClick={() => router.push("/dashboard/audits/start")}
       />
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         {/* KPI Metrics */}
@@ -90,7 +90,7 @@ export default function AuditsPage() {
                 status={selectedStatus}
                 onStatusChange={setSelectedStatus}
                 onTemplatesClick={() =>
-                  router.push("/dashboard/audits/templates")
+                  router.push("/dashboard/audits/template")
                 }
               />
             }

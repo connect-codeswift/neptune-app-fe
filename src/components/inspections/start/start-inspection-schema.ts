@@ -1,11 +1,11 @@
-import { AUDIT_TEMPLATES } from "@/app/dashboard/audits/template/audit-templates-data";
+import { INSPECTION_TEMPLATES } from "@/app/dashboard/inspections/template/inspection-templates-data";
 import type { FormSchema, SelectOption } from "@/components/form-builder";
 
-const TEMPLATE_OPTIONS: readonly SelectOption[] = AUDIT_TEMPLATES.map(
+const TEMPLATE_OPTIONS: readonly SelectOption[] = INSPECTION_TEMPLATES.map(
   (template) => ({ value: template.id, label: template.title }),
 );
 
-/** Sites an audit can be scheduled against, matching the audit register. */
+/** Sites an inspection can be scheduled against, matching the inspection register. */
 const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "all", label: "All" },
   { value: "plant-a", label: "Plant A" },
@@ -13,30 +13,30 @@ const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "warehouse-1", label: "Warehouse 1" },
 ];
 
-/** Shape of a submitted Start Audit form, keyed by the schema field names. */
-export type StartAuditValues = {
-  auditTitle: string;
+/** Shape of a submitted Start Inspection form, keyed by the schema field names. */
+export type StartInspectionValues = {
+  inspectionTitle: string;
   template: string;
   location: string;
-  auditor: string;
+  inspector: string;
   scheduledDate: string;
 };
 
 /**
- * Auditors come from GET /User/dropdown, so the schema is built per render
+ * Inspectors come from GET /User/dropdown, so the schema is built per render
  * rather than declared as a module constant.
  */
-export function buildStartAuditSchema(
-  auditorOptions: readonly SelectOption[],
+export function buildStartInspectionSchema(
+  inspectorOptions: readonly SelectOption[],
 ): FormSchema {
   return [
     {
       type: "text",
-      name: "auditTitle",
-      label: "Audit Title",
+      name: "inspectionTitle",
+      label: "Inspection Title",
       required: true,
       colSpan: 12,
-      placeholder: "e.g., Q1 Production Safety Audit",
+      placeholder: "e.g., Q1 Production Safety Inspection",
     },
     {
       type: "select",
@@ -61,15 +61,15 @@ export function buildStartAuditSchema(
     },
     {
       type: "select",
-      name: "auditor",
-      label: "Auditor",
+      name: "inspector",
+      label: "Inspector",
       required: true,
       colSpan: 6,
-      placeholder: "Select auditor",
-      options: auditorOptions,
-      // External auditors aren't in the user directory.
+      placeholder: "Select inspector",
+      options: inspectorOptions,
+      // External inspectors aren't in the user directory.
       allowCustom: true,
-      addCustomLabel: "Add external auditor",
+      addCustomLabel: "Add external inspector",
       addCustomPlaceholder: "e.g. NFPA · Beacon",
     },
     {

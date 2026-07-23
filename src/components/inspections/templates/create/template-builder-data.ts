@@ -1,4 +1,4 @@
-/** Answer controls an auditor can get for a checklist item, in picker order. */
+/** Answer controls an inspector can get for a checklist item, in picker order. */
 export const TEMPLATE_ITEM_TYPES = [
   "Text",
   "Number",
@@ -76,7 +76,7 @@ export type TemplateItem = {
   guidance: string;
   /** Contribution to the section score; 0 means unscored. */
   scoreWeight: number;
-  /** Auditors must answer this item. New items default to required. */
+  /** Inspectors must answer this item. New items default to required. */
   required: boolean;
   /** Captured value for the item's control: a string, or string[] for
    * multi-select controls. */
@@ -136,7 +136,7 @@ export function itemValueText(item: TemplateItem): string {
 
 /**
  * Display name for an item: its label, else its entered value, else its type —
- * so the scoring/rules screens show what the auditor filled in. Long values are
+ * so the scoring/rules screens show what the inspector filled in. Long values are
  * ellipsised so they don't stretch dropdowns and lists.
  */
 export function itemDisplayName(item: TemplateItem): string {
@@ -194,7 +194,7 @@ export type ScoringConfig = {
   method: ScoringMethod;
   /** Pass mark as a percentage, 0-100. */
   passThreshold: number;
-  /** Show the running score to the auditor while they fill the form. */
+  /** Show the running score to the inspector while they fill the form. */
   showScoreToUser: boolean;
 };
 

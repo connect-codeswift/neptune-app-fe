@@ -744,7 +744,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               </span>
               <input
                 value={activeSection.description}
-                placeholder="Optional guidance text for the auditor"
+                placeholder="Optional guidance text for the inspector"
                 aria-label="Section description"
                 onChange={(event) => {
                   patchActiveSection({ description: event.target.value });

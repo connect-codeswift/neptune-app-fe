@@ -1,0 +1,416 @@
+"use client";
+
+import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents";
+import { Switch } from "./Switch";
+import {
+  RULE_ACTIONS,
+  RULE_OPERATORS,
+  RULE_VALUES,
+  SCORING_METHODS,
+  createRule,
+  itemDisplayName,
+  type ScoringConfig,
+  type ScoringMethod,
+  type TemplateRule,
+  type TemplateSection,
+} from "./template-builder-data";
+
+const labelClass =
+  "text-ehs-muted-text text-xs font-bold tracking-wider uppercase";
+
+const selectClass =
+  "w-full truncate appearance-none rounded-lg border border-slate-900/10 bg-white px-3 py-2 pr-9 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+
+/** Number of item weight rows shown before the "+N more" note. */
+const WEIGHTS_PREVIEW_COUNT = 3;
+
+function Select(
+  props: Readonly<{
+    value: string;
+    placeholder: string;
+    options: readonly string[];
+    ariaLabel: string;
+    onChange: (value: string) => void;
+  }>,
+) {
+  const { value, placeholder, options, ariaLabel, onChange } = props;
+
+  return (
+    <div className="relative min-w-0 flex-1">
+      <select
+        value={value}
+        aria-label={ariaLabel}
+        onChange={(event) => onChange(event.target.value)}
+        className={[selectClass, value ? "" : "text-ehs-muted-text"].join(" ")}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option} value={option} className="text-ehs-dark-bg">
+            {option}
+          </option>
+        ))}
+      </select>
+      <Icon
+        icon="mdi:chevron-down"
+        className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
+        aria-hidden="true"
+      />
+    </div>
+  );
+}
+
+export type ScoringLogicStepProps = Readonly<{
+  sections: TemplateSection[];
+  onSectionsChange: (sections: TemplateSection[]) => void;
+  scoring: ScoringConfig;
+  onScoringChange: (scoring: ScoringConfig) => void;
+  rules: TemplateRule[];
+  onRulesChange: (rules: TemplateRule[]) => void;
+}>;
+
+export function ScoringLogicStep(props: ScoringLogicStepProps) {
+  const {
+    sections,
+    onSectionsChange,
+    scoring,
+    onScoringChange,
+    rules,
+    onRulesChange,
+  } = props;
+
+  const items = sections.flatMap((section) =>
+    section.items.map((item) => ({ sectionId: section.id, item })),
+  );
+  const questionLabels = [
+    ...new Set(items.map(({ item }) => itemDisplayName(item))),
+  ];
+  const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);
+  const hiddenWeightCount = items.length - shownWeights.length;
+
+  const patchScoring = (patch: Partial<ScoringConfig>) => {
+    onScoringChange({ ...scoring, ...patch });
+  };
+
+  const setItemWeight = (sectionId: string, itemId: string, weight: number) => {
+    onSectionsChange(
+      sections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              items: section.items.map((item) =>
+                item.id === itemId ? { ...item, scoreWeight: weight } : item,
+              ),
+            }
+          : section,
+      ),
+    );
+  };
+
+  const patchRule = (ruleId: string, patch: Partial<TemplateRule>) => {
+    onRulesChange(
+      rules.map((rule) => (rule.id === ruleId ? { ...rule, ...patch } : rule)),
+    );
+  };
+
+  return (
+    <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-2">
+      {/* Scoring Configuration */}
+      <IncidentGlassCard
+        paddingClassName="p-6"
+        incidentGlassCardClassName="gap-5"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-ehs-dark-bg text-lg font-bold">
+            Scoring Configuration
+          </h2>
+          <span className="flex items-center gap-2">
+            <span className="text-ehs-gray">Enable Scoring</span>
+            <Switch
+              checked={scoring.enabled}
+              label="Enable scoring"
+              onChange={() => patchScoring({ enabled: !scoring.enabled })}
+            />
+          </span>
+        </div>
+
+        {scoring.enabled ? (
+          <>
+            <div className="flex flex-col gap-2">
+              <span className={labelClass}>Scoring Method</span>
+
+              <div className="relative">
+                <select
+                  value={scoring.method}
+                  aria-label="Scoring method"
+                  onChange={(event) => {
+                    patchScoring({
+                      method: event.target.value as ScoringMethod,
+                    });
+                  }}
+                  className="border-ehs-normal-blue bg-ehs-normal-blue/15 text-ehs-dark-blue focus:ring-ehs-normal-blue/20 w-full cursor-pointer appearance-none rounded-xl border px-3 py-2.5 text-center text-sm font-bold transition outline-none focus:ring-2"
+                >
+                  {SCORING_METHODS.map((method) => (
+                    <option key={method} value={method}>
+                      {method}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <span className={labelClass}>Pass Threshold</span>
+                <span className="text-ehs-dark-blue text-sm font-bold tabular-nums">
+                  {`${String(scoring.passThreshold)}%`}
+                </span>
+              </div>
+
+              {/* Filled bar with an invisible range on top for interaction. */}
+              <div className="relative h-3">
+                <div
+                  className="absolute inset-0 overflow-hidden rounded-full bg-[#eef1f6]"
+                  aria-hidden="true"
+                >
+                  <div
+                    className="bg-ehs-normal-blue h-full rounded-full"
+                    style={{ width: `${String(scoring.passThreshold)}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={scoring.passThreshold}
+                  aria-label="Pass threshold"
+                  onChange={(event) => {
+                    patchScoring({ passThreshold: Number(event.target.value) });
+                  }}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                />
+              </div>
+
+              <div className="mt-2 grid grid-cols-3 gap-2 text-center text-sm font-semibold">
+                <span className="text-ehs-green bg-ehs-dark-bg/6 rounded-lg py-2">
+                  ≥80% Pass
+                </span>
+                <span className="text-ehs-yellow bg-ehs-dark-bg/6 rounded-lg py-2">
+                  60-79% Amber
+                </span>
+                <span className="text-ehs-red bg-ehs-dark-bg/6 rounded-lg py-2">
+                  &lt;60% Fail
+                </span>
+              </div>
+            </div>
+
+            <p className="text-ehs-normal-blue bg-ehs-dark-bg/6 rounded-lg px-4 py-3 text-sm">
+              (Total Scored ÷ Total Possible) × 100
+            </p>
+
+            <div className="flex items-center justify-between gap-3 border-t border-slate-900/10 pt-4">
+              <span className="flex flex-col">
+                <span className="text-ehs-dark-bg font-bold">
+                  Score Visibility
+                </span>
+                <span className="text-ehs-muted-text text-sm">
+                  Show score to user while completing form
+                </span>
+              </span>
+              <Switch
+                checked={scoring.showScoreToUser}
+                label="Score visibility"
+                onChange={() => {
+                  patchScoring({ showScoreToUser: !scoring.showScoreToUser });
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2.5 border-t border-slate-900/10 pt-4">
+              <h3 className={labelClass}>Item Weights</h3>
+
+              {shownWeights.length > 0 ? (
+                <ul className="flex flex-col gap-2">
+                  {shownWeights.map(({ sectionId, item }) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 rounded-lg bg-white p-2"
+                    >
+                      <span className="text-ehs-gray min-w-0 flex-1 truncate">
+                        {itemDisplayName(item)}
+                      </span>
+                      <span className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-16 shrink-0 rounded-lg border border-slate-900/10 bg-white px-3 py-1.5 text-center text-sm tabular-nums outline-none focus:ring-2">
+                        {item.scoreWeight}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-ehs-muted-text text-sm">
+                  No items yet — add them in Step 2.
+                </p>
+              )}
+
+              {hiddenWeightCount > 0 ? (
+                <p className="text-ehs-muted-text text-xs">
+                  {`+${String(hiddenWeightCount)} more (edit in Step 2)`}
+                </p>
+              ) : null}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 rounded-xl bg-[#0F172A08] px-6 py-8 text-center">
+            <Icon
+              icon="mdi:chart-bar"
+              className="text-ehs-muted-text/30 size-8"
+              aria-hidden="true"
+            />
+            <p className="text-ehs-gray/50">
+              Scoring disabled — items will be pass/fail only.
+            </p>
+          </div>
+        )}
+      </IncidentGlassCard>
+
+      {/* Conditional Logic */}
+      <IncidentGlassCard
+        paddingClassName="p-5"
+        incidentGlassCardClassName="gap-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-ehs-dark-bg text-lg font-bold">
+            Conditional Logic
+          </h2>
+          <button
+            type="button"
+            onClick={() => onRulesChange([...rules, createRule()])}
+            className="bg-ehs-normal-blue/12 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors"
+          >
+            <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+            Add Rule
+          </button>
+        </div>
+
+        <p className="text-ehs-muted-text text-sm">
+          Define IF/THEN rules to show or hide sections, mark items required, or
+          jump to sections based on responses.
+        </p>
+
+        {rules.length > 0 ? (
+          <ul className="flex flex-col gap-3">
+            {rules.map((rule) => (
+              <li
+                key={rule.id}
+                className="bg-ehs-normal-blue-bg-light flex flex-col gap-3 rounded-xl border border-slate-900/10 p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={[
+                      "rounded-md px-2 py-0.5 text-[11px] font-bold tracking-wider uppercase",
+                      rule.active
+                        ? "bg-ehs-normal-blue/15 text-ehs-dark-blue"
+                        : "text-ehs-muted-text bg-slate-900/8",
+                    ].join(" ")}
+                  >
+                    {rule.active ? "Active" : "Inactive"}
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      aria-label={rule.active ? "Disable rule" : "Enable rule"}
+                      onClick={() =>
+                        patchRule(rule.id, { active: !rule.active })
+                      }
+                      className="text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer transition-colors"
+                    >
+                      <Icon
+                        icon={
+                          rule.active
+                            ? "mdi:eye-outline"
+                            : "mdi:eye-off-outline"
+                        }
+                        className="size-5"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Delete rule"
+                      onClick={() => {
+                        onRulesChange(rules.filter((r) => r.id !== rule.id));
+                      }}
+                      className="text-ehs-red hover:text-ehs-red cursor-pointer opacity-80 transition-opacity hover:opacity-100"
+                    >
+                      <Icon icon="mdi:trash-can-outline" className="size-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="bg-ehs-blue/15 text-ehs-blue shrink-0 rounded-md px-2 py-1 text-xs font-bold">
+                    IF
+                  </span>
+                  <Select
+                    value={rule.ifQuestion}
+                    placeholder="Select question"
+                    options={questionLabels}
+                    ariaLabel="If question"
+                    onChange={(value) =>
+                      patchRule(rule.id, { ifQuestion: value })
+                    }
+                  />
+                  <Select
+                    value={rule.ifOperator}
+                    placeholder="Condition"
+                    options={RULE_OPERATORS}
+                    ariaLabel="If operator"
+                    onChange={(value) =>
+                      patchRule(rule.id, { ifOperator: value })
+                    }
+                  />
+                  <Select
+                    value={rule.ifValue}
+                    placeholder="Value"
+                    options={RULE_VALUES}
+                    ariaLabel="If value"
+                    onChange={(value) => patchRule(rule.id, { ifValue: value })}
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="bg-ehs-green/15 text-ehs-green shrink-0 rounded-md px-2 py-1 text-xs font-bold">
+                    THEN
+                  </span>
+                  <Select
+                    value={rule.thenAction}
+                    placeholder="Select action"
+                    options={RULE_ACTIONS}
+                    ariaLabel="Then action"
+                    onChange={(value) =>
+                      patchRule(rule.id, { thenAction: value })
+                    }
+                  />
+                  <input
+                    value={rule.thenValue}
+                    placeholder="Value"
+                    aria-label="Then value"
+                    onChange={(event) => {
+                      patchRule(rule.id, { thenValue: event.target.value });
+                    }}
+                    className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border border-slate-900/10 bg-white px-3 py-2 outline-none focus:ring-2"
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-ehs-muted-text rounded-xl border border-dashed border-slate-900/15 px-4 py-6 text-center text-sm">
+            No rules yet. Add one to define conditional behaviour.
+          </p>
+        )}
+      </IncidentGlassCard>
+    </div>
+  );
+}

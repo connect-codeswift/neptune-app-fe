@@ -3,15 +3,15 @@
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
-import type { AuditTemplate } from "@/app/dashboard/audits/template/audit-templates-data";
+import type { InspectionTemplate } from "@/app/dashboard/inspections/template/inspection-templates-data";
 
-export type AuditTemplateCardProps = Readonly<{
-  template: AuditTemplate;
-  onUse?: (template: AuditTemplate) => void;
-  onOptions?: (template: AuditTemplate) => void;
+export type InspectionTemplateCardProps = Readonly<{
+  template: InspectionTemplate;
+  onUse?: (template: InspectionTemplate) => void;
+  onOptions?: (template: InspectionTemplate) => void;
 }>;
 
-export function AuditTemplateCard(props: AuditTemplateCardProps) {
+export function InspectionTemplateCard(props: InspectionTemplateCardProps) {
   const { template, onUse, onOptions } = props;
 
   return (
