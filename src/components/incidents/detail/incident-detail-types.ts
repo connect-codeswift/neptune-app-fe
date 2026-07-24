@@ -123,6 +123,7 @@ export type IncidentClosureData = Readonly<{
   daysAwayFromWork: number;
   daysOnRestrictedDuty: number;
   isOshaRecordable: boolean;
+  oshaOverrideReason?: string;
   closureStatement: string;
   lessonsLearned: string;
   closureNotes: string;

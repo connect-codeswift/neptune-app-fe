@@ -9,18 +9,9 @@ export type IncidentClosureStepRootCauseProps = Readonly<{
   data: IncidentClosureData;
   onChangeField: <K extends keyof IncidentClosureData>(
     field: K,
-    value: IncidentClosureData[K]
+    value: IncidentClosureData[K],
   ) => void;
 }>;
-
-const PRIMARY_ROOT_CAUSE_OPTIONS = [
-  "Equipment Failure",
-  "Human Error",
-  "Procedural Defect",
-  "Design Flaw",
-  "Environmental Factor",
-  "Material Defect",
-];
 
 const ALL_CONTRIBUTING_FACTORS = [
   "Procedure Gap",
@@ -33,7 +24,7 @@ const ALL_CONTRIBUTING_FACTORS = [
 ];
 
 export function IncidentClosureStepRootCause(
-  props: Readonly<IncidentClosureStepRootCauseProps>
+  props: Readonly<IncidentClosureStepRootCauseProps>,
 ) {
   const { data, onChangeField } = props;
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
@@ -53,7 +44,7 @@ export function IncidentClosureStepRootCause(
   };
 
   const availableFactors = ALL_CONTRIBUTING_FACTORS.filter(
-    (f) => !currentFactors.includes(f)
+    (f) => !currentFactors.includes(f),
   );
 
   return (
@@ -67,31 +58,23 @@ export function IncidentClosureStepRootCause(
 
       {/* Primary Root Cause */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
+        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] text-[#94a3b8] uppercase">
           PRIMARY ROOT CAUSE
         </label>
         <div className="relative">
-          <select
+          <input
+            type="text"
             value={data.primaryRootCause}
             onChange={(e) => onChangeField("primaryRootCause", e.target.value)}
-            className="w-full appearance-none rounded-[14px] border border-[#e2e8f0] bg-white py-2.5 pr-9 pl-3.5 text-[13px] font-semibold text-[#0f172a] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-          >
-            {PRIMARY_ROOT_CAUSE_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <Icon
-            icon="mdi:chevron-down"
-            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[18px] text-[#64748b]"
+            className="w-full rounded-[14px] border border-[#e2e8f0] bg-white py-2.5 pr-9 pl-3.5 text-[13px] font-semibold text-[#0f172a] shadow-xs transition outline-none focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
+            placeholder="Enter primary root cause..."
           />
         </div>
       </div>
 
       {/* Contributing Factors */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
+        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] text-[#94a3b8] uppercase">
           CONTRIBUTING FACTORS
         </label>
         <div className="relative flex min-h-[46px] flex-wrap items-center gap-2 rounded-[14px] border border-[#e2e8f0] bg-white p-2.5 shadow-xs">
@@ -144,7 +127,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Root Cause Description */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
+        <label className="mb-2 text-[12px] font-bold tracking-[0.08em] text-[#94a3b8] uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
         <textarea
@@ -153,7 +136,7 @@ export function IncidentClosureStepRootCause(
           rows={4}
           maxLength={1000}
           placeholder="Describe the root cause details..."
-          className="w-full resize-y rounded-[14px] border border-[#e2e8f0] bg-white px-3.5 py-3 text-[13px] font-medium leading-[20px] text-[#1e293b] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
+          className="w-full resize-y rounded-[14px] border border-[#e2e8f0] bg-white px-3.5 py-3 text-[13px] leading-[20px] font-medium text-[#1e293b] shadow-xs transition outline-none focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
         />
         <span className="mt-1.5 self-end text-[11px] font-semibold text-[#94a3b8]">
           {`${String(data.rootCauseSummary.length)} / 1000 min`}

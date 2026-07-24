@@ -8,25 +8,116 @@ export type IncidentClosureStepClassificationProps = Readonly<{
   data: IncidentClosureData;
   onChangeField: <K extends keyof IncidentClosureData>(
     field: K,
-    value: IncidentClosureData[K]
+    value: IncidentClosureData[K],
   ) => void;
 }>;
 
 const INCIDENT_TYPES = [
-  "Lost Time",
-  "First Aid",
+  "Select option",
   "Near Miss",
-  "Medical Treatment",
-  "Property Damage",
-  "Environmental Release",
+  "First Aid Only",
+  "Medical Treatment Only",
+  "Restricted Work / Job Transfer",
+  "Lost Time",
+  "Fatality",
 ];
 
-const SIF_CLASSIFICATIONS = ["Potential SIF", "SIF", "Non-SIF"];
+const SIF_CLASSIFICATIONS = [
+  "Select option",
+  "Not SIF",
+  "Potential SIF (P-SIF)",
+  "Actual SIF",
+];
+
+// --- Derivation + visibility rules, keyed off Final Incident Type ---
+
+function getDerivedRecordable(finalIncidentType: string): boolean {
+  switch (finalIncidentType) {
+    case "Near Miss":
+    case "First Aid Only":
+      return false;
+    case "Medical Treatment Only":
+    case "Restricted Work / Job Transfer":
+    case "Lost Time":
+    case "Fatality":
+      return true;
+    default:
+      return false;
+  }
+}
+
+function showDaysAwayField(finalIncidentType: string): boolean {
+  return finalIncidentType === "Lost Time";
+}
+
+function showDaysRestrictedField(finalIncidentType: string): boolean {
+  return (
+    finalIncidentType === "Restricted Work / Job Transfer" ||
+    finalIncidentType === "Lost Time"
+  );
+}
 
 export function IncidentClosureStepClassification(
-  props: Readonly<IncidentClosureStepClassificationProps>
+  props: Readonly<IncidentClosureStepClassificationProps>,
 ) {
   const { data, onChangeField } = props;
+
+  const selectedIncidentType = data.finalIncidentType || "Select option";
+  const selectedSifClassification = data.sifClassification || "Select option";
+
+  const derivedRecordable = getDerivedRecordable(selectedIncidentType);
+  const isOverridden = data.isOshaRecordable !== derivedRecordable;
+  const showDaysAway = showDaysAwayField(selectedIncidentType);
+  const showDaysRestricted = showDaysRestrictedField(selectedIncidentType);
+
+  // --- Validation (inline, non-blocking display; parent step can read these) ---
+
+  const lostTimeMissingDays =
+    data.finalIncidentType === "Lost Time" && data.daysAwayFromWork < 1;
+
+  const medicalOnlyWithDaysAway =
+    data.finalIncidentType === "Medical Treatment Only" &&
+    data.daysAwayFromWork > 0;
+
+  const restrictedMissingDays =
+    data.finalIncidentType === "Restricted Work / Job Transfer" &&
+    data.daysOnRestrictedDuty < 1;
+
+  //const overrideReasonMissing = isOverridden && !data.oshaOverrideReason?.trim();
+
+  // --- Handlers ---
+
+  const handleIncidentTypeChange = (value: string) => {
+    onChangeField("finalIncidentType", value);
+
+    // Re-derive OSHA recordable for the newly selected type and clear any
+    // stale override reason, since the override no longer applies to this type.
+    const nextDerived = getDerivedRecordable(value);
+    onChangeField("isOshaRecordable", nextDerived);
+    // comment    onChangeField("oshaOverrideReason", "");
+
+    // Zero out day fields that are no longer relevant for this type so stale
+    // values don't linger hidden in the background.
+    if (!showDaysAwayField(value)) {
+      onChangeField("daysAwayFromWork", 0);
+    }
+    if (!showDaysRestrictedField(value)) {
+      onChangeField("daysOnRestrictedDuty", 0);
+    }
+
+    // NOTE: SIF Classification is intentionally left untouched here.
+    // SIF is independent of Final Incident Type in both directions and
+    // must never be auto-derived from it.
+  };
+
+  const handleRecordableChange = (value: boolean) => {
+    onChangeField("isOshaRecordable", value);
+    // If the new value matches the derived default again, clear any reason
+    // left over from a previous override.
+    if (value === getDerivedRecordable(data.finalIncidentType)) {
+      //     onChangeField("oshaOverrideReason", "");
+    }
+  };
 
   const handleDaysAwayChange = (delta: number) => {
     onChangeField(
@@ -56,19 +147,30 @@ export function IncidentClosureStepClassification(
         <div className="flex flex-col gap-6 sm:flex-row">
           {/* Final Incident Type */}
           <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-[#8892a3] uppercase">
               Final Incident Type
             </label>
             <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
               <select
-                value={data.finalIncidentType}
-                onChange={(e) =>
-                  onChangeField("finalIncidentType", e.target.value)
-                }
-                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-[#0b1320] outline-none"
+                value={selectedIncidentType}
+                onChange={(e) => handleIncidentTypeChange(e.target.value)}
+                className={[
+                  "w-full appearance-none bg-transparent pr-6 text-[13px] font-normal outline-none",
+                  selectedIncidentType === "Select option"
+                    ? "text-[#8892a3]"
+                    : "text-[#0b1320]",
+                ].join(" ")}
               >
                 {INCIDENT_TYPES.map((type) => (
-                  <option key={type} value={type}>
+                  <option
+                    key={type}
+                    value={type}
+                    className={
+                      type === "Select option"
+                        ? "text-[#8892a3]"
+                        : "text-[#0b1320]"
+                    }
+                  >
                     {type}
                   </option>
                 ))}
@@ -85,19 +187,32 @@ export function IncidentClosureStepClassification(
 
           {/* SIF Classification */}
           <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-[#8892a3] uppercase">
               SIF Classification
             </label>
             <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
               <select
-                value={data.sifClassification}
+                value={selectedSifClassification}
                 onChange={(e) =>
                   onChangeField("sifClassification", e.target.value)
                 }
-                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-[#0b1320] outline-none"
+                className={[
+                  "w-full appearance-none bg-transparent pr-6 text-[13px] font-normal outline-none",
+                  selectedSifClassification === "Select option"
+                    ? "text-[#8892a3]"
+                    : "text-[#0b1320]",
+                ].join(" ")}
               >
                 {SIF_CLASSIFICATIONS.map((sif) => (
-                  <option key={sif} value={sif}>
+                  <option
+                    key={sif}
+                    value={sif}
+                    className={
+                      sif === "Select option"
+                        ? "text-[#8892a3]"
+                        : "text-[#0b1320]"
+                    }
+                  >
                     {sif}
                   </option>
                 ))}
@@ -107,100 +222,142 @@ export function IncidentClosureStepClassification(
                 className="pointer-events-none absolute right-3 text-[14px] text-[#64748b]"
               />
             </div>
+            <span className="text-[11px] font-normal text-[#8892a3]">
+              Independent of incident type — assess separately
+            </span>
           </div>
         </div>
 
-        {/* Row 2: Days Away + Days Restricted */}
-        <div className="flex flex-col gap-6 sm:flex-row">
-          {/* Days Away From Work */}
-          <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
-              Days Away from Work
-            </label>
-            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
-              <input
-                type="number"
-                min={0}
-                value={data.daysAwayFromWork}
-                onChange={(e) =>
-                  onChangeField(
-                    "daysAwayFromWork",
-                    Math.max(0, parseInt(e.target.value || "0", 10)),
-                  )
-                }
-                className="w-full appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none [appearance:textfield]"
-              />
-              <div className="flex flex-col gap-[2px]">
-                <button
-                  type="button"
-                  onClick={() => handleDaysAwayChange(1)}
-                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
-                  aria-label="Increase days away"
+        {/* Row 2: Days Away + Days Restricted (conditionally shown) */}
+        {(showDaysAway || showDaysRestricted) && (
+          <div className="flex flex-col gap-6 sm:flex-row">
+            {/* Days Away From Work */}
+            {showDaysAway && (
+              <div className="flex flex-1 flex-col gap-[6px]">
+                <label className="text-[11px] font-bold tracking-[0.5px] text-[#8892a3] uppercase">
+                  Days Away from Work
+                </label>
+                <div
+                  className={[
+                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    lostTimeMissingDays
+                      ? "border-[#dc2626]"
+                      : "border-[rgba(15,23,42,0.08)]",
+                  ].join(" ")}
                 >
-                  <Icon icon="mdi:chevron-up" className="size-[10px]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDaysAwayChange(-1)}
-                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
-                  aria-label="Decrease days away"
-                >
-                  <Icon icon="mdi:chevron-down" className="size-[10px]" />
-                </button>
+                  <input
+                    type="number"
+                    min={0}
+                    value={data.daysAwayFromWork}
+                    onChange={(e) =>
+                      onChangeField(
+                        "daysAwayFromWork",
+                        Math.max(0, parseInt(e.target.value || "0", 10)),
+                      )
+                    }
+                    className="w-full [appearance:textfield] appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none"
+                  />
+                  <div className="flex flex-col gap-[2px]">
+                    <button
+                      type="button"
+                      onClick={() => handleDaysAwayChange(1)}
+                      className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                      aria-label="Increase days away"
+                    >
+                      <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDaysAwayChange(-1)}
+                      className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                      aria-label="Decrease days away"
+                    >
+                      <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                    </button>
+                  </div>
+                </div>
+                {lostTimeMissingDays && (
+                  <span className="text-[11px] font-normal text-[#dc2626]">
+                    Lost Time requires at least 1 day away.
+                  </span>
+                )}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Days On Restricted Duty */}
-          <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
-              Days on Restricted Duty
-            </label>
-            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
-              <input
-                type="number"
-                min={0}
-                value={data.daysOnRestrictedDuty}
-                onChange={(e) =>
-                  onChangeField(
-                    "daysOnRestrictedDuty",
-                    Math.max(0, parseInt(e.target.value || "0", 10)),
-                  )
-                }
-                className="w-full appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none [appearance:textfield]"
-              />
-              <div className="flex flex-col gap-[2px]">
-                <button
-                  type="button"
-                  onClick={() => handleDaysRestrictedChange(1)}
-                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
-                  aria-label="Increase restricted days"
+            {/* Days On Restricted Duty */}
+            {showDaysRestricted && (
+              <div className="flex flex-1 flex-col gap-[6px]">
+                <label className="text-[11px] font-bold tracking-[0.5px] text-[#8892a3] uppercase">
+                  Days on Restricted Duty
+                </label>
+                <div
+                  className={[
+                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    restrictedMissingDays
+                      ? "border-[#dc2626]"
+                      : "border-[rgba(15,23,42,0.08)]",
+                  ].join(" ")}
                 >
-                  <Icon icon="mdi:chevron-up" className="size-[10px]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDaysRestrictedChange(-1)}
-                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
-                  aria-label="Decrease restricted days"
-                >
-                  <Icon icon="mdi:chevron-down" className="size-[10px]" />
-                </button>
+                  <input
+                    type="number"
+                    min={0}
+                    value={data.daysOnRestrictedDuty}
+                    onChange={(e) =>
+                      onChangeField(
+                        "daysOnRestrictedDuty",
+                        Math.max(0, parseInt(e.target.value || "0", 10)),
+                      )
+                    }
+                    className="w-full [appearance:textfield] appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none"
+                  />
+                  <div className="flex flex-col gap-[2px]">
+                    <button
+                      type="button"
+                      onClick={() => handleDaysRestrictedChange(1)}
+                      className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                      aria-label="Increase restricted days"
+                    >
+                      <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDaysRestrictedChange(-1)}
+                      className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                      aria-label="Decrease restricted days"
+                    >
+                      <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                    </button>
+                  </div>
+                </div>
+                {restrictedMissingDays && (
+                  <span className="text-[11px] font-normal text-[#dc2626]">
+                    Restricted Work / Job Transfer requires at least 1 day on
+                    restricted duty.
+                  </span>
+                )}
               </div>
-            </div>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* Soft warning: days away entered on a type that doesn't expect it */}
+        {medicalOnlyWithDaysAway && (
+          <span className="text-[11px] font-normal text-[#b45309]">
+            Days away from work is unusual for Medical Treatment Only — please
+            confirm this is correct.
+          </span>
+        )}
       </div>
 
       {/* Recordable Under OSHA */}
       <div className="flex flex-col gap-2">
-        <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+        <label className="text-[11px] font-bold tracking-[0.5px] text-[#8892a3] uppercase">
           Recordable under OSHA
         </label>
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => onChangeField("isOshaRecordable", true)}
+            onClick={() => handleRecordableChange(true)}
             className="flex items-center gap-2 text-[13px] font-normal text-[#0b1320]"
           >
             <div
@@ -220,7 +377,7 @@ export function IncidentClosureStepClassification(
 
           <button
             type="button"
-            onClick={() => onChangeField("isOshaRecordable", false)}
+            onClick={() => handleRecordableChange(false)}
             className="flex items-center gap-2 text-[13px] font-normal text-[#0b1320]"
           >
             <div
@@ -238,6 +395,12 @@ export function IncidentClosureStepClassification(
             <span>No</span>
           </button>
         </div>
+
+        {!isOverridden && (
+          <span className="text-[11px] font-normal text-[#8892a3]">
+            Auto-set from Final Incident Type
+          </span>
+        )}
       </div>
     </div>
   );
