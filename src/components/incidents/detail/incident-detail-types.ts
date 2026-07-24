@@ -91,3 +91,55 @@ export type SignOffRow = Readonly<{
   badgeLabel: string;
   badgeTone: "green" | "gray";
 }>;
+
+export type ClosureChecklistItem = Readonly<{
+  id: string;
+  label: string;
+  completed: boolean;
+  required: boolean;
+  completedAt?: string;
+  completedBy?: string;
+}>;
+
+export type ClosureLinkedCapaItem = Readonly<{
+  id: string;
+  title: string;
+  subtitle: string;
+  progressPercent: number;
+  status: "Completed" | "In Progress" | "Planning";
+}>;
+
+export type IncidentClosureData = Readonly<{
+  currentStep: 1 | 2 | 3 | 4;
+  closureStatus: "Pending Checklist" | "Ready for Closure" | "Closed" | "Under Review";
+  closureId?: string;
+  closedAt?: string;
+  closedBy: string;
+  closedByRole: string;
+  closureDate: string;
+  durationOpen: string;
+  finalIncidentType: string;
+  sifClassification: string;
+  daysAwayFromWork: number;
+  daysOnRestrictedDuty: number;
+  isOshaRecordable: boolean;
+  closureStatement: string;
+  lessonsLearned: string;
+  closureNotes: string;
+  rootCauseSummary: string;
+  primaryRootCause: string;
+  contributingFactors: readonly string[];
+  equipmentProceduresNote: string;
+  actionsTaken: string;
+  preventiveActionSummary: string;
+  closureLinkedCapas: readonly ClosureLinkedCapaItem[];
+  capasVerified: boolean;
+  mfaSigned: boolean;
+  isEhsConfirmed: boolean;
+  residualRisk: "Low" | "Medium" | "High";
+  verificationChecklist: readonly ClosureChecklistItem[];
+  approverName: string;
+  approverRole: string;
+  approverInitials: string;
+  isApproved: boolean;
+}>;

@@ -18,11 +18,13 @@ import { IncidentDetailInvestigationStatusCard } from "@/components/incidents/de
 import { IncidentDetailSignOffCard } from "@/components/incidents/detail/investigations/IncidentDetailSignOffCard";
 import type {
   AttachmentItem,
+  IncidentClosureData,
   IncidentDetailInfoItem,
   ResponderMember,
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
 import { IncidentDetailCapaControlCoverageCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaControlCoverageCard";
 import { IncidentDetailCapaListCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaListCard";
 import { IncidentDetailCapaSummaryCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaSummaryCard";
@@ -119,6 +121,16 @@ export type IncidentDetailViewProps = Readonly<{
 
   previewFile: AttachmentItem | null;
   onClosePreview: () => void;
+
+  closureData: IncidentClosureData;
+  onSelectClosureStep: (step: 1 | 2 | 3 | 4) => void;
+  onChangeClosureField: <K extends keyof IncidentClosureData>(
+    field: K,
+    value: IncidentClosureData[K]
+  ) => void;
+  onToggleClosureCheckItem: (itemId: string) => void;
+  onSaveClosureDraft?: () => void;
+  onFinalizeClosure?: () => void;
 }>;
 
 /**
@@ -187,6 +199,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onSubmitCapa,
     previewFile,
     onClosePreview,
+    closureData,
+    onSelectClosureStep,
+    onChangeClosureField,
+    onToggleClosureCheckItem,
+    onSaveClosureDraft,
+    onFinalizeClosure,
   } = props;
 
   return (
@@ -481,6 +499,17 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   />
                 </div>
               </div>
+            )}
+
+            {activeTab === "closure" && (
+              <IncidentDetailClosureCard
+                data={closureData}
+                onSelectStep={onSelectClosureStep}
+                onChangeField={onChangeClosureField}
+                onToggleCheckItem={onToggleClosureCheckItem}
+                onSaveAsDraft={onSaveClosureDraft}
+                onFinalizeClosure={onFinalizeClosure}
+              />
             )}
           </>
         ) : null}

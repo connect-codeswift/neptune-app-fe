@@ -28,7 +28,7 @@ export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
   return (
     <div
       className={[
-        "inline-flex max-w-full shrink-0 gap-1 self-start overflow-x-auto rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/60 p-[5px]",
+        "border-ehs-border inline-flex max-w-full shrink-0 gap-1 self-start overflow-x-auto rounded-xl border bg-white/60 p-[5px]",
         className,
       ]
         .filter(Boolean)

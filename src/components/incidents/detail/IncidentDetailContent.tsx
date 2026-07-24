@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AttachmentItem,
+  IncidentClosureData,
   IncidentDetailInfoItem,
   ResponderMember,
   TimelineEvent,
@@ -83,6 +84,99 @@ export function IncidentDetailContent(
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
+  const [closureData, setClosureData] = useState<IncidentClosureData>({
+    currentStep: 1,
+    closureStatus: "Pending Checklist",
+    closureId: undefined,
+    closedAt: undefined,
+    closedBy: "Sarah Mitchell",
+    closedByRole: "EHS Manager",
+    closureDate: "24 Apr 2026 · 15:04",
+    durationOpen: "6h 52m",
+    finalIncidentType: "Lost Time",
+    sifClassification: "Potential SIF",
+    daysAwayFromWork: 3,
+    daysOnRestrictedDuty: 0,
+    isOshaRecordable: true,
+    closureStatement:
+      "All immediate containment actions, witness interviews, and initial risk assessments have been completed. Root causes have been analyzed and preventive actions assigned.",
+    lessonsLearned:
+      "1. Ensure daily pre-shift equipment inspection logs are verified by site supervisors.\n2. Upgrade secondary containment barriers on chemical transfer lines.\n3. Conduct refresher safety training for all operations personnel.",
+    closureNotes:
+      "Pending final verification of linked CAPA actions before EHS Manager sign-off.",
+    rootCauseSummary:
+      "The high-pressure hose on press #4 ruptured due to internal fatigue cracking near the crimp fitting. The hose had been in service for 14 months under cyclic load without inspection.",
+    primaryRootCause: "Equipment Failure",
+    contributingFactors: ["Procedure Gap", "Maintenance Schedules"],
+    equipmentProceduresNote:
+      "Replacement gaskets installed and standard operating procedure SOP-CHEM-04 updated.",
+    actionsTaken:
+      "Implemented condition-based hose replacement schedule per CAPA-012. Ultrasonic inspection protocol added to maintenance checklists.",
+    preventiveActionSummary:
+      "Preventive maintenance frequency increased from quarterly to monthly for high-risk transfer lines.",
+    closureLinkedCapas: [
+      {
+        id: "capa-12",
+        title: "CAPA-012",
+        subtitle: "Preventive replacement schedule",
+        progressPercent: 100,
+        status: "Completed",
+      },
+      {
+        id: "capa-14",
+        title: "CAPA-014",
+        subtitle: "Revised inspection SOP",
+        progressPercent: 70,
+        status: "In Progress",
+      },
+    ],
+    capasVerified: true,
+    mfaSigned: false,
+    isEhsConfirmed: true,
+    residualRisk: "Low",
+    verificationChecklist: [
+      {
+        id: "chk-1",
+        label: "Immediate containment & emergency response completed",
+        completed: true,
+        required: true,
+        completedAt: "24 Apr 2026",
+        completedBy: "Sarah Mitchell",
+      },
+      {
+        id: "chk-2",
+        label: "Root cause analysis & 5-Why investigation finalized",
+        completed: true,
+        required: true,
+        completedAt: "24 Apr 2026",
+        completedBy: "Alex Rivera",
+      },
+      {
+        id: "chk-3",
+        label: "Corrective and Preventive Actions (CAPA) assigned",
+        completed: true,
+        required: true,
+        completedAt: "24 Apr 2026",
+        completedBy: "Sarah Mitchell",
+      },
+      {
+        id: "chk-4",
+        label: "Regulatory notification & compliance report submitted",
+        completed: false,
+        required: false,
+      },
+      {
+        id: "chk-5",
+        label: "Final EHS Manager closure review & sign-off",
+        completed: false,
+        required: true,
+      },
+    ],
+    approverName: "Sarah Mitchell",
+    approverRole: "EHS Manager",
+    approverInitials: "SM",
+    isApproved: false,
+  });
   const [editScope, setEditScope] = useState<EditScope | null>(null);
   const openUploadPickerRef = useRef<(() => void) | null>(null);
 
@@ -600,6 +694,50 @@ export function IncidentDetailContent(
       }}
       previewFile={previewFile}
       onClosePreview={() => setPreviewFile(null)}
+      closureData={closureData}
+      onSelectClosureStep={(step) => {
+        setClosureData((prev) => ({ ...prev, currentStep: step }));
+      }}
+      onChangeClosureField={(field, value) => {
+        setClosureData((prev) => ({ ...prev, [field]: value }));
+      }}
+      onToggleClosureCheckItem={(itemId) => {
+        setClosureData((prev) => ({
+          ...prev,
+          verificationChecklist: prev.verificationChecklist.map((item) =>
+            item.id === itemId
+              ? {
+                  ...item,
+                  completed: !item.completed,
+                  completedAt: !item.completed
+                    ? formatShortDateTime(new Date())
+                    : undefined,
+                  completedBy: !item.completed ? "Current User" : undefined,
+                }
+              : item
+          ),
+        }));
+      }}
+      onSaveClosureDraft={() => {
+        toast.success(
+          "Draft Saved",
+          "Incident closure draft saved successfully."
+        );
+      }}
+      onFinalizeClosure={() => {
+        setClosureData((prev) => ({
+          ...prev,
+          closureStatus: "Closed",
+          closureId: `CLS-${displayId}`,
+          closedAt: formatShortDateTime(new Date()),
+          closedBy: prev.approverName,
+          isApproved: true,
+        }));
+        toast.success(
+          "Incident Officially Closed",
+          `Incident ${displayId} has been successfully closed and verified.`
+        );
+      }}
     />
   );
 }
