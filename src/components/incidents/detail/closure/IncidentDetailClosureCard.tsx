@@ -74,9 +74,9 @@ export function IncidentDetailClosureCard(
   return (
     <div
       className={[
-        "mt-4 grid grid-cols-1 items-start gap-5",
+        "mt-4 grid grid-cols-1 items-start gap-6",
         showMetadata
-          ? "xl:grid-cols-[240px_minmax(0,1fr)_260px]"
+          ? "xl:grid-cols-[240px_minmax(0,1fr)_340px]"
           : "xl:grid-cols-[240px_minmax(0,1fr)]",
       ].join(" ")}
     >
@@ -89,8 +89,9 @@ export function IncidentDetailClosureCard(
       {/* Center Column: Active Step Form & Action Bar */}
       <div className="flex min-w-0 flex-col gap-4">
         <IncidentGlassCard
-          paddingClassName="p-6 sm:p-7"
-          className="rounded-[24px] border border-[rgba(15,23,42,0.06)] shadow-[0px_4px_24px_rgba(0,0,0,0.03)]"
+          paddingClassName="p-[22px]"
+          incidentGlassCardClassName="gap-[18px]"
+          className="bg-white/[0.62] shadow-none backdrop-blur-[10px]"
         >
           {currentStep === 1 && (
             <IncidentClosureStepClassification
@@ -123,54 +124,59 @@ export function IncidentDetailClosureCard(
         </IncidentGlassCard>
 
         {/* Bottom Action Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-          {currentStep > 1 ? (
-            <button
-              type="button"
-              onClick={handleBackPrevious}
-              className="rounded-[14px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-[#1e293b] shadow-xs transition-colors hover:bg-[#f8fafc]"
-            >
-              {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
-            </button>
-          ) : (
-            <div />
-          )}
+        <IncidentGlassCard
+          paddingClassName="p-5"
+          className="rounded-[16px] border-t-[rgba(15,23,42,0.08)] bg-white/[0.62] shadow-none backdrop-blur-[10px]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {currentStep > 1 ? (
+              <button
+                type="button"
+                onClick={handleBackPrevious}
+                className="rounded-[10px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-[#1e293b] shadow-xs transition-colors hover:bg-[#f8fafc]"
+              >
+                {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
+              </button>
+            ) : (
+              <div />
+            )}
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="rounded-[14px] px-4 py-2.5 text-[13px] font-bold text-[#64748b] transition-colors hover:text-[#0f172a]"
-            >
-              Cancel
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-3.5 py-2.5 text-[13px] font-bold text-[#566072] transition-colors hover:text-[#0b1320]"
+              >
+                Cancel
+              </button>
 
-            <button
-              type="button"
-              onClick={onSaveAsDraft}
-              className="rounded-[14px] border-2 border-[#008ba3] bg-white px-5 py-2.5 text-[13px] font-bold text-[#008ba3] shadow-xs transition-colors hover:bg-[#d2eff4]/30"
-            >
-              Save as Draft
-            </button>
+              <button
+                type="button"
+                onClick={onSaveAsDraft}
+                className="rounded-[10px] border border-[#0891a6] bg-white px-4 py-2.5 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+              >
+                Save as Draft
+              </button>
 
-            <button
-              type="button"
-              onClick={handleProceedNext}
-              disabled={
-                isSubmitting ||
-                (currentStep === 4 && data.closureStatus === "Closed")
-              }
-              className={[
-                "rounded-[14px] px-5 py-2.5 text-[13px] font-bold text-white shadow-sm transition-all",
-                data.closureStatus === "Closed" && currentStep === 4
-                  ? "cursor-default bg-emerald-600"
-                  : "bg-[#008ba3] hover:bg-[#00788d] active:scale-[0.99]",
-              ].join(" ")}
-            >
-              {isSubmitting ? "Processing…" : STEP_NEXT_LABELS[currentStep]}
-            </button>
+              <button
+                type="button"
+                onClick={handleProceedNext}
+                disabled={
+                  isSubmitting ||
+                  (currentStep === 4 && data.closureStatus === "Closed")
+                }
+                className={[
+                  "rounded-[10px] px-5 py-2.5 text-[13px] font-bold text-white transition-all",
+                  data.closureStatus === "Closed" && currentStep === 4
+                    ? "cursor-default bg-emerald-600"
+                    : "bg-[#0891a6] hover:bg-[#067485] active:scale-[0.99]",
+                ].join(" ")}
+              >
+                {isSubmitting ? "Processing…" : STEP_NEXT_LABELS[currentStep]}
+              </button>
+            </div>
           </div>
-        </div>
+        </IncidentGlassCard>
       </div>
 
       {/* Right Column: Metadata Sidebar (Only when showMetadata is true) */}

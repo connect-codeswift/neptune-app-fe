@@ -41,18 +41,18 @@ export function IncidentClosureStepsSidebar(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-6"
-      incidentGlassCardClassName="gap-5"
-      className="h-fit rounded-[24px] border border-[rgba(15,23,42,0.06)] shadow-[0px_4px_24px_rgba(0,0,0,0.03)]"
+      paddingClassName="p-5"
+      incidentGlassCardClassName="gap-6"
+      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-[10px]"
     >
       <Text
         as="h4"
-        className="text-[12px] font-bold tracking-[0.08em] text-[#94a3b8] uppercase"
+        className="text-[11px] font-bold tracking-[1.05px] text-[#8892a3] uppercase"
       >
-        STEPS
+        Steps
       </Text>
 
-      <div className="flex flex-col gap-3.5">
+      <div className="flex flex-col gap-3">
         {STEPS.map((step) => {
           const isActive = currentStep === step.id;
           return (
@@ -61,38 +61,37 @@ export function IncidentClosureStepsSidebar(
               type="button"
               onClick={() => onSelectStep(step.id)}
               className={[
-                "flex items-start gap-3.5 rounded-[20px] text-left transition-all duration-200",
+                "flex items-start gap-[10px] rounded-[10px] p-[10px] text-left transition-all duration-200",
                 isActive
-                  ? "bg-[#d2eff4] px-4 py-3.5 shadow-xs"
-                  : "px-3 py-3 hover:bg-white/60",
+                  ? "bg-[rgba(8,145,166,0.18)] border border-[rgba(8,145,166,0.1)]"
+                  : "border border-transparent hover:bg-white/60",
               ].join(" ")}
             >
               <div
                 className={[
-                  "mt-0.5 flex size-[30px] shrink-0 items-center justify-center rounded-full text-[13px] transition-colors",
+                  "mt-0.5 flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-[10px] transition-colors",
                   isActive
-                    ? "bg-[#008ba3] font-bold text-white shadow-xs"
-                    : "border border-[#e2e8f0] bg-white font-semibold text-[#64748b]",
+                    ? "bg-[#0891a6] font-bold text-white"
+                    : "border border-[rgba(15,23,42,0.08)] bg-white font-bold text-[#566072]",
                 ].join(" ")}
               >
                 {step.id}
               </div>
-              <div className="flex min-w-0 flex-col gap-0.5">
+              <div className="flex min-w-0 flex-col gap-[2px]">
                 <Text
                   as="span"
                   className={[
-                    "text-[14px] leading-snug font-bold",
-                    isActive ? "text-[#008ba3]" : "text-[#1e293b]",
+                    "text-[12px] leading-normal",
+                    isActive
+                      ? "font-bold text-[#0891a6]"
+                      : "font-medium text-[#0b1320]",
                   ].join(" ")}
                 >
                   {step.title}
                 </Text>
                 <Text
                   as="span"
-                  className={[
-                    "text-[12px] leading-snug font-normal",
-                    isActive ? "text-[#5b8793]" : "text-[#94a3b8]",
-                  ].join(" ")}
+                  className="text-[10px] font-normal leading-normal text-[#8892a3]"
                 >
                   {step.subtitle}
                 </Text>
@@ -102,18 +101,18 @@ export function IncidentClosureStepsSidebar(
         })}
       </div>
 
-      <div className="mt-2 border-t border-[#f1f5f9] pt-5">
+      <div className="flex flex-col gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
         <div className="flex items-center justify-between">
-          <Text as="span" className="text-[12px] font-medium text-[#94a3b8]">
+          <Text as="span" className="text-[10px] font-normal text-[#8892a3]">
             Progress
           </Text>
-          <Text as="span" className="text-[13px] font-bold text-[#0f172a]">
+          <Text as="span" className="text-[10px] font-bold text-[#566072]">
             {`${String(currentStep)} / 4`}
           </Text>
         </div>
-        <div className="mt-2.5 h-[6px] w-full overflow-hidden rounded-full bg-[#e2e8f0]">
+        <div className="h-[6px] w-full overflow-hidden rounded-[999px] bg-[rgba(136,146,163,0.2)]">
           <div
-            className="h-full rounded-full bg-[#008ba3] transition-all duration-300"
+            className="h-full rounded-[999px] bg-[#0891a6] transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

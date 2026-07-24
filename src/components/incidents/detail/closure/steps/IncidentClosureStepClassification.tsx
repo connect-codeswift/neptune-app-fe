@@ -28,117 +28,187 @@ export function IncidentClosureStepClassification(
 ) {
   const { data, onChangeField } = props;
 
+  const handleDaysAwayChange = (delta: number) => {
+    onChangeField(
+      "daysAwayFromWork",
+      Math.max(0, data.daysAwayFromWork + delta),
+    );
+  };
+
+  const handleDaysRestrictedChange = (delta: number) => {
+    onChangeField(
+      "daysOnRestrictedDuty",
+      Math.max(0, data.daysOnRestrictedDuty + delta),
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-[18px]">
       <Text
         as="h2"
-        className="text-[18px] leading-tight font-bold tracking-tight text-[#0f172a]"
+        className="text-[15px] leading-tight font-bold text-[#0b1320]"
       >
         Closure Classification
       </Text>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {/* Final Incident Type */}
-        <div className="flex flex-col">
-          <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
-            FINAL INCIDENT TYPE
-          </label>
-          <div className="relative">
-            <select
-              value={data.finalIncidentType}
-              onChange={(e) => onChangeField("finalIncidentType", e.target.value)}
-              className="w-full appearance-none rounded-[14px] border border-[#e2e8f0] bg-white py-2.5 pr-9 pl-3.5 text-[13px] font-semibold text-[#0f172a] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-            >
-              {INCIDENT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <Icon
-              icon="mdi:chevron-down"
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[18px] text-[#64748b]"
-            />
+      <div className="flex flex-col gap-6">
+        {/* Row 1: Final Incident Type + SIF Classification */}
+        <div className="flex flex-col gap-6 sm:flex-row">
+          {/* Final Incident Type */}
+          <div className="flex flex-1 flex-col gap-[6px]">
+            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+              Final Incident Type
+            </label>
+            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+              <select
+                value={data.finalIncidentType}
+                onChange={(e) =>
+                  onChangeField("finalIncidentType", e.target.value)
+                }
+                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-[#0b1320] outline-none"
+              >
+                {INCIDENT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+              <Icon
+                icon="mdi:chevron-down"
+                className="pointer-events-none absolute right-3 text-[14px] text-[#64748b]"
+              />
+            </div>
+            <span className="text-[11px] font-normal text-[#8892a3]">
+              Defaults from intake - verify before closing
+            </span>
           </div>
-          <span className="mt-2 text-[12px] font-normal text-[#94a3b8]">
-            Defaults from intake - verify before closing
-          </span>
-        </div>
 
-        {/* SIF Classification */}
-        <div className="flex flex-col">
-          <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
-            SIF CLASSIFICATION
-          </label>
-          <div className="relative">
-            <select
-              value={data.sifClassification}
-              onChange={(e) => onChangeField("sifClassification", e.target.value)}
-              className="w-full appearance-none rounded-[14px] border border-[#e2e8f0] bg-white py-2.5 pr-9 pl-3.5 text-[13px] font-semibold text-[#0f172a] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-            >
-              {SIF_CLASSIFICATIONS.map((sif) => (
-                <option key={sif} value={sif}>
-                  {sif}
-                </option>
-              ))}
-            </select>
-            <Icon
-              icon="mdi:chevron-down"
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[18px] text-[#64748b]"
-            />
+          {/* SIF Classification */}
+          <div className="flex flex-1 flex-col gap-[6px]">
+            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+              SIF Classification
+            </label>
+            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+              <select
+                value={data.sifClassification}
+                onChange={(e) =>
+                  onChangeField("sifClassification", e.target.value)
+                }
+                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-[#0b1320] outline-none"
+              >
+                {SIF_CLASSIFICATIONS.map((sif) => (
+                  <option key={sif} value={sif}>
+                    {sif}
+                  </option>
+                ))}
+              </select>
+              <Icon
+                icon="mdi:chevron-down"
+                className="pointer-events-none absolute right-3 text-[14px] text-[#64748b]"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Days Away From Work */}
-        <div className="flex flex-col">
-          <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
-            DAYS AWAY FROM WORK
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={data.daysAwayFromWork}
-            onChange={(e) =>
-              onChangeField("daysAwayFromWork", Math.max(0, parseInt(e.target.value || "0", 10)))
-            }
-            className="w-full rounded-[14px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 text-[13px] font-bold text-[#0f172a] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-          />
-        </div>
+        {/* Row 2: Days Away + Days Restricted */}
+        <div className="flex flex-col gap-6 sm:flex-row">
+          {/* Days Away From Work */}
+          <div className="flex flex-1 flex-col gap-[6px]">
+            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+              Days Away from Work
+            </label>
+            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+              <input
+                type="number"
+                min={0}
+                value={data.daysAwayFromWork}
+                onChange={(e) =>
+                  onChangeField(
+                    "daysAwayFromWork",
+                    Math.max(0, parseInt(e.target.value || "0", 10)),
+                  )
+                }
+                className="w-full appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none [appearance:textfield]"
+              />
+              <div className="flex flex-col gap-[2px]">
+                <button
+                  type="button"
+                  onClick={() => handleDaysAwayChange(1)}
+                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                  aria-label="Increase days away"
+                >
+                  <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDaysAwayChange(-1)}
+                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                  aria-label="Decrease days away"
+                >
+                  <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                </button>
+              </div>
+            </div>
+          </div>
 
-        {/* Days On Restricted Duty */}
-        <div className="flex flex-col">
-          <label className="mb-2 text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
-            DAYS ON RESTRICTED DUTY
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={data.daysOnRestrictedDuty}
-            onChange={(e) =>
-              onChangeField("daysOnRestrictedDuty", Math.max(0, parseInt(e.target.value || "0", 10)))
-            }
-            className="w-full rounded-[14px] border border-[#e2e8f0] bg-white px-3.5 py-2.5 text-[13px] font-bold text-[#0f172a] shadow-xs outline-none transition focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-          />
+          {/* Days On Restricted Duty */}
+          <div className="flex flex-1 flex-col gap-[6px]">
+            <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+              Days on Restricted Duty
+            </label>
+            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+              <input
+                type="number"
+                min={0}
+                value={data.daysOnRestrictedDuty}
+                onChange={(e) =>
+                  onChangeField(
+                    "daysOnRestrictedDuty",
+                    Math.max(0, parseInt(e.target.value || "0", 10)),
+                  )
+                }
+                className="w-full appearance-none bg-transparent text-[13px] font-semibold text-[#0b1320] outline-none [appearance:textfield]"
+              />
+              <div className="flex flex-col gap-[2px]">
+                <button
+                  type="button"
+                  onClick={() => handleDaysRestrictedChange(1)}
+                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                  aria-label="Increase restricted days"
+                >
+                  <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDaysRestrictedChange(-1)}
+                  className="leading-none text-[#64748b] hover:text-[#0b1320]"
+                  aria-label="Decrease restricted days"
+                >
+                  <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Recordable Under OSHA */}
-      <div className="flex flex-col gap-2 pt-2">
-        <label className="text-[12px] font-bold tracking-[0.08em] uppercase text-[#94a3b8]">
-          RECORDABLE UNDER OSHA
+      <div className="flex flex-col gap-2">
+        <label className="text-[11px] font-bold tracking-[0.5px] uppercase text-[#8892a3]">
+          Recordable under OSHA
         </label>
-        <div className="flex items-center gap-6 pt-1">
+        <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => onChangeField("isOshaRecordable", true)}
-            className="flex items-center gap-2 text-[13px] font-bold text-[#0f172a]"
+            className="flex items-center gap-2 text-[13px] font-normal text-[#0b1320]"
           >
             <div
               className={[
-                "flex size-4.5 items-center justify-center rounded-full border transition-all",
+                "flex size-4 items-center justify-center rounded-full border transition-all",
                 data.isOshaRecordable
-                  ? "border-[#008ba3] bg-[#008ba3]"
-                  : "border-[#cbd5e1] bg-white",
+                  ? "border-[#0891a6] bg-[#0891a6]"
+                  : "border-[rgba(15,23,42,0.08)] bg-white",
               ].join(" ")}
             >
               {data.isOshaRecordable ? (
@@ -151,14 +221,14 @@ export function IncidentClosureStepClassification(
           <button
             type="button"
             onClick={() => onChangeField("isOshaRecordable", false)}
-            className="flex items-center gap-2 text-[13px] font-bold text-[#0f172a]"
+            className="flex items-center gap-2 text-[13px] font-normal text-[#0b1320]"
           >
             <div
               className={[
-                "flex size-4.5 items-center justify-center rounded-full border transition-all",
+                "flex size-4 items-center justify-center rounded-full border transition-all",
                 !data.isOshaRecordable
-                  ? "border-[#008ba3] bg-[#008ba3]"
-                  : "border-[#cbd5e1] bg-white",
+                  ? "border-[#0891a6] bg-[#0891a6]"
+                  : "border-[rgba(15,23,42,0.08)] bg-white",
               ].join(" ")}
             >
               {!data.isOshaRecordable ? (
