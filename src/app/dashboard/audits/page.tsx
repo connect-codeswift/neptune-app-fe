@@ -3,6 +3,11 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { useAuditDetailQuery, useAuditsQuery } from "@/hooks/use-audit-queries";
+import {
+  mapAuditDetailDtoToDetail,
+  mapAuditDtoToRecord,
+} from "@/lib/map-audit";
 import {
   StatMetricCard,
   type StatMetricCardProps,
@@ -11,7 +16,6 @@ import { Table } from "@/components/ui/Table";
 import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
 import { AuditRegisterToolbar } from "@/components/audits/AuditRegisterToolbar";
-import { AUDIT_RECORDS, getAuditDetail } from "./audits-data";
 
 const AUDIT_METRICS: readonly StatMetricCardProps[] = [
   {
@@ -43,20 +47,31 @@ const AUDIT_METRICS: readonly StatMetricCardProps[] = [
 export default function AuditsPage() {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
-  const [selectedId, setSelectedId] = useState<string | null>(
-    AUDIT_RECORDS[0]?.id ?? null,
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const auditsQuery = useAuditsQuery({ pageNumber: 1, pageSize: 10 });
+  console.log(auditsQuery.data?.dataModel.data);
+  const records = useMemo(
+    () => (auditsQuery.data?.dataModel.data ?? []).map(mapAuditDtoToRecord),
+    [auditsQuery.data],
   );
 
   const filteredRecords = useMemo(
     () =>
-      AUDIT_RECORDS.filter(
+      records.filter(
         (record) =>
           selectedStatus === "All" || record.status === selectedStatus,
       ),
-    [selectedStatus],
+    [records, selectedStatus],
   );
 
-  const detail = getAuditDetail(selectedId);
+  // Fetch the clicked audit's detail (GET /api/Audit/{id}) for the side panel.
+  const detailQuery = useAuditDetailQuery(selectedId);
+  const detailDto = detailQuery.data?.dataModel ?? null;
+  const detail = useMemo(
+    () => (detailDto ? mapAuditDetailDtoToDetail(detailDto) : null),
+    [detailDto],
+  );
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -75,6 +90,12 @@ export default function AuditsPage() {
             <StatMetricCard key={metric.title} {...metric} />
           ))}
         </div>
+
+        {auditsQuery.isPending ? (
+          <p className="text-ehs-muted-text text-sm">Loading audits...</p>
+        ) : auditsQuery.isError ? (
+          <p className="text-ehs-red text-sm">Could not load audits.</p>
+        ) : null}
 
         {/* Audit register + selected audit breakdown */}
         <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -96,8 +117,16 @@ export default function AuditsPage() {
             }
           />
 
-          {detail ? (
-            <AuditDetailPanel detail={detail} className="min-w-0" />
+          {selectedId !== null ? (
+            detailQuery.isPending ? (
+              <p className="text-ehs-muted-text text-sm">Loading detail...</p>
+            ) : detailQuery.isError ? (
+              <p className="text-ehs-red text-sm">
+                Could not load audit detail.
+              </p>
+            ) : detail ? (
+              <AuditDetailPanel detail={detail} className="min-w-0" />
+            ) : null
           ) : null}
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -8,7 +8,10 @@ import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useCreateAuditTemplateMutation } from "@/hooks/use-audit-template-mutations";
+import {
+  useCreateAuditTemplateMutation,
+  useUpdateAuditTemplateMutation,
+} from "@/hooks/use-audit-template-mutations";
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
@@ -27,6 +30,7 @@ import {
   type TemplateRule,
   type TemplateSection,
   type TemplateSettings,
+  type WizardState,
 } from "./template-builder-data";
 import {
   createTemplateInitialValues,
@@ -76,37 +80,74 @@ function TemplatePreview(
   );
 }
 
-export function CreateTemplateContent() {
+export type CreateTemplateContentProps = Readonly<{
+  /** Seed all steps from an existing template (edit mode). */
+  initialState?: WizardState;
+  /** "edit" changes the heading and skips the answer-value validation, since a
+   * template defines questions, not answers. */
+  mode?: "create" | "edit";
+  /** Id of the template being edited — required to PUT on publish. */
+  templateId?: string;
+  /** The edited template's last-known updatedDate, sent on update for the
+   * backend's optimistic-concurrency check. */
+  expectedUpdatedDate?: string;
+}>;
+
+export function CreateTemplateContent(props: CreateTemplateContentProps) {
+  const {
+    initialState,
+    mode = "create",
+    templateId,
+    expectedUpdatedDate,
+  } = props;
+  const isEdit = mode === "edit";
   const router = useRouter();
 
   const [step, setStep] = useState(1);
 
   // Mirrors the form so the preview can react as the user types.
-  const [values, setValues] = useState<FormValues>(createTemplateInitialValues);
-  const [sections, setSections] = useState<TemplateSection[]>(
-    createInitialSections,
+  const [values, setValues] = useState<FormValues>(
+    () => initialState?.values ?? createTemplateInitialValues,
   );
-  const [scoring, setScoring] = useState<ScoringConfig>(createScoringConfig);
-  const [rules, setRules] = useState<TemplateRule[]>([]);
-  const [settings, setSettings] = useState<TemplateSettings>(createSettings);
+  const [sections, setSections] = useState<TemplateSection[]>(
+    () => initialState?.sections ?? createInitialSections(),
+  );
+  const [scoring, setScoring] = useState<ScoringConfig>(
+    () => initialState?.scoring ?? createScoringConfig(),
+  );
+  const [rules, setRules] = useState<TemplateRule[]>(
+    () => initialState?.rules ?? [],
+  );
+  const [settings, setSettings] = useState<TemplateSettings>(
+    () => initialState?.settings ?? createSettings(),
+  );
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
-  const createTemplate = useCreateAuditTemplateMutation();
+  // Items present when editing began — these are exempt from the "must fill a
+  // value" rule; only items added during this session must be filled.
+  const initialItemIds = useMemo(() => {
+    const ids = new Set<string>();
+    (initialState?.sections ?? []).forEach((section) =>
+      section.items.forEach((item) => ids.add(item.id)),
+    );
+    return ids;
+  }, [initialState]);
 
-  /** POST the wizard state as a draft or a published template. */
+  const createTemplate = useCreateAuditTemplateMutation();
+  const updateTemplate = useUpdateAuditTemplateMutation();
+
+  /** Persist the wizard state as a draft or a published template. In edit mode
+   * with a known id this PUTs an update; otherwise it POSTs a new template. */
   const submitTemplate = (publish: boolean) => {
     const draft = { values, sections, scoring, rules, settings };
     const payload = toAuditTemplatePayload(draft, { publish });
 
-    console.log("Template wizard data", draft);
-    console.log("Audit template payload", payload);
-
-    createTemplate.mutate(payload, {
+    const handlers = {
       onSuccess: () => {
         toast.success(publish ? "Template published" : "Draft saved");
         if (publish) router.push(TEMPLATES_ROUTE);
       },
-      onError: (error) => {
+      onError: (error: unknown) => {
         toast.error(
           getMutationErrorMessage(
             error,
@@ -116,7 +157,21 @@ export function CreateTemplateContent() {
           ),
         );
       },
-    });
+    };
+
+    if (isEdit && templateId) {
+      // Normalize to an ISO date-time; null skips the backend concurrency check.
+      const parsed = expectedUpdatedDate ? new Date(expectedUpdatedDate) : null;
+      const concurrencyDate =
+        parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : null;
+
+      updateTemplate.mutate(
+        { templateId, payload, expectedUpdatedDate: concurrencyDate },
+        handlers,
+      );
+    } else {
+      createTemplate.mutate(payload, handlers);
+    }
   };
 
   const handleSaveDraft = () => {
@@ -137,8 +192,13 @@ export function CreateTemplateContent() {
       return;
     }
 
+    // A saved template defines questions, not answers, so pre-loaded items are
+    // exempt when editing — but a newly added item must still be filled.
     const hasUnfilled = sections.some((section) =>
-      section.items.some((item) => !isItemValueFilled(item)),
+      section.items.some(
+        (item) =>
+          (!isEdit || !initialItemIds.has(item.id)) && !isItemValueFilled(item),
+      ),
     );
     if (hasUnfilled) {
       setShowUnfilledItems(true);
@@ -185,7 +245,7 @@ export function CreateTemplateContent() {
               aria-hidden="true"
             />
             <span className="text-ehs-muted-text text-sm font-medium">
-              Create Template
+              {isEdit ? "Edit Template" : "Create Template"}
             </span>
           </nav>
 
@@ -193,7 +253,7 @@ export function CreateTemplateContent() {
             as="h1"
             className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
           >
-            Create Audit Template
+            {isEdit ? "Edit Audit Template" : "Create Audit Template"}
           </Text>
 
           <Text as="p" className="text-ehs-muted-text text-sm">
@@ -256,6 +316,7 @@ export function CreateTemplateContent() {
           sections={sections}
           onSectionsChange={setSections}
           highlightUnfilled={showUnfilledItems}
+          exemptItemIds={initialItemIds}
         />
       ) : step === 3 ? (
         <ScoringLogicStep

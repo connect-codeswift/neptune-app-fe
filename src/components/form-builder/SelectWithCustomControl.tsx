@@ -146,7 +146,11 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
   const listboxId = useId();
 
   const options = [...field.options, ...customOptions];
-  const selected = options.find((option) => option.value === value);
+  // The current value's option may live on a page that isn't loaded, so fall
+  // back to the explicitly-provided selectedOption to keep the trigger labelled.
+  const selected =
+    options.find((option) => option.value === value) ??
+    (field.selectedOption?.value === value ? field.selectedOption : undefined);
 
   const close = () => {
     setIsOpen(false);
@@ -244,20 +248,55 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
             aria-label={field.label}
             className="max-h-64 overflow-y-auto py-1"
           >
-            {options.map((option) => (
-              <OptionRow
-                key={option.value}
-                option={option}
-                selected={option.value === value}
-                onSelect={() => {
-                  onChange(option.value);
-                  close();
-                }}
-              />
-            ))}
+            {options.length === 0 ? (
+              <li className="text-ehs-muted-text px-3 py-2.5 text-sm">
+                {field.pagination?.isLoading ? "Loading…" : "No options"}
+              </li>
+            ) : (
+              options.map((option) => (
+                <OptionRow
+                  key={option.value}
+                  option={option}
+                  selected={option.value === value}
+                  onSelect={() => {
+                    onChange(option.value);
+                    close();
+                  }}
+                />
+              ))
+            )}
           </ul>
 
-          <div className="border-t border-slate-900/10">
+          {field.pagination && field.pagination.totalPages > 1 ? (
+            <div className="flex items-center justify-between gap-2 border-t border-slate-900/10 px-3 py-2">
+              <button
+                type="button"
+                disabled={field.pagination.pageNumber <= 1}
+                onClick={() => field.pagination?.onPrev()}
+                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span className="text-ehs-gray text-xs tabular-nums">
+                {field.pagination.isLoading
+                  ? "Loading…"
+                  : `Page ${String(field.pagination.pageNumber)} of ${String(field.pagination.totalPages)}`}
+              </span>
+              <button
+                type="button"
+                disabled={
+                  field.pagination.pageNumber >= field.pagination.totalPages
+                }
+                onClick={() => field.pagination?.onNext()}
+                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          ) : null}
+
+          {field.allowCustom ? (
+            <div className="border-t border-slate-900/10">
             {isAdding ? (
               <AddCustomForm
                 placeholder={
@@ -277,7 +316,8 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                 {field.addCustomLabel ?? "Add custom option"}
               </button>
             )}
-          </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

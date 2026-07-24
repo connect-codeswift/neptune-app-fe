@@ -85,3 +85,12 @@ export type CreateAuditTemplateRequestDto = {
   sections: AuditTemplateSectionRequestDto[];
   conditionalLogics: AuditTemplateLogicRequestDto[];
 };
+
+/**
+ * The update (PUT) body is the same flat template shape plus a root-level
+ * `expectedUpdatedDate` for the backend's optimistic-concurrency check. It must
+ * be an ISO date-time string, or null to skip the check.
+ */
+export type UpdateAuditTemplateRequestDto = CreateAuditTemplateRequestDto & {
+  expectedUpdatedDate: string | null;
+};

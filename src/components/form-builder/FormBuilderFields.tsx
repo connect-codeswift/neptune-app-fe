@@ -160,7 +160,9 @@ function SelectControl(
 ) {
   const { field, value, error, onChange } = props;
 
-  if (field.allowCustom) {
+  // A native <select> can't render a footer, so the custom listbox also backs
+  // paginated option lists (prev/next controls live in that footer).
+  if (field.allowCustom || field.pagination) {
     return (
       <SelectWithCustomControl
         field={field}
