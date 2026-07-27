@@ -1,6 +1,5 @@
 import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
-import { CLOSED_CASE_DISPOSITION } from "@/components/incidents/report/shared/report-treatment";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
@@ -34,12 +33,12 @@ function isClosedIncident(incident: IncidentDto): boolean {
 }
 
 /**
- * Translates the "Severity" segmented filter into the `severity` value stored on
- * the incident, for the exact-match server-side filter on GetAllIncidents.
+ * Translates the "Severity" segmented filter into the `severity` token for the
+ * server-side filter on GetAllIncidents.
  *
- * The report form persists `SEVERITY_OPTIONS` *labels* ("OSHA Recordable"),
- * while this filter bar uses the normalized short label ("Recordable"), so the
- * two vocabularies only differ for that one entry.
+ * The server matches case-insensitive Contains, so we send the shortest
+ * semantic token: "recordable" covers both stored vocabularies
+ * ("OSHA Recordable" and "Recordable") where an exact label would miss one.
  *
  * Returns `undefined` when nothing should be sent.
  */
@@ -50,21 +49,27 @@ export function toApiSeverityFilter(
     return undefined;
   }
 
-  return severityFilter === "Recordable" ? "OSHA Recordable" : severityFilter;
+  return severityFilter === "Recordable" ? "recordable" : severityFilter;
 }
 
 /**
- * Translates the "State" segmented filter into the `caseDisposition` value for
- * the exact-match server-side filter on GetAllIncidents.
+ * Translates the "State" segmented filter into the `caseDisposition` token for
+ * the server-side filter on GetAllIncidents.
+ *
+ * The server matches case-insensitive Contains, and "closed" is a derived
+ * state: any stored disposition whose label contains "close" counts
+ * ("Case closed - no further actions", "Closed", legacy variants), mirroring
+ * isClosedIncident / deriveState. Sending the token instead of one exact
+ * label keeps legacy labels from silently dropping out.
  *
  * Only "Closed" is expressible: "Open" means "any disposition that is not a
- * closed one", which a single exact-match parameter cannot represent, so it is
+ * closed one", which a single Contains parameter cannot represent, so it is
  * left entirely to the client-side pass.
  */
 export function toApiCaseDispositionFilter(
   stateFilter: string,
 ): string | undefined {
-  return stateFilter === "Closed" ? CLOSED_CASE_DISPOSITION : undefined;
+  return stateFilter === "Closed" ? "close" : undefined;
 }
 
 /** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */
@@ -87,7 +92,17 @@ export function incidentMatchesSeverityFilter(
   return incident.severity === severityFilter;
 }
 
-/** Case-insensitive match across common incident list fields. */
+/**
+ * Case-insensitive match across the incident's searchable fields.
+ *
+ * This haystack is the client half of a cross-repo contract: the server-side
+ * search in GetAllIncidents (IncidentRepository.cs) covers every one of these
+ * fields' source columns, so nothing the client could match is ever dropped
+ * server-side before pagination. Fields intentionally NOT searched here:
+ * stage/state (derived labels with dedicated segmented filters), reportedAt
+ * (a formatted date string with no server-representable equivalent) and
+ * assignee (always "—").
+ */
 export function incidentMatchesSearch(
   incident: IncidentRecord,
   searchQuery: string,
@@ -104,11 +119,7 @@ export function incidentMatchesSearch(
     incident.description,
     incident.site,
     incident.severity,
-    incident.stage,
-    incident.state,
-    incident.reportedAt,
     incident.reporter,
-    incident.assignee,
     incident.injury,
     incident.summary,
   ]
