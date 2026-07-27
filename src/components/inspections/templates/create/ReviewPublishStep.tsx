@@ -60,6 +60,8 @@ export type ReviewPublishStepProps = Readonly<{
   scoring: ScoringConfig;
   rules: TemplateRule[];
   settings: TemplateSettings;
+  /** True while a publish/draft request is in flight. */
+  isSubmitting?: boolean;
   onEditStep: (step: number) => void;
   onPublish: () => void;
   onSaveDraft: () => void;
@@ -72,6 +74,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
     scoring,
     rules,
     settings,
+    isSubmitting = false,
     onEditStep,
     onPublish,
     onSaveDraft,
@@ -79,6 +82,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
 
   const name = String(values.templateName ?? "").trim();
   const tags = (values.tags as string[] | undefined) ?? [];
+  const frequency = String(values.frequency ?? "").trim();
   const description = String(values.description ?? "").trim();
   const templateType = String(values.templateType ?? "Inspection");
 
@@ -103,6 +107,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             <Field label="Tags">
               {tags.length > 0 ? tags.join(", ") : DASH}
             </Field>
+            <Field label="Frequency">{frequency || DASH}</Field>
             <Field label="Description">{description || DASH}</Field>
           </div>
         </IncidentGlassCard>
@@ -204,15 +209,17 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
           <button
             type="button"
             onClick={onPublish}
-            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+            disabled={isSubmitting}
+            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Publish Template
+            {isSubmitting ? "Publishing..." : "Publish Template"}
           </button>
 
           <button
             type="button"
             onClick={onSaveDraft}
-            className="text-ehs-dark-bg -mt-1.5 w-full cursor-pointer rounded-xl border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors hover:bg-black/5"
+            disabled={isSubmitting}
+            className="text-ehs-dark-bg -mt-1.5 w-full cursor-pointer rounded-xl border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Save as Draft
           </button>

@@ -16,17 +16,20 @@ import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { getCurrentUser } from "@/lib/current-user";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
-import { useAppSelector } from "@/store/hooks";
+import { setSelectedAudit } from "@/store/audit-slice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   buildStartAuditSchema,
   type StartAuditValues,
 } from "./start-audit-schema";
 
 const AUDIT_LIST_ROUTE = "/dashboard/audits";
+const AUDIT_CHECKLIST_ROUTE = "/dashboard/audits/checklist";
 const TEMPLATE_PAGE_SIZE = 10;
 
 export function StartAuditForm() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   // Set when arriving via a card's "Use Template" — preselects that template.
   const preselectedTemplateId = searchParams.get("templateId") ?? "";
@@ -74,6 +77,7 @@ export function StartAuditForm() {
   const selectedTemplate = useAppSelector(
     (state) => state.auditTemplate.selected,
   );
+  console.log(selectedTemplate);
   const selectedTemplateOption = useMemo<SelectOption | undefined>(() => {
     if (
       !activeTemplateId ||
@@ -150,9 +154,21 @@ export function StartAuditForm() {
         subCompanyId,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           toast.success("Audit created");
-          router.push(AUDIT_LIST_ROUTE);
+          console.log(response.dataModel);
+          // Stash the created audit so the checklist can label its header
+          // without waiting on the list to refetch.
+          const created = response.dataModel;
+          if (created) dispatch(setSelectedAudit(created));
+
+          // Go straight to the checklist, which loads the template's sections
+          // and items from its id.
+          router.push(
+            audit.template
+              ? `${AUDIT_CHECKLIST_ROUTE}/${encodeURIComponent(audit.template)}`
+              : AUDIT_LIST_ROUTE,
+          );
         },
         onError: (error) => {
           toast.error(

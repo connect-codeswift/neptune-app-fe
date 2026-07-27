@@ -22,6 +22,10 @@ const labelClass =
 const selectClass =
   "w-full truncate appearance-none rounded-lg border border-slate-900/10 bg-white px-3 py-2 pr-9 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
+/** Same frame as {@link selectClass}, without the chevron's right padding. */
+const inputClass =
+  "w-full rounded-lg border border-slate-900/10 bg-white px-3 py-2 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+
 /** Number of item weight rows shown before the "+N more" note. */
 const WEIGHTS_PREVIEW_COUNT = 3;
 
@@ -62,6 +66,31 @@ function Select(
   );
 }
 
+/** Free-text field styled to match {@link Select}, minus the chevron. */
+function TextInput(
+  props: Readonly<{
+    value: string;
+    placeholder: string;
+    ariaLabel: string;
+    onChange: (value: string) => void;
+  }>,
+) {
+  const { value, placeholder, ariaLabel, onChange } = props;
+
+  return (
+    <div className="relative min-w-0 flex-1">
+      <input
+        type="text"
+        value={value}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        onChange={(event) => onChange(event.target.value)}
+        className={[inputClass, "placeholder:text-ehs-muted-text"].join(" ")}
+      />
+    </div>
+  );
+}
+
 export type ScoringLogicStepProps = Readonly<{
   sections: TemplateSection[];
   onSectionsChange: (sections: TemplateSection[]) => void;
@@ -84,9 +113,6 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
   const items = sections.flatMap((section) =>
     section.items.map((item) => ({ sectionId: section.id, item })),
   );
-  const questionLabels = [
-    ...new Set(items.map(({ item }) => itemDisplayName(item))),
-  ];
   const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);
   const hiddenWeightCount = items.length - shownWeights.length;
 
@@ -352,10 +378,9 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                   <span className="bg-ehs-blue/15 text-ehs-blue shrink-0 rounded-md px-2 py-1 text-xs font-bold">
                     IF
                   </span>
-                  <Select
+                  <TextInput
                     value={rule.ifQuestion}
-                    placeholder="Select question"
-                    options={questionLabels}
+                    placeholder="Enter question"
                     ariaLabel="If question"
                     onChange={(value) =>
                       patchRule(rule.id, { ifQuestion: value })

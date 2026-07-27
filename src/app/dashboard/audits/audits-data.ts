@@ -1,4 +1,6 @@
-export type AuditStatus = "Scheduled" | "In progress" | "Closed";
+/** Status label as the backend reports it (e.g. "Scheduled", "Overdue"). The
+ * set isn't fixed here — the register derives its filters from the data. */
+export type AuditStatus = string;
 
 export type AuditRecord = Readonly<{
   id: string;

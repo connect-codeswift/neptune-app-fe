@@ -56,13 +56,24 @@ export default function AuditsPage() {
     [auditsQuery.data],
   );
 
+  // Only offer filters for statuses the backend actually returned.
+  const statuses = useMemo(
+    () => ["All", ...new Set(records.map((record) => record.status))],
+    [records],
+  );
+
+  // If the chosen status vanishes on a refetch, fall back to "All" rather than
+  // leaving the table empty with no segment selected.
+  const activeStatus = statuses.includes(selectedStatus)
+    ? selectedStatus
+    : "All";
+
   const filteredRecords = useMemo(
     () =>
       records.filter(
-        (record) =>
-          selectedStatus === "All" || record.status === selectedStatus,
+        (record) => activeStatus === "All" || record.status === activeStatus,
       ),
-    [records, selectedStatus],
+    [records, activeStatus],
   );
 
   // Fetch the clicked audit's detail (GET /api/Audit/{id}) for the side panel.
@@ -108,7 +119,8 @@ export default function AuditsPage() {
             containerClassName="min-w-0"
             header={
               <AuditRegisterToolbar
-                status={selectedStatus}
+                status={activeStatus}
+                statuses={statuses}
                 onStatusChange={setSelectedStatus}
                 onTemplatesClick={() =>
                   router.push("/dashboard/audits/template")

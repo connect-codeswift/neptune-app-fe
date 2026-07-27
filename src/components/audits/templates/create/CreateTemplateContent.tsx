@@ -26,6 +26,7 @@ import {
   createScoringConfig,
   createSettings,
   isItemValueFilled,
+  isRuleComplete,
   type ScoringConfig,
   type TemplateRule,
   type TemplateSection,
@@ -139,6 +140,15 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   /** Persist the wizard state as a draft or a published template. In edit mode
    * with a known id this PUTs an update; otherwise it POSTs a new template. */
   const submitTemplate = (publish: boolean) => {
+    // The backend rejects the whole template if any rule is half-filled.
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      setStep(3);
+      return;
+    }
+
     const draft = { values, sections, scoring, rules, settings };
     const payload = toAuditTemplatePayload(draft, { publish });
 
@@ -213,10 +223,22 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
     submitTemplate(true);
   };
 
+  /** Step 3's Next: catch half-filled rules here rather than at publish. */
+  const handleScoringLogicNext = () => {
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      return;
+    }
+
+    setStep(4);
+  };
+
   /** Advance/finish depending on the current step. */
   const handleNext = () => {
     if (step === 2) handleBuildSectionsNext();
-    else if (step === 3) setStep(4);
+    else if (step === 3) handleScoringLogicNext();
     else if (step === 4) setStep(5);
   };
 

@@ -83,7 +83,6 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
 
       <div className="flex items-center gap-5">
         <ItemsDonut segments={segments} />
-
         <ul className="flex min-w-0 flex-1 flex-col gap-3">
           {segments.map((segment) => (
             <li key={segment.label} className="flex items-center gap-2">

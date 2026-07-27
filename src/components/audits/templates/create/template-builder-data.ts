@@ -250,6 +250,15 @@ export function createRule(): TemplateRule {
   };
 }
 
+/** The backend rejects a template whose rules lack any of these three. */
+export function isRuleComplete(rule: TemplateRule): boolean {
+  return (
+    rule.ifQuestion.trim() !== "" &&
+    rule.ifOperator.trim() !== "" &&
+    rule.thenAction.trim() !== ""
+  );
+}
+
 /* ---- Step 4: Settings ---- */
 
 export const ACCESS_LEVELS = [

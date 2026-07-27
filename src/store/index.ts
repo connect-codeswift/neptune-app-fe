@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { auditReducer, saveSelectedAudit } from "./audit-slice";
 import {
   auditTemplateReducer,
   saveSelectedTemplate,
@@ -6,18 +7,27 @@ import {
 
 export const store = configureStore({
   reducer: {
+    audit: auditReducer,
     auditTemplate: auditTemplateReducer,
   },
 });
 
-// Mirror the selected template to localStorage so edits survive a refresh.
+// Mirror the selections to localStorage so they survive a refresh.
 if (typeof window !== "undefined") {
-  let previous = store.getState().auditTemplate.selected;
+  let previousTemplate = store.getState().auditTemplate.selected;
+  let previousAudit = store.getState().audit.selected;
+
   store.subscribe(() => {
-    const current = store.getState().auditTemplate.selected;
-    if (current !== previous) {
-      previous = current;
-      saveSelectedTemplate(current);
+    const template = store.getState().auditTemplate.selected;
+    if (template !== previousTemplate) {
+      previousTemplate = template;
+      saveSelectedTemplate(template);
+    }
+
+    const audit = store.getState().audit.selected;
+    if (audit !== previousAudit) {
+      previousAudit = audit;
+      saveSelectedAudit(audit);
     }
   });
 }

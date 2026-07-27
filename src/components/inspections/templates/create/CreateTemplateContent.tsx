@@ -7,6 +7,8 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateInspectionTemplateMutation } from "@/hooks/use-inspection-template-mutations";
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
@@ -21,6 +23,7 @@ import {
   createScoringConfig,
   createSettings,
   isItemValueFilled,
+  isRuleComplete,
   type ScoringConfig,
   type TemplateRule,
   type TemplateSection,
@@ -30,6 +33,7 @@ import {
   createTemplateInitialValues,
   createTemplateSchema,
 } from "./create-template-schema";
+import { toInspectionTemplatePayload } from "./to-template-payload";
 
 const TEMPLATES_ROUTE = "/dashboard/inspections/template";
 const BASIC_INFO_FORM_ID = "create-template-basic-info";
@@ -88,8 +92,45 @@ export function CreateTemplateContent() {
   const [settings, setSettings] = useState<TemplateSettings>(createSettings);
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
+  const createTemplate = useCreateInspectionTemplateMutation();
+
+  /** POST the wizard state as a draft or a published template. */
+  const submitTemplate = (publish: boolean) => {
+    // The backend rejects the whole template if any rule is half-filled.
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      setStep(3);
+      return;
+    }
+
+    const draft = { values, sections, scoring, rules, settings };
+    const payload = toInspectionTemplatePayload(draft, { publish });
+
+    console.log("Template wizard data", draft);
+    console.log("Inspection template payload", payload);
+
+    createTemplate.mutate(payload, {
+      onSuccess: () => {
+        toast.success(publish ? "Template published" : "Draft saved");
+        if (publish) router.push(TEMPLATES_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            publish
+              ? "Could not publish the template. Please try again."
+              : "Could not save the draft. Please try again.",
+          ),
+        );
+      },
+    });
+  };
+
   const handleSaveDraft = () => {
-    toast.success("Draft saved");
+    submitTemplate(false);
   };
 
   /** Step 1's Next: only fires once FormBuilder's validation passes. */
@@ -119,15 +160,25 @@ export function CreateTemplateContent() {
   };
 
   const handlePublish = () => {
-    // TODO: wire to a create-template mutation once the service exists.
-    toast.success("Template published");
-    router.push(TEMPLATES_ROUTE);
+    submitTemplate(true);
+  };
+
+  /** Step 3's Next: catch half-filled rules here rather than at publish. */
+  const handleScoringLogicNext = () => {
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      return;
+    }
+
+    setStep(4);
   };
 
   /** Advance/finish depending on the current step. */
   const handleNext = () => {
     if (step === 2) handleBuildSectionsNext();
-    else if (step === 3) setStep(4);
+    else if (step === 3) handleScoringLogicNext();
     else if (step === 4) setStep(5);
   };
 
@@ -245,6 +296,7 @@ export function CreateTemplateContent() {
           scoring={scoring}
           rules={rules}
           settings={settings}
+          isSubmitting={createTemplate.isPending}
           onEditStep={setStep}
           onPublish={handlePublish}
           onSaveDraft={handleSaveDraft}

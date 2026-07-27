@@ -30,6 +30,7 @@ export default function AuditTemplatesPage() {
     [page],
   );
 
+  console.log(page);
   const totalRecords = page?.totalRecords ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
 

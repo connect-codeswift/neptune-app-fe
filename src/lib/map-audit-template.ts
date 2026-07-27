@@ -15,6 +15,7 @@ import {
   type WizardState,
 } from "@/components/audits/templates/create/template-builder-data";
 import type { AuditTemplate } from "@/app/dashboard/audits/template/audit-templates-data";
+import type { AuditChecklist } from "@/app/dashboard/audits/checklist/audit-checklist-data";
 
 /** Turn an API audit template into the card's display shape. */
 export function mapAuditTemplateDtoToCard(
@@ -71,6 +72,31 @@ function mapItem(dto: AuditTemplateItemDto): TemplateItem {
     scoreWeight: dto.scoreWeight ?? dto.itemWeight ?? 0,
     required: dto.isRequired ?? true,
     value,
+  };
+}
+
+/** Assemble a fetched template's sections and items into a runnable checklist. */
+export function mapDetailToChecklist(
+  detail: AuditTemplateDetail,
+  templateId: string,
+): AuditChecklist {
+  const sections = [...detail.sections]
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((section) => ({
+      id: String(section.id),
+      title: section.sectionTitle ?? section.title ?? "Untitled section",
+      items: [...(detail.itemsBySection[String(section.id)] ?? [])]
+        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+        .map((item) => ({
+          id: String(item.id),
+          question: item.question ?? "",
+        })),
+    }));
+
+  return {
+    auditId: `TPL-${templateId}`,
+    subtitle: detail.summary?.templateName ?? "Audit checklist",
+    sections,
   };
 }
 

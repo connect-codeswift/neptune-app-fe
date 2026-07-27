@@ -3,9 +3,11 @@ import type {
   AuditRecord,
   AuditStatus,
 } from "@/app/dashboard/audits/audits-data";
+import type { AuditFinding } from "@/app/dashboard/audits/findings/audit-findings-data";
 import type {
   AuditDetailDto,
   AuditDto,
+  AuditFindingDto,
 } from "@/dtos/res/audit-response.dto";
 
 /** Prettify a location code (e.g. "plant-b" -> "Plant B"); pass through others. */
@@ -19,20 +21,9 @@ function formatLocation(location: string): string {
   return known[location] ?? location;
 }
 
-/** Coerce the API status onto the register's filterable status union. */
+/** The backend owns the status vocabulary, so its label is used as-is. */
 function toAuditStatus(status: string): AuditStatus {
-  const normalized = status.trim().toLowerCase().replace(/[\s_-]+/g, "");
-  if (normalized === "scheduled") return "Scheduled";
-  if (normalized === "inprogress" || normalized === "ongoing")
-    return "In progress";
-  if (
-    normalized === "closed" ||
-    normalized === "completed" ||
-    normalized === "done"
-  )
-    return "Closed";
-  // Fall back to the raw label so unexpected statuses still render.
-  return status as AuditStatus;
+  return status.trim();
 }
 
 /** Map an API audit row onto the register table's record shape. */
@@ -47,6 +38,18 @@ export function mapAuditDtoToRecord(dto: AuditDto): AuditRecord {
     status: toAuditStatus(dto.status ?? ""),
     dueDate: (dto.scheduleDate ?? "").slice(0, 10),
     findings: dto.findingCount > 0 ? `${String(dto.findingCount)} open` : null,
+  };
+}
+
+/** Map an API finding onto the findings page's card shape. */
+export function mapFindingDtoToFinding(dto: AuditFindingDto): AuditFinding {
+  return {
+    id: String(dto.id),
+    severity: dto.severity ?? dto.findingSeverity ?? "—",
+    category: dto.category ?? dto.findingCategory ?? "General",
+    description: dto.description ?? dto.title ?? dto.question ?? "",
+    status: dto.status ?? "Open",
+    capaCreated: dto.capaCreated ?? dto.isCapaCreated ?? false,
   };
 }
 

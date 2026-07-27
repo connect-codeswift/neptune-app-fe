@@ -2,22 +2,17 @@
 
 import { Button } from "@/components/ui/Button";
 
-export const AUDIT_STATUS_FILTERS = [
-  "All",
-  "Scheduled",
-  "In progress",
-  "Closed",
-] as const;
-
 export type AuditRegisterToolbarProps = Readonly<{
   status: string;
+  /** Segment options, derived from the statuses present in the data. */
+  statuses: readonly string[];
   onStatusChange: (value: string) => void;
   onTemplatesClick?: () => void;
 }>;
 
 /** Card header for the audit register: title, status segments, Templates. */
 export function AuditRegisterToolbar(props: AuditRegisterToolbarProps) {
-  const { status, onStatusChange, onTemplatesClick } = props;
+  const { status, statuses, onStatusChange, onTemplatesClick } = props;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -25,7 +20,7 @@ export function AuditRegisterToolbar(props: AuditRegisterToolbarProps) {
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="border-ehs-border flex flex-wrap items-center gap-2 rounded-xl border bg-white px-2.5 py-1">
-          {AUDIT_STATUS_FILTERS.map((option) => {
+          {statuses.map((option) => {
             const isActive = status === option;
 
             return (

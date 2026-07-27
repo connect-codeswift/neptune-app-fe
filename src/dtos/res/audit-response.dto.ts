@@ -23,6 +23,9 @@ export type AuditDto = {
 /** Matches the backend response for POST /api/Audit. */
 export type CreateAuditResponseDto = ApiEnvelopeDto<AuditDto | null>;
 
+/** Matches the backend response for POST /api/Audit/{id}/submit. */
+export type SubmitAuditResponseDto = ApiEnvelopeDto<AuditDto | null>;
+
 /** Matches the backend response for GET /api/Audit (paged list). */
 export type GetAllAuditsResponseDto = ApiEnvelopeDto<PagedDataDto<AuditDto>>;
 
@@ -91,3 +94,30 @@ export type AuditDetailDto = {
 
 /** Matches the backend response for GET /api/Audit/{id}. */
 export type GetAuditByIdResponseDto = ApiEnvelopeDto<AuditDetailDto | null>;
+
+/**
+ * A finding raised against an audit. Fields stay optional and duplicated across
+ * likely names since the exact response shape isn't pinned down yet.
+ */
+export type AuditFindingDto = {
+  id: number;
+  severity?: string;
+  findingSeverity?: string;
+  category?: string;
+  findingCategory?: string;
+  description?: string;
+  title?: string;
+  question?: string;
+  status?: string;
+  capaCreated?: boolean;
+  isCapaCreated?: boolean;
+};
+
+/** Matches the backend response for GET /api/Audit/{id}/findings. */
+export type GetAuditFindingsResponseDto = ApiEnvelopeDto<
+  AuditFindingDto[] | null
+>;
+
+/** Matches the backend response for GET /api/Audit/{id}/report. Left as
+ * `unknown` until the report's shape is pinned down. */
+export type GetAuditReportResponseDto = ApiEnvelopeDto<unknown>;
