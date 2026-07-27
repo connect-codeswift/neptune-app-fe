@@ -9,6 +9,7 @@ import type {
   IncidentDto,
   PersonDto,
 } from "@/dtos/res/incident-response.dto";
+import { CLOSED_CASE_DISPOSITION } from "@/components/incidents/report/shared/report-treatment";
 import http, { getAccessToken } from "@/lib/axios";
 
 const INCIDENT_GET_ALL_PATH = "/Incident/GetAllIncidents";
@@ -319,7 +320,24 @@ function normalizeGetAllIncidentsResponse(
 }
 
 export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
-  const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, request);
+  const { pageNumber, pageSize, subCompanyId, userId } = request;
+  const search = request.search?.trim();
+  const severity = request.severity?.trim();
+  const caseDisposition = request.caseDisposition?.trim();
+
+  // Only send the optional server-side filters when they are actually set, so
+  // an unfiltered request keeps the exact body shape older backends expect.
+  const body: GetAllIncidentsRequestDto = {
+    pageNumber,
+    pageSize,
+    subCompanyId,
+    userId,
+    ...(search ? { search } : {}),
+    ...(severity ? { severity } : {}),
+    ...(caseDisposition ? { caseDisposition } : {}),
+  };
+
+  const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, body);
   return normalizeGetAllIncidentsResponse(data, request);
 }
 
@@ -357,34 +375,6 @@ export async function getIncidentById(
 export async function createIncident(payload: CreateIncidentRequestDto) {
   const { data } = await http.post<unknown>(INCIDENT_CREATE_PATH, payload);
   return normalizeIncidentDto(data) ?? (isRecord(data) ? (data as IncidentDto) : {});
-}
-
-/**
- * Marks an incident Closed without deleting it.
- * Uses GetById + POST /Incident/incident with `caseDisposition: "Closed"`.
- * Does not call DropIncident (that removes the record).
- */
-export async function closeIncident(
-  id: number,
-  context: TenantUserContextDto,
-) {
-  const existing = await getIncidentById({
-    id,
-    userId: context.userId,
-    subCompanyId: context.subCompanyId,
-  });
-
-  const payload: CreateIncidentRequestDto = {
-    ...(existing ?? {}),
-    id,
-    userId: context.userId,
-    subCompanyId: context.subCompanyId,
-    reportedById: existing?.reportedById ?? context.userId,
-    caseDisposition: "Closed",
-    isDrop: false,
-  };
-
-  return createIncident(payload);
 }
 
 /**
@@ -461,4 +451,21 @@ export async function updateIncident(
     },
     payload,
   );
+}
+
+/**
+ * Marks an incident Closed without deleting it.
+ *
+ * Must go through the update path: POST /Incident/incident always runs
+ * `Incidents.Add(...)` server-side and `Id` is a DB identity column, so posting
+ * an existing `id` there inserts a *new* "Closed" row and leaves the original
+ * open. Patching `caseDisposition` through `updateIncident` issues the real
+ * PUT /Incident/UpdateIncident/{id} instead.
+ *
+ * Does not call DropIncident (that removes the record).
+ */
+export async function closeIncident(id: number, context: TenantUserContextDto) {
+  return updateIncident(id, context, {
+    caseDisposition: CLOSED_CASE_DISPOSITION,
+  });
 }

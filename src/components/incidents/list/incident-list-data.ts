@@ -1,5 +1,6 @@
 import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import { CLOSED_CASE_DISPOSITION } from "@/components/incidents/report/shared/report-treatment";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
@@ -30,6 +31,40 @@ const ASSUMED_EXPOSURE_HOURS = 200_000;
 function isClosedIncident(incident: IncidentDto): boolean {
   const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
   return disposition.includes("close") || disposition === "closed";
+}
+
+/**
+ * Translates the "Severity" segmented filter into the `severity` value stored on
+ * the incident, for the exact-match server-side filter on GetAllIncidents.
+ *
+ * The report form persists `SEVERITY_OPTIONS` *labels* ("OSHA Recordable"),
+ * while this filter bar uses the normalized short label ("Recordable"), so the
+ * two vocabularies only differ for that one entry.
+ *
+ * Returns `undefined` when nothing should be sent.
+ */
+export function toApiSeverityFilter(
+  severityFilter: string,
+): string | undefined {
+  if (severityFilter === "All") {
+    return undefined;
+  }
+
+  return severityFilter === "Recordable" ? "OSHA Recordable" : severityFilter;
+}
+
+/**
+ * Translates the "State" segmented filter into the `caseDisposition` value for
+ * the exact-match server-side filter on GetAllIncidents.
+ *
+ * Only "Closed" is expressible: "Open" means "any disposition that is not a
+ * closed one", which a single exact-match parameter cannot represent, so it is
+ * left entirely to the client-side pass.
+ */
+export function toApiCaseDispositionFilter(
+  stateFilter: string,
+): string | undefined {
+  return stateFilter === "Closed" ? CLOSED_CASE_DISPOSITION : undefined;
 }
 
 /** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */

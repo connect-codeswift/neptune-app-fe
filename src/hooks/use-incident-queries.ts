@@ -13,6 +13,10 @@ export const incidentQueryKeys = {
     pageSize: number;
     userId: number;
     subCompanyId: number;
+    /** Server-side filters — part of the key so each filter set caches apart. */
+    search: string;
+    severity: string;
+    caseDisposition: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
   detail: (params: {
     id: number;
@@ -32,13 +36,19 @@ export const DEFAULT_INCIDENTS_PAGE_SIZE = 10;
 export type UseIncidentsListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
+  /** Substring match on description / location, applied server-side. */
+  search?: string;
+  /** Exact match on the stored severity label, applied server-side. */
+  severity?: string;
+  /** Exact match on the stored case disposition label, applied server-side. */
+  caseDisposition?: string;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
 }>;
 
 /**
  * Loads incidents via POST /api/Incident/GetAllIncidents
- * body: `{ pageNumber, pageSize, subCompanyId, userId }`
+ * body: `{ pageNumber, pageSize, subCompanyId, userId, search?, severity?, caseDisposition? }`
  */
 export function useIncidentsListQuery(
   options: UseIncidentsListQueryOptions = {},
@@ -46,6 +56,9 @@ export function useIncidentsListQuery(
   const pageNumber = options.pageNumber ?? DEFAULT_INCIDENTS_PAGE_NUMBER;
   const pageSize = options.pageSize ?? DEFAULT_INCIDENTS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
+  const search = options.search?.trim() ?? "";
+  const severity = options.severity?.trim() ?? "";
+  const caseDisposition = options.caseDisposition?.trim() ?? "";
 
   // Only read JWT/localStorage when the query is allowed to run (post-hydration).
   const auth = enabled ? getAuthContext() : null;
@@ -58,6 +71,9 @@ export function useIncidentsListQuery(
       pageSize,
       userId,
       subCompanyId,
+      search,
+      severity,
+      caseDisposition,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -67,6 +83,9 @@ export function useIncidentsListQuery(
         pageSize,
         userId,
         subCompanyId,
+        ...(search ? { search } : {}),
+        ...(severity ? { severity } : {}),
+        ...(caseDisposition ? { caseDisposition } : {}),
       });
 
       return {

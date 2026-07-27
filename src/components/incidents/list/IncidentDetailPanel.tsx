@@ -13,6 +13,9 @@ import {
 } from "@/components/incidents/list/IncidentBadge";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
+import { toast } from "@/lib/toast";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
@@ -48,6 +51,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
     className = "",
   } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
+  const createCapaMutation = useCreateCapaMutation();
 
   if (!incident) {
     return (
@@ -65,6 +69,41 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
       </IncidentGlassCard>
     );
   }
+
+  // Same CAPA creation path the detail page uses (IncidentDetailContent).
+  const handleSubmitCapa = async (
+    payload: Readonly<{
+      controlLevel: string;
+      description: string;
+      type: string;
+      owner: string;
+      dueDate: string;
+      priority: string;
+    }>,
+  ) => {
+    try {
+      await createCapaMutation.mutateAsync({
+        incidentId: incident.numericId,
+        controlLevel: payload.controlLevel,
+        description: payload.description,
+        type: payload.type,
+        owner: payload.owner,
+        dueDate: payload.dueDate,
+        priority: payload.priority,
+      });
+      toast.success(
+        "CAPA created",
+        `Added ${payload.type.toLowerCase()} action for ${incident.id}.`,
+      );
+    } catch (error) {
+      toast.error(
+        "Could not create CAPA",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+      // Rethrow so AddCapaModal keeps itself open for a retry.
+      throw error;
+    }
+  };
 
   return (
     <IncidentGlassCard
@@ -309,7 +348,9 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         <AddCapaModal
           incidentId={incident.id}
           incidentTitle={incident.title}
+          isSubmitting={createCapaMutation.isPending}
           onClose={() => setIsAddCapaOpen(false)}
+          onSubmit={handleSubmitCapa}
         />
       ) : null}
     </IncidentGlassCard>
