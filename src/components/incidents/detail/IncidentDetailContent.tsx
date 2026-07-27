@@ -16,9 +16,14 @@ import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
 import {
   useCloseIncidentMutation,
+  useUpdateIncidentClosureMutation,
   useUpdateIncidentMutation,
 } from "@/hooks/use-incident-mutations";
-import { useIncidentByIdQuery } from "@/hooks/use-incident-queries";
+import {
+  useIncidentByIdQuery,
+  useIncidentClosureQuery,
+} from "@/hooks/use-incident-queries";
+import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/axios";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
@@ -34,6 +39,7 @@ import {
   EMPTY_INCIDENT_INVESTIGATION,
   parseIncidentRouteId,
 } from "@/services/mappers/incident-detail.mapper";
+import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
   /** Route param: numeric id or `INC-{id}`. */
@@ -89,75 +95,48 @@ export function IncidentDetailContent(
     closureStatus: "Pending Checklist",
     closureId: undefined,
     closedAt: undefined,
-    closedBy: "Sarah Mitchell",
+    closedBy: getAuthDisplayName() || "EHS Lead",
     closedByRole: "EHS Manager",
-    closureDate: "24 Apr 2026 · 15:04",
-    durationOpen: "6h 52m",
+    closureDate: formatShortDateTime(new Date()),
+    durationOpen: "—",
     finalIncidentType: "Select option",
-    sifClassification: "Select option",
-    daysAwayFromWork: 3,
+    sifClassification: "Not SIF",
+    daysAwayFromWork: 0,
     daysOnRestrictedDuty: 0,
-    isOshaRecordable: true,
-    closureStatement:
-      "All immediate containment actions, witness interviews, and initial risk assessments have been completed. Root causes have been analyzed and preventive actions assigned.",
-    lessonsLearned:
-      "1. Ensure daily pre-shift equipment inspection logs are verified by site supervisors.\n2. Upgrade secondary containment barriers on chemical transfer lines.\n3. Conduct refresher safety training for all operations personnel.",
-    closureNotes:
-      "Pending final verification of linked CAPA actions before EHS Manager sign-off.",
-    rootCauseSummary:
-      "The high-pressure hose on press #4 ruptured due to internal fatigue cracking near the crimp fitting. The hose had been in service for 14 months under cyclic load without inspection.",
-    primaryRootCause: "Equipment Failure",
-    contributingFactors: ["Procedure Gap", "Maintenance Schedules"],
-    equipmentProceduresNote:
-      "Replacement gaskets installed and standard operating procedure SOP-CHEM-04 updated.",
-    actionsTaken:
-      "Implemented condition-based hose replacement schedule per CAPA-012. Ultrasonic inspection protocol added to maintenance checklists.",
-    preventiveActionSummary:
-      "Preventive maintenance frequency increased from quarterly to monthly for high-risk transfer lines.",
-    closureLinkedCapas: [
-      {
-        id: "capa-12",
-        title: "CAPA-012",
-        subtitle: "Preventive replacement schedule",
-        progressPercent: 100,
-        status: "Completed",
-      },
-      {
-        id: "capa-14",
-        title: "CAPA-014",
-        subtitle: "Revised inspection SOP",
-        progressPercent: 70,
-        status: "In Progress",
-      },
-    ],
-    capasVerified: true,
+    isOshaRecordable: false,
+    oshaOverrideReason: undefined,
+    closureStatement: "",
+    lessonsLearned: "",
+    closureNotes: "",
+    rootCauseSummary: "",
+    primaryRootCause: "",
+    contributingFactors: [],
+    equipmentProceduresNote: "",
+    actionsTaken: "",
+    preventiveActionSummary: "",
+    closureLinkedCapas: [],
+    capasVerified: false,
     mfaSigned: false,
-    isEhsConfirmed: true,
+    isEhsConfirmed: false,
     residualRisk: "Low",
     verificationChecklist: [
       {
         id: "chk-1",
         label: "Immediate containment & emergency response completed",
-        completed: true,
+        completed: false,
         required: true,
-        completedAt: "24 Apr 2026",
-        completedBy: "Sarah Mitchell",
       },
       {
         id: "chk-2",
         label: "Root cause analysis & 5-Why investigation finalized",
-        completed: true,
+        completed: false,
         required: true,
-        completedAt: "24 Apr 2026",
-        completedBy: "Alex Rivera",
       },
       {
         id: "chk-3",
         label: "Corrective and Preventive Actions (CAPA) assigned",
-        completed: true,
+        completed: false,
         required: true,
-        completedAt: "24 Apr 2026",
-        completedBy: "Sarah Mitchell",
       },
       {
         id: "chk-4",
@@ -172,9 +151,9 @@ export function IncidentDetailContent(
         required: true,
       },
     ],
-    approverName: "Sarah Mitchell",
+    approverName: getAuthDisplayName() || "EHS Lead",
     approverRole: "EHS Manager",
-    approverInitials: "SM",
+    approverInitials: initialsFromName(getAuthDisplayName() || "EL"),
     isApproved: false,
   });
   const [editScope, setEditScope] = useState<EditScope | null>(null);
@@ -200,12 +179,20 @@ export function IncidentDetailContent(
   });
   const closeIncidentMutation = useCloseIncidentMutation();
   const updateIncidentMutation = useUpdateIncidentMutation();
+  const updateClosureMutation = useUpdateIncidentClosureMutation();
   const createCapaMutation = useCreateCapaMutation();
 
   const detail = detailQuery.data?.detail ?? null;
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
+    incidentId: detail?.numericId ?? numericId,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      (detail?.numericId != null || numericId != null),
+  });
+  const closureQuery = useIncidentClosureQuery({
     incidentId: detail?.numericId ?? numericId,
     enabled:
       isClientReady &&
@@ -239,6 +226,41 @@ export function IncidentDetailContent(
     setResponseNotes(detail.responseNotes);
     setInfoItems(detail.infoItems);
   }, [detail, editScope]);
+
+  useEffect(() => {
+    if (closureQuery.data) {
+      setClosureData((prev) => mapIncidentClosureDtoToData(closureQuery.data, prev));
+    } else if (detail) {
+      const intakeType = detail.infoItems?.find((i) => i.key.toLowerCase().includes("type"))?.value;
+      setClosureData((prev) => ({
+        ...prev,
+        finalIncidentType: prev.finalIncidentType === "Select option" ? (intakeType || "Near Miss") : prev.finalIncidentType,
+        closedBy: prev.closedBy || getAuthDisplayName() || "EHS User",
+        approverName: prev.approverName || getAuthDisplayName() || "EHS User",
+        approverInitials: initialsFromName(prev.approverName || getAuthDisplayName() || "EU"),
+      }));
+    }
+  }, [closureQuery.data, detail]);
+
+  useEffect(() => {
+    if (capaQuery.data?.items && capaQuery.data.items.length > 0) {
+      const mappedCapas = capaQuery.data.items.map((c) => ({
+        id: String(c.id),
+        title: c.code || `CAPA-${String(c.id).slice(-3)}`,
+        subtitle: c.title || c.controlCategory || "",
+        progressPercent: typeof c.progressPercent === "number" ? c.progressPercent : 0,
+        status: (c.status === "Closed" || c.status === "Verified"
+          ? "Completed"
+          : c.status === "Planning"
+            ? "Planning"
+            : "In Progress") as "Completed" | "In Progress" | "Planning",
+      }));
+      setClosureData((prev) => ({
+        ...prev,
+        closureLinkedCapas: mappedCapas,
+      }));
+    }
+  }, [capaQuery.data]);
 
   useEffect(() => {
     if (!detail) {
@@ -718,25 +740,55 @@ export function IncidentDetailContent(
           ),
         }));
       }}
-      onSaveClosureDraft={() => {
-        toast.success(
-          "Draft Saved",
-          "Incident closure draft saved successfully."
-        );
+      onSaveClosureDraft={async () => {
+        const targetId = detail?.numericId ?? numericId;
+        if (!targetId) return;
+        try {
+          await updateClosureMutation.mutateAsync({
+            incidentId: targetId,
+            data: closureData,
+          });
+          toast.success(
+            "Draft Saved",
+            "Incident closure draft saved successfully."
+          );
+        } catch (error) {
+          toast.error(
+            "Failed to Save Draft",
+            getMutationErrorMessage(error, "Please check your network or try again.")
+          );
+        }
       }}
-      onFinalizeClosure={() => {
-        setClosureData((prev) => ({
-          ...prev,
+      onFinalizeClosure={async () => {
+        const targetId = detail?.numericId ?? numericId;
+        if (!targetId) return;
+
+        const updatedData: IncidentClosureData = {
+          ...closureData,
           closureStatus: "Closed",
-          closureId: `CLS-${displayId}`,
+          closureId: closureData.closureId ?? `CLS-${displayId}`,
           closedAt: formatShortDateTime(new Date()),
-          closedBy: prev.approverName,
+          closedBy: closureData.approverName || closureData.closedBy,
           isApproved: true,
-        }));
-        toast.success(
-          "Incident Officially Closed",
-          `Incident ${displayId} has been successfully closed and verified.`
-        );
+        };
+
+        setClosureData(updatedData);
+
+        try {
+          await updateClosureMutation.mutateAsync({
+            incidentId: targetId,
+            data: updatedData,
+          });
+          toast.success(
+            "Incident Officially Closed",
+            `Incident ${displayId} has been successfully closed and verified.`
+          );
+        } catch (error) {
+          toast.error(
+            "Failed to Finalize Closure",
+            getMutationErrorMessage(error, "Please try again.")
+          );
+        }
       }}
     />
   );

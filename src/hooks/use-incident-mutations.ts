@@ -4,12 +4,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-state";
 import { getAuthContext } from "@/lib/auth-context";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
+import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 import {
   closeIncident,
   createIncident,
   updateIncident,
+  updateIncidentClosure,
 } from "@/services/incident.service";
 import { mapReportFormToIncidentDto } from "@/services/mappers/report-incident.mapper";
+import { mapIncidentClosureDataToUpdateDto } from "@/services/mappers/incident-closure.mapper";
 import { incidentQueryKeys } from "@/hooks/use-incident-queries";
 
 export function useCreateIncidentMutation() {
@@ -77,3 +80,28 @@ export function useUpdateIncidentMutation() {
     },
   });
 }
+
+/** Updates incident closure details via PUT /api/Incident/{incidentId}/closure */
+export function useUpdateIncidentClosureMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: {
+      incidentId: number;
+      data: IncidentClosureData;
+    }) => {
+      const payload = mapIncidentClosureDataToUpdateDto(
+        input.data,
+        input.incidentId,
+      );
+      return updateIncidentClosure(input.incidentId, payload);
+    },
+    onSuccess: async (_res, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: incidentQueryKeys.closure(variables.incidentId),
+      });
+      await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });
+    },
+  });
+}
+

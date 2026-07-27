@@ -23,13 +23,10 @@ const INCIDENT_TYPES = [
 ];
 
 const SIF_CLASSIFICATIONS = [
-  "Select option",
   "Not SIF",
   "Potential SIF (P-SIF)",
   "Actual SIF",
 ];
-
-// --- Derivation + visibility rules, keyed off Final Incident Type ---
 
 function getDerivedRecordable(finalIncidentType: string): boolean {
   switch (finalIncidentType) {
@@ -51,10 +48,7 @@ function showDaysAwayField(finalIncidentType: string): boolean {
 }
 
 function showDaysRestrictedField(finalIncidentType: string): boolean {
-  return (
-    finalIncidentType === "Restricted Work / Job Transfer" ||
-    finalIncidentType === "Lost Time"
-  );
+  return finalIncidentType === "Restricted Work / Job Transfer";
 }
 
 export function IncidentClosureStepClassification(
@@ -63,59 +57,53 @@ export function IncidentClosureStepClassification(
   const { data, onChangeField } = props;
 
   const selectedIncidentType = data.finalIncidentType || "Select option";
-  const selectedSifClassification = data.sifClassification || "Select option";
+  const selectedSifClassification =
+    !data.sifClassification || data.sifClassification === "Select option"
+      ? "Not SIF"
+      : data.sifClassification;
 
   const derivedRecordable = getDerivedRecordable(selectedIncidentType);
   const isOverridden = data.isOshaRecordable !== derivedRecordable;
   const showDaysAway = showDaysAwayField(selectedIncidentType);
   const showDaysRestricted = showDaysRestrictedField(selectedIncidentType);
+  const isFatality = selectedIncidentType === "Fatality";
 
-  // --- Validation (inline, non-blocking display; parent step can read these) ---
+  // --- Validation rules ---
 
   const lostTimeMissingDays =
-    data.finalIncidentType === "Lost Time" && data.daysAwayFromWork < 1;
-
-  const medicalOnlyWithDaysAway =
-    data.finalIncidentType === "Medical Treatment Only" &&
-    data.daysAwayFromWork > 0;
+    selectedIncidentType === "Lost Time" && data.daysAwayFromWork < 1;
 
   const restrictedMissingDays =
-    data.finalIncidentType === "Restricted Work / Job Transfer" &&
+    selectedIncidentType === "Restricted Work / Job Transfer" &&
     data.daysOnRestrictedDuty < 1;
 
-  //const overrideReasonMissing = isOverridden && !data.oshaOverrideReason?.trim();
+  const medicalOnlyWithDaysAway =
+    (selectedIncidentType === "Medical Treatment Only" ||
+      selectedIncidentType === "First Aid Only") &&
+    (data.daysAwayFromWork > 0 || data.daysOnRestrictedDuty > 0);
+
+  const overrideReasonMissing = isOverridden && !data.oshaOverrideReason?.trim();
 
   // --- Handlers ---
 
   const handleIncidentTypeChange = (value: string) => {
     onChangeField("finalIncidentType", value);
 
-    // Re-derive OSHA recordable for the newly selected type and clear any
-    // stale override reason, since the override no longer applies to this type.
     const nextDerived = getDerivedRecordable(value);
     onChangeField("isOshaRecordable", nextDerived);
-    // comment    onChangeField("oshaOverrideReason", "");
 
-    // Zero out day fields that are no longer relevant for this type so stale
-    // values don't linger hidden in the background.
     if (!showDaysAwayField(value)) {
       onChangeField("daysAwayFromWork", 0);
     }
     if (!showDaysRestrictedField(value)) {
       onChangeField("daysOnRestrictedDuty", 0);
     }
-
-    // NOTE: SIF Classification is intentionally left untouched here.
-    // SIF is independent of Final Incident Type in both directions and
-    // must never be auto-derived from it.
   };
 
   const handleRecordableChange = (value: boolean) => {
     onChangeField("isOshaRecordable", value);
-    // If the new value matches the derived default again, clear any reason
-    // left over from a previous override.
-    if (value === getDerivedRecordable(data.finalIncidentType)) {
-      //     onChangeField("oshaOverrideReason", "");
+    if (value === getDerivedRecordable(selectedIncidentType)) {
+      onChangeField("oshaOverrideReason", "");
     }
   };
 
@@ -141,6 +129,21 @@ export function IncidentClosureStepClassification(
       >
         Closure Classification
       </Text>
+
+      {/* Fatality Regulatory Warning Banner */}
+      {isFatality && (
+        <div className="flex items-start gap-3 rounded-[10px] border border-[#dc2626]/30 bg-[#fef2f2] p-3 text-[#991b1b]">
+          <Icon icon="mdi:alert-circle" className="mt-0.5 size-5 shrink-0 text-[#dc2626]" />
+          <div className="flex flex-col text-[12px] font-medium leading-relaxed">
+            <span className="font-bold text-[#991b1b]">
+              Regulatory Action Required (OSHA 8-Hour Reporting)
+            </span>
+            <span>
+              Fatality incidents trigger mandatory OSHA 8-hour regulatory reporting. Closure is locked behind senior management sign-off and verification of official agency notifications.
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-6">
         {/* Row 1: Final Incident Type + SIF Classification */}
@@ -181,7 +184,7 @@ export function IncidentClosureStepClassification(
               />
             </div>
             <span className="text-[11px] font-normal text-[#8892a3]">
-              Defaults from intake - verify before closing
+              Defaults from intake — verify before closing
             </span>
           </div>
 
@@ -196,23 +199,10 @@ export function IncidentClosureStepClassification(
                 onChange={(e) =>
                   onChangeField("sifClassification", e.target.value)
                 }
-                className={[
-                  "w-full appearance-none bg-transparent pr-6 text-[13px] font-normal outline-none",
-                  selectedSifClassification === "Select option"
-                    ? "text-[#8892a3]"
-                    : "text-[#0b1320]",
-                ].join(" ")}
+                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-semibold text-[#0b1320] outline-none"
               >
                 {SIF_CLASSIFICATIONS.map((sif) => (
-                  <option
-                    key={sif}
-                    value={sif}
-                    className={
-                      sif === "Select option"
-                        ? "text-[#8892a3]"
-                        : "text-[#0b1320]"
-                    }
-                  >
+                  <option key={sif} value={sif} className="text-[#0b1320]">
                     {sif}
                   </option>
                 ))}
@@ -331,8 +321,7 @@ export function IncidentClosureStepClassification(
                 </div>
                 {restrictedMissingDays && (
                   <span className="text-[11px] font-normal text-[#dc2626]">
-                    Restricted Work / Job Transfer requires at least 1 day on
-                    restricted duty.
+                    Restricted Work / Job Transfer requires at least 1 day on restricted duty.
                   </span>
                 )}
               </div>
@@ -340,11 +329,9 @@ export function IncidentClosureStepClassification(
           </div>
         )}
 
-        {/* Soft warning: days away entered on a type that doesn't expect it */}
         {medicalOnlyWithDaysAway && (
           <span className="text-[11px] font-normal text-[#b45309]">
-            Days away from work is unusual for Medical Treatment Only — please
-            confirm this is correct.
+            Days away or restricted duty is unusual for {selectedIncidentType} — please verify classification.
           </span>
         )}
       </div>
@@ -396,10 +383,28 @@ export function IncidentClosureStepClassification(
           </button>
         </div>
 
-        {!isOverridden && (
+        {!isOverridden ? (
           <span className="text-[11px] font-normal text-[#8892a3]">
             Auto-set from Final Incident Type
           </span>
+        ) : (
+          <div className="mt-2 flex flex-col gap-1 rounded-[10px] border border-[#f59e0b]/40 bg-[#fffbeb] p-3">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-[#b45309] uppercase">
+              Why does this differ from the standard classification? *
+            </label>
+            <input
+              type="text"
+              value={data.oshaOverrideReason ?? ""}
+              onChange={(e) => onChangeField("oshaOverrideReason", e.target.value)}
+              placeholder="Enter required reason for OSHA recordability override..."
+              className="w-full rounded-[6px] border border-[#fde68a] bg-white px-3 py-1.5 text-[12px] text-[#0b1320] outline-none focus:border-[#b45309]"
+            />
+            {overrideReasonMissing && (
+              <span className="text-[11px] font-normal text-[#dc2626]">
+                An override reason is required for audit trails when changing default OSHA recordability.
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

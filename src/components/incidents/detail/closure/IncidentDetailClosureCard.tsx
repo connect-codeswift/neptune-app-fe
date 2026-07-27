@@ -11,6 +11,7 @@ import { IncidentClosureStepRootCause } from "@/components/incidents/detail/clos
 import { IncidentClosureStepPreventive } from "@/components/incidents/detail/closure/steps/IncidentClosureStepPreventive";
 import { IncidentClosureStepReview } from "@/components/incidents/detail/closure/steps/IncidentClosureStepReview";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
+import { toast } from "@/lib/toast";
 
 export type IncidentDetailClosureCardProps = Readonly<{
   data: IncidentClosureData;
@@ -56,6 +57,36 @@ export function IncidentDetailClosureCard(
   const currentStep = data.currentStep;
 
   const handleProceedNext = () => {
+    if (currentStep === 1) {
+      if (data.finalIncidentType === "Lost Time" && data.daysAwayFromWork < 1) {
+        toast.error("Validation Error", "Lost Time requires at least 1 day away.");
+        return;
+      }
+      if (
+        data.finalIncidentType === "Restricted Work / Job Transfer" &&
+        data.daysOnRestrictedDuty < 1
+      ) {
+        toast.error(
+          "Validation Error",
+          "Restricted Work / Job Transfer requires at least 1 day on restricted duty.",
+        );
+        return;
+      }
+      const isRecordableDerived =
+        data.finalIncidentType === "Medical Treatment Only" ||
+        data.finalIncidentType === "Restricted Work / Job Transfer" ||
+        data.finalIncidentType === "Lost Time" ||
+        data.finalIncidentType === "Fatality";
+      const isOverridden = data.isOshaRecordable !== isRecordableDerived;
+      if (isOverridden && !data.oshaOverrideReason?.trim()) {
+        toast.error(
+          "Validation Error",
+          "An override reason is required for audit trails when changing default OSHA recordability.",
+        );
+        return;
+      }
+    }
+
     if (currentStep < 4) {
       onSelectStep((currentStep + 1) as ClosureStepId);
     } else {
