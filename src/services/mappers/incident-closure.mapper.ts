@@ -130,7 +130,11 @@ export function mapIncidentClosureDtoToData(
     lessonsLearned: dto.lessonsLearned ?? fallback.lessonsLearned,
     closureNotes: dto.closureNotes ?? fallback.closureNotes,
     rootCauseSummary: dto.rootCauseSummary ?? dto.rootCauseDescription ?? fallback.rootCauseSummary,
-    primaryRootCause: dto.primaryRootCause ?? (dto.primaryRootCauseCategoryId != null ? String(dto.primaryRootCauseCategoryId) : fallback.primaryRootCause),
+    primaryRootCauseCategoryIds:
+      dto.primaryRootCauseCategoryIds?.map(String) ??
+      (dto.primaryRootCauseCategoryId != null
+        ? [String(dto.primaryRootCauseCategoryId)]
+        : fallback.primaryRootCauseCategoryIds),
     contributingFactors: dto.contributingFactors ?? dto.contributingFactorTags ?? fallback.contributingFactors,
     equipmentProceduresNote: dto.equipmentProceduresNote ?? fallback.equipmentProceduresNote,
     actionsTaken: dto.actionsTaken ?? fallback.actionsTaken,
@@ -155,10 +159,10 @@ export function mapIncidentClosureDataToUpdateDto(
   data: IncidentClosureData,
   incidentId: number,
 ): UpdateIncidentClosureRequestDto {
-  const parsedCategoryId = Number(data.primaryRootCause);
-  const primaryRootCauseCategoryId = Number.isFinite(parsedCategoryId)
-    ? Math.trunc(parsedCategoryId)
-    : 0;
+  const primaryRootCauseCategoryIds = data.primaryRootCauseCategoryIds
+    .map((id) => Math.trunc(Number(id)))
+    .filter((id) => Number.isFinite(id));
+  const primaryRootCauseCategoryId = primaryRootCauseCategoryIds[0] ?? 0;
 
   return {
     finalIncidentType: data.finalIncidentType,
@@ -167,6 +171,7 @@ export function mapIncidentClosureDataToUpdateDto(
     daysOnRestrictedDuty: data.daysOnRestrictedDuty,
     isOshaRecordable: data.isOshaRecordable,
     primaryRootCauseCategoryId,
+    primaryRootCauseCategoryIds,
     contributingFactorTags: Array.from(data.contributingFactors),
     rootCauseDescription: data.rootCauseSummary || data.closureNotes,
     actionsTaken: data.actionsTaken || data.preventiveActionSummary,
@@ -187,7 +192,6 @@ export function mapIncidentClosureDataToUpdateDto(
     lessonsLearned: data.lessonsLearned,
     closureNotes: data.closureNotes,
     rootCauseSummary: data.rootCauseSummary,
-    primaryRootCause: data.primaryRootCause,
     contributingFactors: Array.from(data.contributingFactors),
     equipmentProceduresNote: data.equipmentProceduresNote,
     preventiveActionSummary: data.preventiveActionSummary,

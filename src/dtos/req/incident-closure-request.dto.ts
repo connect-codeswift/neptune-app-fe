@@ -6,6 +6,7 @@ export type UpdateIncidentClosureRequestDto = {
   daysOnRestrictedDuty?: number;
   isOshaRecordable?: boolean;
   primaryRootCauseCategoryId?: number;
+  primaryRootCauseCategoryIds?: number[];
   contributingFactorTags?: string[];
   rootCauseDescription?: string;
   actionsTaken?: string;
