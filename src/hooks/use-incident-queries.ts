@@ -2,7 +2,11 @@
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import { getAllIncidents, getIncidentById } from "@/services/incident.service";
+import {
+  getAllIncidents,
+  getIncidentById,
+  getIncidentClosure,
+} from "@/services/incident.service";
 import { mapIncidentDtoToDetailView } from "@/services/mappers/incident-detail.mapper";
 import { mapIncidentDtosToListRecords } from "@/services/mappers/incident-list.mapper";
 
@@ -19,6 +23,7 @@ export const incidentQueryKeys = {
     userId: number;
     subCompanyId: number;
   }) => [...incidentQueryKeys.all, "detail", "v5", params] as const,
+  closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 
 /**
@@ -131,3 +136,30 @@ export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
     },
   });
 }
+
+export type UseIncidentClosureQueryOptions = Readonly<{
+  incidentId: number | null;
+  /** Parent should enable only after client mount + token check. */
+  enabled?: boolean;
+}>;
+
+/**
+ * Loads incident closure data via GET /api/Incident/{incidentId}/closure
+ * header: `Authorization: Bearer <token>` (required)
+ */
+export function useIncidentClosureQuery(options: UseIncidentClosureQueryOptions) {
+  const incidentId = options.incidentId;
+  const enabled = (options.enabled ?? false) && incidentId != null && incidentId > 0;
+
+  return useQuery({
+    queryKey: incidentQueryKeys.closure(incidentId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (incidentId == null || incidentId <= 0) {
+        return null;
+      }
+      return getIncidentClosure(incidentId);
+    },
+  });
+}
+

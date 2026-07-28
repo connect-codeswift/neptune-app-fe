@@ -150,7 +150,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       );
     }
   };
-
   const kpiMetrics = useMemo(
     () => buildIncidentListKpis(incidentsQuery.data?.items ?? []),
     [incidentsQuery.data?.items],
