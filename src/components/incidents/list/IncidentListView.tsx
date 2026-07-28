@@ -13,6 +13,8 @@ import {
   buildIncidentListKpis,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
+  toApiCaseDispositionFilter,
+  toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -32,6 +34,9 @@ export type IncidentListViewProps = Readonly<{
   className?: string;
 }>;
 
+/** `searchQuery` is typed live, so settle it before hitting the paged endpoint. */
+const SEARCH_DEBOUNCE_MS = 300;
+
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
   const router = useRouter();
@@ -43,15 +48,53 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const [hasToken, setHasToken] = useState(false);
   const [pageNumber, setPageNumber] = useState(DEFAULT_INCIDENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_INCIDENTS_PAGE_SIZE);
+  const [appliedSearch, setAppliedSearch] = useState(searchQuery.trim());
 
   useEffect(() => {
     setHasToken(Boolean(getAccessToken()));
     setIsClientReady(true);
   }, []);
 
+  // Debounce the header search box, and rewind to page 1 once it settles —
+  // a stale page number would otherwise strand the user on an out-of-range page.
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed === appliedSearch) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setAppliedSearch(trimmed);
+      setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery, appliedSearch]);
+
+  // Every filter change invalidates the current page offset.
+  const handleStateFilterChange = (value: string) => {
+    setStateFilter(value);
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  };
+
+  const handleStageFilterChange = (value: string) => {
+    setStageFilter(value);
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  };
+
+  const handleSeverityFilterChange = (value: string) => {
+    setSeverityFilter(value);
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  };
+
   const incidentsQuery = useIncidentsListQuery({
     pageNumber,
     pageSize,
+    search: appliedSearch,
+    severity: toApiSeverityFilter(severityFilter),
+    caseDisposition: toApiCaseDispositionFilter(stateFilter),
     enabled: isClientReady && hasToken,
   });
   const closeIncidentMutation = useCloseIncidentMutation();
@@ -62,9 +105,20 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const canGoPrevious = pageNumber > 1 && !incidentsQuery.isFetching;
   const canGoNext = pageNumber < totalPages && !incidentsQuery.isFetching;
 
+  /**
+   * Second filtering pass, on purpose (belt and braces).
+   *
+   * `search` / `severity` / `caseDisposition` are now sent to GetAllIncidents so
+   * filtering spans every page instead of the 10 visible rows. But backend
+   * deploys here are manual and can lag the frontend: an older API silently
+   * ignores the new params and returns an unfiltered page. Re-running the
+   * filters locally is a no-op when the server honored them, and keeps the list
+   * correct (page-scoped, as before) when it did not. `stage` has no server
+   * counterpart at all and is only ever filtered here.
+   */
   const filteredIncidents = useMemo(() => {
     return incidents.filter((incident) => {
-      const matchesSearch = incidentMatchesSearch(incident, searchQuery);
+      const matchesSearch = incidentMatchesSearch(incident, appliedSearch);
       const matchesState =
         stateFilter === "All" || incident.state === stateFilter;
       const matchesStage =
@@ -76,7 +130,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
       return matchesSearch && matchesState && matchesStage && matchesSeverity;
     });
-  }, [incidents, searchQuery, severityFilter, stageFilter, stateFilter]);
+  }, [incidents, appliedSearch, severityFilter, stageFilter, stateFilter]);
 
   // Keep the detail sidebar open; default to the first incident on the page.
   useEffect(() => {
@@ -184,9 +238,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         state={stateFilter}
         stage={stageFilter}
         severity={severityFilter}
-        onStateChange={setStateFilter}
-        onStageChange={setStageFilter}
-        onSeverityChange={setSeverityFilter}
+        onStateChange={handleStateFilterChange}
+        onStageChange={handleStageFilterChange}
+        onSeverityChange={handleSeverityFilterChange}
       />
 
       {errorMessage ? (

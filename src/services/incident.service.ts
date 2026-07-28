@@ -325,7 +325,24 @@ function normalizeGetAllIncidentsResponse(
 }
 
 export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
-  const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, request);
+  const { pageNumber, pageSize, subCompanyId, userId } = request;
+  const search = request.search?.trim();
+  const severity = request.severity?.trim();
+  const caseDisposition = request.caseDisposition?.trim();
+
+  // Only send the optional server-side filters when they are actually set, so
+  // an unfiltered request keeps the exact body shape older backends expect.
+  const body: GetAllIncidentsRequestDto = {
+    pageNumber,
+    pageSize,
+    subCompanyId,
+    userId,
+    ...(search ? { search } : {}),
+    ...(severity ? { severity } : {}),
+    ...(caseDisposition ? { caseDisposition } : {}),
+  };
+
+  const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, body);
   return normalizeGetAllIncidentsResponse(data, request);
 }
 
@@ -363,34 +380,6 @@ export async function getIncidentById(
 export async function createIncident(payload: CreateIncidentRequestDto) {
   const { data } = await http.post<unknown>(INCIDENT_CREATE_PATH, payload);
   return normalizeIncidentDto(data) ?? (isRecord(data) ? (data as IncidentDto) : {});
-}
-
-/**
- * Marks an incident Closed without deleting it.
- * Uses GetById + POST /Incident/incident with `caseDisposition: "Closed"`.
- * Does not call DropIncident (that removes the record).
- */
-export async function closeIncident(
-  id: number,
-  context: TenantUserContextDto,
-) {
-  const existing = await getIncidentById({
-    id,
-    userId: context.userId,
-    subCompanyId: context.subCompanyId,
-  });
-
-  const payload: CreateIncidentRequestDto = {
-    ...(existing ?? {}),
-    id,
-    userId: context.userId,
-    subCompanyId: context.subCompanyId,
-    reportedById: existing?.reportedById ?? context.userId,
-    caseDisposition: "Closed",
-    isDrop: false,
-  };
-
-  return createIncident(payload);
 }
 
 /**
