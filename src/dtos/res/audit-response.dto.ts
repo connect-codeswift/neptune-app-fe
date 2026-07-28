@@ -23,8 +23,20 @@ export type AuditDto = {
 /** Matches the backend response for POST /api/Audit. */
 export type CreateAuditResponseDto = ApiEnvelopeDto<AuditDto | null>;
 
-/** Matches the backend response for POST /api/Audit/{id}/submit. */
-export type SubmitAuditResponseDto = ApiEnvelopeDto<AuditDto | null>;
+/** The audit's state after its answers were recorded. */
+export type AuditResponsesResultDto = {
+  id: number;
+  status: string;
+  progressPct: number | null;
+  runningScore: number | null;
+  hasCriticalFailure: boolean;
+  requiredItemIds: number[];
+  visibleItemIds: number[];
+};
+
+/** Matches the backend response for POST /api/Audit/{id}/responses. */
+export type SaveAuditResponsesResponseDto =
+  ApiEnvelopeDto<AuditResponsesResultDto | null>;
 
 /** Matches the backend response for GET /api/Audit (paged list). */
 export type GetAllAuditsResponseDto = ApiEnvelopeDto<PagedDataDto<AuditDto>>;

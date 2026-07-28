@@ -77,7 +77,6 @@ export function StartAuditForm() {
   const selectedTemplate = useAppSelector(
     (state) => state.auditTemplate.selected,
   );
-  console.log(selectedTemplate);
   const selectedTemplateOption = useMemo<SelectOption | undefined>(() => {
     if (
       !activeTemplateId ||

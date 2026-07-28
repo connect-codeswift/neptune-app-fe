@@ -13,7 +13,12 @@ import type {
 } from "@/dtos/res/audit-template-response.dto";
 
 export function useAuditTemplatesQuery(
-  params: Readonly<{ pageNumber: number; pageSize: number }>,
+  params: Readonly<{
+    pageNumber: number;
+    pageSize: number;
+    kind?: string;
+    status?: string;
+  }>,
 ) {
   return useQuery({
     queryKey: ["audit-template", "list", params] as const,
@@ -47,7 +52,6 @@ export function useAuditTemplateDetailQuery(
         getSectionsByTemplateId(templateId),
         getConditionalLogicsByTemplateId(templateId),
       ]);
-
       const sections = sectionsRes.dataModel ?? [];
       const logics = logicsRes.dataModel ?? [];
       const itemResults = await Promise.all(

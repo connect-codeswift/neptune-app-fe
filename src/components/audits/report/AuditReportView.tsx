@@ -63,47 +63,51 @@ export function AuditReportView(props: AuditReportViewProps) {
       </IncidentGlassCard>
 
       {/* Per-section scores */}
-      <IncidentGlassCard
-        paddingClassName="p-6"
-        incidentGlassCardClassName="gap-4"
-      >
-        <h3 className="text-ehs-dark-bg text-lg font-bold">Score by Section</h3>
+      {report.sectionScores.length > 0 ? (
+        <IncidentGlassCard
+          paddingClassName="p-6"
+          incidentGlassCardClassName="gap-4"
+        >
+          <h3 className="text-ehs-dark-bg text-lg font-bold">
+            Score by Section
+          </h3>
 
-        <ul className="flex flex-col gap-4">
-          {report.sectionScores.map((entry) => {
-            const color = scoreColor(entry.score);
+          <ul className="flex flex-col gap-4">
+            {report.sectionScores.map((entry) => {
+              const color = scoreColor(entry.score);
 
-            return (
-              <li key={entry.section} className="flex flex-col gap-1">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-ehs-gray min-w-0 truncate text-sm font-normal">
-                    {entry.section}
-                  </span>
+              return (
+                <li key={entry.section} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-ehs-gray min-w-0 truncate text-sm font-normal">
+                      {entry.section}
+                    </span>
+                    <span
+                      className="shrink-0 text-sm tabular-nums"
+                      style={{ color }}
+                    >
+                      {`${String(entry.score)}%`}
+                    </span>
+                  </div>
+
                   <span
-                    className="shrink-0 text-sm tabular-nums"
-                    style={{ color }}
+                    className="h-2.5 w-full overflow-hidden rounded-full bg-[#eef1f6]"
+                    aria-hidden="true"
                   >
-                    {`${String(entry.score)}%`}
+                    <span
+                      className="block h-full rounded-full"
+                      style={{
+                        width: `${String(entry.score)}%`,
+                        backgroundColor: color,
+                      }}
+                    />
                   </span>
-                </div>
-
-                <span
-                  className="h-2.5 w-full overflow-hidden rounded-full bg-[#eef1f6]"
-                  aria-hidden="true"
-                >
-                  <span
-                    className="block h-full rounded-full"
-                    style={{
-                      width: `${String(entry.score)}%`,
-                      backgroundColor: color,
-                    }}
-                  />
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </IncidentGlassCard>
+                </li>
+              );
+            })}
+          </ul>
+        </IncidentGlassCard>
+      ) : null}
     </div>
   );
 }

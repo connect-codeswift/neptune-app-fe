@@ -17,6 +17,8 @@ import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
 import { AuditRegisterToolbar } from "@/components/audits/AuditRegisterToolbar";
 
+const PAGE_SIZE = 10;
+
 const AUDIT_METRICS: readonly StatMetricCardProps[] = [
   {
     title: "Audits YTD",
@@ -49,11 +51,13 @@ export default function AuditsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const auditsQuery = useAuditsQuery({ pageNumber: 1, pageSize: 10 });
-  console.log(auditsQuery.data?.dataModel.data);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const auditsQuery = useAuditsQuery({ pageNumber, pageSize: PAGE_SIZE });
+  const page = auditsQuery.data?.dataModel;
   const records = useMemo(
-    () => (auditsQuery.data?.dataModel.data ?? []).map(mapAuditDtoToRecord),
-    [auditsQuery.data],
+    () => (page?.data ?? []).map(mapAuditDtoToRecord),
+    [page],
   );
 
   // Only offer filters for statuses the backend actually returned.
@@ -91,8 +95,8 @@ export default function AuditsPage() {
         searchPlaceholder="Search incidents, actions, docs..."
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        actionLabel="Start Audit"
-        onActionClick={() => router.push("/dashboard/audits/start")}
+        // actionLabel="Start Audit"
+        // onActionClick={() => router.push("/dashboard/audits/start")}
       />
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         {/* KPI Metrics */}
@@ -117,6 +121,13 @@ export default function AuditsPage() {
             onRowClick={(row) => setSelectedId(row.id)}
             getRowId={(row) => row.id}
             containerClassName="min-w-0"
+            pagination={{
+              pageNumber,
+              pageSize: PAGE_SIZE,
+              totalRecords: page?.totalRecords ?? 0,
+              onPageChange: setPageNumber,
+              isLoading: auditsQuery.isFetching,
+            }}
             header={
               <AuditRegisterToolbar
                 status={activeStatus}

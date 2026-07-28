@@ -19,16 +19,15 @@ export default function AuditFindingsPage() {
 
   // The findings endpoint is keyed by audit, so resolve this template's run.
   const { audit, isPending: isAuditPending } = useAuditForTemplate(templateId);
-  const findingsQuery = useAuditFindingsQuery(
-    audit ? String(audit.id) : null,
-  );
+  const findingsQuery = useAuditFindingsQuery(audit ? String(audit.id) : null);
 
   const findings = useMemo(
     () => (findingsQuery.data?.dataModel ?? []).map(mapFindingDtoToFinding),
     [findingsQuery.data],
   );
 
-  const isPending = isAuditPending || (audit !== null && findingsQuery.isPending);
+  const isPending =
+    isAuditPending || (audit !== null && findingsQuery.isPending);
 
   /** Fetch this audit's report, then open the report page. */
   const handleGenerateReport = () => {
@@ -53,7 +52,7 @@ export default function AuditFindingsPage() {
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <AuditFindingsHeader
           auditId={audit ? `A-${String(audit.id)}` : "—"}
-          subtitle={audit?.auditTitle ?? audit?.templateName ?? ""}
+          subtitle={audit?.templateName ?? audit?.templateName ?? ""}
           onGenerateReport={handleGenerateReport}
         />
 
@@ -67,7 +66,7 @@ export default function AuditFindingsPage() {
           </div>
         ) : findings.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text text-sm">
+            <p className="text-ehs-muted-text">
               No findings raised on this audit.
             </p>
           </div>

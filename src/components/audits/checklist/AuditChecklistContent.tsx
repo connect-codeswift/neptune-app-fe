@@ -3,14 +3,15 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncidentGlassCard } from "@/components/incidents";
-import { useSubmitAuditMutation } from "@/hooks/use-audit-mutations";
+import { useSaveAuditResponsesMutation } from "@/hooks/use-audit-mutations";
 import { useAuditForTemplate } from "@/hooks/use-audit-queries";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import { mapDetailToChecklist } from "@/lib/map-audit-template";
 import { toast } from "@/lib/toast";
-import { useAppSelector } from "@/store/hooks";
+import { setAuditAnswers, setAuditResult } from "@/store/audit-slice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { AuditChecklistHeader } from "./AuditChecklistHeader";
 import {
   CHECKLIST_ANSWERS,
@@ -18,7 +19,7 @@ import {
   type ChecklistSection,
 } from "@/app/dashboard/audits/checklist/audit-checklist-data";
 
-const AUDIT_LIST_ROUTE = "/dashboard/audits";
+const AUDIT_REPORT_ROUTE = "/dashboard/audits/report";
 
 type AnswerMap = Record<string, ChecklistAnswer | undefined>;
 
@@ -112,6 +113,7 @@ export type AuditChecklistContentProps = Readonly<{ templateId: string }>;
 export function AuditChecklistContent(props: AuditChecklistContentProps) {
   const { templateId } = props;
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   // Basic info may have been stashed in the store when the template was chosen,
   // but only trust it when it's this template — it can be left over from an
@@ -133,11 +135,10 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
     () => checklist?.sections.flatMap((section) => section.items) ?? [],
     [checklist],
   );
-  console.log(checklist);
 
   // Which audit run this checklist belongs to, for the header and submission.
   const { audit } = useAuditForTemplate(templateId);
-  const submitAudit = useSubmitAuditMutation();
+  const saveResponses = useSaveAuditResponsesMutation();
   // A fresh audit run starts with nothing answered.
   const [answers, setAnswers] = useState<AnswerMap>({});
 
@@ -167,22 +168,36 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
 
     const { userId, subCompanyId } = getCurrentUser();
     // Every item is answered by this point, so send them all as responses.
-    const responses = items.map((item) => ({
-      itemId: Number(item.id),
-      answer: answers[item.id] ?? "",
-    }));
+    const responses = items.map((item) => {
+      const answer = answers[item.id];
 
-    console.log(responses);
+      return {
+        templateItemId: Number(item.id),
+        // The checklist has no response sets or per-item notes yet.
+        responseOptionId: 0,
+        valueText: answer === "N/A" ? "" : (answer ?? ""),
+        note: "",
+        isNA: answer === "N/A",
+      };
+    });
 
-    submitAudit.mutate(
+    saveResponses.mutate(
       {
         auditId: String(audit.id),
         payload: { userId, subCompanyId, responses },
       },
       {
-        onSuccess: () => {
-          toast.success("Audit submitted");
-          router.push(AUDIT_LIST_ROUTE);
+        onSuccess: (response) => {
+          toast.success(response.message || "Audit submitted");
+
+          // Stash the result and the answers behind it so the report page can
+          // render the summary and per-section scores, then open it.
+          const result = response.dataModel;
+          if (result) dispatch(setAuditResult(result));
+          dispatch(setAuditAnswers(responses));
+          router.push(
+            `${AUDIT_REPORT_ROUTE}/${encodeURIComponent(templateId)}`,
+          );
         },
         onError: (error) => {
           toast.error(
@@ -217,11 +232,12 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
       <AuditChecklistHeader
         auditId={audit ? `A-${String(audit.id)}` : checklist.auditId}
         subtitle={audit?.auditTitle || checklist.subtitle}
-        onViewFindings={() =>
-          router.push(
-            `/dashboard/audits/findings/${encodeURIComponent(templateId)}`,
-          )
-        }
+        // Findings aren't wired up yet — re-enable once that flow is ready.
+        // onViewFindings={() =>
+        //   router.push(
+        //     `/dashboard/audits/findings/${encodeURIComponent(templateId)}`,
+        //   )
+        // }
       />
 
       {/* Score summary */}
@@ -268,10 +284,10 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={submitAudit.isPending}
+          disabled={saveResponses.isPending}
           className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-[10px] px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitAudit.isPending ? "Submitting…" : "Submit Audit"}
+          {saveResponses.isPending ? "Submitting…" : "Submit Audit"}
         </button>
       </div>
     </div>

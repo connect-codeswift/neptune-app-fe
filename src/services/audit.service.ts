@@ -1,6 +1,6 @@
 import type {
   CreateAuditRequestDto,
-  SubmitAuditRequestDto,
+  SaveAuditResponsesRequestDto,
 } from "@/dtos/req/audit-request.dto";
 import type {
   CreateAuditResponseDto,
@@ -8,7 +8,7 @@ import type {
   GetAuditByIdResponseDto,
   GetAuditFindingsResponseDto,
   GetAuditReportResponseDto,
-  SubmitAuditResponseDto,
+  SaveAuditResponsesResponseDto,
 } from "@/dtos/res/audit-response.dto";
 import http from "@/lib/axios";
 
@@ -20,10 +20,15 @@ export async function createAudit(payload: CreateAuditRequestDto) {
 }
 
 export async function getAllAudits(
-  params?: Readonly<{ pageNumber: number; pageSize: number }>,
+  params?: Readonly<{ pageNumber: number; pageSize: number; kind?: string }>,
 ) {
   const { data } = await http.get<GetAllAuditsResponseDto>(AUDIT_PATH, {
-    params: { PageNumber: params?.pageNumber, PageSize: params?.pageSize },
+    // The endpoint serves both kinds, so scope it to audits by default.
+    params: {
+      PageNumber: params?.pageNumber,
+      PageSize: params?.pageSize,
+      kind: params?.kind ?? "Audit",
+    },
   });
 
   return data;
@@ -33,7 +38,6 @@ export async function getAuditById(auditId: string) {
   const { data } = await http.get<GetAuditByIdResponseDto>(
     `${AUDIT_PATH}/${encodeURIComponent(auditId)}`,
   );
-  console.log("Get audit by id response", data);
 
   return data;
 }
@@ -47,16 +51,15 @@ export async function getAuditFindings(auditId: string) {
   return data;
 }
 
-export async function submitAudit(
+export async function saveAuditResponses(
   auditId: string,
-  payload: SubmitAuditRequestDto,
+  payload: SaveAuditResponsesRequestDto,
 ) {
-  console.log("Submit audit request", auditId, payload);
-  const { data } = await http.post<SubmitAuditResponseDto>(
-    `${AUDIT_PATH}/${encodeURIComponent(auditId)}/submit`,
+  const { data } = await http.put<SaveAuditResponsesResponseDto>(
+    `${AUDIT_PATH}/${encodeURIComponent(auditId)}/responses`,
     payload,
   );
-  console.log("Submit audit response", data);
+  console.log(data);
 
   return data;
 }

@@ -22,6 +22,7 @@ export type AuditTemplateDto = {
   createdDate: string;
   updatedDate: string;
   lastUsedDate: string;
+  frequency: string;
 };
 
 /** Matches backend response for POST /api/AuditTemplate. */

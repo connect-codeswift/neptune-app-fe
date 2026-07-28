@@ -9,7 +9,7 @@ import { useAppSelector } from "@/store/hooks";
 
 /** Fetches a paged list of audits from GET /api/Audit. */
 export function useAuditsQuery(
-  params?: Readonly<{ pageNumber: number; pageSize: number }>,
+  params?: Readonly<{ pageNumber: number; pageSize: number; kind?: string }>,
 ) {
   return useQuery({
     queryKey: ["audit", "list", params] as const,

@@ -68,11 +68,17 @@ export async function publishAuditTemplate(
 }
 
 export async function getAllAuditTemplates(
-  params: Readonly<{ pageNumber: number; pageSize: number }>,
+  params: Readonly<{
+    pageNumber: number;
+    pageSize: number;
+    kind?: string;
+    status?: string;
+  }>,
 ) {
   const { data } = await http.get<GetAllAuditTemplatesResponseDto>(
     AUDIT_TEMPLATE_GET_ALL_PATH,
-    { params },
+    // The endpoint serves both kinds of template, so scope it to audits.
+    { params: { ...params, kind: params.kind ?? "Audit" } },
   );
   return data;
 }

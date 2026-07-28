@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateAuditTemplateMutation,
@@ -150,11 +151,21 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
     }
 
     const draft = { values, sections, scoring, rules, settings };
-    const payload = toAuditTemplatePayload(draft, { publish });
+    const isUpdate = isEdit && Boolean(templateId);
+    // On update, existing sections/items/logics keep their ids so the backend
+    // updates those rows instead of creating duplicates.
+    const payload = toAuditTemplatePayload(draft, {
+      publish,
+      ...(isUpdate ? { templateId } : {}),
+    });
 
     const handlers = {
-      onSuccess: () => {
-        toast.success(publish ? "Template published" : "Draft saved");
+      // Both create and update answer with the standard envelope, so prefer the
+      // backend's own wording and fall back to ours when it sends none.
+      onSuccess: (response: ApiEnvelopeDto<unknown>) => {
+        toast.success(
+          response.message || (publish ? "Template published" : "Draft saved"),
+        );
         if (publish) router.push(TEMPLATES_ROUTE);
       },
       onError: (error: unknown) => {

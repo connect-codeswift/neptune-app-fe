@@ -19,15 +19,26 @@ export type TemplateDraft = Readonly<{
 }>;
 
 /**
+ * Rows loaded from the API keep their numeric id; rows added in the wizard have
+ * a generated id like "item-3", which goes out as 0 so the backend creates them.
+ */
+function toBackendId(id: string): number {
+  const parsed = Number(id);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
+}
+
+/**
  * Flatten the wizard state into the backend's audit-template body.
  *
  * `publish: false` marks the record as a draft instead. Fields the wizard
  * doesn't collect yet (assignee, schedule, finding severity/category) are sent
  * as neutral defaults; new records send id 0 so the backend assigns them.
+ * Passing `templateId` (update) keeps existing children's ids so they're
+ * updated in place rather than duplicated.
  */
 export function toAuditTemplatePayload(
   draft: TemplateDraft,
-  options: Readonly<{ publish: boolean }>,
+  options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateAuditTemplateRequestDto {
   const { values, sections, scoring, rules, settings } = draft;
   const { userId, subCompanyId } = getCurrentUser();
@@ -35,6 +46,10 @@ export function toAuditTemplatePayload(
   const isPublished = options.publish;
   const isDraft = !options.publish;
   const tags = (values.tags as string[] | undefined) ?? [];
+  // 0 on create; on update every child points back at the real template.
+  const auditTemplateId = options.templateId
+    ? toBackendId(options.templateId)
+    : 0;
 
   return {
     templateName: String(values.templateName ?? "").trim(),
@@ -64,40 +79,44 @@ export function toAuditTemplatePayload(
     userId,
     subCompanyId,
 
-    sections: sections.map((section, sectionIndex) => ({
-      id: 0,
-      sectionTitle: section.title,
-      description: section.description,
-      displayOrder: sectionIndex + 1,
-      isDraft,
-      isPublished,
-      userId,
-      subCompanyId,
-      auditTemplateId: 0,
-      items: section.items.map((item, itemIndex) => ({
-        id: 0,
-        itemType: item.type,
-        question: itemDisplayName(item),
-        hint: item.guidance,
-        scoreWeight: item.scoreWeight,
-        itemWeight: item.scoreWeight,
-        responseSetId: null,
-        isCritical: false,
-        allowNA: true,
-        requireNote: false,
-        requirePhoto: item.type === "Photo / Media",
-        isRequired: item.required,
-        displayOrder: itemIndex + 1,
+    sections: sections.map((section, sectionIndex) => {
+      const sectionId = toBackendId(section.id);
+
+      return {
+        id: sectionId,
+        sectionTitle: section.title,
+        description: section.description,
+        displayOrder: sectionIndex + 1,
         isDraft,
         isPublished,
         userId,
         subCompanyId,
-        templateSectionId: 0,
-      })),
-    })),
+        auditTemplateId,
+        items: section.items.map((item, itemIndex) => ({
+          id: toBackendId(item.id),
+          itemType: item.type,
+          question: itemDisplayName(item),
+          hint: item.guidance,
+          scoreWeight: item.scoreWeight,
+          itemWeight: item.scoreWeight,
+          responseSetId: null,
+          isCritical: false,
+          allowNA: true,
+          requireNote: false,
+          requirePhoto: item.type === "Photo / Media",
+          isRequired: item.required,
+          displayOrder: itemIndex + 1,
+          isDraft,
+          isPublished,
+          userId,
+          subCompanyId,
+          templateSectionId: sectionId,
+        })),
+      };
+    }),
 
     conditionalLogics: rules.map((rule) => ({
-      id: 0,
+      id: toBackendId(rule.id),
       status: rule.active ? "Active" : "Inactive",
       if: rule.ifQuestion,
       condition: rule.ifOperator,
@@ -114,7 +133,7 @@ export function toAuditTemplatePayload(
       isPublished,
       userId,
       subCompanyId,
-      auditTemplateId: 0,
+      auditTemplateId,
     })),
   };
 }

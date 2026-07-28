@@ -1,19 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   CreateAuditRequestDto,
-  SubmitAuditRequestDto,
+  SaveAuditResponsesRequestDto,
 } from "@/dtos/req/audit-request.dto";
-import { createAudit, submitAudit } from "@/services/audit.service";
+import { createAudit, saveAuditResponses } from "@/services/audit.service";
 
-/** Submits a completed audit via POST /api/Audit/{id}/submit. */
-export function useSubmitAuditMutation() {
+/** Records an audit's answers via POST /api/Audit/{id}/responses. */
+export function useSaveAuditResponsesMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (vars: { auditId: string; payload: SubmitAuditRequestDto }) =>
-      submitAudit(vars.auditId, vars.payload),
+    mutationFn: (vars: {
+      auditId: string;
+      payload: SaveAuditResponsesRequestDto;
+    }) => saveAuditResponses(vars.auditId, vars.payload),
     onSuccess: () => {
-      // Refetch audit lists/details so the submitted state is reflected.
+      // Refetch audit lists/details so the new answers are reflected.
       queryClient.invalidateQueries({ queryKey: ["audit"] });
     },
   });

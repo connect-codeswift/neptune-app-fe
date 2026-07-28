@@ -112,8 +112,11 @@ export function CreateTemplateContent() {
     console.log("Inspection template payload", payload);
 
     createTemplate.mutate(payload, {
-      onSuccess: () => {
-        toast.success(publish ? "Template published" : "Draft saved");
+      // Prefer the backend's own wording; fall back to ours when it sends none.
+      onSuccess: (response) => {
+        toast.success(
+          response.message || (publish ? "Template published" : "Draft saved"),
+        );
         if (publish) router.push(TEMPLATES_ROUTE);
       },
       onError: (error) => {

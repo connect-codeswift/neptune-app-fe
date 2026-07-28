@@ -100,11 +100,17 @@ export function mapDetailToChecklist(
   };
 }
 
-/** Assemble a fetched template's parts into the edit wizard's state. */
+/**
+ * Assemble a fetched template's parts into the edit wizard's state.
+ *
+ * `summary` is passed in rather than read off `detail`: the detail query caches
+ * whatever summary it was called with, and the store hydrates after the first
+ * render, so the cached copy can be a stale null.
+ */
 export function mapDetailToWizardState(
   detail: AuditTemplateDetail,
+  summary: AuditTemplateDto | null,
 ): WizardState {
-  const summary = detail.summary;
   const tags = (summary?.templateTags ?? "")
     .split(",")
     .map((tag) => tag.trim())
@@ -114,7 +120,7 @@ export function mapDetailToWizardState(
     templateName: summary?.templateName ?? "",
     templateType: summary?.templateType ?? "Audit",
     tags,
-    frequency: "",
+    frequency: summary?.frequency ?? "",
     description: summary?.description ?? "",
   };
 

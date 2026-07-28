@@ -3,7 +3,14 @@
 import { useEffect, type ReactNode } from "react";
 import { Provider } from "react-redux";
 import { store } from "@/store";
-import { loadSelectedAudit, setSelectedAudit } from "@/store/audit-slice";
+import {
+  loadAuditAnswers,
+  loadAuditResult,
+  loadSelectedAudit,
+  setAuditAnswers,
+  setAuditResult,
+  setSelectedAudit,
+} from "@/store/audit-slice";
 import {
   loadSelectedTemplate,
   setSelectedTemplate,
@@ -17,6 +24,12 @@ export function StoreProvider(props: Readonly<{ children: ReactNode }>) {
 
     const savedAudit = loadSelectedAudit();
     if (savedAudit) store.dispatch(setSelectedAudit(savedAudit));
+
+    const savedResult = loadAuditResult();
+    if (savedResult) store.dispatch(setAuditResult(savedResult));
+
+    const savedAnswers = loadAuditAnswers();
+    if (savedAnswers) store.dispatch(setAuditAnswers(savedAnswers));
   }, []);
 
   return <Provider store={store}>{props.children}</Provider>;

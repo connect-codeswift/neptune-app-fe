@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditTemplateCard } from "@/components/audits/templates/AuditTemplateCard";
-import { AuditTemplatesHeader } from "@/components/audits/templates/AuditTemplatesHeader";
+import {
+  AuditTemplatesHeader,
+  type TemplateStatusFilter,
+} from "@/components/audits/templates/AuditTemplatesHeader";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAuditTemplatesQuery } from "@/hooks/use-audit-template-queries";
 import { mapAuditTemplateDtoToCard } from "@/lib/map-audit-template";
@@ -18,10 +21,12 @@ export default function AuditTemplatesPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [pageNumber, setPageNumber] = useState(1);
+  const [status, setStatus] = useState<TemplateStatusFilter>("Published");
 
   const templatesQuery = useAuditTemplatesQuery({
     pageNumber,
     pageSize: PAGE_SIZE,
+    status,
   });
 
   const page = templatesQuery.data?.dataModel;
@@ -30,7 +35,12 @@ export default function AuditTemplatesPage() {
     [page],
   );
 
-  console.log(page);
+  /** Switching status re-queries from page 1 — the old page may not exist. */
+  const handleStatusChange = (next: TemplateStatusFilter) => {
+    setStatus(next);
+    setPageNumber(1);
+  };
+
   const totalRecords = page?.totalRecords ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
 
@@ -47,6 +57,8 @@ export default function AuditTemplatesPage() {
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         <AuditTemplatesHeader
+          status={status}
+          onStatusChange={handleStatusChange}
           onCreateTemplate={() =>
             router.push("/dashboard/audits/template/create")
           }
@@ -67,8 +79,8 @@ export default function AuditTemplatesPage() {
           </div>
         ) : templates.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text text-sm">
-              No audit templates yet. Create one to get started.
+            <p className="text-ehs-muted-text">
+              {`No ${status.toLowerCase()} audit templates yet.`}
             </p>
           </div>
         ) : (

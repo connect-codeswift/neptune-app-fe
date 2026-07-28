@@ -1,12 +1,17 @@
-/** One answered checklist item sent with a submission. */
+/** One answered checklist item. */
 export type AuditItemResponseRequestDto = {
   /** The template item's id — matches `missingItemIds` in a 400 response. */
-  itemId: number;
-  answer: string;
+  templateItemId: number;
+  /** 0 until the item is backed by a response set. */
+  responseOptionId: number;
+  /** The chosen answer as text, e.g. "Yes". */
+  valueText: string;
+  note: string;
+  isNA: boolean;
 };
 
-/** Body for POST /api/Audit/{id}/submit — submits a completed audit. */
-export type SubmitAuditRequestDto = {
+/** Body for POST /api/Audit/{id}/responses — records the audit's answers. */
+export type SaveAuditResponsesRequestDto = {
   userId: number;
   subCompanyId: number;
   responses: AuditItemResponseRequestDto[];
