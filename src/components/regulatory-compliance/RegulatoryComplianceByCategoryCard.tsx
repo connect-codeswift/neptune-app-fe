@@ -1,5 +1,7 @@
 "use client";
 
+import { IncidentGlassCard } from "@/components/incidents";
+import { Text } from "@/components/Text";
 import type { ComplianceCategoryProgress } from "./regulatory-compliance-types";
 
 export type RegulatoryComplianceByCategoryCardProps = Readonly<{
@@ -13,53 +15,63 @@ export function RegulatoryComplianceByCategoryCard(
   const { categories, className = "" } = props;
 
   return (
-    <div
-      className={[
-        "flex flex-col gap-4 rounded-[20px] border border-white/90 bg-white/70 p-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.05)] backdrop-blur-md",
-        className,
-      ]
+    <IncidentGlassCard
+      paddingClassName="p-5"
+      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
         .filter(Boolean)
         .join(" ")}
     >
-      <div>
-        <h3 className="text-[15px] font-bold text-[#0f172a] leading-tight">
-          By Category
-        </h3>
-        <p className="text-[12px] font-medium text-[#94a3b8] mt-0.5">
-          Compliance posture
-        </p>
-      </div>
+      <div className="flex flex-col gap-4">
+        <div>
+          <Text
+            as="h3"
+            className="text-ehs-dark-bg text-[15px] leading-tight font-bold"
+          >
+            By Category
+          </Text>
+          <Text
+            as="p"
+            className="text-ehs-muted-text mt-0.5 text-[12px] font-light"
+          >
+            Compliance posture
+          </Text>
+        </div>
 
-      <div className="flex flex-col gap-4 mt-1">
-        {categories.map((cat) => {
-          const percent = Math.min(
-            100,
-            Math.max(0, Math.round((cat.current / cat.total) * 100)),
-          );
+        <div className="mt-1 flex flex-col gap-4">
+          {categories.map((cat) => {
+            const percent = Math.min(
+              100,
+              Math.max(0, Math.round((cat.current / cat.total) * 100)),
+            );
 
-          return (
-            <div key={cat.id} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="font-bold text-[#0f172a]">{cat.category}</span>
-                <span className="font-semibold text-[#64748b] text-[12px]">
-                  {`${cat.current}/${cat.total}`}
-                </span>
+            return (
+              <div key={cat.id} className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between text-[13px]">
+                  <Text as="span" className="text-ehs-dark-bg font-semibold">
+                    {cat.category}
+                  </Text>
+                  <Text
+                    as="span"
+                    className="text-ehs-gray text-[12px] font-semibold"
+                  >
+                    {`${cat.current}/${cat.total}`}
+                  </Text>
+                </div>
+
+                <div className="bg-ehs-border h-2 w-full overflow-hidden rounded-full">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${percent}%`,
+                      backgroundColor: cat.colorHex,
+                    }}
+                  />
+                </div>
               </div>
-
-              {/* Progress Track */}
-              <div className="h-2 w-full rounded-full bg-[#e2e8f0]/60 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${percent}%`,
-                    backgroundColor: cat.colorHex,
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </IncidentGlassCard>
   );
 }

@@ -3,7 +3,8 @@ export type IncidentBadgeTone =
   | "teal"
   | "muted"
   | "danger"
-  | "warn";
+  | "warn"
+  | "success";
 
 export type IncidentBadgeProps = Readonly<{
   label: string;
@@ -18,6 +19,7 @@ const toneClassName: Record<IncidentBadgeTone, string> = {
   muted: "bg-ehs-dark-bg/14 text-ehs-gray",
   danger: "bg-ehs-red/10 text-ehs-red",
   warn: "bg-ehs-yellow/15 text-ehs-yellow",
+  success: "bg-ehs-green/10 text-ehs-green",
 };
 
 const dotClassName: Record<IncidentBadgeTone, string> = {
@@ -26,6 +28,7 @@ const dotClassName: Record<IncidentBadgeTone, string> = {
   muted: "bg-ehs-muted-text",
   danger: "bg-ehs-red",
   warn: "bg-ehs-yellow",
+  success: "bg-ehs-green",
 };
 
 export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {

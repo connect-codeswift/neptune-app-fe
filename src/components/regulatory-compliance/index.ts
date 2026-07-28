@@ -16,5 +16,9 @@ export { RegulatoryComplianceCalendarView } from "./calendar/RegulatoryComplianc
 export { RegulatoryComplianceCalendarHeaderCard } from "./calendar/RegulatoryComplianceCalendarHeaderCard";
 export { RegulatoryComplianceCalendarGrid } from "./calendar/RegulatoryComplianceCalendarGrid";
 
+export { AddObligationView } from "./calendar/new/AddObligationView";
+export { AddObligationHeaderCard } from "./calendar/new/AddObligationHeaderCard";
+export { AddObligationForm } from "./calendar/new/AddObligationForm";
+
 export * from "./regulatory-compliance-types";
 export * from "./regulatory-compliance-data";

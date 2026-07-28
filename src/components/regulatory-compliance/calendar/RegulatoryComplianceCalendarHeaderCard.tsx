@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents";
+import { Text } from "@/components/Text";
 
 export type RegulatoryComplianceCalendarHeaderCardProps = Readonly<{
   monthLabel?: string;
@@ -12,66 +14,71 @@ export type RegulatoryComplianceCalendarHeaderCardProps = Readonly<{
 export function RegulatoryComplianceCalendarHeaderCard(
   props: RegulatoryComplianceCalendarHeaderCardProps,
 ) {
-  const {
-    monthLabel = "March 2025",
-    onAddObligation,
-    className = "",
-  } = props;
+  const { monthLabel = "", onAddObligation, className = "" } = props;
 
   return (
-    <div
-      className={[
-        "flex flex-col gap-4 rounded-[20px] border border-white/90 bg-white/70 p-6 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.05)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between",
-        className,
-      ]
+    <IncidentGlassCard
+      paddingClassName="p-6"
+      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col gap-1.5">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-[13px] font-medium text-[#64748b]">
-          <Link
-            href="/dashboard/regulatory-compliance"
-            className="hover:text-[#0f172a] hover:underline"
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-1.5">
+          {/* Breadcrumb */}
+          <div className="text-ehs-gray flex items-center gap-1.5 text-[13px] font-light">
+            <Link
+              href="/dashboard/regulatory-compliance"
+              className="hover:text-ehs-dark-bg hover:underline"
+            >
+              Compliance
+            </Link>
+            <span>&gt;</span>
+            <Text as="span" className="text-ehs-gray font-semibold">
+              Calendar
+            </Text>
+          </div>
+
+          {/* Title */}
+          <Text
+            as="h1"
+            className="text-ehs-dark-bg text-[22px] leading-tight font-semibold"
           >
-            Compliance
-          </Link>
-          <span>&gt;</span>
-          <span className="font-bold text-[#64748b]">Calendar</span>
+            Compliance Calendar
+          </Text>
+
+          {/* Subtitle */}
+          <Text as="p" className="text-ehs-muted-text text-[13px] font-light">
+            {monthLabel}
+          </Text>
         </div>
 
-        {/* Title */}
-        <h1 className="text-[22px] font-bold leading-tight text-[#0f172a]">
-          Compliance Calendar
-        </h1>
+        {/* Action Buttons */}
+        <div className="flex shrink-0 items-center gap-3">
+          {/* List View Button */}
+          <Link
+            href="/dashboard/regulatory-compliance"
+            className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-[13px] font-light shadow-xs transition-colors"
+          >
+            <Icon
+              icon="mdi:view-grid-outline"
+              className="text-base"
+              aria-hidden="true"
+            />
+            <span>List View</span>
+          </Link>
 
-        {/* Subtitle */}
-        <p className="text-[13px] font-medium text-[#94a3b8]">
-          {monthLabel}
-        </p>
+          {/* Add Obligation Button */}
+          <button
+            type="button"
+            onClick={onAddObligation}
+            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold shadow-xs transition-all"
+          >
+            <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+            <span>Add Obligation</span>
+          </button>
+        </div>
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center gap-3 shrink-0">
-        {/* List View Button */}
-        <Link
-          href="/dashboard/regulatory-compliance"
-          className="inline-flex items-center gap-2 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 py-2 text-[13px] font-bold text-[#0f172a] shadow-xs transition-colors hover:bg-[#f8fafc]"
-        >
-          <Icon icon="mdi:format-list-bulleted" className="text-base" />
-          <span>List View</span>
-        </Link>
-
-        {/* Add Obligation Button */}
-        <button
-          type="button"
-          onClick={onAddObligation}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-xs transition-all hover:bg-[#007085]"
-        >
-          <Icon icon="mdi:plus" className="text-base" />
-          <span>Add Obligation</span>
-        </button>
-      </div>
-    </div>
+    </IncidentGlassCard>
   );
 }
