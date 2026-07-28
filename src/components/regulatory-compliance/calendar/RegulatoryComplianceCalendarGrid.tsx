@@ -3,83 +3,81 @@
 import { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { IncidentGlassCard, IncidentBadge } from "@/components/incidents";
+import { Text } from "@/components/Text";
 import type { CalendarEventItem } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceCalendarGridProps = Readonly<{
   events: readonly CalendarEventItem[];
+  activeStartDate: Date;
+  onActiveStartDateChange: (date: Date) => void;
   className?: string;
 }>;
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 
+const MAX_VISIBLE_EVENTS = 2;
+
 export function RegulatoryComplianceCalendarGrid(
   props: RegulatoryComplianceCalendarGridProps,
 ) {
-  const { events, className = "" } = props;
+  const {
+    events,
+    activeStartDate,
+    onActiveStartDateChange,
+    className = "",
+  } = props;
 
-  // Default to March 16, 2025 as shown in the screenshot
-  const [selectedDate, setSelectedDate] = useState<Value>(
-    new Date(2025, 2, 16),
-  );
+  const [selectedDate, setSelectedDate] = useState<Value>(new Date());
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== "month") return null;
 
-    const dayNum = date.getDate();
-    const isMarch2025 = date.getMonth() === 2 && date.getFullYear() === 2025;
+    const dayEvents = events.filter((e) => e.day === date.getDate());
+    if (dayEvents.length === 0) return null;
 
-    if (!isMarch2025) return null;
-
-    const dayEvents = events.filter((e) => e.day === dayNum);
-    const hasMore = dayNum === 1; // Match screenshot "+2 more" badge on Day 1
-
-    if (dayEvents.length === 0 && !hasMore) return null;
+    const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
+    const overflowCount = dayEvents.length - visibleEvents.length;
 
     return (
       <div className="mt-1 flex w-full flex-col gap-1">
-        {dayEvents.map((evt) => (
-          <span
+        {visibleEvents.map((evt) => (
+          <IncidentBadge
             key={evt.id}
-            className={[
-              "inline-block w-full truncate rounded-md px-2 py-0.5 text-left text-[10px] leading-normal font-semibold",
-              evt.chipTone === "pink"
-                ? "bg-[#fee2e2] text-[#ef4444]"
-                : "bg-[#d2eff4] text-[#008ba3]",
-            ].join(" ")}
-            title={evt.title}
-          >
-            {evt.title}
-          </span>
+            label={evt.title}
+            tone={evt.chipTone === "pink" ? "danger" : "teal"}
+            className="block w-full truncate text-left"
+          />
         ))}
-        {hasMore && (
-          <span className="pt-0.5 pl-0.5 text-left text-[10px] font-semibold text-[#64748b]">
-            +2 more
-          </span>
-        )}
+        {overflowCount > 0 ? (
+          <Text
+            as="span"
+            className="text-ehs-gray pt-0.5 pl-0.5 text-left text-[10px] font-semibold"
+          >
+            {`+${String(overflowCount)} more`}
+          </Text>
+        ) : null}
       </div>
     );
   };
 
   const tileClassName = ({ date, view }: { date: Date; view: string }) => {
     if (view !== "month") return "";
-    const isMarch16 =
-      date.getDate() === 16 &&
-      date.getMonth() === 2 &&
-      date.getFullYear() === 2025;
 
-    if (isMarch16) {
-      return "is-selected-day";
-    }
-    return "";
+    const today = new Date();
+    const isToday =
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+
+    return isToday ? "is-selected-day" : "";
   };
 
   return (
-    <div
-      className={[
-        "flex flex-col gap-4 rounded-[20px] border border-white/90 bg-white/70 p-6 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.05)] backdrop-blur-md",
-        className,
-      ]
+    <IncidentGlassCard
+      paddingClassName="p-6"
+      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -102,7 +100,7 @@ export function RegulatoryComplianceCalendarGrid(
           height: 36px;
           background: transparent;
           font-size: 1rem;
-          color: #64748b;
+          color: var(--ehs-gray);
           border-radius: 0.5rem;
           transition: background-color 0.2s;
         }
@@ -110,20 +108,24 @@ export function RegulatoryComplianceCalendarGrid(
         .custom-react-calendar
           .react-calendar__navigation
           button:enabled:focus {
-          background-color: rgba(226, 232, 240, 0.6) !important;
-          color: #0f172a !important;
+          background-color: color-mix(
+            in srgb,
+            var(--ehs-border) 60%,
+            transparent
+          ) !important;
+          color: var(--ehs-dark-bg) !important;
         }
         .custom-react-calendar .react-calendar__navigation__label {
           font-weight: 700 !important;
           font-size: 1rem !important;
-          color: #0f172a !important;
+          color: var(--ehs-dark-bg) !important;
           pointer-events: none;
         }
         .custom-react-calendar .react-calendar__month-view__weekdays {
           text-align: center;
           font-size: 0.75rem;
           font-weight: 500;
-          color: #94a3b8;
+          color: var(--ehs-muted-text);
           text-transform: none;
           margin-bottom: 0.5rem;
         }
@@ -150,18 +152,22 @@ export function RegulatoryComplianceCalendarGrid(
           justify-content: flex-start !important;
           font-size: 0.75rem !important;
           font-weight: 500 !important;
-          color: #64748b !important;
+          color: var(--ehs-gray) !important;
           transition: all 0.2s ease;
           overflow: hidden;
         }
         .custom-react-calendar .react-calendar__tile:enabled:hover,
         .custom-react-calendar .react-calendar__tile:enabled:focus {
-          background-color: #ffffff !important;
+          background-color: var(--ehs-light-text) !important;
         }
         .custom-react-calendar .react-calendar__tile--active,
         .custom-react-calendar .react-calendar__tile.is-selected-day {
-          background-color: #e6f4f9 !important;
-          border-color: rgba(8, 145, 166, 0.4) !important;
+          background-color: var(--ehs-light-blue) !important;
+          border-color: color-mix(
+            in srgb,
+            var(--ehs-normal-blue) 40%,
+            transparent
+          ) !important;
           box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
         }
         .custom-react-calendar
@@ -172,15 +178,23 @@ export function RegulatoryComplianceCalendarGrid(
 
       <Calendar
         className="custom-react-calendar"
+        locale="en-US"
         value={selectedDate}
         onChange={setSelectedDate}
-        defaultActiveStartDate={new Date(2025, 2, 1)}
+        activeStartDate={activeStartDate}
+        onActiveStartDateChange={({ activeStartDate: nextDate }) => {
+          if (nextDate) {
+            onActiveStartDateChange(nextDate);
+          }
+        }}
         tileContent={tileContent}
         tileClassName={tileClassName}
         formatShortWeekday={(_, date) =>
           date.toLocaleDateString("en-US", { weekday: "short" })
         }
+        prev2Label={null}
+        next2Label={null}
       />
-    </div>
+    </IncidentGlassCard>
   );
 }

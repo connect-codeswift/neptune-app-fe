@@ -19,7 +19,7 @@ export function RegulatoryComplianceView() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-7 bg-[#f8fafc]">
+    <div className="bg-ehs-light-bg flex flex-1 flex-col gap-6 px-4">
       {/* Top Header from Incident Module */}
       <IncidentListHeader
         title="Regularity Compliance"
@@ -27,27 +27,42 @@ export function RegulatoryComplianceView() {
         onSearchChange={setSearchQuery}
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications={true}
-        actionLabel="Add Obligation"
-        reportHref="#"
+        showAction={false}
         className="px-0 py-0"
       />
 
       {/* KPI Cards Row */}
       <RegulatoryComplianceKpiGrid items={INITIAL_KPI_ITEMS} />
 
-      {/* View Mode Bar: Calendar View Button */}
-      <div className="flex items-center justify-between">
+      {/* View Mode Toggle: List view (current) / Calendar view */}
+      <div className="flex items-center gap-2.5">
+        <Link
+          href="/dashboard/regulatory-compliance"
+          className="bg-ehs-normal-blue text-ehs-light-text inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-bold shadow-xs transition-all"
+        >
+          <Icon
+            icon="mdi:view-grid-outline"
+            className="text-base"
+            aria-hidden="true"
+          />
+          <span>List view</span>
+        </Link>
+
         <Link
           href="/dashboard/regulatory-compliance/calendar"
-          className="inline-flex items-center gap-2 rounded-xl border border-[rgba(15,23,42,0.12)] bg-white px-4 py-2 text-[13px] font-bold text-[#0f172a] shadow-xs transition-all hover:bg-[#f8fafc]"
+          className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-[13px] font-bold shadow-xs transition-all"
         >
-          <Icon icon="mdi:calendar-month-outline" className="text-base text-[#0891a6]" />
-          <span>Calendar View</span>
+          <Icon
+            icon="mdi:calendar-month-outline"
+            className="text-ehs-normal-blue text-base"
+            aria-hidden="true"
+          />
+          <span>Calendar view</span>
         </Link>
       </div>
 
       {/* Main Content Grid: Register Table Card (Left) + Right Sidebar Stack */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] items-start gap-6">
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         {/* Left: Main Register Table Card */}
         <RegulatoryComplianceRegisterCard
           items={INITIAL_OBLIGATIONS}

@@ -1,11 +1,37 @@
 "use client";
 
+import { IncidentGlassCard, IncidentBadge } from "@/components/incidents";
+import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
+import { Text } from "@/components/Text";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceObligationDetailsCardProps = Readonly<{
   detail: ComplianceObligationDetail;
   className?: string;
 }>;
+
+function priorityTone(
+  priority: ComplianceObligationDetail["priority"],
+): IncidentBadgeTone {
+  if (priority === "High") return "danger";
+  if (priority === "Medium") return "warn";
+  return "muted";
+}
+
+function DetailField(props: Readonly<{ label: string; value: string }>) {
+  const { label, value } = props;
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Text as="span" className="text-ehs-muted-text text-[12px] font-normal">
+        {label}
+      </Text>
+      <Text as="span" className="text-ehs-dark-bg text-[14px] font-light">
+        {value}
+      </Text>
+    </div>
+  );
+}
 
 export function RegulatoryComplianceObligationDetailsCard(
   props: RegulatoryComplianceObligationDetailsCardProps,
@@ -15,112 +41,62 @@ export function RegulatoryComplianceObligationDetailsCard(
   const isCompliant = detail.status === "Compliant";
 
   return (
-    <div
+    <IncidentGlassCard
+      paddingClassName="p-6"
       className={[
-        "flex flex-col gap-6 rounded-[20px] border border-white/90 bg-white/70 p-6.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.05)] backdrop-blur-md max-w-[700px]",
+        "max-w-[700px] bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <h2 className="text-[18px] font-bold text-[#0f172a] leading-tight">
-        Obligation Details
-      </h2>
+      <div className="flex flex-col gap-6">
+        <Text
+          as="h2"
+          className="text-ehs-dark-bg text-[18px] leading-tight font-bold"
+        >
+          Obligation Details
+        </Text>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-5">
-        {/* Category */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Category
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.category}
-          </span>
-        </div>
+        <div className="grid grid-cols-1 gap-x-12 gap-y-5 sm:grid-cols-2">
+          <DetailField label="Category" value={detail.category} />
+          <DetailField label="Due Date" value={detail.dueDate} />
+          <DetailField label="Recurrence" value={detail.recurrence} />
+          <DetailField label="Responsible" value={detail.responsible} />
+          <DetailField label="Regulatory Body" value={detail.regulatoryBody} />
 
-        {/* Due Date */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Due Date
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.dueDate}
-          </span>
-        </div>
-
-        {/* Recurrence */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Recurrence
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.recurrence}
-          </span>
-        </div>
-
-        {/* Responsible */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Responsible
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.responsible}
-          </span>
-        </div>
-
-        {/* Regulatory Body */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Regulatory Body
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.regulatoryBody}
-          </span>
-        </div>
-
-        {/* Priority */}
-        <div className="flex flex-col gap-1 items-start">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Priority
-          </span>
-          <span className="inline-flex rounded-md bg-[#e2e8f0]/80 px-2.5 py-0.5 text-[11px] font-bold text-[#475569]">
-            {detail.priority}
-          </span>
-        </div>
-
-        {/* Status */}
-        <div className="flex flex-col gap-1 items-start">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Status
-          </span>
-          <span
-            className={[
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-[12px] font-bold",
-              isCompliant
-                ? "bg-[#e6f4ea] text-[#137333]"
-                : "bg-[#e2e8f0]/80 text-[#475569]",
-            ].join(" ")}
-          >
-            <span
-              className={[
-                "size-2 rounded-full",
-                isCompliant ? "bg-[#137333]" : "bg-[#475569]",
-              ].join(" ")}
+          {/* Priority */}
+          <div className="flex flex-col items-start gap-1">
+            <Text
+              as="span"
+              className="text-ehs-muted-text text-[12px] font-medium"
+            >
+              Priority
+            </Text>
+            <IncidentBadge
+              label={detail.priority}
+              tone={priorityTone(detail.priority)}
             />
-            {detail.status}
-          </span>
-        </div>
+          </div>
 
-        {/* Completed Date */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[12px] font-medium text-[#94a3b8]">
-            Completed Date
-          </span>
-          <span className="text-[14px] font-bold text-[#0f172a]">
-            {detail.completedDate}
-          </span>
+          {/* Status */}
+          <div className="flex flex-col items-start gap-1">
+            <Text
+              as="span"
+              className="text-ehs-muted-text text-[12px] font-medium"
+            >
+              Status
+            </Text>
+            <IncidentBadge
+              label={detail.status}
+              tone={isCompliant ? "success" : "muted"}
+              showDot
+            />
+          </div>
+
+          <DetailField label="Completed Date" value={detail.completedDate} />
         </div>
       </div>
-    </div>
+    </IncidentGlassCard>
   );
 }

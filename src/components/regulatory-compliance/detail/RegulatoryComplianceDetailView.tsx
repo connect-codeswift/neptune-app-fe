@@ -44,7 +44,7 @@ export function RegulatoryComplianceDetailView(
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-7 bg-[#f8fafc]">
+    <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
       {/* Top Header from Incident Module */}
       <IncidentListHeader
         title=""
@@ -55,6 +55,7 @@ export function RegulatoryComplianceDetailView(
         reportHref="/dashboard/regulatory-compliance"
         actionLabel="Back to Register"
         actionLabelShort="Back"
+        searchPosition="start"
         className="px-0 py-0"
       />
 

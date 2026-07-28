@@ -111,21 +111,21 @@ export const INITIAL_CATEGORIES: readonly ComplianceCategoryProgress[] = [
     category: "Regulatory",
     current: 58,
     total: 64,
-    colorHex: "#2563eb",
+    colorHex: "var(--ehs-navy)",
   },
   {
     id: "cat-2",
     category: "Safety",
     current: 38,
     total: 41,
-    colorHex: "#0891a6",
+    colorHex: "var(--ehs-normal-blue)",
   },
   {
     id: "cat-3",
     category: "Health",
     current: 22,
     total: 27,
-    colorHex: "#334155",
+    colorHex: "var(--ehs-darker)",
   },
 ];
 
