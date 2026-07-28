@@ -4,12 +4,17 @@ import type {
   TenantUserContextDto,
   UpdateIncidentRequestDto,
 } from "@/dtos/req/incident-request.dto";
+import type { UpdateIncidentClosureRequestDto } from "@/dtos/req/incident-closure-request.dto";
 import type {
   GetAllIncidentsResponseDto,
   IncidentDto,
   PersonDto,
 } from "@/dtos/res/incident-response.dto";
-import { CLOSED_CASE_DISPOSITION } from "@/components/incidents/report/shared/report-treatment";
+import type {
+  ClosureChecklistItemDto,
+  ClosureLinkedCapaItemDto,
+  IncidentClosureResponseDto,
+} from "@/dtos/res/incident-closure-response.dto";
 import http, { getAccessToken } from "@/lib/axios";
 
 const INCIDENT_GET_ALL_PATH = "/Incident/GetAllIncidents";
@@ -453,19 +458,142 @@ export async function updateIncident(
   );
 }
 
-/**
- * Marks an incident Closed without deleting it.
- *
- * Must go through the update path: POST /Incident/incident always runs
- * `Incidents.Add(...)` server-side and `Id` is a DB identity column, so posting
- * an existing `id` there inserts a *new* "Closed" row and leaves the original
- * open. Patching `caseDisposition` through `updateIncident` issues the real
- * PUT /Incident/UpdateIncident/{id} instead.
- *
- * Does not call DropIncident (that removes the record).
- */
-export async function closeIncident(id: number, context: TenantUserContextDto) {
-  return updateIncident(id, context, {
-    caseDisposition: CLOSED_CASE_DISPOSITION,
-  });
+function coerceChecklistItemDto(value: unknown): ClosureChecklistItemDto | null {
+  if (!isRecord(value)) return null;
+  return {
+    id: asString(readProp(value, "id", "Id")) ?? undefined,
+    label: asString(readProp(value, "label", "Label")) ?? undefined,
+    completed: asBoolean(readProp(value, "completed", "Completed")) ?? undefined,
+    required: asBoolean(readProp(value, "required", "Required")) ?? undefined,
+    completedAt: asString(readProp(value, "completedAt", "CompletedAt")) ?? undefined,
+    completedBy: asString(readProp(value, "completedBy", "CompletedBy")) ?? undefined,
+  };
 }
+
+function coerceLinkedCapaDto(value: unknown): ClosureLinkedCapaItemDto | null {
+  if (!isRecord(value)) return null;
+  return {
+    id: asString(readProp(value, "id", "Id")) ?? undefined,
+    title: asString(readProp(value, "title", "Title")) ?? undefined,
+    subtitle: asString(readProp(value, "subtitle", "Subtitle")) ?? undefined,
+    progressPercent: asNumber(readProp(value, "progressPercent", "ProgressPercent")) ?? undefined,
+    status: asString(readProp(value, "status", "Status")) ?? undefined,
+  };
+}
+
+/**
+ * Coerces and normalizes response from GET /api/Incident/{incidentId}/closure
+ */
+export function normalizeIncidentClosureDto(data: unknown): IncidentClosureResponseDto | null {
+  if (!isRecord(data)) {
+    return null;
+  }
+  const root = isRecord(data.data) ? data.data : data;
+
+  const rawChecklist = readProp(root, "verificationChecklist", "VerificationChecklist");
+  const verificationChecklist = Array.isArray(rawChecklist)
+    ? rawChecklist
+        .map(coerceChecklistItemDto)
+        .filter((item): item is ClosureChecklistItemDto => item !== null)
+    : undefined;
+
+  const rawCapas = readProp(root, "closureLinkedCapas", "ClosureLinkedCapas");
+  const closureLinkedCapas = Array.isArray(rawCapas)
+    ? rawCapas
+        .map(coerceLinkedCapaDto)
+        .filter((item): item is ClosureLinkedCapaItemDto => item !== null)
+    : undefined;
+
+  return {
+    id: (asNumber(readProp(root, "id", "Id")) ?? asString(readProp(root, "id", "Id"))) ?? undefined,
+    closureId: asString(readProp(root, "closureId", "ClosureId")) ?? undefined,
+    incidentId: asNumber(readProp(root, "incidentId", "IncidentId")) ?? undefined,
+    currentStep: asNumber(readProp(root, "currentStep", "CurrentStep")) ?? undefined,
+    closureStatus: asString(readProp(root, "closureStatus", "ClosureStatus")) ?? undefined,
+    closedAt: asString(readProp(root, "closedAt", "ClosedAt")) ?? undefined,
+    closedBy: asString(readProp(root, "closedBy", "ClosedBy")) ?? undefined,
+    closedByRole: asString(readProp(root, "closedByRole", "ClosedByRole")) ?? undefined,
+    closureDate: asString(readProp(root, "closureDate", "ClosureDate")) ?? undefined,
+    durationOpen: asString(readProp(root, "durationOpen", "DurationOpen")) ?? undefined,
+    finalIncidentType: asString(readProp(root, "finalIncidentType", "FinalIncidentType")) ?? undefined,
+    sifClassification: asString(readProp(root, "sifClassification", "SifClassification")) ?? undefined,
+    daysAwayFromWork: asNumber(readProp(root, "daysAwayFromWork", "DaysAwayFromWork")) ?? undefined,
+    daysOnRestrictedDuty: asNumber(readProp(root, "daysOnRestrictedDuty", "DaysOnRestrictedDuty")) ?? undefined,
+    isOshaRecordable: asBoolean(readProp(root, "isOshaRecordable", "IsOshaRecordable")) ?? undefined,
+    isOSHARecordable: asBoolean(readProp(root, "isOSHARecordable", "IsOSHARecordable")) ?? undefined,
+    oshaOverrideReason: asString(readProp(root, "oshaOverrideReason", "OshaOverrideReason")) ?? undefined,
+    closureStatement: asString(readProp(root, "closureStatement", "ClosureStatement")) ?? undefined,
+    lessonsLearned: asString(readProp(root, "lessonsLearned", "LessonsLearned")) ?? undefined,
+    closureNotes: asString(readProp(root, "closureNotes", "ClosureNotes")) ?? undefined,
+    rootCauseSummary: asString(readProp(root, "rootCauseSummary", "RootCauseSummary")) ?? undefined,
+    rootCauseDescription: asString(readProp(root, "rootCauseDescription", "RootCauseDescription")) ?? undefined,
+    primaryRootCauseCategoryId: asNumber(readProp(root, "primaryRootCauseCategoryId", "PrimaryRootCauseCategoryId")) ?? undefined,
+    primaryRootCause: asString(readProp(root, "primaryRootCause", "PrimaryRootCause")) ?? undefined,
+    contributingFactorTags: asStringArray(readProp(root, "contributingFactorTags", "ContributingFactorTags")) ?? undefined,
+    contributingFactors: asStringArray(readProp(root, "contributingFactors", "ContributingFactors")) ?? undefined,
+    attestationConfirmed: asBoolean(readProp(root, "attestationConfirmed", "AttestationConfirmed")) ?? undefined,
+    equipmentProceduresNote: asString(readProp(root, "equipmentProceduresNote", "EquipmentProceduresNote")) ?? undefined,
+    actionsTaken: asString(readProp(root, "actionsTaken", "ActionsTaken")) ?? undefined,
+    preventiveActionSummary: asString(readProp(root, "preventiveActionSummary", "PreventiveActionSummary")) ?? undefined,
+    closureLinkedCapas,
+    capasVerified: asBoolean(readProp(root, "capasVerified", "CapasVerified")) ?? undefined,
+    mfaSigned: asBoolean(readProp(root, "mfaSigned", "MfaSigned")) ?? undefined,
+    isEhsConfirmed: asBoolean(readProp(root, "isEhsConfirmed", "IsEhsConfirmed")) ?? undefined,
+    residualRisk: asString(readProp(root, "residualRisk", "ResidualRisk")) ?? undefined,
+    verificationChecklist,
+    approverName: asString(readProp(root, "approverName", "ApproverName")) ?? undefined,
+    approverRole: asString(readProp(root, "approverRole", "ApproverRole")) ?? undefined,
+    approverInitials: asString(readProp(root, "approverInitials", "ApproverInitials")) ?? undefined,
+    isApproved: asBoolean(readProp(root, "isApproved", "IsApproved")) ?? undefined,
+  };
+}
+
+/**
+ * GET /api/Incident/{incidentId}/closure
+ * Header: `Authorization: Bearer <token>`
+ */
+export async function getIncidentClosure(
+  incidentId: number,
+): Promise<IncidentClosureResponseDto | null> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load incident closure details.");
+  }
+
+  const { data } = await http.get<unknown>(`/Incident/${String(incidentId)}/closure`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeIncidentClosureDto(data);
+}
+
+/**
+ * PUT /api/Incident/{incidentId}/closure
+ * Body: UpdateIncidentClosureRequestDto
+ * Header: `Authorization: Bearer <token>`
+ */
+export async function updateIncidentClosure(
+  incidentId: number,
+  payload: UpdateIncidentClosureRequestDto,
+): Promise<IncidentClosureResponseDto | null> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update incident closure details.");
+  }
+
+  const { data } = await http.put<unknown>(
+    `/Incident/${String(incidentId)}/closure`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeIncidentClosureDto(data) ?? (isRecord(data) ? (data as IncidentClosureResponseDto) : null);
+}
+
+

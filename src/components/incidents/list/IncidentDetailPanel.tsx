@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Button } from "@/components/ui/Button";
+// import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -46,8 +46,8 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const {
     incident,
-    onCloseIncident,
-    isClosingIncident = false,
+    // onCloseIncident,
+    // isClosingIncident = false,
     className = "",
   } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
@@ -154,7 +154,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         >
           {incident.title}
         </Text>
-        <Text as="p" className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]">
+        <Text
+          as="p"
+          className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]"
+        >
           {incident.site}
         </Text>
       </div>
@@ -217,7 +220,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
                 <IncidentBadge label={capa.status} tone="muted" />
                 <IncidentBadge label={capa.priority} tone="neutral" />
               </div>
-              <Text as="p" className="text-ehs-darker text-[12px] leading-[17px]">
+              <Text
+                as="p"
+                className="text-ehs-darker text-[12px] leading-[17px]"
+              >
                 {capa.description}
               </Text>
               <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-[11px]">
@@ -244,50 +250,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         )}
       </div>
 
-      <div className="flex-1 px-5 py-3.5">
-        <Text
-          as="p"
-          className="text-ehs-muted-text mb-3 text-[11px] font-semibold tracking-wide uppercase"
-        >
-          Timeline
-        </Text>
-
-        {incident.timeline.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-[12px]">
-            No timeline events yet.
-          </Text>
-        ) : (
-          <div className="relative flex flex-col gap-3 pl-1">
-            <div
-              className="bg-ehs-border absolute top-2 bottom-2 left-[12px] w-px"
-              aria-hidden="true"
-            />
-            {incident.timeline.map((item) => (
-              <div key={item.id} className="relative flex gap-3">
-                <div className="border-ehs-border bg-ehs-light-text relative z-[1] flex size-[26px] shrink-0 items-center justify-center rounded-full border shadow-sm">
-                  <Icon
-                    icon={item.icon}
-                    className="text-ehs-gray text-xs"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="min-w-0 pt-1">
-                  <Text
-                    as="p"
-                    className="text-ehs-darker text-[12px] leading-[14px]"
-                  >
-                    {item.title}
-                  </Text>
-                  <Text as="p" className="text-ehs-muted-text mt-1 text-[11px]">
-                    {item.time}
-                  </Text>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+      {/* Temporarily hidden — Close Incident / Open HRCA / Add CAPA
       <div className="border-ehs-border flex min-w-0 flex-nowrap items-center gap-1.5 border-t px-3 py-3 sm:gap-2 sm:px-5">
         <Button
           type="button"
@@ -343,7 +306,8 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           <span className="truncate">Add CAPA</span>
         </Button>
       </div>
-
+      
+*/}
       {isAddCapaOpen ? (
         <AddCapaModal
           incidentId={incident.id}
