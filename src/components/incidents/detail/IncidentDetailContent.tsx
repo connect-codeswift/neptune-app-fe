@@ -109,7 +109,7 @@ export function IncidentDetailContent(
     lessonsLearned: "",
     closureNotes: "",
     rootCauseSummary: "",
-    primaryRootCause: "",
+    primaryRootCauseCategoryIds: [],
     contributingFactors: [],
     equipmentProceduresNote: "",
     actionsTaken: "",
@@ -717,6 +717,9 @@ export function IncidentDetailContent(
       previewFile={previewFile}
       onClosePreview={() => setPreviewFile(null)}
       closureData={closureData}
+      isClosureSubmitting={
+        updateClosureMutation.isPending || closeIncidentMutation.isPending
+      }
       onSelectClosureStep={(step) => {
         setClosureData((prev) => ({ ...prev, currentStep: step }));
       }}
@@ -779,10 +782,12 @@ export function IncidentDetailContent(
             incidentId: targetId,
             data: updatedData,
           });
+          await closeIncidentMutation.mutateAsync(targetId);
           toast.success(
             "Incident Officially Closed",
             `Incident ${displayId} has been successfully closed and verified.`
           );
+          await detailQuery.refetch();
         } catch (error) {
           toast.error(
             "Failed to Finalize Closure",

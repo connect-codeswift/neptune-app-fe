@@ -128,7 +128,7 @@ export type IncidentClosureData = Readonly<{
   lessonsLearned: string;
   closureNotes: string;
   rootCauseSummary: string;
-  primaryRootCause: string;
+  primaryRootCauseCategoryIds: readonly string[];
   contributingFactors: readonly string[];
   equipmentProceduresNote: string;
   actionsTaken: string;

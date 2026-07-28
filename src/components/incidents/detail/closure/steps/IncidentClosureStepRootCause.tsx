@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { CreatableMultiSelectInput } from "@/components/inputs/CreatableMultiSelectInput";
+import type { SelectOption } from "@/components/inputs/SelectInput";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
+import { useRcaCategoriesQuery } from "@/hooks/use-rca-queries";
+import { useCreateRcaCategoryMutation } from "@/hooks/use-rca-mutations";
+import { toast } from "@/lib/toast";
 
 export type IncidentClosureStepRootCauseProps = Readonly<{
   data: IncidentClosureData;
@@ -28,6 +33,36 @@ export function IncidentClosureStepRootCause(
 ) {
   const { data, onChangeField } = props;
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+
+  const rcaCategoriesQuery = useRcaCategoriesQuery();
+  const createRcaCategoryMutation = useCreateRcaCategoryMutation();
+
+  const rcaCategoryOptions: SelectOption[] = (
+    rcaCategoriesQuery.data ?? []
+  ).map((category) => ({
+    value: String(category.id),
+    label: category.name,
+  }));
+
+  const selectedRootCauseCategoryIds = data.primaryRootCauseCategoryIds ?? [];
+
+  const handleCreateRcaCategory = async (name: string) => {
+    try {
+      const created = await createRcaCategoryMutation.mutateAsync(name);
+      if (created) {
+        const newId = String(created.id);
+        if (!selectedRootCauseCategoryIds.includes(newId)) {
+          onChangeField("primaryRootCauseCategoryIds", [
+            ...selectedRootCauseCategoryIds,
+            newId,
+          ]);
+        }
+      }
+    } catch {
+      toast.error("Failed to add category", "Please try again.");
+      throw new Error("Failed to add RCA category");
+    }
+  };
 
   const currentFactors = data.contributingFactors ?? [];
 
@@ -61,15 +96,19 @@ export function IncidentClosureStepRootCause(
         <label className="mb-2 text-[12px] font-bold tracking-[0.08em] text-[#94a3b8] uppercase">
           PRIMARY ROOT CAUSE
         </label>
-        <div className="relative">
-          <input
-            type="text"
-            value={data.primaryRootCause}
-            onChange={(e) => onChangeField("primaryRootCause", e.target.value)}
-            className="w-full rounded-[14px] border border-[#e2e8f0] bg-white py-2.5 pr-9 pl-3.5 text-[13px] font-semibold text-[#0f172a] shadow-xs transition outline-none focus:border-[#008ba3] focus:ring-2 focus:ring-[#008ba3]/20"
-            placeholder="Enter primary root cause..."
-          />
-        </div>
+        <CreatableMultiSelectInput
+          placeholder="Select root cause categories..."
+          options={rcaCategoryOptions}
+          value={selectedRootCauseCategoryIds}
+          onChange={(next) =>
+            onChangeField("primaryRootCauseCategoryIds", next)
+          }
+          onCreate={handleCreateRcaCategory}
+          isCreating={createRcaCategoryMutation.isPending}
+          createLabel="Add new category"
+          createPlaceholder="Enter category name…"
+          disabled={rcaCategoriesQuery.isLoading}
+        />
       </div>
 
       {/* Contributing Factors */}

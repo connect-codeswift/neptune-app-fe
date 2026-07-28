@@ -131,6 +131,7 @@ export type IncidentDetailViewProps = Readonly<{
   onToggleClosureCheckItem: (itemId: string) => void;
   onSaveClosureDraft?: () => void;
   onFinalizeClosure?: () => void;
+  isClosureSubmitting?: boolean;
 }>;
 
 /**
@@ -205,6 +206,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onToggleClosureCheckItem,
     onSaveClosureDraft,
     onFinalizeClosure,
+    isClosureSubmitting,
   } = props;
 
   return (
@@ -509,6 +511,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 onToggleCheckItem={onToggleClosureCheckItem}
                 onSaveAsDraft={onSaveClosureDraft}
                 onFinalizeClosure={onFinalizeClosure}
+                isSubmitting={isClosureSubmitting}
               />
             )}
           </>

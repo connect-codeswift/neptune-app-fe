@@ -40,6 +40,7 @@ export type IncidentClosureResponseDto = {
   closureNotes?: string | null;
   rootCauseSummary?: string | null;
   primaryRootCauseCategoryId?: number | null;
+  primaryRootCauseCategoryIds?: number[] | null;
   contributingFactorTags?: string[] | null;
   rootCauseDescription?: string | null;
   attestationConfirmed?: boolean | null;
