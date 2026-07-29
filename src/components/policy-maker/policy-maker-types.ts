@@ -45,6 +45,14 @@ export type PolicyDocument = Readonly<{
   reviewDate: string;
   acknowledged: number;
   acknowledgmentTotal: number;
+  /** Raw ids kept alongside the display strings above, for prefilling Edit. */
+  categoryId?: number | null;
+  departmentId?: number | null;
+  reviewCycle?: string;
+  ackUserIds?: readonly string[];
+  approverIds?: readonly string[];
+  /** Server path/URL of the current version's PDF, for the Edit file card. */
+  filePath?: string | null;
 }>;
 
 export type LibraryCategory = Readonly<{

@@ -5,13 +5,18 @@ import {
   getAllDocCategories,
   getAllDocDepartments,
   getAllDocuments,
+  getDocumentById,
 } from "@/services/document.service";
-import { mapDocumentDtosToPolicyDocuments } from "@/services/mappers/document-list.mapper";
+import {
+  mapDocumentDtosToPolicyDocuments,
+  mapDocumentDtoToPolicyDocument,
+} from "@/services/mappers/document-list.mapper";
 
 export const documentQueryKeys = {
   all: ["documents"] as const,
   list: (params: { pageNumber: number; pageSize: number }) =>
     [...documentQueryKeys.all, "list", params] as const,
+  detail: (id: number) => [...documentQueryKeys.all, "detail", id] as const,
   categories: ["documents", "categories"] as const,
   departments: ["documents", "departments"] as const,
 };
@@ -48,6 +53,36 @@ export function useDocumentsListQuery(
         records: mapDocumentDtosToPolicyDocuments(response.items),
       };
     },
+  });
+}
+
+export type UseDocumentByIdQueryOptions = Readonly<{
+  id: number | null;
+  /** Parent should enable only after client mount + token check. */
+  enabled?: boolean;
+  /** Resolves `departmentId` to a name — the detail endpoint has no name field. */
+  departmentNameById?: ReadonlyMap<string, string>;
+}>;
+
+/**
+ * Loads a single document via GET /api/Document/{id}.
+ * Returns `null` (not an error) when the backend has nothing for that id.
+ */
+export function useDocumentByIdQuery(options: UseDocumentByIdQueryOptions) {
+  const { id, departmentNameById } = options;
+  const enabled = (options.enabled ?? false) && id != null && id > 0;
+
+  return useQuery({
+    queryKey: documentQueryKeys.detail(id ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (id == null) {
+        return null;
+      }
+      return getDocumentById(id);
+    },
+    select: (dto) =>
+      dto ? mapDocumentDtoToPolicyDocument(dto, { departmentNameById }) : null,
   });
 }
 

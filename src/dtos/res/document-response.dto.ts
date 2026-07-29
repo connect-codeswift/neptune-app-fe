@@ -1,5 +1,18 @@
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
+/** Version row nested on GET /api/Document/{id} (and possibly allDocuments). */
+export type DocumentVersionDto = {
+  id?: number | null;
+  versionNo?: number | null;
+  versionLabel?: string | null;
+  status?: string | null;
+  isCurrent?: boolean | null;
+  changeSummary?: string | null;
+  updatedByName?: string | null;
+  updatedAt?: string | null;
+  filePath?: string | null;
+};
+
 /**
  * Document row from POST /api/Document/allDocuments.
  * Backend field names vary (camelCase / PascalCase); the service coerces them.
@@ -22,11 +35,14 @@ export type DocumentDto = {
   status?: string | null;
   version?: string | null;
   currentVersion?: string | null;
+  versionLabel?: string | null;
+  versionNo?: number | null;
   code?: string | null;
   documentCode?: string | null;
   site?: string | null;
   pdfUrl?: string | null;
   fileUrl?: string | null;
+  pdfPath?: string | null;
   fileType?: string | null;
   fileSize?: string | number | null;
   expiresAt?: string | null;
@@ -43,6 +59,11 @@ export type DocumentDto = {
   reviewersDone?: number | null;
   reviewersTotal?: number | null;
   documentKind?: string | null;
+  /** Comma-separated user ids for acknowledgment tracking. */
+  ackUserIds?: string | null;
+  /** Comma-separated user ids for approvals. */
+  approvalUserIds?: string | null;
+  versions?: DocumentVersionDto[] | null;
 };
 
 /** Normalized list payload used by the document service. */
@@ -85,3 +106,6 @@ export type GetAllDocDepartmentsResponseDto = ApiEnvelopeDto<
 >;
 
 export type CreateDocumentResponseDto = ApiEnvelopeDto<DocumentDto | null>;
+
+/** Envelope shape for GET /api/Document/{id}. */
+export type GetDocumentByIdResponseDto = ApiEnvelopeDto<DocumentDto | null>;

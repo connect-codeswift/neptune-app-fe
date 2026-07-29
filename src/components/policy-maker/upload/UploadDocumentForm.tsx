@@ -19,6 +19,10 @@ import {
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import {
+  categoryOptionLabel,
+  departmentOptionLabel,
+} from "@/services/mappers/document-list.mapper";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthContext } from "@/lib/auth-context";
 import {
@@ -49,34 +53,6 @@ const glassCardClass =
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
-}
-
-function categoryOptionLabel(category: {
-  categorytName?: string | null;
-  categoryName?: string | null;
-  name?: string | null;
-  id?: number;
-  categoryId?: number;
-}): string {
-  return (
-    category.categoryName?.trim() ||
-    category.categorytName?.trim() ||
-    category.name?.trim() ||
-    `Category ${String(category.categoryId ?? category.id ?? "")}`
-  );
-}
-
-function departmentOptionLabel(department: {
-  departmentName?: string | null;
-  name?: string | null;
-  id?: number;
-  departmentId?: number;
-}): string {
-  return (
-    department.departmentName?.trim() ||
-    department.name?.trim() ||
-    `Department ${String(department.departmentId ?? department.id ?? "")}`
-  );
 }
 
 /**
