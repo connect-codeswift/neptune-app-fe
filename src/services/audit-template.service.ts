@@ -44,7 +44,6 @@ export async function updateAuditTemplate(
     `${AUDIT_TEMPLATE_PATH}/${encodeURIComponent(templateId)}`,
     body,
   );
-  console.log("Update audit template response", data);
 
   return data;
 }

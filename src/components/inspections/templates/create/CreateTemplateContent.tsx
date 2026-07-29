@@ -108,14 +108,13 @@ export function CreateTemplateContent() {
     const draft = { values, sections, scoring, rules, settings };
     const payload = toInspectionTemplatePayload(draft, { publish });
 
-    console.log("Template wizard data", draft);
-    console.log("Inspection template payload", payload);
-
     createTemplate.mutate(payload, {
       // Prefer the backend's own wording; fall back to ours when it sends none.
-      onSuccess: (response) => {
+      onSuccess: () => {
         toast.success(
-          response.message || (publish ? "Template published" : "Draft saved"),
+          publish
+            ? "Inspection template published successfully"
+            : "Inspection Draft saved",
         );
         if (publish) router.push(TEMPLATES_ROUTE);
       },

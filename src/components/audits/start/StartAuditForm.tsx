@@ -177,7 +177,6 @@ export function StartAuditForm() {
       {
         onSuccess: (response) => {
           toast.success("Audit created");
-          console.log(response.dataModel);
           // Stash the created audit so the checklist can label its header
           // without waiting on the list to refetch.
           const created = response.dataModel;

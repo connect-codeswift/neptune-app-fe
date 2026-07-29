@@ -116,6 +116,12 @@ export function mapDetailToWizardState(
     .map((tag) => tag.trim())
     .filter((tag) => tag !== "");
 
+  // The API stores sites comma-separated; the Settings step wants a list.
+  const sites = (summary?.allowSites ?? "")
+    .split(",")
+    .map((site) => site.trim())
+    .filter((site) => site !== "");
+
   const values: FormValues = {
     templateName: summary?.templateName ?? "",
     templateType: summary?.templateType ?? "Audit",
@@ -133,7 +139,7 @@ export function mapDetailToWizardState(
 
   const settings: TemplateSettings = {
     accessLevel: "All Users",
-    sites: ["All Sites"],
+    sites: sites.length > 0 ? sites : ["All Sites"],
     allowDuplication: summary?.isTemplateDuplicationAllow ?? true,
     allowEditing: summary?.isAllowEditing ?? false,
   };

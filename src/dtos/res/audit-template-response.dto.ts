@@ -23,6 +23,8 @@ export type AuditTemplateDto = {
   updatedDate: string;
   lastUsedDate: string;
   frequency: string;
+  /** Sites this template may be run against, comma-separated. */
+  allowSites: string;
 };
 
 /** Matches backend response for POST /api/AuditTemplate. */

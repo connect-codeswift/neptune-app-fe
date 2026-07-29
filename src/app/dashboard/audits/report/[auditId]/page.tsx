@@ -18,7 +18,6 @@ export default function AuditReportPage() {
   // recorded responses — everything the report needs, from one call.
   const detailQuery = useAuditDetailQuery(auditId);
   const detail = detailQuery.data?.dataModel ?? null;
-  console.log(detailQuery.data);
   const report = useMemo(
     () => (detail ? buildAuditReportFromDetail(detail) : null),
     [detail],

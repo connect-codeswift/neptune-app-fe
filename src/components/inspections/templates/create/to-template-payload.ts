@@ -56,7 +56,9 @@ export function toInspectionTemplatePayload(
     // Not captured by the wizard yet — sent as defaults. Foreign keys go out
     // as null rather than 0, which would point at a non-existent row.
     defaultAssigneeId: null,
-    defaultLocation: settings.sites.join(", "),
+    // The wizard picks sites, not a single default location.
+    defaultLocation: "",
+    allowSites: settings.sites.join(","),
     scheduleStartDate: new Date().toISOString(),
     dueWindowDays: 0,
     notifyAssignee: true,

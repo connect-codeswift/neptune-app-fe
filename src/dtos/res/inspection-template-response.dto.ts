@@ -18,10 +18,14 @@ export type InspectionTemplateDto = {
   currentVersion: number;
   sectionCount: number;
   itemCount: number;
+  userId: number;
   subCompanyId: number;
   createdDate: string;
   updatedDate: string;
   lastUsedDate: string;
+  frequency: string;
+  /** Sites this template may be run against, comma-separated. */
+  allowSites: string;
 };
 
 /** Matches backend response for POST /api/InspectionTemplate. */

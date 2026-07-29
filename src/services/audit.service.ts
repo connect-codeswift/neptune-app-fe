@@ -59,7 +59,6 @@ export async function saveAuditResponses(
     `${AUDIT_PATH}/${encodeURIComponent(auditId)}/responses`,
     payload,
   );
-  console.log(data);
 
   return data;
 }
