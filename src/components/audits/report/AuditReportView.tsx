@@ -1,11 +1,9 @@
 import { IncidentGlassCard } from "@/components/incidents";
 import type { AuditReport } from "@/app/dashboard/audits/report/audit-report-data";
 
-/** Scores at or above this read as passing, and colour green rather than red. */
-const PASS_THRESHOLD = 80;
-
-function scoreColor(score: number): string {
-  return score >= PASS_THRESHOLD ? "#10b981" : "#ef4444";
+/** Scores at or above the template's pass mark are green, the rest red. */
+function scoreColor(score: number, passThreshold: number): string {
+  return score >= passThreshold ? "#10b981" : "#ef4444";
 }
 
 function MetaField(props: Readonly<{ label: string; value: string }>) {
@@ -13,8 +11,8 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="text-ehs-muted-text text-sm">{label}</span>
-      <span className="text-ehs-dark-bg text-sm">{value}</span>
+      <span className="text-ehs-muted-text">{label}</span>
+      <span className="text-ehs-dark-bg">{value}</span>
     </div>
   );
 }
@@ -33,7 +31,7 @@ export function AuditReportView(props: AuditReportViewProps) {
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
-            <h2 className="text-ehs-dark-bg text-xl font-bold">
+            <h2 className="text-ehs-dark-bg text-2xl font-bold">
               {report.title}
             </h2>
             <p className="text-ehs-gray">{report.scope}</p>
@@ -42,7 +40,7 @@ export function AuditReportView(props: AuditReportViewProps) {
           <div className="flex shrink-0 flex-col items-end">
             <span
               className="text-3xl font-bold tabular-nums"
-              style={{ color: scoreColor(report.score) }}
+              style={{ color: scoreColor(report.score, report.passThreshold) }}
             >
               {`${String(report.score)}%`}
             </span>
@@ -58,7 +56,9 @@ export function AuditReportView(props: AuditReportViewProps) {
 
         <div className="flex flex-col gap-2 rounded-xl bg-[rgba(238,241,246,0.7)] p-4">
           <h3 className="text-ehs-dark-bg font-bold">Executive Summary</h3>
-          <p className="text-ehs-darker leading-6">{report.executiveSummary}</p>
+          <p className="text-ehs-darker text-lg leading-6">
+            {report.executiveSummary}
+          </p>
         </div>
       </IncidentGlassCard>
 
@@ -68,24 +68,21 @@ export function AuditReportView(props: AuditReportViewProps) {
           paddingClassName="p-6"
           incidentGlassCardClassName="gap-4"
         >
-          <h3 className="text-ehs-dark-bg text-lg font-bold">
+          <h3 className="text-ehs-dark-bg text-xl font-bold">
             Score by Section
           </h3>
 
           <ul className="flex flex-col gap-4">
             {report.sectionScores.map((entry) => {
-              const color = scoreColor(entry.score);
+              const color = scoreColor(entry.score, report.passThreshold);
 
               return (
                 <li key={entry.section} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-ehs-gray min-w-0 truncate text-sm font-normal">
+                    <span className="text-ehs-gray min-w-0 truncate text-lg">
                       {entry.section}
                     </span>
-                    <span
-                      className="shrink-0 text-sm tabular-nums"
-                      style={{ color }}
-                    >
+                    <span className="shrink-0 tabular-nums" style={{ color }}>
                       {`${String(entry.score)}%`}
                     </span>
                   </div>

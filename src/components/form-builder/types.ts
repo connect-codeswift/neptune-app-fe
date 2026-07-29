@@ -79,6 +79,8 @@ export type SelectFieldConfig = BaseField &
     /** The full option for the current value when it may fall outside the
      * loaded page (so the trigger can still show its label). */
     selectedOption?: SelectOption;
+    /** Render the control read-only — the value is fixed by the caller. */
+    disabled?: boolean;
   }>;
 
 export type TextareaFieldConfig = BaseField &

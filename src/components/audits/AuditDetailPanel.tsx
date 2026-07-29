@@ -1,4 +1,5 @@
 import { IncidentGlassCard } from "@/components/incidents";
+import { Button } from "@/components/ui/Button";
 import type { AuditDetail } from "@/app/dashboard/audits/audits-data";
 
 type Segment = Readonly<{ label: string; value: number; color: string }>;
@@ -60,10 +61,11 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
 export type AuditDetailPanelProps = Readonly<{
   detail: AuditDetail;
   className?: string;
+  onViewFindings?: () => void;
 }>;
 
 export function AuditDetailPanel(props: AuditDetailPanelProps) {
-  const { detail, className = "" } = props;
+  const { detail, className = "", onViewFindings } = props;
 
   const segments: readonly Segment[] = [
     { label: "Pass", value: detail.items.pass, color: "#10b981" },
@@ -74,11 +76,24 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
 
   return (
     <IncidentGlassCard className={className} incidentGlassCardClassName="gap-4">
-      <header className="flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
-        <p className="text-ehs-muted-text">
-          {`${detail.id} · ${String(detail.progress)}% complete`}
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
+          <p className="text-ehs-muted-text">
+            {`${detail.id} · ${String(detail.progress)}% complete`}
+          </p>
+        </div>
+
+        {onViewFindings ? (
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onViewFindings}
+            className="shrink-0 rounded-[10px] px-4 py-2 text-sm font-medium"
+          >
+            View Findings
+          </Button>
+        ) : null}
       </header>
 
       <div className="flex items-center gap-5">

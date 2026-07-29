@@ -83,6 +83,16 @@ export type AuditSnapshotDto = {
   sections: AuditSnapshotSectionDto[];
 };
 
+/** One recorded answer on an audit. */
+export type AuditRecordedResponseDto = {
+  id: number;
+  templateItemId: number;
+  responseOptionId: number;
+  valueText: string;
+  note: string;
+  isNA: boolean;
+};
+
 /** A single audit's detail from GET /api/Audit/{id}. */
 export type AuditDetailDto = {
   id: number;
@@ -100,7 +110,7 @@ export type AuditDetailDto = {
   templateId: number;
   templateVersionId: number;
   attachments: unknown[];
-  responses: unknown[];
+  responses: AuditRecordedResponseDto[];
   snapshot: AuditSnapshotDto;
 };
 

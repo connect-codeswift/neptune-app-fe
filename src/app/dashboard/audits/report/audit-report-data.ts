@@ -15,6 +15,8 @@ export type AuditReport = Readonly<{
   auditor: string;
   date: string;
   status: string;
+  /** The template's pass mark, 0-100 — scores at or above it read as passing. */
+  passThreshold: number;
   executiveSummary: string;
   sectionScores: readonly SectionScore[];
 }>;

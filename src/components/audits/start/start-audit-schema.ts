@@ -31,6 +31,8 @@ export type StartAuditSchemaOptions = Readonly<{
   /** Preselected template (via "Use template"), so its label shows even when
    * it isn't on the loaded page. */
   selectedTemplateOption?: SelectOption;
+  /** Arrived via "Use template" — the choice is fixed, so lock the dropdown. */
+  isTemplateLocked?: boolean;
 }>;
 
 /**
@@ -45,6 +47,7 @@ export function buildStartAuditSchema(
     templateOptions,
     templatePagination,
     selectedTemplateOption,
+    isTemplateLocked = false,
   } = options;
 
   return [
@@ -64,8 +67,10 @@ export function buildStartAuditSchema(
       colSpan: 6,
       placeholder: "Select template",
       options: templateOptions,
-      pagination: templatePagination,
+      // A locked field has nothing to page through or reveal.
+      pagination: isTemplateLocked ? undefined : templatePagination,
       selectedOption: selectedTemplateOption,
+      disabled: isTemplateLocked,
     },
     {
       type: "select",

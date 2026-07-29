@@ -90,11 +90,30 @@ export function StartAuditForm() {
       label: selectedTemplate.templateName || "Untitled template",
     };
   }, [activeTemplateId, selectedTemplate]);
+  // Arriving via "Use template" fixes the choice, so the dropdown is locked to
+  // that one template rather than listing every other option.
+  const isTemplateLocked = activeTemplateId !== "";
+  const lockedOption = useMemo<SelectOption | undefined>(() => {
+    if (!isTemplateLocked) return undefined;
+    return (
+      selectedTemplateOption ??
+      templateOptions.find((option) => option.value === activeTemplateId) ?? {
+        value: activeTemplateId,
+        label: "Selected template",
+      }
+    );
+  }, [
+    isTemplateLocked,
+    selectedTemplateOption,
+    templateOptions,
+    activeTemplateId,
+  ]);
+
   const schema = useMemo(
     () =>
       buildStartAuditSchema({
         auditorOptions: toAssigneeOptions(users ?? []),
-        templateOptions,
+        templateOptions: lockedOption ? [lockedOption] : templateOptions,
         templatePagination: {
           pageNumber: templatePage,
           totalPages,
@@ -104,6 +123,7 @@ export function StartAuditForm() {
           isLoading: templatesQuery.isFetching,
         },
         selectedTemplateOption,
+        isTemplateLocked,
       }),
     [
       users,
@@ -112,6 +132,8 @@ export function StartAuditForm() {
       totalPages,
       templatesQuery.isFetching,
       selectedTemplateOption,
+      isTemplateLocked,
+      lockedOption,
     ],
   );
 

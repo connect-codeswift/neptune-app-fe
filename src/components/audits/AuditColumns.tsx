@@ -95,14 +95,4 @@ export const auditColumns: ColumnDef<AuditRecord, any>[] = [
     ),
     meta: { align: "left" as const },
   }),
-  columnHelper.accessor("findings", {
-    header: "FINDINGS",
-    size: 100,
-    cell: (info) => (
-      <span className="text-ehs-muted-text text-xs">
-        {info.getValue() ?? "—"}
-      </span>
-    ),
-    meta: { align: "right" as const },
-  }),
 ];

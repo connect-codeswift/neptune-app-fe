@@ -59,7 +59,6 @@ export default function AuditsPage() {
     () => (page?.data ?? []).map(mapAuditDtoToRecord),
     [page],
   );
-
   // Only offer filters for statuses the backend actually returned.
   const statuses = useMemo(
     () => ["All", ...new Set(records.map((record) => record.status))],
@@ -148,7 +147,15 @@ export default function AuditsPage() {
                 Could not load audit detail.
               </p>
             ) : detail ? (
-              <AuditDetailPanel detail={detail} className="min-w-0" />
+              <AuditDetailPanel
+                detail={detail}
+                className="min-w-0"
+                onViewFindings={() =>
+                  router.push(
+                    `/dashboard/audits/report/${encodeURIComponent(selectedId)}`,
+                  )
+                }
+              />
             ) : null
           ) : null}
         </div>

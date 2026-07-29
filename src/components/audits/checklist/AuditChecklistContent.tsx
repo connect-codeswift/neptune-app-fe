@@ -184,7 +184,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
     saveResponses.mutate(
       {
         auditId: String(audit.id),
-        payload: { userId, subCompanyId, responses },
+        payload: { userId, subCompanyId, score, responses },
       },
       {
         onSuccess: (response) => {
@@ -195,8 +195,10 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           const result = response.dataModel;
           if (result) dispatch(setAuditResult(result));
           dispatch(setAuditAnswers(responses));
+          // The report is keyed by audit — it reads everything from GET
+          // /api/Audit/{id}, including the snapshot and recorded answers.
           router.push(
-            `${AUDIT_REPORT_ROUTE}/${encodeURIComponent(templateId)}`,
+            `${AUDIT_REPORT_ROUTE}/${encodeURIComponent(String(audit.id))}`,
           );
         },
         onError: (error) => {
