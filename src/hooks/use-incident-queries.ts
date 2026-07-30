@@ -2,7 +2,11 @@
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import { getAllIncidents, getIncidentById } from "@/services/incident.service";
+import {
+  getAllIncidents,
+  getIncidentById,
+  getIncidentClosure,
+} from "@/services/incident.service";
 import { mapIncidentDtoToDetailView } from "@/services/mappers/incident-detail.mapper";
 import { mapIncidentDtosToListRecords } from "@/services/mappers/incident-list.mapper";
 
@@ -13,12 +17,17 @@ export const incidentQueryKeys = {
     pageSize: number;
     userId: number;
     subCompanyId: number;
+    /** Server-side filters — part of the key so each filter set caches apart. */
+    search: string;
+    severity: string;
+    caseDisposition: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
   detail: (params: {
     id: number;
     userId: number;
     subCompanyId: number;
   }) => [...incidentQueryKeys.all, "detail", "v5", params] as const,
+  closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 
 /**
@@ -32,13 +41,19 @@ export const DEFAULT_INCIDENTS_PAGE_SIZE = 10;
 export type UseIncidentsListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
+  /** Substring match on description / location, applied server-side. */
+  search?: string;
+  /** Exact match on the stored severity label, applied server-side. */
+  severity?: string;
+  /** Exact match on the stored case disposition label, applied server-side. */
+  caseDisposition?: string;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
 }>;
 
 /**
  * Loads incidents via POST /api/Incident/GetAllIncidents
- * body: `{ pageNumber, pageSize, subCompanyId, userId }`
+ * body: `{ pageNumber, pageSize, subCompanyId, userId, search?, severity?, caseDisposition? }`
  */
 export function useIncidentsListQuery(
   options: UseIncidentsListQueryOptions = {},
@@ -46,6 +61,9 @@ export function useIncidentsListQuery(
   const pageNumber = options.pageNumber ?? DEFAULT_INCIDENTS_PAGE_NUMBER;
   const pageSize = options.pageSize ?? DEFAULT_INCIDENTS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
+  const search = options.search?.trim() ?? "";
+  const severity = options.severity?.trim() ?? "";
+  const caseDisposition = options.caseDisposition?.trim() ?? "";
 
   // Only read JWT/localStorage when the query is allowed to run (post-hydration).
   const auth = enabled ? getAuthContext() : null;
@@ -58,6 +76,9 @@ export function useIncidentsListQuery(
       pageSize,
       userId,
       subCompanyId,
+      search,
+      severity,
+      caseDisposition,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -67,6 +88,9 @@ export function useIncidentsListQuery(
         pageSize,
         userId,
         subCompanyId,
+        ...(search ? { search } : {}),
+        ...(severity ? { severity } : {}),
+        ...(caseDisposition ? { caseDisposition } : {}),
       });
 
       return {
@@ -131,3 +155,30 @@ export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
     },
   });
 }
+
+export type UseIncidentClosureQueryOptions = Readonly<{
+  incidentId: number | null;
+  /** Parent should enable only after client mount + token check. */
+  enabled?: boolean;
+}>;
+
+/**
+ * Loads incident closure data via GET /api/Incident/{incidentId}/closure
+ * header: `Authorization: Bearer <token>` (required)
+ */
+export function useIncidentClosureQuery(options: UseIncidentClosureQueryOptions) {
+  const incidentId = options.incidentId;
+  const enabled = (options.enabled ?? false) && incidentId != null && incidentId > 0;
+
+  return useQuery({
+    queryKey: incidentQueryKeys.closure(incidentId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (incidentId == null || incidentId <= 0) {
+        return null;
+      }
+      return getIncidentClosure(incidentId);
+    },
+  });
+}
+

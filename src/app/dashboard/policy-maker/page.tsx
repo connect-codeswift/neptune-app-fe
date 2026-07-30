@@ -1,13 +1,6 @@
-import { DashboardHeader } from "@/components/DashboardHeader";
+import { PolicyMakerView } from "@/components/policy-maker/PolicyMakerView";
 
+/** Policy Maker / Document Control — Document Library list view. */
 export default function PolicyMakerPage() {
-  return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader
-        title="Document Control"
-        actionLabel="Upload a Document"
-      />
-      <div className="flex-1 px-4 pb-8"></div>
-    </div>
-  );
+  return <PolicyMakerView />;
 }

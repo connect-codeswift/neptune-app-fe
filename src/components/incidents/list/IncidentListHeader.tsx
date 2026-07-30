@@ -15,7 +15,16 @@ export type IncidentListHeaderProps = Readonly<{
   onDateRangeClick?: () => void;
   onNotificationsClick?: () => void;
   hasUnreadNotifications?: boolean;
+  /** Primary CTA href (incidents report, document upload, etc.). */
   reportHref?: string;
+  /** Primary CTA label. Defaults to “Report incident”. */
+  actionLabel?: string;
+  /** Short label for small screens. Defaults to first word of actionLabel / “Report”. */
+  actionLabelShort?: string;
+  /** Hides the primary CTA button entirely (e.g. read-only register screens). */
+  showAction?: boolean;
+  /** Where the search field renders: next to the title ("start") or in the right-hand utility cluster ("end", default). */
+  searchPosition?: "start" | "end";
   className?: string;
 }>;
 
@@ -36,8 +45,15 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     onNotificationsClick,
     hasUnreadNotifications = true,
     reportHref = "/incidents/report",
+    actionLabel = "Report incident",
+    actionLabelShort,
+    showAction = true,
+    searchPosition = "end",
     className = "",
   } = props;
+
+  const shortLabel =
+    actionLabelShort ?? actionLabel.split(/\s+/)[0] ?? "Report";
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,6 +72,28 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  const searchInput = (
+    <div className="relative w-full min-w-0 sm:w-[220px] lg:w-[280px]">
+      <Icon
+        icon="mdi:magnify"
+        className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+        aria-hidden="true"
+      />
+      <input
+        ref={searchInputRef}
+        type="search"
+        value={searchQuery}
+        onChange={(event) => onSearchChange?.(event.target.value)}
+        placeholder={searchPlaceholder}
+        aria-label="Search incidents"
+        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-[13px] shadow-sm outline-none focus:ring-2"
+      />
+      <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-[10px] font-medium sm:inline">
+        ⌘K
+      </kbd>
+    </div>
+  );
+
   return (
     <header
       className={[
@@ -65,33 +103,20 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <Text
-        as="h1"
-        className="text-ehs-darker shrink-0 text-2xl font-bold tracking-tight"
-      >
-        {title}
-      </Text>
+      <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-3">
+        {title ? (
+          <Text
+            as="h1"
+            className="text-ehs-darker shrink-0 text-2xl font-bold tracking-tight"
+          >
+            {title}
+          </Text>
+        ) : null}
+        {searchPosition === "start" ? searchInput : null}
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
-        <div className="relative w-full min-w-0 sm:w-[220px] lg:w-[280px]">
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-            aria-hidden="true"
-          />
-          <input
-            ref={searchInputRef}
-            type="search"
-            value={searchQuery}
-            onChange={(event) => onSearchChange?.(event.target.value)}
-            placeholder={searchPlaceholder}
-            aria-label="Search incidents"
-            className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-[13px] shadow-sm outline-none focus:ring-2"
-          />
-          <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-[10px] font-medium sm:inline">
-            ⌘K
-          </kbd>
-        </div>
+        {searchPosition === "end" ? searchInput : null}
 
         <button
           type="button"
@@ -132,17 +157,19 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
           ) : null}
         </button>
 
-        <Link href={reportHref} className="min-w-0 sm:shrink-0">
-          <Button
-            type="button"
-            variant="primary"
-            className="w-full rounded-lg px-3 py-2 text-[13px] sm:w-auto sm:px-4"
-          >
-            <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
-            <span className="sm:hidden">Report</span>
-            <span className="hidden sm:inline">Report incident</span>
-          </Button>
-        </Link>
+        {showAction ? (
+          <Link href={reportHref} className="min-w-0 sm:shrink-0">
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full rounded-lg px-3 py-2 text-[13px] sm:w-auto sm:px-4"
+            >
+              <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+              <span className="sm:hidden">{shortLabel}</span>
+              <span className="hidden sm:inline">{actionLabel}</span>
+            </Button>
+          </Link>
+        ) : null}
       </div>
     </header>
   );

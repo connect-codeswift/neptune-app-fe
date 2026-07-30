@@ -8,12 +8,22 @@ import type { IncidentDto } from "@/dtos/res/incident-response.dto";
  * Staging API behavior (Swagger example values are misleading):
  * - `pageNumber` is 1-based (`0` → negative SQL OFFSET / 400)
  * - `pageSize` must be > 0 (`0` → empty `data` with non-zero `totalRecords`)
+ *
+ * `search` / `severity` / `caseDisposition` are optional server-side filters.
+ * They are omitted from the request body when unset, and an older backend that
+ * does not know them simply ignores them — the list still re-filters client-side.
  */
 export const getAllIncidentsRequestSchema = z.object({
   pageNumber: z.number().int().positive(),
   pageSize: z.number().int().positive(),
   subCompanyId: z.number().int().nonnegative(),
   userId: z.number().int().nonnegative(),
+  /** Substring match on incident description / location. */
+  search: z.string().optional(),
+  /** Exact match on the stored severity label (e.g. "OSHA Recordable"). */
+  severity: z.string().optional(),
+  /** Exact match on the stored case disposition label. */
+  caseDisposition: z.string().optional(),
 });
 
 export type GetAllIncidentsRequestDto = z.infer<

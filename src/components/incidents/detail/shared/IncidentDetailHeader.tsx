@@ -12,7 +12,8 @@ export type TabId =
   | "people"
   | "attachments"
   | "investigation"
-  | "linked-capa";
+  | "linked-capa"
+  | "closure";
 
 export type IncidentDetailHeaderProps = Readonly<{
   incidentId: string;
@@ -30,7 +31,9 @@ export type IncidentDetailHeaderProps = Readonly<{
   className?: string;
 }>;
 
-export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>) {
+export function IncidentDetailHeader(
+  props: Readonly<IncidentDetailHeaderProps>,
+) {
   const {
     incidentId,
     activeTab,
@@ -46,13 +49,20 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
   } = props;
   const router = useRouter();
 
-  const handleEdit = onEdit ?? (() => {
-    toast.info("Edit mode coming soon", "This feature is being developed.");
-  });
+  const handleEdit =
+    onEdit ??
+    (() => {
+      toast.info("Edit mode coming soon", "This feature is being developed.");
+    });
 
-  const handleClose = onCloseIncident ?? (() => {
-    toast.success("Incident Closed", `Incident ${incidentId} has been successfully closed.`);
-  });
+  const handleClose =
+    onCloseIncident ??
+    (() => {
+      toast.success(
+        "Incident Closed",
+        `Incident ${incidentId} has been successfully closed.`,
+      );
+    });
 
   const tabs: { id: TabId; label: string }[] = [
     { id: "details", label: "Details" },
@@ -61,6 +71,7 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
     { id: "attachments", label: "Attachments" },
     { id: "investigation", label: "Investigation" },
     { id: "linked-capa", label: "Linked CAPA" },
+    { id: "closure", label: "Closure" },
   ];
 
   return (
@@ -123,10 +134,7 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
         >
           Incidents
         </span>
-        <Icon
-          icon="mdi:chevron-right"
-          className="text-ehs-muted-text size-3"
-        />
+        <Icon icon="mdi:chevron-right" className="text-ehs-muted-text size-3" />
         <span className="text-ehs-gray">{incidentId}</span>
       </div>
 
@@ -139,36 +147,38 @@ export function IncidentDetailHeader(props: Readonly<IncidentDetailHeaderProps>)
           {incidentId}
         </Text>
 
-        <div className="flex items-center gap-2">
-          {!readOnly ? (
+        {activeTab !== "closure" ? (
+          <div className="flex items-center gap-2">
+            {!readOnly ? (
+              <Button
+                type="button"
+                variant={isEditing ? "primary" : "tertiary"}
+                onClick={handleEdit}
+                disabled={isSaving}
+                className={
+                  isEditing
+                    ? "rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
+                    : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-[13px] font-bold text-[#2a3446] transition-colors hover:bg-white/70 disabled:opacity-50"
+                }
+              >
+                {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+              </Button>
+            ) : null}
             <Button
               type="button"
-              variant={isEditing ? "primary" : "tertiary"}
-              onClick={handleEdit}
-              disabled={isSaving}
-              className={
-                isEditing
-                  ? "rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
-                  : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-[13px] font-bold text-[#2a3446] transition-colors hover:bg-white/70 disabled:opacity-50"
-              }
+              variant="primary"
+              onClick={handleClose}
+              disabled={closeDisabled || isClosingIncident}
+              className="rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
             >
-              {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+              {isClosingIncident
+                ? "Closing…"
+                : closeDisabled
+                  ? "Closed"
+                  : "Close Incident"}
             </Button>
-          ) : null}
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleClose}
-            disabled={closeDisabled || isClosingIncident}
-            className="rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
-          >
-            {isClosingIncident
-              ? "Closing…"
-              : closeDisabled
-                ? "Closed"
-                : "Close Incident"}
-          </Button>
-        </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Horizontal Tabs List */}
