@@ -2,15 +2,19 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
+  AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
   CreateDocumentRequestDto,
+  CreateDocumentVersionRequestDto,
 } from "@/dtos/req/document-request.dto";
 import { documentQueryKeys } from "@/hooks/use-document-queries";
 import {
+  acknowledgeDocument,
   addDocCategory,
   addDocDepartment,
   createDocument,
+  createDocumentVersion,
 } from "@/services/document.service";
 
 export function useCreateDocumentMutation() {
@@ -18,6 +22,19 @@ export function useCreateDocumentMutation() {
 
   return useMutation({
     mutationFn: (payload: CreateDocumentRequestDto) => createDocument(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
+    },
+  });
+}
+
+/** POST /api/Document/document_version — attaches a new PDF revision. */
+export function useCreateDocumentVersionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateDocumentVersionRequestDto) =>
+      createDocumentVersion(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
@@ -49,6 +66,19 @@ export function useAddDocumentDepartmentMutation() {
       await queryClient.invalidateQueries({
         queryKey: documentQueryKeys.departments,
       });
+    },
+  });
+}
+
+/** PUT /api/Document/Acknowledgement */
+export function useAcknowledgeDocumentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AcknowledgeDocumentRequestDto) =>
+      acknowledgeDocument(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
   });
 }
