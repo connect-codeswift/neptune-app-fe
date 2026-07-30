@@ -1,9 +1,4 @@
-import { INSPECTION_TEMPLATES } from "@/app/dashboard/inspections/template/inspection-templates-data";
 import type { FormSchema, SelectOption } from "@/components/form-builder";
-
-const TEMPLATE_OPTIONS: readonly SelectOption[] = INSPECTION_TEMPLATES.map(
-  (template) => ({ value: template.id, label: template.title }),
-);
 
 /** Sites an inspection can be scheduled against, matching the inspection register. */
 const LOCATION_OPTIONS: readonly SelectOption[] = [
@@ -22,13 +17,28 @@ export type StartInspectionValues = {
   scheduledDate: string;
 };
 
+export type StartInspectionSchemaOptions = Readonly<{
+  /** Inspectors from GET /User/dropdown. */
+  inspectorOptions: readonly SelectOption[];
+  /** Templates available to pick from. */
+  templateOptions: readonly SelectOption[];
+  /** Arrived via "Use template" — the choice is fixed, so lock the dropdown. */
+  isTemplateLocked?: boolean;
+}>;
+
 /**
- * Inspectors come from GET /User/dropdown, so the schema is built per render
+ * Inspectors and templates come from APIs, so the schema is built per render
  * rather than declared as a module constant.
  */
 export function buildStartInspectionSchema(
-  inspectorOptions: readonly SelectOption[],
+  options: StartInspectionSchemaOptions,
 ): FormSchema {
+  const {
+    inspectorOptions,
+    templateOptions,
+    isTemplateLocked = false,
+  } = options;
+
   return [
     {
       type: "text",
@@ -45,7 +55,8 @@ export function buildStartInspectionSchema(
       required: true,
       colSpan: 6,
       placeholder: "Select template",
-      options: TEMPLATE_OPTIONS,
+      options: templateOptions,
+      disabled: isTemplateLocked,
     },
     {
       type: "select",

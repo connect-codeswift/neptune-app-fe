@@ -1,5 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllInspectionTemplates } from "@/services/inspection-template.service";
+import {
+  getAllInspectionTemplates,
+  getInspectionTemplateById,
+} from "@/services/inspection-template.service";
+
+/** Fetches a single inspection template by id. */
+export function useInspectionTemplateQuery(templateId: string) {
+  return useQuery({
+    queryKey: ["inspection-template", "detail", templateId] as const,
+    enabled: templateId !== "",
+    queryFn: () => getInspectionTemplateById(templateId),
+  });
+}
 
 /** Fetches a paged list of inspection templates from GET /api/InspectionTemplate/GetAll. */
 export function useInspectionTemplatesQuery(

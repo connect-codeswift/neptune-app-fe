@@ -48,8 +48,8 @@ export default function InspectionTemplatesPage() {
         searchonleft={true}
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        actionLabel="Start Inspection"
-        onActionClick={() => router.push(START_INSPECTION_ROUTE)}
+        // actionLabel="Start Inspection"
+        // onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
@@ -89,7 +89,7 @@ export default function InspectionTemplatesPage() {
                   template={template}
                   onUse={(used) =>
                     router.push(
-                      `/dashboard/inspections/checklist/${encodeURIComponent(used.id)}`,
+                      `${START_INSPECTION_ROUTE}?templateId=${encodeURIComponent(used.id)}`,
                     )
                   }
                 />
