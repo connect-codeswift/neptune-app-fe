@@ -1,9 +1,8 @@
-import { AUDIT_TEMPLATES } from "@/app/dashboard/audits/templates/audit-templates-data";
-import type { FormSchema, SelectOption } from "@/components/form-builder";
-
-const TEMPLATE_OPTIONS: readonly SelectOption[] = AUDIT_TEMPLATES.map(
-  (template) => ({ value: template.id, label: template.title }),
-);
+import type {
+  FormSchema,
+  SelectOption,
+  SelectPagination,
+} from "@/components/form-builder";
 
 /** Sites an audit can be scheduled against, matching the audit register. */
 const LOCATION_OPTIONS: readonly SelectOption[] = [
@@ -22,13 +21,35 @@ export type StartAuditValues = {
   scheduledDate: string;
 };
 
+export type StartAuditSchemaOptions = Readonly<{
+  /** Auditors from GET /User/dropdown. */
+  auditorOptions: readonly SelectOption[];
+  /** Templates for the current page of GET /AuditTemplate/GetAll. */
+  templateOptions: readonly SelectOption[];
+  /** Prev/next paging for the template dropdown, when more than one page. */
+  templatePagination?: SelectPagination;
+  /** Preselected template (via "Use template"), so its label shows even when
+   * it isn't on the loaded page. */
+  selectedTemplateOption?: SelectOption;
+  /** Arrived via "Use template" — the choice is fixed, so lock the dropdown. */
+  isTemplateLocked?: boolean;
+}>;
+
 /**
- * Auditors come from GET /User/dropdown, so the schema is built per render
+ * Auditors and templates come from APIs, so the schema is built per render
  * rather than declared as a module constant.
  */
 export function buildStartAuditSchema(
-  auditorOptions: readonly SelectOption[],
+  options: StartAuditSchemaOptions,
 ): FormSchema {
+  const {
+    auditorOptions,
+    templateOptions,
+    templatePagination,
+    selectedTemplateOption,
+    isTemplateLocked = false,
+  } = options;
+
   return [
     {
       type: "text",
@@ -45,7 +66,11 @@ export function buildStartAuditSchema(
       required: true,
       colSpan: 6,
       placeholder: "Select template",
-      options: TEMPLATE_OPTIONS,
+      options: templateOptions,
+      // A locked field has nothing to page through or reveal.
+      pagination: isTemplateLocked ? undefined : templatePagination,
+      selectedOption: selectedTemplateOption,
+      disabled: isTemplateLocked,
     },
     {
       type: "select",
@@ -68,9 +93,9 @@ export function buildStartAuditSchema(
       placeholder: "Select auditor",
       options: auditorOptions,
       // External auditors aren't in the user directory.
-      allowCustom: true,
-      addCustomLabel: "Add external auditor",
-      addCustomPlaceholder: "e.g. NFPA · Beacon",
+      // allowCustom: true,
+      // addCustomLabel: "Add external auditor",
+      // addCustomPlaceholder: "e.g. NFPA · Beacon",
     },
     {
       type: "date",

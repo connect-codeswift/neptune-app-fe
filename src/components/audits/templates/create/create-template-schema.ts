@@ -11,11 +11,22 @@ export const TEMPLATE_TAG_OPTIONS: readonly SelectOption[] = [
   { value: "Other", label: "Other" },
 ];
 
+/** How often the audit recurs; sent as the payload's `frequency`. */
+export const FREQUENCY_OPTIONS: readonly SelectOption[] = [
+  { value: "OneOff", label: "OneOff" },
+  { value: "Daily", label: "Daily" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" },
+  { value: "Quarterly", label: "Quarterly" },
+  { value: "Yearly", label: "Yearly" },
+];
+
 /** Shape of step 1, keyed by the schema field names. */
 export type CreateTemplateValues = {
   templateName: string;
   templateType: string;
   tags: string[];
+  frequency: string;
   description: string;
 };
 
@@ -48,6 +59,15 @@ export const createTemplateSchema: FormSchema = [
     addCustomPlaceholder: "Add custom tag...",
   },
   {
+    type: "select",
+    name: "frequency",
+    label: "Frequency",
+    required: true,
+    colSpan: 12,
+    placeholder: "Select frequency",
+    options: FREQUENCY_OPTIONS,
+  },
+  {
     type: "textarea",
     name: "description",
     label: "Description",
@@ -64,5 +84,6 @@ export const createTemplateInitialValues = {
   templateName: "",
   templateType: "Audit",
   tags: ["Safety"],
+  frequency: "",
   description: "",
 };

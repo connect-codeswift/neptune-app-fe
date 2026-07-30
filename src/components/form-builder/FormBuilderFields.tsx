@@ -160,7 +160,10 @@ function SelectControl(
 ) {
   const { field, value, error, onChange } = props;
 
-  if (field.allowCustom) {
+  // A native <select> can't render a footer, so the custom listbox also backs
+  // paginated option lists (prev/next controls live in that footer). A disabled
+  // field has nothing to pick, so it always falls through to the native one.
+  if (!field.disabled && (field.allowCustom || field.pagination)) {
     return (
       <SelectWithCustomControl
         field={field}
@@ -180,11 +183,13 @@ function SelectControl(
         id={field.name}
         name={field.name}
         value={value}
+        disabled={field.disabled}
         onChange={(event) => onChange(event.target.value)}
         className={[
           inputClass,
           "appearance-none pr-9",
           value ? "" : "text-ehs-muted-text",
+          field.disabled ? "cursor-not-allowed opacity-70" : "",
           error ? errorRingClass : "",
         ]
           .filter(Boolean)

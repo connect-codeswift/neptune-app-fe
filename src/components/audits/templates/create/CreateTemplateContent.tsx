@@ -1,29 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import {
+  useCreateAuditTemplateMutation,
+  useUpdateAuditTemplateMutation,
+} from "@/hooks/use-audit-template-mutations";
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
+import { ReviewPublishStep } from "./ReviewPublishStep";
+import { ScoringLogicStep } from "./ScoringLogicStep";
+import { SettingsStep } from "./SettingsStep";
 import {
   TemplateWizardProgress,
   TemplateWizardStepList,
 } from "./TemplateWizardSteps";
 import {
   createInitialSections,
+  createScoringConfig,
+  createSettings,
+  isItemValueFilled,
+  isRuleComplete,
+  type ScoringConfig,
+  type TemplateRule,
   type TemplateSection,
+  type TemplateSettings,
+  type WizardState,
 } from "./template-builder-data";
 import {
   createTemplateInitialValues,
   createTemplateSchema,
-  type CreateTemplateValues,
 } from "./create-template-schema";
+import { toAuditTemplatePayload } from "./to-template-payload";
 
-const TEMPLATES_ROUTE = "/dashboard/audits/templates";
+const TEMPLATES_ROUTE = "/dashboard/audits/template";
 const BASIC_INFO_FORM_ID = "create-template-basic-info";
 
 /** Live preview of how the template will present in the templates grid. */
@@ -65,27 +82,127 @@ function TemplatePreview(
   );
 }
 
-export function CreateTemplateContent() {
+export type CreateTemplateContentProps = Readonly<{
+  /** Seed all steps from an existing template (edit mode). */
+  initialState?: WizardState;
+  /** "edit" changes the heading and skips the answer-value validation, since a
+   * template defines questions, not answers. */
+  mode?: "create" | "edit";
+  /** Id of the template being edited — required to PUT on publish. */
+  templateId?: string;
+  /** The edited template's last-known updatedDate, sent on update for the
+   * backend's optimistic-concurrency check. */
+  expectedUpdatedDate?: string;
+}>;
+
+export function CreateTemplateContent(props: CreateTemplateContentProps) {
+  const {
+    initialState,
+    mode = "create",
+    templateId,
+    expectedUpdatedDate,
+  } = props;
+  const isEdit = mode === "edit";
   const router = useRouter();
 
   const [step, setStep] = useState(1);
 
   // Mirrors the form so the preview can react as the user types.
-  const [values, setValues] = useState<FormValues>(createTemplateInitialValues);
-  const [sections, setSections] = useState<TemplateSection[]>(
-    createInitialSections,
+  const [values, setValues] = useState<FormValues>(
+    () => initialState?.values ?? createTemplateInitialValues,
   );
-  console.log(sections);
+  const [sections, setSections] = useState<TemplateSection[]>(
+    () => initialState?.sections ?? createInitialSections(),
+  );
+  const [scoring, setScoring] = useState<ScoringConfig>(
+    () => initialState?.scoring ?? createScoringConfig(),
+  );
+  const [rules, setRules] = useState<TemplateRule[]>(
+    () => initialState?.rules ?? [],
+  );
+  const [settings, setSettings] = useState<TemplateSettings>(
+    () => initialState?.settings ?? createSettings(),
+  );
+  const [showUnfilledItems, setShowUnfilledItems] = useState(false);
+
+  // Items present when editing began — these are exempt from the "must fill a
+  // value" rule; only items added during this session must be filled.
+  const initialItemIds = useMemo(() => {
+    const ids = new Set<string>();
+    (initialState?.sections ?? []).forEach((section) =>
+      section.items.forEach((item) => ids.add(item.id)),
+    );
+    return ids;
+  }, [initialState]);
+
+  const createTemplate = useCreateAuditTemplateMutation();
+  const updateTemplate = useUpdateAuditTemplateMutation();
+
+  /** Persist the wizard state as a draft or a published template. In edit mode
+   * with a known id this PUTs an update; otherwise it POSTs a new template. */
+  const submitTemplate = (publish: boolean) => {
+    // The backend rejects the whole template if any rule is half-filled.
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      setStep(3);
+      return;
+    }
+
+    const draft = { values, sections, scoring, rules, settings };
+    const isUpdate = isEdit && Boolean(templateId);
+    // On update, existing sections/items/logics keep their ids so the backend
+    // updates those rows instead of creating duplicates.
+    const payload = toAuditTemplatePayload(draft, {
+      publish,
+      ...(isUpdate ? { templateId } : {}),
+    });
+
+    const handlers = {
+      // Both create and update answer with the standard envelope, so prefer the
+      // backend's own wording and fall back to ours when it sends none.
+      onSuccess: (response: ApiEnvelopeDto<unknown>) => {
+        toast.success(
+          response.message || (publish ? "Template published" : "Draft saved"),
+        );
+        if (publish) router.push(TEMPLATES_ROUTE);
+      },
+      onError: (error: unknown) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            publish
+              ? "Could not publish the template. Please try again."
+              : "Could not save the draft. Please try again.",
+          ),
+        );
+      },
+    };
+
+    if (isEdit && templateId) {
+      // Normalize to an ISO date-time; null skips the backend concurrency check.
+      const parsed = expectedUpdatedDate ? new Date(expectedUpdatedDate) : null;
+      const concurrencyDate =
+        parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : null;
+
+      updateTemplate.mutate(
+        { templateId, payload, expectedUpdatedDate: concurrencyDate },
+        handlers,
+      );
+    } else {
+      createTemplate.mutate(payload, handlers);
+    }
+  };
 
   const handleSaveDraft = () => {
-    toast.success("Draft saved");
+    submitTemplate(false);
   };
 
   /** Step 1's Next: only fires once FormBuilder's validation passes. */
   const handleBasicInfoSubmit = (submitted: FormValues) => {
-    const template = submitted as CreateTemplateValues;
-    void template;
-
+    // Commit the latest basic-info values into the shared wizard state.
+    setValues(submitted);
     setStep(2);
   };
 
@@ -96,9 +213,51 @@ export function CreateTemplateContent() {
       return;
     }
 
-    // TODO: carry the template into step 3 once Scoring & Logic is designed.
-    toast.success("Sections saved");
-    router.push(TEMPLATES_ROUTE);
+    // A saved template defines questions, not answers, so pre-loaded items are
+    // exempt when editing — but a newly added item must still be filled.
+    const hasUnfilled = sections.some((section) =>
+      section.items.some(
+        (item) =>
+          (!isEdit || !initialItemIds.has(item.id)) && !isItemValueFilled(item),
+      ),
+    );
+    if (hasUnfilled) {
+      setShowUnfilledItems(true);
+      toast.error("Please fill every required item before continuing.");
+      return;
+    }
+
+    setStep(3);
+  };
+
+  const handlePublish = () => {
+    submitTemplate(true);
+  };
+
+  /** Step 3's Next: catch half-filled rules here rather than at publish. */
+  const handleScoringLogicNext = () => {
+    if (rules.some((rule) => !isRuleComplete(rule))) {
+      toast.error(
+        "Every rule needs a question, a condition and an action — complete or remove it.",
+      );
+      return;
+    }
+
+    setStep(4);
+  };
+
+  /** Advance/finish depending on the current step. */
+  const handleNext = () => {
+    if (step === 2) handleBuildSectionsNext();
+    else if (step === 3) handleScoringLogicNext();
+    else if (step === 4) setStep(5);
+  };
+
+  const NEXT_LABEL: Record<number, string> = {
+    1: "Next: Build Sections",
+    2: "Next: Scoring & Logic",
+    3: "Next: Settings",
+    4: "Next: Review & Publish",
   };
 
   return (
@@ -119,7 +278,7 @@ export function CreateTemplateContent() {
               aria-hidden="true"
             />
             <span className="text-ehs-muted-text text-sm font-medium">
-              Create Template
+              {isEdit ? "Edit Template" : "Create Template"}
             </span>
           </nav>
 
@@ -127,7 +286,7 @@ export function CreateTemplateContent() {
             as="h1"
             className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
           >
-            Create Audit Template
+            {isEdit ? "Edit Audit Template" : "Create Audit Template"}
           </Text>
 
           <Text as="p" className="text-ehs-muted-text text-sm">
@@ -138,7 +297,8 @@ export function CreateTemplateContent() {
         <button
           type="button"
           onClick={handleSaveDraft}
-          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors hover:bg-black/5"
+          disabled={createTemplate.isPending}
+          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon
             icon="mdi:content-save-outline"
@@ -163,12 +323,15 @@ export function CreateTemplateContent() {
               Basic Information
             </h2>
 
+            {/* Seed from the persisted `values` so re-entering step 1
+                restores what was typed rather than the blank defaults. */}
             <FormBuilder
               schema={createTemplateSchema}
-              initialValues={createTemplateInitialValues}
+              initialValues={values}
               onSubmit={handleBasicInfoSubmit}
               onChange={setValues}
               formId={BASIC_INFO_FORM_ID}
+              className="fields-white"
               hideActions
             />
           </IncidentGlassCard>
@@ -181,25 +344,53 @@ export function CreateTemplateContent() {
             <TemplateWizardStepList currentStep={step} />
           </div>
         </div>
+      ) : step === 2 ? (
+        <BuildSectionsStep
+          sections={sections}
+          onSectionsChange={setSections}
+          highlightUnfilled={showUnfilledItems}
+          exemptItemIds={initialItemIds}
+        />
+      ) : step === 3 ? (
+        <ScoringLogicStep
+          sections={sections}
+          onSectionsChange={setSections}
+          scoring={scoring}
+          onScoringChange={setScoring}
+          rules={rules}
+          onRulesChange={setRules}
+        />
+      ) : step === 4 ? (
+        <SettingsStep settings={settings} onSettingsChange={setSettings} />
       ) : (
-        <BuildSectionsStep sections={sections} onSectionsChange={setSections} />
+        <ReviewPublishStep
+          values={values}
+          sections={sections}
+          scoring={scoring}
+          rules={rules}
+          settings={settings}
+          isSubmitting={createTemplate.isPending}
+          onEditStep={setStep}
+          onPublish={handlePublish}
+          onSaveDraft={handleSaveDraft}
+        />
       )}
 
       {/* Wizard footer */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         {step === 1 ? (
           <button
             type="button"
             onClick={() => router.push(TEMPLATES_ROUTE)}
-            className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 text-sm font-medium transition-colors hover:bg-black/5"
+            className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             Cancel
           </button>
         ) : (
           <button
             type="button"
-            onClick={() => setStep(1)}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 text-sm font-medium transition-colors hover:bg-black/5"
+            onClick={() => setStep(step - 1)}
+            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -210,35 +401,38 @@ export function CreateTemplateContent() {
           </button>
         )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleSaveDraft}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors hover:bg-black/5"
-          >
-            <Icon
-              icon="mdi:content-save-outline"
-              className="size-5 shrink-0"
-              aria-hidden="true"
-            />
-            Save as Draft
-          </button>
+        {/* The final step carries its own Publish / Save actions in the panel. */}
+        {step < 5 ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors"
+            >
+              <Icon
+                icon="mdi:content-save-outline"
+                className="size-5 shrink-0"
+                aria-hidden="true"
+              />
+              Save as Draft
+            </button>
 
-          {/* Step 1 submits the form so its validation runs first. */}
-          <button
-            type={step === 1 ? "submit" : "button"}
-            form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
-            onClick={step === 1 ? undefined : handleBuildSectionsNext}
-            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
-          >
-            <Icon
-              icon="mdi:arrow-right"
-              className="size-4 shrink-0"
-              aria-hidden="true"
-            />
-            {step === 1 ? "Next: Build Sections" : "Next: Scoring & Logic"}
-          </button>
-        </div>
+            {/* Step 1 submits the form so its validation runs first. */}
+            <button
+              type={step === 1 ? "submit" : "button"}
+              form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
+              onClick={step === 1 ? undefined : handleNext}
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+            >
+              <Icon
+                icon="mdi:arrow-right"
+                className="size-4 shrink-0"
+                aria-hidden="true"
+              />
+              {NEXT_LABEL[step]}
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -98,11 +98,5 @@ const DEFAULT_CHECKLIST: AuditChecklist = {
   ],
 };
 
-/**
- * Checklist for a template. Every template shares the same fixture for now —
- * swap this for a fetch once the audits API exists.
- */
-export function getAuditChecklist(templateId: string): AuditChecklist {
-  void templateId;
-  return DEFAULT_CHECKLIST;
-}
+/** Kept as a reference fixture; the checklist now loads from the template API. */
+export const AUDIT_CHECKLIST_FIXTURE = DEFAULT_CHECKLIST;

@@ -11,6 +11,7 @@ export {
   type PhotoFieldConfig,
   type SelectFieldConfig,
   type SelectOption,
+  type SelectPagination,
   type TextareaFieldConfig,
   type TextFieldConfig,
 } from "./types";

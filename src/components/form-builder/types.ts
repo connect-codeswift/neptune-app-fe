@@ -49,6 +49,18 @@ export type DateFieldConfig = BaseField &
     placeholder?: string;
   }>;
 
+/** Paging controls for an option list fetched one page at a time from an API. */
+export type SelectPagination = Readonly<{
+  /** 1-based current page. */
+  pageNumber: number;
+  /** Total number of pages available. */
+  totalPages: number;
+  onPrev: () => void;
+  onNext: () => void;
+  /** True while a page is being fetched — shows a subtle loading hint. */
+  isLoading?: boolean;
+}>;
+
 export type SelectFieldConfig = BaseField &
   Readonly<{
     type: "select";
@@ -61,6 +73,14 @@ export type SelectFieldConfig = BaseField &
     addCustomLabel?: string;
     /** Placeholder for the custom-entry input opened by that footer action. */
     addCustomPlaceholder?: string;
+    /** When set, the listbox renders prev/next paging controls in its footer,
+     * for API-backed option lists that arrive one page at a time. */
+    pagination?: SelectPagination;
+    /** The full option for the current value when it may fall outside the
+     * loaded page (so the trigger can still show its label). */
+    selectedOption?: SelectOption;
+    /** Render the control read-only — the value is fixed by the caller. */
+    disabled?: boolean;
   }>;
 
 export type TextareaFieldConfig = BaseField &

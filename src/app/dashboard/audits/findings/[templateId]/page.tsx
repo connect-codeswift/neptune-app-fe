@@ -1,19 +1,44 @@
 "use client";
 
+import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditFindingCard } from "@/components/audits/findings/AuditFindingCard";
 import { AuditFindingsHeader } from "@/components/audits/findings/AuditFindingsHeader";
-import { getAuditFindings } from "../audit-findings-data";
+import {
+  useAuditFindingsQuery,
+  useAuditForTemplate,
+} from "@/hooks/use-audit-queries";
+import { mapFindingDtoToFinding } from "@/lib/map-audit";
+import { getAuditReport } from "@/services/audit.service";
 
 export default function AuditFindingsPage() {
   const router = useRouter();
   const params = useParams();
-  const templateId = params.templateId as string;
+  const templateId = decodeURIComponent(params.templateId as string);
 
-  const { auditId, subtitle, findings } = getAuditFindings(
-    decodeURIComponent(templateId),
+  // The findings endpoint is keyed by audit, so resolve this template's run.
+  const { audit, isPending: isAuditPending } = useAuditForTemplate(templateId);
+  const findingsQuery = useAuditFindingsQuery(audit ? String(audit.id) : null);
+
+  const findings = useMemo(
+    () => (findingsQuery.data?.dataModel ?? []).map(mapFindingDtoToFinding),
+    [findingsQuery.data],
   );
+
+  const isPending =
+    isAuditPending || (audit !== null && findingsQuery.isPending);
+
+  /** Fetch this audit's report, then open the report page. */
+  const handleGenerateReport = () => {
+    if (audit) {
+      getAuditReport(String(audit.id)).catch((error: unknown) => {
+        console.error("Could not load audit report", error);
+      });
+    }
+
+    router.push(`/dashboard/audits/report/${encodeURIComponent(templateId)}`);
+  };
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -26,18 +51,30 @@ export default function AuditFindingsPage() {
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <AuditFindingsHeader
-          auditId={auditId}
-          subtitle={subtitle}
-          onGenerateReport={() =>
-            router.push(
-              `/dashboard/audits/report/${encodeURIComponent(templateId)}`,
-            )
-          }
+          auditId={audit ? `A-${String(audit.id)}` : "—"}
+          subtitle={audit?.templateName ?? audit?.templateName ?? ""}
+          onGenerateReport={handleGenerateReport}
         />
 
-        {findings.map((finding) => (
-          <AuditFindingCard key={finding.id} finding={finding} />
-        ))}
+        {isPending ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-muted-text text-sm">Loading findings...</p>
+          </div>
+        ) : findingsQuery.isError ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-red text-sm">Could not load findings.</p>
+          </div>
+        ) : findings.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-muted-text">
+              No findings raised on this audit.
+            </p>
+          </div>
+        ) : (
+          findings.map((finding) => (
+            <AuditFindingCard key={finding.id} finding={finding} />
+          ))
+        )}
       </div>
     </div>
   );

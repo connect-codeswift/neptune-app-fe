@@ -3,6 +3,11 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { useAuditDetailQuery, useAuditsQuery } from "@/hooks/use-audit-queries";
+import {
+  mapAuditDetailDtoToDetail,
+  mapAuditDtoToRecord,
+} from "@/lib/map-audit";
 import {
   StatMetricCard,
   type StatMetricCardProps,
@@ -11,7 +16,8 @@ import { Table } from "@/components/ui/Table";
 import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
 import { AuditRegisterToolbar } from "@/components/audits/AuditRegisterToolbar";
-import { AUDIT_RECORDS, getAuditDetail } from "./audits-data";
+
+const PAGE_SIZE = 10;
 
 const AUDIT_METRICS: readonly StatMetricCardProps[] = [
   {
@@ -43,20 +49,43 @@ const AUDIT_METRICS: readonly StatMetricCardProps[] = [
 export default function AuditsPage() {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
-  const [selectedId, setSelectedId] = useState<string | null>(
-    AUDIT_RECORDS[0]?.id ?? null,
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const auditsQuery = useAuditsQuery({ pageNumber, pageSize: PAGE_SIZE });
+  const page = auditsQuery.data?.dataModel;
+  const records = useMemo(
+    () => (page?.data ?? []).map(mapAuditDtoToRecord),
+    [page],
   );
+  // Only offer filters for statuses the backend actually returned.
+  const statuses = useMemo(
+    () => ["All", ...new Set(records.map((record) => record.status))],
+    [records],
+  );
+
+  // If the chosen status vanishes on a refetch, fall back to "All" rather than
+  // leaving the table empty with no segment selected.
+  const activeStatus = statuses.includes(selectedStatus)
+    ? selectedStatus
+    : "All";
 
   const filteredRecords = useMemo(
     () =>
-      AUDIT_RECORDS.filter(
-        (record) =>
-          selectedStatus === "All" || record.status === selectedStatus,
+      records.filter(
+        (record) => activeStatus === "All" || record.status === activeStatus,
       ),
-    [selectedStatus],
+    [records, activeStatus],
   );
 
-  const detail = getAuditDetail(selectedId);
+  // Fetch the clicked audit's detail (GET /api/Audit/{id}) for the side panel.
+  const detailQuery = useAuditDetailQuery(selectedId);
+  const detailDto = detailQuery.data?.dataModel ?? null;
+  const detail = useMemo(
+    () => (detailDto ? mapAuditDetailDtoToDetail(detailDto) : null),
+    [detailDto],
+  );
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -65,8 +94,8 @@ export default function AuditsPage() {
         searchPlaceholder="Search incidents, actions, docs..."
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        actionLabel="Start Audit"
-        onActionClick={() => router.push("/dashboard/audits/new")}
+        // actionLabel="Start Audit"
+        // onActionClick={() => router.push("/dashboard/audits/start")}
       />
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         {/* KPI Metrics */}
@@ -75,6 +104,12 @@ export default function AuditsPage() {
             <StatMetricCard key={metric.title} {...metric} />
           ))}
         </div>
+
+        {auditsQuery.isPending ? (
+          <p className="text-ehs-muted-text text-sm">Loading audits...</p>
+        ) : auditsQuery.isError ? (
+          <p className="text-ehs-red text-sm">Could not load audits.</p>
+        ) : null}
 
         {/* Audit register + selected audit breakdown */}
         <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -85,19 +120,43 @@ export default function AuditsPage() {
             onRowClick={(row) => setSelectedId(row.id)}
             getRowId={(row) => row.id}
             containerClassName="min-w-0"
+            pagination={{
+              pageNumber,
+              pageSize: PAGE_SIZE,
+              totalRecords: page?.totalRecords ?? 0,
+              onPageChange: setPageNumber,
+              isLoading: auditsQuery.isFetching,
+            }}
             header={
               <AuditRegisterToolbar
-                status={selectedStatus}
+                status={activeStatus}
+                statuses={statuses}
                 onStatusChange={setSelectedStatus}
                 onTemplatesClick={() =>
-                  router.push("/dashboard/audits/templates")
+                  router.push("/dashboard/audits/template")
                 }
               />
             }
           />
 
-          {detail ? (
-            <AuditDetailPanel detail={detail} className="min-w-0" />
+          {selectedId !== null ? (
+            detailQuery.isPending ? (
+              <p className="text-ehs-muted-text text-sm">Loading detail...</p>
+            ) : detailQuery.isError ? (
+              <p className="text-ehs-red text-sm">
+                Could not load audit detail.
+              </p>
+            ) : detail ? (
+              <AuditDetailPanel
+                detail={detail}
+                className="min-w-0"
+                onViewFindings={() =>
+                  router.push(
+                    `/dashboard/audits/report/${encodeURIComponent(selectedId)}`,
+                  )
+                }
+              />
+            ) : null
           ) : null}
         </div>
       </div>

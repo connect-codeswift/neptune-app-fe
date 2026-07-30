@@ -110,7 +110,7 @@ export function Table<TData>(props: TableProps<TData>) {
                             : undefined,
                       }}
                       className={[
-                        "text-ehs-muted-text px-4 py-3.5 text-xs font-bold tracking-wider uppercase select-none",
+                        "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
                         alignClass,
                       ].join(" ")}
                     >

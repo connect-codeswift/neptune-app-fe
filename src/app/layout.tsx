@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "@/fonts/inter";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { StoreProvider } from "@/components/providers/StoreProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export const metadata: Metadata = {
@@ -41,10 +42,12 @@ export default function RootLayout({
           backgroundAttachment: "fixed",
         }}
       >
-        <QueryProvider>
-          {children}
-          <ToastProvider />
-        </QueryProvider>
+        <StoreProvider>
+          <QueryProvider>
+            {children}
+            <ToastProvider />
+          </QueryProvider>
+        </StoreProvider>
       </body>
     </html>
   );
