@@ -496,79 +496,45 @@ export async function addDocDepartment(payload: AddDocDepartmentRequestDto) {
   return data;
 }
 
-function toCreateDocumentFormData(
-  payload: CreateDocumentRequestDto,
-): FormData {
-  const formData = new FormData();
-  formData.append("Id", String(payload.id));
-  formData.append("Title", payload.title);
-  formData.append("CategoryId", String(payload.categoryId));
-  formData.append("DepartmentId", String(payload.departmentId));
-  formData.append("PdfFile", payload.pdfFile, payload.pdfFile.name);
-  formData.append("ReviewCycle", payload.reviewCycle);
-  formData.append("CreatedBy", String(payload.createdBy));
-  formData.append("SubCompanyId", String(payload.subCompanyId));
-  formData.append("AckUserIds", payload.ackUserIds);
-  formData.append("ApprovalUserIds", payload.approvalUserIds);
-  return formData;
-}
-
 /**
  * POST /api/Document/document
- * multipart/form-data — see CreateDocumentRequestDto
+ * JSON body — see CreateDocumentRequestDto. `pdfPath` must already be a
+ * resolved Cloudinary URL (uploaded client-side before calling this).
  */
 export async function createDocument(payload: CreateDocumentRequestDto) {
-  const formData = toCreateDocumentFormData(payload);
-  const { data } = await http.post<unknown>(DOCUMENT_CREATE_PATH, formData, {
-    transformRequest: [
-      (body, headers) => {
-        // Drop the JSON default so the runtime can set multipart boundary.
-        if (body instanceof FormData && headers) {
-          delete headers["Content-Type"];
-        }
-        return body;
-      },
-    ],
+  const { data } = await http.post<unknown>(DOCUMENT_CREATE_PATH, {
+    id: payload.id,
+    title: payload.title,
+    categoryId: payload.categoryId,
+    departmentId: payload.departmentId,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
+    reviewCycle: payload.reviewCycle,
+    createdBy: payload.createdBy,
+    subCompanyId: payload.subCompanyId,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
   });
-  return data;
-}
 
-function toCreateDocumentVersionFormData(
-  payload: CreateDocumentVersionRequestDto,
-): FormData {
-  const formData = new FormData();
-  if (payload.id != null) {
-    formData.append("Id", String(payload.id));
-  }
-  formData.append("DocumentId", String(payload.documentId));
-  formData.append("PdfFile", payload.pdfFile, payload.pdfFile.name);
-  formData.append("UploadedBy", String(payload.uploadedBy));
-  formData.append("AckUserIds", payload.ackUserIds);
-  formData.append("ApprovalUserIds", payload.approvalUserIds);
-  return formData;
+  return data;
 }
 
 /**
  * POST /api/Document/document_version
- * multipart/form-data — attaches a new PDF revision to an existing document.
+ * JSON body — attaches a new PDF revision to an existing document.
  */
 export async function createDocumentVersion(
   payload: CreateDocumentVersionRequestDto,
 ) {
-  const formData = toCreateDocumentVersionFormData(payload);
-  const { data } = await http.post<unknown>(
-    DOCUMENT_VERSION_CREATE_PATH,
-    formData,
-    {
-      transformRequest: [
-        (body, headers) => {
-          if (body instanceof FormData && headers) {
-            delete headers["Content-Type"];
-          }
-          return body;
-        },
-      ],
-    },
-  );
+  const { data } = await http.post<unknown>(DOCUMENT_VERSION_CREATE_PATH, {
+    id: payload.id,
+    documentId: payload.documentId,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
+    uploadedBy: payload.uploadedBy,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
+  });
+
   return data;
 }

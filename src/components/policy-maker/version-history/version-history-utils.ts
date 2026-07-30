@@ -9,6 +9,9 @@ export type VersionHistoryCardModel = Readonly<{
   changeLog: string;
   publishedAt: string;
   authorFullName: string;
+  /** This version's own PDF URL/filename, for previewing the actual historical file. */
+  filePath?: string | null;
+  fileName?: string | null;
 }>;
 
 export function toVersionHistoryCard(
@@ -31,5 +34,7 @@ export function toVersionHistoryCard(
       `Document revision ${entry.version} published for controlled distribution.`,
     publishedAt: entry.publishedAt ?? entry.date,
     authorFullName: entry.authorFullName ?? entry.author,
+    filePath: entry.filePath,
+    fileName: entry.fileName,
   };
 }

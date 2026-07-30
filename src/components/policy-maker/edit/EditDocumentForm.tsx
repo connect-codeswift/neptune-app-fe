@@ -30,10 +30,12 @@ import { getAuthContext } from "@/lib/auth-context";
 import {
   CLOUDINARY_MAX_BYTES,
   formatFileSize,
+  isCloudinaryPublicConfigReady,
   isPdfMimeType,
 } from "@/lib/cloudinary-constants";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
 export type EditDocumentFormProps = Readonly<{
   document: PolicyDocument;
@@ -73,9 +75,11 @@ function incrementVersionLabel(version: string): string {
 
 /**
  * Edit form card (Figma 5568:25826).
- * Saves in two steps: document metadata (title/category/department/reviewCycle)
- * goes through the same POST /api/Document/document endpoint Upload uses (the
- * backend upserts on `id`); the attached PDF is saved as a new revision via
+ * A replacement PDF is uploaded to Cloudinary client-side first; if none is
+ * picked, the document's existing `filePath`/`fileName` are reused. Saves in
+ * two steps: document metadata (title/category/department/reviewCycle) goes
+ * through the same POST /api/Document/document endpoint Upload uses (the
+ * backend upserts on `id`); the PDF is saved as a new revision via
  * POST /api/Document/document_version, which carries no metadata fields.
  */
 export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
@@ -91,7 +95,9 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
   const usersQuery = useUserDropdownQuery();
 
   const [file, setFile] = useState<File | null>(null);
+  const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const title = document.title;
   const [categoryId, setCategoryId] = useState(
     document.categoryId != null ? String(document.categoryId) : "",
@@ -250,7 +256,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     }
   };
 
-  const handleReplaceFile = (next: File) => {
+  const handleReplaceFile = async (next: File) => {
     if (!isPdfFile(next)) {
       setFileError("Only PDF files are allowed.");
       return;
@@ -259,16 +265,45 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       setFileError("File must be 50MB or smaller.");
       return;
     }
+    if (!isCloudinaryPublicConfigReady()) {
+      setFileError(
+        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
+      );
+      return;
+    }
+
     setFile(next);
+    setPdfSecureUrl(null);
     setFileError(null);
-    toast.success("File selected", `${next.name} will replace the current PDF.`);
+    setIsUploadingPdf(true);
+    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+
+    try {
+      const result = await uploadFileToCloudinary(next);
+      setPdfSecureUrl(result.secureUrl);
+      toast.success("File uploaded", `${next.name} will replace the current PDF.`);
+    } catch (error: unknown) {
+      setFile(null);
+      setPdfSecureUrl(null);
+      const message = getMutationErrorMessage(
+        error,
+        error instanceof Error
+          ? error.message
+          : "Failed to upload PDF to Cloudinary.",
+      );
+      setFileError(message);
+      toast.error("Upload failed", message);
+    } finally {
+      setIsUploadingPdf(false);
+    }
   };
 
   const isSubmitting =
     createDocumentMutation.isPending || createDocumentVersionMutation.isPending;
   const isAddingCategory = addCategoryMutation.isPending;
   const isAddingDepartment = addDepartmentMutation.isPending;
-  const busy = isSubmitting || isAddingCategory || isAddingDepartment;
+  const busy =
+    isSubmitting || isUploadingPdf || isAddingCategory || isAddingDepartment;
   const lookupsLoading =
     categoriesQuery.isLoading ||
     departmentsQuery.isLoading ||
@@ -300,9 +335,17 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       toast.error("Missing approvers", "Select at least one approver.");
       return;
     }
-    if (!file) {
+    if (isUploadingPdf) {
+      toast.error("Still uploading", "Wait for the PDF upload to finish.");
+      return;
+    }
+
+    const pdfPath = file && pdfSecureUrl ? pdfSecureUrl : document.filePath;
+    const resolvedFileName = (file ? file.name : document.fileName) ?? "";
+
+    if (!pdfPath) {
       setFileError(
-        "Select the PDF again to save — the same upload endpoint is used for edits and always needs a file.",
+        "This document has no file on record — attach a PDF to save.",
       );
       return;
     }
@@ -323,7 +366,8 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
         title: title.trim(),
         categoryId: Number(categoryId),
         departmentId: Number(departmentId),
-        pdfFile: file,
+        pdfPath,
+        fileName: resolvedFileName,
         reviewCycle,
         createdBy: auth.userId,
         subCompanyId: auth.subCompanyId,
@@ -334,7 +378,8 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       if (submitAsNewVersion) {
         await createDocumentVersionMutation.mutateAsync({
           documentId: numericId,
-          pdfFile: file,
+          pdfPath,
+          fileName: resolvedFileName,
           uploadedBy: auth.userId,
           ackUserIds: ackUserIdsCsv,
           approvalUserIds: approvalUserIdsCsv,
@@ -363,10 +408,14 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           fileName={file ? file.name : currentFileName}
           fileMeta={
             file
-              ? `${formatFileSize(file.size)} · Replacement selected`
+              ? isUploadingPdf
+                ? `${formatFileSize(file.size)} · Uploading…`
+                : `${formatFileSize(file.size)} · Replacement selected`
               : currentFileMeta
           }
-          onReplaceFile={handleReplaceFile}
+          onReplaceFile={(next) => {
+            void handleReplaceFile(next);
+          }}
         />
         {fileError ? (
           <p className="-mt-3 text-[12px] text-[#ef4444]">{fileError}</p>

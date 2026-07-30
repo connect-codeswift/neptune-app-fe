@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailHeader } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailHeader";
+import { documentFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import {
   acknowledgmentPercent,
   documentDisplayStatus,
@@ -79,6 +80,8 @@ export function PolicyMakerDocumentDetailView(
       publishedAt: document.reviewDate || document.updated,
       badge: "current",
       changeLog: `Current controlled revision of ${document.title}.`,
+      filePath: document.filePath,
+      fileName: document.fileName,
     });
   }, [document]);
   const displayStatus = documentDisplayStatus(document.status);
@@ -196,9 +199,9 @@ export function PolicyMakerDocumentDetailView(
                     </Text>
                     <Text
                       as="p"
-                      className="text-[13px] leading-5 text-[#566072] sm:text-[14px]"
+                      className="truncate text-[13px] leading-5 text-[#566072] sm:text-[14px]"
                     >
-                      {`${document.fileType} · ${document.fileSize}`}
+                      {documentFileName(document)}
                     </Text>
                   </div>
                 </div>
