@@ -152,7 +152,7 @@ export default function AuditsPage() {
                 className="min-w-0"
                 onViewFindings={() =>
                   router.push(
-                    `/dashboard/audits/report/${encodeURIComponent(selectedId)}`,
+                    `/dashboard/audits/report?auditid=${encodeURIComponent(selectedId)}`,
                   )
                 }
               />

@@ -1,14 +1,26 @@
 "use client";
+
+import { Suspense } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { InspectionChecklistContent } from "@/components/inspections/checklist/InspectionChecklistContent";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+const START_INSPECTION_ROUTE = "/dashboard/inspections/start";
+
+/** Reads the id from `?inspectionid=`, so it needs a Suspense boundary. */
+function InspectionChecklist() {
+  const searchParams = useSearchParams();
+  const inspectionId = searchParams.get("inspectionid") ?? "";
+
+  return (
+    <InspectionChecklistContent
+      inspectionId={decodeURIComponent(inspectionId)}
+    />
+  );
+}
 
 export default function InspectionChecklistPage() {
   const router = useRouter();
-  const params = useParams();
-  const templateId = params.templateId as string;
-
-  const START_INSPECTION_ROUTE = "/dashboard/inspections/start";
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -21,7 +33,9 @@ export default function InspectionChecklistPage() {
         onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />
 
-      <InspectionChecklistContent templateId={decodeURIComponent(templateId)} />
+      <Suspense fallback={null}>
+        <InspectionChecklist />
+      </Suspense>
     </div>
   );
 }

@@ -22,10 +22,12 @@ export type InspectionReportHeaderProps = Readonly<{
   inspectionId: string;
   subtitle: string;
   onExportPdf?: () => void;
+  /** True while the PDF is being generated. */
+  isExporting?: boolean;
 }>;
 
 export function InspectionReportHeader(props: InspectionReportHeaderProps) {
-  const { inspectionId, subtitle, onExportPdf } = props;
+  const { inspectionId, subtitle, onExportPdf, isExporting = false } = props;
 
   return (
     <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
@@ -58,9 +60,10 @@ export function InspectionReportHeader(props: InspectionReportHeaderProps) {
         type="button"
         variant="primary"
         onClick={onExportPdf}
-        className="relative z-1 shrink-0 rounded-[10px] px-4 py-2.5 text-sm font-medium"
+        disabled={isExporting || !onExportPdf}
+        className="relative z-1 shrink-0 rounded-[10px] px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Export PDF
+        {isExporting ? "Exporting…" : "Export PDF"}
       </Button>
     </div>
   );

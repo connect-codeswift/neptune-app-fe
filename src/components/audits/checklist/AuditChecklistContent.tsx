@@ -198,7 +198,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           // The report is keyed by audit — it reads everything from GET
           // /api/Audit/{id}, including the snapshot and recorded answers.
           router.push(
-            `${AUDIT_REPORT_ROUTE}/${encodeURIComponent(String(audit.id))}`,
+            `${AUDIT_REPORT_ROUTE}?auditid=${encodeURIComponent(String(audit.id))}`,
           );
         },
         onError: (error) => {

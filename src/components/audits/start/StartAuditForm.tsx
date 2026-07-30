@@ -186,7 +186,7 @@ export function StartAuditForm() {
           // and items from its id.
           router.push(
             audit.template
-              ? `${AUDIT_CHECKLIST_ROUTE}/${encodeURIComponent(audit.template)}`
+              ? `${AUDIT_CHECKLIST_ROUTE}?templateid=${encodeURIComponent(audit.template)}`
               : AUDIT_LIST_ROUTE,
           );
         },
