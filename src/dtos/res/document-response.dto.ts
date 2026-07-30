@@ -11,6 +11,8 @@ export type DocumentVersionDto = {
   updatedByName?: string | null;
   updatedAt?: string | null;
   filePath?: string | null;
+  /** Original uploaded filename (backend field added after the earlier ask — currently null on older docs). */
+  fileName?: string | null;
 };
 
 /**
@@ -43,6 +45,8 @@ export type DocumentDto = {
   pdfUrl?: string | null;
   fileUrl?: string | null;
   pdfPath?: string | null;
+  /** Original uploaded filename (backend field added after the earlier ask — currently null on older docs). */
+  fileName?: string | null;
   fileType?: string | null;
   fileSize?: string | number | null;
   expiresAt?: string | null;
@@ -109,3 +113,45 @@ export type CreateDocumentResponseDto = ApiEnvelopeDto<DocumentDto | null>;
 
 /** Envelope shape for GET /api/Document/{id}. */
 export type GetDocumentByIdResponseDto = ApiEnvelopeDto<DocumentDto | null>;
+
+/** dataModel shape for GET /api/Document/dashboard-kpis. */
+export type DocumentDashboardKpisDto = {
+  activeDocs?: number | null;
+  pendingReview?: number | null;
+  expiringIn30Days?: number | null;
+  acknowledgementRate?: number | null;
+};
+
+export type GetDocumentDashboardKpisResponseDto =
+  ApiEnvelopeDto<DocumentDashboardKpisDto | null>;
+
+/** One entry of GET /api/Document/category-stats. */
+export type DocumentCategoryStatDto = {
+  category?: string | null;
+  totalCount?: number | null;
+};
+
+export type GetDocumentCategoryStatsResponseDto = ApiEnvelopeDto<
+  DocumentCategoryStatDto[] | null
+>;
+
+/** One row of GET /api/Document/versions/{documentVersionId}/acknowledgements. */
+export type DocumentAcknowledgementRowDto = {
+  id?: number | null;
+  name?: string | null;
+  department?: string | null;
+  status?: string | null;
+  acknowledgedDate?: string | null;
+};
+
+/** dataModel shape for GET /api/Document/versions/{documentVersionId}/acknowledgements. */
+export type DocumentAcknowledgementsDto = {
+  acknowledgedCount?: number | null;
+  pendingCount?: number | null;
+  completionRate?: number | null;
+  rows?: DocumentAcknowledgementRowDto[] | null;
+};
+
+export type GetDocumentAcknowledgementsResponseDto = ApiEnvelopeDto<
+  DocumentAcknowledgementsDto | null
+>;

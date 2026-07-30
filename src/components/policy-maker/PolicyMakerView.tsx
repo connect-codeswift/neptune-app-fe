@@ -21,53 +21,63 @@ import type {
   DocumentStatusFilter,
   LibraryCategory,
   LibraryCategoryId,
-  PolicyDocument,
 } from "@/components/policy-maker/policy-maker-types";
 import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type {
+  DocumentCategoryStatDto,
+  DocumentDashboardKpisDto,
+} from "@/dtos/res/document-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_DOCUMENTS_PAGE_NUMBER,
   DEFAULT_DOCUMENTS_PAGE_SIZE,
+  useDocumentCategoryStatsQuery,
+  useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
 import { getAccessToken } from "@/lib/axios";
+import { mapCategoryToLibraryId } from "@/services/mappers/document-list.mapper";
 import { toast } from "@/lib/toast";
 
+/** Builds Library nav counts from GET /api/Document/category-stats (whole library, not just the current page). */
 function buildLibraryCategories(
-  documents: readonly PolicyDocument[],
+  stats: readonly DocumentCategoryStatDto[] | null,
 ): readonly LibraryCategory[] {
+  const counts = new Map<LibraryCategoryId, number>();
+  for (const entry of stats ?? []) {
+    const id = mapCategoryToLibraryId(entry.category);
+    counts.set(id, (counts.get(id) ?? 0) + (entry.totalCount ?? 0));
+  }
+
   return LIBRARY_CATEGORIES.map((category) => ({
     ...category,
-    count: documents.filter((doc) => doc.category === category.id).length,
+    count: counts.get(category.id) ?? 0,
   }));
 }
 
-function buildPolicyMakerMetrics(
-  documents: readonly PolicyDocument[],
-): readonly StatMetricCardProps[] {
-  const active = documents.filter((doc) => doc.status === "Current").length;
-  const pending = documents.filter((doc) => doc.status === "In review").length;
-  const expiring = documents.filter(
-    (doc) => doc.status === "Expiring soon",
-  ).length;
+/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent — normalize either. */
+function formatAckRate(value: number | null | undefined): string {
+  if (value == null || !Number.isFinite(value)) {
+    return "—";
+  }
+  const percent = value <= 1 ? value * 100 : value;
+  return `${String(Math.round(percent))}%`;
+}
 
-  const withAck = documents.filter((doc) => doc.acknowledgmentTotal > 0);
-  const ackAverage =
-    withAck.length === 0
-      ? null
-      : withAck.reduce(
-          (sum, doc) =>
-            sum + (doc.acknowledged / doc.acknowledgmentTotal) * 100,
-          0,
-        ) / withAck.length;
-  const ackRate =
-    ackAverage == null ? "—" : `${String(Math.round(ackAverage))}%`;
+/** Builds the 4 stat cards from GET /api/Document/dashboard-kpis. */
+function buildPolicyMakerMetrics(
+  kpis: DocumentDashboardKpisDto | null,
+  totalCount: number,
+): readonly StatMetricCardProps[] {
+  const active = kpis?.activeDocs ?? 0;
+  const pending = kpis?.pendingReview ?? 0;
+  const expiring = kpis?.expiringIn30Days ?? 0;
 
   return [
     {
       title: "Active docs",
       value: active,
-      trendValue: `${String(documents.length)} total`,
+      trendValue: `${String(totalCount)} total`,
       trendTone: "positive",
     },
     {
@@ -84,8 +94,8 @@ function buildPolicyMakerMetrics(
     },
     {
       title: "Acknowledgement rate",
-      value: ackRate,
-      trendValue: withAck.length > 0 ? "Avg" : "N/A",
+      value: formatAckRate(kpis?.acknowledgementRate),
+      trendValue: kpis?.acknowledgementRate != null ? "Avg" : "N/A",
       trendTone: "positive",
     },
   ];
@@ -117,6 +127,10 @@ export function PolicyMakerView() {
     pageSize,
     enabled: isClientReady && hasToken,
   });
+  const kpisQuery = useDocumentDashboardKpisQuery(isClientReady && hasToken);
+  const categoryStatsQuery = useDocumentCategoryStatsQuery(
+    isClientReady && hasToken,
+  );
 
   const allDocuments = documentsQuery.data?.records ?? [];
   const totalCount = documentsQuery.data?.totalCount ?? 0;
@@ -125,21 +139,18 @@ export function PolicyMakerView() {
   const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
 
   const categories = useMemo(
-    () => buildLibraryCategories(allDocuments),
-    [allDocuments],
+    () => buildLibraryCategories(categoryStatsQuery.data?.dataModel ?? null),
+    [categoryStatsQuery.data],
   );
 
   const metrics = useMemo(
-    () => buildPolicyMakerMetrics(allDocuments),
-    [allDocuments],
+    () =>
+      buildPolicyMakerMetrics(kpisQuery.data?.dataModel ?? null, totalCount),
+    [kpisQuery.data, totalCount],
   );
 
   const documents = useMemo(() => {
-    const byCategory = filterDocuments(
-      allDocuments,
-      categoryId,
-      statusFilter,
-    );
+    const byCategory = filterDocuments(allDocuments, categoryId, statusFilter);
     const query = searchQuery.trim().toLowerCase();
     if (!query) {
       return byCategory;

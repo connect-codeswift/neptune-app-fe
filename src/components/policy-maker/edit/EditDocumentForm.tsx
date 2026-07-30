@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { CreatableSelectInput } from "@/components/inputs/CreatableSelectInput";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
-import { TextInput } from "@/components/inputs/TextInput";
 import { EditDocumentFileCard } from "@/components/policy-maker/edit/EditDocumentFileCard";
 import { documentFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
@@ -61,6 +61,16 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
+/** "v3.1" -> "v3.2". Falls back to the original string if it doesn't parse. */
+function incrementVersionLabel(version: string): string {
+  const match = /^v?(\d+)\.(\d+)$/i.exec(version.trim());
+  if (!match) {
+    return version;
+  }
+  const [, major, minor] = match;
+  return `v${major ?? "1"}.${String(Number(minor ?? "0") + 1)}`;
+}
+
 /**
  * Edit form card (Figma 5568:25826).
  * Saves in two steps: document metadata (title/category/department/reviewCycle)
@@ -96,7 +106,12 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
   const [approverIds, setApproverIds] = useState<string[]>([
     ...(document.approverIds ?? []),
   ]);
+  const [versionNotes, setVersionNotes] = useState("");
+  const [submitAsNewVersion, setSubmitAsNewVersion] = useState(true);
+  const titleInputId = useId();
+  const versionNotesId = useId();
 
+  const nextVersionLabel = incrementVersionLabel(document.version);
   const currentFileName = documentFileName(document);
   const currentFileMeta =
     document.fileSize === "—"
@@ -316,15 +331,22 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
         approvalUserIds: approvalUserIdsCsv,
       });
 
-      await createDocumentVersionMutation.mutateAsync({
-        documentId: numericId,
-        pdfFile: file,
-        uploadedBy: auth.userId,
-        ackUserIds: ackUserIdsCsv,
-        approvalUserIds: approvalUserIdsCsv,
-      });
+      if (submitAsNewVersion) {
+        await createDocumentVersionMutation.mutateAsync({
+          documentId: numericId,
+          pdfFile: file,
+          uploadedBy: auth.userId,
+          ackUserIds: ackUserIdsCsv,
+          approvalUserIds: approvalUserIdsCsv,
+        });
+      }
 
-      toast.success("Changes saved", `${title.trim()} was updated.`);
+      toast.success(
+        "Changes saved",
+        submitAsNewVersion
+          ? `${title.trim()} was updated — ${nextVersionLabel} created.`
+          : `${title.trim()} was updated.`,
+      );
       router.push(`/dashboard/policy-maker/${encodeURIComponent(document.id)}`);
     } catch (error: unknown) {
       toast.error(
@@ -351,17 +373,27 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 min-[560px]:gap-x-4 min-[560px]:gap-y-6">
-          <TextInput
-            label="Document Title"
-            placeholder="Enter document title..."
-            value={title}
-            readOnly
-            required
-            disabled={busy}
-            labelClassName={fieldLabelClass}
-            wrapperClassName={fieldWrapperClass}
-            className={`${controlClass} !cursor-not-allowed !bg-[#eef1f6] !text-[#566072]`}
-          />
+          <div className={fieldWrapperClass}>
+            <label htmlFor={titleInputId} className={fieldLabelClass}>
+              Document Title *
+            </label>
+            <div className="relative">
+              <input
+                id={titleInputId}
+                type="text"
+                value={title}
+                readOnly
+                disabled={busy}
+                aria-readonly="true"
+                className={`${controlClass} !cursor-not-allowed !bg-[#eef1f6] !pr-9 !text-[#566072] italic`}
+              />
+              <Icon
+                icon="mdi:lock-outline"
+                className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#8892a3]"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
           <CreatableSelectInput
             label="Category *"
             placeholder={
@@ -452,6 +484,32 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             wrapperClassName={fieldWrapperClass}
           />
         </div>
+
+        <div className={fieldWrapperClass}>
+          <label htmlFor={versionNotesId} className={fieldLabelClass}>
+            Version Notes
+          </label>
+          <textarea
+            id={versionNotesId}
+            value={versionNotes}
+            onChange={(event) => setVersionNotes(event.target.value)}
+            placeholder="Describe what changed in this version…"
+            rows={3}
+            disabled={busy}
+            className={`${controlClass} !h-auto resize-none`}
+          />
+        </div>
+
+        <label className="flex w-fit items-center gap-2 text-[13px] font-medium text-[#0b1320]">
+          <input
+            type="checkbox"
+            checked={submitAsNewVersion}
+            onChange={(event) => setSubmitAsNewVersion(event.target.checked)}
+            disabled={busy}
+            className="size-4 rounded border-[rgba(11,19,32,0.2)] accent-[#0891a6]"
+          />
+          {`Submit as new version (creates ${nextVersionLabel})`}
+        </label>
 
         <div className="flex flex-col-reverse items-stretch gap-3 pt-2.5 sm:flex-row sm:items-center sm:justify-end">
           <Button

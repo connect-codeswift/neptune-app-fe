@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
+  AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
   CreateDocumentRequestDto,
@@ -9,6 +10,7 @@ import type {
 } from "@/dtos/req/document-request.dto";
 import { documentQueryKeys } from "@/hooks/use-document-queries";
 import {
+  acknowledgeDocument,
   addDocCategory,
   addDocDepartment,
   createDocument,
@@ -64,6 +66,19 @@ export function useAddDocumentDepartmentMutation() {
       await queryClient.invalidateQueries({
         queryKey: documentQueryKeys.departments,
       });
+    },
+  });
+}
+
+/** PUT /api/Document/Acknowledgement */
+export function useAcknowledgeDocumentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AcknowledgeDocumentRequestDto) =>
+      acknowledgeDocument(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
   });
 }

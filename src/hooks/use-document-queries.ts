@@ -6,6 +6,8 @@ import {
   getAllDocDepartments,
   getAllDocuments,
   getDocumentById,
+  getDocumentCategoryStats,
+  getDocumentDashboardKpis,
 } from "@/services/document.service";
 import {
   mapDocumentDtosToPolicyDocuments,
@@ -19,6 +21,8 @@ export const documentQueryKeys = {
   detail: (id: number) => [...documentQueryKeys.all, "detail", id] as const,
   categories: ["documents", "categories"] as const,
   departments: ["documents", "departments"] as const,
+  dashboardKpis: ["documents", "dashboard-kpis"] as const,
+  categoryStats: ["documents", "category-stats"] as const,
 };
 
 export const DEFAULT_DOCUMENTS_PAGE_NUMBER = 1;
@@ -100,6 +104,24 @@ export function useDocumentDepartmentsQuery(enabled = true) {
   return useQuery({
     queryKey: documentQueryKeys.departments,
     queryFn: () => getAllDocDepartments(),
+    enabled,
+  });
+}
+
+/** GET /api/Document/dashboard-kpis */
+export function useDocumentDashboardKpisQuery(enabled = true) {
+  return useQuery({
+    queryKey: documentQueryKeys.dashboardKpis,
+    queryFn: () => getDocumentDashboardKpis(),
+    enabled,
+  });
+}
+
+/** GET /api/Document/category-stats */
+export function useDocumentCategoryStatsQuery(enabled = true) {
+  return useQuery({
+    queryKey: documentQueryKeys.categoryStats,
+    queryFn: () => getDocumentCategoryStats(),
     enabled,
   });
 }

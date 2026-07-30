@@ -53,6 +53,10 @@ export type PolicyDocument = Readonly<{
   approverIds?: readonly string[];
   /** Server path/URL of the current version's PDF, for the Edit file card. */
   filePath?: string | null;
+  /** Original uploaded filename, when the backend has it (older docs may be null). */
+  fileName?: string | null;
+  /** Numeric id of the current version row, needed for PUT /api/Document/Acknowledgement. */
+  versionId?: number | null;
 }>;
 
 export type LibraryCategory = Readonly<{

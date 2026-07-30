@@ -44,6 +44,16 @@ export type CreateDocumentVersionRequestDto = {
 };
 
 /**
+ * PUT /api/Document/Acknowledgement — sent as query-string params
+ * (`acknowledgeBy`, `docVersionId`, `AckId` — casing per Swagger).
+ */
+export type AcknowledgeDocumentRequestDto = {
+  acknowledgeBy: number;
+  docVersionId: number;
+  ackId: number;
+};
+
+/**
  * POST /api/Document/AddCategory
  * Swagger: AddDocCategoryDto — field name is intentionally `categorytName`.
  */

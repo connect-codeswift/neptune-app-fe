@@ -1,4 +1,5 @@
 import type {
+  AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
   CreateDocumentRequestDto,
@@ -11,6 +12,9 @@ import type {
   DocumentDto,
   DocumentVersionDto,
   GetAllDocumentsResultDto,
+  GetDocumentAcknowledgementsResponseDto,
+  GetDocumentCategoryStatsResponseDto,
+  GetDocumentDashboardKpisResponseDto,
 } from "@/dtos/res/document-response.dto";
 import http from "@/lib/axios";
 
@@ -22,6 +26,9 @@ const DOCUMENT_ADD_CATEGORY_PATH = "/Document/AddCategory";
 const DOCUMENT_ADD_DEPARTMENT_PATH = "/Document/AddDepartment";
 const DOCUMENT_CATEGORIES_PATH = "/Document/GetAllCategories";
 const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
+const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
+const DOCUMENT_CATEGORY_STATS_PATH = "/Document/category-stats";
+const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -85,6 +92,7 @@ function coerceVersionDto(raw: Record<string, unknown>): DocumentVersionDto {
       asString(readProp(raw, "updatedByName", "UpdatedByName")) ?? null,
     updatedAt: asString(readProp(raw, "updatedAt", "UpdatedAt")) ?? null,
     filePath: asString(readProp(raw, "filePath", "FilePath")) ?? null,
+    fileName: asString(readProp(raw, "fileName", "FileName")) ?? null,
   };
 }
 
@@ -143,6 +151,7 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     pdfUrl: asString(readProp(raw, "pdfUrl", "PdfUrl", "fileUrl", "FileUrl")) ?? null,
     fileUrl: asString(readProp(raw, "fileUrl", "FileUrl")) ?? null,
     pdfPath: asString(readProp(raw, "pdfPath", "PdfPath")) ?? null,
+    fileName: asString(readProp(raw, "fileName", "FileName")) ?? null,
     fileType: asString(readProp(raw, "fileType", "FileType")) ?? null,
     fileSize: (() => {
       const rawSize = readProp(raw, "fileSize", "FileSize", "sizeBytes", "SizeBytes");
@@ -291,6 +300,55 @@ function normalizeGetAllDocumentsResponse(
 export async function getAllDocuments(request: GetAllDocumentsRequestDto) {
   const { data } = await http.post<unknown>(DOCUMENT_GET_ALL_PATH, request);
   return normalizeGetAllDocumentsResponse(data, request);
+}
+
+/** GET /api/Document/dashboard-kpis */
+export async function getDocumentDashboardKpis() {
+  const { data } = await http.get<GetDocumentDashboardKpisResponseDto>(
+    DOCUMENT_DASHBOARD_KPIS_PATH,
+  );
+
+  return data;
+}
+
+/** GET /api/Document/category-stats */
+export async function getDocumentCategoryStats() {
+  const { data } = await http.get<GetDocumentCategoryStatsResponseDto>(
+    DOCUMENT_CATEGORY_STATS_PATH,
+  );
+
+  return data;
+}
+
+/**
+ * PUT /api/Document/Acknowledgement
+ * Query params only, no body — casing (`AckId`) matches Swagger exactly.
+ */
+export async function acknowledgeDocument(
+  payload: AcknowledgeDocumentRequestDto,
+) {
+  const { data } = await http.put<unknown>(
+    DOCUMENT_ACKNOWLEDGEMENT_PATH,
+    null,
+    {
+      params: {
+        acknowledgeBy: payload.acknowledgeBy,
+        docVersionId: payload.docVersionId,
+        AckId: payload.ackId,
+      },
+    },
+  );
+
+  return data;
+}
+
+/** GET /api/Document/versions/{documentVersionId}/acknowledgements */
+export async function getDocumentAcknowledgements(documentVersionId: number) {
+  const { data } = await http.get<GetDocumentAcknowledgementsResponseDto>(
+    `/Document/versions/${String(documentVersionId)}/acknowledgements`,
+  );
+
+  return data;
 }
 
 function hasDocumentId(value: Record<string, unknown>): boolean {

@@ -7,11 +7,16 @@ function basenameFromPath(path: string): string | null {
 }
 
 /**
- * Label for the currently attached PDF. Uses the real stored file name from
- * the current version's `filePath` when available; falls back to a
- * title-derived guess for documents that predate that field.
+ * Label for the currently attached PDF. Prefers the real original filename
+ * (`fileName`); falls back to the storage path's basename (a generated id,
+ * not the original name) for docs uploaded before that field existed, and
+ * finally to a title-derived guess.
  */
 export function documentFileName(document: PolicyDocument): string {
+  if (document.fileName?.trim()) {
+    return document.fileName.trim();
+  }
+
   const fromPath = document.filePath
     ? basenameFromPath(document.filePath)
     : null;

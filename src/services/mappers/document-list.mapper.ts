@@ -246,6 +246,8 @@ export function mapDocumentDtoToPolicyDocument(
     document.pdfUrl?.trim() ||
     document.fileUrl?.trim() ||
     null;
+  const fileName =
+    currentVersionEntry?.fileName?.trim() || document.fileName?.trim() || null;
   const categoryLabel =
     document.categoryName?.trim() ||
     document.category?.trim() ||
@@ -291,6 +293,7 @@ export function mapDocumentDtoToPolicyDocument(
     reviewersTotal,
     versions: buildVersions(document.versions, { version, ownerFullName, updated }),
     filePath,
+    fileName,
     fileType: document.fileType?.trim() || "PDF",
     fileSize: formatFileSize(document.fileSize),
     department:
@@ -309,6 +312,7 @@ export function mapDocumentDtoToPolicyDocument(
     approverIds: parseIdList(document.approvalUserIds),
     acknowledged,
     acknowledgmentTotal,
+    versionId: currentVersionEntry?.id ?? null,
   };
 }
 
