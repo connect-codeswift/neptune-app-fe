@@ -104,7 +104,7 @@ export const RECENT_ACTIVITY_ITEMS: readonly ComplianceDeadlinesItem[] = [
   },
 ];
 
-function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
+export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   const { title, subtitle, badge, emphasis } = props;
 
   return (

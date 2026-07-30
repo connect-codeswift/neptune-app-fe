@@ -1,23 +1,34 @@
 import type {
+  AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
   CreateDocumentRequestDto,
+  CreateDocumentVersionRequestDto,
   GetAllDocumentsRequestDto,
 } from "@/dtos/req/document-request.dto";
 import type {
   DocCategoryDto,
   DocDepartmentDto,
   DocumentDto,
+  DocumentVersionDto,
   GetAllDocumentsResultDto,
+  GetDocumentAcknowledgementsResponseDto,
+  GetDocumentCategoryStatsResponseDto,
+  GetDocumentDashboardKpisResponseDto,
 } from "@/dtos/res/document-response.dto";
 import http from "@/lib/axios";
 
 const DOCUMENT_GET_ALL_PATH = "/Document/allDocuments";
+const DOCUMENT_BY_ID_PATH = "/Document";
 const DOCUMENT_CREATE_PATH = "/Document/document";
+const DOCUMENT_VERSION_CREATE_PATH = "/Document/document_version";
 const DOCUMENT_ADD_CATEGORY_PATH = "/Document/AddCategory";
 const DOCUMENT_ADD_DEPARTMENT_PATH = "/Document/AddDepartment";
 const DOCUMENT_CATEGORIES_PATH = "/Document/GetAllCategories";
 const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
+const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
+const DOCUMENT_CATEGORY_STATS_PATH = "/Document/category-stats";
+const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -61,6 +72,37 @@ function asString(value: unknown): string | null | undefined {
   return undefined;
 }
 
+function asBoolean(value: unknown): boolean | undefined {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  return undefined;
+}
+
+function coerceVersionDto(raw: Record<string, unknown>): DocumentVersionDto {
+  return {
+    id: asNumber(readProp(raw, "id", "Id")),
+    versionNo: asNumber(readProp(raw, "versionNo", "VersionNo")),
+    versionLabel: asString(readProp(raw, "versionLabel", "VersionLabel")) ?? null,
+    status: asString(readProp(raw, "status", "Status")) ?? null,
+    isCurrent: asBoolean(readProp(raw, "isCurrent", "IsCurrent")) ?? null,
+    changeSummary:
+      asString(readProp(raw, "changeSummary", "ChangeSummary")) ?? null,
+    updatedByName:
+      asString(readProp(raw, "updatedByName", "UpdatedByName")) ?? null,
+    updatedAt: asString(readProp(raw, "updatedAt", "UpdatedAt")) ?? null,
+    filePath: asString(readProp(raw, "filePath", "FilePath")) ?? null,
+    fileName: asString(readProp(raw, "fileName", "FileName")) ?? null,
+  };
+}
+
+function asVersionArray(value: unknown): DocumentVersionDto[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  return value.filter(isRecord).map(coerceVersionDto);
+}
+
 function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
   return {
     id: asNumber(readProp(raw, "id", "Id")),
@@ -86,16 +128,30 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     subCompanyId: asNumber(readProp(raw, "subCompanyId", "SubCompanyId")),
     status: asString(readProp(raw, "status", "Status")) ?? null,
     version:
-      asString(readProp(raw, "version", "Version", "currentVersion", "CurrentVersion")) ??
-      null,
+      asString(
+        readProp(
+          raw,
+          "version",
+          "Version",
+          "currentVersion",
+          "CurrentVersion",
+          "versionLabel",
+          "VersionLabel",
+        ),
+      ) ?? null,
     currentVersion:
       asString(readProp(raw, "currentVersion", "CurrentVersion")) ?? null,
+    versionLabel:
+      asString(readProp(raw, "versionLabel", "VersionLabel")) ?? null,
+    versionNo: asNumber(readProp(raw, "versionNo", "VersionNo")),
     code:
       asString(readProp(raw, "code", "Code", "documentCode", "DocumentCode")) ?? null,
     documentCode: asString(readProp(raw, "documentCode", "DocumentCode")) ?? null,
     site: asString(readProp(raw, "site", "Site")) ?? null,
     pdfUrl: asString(readProp(raw, "pdfUrl", "PdfUrl", "fileUrl", "FileUrl")) ?? null,
     fileUrl: asString(readProp(raw, "fileUrl", "FileUrl")) ?? null,
+    pdfPath: asString(readProp(raw, "pdfPath", "PdfPath")) ?? null,
+    fileName: asString(readProp(raw, "fileName", "FileName")) ?? null,
     fileType: asString(readProp(raw, "fileType", "FileType")) ?? null,
     fileSize: (() => {
       const rawSize = readProp(raw, "fileSize", "FileSize", "sizeBytes", "SizeBytes");
@@ -115,7 +171,15 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     updatedAt: asString(readProp(raw, "updatedAt", "UpdatedAt", "updated", "Updated")) ?? null,
     updated: asString(readProp(raw, "updated", "Updated")) ?? null,
     acknowledged: asNumber(
-      readProp(raw, "acknowledged", "Acknowledged", "ackCount", "AckCount"),
+      readProp(
+        raw,
+        "acknowledged",
+        "Acknowledged",
+        "ackCount",
+        "AckCount",
+        "acknowledgedCount",
+        "AcknowledgedCount",
+      ),
     ),
     acknowledgmentTotal: asNumber(
       readProp(
@@ -126,6 +190,8 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
         "TotalAck",
         "ackTotal",
         "AckTotal",
+        "acknowledgementTotal",
+        "AcknowledgementTotal",
       ),
     ),
     ackCount: asNumber(readProp(raw, "ackCount", "AckCount")),
@@ -133,6 +199,10 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     reviewersDone: asNumber(readProp(raw, "reviewersDone", "ReviewersDone")),
     reviewersTotal: asNumber(readProp(raw, "reviewersTotal", "ReviewersTotal")),
     documentKind: asString(readProp(raw, "documentKind", "DocumentKind")) ?? null,
+    ackUserIds: asString(readProp(raw, "ackUserIds", "AckUserIds")) ?? null,
+    approvalUserIds:
+      asString(readProp(raw, "approvalUserIds", "ApprovalUserIds")) ?? null,
+    versions: asVersionArray(readProp(raw, "versions", "Versions")),
   };
 }
 
@@ -230,6 +300,97 @@ function normalizeGetAllDocumentsResponse(
 export async function getAllDocuments(request: GetAllDocumentsRequestDto) {
   const { data } = await http.post<unknown>(DOCUMENT_GET_ALL_PATH, request);
   return normalizeGetAllDocumentsResponse(data, request);
+}
+
+/** GET /api/Document/dashboard-kpis */
+export async function getDocumentDashboardKpis() {
+  const { data } = await http.get<GetDocumentDashboardKpisResponseDto>(
+    DOCUMENT_DASHBOARD_KPIS_PATH,
+  );
+
+  return data;
+}
+
+/** GET /api/Document/category-stats */
+export async function getDocumentCategoryStats() {
+  const { data } = await http.get<GetDocumentCategoryStatsResponseDto>(
+    DOCUMENT_CATEGORY_STATS_PATH,
+  );
+
+  return data;
+}
+
+/**
+ * PUT /api/Document/Acknowledgement
+ * Query params only, no body — casing (`AckId`) matches Swagger exactly.
+ */
+export async function acknowledgeDocument(
+  payload: AcknowledgeDocumentRequestDto,
+) {
+  const { data } = await http.put<unknown>(
+    DOCUMENT_ACKNOWLEDGEMENT_PATH,
+    null,
+    {
+      params: {
+        acknowledgeBy: payload.acknowledgeBy,
+        docVersionId: payload.docVersionId,
+        AckId: payload.ackId,
+      },
+    },
+  );
+
+  return data;
+}
+
+/** GET /api/Document/versions/{documentVersionId}/acknowledgements */
+export async function getDocumentAcknowledgements(documentVersionId: number) {
+  const { data } = await http.get<GetDocumentAcknowledgementsResponseDto>(
+    `/Document/versions/${String(documentVersionId)}/acknowledgements`,
+  );
+
+  return data;
+}
+
+function hasDocumentId(value: Record<string, unknown>): boolean {
+  return asNumber(readProp(value, "id", "Id")) != null;
+}
+
+function normalizeDocumentResponse(data: unknown): DocumentDto | null {
+  if (isRecord(data) && hasDocumentId(data)) {
+    return coerceDocumentDto(data);
+  }
+
+  if (!isRecord(data)) {
+    return null;
+  }
+
+  const candidates = [
+    data.dataModel,
+    data.DataModel,
+    data.data,
+    data.Data,
+    data.result,
+    data.Result,
+  ];
+
+  for (const candidate of candidates) {
+    if (isRecord(candidate) && hasDocumentId(candidate)) {
+      return coerceDocumentDto(candidate);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * GET /api/Document/{id}
+ * Returns a single document, or `null` if the backend has nothing for that id.
+ */
+export async function getDocumentById(id: number): Promise<DocumentDto | null> {
+  const { data } = await http.get<unknown>(
+    `${DOCUMENT_BY_ID_PATH}/${String(id)}`,
+  );
+  return normalizeDocumentResponse(data);
 }
 
 function unwrapListPayload(data: unknown): unknown {
@@ -369,5 +530,45 @@ export async function createDocument(payload: CreateDocumentRequestDto) {
       },
     ],
   });
+  return data;
+}
+
+function toCreateDocumentVersionFormData(
+  payload: CreateDocumentVersionRequestDto,
+): FormData {
+  const formData = new FormData();
+  if (payload.id != null) {
+    formData.append("Id", String(payload.id));
+  }
+  formData.append("DocumentId", String(payload.documentId));
+  formData.append("PdfFile", payload.pdfFile, payload.pdfFile.name);
+  formData.append("UploadedBy", String(payload.uploadedBy));
+  formData.append("AckUserIds", payload.ackUserIds);
+  formData.append("ApprovalUserIds", payload.approvalUserIds);
+  return formData;
+}
+
+/**
+ * POST /api/Document/document_version
+ * multipart/form-data — attaches a new PDF revision to an existing document.
+ */
+export async function createDocumentVersion(
+  payload: CreateDocumentVersionRequestDto,
+) {
+  const formData = toCreateDocumentVersionFormData(payload);
+  const { data } = await http.post<unknown>(
+    DOCUMENT_VERSION_CREATE_PATH,
+    formData,
+    {
+      transformRequest: [
+        (body, headers) => {
+          if (body instanceof FormData && headers) {
+            delete headers["Content-Type"];
+          }
+          return body;
+        },
+      ],
+    },
+  );
   return data;
 }

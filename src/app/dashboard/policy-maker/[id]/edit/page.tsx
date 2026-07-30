@@ -7,7 +7,5 @@ export default async function PolicyMakerEditDocumentPage({
 }) {
   const { id } = await params;
 
-  return (
-    <EditDocumentContent documentIdParam={decodeURIComponent(id)} />
-  );
+  return <EditDocumentContent documentIdParam={decodeURIComponent(id)} />;
 }

@@ -1,19 +1,57 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 
+export type KpiMetricTone = "positive" | "negative";
+
+export type KpiMetricCardCounts = Readonly<{
+  closedLabel: string;
+  closedValue: string | number;
+  totalLabel: string;
+  totalValue: string | number;
+}>;
+
 export type KpiMetricCardProps = Readonly<{
   title: string;
   value: string | number;
   unit: string;
+  /** Short badge text, e.g. "-0.4" / "-85pp" — the live gap vs. `targetLabel`'s threshold, not a period-over-period delta (the API has no history). */
   trendValue: string;
   trendDirection: "up" | "down";
-  targetLabel: string;
-  chartData: readonly number[];
+  /** Pill/sparkline color. */
+  trendTone?: KpiMetricTone;
+  /** Static target text shown bottom-left. Ignored when `counts` is set. */
+  targetLabel?: string;
+  /** Closed/total counts shown bottom-left instead of `targetLabel` — no sparkline alongside these. */
+  counts?: KpiMetricCardCounts;
+  /**
+   * Sparkline points. Only the last point is real (today's API value) —
+   * earlier points are a decorative lead-in, not real history, since this
+   * API returns a single snapshot with no time series.
+   */
+  chartData?: readonly number[];
   className?: string;
 }>;
 
-function MiniAreaChart(props: Readonly<{ data: readonly number[] }>) {
-  const { data } = props;
+const toneClasses: Record<
+  KpiMetricTone,
+  { pill: string; fill: string; stroke: string }
+> = {
+  positive: {
+    pill: "bg-ehs-green/10 text-ehs-green",
+    fill: "fill-ehs-green/15",
+    stroke: "stroke-ehs-green",
+  },
+  negative: {
+    pill: "bg-ehs-red/10 text-ehs-red",
+    fill: "fill-ehs-red/15",
+    stroke: "stroke-ehs-red",
+  },
+};
+
+function MiniAreaChart(
+  props: Readonly<{ data: readonly number[]; tone: KpiMetricTone }>,
+) {
+  const { data, tone } = props;
   const width = 72;
   const height = 32;
   const padding = 2;
@@ -46,6 +84,7 @@ function MiniAreaChart(props: Readonly<{ data: readonly number[] }>) {
   }
 
   const areaPath = `${linePath} L ${lastPoint.x} ${height - padding} L ${firstPoint.x} ${height - padding} Z`;
+  const { fill, stroke } = toneClasses[tone];
 
   return (
     <svg
@@ -53,16 +92,55 @@ function MiniAreaChart(props: Readonly<{ data: readonly number[] }>) {
       className="h-8 w-18 shrink-0"
       aria-hidden="true"
     >
-      <path d={areaPath} className="fill-ehs-green/15" />
+      <path d={areaPath} className={fill} />
       <path
         d={linePath}
         fill="none"
-        className="stroke-ehs-green"
+        className={stroke}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+function CardFooter(
+  props: Readonly<{ counts?: KpiMetricCardCounts; targetLabel?: string }>,
+) {
+  const { counts, targetLabel } = props;
+
+  if (counts) {
+    return <CountsFooter counts={counts} />;
+  }
+  if (targetLabel) {
+    return (
+      <Text as="p" className="text-ehs-muted-text pb-2 text-xs">
+        {targetLabel}
+      </Text>
+    );
+  }
+  return null;
+}
+
+function CountsFooter(props: Readonly<{ counts: KpiMetricCardCounts }>) {
+  const { counts } = props;
+
+  return (
+    <div className="font-inter flex flex-col gap-0.5 pb-0.5">
+      <p className="text-ehs-muted-text text-xs">
+        {counts.closedLabel}{" "}
+        <span className="text-ehs-darker font-semibold">
+          {counts.closedValue}
+        </span>
+      </p>
+      <p className="text-ehs-muted-text text-xs">
+        {counts.totalLabel}{" "}
+        <span className="text-ehs-darker font-semibold">
+          {counts.totalValue}
+        </span>
+      </p>
+    </div>
   );
 }
 
@@ -73,7 +151,9 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
     unit,
     trendValue,
     trendDirection,
+    trendTone = "positive",
     targetLabel,
+    counts,
     chartData,
     className = "",
   } = props;
@@ -98,7 +178,12 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
           {title}
         </Text>
 
-        <span className="bg-ehs-green/10 text-ehs-green inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold">
+        <span
+          className={[
+            "inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+            toneClasses[trendTone].pill,
+          ].join(" ")}
+        >
           <Icon icon={trendIcon} className="text-xs" aria-hidden="true" />
           {trendValue}
         </span>
@@ -117,10 +202,8 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
       </div>
 
       <div className="flex items-end justify-between gap-3">
-        <Text as="p" className="text-ehs-muted-text pb-2 text-xs">
-          {targetLabel}
-        </Text>
-        <MiniAreaChart data={chartData} />
+        <CardFooter counts={counts} targetLabel={targetLabel} />
+        {chartData ? <MiniAreaChart data={chartData} tone={trendTone} /> : null}
       </div>
     </article>
   );
@@ -133,6 +216,7 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     unit: "TRIR",
     trendValue: "-0.4",
     trendDirection: "down",
+    trendTone: "positive",
     targetLabel: "Target ≤ 2.5",
     chartData: [3.2, 2.9, 2.8, 2.6, 2.5, 2.4, 2.3],
   },
@@ -142,6 +226,7 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     unit: "LTIR",
     trendValue: "-0.2",
     trendDirection: "down",
+    trendTone: "negative",
     targetLabel: "Target ≤ 1.0",
     chartData: [1.2, 1.1, 1, 0.95, 0.9, 0.85, 0.8],
   },
@@ -151,17 +236,27 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     unit: "%",
     trendValue: "+3pp",
     trendDirection: "up",
-    targetLabel: "Target ≥ 85%",
-    chartData: [68, 70, 72, 74, 75, 76, 78],
+    trendTone: "positive",
+    counts: {
+      closedLabel: "Closed Compliances",
+      closedValue: 200,
+      totalLabel: "Total Compliances",
+      totalValue: 493,
+    },
   },
   {
-    title: "Training Compliance",
+    title: "Action Closure Rate",
     value: "84",
     unit: "%",
     trendValue: "+2pp",
     trendDirection: "up",
-    targetLabel: "Target ≥ 90%",
-    chartData: [76, 78, 79, 80, 82, 83, 84],
+    trendTone: "positive",
+    counts: {
+      closedLabel: "Closed CAPAs",
+      closedValue: 414,
+      totalLabel: "Total CAPAs",
+      totalValue: 493,
+    },
   },
 ];
 
