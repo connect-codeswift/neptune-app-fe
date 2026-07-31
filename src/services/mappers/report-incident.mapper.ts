@@ -310,8 +310,7 @@ export function mapReportFormToIncidentDto(
     subCompanyId: auth?.subCompanyId ?? 0,
     injuredBodyPart: bodyPartLabels || null,
     injuryDescription: source.injuryDescription.trim() || null,
-    incidentReporterEmail:
-      source.reporterEmail.trim() || auth?.email || null,
+    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
       optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||

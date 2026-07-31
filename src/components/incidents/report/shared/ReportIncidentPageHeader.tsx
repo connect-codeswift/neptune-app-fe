@@ -27,7 +27,7 @@ export function ReportIncidentPageHeader(
       <div className="relative z-[1] flex min-w-0 flex-col gap-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1">
           <Link
-            href="/incidents/list"
+            href="/dashboard/incidents/list"
             className="text-ehs-muted-text hover:text-ehs-gray text-[11px] font-medium transition-colors"
           >
             Incidents

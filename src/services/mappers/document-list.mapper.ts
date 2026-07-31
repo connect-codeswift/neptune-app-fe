@@ -50,9 +50,7 @@ function computeExpiryDate(
   return parsed.toISOString();
 }
 
-function versionBadge(
-  entry: DocumentVersionDto,
-): DocumentVersion["badge"] {
+function versionBadge(entry: DocumentVersionDto): DocumentVersion["badge"] {
   if (entry.isCurrent) {
     return "current";
   }
@@ -264,9 +262,7 @@ export function mapDocumentDtoToPolicyDocument(
     document.documentKind?.trim() ||
     "SOP";
   const code =
-    document.code?.trim() ||
-    document.documentCode?.trim() ||
-    `DOC-${idValue}`;
+    document.code?.trim() || document.documentCode?.trim() || `DOC-${idValue}`;
   const updated = formatDate(
     document.updatedAt ?? document.updated ?? document.createdAt,
   );

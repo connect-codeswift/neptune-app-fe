@@ -39,7 +39,7 @@ export function HazcomRecentChemicalAdditionsCard(
           Recent Chemical Additions
         </Text>
         <Link
-          href="/hazcom/chemicals"
+          href="/dashboard/hazcom/chemicals"
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
         >
           View all

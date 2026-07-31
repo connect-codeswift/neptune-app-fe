@@ -20,7 +20,8 @@ export function findMyAcknowledgement(
   if (myUserId == null) {
     return {
       ackId: null,
-      error: "Could not verify your user id to record this acknowledgement.",
+      error:
+        "Could not verify your account name to record this acknowledgement.",
     };
   }
 

@@ -18,16 +18,22 @@ const valueClassByTone: Record<HazcomOverviewStatTone, string> = {
   danger: "text-ehs-red",
 };
 
-const iconWrapClassByTone: Record<HazcomOverviewStatTone, string> = {
-  neutral: "bg-ehs-dark-bg/8 text-ehs-gray",
-  danger: "bg-ehs-red/12 text-ehs-red",
+const iconClassByTone: Record<HazcomOverviewStatTone, string> = {
+  neutral: "text-ehs-gray",
+  danger: "text-ehs-red",
 };
 
 export function HazcomOverviewStatCard(
   props: Readonly<HazcomOverviewStatCardProps>,
 ) {
-  const { label, value, icon, caption, tone = "neutral", className = "" } =
-    props;
+  const {
+    label,
+    value,
+    icon,
+    caption,
+    tone = "neutral",
+    className = "",
+  } = props;
 
   return (
     <HazcomGlassCard
@@ -38,14 +44,11 @@ export function HazcomOverviewStatCard(
         <Text as="p" className="text-ehs-gray text-sm">
           {label}
         </Text>
-        <span
-          className={[
-            "flex size-8 shrink-0 items-center justify-center rounded-lg",
-            iconWrapClassByTone[tone],
-          ].join(" ")}
-        >
-          <Icon icon={icon} className="text-base" aria-hidden="true" />
-        </span>
+        <Icon
+          icon={icon}
+          className={["size-4.5 shrink-0", iconClassByTone[tone]].join(" ")}
+          aria-hidden="true"
+        />
       </div>
 
       <Text

@@ -13,9 +13,7 @@ export type SdsViewerSectionNavProps = Readonly<{
   className?: string;
 }>;
 
-export function SdsViewerSectionNav(
-  props: Readonly<SdsViewerSectionNavProps>,
-) {
+export function SdsViewerSectionNav(props: Readonly<SdsViewerSectionNavProps>) {
   const { sections, activeSection, onSelectSection, className = "" } = props;
 
   return (

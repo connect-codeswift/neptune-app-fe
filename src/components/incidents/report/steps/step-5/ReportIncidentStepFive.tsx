@@ -113,11 +113,11 @@ export function ReportIncidentStepFive(
       );
 
       if (typeof createdId === "number" && createdId > 0) {
-        router.push(`/incidents/${String(createdId)}`);
+        router.push(`/dashboard/incidents/${String(createdId)}`);
         return;
       }
 
-      router.push("/incidents/list");
+      router.push("/dashboard/incidents/list");
     } catch (error) {
       toast.error(
         "Submit failed",

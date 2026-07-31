@@ -178,9 +178,7 @@ export type HazcomTextareaFieldProps = Readonly<
   }
 >;
 
-export function HazcomTextareaField(
-  props: Readonly<HazcomTextareaFieldProps>,
-) {
+export function HazcomTextareaField(props: Readonly<HazcomTextareaFieldProps>) {
   const { label, required, trailingHint, className = "", id, ...rest } = props;
 
   return (

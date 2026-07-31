@@ -17,8 +17,23 @@ export type { HazcomModuleTabsProps } from "./HazcomModuleTabs";
 export { HazcomPageHeader } from "./HazcomPageHeader";
 export type { HazcomPageHeaderProps } from "./HazcomPageHeader";
 
-export { HazcomPictogramChip } from "./HazcomPictogramChip";
-export type { HazcomPictogramChipProps } from "./HazcomPictogramChip";
+export { HazcomPager } from "./HazcomPager";
+export type { HazcomPagerProps } from "./HazcomPager";
+
+export { HazcomLoadingCard, HazcomErrorCard } from "./HazcomStatusCard";
+export type {
+  HazcomLoadingCardProps,
+  HazcomErrorCardProps,
+} from "./HazcomStatusCard";
+
+export {
+  HazcomPictogramChip,
+  HazcomPictogramIcon,
+} from "./HazcomPictogramChip";
+export type {
+  HazcomPictogramChipProps,
+  HazcomPictogramIconProps,
+} from "./HazcomPictogramChip";
 
 export {
   HazcomTextField,

@@ -123,7 +123,7 @@ export function ReportIncidentView() {
       setCurrentStep((currentStep - 1) as ReportStepId);
       return;
     }
-    router.push("/incidents/list");
+    router.push("/dashboard/incidents/list");
   };
 
   return (
@@ -132,7 +132,7 @@ export function ReportIncidentView() {
 
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
-          onSaveExit={() => router.push("/incidents/list")}
+          onSaveExit={() => router.push("/dashboard/incidents/list")}
         />
 
         <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">

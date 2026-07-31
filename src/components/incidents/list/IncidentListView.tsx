@@ -181,7 +181,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       return;
     }
 
-    router.push(`/incidents/${String(incident.numericId)}`);
+    router.push(`/dashboard/incidents/${String(incident.numericId)}`);
   };
 
   const handleCloseIncident = async () => {

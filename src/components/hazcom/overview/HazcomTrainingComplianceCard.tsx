@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard, type HazcomBadgeTone } from "@/components/hazcom/shared";
+import {
+  HazcomGlassCard,
+  type HazcomBadgeTone,
+} from "@/components/hazcom/shared";
 import { HAZCOM_TRAINING_COMPLIANCE_ROWS } from "@/components/hazcom/overview/hazcom-overview-panel-data";
 
 const dotClassByTone: Record<HazcomBadgeTone, string> = {
@@ -41,7 +44,7 @@ export function HazcomTrainingComplianceCard(
           Training Compliance
         </Text>
         <Link
-          href="/hazcom/training"
+          href="/dashboard/hazcom/training"
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
         >
           View all
@@ -57,9 +60,10 @@ export function HazcomTrainingComplianceCard(
           >
             <span className="flex items-center gap-2">
               <span
-                className={["size-2 shrink-0 rounded-full", dotClassByTone[row.tone]].join(
-                  " ",
-                )}
+                className={[
+                  "size-2 shrink-0 rounded-full",
+                  dotClassByTone[row.tone],
+                ].join(" ")}
                 aria-hidden="true"
               />
               <Text as="span" className="text-ehs-darker text-sm">

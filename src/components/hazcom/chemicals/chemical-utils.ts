@@ -34,6 +34,11 @@ export function signalWordTextClass(signalWord: string): string {
   return signalWord === "Danger" ? "text-ehs-red" : "text-ehs-yellow";
 }
 
+/** Inventory status as plain colored text, matching the signal-word column. */
+export function chemicalStatusTextClass(status: string): string {
+  return status === "Active" ? "text-ehs-green" : "text-ehs-muted-text";
+}
+
 const CSV_HEADER = [
   "Chemical Name",
   "CAS #",

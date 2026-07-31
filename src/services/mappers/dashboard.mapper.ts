@@ -36,7 +36,11 @@ function trendForMaxTarget(
     return { label: "0.0", direction: "down", tone: "positive" };
   }
   return gap < 0
-    ? { label: `-${Math.abs(gap).toFixed(1)}`, direction: "down", tone: "positive" }
+    ? {
+        label: `-${Math.abs(gap).toFixed(1)}`,
+        direction: "down",
+        tone: "positive",
+      }
     : { label: `+${gap.toFixed(1)}`, direction: "up", tone: "negative" };
 }
 
@@ -134,7 +138,8 @@ export function mapDashboardKpisToMetrics(
       trendTone: ltirTrend.tone,
       targetLabel: `Target ≤ ${String(LTIR_TARGET)}`,
       chartData:
-        dto.lostTimeInjuryRate != null && Number.isFinite(dto.lostTimeInjuryRate)
+        dto.lostTimeInjuryRate != null &&
+        Number.isFinite(dto.lostTimeInjuryRate)
           ? buildTargetAnchoredSeries(dto.lostTimeInjuryRate, LTIR_TARGET)
           : undefined,
     },

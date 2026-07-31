@@ -13,7 +13,7 @@ import { Text } from "@/components/Text";
 import {
   HazcomBadge,
   HazcomGlassCard,
-  HazcomPictogramChip,
+  HazcomPictogramIcon,
   sdsStatusTone,
   type HazcomSdsRecord,
 } from "@/components/hazcom/shared";
@@ -44,7 +44,7 @@ const columns = [
     meta: { align: "left" },
     cell: (info) => (
       <Link
-        href={`/hazcom/sds/${info.getValue()}`}
+        href={`/dashboard/hazcom/sds/${info.getValue()}`}
         className="text-ehs-dark-blue text-[13px] font-bold hover:underline"
       >
         {info.getValue()}
@@ -105,7 +105,7 @@ const columns = [
       <Text
         as="span"
         className={[
-          "text-[13px] font-bold uppercase tracking-wide",
+          "text-[13px] font-bold tracking-wide uppercase",
           signalWordClass[info.getValue()] ?? "text-ehs-gray",
         ].join(" ")}
       >
@@ -118,9 +118,9 @@ const columns = [
     size: 150,
     meta: { align: "left" },
     cell: (info) => (
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="flex items-center gap-2">
         {info.getValue().map((pictogram) => (
-          <HazcomPictogramChip key={pictogram} pictogram={pictogram} />
+          <HazcomPictogramIcon key={pictogram} pictogram={pictogram} />
         ))}
       </div>
     ),
@@ -155,7 +155,7 @@ const columns = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
-          href={`/hazcom/sds/${row.original.id}`}
+          href={`/dashboard/hazcom/sds/${row.original.id}`}
           aria-label={`View ${row.original.chemicalName} SDS`}
           title="View SDS"
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"
@@ -267,7 +267,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-t border-[rgba(15,23,42,0.08)] transition-colors hover:bg-ehs-light-bg/70"
+                  className="hover:bg-ehs-light-bg/70 border-t border-[rgba(15,23,42,0.08)] transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => {
                     const align = cell.column.columnDef.meta?.align;

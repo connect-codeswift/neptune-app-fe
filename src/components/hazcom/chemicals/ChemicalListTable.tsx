@@ -11,13 +11,12 @@ import {
 } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import {
-  HazcomBadge,
   HazcomGlassCard,
-  HazcomPictogramChip,
-  chemicalStatusTone,
+  HazcomPictogramIcon,
   type HazcomChemical,
 } from "@/components/hazcom/shared";
 import {
+  chemicalStatusTextClass,
   signalWordTextClass,
   splitQuantity,
 } from "@/components/hazcom/chemicals/chemical-utils";
@@ -39,15 +38,12 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
   columnHelper.display({
     id: "name",
     header: "Chemical Name",
-    size: 190,
-    minSize: 150,
+    size: 220,
+    minSize: 160,
     meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
-        <Text
-          as="p"
-          className="text-ehs-darker truncate text-[13px] font-bold"
-        >
+        <Text as="p" className="text-ehs-darker truncate text-[13px] font-bold">
           {row.original.name}
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[11px]">
@@ -118,13 +114,13 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
   columnHelper.display({
     id: "pictograms",
     header: "Pictograms",
-    size: 190,
-    minSize: 140,
+    size: 120,
+    minSize: 100,
     meta: { align: "left" },
     cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex items-center gap-2">
         {row.original.pictograms.map((pictogram) => (
-          <HazcomPictogramChip key={pictogram} pictogram={pictogram} selected />
+          <HazcomPictogramIcon key={pictogram} pictogram={pictogram} />
         ))}
       </div>
     ),
@@ -152,10 +148,15 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     minSize: 90,
     meta: { align: "center" },
     cell: (info) => (
-      <HazcomBadge
-        label={info.getValue()}
-        tone={chemicalStatusTone(info.getValue())}
-      />
+      <Text
+        as="span"
+        className={[
+          "text-[13px] font-bold",
+          chemicalStatusTextClass(info.getValue()),
+        ].join(" ")}
+      >
+        {info.getValue()}
+      </Text>
     ),
   }),
   columnHelper.display({
@@ -167,18 +168,22 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
-          href={`/hazcom/chemicals/${row.original.id}`}
+          href={`/dashboard/hazcom/chemicals/${row.original.id}`}
           aria-label={`View ${row.original.name}`}
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white transition-colors"
         >
           <Icon icon="mdi:eye-outline" className="size-4" aria-hidden="true" />
         </Link>
         <Link
-          href={`/hazcom/chemicals/${row.original.id}/edit`}
+          href={`/dashboard/hazcom/chemicals/${row.original.id}/edit`}
           aria-label={`Edit ${row.original.name}`}
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white transition-colors"
         >
-          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden="true" />
+          <Icon
+            icon="mdi:pencil-outline"
+            className="size-4"
+            aria-hidden="true"
+          />
         </Link>
       </div>
     ),
@@ -229,7 +234,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
 
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
+              <tr key={headerGroup.id} className="bg-ehs-light-bg/60">
                 {headerGroup.headers.map((header) => {
                   const align = header.column.columnDef.meta?.align;
 
@@ -284,7 +289,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                           totalSize,
                         )}
                         className={[
-                          "h-[76px] min-w-0 px-4 align-middle",
+                          "h-16 min-w-0 px-4 align-middle",
                           alignClass(align),
                         ].join(" ")}
                       >

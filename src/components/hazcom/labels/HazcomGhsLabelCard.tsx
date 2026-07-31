@@ -1,9 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import {
-  findHazcomSdsRecord,
-  type HazcomChemical,
-} from "@/components/hazcom/shared";
+import type { HazcomChemical } from "@/components/hazcom/shared";
 import {
   findHazcomLabelSize,
   HAZCOM_LABEL_EMERGENCY_PHONE,
@@ -39,10 +36,12 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
   } = props;
 
   const size = findHazcomLabelSize(labelSizeId);
-  const sdsRecord = chemical.sdsRecordId
-    ? findHazcomSdsRecord(chemical.sdsRecordId)
-    : undefined;
-  const manufacturer = sdsRecord?.manufacturer ?? "Not on file";
+  /**
+   * The manufacturer lives on the SDS record, and a chemical links to its
+   * sheet by free text (`linkToSdsRecord`) rather than by id — so there is no
+   * reliable join to follow until that field carries an id.
+   */
+  const manufacturer = "Not on file";
   const signalTone = hazcomSignalWordTone(chemical.signalWord);
   const hasExtras = includeBarcode || includeQrCode;
   const noteToShow = internalNote.trim().length > 0 ? internalNote : null;
@@ -59,7 +58,10 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-darker text-lg leading-tight font-bold">
+          <Text
+            as="h3"
+            className="text-ehs-darker text-lg leading-tight font-bold"
+          >
             {chemical.name}
           </Text>
           <Text as="p" className="text-ehs-muted-text text-xs">
