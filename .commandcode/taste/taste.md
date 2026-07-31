@@ -10,3 +10,8 @@
 
 ## Workflow & tooling
 - Uses Figma as the design source for UI implementation: asks to add the Figma MCP server to the tool config, pastes Figma design links (with `node-id` and `&m=dev`) as the spec, and expects the assistant to implement the design (layout, colors, typography, chart style) from it. Confidence: 0.6
+# Coding Style & Architecture
+
+- Prefers prop-driven component design over creating separate components for each visual variant; favors using props (e.g., `title`, `subtitle`, config options) to handle UI differences rather than introducing a new component for every design variation. Confidence: 0.9
+
+- Values codebase cleanliness through deduplication of similarly shaped components across modules (e.g., merging copy-paste card components into shared, generic ones). Confidence: 0.8
