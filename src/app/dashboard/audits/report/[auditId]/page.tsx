@@ -1,26 +1,23 @@
 "use client";
 
-import { Suspense, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditReportHeader } from "@/components/audits/report/AuditReportHeader";
-import { AuditReportSkeleton } from "@/components/audits/report/AuditReportSkeleton";
 import { AuditReportView } from "@/components/audits/report/AuditReportView";
 import { useAuditDetailQuery } from "@/hooks/use-audit-queries";
 import { exportElementToPdf } from "@/lib/export-pdf";
 import { buildAuditReportFromDetail } from "@/lib/map-audit";
 import { toast } from "@/lib/toast";
 
-/** Reads the id from `?auditid=`, so it needs a Suspense boundary. */
-function AuditReport() {
-  const searchParams = useSearchParams();
-  const auditId = decodeURIComponent(searchParams.get("auditid") ?? "");
+export default function AuditReportPage() {
+  const params = useParams();
+  const auditId = decodeURIComponent(params.auditId as string);
 
   // GET /api/Audit/{id} carries the audit, its template snapshot and the
   // recorded responses — everything the report needs, from one call.
   const detailQuery = useAuditDetailQuery(auditId);
   const detail = detailQuery.data?.dataModel ?? null;
-
   const report = useMemo(
     () => (detail ? buildAuditReportFromDetail(detail) : null),
     [detail],
@@ -45,37 +42,6 @@ function AuditReport() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-      <AuditReportHeader
-        auditId={report?.auditId ?? "—"}
-        subtitle={report?.title ?? ""}
-        isExporting={isExporting}
-        onExportPdf={report ? handleExportPdf : undefined}
-      />
-
-      {detailQuery.isPending ? (
-        <AuditReportSkeleton />
-      ) : detailQuery.isError ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-ehs-red text-sm">Could not load this report.</p>
-        </div>
-      ) : report ? (
-        <div ref={reportRef} className="min-w-0">
-          <AuditReportView report={report} />
-        </div>
-      ) : (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-ehs-muted-text text-sm">
-            No report found for this audit.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function AuditReportPage() {
-  return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs..."
@@ -84,9 +50,34 @@ export default function AuditReportPage() {
         hasUnreadNotifications
       />
 
-      <Suspense fallback={null}>
-        <AuditReport />
-      </Suspense>
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+        <AuditReportHeader
+          auditId={report?.auditId ?? "—"}
+          subtitle={report?.title ?? ""}
+          isExporting={isExporting}
+          onExportPdf={report ? handleExportPdf : undefined}
+        />
+
+        {detailQuery.isPending ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-muted-text text-sm">Loading report...</p>
+          </div>
+        ) : detailQuery.isError ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-red text-sm">Could not load this report.</p>
+          </div>
+        ) : report ? (
+          <div ref={reportRef} className="min-w-0">
+            <AuditReportView report={report} />
+          </div>
+        ) : (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-muted-text text-sm">
+              No report found for this audit.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -15,10 +15,6 @@ import {
 import { Table } from "@/components/ui/Table";
 import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
-import {
-  AuditDetailPanelSkeleton,
-  AuditPageSkeleton,
-} from "@/components/audits/AuditPageSkeleton";
 import { AuditRegisterToolbar } from "@/components/audits/AuditRegisterToolbar";
 
 const PAGE_SIZE = 10;
@@ -63,7 +59,6 @@ export default function AuditsPage() {
     () => (page?.data ?? []).map(mapAuditDtoToRecord),
     [page],
   );
-  console.log(page);
   // Only offer filters for statuses the backend actually returned.
   const statuses = useMemo(
     () => ["All", ...new Set(records.map((record) => record.status))],
@@ -87,7 +82,6 @@ export default function AuditsPage() {
   // Fetch the clicked audit's detail (GET /api/Audit/{id}) for the side panel.
   const detailQuery = useAuditDetailQuery(selectedId);
   const detailDto = detailQuery.data?.dataModel ?? null;
-  console.log(detailDto);
   const detail = useMemo(
     () => (detailDto ? mapAuditDetailDtoToDetail(detailDto) : null),
     [detailDto],
@@ -103,71 +97,69 @@ export default function AuditsPage() {
         // actionLabel="Start Audit"
         // onActionClick={() => router.push("/dashboard/audits/start")}
       />
-      {auditsQuery.isPending ? (
-        <AuditPageSkeleton />
-      ) : (
-        <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics */}
-          <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-            {AUDIT_METRICS.map((metric) => (
-              <StatMetricCard key={metric.title} {...metric} />
-            ))}
-          </div>
-
-          {auditsQuery.isError ? (
-            <p className="text-ehs-red text-sm">Could not load audits.</p>
-          ) : null}
-
-          {/* Audit register + selected audit breakdown */}
-          <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <Table
-              data={filteredRecords}
-              columns={auditColumns}
-              selectedRowId={selectedId}
-              onRowClick={(row) => setSelectedId(row.id)}
-              getRowId={(row) => row.id}
-              containerClassName="min-w-0"
-              pagination={{
-                pageNumber,
-                pageSize: PAGE_SIZE,
-                totalRecords: page?.totalRecords ?? 0,
-                onPageChange: setPageNumber,
-                isLoading: auditsQuery.isFetching,
-              }}
-              header={
-                <AuditRegisterToolbar
-                  status={activeStatus}
-                  statuses={statuses}
-                  onStatusChange={setSelectedStatus}
-                  onTemplatesClick={() =>
-                    router.push("/dashboard/audits/template")
-                  }
-                />
-              }
-            />
-
-            {selectedId !== null ? (
-              detailQuery.isPending ? (
-                <AuditDetailPanelSkeleton />
-              ) : detailQuery.isError ? (
-                <p className="text-ehs-red text-sm">
-                  Could not load audit detail.
-                </p>
-              ) : detail ? (
-                <AuditDetailPanel
-                  detail={detail}
-                  className="min-w-0"
-                  onViewFindings={() =>
-                    router.push(
-                      `/dashboard/audits/report?auditid=${encodeURIComponent(selectedId)}`,
-                    )
-                  }
-                />
-              ) : null
-            ) : null}
-          </div>
+      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+        {/* KPI Metrics */}
+        <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
+          {AUDIT_METRICS.map((metric) => (
+            <StatMetricCard key={metric.title} {...metric} />
+          ))}
         </div>
-      )}
+
+        {auditsQuery.isPending ? (
+          <p className="text-ehs-muted-text text-sm">Loading audits...</p>
+        ) : auditsQuery.isError ? (
+          <p className="text-ehs-red text-sm">Could not load audits.</p>
+        ) : null}
+
+        {/* Audit register + selected audit breakdown */}
+        <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Table
+            data={filteredRecords}
+            columns={auditColumns}
+            selectedRowId={selectedId}
+            onRowClick={(row) => setSelectedId(row.id)}
+            getRowId={(row) => row.id}
+            containerClassName="min-w-0"
+            pagination={{
+              pageNumber,
+              pageSize: PAGE_SIZE,
+              totalRecords: page?.totalRecords ?? 0,
+              onPageChange: setPageNumber,
+              isLoading: auditsQuery.isFetching,
+            }}
+            header={
+              <AuditRegisterToolbar
+                status={activeStatus}
+                statuses={statuses}
+                onStatusChange={setSelectedStatus}
+                onTemplatesClick={() =>
+                  router.push("/dashboard/audits/template")
+                }
+              />
+            }
+          />
+
+          {selectedId !== null ? (
+            detailQuery.isPending ? (
+              <p className="text-ehs-muted-text text-sm">Loading detail...</p>
+            ) : detailQuery.isError ? (
+              <p className="text-ehs-red text-sm">
+                Could not load audit detail.
+              </p>
+            ) : detail ? (
+              <AuditDetailPanel
+                detail={detail}
+                className="min-w-0"
+                onViewFindings={() =>
+                  router.push(
+                    `/dashboard/audits/report/${encodeURIComponent(selectedId)}`,
+                  )
+                }
+              />
+            ) : null
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

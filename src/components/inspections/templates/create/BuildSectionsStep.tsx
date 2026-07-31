@@ -559,17 +559,10 @@ export type BuildSectionsStepProps = Readonly<{
   onSectionsChange: (sections: TemplateSection[]) => void;
   /** Flag required items with an unfilled value after a failed "Next". */
   highlightUnfilled?: boolean;
-  /** Item ids exempt from the unfilled check (pre-loaded on edit). */
-  exemptItemIds?: ReadonlySet<string>;
 }>;
 
 export function BuildSectionsStep(props: BuildSectionsStepProps) {
-  const {
-    sections,
-    onSectionsChange,
-    highlightUnfilled = false,
-    exemptItemIds,
-  } = props;
+  const { sections, onSectionsChange, highlightUnfilled = false } = props;
 
   const [activeSectionId, setActiveSectionId] = useState(
     () => sections[0]?.id ?? "",
@@ -773,11 +766,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                       item={item}
                       isExpanded={expandedItemId === item.id}
                       isDragging={draggingItemId === item.id}
-                      invalid={
-                        highlightUnfilled &&
-                        !exemptItemIds?.has(item.id) &&
-                        !isItemValueFilled(item)
-                      }
+                      invalid={highlightUnfilled && !isItemValueFilled(item)}
                       onToggleSettings={() => {
                         setExpandedItemId(
                           expandedItemId === item.id ? null : item.id,

@@ -10,10 +10,11 @@ export type AuditTemplateCardProps = Readonly<{
   template: AuditTemplate;
   onUse?: (template: AuditTemplate) => void;
   onEdit?: (template: AuditTemplate) => void;
+  onDownloadPdf?: (template: AuditTemplate) => void;
 }>;
 
 export function AuditTemplateCard(props: AuditTemplateCardProps) {
-  const { template, onUse, onEdit } = props;
+  const { template, onUse, onEdit, onDownloadPdf } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -80,6 +81,22 @@ export function AuditTemplateCard(props: AuditTemplateCardProps) {
                   aria-hidden="true"
                 />
                 Edit template
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onDownloadPdf?.(template);
+                }}
+                className="hover:bg-ehs-light-bg/60 text-ehs-dark-bg flex w-full cursor-pointer items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
+              >
+                <Icon
+                  icon="mdi:tray-arrow-down"
+                  className="text-ehs-gray size-4 shrink-0"
+                  aria-hidden="true"
+                />
+                Download as PDF
               </button>
             </div>
           ) : null}

@@ -1,5 +1,3 @@
-import type { FormValues } from "@/components/form-builder";
-
 /** Answer controls an inspector can get for a checklist item, in picker order. */
 export const TEMPLATE_ITEM_TYPES = [
   "Text",
@@ -314,12 +312,3 @@ export function createInitialSections(): TemplateSection[] {
     },
   ];
 }
-
-/** The full set of data the 5-step wizard edits. */
-export type WizardState = {
-  values: FormValues;
-  sections: TemplateSection[];
-  scoring: ScoringConfig;
-  rules: TemplateRule[];
-  settings: TemplateSettings;
-};

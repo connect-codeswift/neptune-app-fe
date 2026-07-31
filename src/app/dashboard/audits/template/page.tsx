@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditTemplateCard } from "@/components/audits/templates/AuditTemplateCard";
-import { AuditTemplatesSkeleton } from "@/components/audits/templates/AuditTemplatesSkeleton";
 import {
   AuditTemplatesHeader,
   type TemplateStatusFilter,
@@ -66,7 +65,9 @@ export default function AuditTemplatesPage() {
         />
 
         {templatesQuery.isPending ? (
-          <AuditTemplatesSkeleton />
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-ehs-muted-text text-sm">Loading templates...</p>
+          </div>
         ) : templatesQuery.isError ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-ehs-red text-sm">

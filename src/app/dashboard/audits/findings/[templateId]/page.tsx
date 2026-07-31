@@ -37,12 +37,7 @@ export default function AuditFindingsPage() {
       });
     }
 
-    // The report is keyed by the audit run, not the template.
-    router.push(
-      audit
-        ? `/dashboard/audits/report?auditid=${encodeURIComponent(String(audit.id))}`
-        : "/dashboard/audits",
-    );
+    router.push(`/dashboard/audits/report/${encodeURIComponent(templateId)}`);
   };
 
   return (

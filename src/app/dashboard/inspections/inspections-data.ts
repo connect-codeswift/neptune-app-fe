@@ -1,6 +1,4 @@
-/** Status label as the backend reports it (e.g. "Scheduled", "Overdue"). The
- * set isn't fixed here — the register derives its filters from the data. */
-export type InspectionStatus = string;
+export type InspectionStatus = "Scheduled" | "In progress" | "Closed";
 
 export type InspectionRecord = Readonly<{
   id: string;
@@ -105,3 +103,7 @@ export const INSPECTION_DETAILS: readonly InspectionDetail[] = [
   },
 ];
 
+/** Detail for an inspection id, falling back to the first record's panel. */
+export function getInspectionDetail(id: string | null): InspectionDetail | null {
+  return INSPECTION_DETAILS.find((detail) => detail.id === id) ?? null;
+}

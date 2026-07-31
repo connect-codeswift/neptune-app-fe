@@ -4,11 +4,6 @@ import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-d
 
 const columnHelper = createColumnHelper<InspectionRecord>();
 
-/** First `count` whitespace-separated words of `text`, trimmed. */
-function firstWords(text: string, count: number): string {
-  return text.trim().split(/\s+/).slice(0, count).join(" ");
-}
-
 /** Teal fill on a flat track, matching the design's progress meter. */
 function ProgressMeter(props: Readonly<{ value: number }>) {
   const { value } = props;
@@ -37,11 +32,11 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
     header: "INSPECTION",
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg text-base font-normal">
-          {firstWords(row.original.title, 2)}
+        <span className="text-ehs-dark-bg font-normal">
+          {row.original.title}
         </span>
         <span className="text-ehs-muted-text text-xs">
-          {`I-${row.original.id} · ${firstWords(row.original.scope, 3)}`}
+          {`${row.original.id} · ${row.original.scope}`}
         </span>
       </div>
     ),
@@ -51,9 +46,7 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
     header: "SITE",
     size: 110,
     cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()}
-      </span>
+      <span className="text-ehs-gray font-normal">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
@@ -61,9 +54,7 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
     header: "INSPECTOR",
     size: 130,
     cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()?.split(" ").slice(0, 2).join(" ")}
-      </span>
+      <span className="text-ehs-gray font-normal">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
@@ -80,7 +71,7 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
       <IncidentBadge
         label={info.getValue()}
         tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-sm!"
+        className="w-fit rounded-full px-2.5 py-0.5 text-xs!"
       />
     ),
     meta: { align: "left" as const },
@@ -89,10 +80,20 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
     header: "DUE",
     size: 110,
     cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal tabular-nums">
+      <span className="text-ehs-gray font-normal tabular-nums">
         {info.getValue()}
       </span>
     ),
     meta: { align: "left" as const },
+  }),
+  columnHelper.accessor("findings", {
+    header: "FINDINGS",
+    size: 100,
+    cell: (info) => (
+      <span className="text-ehs-muted-text text-xs">
+        {info.getValue() ?? "—"}
+      </span>
+    ),
+    meta: { align: "right" as const },
   }),
 ];

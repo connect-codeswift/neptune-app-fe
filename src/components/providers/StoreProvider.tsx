@@ -15,10 +15,6 @@ import {
   loadSelectedTemplate,
   setSelectedTemplate,
 } from "@/store/audit-template-slice";
-import {
-  loadSelectedInspectionTemplate,
-  setSelectedInspectionTemplate,
-} from "@/store/inspection-template-slice";
 
 export function StoreProvider(props: Readonly<{ children: ReactNode }>) {
   // Hydrate the persisted selections after mount to avoid an SSR mismatch.
@@ -34,11 +30,6 @@ export function StoreProvider(props: Readonly<{ children: ReactNode }>) {
 
     const savedAnswers = loadAuditAnswers();
     if (savedAnswers) store.dispatch(setAuditAnswers(savedAnswers));
-
-    const savedInspectionTemplate = loadSelectedInspectionTemplate();
-    if (savedInspectionTemplate) {
-      store.dispatch(setSelectedInspectionTemplate(savedInspectionTemplate));
-    }
   }, []);
 
   return <Provider store={store}>{props.children}</Provider>;

@@ -1,5 +1,4 @@
 import { IncidentGlassCard } from "@/components/incidents";
-import { Button } from "@/components/ui/Button";
 import type { InspectionDetail } from "@/app/dashboard/inspections/inspections-data";
 
 type Segment = Readonly<{ label: string; value: number; color: string }>;
@@ -61,11 +60,10 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
 export type InspectionDetailPanelProps = Readonly<{
   detail: InspectionDetail;
   className?: string;
-  onViewFindings?: () => void;
 }>;
 
 export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
-  const { detail, className = "", onViewFindings } = props;
+  const { detail, className = "" } = props;
 
   const segments: readonly Segment[] = [
     { label: "Pass", value: detail.items.pass, color: "#10b981" },
@@ -76,24 +74,11 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
 
   return (
     <IncidentGlassCard className={className} incidentGlassCardClassName="gap-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
-          <p className="text-ehs-muted-text">
-            {`${detail.id} · ${String(detail.progress)}% complete`}
-          </p>
-        </div>
-
-        {onViewFindings ? (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onViewFindings}
-            className="shrink-0 rounded-[10px] px-4 py-2 text-sm font-medium"
-          >
-            View Findings
-          </Button>
-        ) : null}
+      <header className="flex flex-col gap-0.5">
+        <h3 className="text-ehs-dark-bg font-bold">{detail.title}</h3>
+        <p className="text-ehs-muted-text text-xs">
+          {`${detail.id} · ${String(detail.progress)}% complete`}
+        </p>
       </header>
 
       <div className="flex items-center gap-5">
@@ -117,7 +102,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
           ))}
         </ul>
       </div>
-      {/* 
+
       <div className="flex flex-col gap-2">
         <h4 className="text-ehs-muted-text text-[10px] font-bold tracking-wider uppercase">
           Top findings
@@ -139,7 +124,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
             </li>
           ))}
         </ul>
-      </div> */}
+      </div>
     </IncidentGlassCard>
   );
 }

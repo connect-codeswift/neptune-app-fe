@@ -3,21 +3,16 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncidentGlassCard } from "@/components/incidents";
-import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useSaveInspectionResponsesMutation } from "@/hooks/use-inspection-mutations";
-import { useInspectionDetailQuery } from "@/hooks/use-inspection-queries";
-import { getCurrentUser } from "@/lib/current-user";
-import { mapInspectionDetailToChecklist } from "@/lib/map-inspection";
 import { toast } from "@/lib/toast";
 import { InspectionChecklistHeader } from "./InspectionChecklistHeader";
-import { InspectionChecklistSkeleton } from "./InspectionChecklistSkeleton";
 import {
   CHECKLIST_ANSWERS,
+  getInspectionChecklist,
   type ChecklistAnswer,
   type ChecklistSection,
 } from "@/app/dashboard/inspections/checklist/inspection-checklist-data";
 
-const INSPECTION_REPORT_ROUTE = "/dashboard/inspections/report";
+const INSPECTION_LIST_ROUTE = "/dashboard/inspections";
 
 type AnswerMap = Record<string, ChecklistAnswer | undefined>;
 
@@ -106,33 +101,21 @@ function SectionCard(
   );
 }
 
-export type InspectionChecklistContentProps = Readonly<{
-  inspectionId: string;
-}>;
+export type InspectionChecklistContentProps = Readonly<{ templateId: string }>;
 
-export function InspectionChecklistContent(
-  props: InspectionChecklistContentProps,
-) {
-  const { inspectionId } = props;
+export function InspectionChecklistContent(props: InspectionChecklistContentProps) {
+  const { templateId } = props;
   const router = useRouter();
 
-  // The detail carries the template snapshot, so its sections and items are
-  // everything the checklist needs.
-  const detailQuery = useInspectionDetailQuery(inspectionId);
-  const detail = detailQuery.data?.dataModel ?? null;
-  console.log(detail);
-  const checklist = useMemo(
-    () => (detail ? mapInspectionDetailToChecklist(detail) : null),
-    [detail],
-  );
+  const checklist = useMemo(() => getInspectionChecklist(templateId), [templateId]);
   const items = useMemo(
-    () => checklist?.sections.flatMap((section) => section.items) ?? [],
+    () => checklist.sections.flatMap((section) => section.items),
     [checklist],
   );
 
-  const saveResponses = useSaveInspectionResponsesMutation();
-  // A fresh inspection run starts with nothing answered.
-  const [answers, setAnswers] = useState<AnswerMap>({});
+  const [answers, setAnswers] = useState<AnswerMap>(() =>
+    Object.fromEntries(items.map((item) => [item.id, item.defaultAnswer])),
+  );
 
   // Score counts "Yes" against everything scorable — N/A items don't apply.
   const answered = items.filter((item) => answers[item.id] !== undefined);
@@ -153,70 +136,21 @@ export function InspectionChecklistContent(
       return;
     }
 
-    const { userId, subCompanyId } = getCurrentUser();
-    // Every item is answered by this point, so send them all as responses.
-    const responses = items.map((item) => {
-      const answer = answers[item.id];
-
-      return {
-        inspectionItemId: Number(item.id),
-        // The checklist has no response sets or per-item notes yet.
-        inspectionResponseOptionId: 0,
-        valueText: answer === "N/A" ? "" : (answer ?? ""),
-        note: "",
-        isNA: answer === "N/A",
-      };
-    });
-
-    saveResponses.mutate(
-      {
-        inspectionId,
-        payload: { userId, subCompanyId, score, responses },
-      },
-      {
-        onSuccess: (response) => {
-          toast.success(response.message || "Inspection submitted");
-
-          // The report reads everything back from GET /api/Inspection/{id}.
-          router.push(
-            `${INSPECTION_REPORT_ROUTE}?inspectionid=${encodeURIComponent(inspectionId)}`,
-          );
-        },
-        onError: (error) => {
-          toast.error(
-            getMutationErrorMessage(
-              error,
-              "Could not submit the inspection. Please try again.",
-            ),
-          );
-        },
-      },
-    );
+    // TODO: wire to an inspection-submit mutation once the service exists.
+    toast.success("Inspection submitted");
+    router.push(INSPECTION_LIST_ROUTE);
   };
-
-  if (detailQuery.isPending) {
-    return <InspectionChecklistSkeleton />;
-  }
-
-  if (detailQuery.isError || !checklist) {
-    return (
-      <div className="flex flex-1 items-center justify-center px-4 pb-8">
-        <p className="text-ehs-red text-sm">Could not load this checklist.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <InspectionChecklistHeader
         inspectionId={checklist.inspectionId}
         subtitle={checklist.subtitle}
-        // Findings aren't wired up yet — re-enable once that flow is ready.
-        // onViewFindings={() =>
-        //   router.push(
-        //     `/dashboard/inspections/findings/${encodeURIComponent(inspectionId)}`,
-        //   )
-        // }
+        onViewFindings={() =>
+          router.push(
+            `/dashboard/inspections/findings/${encodeURIComponent(templateId)}`,
+          )
+        }
       />
 
       {/* Score summary */}
@@ -263,10 +197,9 @@ export function InspectionChecklistContent(
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={saveResponses.isPending}
-          className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-[10px] px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-[10px] px-5 py-2.5 font-medium text-white transition-colors"
         >
-          {saveResponses.isPending ? "Submitting…" : "Submit Inspection"}
+          Submit Inspection
         </button>
       </div>
     </div>

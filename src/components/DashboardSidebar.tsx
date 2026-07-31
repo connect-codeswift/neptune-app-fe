@@ -47,7 +47,7 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
       {
         label: "Hazard",
         href: "/dashboard/hazard",
-        icon: "mdi:alert-octagon-outline",
+        icon: "mdi:alert-triangle-outline",
         badge: 44,
       },
       {
@@ -84,16 +84,6 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         label: "Inspections",
         href: "/dashboard/inspections",
         icon: "mdi:clipboard-text-outline",
-      },
-      {
-        label: "BBS",
-        href: "/dashboard/bbs",
-        icon: "mdi:clipboard-outline",
-      },
-      {
-        label: "Walk & Talk",
-        href: "/dashboard/walk-talk",
-        icon: "mdi:account-multiple-outline",
       },
       {
         label: "Regulatory Compliance",
