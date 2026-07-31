@@ -19,6 +19,10 @@ export type DocumentVersion = Readonly<{
   /** ISO date YYYY-MM-DD for Version History. */
   publishedAt?: string;
   authorFullName?: string;
+  /** This version's own PDF URL — distinct from PolicyDocument.filePath (current version only). */
+  filePath?: string | null;
+  /** This version's own original filename. */
+  fileName?: string | null;
 }>;
 
 export type PolicyDocument = Readonly<{

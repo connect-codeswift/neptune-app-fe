@@ -5,13 +5,17 @@ import {
   getAllDocCategories,
   getAllDocDepartments,
   getAllDocuments,
+  getDocumentAcknowledgements,
   getDocumentById,
   getDocumentCategoryStats,
   getDocumentDashboardKpis,
+  getDocumentVersions,
 } from "@/services/document.service";
+import { mapAcknowledgementsDto } from "@/services/mappers/acknowledgement.mapper";
 import {
   mapDocumentDtosToPolicyDocuments,
   mapDocumentDtoToPolicyDocument,
+  mapVersionDto,
 } from "@/services/mappers/document-list.mapper";
 
 export const documentQueryKeys = {
@@ -19,6 +23,10 @@ export const documentQueryKeys = {
   list: (params: { pageNumber: number; pageSize: number }) =>
     [...documentQueryKeys.all, "list", params] as const,
   detail: (id: number) => [...documentQueryKeys.all, "detail", id] as const,
+  versions: (documentId: number) =>
+    [...documentQueryKeys.all, "versions", documentId] as const,
+  acknowledgements: (documentVersionId: number) =>
+    [...documentQueryKeys.all, "acknowledgements", documentVersionId] as const,
   categories: ["documents", "categories"] as const,
   departments: ["documents", "departments"] as const,
   dashboardKpis: ["documents", "dashboard-kpis"] as const,
@@ -87,6 +95,67 @@ export function useDocumentByIdQuery(options: UseDocumentByIdQueryOptions) {
     },
     select: (dto) =>
       dto ? mapDocumentDtoToPolicyDocument(dto, { departmentNameById }) : null,
+  });
+}
+
+export type UseDocumentVersionsQueryOptions = Readonly<{
+  documentId: number | null;
+  /** Parent should enable only after client mount + token check. */
+  enabled?: boolean;
+}>;
+
+/**
+ * Loads a document's version history via GET /api/Document/{documentId}/versions.
+ */
+export function useDocumentVersionsQuery(
+  options: UseDocumentVersionsQueryOptions,
+) {
+  const { documentId } = options;
+  const enabled =
+    (options.enabled ?? false) && documentId != null && documentId > 0;
+
+  return useQuery({
+    queryKey: documentQueryKeys.versions(documentId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (documentId == null) {
+        return [];
+      }
+      return getDocumentVersions(documentId);
+    },
+    select: (dtos) => dtos.map(mapVersionDto),
+  });
+}
+
+export type UseDocumentAcknowledgementsQueryOptions = Readonly<{
+  documentVersionId: number | null;
+  /** Parent should enable only after client mount + token check. */
+  enabled?: boolean;
+}>;
+
+/**
+ * Loads acknowledgement roster for a document version via
+ * GET /api/Document/versions/{documentVersionId}/acknowledgements.
+ */
+export function useDocumentAcknowledgementsQuery(
+  options: UseDocumentAcknowledgementsQueryOptions,
+) {
+  const { documentVersionId } = options;
+  const enabled =
+    (options.enabled ?? false) &&
+    documentVersionId != null &&
+    documentVersionId > 0;
+
+  return useQuery({
+    queryKey: documentQueryKeys.acknowledgements(documentVersionId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (documentVersionId == null) {
+        return { records: [], acknowledgedCount: 0, pendingCount: 0, completionRate: 0 };
+      }
+      const response = await getDocumentAcknowledgements(documentVersionId);
+      return mapAcknowledgementsDto(response.dataModel);
+    },
   });
 }
 

@@ -2,9 +2,11 @@ import type {
   AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
+  ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
   CreateDocumentVersionRequestDto,
   GetAllDocumentsRequestDto,
+  UpdateDocumentRequestDto,
 } from "@/dtos/req/document-request.dto";
 import type {
   DocCategoryDto,
@@ -16,7 +18,8 @@ import type {
   GetDocumentCategoryStatsResponseDto,
   GetDocumentDashboardKpisResponseDto,
 } from "@/dtos/res/document-response.dto";
-import http from "@/lib/axios";
+import http, { HttpError } from "@/lib/axios";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto.ts";
 
 const DOCUMENT_GET_ALL_PATH = "/Document/allDocuments";
 const DOCUMENT_BY_ID_PATH = "/Document";
@@ -29,6 +32,7 @@ const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
 const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
 const DOCUMENT_CATEGORY_STATS_PATH = "/Document/category-stats";
 const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
+const DOCUMENT_APPROVAL_PATH = "/Document/DocApproval";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -322,22 +326,53 @@ export async function getDocumentCategoryStats() {
 
 /**
  * PUT /api/Document/Acknowledgement
- * Query params only, no body — casing (`AckId`) matches Swagger exactly.
+ * Query param only: `docVersionId`. Backend resolves the user from the auth token.
+ * Throws on success: false so the mutation catches not-assigned/bad-version cases.
  */
 export async function acknowledgeDocument(
   payload: AcknowledgeDocumentRequestDto,
 ) {
-  const { data } = await http.put<unknown>(
+  const { data } = await http.put<ApiEnvelopeDto<unknown>>(
     DOCUMENT_ACKNOWLEDGEMENT_PATH,
     null,
     {
       params: {
-        acknowledgeBy: payload.acknowledgeBy,
         docVersionId: payload.docVersionId,
-        AckId: payload.ackId,
       },
     },
   );
+
+  if (!data.success) {
+    throw new HttpError({
+      message:
+        typeof data.message === "string" && data.message.length > 0
+          ? data.message
+          : "Acknowledgement failed.",
+      status: data.statusCode,
+      data,
+    });
+  }
+
+  return data;
+}
+
+/** GET /api/Document/{documentId}/versions */
+export async function getDocumentVersions(
+  documentId: number,
+): Promise<DocumentVersionDto[]> {
+  const { data } = await http.get<unknown>(
+    `${DOCUMENT_BY_ID_PATH}/${String(documentId)}/versions`,
+  );
+  const list = unwrapListPayload(data);
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.filter(isRecord).map(coerceVersionDto);
+}
+
+/** PUT /api/Document/DocApproval */
+export async function approveDocument(payload: ApproveDocumentRequestDto) {
+  const { data } = await http.put<unknown>(DOCUMENT_APPROVAL_PATH, payload);
 
   return data;
 }
@@ -496,79 +531,67 @@ export async function addDocDepartment(payload: AddDocDepartmentRequestDto) {
   return data;
 }
 
-function toCreateDocumentFormData(
-  payload: CreateDocumentRequestDto,
-): FormData {
-  const formData = new FormData();
-  formData.append("Id", String(payload.id));
-  formData.append("Title", payload.title);
-  formData.append("CategoryId", String(payload.categoryId));
-  formData.append("DepartmentId", String(payload.departmentId));
-  formData.append("PdfFile", payload.pdfFile, payload.pdfFile.name);
-  formData.append("ReviewCycle", payload.reviewCycle);
-  formData.append("CreatedBy", String(payload.createdBy));
-  formData.append("SubCompanyId", String(payload.subCompanyId));
-  formData.append("AckUserIds", payload.ackUserIds);
-  formData.append("ApprovalUserIds", payload.approvalUserIds);
-  return formData;
-}
-
 /**
  * POST /api/Document/document
- * multipart/form-data — see CreateDocumentRequestDto
+ * JSON body — see CreateDocumentRequestDto. `pdfPath` must already be a
+ * resolved Cloudinary URL (uploaded client-side before calling this).
  */
 export async function createDocument(payload: CreateDocumentRequestDto) {
-  const formData = toCreateDocumentFormData(payload);
-  const { data } = await http.post<unknown>(DOCUMENT_CREATE_PATH, formData, {
-    transformRequest: [
-      (body, headers) => {
-        // Drop the JSON default so the runtime can set multipart boundary.
-        if (body instanceof FormData && headers) {
-          delete headers["Content-Type"];
-        }
-        return body;
-      },
-    ],
+  const { data } = await http.post<unknown>(DOCUMENT_CREATE_PATH, {
+    id: payload.id,
+    title: payload.title,
+    categoryId: payload.categoryId,
+    departmentId: payload.departmentId,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
+    reviewCycle: payload.reviewCycle,
+    createdBy: payload.createdBy,
+    subCompanyId: payload.subCompanyId,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
   });
+
   return data;
 }
 
-function toCreateDocumentVersionFormData(
-  payload: CreateDocumentVersionRequestDto,
-): FormData {
-  const formData = new FormData();
-  if (payload.id != null) {
-    formData.append("Id", String(payload.id));
-  }
-  formData.append("DocumentId", String(payload.documentId));
-  formData.append("PdfFile", payload.pdfFile, payload.pdfFile.name);
-  formData.append("UploadedBy", String(payload.uploadedBy));
-  formData.append("AckUserIds", payload.ackUserIds);
-  formData.append("ApprovalUserIds", payload.approvalUserIds);
-  return formData;
+/**
+ * PUT /api/Document/document
+ * JSON body — dedicated update endpoint (distinct from the POST create
+ * endpoint above), takes `updatedBy` instead of `createdBy`/`subCompanyId`.
+ */
+export async function updateDocument(payload: UpdateDocumentRequestDto) {
+  const { data } = await http.put<unknown>(DOCUMENT_CREATE_PATH, {
+    id: payload.id,
+    title: payload.title,
+    categoryId: payload.categoryId,
+    departmentId: payload.departmentId,
+    reviewCycle: payload.reviewCycle,
+    updatedBy: payload.updatedBy,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
+  });
+
+  return data;
 }
 
 /**
  * POST /api/Document/document_version
- * multipart/form-data — attaches a new PDF revision to an existing document.
+ * JSON body — attaches a new PDF revision to an existing document.
  */
 export async function createDocumentVersion(
   payload: CreateDocumentVersionRequestDto,
 ) {
-  const formData = toCreateDocumentVersionFormData(payload);
-  const { data } = await http.post<unknown>(
-    DOCUMENT_VERSION_CREATE_PATH,
-    formData,
-    {
-      transformRequest: [
-        (body, headers) => {
-          if (body instanceof FormData && headers) {
-            delete headers["Content-Type"];
-          }
-          return body;
-        },
-      ],
-    },
-  );
+  const { data } = await http.post<unknown>(DOCUMENT_VERSION_CREATE_PATH, {
+    id: payload.id,
+    documentId: payload.documentId,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
+    uploadedBy: payload.uploadedBy,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
+  });
+
   return data;
 }

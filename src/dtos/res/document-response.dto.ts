@@ -138,6 +138,7 @@ export type GetDocumentCategoryStatsResponseDto = ApiEnvelopeDto<
 /** One row of GET /api/Document/versions/{documentVersionId}/acknowledgements. */
 export type DocumentAcknowledgementRowDto = {
   id?: number | null;
+  userId?: number | null;
   name?: string | null;
   department?: string | null;
   status?: string | null;
@@ -146,12 +147,16 @@ export type DocumentAcknowledgementRowDto = {
 
 /** dataModel shape for GET /api/Document/versions/{documentVersionId}/acknowledgements. */
 export type DocumentAcknowledgementsDto = {
+  documentId?: number | null;
+  documentVersionId?: number | null;
+  versionNo?: number | null;
+  fileName?: string | null;
+  pdfPath?: string | null;
   acknowledgedCount?: number | null;
   pendingCount?: number | null;
   completionRate?: number | null;
   rows?: DocumentAcknowledgementRowDto[] | null;
 };
 
-export type GetDocumentAcknowledgementsResponseDto = ApiEnvelopeDto<
-  DocumentAcknowledgementsDto | null
->;
+export type GetDocumentAcknowledgementsResponseDto =
+  ApiEnvelopeDto<DocumentAcknowledgementsDto | null>;

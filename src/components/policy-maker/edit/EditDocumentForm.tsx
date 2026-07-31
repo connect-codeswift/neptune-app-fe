@@ -14,8 +14,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useAddDocumentCategoryMutation,
   useAddDocumentDepartmentMutation,
-  useCreateDocumentMutation,
-  useCreateDocumentVersionMutation,
+  useUpdateDocumentMutation,
 } from "@/hooks/use-document-mutations";
 import {
   useDocumentCategoriesQuery,
@@ -30,10 +29,12 @@ import { getAuthContext } from "@/lib/auth-context";
 import {
   CLOUDINARY_MAX_BYTES,
   formatFileSize,
+  isCloudinaryPublicConfigReady,
   isPdfMimeType,
 } from "@/lib/cloudinary-constants";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
 export type EditDocumentFormProps = Readonly<{
   document: PolicyDocument;
@@ -61,29 +62,20 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
-/** "v3.1" -> "v3.2". Falls back to the original string if it doesn't parse. */
-function incrementVersionLabel(version: string): string {
-  const match = /^v?(\d+)\.(\d+)$/i.exec(version.trim());
-  if (!match) {
-    return version;
-  }
-  const [, major, minor] = match;
-  return `v${major ?? "1"}.${String(Number(minor ?? "0") + 1)}`;
-}
-
 /**
  * Edit form card (Figma 5568:25826).
- * Saves in two steps: document metadata (title/category/department/reviewCycle)
- * goes through the same POST /api/Document/document endpoint Upload uses (the
- * backend upserts on `id`); the attached PDF is saved as a new revision via
- * POST /api/Document/document_version, which carries no metadata fields.
+ * A replacement PDF is uploaded to Cloudinary client-side first; if none is
+ * picked, the document's existing `filePath`/`fileName` are reused. Saves
+ * through the dedicated PUT /api/Document/document update endpoint, which
+ * already creates a new version record itself when `pdfPath` changes — a
+ * separate POST /api/Document/document_version call is NOT made here, since
+ * that duplicated the version row the PUT endpoint had already created.
  */
 export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
   const { document } = props;
   const router = useRouter();
 
-  const createDocumentMutation = useCreateDocumentMutation();
-  const createDocumentVersionMutation = useCreateDocumentVersionMutation();
+  const updateDocumentMutation = useUpdateDocumentMutation();
   const addCategoryMutation = useAddDocumentCategoryMutation();
   const addDepartmentMutation = useAddDocumentDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
@@ -91,7 +83,9 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
   const usersQuery = useUserDropdownQuery();
 
   const [file, setFile] = useState<File | null>(null);
+  const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const title = document.title;
   const [categoryId, setCategoryId] = useState(
     document.categoryId != null ? String(document.categoryId) : "",
@@ -107,11 +101,9 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     ...(document.approverIds ?? []),
   ]);
   const [versionNotes, setVersionNotes] = useState("");
-  const [submitAsNewVersion, setSubmitAsNewVersion] = useState(true);
   const titleInputId = useId();
   const versionNotesId = useId();
 
-  const nextVersionLabel = incrementVersionLabel(document.version);
   const currentFileName = documentFileName(document);
   const currentFileMeta =
     document.fileSize === "—"
@@ -250,7 +242,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     }
   };
 
-  const handleReplaceFile = (next: File) => {
+  const handleReplaceFile = async (next: File) => {
     if (!isPdfFile(next)) {
       setFileError("Only PDF files are allowed.");
       return;
@@ -259,16 +251,44 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       setFileError("File must be 50MB or smaller.");
       return;
     }
+    if (!isCloudinaryPublicConfigReady()) {
+      setFileError(
+        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
+      );
+      return;
+    }
+
     setFile(next);
+    setPdfSecureUrl(null);
     setFileError(null);
-    toast.success("File selected", `${next.name} will replace the current PDF.`);
+    setIsUploadingPdf(true);
+    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+
+    try {
+      const result = await uploadFileToCloudinary(next);
+      setPdfSecureUrl(result.secureUrl);
+      toast.success("File uploaded", `${next.name} will replace the current PDF.`);
+    } catch (error: unknown) {
+      setFile(null);
+      setPdfSecureUrl(null);
+      const message = getMutationErrorMessage(
+        error,
+        error instanceof Error
+          ? error.message
+          : "Failed to upload PDF to Cloudinary.",
+      );
+      setFileError(message);
+      toast.error("Upload failed", message);
+    } finally {
+      setIsUploadingPdf(false);
+    }
   };
 
-  const isSubmitting =
-    createDocumentMutation.isPending || createDocumentVersionMutation.isPending;
+  const isSubmitting = updateDocumentMutation.isPending;
   const isAddingCategory = addCategoryMutation.isPending;
   const isAddingDepartment = addDepartmentMutation.isPending;
-  const busy = isSubmitting || isAddingCategory || isAddingDepartment;
+  const busy =
+    isSubmitting || isUploadingPdf || isAddingCategory || isAddingDepartment;
   const lookupsLoading =
     categoriesQuery.isLoading ||
     departmentsQuery.isLoading ||
@@ -300,9 +320,17 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       toast.error("Missing approvers", "Select at least one approver.");
       return;
     }
-    if (!file) {
+    if (isUploadingPdf) {
+      toast.error("Still uploading", "Wait for the PDF upload to finish.");
+      return;
+    }
+
+    const pdfPath = file && pdfSecureUrl ? pdfSecureUrl : document.filePath;
+    const resolvedFileName = (file ? file.name : document.fileName) ?? "";
+
+    if (!pdfPath) {
       setFileError(
-        "Select the PDF again to save — the same upload endpoint is used for edits and always needs a file.",
+        "This document has no file on record — attach a PDF to save.",
       );
       return;
     }
@@ -318,35 +346,20 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     const approvalUserIdsCsv = approverIds.join(",");
 
     try {
-      await createDocumentMutation.mutateAsync({
+      await updateDocumentMutation.mutateAsync({
         id: numericId,
         title: title.trim(),
         categoryId: Number(categoryId),
         departmentId: Number(departmentId),
-        pdfFile: file,
+        pdfPath,
+        fileName: resolvedFileName,
         reviewCycle,
-        createdBy: auth.userId,
-        subCompanyId: auth.subCompanyId,
+        updatedBy: auth.userId,
         ackUserIds: ackUserIdsCsv,
         approvalUserIds: approvalUserIdsCsv,
       });
 
-      if (submitAsNewVersion) {
-        await createDocumentVersionMutation.mutateAsync({
-          documentId: numericId,
-          pdfFile: file,
-          uploadedBy: auth.userId,
-          ackUserIds: ackUserIdsCsv,
-          approvalUserIds: approvalUserIdsCsv,
-        });
-      }
-
-      toast.success(
-        "Changes saved",
-        submitAsNewVersion
-          ? `${title.trim()} was updated — ${nextVersionLabel} created.`
-          : `${title.trim()} was updated.`,
-      );
+      toast.success("Changes saved", `${title.trim()} was updated.`);
       router.push(`/dashboard/policy-maker/${encodeURIComponent(document.id)}`);
     } catch (error: unknown) {
       toast.error(
@@ -363,10 +376,14 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           fileName={file ? file.name : currentFileName}
           fileMeta={
             file
-              ? `${formatFileSize(file.size)} · Replacement selected`
+              ? isUploadingPdf
+                ? `${formatFileSize(file.size)} · Uploading…`
+                : `${formatFileSize(file.size)} · Replacement selected`
               : currentFileMeta
           }
-          onReplaceFile={handleReplaceFile}
+          onReplaceFile={(next) => {
+            void handleReplaceFile(next);
+          }}
         />
         {fileError ? (
           <p className="-mt-3 text-[12px] text-[#ef4444]">{fileError}</p>
@@ -499,17 +516,6 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             className={`${controlClass} !h-auto resize-none`}
           />
         </div>
-
-        <label className="flex w-fit items-center gap-2 text-[13px] font-medium text-[#0b1320]">
-          <input
-            type="checkbox"
-            checked={submitAsNewVersion}
-            onChange={(event) => setSubmitAsNewVersion(event.target.checked)}
-            disabled={busy}
-            className="size-4 rounded border-[rgba(11,19,32,0.2)] accent-[#0891a6]"
-          />
-          {`Submit as new version (creates ${nextVersionLabel})`}
-        </label>
 
         <div className="flex flex-col-reverse items-stretch gap-3 pt-2.5 sm:flex-row sm:items-center sm:justify-end">
           <Button

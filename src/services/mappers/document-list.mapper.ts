@@ -65,7 +65,13 @@ function versionBadge(
 
 function buildVersions(
   versions: readonly DocumentVersionDto[] | null | undefined,
-  fallback: Readonly<{ version: string; ownerFullName: string; updated: string }>,
+  fallback: Readonly<{
+    version: string;
+    ownerFullName: string;
+    updated: string;
+    filePath: string | null;
+    fileName: string | null;
+  }>,
 ): readonly DocumentVersion[] {
   if (versions && versions.length > 0) {
     return versions.map(mapVersionDto);
@@ -82,11 +88,13 @@ function buildVersions(
           ? "—"
           : fallback.updated.slice(5).replace("-", " "),
       badge: "current",
+      filePath: fallback.filePath,
+      fileName: fallback.fileName,
     },
   ];
 }
 
-function mapVersionDto(entry: DocumentVersionDto): DocumentVersion {
+export function mapVersionDto(entry: DocumentVersionDto): DocumentVersion {
   const authorFullName = entry.updatedByName?.trim() || "—";
   const date = formatDate(entry.updatedAt);
   return {
@@ -97,6 +105,8 @@ function mapVersionDto(entry: DocumentVersionDto): DocumentVersion {
     publishedAt: entry.updatedAt?.trim() || undefined,
     badge: versionBadge(entry),
     changeLog: entry.changeSummary?.trim() || undefined,
+    filePath: entry.filePath?.trim() || undefined,
+    fileName: entry.fileName?.trim() || undefined,
   };
 }
 
@@ -291,7 +301,13 @@ export function mapDocumentDtoToPolicyDocument(
     updated,
     reviewersDone,
     reviewersTotal,
-    versions: buildVersions(document.versions, { version, ownerFullName, updated }),
+    versions: buildVersions(document.versions, {
+      version,
+      ownerFullName,
+      updated,
+      filePath,
+      fileName,
+    }),
     filePath,
     fileName,
     fileType: document.fileType?.trim() || "PDF",
