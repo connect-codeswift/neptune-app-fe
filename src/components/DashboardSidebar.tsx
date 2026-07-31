@@ -65,6 +65,11 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         href: "/dashboard/capa",
         icon: "mdi:refresh",
       },
+      {
+        label: "HazCom",
+        href: "/hazcom",
+        icon: "healthicons:chemical-burn",
+      },
     ],
   },
   {
