@@ -60,6 +60,25 @@ export type InspectionTemplateLogicRequestDto = {
   inspectionTemplateId: number;
 };
 
+/** An item on the update body — the FK fields differ from the create shape. */
+export type UpdateInspectionTemplateItemRequestDto = Omit<
+  InspectionTemplateItemRequestDto,
+  "responseSetId" | "templateSectionId"
+> & {
+  /** Null until the item is backed by a response set. */
+  inspectionResponseSetId: number | null;
+  /** The parent section's id; 0 for a section being created. */
+  inspectionSectionId: number;
+};
+
+/** A section on the update body, carrying its items. */
+export type UpdateInspectionTemplateSectionRequestDto = Omit<
+  InspectionTemplateSectionRequestDto,
+  "items"
+> & {
+  items: UpdateInspectionTemplateItemRequestDto[];
+};
+
 /** Matches the backend body for creating an inspection template. */
 export type CreateInspectionTemplateRequestDto = {
   templateName: string;
@@ -86,4 +105,15 @@ export type CreateInspectionTemplateRequestDto = {
   subCompanyId: number;
   sections: InspectionTemplateSectionRequestDto[];
   conditionalLogics: InspectionTemplateLogicRequestDto[];
+};
+
+/**
+ * Matches the backend body for PUT /api/InspectionTemplate/{id}, which renames
+ * the item FKs to `inspectionResponseSetId` / `inspectionSectionId`.
+ */
+export type UpdateInspectionTemplateRequestDto = Omit<
+  CreateInspectionTemplateRequestDto,
+  "sections"
+> & {
+  sections: UpdateInspectionTemplateSectionRequestDto[];
 };

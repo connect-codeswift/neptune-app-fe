@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -8,7 +8,12 @@ import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useCreateInspectionTemplateMutation } from "@/hooks/use-inspection-template-mutations";
+import { getCurrentUser } from "@/lib/current-user";
+import {
+  useCreateInspectionTemplateMutation,
+  usePublishInspectionTemplateMutation,
+  useUpdateInspectionTemplateMutation,
+} from "@/hooks/use-inspection-template-mutations";
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
@@ -28,12 +33,16 @@ import {
   type TemplateRule,
   type TemplateSection,
   type TemplateSettings,
+  type WizardState,
 } from "./template-builder-data";
 import {
   createTemplateInitialValues,
   createTemplateSchema,
 } from "./create-template-schema";
-import { toInspectionTemplatePayload } from "./to-template-payload";
+import {
+  toInspectionTemplatePayload,
+  toInspectionTemplateUpdatePayload,
+} from "./to-template-payload";
 
 const TEMPLATES_ROUTE = "/dashboard/inspections/template";
 const BASIC_INFO_FORM_ID = "create-template-basic-info";
@@ -77,24 +86,70 @@ function TemplatePreview(
   );
 }
 
-export function CreateTemplateContent() {
+export type CreateTemplateContentProps = Readonly<{
+  /** Seed all steps from an existing template (edit mode). */
+  initialState?: WizardState;
+  /** "edit" changes the heading and exempts pre-loaded items from the
+   * answer-value check, since a template defines questions, not answers. */
+  mode?: "create" | "edit";
+  /** Id of the template being edited — sent so children keep their ids. */
+  templateId?: string;
+}>;
+
+export function CreateTemplateContent(props: CreateTemplateContentProps) {
+  const { initialState, mode = "create", templateId } = props;
+  const isEdit = mode === "edit";
   const router = useRouter();
 
   const [step, setStep] = useState(1);
 
   // Mirrors the form so the preview can react as the user types.
-  const [values, setValues] = useState<FormValues>(createTemplateInitialValues);
-  const [sections, setSections] = useState<TemplateSection[]>(
-    createInitialSections,
+  const [values, setValues] = useState<FormValues>(
+    () => initialState?.values ?? createTemplateInitialValues,
   );
-  const [scoring, setScoring] = useState<ScoringConfig>(createScoringConfig);
-  const [rules, setRules] = useState<TemplateRule[]>([]);
-  const [settings, setSettings] = useState<TemplateSettings>(createSettings);
+  const [sections, setSections] = useState<TemplateSection[]>(
+    () => initialState?.sections ?? createInitialSections(),
+  );
+  const [scoring, setScoring] = useState<ScoringConfig>(
+    () => initialState?.scoring ?? createScoringConfig(),
+  );
+  const [rules, setRules] = useState<TemplateRule[]>(
+    () => initialState?.rules ?? [],
+  );
+  const [settings, setSettings] = useState<TemplateSettings>(
+    () => initialState?.settings ?? createSettings(),
+  );
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
-  const createTemplate = useCreateInspectionTemplateMutation();
+  // Items present when editing began — these are exempt from the "must fill a
+  // value" rule; only items added during this session must be filled.
+  const initialItemIds = useMemo(() => {
+    const ids = new Set<string>();
+    (initialState?.sections ?? []).forEach((section) =>
+      section.items.forEach((item) => ids.add(item.id)),
+    );
+    return ids;
+  }, [initialState]);
 
-  /** POST the wizard state as a draft or a published template. */
+  const createTemplate = useCreateInspectionTemplateMutation();
+  const updateTemplate = useUpdateInspectionTemplateMutation();
+  const publishTemplate = usePublishInspectionTemplateMutation();
+
+  /** Publish an already-saved template via POST /api/InspectionTemplate/{id}/publish. */
+  const publishSavedTemplate = (
+    templateId: string,
+    onSuccess: () => void,
+    onError: (error: unknown) => void,
+  ) => {
+    const { userId, subCompanyId } = getCurrentUser();
+    publishTemplate.mutate(
+      { templateId, payload: { userId, subCompanyId } },
+      { onSuccess, onError },
+    );
+  };
+
+  /** Persist the wizard state as a draft or a published template. In edit mode
+   * with a known id this PUTs an update; otherwise it POSTs a new template. */
   const submitTemplate = (publish: boolean) => {
     // The backend rejects the whole template if any rule is half-filled.
     if (rules.some((rule) => !isRuleComplete(rule))) {
@@ -106,29 +161,81 @@ export function CreateTemplateContent() {
     }
 
     const draft = { values, sections, scoring, rules, settings };
-    const payload = toInspectionTemplatePayload(draft, { publish });
 
-    createTemplate.mutate(payload, {
-      // Prefer the backend's own wording; fall back to ours when it sends none.
-      onSuccess: () => {
-        toast.success(
+    const handlePublishSuccess = () => {
+      toast.success(
+        isEdit
+          ? "Inspection template updated successfully"
+          : "Inspection template published successfully",
+      );
+      router.push(TEMPLATES_ROUTE);
+    };
+
+    const handleSaveSuccess = () => {
+      toast.success(
+        isEdit ? "Inspection draft updated" : "Inspection draft saved",
+      );
+    };
+
+    const onError = (error: unknown) => {
+      toast.error(
+        getMutationErrorMessage(
+          error,
           publish
-            ? "Inspection template published successfully"
-            : "Inspection Draft saved",
-        );
-        if (publish) router.push(TEMPLATES_ROUTE);
-      },
-      onError: (error) => {
-        toast.error(
-          getMutationErrorMessage(
-            error,
-            publish
-              ? "Could not publish the template. Please try again."
-              : "Could not save the draft. Please try again.",
-          ),
-        );
-      },
-    });
+            ? "Could not publish the template. Please try again."
+            : "Could not save the draft. Please try again.",
+        ),
+      );
+    };
+
+    if (isEdit && templateId) {
+      // Existing sections/items/logics keep their ids so the backend updates
+      // those rows instead of creating duplicates.
+      const payload = toInspectionTemplateUpdatePayload(draft, {
+        publish,
+        templateId,
+      });
+      updateTemplate.mutate(
+        { templateId, payload },
+        {
+          onSuccess: (response) => {
+            console.log(response);
+            if (publish) {
+              // The update returns the saved template — publish it by id.
+              publishSavedTemplate(
+                String(response?.dataModel?.id ?? templateId),
+                handlePublishSuccess,
+                onError,
+              );
+            } else {
+              handleSaveSuccess();
+            }
+          },
+          onError,
+        },
+      );
+    } else {
+      createTemplate.mutate(toInspectionTemplatePayload(draft, { publish }), {
+        onSuccess: (response) => {
+          if (publish) {
+            // The create returns the new template — publish it by id.
+            const createdId = response?.dataModel?.id;
+            if (createdId) {
+              publishSavedTemplate(
+                String(createdId),
+                handlePublishSuccess,
+                onError,
+              );
+            } else {
+              handlePublishSuccess();
+            }
+          } else {
+            handleSaveSuccess();
+          }
+        },
+        onError,
+      });
+    }
   };
 
   const handleSaveDraft = () => {
@@ -149,8 +256,13 @@ export function CreateTemplateContent() {
       return;
     }
 
+    // A saved template defines questions, not answers, so pre-loaded items are
+    // exempt when editing — but a newly added item must still be filled.
     const hasUnfilled = sections.some((section) =>
-      section.items.some((item) => !isItemValueFilled(item)),
+      section.items.some(
+        (item) =>
+          (!isEdit || !initialItemIds.has(item.id)) && !isItemValueFilled(item),
+      ),
     );
     if (hasUnfilled) {
       setShowUnfilledItems(true);
@@ -209,7 +321,7 @@ export function CreateTemplateContent() {
               aria-hidden="true"
             />
             <span className="text-ehs-muted-text text-sm font-medium">
-              Create Template
+              {isEdit ? "Edit Template" : "Create Template"}
             </span>
           </nav>
 
@@ -217,7 +329,7 @@ export function CreateTemplateContent() {
             as="h1"
             className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
           >
-            Create Inspection Template
+            {isEdit ? "Edit Inspection Template" : "Create Inspection Template"}
           </Text>
 
           <Text as="p" className="text-ehs-muted-text text-sm">
@@ -279,6 +391,7 @@ export function CreateTemplateContent() {
           sections={sections}
           onSectionsChange={setSections}
           highlightUnfilled={showUnfilledItems}
+          exemptItemIds={isEdit ? initialItemIds : undefined}
         />
       ) : step === 3 ? (
         <ScoringLogicStep
@@ -298,7 +411,11 @@ export function CreateTemplateContent() {
           scoring={scoring}
           rules={rules}
           settings={settings}
-          isSubmitting={createTemplate.isPending}
+          isSubmitting={
+            createTemplate.isPending ||
+            updateTemplate.isPending ||
+            publishTemplate.isPending
+          }
           onEditStep={setStep}
           onPublish={handlePublish}
           onSaveDraft={handleSaveDraft}

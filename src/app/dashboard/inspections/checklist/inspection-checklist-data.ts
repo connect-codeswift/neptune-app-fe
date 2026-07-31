@@ -98,11 +98,5 @@ const DEFAULT_CHECKLIST: InspectionChecklist = {
   ],
 };
 
-/**
- * Checklist for a template. Every template shares the same fixture for now —
- * swap this for a fetch once the inspections API exists.
- */
-export function getInspectionChecklist(templateId: string): InspectionChecklist {
-  void templateId;
-  return DEFAULT_CHECKLIST;
-}
+/** Kept as a reference fixture; the checklist now loads from the API. */
+export const INSPECTION_CHECKLIST_FIXTURE = DEFAULT_CHECKLIST;

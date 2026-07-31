@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { InspectionTemplateCard } from "@/components/inspections/templates/InspectionTemplateCard";
+import { InspectionTemplatesSkeleton } from "@/components/inspections/templates/InspectionTemplatesSkeleton";
 import {
   InspectionTemplatesHeader,
   type TemplateStatusFilter,
@@ -11,12 +12,15 @@ import {
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useInspectionTemplatesQuery } from "@/hooks/use-inspection-template-queries";
 import { mapInspectionTemplateDtoToCard } from "@/lib/map-inspection-template";
+import { setSelectedInspectionTemplate } from "@/store/inspection-template-slice";
+import { useAppDispatch } from "@/store/hooks";
 
 const START_INSPECTION_ROUTE = "/dashboard/inspections/start";
 const PAGE_SIZE = 10;
 
 export default function InspectionTemplatesPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [pageNumber, setPageNumber] = useState(1);
   const [status, setStatus] = useState<TemplateStatusFilter>("Published");
 
@@ -25,6 +29,7 @@ export default function InspectionTemplatesPage() {
     pageSize: PAGE_SIZE,
     status,
   });
+  console.log(templatesQuery.data);
 
   const page = templatesQuery.data?.dataModel;
   const templates = useMemo(
@@ -62,9 +67,7 @@ export default function InspectionTemplatesPage() {
         />
 
         {templatesQuery.isPending ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text text-sm">Loading templates...</p>
-          </div>
+          <InspectionTemplatesSkeleton />
         ) : templatesQuery.isError ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-ehs-red text-sm">
@@ -92,6 +95,17 @@ export default function InspectionTemplatesPage() {
                       `${START_INSPECTION_ROUTE}?templateId=${encodeURIComponent(used.id)}`,
                     )
                   }
+                  onEdit={(edited) => {
+                    // Stash the template so the edit wizard can seed its basic
+                    // info without refetching the whole list.
+                    const dto = (page?.data ?? []).find(
+                      (row) => String(row.id) === edited.id,
+                    );
+                    if (dto) dispatch(setSelectedInspectionTemplate(dto));
+                    router.push(
+                      `/dashboard/inspections/template/edit?templateid=${encodeURIComponent(edited.id)}`,
+                    );
+                  }}
                 />
               ))}
             </div>

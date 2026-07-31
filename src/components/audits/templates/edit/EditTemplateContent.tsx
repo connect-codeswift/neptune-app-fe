@@ -7,6 +7,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";
 import { mapDetailToWizardState } from "@/lib/map-audit-template";
 import { CreateTemplateContent } from "@/components/audits/templates/create/CreateTemplateContent";
+import { EditTemplateSkeleton } from "./EditTemplateSkeleton";
 import { loadSelectedTemplate } from "@/store/audit-template-slice";
 import { useAppSelector } from "@/store/hooks";
 
@@ -31,9 +32,7 @@ export function EditTemplateContent(props: Readonly<{ templateId: string }>) {
   const detailQuery = useAuditTemplateDetailQuery(templateId, summary);
   // Wait for hydration so the wizard mounts once, with the summary resolved.
   if (!hydrated || detailQuery.isPending) {
-    return (
-      <p className="text-ehs-muted-text px-4 text-sm">Loading template...</p>
-    );
+    return <EditTemplateSkeleton />;
   }
 
   if (detailQuery.isError) {

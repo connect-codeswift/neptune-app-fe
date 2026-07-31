@@ -163,6 +163,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
       // Both create and update answer with the standard envelope, so prefer the
       // backend's own wording and fall back to ours when it sends none.
       onSuccess: (response: ApiEnvelopeDto<unknown>) => {
+        console.log(response);
         toast.success(
           response.message || (publish ? "Template published" : "Draft saved"),
         );
