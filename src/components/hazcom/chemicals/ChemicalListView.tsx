@@ -58,7 +58,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               <Icon icon="mdi:download" className="text-base" aria-hidden="true" />
               Export
             </Button>
-            <Link href="/hazcom/chemicals/new">
+            <Link href="/dashboard/hazcom/chemicals/new">
               <Button
                 type="button"
                 variant="primary"

@@ -167,14 +167,14 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
-          href={`/hazcom/chemicals/${row.original.id}`}
+          href={`/dashboard/hazcom/chemicals/${row.original.id}`}
           aria-label={`View ${row.original.name}`}
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white transition-colors"
         >
           <Icon icon="mdi:eye-outline" className="size-4" aria-hidden="true" />
         </Link>
         <Link
-          href={`/hazcom/chemicals/${row.original.id}/edit`}
+          href={`/dashboard/hazcom/chemicals/${row.original.id}/edit`}
           aria-label={`Edit ${row.original.name}`}
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white transition-colors"
         >

@@ -20,7 +20,7 @@ export function HazcomTrainingLogPageClient() {
         title="HazCom Training Log"
         subtitle="Record training sessions, attendees, chemicals covered, and digital sign-offs"
         actions={
-          <Link href="/hazcom/training/new">
+          <Link href="/dashboard/hazcom/training/new">
             <Button type="button" variant="primary">
               <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
               Log Training Session

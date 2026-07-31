@@ -54,7 +54,7 @@ export function HazcomNewTrainingSessionForm(
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push("/hazcom/training");
+    router.push("/dashboard/hazcom/training");
   };
 
   return (
@@ -127,7 +127,7 @@ export function HazcomNewTrainingSessionForm(
         />
 
         <div className="mt-2 flex items-center justify-end gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
-          <Link href="/hazcom/training">
+          <Link href="/dashboard/hazcom/training">
             <Button type="button" variant="tertiary">
               Cancel
             </Button>

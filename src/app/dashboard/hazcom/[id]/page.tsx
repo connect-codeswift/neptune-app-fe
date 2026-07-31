@@ -7,5 +7,5 @@ export default async function HazcomDashboardDetailStubPage({
 }) {
   const { id } = await params;
 
-  redirect(`/hazcom/chemicals/${encodeURIComponent(id)}`);
+  redirect(`/dashboard/hazcom/chemicals/${encodeURIComponent(id)}`);
 }

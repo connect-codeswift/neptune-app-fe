@@ -32,7 +32,7 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
       <Text as="p" className="text-ehs-muted-text max-w-sm text-sm">
         {`No chemical record matches "${chemicalId}". It may have been removed from the inventory.`}
       </Text>
-      <Link href="/hazcom/chemicals">
+      <Link href="/dashboard/hazcom/chemicals">
         <Button
           type="button"
           variant="secondary"

@@ -40,7 +40,7 @@ export function SdsLibraryPageClient() {
         title="SDS Library"
         subtitle="Central repository for all Safety Data Sheets — 16-section GHS format"
         actions={
-          <Link href="/hazcom/sds/upload">
+          <Link href="/dashboard/hazcom/sds/upload">
             <Button type="button" variant="primary">
               <Icon
                 icon="mdi:tray-arrow-up"

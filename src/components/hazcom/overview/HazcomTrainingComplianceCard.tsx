@@ -41,7 +41,7 @@ export function HazcomTrainingComplianceCard(
           Training Compliance
         </Text>
         <Link
-          href="/hazcom/training"
+          href="/dashboard/hazcom/training"
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
         >
           View all

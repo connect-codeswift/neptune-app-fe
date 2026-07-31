@@ -44,7 +44,7 @@ export function HazcomRiskAssessmentsPageClient() {
         title="Chemical Risk Assessments"
         subtitle="All risk assessments for chemical exposure scenarios"
         actions={
-          <Link href="/hazcom/risk-assessments/new">
+          <Link href="/dashboard/hazcom/risk-assessments/new">
             <Button type="button" variant="primary">
               <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
               New Assessment

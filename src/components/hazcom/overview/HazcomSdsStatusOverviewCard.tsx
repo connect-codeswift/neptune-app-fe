@@ -52,7 +52,7 @@ export function HazcomSdsStatusOverviewCard(
           SDS Status Overview
         </Text>
         <Link
-          href="/hazcom/sds"
+          href="/dashboard/hazcom/sds"
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
         >
           View SDS library
@@ -99,7 +99,7 @@ export function HazcomSdsStatusOverviewCard(
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Link
-          href="/hazcom/sds/upload"
+          href="/dashboard/hazcom/sds/upload"
           className={[ehsButtonBaseClass, ehsButtonSecondaryClass, "text-[13px]"].join(
             " ",
           )}
@@ -108,7 +108,7 @@ export function HazcomSdsStatusOverviewCard(
           Upload SDS
         </Link>
         <Link
-          href="/hazcom/risk-assessments"
+          href="/dashboard/hazcom/risk-assessments"
           className={[ehsButtonBaseClass, ehsButtonTertiaryClass, "text-[13px]"].join(
             " ",
           )}

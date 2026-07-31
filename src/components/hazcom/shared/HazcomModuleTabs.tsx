@@ -10,34 +10,34 @@ export type HazcomModuleTabsProps = Readonly<{
 
 export const HAZCOM_TABS = [
   {
-    href: "/hazcom/overview",
+    href: "/dashboard/hazcom/overview",
     label: "Overview",
     icon: "mdi:view-dashboard-outline",
   },
   {
-    href: "/hazcom/chemicals",
+    href: "/dashboard/hazcom/chemicals",
     label: "Chemical Inventory",
     icon: "mdi:flask-outline",
   },
   {
-    href: "/hazcom/sds",
+    href: "/dashboard/hazcom/sds",
     label: "SDS Library",
     icon: "mdi:file-document-outline",
   },
   {
-    href: "/hazcom/training",
+    href: "/dashboard/hazcom/training",
     label: "Training",
     icon: "mdi:school-outline",
   },
   {
-    href: "/hazcom/risk-assessments",
+    href: "/dashboard/hazcom/risk-assessments",
     label: "Reports",
     icon: "mdi:chart-box-outline",
   },
 ] as const;
 
-const SDS_LIBRARY_HREF = "/hazcom/sds";
-const LABELS_HREF = "/hazcom/labels";
+const SDS_LIBRARY_HREF = "/dashboard/hazcom/sds";
+const LABELS_HREF = "/dashboard/hazcom/labels";
 
 export function HazcomModuleTabs(props: Readonly<HazcomModuleTabsProps>) {
   const { className = "" } = props;

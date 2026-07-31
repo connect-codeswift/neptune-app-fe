@@ -10,12 +10,12 @@ export type IncidentViewTabsProps = Readonly<{
 
 const TABS = [
   {
-    href: "/incidents/dashboard",
+    href: "/dashboard/incidents/dashboard",
     label: "Dashboard",
     icon: "mdi:view-dashboard-outline",
   },
   {
-    href: "/incidents/list",
+    href: "/dashboard/incidents/list",
     label: "Incident list",
     icon: "mdi:format-list-bulleted",
   },

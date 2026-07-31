@@ -57,11 +57,11 @@ export function HazcomRiskAssessmentForm(
 
   const handleSubmitForReview = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push("/hazcom/risk-assessments");
+    router.push("/dashboard/hazcom/risk-assessments");
   };
 
   const handleSaveDraft = () => {
-    router.push("/hazcom/risk-assessments");
+    router.push("/dashboard/hazcom/risk-assessments");
   };
 
   return (
@@ -179,7 +179,7 @@ export function HazcomRiskAssessmentForm(
         />
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
-          <Link href="/hazcom/risk-assessments">
+          <Link href="/dashboard/hazcom/risk-assessments">
             <Button type="button" variant="tertiary">
               <Icon
                 icon="mdi:arrow-left"

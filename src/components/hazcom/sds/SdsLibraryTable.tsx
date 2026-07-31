@@ -44,7 +44,7 @@ const columns = [
     meta: { align: "left" },
     cell: (info) => (
       <Link
-        href={`/hazcom/sds/${info.getValue()}`}
+        href={`/dashboard/hazcom/sds/${info.getValue()}`}
         className="text-ehs-dark-blue text-[13px] font-bold hover:underline"
       >
         {info.getValue()}
@@ -155,7 +155,7 @@ const columns = [
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
-          href={`/hazcom/sds/${row.original.id}`}
+          href={`/dashboard/hazcom/sds/${row.original.id}`}
           aria-label={`View ${row.original.chemicalName} SDS`}
           title="View SDS"
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"

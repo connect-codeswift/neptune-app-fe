@@ -34,7 +34,7 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
     items: [
       {
         label: "Incidents",
-        href: "/incidents",
+        href: "/dashboard/incidents",
         icon: "mdi:alert-outline",
         badge: 12,
       },
@@ -67,7 +67,7 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
       },
       {
         label: "HazCom",
-        href: "/hazcom",
+        href: "/dashboard/hazcom",
         icon: "healthicons:chemical-burn",
       },
     ],

@@ -65,8 +65,8 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
 
   const cancelHref =
     mode === "edit" && chemical
-      ? `/hazcom/chemicals/${chemical.id}`
-      : "/hazcom/chemicals";
+      ? `/dashboard/hazcom/chemicals/${chemical.id}`
+      : "/dashboard/hazcom/chemicals";
   const primaryLabel = mode === "add" ? "Add Chemical" : "Save Changes";
 
   /**
@@ -80,7 +80,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   }
 
   function handleSaveDraft() {
-    router.push("/hazcom/chemicals");
+    router.push("/dashboard/hazcom/chemicals");
   }
 
   return (

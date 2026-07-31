@@ -60,7 +60,7 @@ export function SdsViewerPageClient(
           <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
             {`No SDS record exists for ID "${sdsIdParam}". It may have been removed, or the link is incorrect.`}
           </Text>
-          <Link href="/hazcom/sds">
+          <Link href="/dashboard/hazcom/sds">
             <Button type="button" variant="secondary" className="mt-1">
               <Icon
                 icon="mdi:arrow-left"

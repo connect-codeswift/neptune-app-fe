@@ -87,7 +87,7 @@ export function SdsUploadPageClient() {
   };
 
   const handleDone = () => {
-    router.push("/hazcom/sds");
+    router.push("/dashboard/hazcom/sds");
   };
 
   return (
@@ -224,7 +224,7 @@ export function SdsUploadPageClient() {
         </div>
 
         <div className="border-ehs-border flex items-center justify-between border-t pt-5">
-          <Link href="/hazcom/sds">
+          <Link href="/dashboard/hazcom/sds">
             <Button type="button" variant="tertiary">
               <Icon icon="mdi:arrow-left" className="text-base" aria-hidden="true" />
               Cancel

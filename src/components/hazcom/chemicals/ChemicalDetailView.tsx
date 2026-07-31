@@ -44,7 +44,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
   const sdsValue: ReactNode =
     chemical.sdsFileName && chemical.sdsRecordId ? (
       <Link
-        href={`/hazcom/sds/${chemical.sdsRecordId}`}
+        href={`/dashboard/hazcom/sds/${chemical.sdsRecordId}`}
         className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
       >
         <Icon
@@ -74,7 +74,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
         subtitle={`CAS ${chemical.casNumber} · ${chemical.hazardClass} · ${chemical.location}`}
         actions={
           <>
-            <Link href={`/hazcom/chemicals/${chemical.id}/edit`}>
+            <Link href={`/dashboard/hazcom/chemicals/${chemical.id}/edit`}>
               <Button
                 type="button"
                 variant="tertiary"
@@ -88,7 +88,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
                 Edit
               </Button>
             </Link>
-            <Link href="/hazcom/labels">
+            <Link href="/dashboard/hazcom/labels">
               <Button
                 type="button"
                 variant="primary"
