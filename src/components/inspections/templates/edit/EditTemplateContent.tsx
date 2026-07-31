@@ -1,0 +1,70 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
+import Link from "next/link";
+import { Text } from "@/components/Text";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useInspectionTemplateDetailQuery } from "@/hooks/use-inspection-template-queries";
+import { mapDetailToWizardState } from "@/lib/map-inspection-template";
+import { CreateTemplateContent } from "@/components/inspections/templates/create/CreateTemplateContent";
+import { EditTemplateSkeleton } from "./EditTemplateSkeleton";
+import { loadSelectedInspectionTemplate } from "@/store/inspection-template-slice";
+import { useAppSelector } from "@/store/hooks";
+
+const TEMPLATES_ROUTE = "/dashboard/inspections/template";
+
+export function EditTemplateContent(props: Readonly<{ templateId: string }>) {
+  const { templateId } = props;
+
+  // False on the server and the first client render, true afterwards.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  // Basic info was stashed in the store on Edit — no need to refetch the list.
+  // The store restores it in a mount effect that runs *after* this render, so
+  // read the persisted copy directly; otherwise the wizard seeds itself blank
+  // on a reload and never picks the values up again (its state is lazy-init).
+  const storedSummary = useAppSelector(
+    (state) => state.inspectionTemplate.selected,
+  );
+  const summary =
+    storedSummary ?? (hydrated ? loadSelectedInspectionTemplate() : null);
+
+  const detailQuery = useInspectionTemplateDetailQuery(templateId, summary);
+  // Wait for hydration so the wizard mounts once, with the summary resolved.
+  if (!hydrated || detailQuery.isPending) {
+    return <EditTemplateSkeleton />;
+  }
+
+  if (detailQuery.isError) {
+    return (
+      <div className="flex flex-col items-start gap-2 px-4">
+        <Text as="p" className="text-ehs-red text-sm">
+          {getMutationErrorMessage(
+            detailQuery.error,
+            "Could not load this template.",
+          )}
+        </Text>
+        <Link
+          href={TEMPLATES_ROUTE}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to templates
+        </Link>
+      </div>
+    );
+  }
+
+  const initialState = mapDetailToWizardState(detailQuery.data, summary);
+
+  return (
+    <CreateTemplateContent
+      mode="edit"
+      initialState={initialState}
+      templateId={templateId}
+    />
+  );
+}

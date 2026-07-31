@@ -9,11 +9,13 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailView } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailView";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useApproveDocumentMutation } from "@/hooks/use-document-mutations";
 import {
   useDocumentByIdQuery,
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
+import { getAuthContext } from "@/lib/auth-context";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
 
@@ -59,6 +61,41 @@ export function PolicyMakerDocumentDetailContent(
   });
 
   const document = documentQuery.data ?? null;
+
+  const approveMutation = useApproveDocumentMutation();
+  const [isApproved, setIsApproved] = useState(false);
+
+  const auth = useMemo(
+    () => (isClientReady && hasToken ? getAuthContext() : null),
+    [isClientReady, hasToken],
+  );
+  const canApprove =
+    auth != null &&
+    (document?.approverIds?.includes(String(auth.userId)) ?? false);
+  const canAcknowledge =
+    auth != null &&
+    (document?.ackUserIds?.includes(String(auth.userId)) ?? false);
+
+  const handleApproval = async () => {
+    if (!auth || !document || document.versionId == null) {
+      return;
+    }
+
+    try {
+      await approveMutation.mutateAsync({
+        approverId: auth.userId,
+        docVersionId: document.versionId,
+        comments: "Approved",
+      });
+      setIsApproved(true);
+      toast.success("Document approved", `${document.title} has been approved.`);
+    } catch (error: unknown) {
+      toast.error(
+        "Could not approve document",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  };
 
   const showBootLoading = !isClientReady;
   const showQueryLoading =
@@ -158,7 +195,11 @@ export function PolicyMakerDocumentDetailContent(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/versions`,
         )
       }
-      onApproval={() => toast.success("Approval", "Approval flow coming soon.")}
+      onApproval={() => void handleApproval()}
+      canApprove={canApprove}
+      canAcknowledge={canAcknowledge}
+      isApproved={isApproved}
+      isApproving={approveMutation.isPending}
       onAcknowledgment={() =>
         router.push(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/acknowledge`,

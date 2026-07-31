@@ -54,14 +54,17 @@ export function InspectionChecklistHeader(props: InspectionChecklistHeaderProps)
         </Text>
       </div>
 
-      <Button
-        type="button"
-        variant="primary"
-        onClick={onViewFindings}
-        className="relative z-1 shrink-0 rounded-[10px] px-4 py-2.5 text-sm font-medium"
-      >
-        View Findings
-      </Button>
+      {/* Only shown once a findings handler is wired up. */}
+      {onViewFindings ? (
+        <Button
+          type="button"
+          variant="primary"
+          onClick={onViewFindings}
+          className="relative z-1 shrink-0 rounded-[10px] px-4 py-2.5 text-sm font-medium"
+        >
+          View Findings
+        </Button>
+      ) : null}
     </div>
   );
 }

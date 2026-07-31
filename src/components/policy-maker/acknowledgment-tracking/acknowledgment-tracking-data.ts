@@ -51,20 +51,39 @@ export const ACKNOWLEDGMENT_RECORDS: readonly AcknowledgmentRecord[] = [
 
 export function getAcknowledgmentMetrics(
   records: readonly AcknowledgmentRecord[],
+  apiCounts?: Readonly<{
+    acknowledgedCount?: number | null;
+    pendingCount?: number | null;
+    completionRate?: number | null;
+  }>,
 ): readonly AcknowledgmentTrackingMetric[] {
-  const acknowledged = records.filter(
-    (row) => row.status === "Acknowledged",
-  ).length;
-  const pending = records.filter((row) => row.status === "Pending").length;
+  const acknowledged =
+    apiCounts?.acknowledgedCount ??
+    records.filter((row) => row.status === "Acknowledged").length;
+  const pending =
+    apiCounts?.pendingCount ??
+    records.filter((row) => row.status === "Pending").length;
   const total = records.length;
   const rate =
-    total > 0 ? Math.round((acknowledged / total) * 100) : 0;
+    apiCounts?.completionRate ??
+    (total > 0 ? Math.round((acknowledged / total) * 100) : 0);
+
+  const lastAcknowledgedDate = records
+    .filter((row) => row.status === "Acknowledged" && row.acknowledgedDate)
+    .map((row) => row.acknowledgedDate)
+    .filter(Boolean)
+    .sort()
+    .pop();
 
   return [
     { id: "acknowledged", value: String(acknowledged), label: "Acknowledged" },
     { id: "pending", value: String(pending), label: "Pending" },
     { id: "completion", value: `${String(rate)}%`, label: "Completion Rate" },
-    { id: "last-activity", value: "Today", label: "Last Activity" },
+    {
+      id: "last-activity",
+      value: lastAcknowledgedDate ?? "—",
+      label: "Last Activity",
+    },
   ];
 }
 

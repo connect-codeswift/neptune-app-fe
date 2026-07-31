@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AcknowledgeActionsCard } from "@/components/policy-maker/acknowledge/AcknowledgeActionsCard";
 import { AcknowledgeCommentsCard } from "@/components/policy-maker/acknowledge/AcknowledgeCommentsCard";
 import { AcknowledgeConfirmSection } from "@/components/policy-maker/acknowledge/AcknowledgeConfirmSection";
@@ -9,6 +10,7 @@ import { AcknowledgeDocumentInfoCard } from "@/components/policy-maker/acknowled
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAcknowledgeDocumentMutation } from "@/hooks/use-document-mutations";
+import { documentQueryKeys } from "@/hooks/use-document-queries";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 import { findMyAcknowledgement } from "@/services/mappers/acknowledgement.mapper";
@@ -21,17 +23,21 @@ export type AcknowledgeDocumentFormProps = Readonly<{
 
 /**
  * Left-column acknowledge form (Figma 5568:25343).
- * Approve resolves the current user's AckId from
- * GET /api/Document/versions/{documentVersionId}/acknowledgements (no
- * userId filter exists there, so it matches by name and fails closed if
- * that match isn't exactly one row), then calls
- * PUT /api/Document/Acknowledgement.
+ *
+ * New flow from backend:
+ * 1. GET /api/Document/versions/{documentVersionId}/acknowledgements returns
+ *    rows with `userId`. Match the current user by `row.userId === auth.userId`.
+ * 2. PUT /api/Document/Acknowledgement?docVersionId={id} — no body, no AckId,
+ *    backend reads the user from the token. success=true for both a fresh ack
+ *    and an already-acknowledged case.
+ * 3. Refetch the acknowledgements list to refresh the tracking tiles.
  */
 export function AcknowledgeDocumentForm(
   props: Readonly<AcknowledgeDocumentFormProps>,
 ) {
   const { document, className = "" } = props;
   const router = useRouter();
+  const queryClient = useQueryClient();
   const acknowledgeMutation = useAcknowledgeDocumentMutation();
   const [confirmed, setConfirmed] = useState(false);
   const [comments, setComments] = useState("");
@@ -62,7 +68,10 @@ export function AcknowledgeDocumentForm(
 
     const auth = getAuthContext();
     if (!auth) {
-      toast.error("Sign in required", "Please sign in to acknowledge this document.");
+      toast.error(
+        "Sign in required",
+        "Please sign in to acknowledge this document.",
+      );
       return;
     }
 
@@ -72,7 +81,7 @@ export function AcknowledgeDocumentForm(
         document.versionId,
       );
       const rows = acknowledgements.dataModel?.rows ?? [];
-      const match = findMyAcknowledgement(rows, auth.fullName);
+      const match = findMyAcknowledgement(rows, auth.userId);
 
       if (match.ackId == null) {
         toast.error("Could not acknowledge", match.error);
@@ -80,9 +89,11 @@ export function AcknowledgeDocumentForm(
       }
 
       await acknowledgeMutation.mutateAsync({
-        acknowledgeBy: auth.userId,
         docVersionId: document.versionId,
-        ackId: match.ackId,
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: documentQueryKeys.all,
       });
 
       toast.success(

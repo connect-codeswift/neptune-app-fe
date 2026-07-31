@@ -9,11 +9,14 @@ import {
   type SelectOption,
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateInspectionMutation } from "@/hooks/use-inspection-mutations";
 import {
   useInspectionTemplateQuery,
   useInspectionTemplatesQuery,
 } from "@/hooks/use-inspection-template-queries";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { getCurrentUser } from "@/lib/current-user";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
@@ -22,6 +25,7 @@ import {
 } from "./start-inspection-schema";
 
 const INSPECTION_LIST_ROUTE = "/dashboard/inspections";
+const INSPECTION_CHECKLIST_ROUTE = "/dashboard/inspections/checklist";
 const TEMPLATE_PAGE_SIZE = 10;
 
 export function StartInspectionForm() {
@@ -89,15 +93,56 @@ export function StartInspectionForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTemplateId]);
 
+  const createInspection = useCreateInspectionMutation();
+
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching StartInspectionValues.
     const inspection = values as StartInspectionValues;
+    const { userId, subCompanyId } = getCurrentUser();
 
-    // TODO: wire to an inspection-create mutation once the service exists.
-    void inspection;
+    // The date input yields "YYYY-MM-DD"; send a full ISO date-time.
+    const parsedDate = inspection.scheduledDate
+      ? new Date(inspection.scheduledDate)
+      : null;
+    const scheduleDate =
+      parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate.toISOString()
+        : new Date().toISOString();
 
-    toast.success("Inspection created");
-    router.push(INSPECTION_LIST_ROUTE);
+    createInspection.mutate(
+      {
+        id: 0,
+        inspectionTitle: inspection.inspectionTitle.trim(),
+        inspectionTemplateId: Number(inspection.template) || 0,
+        location: inspection.location,
+        // A custom (external) inspector has no directory id, so it goes out as 0.
+        inspectorId: Number(inspection.inspector) || 0,
+        scheduleDate,
+        userId,
+        subCompanyId,
+      },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message || "Inspection created");
+
+          // Open the checklist for the inspection run the backend just created.
+          const createdId = response.dataModel?.id;
+          router.push(
+            createdId
+              ? `${INSPECTION_CHECKLIST_ROUTE}?inspectionid=${encodeURIComponent(String(createdId))}`
+              : INSPECTION_LIST_ROUTE,
+          );
+        },
+        onError: (error) => {
+          toast.error(
+            getMutationErrorMessage(
+              error,
+              "Could not start the inspection. Please try again.",
+            ),
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -111,8 +156,11 @@ export function StartInspectionForm() {
         key={activeTemplateId || "blank"}
         schema={schema}
         initialValues={initialValues}
-        submitLabel="Begin Inspection"
+        submitLabel={
+          createInspection.isPending ? "Starting…" : "Begin Inspection"
+        }
         cancelLabel="Cancel"
+        isSubmitting={createInspection.isPending}
         onSubmit={handleSubmit}
         onCancel={() => router.push(INSPECTION_LIST_ROUTE)}
       />

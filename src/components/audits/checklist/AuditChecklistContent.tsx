@@ -13,6 +13,7 @@ import { toast } from "@/lib/toast";
 import { setAuditAnswers, setAuditResult } from "@/store/audit-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { AuditChecklistHeader } from "./AuditChecklistHeader";
+import { AuditChecklistSkeleton } from "./AuditChecklistSkeleton";
 import {
   CHECKLIST_ANSWERS,
   type ChecklistAnswer,
@@ -198,7 +199,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           // The report is keyed by audit — it reads everything from GET
           // /api/Audit/{id}, including the snapshot and recorded answers.
           router.push(
-            `${AUDIT_REPORT_ROUTE}/${encodeURIComponent(String(audit.id))}`,
+            `${AUDIT_REPORT_ROUTE}?auditid=${encodeURIComponent(String(audit.id))}`,
           );
         },
         onError: (error) => {
@@ -214,11 +215,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   };
 
   if (detailQuery.isPending) {
-    return (
-      <div className="flex flex-1 items-center justify-center px-4 pb-8">
-        <p className="text-ehs-muted-text text-sm">Loading checklist...</p>
-      </div>
-    );
+    return <AuditChecklistSkeleton />;
   }
 
   if (detailQuery.isError || !checklist) {

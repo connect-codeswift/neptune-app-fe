@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailHeader } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailHeader";
+import { documentFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import {
   acknowledgmentPercent,
   documentDisplayStatus,
@@ -22,6 +23,12 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
   onApprovals?: () => void;
   onDateRangeClick?: () => void;
   onNotificationsClick?: () => void;
+  /** Only the assigned approver sees the Approval action. */
+  canApprove?: boolean;
+  /** Only the assigned ack-user sees the Acknowledgment action. */
+  canAcknowledge?: boolean;
+  isApproved?: boolean;
+  isApproving?: boolean;
 }>;
 
 /** Glass card shell matching Figma 5568:24604 (16px radius, 0.8 border, soft shadow). */
@@ -55,6 +62,10 @@ export function PolicyMakerDocumentDetailView(
     onApprovals,
     onDateRangeClick,
     onNotificationsClick,
+    canApprove,
+    canAcknowledge,
+    isApproved,
+    isApproving,
   } = props;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,6 +90,8 @@ export function PolicyMakerDocumentDetailView(
       publishedAt: document.reviewDate || document.updated,
       badge: "current",
       changeLog: `Current controlled revision of ${document.title}.`,
+      filePath: document.filePath,
+      fileName: document.fileName,
     });
   }, [document]);
   const displayStatus = documentDisplayStatus(document.status);
@@ -171,6 +184,10 @@ export function PolicyMakerDocumentDetailView(
           onVersionHistory={onVersionHistory}
           onApproval={onApproval}
           onAcknowledgment={onAcknowledgment}
+          canApprove={canApprove}
+          canAcknowledge={canAcknowledge}
+          isApproved={isApproved}
+          isApproving={isApproving}
         />
 
         {/* Preview + Details | Acknowledgment — fluid grid (Figma 5568:24604) */}
@@ -196,9 +213,9 @@ export function PolicyMakerDocumentDetailView(
                     </Text>
                     <Text
                       as="p"
-                      className="text-[13px] leading-5 text-[#566072] sm:text-[14px]"
+                      className="truncate text-[13px] leading-5 text-[#566072] sm:text-[14px]"
                     >
-                      {`${document.fileType} · ${document.fileSize}`}
+                      {documentFileName(document)}
                     </Text>
                   </div>
                 </div>

@@ -1,14 +1,22 @@
 "use client";
+
+import { Suspense } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditChecklistContent } from "@/components/audits/checklist/AuditChecklistContent";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+const START_AUDIT_ROUTE = "/dashboard/audits/start";
+
+/** Reads the id from `?templateid=`, so it needs a Suspense boundary. */
+function AuditChecklist() {
+  const searchParams = useSearchParams();
+  const templateId = searchParams.get("templateid") ?? "";
+
+  return <AuditChecklistContent templateId={decodeURIComponent(templateId)} />;
+}
 
 export default function AuditChecklistPage() {
   const router = useRouter();
-  const params = useParams();
-  const templateId = params.templateId as string;
-
-  const START_AUDIT_ROUTE = "/dashboard/audits/start";
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -21,7 +29,9 @@ export default function AuditChecklistPage() {
         onActionClick={() => router.push(START_AUDIT_ROUTE)}
       />
 
-      <AuditChecklistContent templateId={decodeURIComponent(templateId)} />
+      <Suspense fallback={null}>
+        <AuditChecklist />
+      </Suspense>
     </div>
   );
 }

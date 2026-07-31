@@ -5,16 +5,20 @@ import type {
   AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
+  ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
   CreateDocumentVersionRequestDto,
+  UpdateDocumentRequestDto,
 } from "@/dtos/req/document-request.dto";
 import { documentQueryKeys } from "@/hooks/use-document-queries";
 import {
   acknowledgeDocument,
   addDocCategory,
   addDocDepartment,
+  approveDocument,
   createDocument,
   createDocumentVersion,
+  updateDocument,
 } from "@/services/document.service";
 
 export function useCreateDocumentMutation() {
@@ -22,6 +26,18 @@ export function useCreateDocumentMutation() {
 
   return useMutation({
     mutationFn: (payload: CreateDocumentRequestDto) => createDocument(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
+    },
+  });
+}
+
+/** PUT /api/Document/document — dedicated update endpoint for Edit. */
+export function useUpdateDocumentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateDocumentRequestDto) => updateDocument(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
@@ -66,6 +82,18 @@ export function useAddDocumentDepartmentMutation() {
       await queryClient.invalidateQueries({
         queryKey: documentQueryKeys.departments,
       });
+    },
+  });
+}
+
+/** PUT /api/Document/DocApproval */
+export function useApproveDocumentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ApproveDocumentRequestDto) => approveDocument(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
   });
 }
