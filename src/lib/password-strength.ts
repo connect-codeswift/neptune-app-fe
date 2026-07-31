@@ -1,5 +1,15 @@
 export const PASSWORD_STRENGTH_SEGMENTS = 5;
 
+/** Matches backend RegularExpression for strong passwords. */
+export const STRONG_PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+export const WEAK_PASSWORD_MESSAGE = "Weak password";
+
+export function isStrongPassword(password: string): boolean {
+  return STRONG_PASSWORD_REGEX.test(password);
+}
+
 export function getPasswordStrengthScore(password: string): number {
   if (!password) {
     return 0;
@@ -11,10 +21,6 @@ export function getPasswordStrengthScore(password: string): number {
     score++;
   }
 
-  if (password.length >= 12) {
-    score++;
-  }
-
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
     score++;
   }
@@ -23,7 +29,11 @@ export function getPasswordStrengthScore(password: string): number {
     score++;
   }
 
-  if (/[^a-zA-Z0-9]/.test(password)) {
+  if (/[@$!%*?&]/.test(password)) {
+    score++;
+  }
+
+  if (isStrongPassword(password)) {
     score++;
   }
 
