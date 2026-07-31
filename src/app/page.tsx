@@ -1,5 +1,15 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getAccessToken } from "@/lib/axios";
 
 export default function Home() {
-  redirect("/login");
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace(getAccessToken() ? "/dashboard" : "/login");
+  }, [router]);
+
+  return null;
 }

@@ -1,0 +1,259 @@
+import type {
+  HazcomChemical,
+  HazcomChemicalStatus,
+  HazcomPictogram,
+  HazcomSignalWord,
+  HazcomStatementCode,
+} from "@/components/hazcom/shared";
+import {
+  asNumber,
+  asString,
+  isRecord,
+  readProp,
+  toIsoDate,
+} from "@/services/mappers/record-readers";
+
+/**
+ * Maps rows from GET /api/hazcom/chemical onto the `HazcomChemical` shape the
+ * inventory table renders.
+ *
+ * Write-side field names are known (see `ChemicalRequestDto`) but responses
+ * are undocumented, so each value is read with the backend's spelling first
+ * and older guesses as fallbacks.
+ */
+
+const PICTOGRAMS: readonly HazcomPictogram[] = [
+  "Flammable",
+  "Toxic",
+  "Irritant",
+  "Environmental",
+  "Corrosive",
+  "Oxidizer",
+  "Explosive",
+  "Compressed Gas",
+  "Health Hazard",
+];
+
+/**
+ * Backend pictogram labels are free text. Anything outside the nine GHS values
+ * the UI can draw is dropped — an unmapped string would render as a blank icon.
+ *
+ * `ghsPictograms` is a single column on the wire, so the comma-separated form
+ * the writer produces is accepted alongside a list.
+ */
+export function toHazcomPictograms(value: unknown): HazcomPictogram[] {
+  const raw = Array.isArray(value)
+    ? value.map((item) =>
+        isRecord(item)
+          ? asString(readProp(item, "name", "Name", "pictogram", "Pictogram"))
+          : asString(item),
+      )
+    : typeof value === "string"
+      ? value.split(",")
+      : [];
+
+  return raw
+    .map((label) => {
+      const lower = label.trim().toLowerCase();
+      return PICTOGRAMS.find((known) => known.toLowerCase() === lower);
+    })
+    .filter((item): item is HazcomPictogram => item !== undefined);
+}
+
+function toSignalWord(value: unknown): HazcomSignalWord {
+  return asString(value).trim().toLowerCase() === "danger"
+    ? "Danger"
+    : "Warning";
+}
+
+function toChemicalStatus(value: unknown): HazcomChemicalStatus {
+  const lower = asString(value).trim().toLowerCase();
+  // Only an explicit inactive/archived marker greys a row out; an unrecognised
+  // or absent status stays Active so rows don't all read as disabled.
+  if (
+    lower === "inactive" ||
+    lower === "archived" ||
+    lower === "disabled" ||
+    lower === "false"
+  ) {
+    return "Inactive";
+  }
+  return "Active";
+}
+
+/**
+ * The table prints quantity as one string ("15 Liters"). Accepts either a
+ * combined field or a separate amount + unit pair.
+ */
+function toQuantity(raw: Record<string, unknown>): string {
+  const combined = asString(
+    readProp(raw, "currentQuantity", "CurrentQuantity", "quantity", "Quantity"),
+  );
+  if (combined !== "") {
+    return combined;
+  }
+
+  const amount = asString(
+    readProp(raw, "quantityAmount", "QuantityAmount", "amount", "Amount"),
+  );
+  const unit = asString(
+    readProp(raw, "quantityUnit", "QuantityUnit", "unit", "Unit", "uom", "Uom"),
+  );
+
+  return [amount, unit].filter((part) => part !== "").join(" ");
+}
+
+/** Statement lists may arrive as objects, as bare codes, or not at all. */
+function toStatementCodes(value: unknown): HazcomStatementCode[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      if (isRecord(item)) {
+        return {
+          code: asString(readProp(item, "code", "Code")),
+          text: asString(
+            readProp(item, "statement", "Statement", "text", "Text"),
+          ),
+        };
+      }
+      return { code: asString(item), text: "" };
+    })
+    .filter((item) => item.code !== "");
+}
+
+export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
+  const record = isRecord(raw) ? raw : {};
+
+  const sdsId = readProp(
+    record,
+    "sdsId",
+    "SdsId",
+    "sdsRecordId",
+    "SdsRecordId",
+  );
+
+  return {
+    // `id` doubles as the row key and the detail/edit route segment, so it
+    // always falls back to a string even when the backend omits it.
+    id: asString(readProp(record, "id", "Id")),
+    // `chemi_Name` / `caS_Number` / `ghs*` are the backend's own spellings
+    // (see `ChemicalRequestDto`); the rest stay as defensive fallbacks.
+    name: asString(
+      readProp(
+        record,
+        "chemi_Name",
+        "Chemi_Name",
+        "name",
+        "Name",
+        "chemicalName",
+        "ChemicalName",
+      ),
+    ),
+    casNumber: asString(
+      readProp(
+        record,
+        "caS_Number",
+        "CAS_Number",
+        "casNumber",
+        "CasNumber",
+        "cas",
+        "Cas",
+      ),
+    ),
+    location: asString(readProp(record, "location", "Location")),
+    quantity: toQuantity(record),
+    hazardClass: asString(
+      readProp(record, "hazardClass", "HazardClass", "hazardClassification"),
+    ),
+    pictograms: toHazcomPictograms(
+      readProp(
+        record,
+        "ghsPictograms",
+        "GhsPictograms",
+        "pictograms",
+        "Pictograms",
+      ),
+    ),
+    signalWord: toSignalWord(
+      readProp(record, "ghsSignal", "GhsSignal", "signalWord", "SignalWord"),
+    ),
+    status: toChemicalStatus(readProp(record, "status", "Status")),
+    sdsRecordId: sdsId === undefined ? null : asString(sdsId),
+    sdsFileName:
+      asString(
+        readProp(
+          record,
+          "linkToSdsRecord",
+          "LinkToSdsRecord",
+          "sdsFileName",
+          "SdsFileName",
+          "fileName",
+        ),
+      ) || null,
+    storageNotes: asString(
+      readProp(record, "storageNotes", "StorageNotes", "notes", "Notes"),
+    ),
+    hazardStatements: toStatementCodes(
+      readProp(record, "hazardStatements", "HazardStatements", "hazardHCodes"),
+    ),
+    precautionaryStatements: toStatementCodes(
+      readProp(
+        record,
+        "precautionaryStatements",
+        "PrecautionaryStatements",
+        "precautionaryCodes",
+      ),
+    ),
+    addedOn: toIsoDate(
+      readProp(record, "createdAt", "CreatedAt", "createdDate", "addedOn"),
+    ),
+  };
+}
+
+export function mapChemicalDtosToHazcomChemicals(
+  rows: readonly unknown[],
+): HazcomChemical[] {
+  return rows.map((row) => mapChemicalDtoToHazcomChemical(row));
+}
+
+/** One entry of GET /api/hazcom/chemical/names — the picker lookup list. */
+export type HazcomChemicalName = Readonly<{
+  id: number;
+  name: string;
+}>;
+
+/**
+ * The lookup list is what turns a chemical *name* chosen in a form into the
+ * `chemicalId` the SDS and risk-assessment endpoints require.
+ */
+export function mapChemicalNameDtos(
+  rows: readonly unknown[],
+): HazcomChemicalName[] {
+  return (
+    rows
+      .map((raw) => {
+        const record = isRecord(raw) ? raw : {};
+
+        return {
+          id: asNumber(readProp(record, "id", "Id")),
+          name: asString(
+            readProp(
+              record,
+              "chemi_Name",
+              "Chemi_Name",
+              "name",
+              "Name",
+              "chemicalName",
+              "ChemicalName",
+            ),
+          ),
+        };
+      })
+      // An entry with no usable id is worse than no entry: picking it would
+      // post `chemicalId: 0` and the write would fail server-side.
+      .filter((item) => item.id > 0 && item.name !== "")
+  );
+}
