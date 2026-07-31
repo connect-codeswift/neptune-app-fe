@@ -21,10 +21,6 @@
       "WebFetch(github.com)",
       "WebFetch(*.githubusercontent.com)"
     ],
-    "deny": [
-      "Read(.env*)",
-      "Write(.env*)",
-      "Write(**/.env*)"
-    ]
+    "deny": ["Read(.env*)", "Write(.env*)", "Write(**/.env*)"]
   }
 }

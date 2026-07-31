@@ -1,0 +1,208 @@
+import { Icon } from "@iconify/react";
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
+import { Text } from "@/components/Text";
+
+export const hazcomFieldInputClass =
+  "h-9 w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] text-[13px] text-[#0b1320] outline-none backdrop-blur-[5px] transition placeholder:text-[#8892a3] hover:border-[rgba(15,23,42,0.16)] focus:border-[#0891a6] focus:ring-2 focus:ring-[rgba(8,145,166,0.2)]";
+
+const fieldInputClass = hazcomFieldInputClass;
+
+type HazcomFieldLabelProps = Readonly<{
+  label: string;
+  required?: boolean;
+  hint?: string;
+  trailing?: ReactNode;
+}>;
+
+function HazcomFieldLabel(props: Readonly<HazcomFieldLabelProps>) {
+  const { label, required = false, hint, trailing } = props;
+
+  return (
+    <div className="flex min-h-7 flex-wrap items-end gap-1.5">
+      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+        {label}
+      </Text>
+      {required ? (
+        <Text as="span" className="text-ehs-red text-[12px]">
+          *
+        </Text>
+      ) : null}
+      {hint ? (
+        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
+          <Icon
+            icon="mdi:information-outline"
+            className="size-3"
+            aria-hidden="true"
+          />
+          {hint}
+        </span>
+      ) : null}
+      {trailing ? <span className="ml-auto">{trailing}</span> : null}
+    </div>
+  );
+}
+
+export type HazcomTextFieldProps = Readonly<
+  Omit<InputHTMLAttributes<HTMLInputElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    helperText?: string;
+    trailingHint?: string;
+    endIcon?: string;
+    className?: string;
+  }
+>;
+
+export function HazcomTextField(props: Readonly<HazcomTextFieldProps>) {
+  const {
+    label,
+    required,
+    helperText,
+    trailingHint,
+    endIcon,
+    className = "",
+    id,
+    ...rest
+  } = props;
+
+  return (
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
+      <HazcomFieldLabel
+        label={label}
+        required={required}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <div className="relative">
+        <input
+          id={id}
+          className={[fieldInputClass, endIcon ? "pr-9" : ""].join(" ")}
+          {...rest}
+        />
+        {endIcon ? (
+          <Icon
+            icon={endIcon}
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[13px] -translate-y-1/2"
+            aria-hidden="true"
+          />
+        ) : null}
+      </div>
+      {helperText ? (
+        <Text as="p" className="text-ehs-muted-text text-[10px]">
+          {helperText}
+        </Text>
+      ) : null}
+    </div>
+  );
+}
+
+export type HazcomSelectFieldProps = Readonly<
+  Omit<SelectHTMLAttributes<HTMLSelectElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    hint?: string;
+    trailingHint?: string;
+    options: readonly { value: string; label: string }[];
+    className?: string;
+  }
+>;
+
+export function HazcomSelectField(props: Readonly<HazcomSelectFieldProps>) {
+  const {
+    label,
+    required,
+    hint,
+    trailingHint,
+    options,
+    className = "",
+    id,
+    ...rest
+  } = props;
+
+  return (
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
+      <HazcomFieldLabel
+        label={label}
+        required={required}
+        hint={hint}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <div className="relative">
+        <select
+          id={id}
+          className={`${fieldInputClass} appearance-none pr-8`}
+          {...rest}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <Icon
+          icon="mdi:chevron-down"
+          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 size-[13px] -translate-y-1/2"
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
+}
+
+export type HazcomTextareaFieldProps = Readonly<
+  Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "className"> & {
+    label: string;
+    required?: boolean;
+    trailingHint?: string;
+    className?: string;
+  }
+>;
+
+export function HazcomTextareaField(
+  props: Readonly<HazcomTextareaFieldProps>,
+) {
+  const { label, required, trailingHint, className = "", id, ...rest } = props;
+
+  return (
+    <div
+      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+    >
+      <HazcomFieldLabel
+        label={label}
+        required={required}
+        trailing={
+          trailingHint ? (
+            <Text as="span" className="text-ehs-muted-text text-[10px]">
+              {trailingHint}
+            </Text>
+          ) : undefined
+        }
+      />
+      <textarea
+        id={id}
+        className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-h-[110px] w-full resize-y rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] py-[10.5px] text-[13px] leading-[19.5px] backdrop-blur-[5px] transition outline-none focus:ring-2"
+        {...rest}
+      />
+    </div>
+  );
+}

@@ -20,6 +20,7 @@
   --ehs-yellow: #f59e0b;
   --ehs-navy: #1d3557;
   --ehs-purple: #7c3aed;
+  --ehs-blue: #3b82f6;
 
   --ehs-light-blue: #e6f4f6;
   --ehs-light-blue-hover: #daeff2;
@@ -28,12 +29,15 @@
   --ehs-normal-blue: #0891a6;
   --ehs-normal-blue-hover: #078395;
   --ehs-normal-blue-active: #067485;
+  --ehs-normal-blue-bg-light: #0891a60a;
 
   --ehs-dark-blue: #066d7d;
   --ehs-dark-blue-hover: #055764;
   --ehs-dark-blue-active: #04414b;
-
+  --ehs-dark-blue-bg-light: #0891a624;
   --ehs-darker: #03333a;
+  --ehs-form-classes-bg: #eef1f6;
+  --ehs-green-bg-light: #10b9811a;
 }
 
 @theme inline {
@@ -54,6 +58,7 @@
   --color-ehs-yellow: var(--ehs-yellow);
   --color-ehs-navy: var(--ehs-navy);
   --color-ehs-purple: var(--ehs-purple);
+  --color-ehs-blue: var(--ehs-blue);
 
   --color-ehs-light-blue: var(--ehs-light-blue);
   --color-ehs-light-blue-hover: var(--ehs-light-blue-hover);
@@ -62,12 +67,15 @@
   --color-ehs-normal-blue: var(--ehs-normal-blue);
   --color-ehs-normal-blue-hover: var(--ehs-normal-blue-hover);
   --color-ehs-normal-blue-active: var(--ehs-normal-blue-active);
+  --color-ehs-normal-blue-bg-light: var(--ehs-normal-blue-bg-light);
 
   --color-ehs-dark-blue: var(--ehs-dark-blue);
   --color-ehs-dark-blue-hover: var(--ehs-dark-blue-hover);
   --color-ehs-dark-blue-active: var(--ehs-dark-blue-active);
+  --color-ehs-dark-blue-bg-light: var(--ehs-dark-blue-bg-light);
 
   --color-ehs-darker: var(--ehs-darker);
+  --color-ehs-green-bg-light: var(--ehs-green-bg-light);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -75,4 +83,152 @@
 
 body {
   font-family: var(--font-inter);
+  min-height: 100vh;
+}
+
+[data-sonner-toaster] {
+  font-family: var(--font-inter);
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--ehs-green);
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--ehs-red);
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: var(--ehs-yellow);
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: var(--ehs-normal-blue);
+}
+
+/* Whitens the background of form controls within — overrides the FormBuilder's
+   default tinted fields (e.g. the Create Template wizard). */
+@utility fields-white {
+  & input,
+  & textarea,
+  & select {
+    background-color: var(--ehs-light-text);
+  }
+}
+
+/* Smooth pop-in for popovers / context menus */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@utility animate-popover-in {
+  animation-name: popover-in;
+  animation-duration: 0.14s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+/* Light sweep that travels across primary buttons on hover */
+@utility btn-sweep {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+      105deg,
+      transparent,
+      rgb(255 255 255 / 0.45),
+      transparent
+    );
+    transform: translateX(-220%) skewX(-18deg);
+    pointer-events: none;
+  }
+
+  &:hover::after {
+    transition: transform 0.8s ease;
+    transform: translateX(360%) skewX(-18deg);
+  }
+}
+
+@keyframes step-slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes step-slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes check-ripple {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+@utility animate-check-ripple {
+  animation-name: check-ripple;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) rotate(0deg) scale(0.4);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--confetti-x)), var(--confetti-y))
+      rotate(var(--confetti-rotate)) scale(1);
+  }
+}
+
+@utility animate-confetti-burst {
+  animation-name: confetti-burst;
+  animation-duration: 1.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
 }
