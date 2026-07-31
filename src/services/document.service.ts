@@ -18,7 +18,8 @@ import type {
   GetDocumentCategoryStatsResponseDto,
   GetDocumentDashboardKpisResponseDto,
 } from "@/dtos/res/document-response.dto";
-import http from "@/lib/axios";
+import http, { HttpError } from "@/lib/axios";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto.ts";
 
 const DOCUMENT_GET_ALL_PATH = "/Document/allDocuments";
 const DOCUMENT_BY_ID_PATH = "/Document";
@@ -325,22 +326,32 @@ export async function getDocumentCategoryStats() {
 
 /**
  * PUT /api/Document/Acknowledgement
- * Query params only, no body — casing (`AckId`) matches Swagger exactly.
+ * Query param only: `docVersionId`. Backend resolves the user from the auth token.
+ * Throws on success: false so the mutation catches not-assigned/bad-version cases.
  */
 export async function acknowledgeDocument(
   payload: AcknowledgeDocumentRequestDto,
 ) {
-  const { data } = await http.put<unknown>(
+  const { data } = await http.put<ApiEnvelopeDto<unknown>>(
     DOCUMENT_ACKNOWLEDGEMENT_PATH,
     null,
     {
       params: {
-        acknowledgeBy: payload.acknowledgeBy,
         docVersionId: payload.docVersionId,
-        AckId: payload.ackId,
       },
     },
   );
+
+  if (!data.success) {
+    throw new HttpError({
+      message:
+        typeof data.message === "string" && data.message.length > 0
+          ? data.message
+          : "Acknowledgement failed.",
+      status: data.statusCode,
+      data,
+    });
+  }
 
   return data;
 }

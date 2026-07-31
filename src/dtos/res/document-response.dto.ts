@@ -138,6 +138,7 @@ export type GetDocumentCategoryStatsResponseDto = ApiEnvelopeDto<
 /** One row of GET /api/Document/versions/{documentVersionId}/acknowledgements. */
 export type DocumentAcknowledgementRowDto = {
   id?: number | null;
+  userId?: number | null;
   name?: string | null;
   department?: string | null;
   status?: string | null;

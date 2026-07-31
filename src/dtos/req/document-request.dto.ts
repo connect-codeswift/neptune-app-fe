@@ -70,13 +70,11 @@ export type UpdateDocumentRequestDto = {
 };
 
 /**
- * PUT /api/Document/Acknowledgement — sent as query-string params
- * (`acknowledgeBy`, `docVersionId`, `AckId` — casing per Swagger).
+ * PUT /api/Document/Acknowledgement — sent as query-string param `docVersionId` only.
+ * Backend reads the user from the auth token; no body or other params needed.
  */
 export type AcknowledgeDocumentRequestDto = {
-  acknowledgeBy: number;
   docVersionId: number;
-  ackId: number;
 };
 
 /**

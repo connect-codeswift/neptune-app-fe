@@ -4,51 +4,38 @@ import type {
 } from "@/dtos/res/document-response.dto";
 import type { AcknowledgmentRecord } from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-types";
 
-function normalizeName(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
 export type FindMyAcknowledgementResult =
   | { ackId: number; error?: undefined }
   | { ackId: null; error: string };
 
 /**
- * GET /api/Document/versions/{id}/acknowledgements has no way to filter by
- * user — each row only has a display `name`. Match it against the logged-in
- * user's name, and fail closed (never guess) if the match isn't exactly one row.
+ * Match the current user's acknowledgement row by userId.
+ * The backend now returns `userId` on each row, so we never match by name.
+ * Fails closed if the current user's row is missing or has no id.
  */
 export function findMyAcknowledgement(
   rows: readonly DocumentAcknowledgementRowDto[],
-  myName: string | null,
+  myUserId: number | null,
 ): FindMyAcknowledgementResult {
-  if (!myName?.trim()) {
+  if (myUserId == null) {
     return {
       ackId: null,
-      error: "Could not verify your account name to record this acknowledgement.",
+      error: "Could not verify your user id to record this acknowledgement.",
     };
   }
 
-  const target = normalizeName(myName);
-  const matches = rows.filter(
-    (row) => row.name != null && normalizeName(row.name) === target,
+  const match = rows.find(
+    (row) => row.userId != null && row.userId === myUserId,
   );
 
-  if (matches.length === 0) {
+  if (!match) {
     return {
       ackId: null,
       error: "Could not find your acknowledgement record for this document.",
     };
   }
 
-  if (matches.length > 1) {
-    return {
-      ackId: null,
-      error:
-        "Multiple acknowledgement records match your name — contact support.",
-    };
-  }
-
-  const id = matches[0]?.id;
+  const id = match.id;
   if (id == null) {
     return {
       ackId: null,
@@ -59,9 +46,15 @@ export function findMyAcknowledgement(
   return { ackId: id };
 }
 
-function normalizeStatus(value: string | null | undefined): "Acknowledged" | "Pending" {
+function normalizeStatus(
+  value: string | null | undefined,
+): "Acknowledged" | "Pending" {
   const normalized = (value ?? "").trim().toLowerCase();
-  if (normalized === "acknowledged" || normalized === "approved" || normalized === "complete") {
+  if (
+    normalized === "acknowledged" ||
+    normalized === "approved" ||
+    normalized === "complete"
+  ) {
     return "Acknowledged";
   }
   return "Pending";
