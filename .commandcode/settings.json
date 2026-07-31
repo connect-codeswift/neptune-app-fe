@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(cmd:*)",
+      "powershell",
+      "Shell(where:*)",
+      "Shell(command-code:*)",
+      "Shell(timeout /t 5 >nul & command-code mcp list)",
+      "Shell(kill:*)",
+      "Shell(powershell -Command \"try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:3845/mcp' -Method Post -ContentType 'application/json' -Body '{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":1,\\\"method\\\":\\\"initialize\\\",\\\"params\\\":{\\\"protocolVersion\\\":\\\"2024-11-05\\\",\\\"capabilities\\\":{},\\\"clientInfo\\\":{\\\"name\\\":\\\"cc\\\",\\\"version\\\":\\\"1.0\\\"}}}' -TimeoutSec 5 -UseBasicParsing; Write-Output $r.StatusCode } catch { Write-Output $_.Exception.Message }\")",
+      "Shell(dir /b .env* 2>nul)",
+      "Shell(powershell -Command \"Test-NetConnection -ComputerName 127.0.0.1 -Port 3845 -WarningAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded\")"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

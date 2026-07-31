@@ -1,16 +1,5 @@
-import { BreadCrumbTab } from "@/components/BreadCrumbTab";
+import { redirect } from "next/navigation";
 
-export default function ReportIncidentPage() {
-  return (
-    <div className="flex min-h-screen flex-1 flex-col gap-4 px-4 pb-8 pt-4">
-      <BreadCrumbTab
-        breadcrumbs={[
-          { label: "Incidents", href: "/dashboard/incidents" },
-          { label: "Report" },
-        ]}
-        title="Report an incident"
-        actions={[{ label: "Save & exit", variant: "tertiary" }]}
-      />
-    </div>
-  );
+export default function ReportIncidentRedirectPage() {
+  redirect("/dashboard/incidents/report");
 }

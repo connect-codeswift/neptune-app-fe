@@ -12,9 +12,9 @@ const DEFAULT_ORGANIZATION_ID = 0;
 function siteHasRegisterableData(site: SiteInfo) {
   return Boolean(
     site.siteName.trim() &&
-      site.region.trim() &&
-      site.industry &&
-      site.companySize,
+    site.region.trim() &&
+    site.industry &&
+    site.companySize,
   );
 }
 

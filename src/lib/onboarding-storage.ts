@@ -77,7 +77,9 @@ function normalizeInvites(value: unknown): OnboardingInvite[] {
     .filter((invite) => invite.email.length > 0);
 }
 
-function normalizePersistedState(value: unknown): OnboardingPersistedState | null {
+function normalizePersistedState(
+  value: unknown,
+): OnboardingPersistedState | null {
   if (!isRecord(value)) {
     return null;
   }

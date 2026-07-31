@@ -47,7 +47,7 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
       {
         label: "Hazard",
         href: "/dashboard/hazard",
-        icon: "mdi:alert-triangle-outline",
+        icon: "mdi:alert-octagon-outline",
         badge: 44,
       },
       {
@@ -65,6 +65,11 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         href: "/dashboard/capa",
         icon: "mdi:refresh",
       },
+      {
+        label: "HazCom",
+        href: "/dashboard/hazcom",
+        icon: "healthicons:chemical-burn",
+      },
     ],
   },
   {
@@ -79,6 +84,16 @@ const NAV_GROUPS: readonly SidebarNavGroup[] = [
         label: "Inspections",
         href: "/dashboard/inspections",
         icon: "mdi:clipboard-text-outline",
+      },
+      {
+        label: "BBS",
+        href: "/dashboard/bbs",
+        icon: "mdi:clipboard-outline",
+      },
+      {
+        label: "Walk & Talk",
+        href: "/dashboard/walk-talk",
+        icon: "mdi:account-multiple-outline",
       },
       {
         label: "Regulatory Compliance",
@@ -186,14 +201,18 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   return (
     <aside
       className={[
-        "my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col rounded-3xl bg-[#fafafa] shadow-white backdrop-blur-3xl",
+        "my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col rounded-3xl bg-[#FFFFFF] shadow-lg backdrop-blur-3xl",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="border-b border-white/40 px-5 py-5">
-        <Logo text="EHS PLATFORM" />
+      <div className="flex flex-col items-center px-5 pt-5">
+        <Logo />
+        <div
+          className="border-ehs-border mt-4 w-full border-t"
+          aria-hidden="true"
+        />
       </div>
 
       <nav className="flex flex-1 scrollbar-none flex-col gap-6 overflow-y-auto px-4 py-5">

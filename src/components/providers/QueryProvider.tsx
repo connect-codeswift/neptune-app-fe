@@ -16,9 +16,12 @@ export function QueryProvider(props: Readonly<QueryProviderProps>) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === "development" ? (
-        <ReactQueryDevtools buttonPosition="bottom-left" initialIsOpen={false} />
-      ) : null}
+      {/* {process.env.NODE_ENV === "development" ? (
+        <ReactQueryDevtools
+          buttonPosition="bottom-left"
+          initialIsOpen={false}
+        />
+      ) : null} */}
     </QueryClientProvider>
   );
 }

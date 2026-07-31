@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
   ehsButtonBaseClass,
+  ehsButtonDangerClass,
   ehsButtonPrimaryClass,
   ehsButtonSecondaryClass,
   ehsButtonTertiaryClass,
@@ -9,7 +10,7 @@ import {
 export type ButtonProps = Readonly<
   ButtonHTMLAttributes<HTMLButtonElement> & {
     children: ReactNode;
-    variant: "primary" | "secondary" | "tertiary";
+    variant: "primary" | "secondary" | "tertiary" | "danger";
     type: "button" | "submit" | "reset";
   }
 >;
@@ -18,6 +19,7 @@ const variantClassName: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: ehsButtonPrimaryClass,
   secondary: ehsButtonSecondaryClass,
   tertiary: ehsButtonTertiaryClass,
+  danger: ehsButtonDangerClass,
 };
 
 export function Button(props: Readonly<ButtonProps>) {

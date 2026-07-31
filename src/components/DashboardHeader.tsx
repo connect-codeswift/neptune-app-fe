@@ -16,6 +16,7 @@ export type DashboardHeaderProps = Readonly<{
   onDateRangeClick?: () => void;
   onSiteChangerClick?: () => void;
   hasUnreadNotifications?: boolean;
+  searchonleft?: boolean;
 }>;
 
 const headerControlClass =
@@ -25,16 +26,16 @@ function SearchField(props: Readonly<{ placeholder: string }>) {
   const { placeholder } = props;
 
   return (
-    <div className="relative w-60 min-w-0">
+    <div className="relative w-full min-w-0 sm:w-88">
       <Icon
         icon="mdi:magnify"
-        className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
+        className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
         aria-hidden="true"
       />
       <input
         type="search"
         placeholder={placeholder}
-        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-14 pl-9 text-[10px] shadow-sm transition outline-none focus:ring-2"
+        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2.5 pr-14 pl-9 text-sm shadow-sm transition outline-none focus:ring-2"
       />
       <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1 py-px text-[8px] font-medium sm:inline">
         ⌘K
@@ -52,17 +53,19 @@ function DateRangeButton(
     <button
       type="button"
       onClick={onClick}
-      className={`${headerControlClass} text-ehs-gray gap-1.5 rounded-lg border px-3 py-2 text-[10px]`}
+      className={`${headerControlClass} text-ehs-dark-bg min-w-0 gap-1.5 rounded-lg border px-2.5 py-2 text-sm sm:px-3 sm:py-2.5`}
     >
       <Icon
         icon="mdi:calendar-outline"
-        className="text-ehs-muted-text text-sm"
+        className="text-ehs-muted-text shrink-0 text-base"
         aria-hidden="true"
       />
-      <span className="whitespace-nowrap">{label}</span>
+      <span className="max-w-[9rem] truncate whitespace-nowrap sm:max-w-none">
+        {label}
+      </span>
       <Icon
         icon="mdi:chevron-down"
-        className="text-ehs-muted-text text-base"
+        className="text-ehs-muted-text shrink-0 text-base"
         aria-hidden="true"
       />
     </button>
@@ -79,7 +82,7 @@ function ActionButton(
       type="button"
       variant="primary"
       onClick={onClick}
-      className="shrink-0 rounded-lg px-4 py-2 text-xs"
+      className="shrink-0 rounded-xl px-4 py-2.5 text-sm"
     >
       <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
       {label}
@@ -94,7 +97,7 @@ function SiteChanger(props: Readonly<{ label: string; onClick?: () => void }>) {
     <button
       type="button"
       onClick={onClick}
-      className={`${headerControlClass} text-ehs-darker gap-2 rounded-lg border px-3 py-2 text-xs font-semibold`}
+      className={`${headerControlClass} text-ehs-darker gap-2 rounded-lg border px-3 py-2 text-sm font-semibold`}
     >
       <Icon icon="mdi:factory" className="text-base" aria-hidden="true" />
       <span className="whitespace-nowrap">{label}</span>
@@ -116,7 +119,7 @@ function NotificationsButton(
       type="button"
       aria-label="Notifications"
       onClick={onClick}
-      className={`${headerControlClass} relative h-9 w-9 justify-center rounded-lg border`}
+      className={`${headerControlClass} relative h-10 w-9 justify-center rounded-lg border`}
     >
       <Icon
         icon="mdi:bell-outline"
@@ -146,40 +149,47 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
     onSiteChangerClick,
     hasUnreadNotifications,
     className = "",
+    searchonleft,
   } = props;
 
   const showNotifications =
     onNotificationsClick !== undefined || hasUnreadNotifications !== undefined;
 
-  const hasActions =
-    Boolean(searchPlaceholder) ||
+  const showRightControls =
     Boolean(dateRangeLabel) ||
     Boolean(siteChangerLabel) ||
     Boolean(actionLabel) ||
-    showNotifications;
+    showNotifications ||
+    (!searchonleft && Boolean(searchPlaceholder));
 
   return (
     <header
       className={[
-        "flex flex-wrap items-center gap-4 px-4 py-4",
-        hasActions ? "justify-between" : "",
+        "flex min-w-0 flex-col gap-3 px-3 py-4 sm:px-4",
+        "lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {title ? (
-        <Text
-          as="h1"
-          className="text-ehs-darker text-2xl font-bold tracking-tight"
-        >
-          {title}
-        </Text>
-      ) : null}
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        {title ? (
+          <Text
+            as="h1"
+            className="text-ehs-darker shrink-0 text-xl font-bold tracking-tight sm:text-2xl"
+          >
+            {title}
+          </Text>
+        ) : null}
 
-      {hasActions ? (
-        <div className="flex flex-wrap items-center gap-2">
-          {searchPlaceholder ? (
+        {searchonleft && searchPlaceholder ? (
+          <SearchField placeholder={searchPlaceholder} />
+        ) : null}
+      </div>
+
+      {showRightControls ? (
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
+          {!searchonleft && searchPlaceholder ? (
             <SearchField placeholder={searchPlaceholder} />
           ) : null}
 

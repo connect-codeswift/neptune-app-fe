@@ -56,7 +56,8 @@ export default function ResetPasswordRightPanel() {
 
     if (!parsed.success) {
       const firstError =
-        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
+        parsed.error.issues[0]?.message ??
+        "Please check the form and try again.";
       setFormError(firstError);
       return;
     }
@@ -65,7 +66,10 @@ export default function ResetPasswordRightPanel() {
 
     try {
       await resetPasswordMutation.mutateAsync(parsed.data);
-      toast.success("Password updated", "You can now sign in with your new password.");
+      toast.success(
+        "Password updated",
+        "You can now sign in with your new password.",
+      );
       router.push("/login");
     } catch (error) {
       setFormError(

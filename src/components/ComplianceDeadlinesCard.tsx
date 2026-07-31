@@ -104,7 +104,7 @@ export const RECENT_ACTIVITY_ITEMS: readonly ComplianceDeadlinesItem[] = [
   },
 ];
 
-function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
+export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   const { title, subtitle, badge, emphasis } = props;
 
   return (
@@ -176,7 +176,11 @@ export function ComplianceDeadlinesCard(
           className="text-ehs-gray hover:text-ehs-darker inline-flex items-center gap-0.5 text-xs font-medium transition-colors"
         >
           View all
-          <Icon icon="mdi:chevron-right" className="text-sm" aria-hidden="true" />
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-sm"
+            aria-hidden="true"
+          />
         </Link>
       </div>
 

@@ -43,7 +43,8 @@ export default function LoginRightPanel() {
 
     if (!parsed.success) {
       const firstError =
-        parsed.error.issues[0]?.message ?? "Please check the form and try again.";
+        parsed.error.issues[0]?.message ??
+        "Please check the form and try again.";
       setFormError(firstError);
       return;
     }
@@ -70,7 +71,7 @@ export default function LoginRightPanel() {
       : "");
 
   return (
-    <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-0 lg:py-8 lg:px-8">
+    <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-0 lg:px-8 lg:py-8">
       <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
       <ShadeBall
         positionAsClassName="bottom-[-150px] left-[-150px]"
@@ -110,7 +111,7 @@ export default function LoginRightPanel() {
             disabled={loginMutation.isPending}
           />
 
-          <div className="flex w-full flex-col gap-1 mb-2 mt-1">
+          <div className="mt-1 mb-2 flex w-full flex-col gap-1">
             <Password
               id="password"
               name="password"
@@ -125,7 +126,7 @@ export default function LoginRightPanel() {
             >
               Forgot Password?
             </ScrollLink>
-          </div>  
+          </div>
 
           {submitError ? (
             <Text as="p" className="text-ehs-red text-xs" role="alert">

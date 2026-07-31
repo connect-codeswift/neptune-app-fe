@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  STRONG_PASSWORD_REGEX,
+  WEAK_PASSWORD_MESSAGE,
+} from "@/lib/password-strength";
+
+export const strongPasswordSchema = z
+  .string()
+  .regex(STRONG_PASSWORD_REGEX, WEAK_PASSWORD_MESSAGE);
 
 export const subcompanyRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
@@ -14,7 +22,7 @@ export const registerRequestSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
   email: z.email("Enter a valid email address.").max(50),
   isDemo: z.boolean().default(false),
-  passwordHash: z.string().min(8, "Password must be at least 8 characters."),
+  passwordHash: strongPasswordSchema,
   roleId: z.number().int().nonnegative(),
   organizationId: z.number().int().nonnegative(),
   organizationName: z.string().trim().min(1, "Organization name is required."),
@@ -28,7 +36,7 @@ export const signupFormSchema = z
   .object({
     fullName: z.string().trim().min(1, "Full name is required."),
     email: z.email("Enter a valid email address."),
-    password: z.string().min(8, "Password must be at least 8 characters."),
+    password: strongPasswordSchema,
     confirmPassword: z.string().min(1, "Confirm your password."),
     acceptTerms: z.literal(true, {
       error: "You must accept the terms to continue.",
@@ -51,7 +59,7 @@ export const forgotPasswordRequestSchema = z.object({
 export const resetPasswordRequestSchema = z.object({
   email: z.email("Enter a valid email address."),
   otp: z.string().min(1, "OTP is required."),
-  newPassword: z.string().min(8, "Password must be at least 8 characters."),
+  newPassword: strongPasswordSchema,
 });
 
 // =====================================================

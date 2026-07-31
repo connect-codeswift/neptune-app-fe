@@ -1,0 +1,103 @@
+/**
+ * POST /api/Document/allDocuments
+ * Swagger: PaginationDto
+ */
+export type GetAllDocumentsRequestDto = {
+  pageNumber: number;
+  pageSize: number;
+};
+
+/**
+ * Fields for POST /api/Document/document (JSON body).
+ * The PDF is uploaded to Cloudinary client-side first; this call only sends
+ * the resulting URL (`pdfPath`) and the original filename (`fileName`) —
+ * no binary upload happens against this endpoint anymore.
+ */
+export type CreateDocumentRequestDto = {
+  id: number;
+  title: string;
+  categoryId: number;
+  departmentId: number;
+  pdfPath: string;
+  fileName: string;
+  reviewCycle: string;
+  createdBy: number;
+  subCompanyId: number;
+  /** Comma-separated user ids for acknowledgment tracking. */
+  ackUserIds: string;
+  /** Comma-separated user ids for approvals. */
+  approvalUserIds: string;
+};
+
+/**
+ * Fields for POST /api/Document/document_version (JSON body).
+ * Attaches a new PDF revision to an existing document — no title/category/
+ * department/reviewCycle fields exist on this endpoint. Same as
+ * CreateDocumentRequestDto, `pdfPath` is a pre-uploaded Cloudinary URL.
+ */
+export type CreateDocumentVersionRequestDto = {
+  /** Omit to let the backend assign a new version id. */
+  id?: number;
+  documentId: number;
+  pdfPath: string;
+  fileName: string;
+  uploadedBy: number;
+  /** Comma-separated user ids for acknowledgment tracking. */
+  ackUserIds: string;
+  /** Comma-separated user ids for approvals. */
+  approvalUserIds: string;
+};
+
+/**
+ * Fields for PUT /api/Document/document (JSON body).
+ * Dedicated update endpoint — unlike the POST create endpoint, this one
+ * takes `updatedBy` (not `createdBy`/`subCompanyId`) and is meant to be
+ * called with the document's existing `id`.
+ */
+export type UpdateDocumentRequestDto = {
+  id: number;
+  title: string;
+  categoryId: number;
+  departmentId: number;
+  reviewCycle: string;
+  updatedBy: number;
+  /** Comma-separated user ids for acknowledgment tracking. */
+  ackUserIds: string;
+  /** Comma-separated user ids for approvals. */
+  approvalUserIds: string;
+  pdfPath: string;
+  fileName: string;
+};
+
+/**
+ * PUT /api/Document/Acknowledgement — sent as query-string param `docVersionId` only.
+ * Backend reads the user from the auth token; no body or other params needed.
+ */
+export type AcknowledgeDocumentRequestDto = {
+  docVersionId: number;
+};
+
+/**
+ * PUT /api/Document/DocApproval (JSON body).
+ */
+export type ApproveDocumentRequestDto = {
+  approverId: number;
+  docVersionId: number;
+  comments: string;
+};
+
+/**
+ * POST /api/Document/AddCategory
+ * Swagger: AddDocCategoryDto — field name is intentionally `categorytName`.
+ */
+export type AddDocCategoryRequestDto = {
+  categorytName: string;
+};
+
+/**
+ * POST /api/Document/AddDepartment
+ * Swagger: AddDocDepartmentDto
+ */
+export type AddDocDepartmentRequestDto = {
+  departmentName: string;
+};

@@ -1,0 +1,110 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents";
+import { Button } from "@/components/ui/Button";
+import type { InspectionTemplate } from "@/app/dashboard/inspections/template/inspection-templates-data";
+
+export type InspectionTemplateCardProps = Readonly<{
+  template: InspectionTemplate;
+  onUse?: (template: InspectionTemplate) => void;
+  onEdit?: (template: InspectionTemplate) => void;
+}>;
+
+export function InspectionTemplateCard(props: InspectionTemplateCardProps) {
+  const { template, onUse, onEdit } = props;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close the menu on outside click and on Escape while it's open.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
+
+  return (
+    <IncidentGlassCard
+      paddingClassName="p-5"
+      className="min-w-0 bg-white!"
+      incidentGlassCardClassName="gap-3"
+    >
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <span className="text-ehs-muted-text text-sm">
+          {`${String(template.sectionCount)} sections · ${String(template.itemCount)} items`}
+        </span>
+
+        <div ref={menuRef} className="relative shrink-0">
+          <button
+            type="button"
+            aria-label={`Options for ${template.title}`}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+            className="text-ehs-muted-text hover:text-ehs-gray -mt-1 cursor-pointer transition-colors"
+          >
+            <Icon icon="mdi:dots-horizontal" className="size-5" />
+          </button>
+
+          {menuOpen ? (
+            <div
+              role="menu"
+              className="animate-popover-in absolute right-0 z-20 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onEdit?.(template);
+                }}
+                className="hover:bg-ehs-light-bg/60 text-ehs-dark-bg flex w-full cursor-pointer items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
+              >
+                <Icon
+                  icon="mdi:pencil-outline"
+                  className="text-ehs-gray size-4 shrink-0"
+                  aria-hidden="true"
+                />
+                Edit template
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <h3 className="text-ehs-dark-bg text-lg font-bold">{template.title}</h3>
+        <p className="text-ehs-gray">
+          {`${template.category} · ${template.scope}`}
+        </p>
+      </div>
+
+      <p className="text-ehs-muted-text text-sm">
+        {`Last used: ${template.lastUsed}`}
+      </p>
+
+      <Button
+        type="button"
+        variant="primary"
+        onClick={() => onUse?.(template)}
+        className="mt-1 w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold"
+      >
+        Use Template
+      </Button>
+    </IncidentGlassCard>
+  );
+}

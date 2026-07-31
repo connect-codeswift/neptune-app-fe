@@ -1,5 +1,9 @@
 import { useId, type ReactNode, type SelectHTMLAttributes } from "react";
-import { ehsFieldClass, ehsLabelClass, ehsSelectClass } from "@/lib/ehs-classes";
+import {
+  ehsFieldClass,
+  ehsLabelClass,
+  ehsSelectClass,
+} from "@/lib/ehs-classes";
 
 export type SelectOption = Readonly<{
   value: string;
