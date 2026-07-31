@@ -62,7 +62,7 @@ export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
     size: 130,
     cell: (info) => (
       <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()}
+        {info.getValue()?.split(" ").slice(0, 2).join(" ")}
       </span>
     ),
     meta: { align: "left" as const },

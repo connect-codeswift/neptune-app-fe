@@ -4,11 +4,16 @@ import {
   auditTemplateReducer,
   saveSelectedTemplate,
 } from "./audit-template-slice";
+import {
+  inspectionTemplateReducer,
+  saveSelectedInspectionTemplate,
+} from "./inspection-template-slice";
 
 export const store = configureStore({
   reducer: {
     audit: auditReducer,
     auditTemplate: auditTemplateReducer,
+    inspectionTemplate: inspectionTemplateReducer,
   },
 });
 
@@ -16,6 +21,7 @@ export const store = configureStore({
 if (typeof window !== "undefined") {
   let previousTemplate = store.getState().auditTemplate.selected;
   let previousAudit = store.getState().audit.selected;
+  let previousInspectionTemplate = store.getState().inspectionTemplate.selected;
 
   store.subscribe(() => {
     const template = store.getState().auditTemplate.selected;
@@ -28,6 +34,12 @@ if (typeof window !== "undefined") {
     if (audit !== previousAudit) {
       previousAudit = audit;
       saveSelectedAudit(audit);
+    }
+
+    const inspectionTemplate = store.getState().inspectionTemplate.selected;
+    if (inspectionTemplate !== previousInspectionTemplate) {
+      previousInspectionTemplate = inspectionTemplate;
+      saveSelectedInspectionTemplate(inspectionTemplate);
     }
   });
 }

@@ -4,6 +4,7 @@ import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditReportHeader } from "@/components/audits/report/AuditReportHeader";
+import { AuditReportSkeleton } from "@/components/audits/report/AuditReportSkeleton";
 import { AuditReportView } from "@/components/audits/report/AuditReportView";
 import { useAuditDetailQuery } from "@/hooks/use-audit-queries";
 import { exportElementToPdf } from "@/lib/export-pdf";
@@ -53,9 +54,7 @@ function AuditReport() {
       />
 
       {detailQuery.isPending ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-ehs-muted-text text-sm">Loading report...</p>
-        </div>
+        <AuditReportSkeleton />
       ) : detailQuery.isError ? (
         <div className="flex flex-1 items-center justify-center">
           <p className="text-ehs-red text-sm">Could not load this report.</p>

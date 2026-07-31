@@ -142,8 +142,12 @@ export function buildInspectionReportFromDetail(
   const snapshot = dto.snapshot;
   const passThreshold = snapshot?.passThreshold ?? 0;
 
+  // The write side sends `inspectionItemId`; accept either name on read.
   const answerByItemId = new Map(
-    (dto.responses ?? []).map((answer) => [answer.templateItemId, answer]),
+    (dto.responses ?? []).map((answer) => [
+      answer.inspectionItemId ?? answer.templateItemId,
+      answer,
+    ]),
   );
 
   /** "Yes" over everything scorable; N/A items don't count either way. */
@@ -164,12 +168,11 @@ export function buildInspectionReportFromDetail(
     (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
   );
 
-  const sectionScores = sections.flatMap((section) => {
-    const score = scoreOf((section.items ?? []).map((item) => item.id));
-    return score === null
-      ? []
-      : [{ section: stripSectionPrefix(section.sectionTitle ?? ""), score }];
-  });
+  // Every section is listed — an unanswered one reads 0% rather than vanishing.
+  const sectionScores = sections.map((section) => ({
+    section: stripSectionPrefix(section.sectionTitle ?? ""),
+    score: scoreOf((section.items ?? []).map((item) => item.id)) ?? 0,
+  }));
 
   const allItemIds = sections.flatMap((section) =>
     (section.items ?? []).map((item) => item.id),

@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { mapInspectionDetailToChecklist } from "@/lib/map-inspection";
 import { toast } from "@/lib/toast";
 import { InspectionChecklistHeader } from "./InspectionChecklistHeader";
+import { InspectionChecklistSkeleton } from "./InspectionChecklistSkeleton";
 import {
   CHECKLIST_ANSWERS,
   type ChecklistAnswer,
@@ -119,7 +120,7 @@ export function InspectionChecklistContent(
   // everything the checklist needs.
   const detailQuery = useInspectionDetailQuery(inspectionId);
   const detail = detailQuery.data?.dataModel ?? null;
-
+  console.log(detail);
   const checklist = useMemo(
     () => (detail ? mapInspectionDetailToChecklist(detail) : null),
     [detail],
@@ -176,10 +177,10 @@ export function InspectionChecklistContent(
         onSuccess: (response) => {
           toast.success(response.message || "Inspection submitted");
 
-          // // The report reads everything back from GET /api/Inspection/{id}.
-          // router.push(
-          //   `${INSPECTION_REPORT_ROUTE}?inspectionid=${encodeURIComponent(inspectionId)}`,
-          // );
+          // The report reads everything back from GET /api/Inspection/{id}.
+          router.push(
+            `${INSPECTION_REPORT_ROUTE}?inspectionid=${encodeURIComponent(inspectionId)}`,
+          );
         },
         onError: (error) => {
           toast.error(
@@ -194,11 +195,7 @@ export function InspectionChecklistContent(
   };
 
   if (detailQuery.isPending) {
-    return (
-      <div className="flex flex-1 items-center justify-center px-4 pb-8">
-        <p className="text-ehs-muted-text text-sm">Loading checklist...</p>
-      </div>
-    );
+    return <InspectionChecklistSkeleton />;
   }
 
   if (detailQuery.isError || !checklist) {

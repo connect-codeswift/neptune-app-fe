@@ -10,6 +10,10 @@ import {
 import { Table } from "@/components/ui/Table";
 import { inspectionColumns } from "@/components/inspections/InspectionColumns";
 import { InspectionDetailPanel } from "@/components/inspections/InspectionDetailPanel";
+import {
+  InspectionDetailPanelSkeleton,
+  InspectionPageSkeleton,
+} from "@/components/inspections/InspectionPageSkeleton";
 import { InspectionRegisterToolbar } from "@/components/inspections/InspectionRegisterToolbar";
 import {
   useInspectionDetailQuery,
@@ -100,72 +104,74 @@ export default function InspectionsPage() {
         searchPlaceholder="Search incidents, actions, docs..."
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        actionLabel="Start Inspection"
-        onActionClick={() => router.push("/dashboard/inspections/start")}
+        // actionLabel="Start Inspection"
+        // onActionClick={() => router.push("/dashboard/inspections/start")}
       />
-      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-        {/* KPI Metrics */}
-        <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-          {INSPECTION_METRICS.map((metric) => (
-            <StatMetricCard key={metric.title} {...metric} />
-          ))}
-        </div>
+      {inspectionsQuery.isPending ? (
+        <InspectionPageSkeleton />
+      ) : (
+        <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+          {/* KPI Metrics */}
+          <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
+            {INSPECTION_METRICS.map((metric) => (
+              <StatMetricCard key={metric.title} {...metric} />
+            ))}
+          </div>
 
-        {inspectionsQuery.isPending ? (
-          <p className="text-ehs-muted-text text-sm">Loading inspections...</p>
-        ) : inspectionsQuery.isError ? (
-          <p className="text-ehs-red text-sm">Could not load inspections.</p>
-        ) : null}
-
-        {/* Inspection register + selected inspection breakdown */}
-        <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <Table
-            data={filteredRecords}
-            columns={inspectionColumns}
-            selectedRowId={selectedId}
-            onRowClick={(row) => setSelectedId(row.id)}
-            getRowId={(row) => row.id}
-            containerClassName="min-w-0"
-            pagination={{
-              pageNumber,
-              pageSize: PAGE_SIZE,
-              totalRecords: page?.totalRecords ?? 0,
-              onPageChange: setPageNumber,
-              isLoading: inspectionsQuery.isFetching,
-            }}
-            header={
-              <InspectionRegisterToolbar
-                status={activeStatus}
-                statuses={statuses}
-                onStatusChange={setSelectedStatus}
-                onTemplatesClick={() =>
-                  router.push("/dashboard/inspections/template")
-                }
-              />
-            }
-          />
-
-          {selectedId !== null ? (
-            detailQuery.isPending ? (
-              <p className="text-ehs-muted-text text-sm">Loading detail...</p>
-            ) : detailQuery.isError ? (
-              <p className="text-ehs-red text-sm">
-                Could not load inspection detail.
-              </p>
-            ) : detail ? (
-              <InspectionDetailPanel
-                detail={detail}
-                className="min-w-0"
-                onViewFindings={() =>
-                  router.push(
-                    `/dashboard/inspections/report?inspectionid=${encodeURIComponent(selectedId)}`,
-                  )
-                }
-              />
-            ) : null
+          {inspectionsQuery.isError ? (
+            <p className="text-ehs-red text-sm">Could not load inspections.</p>
           ) : null}
+
+          {/* Inspection register + selected inspection breakdown */}
+          <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <Table
+              data={filteredRecords}
+              columns={inspectionColumns}
+              selectedRowId={selectedId}
+              onRowClick={(row) => setSelectedId(row.id)}
+              getRowId={(row) => row.id}
+              containerClassName="min-w-0"
+              pagination={{
+                pageNumber,
+                pageSize: PAGE_SIZE,
+                totalRecords: page?.totalRecords ?? 0,
+                onPageChange: setPageNumber,
+                isLoading: inspectionsQuery.isFetching,
+              }}
+              header={
+                <InspectionRegisterToolbar
+                  status={activeStatus}
+                  statuses={statuses}
+                  onStatusChange={setSelectedStatus}
+                  onTemplatesClick={() =>
+                    router.push("/dashboard/inspections/template")
+                  }
+                />
+              }
+            />
+
+            {selectedId !== null ? (
+              detailQuery.isPending ? (
+                <InspectionDetailPanelSkeleton />
+              ) : detailQuery.isError ? (
+                <p className="text-ehs-red text-sm">
+                  Could not load inspection detail.
+                </p>
+              ) : detail ? (
+                <InspectionDetailPanel
+                  detail={detail}
+                  className="min-w-0"
+                  onViewFindings={() =>
+                    router.push(
+                      `/dashboard/inspections/report?inspectionid=${encodeURIComponent(selectedId)}`,
+                    )
+                  }
+                />
+              ) : null
+            ) : null}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -53,7 +53,6 @@ export async function getInspectionById(inspectionId: string) {
   const { data } = await http.get<GetInspectionByIdResponseDto>(
     `${INSPECTION_PATH}/${encodeURIComponent(inspectionId)}`,
   );
-  console.log("Get inspection by id response", data);
 
   return data;
 }

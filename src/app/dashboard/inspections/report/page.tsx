@@ -4,6 +4,7 @@ import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { InspectionReportHeader } from "@/components/inspections/report/InspectionReportHeader";
+import { InspectionReportSkeleton } from "@/components/inspections/report/InspectionReportSkeleton";
 import { InspectionReportView } from "@/components/inspections/report/InspectionReportView";
 import { useInspectionDetailQuery } from "@/hooks/use-inspection-queries";
 import { exportElementToPdf } from "@/lib/export-pdf";
@@ -21,7 +22,6 @@ function InspectionReport() {
   // the recorded responses — everything the report needs, from one call.
   const detailQuery = useInspectionDetailQuery(inspectionId);
   const detail = detailQuery.data?.dataModel ?? null;
-
   const report = useMemo(
     () => (detail ? buildInspectionReportFromDetail(detail) : null),
     [detail],
@@ -55,9 +55,7 @@ function InspectionReport() {
       />
 
       {detailQuery.isPending ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-ehs-muted-text text-sm">Loading report...</p>
-        </div>
+        <InspectionReportSkeleton />
       ) : detailQuery.isError ? (
         <div className="flex flex-1 items-center justify-center">
           <p className="text-ehs-red text-sm">Could not load this report.</p>

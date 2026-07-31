@@ -69,11 +69,17 @@ export type InspectionSnapshotDto = {
   sections: InspectionSnapshotSectionDto[];
 };
 
-/** One recorded answer on an inspection. */
+/**
+ * One recorded answer on an inspection. The item reference is optional under
+ * both names — the write side uses `inspectionItemId`, and the read side isn't
+ * pinned down — so callers should fall back between them.
+ */
 export type InspectionRecordedResponseDto = {
   id: number;
-  templateItemId: number;
-  responseOptionId: number;
+  inspectionItemId?: number;
+  templateItemId?: number;
+  inspectionResponseOptionId?: number;
+  responseOptionId?: number;
   valueText: string;
   note: string;
   isNA: boolean;
