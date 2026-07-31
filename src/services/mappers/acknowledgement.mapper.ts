@@ -20,7 +20,8 @@ export function findMyAcknowledgement(
   if (!myName?.trim()) {
     return {
       ackId: null,
-      error: "Could not verify your account name to record this acknowledgement.",
+      error:
+        "Could not verify your account name to record this acknowledgement.",
     };
   }
 

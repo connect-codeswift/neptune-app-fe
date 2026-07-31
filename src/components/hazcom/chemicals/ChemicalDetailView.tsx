@@ -1,3 +1,5 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -5,15 +7,17 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HazcomBadge,
+  HazcomErrorCard,
   HazcomGlassCard,
+  HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
   HazcomPictogramChip,
   chemicalStatusTone,
-  findHazcomChemical,
   type HazcomStatementCode,
 } from "@/components/hazcom/shared";
 import { ChemicalNotFound } from "@/components/hazcom/chemicals/ChemicalNotFound";
+import { useChemicalDetailQuery } from "@/hooks/use-hazcom-queries";
 
 export type ChemicalDetailViewProps = Readonly<{
   chemicalIdParam: string;
@@ -22,15 +26,46 @@ export type ChemicalDetailViewProps = Readonly<{
 
 export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
   const { chemicalIdParam, className = "" } = props;
-  const chemical = findHazcomChemical(chemicalIdParam);
+  const { chemical, isLoading, errorMessage, isNotFound, refetch } =
+    useChemicalDetailQuery(chemicalIdParam);
 
-  if (!chemical) {
+  const containerClass = ["flex min-w-0 flex-col gap-5", className]
+    .filter(Boolean)
+    .join(" ");
+
+  if (isLoading) {
     return (
-      <div
-        className={["flex min-w-0 flex-col gap-5", className]
-          .filter(Boolean)
-          .join(" ")}
-      >
+      <div className={containerClass}>
+        <HazcomModuleTabs />
+        <HazcomPageHeader
+          breadcrumb={["Safety", "HazCom", "Chemical Inventory"]}
+          title="Chemical"
+        />
+        <HazcomLoadingCard message="Loading chemical…" />
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className={containerClass}>
+        <HazcomModuleTabs />
+        <HazcomPageHeader
+          breadcrumb={["Safety", "HazCom", "Chemical Inventory"]}
+          title="Chemical"
+        />
+        <HazcomErrorCard
+          title="Couldn’t load this chemical"
+          message={errorMessage}
+          onRetry={refetch}
+        />
+      </div>
+    );
+  }
+
+  if (isNotFound || !chemical) {
+    return (
+      <div className={containerClass}>
         <HazcomModuleTabs />
         <HazcomPageHeader
           breadcrumb={["Safety", "HazCom", "Chemical Inventory", "Not Found"]}
@@ -41,8 +76,12 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
     );
   }
 
-  const sdsValue: ReactNode =
-    chemical.sdsFileName && chemical.sdsRecordId ? (
+  /**
+   * `linkToSdsRecord` is free text on the wire (a file name or URL), so it
+   * only becomes a link when the row also carries an SDS id to point at.
+   */
+  const sdsValue: ReactNode = chemical.sdsFileName ? (
+    chemical.sdsRecordId ? (
       <Link
         href={`/dashboard/hazcom/sds/${chemical.sdsRecordId}`}
         className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
@@ -55,10 +94,20 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
         {chemical.sdsFileName}
       </Link>
     ) : (
-      <Text as="span" className="text-ehs-muted-text">
-        Not linked
-      </Text>
-    );
+      <span className="inline-flex items-center gap-1.5">
+        <Icon
+          icon="mdi:file-document-outline"
+          className="text-ehs-muted-text size-3.5"
+          aria-hidden="true"
+        />
+        {chemical.sdsFileName}
+      </span>
+    )
+  ) : (
+    <Text as="span" className="text-ehs-muted-text">
+      Not linked
+    </Text>
+  );
 
   return (
     <div
@@ -109,7 +158,10 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
       <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-5">
           <HazcomGlassCard>
-            <Text as="h2" className="text-ehs-darker mb-3 text-[15px] font-bold">
+            <Text
+              as="h2"
+              className="text-ehs-darker mb-3 text-[15px] font-bold"
+            >
               Inventory Details
             </Text>
             <dl className="flex flex-col">
@@ -140,7 +192,10 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
           </HazcomGlassCard>
 
           <HazcomGlassCard>
-            <Text as="h2" className="text-ehs-darker mb-3 text-[15px] font-bold">
+            <Text
+              as="h2"
+              className="text-ehs-darker mb-3 text-[15px] font-bold"
+            >
               Storage &amp; Additional Information
             </Text>
             <Text
@@ -152,9 +207,13 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
             <div className="border-ehs-border rounded-[10px] border bg-white/60 p-3.5">
               <Text
                 as="p"
-                className="text-ehs-darker text-[13px] leading-[19.5px]"
+                className={
+                  chemical.storageNotes
+                    ? "text-ehs-darker text-[13px] leading-[19.5px]"
+                    : "text-ehs-muted-text text-[13px] leading-[19.5px]"
+                }
               >
-                {chemical.storageNotes}
+                {chemical.storageNotes || "No notes recorded."}
               </Text>
             </div>
           </HazcomGlassCard>
@@ -162,7 +221,10 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
 
         <div className="flex min-w-0 flex-col gap-5">
           <HazcomGlassCard>
-            <Text as="h2" className="text-ehs-darker mb-1 text-[15px] font-bold">
+            <Text
+              as="h2"
+              className="text-ehs-darker mb-1 text-[15px] font-bold"
+            >
               GHS Hazard Identification
             </Text>
             <Text
@@ -172,13 +234,19 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
               Associated GHS Pictograms
             </Text>
             <div className="flex flex-wrap gap-2">
-              {chemical.pictograms.map((pictogram) => (
-                <HazcomPictogramChip
-                  key={pictogram}
-                  pictogram={pictogram}
-                  selected
-                />
-              ))}
+              {chemical.pictograms.length === 0 ? (
+                <Text as="p" className="text-ehs-muted-text text-[13px]">
+                  No pictograms recorded.
+                </Text>
+              ) : (
+                chemical.pictograms.map((pictogram) => (
+                  <HazcomPictogramChip
+                    key={pictogram}
+                    pictogram={pictogram}
+                    selected
+                  />
+                ))
+              )}
             </div>
           </HazcomGlassCard>
 
@@ -237,6 +305,15 @@ function StatementsCard(props: Readonly<StatementsCardProps>) {
         {title}
       </Text>
       <div className="flex flex-col gap-2.5">
+        {/*
+          GET /chemical/{id} returns no statement lists today — the schema has
+          no field for them — so this is the usual case, not an edge case.
+        */}
+        {statements.length === 0 ? (
+          <Text as="p" className="text-ehs-muted-text text-[13px]">
+            None recorded for this chemical.
+          </Text>
+        ) : null}
         {statements.map((statement) => (
           <div key={statement.code} className="flex items-start gap-2.5">
             <HazcomBadge

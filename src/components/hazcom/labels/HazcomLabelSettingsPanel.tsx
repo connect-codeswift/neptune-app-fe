@@ -4,10 +4,10 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import {
-  HAZCOM_CHEMICALS,
   HazcomGlassCard,
   HazcomSelectField,
   HazcomTextareaField,
+  type HazcomChemical,
 } from "@/components/hazcom/shared";
 import {
   HAZCOM_LABEL_SIZES,
@@ -15,6 +15,8 @@ import {
 } from "@/components/hazcom/labels/hazcom-label-constants";
 
 export type HazcomLabelSettingsPanelProps = Readonly<{
+  /** Inventory rows to choose from — loaded from the chemical endpoint. */
+  chemicals: readonly HazcomChemical[];
   chemicalId: string;
   onChemicalIdChange: (chemicalId: string) => void;
   labelSizeId: HazcomLabelSizeId;
@@ -48,10 +50,7 @@ function HazcomExtraCheckbox(props: Readonly<HazcomExtraCheckboxProps>) {
         onChange={(event) => onChange(event.target.checked)}
         className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 size-4 shrink-0 rounded focus:ring-2"
       />
-      <label
-        htmlFor={id}
-        className="text-ehs-gray cursor-pointer text-[13px]"
-      >
+      <label htmlFor={id} className="text-ehs-gray cursor-pointer text-[13px]">
         {label}
       </label>
     </div>
@@ -62,6 +61,7 @@ export function HazcomLabelSettingsPanel(
   props: Readonly<HazcomLabelSettingsPanelProps>,
 ) {
   const {
+    chemicals,
     chemicalId,
     onChemicalIdChange,
     labelSizeId,
@@ -92,7 +92,7 @@ export function HazcomLabelSettingsPanel(
             label="Chemical"
             value={chemicalId}
             onChange={(event) => onChemicalIdChange(event.target.value)}
-            options={HAZCOM_CHEMICALS.map((chemical) => ({
+            options={chemicals.map((chemical) => ({
               value: chemical.id,
               label: chemical.name,
             }))}
@@ -123,7 +123,7 @@ export function HazcomLabelSettingsPanel(
                           "h-9 rounded-[10px] border text-[13px] font-bold transition-colors",
                           isSelected
                             ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
-                            : "border-ehs-border bg-white/62 text-ehs-gray hover:border-[rgba(15,23,42,0.18)]",
+                            : "border-ehs-border text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
                         ].join(" ")}
                       >
                         {size.label}
@@ -147,7 +147,7 @@ export function HazcomLabelSettingsPanel(
                         "h-9 w-full rounded-[10px] border text-[13px] font-bold transition-colors",
                         isSelected
                           ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
-                          : "border-ehs-border bg-white/62 text-ehs-gray hover:border-[rgba(15,23,42,0.18)]",
+                          : "border-ehs-border text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
                       ].join(" ")}
                     >
                       {size.label}
@@ -191,7 +191,11 @@ export function HazcomLabelSettingsPanel(
         onClick={onPrint}
         className="w-full"
       >
-        <Icon icon="mdi:printer-outline" className="size-4" aria-hidden="true" />
+        <Icon
+          icon="mdi:printer-outline"
+          className="size-4"
+          aria-hidden="true"
+        />
         Print Label
       </Button>
 

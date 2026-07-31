@@ -26,8 +26,14 @@ const iconClassByTone: Record<HazcomOverviewStatTone, string> = {
 export function HazcomOverviewStatCard(
   props: Readonly<HazcomOverviewStatCardProps>,
 ) {
-  const { label, value, icon, caption, tone = "neutral", className = "" } =
-    props;
+  const {
+    label,
+    value,
+    icon,
+    caption,
+    tone = "neutral",
+    className = "",
+  } = props;
 
   return (
     <HazcomGlassCard

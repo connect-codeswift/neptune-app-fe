@@ -30,9 +30,7 @@ const pictogramIcon: Record<HazcomPictogram, string> = {
  * Bare pictogram glyph for dense contexts (table cells) where the labelled
  * chip would wrap. The name stays reachable via the accessible label/tooltip.
  */
-export function HazcomPictogramIcon(
-  props: Readonly<HazcomPictogramIconProps>,
-) {
+export function HazcomPictogramIcon(props: Readonly<HazcomPictogramIconProps>) {
   const { pictogram, className = "" } = props;
 
   return (
@@ -53,9 +51,7 @@ export function HazcomPictogramIcon(
   );
 }
 
-export function HazcomPictogramChip(
-  props: Readonly<HazcomPictogramChipProps>,
-) {
+export function HazcomPictogramChip(props: Readonly<HazcomPictogramChipProps>) {
   const { pictogram, selected = false, onToggle } = props;
   const icon = pictogramIcon[pictogram];
 

@@ -43,10 +43,7 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
-        <Text
-          as="p"
-          className="text-ehs-darker truncate text-[13px] font-bold"
-        >
+        <Text as="p" className="text-ehs-darker truncate text-[13px] font-bold">
           {row.original.name}
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[11px]">
@@ -182,7 +179,11 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
           aria-label={`Edit ${row.original.name}`}
           className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex h-8 w-8 items-center justify-center rounded-lg border bg-white transition-colors"
         >
-          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden="true" />
+          <Icon
+            icon="mdi:pencil-outline"
+            className="size-4"
+            aria-hidden="true"
+          />
         </Link>
       </div>
     ),

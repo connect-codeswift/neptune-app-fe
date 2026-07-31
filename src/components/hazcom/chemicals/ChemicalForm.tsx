@@ -36,7 +36,44 @@ const STATUS_OPTIONS = [
   { value: "Inactive", label: "Inactive" },
 ] as const;
 
+/**
+ * GHS hazard category — the severity level, where Category 1 is the most
+ * severe. The *kind* of hazard is captured by the GHS Pictograms field below,
+ * so this field carries the level only.
+ */
+const HAZARD_CATEGORY_OPTIONS = [
+  { value: "", label: "Select category" },
+  { value: "Category 1", label: "Category 1 (most severe)" },
+  { value: "Category 2", label: "Category 2" },
+  { value: "Category 3", label: "Category 3" },
+  { value: "Category 4", label: "Category 4" },
+  { value: "Category 5", label: "Category 5 (least severe)" },
+] as const;
+
 const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
+
+/**
+ * Rows saved before this field became a category list hold a hazard *type*
+ * ("Corrosive", "Flammable Liquid"). A `<select>` renders blank for a value it
+ * has no option for, which would quietly overwrite that value on the next save
+ * — so the stored one stays selectable until a category is chosen.
+ */
+function hazardCategoryOptions(
+  current: string,
+): readonly { value: string; label: string }[] {
+  const isKnown = HAZARD_CATEGORY_OPTIONS.some(
+    (option) => option.value === current,
+  );
+
+  if (isKnown) {
+    return HAZARD_CATEGORY_OPTIONS;
+  }
+
+  return [
+    ...HAZARD_CATEGORY_OPTIONS,
+    { value: current, label: `${current} (existing value)` },
+  ];
+}
 
 /** Everything the form collects, gathered for validation and mapping. */
 type ChemicalFormValues = Readonly<{
@@ -239,12 +276,13 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             onChange={(event) => setCasNumber(event.target.value)}
             placeholder="e.g. 7647-01-0"
           />
-          <HazcomTextField
+          <HazcomSelectField
             label="Hazard Class"
             required
+            hint="GHS severity level — the hazard type comes from the pictograms below"
             value={hazardClass}
             onChange={(event) => setHazardClass(event.target.value)}
-            placeholder="e.g. Corrosive"
+            options={hazardCategoryOptions(hazardClass)}
           />
 
           <HazcomTextField

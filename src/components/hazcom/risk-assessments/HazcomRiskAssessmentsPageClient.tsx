@@ -6,23 +6,38 @@ import Link from "next/link";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_RISK_ASSESSMENTS,
+  HazcomErrorCard,
+  HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
+  HazcomPager,
 } from "@/components/hazcom/shared";
 import { HazcomRiskAssessmentsTable } from "@/components/hazcom/risk-assessments/HazcomRiskAssessmentsTable";
+import {
+  DEFAULT_HAZCOM_PAGE_NUMBER,
+  DEFAULT_HAZCOM_PAGE_SIZE,
+  useRiskAssessmentsQuery,
+} from "@/hooks/use-hazcom-queries";
 
 export function HazcomRiskAssessmentsPageClient() {
   const [search, setSearch] = useState("");
+  const [pageNumber, setPageNumber] = useState(DEFAULT_HAZCOM_PAGE_NUMBER);
 
+  const { items, totalRecords, isLoading, isFetching, errorMessage, refetch } =
+    useRiskAssessmentsQuery({
+      pageNumber,
+      pageSize: DEFAULT_HAZCOM_PAGE_SIZE,
+    });
+
+  /** Page-scoped: the endpoint takes no search param. */
   const filteredAssessments = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     if (!query) {
-      return HAZCOM_RISK_ASSESSMENTS;
+      return items;
     }
 
-    return HAZCOM_RISK_ASSESSMENTS.filter((assessment) =>
+    return items.filter((assessment) =>
       [
         assessment.id,
         assessment.chemical,
@@ -33,7 +48,7 @@ export function HazcomRiskAssessmentsPageClient() {
         .toLowerCase()
         .includes(query),
     );
-  }, [search]);
+  }, [items, search]);
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4">
@@ -71,11 +86,34 @@ export function HazcomRiskAssessmentsPageClient() {
           as="span"
           className="text-ehs-muted-text hidden shrink-0 text-xs sm:inline"
         >
-          {`${filteredAssessments.length} assessment${filteredAssessments.length === 1 ? "" : "s"}`}
+          {`${String(totalRecords)} assessment${totalRecords === 1 ? "" : "s"}`}
         </Text>
       </div>
 
-      <HazcomRiskAssessmentsTable assessments={filteredAssessments} />
+      {errorMessage ? (
+        <HazcomErrorCard
+          title="Couldn’t load risk assessments"
+          message={errorMessage}
+          onRetry={refetch}
+        />
+      ) : null}
+
+      {!errorMessage && isLoading ? (
+        <HazcomLoadingCard message="Loading risk assessments…" />
+      ) : null}
+
+      {!errorMessage && !isLoading ? (
+        <>
+          <HazcomRiskAssessmentsTable assessments={filteredAssessments} />
+          <HazcomPager
+            pageNumber={pageNumber}
+            pageSize={DEFAULT_HAZCOM_PAGE_SIZE}
+            totalRecords={totalRecords}
+            isFetching={isFetching}
+            onPageChange={setPageNumber}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

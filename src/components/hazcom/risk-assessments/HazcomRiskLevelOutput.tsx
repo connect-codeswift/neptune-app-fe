@@ -86,9 +86,10 @@ export function HazcomRiskLevelOutput(
 
         <div className="bg-ehs-dark-bg/10 mt-4 h-1.5 w-full rounded-full">
           <div
-            className={["h-1.5 rounded-full transition-all", LEVEL_BAR_CLASS[tone]].join(
-              " ",
-            )}
+            className={[
+              "h-1.5 rounded-full transition-all",
+              LEVEL_BAR_CLASS[tone],
+            ].join(" ")}
             style={{ width: `${scoreFillPercent}%` }}
           />
         </div>
@@ -144,10 +145,7 @@ export function HazcomRiskLevelOutput(
         </Text>
 
         {ppe.length === 0 ? (
-          <Text
-            as="p"
-            className="text-ehs-muted-text mt-2 text-[12px] italic"
-          >
+          <Text as="p" className="text-ehs-muted-text mt-2 text-[12px] italic">
             None selected
           </Text>
         ) : (

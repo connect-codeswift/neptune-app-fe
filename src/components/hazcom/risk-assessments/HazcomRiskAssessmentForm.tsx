@@ -3,20 +3,26 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { FormEvent } from "react";
+import { useMemo, type FormEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_CHEMICALS,
   HAZCOM_PPE_OPTIONS,
   HazcomGlassCard,
   HazcomSelectField,
   HazcomTextareaField,
   HazcomTextField,
+  hazcomRiskLevel,
+  hazcomRiskScore,
   type HazcomHazardRatings,
 } from "@/components/hazcom/shared";
 import { HazcomHazardRatingSelector } from "@/components/hazcom/risk-assessments/HazcomHazardRatingSelector";
 import type { HazcomRiskAssessmentFormState } from "@/components/hazcom/risk-assessments/risk-assessment-form-state";
+import type { ChemicalRiskAssessmentRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateRiskAssessmentMutation } from "@/hooks/use-hazcom-mutations";
+import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
+import { toast } from "@/lib/toast";
 
 export type HazcomRiskAssessmentFormProps = Readonly<{
   values: HazcomRiskAssessmentFormState;
@@ -24,13 +30,7 @@ export type HazcomRiskAssessmentFormProps = Readonly<{
   className?: string;
 }>;
 
-const CHEMICAL_OPTIONS = [
-  { value: "", label: "" },
-  ...HAZCOM_CHEMICALS.map((chemical) => ({
-    value: chemical.name,
-    label: chemical.name,
-  })),
-];
+const ASSESSMENTS_ROUTE = "/dashboard/hazcom/risk-assessments";
 
 function toggleValue(
   values: readonly string[],
@@ -41,11 +41,56 @@ function toggleValue(
     : [...values, value];
 }
 
+function toAssessmentRequest(
+  values: HazcomRiskAssessmentFormState,
+  isDraft: boolean,
+): ChemicalRiskAssessmentRequestDto {
+  const score = hazcomRiskScore(values.ratings);
+
+  return {
+    chemicalId: Number(values.chemicalId),
+    description: values.exposureScenario.trim(),
+    // Free text on the wire; the field collects minutes.
+    exposureDuration: values.exposureMinutes.trim(),
+    frequency: values.frequency.trim(),
+    hazardHealthRating: values.ratings.health,
+    hazardFlammabilityRating: values.ratings.flammability,
+    hazardReactivityRating: values.ratings.reactivity,
+    hazardPpeIndexRating: values.ratings.ppeIndex,
+    recommendedPpe: values.ppe.join(", "),
+    notes: values.controls.trim(),
+    // Both are derived here so the stored row matches what the panel showed.
+    riskLevel: hazcomRiskLevel(score),
+    riskScore: score,
+    isDraft,
+  };
+}
+
 export function HazcomRiskAssessmentForm(
   props: Readonly<HazcomRiskAssessmentFormProps>,
 ) {
   const { values, onChange, className = "" } = props;
   const router = useRouter();
+  const createAssessment = useCreateRiskAssessmentMutation();
+  const {
+    chemicals,
+    isLoading: isLoadingChemicals,
+    errorMessage: chemicalsError,
+  } = useChemicalNamesQuery();
+
+  const chemicalOptions = useMemo(
+    () => [
+      {
+        value: "",
+        label: isLoadingChemicals ? "Loading chemicals…" : "Select a chemical…",
+      },
+      ...chemicals.map((chemical) => ({
+        value: String(chemical.id),
+        label: chemical.name,
+      })),
+    ],
+    [chemicals, isLoadingChemicals],
+  );
 
   const updateRating = (field: keyof HazcomHazardRatings, value: number) => {
     onChange({ ratings: { ...values.ratings, [field]: value } });
@@ -55,13 +100,41 @@ export function HazcomRiskAssessmentForm(
     onChange({ ppe: toggleValue(values.ppe, option) });
   };
 
-  const handleSubmitForReview = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    router.push("/dashboard/hazcom/risk-assessments");
+  const save = (isDraft: boolean) => {
+    // `chemicalId` is the only field the endpoint requires; the scenario is
+    // asterisked in the form, so it is enforced on submit but not on a draft.
+    if (values.chemicalId === "") {
+      toast.error("Chemical is required");
+      return;
+    }
+    if (!isDraft && values.exposureScenario.trim() === "") {
+      toast.error("Exposure Scenario / Task Description is required");
+      return;
+    }
+
+    createAssessment.mutate(toAssessmentRequest(values, isDraft), {
+      onSuccess: () => {
+        toast.success(
+          isDraft
+            ? "Assessment saved as draft"
+            : "Assessment submitted for review",
+        );
+        router.push(ASSESSMENTS_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not save the assessment. Please try again.",
+          ),
+        );
+      },
+    });
   };
 
-  const handleSaveDraft = () => {
-    router.push("/dashboard/hazcom/risk-assessments");
+  const handleSubmitForReview = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    save(false);
   };
 
   return (
@@ -69,16 +142,14 @@ export function HazcomRiskAssessmentForm(
       paddingClassName="p-6"
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      <form
-        onSubmit={handleSubmitForReview}
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={handleSubmitForReview} className="flex flex-col gap-5">
         <HazcomSelectField
           label="Chemical"
           required
-          value={values.chemical}
-          onChange={(event) => onChange({ chemical: event.target.value })}
-          options={CHEMICAL_OPTIONS}
+          value={values.chemicalId}
+          onChange={(event) => onChange({ chemicalId: event.target.value })}
+          options={chemicalOptions}
+          hint={chemicalsError ?? undefined}
         />
 
         <HazcomTextareaField
@@ -179,7 +250,7 @@ export function HazcomRiskAssessmentForm(
         />
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
-          <Link href="/dashboard/hazcom/risk-assessments">
+          <Link href={ASSESSMENTS_ROUTE}>
             <Button type="button" variant="tertiary">
               <Icon
                 icon="mdi:arrow-left"
@@ -194,12 +265,17 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="button"
               variant="secondary"
-              onClick={handleSaveDraft}
+              disabled={createAssessment.isPending}
+              onClick={() => save(true)}
             >
               Save as Draft
             </Button>
-            <Button type="submit" variant="primary">
-              Submit for Review
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={createAssessment.isPending}
+            >
+              {createAssessment.isPending ? "Saving…" : "Submit for Review"}
             </Button>
           </div>
         </div>

@@ -105,7 +105,7 @@ const columns = [
       <Text
         as="span"
         className={[
-          "text-[13px] font-bold uppercase tracking-wide",
+          "text-[13px] font-bold tracking-wide uppercase",
           signalWordClass[info.getValue()] ?? "text-ehs-gray",
         ].join(" ")}
       >
@@ -267,7 +267,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-t border-[rgba(15,23,42,0.08)] transition-colors hover:bg-ehs-light-bg/70"
+                  className="hover:bg-ehs-light-bg/70 border-t border-[rgba(15,23,42,0.08)] transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => {
                     const align = cell.column.columnDef.meta?.align;

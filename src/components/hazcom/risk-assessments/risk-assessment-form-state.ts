@@ -1,7 +1,12 @@
 import type { HazcomHazardRatings } from "@/components/hazcom/shared";
 
 export type HazcomRiskAssessmentFormState = Readonly<{
-  chemical: string;
+  /**
+   * Row id from GET /api/hazcom/chemical/names, kept as a string because that
+   * is what the `<select>` yields. The assessment endpoint requires the id,
+   * not the chemical's name.
+   */
+  chemicalId: string;
   exposureScenario: string;
   exposureMinutes: string;
   frequency: string;
@@ -12,7 +17,7 @@ export type HazcomRiskAssessmentFormState = Readonly<{
 
 export const INITIAL_RISK_ASSESSMENT_FORM_STATE: HazcomRiskAssessmentFormState =
   {
-    chemical: "",
+    chemicalId: "",
     exposureScenario: "",
     exposureMinutes: "60",
     frequency: "",

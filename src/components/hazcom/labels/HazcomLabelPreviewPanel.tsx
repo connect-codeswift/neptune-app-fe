@@ -1,5 +1,8 @@
 import { Text } from "@/components/Text";
-import { HazcomGlassCard, type HazcomChemical } from "@/components/hazcom/shared";
+import {
+  HazcomGlassCard,
+  type HazcomChemical,
+} from "@/components/hazcom/shared";
 import { HazcomGhsLabelCard } from "@/components/hazcom/labels/HazcomGhsLabelCard";
 import {
   findHazcomLabelSize,

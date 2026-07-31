@@ -6,30 +6,45 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_SDS_RECORDS,
+  HazcomErrorCard,
   HazcomGlassCard,
+  HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
+  HazcomPager,
 } from "@/components/hazcom/shared";
 import { SdsLibraryTable } from "@/components/hazcom/sds/SdsLibraryTable";
+import {
+  DEFAULT_HAZCOM_PAGE_NUMBER,
+  DEFAULT_HAZCOM_PAGE_SIZE,
+  useSdsListQuery,
+} from "@/hooks/use-hazcom-queries";
 
 export function SdsLibraryPageClient() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [pageNumber, setPageNumber] = useState(DEFAULT_HAZCOM_PAGE_NUMBER);
 
+  const { items, totalRecords, isLoading, isFetching, errorMessage, refetch } =
+    useSdsListQuery({ pageNumber, pageSize: DEFAULT_HAZCOM_PAGE_SIZE });
+
+  /**
+   * Page-scoped search: GET /api/hazcom/sds takes only pageNumber and
+   * pageSize, so this filters the rows already on screen, not the library.
+   */
   const filteredRecords = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
     if (!query) {
-      return HAZCOM_SDS_RECORDS;
+      return items;
     }
 
-    return HAZCOM_SDS_RECORDS.filter((record) =>
+    return items.filter((record) =>
       [record.chemicalName, record.manufacturer, record.casNumber]
         .join(" ")
         .toLowerCase()
         .includes(query),
     );
-  }, [searchQuery]);
+  }, [items, searchQuery]);
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pb-8 sm:px-4">
@@ -72,12 +87,35 @@ export function SdsLibraryPageClient() {
             as="span"
             className="text-ehs-muted-text shrink-0 text-[12px] whitespace-nowrap"
           >
-            {`${filteredRecords.length} SDS record${filteredRecords.length === 1 ? "" : "s"}`}
+            {`${String(totalRecords)} SDS record${totalRecords === 1 ? "" : "s"}`}
           </Text>
         </div>
       </HazcomGlassCard>
 
-      <SdsLibraryTable records={filteredRecords} />
+      {errorMessage ? (
+        <HazcomErrorCard
+          title="Couldn’t load the SDS library"
+          message={errorMessage}
+          onRetry={refetch}
+        />
+      ) : null}
+
+      {!errorMessage && isLoading ? (
+        <HazcomLoadingCard message="Loading SDS records…" />
+      ) : null}
+
+      {!errorMessage && !isLoading ? (
+        <>
+          <SdsLibraryTable records={filteredRecords} />
+          <HazcomPager
+            pageNumber={pageNumber}
+            pageSize={DEFAULT_HAZCOM_PAGE_SIZE}
+            totalRecords={totalRecords}
+            isFetching={isFetching}
+            onPageChange={setPageNumber}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

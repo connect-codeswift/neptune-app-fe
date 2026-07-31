@@ -50,9 +50,7 @@ function computeExpiryDate(
   return parsed.toISOString();
 }
 
-function versionBadge(
-  entry: DocumentVersionDto,
-): DocumentVersion["badge"] {
+function versionBadge(entry: DocumentVersionDto): DocumentVersion["badge"] {
   if (entry.isCurrent) {
     return "current";
   }
@@ -65,7 +63,11 @@ function versionBadge(
 
 function buildVersions(
   versions: readonly DocumentVersionDto[] | null | undefined,
-  fallback: Readonly<{ version: string; ownerFullName: string; updated: string }>,
+  fallback: Readonly<{
+    version: string;
+    ownerFullName: string;
+    updated: string;
+  }>,
 ): readonly DocumentVersion[] {
   if (versions && versions.length > 0) {
     return versions.map(mapVersionDto);
@@ -254,9 +256,7 @@ export function mapDocumentDtoToPolicyDocument(
     document.documentKind?.trim() ||
     "SOP";
   const code =
-    document.code?.trim() ||
-    document.documentCode?.trim() ||
-    `DOC-${idValue}`;
+    document.code?.trim() || document.documentCode?.trim() || `DOC-${idValue}`;
   const updated = formatDate(
     document.updatedAt ?? document.updated ?? document.createdAt,
   );
@@ -291,7 +291,11 @@ export function mapDocumentDtoToPolicyDocument(
     updated,
     reviewersDone,
     reviewersTotal,
-    versions: buildVersions(document.versions, { version, ownerFullName, updated }),
+    versions: buildVersions(document.versions, {
+      version,
+      ownerFullName,
+      updated,
+    }),
     filePath,
     fileName,
     fileType: document.fileType?.trim() || "PDF",

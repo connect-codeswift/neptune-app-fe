@@ -1,25 +1,69 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getAllChemicals } from "@/services/hazcom.service";
-import { mapChemicalDtosToHazcomChemicals } from "@/services/mappers/hazcom-chemical.mapper";
+import type {
+  HazcomChemical,
+  HazcomRiskAssessment,
+  HazcomSdsRecord,
+  HazcomStatementCode,
+  HazcomTrainingSession,
+} from "@/components/hazcom/shared";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { getAccessToken, isApiError } from "@/lib/axios";
+import {
+  getAllChemicalRiskAssessments,
+  getAllChemicals,
+  getAllSafetyDataSheets,
+  getAllTrainingLogs,
+  getChemicalById,
+  getChemicalNames,
+  getHazardHCodes,
+  getPrecautionaryCodes,
+  getSafetyDataSheetById,
+  getSdsStatements,
+} from "@/services/hazcom.service";
+import {
+  mapChemicalDtoToHazcomChemical,
+  mapChemicalDtosToHazcomChemicals,
+  mapChemicalNameDtos,
+  type HazcomChemicalName,
+} from "@/services/mappers/hazcom-chemical.mapper";
+import { mapRiskAssessmentDtosToHazcomAssessments } from "@/services/mappers/hazcom-risk-assessment.mapper";
+import {
+  mapGhsCodeDtos,
+  mapSdsDtoToHazcomSdsDetail,
+  mapSdsDtosToHazcomSdsRecords,
+  mapSdsStatementsDto,
+  type HazcomSdsDetail,
+} from "@/services/mappers/hazcom-sds.mapper";
+import { mapTrainingLogDtosToHazcomSessions } from "@/services/mappers/hazcom-training.mapper";
+
+type PageParams = { pageNumber: number; pageSize: number };
 
 export const hazcomQueryKeys = {
   all: ["hazcom"] as const,
-  chemicals: (params: { pageNumber: number; pageSize: number }) =>
+  chemicals: (params: PageParams) =>
     [...hazcomQueryKeys.all, "chemicals", params] as const,
+  chemical: (id: number) => [...hazcomQueryKeys.all, "chemical", id] as const,
+  chemicalNames: () => [...hazcomQueryKeys.all, "chemical-names"] as const,
+  sdsList: (params: PageParams) =>
+    [...hazcomQueryKeys.all, "sds", params] as const,
+  sds: (id: number) => [...hazcomQueryKeys.all, "sds", id] as const,
+  sdsStatements: (id: number) =>
+    [...hazcomQueryKeys.all, "sds", id, "statements"] as const,
+  hazardHCodes: () => [...hazcomQueryKeys.all, "hazard-hcodes"] as const,
+  precautionaryCodes: () =>
+    [...hazcomQueryKeys.all, "precautionary-codes"] as const,
+  trainingLogs: (params: PageParams) =>
+    [...hazcomQueryKeys.all, "training", params] as const,
+  riskAssessments: (params: PageParams) =>
+    [...hazcomQueryKeys.all, "risk-assessments", params] as const,
 };
 
 /** Spec defaults for GET /api/hazcom/chemical. */
 export const DEFAULT_CHEMICALS_PAGE_NUMBER = 1;
 export const DEFAULT_CHEMICALS_PAGE_SIZE = 10;
-
-export type UseChemicalsListQueryOptions = Readonly<{
-  pageNumber?: number;
-  pageSize?: number;
-  /** Parent should enable only after client mount + token check. */
-  enabled?: boolean;
-}>;
 
 /**
  * Loads the chemical inventory via GET /api/hazcom/chemical
@@ -29,26 +73,420 @@ export type UseChemicalsListQueryOptions = Readonly<{
  * returned page client-side.
  */
 export function useChemicalsListQuery(
-  options: UseChemicalsListQueryOptions = {},
-) {
-  const pageNumber = options.pageNumber ?? DEFAULT_CHEMICALS_PAGE_NUMBER;
-  const pageSize = options.pageSize ?? DEFAULT_CHEMICALS_PAGE_SIZE;
-  const enabled = options.enabled ?? false;
-
-  return useQuery({
-    queryKey: hazcomQueryKeys.chemicals({ pageNumber, pageSize }),
-    enabled,
-    placeholderData: keepPreviousData,
-    queryFn: async () => {
-      const response = await getAllChemicals({ pageNumber, pageSize });
-      const page = response.dataModel;
+  options: HazcomListOptions = {},
+): HazcomListState<HazcomChemical> {
+  return useHazcomListQuery(
+    hazcomQueryKeys.chemicals,
+    async (params) => {
+      const page = (await getAllChemicals(params)).dataModel;
 
       return {
-        chemicals: mapChemicalDtosToHazcomChemicals(page?.data ?? []),
+        items: mapChemicalDtosToHazcomChemicals(page?.data ?? []),
         totalRecords: page?.totalRecords ?? 0,
-        pageNumber: page?.pageNumber ?? pageNumber,
-        pageSize: page?.pageSize ?? pageSize,
       };
     },
+    {
+      signedOut: "Please sign in to load the chemical inventory.",
+      failed: "Failed to load chemicals.",
+    },
+    options,
+  );
+}
+
+/** Never emits, so the snapshot flips exactly once — at hydration. */
+const subscribeToNothing = () => () => {};
+
+/**
+ * False on the server and during the first client render, true afterwards.
+ * The access token lives in localStorage, so anything derived from it has to
+ * wait for hydration or the first client render desyncs from the server pass.
+ */
+export function useIsClientReady(): boolean {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+}
+
+/** Route segment as an id the API can address, or null when it isn't one. */
+function toNumericId(idParam: string): number | null {
+  const trimmed = idParam.trim();
+  return /^\d+$/.test(trimmed) ? Number(trimmed) : null;
+}
+
+export type ChemicalDetailState = Readonly<{
+  chemical: HazcomChemical | null;
+  isLoading: boolean;
+  /** Set when the record can't be loaded at all; render an error card. */
+  errorMessage: string | null;
+  /** The id matches no record — render the not-found card instead. */
+  isNotFound: boolean;
+  refetch: () => void;
+}>;
+
+/**
+ * Loads one chemical via GET /api/hazcom/chemical/{id} for the detail and edit
+ * pages, and folds the hydration + token gating into the returned state so
+ * both views can render straight from it.
+ */
+export function useChemicalDetailQuery(
+  chemicalIdParam: string,
+): ChemicalDetailState {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+  const chemicalId = toNumericId(chemicalIdParam);
+
+  const query = useQuery({
+    // `chemicalId` is only null while the query is disabled, so the -1 key is
+    // never fetched against.
+    queryKey: hazcomQueryKeys.chemical(chemicalId ?? -1),
+    enabled: hasToken && chemicalId !== null,
+    queryFn: async () => {
+      const response = await getChemicalById(chemicalId as number);
+      const row = response.dataModel;
+
+      return row === null ? null : mapChemicalDtoToHazcomChemical(row);
+    },
   });
+
+  // A legacy route segment ("C001") addresses nothing on this API — the same
+  // dead end as an id the backend doesn't know.
+  if (chemicalId === null) {
+    return {
+      chemical: null,
+      isLoading: false,
+      errorMessage: null,
+      isNotFound: true,
+      refetch: () => undefined,
+    };
+  }
+
+  if (isClientReady && !hasToken) {
+    return {
+      chemical: null,
+      isLoading: false,
+      errorMessage: "Please sign in to load this chemical.",
+      isNotFound: false,
+      refetch: () => undefined,
+    };
+  }
+
+  // The API answers a missing record either way, so both read as not-found.
+  const isNotFound =
+    query.data === null ||
+    (isApiError(query.error) && query.error.status === 404);
+
+  return {
+    chemical: query.data ?? null,
+    isLoading: !isClientReady || query.isLoading,
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(query.error, "Failed to load this chemical.")
+        : null,
+    isNotFound,
+    refetch: () => void query.refetch(),
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Paged list queries                                                         */
+/* -------------------------------------------------------------------------- */
+
+/** Spec defaults shared by every paged HazCom list endpoint. */
+export const DEFAULT_HAZCOM_PAGE_NUMBER = 1;
+export const DEFAULT_HAZCOM_PAGE_SIZE = 10;
+
+export type HazcomListState<TItem> = Readonly<{
+  items: readonly TItem[];
+  totalRecords: number;
+  isLoading: boolean;
+  /** Set while a background refetch is in flight — for disabling pagers. */
+  isFetching: boolean;
+  errorMessage: string | null;
+  refetch: () => void;
+}>;
+
+export type HazcomListOptions = Readonly<{
+  pageNumber?: number;
+  pageSize?: number;
+}>;
+
+/**
+ * Runs a paged HazCom list query behind the same hydration + token gate the
+ * detail hook uses, so each list view renders straight from the result.
+ */
+function useHazcomListQuery<TItem>(
+  buildKey: (params: PageParams) => readonly unknown[],
+  fetchPage: (
+    params: PageParams,
+  ) => Promise<{ items: TItem[]; totalRecords: number }>,
+  labels: Readonly<{ signedOut: string; failed: string }>,
+  options: HazcomListOptions = {},
+): HazcomListState<TItem> {
+  const pageNumber = options.pageNumber ?? DEFAULT_HAZCOM_PAGE_NUMBER;
+  const pageSize = options.pageSize ?? DEFAULT_HAZCOM_PAGE_SIZE;
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: buildKey({ pageNumber, pageSize }),
+    enabled: hasToken,
+    placeholderData: keepPreviousData,
+    queryFn: () => fetchPage({ pageNumber, pageSize }),
+  });
+
+  return {
+    items: query.data?.items ?? [],
+    totalRecords: query.data?.totalRecords ?? 0,
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    isFetching: query.isFetching,
+    errorMessage:
+      isClientReady && !hasToken
+        ? labels.signedOut
+        : query.isError
+          ? getMutationErrorMessage(query.error, labels.failed)
+          : null,
+    refetch: () => void query.refetch(),
+  };
+}
+
+/** GET /api/hazcom/sds?pageNumber&pageSize */
+export function useSdsListQuery(
+  options: HazcomListOptions = {},
+): HazcomListState<HazcomSdsRecord> {
+  return useHazcomListQuery(
+    hazcomQueryKeys.sdsList,
+    async (params) => {
+      const page = (await getAllSafetyDataSheets(params)).dataModel;
+
+      return {
+        items: mapSdsDtosToHazcomSdsRecords(page?.data ?? []),
+        totalRecords: page?.totalRecords ?? 0,
+      };
+    },
+    {
+      signedOut: "Please sign in to load the SDS library.",
+      failed: "Failed to load SDS records.",
+    },
+    options,
+  );
+}
+
+/** GET /api/hazcom/training?pageNumber&pageSize */
+export function useTrainingLogsQuery(
+  options: HazcomListOptions = {},
+): HazcomListState<HazcomTrainingSession> {
+  return useHazcomListQuery(
+    hazcomQueryKeys.trainingLogs,
+    async (params) => {
+      const page = (await getAllTrainingLogs(params)).dataModel;
+
+      return {
+        items: mapTrainingLogDtosToHazcomSessions(page?.data ?? []),
+        totalRecords: page?.totalRecords ?? 0,
+      };
+    },
+    {
+      signedOut: "Please sign in to load the training log.",
+      failed: "Failed to load training sessions.",
+    },
+    options,
+  );
+}
+
+/** GET /api/hazcom/risk-assessment?pageNumber&pageSize */
+export function useRiskAssessmentsQuery(
+  options: HazcomListOptions = {},
+): HazcomListState<HazcomRiskAssessment> {
+  return useHazcomListQuery(
+    hazcomQueryKeys.riskAssessments,
+    async (params) => {
+      const page = (await getAllChemicalRiskAssessments(params)).dataModel;
+
+      return {
+        items: mapRiskAssessmentDtosToHazcomAssessments(page?.data ?? []),
+        totalRecords: page?.totalRecords ?? 0,
+      };
+    },
+    {
+      signedOut: "Please sign in to load risk assessments.",
+      failed: "Failed to load risk assessments.",
+    },
+    options,
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lookups and detail                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * GET /api/hazcom/chemical/names — the picker lookup. Both the SDS form and
+ * the risk-assessment form need it to turn a chosen name into a `chemicalId`.
+ */
+export function useChemicalNamesQuery(): Readonly<{
+  chemicals: readonly HazcomChemicalName[];
+  isLoading: boolean;
+  errorMessage: string | null;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: hazcomQueryKeys.chemicalNames(),
+    enabled: hasToken,
+    // The lookup barely changes and is read by two separate forms.
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const response = await getChemicalNames();
+
+      return mapChemicalNameDtos(response.dataModel ?? []);
+    },
+  });
+
+  return {
+    chemicals: query.data ?? [],
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    errorMessage: query.isError
+      ? getMutationErrorMessage(
+          query.error,
+          "Failed to load the chemical list.",
+        )
+      : null,
+  };
+}
+
+/**
+ * GET /api/hazcom/hazard-hcode and /precautionary-code — the two GHS code
+ * libraries the SDS form's statement pickers are built from. Both are unpaged
+ * reference lists that rarely change.
+ */
+function useGhsCodeLibrary(
+  queryKey: readonly unknown[],
+  fetchCodes: () => Promise<readonly unknown[]>,
+): Readonly<{ codes: readonly HazcomStatementCode[]; isLoading: boolean }> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey,
+    enabled: hasToken,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => mapGhsCodeDtos(await fetchCodes()),
+  });
+
+  return {
+    codes: query.data ?? [],
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+  };
+}
+
+export function useHazardHCodesQuery() {
+  return useGhsCodeLibrary(hazcomQueryKeys.hazardHCodes(), async () => {
+    const response = await getHazardHCodes();
+    return response.dataModel ?? [];
+  });
+}
+
+export function usePrecautionaryCodesQuery() {
+  return useGhsCodeLibrary(hazcomQueryKeys.precautionaryCodes(), async () => {
+    const response = await getPrecautionaryCodes();
+    return response.dataModel ?? [];
+  });
+}
+
+export type SdsDetailState = Readonly<{
+  detail: HazcomSdsDetail | null;
+  /** Resolved from GET /sds/{id}/statements, falling back to the row itself. */
+  statements: readonly HazcomStatementCode[];
+  isLoading: boolean;
+  errorMessage: string | null;
+  isNotFound: boolean;
+  refetch: () => void;
+}>;
+
+/**
+ * GET /api/hazcom/sds/{id} plus its statement list, for the SDS viewer.
+ *
+ * The statements call is a separate endpoint and is allowed to fail on its
+ * own: a sheet that loads but whose statements 404 still renders, falling
+ * back to the codes written on the record.
+ */
+export function useSdsDetailQuery(sdsIdParam: string): SdsDetailState {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+  const sdsId = toNumericId(sdsIdParam);
+  const enabled = hasToken && sdsId !== null;
+
+  const detailQuery = useQuery({
+    queryKey: hazcomQueryKeys.sds(sdsId ?? -1),
+    enabled,
+    queryFn: async () => {
+      const row = (await getSafetyDataSheetById(sdsId as number)).dataModel;
+
+      return row === null ? null : mapSdsDtoToHazcomSdsDetail(row);
+    },
+  });
+
+  const statementsQuery = useQuery({
+    queryKey: hazcomQueryKeys.sdsStatements(sdsId ?? -1),
+    enabled: enabled && detailQuery.data != null,
+    queryFn: async () => {
+      const row = (await getSdsStatements(sdsId as number)).dataModel;
+
+      return mapSdsStatementsDto(row);
+    },
+  });
+
+  if (sdsId === null) {
+    return {
+      detail: null,
+      statements: [],
+      isLoading: false,
+      errorMessage: null,
+      isNotFound: true,
+      refetch: () => undefined,
+    };
+  }
+
+  if (isClientReady && !hasToken) {
+    return {
+      detail: null,
+      statements: [],
+      isLoading: false,
+      errorMessage: "Please sign in to load this SDS record.",
+      isNotFound: false,
+      refetch: () => undefined,
+    };
+  }
+
+  const isNotFound =
+    detailQuery.data === null ||
+    (isApiError(detailQuery.error) && detailQuery.error.status === 404);
+
+  // Codes on the record are the fallback when /statements gives nothing.
+  const fallbackStatements: HazcomStatementCode[] = [
+    ...(detailQuery.data?.hazardStatements ?? []),
+    ...(detailQuery.data?.precautionaryStatements ?? []),
+  ].map((code) => ({ code, text: "" }));
+
+  const statements = statementsQuery.data?.length
+    ? statementsQuery.data
+    : fallbackStatements;
+
+  return {
+    detail: detailQuery.data ?? null,
+    statements,
+    isLoading: !isClientReady || detailQuery.isLoading,
+    errorMessage:
+      detailQuery.isError && !isNotFound
+        ? getMutationErrorMessage(
+            detailQuery.error,
+            "Failed to load this SDS record.",
+          )
+        : null,
+    isNotFound,
+    refetch: () => void detailQuery.refetch(),
+  };
 }

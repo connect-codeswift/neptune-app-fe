@@ -38,7 +38,11 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
           variant="secondary"
           className="mt-1 rounded-lg px-4 py-2 text-[13px]"
         >
-          <Icon icon="mdi:arrow-left" className="text-base" aria-hidden="true" />
+          <Icon
+            icon="mdi:arrow-left"
+            className="text-base"
+            aria-hidden="true"
+          />
           Back to Chemical Inventory
         </Button>
       </Link>

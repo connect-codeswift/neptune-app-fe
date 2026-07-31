@@ -5,40 +5,22 @@ import type {
   HazcomSignalWord,
   HazcomStatementCode,
 } from "@/components/hazcom/shared";
+import {
+  asNumber,
+  asString,
+  isRecord,
+  readProp,
+  toIsoDate,
+} from "@/services/mappers/record-readers";
 
 /**
  * Maps rows from GET /api/hazcom/chemical onto the `HazcomChemical` shape the
  * inventory table renders.
  *
- * The Swagger `components/schemas` section was not supplied with
- * `api/hazcom.md`, so field names here are read defensively — several spellings
- * per value, every one optional. A key the backend doesn't send degrades to a
- * blank cell instead of throwing. Once the real schema lands, this can collapse
- * to a direct field-to-field map.
+ * Write-side field names are known (see `ChemicalRequestDto`) but responses
+ * are undocumented, so each value is read with the backend's spelling first
+ * and older guesses as fallbacks.
  */
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function readProp(record: Record<string, unknown>, ...keys: string[]): unknown {
-  for (const key of keys) {
-    if (key in record && record[key] !== undefined && record[key] !== null) {
-      return record[key];
-    }
-  }
-  return undefined;
-}
-
-function asString(value: unknown): string {
-  if (typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-  return "";
-}
 
 const PICTOGRAMS: readonly HazcomPictogram[] = [
   "Flammable",
@@ -59,7 +41,7 @@ const PICTOGRAMS: readonly HazcomPictogram[] = [
  * `ghsPictograms` is a single column on the wire, so the comma-separated form
  * the writer produces is accepted alongside a list.
  */
-function toPictograms(value: unknown): HazcomPictogram[] {
+export function toHazcomPictograms(value: unknown): HazcomPictogram[] {
   const raw = Array.isArray(value)
     ? value.map((item) =>
         isRecord(item)
@@ -142,19 +124,6 @@ function toStatementCodes(value: unknown): HazcomStatementCode[] {
     .filter((item) => item.code !== "");
 }
 
-/** ISO date portion only — the table shows dates, never times. */
-function toIsoDate(value: unknown): string {
-  const raw = asString(value);
-  if (raw === "") {
-    return "";
-  }
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    return raw;
-  }
-  return parsed.toISOString().slice(0, 10);
-}
-
 export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
   const record = isRecord(raw) ? raw : {};
 
@@ -199,7 +168,7 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
     hazardClass: asString(
       readProp(record, "hazardClass", "HazardClass", "hazardClassification"),
     ),
-    pictograms: toPictograms(
+    pictograms: toHazcomPictograms(
       readProp(
         record,
         "ghsPictograms",
@@ -239,7 +208,7 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
       ),
     ),
     addedOn: toIsoDate(
-      readProp(record, "createdDate", "CreatedDate", "createdAt", "addedOn"),
+      readProp(record, "createdAt", "CreatedAt", "createdDate", "addedOn"),
     ),
   };
 }
@@ -248,4 +217,43 @@ export function mapChemicalDtosToHazcomChemicals(
   rows: readonly unknown[],
 ): HazcomChemical[] {
   return rows.map((row) => mapChemicalDtoToHazcomChemical(row));
+}
+
+/** One entry of GET /api/hazcom/chemical/names — the picker lookup list. */
+export type HazcomChemicalName = Readonly<{
+  id: number;
+  name: string;
+}>;
+
+/**
+ * The lookup list is what turns a chemical *name* chosen in a form into the
+ * `chemicalId` the SDS and risk-assessment endpoints require.
+ */
+export function mapChemicalNameDtos(
+  rows: readonly unknown[],
+): HazcomChemicalName[] {
+  return (
+    rows
+      .map((raw) => {
+        const record = isRecord(raw) ? raw : {};
+
+        return {
+          id: asNumber(readProp(record, "id", "Id")),
+          name: asString(
+            readProp(
+              record,
+              "chemi_Name",
+              "Chemi_Name",
+              "name",
+              "Name",
+              "chemicalName",
+              "ChemicalName",
+            ),
+          ),
+        };
+      })
+      // An entry with no usable id is worse than no entry: picking it would
+      // post `chemicalId: 0` and the write would fail server-side.
+      .filter((item) => item.id > 0 && item.name !== "")
+  );
 }

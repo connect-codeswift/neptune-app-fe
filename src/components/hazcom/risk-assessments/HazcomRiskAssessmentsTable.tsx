@@ -112,7 +112,11 @@ const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
           aria-hidden="true"
           className="border-ehs-border text-ehs-muted-text inline-flex size-8 items-center justify-center rounded-lg border bg-white/70"
         >
-          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden="true" />
+          <Icon
+            icon="mdi:pencil-outline"
+            className="size-4"
+            aria-hidden="true"
+          />
         </span>
       </div>
     ),

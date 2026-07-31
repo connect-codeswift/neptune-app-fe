@@ -1,9 +1,38 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
+import type {
+  ChemicalRequestDto,
+  ChemicalRiskAssessmentRequestDto,
+  SafetyDataSheetRequestDto,
+  TrainingLogRequestDto,
+  UpdateTrainingLogRequestDto,
+} from "@/dtos/req/hazcom-request.dto";
 import { hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
-import { createChemical } from "@/services/hazcom.service";
+import {
+  createChemical,
+  createChemicalRiskAssessment,
+  createSafetyDataSheet,
+  createTrainingLog,
+  deleteChemical,
+  deleteSafetyDataSheet,
+  updateChemicalRiskAssessment,
+  updateTrainingLog,
+} from "@/services/hazcom.service";
+
+/**
+ * Every HazCom list is cached under the `["hazcom"]` prefix, and the modules
+ * cross-reference each other (a chemical shows its SDS link, an assessment
+ * names a chemical), so writes invalidate the whole prefix rather than
+ * tracking which lists a given record appears in.
+ */
+function useHazcomInvalidator() {
+  const queryClient = useQueryClient();
+
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: hazcomQueryKeys.all });
+  };
+}
 
 /**
  * POST /api/hazcom/chemical
@@ -12,14 +41,88 @@ import { createChemical } from "@/services/hazcom.service";
  * overwrite the existing record (see `ChemicalRequestDto`).
  */
 export function useCreateChemicalMutation() {
-  const queryClient = useQueryClient();
+  const invalidate = useHazcomInvalidator();
 
   return useMutation({
     mutationFn: (payload: ChemicalRequestDto) => createChemical(payload),
-    onSuccess: () => {
-      // Drops every cached HazCom page — the new row has to appear in the
-      // inventory list and in the drafts/published split.
-      queryClient.invalidateQueries({ queryKey: hazcomQueryKeys.all });
-    },
+    onSuccess: invalidate,
+  });
+}
+
+/** DELETE /api/hazcom/chemical/{id} */
+export function useDeleteChemicalMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteChemical(id),
+    onSuccess: invalidate,
+  });
+}
+
+/** POST /api/hazcom/sds */
+export function useCreateSdsMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (payload: SafetyDataSheetRequestDto) =>
+      createSafetyDataSheet(payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** DELETE /api/hazcom/sds/{id} */
+export function useDeleteSdsMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteSafetyDataSheet(id),
+    onSuccess: invalidate,
+  });
+}
+
+/** POST /api/hazcom/training */
+export function useCreateTrainingLogMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (payload: TrainingLogRequestDto) => createTrainingLog(payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** PUT /api/hazcom/training/{id} */
+export function useUpdateTrainingLogMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (variables: {
+      id: number;
+      payload: UpdateTrainingLogRequestDto;
+    }) => updateTrainingLog(variables.id, variables.payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** POST /api/hazcom/risk-assessment */
+export function useCreateRiskAssessmentMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (payload: ChemicalRiskAssessmentRequestDto) =>
+      createChemicalRiskAssessment(payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** PUT /api/hazcom/risk-assessment/{id} */
+export function useUpdateRiskAssessmentMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (variables: {
+      id: number;
+      payload: ChemicalRiskAssessmentRequestDto;
+    }) => updateChemicalRiskAssessment(variables.id, variables.payload),
+    onSuccess: invalidate,
   });
 }

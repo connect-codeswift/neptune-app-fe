@@ -605,8 +605,6 @@ export function findHazcomChemical(id: string): HazcomChemical | undefined {
   return HAZCOM_CHEMICALS.find((chemical) => chemical.id === id);
 }
 
-export function findHazcomSdsRecord(
-  id: string,
-): HazcomSdsRecord | undefined {
+export function findHazcomSdsRecord(id: string): HazcomSdsRecord | undefined {
   return HAZCOM_SDS_RECORDS.find((record) => record.id === id);
 }
