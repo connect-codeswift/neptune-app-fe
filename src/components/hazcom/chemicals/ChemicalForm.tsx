@@ -19,6 +19,10 @@ import {
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
+import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
+import { toast } from "@/lib/toast";
 
 export type ChemicalFormProps = Readonly<{
   mode: "add" | "edit";
@@ -32,9 +36,89 @@ const STATUS_OPTIONS = [
   { value: "Inactive", label: "Inactive" },
 ] as const;
 
+const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
+
+/** Everything the form collects, gathered for validation and mapping. */
+type ChemicalFormValues = Readonly<{
+  name: string;
+  casNumber: string;
+  hazardClass: string;
+  location: string;
+  quantityAmount: string;
+  quantityUnit: string;
+  signalWord: HazcomSignalWord;
+  sdsLink: string;
+  status: string;
+  pictograms: readonly HazcomPictogram[];
+  notes: string;
+}>;
+
+/**
+ * Label of the first empty asterisked field, or null when the form is
+ * complete. The shared HazCom fields render no inline error slot, so the
+ * caller reports this as a toast.
+ */
+function firstMissingRequiredField(values: ChemicalFormValues): string | null {
+  if (values.name.trim() === "") {
+    return "Chemical / Substance Name";
+  }
+  if (values.hazardClass.trim() === "") {
+    return "Hazard Class";
+  }
+  if (values.location.trim() === "") {
+    return "Location / Work Area";
+  }
+  if (values.quantityAmount.trim() === "") {
+    return "Current Quantity";
+  }
+  return null;
+}
+
+/** Row id as a number, or null when it isn't one the API can address. */
+function toNumericId(id: string | undefined): number | null {
+  if (id === undefined || !/^\d+$/.test(id.trim())) {
+    return null;
+  }
+  return Number(id.trim());
+}
+
+/**
+ * Field names here are the backend's own spellings — see `ChemicalRequestDto`.
+ * The schema is `additionalProperties: false`, so nothing extra (notably the
+ * `subCompanyId`/`userId` pair the other modules attach) may be added.
+ */
+function toChemicalRequest(
+  values: ChemicalFormValues,
+  options: Readonly<{ isDraft: boolean; existingId: number | null }>,
+): ChemicalRequestDto {
+  return {
+    // Omitted on add; POST /chemical treats a present id as an update.
+    ...(options.existingId === null ? {} : { id: options.existingId }),
+    chemi_Name: values.name.trim(),
+    caS_Number: values.casNumber.trim(),
+    location: values.location.trim(),
+    // Sent as one combined string ("15 Liters").
+    currentQuantity: [values.quantityAmount.trim(), values.quantityUnit.trim()]
+      .filter((part) => part !== "")
+      .join(" "),
+    hazardClass: values.hazardClass.trim(),
+    // The column is a single string; ", " is the separator the mapper reads
+    // back. Confirm it against a stored row — the schema doesn't say.
+    ghsPictograms: values.pictograms.join(", "),
+    ghsSignal: values.signalWord,
+    // Optional in the UI; a new chemical is in use unless the user says
+    // otherwise.
+    status: values.status === "" ? "Active" : values.status,
+    notes: values.notes.trim(),
+    linkToSdsRecord: values.sdsLink.trim(),
+    isDraft: options.isDraft,
+  };
+}
+
 export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const { mode, chemical, className = "" } = props;
   const router = useRouter();
+  const saveChemical = useCreateChemicalMutation();
   const initialQuantity = chemical
     ? splitQuantity(chemical.quantity)
     : { amount: "", unit: "" };
@@ -66,21 +150,71 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const cancelHref =
     mode === "edit" && chemical
       ? `/dashboard/hazcom/chemicals/${chemical.id}`
-      : "/dashboard/hazcom/chemicals";
+      : CHEMICALS_LIST_ROUTE;
   const primaryLabel = mode === "add" ? "Add Chemical" : "Save Changes";
+  const existingId = mode === "edit" ? toNumericId(chemical?.id) : null;
 
   /**
-   * Persistence is out of scope for this module — the inventory is static mock
-   * data. The save actions still route distinctly so they are not silently
-   * identical to Cancel: a submit returns to the record, a draft returns to the
+   * Both actions hit POST /api/hazcom/chemical; only `isDraft` and the route
+   * they return to differ — a submit lands on the record, a draft on the
    * inventory list.
    */
-  function handleSubmit() {
-    router.push(cancelHref);
-  }
+  function save(isDraft: boolean) {
+    const values: ChemicalFormValues = {
+      name,
+      casNumber,
+      hazardClass,
+      location,
+      quantityAmount,
+      quantityUnit,
+      signalWord,
+      sdsLink,
+      status,
+      pictograms,
+      notes,
+    };
 
-  function handleSaveDraft() {
-    router.push("/dashboard/hazcom/chemicals");
+    // A draft is allowed to be incomplete, but it still needs a name to be
+    // identifiable in the drafts list.
+    const missing = isDraft
+      ? name.trim() === ""
+        ? "Chemical / Substance Name"
+        : null
+      : firstMissingRequiredField(values);
+
+    if (missing !== null) {
+      toast.error(`${missing} is required`);
+      return;
+    }
+
+    // Editing reuses the create endpoint with the id attached; without a
+    // numeric id the call would add a second record instead of updating this
+    // one, so it is refused rather than duplicating the chemical.
+    if (mode === "edit" && existingId === null) {
+      toast.error("This chemical cannot be saved — its id is not recognised.");
+      return;
+    }
+
+    saveChemical.mutate(toChemicalRequest(values, { isDraft, existingId }), {
+      onSuccess: () => {
+        toast.success(
+          isDraft
+            ? "Chemical saved as draft"
+            : mode === "add"
+              ? "Chemical added"
+              : "Chemical updated",
+        );
+        router.push(isDraft ? CHEMICALS_LIST_ROUTE : cancelHref);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not save the chemical. Please try again.",
+          ),
+        );
+      },
+    });
   }
 
   return (
@@ -174,7 +308,11 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               variant="tertiary"
               className="rounded-lg px-4 py-2 text-[13px]"
             >
-              <Icon icon="mdi:arrow-left" className="text-base" aria-hidden="true" />
+              <Icon
+                icon="mdi:arrow-left"
+                className="text-base"
+                aria-hidden="true"
+              />
               Cancel
             </Button>
           </Link>
@@ -184,7 +322,8 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="button"
               variant="secondary"
               className="rounded-lg px-4 py-2 text-[13px]"
-              onClick={handleSaveDraft}
+              disabled={saveChemical.isPending}
+              onClick={() => save(true)}
             >
               Save as Draft
             </Button>
@@ -192,9 +331,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="button"
               variant="primary"
               className="rounded-lg px-5 py-2 text-[13px]"
-              onClick={handleSubmit}
+              disabled={saveChemical.isPending}
+              onClick={() => save(false)}
             >
-              {primaryLabel}
+              {saveChemical.isPending ? "Saving..." : primaryLabel}
             </Button>
           </div>
         </div>
@@ -223,6 +363,11 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           *
         </Text>
       </div>
+      {/*
+        Both inputs carry `w-full` from `hazcomFieldInputClass`, so sizing is
+        set via flex-basis — it beats `width` for flex items and avoids a
+        `w-full` vs `w-24` conflict that collapsed the amount box to 0px.
+      */}
       <div className="flex gap-2">
         <input
           type="number"
@@ -231,7 +376,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onAmountChange(event.target.value)}
           placeholder="0"
           aria-label="Quantity amount"
-          className={`${hazcomFieldInputClass} flex-1`}
+          className={`${hazcomFieldInputClass} min-w-0 grow basis-0`}
         />
         <input
           type="text"
@@ -239,7 +384,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onUnitChange(event.target.value)}
           placeholder="Unit"
           aria-label="Quantity unit"
-          className={`${hazcomFieldInputClass} w-24 shrink-0`}
+          className={`${hazcomFieldInputClass} shrink-0 grow-0 basis-24`}
         />
       </div>
     </div>
@@ -278,7 +423,7 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
                   ? isDanger
                     ? "border-ehs-red text-ehs-red bg-ehs-red/5"
                     : "border-ehs-yellow text-ehs-yellow bg-ehs-yellow/10"
-                  : "border-ehs-border text-ehs-gray bg-white/60 hover:border-ehs-normal-blue/40",
+                  : "border-ehs-border text-ehs-gray hover:border-ehs-normal-blue/40 bg-white/60",
               ].join(" ")}
             >
               {word}

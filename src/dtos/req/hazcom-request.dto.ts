@@ -3,10 +3,18 @@
  *
  * IMPORTANT — the spec file lists only paths; every `$ref` in it points at
  * `#/components/schemas/…`, and that section was not included. The field sets
- * below are therefore inferred from what the HazCom UI already collects
+ * below were therefore inferred from what the HazCom UI already collects
  * (`components/hazcom/shared/hazcom-types.ts`) plus the conventions the other
- * modules follow (numeric ids, `subCompanyId`/`userId` on writes). Reconcile
- * each type against the real Swagger schema before wiring anything up.
+ * modules follow (numeric ids, `subCompanyId`/`userId` on writes).
+ *
+ * `ChemicalRequestDto` has since been reconciled against the live staging
+ * schema and no longer follows those guesses. Every *other* type here is still
+ * inferred and is known to be wrong in the same ways — the real
+ * `HazardHCodeDto` is `{ codes: string }`, `PrecautionaryCodeDto` is
+ * `{ p_Codes: string }`, and `SafetyDataSheetDto` / `ChemicalRiskAssessmentDto`
+ * use `chemicalId` + flattened rating fields. Check each against
+ * https://neptune-be-stag.codeswift.org/swagger/v1/swagger.json before wiring
+ * it up.
  */
 
 /** Query string shared by every paged HazCom list endpoint. */
@@ -15,30 +23,39 @@ export type HazcomPageQueryDto = {
   pageSize: number;
 };
 
-/** Swagger `ChemicalDto` — body for POST /api/hazcom/chemical. */
+/**
+ * Swagger `ChemicalDto` — body for POST /api/hazcom/chemical.
+ *
+ * Reconciled against the real staging schema
+ * (https://neptune-be-stag.codeswift.org/swagger/v1/swagger.json), so the odd
+ * spellings below are the backend's own. Two things differ from every other
+ * module in this app: the schema is `additionalProperties: false`, and it
+ * carries no `subCompanyId`/`userId` — sending them is rejected, so the
+ * endpoint must take those from the bearer token.
+ */
 export type ChemicalRequestDto = {
   /** Omit to create; send to update the existing record. */
   id?: number;
-  name: string;
-  casNumber: string;
-  location: string;
-  /** UI keeps this as one string ("15 Liters"); may be split server-side. */
-  quantity: string;
+  /** Required by the API. */
+  chemi_Name: string;
+  caS_Number?: string | null;
+  /** Required by the API. */
   hazardClass: string;
-  pictograms: string[];
+  /** Required by the API. */
+  location: string;
+  /** Required by the API. One combined string ("15 Liters"). */
+  currentQuantity: string;
   /** "Danger" | "Warning" */
-  signalWord: string;
+  ghsSignal?: string | null;
+  /** Free text (file name / URL) — not a numeric id into /api/hazcom/sds. */
+  linkToSdsRecord?: string | null;
   /** "Active" | "Inactive" */
-  status: string;
-  storageNotes: string;
-  /** Links the chemical to a row from /api/hazcom/sds. */
-  sdsId?: number | null;
-  hazardHCodeIds?: number[];
-  precautionaryCodeIds?: number[];
+  status?: string | null;
+  /** One string, not a list — the UI joins its selections with ", ". */
+  ghsPictograms?: string | null;
+  notes?: string | null;
   /** Drives the /drafts vs /published split. */
   isDraft: boolean;
-  subCompanyId: number;
-  userId: number;
 };
 
 /** Swagger `SafetyDataSheetDto` — body for POST /api/hazcom/sds. */
