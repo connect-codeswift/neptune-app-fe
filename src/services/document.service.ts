@@ -2,9 +2,11 @@ import type {
   AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
   AddDocDepartmentRequestDto,
+  ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
   CreateDocumentVersionRequestDto,
   GetAllDocumentsRequestDto,
+  UpdateDocumentRequestDto,
 } from "@/dtos/req/document-request.dto";
 import type {
   DocCategoryDto,
@@ -29,6 +31,7 @@ const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
 const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
 const DOCUMENT_CATEGORY_STATS_PATH = "/Document/category-stats";
 const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
+const DOCUMENT_APPROVAL_PATH = "/Document/DocApproval";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -342,6 +345,27 @@ export async function acknowledgeDocument(
   return data;
 }
 
+/** GET /api/Document/{documentId}/versions */
+export async function getDocumentVersions(
+  documentId: number,
+): Promise<DocumentVersionDto[]> {
+  const { data } = await http.get<unknown>(
+    `${DOCUMENT_BY_ID_PATH}/${String(documentId)}/versions`,
+  );
+  const list = unwrapListPayload(data);
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.filter(isRecord).map(coerceVersionDto);
+}
+
+/** PUT /api/Document/DocApproval */
+export async function approveDocument(payload: ApproveDocumentRequestDto) {
+  const { data } = await http.put<unknown>(DOCUMENT_APPROVAL_PATH, payload);
+
+  return data;
+}
+
 /** GET /api/Document/versions/{documentVersionId}/acknowledgements */
 export async function getDocumentAcknowledgements(documentVersionId: number) {
   const { data } = await http.get<GetDocumentAcknowledgementsResponseDto>(
@@ -514,6 +538,28 @@ export async function createDocument(payload: CreateDocumentRequestDto) {
     subCompanyId: payload.subCompanyId,
     ackUserIds: payload.ackUserIds,
     approvalUserIds: payload.approvalUserIds,
+  });
+
+  return data;
+}
+
+/**
+ * PUT /api/Document/document
+ * JSON body — dedicated update endpoint (distinct from the POST create
+ * endpoint above), takes `updatedBy` instead of `createdBy`/`subCompanyId`.
+ */
+export async function updateDocument(payload: UpdateDocumentRequestDto) {
+  const { data } = await http.put<unknown>(DOCUMENT_CREATE_PATH, {
+    id: payload.id,
+    title: payload.title,
+    categoryId: payload.categoryId,
+    departmentId: payload.departmentId,
+    reviewCycle: payload.reviewCycle,
+    updatedBy: payload.updatedBy,
+    ackUserIds: payload.ackUserIds,
+    approvalUserIds: payload.approvalUserIds,
+    pdfPath: payload.pdfPath,
+    fileName: payload.fileName,
   });
 
   return data;

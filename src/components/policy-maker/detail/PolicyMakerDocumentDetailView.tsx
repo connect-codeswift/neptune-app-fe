@@ -23,6 +23,12 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
   onApprovals?: () => void;
   onDateRangeClick?: () => void;
   onNotificationsClick?: () => void;
+  /** Only the assigned approver sees the Approval action. */
+  canApprove?: boolean;
+  /** Only the assigned ack-user sees the Acknowledgment action. */
+  canAcknowledge?: boolean;
+  isApproved?: boolean;
+  isApproving?: boolean;
 }>;
 
 /** Glass card shell matching Figma 5568:24604 (16px radius, 0.8 border, soft shadow). */
@@ -56,6 +62,10 @@ export function PolicyMakerDocumentDetailView(
     onApprovals,
     onDateRangeClick,
     onNotificationsClick,
+    canApprove,
+    canAcknowledge,
+    isApproved,
+    isApproving,
   } = props;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,6 +184,10 @@ export function PolicyMakerDocumentDetailView(
           onVersionHistory={onVersionHistory}
           onApproval={onApproval}
           onAcknowledgment={onAcknowledgment}
+          canApprove={canApprove}
+          canAcknowledge={canAcknowledge}
+          isApproved={isApproved}
+          isApproving={isApproving}
         />
 
         {/* Preview + Details | Acknowledgment — fluid grid (Figma 5568:24604) */}

@@ -14,8 +14,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useAddDocumentCategoryMutation,
   useAddDocumentDepartmentMutation,
-  useCreateDocumentMutation,
-  useCreateDocumentVersionMutation,
+  useUpdateDocumentMutation,
 } from "@/hooks/use-document-mutations";
 import {
   useDocumentCategoriesQuery,
@@ -63,31 +62,20 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
-/** "v3.1" -> "v3.2". Falls back to the original string if it doesn't parse. */
-function incrementVersionLabel(version: string): string {
-  const match = /^v?(\d+)\.(\d+)$/i.exec(version.trim());
-  if (!match) {
-    return version;
-  }
-  const [, major, minor] = match;
-  return `v${major ?? "1"}.${String(Number(minor ?? "0") + 1)}`;
-}
-
 /**
  * Edit form card (Figma 5568:25826).
  * A replacement PDF is uploaded to Cloudinary client-side first; if none is
- * picked, the document's existing `filePath`/`fileName` are reused. Saves in
- * two steps: document metadata (title/category/department/reviewCycle) goes
- * through the same POST /api/Document/document endpoint Upload uses (the
- * backend upserts on `id`); the PDF is saved as a new revision via
- * POST /api/Document/document_version, which carries no metadata fields.
+ * picked, the document's existing `filePath`/`fileName` are reused. Saves
+ * through the dedicated PUT /api/Document/document update endpoint, which
+ * already creates a new version record itself when `pdfPath` changes — a
+ * separate POST /api/Document/document_version call is NOT made here, since
+ * that duplicated the version row the PUT endpoint had already created.
  */
 export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
   const { document } = props;
   const router = useRouter();
 
-  const createDocumentMutation = useCreateDocumentMutation();
-  const createDocumentVersionMutation = useCreateDocumentVersionMutation();
+  const updateDocumentMutation = useUpdateDocumentMutation();
   const addCategoryMutation = useAddDocumentCategoryMutation();
   const addDepartmentMutation = useAddDocumentDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
@@ -113,11 +101,9 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     ...(document.approverIds ?? []),
   ]);
   const [versionNotes, setVersionNotes] = useState("");
-  const [submitAsNewVersion, setSubmitAsNewVersion] = useState(true);
   const titleInputId = useId();
   const versionNotesId = useId();
 
-  const nextVersionLabel = incrementVersionLabel(document.version);
   const currentFileName = documentFileName(document);
   const currentFileMeta =
     document.fileSize === "—"
@@ -298,8 +284,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     }
   };
 
-  const isSubmitting =
-    createDocumentMutation.isPending || createDocumentVersionMutation.isPending;
+  const isSubmitting = updateDocumentMutation.isPending;
   const isAddingCategory = addCategoryMutation.isPending;
   const isAddingDepartment = addDepartmentMutation.isPending;
   const busy =
@@ -361,7 +346,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     const approvalUserIdsCsv = approverIds.join(",");
 
     try {
-      await createDocumentMutation.mutateAsync({
+      await updateDocumentMutation.mutateAsync({
         id: numericId,
         title: title.trim(),
         categoryId: Number(categoryId),
@@ -369,29 +354,12 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
         pdfPath,
         fileName: resolvedFileName,
         reviewCycle,
-        createdBy: auth.userId,
-        subCompanyId: auth.subCompanyId,
+        updatedBy: auth.userId,
         ackUserIds: ackUserIdsCsv,
         approvalUserIds: approvalUserIdsCsv,
       });
 
-      if (submitAsNewVersion) {
-        await createDocumentVersionMutation.mutateAsync({
-          documentId: numericId,
-          pdfPath,
-          fileName: resolvedFileName,
-          uploadedBy: auth.userId,
-          ackUserIds: ackUserIdsCsv,
-          approvalUserIds: approvalUserIdsCsv,
-        });
-      }
-
-      toast.success(
-        "Changes saved",
-        submitAsNewVersion
-          ? `${title.trim()} was updated — ${nextVersionLabel} created.`
-          : `${title.trim()} was updated.`,
-      );
+      toast.success("Changes saved", `${title.trim()} was updated.`);
       router.push(`/dashboard/policy-maker/${encodeURIComponent(document.id)}`);
     } catch (error: unknown) {
       toast.error(
@@ -548,17 +516,6 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             className={`${controlClass} !h-auto resize-none`}
           />
         </div>
-
-        <label className="flex w-fit items-center gap-2 text-[13px] font-medium text-[#0b1320]">
-          <input
-            type="checkbox"
-            checked={submitAsNewVersion}
-            onChange={(event) => setSubmitAsNewVersion(event.target.checked)}
-            disabled={busy}
-            className="size-4 rounded border-[rgba(11,19,32,0.2)] accent-[#0891a6]"
-          />
-          {`Submit as new version (creates ${nextVersionLabel})`}
-        </label>
 
         <div className="flex flex-col-reverse items-stretch gap-3 pt-2.5 sm:flex-row sm:items-center sm:justify-end">
           <Button

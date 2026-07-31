@@ -49,6 +49,27 @@ export type CreateDocumentVersionRequestDto = {
 };
 
 /**
+ * Fields for PUT /api/Document/document (JSON body).
+ * Dedicated update endpoint — unlike the POST create endpoint, this one
+ * takes `updatedBy` (not `createdBy`/`subCompanyId`) and is meant to be
+ * called with the document's existing `id`.
+ */
+export type UpdateDocumentRequestDto = {
+  id: number;
+  title: string;
+  categoryId: number;
+  departmentId: number;
+  reviewCycle: string;
+  updatedBy: number;
+  /** Comma-separated user ids for acknowledgment tracking. */
+  ackUserIds: string;
+  /** Comma-separated user ids for approvals. */
+  approvalUserIds: string;
+  pdfPath: string;
+  fileName: string;
+};
+
+/**
  * PUT /api/Document/Acknowledgement — sent as query-string params
  * (`acknowledgeBy`, `docVersionId`, `AckId` — casing per Swagger).
  */
@@ -56,6 +77,15 @@ export type AcknowledgeDocumentRequestDto = {
   acknowledgeBy: number;
   docVersionId: number;
   ackId: number;
+};
+
+/**
+ * PUT /api/Document/DocApproval (JSON body).
+ */
+export type ApproveDocumentRequestDto = {
+  approverId: number;
+  docVersionId: number;
+  comments: string;
 };
 
 /**

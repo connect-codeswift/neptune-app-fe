@@ -94,7 +94,7 @@ function buildVersions(
   ];
 }
 
-function mapVersionDto(entry: DocumentVersionDto): DocumentVersion {
+export function mapVersionDto(entry: DocumentVersionDto): DocumentVersion {
   const authorFullName = entry.updatedByName?.trim() || "—";
   const date = formatDate(entry.updatedAt);
   return {
