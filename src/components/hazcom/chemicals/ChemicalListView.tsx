@@ -37,7 +37,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-5", className]
+      className={["flex min-w-0 flex-col gap-5 px-3 lg:px-4", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -73,7 +73,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
       />
 
       <div className="flex flex-wrap items-center gap-4">
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1 max-w-md">
           <Icon
             icon="mdi:magnify"
             className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"

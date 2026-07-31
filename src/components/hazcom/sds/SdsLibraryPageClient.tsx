@@ -32,7 +32,7 @@ export function SdsLibraryPageClient() {
   }, [searchQuery]);
 
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pt-4 pb-8 sm:px-4">
+    <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pb-8 sm:px-4">
       <HazcomModuleTabs />
 
       <HazcomPageHeader

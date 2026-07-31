@@ -68,7 +68,7 @@ function HazcomOverviewStatCardSkeleton() {
     <HazcomGlassCard paddingClassName="p-5" className="min-w-0">
       <div className="flex items-start justify-between gap-3">
         <Skeleton className="h-3 w-24" />
-        <Skeleton className="size-8 rounded-lg" />
+        <Skeleton className="size-4.5 rounded" />
       </div>
       <Skeleton className="mt-3 h-8 w-16" />
       <Skeleton className="mt-3 h-3 w-20" />

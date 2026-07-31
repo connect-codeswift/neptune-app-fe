@@ -13,7 +13,7 @@ import { Text } from "@/components/Text";
 import {
   HazcomBadge,
   HazcomGlassCard,
-  HazcomPictogramChip,
+  HazcomPictogramIcon,
   sdsStatusTone,
   type HazcomSdsRecord,
 } from "@/components/hazcom/shared";
@@ -118,9 +118,9 @@ const columns = [
     size: 150,
     meta: { align: "left" },
     cell: (info) => (
-      <div className="flex flex-wrap items-center gap-1">
+      <div className="flex items-center gap-2">
         {info.getValue().map((pictogram) => (
-          <HazcomPictogramChip key={pictogram} pictogram={pictogram} />
+          <HazcomPictogramIcon key={pictogram} pictogram={pictogram} />
         ))}
       </div>
     ),
