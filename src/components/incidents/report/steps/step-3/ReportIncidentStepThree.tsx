@@ -57,9 +57,7 @@ export function ReportIncidentStepThree(
             required
             variant="tile"
             value={form.injuryLevel}
-            onChange={(injuryLevel: InjuryLevelId) =>
-              onChange({ injuryLevel })
-            }
+            onChange={(injuryLevel: InjuryLevelId) => onChange({ injuryLevel })}
             options={INJURY_LEVEL_OPTIONS.map((option) => ({
               id: option.id,
               label: option.label,
@@ -82,6 +80,10 @@ export function ReportIncidentStepThree(
             onBodySideChange={(bodySide) => onChange({ bodySide })}
             onMultiSelectChange={(bodyMultiSelect) =>
               onChange({ bodyMultiSelect })
+            }
+            customBodyParts={form.customBodyParts ?? []}
+            onCustomBodyPartsChange={(customBodyParts) =>
+              onChange({ customBodyParts })
             }
           />
 

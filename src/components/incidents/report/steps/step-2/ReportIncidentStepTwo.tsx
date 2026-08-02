@@ -140,7 +140,9 @@ export function ReportIncidentStepTwo(
                 label="Mechanism of Injury"
                 required
                 value={form.mechanismOfInjury}
-                onChange={(mechanismOfInjury) => onChange({ mechanismOfInjury })}
+                onChange={(mechanismOfInjury) =>
+                  onChange({ mechanismOfInjury })
+                }
                 options={[...MECHANISM_OPTIONS]}
                 customOptions={form.customOptions.mechanismOfInjury}
                 onAddCustomOption={(option) =>

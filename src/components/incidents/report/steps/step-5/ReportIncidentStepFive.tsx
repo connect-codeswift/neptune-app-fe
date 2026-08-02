@@ -14,9 +14,7 @@ import {
   formatBodyPartSelection,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
-import {
-  getMutationErrorMessage,
-} from "@/hooks/use-auth-mutations";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
@@ -161,9 +159,7 @@ export function ReportIncidentStepFive(
       .join(" · ") || "None";
 
   const photosCountLabel =
-    form.photos.length > 0
-      ? `${String(form.photos.length)} attached`
-      : "None";
+    form.photos.length > 0 ? `${String(form.photos.length)} attached` : "None";
   const followUpsLabel =
     form.suggestedFollowUp.length > 0
       ? form.suggestedFollowUp
@@ -278,7 +274,7 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 3: Routing preview banner */}
-          <div className="flex items-start gap-3 rounded-[12px] border border-ehs-border bg---ehs-light-bg p-3.5">
+          <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
             <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-[#0891a6]/10">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
@@ -290,9 +286,8 @@ export function ReportIncidentStepFive(
                 Routing preview
               </Text>
               <p className="text-ehs-gray text-[10.8px] leading-normal">
-                After submit, this report will be routed to the site EHS
-                owner and relevant supervisors based on your organization
-                settings.
+                After submit, this report will be routed to the site EHS owner
+                and relevant supervisors based on your organization settings.
               </p>
             </div>
           </div>

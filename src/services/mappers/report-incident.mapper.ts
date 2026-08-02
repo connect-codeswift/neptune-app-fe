@@ -22,7 +22,8 @@ import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
-function yes(value: "Yes" | "No" | undefined): boolean {
+/** `""` (unanswered) and `"No"` both map to false. */
+function yes(value: "Yes" | "No" | "" | undefined): boolean {
   return value === "Yes";
 }
 
@@ -191,11 +192,22 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
   const injuryLevel =
     INJURY_LEVEL_OPTIONS.find((option) => option.id === form.injuryLevel)
       ?.label ?? form.injuryLevel;
-  const bodyPartAffected = formatBodyPartSelection(
+  const mappedBodyParts = formatBodyPartSelection(
     form.bodyParts,
     form.bodySide,
     form.bodyPartSides,
   );
+  const customParts = (form.customBodyParts ?? []).filter((part) =>
+    part.trim(),
+  );
+  // Custom parts append to the anatomical selection; on their own they replace
+  // the "None selected" placeholder rather than reading as nothing chosen.
+  const bodyPartAffected =
+    customParts.length === 0
+      ? mappedBodyParts
+      : mappedBodyParts === "None selected"
+        ? customParts.join(", ")
+        : `${mappedBodyParts}, ${customParts.join(", ")}`;
 
   const reporterName = form.reportedBy.trim();
   if (reporterName) {
@@ -208,7 +220,12 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
     });
   }
 
-  if (name || form.injuryDescription.trim() || form.bodyParts.length > 0) {
+  if (
+    name ||
+    form.injuryDescription.trim() ||
+    form.bodyParts.length > 0 ||
+    customParts.length > 0
+  ) {
     people.push({
       name: name || null,
       role: "Affected person",
@@ -260,9 +277,12 @@ export function mapReportFormToIncidentDto(
     source.incidentTime,
   );
 
-  const bodyPartLabels = source.bodyParts
-    .map((id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id)
-    .join(", ");
+  const bodyPartLabels = [
+    ...source.bodyParts.map(
+      (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
+    ),
+    ...(source.customBodyParts ?? []).filter((part) => part.trim()),
+  ].join(", ");
 
   // Persist original filename on the URL (`?n=`) — API only stores string URLs.
   const images = source.photos

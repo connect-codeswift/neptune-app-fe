@@ -9,6 +9,7 @@ import {
   CLASSIFICATION_FIELDS,
   GENDER_OPTIONS,
   YES_NO_OPTIONS,
+  oshaRecordableForSeverity,
   type ReportIncidentFormState,
   type SeverityId,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -18,8 +19,32 @@ import {
   ReportTextField,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportTimeField } from "@/components/incidents/report/shared/ReportTimeField";
+import { todayMmDdYyyy } from "@/components/incidents/report/shared/report-date-time";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
+import { toast } from "@/lib/toast";
+
+/**
+ * Exported so the view can gate the left-hand stepper too — otherwise clicking
+ * straight to Step 2 skips this check entirely.
+ */
+export function validateStepOne(form: ReportIncidentFormState): string | null {
+  if (!form.affectedPerson.trim()) {
+    return "Enter the affected person's name or employee ID.";
+  }
+
+  // Classification answers start blank rather than defaulting to "No", so an
+  // unanswered question can't masquerade as a deliberate one. That only helps
+  // if answering is actually enforced — otherwise blank just submits false.
+  const unanswered = CLASSIFICATION_FIELDS.find(
+    (field) => !form.classifications[field.id],
+  );
+  if (unanswered) {
+    return `Answer "${unanswered.label}" under Classification.`;
+  }
+
+  return null;
+}
 
 export type ReportIncidentStepOneProps = Readonly<{
   form: ReportIncidentFormState;
@@ -35,34 +60,44 @@ export function ReportIncidentStepOne(
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
   // Reporter fields are no longer shown — stamp them from the signed-in user.
+  // Report Date is prefilled with today for the same reason: it's the date the
+  // report is being filed, so typing it is friction and a chance to get it wrong.
+  // All three stay editable.
   useEffect(() => {
     const auth = getAuthContext();
     const nextReportedBy = getAuthDisplayName("").trim();
     const nextEmail = auth?.email?.trim() ?? "";
     const needsName = !form.reportedBy.trim() && Boolean(nextReportedBy);
     const needsEmail = !form.reporterEmail.trim() && Boolean(nextEmail);
+    const needsReportDate = !form.reportDate.trim();
 
-    if (!needsName && !needsEmail) {
+    if (!needsName && !needsEmail && !needsReportDate) {
       return;
     }
 
     onChange({
       ...(needsName ? { reportedBy: nextReportedBy } : {}),
       ...(needsEmail ? { reporterEmail: nextEmail } : {}),
+      ...(needsReportDate ? { reportDate: todayMmDdYyyy() } : {}),
     });
-  }, [form.reportedBy, form.reporterEmail, onChange]);
+  }, [form.reportedBy, form.reporterEmail, form.reportDate, onChange]);
+
+  const handleContinue = () => {
+    const validationError = validateStepOne(form);
+    if (validationError) {
+      toast.error("Missing required fields", validationError);
+      return;
+    }
+    onContinue?.();
+  };
 
   /**
-   * Severity decides recordability, so the picker owns the "OSHA Recordable?"
-   * answer in both directions. First Aid alone is non-recordable under OSHA;
-   * every other severity here — OSHA Recordable, OSHA Lost Time, SIA, SIP —
-   * implies Yes. Setting it only one way left a stale Yes behind when the
-   * reporter corrected a severity down to First Aid.
-   *
-   * The field stays editable, so a reporter can still override it by hand.
+   * Severity owns the "OSHA Recordable?" answer in both directions — see
+   * `oshaRecordableForSeverity`. The field stays editable, so a reporter can
+   * still override it by hand afterwards.
    */
   const handleSeverityChange = (severity: SeverityId) => {
-    const osha: "Yes" | "No" = severity === "first-aid" ? "No" : "Yes";
+    const osha = oshaRecordableForSeverity(severity);
 
     if (form.classifications.osha === osha) {
       onChange({ severity });
@@ -79,10 +114,7 @@ export function ReportIncidentStepOne(
     <IncidentGlassCard
       paddingClassName="p-[29px]"
       incidentGlassCardClassName="gap-7"
-      className={[
-        "min-w-0 flex-1 bg-[rgba(255,255,255,0.82)]",
-        className,
-      ]
+      className={["min-w-0 flex-1 bg-[rgba(255,255,255,0.82)]", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -123,6 +155,7 @@ export function ReportIncidentStepOne(
 
             <ReportTextField
               label="Affected person"
+              required
               value={form.affectedPerson}
               onChange={(event) =>
                 onChange({ affectedPerson: event.target.value })
@@ -181,7 +214,10 @@ export function ReportIncidentStepOne(
                 <ReportSelectField
                   label={field.label}
                   required
-                  hint={field.hint}
+                  // Say where the answer came from — this one is set by the
+                  // severity picker above, so an unexplained "Yes" appearing
+                  // here reads like a bug.
+                  hint={field.id === "osha" ? "Set from severity" : field.hint}
                   value={form.classifications[field.id]}
                   onChange={(event) =>
                     onChange({
@@ -223,7 +259,7 @@ export function ReportIncidentStepOne(
           <Button
             type="button"
             variant="primary"
-            onClick={onContinue}
+            onClick={handleContinue}
             className="rounded-[10px] bg-[#0891a6] px-[15px] pt-2.5 pb-[10.5px] text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition hover:bg-[#067a8c]"
           >
             Continue
