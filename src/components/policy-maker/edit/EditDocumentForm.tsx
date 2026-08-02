@@ -220,10 +220,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
 
     try {
       await addDepartmentMutation.mutateAsync({ departmentName: trimmed });
-      toast.success(
-        "Department added",
-        `"${trimmed}" is available to select.`,
-      );
+      toast.success("Department added", `"${trimmed}" is available to select.`);
       const refreshed = await departmentsQuery.refetch();
       const match = (refreshed.data ?? []).find((department) => {
         const label = departmentOptionLabel(department);
@@ -267,7 +264,10 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     try {
       const result = await uploadFileToCloudinary(next);
       setPdfSecureUrl(result.secureUrl);
-      toast.success("File uploaded", `${next.name} will replace the current PDF.`);
+      toast.success(
+        "File uploaded",
+        `${next.name} will replace the current PDF.`,
+      );
     } catch (error: unknown) {
       setFile(null);
       setPdfSecureUrl(null);

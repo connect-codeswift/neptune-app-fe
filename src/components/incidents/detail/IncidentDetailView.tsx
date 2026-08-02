@@ -38,6 +38,7 @@ import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail
 import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailTimelineCard";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import type { LinkedCapaViewModel } from "@/services/mappers/capa.mapper";
 import type {
   IncidentDetailViewModel,
@@ -260,16 +261,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
         ) : null}
 
         {showLoading && !errorMessage ? (
-          <IncidentGlassCard className="mt-[18px] min-h-[240px] items-center justify-center gap-2">
-            <Icon
-              icon="mdi:loading"
-              className="text-ehs-dark-blue size-7 animate-spin"
-              aria-hidden="true"
-            />
-            <Text as="p" className="text-ehs-muted-text text-sm">
-              Loading incident details…
-            </Text>
-          </IncidentGlassCard>
+          <SkeletonDetailPage className="mt-[18px]" />
         ) : null}
 
         {detail && !errorMessage && !showLoading ? (

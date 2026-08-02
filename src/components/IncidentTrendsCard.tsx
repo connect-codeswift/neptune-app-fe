@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { CardHeading } from "@/components/CardHeading";
+import { TrendChartSkeleton } from "@/components/DashboardSkeletons";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useIncidentTrendsQuery } from "@/hooks/use-dashboard-queries";
-import { getAccessToken } from "@/lib/axios";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 type SeriesKey = "incidents" | "nearMisses" | "hazards";
 
@@ -58,24 +59,32 @@ function computeYAxis(maxValue: number): {
   const rawStep = safeMax / tickCount;
   const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
   const normalized = rawStep / magnitude;
-  const niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  const niceNormalized =
+    normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
   const step = Math.max(Math.round(niceNormalized * magnitude), 1);
   const yMax = step * tickCount;
-  const ticks = Array.from({ length: tickCount + 1 }, (_, index) => index * step);
+  const ticks = Array.from(
+    { length: tickCount + 1 },
+    (_, index) => index * step,
+  );
 
   return { yMax, ticks };
 }
 
 function getPlotPoints(data: readonly number[], yMax: number) {
-  const plotWidth = CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
-  const plotHeight = CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
+  const plotWidth =
+    CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
+  const plotHeight =
+    CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
   const denom = data.length > 1 ? data.length - 1 : 1;
 
   return data.map((value, index) => {
     const t = data.length > 1 ? index / denom : 0.5;
     const x = CHART_LAYOUT.padLeft + t * plotWidth;
     const y =
-      CHART_LAYOUT.padTop + plotHeight - (Math.min(value, yMax) / yMax) * plotHeight;
+      CHART_LAYOUT.padTop +
+      plotHeight -
+      (Math.min(value, yMax) / yMax) * plotHeight;
 
     return { x, y };
   });
@@ -116,8 +125,10 @@ function TrendChart(
 ) {
   const { weekLabels, seriesData, yMax, ticks, visibleSeries } = props;
 
-  const plotWidth = CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
-  const plotHeight = CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
+  const plotWidth =
+    CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
+  const plotHeight =
+    CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
   const labelDenom = weekLabels.length > 1 ? weekLabels.length - 1 : 1;
 
   return (
@@ -246,13 +257,9 @@ export type IncidentTrendsCardProps = Readonly<{
 export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
   const { className = "" } = props;
   const [filter, setFilter] = useState<TrendFilter>("All");
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const trendsQuery = useIncidentTrendsQuery(isClientReady && hasToken);
 
@@ -278,7 +285,9 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
   const visibleSeries =
     filter === "All"
       ? SERIES_META
-      : SERIES_META.filter((series) => series.key === FILTER_SERIES_KEY[filter]);
+      : SERIES_META.filter(
+          (series) => series.key === FILTER_SERIES_KEY[filter],
+        );
 
   const showLoading = !isClientReady || (hasToken && trendsQuery.isLoading);
   const showSignInPrompt = isClientReady && !hasToken;
@@ -303,16 +312,7 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
       />
 
       {showLoading ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading trends…
-          </Text>
-        </div>
+        <TrendChartSkeleton />
       ) : showSignInPrompt ? (
         <div className="flex min-h-[220px] items-center justify-center">
           <Text as="p" className="text-ehs-muted-text text-sm">

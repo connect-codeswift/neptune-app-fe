@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { EditHazardForm } from "./EditHazardForm";
 import { EditHazardHeader } from "./EditHazardHeader";
+import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
 import { canEditHazard, getCurrentUser } from "@/lib/current-user";
@@ -58,9 +59,7 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
         {detailQuery.isPending && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading hazard...
-          </Text>
+          <SkeletonFormPage fields={8} />
         )}
 
         {detailQuery.isError && (

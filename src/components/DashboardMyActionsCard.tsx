@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { CardHeading } from "@/components/CardHeading";
 import { ListItemRow } from "@/components/ComplianceDeadlinesCard";
+import { ListCardSkeleton } from "@/components/DashboardSkeletons";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
-import { getAccessToken } from "@/lib/axios";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { mapMyActionsToItems } from "@/services/mappers/my-actions.mapper";
 
 export type DashboardMyActionsCardProps = Readonly<{
@@ -21,13 +21,9 @@ export function DashboardMyActionsCard(
   props: Readonly<DashboardMyActionsCardProps>,
 ) {
   const { className = "" } = props;
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const actionsQuery = useMyActionsQuery(isClientReady && hasToken);
 
@@ -55,16 +51,7 @@ export function DashboardMyActionsCard(
       />
 
       {showLoading ? (
-        <div className="flex min-h-[140px] flex-col items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading actions…
-          </Text>
-        </div>
+        <ListCardSkeleton />
       ) : showSignInPrompt ? (
         <div className="flex min-h-[140px] items-center justify-center">
           <Text as="p" className="text-ehs-muted-text text-sm">

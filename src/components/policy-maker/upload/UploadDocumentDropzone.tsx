@@ -1,6 +1,12 @@
 "use client";
 
-import { useId, useRef, useState, type DragEvent, type ChangeEvent } from "react";
+import {
+  useId,
+  useRef,
+  useState,
+  type DragEvent,
+  type ChangeEvent,
+} from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import {
@@ -21,9 +27,7 @@ export type UploadDocumentDropzoneProps = Readonly<{
 }>;
 
 function isPdfFile(file: File): boolean {
-  return (
-    isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf")
-  );
+  return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
 /**

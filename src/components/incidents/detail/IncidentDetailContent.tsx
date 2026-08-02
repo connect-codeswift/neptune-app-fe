@@ -23,8 +23,8 @@ import {
   useIncidentByIdQuery,
   useIncidentClosureQuery,
 } from "@/hooks/use-incident-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import { getAccessToken } from "@/lib/axios";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
@@ -72,8 +72,9 @@ export function IncidentDetailContent(
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [showHrca, setShowHrca] = useState(false);
   const [previewFile, setPreviewFile] = useState<AttachmentItem | null>(null);
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
   const [attachments, setAttachments] = useState<readonly AttachmentItem[]>([]);
   const [witnesses, setWitnesses] = useState<readonly WitnessRow[]>([]);
   const [responders, setResponders] = useState<readonly ResponderMember[]>([]);
@@ -168,11 +169,6 @@ export function IncidentDetailContent(
     openUploadPickerRef.current = open;
   }, []);
 
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
-
   const detailQuery = useIncidentByIdQuery({
     id: numericId,
     enabled: isClientReady && hasToken && numericId != null,
@@ -229,15 +225,24 @@ export function IncidentDetailContent(
 
   useEffect(() => {
     if (closureQuery.data) {
-      setClosureData((prev) => mapIncidentClosureDtoToData(closureQuery.data, prev));
+      setClosureData((prev) =>
+        mapIncidentClosureDtoToData(closureQuery.data, prev),
+      );
     } else if (detail) {
-      const intakeType = detail.infoItems?.find((i) => i.key.toLowerCase().includes("type"))?.value;
+      const intakeType = detail.infoItems?.find((i) =>
+        i.key.toLowerCase().includes("type"),
+      )?.value;
       setClosureData((prev) => ({
         ...prev,
-        finalIncidentType: prev.finalIncidentType === "Select option" ? (intakeType || "Near Miss") : prev.finalIncidentType,
+        finalIncidentType:
+          prev.finalIncidentType === "Select option"
+            ? intakeType || "Near Miss"
+            : prev.finalIncidentType,
         closedBy: prev.closedBy || getAuthDisplayName() || "EHS User",
         approverName: prev.approverName || getAuthDisplayName() || "EHS User",
-        approverInitials: initialsFromName(prev.approverName || getAuthDisplayName() || "EU"),
+        approverInitials: initialsFromName(
+          prev.approverName || getAuthDisplayName() || "EU",
+        ),
       }));
     }
   }, [closureQuery.data, detail]);
@@ -248,7 +253,8 @@ export function IncidentDetailContent(
         id: String(c.id),
         title: c.code || `CAPA-${String(c.id).slice(-3)}`,
         subtitle: c.title || c.controlCategory || "",
-        progressPercent: typeof c.progressPercent === "number" ? c.progressPercent : 0,
+        progressPercent:
+          typeof c.progressPercent === "number" ? c.progressPercent : 0,
         status: (c.status === "Closed" || c.status === "Verified"
           ? "Completed"
           : c.status === "Planning"
@@ -739,7 +745,7 @@ export function IncidentDetailContent(
                     : undefined,
                   completedBy: !item.completed ? "Current User" : undefined,
                 }
-              : item
+              : item,
           ),
         }));
       }}
@@ -753,12 +759,15 @@ export function IncidentDetailContent(
           });
           toast.success(
             "Draft Saved",
-            "Incident closure draft saved successfully."
+            "Incident closure draft saved successfully.",
           );
         } catch (error) {
           toast.error(
             "Failed to Save Draft",
-            getMutationErrorMessage(error, "Please check your network or try again.")
+            getMutationErrorMessage(
+              error,
+              "Please check your network or try again.",
+            ),
           );
         }
       }}
@@ -785,13 +794,13 @@ export function IncidentDetailContent(
           await closeIncidentMutation.mutateAsync(targetId);
           toast.success(
             "Incident Officially Closed",
-            `Incident ${displayId} has been successfully closed and verified.`
+            `Incident ${displayId} has been successfully closed and verified.`,
           );
           await detailQuery.refetch();
         } catch (error) {
           toast.error(
             "Failed to Finalize Closure",
-            getMutationErrorMessage(error, "Please try again.")
+            getMutationErrorMessage(error, "Please try again."),
           );
         }
       }}

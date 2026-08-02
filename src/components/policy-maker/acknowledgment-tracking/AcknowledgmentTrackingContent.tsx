@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -8,12 +8,13 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { AcknowledgmentTrackingView } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingView";
 import { getAcknowledgmentMetrics } from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-data";
+import { SkeletonListPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import {
   useDocumentAcknowledgementsQuery,
   useDocumentByIdQuery,
 } from "@/hooks/use-document-queries";
-import { getAccessToken } from "@/lib/axios";
 
 export type AcknowledgmentTrackingContentProps = Readonly<{
   documentIdParam: string;
@@ -33,13 +34,9 @@ export function AcknowledgmentTrackingContent(
   props: Readonly<AcknowledgmentTrackingContentProps>,
 ) {
   const { documentIdParam } = props;
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const numericId = parseDocumentId(documentIdParam);
 
@@ -80,18 +77,9 @@ export function AcknowledgmentTrackingContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading acknowledgment tracking…
-          </Text>
-        </IncidentGlassCard>
-      </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
+          <SkeletonListPage kpis={3} filters={1} rows={8} columns={5} />
+        </div>
     );
   }
 

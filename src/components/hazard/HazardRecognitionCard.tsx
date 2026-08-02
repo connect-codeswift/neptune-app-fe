@@ -1,6 +1,7 @@
 "use client";
 
 import { IncidentGlassCard } from "@/components/incidents";
+import { SkeletonListRows } from "@/components/ui/skeletons";
 import { useTopHazardUsersQuery } from "@/hooks/use-hazard-queries";
 
 /** "Mian Hamid Ur Rehman" -> "MH". Falls back to "?" for a blank name. */
@@ -48,11 +49,13 @@ export function HazardRecognitionCard(props: HazardRecognitionCardProps) {
             </li>
           ))}
         </ul>
+      ) : topUsersQuery.isPending ? (
+        <div className="border-t border-slate-900/10 pt-3">
+          <SkeletonListRows rows={4} />
+        </div>
       ) : (
         <p className="text-ehs-muted-text border-t border-slate-900/10 py-2 text-sm">
-          {topUsersQuery.isPending
-            ? "Loading reporters..."
-            : "No reporters yet this month."}
+          No reporters yet this month.
         </p>
       )}
     </IncidentGlassCard>
