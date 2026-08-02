@@ -1,24 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-
-function IncidentListViewFallback() {
-  return (
-    <IncidentGlassCard className="min-h-[240px] items-center justify-center gap-2">
-      <Icon
-        icon="mdi:loading"
-        className="text-ehs-dark-blue size-7 animate-spin"
-        aria-hidden="true"
-      />
-      <Text as="p" className="text-ehs-muted-text text-sm">
-        Loading incidents…
-      </Text>
-    </IncidentGlassCard>
-  );
-}
+import { SkeletonListPage } from "@/components/ui/skeletons";
 
 /** Client-only mount — skips SSR to avoid auth/localStorage hydration mismatches. */
 export const IncidentListViewClient = dynamic(
@@ -28,6 +11,10 @@ export const IncidentListViewClient = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <IncidentListViewFallback />,
+    // Mirrors IncidentListView's own layout (KPI row, filter bar, table) so the
+    // page doesn't reflow when the chunk arrives.
+    loading: () => (
+      <SkeletonListPage kpis={4} filters={3} rows={8} columns={7} />
+    ),
   },
 );

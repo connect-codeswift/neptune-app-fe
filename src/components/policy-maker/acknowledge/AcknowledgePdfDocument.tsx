@@ -26,7 +26,11 @@ export function AcknowledgePdfDocument(
   const [hasError, setHasError] = useState(false);
 
   const pageWidth = useMemo(
-    () => Math.min(typeof window !== "undefined" ? window.innerWidth * 0.75 : 600, 800),
+    () =>
+      Math.min(
+        typeof window !== "undefined" ? window.innerWidth * 0.75 : 600,
+        800,
+      ),
     [],
   );
 
@@ -144,10 +148,16 @@ export function AcknowledgePdfDocument(
                     className="size-8 text-[#8892a3]"
                     aria-hidden="true"
                   />
-                  <Text as="p" className="text-[13px] font-semibold text-[#0b1320]">
+                  <Text
+                    as="p"
+                    className="text-[13px] font-semibold text-[#0b1320]"
+                  >
                     Failed to load PDF
                   </Text>
-                  <Text as="p" className="max-w-[320px] text-[12px] text-[#8892a3]">
+                  <Text
+                    as="p"
+                    className="max-w-[320px] text-[12px] text-[#8892a3]"
+                  >
                     Unsigned raw Cloudinary assets may require local download
                     permissions.
                   </Text>

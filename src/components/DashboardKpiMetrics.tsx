@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { useSyncExternalStore } from "react";
+import { KpiMetricsRowSkeleton } from "@/components/DashboardSkeletons";
 import { DEFAULT_KPI_METRICS, KpiMetricsRow } from "@/components/KpiMetricCard";
-import { Text } from "@/components/Text";
 import { useMainDashboardKpisQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
 import { mapDashboardKpisToMetrics } from "@/services/mappers/dashboard.mapper";
+
+/** No-op subscribe: the access token doesn't change during a page view. */
+const subscribeToNothing = () => () => {};
 
 /**
  * KPI row (Figma dashboard header cards). Loads live values from
@@ -15,32 +16,18 @@ import { mapDashboardKpisToMetrics } from "@/services/mappers/dashboard.mapper";
  * decoration comes from DEFAULT_KPI_METRICS since the API has no history.
  */
 export function DashboardKpiMetrics() {
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
+  // `null` until hydrated, so the skeleton also covers the first paint on a
+  // hard refresh — not just the fetch.
+  const hasToken = useSyncExternalStore(
+    subscribeToNothing,
+    () => Boolean(getAccessToken()),
+    () => null,
+  );
 
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const kpisQuery = useMainDashboardKpisQuery(hasToken === true);
 
-  const kpisQuery = useMainDashboardKpisQuery(isClientReady && hasToken);
-
-  const showLoading =
-    !isClientReady || (hasToken && kpisQuery.isLoading);
-
-  if (showLoading) {
-    return (
-      <IncidentGlassCard className="min-h-[140px] items-center justify-center gap-2 text-center">
-        <Icon
-          icon="mdi:loading"
-          className="text-ehs-normal-blue size-8 animate-spin"
-          aria-hidden="true"
-        />
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading KPIs…
-        </Text>
-      </IncidentGlassCard>
-    );
+  if (hasToken === null || (hasToken && kpisQuery.isLoading)) {
+    return <KpiMetricsRowSkeleton />;
   }
 
   const metrics = kpisQuery.data?.dataModel

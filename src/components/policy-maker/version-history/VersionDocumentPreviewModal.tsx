@@ -54,7 +54,10 @@ export function VersionDocumentPreviewModal(
   const fileName = resolveFileName(
     entry.filePath
       ? entry
-      : { fileName: policyDocument.fileName, filePath: policyDocument.filePath },
+      : {
+          fileName: policyDocument.fileName,
+          filePath: policyDocument.filePath,
+        },
     policyDocument.title,
   );
 
@@ -178,10 +181,7 @@ export function VersionDocumentPreviewModal(
               <Text as="p" className="text-[13px] font-semibold text-[#0b1320]">
                 Preview unavailable
               </Text>
-              <Text
-                as="p"
-                className="max-w-[320px] text-[12px] text-[#8892a3]"
-              >
+              <Text as="p" className="max-w-[320px] text-[12px] text-[#8892a3]">
                 This document has no file URL on record yet.
               </Text>
             </div>

@@ -105,7 +105,11 @@ export function PolicyMakerDocumentDetailHeader(
               disabled={isApproved || isApproving}
               className={`${actionBaseClass} !bg-ehs-green !text-ehs-light-text hover:!bg-ehs-green/90 !border-transparent !shadow-none disabled:opacity-70`}
             >
-              {isApproving ? "Approving…" : isApproved ? "Approved" : "Approval"}
+              {isApproving
+                ? "Approving…"
+                : isApproved
+                  ? "Approved"
+                  : "Approval"}
             </Button>
           ) : null}
           {canAcknowledge ? (

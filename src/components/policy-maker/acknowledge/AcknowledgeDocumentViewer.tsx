@@ -8,9 +8,9 @@ import type { PolicyDocument } from "@/components/policy-maker/policy-maker-type
 
 const AcknowledgePdfDocument = dynamic(
   () =>
-    import(
-      "@/components/policy-maker/acknowledge/AcknowledgePdfDocument"
-    ).then((module) => module.AcknowledgePdfDocument),
+    import("@/components/policy-maker/acknowledge/AcknowledgePdfDocument").then(
+      (module) => module.AcknowledgePdfDocument,
+    ),
   {
     ssr: false,
     loading: () => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type {
@@ -81,28 +81,18 @@ function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
 }
 
 type LinkCapaModalProps = Readonly<{
-  isOpen: boolean;
   onClose: () => void;
   currentlyLinked: readonly ClosureLinkedCapaItem[];
   onSave: (selectedCapas: ClosureLinkedCapaItem[]) => void;
 }>;
 
 function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
-  const { isOpen, onClose, currentlyLinked, onSave } = props;
+  const { onClose, currentlyLinked, onSave } = props;
 
   const [selectedIds, setSelectedIds] = useState<string[]>(() =>
     currentlyLinked.map((item) => item.id),
   );
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedIds(currentlyLinked.map((item) => item.id));
-      setSearchQuery("");
-    }
-  }, [isOpen, currentlyLinked]);
-
-  if (!isOpen) return null;
 
   // Deduplicate and combine available items with any currently linked items
   const allItemsMap = new Map<string, ClosureLinkedCapaItem>();
@@ -363,13 +353,16 @@ export function IncidentClosureStepPreventive(
         </button>
       </div>
 
-      {/* Link CAPA Modal */}
-      <LinkCapaModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        currentlyLinked={linkedCapas}
-        onSave={handleSaveCapas}
-      />
+      {/* Link CAPA Modal — mounted only while open, so each open starts from
+          the current links via the state initialiser rather than being reset
+          by an effect. */}
+      {isModalOpen ? (
+        <LinkCapaModal
+          onClose={() => setIsModalOpen(false)}
+          currentlyLinked={linkedCapas}
+          onSave={handleSaveCapas}
+        />
+      ) : null}
     </div>
   );
 }

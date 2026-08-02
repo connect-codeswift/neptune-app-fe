@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useNearMissHeatMapQuery } from "@/hooks/use-near-miss-queries";
 import {
   HAZARD_TYPE_SHORT_LABELS,
@@ -118,11 +119,11 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
             </Fragment>
           ))}
         </div>
+      ) : heatMapQuery.isPending ? (
+        <SkeletonHeatmapGrid />
       ) : (
         <p className="text-ehs-muted-text text-sm">
-          {heatMapQuery.isPending
-            ? "Loading heatmap..."
-            : "No near misses reported in this period."}
+          No near misses reported in this period.
         </p>
       )}
     </IncidentGlassCard>

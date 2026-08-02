@@ -8,6 +8,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
+import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
 import { canConvertNearMissToIncident } from "@/lib/current-user";
@@ -152,9 +153,7 @@ export function ConvertToIncidentContent(
         </div>
 
         {detailQuery.isPending && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading near miss...
-          </Text>
+          <SkeletonFormPage fields={8} />
         )}
 
         {detailQuery.isError && (
