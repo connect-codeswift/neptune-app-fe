@@ -1,6 +1,5 @@
-import { Icon } from "@iconify/react";
-import Link from "next/link";
-import { Text } from "@/components/Text";
+import { CardHeading } from "@/components/CardHeading";
+import { GlassCard } from "@/components/ui/GlassCard";
 
 type HazardCategory = Readonly<{
   label: string;
@@ -96,38 +95,14 @@ export function HazardsByCategoryCard(
   } = props;
 
   return (
-    <article
-      className={[
-        "border-ehs-border bg-ehs-light-text flex flex-col gap-4 rounded-2xl border p-5 shadow-sm",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Text as="h2" className="text-ehs-darker text-base font-bold">
-            Hazards by Category
-          </Text>
-          <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
-            {`Open · ${total} total`}
-          </Text>
-        </div>
-
-        <Link
-          href={viewAllHref}
-          className="text-ehs-gray hover:text-ehs-darker inline-flex items-center gap-0.5 text-xs font-medium transition-colors"
-        >
-          View all
-          <Icon
-            icon="mdi:chevron-right"
-            className="text-sm"
-            aria-hidden="true"
-          />
-        </Link>
-      </div>
+    <GlassCard className={className}>
+      <CardHeading
+        title="Hazards by Category"
+        subtitle={`Open · ${String(total)} total`}
+        viewAllHref={viewAllHref}
+      />
 
       <CategoryBarChart />
-    </article>
+    </GlassCard>
   );
 }

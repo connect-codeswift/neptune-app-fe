@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { HazardDetailHeader } from "./HazardDetailHeader";
 import { HazardDetailView } from "./HazardDetailView";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCloseHazardMutation,
@@ -123,9 +124,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
         {detailQuery.isPending && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading hazard...
-          </Text>
+          <SkeletonDetailPage />
         )}
 
         {detailQuery.isError && (

@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { AcknowledgeDocumentView } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentView";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useDocumentByIdQuery } from "@/hooks/use-document-queries";
-import { getAccessToken } from "@/lib/axios";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext } from "@/lib/auth-context";
 
 export type AcknowledgeDocumentContentProps = Readonly<{
@@ -29,13 +30,9 @@ export function AcknowledgeDocumentContent(
   props: Readonly<AcknowledgeDocumentContentProps>,
 ) {
   const { documentIdParam } = props;
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const numericId = parseDocumentId(documentIdParam);
 
@@ -60,18 +57,9 @@ export function AcknowledgeDocumentContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading document…
-          </Text>
-        </IncidentGlassCard>
-      </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
+          <SkeletonDetailPage />
+        </div>
     );
   }
 
@@ -150,7 +138,10 @@ export function AcknowledgeDocumentContent(
         <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
           Not assigned
         </Text>
-        <Text as="p" className="text-ehs-muted-text max-w-xs text-center text-[14px]">
+        <Text
+          as="p"
+          className="text-ehs-muted-text max-w-xs text-center text-[14px]"
+        >
           You are not assigned to acknowledge this document.
         </Text>
         <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
@@ -35,7 +35,12 @@ import {
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
-import { getAccessToken } from "@/lib/axios";
+import {
+  SkeletonListRows,
+  SkeletonSidePanel,
+  SkeletonTable,
+} from "@/components/ui/skeletons";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { mapCategoryToLibraryId } from "@/services/mappers/document-list.mapper";
 import { toast } from "@/lib/toast";
 
@@ -114,13 +119,9 @@ export function PolicyMakerView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(DEFAULT_DOCUMENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_DOCUMENTS_PAGE_SIZE);
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const documentsQuery = useDocumentsListQuery({
     pageNumber,
@@ -164,21 +165,15 @@ export function PolicyMakerView() {
     );
   }, [allDocuments, categoryId, statusFilter, searchQuery]);
 
-  useEffect(() => {
-    if (documents.length === 0) {
-      setSelectedId(null);
-      return;
-    }
-    setSelectedId((current) => {
-      if (current != null && documents.some((doc) => doc.id === current)) {
-        return current;
-      }
-      return documents[0]?.id ?? null;
-    });
-  }, [documents]);
-
+  // Default to the first document, falling back to it whenever filtering drops
+  // the current selection. Derived during render rather than synced through an
+  // effect, so the detail pane never shows a document that just left the list.
   const selectedDocument =
-    documents.find((doc) => doc.id === selectedId) ?? null;
+    (selectedId == null
+      ? undefined
+      : documents.find((doc) => doc.id === selectedId)) ??
+    documents[0] ??
+    null;
 
   const handleCategorySelect = (id: string) => {
     setCategoryId(id as LibraryCategoryId);
@@ -258,16 +253,11 @@ export function PolicyMakerView() {
             ) : null}
           </IncidentGlassCard>
         ) : showBootLoading || showQueryLoading ? (
-          <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
-            <Icon
-              icon="mdi:loading"
-              className="text-ehs-blue size-8 animate-spin"
-              aria-hidden="true"
-            />
-            <Text as="p" className="text-ehs-muted-text text-sm">
-              Loading documents…
-            </Text>
-          </IncidentGlassCard>
+          <div className="grid min-w-0 items-start gap-[13.62px] xl:grid-cols-[214px_minmax(0,1fr)_minmax(280px,311px)]">
+            <SkeletonListRows rows={6} />
+            <SkeletonTable rows={8} columns={4} />
+            <SkeletonSidePanel />
+          </div>
         ) : (
           <div className="grid min-w-0 items-start gap-[13.62px] xl:grid-cols-[214px_minmax(0,1fr)_minmax(280px,311px)]">
             <PolicyMakerLibraryNav
@@ -284,7 +274,7 @@ export function PolicyMakerView() {
                 categoryLabel={categoryLabel(categoryId)}
                 documentCount={libraryCount}
                 documents={documents}
-                selectedId={selectedId}
+                selectedId={selectedDocument?.id ?? null}
                 onSelect={setSelectedId}
                 statusFilter={statusFilter}
                 onStatusFilterChange={(value) => {

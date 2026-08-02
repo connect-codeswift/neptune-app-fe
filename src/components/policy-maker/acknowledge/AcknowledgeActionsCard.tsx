@@ -20,8 +20,13 @@ const glassCardClass =
 export function AcknowledgeActionsCard(
   props: Readonly<AcknowledgeActionsCardProps>,
 ) {
-  const { canApprove, isSubmitting, onCancel, onApprove, className = "" } =
-    props;
+  const {
+    canApprove,
+    isSubmitting,
+    onCancel,
+    onApprove,
+    className = "",
+  } = props;
 
   return (
     <div className={[glassCardClass, className].filter(Boolean).join(" ")}>

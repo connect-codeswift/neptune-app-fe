@@ -38,7 +38,9 @@ export function AcknowledgeConfirmSection(
             className="sr-only"
           />
           <Icon
-            icon={checked ? "mdi:checkbox-marked" : "mdi:checkbox-blank-outline"}
+            icon={
+              checked ? "mdi:checkbox-marked" : "mdi:checkbox-blank-outline"
+            }
             className={[
               "size-6",
               checked ? "text-[#0891a6]" : "text-[#8892a3]",

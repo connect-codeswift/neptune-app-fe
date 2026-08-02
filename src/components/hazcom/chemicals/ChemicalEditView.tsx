@@ -40,7 +40,9 @@ export function ChemicalEditView(props: Readonly<ChemicalEditViewProps>) {
         }
       />
 
-      {isLoading ? <HazcomLoadingCard message="Loading chemical…" /> : null}
+      {isLoading ? (
+        <HazcomLoadingCard message="Loading chemical…" variant="form" />
+      ) : null}
 
       {!isLoading && errorMessage ? (
         <HazcomErrorCard

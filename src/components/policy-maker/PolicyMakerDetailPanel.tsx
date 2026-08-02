@@ -60,9 +60,7 @@ export function PolicyMakerDetailPanel(
   const reviewProgress =
     document.reviewersTotal === 0
       ? 0
-      : Math.round(
-          (document.reviewersDone / document.reviewersTotal) * 100,
-        );
+      : Math.round((document.reviewersDone / document.reviewersTotal) * 100);
 
   return (
     <IncidentGlassCard

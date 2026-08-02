@@ -1,32 +1,48 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { HazcomGlassCard } from "@/components/hazcom/shared/HazcomGlassCard";
+import {
+  SkeletonDetailPage,
+  SkeletonFormPage,
+  SkeletonTable,
+} from "@/components/ui/skeletons";
 
 /** The two cards every HazCom view shows while a query is pending or failed. */
 
 export type HazcomLoadingCardProps = Readonly<{
+  /** Announced to screen readers; no longer drawn on screen. */
   message: string;
+  /** Shape to hold while loading. Most HazCom views are tables. */
+  variant?: "table" | "detail" | "form";
   className?: string;
 }>;
 
+/**
+ * Placeholder shown while a HazCom query is pending.
+ *
+ * Renders the shape of the content rather than a centred spinner, so the view
+ * doesn't collapse to a small box and snap back to full width when data lands.
+ * `message` stays as a polite live-region announcement for screen readers.
+ */
 export function HazcomLoadingCard(props: Readonly<HazcomLoadingCardProps>) {
-  const { message, className = "" } = props;
+  const { message, variant = "table", className = "" } = props;
 
   return (
-    <HazcomGlassCard
-      className={["min-h-[240px] items-center justify-center gap-2", className]
-        .filter(Boolean)
-        .join(" ")}
+    <div
+      className={["min-w-0", className].filter(Boolean).join(" ")}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
     >
-      <Icon
-        icon="mdi:loading"
-        className="text-ehs-dark-blue size-7 animate-spin"
-        aria-hidden="true"
-      />
-      <Text as="p" className="text-ehs-muted-text text-sm">
-        {message}
-      </Text>
-    </HazcomGlassCard>
+      <span className="sr-only">{message}</span>
+      {variant === "detail" ? (
+        <SkeletonDetailPage />
+      ) : variant === "form" ? (
+        <SkeletonFormPage fields={8} />
+      ) : (
+        <SkeletonTable rows={8} columns={6} />
+      )}
+    </div>
   );
 }
 

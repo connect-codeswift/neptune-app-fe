@@ -17,7 +17,9 @@ import {
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
@@ -25,7 +27,6 @@ import {
   useIncidentByIdQuery,
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
-import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
@@ -44,16 +45,12 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const [stageFilter, setStageFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
   const [pageNumber, setPageNumber] = useState(DEFAULT_INCIDENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_INCIDENTS_PAGE_SIZE);
   const [appliedSearch, setAppliedSearch] = useState(searchQuery.trim());
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
 
   // Debounce the header search box, and rewind to page 1 once it settles —
   // a stale page number would otherwise strand the user on an out-of-range page.
@@ -132,31 +129,16 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [incidents, appliedSearch, severityFilter, stageFilter, stateFilter]);
 
-  // Keep the detail sidebar open; default to the first incident on the page.
-  useEffect(() => {
-    if (filteredIncidents.length === 0) {
-      setSelectedId(null);
-      return;
-    }
-
-    setSelectedId((current) => {
-      if (
-        current != null &&
-        filteredIncidents.some((incident) => incident.id === current)
-      ) {
-        return current;
-      }
-
-      return filteredIncidents[0]?.id ?? null;
-    });
-  }, [filteredIncidents]);
-
+  // Keep the detail sidebar open; default to the first incident on the page,
+  // and fall back to it whenever filtering drops the current selection.
+  // Derived during render rather than synced through an effect, so there is no
+  // pass where the sidebar still points at a row that is no longer listed.
   const selectedListIncident =
-    selectedId == null
-      ? null
-      : (filteredIncidents.find((incident) => incident.id === selectedId) ??
-        filteredIncidents[0] ??
-        null);
+    (selectedId == null
+      ? undefined
+      : filteredIncidents.find((incident) => incident.id === selectedId)) ??
+    filteredIncidents[0] ??
+    null;
 
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
@@ -228,11 +210,15 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
-        {kpiMetrics.map((metric) => (
-          <IncidentListKpiCard key={metric.id} {...metric} />
-        ))}
-      </div>
+      {showBootLoading || showQueryLoading ? (
+        <SkeletonKpiRow count={kpiMetrics.length || 4} />
+      ) : (
+        <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
+          {kpiMetrics.map((metric) => (
+            <IncidentListKpiCard key={metric.id} {...metric} />
+          ))}
+        </div>
+      )}
 
       <IncidentFilterBar
         state={stateFilter}
@@ -270,16 +256,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       ) : null}
 
       {!errorMessage && (showBootLoading || showQueryLoading) ? (
-        <IncidentGlassCard className="min-h-[240px] items-center justify-center gap-2">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-dark-blue size-7 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading incidents…
-          </Text>
-        </IncidentGlassCard>
+        <SkeletonTable rows={8} columns={7} />
       ) : null}
 
       {!errorMessage &&
