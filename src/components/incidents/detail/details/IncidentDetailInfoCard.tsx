@@ -6,6 +6,7 @@ import type {
   IncidentDetailInfoItemKind,
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 
 export type { IncidentDetailInfoItem, IncidentDetailInfoItemKind };
 
@@ -16,8 +17,7 @@ export type IncidentDetailInfoCardProps = Readonly<{
   className?: string;
 }>;
 
-const fieldInputClass =
-  "w-full rounded-[10px] border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1.5 text-[13px] text-[#0b1320] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20";
+const fieldInputClass = FIELD_INPUT_CLASS;
 
 function editableDisplayValue(value: string): string {
   return value === "—" ? "" : value;

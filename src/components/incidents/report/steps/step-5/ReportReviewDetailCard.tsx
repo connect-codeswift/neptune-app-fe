@@ -23,12 +23,7 @@ export type ReportReviewDetailCardProps = Readonly<{
 export function ReportReviewDetailCard(
   props: Readonly<ReportReviewDetailCardProps>,
 ) {
-  const {
-    title,
-    rows,
-    paddingClassName = "p-[15px]",
-    className = "",
-  } = props;
+  const { title, rows, paddingClassName = "p-[15px]", className = "" } = props;
 
   return (
     <div

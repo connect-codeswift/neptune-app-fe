@@ -6,8 +6,26 @@ import type {
   BodyPartSideMap,
   BodySide,
 } from "./report-body-parts";
-import { CLASSIFICATION_FIELDS } from "./report-classification";
+import {
+  CLASSIFICATION_FIELDS,
+  oshaRecordableForSeverity,
+  type ClassificationValue,
+} from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
+
+/** Step 2 dropdowns the reporter can extend with their own options. */
+export type CustomOptionField =
+  | "initialTreatment"
+  | "mechanismOfInjury"
+  | "natureOfInjury";
+
+export const EMPTY_CUSTOM_OPTIONS: Readonly<
+  Record<CustomOptionField, readonly string[]>
+> = {
+  initialTreatment: [],
+  mechanismOfInjury: [],
+  natureOfInjury: [],
+};
 
 export type ReportIncidentFormState = Readonly<{
   severity: SeverityId;
@@ -18,13 +36,21 @@ export type ReportIncidentFormState = Readonly<{
   incidentDate: string;
   incidentTime: string;
   reportDate: string;
-  classifications: Record<string, "Yes" | "No">;
+  /** `""` until the reporter answers — see ClassificationValue. */
+  classifications: Record<string, ClassificationValue>;
   description: string;
   title: string;
   initialTreatment: string;
   secondaryTreatment: "Yes" | "No";
   mechanismOfInjury: string;
   natureOfInjury: string;
+  /**
+   * Options the reporter typed themselves, per field. Stored on the form so a
+   * custom entry survives navigating between steps. The mapper needs no change:
+   * `optionLabel` falls back to the raw value when it isn't a known option, and
+   * these are stored with the typed text as both value and label.
+   */
+  customOptions: Readonly<Record<CustomOptionField, readonly string[]>>;
   objectInvolved: string;
   oshaNotificationRequired: "Yes" | "No";
   witnesses: string;
@@ -32,6 +58,13 @@ export type ReportIncidentFormState = Readonly<{
   injuryLevel: InjuryLevelId;
   gender: string;
   bodyParts: readonly BodyPartId[];
+  /**
+   * Free-text parts the reporter added because the anatomical list didn't
+   * cover them. Kept separate from `bodyParts` because that union is closed
+   * and drives the clickable SVG regions — a custom entry has no region to
+   * map to. Adding one selects it; removing the chip deselects it.
+   */
+  customBodyParts: readonly string[];
   /** Last / default side for list picks and non-mapped parts. */
   bodySide: BodySide;
   /** Side chosen per body part (allows Left foot + Right hand together). */
@@ -87,9 +120,17 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     incidentDate: "",
     incidentTime: "",
     reportDate: "",
+    // Every question starts unanswered except "OSHA Recordable?", which is
+    // derived from the severity above rather than asked — so it is seeded to
+    // match the default severity instead of sitting blank.
     classifications: Object.fromEntries(
-      CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
-    ) as Record<string, "Yes" | "No">,
+      CLASSIFICATION_FIELDS.map((field) => [
+        field.id,
+        field.id === "osha"
+          ? oshaRecordableForSeverity("first-aid")
+          : field.defaultValue,
+      ]),
+    ) as Record<string, ClassificationValue>,
     description: "",
     // Mirrors default severity so Live preview title is populated from the start.
     title: "First Aid",
@@ -97,6 +138,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     secondaryTreatment: "No",
     mechanismOfInjury: "",
     natureOfInjury: "",
+    customOptions: EMPTY_CUSTOM_OPTIONS,
     objectInvolved: "",
     oshaNotificationRequired: "No",
     witnesses: "",
@@ -104,6 +146,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     injuryLevel: "no-injury",
     gender: "",
     bodyParts: [],
+    customBodyParts: [],
     bodySide: "Left",
     bodyPartSides: {},
     bodyMultiSelect: false,

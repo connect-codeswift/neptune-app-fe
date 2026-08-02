@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { WitnessRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 
 export type { WitnessRow };
 
@@ -20,8 +21,7 @@ export type IncidentDetailWitnessesCardProps = Readonly<{
   className?: string;
 }>;
 
-const fieldInputClass =
-  "w-full rounded-[10px] border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-1.5 text-[12px] text-[#0b1320] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20";
+const fieldInputClass = FIELD_INPUT_CLASS;
 
 export function IncidentDetailWitnessesCard(
   props: Readonly<IncidentDetailWitnessesCardProps>,

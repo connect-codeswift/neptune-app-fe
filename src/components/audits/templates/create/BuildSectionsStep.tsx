@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
 import {
@@ -21,8 +22,7 @@ import {
 const labelClass =
   "text-ehs-muted-text text-sm font-bold tracking-wider uppercase";
 
-const inputClass =
-  "w-full rounded-lg border border-slate-900/10 bg-white px-3 py-2.5 text-base text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const inputClass = FIELD_INPUT_LG_CLASS;
 
 /** Small square icon button used along each row. */
 function IconButton(

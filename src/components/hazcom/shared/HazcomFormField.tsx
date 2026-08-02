@@ -6,11 +6,17 @@ import type {
   TextareaHTMLAttributes,
 } from "react";
 import { Text } from "@/components/Text";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_SELECT_CLASS,
+  FIELD_SELECT_PLACEHOLDER_CLASS,
+  FIELD_TEXTAREA_CLASS,
+} from "@/components/ui/field-styles";
 
-export const hazcomFieldInputClass =
-  "h-9 w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] text-[13px] text-[#0b1320] outline-none backdrop-blur-[5px] transition placeholder:text-[#8892a3] hover:border-[rgba(15,23,42,0.16)] focus:border-[#0891a6] focus:ring-2 focus:ring-[rgba(8,145,166,0.2)]";
+/** @deprecated Import `FIELD_INPUT_CLASS` from `@/components/ui/field-styles`. */
+export const hazcomFieldInputClass = FIELD_INPUT_CLASS;
 
-const fieldInputClass = hazcomFieldInputClass;
+const fieldInputClass = FIELD_INPUT_CLASS;
 
 type HazcomFieldLabelProps = Readonly<{
   label: string;
@@ -128,8 +134,11 @@ export function HazcomSelectField(props: Readonly<HazcomSelectFieldProps>) {
     options,
     className = "",
     id,
+    value,
     ...rest
   } = props;
+
+  const isPlaceholder = value === "" || value === undefined;
 
   return (
     <div
@@ -147,21 +156,31 @@ export function HazcomSelectField(props: Readonly<HazcomSelectFieldProps>) {
           ) : undefined
         }
       />
-      <div className="relative">
+      <div className="group relative">
         <select
           id={id}
-          className={`${fieldInputClass} appearance-none pr-8`}
+          value={value}
+          className={[
+            FIELD_SELECT_CLASS,
+            isPlaceholder ? FIELD_SELECT_PLACEHOLDER_CLASS : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           {...rest}
         >
           {options.map((option) => (
-            <option key={option.value} value={option.value}>
+            <option
+              key={option.value}
+              value={option.value}
+              className="text-ehs-dark-bg"
+            >
               {option.label}
             </option>
           ))}
         </select>
         <Icon
           icon="mdi:chevron-down"
-          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 size-[13px] -translate-y-1/2"
+          className="text-ehs-muted-text group-focus-within:text-ehs-normal-blue pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 transition-colors"
           aria-hidden="true"
         />
       </div>
@@ -196,11 +215,7 @@ export function HazcomTextareaField(props: Readonly<HazcomTextareaFieldProps>) {
           ) : undefined
         }
       />
-      <textarea
-        id={id}
-        className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-h-[110px] w-full resize-y rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[13px] py-[10.5px] text-[13px] leading-[19.5px] backdrop-blur-[5px] transition outline-none focus:ring-2"
-        {...rest}
-      />
+      <textarea id={id} className={FIELD_TEXTAREA_CLASS} {...rest} />
     </div>
   );
 }
