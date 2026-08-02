@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
-import Link from "next/link";
+import { CardHeading } from "@/components/CardHeading";
 import { ListItemRow } from "@/components/ComplianceDeadlinesCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
@@ -46,36 +47,12 @@ export function DashboardMyActionsCard(
     items.length === 0;
 
   return (
-    <article
-      className={[
-        "border-ehs-border bg-ehs-light-text flex flex-col gap-4 rounded-2xl border p-5 shadow-sm",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Text as="h2" className="text-ehs-darker text-base font-bold">
-            My Actions
-          </Text>
-          <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
-            {`${String(assignedCount)} assigned · ${String(dueThisWeekCount)} due this week`}
-          </Text>
-        </div>
-
-        <Link
-          href="/dashboard/capa"
-          className="text-ehs-gray hover:text-ehs-darker inline-flex items-center gap-0.5 text-xs font-medium transition-colors"
-        >
-          View all
-          <Icon
-            icon="mdi:chevron-right"
-            className="text-sm"
-            aria-hidden="true"
-          />
-        </Link>
-      </div>
+    <GlassCard className={className}>
+      <CardHeading
+        title="My Actions"
+        subtitle={`${String(assignedCount)} assigned · ${String(dueThisWeekCount)} due this week`}
+        viewAllHref="/dashboard/capa"
+      />
 
       {showLoading ? (
         <div className="flex min-h-[140px] flex-col items-center justify-center gap-2 text-center">
@@ -126,12 +103,12 @@ export function DashboardMyActionsCard(
           </Text>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="mt-[7px] flex flex-col gap-[14px]">
           {items.map((item) => (
             <ListItemRow key={`${item.title}-${item.subtitle}`} {...item} />
           ))}
         </div>
       )}
-    </article>
+    </GlassCard>
   );
 }

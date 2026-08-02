@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { GlassCard } from "@/components/ui/GlassCard";
 
 export type KpiMetricTone = "positive" | "negative";
 
@@ -37,12 +38,12 @@ const toneClasses: Record<
   { pill: string; fill: string; stroke: string }
 > = {
   positive: {
-    pill: "bg-ehs-green/10 text-ehs-green",
+    pill: "bg-ehs-green/[0.14] text-ehs-green",
     fill: "fill-ehs-green/15",
     stroke: "stroke-ehs-green",
   },
   negative: {
-    pill: "bg-ehs-red/10 text-ehs-red",
+    pill: "bg-ehs-red/[0.14] text-ehs-red",
     fill: "fill-ehs-red/15",
     stroke: "stroke-ehs-red",
   },
@@ -52,8 +53,8 @@ function MiniAreaChart(
   props: Readonly<{ data: readonly number[]; tone: KpiMetricTone }>,
 ) {
   const { data, tone } = props;
-  const width = 72;
-  const height = 32;
+  const width = 70;
+  const height = 22;
   const padding = 2;
 
   if (data.length < 2) {
@@ -89,7 +90,7 @@ function MiniAreaChart(
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-8 w-18 shrink-0"
+      className="h-[22px] w-[70px] shrink-0"
       aria-hidden="true"
     >
       <path d={areaPath} className={fill} />
@@ -115,7 +116,7 @@ function CardFooter(
   }
   if (targetLabel) {
     return (
-      <Text as="p" className="text-ehs-muted-text pb-2 text-xs">
+      <Text as="p" className="text-ehs-muted-text text-[10.5px]">
         {targetLabel}
       </Text>
     );
@@ -127,16 +128,16 @@ function CountsFooter(props: Readonly<{ counts: KpiMetricCardCounts }>) {
   const { counts } = props;
 
   return (
-    <div className="font-inter flex flex-col gap-0.5 pb-0.5">
-      <p className="text-ehs-muted-text text-xs">
+    <div className="font-inter flex flex-col gap-0.5">
+      <p className="text-ehs-muted-text text-[10.5px]">
         {counts.closedLabel}{" "}
-        <span className="text-ehs-darker font-semibold">
+        <span className="text-ehs-slate font-semibold">
           {counts.closedValue}
         </span>
       </p>
-      <p className="text-ehs-muted-text text-xs">
+      <p className="text-ehs-muted-text text-[10.5px]">
         {counts.totalLabel}{" "}
-        <span className="text-ehs-darker font-semibold">
+        <span className="text-ehs-slate font-semibold">
           {counts.totalValue}
         </span>
       </p>
@@ -162,41 +163,34 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
     trendDirection === "up" ? "mdi:trending-up" : "mdi:trending-down";
 
   return (
-    <article
-      className={[
-        "border-ehs-border flex min-w-0 flex-1 flex-col gap-3 rounded-2xl border bg-[#fafafa] px-5 py-4 shadow-sm shadow-white backdrop-blur-3xl",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <GlassCard className={["flex-1 justify-between", className].join(" ")}>
       <div className="flex items-start justify-between gap-3">
         <Text
           as="p"
-          className="text-ehs-muted-text text-[10px] font-semibold tracking-wider uppercase"
+          className="text-ehs-gray text-[11.5px] leading-normal font-bold tracking-[0.23px] uppercase"
         >
           {title}
         </Text>
 
         <span
           className={[
-            "inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+            "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[10.5px] leading-[15.4px] font-bold tracking-[0.22px]",
             toneClasses[trendTone].pill,
           ].join(" ")}
         >
-          <Icon icon={trendIcon} className="text-xs" aria-hidden="true" />
+          <Icon icon={trendIcon} className="size-[11px]" aria-hidden="true" />
           {trendValue}
         </span>
       </div>
 
-      <div className="flex items-baseline gap-1.5">
+      <div className="flex items-baseline gap-[10px]">
         <Text
           as="p"
-          className="text-ehs-darker text-3xl leading-none font-medium tabular-nums"
+          className="text-ehs-dark-bg text-[40px] leading-[40px] tracking-[-1.2px] tabular-nums"
         >
           {String(value)}
         </Text>
-        <Text as="span" className="text-ehs-gray text-sm font-medium">
+        <Text as="span" className="text-ehs-gray text-[12px] tracking-[0.48px]">
           {unit}
         </Text>
       </div>
@@ -205,7 +199,7 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
         <CardFooter counts={counts} targetLabel={targetLabel} />
         {chartData ? <MiniAreaChart data={chartData} tone={trendTone} /> : null}
       </div>
-    </article>
+    </GlassCard>
   );
 }
 
@@ -270,7 +264,7 @@ export function KpiMetricsRow(props: Readonly<KpiMetricsRowProps>) {
 
   return (
     <div
-      className={["grid gap-4 sm:grid-cols-2 xl:grid-cols-4", className]
+      className={["grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4", className]
         .filter(Boolean)
         .join(" ")}
     >
