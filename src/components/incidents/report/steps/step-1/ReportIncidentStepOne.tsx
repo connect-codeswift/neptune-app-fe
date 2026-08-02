@@ -7,6 +7,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   CLASSIFICATION_FIELDS,
+  GENDER_OPTIONS,
   YES_NO_OPTIONS,
   type ReportIncidentFormState,
   type SeverityId,
@@ -51,6 +52,29 @@ export function ReportIncidentStepOne(
     });
   }, [form.reportedBy, form.reporterEmail, onChange]);
 
+  /**
+   * Severity decides recordability, so the picker owns the "OSHA Recordable?"
+   * answer in both directions. First Aid alone is non-recordable under OSHA;
+   * every other severity here — OSHA Recordable, OSHA Lost Time, SIA, SIP —
+   * implies Yes. Setting it only one way left a stale Yes behind when the
+   * reporter corrected a severity down to First Aid.
+   *
+   * The field stays editable, so a reporter can still override it by hand.
+   */
+  const handleSeverityChange = (severity: SeverityId) => {
+    const osha: "Yes" | "No" = severity === "first-aid" ? "No" : "Yes";
+
+    if (form.classifications.osha === osha) {
+      onChange({ severity });
+      return;
+    }
+
+    onChange({
+      severity,
+      classifications: { ...form.classifications, osha },
+    });
+  };
+
   return (
     <IncidentGlassCard
       paddingClassName="p-[29px]"
@@ -83,20 +107,30 @@ export function ReportIncidentStepOne(
 
         <ReportSeverityPicker
           value={form.severity}
-          onChange={(severity: SeverityId) => onChange({ severity })}
+          onChange={handleSeverityChange}
           className="pt-3"
         />
 
         <div className="flex flex-col pt-[18px]">
-          <ReportTextField
-            label="Affected person"
-            value={form.affectedPerson}
-            onChange={(event) =>
-              onChange({ affectedPerson: event.target.value })
-            }
-            trailingHint="Search by name or employee ID."
-            placeholder="Maria Lopez · EMP-04821"
-          />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
+            <ReportSelectField
+              label="Gender"
+              required
+              value={form.gender}
+              onChange={(event) => onChange({ gender: event.target.value })}
+              options={[...GENDER_OPTIONS]}
+            />
+
+            <ReportTextField
+              label="Affected person"
+              value={form.affectedPerson}
+              onChange={(event) =>
+                onChange({ affectedPerson: event.target.value })
+              }
+              trailingHint="Search by name or employee ID."
+              placeholder="Maria Lopez · EMP-04821"
+            />
+          </div>
 
           <ReportTextField
             label="Plant / Location"

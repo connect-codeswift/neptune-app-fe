@@ -9,6 +9,20 @@ import type {
 import { CLASSIFICATION_FIELDS } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
 
+/** Step 2 dropdowns the reporter can extend with their own options. */
+export type CustomOptionField =
+  | "initialTreatment"
+  | "mechanismOfInjury"
+  | "natureOfInjury";
+
+export const EMPTY_CUSTOM_OPTIONS: Readonly<
+  Record<CustomOptionField, readonly string[]>
+> = {
+  initialTreatment: [],
+  mechanismOfInjury: [],
+  natureOfInjury: [],
+};
+
 export type ReportIncidentFormState = Readonly<{
   severity: SeverityId;
   affectedPerson: string;
@@ -25,6 +39,13 @@ export type ReportIncidentFormState = Readonly<{
   secondaryTreatment: "Yes" | "No";
   mechanismOfInjury: string;
   natureOfInjury: string;
+  /**
+   * Options the reporter typed themselves, per field. Stored on the form so a
+   * custom entry survives navigating between steps. The mapper needs no change:
+   * `optionLabel` falls back to the raw value when it isn't a known option, and
+   * these are stored with the typed text as both value and label.
+   */
+  customOptions: Readonly<Record<CustomOptionField, readonly string[]>>;
   objectInvolved: string;
   oshaNotificationRequired: "Yes" | "No";
   witnesses: string;
@@ -97,6 +118,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     secondaryTreatment: "No",
     mechanismOfInjury: "",
     natureOfInjury: "",
+    customOptions: EMPTY_CUSTOM_OPTIONS,
     objectInvolved: "",
     oshaNotificationRequired: "No",
     witnesses: "",

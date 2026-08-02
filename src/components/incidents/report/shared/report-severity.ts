@@ -22,8 +22,9 @@ export const SEVERITY_OPTIONS: readonly SeverityOption[] = [
   },
   {
     id: "lost-time",
-    label: "Lost Time",
-    lines: ["Lost Time"],
+    label: "OSHA Lost Time",
+    // Two lines so the card keeps its width alongside the other severities.
+    lines: ["OSHA", "Lost Time"],
     previewBadge: "High",
   },
   { id: "sia", label: "SIA", lines: ["SIA"], previewBadge: "Critical" },
