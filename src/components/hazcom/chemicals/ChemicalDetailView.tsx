@@ -41,7 +41,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
           breadcrumb={["Safety", "HazCom", "Chemical Inventory"]}
           title="Chemical"
         />
-        <HazcomLoadingCard message="Loading chemical…" />
+        <HazcomLoadingCard message="Loading chemical…" variant="detail" />
       </div>
     );
   }

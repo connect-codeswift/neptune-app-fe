@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { CardHeading } from "@/components/CardHeading";
+import { TrendChartSkeleton } from "@/components/DashboardSkeletons";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useIncidentTrendsQuery } from "@/hooks/use-dashboard-queries";
-import { getAccessToken } from "@/lib/axios";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 type SeriesKey = "incidents" | "nearMisses" | "hazards";
 
@@ -56,24 +59,32 @@ function computeYAxis(maxValue: number): {
   const rawStep = safeMax / tickCount;
   const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
   const normalized = rawStep / magnitude;
-  const niceNormalized = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  const niceNormalized =
+    normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
   const step = Math.max(Math.round(niceNormalized * magnitude), 1);
   const yMax = step * tickCount;
-  const ticks = Array.from({ length: tickCount + 1 }, (_, index) => index * step);
+  const ticks = Array.from(
+    { length: tickCount + 1 },
+    (_, index) => index * step,
+  );
 
   return { yMax, ticks };
 }
 
 function getPlotPoints(data: readonly number[], yMax: number) {
-  const plotWidth = CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
-  const plotHeight = CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
+  const plotWidth =
+    CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
+  const plotHeight =
+    CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
   const denom = data.length > 1 ? data.length - 1 : 1;
 
   return data.map((value, index) => {
     const t = data.length > 1 ? index / denom : 0.5;
     const x = CHART_LAYOUT.padLeft + t * plotWidth;
     const y =
-      CHART_LAYOUT.padTop + plotHeight - (Math.min(value, yMax) / yMax) * plotHeight;
+      CHART_LAYOUT.padTop +
+      plotHeight -
+      (Math.min(value, yMax) / yMax) * plotHeight;
 
     return { x, y };
   });
@@ -114,8 +125,10 @@ function TrendChart(
 ) {
   const { weekLabels, seriesData, yMax, ticks, visibleSeries } = props;
 
-  const plotWidth = CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
-  const plotHeight = CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
+  const plotWidth =
+    CHART_LAYOUT.width - CHART_LAYOUT.padLeft - CHART_LAYOUT.padRight;
+  const plotHeight =
+    CHART_LAYOUT.height - CHART_LAYOUT.padTop - CHART_LAYOUT.padBottom;
   const labelDenom = weekLabels.length > 1 ? weekLabels.length - 1 : 1;
 
   return (
@@ -211,17 +224,18 @@ function FilterToggle(
   const { value, onChange } = props;
 
   return (
-    <div className="border-ehs-border bg-ehs-light-bg inline-flex rounded-full border p-0.5">
+    <div className="inline-flex gap-[4px] rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-[4px]">
       {FILTERS.map((option) => (
         <button
           key={option}
           type="button"
           onClick={() => onChange(option)}
+          aria-pressed={value === option}
           className={[
-            "cursor-pointer rounded-full px-3 py-1 text-[10px] font-semibold whitespace-nowrap transition-colors",
+            "cursor-pointer rounded-full px-[12px] py-[5px] text-[11px] font-bold whitespace-nowrap capitalize transition-colors",
             value === option
-              ? "bg-ehs-darker text-ehs-light-text"
-              : "text-ehs-muted-text hover:text-ehs-gray",
+              ? "bg-ehs-dark-bg text-ehs-light-bg"
+              : "text-ehs-gray hover:bg-ehs-light-bg",
           ].join(" ")}
         >
           {option}
@@ -243,13 +257,9 @@ export type IncidentTrendsCardProps = Readonly<{
 export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
   const { className = "" } = props;
   const [filter, setFilter] = useState<TrendFilter>("All");
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const trendsQuery = useIncidentTrendsQuery(isClientReady && hasToken);
 
@@ -275,7 +285,9 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
   const visibleSeries =
     filter === "All"
       ? SERIES_META
-      : SERIES_META.filter((series) => series.key === FILTER_SERIES_KEY[filter]);
+      : SERIES_META.filter(
+          (series) => series.key === FILTER_SERIES_KEY[filter],
+        );
 
   const showLoading = !isClientReady || (hasToken && trendsQuery.isLoading);
   const showSignInPrompt = isClientReady && !hasToken;
@@ -288,39 +300,19 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
     trends.length === 0;
 
   return (
-    <article
-      className={[
-        "border-ehs-border bg-ehs-light-text flex flex-col gap-4 rounded-2xl border p-5 shadow-sm",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Text as="h2" className="text-ehs-darker text-base font-bold">
-            Incident Trends
-          </Text>
-          <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
-            {weekCount > 0
-              ? `Last ${String(weekCount)} weeks · all sites`
-              : "All sites"}
-          </Text>
-        </div>
-        <FilterToggle value={filter} onChange={setFilter} />
-      </div>
+    <GlassCard className={className}>
+      <CardHeading
+        title="Incident Trends"
+        subtitle={
+          weekCount > 0
+            ? `Last ${String(weekCount)} weeks · all sites`
+            : "All sites"
+        }
+        action={<FilterToggle value={filter} onChange={setFilter} />}
+      />
 
       {showLoading ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading trends…
-          </Text>
-        </div>
+        <TrendChartSkeleton />
       ) : showSignInPrompt ? (
         <div className="flex min-h-[220px] items-center justify-center">
           <Text as="p" className="text-ehs-muted-text text-sm">
@@ -372,11 +364,11 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
             {visibleSeries.map((series) => (
               <div key={series.key} className="flex items-center gap-1.5">
                 <span
-                  className="h-0.5 w-0.5 rounded-sm"
+                  className="size-[6px] shrink-0 rounded-full"
                   style={{ backgroundColor: series.color }}
                   aria-hidden="true"
                 />
-                <Text as="span" className="text-ehs-gray text-xs">
+                <Text as="span" className="text-ehs-gray text-[11px]">
                   {series.label}
                 </Text>
               </div>
@@ -384,6 +376,6 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
           </div>
         </>
       )}
-    </article>
+    </GlassCard>
   );
 }

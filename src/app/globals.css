@@ -14,6 +14,8 @@
 
   --ehs-muted-text: #8892a3;
   --ehs-gray: #566072;
+  /* Body copy inside cards — one step darker than --ehs-gray. */
+  --ehs-slate: #2a3446;
 
   --ehs-green: #10b981;
   --ehs-red: #ef4444;
@@ -52,6 +54,7 @@
 
   --color-ehs-muted-text: var(--ehs-muted-text);
   --color-ehs-gray: var(--ehs-gray);
+  --color-ehs-slate: var(--ehs-slate);
 
   --color-ehs-green: var(--ehs-green);
   --color-ehs-red: var(--ehs-red);

@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useHazardHeatMapQuery } from "@/hooks/use-hazard-queries";
 import {
   HAZARD_TYPE_SHORT_LABELS,
@@ -121,11 +122,11 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
             </Fragment>
           ))}
         </div>
+      ) : heatMapQuery.isPending ? (
+        <SkeletonHeatmapGrid />
       ) : (
         <p className="text-ehs-muted-text text-sm">
-          {heatMapQuery.isPending
-            ? "Loading heatmap..."
-            : "No hazards reported in this period."}
+          No hazards reported in this period.
         </p>
       )}
     </IncidentGlassCard>

@@ -49,7 +49,9 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
           title="SDS Viewer"
         />
 
-        {isLoading ? <HazcomLoadingCard message="Loading SDS record…" /> : null}
+        {isLoading ? (
+          <HazcomLoadingCard message="Loading SDS record…" variant="detail" />
+        ) : null}
 
         {!isLoading && errorMessage ? (
           <HazcomErrorCard
