@@ -34,6 +34,14 @@ export function isoDateToMmDdYyyy(value: string): string {
   return `${mm}/${dd}/${yyyy}`;
 }
 
+/** Today in the `MM/DD/YYYY` shape the date fields use, in local time. */
+export function todayMmDdYyyy(): string {
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${mm}/${dd}/${String(now.getFullYear())}`;
+}
+
 /** Digits-only → `HH:MM` while typing (24-hour). */
 export function maskHhMm(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 4);

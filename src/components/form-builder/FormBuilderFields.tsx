@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import type {
@@ -15,8 +16,7 @@ import type {
   TextareaFieldConfig,
 } from "./types";
 
-const inputClass =
-  "p-3 w-full rounded-lg border border-slate-900/10 bg-ehs-light-bg/40 text-base text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const inputClass = FIELD_INPUT_LG_CLASS;
 
 const errorRingClass =
   "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";

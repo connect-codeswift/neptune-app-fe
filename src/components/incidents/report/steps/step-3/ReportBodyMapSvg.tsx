@@ -296,7 +296,9 @@ export function ReportBodyMapSvg(props: Readonly<ReportBodyMapSvgProps>) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       preserveAspectRatio="xMidYMid meet"
-      className={["block w-full h-auto aspect-[133/240]", className].filter(Boolean).join(" ")}
+      className={["block aspect-[133/240] h-auto w-full", className]
+        .filter(Boolean)
+        .join(" ")}
       aria-label={view === "front" ? "Front body map" : "Back body map"}
       role="img"
     >

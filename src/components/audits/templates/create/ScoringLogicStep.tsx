@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { Switch } from "./Switch";
 import {
   RULE_ACTIONS,
@@ -23,8 +24,7 @@ const selectClass =
   "w-full truncate appearance-none rounded-lg border border-slate-900/10 bg-white px-3 py-2 pr-9 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
 /** Same frame as {@link selectClass}, without the chevron's right padding. */
-const inputClass =
-  "w-full rounded-lg border border-slate-900/10 bg-white px-3 py-2 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const inputClass = FIELD_INPUT_CLASS;
 
 /** Number of item weight rows shown before the "+N more" note. */
 const WEIGHTS_PREVIEW_COUNT = 3;
