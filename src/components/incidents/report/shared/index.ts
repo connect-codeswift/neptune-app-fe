@@ -15,6 +15,8 @@ export type {
   ReportTextFieldProps,
   ReportTextareaFieldProps,
 } from "./ReportFormField";
+export { ReportSelectWithAdd } from "./ReportSelectWithAdd";
+export type { ReportSelectWithAddProps } from "./ReportSelectWithAdd";
 export { ReportTimeField } from "./ReportTimeField";
 export type { ReportTimeFieldProps } from "./ReportTimeField";
 export * from "./report-date-time";

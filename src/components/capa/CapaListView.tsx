@@ -171,7 +171,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
           );
         },
       },
-      { accessorKey: "owner", header: "Owner" },
+      { accessorKey: "owner", header: "Assigned" },
       { accessorKey: "site", header: "Site" },
       {
         accessorKey: "status",

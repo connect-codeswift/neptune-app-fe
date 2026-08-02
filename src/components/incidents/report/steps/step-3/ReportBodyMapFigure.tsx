@@ -23,11 +23,15 @@ export type ReportBodyMapFigureProps = Readonly<{
 }>;
 
 /**
- * Front / Back figure card — fills parent height; SVG scales to fit.
+ * Front / Back figure card.
+ *
+ * Sizes to its own content rather than stretching to the grid row. It used to
+ * be `self-stretch`, so the tall body-part chip list next to it dragged these
+ * cards to full row height and left the figure floating in a column of dead
+ * space. The SVG is capped so the figure stays a readable size instead of
+ * ballooning with the column.
  */
-export function ReportBodyMapFigure(
-  props: Readonly<ReportBodyMapFigureProps>,
-) {
+export function ReportBodyMapFigure(props: Readonly<ReportBodyMapFigureProps>) {
   const {
     view,
     selectedParts,
@@ -41,7 +45,7 @@ export function ReportBodyMapFigure(
   return (
     <div
       className={[
-        "flex w-full flex-col items-center gap-1 self-stretch rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:gap-1.5 sm:px-3 sm:pt-2.5",
+        "mx-auto flex w-full max-w-[260px] flex-col items-center gap-1 self-start rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:gap-1.5 sm:px-3 sm:pt-2.5",
         className,
       ]
         .filter(Boolean)

@@ -58,11 +58,7 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        hint={trailingHint}
-      />
+      <ReportFieldLabel label={label} required={required} hint={trailingHint} />
       <div className="relative">
         <input
           id={inputId}
@@ -96,10 +92,14 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
         <button
           type="button"
           onClick={openPicker}
-          className="text-ehs-muted-text absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-0.5 transition hover:text-ehs-dark-bg"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-0.5 transition"
           aria-label={`Open time picker for ${label}`}
         >
-          <Icon icon="mdi:clock-outline" className="size-[13px]" aria-hidden="true" />
+          <Icon
+            icon="mdi:clock-outline"
+            className="size-[13px]"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </div>
