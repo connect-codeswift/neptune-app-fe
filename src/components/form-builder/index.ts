@@ -12,6 +12,10 @@ export {
   type SelectFieldConfig,
   type SelectOption,
   type SelectPagination,
+  type TileOption,
+  type TilesFieldConfig,
+  type TileTone,
   type TextareaFieldConfig,
   type TextFieldConfig,
+  type TimeFieldConfig,
 } from "./types";

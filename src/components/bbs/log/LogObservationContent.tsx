@@ -1,0 +1,146 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents";
+import { Button } from "@/components/ui/Button";
+import { toast } from "@/lib/toast";
+import { LogObservationHeader } from "./LogObservationHeader";
+import { ObservationStepper } from "./ObservationStepper";
+import { ObservationDetailsStep } from "./ObservationDetailsStep";
+import { ObservationReviewStep } from "./ObservationReviewStep";
+import { ObservationTypeStep } from "./ObservationTypeStep";
+
+const BBS_ROUTE = "/dashboard/bbs";
+const LAST_STEP = 3;
+
+/** Form ids — the footer buttons submit these so validation gates navigation. */
+const STEP_FORM_IDS: Record<number, string> = {
+  1: "observation-step-1-form",
+  2: "observation-step-2-form",
+};
+
+export function LogObservationContent() {
+  const router = useRouter();
+
+  const [step, setStep] = useState(1);
+
+  // Shared across steps so re-entering a step restores what was typed.
+  const [values, setValues] = useState<Record<string, string | string[]>>({
+    observationType: "",
+    category: "",
+    location: "",
+    description: "",
+    photos: [],
+  });
+
+  const commitValues = (next: Record<string, string | string[]>) => {
+    setValues(next);
+  };
+  console.log(values);
+  /** Step 1's form passed validation — persist and advance. */
+  const handleStepOneSubmit = (
+    submitted: Record<string, string | string[]>,
+  ) => {
+    console.log(submitted);
+    setValues(submitted);
+    setStep(2);
+  };
+
+  /** Step 2's form passed validation — persist and advance to review. */
+  const handleStepTwoSubmit = (
+    submitted: Record<string, string | string[]>,
+  ) => {
+    console.log(submitted);
+    setValues(submitted);
+    setStep(3);
+  };
+
+  const handleSubmit = () => {
+    // TODO: wire to POST /api/bbs/observations once the payload is agreed.
+    toast.success("Observation logged");
+    router.push(BBS_ROUTE);
+  };
+
+  const formId = STEP_FORM_IDS[step];
+
+  return (
+    <div className="flex flex-1 flex-col gap-3.5">
+      <div className="px-4">
+        <LogObservationHeader />
+      </div>
+
+      <div className="flex flex-1 flex-col items-center gap-6 px-4 pt-6 pb-8">
+        <div className="w-full max-w-130">
+          <ObservationStepper currentStep={step} />
+        </div>
+
+        <IncidentGlassCard
+          paddingClassName="p-6"
+          className="w-full max-w-130 bg-white!"
+          incidentGlassCardClassName="gap-6"
+        >
+          {step === 1 ? (
+            <ObservationTypeStep
+              initialValues={values}
+              onChange={commitValues}
+              onValidSubmit={handleStepOneSubmit}
+              formId={formId}
+            />
+          ) : step === 2 ? (
+            <ObservationDetailsStep
+              initialValues={values}
+              onChange={commitValues}
+              onValidSubmit={handleStepTwoSubmit}
+              formId={formId}
+            />
+          ) : (
+            <ObservationReviewStep values={values} />
+          )}
+
+          <div className="flex items-center justify-end gap-3">
+            {step > 1 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  // From review, "Edit" goes back to the start of the form.
+                  setStep(step === LAST_STEP ? 1 : step - 1);
+                }}
+                className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors hover:bg-black/5"
+              >
+                {step === LAST_STEP ? "Edit" : "Back"}
+              </button>
+            ) : null}
+
+            {step === LAST_STEP ? (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleSubmit}
+                className="shrink-0 rounded-[10px] px-5 py-2.5 font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+              >
+                Submit Observation
+              </Button>
+            ) : (
+              /* Submits the step's form so its required-field validation runs. */
+              <Button
+                type="submit"
+                form={formId}
+                variant="primary"
+                className="shrink-0 gap-2 rounded-[10px] px-5 py-2.5 font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+              >
+                {step === 2 ? "Review" : "Continue"}
+                <Icon
+                  icon="mdi:arrow-right"
+                  className="size-4 shrink-0"
+                  aria-hidden="true"
+                />
+              </Button>
+            )}
+          </div>
+        </IncidentGlassCard>
+      </div>
+    </div>
+  );
+}

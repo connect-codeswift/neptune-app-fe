@@ -10,15 +10,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
-import type { EngagementPoint } from "@/app/dashboard/bbs/bbs-data";
+import type { WalkTalkTrendPoint } from "@/app/dashboard/walk-talk/walk-talk-data";
 
-const SAFE_COLOR = "#0891a6";
-const AT_RISK_COLOR = "#ef4444";
+const SESSIONS_COLOR = "#0891a6";
+const ISSUES_COLOR = "#ef4444";
 
 /** Fixed domain and ticks, matching the design's scale. */
 const Y_DOMAIN: [number, number] = [0, 18];
-const Y_TICKS = [4, 9, 13, 17];
+const Y_TICKS = [0, 4, 9, 13, 17];
 
 const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
 
@@ -27,7 +28,6 @@ type TooltipEntry = Readonly<{
   value?: number | string;
 }>;
 
-/** Values live in the tooltip — 16 points can't carry direct labels. */
 function ChartTooltip(
   props: Readonly<{
     active?: boolean;
@@ -48,21 +48,21 @@ function ChartTooltip(
         <div className="flex items-center gap-2">
           <span
             className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: SAFE_COLOR }}
+            style={{ backgroundColor: SESSIONS_COLOR }}
             aria-hidden="true"
           />
           <span className="text-ehs-gray text-xs">
-            {`Safe ${String(valueOf("safe"))}`}
+            {`Sessions ${String(valueOf("sessions"))}`}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span
             className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: AT_RISK_COLOR }}
+            style={{ backgroundColor: ISSUES_COLOR }}
             aria-hidden="true"
           />
           <span className="text-ehs-gray text-xs">
-            {`At risk ${String(valueOf("atRisk"))}`}
+            {`Issues ${String(valueOf("issues"))}`}
           </span>
         </div>
       </div>
@@ -70,7 +70,6 @@ function ChartTooltip(
   );
 }
 
-/** Legend swatch + label; the label itself stays in text ink, not series colour. */
 function LegendItem(props: Readonly<{ color: string; label: string }>) {
   const { color, label } = props;
 
@@ -86,12 +85,12 @@ function LegendItem(props: Readonly<{ color: string; label: string }>) {
   );
 }
 
-export type BbsEngagementCardProps = Readonly<{
-  points: readonly EngagementPoint[];
+export type WalkTalkTrendsCardProps = Readonly<{
+  points: readonly WalkTalkTrendPoint[];
   className?: string;
 }>;
 
-export function BbsEngagementCard(props: BbsEngagementCardProps) {
+export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
   const { points, className = "" } = props;
 
   return (
@@ -100,28 +99,40 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
       className={["min-w-0", className].filter(Boolean).join(" ")}
       incidentGlassCardClassName="gap-4"
     >
-      <header className="flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg text-lg font-bold">Engagement</h3>
-        <p className="text-ehs-muted-text text-sm">Sessions logged · 8 weeks</p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="text-ehs-dark-bg text-lg font-bold">
+            Walk &amp; Talk Trends
+          </h3>
+          <p className="text-ehs-muted-text text-sm">
+            Sessions logged · 8 weeks
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Filter trends"
+          className="text-ehs-muted-text hover:text-ehs-gray shrink-0 cursor-pointer rounded-lg p-1 transition-colors"
+        >
+          <Icon
+            icon="mdi:filter-outline"
+            className="size-6"
+            aria-hidden="true"
+          />
+        </button>
       </header>
 
-      {/* Grows to fill the card so it matches the neighbouring card's height. */}
       <div className="min-h-52 min-w-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={[...points]}
             margin={{ top: 8, right: 8, bottom: 0, left: -18 }}
           >
-            {/* Recessive horizontal rules only. `syncWithTicks` keeps the grid
-                to the ticks — without it Recharts also rules the domain edges,
-                which drew a stray line above the 17 gridline. */}
             <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
 
             <XAxis
               dataKey="label"
               tick={AXIS_TICK}
               tickLine={false}
-              // The baseline the area sits on — the grid no longer draws it.
               axisLine={{ stroke: "#e5e7eb" }}
               tickMargin={10}
             />
@@ -139,18 +150,17 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
               cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
             />
 
-            {/* Safe observations carry the area fill, matching the design. */}
             <Area
               type="linear"
-              dataKey="safe"
-              stroke={SAFE_COLOR}
+              dataKey="sessions"
+              stroke={SESSIONS_COLOR}
               strokeWidth={2}
-              fill={SAFE_COLOR}
+              fill={SESSIONS_COLOR}
               fillOpacity={0.08}
               dot={{
                 r: 4,
                 fill: "#ffffff",
-                stroke: SAFE_COLOR,
+                stroke: SESSIONS_COLOR,
                 strokeWidth: 2,
               }}
               activeDot={{ r: 5 }}
@@ -158,13 +168,13 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
             />
             <Line
               type="linear"
-              dataKey="atRisk"
-              stroke={AT_RISK_COLOR}
+              dataKey="issues"
+              stroke={ISSUES_COLOR}
               strokeWidth={2}
               dot={{
                 r: 4,
                 fill: "#ffffff",
-                stroke: AT_RISK_COLOR,
+                stroke: ISSUES_COLOR,
                 strokeWidth: 2,
               }}
               activeDot={{ r: 5 }}
@@ -175,8 +185,8 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-5">
-        <LegendItem color={SAFE_COLOR} label="Safe Observations" />
-        <LegendItem color={AT_RISK_COLOR} label="At Risk Observations" />
+        <LegendItem color={SESSIONS_COLOR} label="Session logged" />
+        <LegendItem color={ISSUES_COLOR} label="Issues identified" />
       </div>
     </IncidentGlassCard>
   );

@@ -5,7 +5,12 @@ import {
 } from "@/components/StatMetricCard";
 import { BbsAtRiskBehaviorsCard } from "@/components/bbs/BbsAtRiskBehaviorsCard";
 import { BbsEngagementCard } from "@/components/bbs/BbsEngagementCard";
-import { AT_RISK_BEHAVIORS, ENGAGEMENT_SERIES } from "./bbs-data";
+import { BbsRecentSessionsSection } from "@/components/bbs/BbsRecentSessionsSection";
+import {
+  AT_RISK_BEHAVIORS,
+  ENGAGEMENT_SERIES,
+  RECENT_SESSIONS,
+} from "./bbs-data";
 
 const BBS_METRICS: readonly StatMetricCardProps[] = [
   {
@@ -30,7 +35,7 @@ const BBS_METRICS: readonly StatMetricCardProps[] = [
 
 export default function BbsPage() {
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
+    <div className="flex flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Proactive Safety"
         searchPlaceholder="Search incidents, actions, docs..."
@@ -46,11 +51,14 @@ export default function BbsPage() {
           ))}
         </div>
 
-        {/* Engagement trend + at-risk breakdown */}
-        <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-2">
+        {/* Engagement trend + at-risk breakdown — stretched to equal height. */}
+        <div className="grid min-w-0 gap-3.5 xl:grid-cols-2">
           <BbsEngagementCard points={ENGAGEMENT_SERIES} />
           <BbsAtRiskBehaviorsCard categories={AT_RISK_BEHAVIORS} />
         </div>
+
+        {/* Search + recent sessions */}
+        <BbsRecentSessionsSection sessions={RECENT_SESSIONS} />
       </div>
     </div>
   );
