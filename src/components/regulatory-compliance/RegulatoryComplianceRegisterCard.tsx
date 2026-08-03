@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { Table } from "@/components/ui/Table";
+import { Table, type TablePagination } from "@/components/ui/Table";
 import {
   IncidentBadge,
   IncidentSegmentedControl,
@@ -18,7 +18,12 @@ import type {
 
 export type RegulatoryComplianceRegisterCardProps = Readonly<{
   items: readonly ComplianceObligationItem[];
-  searchQuery?: string;
+  selectedJurisdiction: JurisdictionType;
+  selectedStatus: ComplianceStatusType;
+  onJurisdictionChange: (value: JurisdictionType) => void;
+  onStatusChange: (value: ComplianceStatusType) => void;
+  pagination?: TablePagination;
+  isLoading?: boolean;
   className?: string;
 }>;
 
@@ -103,53 +108,26 @@ const columns = [
 export function RegulatoryComplianceRegisterCard(
   props: RegulatoryComplianceRegisterCardProps,
 ) {
-  const { items, searchQuery = "", className = "" } = props;
+  const {
+    items,
+    selectedJurisdiction,
+    selectedStatus,
+    onJurisdictionChange,
+    onStatusChange,
+    pagination,
+    isLoading = false,
+    className = "",
+  } = props;
   const router = useRouter();
 
-  const [selectedJurisdiction, setSelectedJurisdiction] =
-    useState<JurisdictionType>("All");
-  const [selectedStatus, setSelectedStatus] =
-    useState<ComplianceStatusType>("All");
-
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      if (
-        selectedJurisdiction !== "All" &&
-        item.jurisdiction !== selectedJurisdiction
-      ) {
-        return false;
-      }
-
-      if (selectedStatus !== "All") {
-        if (selectedStatus === "Action" && item.status !== "Action required") {
-          return false;
-        }
-        if (selectedStatus === "Compliant" && item.status !== "Compliant") {
-          return false;
-        }
-        if (selectedStatus === "Due soon" && item.status !== "Due soon") {
-          return false;
-        }
-      }
-
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase();
-        const matchCode = item.code.toLowerCase().includes(q);
-        const matchObligation = item.obligation.toLowerCase().includes(q);
-        if (!matchCode && !matchObligation) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [items, selectedJurisdiction, selectedStatus, searchQuery]);
-
-  const highlightedId = items.find((item) => item.isHighlighted)?.id ?? null;
+  const highlightedId = useMemo(
+    () => items.find((item) => item.isHighlighted)?.id ?? null,
+    [items],
+  );
 
   return (
     <Table
-      data={filteredItems}
+      data={items}
       columns={columns}
       getRowId={(row) => row.id}
       selectedRowId={highlightedId}
@@ -157,6 +135,14 @@ export function RegulatoryComplianceRegisterCard(
         router.push(`/dashboard/regulatory-compliance/${row.id}`)
       }
       containerClassName={className}
+      pagination={
+        pagination
+          ? {
+              ...pagination,
+              isLoading,
+            }
+          : undefined
+      }
       header={
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Text
@@ -172,7 +158,7 @@ export function RegulatoryComplianceRegisterCard(
               options={JURISDICTION_OPTIONS}
               value={selectedJurisdiction}
               onChange={(value) =>
-                setSelectedJurisdiction(value as JurisdictionType)
+                onJurisdictionChange(value as JurisdictionType)
               }
               className="min-w-fit flex-none gap-0"
             />
@@ -181,9 +167,7 @@ export function RegulatoryComplianceRegisterCard(
               label=""
               options={STATUS_OPTIONS}
               value={selectedStatus}
-              onChange={(value) =>
-                setSelectedStatus(value as ComplianceStatusType)
-              }
+              onChange={(value) => onStatusChange(value as ComplianceStatusType)}
               className="min-w-fit flex-none gap-0"
             />
           </div>

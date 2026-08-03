@@ -33,6 +33,7 @@ export type UpcomingFilingItem = Readonly<{
   id: string;
   date: string;
   title: string;
+  responsiblePerson?: string;
   badgeLabel: string;
   badgeTone: "action" | "federal" | "state" | "local";
 }>;
@@ -55,6 +56,8 @@ export type ComplianceObligationDetail = Readonly<{
 export type CalendarEventItem = Readonly<{
   id: string;
   day: number;
+  month: number;
+  year: number;
   title: string;
   chipTone: "cyan" | "pink";
 }>;

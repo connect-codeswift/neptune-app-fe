@@ -12,6 +12,8 @@ import {
 } from "@/components/inputs/SelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
 import { UploadDocumentDropzone } from "@/components/policy-maker";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import {
@@ -22,6 +24,7 @@ import {
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
 
 const fieldLabelClass = "text-ehs-gray block text-[12px] leading-4 font-medium";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
@@ -77,9 +80,17 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
+function optionLabel(
+  options: readonly SelectOption[],
+  value: string,
+): string {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
+
 export function AddObligationForm() {
   const router = useRouter();
   const usersQuery = useUserDropdownQuery();
+  const addComplianceMutation = useAddComplianceMutation();
 
   const [title, setTitle] = useState("");
   const [categoryOptions, setCategoryOptions] = useState(
@@ -98,7 +109,6 @@ export function AddObligationForm() {
   const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const userOptions = useMemo(
     () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
@@ -215,19 +225,47 @@ export function AddObligationForm() {
       return;
     }
 
-    setIsSubmitting(true);
-    // No compliance-obligation API exists yet; this module is mock-data driven,
-    // so we just confirm and return to the calendar.
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success(
-        "Compliance obligation added",
-        `${title.trim()} was saved.`,
+    const responsiblePersonId = Number(responsiblePerson);
+    if (!Number.isFinite(responsiblePersonId) || responsiblePersonId <= 0) {
+      toast.error(
+        "Invalid responsible person",
+        "Select a valid user from the list.",
       );
-      router.push("/dashboard/regulatory-compliance/calendar");
-    }, 400);
+      return;
+    }
+
+    addComplianceMutation.mutate(
+      buildAddComplianceRequest({
+        title,
+        category: optionLabel(categoryOptions, category),
+        code,
+        jurisdiction,
+        regulatoryBody: optionLabel(REGULATORY_BODY_OPTIONS, regulatoryBody),
+        dueDate,
+        recurrence: optionLabel(RECURRENCE_OPTIONS, recurrence),
+        responsiblePersonId,
+        priority,
+        evidenceUrls: [pdfSecureUrl],
+      }),
+      {
+        onSuccess: () => {
+          toast.success(
+            "Compliance obligation added",
+            `${title.trim()} was saved.`,
+          );
+          router.push("/dashboard/regulatory-compliance/calendar");
+        },
+        onError: (error) => {
+          toast.error(
+            "Could not save compliance item",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+        },
+      },
+    );
   };
 
+  const isSubmitting = addComplianceMutation.isPending;
   const busy = isSubmitting || isUploadingPdf;
 
   return (
