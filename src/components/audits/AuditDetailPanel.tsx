@@ -68,11 +68,13 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
   const { detail, className = "", onViewFindings } = props;
 
   const segments: readonly Segment[] = [
-    { label: "Pass", value: detail.items.pass, color: "#10b981" },
-    { label: "Action", value: detail.items.action, color: "#f59e0b" },
-    { label: "Critical", value: detail.items.critical, color: "#ef4444" },
-    { label: "Pending", value: detail.items.pending, color: "#b3bbc8" },
+    { label: "Pass", value: detail.items.pass, color: "var(--ehs-green)" },
+    { label: "Action", value: detail.items.action, color: "var(--ehs-yellow)" },
+    { label: "Critical", value: detail.items.critical, color: "var(--ehs-red)" },
+    { label: "Pending", value: detail.items.pending, color: "var(--ehs-muted-text)" },
   ];
+
+  const displayCode = detail.code ?? `A-${detail.id}`;
 
   return (
     <IncidentGlassCard className={className} incidentGlassCardClassName="gap-4">
@@ -80,7 +82,7 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
         <div className="flex min-w-0 flex-col gap-0.5">
           <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
           <p className="text-ehs-muted-text">
-            {`${detail.id} · ${String(detail.progress)}% complete`}
+            {`${displayCode} · ${String(detail.progress)}% complete`}
           </p>
         </div>
 
@@ -119,7 +121,7 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
 
       {detail.topFindings.length > 0 ? (
         <div className="flex flex-col gap-2">
-          <h4 className="text-ehs-muted-text text-[10px] font-bold tracking-wider uppercase">
+          <h4 className="text-ehs-muted-text text-xs font-bold tracking-wider uppercase">
             Top findings
           </h4>
 

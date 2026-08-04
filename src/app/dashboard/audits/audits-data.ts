@@ -27,6 +27,8 @@ export type AuditItemBreakdown = Readonly<{
 
 export type AuditDetail = Readonly<{
   id: string;
+  /** Display code from detail-summary, e.g. A-0008 — never use as a key. */
+  code?: string;
   title: string;
   progress: number;
   items: AuditItemBreakdown;

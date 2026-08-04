@@ -12,6 +12,7 @@ import type {
   AuditFindingDto,
   AuditResponsesResultDto,
 } from "@/dtos/res/audit-response.dto";
+import { formatRunStatus } from "@/lib/audit-inspection-status";
 
 /** Prettify a location code (e.g. "plant-b" -> "Plant B"); pass through others. */
 function formatLocation(location: string): string {
@@ -56,9 +57,9 @@ export function formatAuditDate(value: string): string {
   return `${String(Number(day))} ${monthName}, ${year.slice(2)}`;
 }
 
-/** The backend owns the status vocabulary, so its label is used as-is. */
+/** The backend owns the status vocabulary; map to a display label for the UI. */
 function toAuditStatus(status: string): AuditStatus {
-  return status.trim();
+  return formatRunStatus(status);
 }
 
 /** Map an API audit row onto the register table's record shape. */
