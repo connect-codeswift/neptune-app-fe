@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { Icon } from "@iconify/react";
-import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_COMPLIANCES_PAGE_NUMBER,
@@ -23,26 +20,25 @@ import type {
   ComplianceStatusType,
   JurisdictionType,
 } from "./regulatory-compliance-types";
+import { CompliancePageHeader } from "./CompliancePageHeader";
 import { RegulatoryComplianceKpiGrid } from "./RegulatoryComplianceKpiGrid";
 import { RegulatoryComplianceRegisterCard } from "./RegulatoryComplianceRegisterCard";
 import { RegulatoryComplianceByCategoryCard } from "./RegulatoryComplianceByCategoryCard";
 import { RegulatoryComplianceUpcomingFilingsCard } from "./RegulatoryComplianceUpcomingFilingsCard";
+import {
+  ComplianceViewToggle,
+  ComplianceRegisterSearchBar,
+} from "./compliance-ui";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
 function toApiStatusFilter(status: ComplianceStatusType): string {
-  if (status === "All") {
-    return "";
-  }
-  if (status === "Action") {
-    return "Action required";
-  }
-  return status;
+  return status === "All" ? "" : status;
 }
 
 export function RegulatoryComplianceView() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedSearch, setAppliedSearch] = useState("");
+  const [registerSearchQuery, setRegisterSearchQuery] = useState("");
+  const [appliedRegisterSearch, setAppliedRegisterSearch] = useState("");
   const [selectedJurisdiction, setSelectedJurisdiction] =
     useState<JurisdictionType>("All");
   const [selectedStatus, setSelectedStatus] =
@@ -56,20 +52,20 @@ export function RegulatoryComplianceView() {
   const queryEnabled = isClientReady && hasToken;
 
   useEffect(() => {
-    const trimmed = searchQuery.trim();
-    if (trimmed === appliedSearch) {
+    const trimmed = registerSearchQuery.trim();
+    if (trimmed === appliedRegisterSearch) {
       return;
     }
 
     const timer = window.setTimeout(() => {
-      setAppliedSearch(trimmed);
+      setAppliedRegisterSearch(trimmed);
       setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [searchQuery, appliedSearch]);
+  }, [registerSearchQuery, appliedRegisterSearch]);
 
   const kpisQuery = useComplianceDashboardKpisQuery(queryEnabled);
   const categoryStatsQuery = useComplianceCategoryStatsQuery(queryEnabled);
@@ -77,7 +73,7 @@ export function RegulatoryComplianceView() {
   const listQuery = useCompliancesListQuery({
     pageNumber,
     pageSize,
-    search: appliedSearch,
+    search: appliedRegisterSearch,
     jurisdiction: selectedJurisdiction === "All" ? "" : selectedJurisdiction,
     status: toApiStatusFilter(selectedStatus),
     enabled: queryEnabled,
@@ -89,7 +85,8 @@ export function RegulatoryComplianceView() {
   );
 
   const categoryItems = useMemo(
-    () => mapComplianceCategoryStatsToProgress(categoryStatsQuery.data?.dataModel),
+    () =>
+      mapComplianceCategoryStatsToProgress(categoryStatsQuery.data?.dataModel),
     [categoryStatsQuery.data],
   );
 
@@ -159,49 +156,28 @@ export function RegulatoryComplianceView() {
     !isClientReady || (hasToken && listQuery.isLoading && !listQuery.data);
 
   return (
-    <div className="bg-ehs-light-bg flex flex-1 flex-col gap-6 px-4">
-      <IncidentListHeader
-        title="Regularity Compliance"
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications={true}
-        showAction={false}
-        className="px-0 py-0"
-      />
+    <div className="bg-ehs-light-bg flex flex-1 flex-col px-4 pb-6">
+      <CompliancePageHeader />
 
       <RegulatoryComplianceKpiGrid
         items={kpiItems}
         isLoading={showKpiLoading}
+        className="pt-4"
       />
 
-      <div className="flex items-center gap-2.5">
-        <Link
-          href="/dashboard/regulatory-compliance"
-          className="bg-ehs-normal-blue text-ehs-light-text inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-bold shadow-xs transition-all"
-        >
-          <Icon
-            icon="mdi:view-grid-outline"
-            className="text-base"
-            aria-hidden="true"
-          />
-          <span>List view</span>
-        </Link>
-
-        <Link
-          href="/dashboard/regulatory-compliance/calendar"
-          className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-[13px] font-bold shadow-xs transition-all"
-        >
-          <Icon
-            icon="mdi:calendar-month-outline"
-            className="text-ehs-normal-blue text-base"
-            aria-hidden="true"
-          />
-          <span>Calendar view</span>
-        </Link>
+      <div className="mt-2">
+        <ComplianceViewToggle activeView="list" />
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-[14px]">
+        <ComplianceRegisterSearchBar
+          searchQuery={registerSearchQuery}
+          onSearchChange={setRegisterSearchQuery}
+          totalCount={totalCount}
+        />
+      </div>
+
+      <div className="mt-[14px] grid grid-cols-1 items-start gap-[13.62px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <RegulatoryComplianceRegisterCard
           items={obligationItems}
           selectedJurisdiction={selectedJurisdiction}
@@ -224,7 +200,7 @@ export function RegulatoryComplianceView() {
           }}
         />
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-[13.62px]">
           <RegulatoryComplianceByCategoryCard
             categories={categoryItems}
             isLoading={showCategoryLoading}

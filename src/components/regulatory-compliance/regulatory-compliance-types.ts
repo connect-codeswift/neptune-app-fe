@@ -1,6 +1,11 @@
 export type JurisdictionType = "All" | "Federal" | "State" | "Local";
 
-export type ComplianceStatusType = "All" | "Compliant" | "Due soon" | "Action required" | "Action";
+export type ComplianceStatusType =
+  | "All"
+  | "Compliant"
+  | "Due soon"
+  | "Action required"
+  | "Upcoming";
 
 export type ComplianceKpiItem = Readonly<{
   id: string;
@@ -15,7 +20,7 @@ export type ComplianceObligationItem = Readonly<{
   code: string;
   obligation: string;
   jurisdiction: "Federal" | "State" | "Local";
-  status: "Compliant" | "Due soon" | "Action required";
+  status: "Compliant" | "Due soon" | "Action required" | "Upcoming";
   nextDue: string;
   evidenceText: string;
   isHighlighted?: boolean;
@@ -43,7 +48,11 @@ export type ComplianceObligationDetail = Readonly<{
   code: string;
   title: string;
   subtitle: string;
-  status: "Compliant" | "Due Soon" | "Due soon" | "Action Required" | "Action required";
+  status:
+    | "Compliant"
+    | "Due soon"
+    | "Action required"
+    | "Upcoming";
   category: string;
   recurrence: string;
   regulatoryBody: string;
@@ -51,6 +60,7 @@ export type ComplianceObligationDetail = Readonly<{
   responsible: string;
   priority: "High" | "Medium" | "Low";
   completedDate: string;
+  completedByName: string;
 }>;
 
 export type CalendarEventItem = Readonly<{

@@ -24,6 +24,27 @@ import {
 } from "@/services/mappers/compliance.mapper";
 import http from "@/lib/axios";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/** Reads `dataModel` / `DataModel` from a Neptune API envelope. */
+function readEnvelopeDataModel(data: unknown): unknown {
+  if (!isRecord(data)) {
+    return data;
+  }
+
+  if ("dataModel" in data) {
+    return data.dataModel;
+  }
+
+  if ("DataModel" in data) {
+    return data.DataModel;
+  }
+
+  return data;
+}
+
 const COMPLIANCE_DASHBOARD_KPIS_PATH = "/Compliance/dashboard-kpis";
 const COMPLIANCE_CATEGORY_STATS_PATH = "/Compliance/category-stats";
 const COMPLIANCE_GET_ALL_PATH = "/Compliance/GetAllCompliances";
@@ -41,7 +62,9 @@ export async function getComplianceDashboardKpis(): Promise<GetComplianceDashboa
 
   return {
     ...data,
-    dataModel: normalizeComplianceDashboardKpisDto(data.dataModel),
+    dataModel: normalizeComplianceDashboardKpisDto(
+      readEnvelopeDataModel(data),
+    ),
   };
 }
 
@@ -53,7 +76,9 @@ export async function getComplianceCategoryStats(): Promise<GetComplianceCategor
 
   return {
     ...data,
-    dataModel: normalizeComplianceCategoryStatsList(data.dataModel),
+    dataModel: normalizeComplianceCategoryStatsList(
+      readEnvelopeDataModel(data),
+    ),
   };
 }
 
@@ -150,6 +175,21 @@ export async function getComplianceById(
     ...dto,
     id: dto.id ?? id,
   };
+}
+
+/** PUT /api/Compliance/Update — mark obligation complete. */
+export async function markComplianceComplete(
+  id: number,
+): Promise<UpdateComplianceResponseDto> {
+  const { data } = await http.put<UpdateComplianceResponseDto>(
+    COMPLIANCE_UPDATE_PATH,
+    {
+      id,
+      markComplete: true,
+    },
+  );
+
+  return data;
 }
 
 /** PUT /api/Compliance/Update */

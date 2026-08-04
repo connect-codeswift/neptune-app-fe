@@ -13,14 +13,17 @@ import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useDeleteComplianceMutation,
-  useUpdateComplianceMutation,
+  useMarkCompleteComplianceMutation,
 } from "@/hooks/use-compliance-mutations";
 import { useComplianceByIdQuery } from "@/hooks/use-compliance-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toast } from "@/lib/toast";
 import { toUserNameLookup } from "@/lib/map-user";
-import { buildMarkCompleteComplianceRequest } from "@/services/mappers/compliance.mapper";
+import {
+  buildMarkCompleteSuccessMessage,
+  normalizeComplianceUpdateResult,
+} from "@/services/mappers/compliance.mapper";
 import { RegulatoryComplianceDetailBannerCard } from "./RegulatoryComplianceDetailBannerCard";
 import { RegulatoryComplianceObligationDetailsCard } from "./RegulatoryComplianceObligationDetailsCard";
 
@@ -56,7 +59,7 @@ export function RegulatoryComplianceDetailView(
     responsibleNameById,
   });
 
-  const updateComplianceMutation = useUpdateComplianceMutation();
+  const markCompleteMutation = useMarkCompleteComplianceMutation();
   const deleteComplianceMutation = useDeleteComplianceMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
@@ -77,30 +80,23 @@ export function RegulatoryComplianceDetailView(
       return;
     }
 
-    try {
-      updateComplianceMutation.mutate(
-        buildMarkCompleteComplianceRequest(record.dto, numericId),
-        {
-          onSuccess: () => {
-            toast.success(
-              "Marked as Complete",
-              `Obligation ${record.detail.code} (${record.detail.title}) has been verified and marked complete.`,
-            );
-          },
-          onError: (error) => {
-            toast.error(
-              "Could not mark as complete",
-              getMutationErrorMessage(error, "Please try again."),
-            );
-          },
-        },
-      );
-    } catch (error: unknown) {
-      toast.error(
-        "Could not mark as complete",
-        error instanceof Error ? error.message : "Missing compliance id.",
-      );
-    }
+    markCompleteMutation.mutate(numericId, {
+      onSuccess: (response) => {
+        const result = normalizeComplianceUpdateResult(response);
+        const message = buildMarkCompleteSuccessMessage(
+          record.detail.code,
+          record.detail.title,
+          result,
+        );
+        toast.success(message.title, message.description);
+      },
+      onError: (error) => {
+        toast.error(
+          "Could not mark as complete",
+          getMutationErrorMessage(error, "Please try again."),
+        );
+      },
+    });
   };
 
   const handleConfirmDelete = () => {
@@ -230,7 +226,7 @@ export function RegulatoryComplianceDetailView(
         detail={detail}
         onMarkAsComplete={handleMarkAsComplete}
         onDelete={() => setIsConfirmingDelete(true)}
-        isMarkingComplete={updateComplianceMutation.isPending}
+        isMarkingComplete={markCompleteMutation.isPending}
         isDeleting={deleteComplianceMutation.isPending}
       />
 

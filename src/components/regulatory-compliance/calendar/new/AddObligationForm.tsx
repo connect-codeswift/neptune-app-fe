@@ -1,11 +1,7 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
-import { Button } from "@/components/ui/Button";
-import { CreatableSelectInput } from "@/components/inputs/CreatableSelectInput";
 import {
   SelectInput,
   type SelectOption,
@@ -26,18 +22,60 @@ import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
 
-const fieldLabelClass = "text-ehs-gray block text-[12px] leading-4 font-medium";
+const fieldLabelClass = "text-[12px] leading-4 font-medium text-[#566072]";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
-const controlClass =
-  "!h-9 !min-w-0 !rounded-[10px] !border-[0.8px] !border-ehs-border !bg-[#eef1f6] !px-3 !py-2 !text-[14px] !shadow-none focus:!border-ehs-normal-blue focus:!ring-ehs-normal-blue/20 sm:!h-[36px]";
+const fieldShellClass =
+  "!min-w-0 !rounded-[10px] !border-[0.8px] !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-[11.2px] !py-2 !text-[14px] !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
+const textFieldClass = [
+  fieldShellClass,
+  "!text-[#0b1320] placeholder:!text-[#8892a3]",
+].join(" ");
+const selectFieldClass = [fieldShellClass, "!h-[36px]"].join(" ");
+const dateFieldClass = [
+  fieldShellClass,
+  "!h-[37.6px] !w-full appearance-none pr-10",
+  "[&::-webkit-calendar-picker-indicator]:hidden",
+  "[&::-webkit-datetime-edit]:text-inherit",
+  "[&::-webkit-datetime-edit-fields-wrapper]:text-inherit",
+  "[&::-webkit-datetime-edit-text]:text-inherit",
+  "[&::-webkit-datetime-edit-month-field]:text-inherit",
+  "[&::-webkit-datetime-edit-day-field]:text-inherit",
+  "[&::-webkit-datetime-edit-year-field]:text-inherit",
+].join(" ");
+const titleFieldClass = [
+  fieldShellClass,
+  "!h-[37.6px] !text-[#0b1320] placeholder:!text-[#8892a3]",
+].join(" ");
 
-const DEFAULT_CATEGORY_OPTIONS: readonly SelectOption[] = [
-  { value: "permit", label: "Permit" },
-  { value: "inspection", label: "Inspection" },
-  { value: "training", label: "Training" },
-  { value: "reporting", label: "Reporting" },
-  { value: "certification", label: "Certification" },
-  { value: "assessment", label: "Assessment" },
+const formCardClass =
+  "relative w-full rounded-[16px] border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-[24px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+
+/** Figma EHSS-Web node 3326:20854 — stash:data-date */
+const COMPLIANCE_DUE_DATE_CALENDAR_ICON =
+  "/icons/compliance/stash-data-date.svg";
+
+function openDatePicker(input: HTMLInputElement | null) {
+  if (!input || input.disabled) {
+    return;
+  }
+
+  if (typeof input.showPicker === "function") {
+    try {
+      input.showPicker();
+      return;
+    } catch {
+      // Fall through when showPicker is blocked.
+    }
+  }
+
+  input.focus();
+  input.click();
+}
+
+const CATEGORY_OPTIONS: readonly SelectOption[] = [
+  { value: "Regulatory", label: "Regulatory" },
+  { value: "Safety", label: "Safety" },
+  { value: "Health", label: "Health" },
 ];
 
 const REGULATORY_BODY_OPTIONS: readonly SelectOption[] = [
@@ -50,11 +88,11 @@ const REGULATORY_BODY_OPTIONS: readonly SelectOption[] = [
 ];
 
 const RECURRENCE_OPTIONS: readonly SelectOption[] = [
-  { value: "one-time", label: "One-time" },
-  { value: "weekly", label: "Weekly" },
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "annually", label: "Annually" },
+  { value: "One-time", label: "One-time" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" },
+  { value: "Quarterly", label: "Quarterly" },
+  { value: "Annually", label: "Annually" },
 ];
 
 const PRIORITY_OPTIONS: readonly SelectOption[] = [
@@ -80,22 +118,17 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
-function optionLabel(
-  options: readonly SelectOption[],
-  value: string,
-): string {
+function optionLabel(options: readonly SelectOption[], value: string): string {
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
 export function AddObligationForm() {
   const router = useRouter();
+  const dueDateInputRef = useRef<HTMLInputElement>(null);
   const usersQuery = useUserDropdownQuery();
   const addComplianceMutation = useAddComplianceMutation();
 
   const [title, setTitle] = useState("");
-  const [categoryOptions, setCategoryOptions] = useState(
-    DEFAULT_CATEGORY_OPTIONS,
-  );
   const [category, setCategory] = useState("");
   const [regulatoryBody, setRegulatoryBody] = useState("");
   const [dueDate, setDueDate] = useState(todayInputValue());
@@ -114,18 +147,6 @@ export function AddObligationForm() {
     () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
     [usersQuery.data?.dataModel],
   );
-
-  const handleAddCategory = (name: string) => {
-    const trimmed = name.trim();
-    const value = trimmed.toLowerCase().replace(/\s+/g, "-");
-    setCategoryOptions((prev) =>
-      prev.some((option) => option.value === value)
-        ? prev
-        : [...prev, { value, label: trimmed }],
-    );
-    setCategory(value);
-    toast.success("Category added", `"${trimmed}" is available to select.`);
-  };
 
   const handleCancel = () => {
     router.push("/dashboard/regulatory-compliance/calendar");
@@ -237,12 +258,12 @@ export function AddObligationForm() {
     addComplianceMutation.mutate(
       buildAddComplianceRequest({
         title,
-        category: optionLabel(categoryOptions, category),
+        category,
         code,
         jurisdiction,
         regulatoryBody: optionLabel(REGULATORY_BODY_OPTIONS, regulatoryBody),
         dueDate,
-        recurrence: optionLabel(RECURRENCE_OPTIONS, recurrence),
+        recurrence,
         responsiblePersonId,
         priority,
         evidenceUrls: [pdfSecureUrl],
@@ -272,13 +293,10 @@ export function AddObligationForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="w-full min-w-0 sm:max-w-3xl lg:max-w-5xl"
+      className="relative w-full max-w-[744px] min-w-0"
     >
-      <IncidentGlassCard
-        paddingClassName="p-6"
-        className="bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]"
-      >
-        <div className="flex w-full min-w-0 flex-col gap-5">
+      <div className={formCardClass}>
+        <div className="relative z-1 flex w-full min-w-0 flex-col gap-4">
           <TextInput
             label="Title *"
             placeholder="Compliance obligation title..."
@@ -288,43 +306,42 @@ export function AddObligationForm() {
             disabled={busy}
             labelClassName={fieldLabelClass}
             wrapperClassName={fieldWrapperClass}
-            className={controlClass}
+            className={titleFieldClass}
           />
 
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
-            <CreatableSelectInput
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <SelectInput
               label="Category *"
-              placeholder="Select an option"
-              options={categoryOptions}
+              placeholder="Select an option ()"
+              options={CATEGORY_OPTIONS}
               value={category}
-              onChange={setCategory}
-              onCreate={handleAddCategory}
-              createLabel="Add category"
-              createPlaceholder="New category name…"
+              onChange={(event) => setCategory(event.target.value)}
               required
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
+              className={selectFieldClass}
             />
 
             <SelectInput
               label="Regulatory Body"
-              placeholder="Select an option"
+              placeholder="Select an option ()"
               options={REGULATORY_BODY_OPTIONS}
               value={regulatoryBody}
               onChange={(event) => setRegulatoryBody(event.target.value)}
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={selectFieldClass}
             />
 
             <div className={fieldWrapperClass}>
               <label htmlFor="obligation-due-date" className={fieldLabelClass}>
                 Due Date *
               </label>
-              <div className="relative">
+              <div className="relative w-full">
                 <input
+                  ref={dueDateInputRef}
                   id="obligation-due-date"
                   type="date"
                   value={dueDate}
@@ -332,16 +349,24 @@ export function AddObligationForm() {
                   required
                   disabled={busy}
                   className={[
-                    "text-ehs-dark-bg border-ehs-border w-full appearance-none rounded-[10px] border-[0.8px] bg-[#eef1f6] px-3 py-2 text-[14px] outline-none",
-                    "focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 focus:ring-2",
-                    "h-9 sm:h-[36px]",
+                    dateFieldClass,
+                    dueDate ? "!text-[#0b1320]" : "!text-[#8892a3]",
                   ].join(" ")}
                 />
-                <Icon
-                  icon="mdi:calendar-month-outline"
-                  className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-base"
-                  aria-hidden="true"
-                />
+                <button
+                  type="button"
+                  onClick={() => openDatePicker(dueDateInputRef.current)}
+                  disabled={busy}
+                  aria-label="Open calendar"
+                  className="absolute top-1/2 right-2 size-6 -translate-y-1/2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <img
+                    src={COMPLIANCE_DUE_DATE_CALENDAR_ICON}
+                    alt=""
+                    aria-hidden="true"
+                    className="size-6"
+                  />
+                </button>
               </div>
             </div>
 
@@ -354,13 +379,13 @@ export function AddObligationForm() {
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={selectFieldClass}
             />
 
             <SelectInput
               label="Responsible Person *"
               placeholder={
-                usersQuery.isLoading ? "Loading users…" : "Select an option"
+                usersQuery.isLoading ? "Loading users…" : "Select an option ()"
               }
               options={userOptions}
               value={responsiblePerson}
@@ -369,31 +394,31 @@ export function AddObligationForm() {
               disabled={busy || usersQuery.isLoading}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={selectFieldClass}
             />
 
             <SelectInput
               label="Priority"
-              placeholder="Select an option"
+              placeholder="Select an option ()"
               options={PRIORITY_OPTIONS}
               value={priority}
               onChange={(event) => setPriority(event.target.value)}
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={selectFieldClass}
             />
 
             <SelectInput
               label="Jurisdiction"
-              placeholder="Select an option"
+              placeholder="Select an option ()"
               options={JURISDICTION_OPTIONS}
               value={jurisdiction}
               onChange={(event) => setJurisdiction(event.target.value)}
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={selectFieldClass}
             />
 
             <TextInput
@@ -404,7 +429,7 @@ export function AddObligationForm() {
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
+              className={[textFieldClass, "!h-[36px]"].join(" ")}
             />
           </div>
 
@@ -418,31 +443,29 @@ export function AddObligationForm() {
             }}
           />
 
-          <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-            <Button
+          <div className="flex flex-col-reverse items-stretch gap-4 pt-1 sm:flex-row sm:items-center sm:justify-end sm:gap-[27px]">
+            <button
               type="button"
-              variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="h-9 w-full rounded-[10px] px-4 text-[14px] font-medium shadow-none sm:w-auto"
+              className="cursor-pointer text-center text-[14px] leading-5 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              variant="primary"
               disabled={busy || !pdfSecureUrl}
-              className="h-[38px] w-full rounded-[10px] px-4 text-[14px] font-medium whitespace-nowrap sm:w-auto"
+              className="inline-flex h-9 min-w-[197px] cursor-pointer items-center justify-center rounded-[10px] bg-[#0891a6] px-4 text-[14px] leading-5 font-medium text-white shadow-[inset_0px_0.972px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_5.834px_8.751px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"
                 : isSubmitting
                   ? "Saving…"
                   : "Save Compliance Item"}
-            </Button>
+            </button>
           </div>
         </div>
-      </IncidentGlassCard>
+      </div>
     </form>
   );
 }

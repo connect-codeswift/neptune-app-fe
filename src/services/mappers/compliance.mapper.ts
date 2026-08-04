@@ -3,6 +3,7 @@ import type {
   ComplianceCategoryStatDto,
   ComplianceDashboardKpisDto,
   ComplianceDto,
+  ComplianceUpdateResultDto,
   ComplianceUpcomingFilingDto,
   GetAllCompliancesResultDto,
 } from "@/dtos/res/compliance-response.dto";
@@ -17,6 +18,7 @@ import type {
 import type {
   AddComplianceRequestDto,
   GetAllCompliancesRequestDto,
+  MarkCompleteComplianceRequestDto,
   UpdateComplianceRequestDto,
 } from "@/dtos/req/compliance-request.dto";
 
@@ -32,6 +34,12 @@ function readNumber(
     const value = record[key];
     if (typeof value === "number" && Number.isFinite(value)) {
       return value;
+    }
+    if (typeof value === "string" && value.trim() !== "") {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
     }
   }
   return null;
@@ -51,11 +59,15 @@ function readString(
 }
 
 const CATEGORY_PROGRESS_COLORS = [
-  "var(--ehs-navy)",
-  "var(--ehs-normal-blue)",
-  "var(--ehs-darker)",
+  "#3b82f6",
   "#0891a6",
   "#566072",
+] as const;
+
+const CANONICAL_COMPLIANCE_CATEGORIES = [
+  "Regulatory",
+  "Safety",
+  "Health",
 ] as const;
 
 /** Normalizes one category-stat row (camelCase or PascalCase). */
@@ -75,10 +87,14 @@ export function normalizeComplianceCategoryStatDto(
   );
   const compliant = readNumber(
     raw,
+    "completedCount",
+    "CompletedCount",
     "compliant",
     "Compliant",
     "compliantCount",
     "CompliantCount",
+    "compliantTotal",
+    "CompliantTotal",
     "current",
     "Current",
   );
@@ -88,8 +104,14 @@ export function normalizeComplianceCategoryStatDto(
     "Total",
     "totalCount",
     "TotalCount",
+    "totalObligations",
+    "TotalObligations",
     "obligationsTracked",
     "ObligationsTracked",
+    "tracked",
+    "Tracked",
+    "count",
+    "Count",
   );
 
   if (!category && compliant == null && total == null) {
@@ -107,13 +129,33 @@ export function normalizeComplianceCategoryStatDto(
 export function normalizeComplianceCategoryStatsList(
   raw: unknown,
 ): ComplianceCategoryStatDto[] {
-  if (!Array.isArray(raw)) {
-    return [];
+  const payload = isRecord(raw)
+    ? (raw.dataModel ?? raw.DataModel ?? raw)
+    : raw;
+
+  if (Array.isArray(payload)) {
+    return payload
+      .map((entry) => normalizeComplianceCategoryStatDto(entry))
+      .filter((entry): entry is ComplianceCategoryStatDto => entry != null);
   }
 
-  return raw
-    .map((entry) => normalizeComplianceCategoryStatDto(entry))
-    .filter((entry): entry is ComplianceCategoryStatDto => entry != null);
+  if (isRecord(payload)) {
+    const nested =
+      payload.items ??
+      payload.Items ??
+      payload.data ??
+      payload.Data ??
+      payload.categories ??
+      payload.Categories ??
+      payload.stats ??
+      payload.Stats;
+
+    if (Array.isArray(nested)) {
+      return normalizeComplianceCategoryStatsList(nested);
+    }
+  }
+
+  return [];
 }
 /** Normalizes dashboard KPI payload (camelCase or PascalCase). */
 export function normalizeComplianceDashboardKpisDto(
@@ -182,20 +224,29 @@ export function mapComplianceDashboardKpisToItems(
 export function mapComplianceCategoryStatsToProgress(
   stats: readonly ComplianceCategoryStatDto[] | null | undefined,
 ): readonly ComplianceCategoryProgress[] {
-  return (stats ?? []).map((stat, index) => {
-    const current = asCount(stat.compliant);
-    const total = Math.max(asCount(stat.total), current);
-    const category = stat.category?.trim() || "Uncategorized";
-    const slug = category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const statsList = stats ?? [];
+
+  return CANONICAL_COMPLIANCE_CATEGORIES.map((category, index) => {
+    const stat =
+      statsList.find(
+        (entry) =>
+          entry.category?.trim().toLowerCase() === category.toLowerCase(),
+      ) ??
+      (statsList.length === CANONICAL_COMPLIANCE_CATEGORIES.length
+        ? statsList[index]
+        : undefined);
+
+    const current = asCount(stat?.compliant);
+    const total = Math.max(asCount(stat?.total), current);
 
     return {
-      id: slug || `category-${String(index)}`,
+      id: category.toLowerCase(),
       category,
       current,
       total,
       colorHex:
         CATEGORY_PROGRESS_COLORS[index % CATEGORY_PROGRESS_COLORS.length] ??
-        "var(--ehs-normal-blue)",
+        "#0891a6",
     };
   });
 }
@@ -241,6 +292,13 @@ export function coerceComplianceDto(
     priority: readString(raw, "priority", "Priority"),
     status: readString(raw, "status", "Status"),
     completedDate: readString(raw, "completedDate", "CompletedDate"),
+    completedBy:
+      readNumber(raw, "completedBy", "CompletedBy") ?? undefined,
+    completedByName: readString(
+      raw,
+      "completedByName",
+      "CompletedByName",
+    ),
     evidenceUrls: readStringArray(raw, "evidenceUrls", "EvidenceUrls"),
     markComplete:
       typeof raw.markComplete === "boolean"
@@ -286,11 +344,26 @@ function normalizeDetailStatus(
   value: string | null | undefined,
 ): ComplianceObligationDetail["status"] {
   const normalized = value?.trim().toLowerCase() ?? "";
+  if (normalized === "compliant") {
+    return "Compliant";
+  }
+  if (normalized === "due soon") {
+    return "Due soon";
+  }
+  if (normalized === "action required") {
+    return "Action required";
+  }
+  if (normalized === "upcoming") {
+    return "Upcoming";
+  }
   if (normalized.includes("action")) {
-    return "Action Required";
+    return "Action required";
   }
   if (normalized.includes("due")) {
-    return "Due Soon";
+    return "Due soon";
+  }
+  if (normalized.includes("upcoming")) {
+    return "Upcoming";
   }
   return "Compliant";
 }
@@ -339,11 +412,12 @@ export function mapComplianceDtoToObligationDetail(
     category,
     recurrence: dto.recurrence?.trim() || "—",
     regulatoryBody,
-    dueDate: formatIsoDate(dto.dueDate ?? dto.nextDue),
+    dueDate: formatIsoDate(dto.dueDate),
     responsible:
       dto.responsiblePerson?.trim() || options.responsibleName?.trim() || "—",
     priority: normalizeDetailPriority(dto.priority),
     completedDate: formatCompletedDate(dto.completedDate),
+    completedByName: dto.completedByName?.trim() || "—",
   };
 }
 
@@ -478,11 +552,26 @@ function normalizeObligationStatus(
   value: string | null | undefined,
 ): ComplianceObligationItem["status"] {
   const normalized = value?.trim().toLowerCase() ?? "";
+  if (normalized === "compliant") {
+    return "Compliant";
+  }
+  if (normalized === "due soon") {
+    return "Due soon";
+  }
+  if (normalized === "action required") {
+    return "Action required";
+  }
+  if (normalized === "upcoming") {
+    return "Upcoming";
+  }
   if (normalized.includes("action")) {
     return "Action required";
   }
   if (normalized.includes("due")) {
     return "Due soon";
+  }
+  if (normalized.includes("upcoming")) {
+    return "Upcoming";
   }
   return "Compliant";
 }
@@ -903,24 +992,95 @@ export function buildUpdateComplianceRequest(
     evidenceUrls: [...(dto.evidenceUrls ?? [])],
     markComplete: dto.markComplete ?? false,
     ...overrides,
-    id,
   };
 }
 
 /** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
 export function buildMarkCompleteComplianceRequest(
-  dto: ComplianceDto,
   complianceId: number,
-): UpdateComplianceRequestDto {
-  const now = new Date().toISOString();
+): MarkCompleteComplianceRequestDto {
+  return {
+    id: complianceId,
+    markComplete: true,
+  };
+}
 
-  return buildUpdateComplianceRequest(
-    { ...dto, id: complianceId },
-    {
-      id: complianceId,
-      status: "Compliant",
-      completedDate: now,
-      markComplete: true,
-    },
-  );
+/** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
+export function normalizeComplianceUpdateResult(
+  data: unknown,
+): ComplianceUpdateResultDto | null {
+  const record = isRecord(data)
+    ? isRecord(data.dataModel)
+      ? data.dataModel
+      : isRecord(data.DataModel)
+        ? data.DataModel
+        : data
+    : null;
+
+  if (!record) {
+    return null;
+  }
+
+  return {
+    complianceId:
+      readNumber(
+        record,
+        "complianceId",
+        "ComplianceId",
+        "id",
+        "Id",
+      ) ?? undefined,
+    nextCycleId:
+      readNumber(record, "nextCycleId", "NextCycleId") ?? undefined,
+    nextCycleDueDate: readString(
+      record,
+      "nextCycleDueDate",
+      "NextCycleDueDate",
+    ),
+  };
+}
+
+/** Formats an ISO date for user-facing copy (e.g. "30 Apr 2026"). */
+export function formatComplianceLongDate(
+  value: string | null | undefined,
+): string {
+  if (!value?.trim()) {
+    return "—";
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value.slice(0, 10);
+  }
+
+  return parsed.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+/** Success copy after mark-complete, including next cycle when present. */
+export function buildMarkCompleteSuccessMessage(
+  code: string,
+  title: string,
+  result: ComplianceUpdateResultDto | null,
+): { title: string; description: string } {
+  const nextDue = result?.nextCycleDueDate?.trim();
+  const hasNextCycle =
+    result?.nextCycleId != null &&
+    result.nextCycleId > 0 &&
+    Boolean(nextDue);
+
+  if (hasNextCycle) {
+    return {
+      title: "Marked as Complete",
+      description: `Completed — next occurrence due ${formatComplianceLongDate(nextDue)}.`,
+    };
+  }
+
+  return {
+    title: "Marked as Complete",
+    description: `Obligation ${code} (${title}) has been verified and marked complete.`,
+  };
 }

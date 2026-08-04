@@ -23,6 +23,7 @@ import {
 import {
   addCompliance,
   deleteCompliance,
+  markComplianceComplete,
   updateCompliance,
 } from "@/services/compliance.service";
 
@@ -121,6 +122,24 @@ export function useAddComplianceMutation() {
     mutationFn: (payload: AddComplianceRequestDto) => addCompliance(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+    },
+  });
+}
+
+/** PUT /api/Compliance/Update — mark obligation complete. */
+export function useMarkCompleteComplianceMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => markComplianceComplete(id),
+    onSuccess: async (_response, id) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: complianceQueryKeys.detail(id),
+          refetchType: "all",
+        }),
+        invalidateComplianceSummaries(queryClient),
+      ]);
     },
   });
 }

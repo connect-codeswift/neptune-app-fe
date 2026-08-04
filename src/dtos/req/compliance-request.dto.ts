@@ -28,6 +28,15 @@ export type AddComplianceRequestDto = {
 };
 
 /**
+ * PUT /api/Compliance/Update — mark complete (minimal payload).
+ * All other fields fall back to stored values on the server.
+ */
+export type MarkCompleteComplianceRequestDto = Readonly<{
+  id: number;
+  markComplete: true;
+}>;
+
+/**
  * PUT /api/Compliance/Update
  * Swagger: UpdateComplianceDto
  */

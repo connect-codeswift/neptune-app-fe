@@ -1,8 +1,12 @@
 "use client";
 
-import { IncidentGlassCard, IncidentBadge } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
 import type { ComplianceKpiItem } from "./regulatory-compliance-types";
+import {
+  ComplianceDeltaBadge,
+  complianceGlassCardClass,
+} from "./compliance-ui";
 
 export type RegulatoryComplianceKpiGridProps = Readonly<{
   items: readonly ComplianceKpiItem[];
@@ -13,14 +17,15 @@ export type RegulatoryComplianceKpiGridProps = Readonly<{
 function KpiCardSkeleton() {
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
-      className="min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]"
+      paddingClassName="p-[15.57px]"
+      className={["min-w-0", complianceGlassCardClass].join(" ")}
     >
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="h-3 w-[90px] animate-pulse rounded-[6px] bg-[#e2e8f0]" />
+      <div className="flex flex-col gap-[16px]">
+        <div className="flex h-[20.244px] items-center justify-between gap-2">
+          <div className="h-[14px] w-[90px] animate-pulse rounded-[6px] bg-[#e2e8f0]" />
+          <div className="h-5 w-8 animate-pulse rounded-full bg-[#e2e8f0]" />
         </div>
-        <div className="h-[34px] w-[60px] animate-pulse rounded-[6px] bg-[#e2e8f0]" />
+        <div className="h-[30px] w-[60px] animate-pulse rounded-[6px] bg-[#e2e8f0]" />
       </div>
     </IncidentGlassCard>
   );
@@ -35,7 +40,7 @@ export function RegulatoryComplianceKpiGrid(
     return (
       <div
         className={[
-          "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4",
+          "grid grid-cols-1 gap-[13.62px] sm:grid-cols-2 lg:grid-cols-4",
           className,
         ]
           .filter(Boolean)
@@ -51,7 +56,7 @@ export function RegulatoryComplianceKpiGrid(
   return (
     <div
       className={[
-        "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4",
+        "grid grid-cols-1 gap-[13.62px] sm:grid-cols-2 lg:grid-cols-4",
         className,
       ]
         .filter(Boolean)
@@ -60,28 +65,26 @@ export function RegulatoryComplianceKpiGrid(
       {items.map((kpi) => (
         <IncidentGlassCard
           key={kpi.id}
-          paddingClassName="p-[19px]"
-          className="min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]"
+          paddingClassName="p-[15.57px]"
+          className={["min-w-0", complianceGlassCardClass].join(" ")}
         >
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-[16px]">
+            <div className="flex h-[20.244px] items-center justify-between">
               <Text
                 as="span"
-                className="text-ehs-gray py-px text-[12px] font-semibold tracking-[0.22px] uppercase"
+                className="text-[10px] leading-none font-bold tracking-[0.21px] text-[#566072] uppercase"
               >
                 {kpi.label}
               </Text>
-              {kpi.badgeValue.trim() ? (
-                <IncidentBadge
-                  label={kpi.badgeValue}
-                  tone={kpi.badgeTone === "coral" ? "danger" : "success"}
-                />
-              ) : null}
+              <ComplianceDeltaBadge
+                value={kpi.badgeValue}
+                tone={kpi.badgeTone}
+              />
             </div>
 
             <Text
               as="p"
-              className="text-ehs-dark-bg text-[34px] leading-none font-bold tracking-tight"
+              className="text-[30px] leading-[29px] font-normal tracking-[-0.58px] text-[#0b1320]"
             >
               {String(kpi.count)}
             </Text>

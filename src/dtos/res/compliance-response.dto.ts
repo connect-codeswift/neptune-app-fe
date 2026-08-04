@@ -16,9 +16,18 @@ export type ComplianceDto = {
   priority?: string | null;
   status?: string | null;
   completedDate?: string | null;
+  completedBy?: number | null;
+  completedByName?: string | null;
   evidenceUrls?: readonly string[] | null;
   markComplete?: boolean | null;
 };
+
+/** dataModel from PUT /api/Compliance/Update (mark complete). */
+export type ComplianceUpdateResultDto = Readonly<{
+  complianceId?: number | null;
+  nextCycleId?: number | null;
+  nextCycleDueDate?: string | null;
+}>;
 
 export type GetAllCompliancesResultDto = {
   items: ComplianceDto[];
@@ -45,10 +54,14 @@ export type GetComplianceDashboardKpisResponseDto =
 /** One entry of GET /api/Compliance/category-stats. */
 export type ComplianceCategoryStatDto = {
   category?: string | null;
-  /** Compliant obligation count for this category. */
+  /** Compliant / completed obligation count for this category. */
   compliant?: number | null;
   /** Total obligations tracked in this category. */
   total?: number | null;
+  /** API alias for `compliant` (normalized in the mapper). */
+  completedCount?: number | null;
+  /** API alias for `total` (normalized in the mapper). */
+  totalCount?: number | null;
 };
 
 export type GetComplianceCategoryStatsResponseDto = ApiEnvelopeDto<
@@ -93,6 +106,8 @@ export type AddComplianceResponseDto = ApiEnvelopeDto<ComplianceDto | null>;
 
 export type GetComplianceByIdResponseDto = ApiEnvelopeDto<ComplianceDto | null>;
 
-export type UpdateComplianceResponseDto = ApiEnvelopeDto<ComplianceDto | null>;
+export type UpdateComplianceResponseDto = ApiEnvelopeDto<
+  ComplianceUpdateResultDto | ComplianceDto | null
+>;
 
 export type DeleteComplianceResponseDto = ApiEnvelopeDto<unknown>;
