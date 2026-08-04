@@ -1,10 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Area,
   CartesianGrid,
   ComposedChart,
-  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,14 +12,14 @@ import {
 } from "recharts";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
+import {
+  DEFAULT_WALK_TALK_GRAPH_WEEKS,
+  useWalkTalkGraphQuery,
+} from "@/hooks/use-walk-talk-queries";
+import { toWalkTalkTrendPoints } from "@/lib/map-walk-talk";
 import type { WalkTalkTrendPoint } from "@/app/dashboard/walk-talk/walk-talk-data";
 
 const SESSIONS_COLOR = "#0891a6";
-const ISSUES_COLOR = "#ef4444";
-
-/** Fixed domain and ticks, matching the design's scale. */
-const Y_DOMAIN: [number, number] = [0, 18];
-const Y_TICKS = [0, 4, 9, 13, 17];
 
 const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
 
@@ -44,27 +44,15 @@ function ChartTooltip(
   return (
     <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
       <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
-      <div className="mt-1 flex flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span
-            className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: SESSIONS_COLOR }}
-            aria-hidden="true"
-          />
-          <span className="text-ehs-gray text-xs">
-            {`Sessions ${String(valueOf("sessions"))}`}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: ISSUES_COLOR }}
-            aria-hidden="true"
-          />
-          <span className="text-ehs-gray text-xs">
-            {`Issues ${String(valueOf("issues"))}`}
-          </span>
-        </div>
+      <div className="mt-1 flex items-center gap-2">
+        <span
+          className="size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: SESSIONS_COLOR }}
+          aria-hidden="true"
+        />
+        <span className="text-ehs-gray text-xs">
+          {`Sessions ${String(valueOf("sessions"))}`}
+        </span>
       </div>
     </div>
   );
@@ -85,13 +73,37 @@ function LegendItem(props: Readonly<{ color: string; label: string }>) {
   );
 }
 
+/** Scale the Y axis to the series peak (min 4), rounded up to a clean step. */
+function toYScale(points: readonly WalkTalkTrendPoint[]) {
+  const peak = points.reduce(
+    (highest, point) => Math.max(highest, point.sessions),
+    0,
+  );
+  const yMax = Math.max(4, Math.ceil(peak / 4) * 4 || 4);
+  const step = yMax / 4;
+
+  return {
+    domain: [0, yMax] as [number, number],
+    ticks: [step, step * 2, step * 3, yMax],
+  };
+}
+
 export type WalkTalkTrendsCardProps = Readonly<{
-  points: readonly WalkTalkTrendPoint[];
   className?: string;
+  weeks?: number;
 }>;
 
 export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
-  const { points, className = "" } = props;
+  const { className = "", weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS } = props;
+  const graphQuery = useWalkTalkGraphQuery(weeks);
+
+  const points = useMemo(
+    () => toWalkTalkTrendPoints(graphQuery.data?.dataModel),
+    [graphQuery.data?.dataModel],
+  );
+
+  const displayWeeks = graphQuery.data?.dataModel?.weeks ?? weeks;
+  const yScale = useMemo(() => toYScale(points), [points]);
 
   return (
     <IncidentGlassCard
@@ -105,7 +117,7 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
             Walk &amp; Talk Trends
           </h3>
           <p className="text-ehs-muted-text text-sm">
-            Sessions logged · 8 weeks
+            {`Sessions logged · ${String(displayWeeks)} weeks`}
           </p>
         </div>
         <button
@@ -121,72 +133,63 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
         </button>
       </header>
 
-      <div className="min-h-52 min-w-0 flex-1">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={[...points]}
-            margin={{ top: 8, right: 8, bottom: 0, left: -18 }}
-          >
-            <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
+      <div className="min-h-40 min-w-0 flex-1 sm:min-h-52">
+        {graphQuery.isPending && points.length === 0 ? (
+          <p className="text-ehs-muted-text text-sm">Loading…</p>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={[...points]}
+              margin={{ top: 8, right: 4, bottom: 0, left: -24 }}
+            >
+              <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
 
-            <XAxis
-              dataKey="label"
-              tick={AXIS_TICK}
-              tickLine={false}
-              axisLine={{ stroke: "#e5e7eb" }}
-              tickMargin={10}
-            />
-            <YAxis
-              domain={Y_DOMAIN}
-              ticks={Y_TICKS}
-              tick={AXIS_TICK}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-            />
+              <XAxis
+                dataKey="label"
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={{ stroke: "#e5e7eb" }}
+                tickMargin={10}
+                interval="preserveStartEnd"
+                minTickGap={16}
+              />
+              <YAxis
+                domain={yScale.domain}
+                ticks={yScale.ticks}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+              />
 
-            <Tooltip
-              content={<ChartTooltip />}
-              cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
-            />
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
+              />
 
-            <Area
-              type="linear"
-              dataKey="sessions"
-              stroke={SESSIONS_COLOR}
-              strokeWidth={2}
-              fill={SESSIONS_COLOR}
-              fillOpacity={0.08}
-              dot={{
-                r: 4,
-                fill: "#ffffff",
-                stroke: SESSIONS_COLOR,
-                strokeWidth: 2,
-              }}
-              activeDot={{ r: 5 }}
-              isAnimationActive={false}
-            />
-            <Line
-              type="linear"
-              dataKey="issues"
-              stroke={ISSUES_COLOR}
-              strokeWidth={2}
-              dot={{
-                r: 4,
-                fill: "#ffffff",
-                stroke: ISSUES_COLOR,
-                strokeWidth: 2,
-              }}
-              activeDot={{ r: 5 }}
-              isAnimationActive={false}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+              <Area
+                type="linear"
+                dataKey="sessions"
+                stroke={SESSIONS_COLOR}
+                strokeWidth={2}
+                fill={SESSIONS_COLOR}
+                fillOpacity={0.08}
+                dot={{
+                  r: 4,
+                  fill: "#ffffff",
+                  stroke: SESSIONS_COLOR,
+                  strokeWidth: 2,
+                }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-5">
         <LegendItem color={SESSIONS_COLOR} label="Session logged" />
-        <LegendItem color={ISSUES_COLOR} label="Issues identified" />
       </div>
     </IncidentGlassCard>
   );

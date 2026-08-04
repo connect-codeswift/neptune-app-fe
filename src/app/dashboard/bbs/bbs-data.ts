@@ -22,6 +22,8 @@ export type ObservationPhoto = Readonly<{
   name: string;
   /** Human-readable file size, e.g. "1.2 MB". */
   size: string;
+  /** Remote image URL when available from the API. */
+  url?: string;
 }>;
 
 /** Everything the observation detail page shows. */

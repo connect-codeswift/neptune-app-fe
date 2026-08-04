@@ -1,33 +1,36 @@
+"use client";
+
 import { DashboardHeader } from "@/components/DashboardHeader";
-import {
-  StatMetricCard,
-  type StatMetricCardProps,
-} from "@/components/StatMetricCard";
 import { WalkTalkTrendsCard } from "@/components/walk-talk/WalkTalkTrendsCard";
 import { WalkTalkTopFindingsCard } from "@/components/walk-talk/WalkTalkTopFindingsCard";
 import { WalkTalkRecentSessionsSection } from "@/components/walk-talk/WalkTalkRecentSessionsSection";
+import { WalkTalkMetricsSection } from "@/components/walk-talk/WalkTalkMetricsSection";
+import { WalkTalkPageSkeleton } from "@/components/walk-talk/WalkTalkPageSkeleton";
 import {
-  RECENT_SESSIONS,
-  TOP_FINDINGS,
-  WALK_TALK_TRENDS,
-} from "./walk-talk-data";
-
-const WALK_TALK_METRICS: readonly StatMetricCardProps[] = [
-  {
-    title: "Observations (30d)",
-    value: 84,
-    trendValue: "+12",
-    trendTone: "positive",
-  },
-  {
-    title: "Walk & Talks",
-    value: 42,
-    trendValue: "+6",
-    trendTone: "positive",
-  },
-];
+  DEFAULT_WALK_TALK_GRAPH_WEEKS,
+  DEFAULT_WALK_TALK_PAGE_NUMBER,
+  DEFAULT_WALK_TALK_PAGE_SIZE,
+  useWalkTalkDashboardCountsQuery,
+  useWalkTalkGraphQuery,
+  useWalkTalkSessionsQuery,
+  useWalkTalkTopFindingsQuery,
+} from "@/hooks/use-walk-talk-queries";
 
 export default function WalkAndTalkPage() {
+  const countsQuery = useWalkTalkDashboardCountsQuery();
+  const graphQuery = useWalkTalkGraphQuery(DEFAULT_WALK_TALK_GRAPH_WEEKS);
+  const findingsQuery = useWalkTalkTopFindingsQuery();
+  const sessionsQuery = useWalkTalkSessionsQuery({
+    pageNumber: DEFAULT_WALK_TALK_PAGE_NUMBER,
+    pageSize: DEFAULT_WALK_TALK_PAGE_SIZE,
+  });
+
+  const isBootLoading =
+    (countsQuery.isPending && !countsQuery.data) ||
+    (graphQuery.isPending && !graphQuery.data) ||
+    (findingsQuery.isPending && !findingsQuery.data) ||
+    (sessionsQuery.isPending && !sessionsQuery.data);
+
   return (
     <div className="flex flex-1 flex-col gap-3.5">
       <DashboardHeader
@@ -37,23 +40,23 @@ export default function WalkAndTalkPage() {
         hasUnreadNotifications
       />
 
-      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-        {/* KPI Metrics */}
-        <div className="grid gap-3.5 sm:grid-cols-2">
-          {WALK_TALK_METRICS.map((metric) => (
-            <StatMetricCard key={metric.title} {...metric} />
-          ))}
+      {isBootLoading ? (
+        <WalkTalkPageSkeleton />
+      ) : (
+        <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+          {/* KPI Metrics */}
+          <WalkTalkMetricsSection />
+
+          {/* Trends + top findings — stretched to equal height. */}
+        <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
+          <WalkTalkTrendsCard />
+          <WalkTalkTopFindingsCard />
         </div>
 
-        {/* Trends + top findings — stretched to equal height. */}
-        <div className="grid min-w-0 gap-3.5 xl:grid-cols-2">
-          <WalkTalkTrendsCard points={WALK_TALK_TRENDS} />
-          <WalkTalkTopFindingsCard findings={TOP_FINDINGS} />
+          {/* Search + recent sessions */}
+          <WalkTalkRecentSessionsSection />
         </div>
-
-        {/* Search + recent sessions */}
-        <WalkTalkRecentSessionsSection sessions={RECENT_SESSIONS} />
-      </div>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ export const OBSERVATION_TYPE_OPTIONS: readonly TileOption[] = [
     tone: "positive",
   },
   {
-    value: "at-risk",
+    value: "AtRisk",
     label: "At-Risk",
     description: "Risk behavior flagged",
     icon: "mdi:alert-outline",

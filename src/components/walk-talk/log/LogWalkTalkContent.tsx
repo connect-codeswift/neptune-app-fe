@@ -1,17 +1,22 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { useCreateWalkTalkMutation } from "@/hooks/use-walk-talk-mutations";
+import { toAssigneeOptions, userNameFor } from "@/lib/map-user";
+import { toCreateWalkTalkRequest } from "@/lib/map-walk-talk";
 import { toast } from "@/lib/toast";
 import { LogWalkTalkHeader } from "./LogWalkTalkHeader";
 import {
+  buildWalkTalkFollowUpSchema,
   createWalkTalkLogValues,
   walkTalkDetailsSchema,
-  walkTalkFollowUpSchema,
   walkTalkNotesSchema,
   walkTalkParticipantsSchema,
   type FollowUpAction,
@@ -34,7 +39,11 @@ const fieldLabelClass = [
 
 function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
   const { children } = props;
-  return <h2 className="text-ehs-dark-bg text-lg font-bold">{children}</h2>;
+  return (
+    <h2 className="text-ehs-dark-bg text-[13px] font-bold md:text-lg">
+      {children}
+    </h2>
+  );
 }
 
 function followUpFromValues(values: FormValues): FollowUpAction {
@@ -53,8 +62,32 @@ function isFollowUpEmpty(action: FollowUpAction): boolean {
   );
 }
 
+function asStringList(value: FormValues[string] | undefined): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry) => typeof entry === "string")
+    : [];
+}
+
 export function LogWalkTalkContent() {
   const router = useRouter();
+  const createWalkTalk = useCreateWalkTalkMutation();
+  const usersQuery = useUserDropdownQuery();
+
+  const assigneeOptions = useMemo(
+    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
+    [usersQuery.data?.dataModel],
+  );
+  const followUpSchema = useMemo(
+    () => buildWalkTalkFollowUpSchema(assigneeOptions),
+    [assigneeOptions],
+  );
+  const assigneeLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const option of assigneeOptions) {
+      map.set(option.value, option.label);
+    }
+    return map;
+  }, [assigneeOptions]);
 
   const valuesRef = useRef<FormValues | null>(null);
   if (valuesRef.current === null) {
@@ -64,7 +97,8 @@ export function LogWalkTalkContent() {
   const [savedActions, setSavedActions] = useState<FollowUpAction[]>([]);
 
   const updateValues = (partial: FormValues) => {
-    // Each FormBuilder only owns its fields; merge into the shared map.
+    // Each FormBuilder only owns its fields; merge into the shared map
+    // (participants stays a string[] as names are added via chips).
     const merged = { ...(valuesRef.current ?? values), ...partial };
     valuesRef.current = merged;
     setValues(merged);
@@ -73,9 +107,28 @@ export function LogWalkTalkContent() {
   const validatedCountRef = useRef(0);
 
   const persistWalkTalk = () => {
-    // TODO: wire to POST /api/walk-talk once the payload is agreed.
-    toast.success("Walk-and-Talk submitted");
-    router.push(WALK_TALK_ROUTE);
+    const currentValues = valuesRef.current ?? values;
+
+    const payload = toCreateWalkTalkRequest(currentValues, savedActions);
+    if (!payload) {
+      toast.error("Fill in all required fields before submitting.");
+      return;
+    }
+
+    createWalkTalk.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Walk-and-Talk submitted");
+        router.push(WALK_TALK_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not submit the Walk-and-Talk. Please try again.",
+          ),
+        );
+      },
+    });
   };
 
   const handleFormValid = () => {
@@ -87,6 +140,8 @@ export function LogWalkTalkContent() {
   };
 
   const saveAll = () => {
+    if (createWalkTalk.isPending) return;
+
     validatedCountRef.current = 0;
     for (const id of [
       DETAILS_FORM_ID,
@@ -124,9 +179,9 @@ export function LogWalkTalkContent() {
       <div className="mx-auto flex w-full max-w-183 flex-col gap-3.5">
         {/* Walk-and-Talk Details */}
         <IncidentGlassCard
-          paddingClassName="p-[22px]"
+          paddingClassName="p-4 md:p-[22px]"
           className="relative z-10 min-w-0"
-          incidentGlassCardClassName="gap-[18px]"
+          incidentGlassCardClassName="gap-4 md:gap-[18px]"
         >
           <SectionTitle>Walk-and-Talk Details</SectionTitle>
           <FormBuilder
@@ -149,9 +204,9 @@ export function LogWalkTalkContent() {
 
         {/* Participants */}
         <IncidentGlassCard
-          paddingClassName="p-[22px]"
+          paddingClassName="p-4 md:p-[22px]"
           className="min-w-0"
-          incidentGlassCardClassName=""
+          incidentGlassCardClassName="gap-3"
         >
           <SectionTitle>Participants</SectionTitle>
           <FormBuilder
@@ -175,9 +230,9 @@ export function LogWalkTalkContent() {
 
         {/* Discussion Notes */}
         <IncidentGlassCard
-          paddingClassName="p-[22px]"
+          paddingClassName="p-4 md:p-[22px]"
           className="min-w-0"
-          incidentGlassCardClassName=""
+          incidentGlassCardClassName="gap-3"
         >
           <SectionTitle>Discussion Notes</SectionTitle>
           <FormBuilder
@@ -199,16 +254,16 @@ export function LogWalkTalkContent() {
 
         {/* Follow-Up Actions */}
         <IncidentGlassCard
-          paddingClassName="p-[22px]"
+          paddingClassName="p-4 md:p-[22px]"
           className="min-w-0"
-          incidentGlassCardClassName=""
+          incidentGlassCardClassName="gap-3"
         >
           <div className="flex items-center justify-between gap-3">
             <SectionTitle>Follow-Up Actions</SectionTitle>
             <button
               type="button"
               onClick={addFollowUpAction}
-              className="bg-ehs-normal-blue/14 text-ehs-normal-blue hover:bg-ehs-normal-blue/20 shrink-0 cursor-pointer rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors"
+              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover shrink-0 cursor-pointer text-[13px] font-bold transition-colors md:rounded-lg md:bg-ehs-normal-blue/14 md:px-3 md:py-1.5 md:text-sm md:font-semibold md:hover:bg-ehs-normal-blue/20"
             >
               + Add Action
             </button>
@@ -227,7 +282,9 @@ export function LogWalkTalkContent() {
                     </span>
                     <span className="text-ehs-muted-text text-xs">
                       {[
-                        entry.assignedTo || "Unassigned",
+                        entry.assignedTo
+                          ? userNameFor(assigneeLookup, entry.assignedTo)
+                          : "Unassigned",
                         entry.dueDate || "No due date",
                       ]
                         .filter(Boolean)
@@ -256,8 +313,8 @@ export function LogWalkTalkContent() {
           ) : null}
 
           <FormBuilder
-            key={`follow-up-${String(savedActions.length)}`}
-            schema={walkTalkFollowUpSchema}
+            key={`follow-up-${String(savedActions.length)}-${String(assigneeOptions.length)}`}
+            schema={followUpSchema}
             initialValues={{
               assignedTo: values.assignedTo,
               dueDate: values.dueDate,
@@ -275,13 +332,13 @@ export function LogWalkTalkContent() {
           />
         </IncidentGlassCard>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5">
+        {/* Footer — full-width Cancel + Submit on mobile (Figma 6415:35020) */}
+        <div className="flex items-center gap-3 md:justify-end md:gap-2.5">
           <Button
             type="button"
             variant="tertiary"
             onClick={() => router.push(WALK_TALK_ROUTE)}
-            className="rounded-[10px] border border-slate-900/14 bg-white/62 px-4 py-2.5 text-base font-medium text-[#2a3446]"
+            className="h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-sm font-bold text-[#566072] md:h-auto md:flex-none md:rounded-[10px] md:border md:border-slate-900/14 md:bg-white/62 md:text-base md:font-medium md:text-[#2a3446]"
           >
             Cancel
           </Button>
@@ -289,10 +346,13 @@ export function LogWalkTalkContent() {
           <Button
             type="button"
             variant="primary"
+            disabled={createWalkTalk.isPending}
             onClick={saveAll}
-            className="rounded-[10px] px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+            className="h-11 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:rounded-[10px] md:px-5 md:text-base md:font-semibold md:shadow-[0px_6px_18px_-6px_#0891a6]"
           >
-            Submit Walk-and-Talk
+            {createWalkTalk.isPending
+              ? "Submitting..."
+              : "Submit Walk-and-Talk"}
           </Button>
         </div>
       </div>

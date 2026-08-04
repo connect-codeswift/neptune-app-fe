@@ -46,7 +46,6 @@ export function LogObservationContent() {
   const router = useRouter();
   const createObservation = useCreateBbsObservationMutation();
   const categoriesQuery = useBehaviorCategoriesQuery();
-
   const [step, setStep] = useState(1);
 
   // Shared across steps so re-entering a step restores what was typed.
@@ -57,7 +56,6 @@ export function LogObservationContent() {
     description: "",
     photos: [],
   });
-
   const commitValues = (next: Record<string, string | string[]>) => {
     setValues(next);
   };
@@ -84,13 +82,11 @@ export function LogObservationContent() {
       formValues,
       categoriesQuery.data ?? [],
     );
-
     if (!payload) {
       toast.error("Select a behavior category from the list.");
       setStep(1);
       return;
     }
-
     createObservation.mutate(payload, {
       onSuccess: () => {
         toast.success("Observation logged");
@@ -115,15 +111,15 @@ export function LogObservationContent() {
         <LogObservationHeader />
       </div>
 
-      <div className="flex flex-1 flex-col items-center gap-6 px-4 pt-6 pb-8">
-        <div className="w-full max-w-130">
+      <div className="flex flex-1 flex-col items-center gap-4 px-4 pt-4 pb-8 md:gap-6 md:pt-6">
+        <div className="w-full max-w-130 overflow-x-auto">
           <ObservationStepper currentStep={step} />
         </div>
 
         <IncidentGlassCard
-          paddingClassName="p-6"
+          paddingClassName="p-4 md:p-6"
           className="w-full max-w-130 bg-white!"
-          incidentGlassCardClassName="gap-6"
+          incidentGlassCardClassName="gap-4 md:gap-6"
         >
           {step === 1 ? (
             <ObservationTypeStep
@@ -143,7 +139,7 @@ export function LogObservationContent() {
             <ObservationReviewStep values={values} />
           )}
 
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center gap-3 md:justify-end">
             {step > 1 ? (
               <button
                 type="button"
@@ -151,7 +147,7 @@ export function LogObservationContent() {
                   // From review, "Edit" goes back to the start of the form.
                   setStep(step === LAST_STEP ? 1 : step - 1);
                 }}
-                className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors hover:bg-black/5"
+                className="text-ehs-dark-bg h-11 flex-1 cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {step === LAST_STEP ? "Edit" : "Back"}
               </button>
@@ -163,7 +159,7 @@ export function LogObservationContent() {
                 variant="primary"
                 disabled={createObservation.isPending}
                 onClick={handleSubmit}
-                className="shrink-0 rounded-[10px] px-5 py-2.5 font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+                className="h-11 flex-1 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {createObservation.isPending
                   ? "Submitting..."
@@ -175,7 +171,7 @@ export function LogObservationContent() {
                 type="submit"
                 form={formId}
                 variant="primary"
-                className="shrink-0 gap-2 rounded-[10px] px-5 py-2.5 font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+                className="h-11 flex-1 gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {step === 2 ? "Review" : "Continue"}
                 <Icon

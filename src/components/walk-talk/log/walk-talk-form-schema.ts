@@ -21,7 +21,7 @@ export const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "Plant B - Warehouse", label: "Plant B - Warehouse" },
 ];
 
-/** Assignees offered for follow-up actions. */
+/** Assignees offered for follow-up actions (fallback when the API is empty). */
 export const ASSIGNEE_OPTIONS: readonly SelectOption[] = [
   { value: "Alicia Chen", label: "Alicia Chen" },
   { value: "Priya Mehra", label: "Priya Mehra" },
@@ -72,6 +72,7 @@ export const walkTalkParticipantsSchema: FormSchema = [
     type: "chips",
     name: "participants",
     label: "Participants",
+    required: true,
     colSpan: 12,
     options: [],
     allowCustom: true,
@@ -94,29 +95,36 @@ export const walkTalkNotesSchema: FormSchema = [
 ];
 
 /** One follow-up action draft row (Assigned to / Due date / Action). */
-export const walkTalkFollowUpSchema: FormSchema = [
-  {
-    type: "select",
-    name: "assignedTo",
-    label: "Assigned to",
-    colSpan: 6,
-    options: ASSIGNEE_OPTIONS,
-    placeholder: "Assigned to",
-  },
-  {
-    type: "date",
-    name: "dueDate",
-    label: "Due date",
-    colSpan: 6,
-  },
-  {
-    type: "text",
-    name: "action",
-    label: "Follow-up action",
-    colSpan: 12,
-    placeholder: "Follow-up action 1…",
-  },
-];
+export function buildWalkTalkFollowUpSchema(
+  assigneeOptions: readonly SelectOption[] = ASSIGNEE_OPTIONS,
+): FormSchema {
+  return [
+    {
+      type: "select",
+      name: "assignedTo",
+      label: "Assigned to",
+      colSpan: 6,
+      options: [...assigneeOptions],
+      placeholder: "Assigned to",
+    },
+    {
+      type: "date",
+      name: "dueDate",
+      label: "Due date",
+      colSpan: 6,
+    },
+    {
+      type: "text",
+      name: "action",
+      label: "Follow-up action",
+      colSpan: 12,
+      placeholder: "Follow-up action 1…",
+    },
+  ];
+}
+
+/** @deprecated Prefer {@link buildWalkTalkFollowUpSchema}. */
+export const walkTalkFollowUpSchema: FormSchema = buildWalkTalkFollowUpSchema();
 
 export type FollowUpAction = Readonly<{
   assignedTo: string;
@@ -127,7 +135,7 @@ export type FollowUpAction = Readonly<{
 /** Initial values for the log Walk-and-Talk form. */
 export function createWalkTalkLogValues(): FormValues {
   return {
-    observer: "Sarah Mitchell",
+    observer: "",
     date: "",
     location: "",
     topic: "",

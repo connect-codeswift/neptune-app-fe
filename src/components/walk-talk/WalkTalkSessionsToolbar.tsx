@@ -55,10 +55,13 @@ export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
         type="button"
         variant="primary"
         onClick={onStartWalkTalk}
-        className="shrink-0 gap-2 rounded-[10px] px-4 py-2.5"
+        className="shrink-0 gap-2 rounded-[10px] px-3 py-2 sm:px-4 sm:py-2.5"
       >
         <Icon icon="mdi:plus" className="size-4 shrink-0" aria-hidden="true" />
-        <span className="text-sm font-semibold whitespace-nowrap">
+        <span className="text-sm font-semibold whitespace-nowrap sm:hidden">
+          Log Session
+        </span>
+        <span className="hidden text-sm font-semibold whitespace-nowrap sm:inline">
           Log Walk-and-Talk
         </span>
       </Button>

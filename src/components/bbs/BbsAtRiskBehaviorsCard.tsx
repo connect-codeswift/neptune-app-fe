@@ -1,4 +1,9 @@
+"use client";
+
+import { useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { useBbsAtRiskCategoriesQuery } from "@/hooks/use-bbs-queries";
+import { toBbsAtRiskBehaviors } from "@/lib/map-bbs";
 import type {
   BehaviorCategory,
   BehaviorTone,
@@ -44,12 +49,17 @@ function BehaviorRow(
 }
 
 export type BbsAtRiskBehaviorsCardProps = Readonly<{
-  categories: readonly BehaviorCategory[];
   className?: string;
 }>;
 
 export function BbsAtRiskBehaviorsCard(props: BbsAtRiskBehaviorsCardProps) {
-  const { categories, className = "" } = props;
+  const { className = "" } = props;
+  const atRiskQuery = useBbsAtRiskCategoriesQuery();
+
+  const categories = useMemo(
+    () => toBbsAtRiskBehaviors(atRiskQuery.data?.dataModel),
+    [atRiskQuery.data?.dataModel],
+  );
 
   // Bars are scaled against the biggest category, so the top one fills the track.
   const max = categories.reduce(
@@ -64,22 +74,22 @@ export function BbsAtRiskBehaviorsCard(props: BbsAtRiskBehaviorsCardProps) {
       incidentGlassCardClassName="gap-4"
     >
       <header className="flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg text-lg font-bold">At-risk behaviors</h3>
+        <h3 className="text-ehs-dark-bg text-lg font-bold">
+          At-risk behaviors
+        </h3>
         <p className="text-ehs-muted-text text-sm">Top categories observed</p>
       </header>
 
-      {categories.length === 0 ? (
+      {atRiskQuery.isPending ? (
+        <p className="text-ehs-muted-text text-sm">Loading…</p>
+      ) : categories.length === 0 ? (
         <p className="text-ehs-muted-text text-sm">
           No at-risk behaviors observed.
         </p>
       ) : (
         <ul className="flex flex-col gap-4">
           {categories.map((category) => (
-            <BehaviorRow
-              key={category.label}
-              category={category}
-              max={max}
-            />
+            <BehaviorRow key={category.label} category={category} max={max} />
           ))}
         </ul>
       )}

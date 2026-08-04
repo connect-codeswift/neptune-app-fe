@@ -23,7 +23,7 @@ export const walkTalkSessionColumns: ColumnDef<WalkTalkSession, any>[] = [
       <IncidentBadge
         label={info.getValue()}
         tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-sm!"
+        className="w-fit rounded-full px-2.5 py-0.5 text-base!"
       />
     ),
     meta: { align: "left" as const },
