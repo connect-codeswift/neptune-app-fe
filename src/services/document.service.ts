@@ -129,7 +129,9 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
       null,
     ownerName: asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ?? null,
     owner: asString(readProp(raw, "owner", "Owner")) ?? null,
-    subCompanyId: asNumber(readProp(raw, "subCompanyId", "SubCompanyId")),
+    siteId: asNumber(
+      readProp(raw, "siteId", "SiteId", "subCompanyId", "SubCompanyId"),
+    ),
     status: asString(readProp(raw, "status", "Status")) ?? null,
     version:
       asString(
@@ -546,7 +548,7 @@ export async function createDocument(payload: CreateDocumentRequestDto) {
     fileName: payload.fileName,
     reviewCycle: payload.reviewCycle,
     createdBy: payload.createdBy,
-    subCompanyId: payload.subCompanyId,
+    siteId: payload.siteId,
     ackUserIds: payload.ackUserIds,
     approvalUserIds: payload.approvalUserIds,
   });
@@ -557,7 +559,7 @@ export async function createDocument(payload: CreateDocumentRequestDto) {
 /**
  * PUT /api/Document/document
  * JSON body — dedicated update endpoint (distinct from the POST create
- * endpoint above), takes `updatedBy` instead of `createdBy`/`subCompanyId`.
+ * endpoint above), takes `updatedBy` instead of `createdBy`/`siteId`.
  */
 export async function updateDocument(payload: UpdateDocumentRequestDto) {
   const { data } = await http.put<unknown>(DOCUMENT_CREATE_PATH, {

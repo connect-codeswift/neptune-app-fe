@@ -15,6 +15,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Hydrochloric Acid",
     casNumber: "7647-01-0",
     location: "Lab 1 - Room 131",
+    disposeLocation: null,
     quantity: "15 Liters",
     hazardClass: "Corrosive",
     pictograms: ["Corrosive", "Irritant"],
@@ -45,6 +46,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Acetone",
     casNumber: "67-64-1",
     location: "Lab 2 - Room 118",
+    disposeLocation: null,
     quantity: "8 Liters",
     hazardClass: "Flammable Liquid",
     pictograms: ["Flammable", "Irritant"],
@@ -75,6 +77,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Benzene",
     casNumber: "71-43-2",
     location: "Lab 3 - Room 204",
+    disposeLocation: null,
     quantity: "4 Liters",
     hazardClass: "Carcinogen / Flammable Liquid",
     pictograms: ["Flammable", "Health Hazard", "Toxic"],
@@ -110,6 +113,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Sodium Hydroxide",
     casNumber: "1310-73-2",
     location: "Lab 1 - Room 131",
+    disposeLocation: null,
     quantity: "25 Kilograms",
     hazardClass: "Corrosive",
     pictograms: ["Corrosive"],
@@ -137,6 +141,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Isopropyl Alcohol",
     casNumber: "67-63-0",
     location: "Lab 2 - Room 118",
+    disposeLocation: null,
     quantity: "12 Liters",
     hazardClass: "Flammable Liquid",
     pictograms: ["Flammable", "Irritant"],
@@ -168,6 +173,7 @@ export const HAZCOM_CHEMICALS: readonly HazcomChemical[] = [
     name: "Toluene",
     casNumber: "108-88-3",
     location: "Lab 3 - Room 204",
+    disposeLocation: null,
     quantity: "6 Liters",
     hazardClass: "Flammable Liquid / Reproductive Toxicant",
     pictograms: ["Flammable", "Health Hazard", "Irritant"],
@@ -403,7 +409,12 @@ export const HAZCOM_TRAINING_SESSIONS: readonly HazcomTrainingSession[] = [
     chemicals: ["Hydrochloric Acid", "Sodium Hydroxide"],
     attendees: 18,
     status: "Completed",
-    materialsLink: "/files/training/tr-001-slides.pdf",
+    materials: [
+      {
+        fileUrl: "/files/training/tr-001-slides.pdf",
+        fileName: "tr-001-slides.pdf",
+      },
+    ],
     notes:
       "Covered pictogram identification and label elements for corrosive chemicals.",
   },
@@ -415,7 +426,12 @@ export const HAZCOM_TRAINING_SESSIONS: readonly HazcomTrainingSession[] = [
     chemicals: ["Acetone", "Isopropyl Alcohol", "Toluene"],
     attendees: 22,
     status: "Completed",
-    materialsLink: "/files/training/tr-002-slides.pdf",
+    materials: [
+      {
+        fileUrl: "/files/training/tr-002-slides.pdf",
+        fileName: "tr-002-slides.pdf",
+      },
+    ],
     notes:
       "Included fire extinguisher demonstration and spill containment drill.",
   },
@@ -427,7 +443,7 @@ export const HAZCOM_TRAINING_SESSIONS: readonly HazcomTrainingSession[] = [
     chemicals: ["Benzene"],
     attendees: 12,
     status: "Completed",
-    materialsLink: null,
+    materials: [],
     notes:
       "Focused on Section 8 exposure controls and Section 11 toxicological data.",
   },
@@ -446,7 +462,7 @@ export const HAZCOM_TRAINING_SESSIONS: readonly HazcomTrainingSession[] = [
     ],
     attendees: 0,
     status: "Scheduled",
-    materialsLink: null,
+    materials: [],
     notes:
       "Session pending trainer assignment; calendar hold sent to all lab staff.",
   },

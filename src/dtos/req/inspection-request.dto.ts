@@ -13,7 +13,7 @@ export type InspectionItemResponseRequestDto = {
 /** Body for PUT /api/Inspection/{id}/responses — records the answers. */
 export type SaveInspectionResponsesRequestDto = {
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** The run's score as a percentage, 0-100. */
   score: number;
   responses: InspectionItemResponseRequestDto[];
@@ -30,5 +30,5 @@ export type CreateInspectionRequestDto = {
   /** ISO date-time string. */
   scheduleDate: string;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
 };

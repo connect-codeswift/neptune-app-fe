@@ -19,10 +19,10 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
   const { hazardId } = props;
   const router = useRouter();
 
-  // userId / subCompanyId come from the signed-in user's access-token claims.
-  const { userId, subCompanyId } = getCurrentUser();
+  // userId / siteId come from the signed-in user's access-token claims.
+  const { userId, siteId } = getCurrentUser();
   const detailQuery = useHazardDetailQuery(toHazardApiId(hazardId), {
-    subCompanyId,
+    siteId,
     userId,
   });
 

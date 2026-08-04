@@ -151,7 +151,7 @@ export function StartAuditForm() {
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching StartAuditValues.
     const audit = values as StartAuditValues;
-    const { userId, subCompanyId } = getCurrentUser();
+    const { userId, siteId } = getCurrentUser();
 
     // The date input yields "YYYY-MM-DD"; send a full ISO date-time.
     const parsedDate = audit.scheduledDate
@@ -172,7 +172,7 @@ export function StartAuditForm() {
         auditorId: Number(audit.auditor) || 0,
         scheduleDate,
         userId,
-        subCompanyId,
+        siteId,
       },
       {
         onSuccess: (response) => {

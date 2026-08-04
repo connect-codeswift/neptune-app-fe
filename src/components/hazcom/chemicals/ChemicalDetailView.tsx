@@ -175,6 +175,10 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
                 label="Location / Work Area"
                 value={chemical.location}
               />
+              <DetailRow
+                label="Dispose Location"
+                value={chemical.disposeLocation ?? "Not recorded"}
+              />
               <DetailRow label="Current Quantity" value={chemical.quantity} />
               <DetailRow label="GHS Signal Word" value={chemical.signalWord} />
               <DetailRow label="Link to SDS Record" value={sdsValue} />

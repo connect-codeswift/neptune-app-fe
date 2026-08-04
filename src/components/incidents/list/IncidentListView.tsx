@@ -13,8 +13,8 @@ import {
   buildIncidentListKpis,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
-  toApiCaseDispositionFilter,
   toApiSeverityFilter,
+  toApiStageFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
@@ -91,7 +91,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     pageSize,
     search: appliedSearch,
     severity: toApiSeverityFilter(severityFilter),
-    caseDisposition: toApiCaseDispositionFilter(stateFilter),
+    stage: toApiStageFilter(stateFilter, stageFilter),
     enabled: isClientReady && hasToken,
   });
   const closeIncidentMutation = useCloseIncidentMutation();
@@ -105,13 +105,13 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   /**
    * Second filtering pass, on purpose (belt and braces).
    *
-   * `search` / `severity` / `caseDisposition` are now sent to GetAllIncidents so
+   * `search` / `severity` / `stage` are now sent to GetAllIncidents so
    * filtering spans every page instead of the 10 visible rows. But backend
    * deploys here are manual and can lag the frontend: an older API silently
    * ignores the new params and returns an unfiltered page. Re-running the
    * filters locally is a no-op when the server honored them, and keeps the list
-   * correct (page-scoped, as before) when it did not. `stage` has no server
-   * counterpart at all and is only ever filtered here.
+   * correct (page-scoped, as before) when it did not. `state: Open` has no
+   * server counterpart and is only ever filtered here.
    */
   const filteredIncidents = useMemo(() => {
     return incidents.filter((incident) => {
@@ -246,7 +246,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
             <button
               type="button"
               onClick={() => void incidentsQuery.refetch()}
-              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-[13px] font-semibold"
+              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-sm font-semibold"
             >
               <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
               Retry
@@ -298,7 +298,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 />
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <Text as="p" className="text-ehs-muted-text text-[12px]">
+                  <Text as="p" className="text-ehs-muted-text text-sm">
                     {[
                       `Page ${String(pageNumber)} of ${String(totalPages)}`,
                       totalCount > 0 ? `${String(totalCount)} total` : null,
@@ -316,7 +316,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                       onClick={() =>
                         setPageNumber((current) => Math.max(1, current - 1))
                       }
-                      className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
+                      className="rounded-[10px] px-3 py-2 text-sm font-semibold disabled:opacity-40"
                     >
                       <Icon
                         icon="mdi:chevron-left"
@@ -334,7 +334,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                           Math.min(totalPages, current + 1),
                         )
                       }
-                      className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
+                      className="rounded-[10px] px-3 py-2 text-sm font-semibold disabled:opacity-40"
                     >
                       Next
                       <Icon

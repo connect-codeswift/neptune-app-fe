@@ -41,7 +41,7 @@ export function IncidentDetailWitnessesCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[19px]"
-      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}
     >
@@ -49,11 +49,11 @@ export function IncidentDetailWitnessesCard(
         <div className="flex flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Witnesses
           </Text>
-          <span className="text-[11px] leading-normal text-[#8892a3]">
+          <span className="text-sm leading-normal text-ehs-muted-text">
             {witnesses.length} logged
           </span>
         </div>
@@ -61,7 +61,7 @@ export function IncidentDetailWitnessesCard(
           <button
             type="button"
             onClick={onAddWitness}
-            className="inline-flex items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[11px] py-[6.5px] text-[11px] font-bold text-[#0b1320] shadow-sm backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="inline-flex items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[11px] py-[6.5px] text-sm font-bold text-ehs-dark-bg shadow-sm backdrop-blur-[6px] transition-colors hover:bg-white/80"
           >
             <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
             Add
@@ -70,7 +70,7 @@ export function IncidentDetailWitnessesCard(
       </div>
 
       {witnesses.length === 0 ? (
-        <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-[12px] text-[#8892a3]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm text-ehs-muted-text">
           {isEditing
             ? "No witnesses yet. Click Add to include one."
             : "No witnesses logged."}
@@ -81,7 +81,7 @@ export function IncidentDetailWitnessesCard(
             key={`${witness.name}-${String(index)}`}
             className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
           >
-            <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[rgba(255,255,255,0.82)] text-[10.2px] font-bold text-[#566072]">
+            <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[rgba(255,255,255,0.82)] text-xs font-bold text-ehs-gray">
               {witness.initials}
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -104,16 +104,16 @@ export function IncidentDetailWitnessesCard(
                       onChangeWitness?.(index, { role: event.target.value })
                     }
                     placeholder="Role"
-                    className={`${fieldInputClass} text-[11px]`}
+                    className={`${fieldInputClass} text-sm`}
                     aria-label="Witness role"
                   />
                 </>
               ) : (
                 <>
-                  <span className="text-[12px] leading-normal font-bold text-[#0b1320]">
+                  <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
                     {witness.name}
                   </span>
-                  <span className="truncate text-[11px] leading-normal text-[#8892a3]">
+                  <span className="truncate text-sm leading-normal text-ehs-muted-text">
                     {witness.role}
                   </span>
                 </>
@@ -123,7 +123,7 @@ export function IncidentDetailWitnessesCard(
               <button
                 type="button"
                 onClick={() => onRemoveWitness?.(index)}
-                className="inline-flex size-7 shrink-0 items-center justify-center rounded-[8px] text-[#8892a3] transition-colors hover:bg-[rgba(11,19,32,0.08)] hover:text-[#0b1320]"
+                className="inline-flex size-7 shrink-0 items-center justify-center rounded-[8px] text-ehs-muted-text transition-colors hover:bg-[rgba(11,19,32,0.08)] hover:text-ehs-dark-bg"
                 aria-label={`Remove witness ${witness.name || String(index + 1)}`}
               >
                 <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
@@ -131,10 +131,10 @@ export function IncidentDetailWitnessesCard(
             ) : (
               <span
                 className={[
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]",
+                  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px] text-ehs-gray",
                   witness.badgeTone === "green"
-                    ? "bg-[rgba(11,19,32,0.14)]"
-                    : "bg-[rgba(11,19,32,0.16)]",
+                    ? "bg-ehs-dark-bg/14"
+                    : "bg-ehs-dark-bg/16",
                 ].join(" ")}
               >
                 {witness.badgeTone === "green" ? (

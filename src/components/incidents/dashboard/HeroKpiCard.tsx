@@ -82,18 +82,18 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           <div className="flex min-w-0 flex-col gap-0.5">
             <Text
               as="p"
-              className="text-ehs-darker text-[13px] font-bold tracking-[0.26px]"
+              className="text-ehs-darker text-sm font-bold tracking-[0.26px]"
             >
               {metric.title}
             </Text>
-            <Text as="p" className="text-ehs-muted-text text-[10.5px]">
+            <Text as="p" className="text-ehs-muted-text text-xs">
               {metric.subtitle}
             </Text>
           </div>
 
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[11px] font-bold tracking-[0.11px]",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold tracking-[0.11px]",
               status === "on"
                 ? "bg-ehs-green/14 text-ehs-green"
                 : "bg-ehs-red/14 text-ehs-red",
@@ -114,7 +114,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           <div className="flex items-baseline gap-1 pr-1.5">
             <Text
               as="p"
-              className="text-ehs-darker text-[42px] leading-[42px] tracking-[-1.26px] tabular-nums"
+              className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
             >
               {metric.value}
             </Text>

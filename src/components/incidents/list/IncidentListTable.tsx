@@ -71,10 +71,7 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
       cell: (info) => (
         <Text
           as="span"
-          className={[
-            "text-ehs-muted-text block font-normal tabular-nums",
-            expanded ? "text-[13px]" : "truncate text-[11px]",
-          ].join(" ")}
+          className="text-ehs-muted-text text-xs font-semibold tabular-nums"
         >
           {info.getValue()}
         </Text>
@@ -90,21 +87,13 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
         <div className="flex w-full min-w-0 flex-col gap-1">
           <Text
             as="p"
-            className={[
-              "text-ehs-dark-bg leading-normal font-normal first-letter:uppercase",
-              expanded ? "text-[14px] leading-5" : "line-clamp-2 text-[11.6px]",
-            ].join(" ")}
+            className="text-ehs-dark-bg text-sm leading-normal font-normal first-letter:uppercase"
           >
             {row.original.title}
           </Text>
           <Text
             as="p"
-            className={[
-              "text-ehs-muted-text leading-normal font-normal first-letter:uppercase",
-              expanded
-                ? "text-[12px] leading-[16px]"
-                : "line-clamp-2 text-[10px]",
-            ].join(" ")}
+            className="text-ehs-muted-text text-sm leading-normal font-normal first-letter:uppercase"
           >
             {row.original.description}
           </Text>
@@ -121,23 +110,11 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
 
         return (
           <div className="w-full min-w-0">
-            <Text
-              as="p"
-              className={[
-                "text-ehs-gray",
-                expanded ? "text-[13px]" : "truncate text-[12px]",
-              ].join(" ")}
-            >
+            <Text as="p" className="text-ehs-gray text-sm font-normal">
               {sitePrimary}
             </Text>
             {siteSecondary ? (
-              <Text
-                as="p"
-                className={[
-                  "text-ehs-gray",
-                  expanded ? "text-[13px]" : "truncate text-[12px]",
-                ].join(" ")}
-              >
+              <Text as="p" className="text-ehs-gray text-sm font-normal">
                 {siteSecondary}
               </Text>
             ) : null}
@@ -241,10 +218,10 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
       ? "h-[108px] px-5"
       : "h-[97px] px-3 sm:px-4";
   const headerPadClass = compact
-    ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-[10px]"
+    ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-xs"
     : expanded
-      ? "px-5 pt-4 pb-4 text-[11px]"
-      : "px-3 pt-[13px] pb-[13.5px] text-[10px] sm:px-4";
+      ? "px-5 pt-4 pb-4 text-xs"
+      : "px-3 pt-[13px] pb-[13.5px] text-xs sm:px-4";
 
   return (
     <IncidentGlassCard
@@ -254,7 +231,7 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
       {toolbar}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-        <table className="w-full table-fixed border-collapse text-left">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
               <col
@@ -275,7 +252,7 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text font-bold tracking-[0.8px] uppercase",
+                        "text-ehs-muted-text text-xs font-bold tracking-wide uppercase",
                         headerPadClass,
                         alignClass(align),
                       ].join(" ")}

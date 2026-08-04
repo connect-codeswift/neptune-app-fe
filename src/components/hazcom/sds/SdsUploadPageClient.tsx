@@ -107,6 +107,7 @@ export function SdsUploadPageClient() {
   const [hazardStatementCode, setHazardStatementCode] = useState("");
   const [precautionaryStatementCode, setPrecautionaryStatementCode] =
     useState("");
+  const [disposeLocation, setDisposeLocation] = useState("");
 
   const chemicalOptions = useMemo(
     () => [
@@ -183,6 +184,7 @@ export function SdsUploadPageClient() {
     manufacturer: manufacturer.trim(),
     casNumber: casNumber.trim(),
     hazardClass: hazardClass.trim(),
+    disposeLocation: disposeLocation.trim() || null,
     signalWord: signalWord ?? "",
     // A plain date in the UI, a date-time on the wire.
     revisionDate:
@@ -273,7 +275,14 @@ export function SdsUploadPageClient() {
             hint="Fills the fields below from the chemical record"
             options={chemicalOptions}
             value={chemicalId}
-            onChange={(event) => setChemicalId(event.target.value)}
+            onChange={(event) => {
+              const nextId = event.target.value;
+              setChemicalId(nextId);
+              const nextChemical = chemicals.find(
+                (chemical) => chemical.id === nextId,
+              );
+              setDisposeLocation(nextChemical?.disposeLocation ?? "");
+            }}
           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -309,8 +318,16 @@ export function SdsUploadPageClient() {
                 value={hazardClass}
                 className={lockedFieldClass}
               />
+              <HazcomTextField
+                label="Dispose Location"
+                trailingHint="Optional — max 250 chars"
+                placeholder="e.g. Hazardous waste drum — Bay 3"
+                value={disposeLocation}
+                onChange={(event) => setDisposeLocation(event.target.value)}
+                maxLength={250}
+              />
 
-              <div className={`flex flex-col gap-1.5 ${lockedFieldClass}`}>
+              <div className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}>
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                   <Text
                     as="span"

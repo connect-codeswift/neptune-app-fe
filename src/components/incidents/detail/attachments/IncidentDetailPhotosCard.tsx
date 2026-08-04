@@ -46,11 +46,11 @@ function PhotosContent(
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Photos, video & files
           </Text>
-          <span className="text-[11px] leading-normal text-[#8892a3]">
+          <span className="text-sm leading-normal text-ehs-muted-text">
             {isEditing
               ? "Remove files, then save"
               : `${String(attachments.length)} files attached`}
@@ -60,7 +60,7 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-[#0b1320] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
           >
             <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
             Add file
@@ -69,7 +69,7 @@ function PhotosContent(
       </div>
 
       {displayItems.length === 0 ? (
-        <div className="py-8 text-center text-[12px] text-[#8892a3]">
+        <div className="py-8 text-center text-sm text-ehs-muted-text">
           No media files uploaded.
         </div>
       ) : (
@@ -116,10 +116,10 @@ function PhotosContent(
                         icon={
                           isPdf ? "mdi:file-pdf-box" : "mdi:file-document-outline"
                         }
-                        className="size-8 text-white/90"
+                        className="size-8 text-ehs-light-text/90"
                         aria-hidden="true"
                       />
-                      <span className="text-[9px] font-bold tracking-wider text-white/80 uppercase">
+                      <span className="text-xs font-bold tracking-wider text-ehs-light-text/80 uppercase">
                         {isPdf ? "PDF" : "FILE"}
                       </span>
                     </div>
@@ -127,7 +127,7 @@ function PhotosContent(
 
                   {isVideo ? (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
-                      <div className="flex size-9 items-center justify-center rounded-[18px] bg-[rgba(255,255,255,0.92)] text-[#0b1320]">
+                      <div className="flex size-9 items-center justify-center rounded-[18px] bg-[rgba(255,255,255,0.92)] text-ehs-dark-bg">
                         <Icon
                           icon="mdi:play"
                           className="size-4"
@@ -138,10 +138,10 @@ function PhotosContent(
                   ) : null}
 
                   <div className="absolute inset-x-2 bottom-[3px] z-20 flex items-start justify-between gap-1">
-                    <span className="truncate text-[10px] leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="truncate text-xs leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.name.replace(/\.[^.]+$/, "")}
                     </span>
-                    <span className="shrink-0 text-[10px] leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="shrink-0 text-xs leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.sizeLabel}
                     </span>
                   </div>
@@ -154,7 +154,7 @@ function PhotosContent(
                       event.stopPropagation();
                       onDeleteFile?.(item);
                     }}
-                    className="absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full bg-[rgba(11,19,32,0.72)] text-white shadow-sm transition-colors hover:bg-[#b42318]"
+                    className="absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full bg-ehs-dark-bg/72 text-ehs-light-text shadow-sm transition-colors hover:bg-ehs-red"
                     aria-label={`Delete ${item.name}`}
                   >
                     <Icon
@@ -214,7 +214,7 @@ export function IncidentDetailPhotosCard(
     <IncidentGlassCard
       paddingClassName="p-[23px]"
       incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}
     >

@@ -1,8 +1,8 @@
-type SubcompanyDto = {
+type SiteDto = {
   id: number;
   industryType: string;
-  companySize: string;
-  companyName: string;
+  siteSize: string;
+  siteName: string;
   location: string;
 };
 
@@ -16,7 +16,7 @@ export type AuthResponseDto = {
   organizationId: number;
   organizationName: string;
   activatedModules: string;
-  subcompany: SubcompanyDto[];
+  sites: SiteDto[];
 };
 
 export type LoginResponseDto = {

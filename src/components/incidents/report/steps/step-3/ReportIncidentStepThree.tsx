@@ -36,7 +36,7 @@ export function ReportIncidentStepThree(
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
-              className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
+              className="text-ehs-dark-blue text-xs font-bold tracking-wide uppercase"
             >
               Step 3
             </Text>
@@ -46,7 +46,7 @@ export function ReportIncidentStepThree(
             >
               People & injury
             </Text>
-            <Text as="p" className="text-ehs-gray text-[12px]">
+            <Text as="p" className="text-ehs-gray text-sm">
               If anyone was hurt, capture the basics now. You can add a full
               investigation later.
             </Text>
@@ -105,7 +105,7 @@ export function ReportIncidentStepThree(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -115,7 +115,7 @@ export function ReportIncidentStepThree(
               Back
             </Button>
 
-            <p className="text-ehs-muted-text min-w-0 flex-1 text-[10.8px]">
+            <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
@@ -124,7 +124,7 @@ export function ReportIncidentStepThree(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon

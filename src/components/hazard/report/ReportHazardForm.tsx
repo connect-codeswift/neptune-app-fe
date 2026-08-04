@@ -16,8 +16,8 @@ import {
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
 
 function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
-  // userId / subCompanyId come from the signed-in user's access-token claims.
-  const { userId, subCompanyId } = getCurrentUser();
+  // userId / siteId come from the signed-in user's access-token claims.
+  const { userId, siteId } = getCurrentUser();
 
   return {
     type: report.hazardType,
@@ -28,7 +28,7 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
     // Assignment happens after triage, so nobody is assigned on create.
     assignedTo: 0,
     userId,
-    subCompanyId,
+    siteId,
     isDrop: false,
   };
 }

@@ -17,7 +17,7 @@ export type AuditTemplateItemRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** Non-nullable on the backend; 0 on create, then set from the parent. */
   templateSectionId: number;
 };
@@ -31,7 +31,7 @@ export type AuditTemplateSectionRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** Non-nullable on the backend; 0 on create, then set from the parent. */
   auditTemplateId: number;
   items: AuditTemplateItemRequestDto[];
@@ -56,7 +56,7 @@ export type AuditTemplateLogicRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   auditTemplateId: number;
 };
 
@@ -83,7 +83,7 @@ export type CreateAuditTemplateRequestDto = {
   dueWindowDays: number;
   notifyAssignee: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   sections: AuditTemplateSectionRequestDto[];
   conditionalLogics: AuditTemplateLogicRequestDto[];
 };

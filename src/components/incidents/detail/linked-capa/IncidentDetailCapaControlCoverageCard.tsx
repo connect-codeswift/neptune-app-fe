@@ -43,11 +43,11 @@ export function IncidentDetailCapaControlCoverageCard(
       <div className="flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Control coverage
         </Text>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           Across hierarchy of controls
         </span>
       </div>
@@ -69,18 +69,18 @@ export function IncidentDetailCapaControlCoverageCard(
                     : "py-2",
               ].join(" ")}
             >
-              <span className="size-2.5 shrink-0 rounded-[3px] bg-[#566072]" />
-              <span className="min-w-0 flex-1 text-[12px] leading-normal text-[#2a3446]">
+              <span className="size-2.5 shrink-0 rounded-[3px] bg-ehs-gray" />
+              <span className="min-w-0 flex-1 text-sm leading-normal text-ehs-slate">
                 {ctrl.label}
               </span>
               <span
                 className={[
-                  "shrink-0 text-[12px] font-bold",
+                  "shrink-0 text-sm font-bold",
                   isLoading
-                    ? "text-[#b3bbc8]"
+                    ? "text-ehs-muted-text"
                     : ctrl.count > 0
-                      ? "text-[#0b1320]"
-                      : "text-[#b3bbc8]",
+                      ? "text-ehs-dark-bg"
+                      : "text-ehs-muted-text",
                 ].join(" ")}
               >
                 {isLoading ? "—" : ctrl.count}
@@ -91,7 +91,7 @@ export function IncidentDetailCapaControlCoverageCard(
       </div>
 
       {!isLoading && noticeMessage ? (
-        <div className="rounded-[10px] border border-[rgba(11,19,32,0.35)] bg-[rgba(11,19,32,0.14)] px-[13px] pt-[12px] pb-[13px] text-[10.8px] leading-[16.5px] text-[#2a3446]">
+        <div className="rounded-[10px] border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-[13px] pt-[12px] pb-[13px] text-xs leading-[16.5px] text-ehs-slate">
           <span className="font-bold">{noticeLead}</span>{" "}
           {noticeRest}
         </div>

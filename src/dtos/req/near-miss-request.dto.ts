@@ -14,5 +14,5 @@ export type CreateNearMissRequestDto = {
   contributingFactor: string[];
   isDrop: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
 };

@@ -34,7 +34,7 @@ const FIELD_BASE = [
 ].join(" ");
 
 /** Single-line inputs and selects. */
-export const FIELD_INPUT_CLASS = `h-9 px-[13px] text-[13px] ${FIELD_BASE}`;
+export const FIELD_INPUT_CLASS = `h-9 px-[13px] text-sm ${FIELD_BASE}`;
 
 /**
  * Selects: native chevron removed so we can draw our own, with room for it.
@@ -49,7 +49,7 @@ export const FIELD_SELECT_CLASS = `${FIELD_INPUT_CLASS} cursor-pointer appearanc
 export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text";
 
 /** Multi-line inputs — same skin, no fixed height. */
-export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text-[13px] leading-[19.5px] ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text-sm leading-normal ${FIELD_BASE}`;
 
 /**
  * Textarea with a reserved strip along the bottom for in-field controls such as
@@ -62,4 +62,4 @@ export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-[128px] resize-y px-[13
  * Taller variant for the template/form builders, where a field is the primary
  * thing on the row rather than one cell in a dense grid.
  */
-export const FIELD_INPUT_LG_CLASS = `px-3 py-2.5 text-[14px] ${FIELD_BASE}`;
+export const FIELD_INPUT_LG_CLASS = `px-3 py-2.5 text-sm ${FIELD_BASE}`;

@@ -247,7 +247,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               <button
                 type="button"
                 onClick={onRetry}
-                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-[13px] font-semibold"
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-sm font-semibold"
               >
                 <Icon
                   icon="mdi:refresh"
@@ -287,12 +287,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       paddingClassName="p-[23px]"
                       incidentGlassCardClassName="gap-[13px]"
                       className={
-                        isEditingDetails ? "ring-1 ring-[#0891a6]/25" : ""
+                        isEditingDetails ? "ring-1 ring-ehs-normal-blue/25" : ""
                       }
                     >
                       <Text
                         as="h3"
-                        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+                        className="text-ehs-dark-bg text-lg font-semibold"
                       >
                         Response notes
                       </Text>
@@ -304,12 +304,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                           }
                           rows={4}
                           placeholder="Add response notes…"
-                          className="min-h-[100px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-[13px] leading-[20.8px] text-[#2a3446] transition outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+                          className="min-h-[100px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-sm leading-[20.8px] text-ehs-slate transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
                         />
                       ) : (
                         <Text
                           as="p"
-                          className="text-[13px] leading-[20.8px] whitespace-pre-wrap text-[#2a3446]"
+                          className="text-sm leading-[20.8px] whitespace-pre-wrap text-ehs-slate"
                         >
                           {responseNotes}
                         </Text>
@@ -389,7 +389,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   paddingClassName="p-[23px]"
                   incidentGlassCardClassName="gap-[14px]"
                   className={
-                    isEditingAttachments ? "ring-1 ring-[#0891a6]/25" : ""
+                    isEditingAttachments ? "ring-1 ring-ehs-normal-blue/25" : ""
                   }
                 >
                   <IncidentDetailPhotosCard
@@ -421,11 +421,11 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     >
                       <Text
                         as="h3"
-                        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+                        className="text-ehs-dark-bg text-lg font-semibold"
                       >
                         Delete files
                       </Text>
-                      <span className="text-[12px] leading-normal text-[#566072]">
+                      <span className="text-sm leading-normal text-ehs-gray">
                         Remove photos or documents, then click Save. Uploads are
                         disabled while editing.
                       </span>

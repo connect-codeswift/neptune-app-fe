@@ -40,7 +40,7 @@ export function IncidentDetailInvestigationStatusCard(
     >
       <Text
         as="h3"
-        className="pb-[14px] text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="pb-[14px] text-ehs-dark-bg text-lg font-semibold"
       >
         Investigation status
       </Text>
@@ -52,7 +52,7 @@ export function IncidentDetailInvestigationStatusCard(
             className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-[9px]"
           >
             {step.completed ? (
-              <div className="flex size-[18px] shrink-0 items-center justify-center rounded-[9px] bg-[#10b981] text-white">
+              <div className="flex size-[18px] shrink-0 items-center justify-center rounded-[9px] bg-ehs-green text-ehs-light-text">
                 <Icon icon="mdi:check" className="size-[11px]" aria-hidden="true" />
               </div>
             ) : (
@@ -60,8 +60,8 @@ export function IncidentDetailInvestigationStatusCard(
             )}
             <span
               className={[
-                "text-[12px] leading-normal",
-                step.completed ? "text-[#0b1320]" : "text-[#566072]",
+                "text-sm leading-normal",
+                step.completed ? "text-ehs-dark-bg" : "text-ehs-gray",
               ].join(" ")}
             >
               {step.label}
@@ -71,13 +71,13 @@ export function IncidentDetailInvestigationStatusCard(
       </div>
 
       <div className="mt-3 flex flex-col gap-1.5">
-        <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]">
+        <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-ehs-muted-text/20">
           <div
-            className="h-full rounded-full bg-[#0891a6] transition-all duration-300"
+            className="h-full rounded-full bg-ehs-normal-blue transition-all duration-300"
             style={{ width: `${String(percentage)}%` }}
           />
         </div>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           {completedCount} of {steps.length} complete
         </span>
       </div>

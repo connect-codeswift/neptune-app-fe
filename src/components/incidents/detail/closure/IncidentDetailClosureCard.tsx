@@ -164,7 +164,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={handleBackPrevious}
-                className="rounded-[10px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-[#1e293b] shadow-xs transition-colors hover:bg-[#f8fafc]"
+                className="rounded-[10px] bg-white px-4.5 py-2.5 text-sm font-bold text-ehs-dark-bg shadow-xs transition-colors hover:bg-ehs-light-bg"
               >
                 {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
               </button>
@@ -176,7 +176,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-3.5 py-2.5 text-[13px] font-bold text-[#566072] transition-colors hover:text-[#0b1320]"
+                className="px-3.5 py-2.5 text-sm font-bold text-ehs-gray transition-colors hover:text-ehs-dark-bg"
               >
                 Cancel
               </button>
@@ -184,7 +184,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={onSaveAsDraft}
-                className="rounded-[10px] border border-[#0891a6] bg-white px-4 py-2.5 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                className="rounded-[10px] border border-ehs-normal-blue bg-white px-4 py-2.5 text-sm font-bold text-ehs-normal-blue transition-colors hover:bg-[rgba(8,145,166,0.06)]"
               >
                 Save as Draft
               </button>
@@ -197,10 +197,10 @@ export function IncidentDetailClosureCard(
                   (currentStep === 4 && data.closureStatus === "Closed")
                 }
                 className={[
-                  "rounded-[10px] px-5 py-2.5 text-[13px] font-bold text-white transition-all",
+                  "rounded-[10px] px-5 py-2.5 text-sm font-bold text-ehs-light-text transition-all",
                   data.closureStatus === "Closed" && currentStep === 4
                     ? "cursor-default bg-emerald-600"
-                    : "bg-[#0891a6] hover:bg-[#067485] active:scale-[0.99]",
+                    : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active active:scale-[0.99]",
                 ].join(" ")}
               >
                 {isSubmitting ? "Processing…" : STEP_NEXT_LABELS[currentStep]}

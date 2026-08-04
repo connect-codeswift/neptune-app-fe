@@ -2,7 +2,11 @@ import { getAccessToken } from "@/lib/axios";
 
 export type AuthContext = Readonly<{
   userId: number;
+  /** Tenant site id from the SiteId JWT claim (formerly SubCompanyId). */
+  siteId: number;
+  /** @deprecated Alias for `siteId` — kept during the site rename rollout. */
   subCompanyId: number;
+  siteName: string | null;
   organizationId: number | null;
   email: string | null;
   fullName: string | null;
@@ -82,12 +86,28 @@ export function getAuthContext(): AuthContext | null {
   if (!payload) {
     return {
       userId: 0,
+      siteId: 0,
       subCompanyId: 0,
+      siteName: null,
       organizationId: null,
       email: null,
       fullName: null,
     };
   }
+
+  const siteId =
+    toNonNegativeInt(
+      readClaim(payload, [
+        "siteId",
+        "SiteId",
+        "site_id",
+        "subCompanyId",
+        "SubCompanyId",
+        "subcompanyId",
+        "SubCompId",
+        "subCompId",
+      ]),
+    ) ?? 0;
 
   return {
     userId:
@@ -100,16 +120,11 @@ export function getAuthContext(): AuthContext | null {
           "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
         ]),
       ) ?? 0,
-    subCompanyId:
-      toNonNegativeInt(
-        readClaim(payload, [
-          "subCompanyId",
-          "SubCompanyId",
-          "subcompanyId",
-          "SubCompId",
-          "subCompId",
-        ]),
-      ) ?? 0,
+    siteId,
+    subCompanyId: siteId,
+    siteName: toOptionalString(
+      readClaim(payload, ["siteName", "SiteName", "subCompanyName", "SubCompanyName"]),
+    ),
     organizationId: toNonNegativeInt(
       readClaim(payload, [
         "organizationId",

@@ -27,13 +27,13 @@ export function IncidentSegmentedControl(
       <div className="flex shrink-0 items-center py-px">
         <Text
           as="span"
-          className="text-ehs-muted-text shrink-0 text-[10px] font-bold tracking-[0.8px] uppercase sm:text-[11px]"
+          className="text-ehs-muted-text shrink-0 text-xs font-bold tracking-wide uppercase"
         >
           {label}
         </Text>
       </div>
 
-      <div className="border-ehs-border/70 flex min-w-0 flex-1 items-center gap-0.5 rounded-xl border bg-white/80 p-1 shadow-xs backdrop-blur-xs">
+      <div className="border-ehs-border/70 flex min-w-0 flex-1 flex-wrap items-center gap-2 rounded-xl border bg-white/80 p-2 shadow-xs backdrop-blur-xs">
         {options.map((option) => {
           const isActive = value === option;
 
@@ -44,9 +44,9 @@ export function IncidentSegmentedControl(
               title={option}
               onClick={() => onChange(option)}
               className={[
-                "flex min-w-max flex-1 cursor-pointer items-center justify-center rounded-lg px-2.5 py-1.5 text-center text-[11px] font-semibold whitespace-nowrap transition-all duration-150 sm:text-[11.5px]",
+                "flex min-w-max flex-1 cursor-pointer items-center justify-center rounded-md px-2.5 py-1 text-sm whitespace-nowrap transition-colors",
                 isActive
-                  ? "bg-ehs-dark-bg text-ehs-light-text font-bold shadow-xs"
+                  ? "bg-ehs-dark-bg text-ehs-light-text font-semibold shadow-xs"
                   : "text-ehs-gray hover:text-ehs-darker hover:bg-black/5",
               ].join(" ")}
             >

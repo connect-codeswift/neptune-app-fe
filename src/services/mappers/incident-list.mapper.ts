@@ -119,6 +119,13 @@ function capitalizeFirst(text: string | null | undefined): string {
 }
 
 function buildTitle(incident: IncidentDto): string {
+  const apiTitle = incident.title?.trim();
+  if (apiTitle) {
+    const truncated =
+      apiTitle.length > 80 ? `${apiTitle.slice(0, 77)}...` : apiTitle;
+    return capitalizeFirst(truncated);
+  }
+
   const description = incident.description?.trim();
   if (description) {
     const firstSentence = description.split(/[.?\n]/)[0]?.trim();

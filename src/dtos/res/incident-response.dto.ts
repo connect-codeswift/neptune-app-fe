@@ -9,6 +9,7 @@ export type PersonDto = {
 /** Matches backend `IncidentDto` from GET/POST Incident APIs */
 export type IncidentDto = {
   id?: number;
+  title?: string | null;
   severity?: string | null;
   site?: string | null;
   location?: string | null;
@@ -32,10 +33,11 @@ export type IncidentDto = {
   affectedPersonId?: string | null;
   reportedById?: number;
   userId?: number;
-  subCompanyId?: number;
+  siteId?: number;
   injuredBodyPart?: string | null;
   injuryDescription?: string | null;
   incidentReporterEmail?: string | null;
+  occurredInCanada?: boolean;
   nonEmployeInvolved?: boolean;
   whatTreatmentWasGiven?: string | null;
   treatmentProvidedBy?: string | null;

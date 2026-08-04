@@ -8,7 +8,7 @@ export type HazardCategoryCountDto = {
 
 /** dataModel shape for GET /api/EHSCommandCenter/GetMainDashboardKpis. */
 export type DashboardKpisDto = {
-  subCompanyId?: number | null;
+  siteId?: number | null;
   trir?: number | null;
   lostTimeInjuryRate?: number | null;
   totalCompliance?: number | null;
@@ -33,7 +33,7 @@ export type IncidentTrendWeekDto = {
 
 /** dataModel shape for GET /api/EHSCommandCenter/GetIncidentTrends. */
 export type IncidentTrendsDto = {
-  subCompanyId?: number | null;
+  siteId?: number | null;
   weeks?: number | null;
   trends?: IncidentTrendWeekDto[] | null;
 };
@@ -50,7 +50,7 @@ export type MyActionItemDto = Record<string, unknown>;
 
 /** dataModel shape for GET /api/EHSCommandCenter/GetMyActions. */
 export type MyActionsDto = {
-  subCompanyId?: number | null;
+  siteId?: number | null;
   assignedCount?: number | null;
   dueThisWeekCount?: number | null;
   actions?: MyActionItemDto[] | null;

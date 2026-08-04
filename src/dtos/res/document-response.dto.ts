@@ -33,7 +33,7 @@ export type DocumentDto = {
   createdByName?: string | null;
   ownerName?: string | null;
   owner?: string | null;
-  subCompanyId?: number | null;
+  siteId?: number | null;
   status?: string | null;
   version?: string | null;
   currentVersion?: string | null;

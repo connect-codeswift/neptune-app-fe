@@ -15,7 +15,7 @@ export type IncidentKpisHeaderProps = Readonly<{
 }>;
 
 const controlClass =
-  "border-ehs-border text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-[13px] shadow-sm transition-colors hover:bg-ehs-light-bg";
+  "border-ehs-border text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-sm shadow-sm transition-colors hover:bg-ehs-light-bg";
 
 export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
   const {
@@ -83,7 +83,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
           type="button"
           variant="tertiary"
           onClick={onExportClick}
-          className="rounded-lg px-3.5 py-2 text-[13px] font-semibold"
+          className="rounded-lg px-3.5 py-2 text-sm font-semibold"
         >
           <Icon icon="mdi:download" className="text-sm" aria-hidden="true" />
           Export
