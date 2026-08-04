@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -104,6 +105,13 @@ export function ReportIncidentStepTwo(
             value={form.description}
             onChange={(event) => onChange({ description: event.target.value })}
             placeholder="Describe what happened…"
+            assistant={
+              <AiTextAssistant
+                value={form.description}
+                onApply={(description) => onChange({ description })}
+                context="a workplace safety incident report — keep every fact, time and name exactly as written"
+              />
+            }
           />
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">

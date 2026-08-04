@@ -1,24 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { Table } from "@/components/ui/Table";
-import {
-  IncidentBadge,
-  IncidentSegmentedControl,
-} from "@/components/incidents";
-import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
+import { Table, type TablePagination } from "@/components/ui/Table";
 import { Text } from "@/components/Text";
 import type {
   ComplianceObligationItem,
   ComplianceStatusType,
   JurisdictionType,
 } from "./regulatory-compliance-types";
+import {
+  CompliancePill,
+  ComplianceSegmentedFilter,
+  complianceGlassCardClass,
+} from "./compliance-ui";
 
 export type RegulatoryComplianceRegisterCardProps = Readonly<{
   items: readonly ComplianceObligationItem[];
-  searchQuery?: string;
+  selectedJurisdiction: JurisdictionType;
+  selectedStatus: ComplianceStatusType;
+  onJurisdictionChange: (value: JurisdictionType) => void;
+  onStatusChange: (value: ComplianceStatusType) => void;
+  pagination?: TablePagination;
+  isLoading?: boolean;
   className?: string;
 }>;
 
@@ -33,67 +37,64 @@ const STATUS_OPTIONS: readonly ComplianceStatusType[] = [
   "All",
   "Compliant",
   "Due soon",
-  "Action",
+  "Action required",
+  "Upcoming",
 ];
-
-function statusTone(
-  status: ComplianceObligationItem["status"],
-): IncidentBadgeTone {
-  if (status === "Compliant") return "success";
-  if (status === "Action required") return "danger";
-  return "warn";
-}
 
 const columnHelper = createColumnHelper<ComplianceObligationItem>();
 
 const columns = [
   columnHelper.accessor("code", {
     header: "Code",
+    size: 116,
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text
+        as="span"
+        className="text-[10px] leading-normal font-bold text-[#8892a3]"
+      >
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("obligation", {
     header: "Obligation",
+    size: 172,
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px]">
+      <Text as="span" className="text-[12px] leading-normal text-[#0b1320]">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("jurisdiction", {
     header: "Jurisdiction",
+    size: 113,
     meta: { align: "center" },
-    cell: (info) => <IncidentBadge label={info.getValue()} tone="muted" />,
+    cell: (info) => <CompliancePill label={info.getValue()} />,
   }),
   columnHelper.accessor("status", {
     header: "Status",
+    size: 131,
     meta: { align: "center" },
-    cell: (info) => (
-      <IncidentBadge
-        label={info.getValue()}
-        tone={statusTone(info.getValue())}
-      />
-    ),
+    cell: (info) => <CompliancePill label={info.getValue()} />,
   }),
   columnHelper.accessor("nextDue", {
-    header: "Next Due",
+    header: "Nextdue",
+    size: 81,
     meta: { align: "center" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text-[12px] leading-normal text-[#566072]">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("evidenceText", {
     header: "Evidence",
+    size: 90,
     meta: { align: "right" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-normal-blue text-[13px]">
+      <Text as="span" className="text-[10px] leading-normal text-[#056e7e]">
         {info.getValue()}
       </Text>
     ),
@@ -103,88 +104,58 @@ const columns = [
 export function RegulatoryComplianceRegisterCard(
   props: RegulatoryComplianceRegisterCardProps,
 ) {
-  const { items, searchQuery = "", className = "" } = props;
+  const {
+    items,
+    selectedJurisdiction,
+    selectedStatus,
+    onJurisdictionChange,
+    onStatusChange,
+    pagination,
+    isLoading = false,
+    className = "",
+  } = props;
   const router = useRouter();
-
-  const [selectedJurisdiction, setSelectedJurisdiction] =
-    useState<JurisdictionType>("All");
-  const [selectedStatus, setSelectedStatus] =
-    useState<ComplianceStatusType>("All");
-
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      if (
-        selectedJurisdiction !== "All" &&
-        item.jurisdiction !== selectedJurisdiction
-      ) {
-        return false;
-      }
-
-      if (selectedStatus !== "All") {
-        if (selectedStatus === "Action" && item.status !== "Action required") {
-          return false;
-        }
-        if (selectedStatus === "Compliant" && item.status !== "Compliant") {
-          return false;
-        }
-        if (selectedStatus === "Due soon" && item.status !== "Due soon") {
-          return false;
-        }
-      }
-
-      if (searchQuery.trim() !== "") {
-        const q = searchQuery.toLowerCase();
-        const matchCode = item.code.toLowerCase().includes(q);
-        const matchObligation = item.obligation.toLowerCase().includes(q);
-        if (!matchCode && !matchObligation) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [items, selectedJurisdiction, selectedStatus, searchQuery]);
-
-  const highlightedId = items.find((item) => item.isHighlighted)?.id ?? null;
 
   return (
     <Table
-      data={filteredItems}
+      variant="compliance"
+      data={items}
       columns={columns}
       getRowId={(row) => row.id}
-      selectedRowId={highlightedId}
       onRowClick={(row) =>
         router.push(`/dashboard/regulatory-compliance/${row.id}`)
       }
-      containerClassName={className}
+      containerClassName={[complianceGlassCardClass, className]
+        .filter(Boolean)
+        .join(" ")}
+      pagination={
+        pagination
+          ? {
+              ...pagination,
+              isLoading,
+            }
+          : undefined
+      }
       header={
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex h-[50.595px] items-center">
           <Text
             as="h2"
-            className="text-ehs-dark-bg text-[17px] leading-tight font-bold"
+            className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
           >
             Register
           </Text>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <IncidentSegmentedControl
-              label=""
+          <div className="ml-auto flex items-center gap-[10px]">
+            <ComplianceSegmentedFilter
               options={JURISDICTION_OPTIONS}
               value={selectedJurisdiction}
-              onChange={(value) =>
-                setSelectedJurisdiction(value as JurisdictionType)
-              }
-              className="min-w-fit flex-none gap-0"
+              onChange={(value) => onJurisdictionChange(value)}
             />
 
-            <IncidentSegmentedControl
-              label=""
+            <ComplianceSegmentedFilter
               options={STATUS_OPTIONS}
               value={selectedStatus}
-              onChange={(value) =>
-                setSelectedStatus(value as ComplianceStatusType)
-              }
-              className="min-w-fit flex-none gap-0"
+              onChange={(value) => onStatusChange(value)}
             />
           </div>
         </div>

@@ -52,6 +52,13 @@ export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text";
 export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text-[13px] leading-[19.5px] ${FIELD_BASE}`;
 
 /**
+ * Textarea with a reserved strip along the bottom for in-field controls such as
+ * the AI assist button. Taller than the plain variant so the writing area still
+ * shows three lines once the strip is taken out.
+ */
+export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-[128px] resize-y px-[13px] pt-[10.5px] pb-10 text-[13px] leading-[19.5px] ${FIELD_BASE}`;
+
+/**
  * Taller variant for the template/form builders, where a field is the primary
  * thing on the row rather than one cell in a dense grid.
  */

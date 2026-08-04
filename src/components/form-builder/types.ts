@@ -41,11 +41,22 @@ export type TextFieldConfig = BaseField &
     readOnly?: boolean;
     /** Muted note shown beside a read-only value, e.g. "(auto-filled)". */
     note?: string;
+    /**
+     * Ready-made values offered from a round add button beside the input.
+     * The field stays free-text; picking one just fills it in.
+     */
+    suggestions?: readonly string[];
   }>;
 
 export type DateFieldConfig = BaseField &
   Readonly<{
     type: "date";
+    placeholder?: string;
+  }>;
+
+export type TimeFieldConfig = BaseField &
+  Readonly<{
+    type: "time";
     placeholder?: string;
   }>;
 
@@ -81,6 +92,11 @@ export type SelectFieldConfig = BaseField &
     selectedOption?: SelectOption;
     /** Render the control read-only — the value is fixed by the caller. */
     disabled?: boolean;
+    /**
+     * "search" swaps the chevron trigger for a round add button, so the field
+     * reads as a search box that opens its menu from the button.
+     */
+    variant?: "default" | "search";
   }>;
 
 export type TextareaFieldConfig = BaseField &
@@ -121,14 +137,45 @@ export type PhotoFieldConfig = BaseField &
     maxFiles?: number;
   }>;
 
+/** Colour family for a tile — drives its tint, border and icon. */
+export type TileTone = "positive" | "warning" | "neutral";
+
+export type TileOption = Readonly<{
+  value: string;
+  label: string;
+  /** Supporting line under the label. */
+  description?: string;
+  /** Iconify name rendered above the label. */
+  icon?: string;
+  tone?: TileTone;
+}>;
+
+/** Single-choice picker rendered as large tappable cards rather than a select. */
+export type TilesFieldConfig = BaseField &
+  Readonly<{
+    type: "tiles";
+    options: readonly TileOption[];
+    /** Number of columns on `sm`+. Defaults to 2. */
+    columns?: 1 | 2 | 3;
+    /** Drop the field label when a surrounding header already asks the question. */
+    hideLabel?: boolean;
+    /**
+     * "cards" (default) = tall icon cards.
+     * "segmented" = compact equal-width toggle buttons (dot + label).
+     */
+    variant?: "cards" | "segmented";
+  }>;
+
 export type FieldConfig =
   | TextFieldConfig
   | DateFieldConfig
+  | TimeFieldConfig
   | SelectFieldConfig
   | TextareaFieldConfig
   | CheckboxGroupFieldConfig
   | ChipsFieldConfig
-  | PhotoFieldConfig;
+  | PhotoFieldConfig
+  | TilesFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
 

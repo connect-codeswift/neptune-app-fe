@@ -1,36 +1,39 @@
+"use client";
+
 import { DashboardHeader } from "@/components/DashboardHeader";
-import {
-  StatMetricCard,
-  type StatMetricCardProps,
-} from "@/components/StatMetricCard";
 import { BbsAtRiskBehaviorsCard } from "@/components/bbs/BbsAtRiskBehaviorsCard";
 import { BbsEngagementCard } from "@/components/bbs/BbsEngagementCard";
-import { AT_RISK_BEHAVIORS, ENGAGEMENT_SERIES } from "./bbs-data";
-
-const BBS_METRICS: readonly StatMetricCardProps[] = [
-  {
-    title: "Observations (30d)",
-    value: 84,
-    trendValue: "+12",
-    trendTone: "positive",
-  },
-  {
-    title: "Safe behavior %",
-    value: "89%",
-    trendValue: "+2pp",
-    trendTone: "positive",
-  },
-  {
-    title: "At risk",
-    value: 31,
-    trendValue: "+4",
-    trendTone: "positive",
-  },
-];
+import { BbsMetricsSection } from "@/components/bbs/BbsMetricsSection";
+import { BbsPageSkeleton } from "@/components/bbs/BbsPageSkeleton";
+import { BbsRecentSessionsSection } from "@/components/bbs/BbsRecentSessionsSection";
+import {
+  DEFAULT_BBS_GRAPH_WEEKS,
+  DEFAULT_BBS_PAGE_NUMBER,
+  DEFAULT_BBS_PAGE_SIZE,
+  useBbsAtRiskCategoriesQuery,
+  useBbsDashboardKpiQuery,
+  useBbsGraphQuery,
+  useBbsObservationsQuery,
+} from "@/hooks/use-bbs-queries";
 
 export default function BbsPage() {
+  const kpiQuery = useBbsDashboardKpiQuery();
+  const graphQuery = useBbsGraphQuery(DEFAULT_BBS_GRAPH_WEEKS);
+  const atRiskQuery = useBbsAtRiskCategoriesQuery();
+  const sessionsQuery = useBbsObservationsQuery({
+    observe: "",
+    pageNumber: DEFAULT_BBS_PAGE_NUMBER,
+    pageSize: DEFAULT_BBS_PAGE_SIZE,
+  });
+
+  const isBootLoading =
+    (kpiQuery.isPending && !kpiQuery.data) ||
+    (graphQuery.isPending && !graphQuery.data) ||
+    (atRiskQuery.isPending && !atRiskQuery.data) ||
+    (sessionsQuery.isPending && !sessionsQuery.data);
+
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
+    <div className="flex flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Proactive Safety"
         searchPlaceholder="Search incidents, actions, docs..."
@@ -38,20 +41,23 @@ export default function BbsPage() {
         hasUnreadNotifications
       />
 
-      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-        {/* KPI Metrics */}
-        <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-          {BBS_METRICS.map((metric) => (
-            <StatMetricCard key={metric.title} {...metric} />
-          ))}
-        </div>
+      {isBootLoading ? (
+        <BbsPageSkeleton />
+      ) : (
+        <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+          {/* KPI Metrics */}
+          <BbsMetricsSection />
 
-        {/* Engagement trend + at-risk breakdown */}
-        <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-2">
-          <BbsEngagementCard points={ENGAGEMENT_SERIES} />
-          <BbsAtRiskBehaviorsCard categories={AT_RISK_BEHAVIORS} />
+          {/* Engagement trend + at-risk breakdown — stretched to equal height. */}
+          <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
+            <BbsEngagementCard />
+            <BbsAtRiskBehaviorsCard />
+          </div>
+
+          {/* Search + recent sessions */}
+          <BbsRecentSessionsSection />
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,40 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
+import {
+  Area,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { IncidentGlassCard } from "@/components/incidents";
-import type { EngagementPoint } from "@/app/dashboard/bbs/bbs-data";
+import {
+  DEFAULT_BBS_GRAPH_WEEKS,
+  useBbsGraphQuery,
+} from "@/hooks/use-bbs-queries";
+import { toBbsEngagementPoints } from "@/lib/map-bbs";
 
 const SAFE_COLOR = "#0891a6";
 const AT_RISK_COLOR = "#ef4444";
 
-/** Plot geometry in viewBox units; the SVG scales to its container. */
-const WIDTH = 560;
-const HEIGHT = 210;
-const PAD_LEFT = 30;
-const PAD_RIGHT = 10;
-const PAD_TOP = 12;
-const PAD_BOTTOM = 28;
+const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
 
-const PLOT_WIDTH = WIDTH - PAD_LEFT - PAD_RIGHT;
-const PLOT_HEIGHT = HEIGHT - PAD_TOP - PAD_BOTTOM;
+type TooltipEntry = Readonly<{
+  dataKey?: string | number;
+  value?: number | string;
+}>;
 
-/** Fixed domain and ticks, matching the design's scale. */
-const Y_MAX = 18;
-const Y_TICKS = [17, 13, 9, 4];
+/** Values live in the tooltip — dense week series can't carry direct labels. */
+function ChartTooltip(
+  props: Readonly<{
+    active?: boolean;
+    payload?: readonly TooltipEntry[];
+    label?: string | number;
+  }>,
+) {
+  const { active, payload, label } = props;
+  if (!active || !payload || payload.length === 0) return null;
 
-function xAt(index: number, count: number): number {
-  if (count <= 1) return PAD_LEFT + PLOT_WIDTH / 2;
-  return PAD_LEFT + (PLOT_WIDTH * index) / (count - 1);
-}
+  const valueOf = (key: string) =>
+    payload.find((entry) => entry.dataKey === key)?.value ?? 0;
 
-function yAt(value: number): number {
-  return PAD_TOP + PLOT_HEIGHT * (1 - value / Y_MAX);
-}
-
-function toLine(points: readonly EngagementPoint[], key: "safe" | "atRisk") {
-  return points
-    .map((point, index) => `${xAt(index, points.length)},${yAt(point[key])}`)
-    .join(" ");
+  return (
+    <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
+      <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
+      <div className="mt-1 flex flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <span
+            className="size-2 shrink-0 rounded-full"
+            style={{ backgroundColor: SAFE_COLOR }}
+            aria-hidden="true"
+          />
+          <span className="text-ehs-gray text-xs">
+            {`Safe ${String(valueOf("safe"))}`}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            className="size-2 shrink-0 rounded-full"
+            style={{ backgroundColor: AT_RISK_COLOR }}
+            aria-hidden="true"
+          />
+          <span className="text-ehs-gray text-xs">
+            {`At risk ${String(valueOf("atRisk"))}`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /** Legend swatch + label; the label itself stays in text ink, not series colour. */
@@ -53,36 +87,36 @@ function LegendItem(props: Readonly<{ color: string; label: string }>) {
   );
 }
 
+/** Scale the Y axis to the series peak (min 4), rounded up to a clean step. */
+function toYScale(points: readonly { safe: number; atRisk: number }[]) {
+  const peak = points.reduce(
+    (highest, point) => Math.max(highest, point.safe, point.atRisk),
+    0,
+  );
+  const yMax = Math.max(4, Math.ceil(peak / 4) * 4 || 4);
+  const step = yMax / 4;
+
+  return {
+    domain: [0, yMax] as [number, number],
+    ticks: [step, step * 2, step * 3, yMax],
+  };
+}
+
 export type BbsEngagementCardProps = Readonly<{
-  points: readonly EngagementPoint[];
+  weeks?: number;
   className?: string;
 }>;
 
 export function BbsEngagementCard(props: BbsEngagementCardProps) {
-  const { points, className = "" } = props;
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const { weeks = DEFAULT_BBS_GRAPH_WEEKS, className = "" } = props;
+  const graphQuery = useBbsGraphQuery(weeks);
 
-  const count = points.length;
-  const active = activeIndex === null ? null : points[activeIndex];
+  const points = useMemo(
+    () => toBbsEngagementPoints(graphQuery.data?.dataModel),
+    [graphQuery.data?.dataModel],
+  );
 
-  /** Map a pointer position to the nearest data point. */
-  const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    if (bounds.width === 0) return;
-
-    // Work in viewBox units so the maths matches the plot geometry.
-    const x = ((event.clientX - bounds.left) / bounds.width) * WIDTH;
-    const ratio = (x - PAD_LEFT) / PLOT_WIDTH;
-    const index = Math.round(ratio * (count - 1));
-    setActiveIndex(Math.min(Math.max(index, 0), count - 1));
-  };
-
-  const areaPath = `M ${String(PAD_LEFT)},${String(PAD_TOP + PLOT_HEIGHT)} L ${toLine(
-    points,
-    "safe",
-  ).replace(/ /g, " L ")} L ${String(PAD_LEFT + PLOT_WIDTH)},${String(
-    PAD_TOP + PLOT_HEIGHT,
-  )} Z`;
+  const yScale = useMemo(() => toYScale(points), [points]);
 
   return (
     <IncidentGlassCard
@@ -92,155 +126,84 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
     >
       <header className="flex flex-col gap-0.5">
         <h3 className="text-ehs-dark-bg text-lg font-bold">Engagement</h3>
-        <p className="text-ehs-muted-text text-sm">Sessions logged · 8 weeks</p>
+        <p className="text-ehs-muted-text text-sm">
+          {`Sessions logged · ${String(weeks)} weeks`}
+        </p>
       </header>
 
-      <div
-        className="relative min-w-0"
-        onMouseMove={handleMove}
-        onMouseLeave={() => {
-          setActiveIndex(null);
-        }}
-      >
-        <svg
-          viewBox={`0 0 ${String(WIDTH)} ${String(HEIGHT)}`}
-          className="h-auto w-full"
-          role="img"
-          aria-label="Safe and at-risk observations logged over the last 8 weeks"
-        >
-          {/* Gridlines + y-axis ticks — recessive, behind the marks. */}
-          {Y_TICKS.map((tick) => (
-            <g key={tick}>
-              <line
-                x1={PAD_LEFT}
-                y1={yAt(tick)}
-                x2={PAD_LEFT + PLOT_WIDTH}
-                y2={yAt(tick)}
-                stroke="#e5e7eb"
-                strokeWidth="1"
-              />
-              <text
-                x={PAD_LEFT - 8}
-                y={yAt(tick)}
-                textAnchor="end"
-                dominantBaseline="middle"
-                className="fill-ehs-muted-text"
-                fontSize="10"
-              >
-                {tick}
-              </text>
-            </g>
-          ))}
-
-          {/* Area under the safe series. */}
-          <path d={areaPath} fill={SAFE_COLOR} opacity="0.08" />
-
-          {/* Crosshair sits under the marks so points stay legible. */}
-          {activeIndex !== null ? (
-            <line
-              x1={xAt(activeIndex, count)}
-              y1={PAD_TOP}
-              x2={xAt(activeIndex, count)}
-              y2={PAD_TOP + PLOT_HEIGHT}
-              stroke="#8892a3"
-              strokeWidth="1"
-              strokeDasharray="3 3"
-            />
-          ) : null}
-
-          <polyline
-            points={toLine(points, "safe")}
-            fill="none"
-            stroke={SAFE_COLOR}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <polyline
-            points={toLine(points, "atRisk")}
-            fill="none"
-            stroke={AT_RISK_COLOR}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* Markers: white core keeps them readable where the lines cross. */}
-          {points.map((point, index) => (
-            <g key={point.label}>
-              <circle
-                cx={xAt(index, count)}
-                cy={yAt(point.safe)}
-                r={activeIndex === index ? 4.5 : 3.5}
-                fill="#ffffff"
-                stroke={SAFE_COLOR}
-                strokeWidth="2"
-              />
-              <circle
-                cx={xAt(index, count)}
-                cy={yAt(point.atRisk)}
-                r={activeIndex === index ? 4.5 : 3.5}
-                fill="#ffffff"
-                stroke={AT_RISK_COLOR}
-                strokeWidth="2"
-              />
-            </g>
-          ))}
-
-          {/* X-axis labels. */}
-          {points.map((point, index) => (
-            <text
-              key={point.label}
-              x={xAt(index, count)}
-              y={HEIGHT - 8}
-              textAnchor="middle"
-              className="fill-ehs-muted-text"
-              fontSize="10"
+      {/* Grows to fill the card so it matches the neighbouring card's height. */}
+      <div className="min-h-40 min-w-0 flex-1 sm:min-h-52">
+        {graphQuery.isPending && points.length === 0 ? (
+          <p className="text-ehs-muted-text text-sm">Loading…</p>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={[...points]}
+              margin={{ top: 8, right: 4, bottom: 0, left: -24 }}
             >
-              {point.label}
-            </text>
-          ))}
-        </svg>
+              {/* Recessive horizontal rules only. `syncWithTicks` keeps the grid
+                  to the ticks — without it Recharts also rules the domain edges,
+                  which drew a stray line above the top gridline. */}
+              <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
 
-        {/* Tooltip — the series aren't directly labelled, so hover carries the values. */}
-        {active ? (
-          <div
-            className="border-ehs-border pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]"
-            style={{
-              // Clamped so the centred tooltip can't overflow at either end.
-              left: `${String(
-                Math.min(
-                  Math.max((xAt(activeIndex ?? 0, count) / WIDTH) * 100, 12),
-                  88,
-                ),
-              )}%`,
-            }}
-          >
-            <p className="text-ehs-dark-bg text-xs font-bold">{active.label}</p>
-            <div className="mt-1 flex flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <span
-                  className="size-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: SAFE_COLOR }}
-                  aria-hidden="true"
-                />
-                <span className="text-ehs-gray text-xs">
-                  {`Safe ${String(active.safe)}`}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className="size-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: AT_RISK_COLOR }}
-                  aria-hidden="true"
-                />
-                <span className="text-ehs-gray text-xs">
-                  {`At risk ${String(active.atRisk)}`}
-                </span>
-              </div>
-            </div>
-          </div>
-        ) : null}
+              <XAxis
+                dataKey="label"
+                tick={AXIS_TICK}
+                tickLine={false}
+                // The baseline the area sits on — the grid no longer draws it.
+                axisLine={{ stroke: "#e5e7eb" }}
+                tickMargin={10}
+                interval="preserveStartEnd"
+                minTickGap={16}
+              />
+              <YAxis
+                domain={yScale.domain}
+                ticks={yScale.ticks}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+              />
+
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
+              />
+
+              {/* Safe observations carry the area fill, matching the design. */}
+              <Area
+                type="linear"
+                dataKey="safe"
+                stroke={SAFE_COLOR}
+                strokeWidth={2}
+                fill={SAFE_COLOR}
+                fillOpacity={0.08}
+                dot={{
+                  r: 4,
+                  fill: "#ffffff",
+                  stroke: SAFE_COLOR,
+                  strokeWidth: 2,
+                }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="linear"
+                dataKey="atRisk"
+                stroke={AT_RISK_COLOR}
+                strokeWidth={2}
+                dot={{
+                  r: 4,
+                  fill: "#ffffff",
+                  stroke: AT_RISK_COLOR,
+                  strokeWidth: 2,
+                }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-5">

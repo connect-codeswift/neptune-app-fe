@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { PhotoUploadControl } from "./PhotoUploadControl";
@@ -14,9 +14,13 @@ import type {
   SelectFieldConfig,
   TextFieldConfig,
   TextareaFieldConfig,
+  TilesFieldConfig,
+  TileTone,
+  TimeFieldConfig,
 } from "./types";
 
-const inputClass = FIELD_INPUT_LG_CLASS;
+const inputClass =
+  "p-3 w-full rounded-lg border border-slate-900/10 bg-white text-base! text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
 
 const errorRingClass =
   "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
@@ -50,22 +54,33 @@ function FieldShell(
     error?: string;
     /** Set false when the control renders its own error/helper text. */
     showMessages?: boolean;
+    /** Set when a surrounding header already names the field. */
+    hideLabel?: boolean;
     /** Rendered opposite the label, e.g. a character counter. */
     trailing?: React.ReactNode;
     children: React.ReactNode;
   }>,
 ) {
-  const { field, error, showMessages = true, trailing, children } = props;
+  const {
+    field,
+    error,
+    showMessages = true,
+    hideLabel = false,
+    trailing,
+    children,
+  } = props;
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="mb-1 flex items-center justify-between gap-3">
-        <FieldLabel
-          label={field.label}
-          required={field.required}
-          htmlFor={field.name}
-        />
-        {trailing}
-      </div>
+      {hideLabel ? null : (
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <FieldLabel
+            label={field.label}
+            required={field.required}
+            htmlFor={field.name}
+          />
+          {trailing}
+        </div>
+      )}
       {children}
       {!showMessages ? null : error ? (
         <p className="text-ehs-red text-xs">{error}</p>
@@ -111,7 +126,7 @@ function TextControl(
     );
   }
 
-  return (
+  const input = (
     <input
       id={field.name}
       name={field.name}
@@ -120,10 +135,106 @@ function TextControl(
       maxLength={field.maxLength}
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className={[inputClass, error ? errorRingClass : ""]
+      className={[
+        inputClass,
+        field.suggestions ? "pr-14" : "",
+        error ? errorRingClass : "",
+      ]
         .filter(Boolean)
         .join(" ")}
     />
+  );
+
+  if (!field.suggestions || field.suggestions.length === 0) return input;
+
+  return (
+    <TextSuggestions
+      label={field.label}
+      suggestions={field.suggestions}
+      onPick={onChange}
+    >
+      {input}
+    </TextSuggestions>
+  );
+}
+
+/**
+ * Wraps a text input with a round add button that opens a menu of ready-made
+ * values. The field stays free-text — the menu is a shortcut, not a select.
+ */
+function TextSuggestions(
+  props: Readonly<{
+    label: string;
+    suggestions: readonly string[];
+    onPick: (value: string) => void;
+    children: React.ReactNode;
+  }>,
+) {
+  const { label, suggestions, onPick, children } = props;
+
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click and on Escape while the menu is open.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
+      {children}
+
+      <button
+        type="button"
+        aria-label={`Choose a ${label}`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        onClick={() => {
+          setIsOpen((open) => !open);
+        }}
+        className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover absolute top-1/2 right-3 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white transition-colors"
+      >
+        <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+      </button>
+
+      {isOpen ? (
+        <div
+          role="menu"
+          className="animate-popover-in absolute right-0 z-50 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+        >
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                onPick(suggestion);
+                setIsOpen(false);
+              }}
+              className="hover:bg-ehs-light-bg/60 text-ehs-dark-bg flex w-full cursor-pointer items-center px-4 py-2.5 text-left transition-colors"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -142,6 +253,30 @@ function DateControl(
       name={field.name}
       type="date"
       value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className={[inputClass, error ? errorRingClass : ""]
+        .filter(Boolean)
+        .join(" ")}
+    />
+  );
+}
+
+function TimeControl(
+  props: Readonly<{
+    field: TimeFieldConfig;
+    value: string;
+    error?: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, error, onChange } = props;
+  return (
+    <input
+      id={field.name}
+      name={field.name}
+      type="time"
+      value={value}
+      placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[inputClass, error ? errorRingClass : ""]
         .filter(Boolean)
@@ -238,7 +373,7 @@ function TextareaControl(
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[
-        "bg-ehs-light-bg/40 text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 px-3 py-2.5 text-base leading-6 transition outline-none focus:ring-2",
+        "text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 bg-white px-3 py-2.5 text-base! leading-6 transition outline-none focus:ring-2",
         error ? errorRingClass : "",
       ]
         .filter(Boolean)
@@ -330,6 +465,147 @@ function ChipsControl(
           </button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+const tileToneClass: Record<
+  TileTone,
+  Readonly<{ icon: string; base: string; selected: string }>
+> = {
+  positive: {
+    icon: "text-ehs-green",
+    base: "border-ehs-green/20 bg-ehs-green/5 hover:border-ehs-green/40",
+    selected: "border-ehs-green bg-ehs-green/8",
+  },
+  warning: {
+    icon: "text-[#f59e0b]",
+    base: "border-[#f59e0b]/20 bg-[#f59e0b]/5 hover:border-[#f59e0b]/40",
+    selected: "border-[#f59e0b] bg-[#f59e0b]/8",
+  },
+  neutral: {
+    icon: "text-ehs-gray",
+    base: "border-slate-900/10 bg-white hover:border-slate-900/20",
+    selected: "border-ehs-normal-blue bg-ehs-normal-blue/8",
+  },
+};
+
+const tileColumnsClass: Record<number, string> = {
+  1: "sm:grid-cols-1",
+  2: "sm:grid-cols-2",
+  3: "sm:grid-cols-3",
+};
+
+/** Compact equal-width toggle row used by edit observation and similar forms. */
+function SegmentedTilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className="flex h-10 w-full gap-2"
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-[13px] font-bold transition-colors",
+              isSelected
+                ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
+                : "border-slate-900/8 bg-white/40 text-[#566072]",
+            ].join(" ")}
+          >
+            <span
+              aria-hidden="true"
+              className={[
+                "size-2 shrink-0 rounded-full",
+                isSelected ? "bg-ehs-normal-blue" : "bg-[#566072]",
+              ].join(" ")}
+            />
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Single-choice cards: bigger tap targets than a select, with an icon each. */
+function TilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  if (field.variant === "segmented") {
+    return (
+      <SegmentedTilesControl field={field} value={value} onChange={onChange} />
+    );
+  }
+
+  const columns = tileColumnsClass[field.columns ?? 2];
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className={["grid grid-cols-1 gap-3", columns].join(" ")}
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+        const tone = tileToneClass[option.tone ?? "neutral"];
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "flex cursor-pointer flex-col items-center gap-2 rounded-xl border px-4 py-6 text-center transition-colors",
+              isSelected ? tone.selected : tone.base,
+            ].join(" ")}
+          >
+            {option.icon ? (
+              <Icon
+                icon={option.icon}
+                className={`size-7 ${tone.icon}`}
+                aria-hidden="true"
+              />
+            ) : null}
+
+            <span className="text-ehs-dark-bg font-bold">{option.label}</span>
+
+            {option.description ? (
+              <span className="text-ehs-muted-text text-sm">
+                {option.description}
+              </span>
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -433,6 +709,17 @@ export function FieldRenderer(props: FieldRendererProps) {
           />
         </FieldShell>
       );
+    case "time":
+      return (
+        <FieldShell field={field} error={error}>
+          <TimeControl
+            field={field}
+            value={value as string}
+            error={error}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
     case "select":
       return (
         <FieldShell field={field} error={error}>
@@ -493,6 +780,16 @@ export function FieldRenderer(props: FieldRendererProps) {
           <CheckboxGroupControl
             field={field}
             value={value as string[]}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "tiles":
+      return (
+        <FieldShell field={field} error={error} hideLabel={field.hideLabel}>
+          <TilesControl
+            field={field}
+            value={value as string}
             onChange={onChange}
           />
         </FieldShell>
