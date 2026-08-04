@@ -13,8 +13,8 @@ import {
   buildIncidentListKpis,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
-  toApiCaseDispositionFilter,
   toApiSeverityFilter,
+  toApiStageFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
@@ -91,7 +91,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     pageSize,
     search: appliedSearch,
     severity: toApiSeverityFilter(severityFilter),
-    caseDisposition: toApiCaseDispositionFilter(stateFilter),
+    stage: toApiStageFilter(stateFilter, stageFilter),
     enabled: isClientReady && hasToken,
   });
   const closeIncidentMutation = useCloseIncidentMutation();
@@ -105,13 +105,13 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   /**
    * Second filtering pass, on purpose (belt and braces).
    *
-   * `search` / `severity` / `caseDisposition` are now sent to GetAllIncidents so
+   * `search` / `severity` / `stage` are now sent to GetAllIncidents so
    * filtering spans every page instead of the 10 visible rows. But backend
    * deploys here are manual and can lag the frontend: an older API silently
    * ignores the new params and returns an unfiltered page. Re-running the
    * filters locally is a no-op when the server honored them, and keeps the list
-   * correct (page-scoped, as before) when it did not. `stage` has no server
-   * counterpart at all and is only ever filtered here.
+   * correct (page-scoped, as before) when it did not. `state: Open` has no
+   * server counterpart and is only ever filtered here.
    */
   const filteredIncidents = useMemo(() => {
     return incidents.filter((incident) => {

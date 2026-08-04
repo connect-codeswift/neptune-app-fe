@@ -13,7 +13,7 @@ export type AuditItemResponseRequestDto = {
 /** Body for POST /api/Audit/{id}/responses — records the audit's answers. */
 export type SaveAuditResponsesRequestDto = {
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** The run's score as a percentage, 0-100. */
   score: number;
   responses: AuditItemResponseRequestDto[];
@@ -30,5 +30,5 @@ export type CreateAuditRequestDto = {
   /** ISO date-time string. */
   scheduleDate: string;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
 };

@@ -39,10 +39,10 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
   const { hazardId } = props;
   const router = useRouter();
 
-  // userId / subCompanyId come from the signed-in user's access-token claims.
-  const { userId, subCompanyId } = getCurrentUser();
+  // userId / siteId come from the signed-in user's access-token claims.
+  const { userId, siteId } = getCurrentUser();
   const detailQuery = useHazardDetailQuery(toHazardApiId(hazardId), {
-    subCompanyId,
+    siteId,
     userId,
   });
 
@@ -93,7 +93,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     dropMutation.mutate(
       {
         id: toHazardApiId(hazardId),
-        subCompanyId,
+        siteId,
         userId,
       },
       {

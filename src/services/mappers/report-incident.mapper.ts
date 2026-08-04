@@ -136,15 +136,15 @@ export function parseReportDateTime(
   return fallback.toISOString();
 }
 
-function buildDescription(form: ReportIncidentFormState): string {
-  const title = form.title.trim();
-  const description = form.description.trim();
+function buildIncidentTitle(
+  form: ReportIncidentFormState,
+  severityLabel: string,
+): string {
+  return form.title.trim() || severityLabel;
+}
 
-  if (title && description) {
-    return `${title}\n\n${description}`;
-  }
-
-  return title || description;
+function buildIncidentDescription(form: ReportIncidentFormState): string {
+  return form.description.trim();
 }
 
 function buildActionTaken(form: ReportIncidentFormState): string {
@@ -298,10 +298,11 @@ export function mapReportFormToIncidentDto(
 
   return {
     id: 0,
+    title: buildIncidentTitle(source, severityLabel),
     severity: severityLabel,
     site,
     location,
-    description: buildDescription(source),
+    description: buildIncidentDescription(source),
     isDrop: false,
     incidentAt,
     incidentReportedAt,
@@ -327,10 +328,11 @@ export function mapReportFormToIncidentDto(
     affectedPersonId: affectedPersonId || affectedName || null,
     reportedById: auth?.userId ?? 0,
     userId: auth?.userId ?? 0,
-    subCompanyId: auth?.subCompanyId ?? 0,
+    siteId: auth?.siteId ?? 0,
     injuredBodyPart: bodyPartLabels || null,
     injuryDescription: source.injuryDescription.trim() || null,
     incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    occurredInCanada: false,
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
       optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||

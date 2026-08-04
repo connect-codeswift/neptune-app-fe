@@ -141,9 +141,9 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
     onSuccess: () => void,
     onError: (error: unknown) => void,
   ) => {
-    const { userId, subCompanyId } = getCurrentUser();
+    const { userId, siteId } = getCurrentUser();
     publishTemplate.mutate(
-      { templateId, payload: { userId, subCompanyId } },
+      { templateId, payload: { userId, siteId } },
       { onSuccess, onError },
     );
   };

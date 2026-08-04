@@ -40,7 +40,7 @@ export async function updateInspectionTemplate(
 
 export type PublishInspectionTemplatePayload = Readonly<{
   userId: number;
-  subCompanyId: number;
+  siteId: number;
 }>;
 
 export async function publishInspectionTemplate(

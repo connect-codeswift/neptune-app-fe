@@ -98,7 +98,7 @@ export function StartInspectionForm() {
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching StartInspectionValues.
     const inspection = values as StartInspectionValues;
-    const { userId, subCompanyId } = getCurrentUser();
+    const { userId, siteId } = getCurrentUser();
 
     // The date input yields "YYYY-MM-DD"; send a full ISO date-time.
     const parsedDate = inspection.scheduledDate
@@ -119,7 +119,7 @@ export function StartInspectionForm() {
         inspectorId: Number(inspection.inspector) || 0,
         scheduleDate,
         userId,
-        subCompanyId,
+        siteId,
       },
       {
         onSuccess: (response) => {

@@ -3,7 +3,7 @@ import type { GetAllHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import {
   getAllHazard,
   getHazardById,
-  getHazardKpi,
+  getHazardKpiCount,
   getHazardHeatMap,
   getTopHazardUsers,
 } from "@/services/hazard.service";
@@ -15,11 +15,14 @@ export function useHazardListQuery(payload: GetAllHazardRequestDto) {
   });
 }
 
-export function useHazardKpiQuery(enabled = true) {
+export function useHazardKpiQuery(
+  params: Readonly<{ userId: number }>,
+  enabled = true,
+) {
   return useQuery({
-    queryKey: ["hazard", "kpi"] as const,
-    queryFn: () => getHazardKpi(),
-    enabled,
+    queryKey: ["hazard", "kpi", params.userId] as const,
+    queryFn: () => getHazardKpiCount(params),
+    enabled: enabled && params.userId > 0,
   });
 }
 
@@ -39,7 +42,7 @@ export function useHazardHeatMapQuery() {
 
 export function useHazardDetailQuery(
   id: string,
-  params: Readonly<{ subCompanyId: number; userId: number }>,
+  params: Readonly<{ siteId: number; userId: number }>,
 ) {
   return useQuery({
     queryKey: ["hazard", "detail", id, params] as const,

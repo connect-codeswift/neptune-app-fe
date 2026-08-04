@@ -23,6 +23,7 @@ export type HazcomChemical = Readonly<{
   name: string; // "Hydrochloric Acid"
   casNumber: string; // "7647-01-0"
   location: string; // "Lab 1 - Room 131"
+  disposeLocation: string | null;
   quantity: string; // "15 Liters"
   hazardClass: string; // "Corrosive"
   pictograms: readonly HazcomPictogram[];
@@ -57,6 +58,13 @@ export type HazcomSdsSection = Readonly<{
   body: readonly string[]; // paragraphs
 }>;
 
+export type HazcomTrainingMaterial = Readonly<{
+  id?: number;
+  fileUrl: string;
+  fileName: string;
+  fileType?: string | null;
+}>;
+
 export type HazcomTrainingStatus = "Completed" | "Scheduled";
 
 export type HazcomTrainingSession = Readonly<{
@@ -67,7 +75,7 @@ export type HazcomTrainingSession = Readonly<{
   chemicals: readonly string[];
   attendees: number;
   status: HazcomTrainingStatus;
-  materialsLink: string | null;
+  materials: readonly HazcomTrainingMaterial[];
   notes: string;
 }>;
 

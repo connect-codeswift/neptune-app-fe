@@ -81,6 +81,7 @@ type ChemicalFormValues = Readonly<{
   casNumber: string;
   hazardClass: string;
   location: string;
+  disposeLocation: string;
   quantityAmount: string;
   quantityUnit: string;
   signalWord: HazcomSignalWord;
@@ -122,7 +123,7 @@ function toNumericId(id: string | undefined): number | null {
 /**
  * Field names here are the backend's own spellings — see `ChemicalRequestDto`.
  * The schema is `additionalProperties: false`, so nothing extra (notably the
- * `subCompanyId`/`userId` pair the other modules attach) may be added.
+ * `siteId`/`userId` pair the other modules attach) may be added.
  */
 function toChemicalRequest(
   values: ChemicalFormValues,
@@ -134,6 +135,7 @@ function toChemicalRequest(
     chemi_Name: values.name.trim(),
     caS_Number: values.casNumber.trim(),
     location: values.location.trim(),
+    disposeLocation: values.disposeLocation.trim() || null,
     // Sent as one combined string ("15 Liters").
     currentQuantity: [values.quantityAmount.trim(), values.quantityUnit.trim()]
       .filter((part) => part !== "")
@@ -164,6 +166,9 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const [casNumber, setCasNumber] = useState(chemical?.casNumber ?? "");
   const [hazardClass, setHazardClass] = useState(chemical?.hazardClass ?? "");
   const [location, setLocation] = useState(chemical?.location ?? "");
+  const [disposeLocation, setDisposeLocation] = useState(
+    chemical?.disposeLocation ?? "",
+  );
   const [quantityAmount, setQuantityAmount] = useState(initialQuantity.amount);
   const [quantityUnit, setQuantityUnit] = useState(initialQuantity.unit);
   const [signalWord, setSignalWord] = useState<HazcomSignalWord>(
@@ -202,6 +207,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       casNumber,
       hazardClass,
       location,
+      disposeLocation,
       quantityAmount,
       quantityUnit,
       signalWord,
@@ -291,6 +297,14 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             value={location}
             onChange={(event) => setLocation(event.target.value)}
             placeholder="e.g. Lab 1 - Room 131"
+          />
+          <HazcomTextField
+            label="Dispose Location"
+            trailingHint="Optional — max 250 chars"
+            value={disposeLocation}
+            onChange={(event) => setDisposeLocation(event.target.value)}
+            placeholder="e.g. Hazardous waste drum — Bay 3"
+            maxLength={250}
           />
           <QuantityField
             amount={quantityAmount}

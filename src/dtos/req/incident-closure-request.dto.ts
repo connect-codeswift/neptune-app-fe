@@ -1,42 +1,16 @@
-/** Request body for PUT /api/Incident/{incidentId}/closure */
-export type UpdateIncidentClosureRequestDto = {
-  finalIncidentType?: string;
-  sifClassification?: string;
-  daysAwayFromWork?: number;
-  daysOnRestrictedDuty?: number;
-  isOshaRecordable?: boolean;
-  primaryRootCauseCategoryId?: number;
-  primaryRootCauseCategoryIds?: number[];
-  contributingFactorTags?: string[];
-  rootCauseDescription?: string;
-  actionsTaken?: string;
-  attestationConfirmed?: boolean;
-
-  /** Legacy / extended fields tolerated by backend */
-  incidentId?: number;
-  closureId?: string;
-  currentStep?: number;
-  closureStatus?: string;
-  closedAt?: string;
-  closedBy?: string;
-  closedByRole?: string;
-  closureDate?: string;
-  durationOpen?: string;
-  oshaOverrideReason?: string;
-  closureStatement?: string;
-  lessonsLearned?: string;
-  closureNotes?: string;
-  rootCauseSummary?: string;
-  primaryRootCause?: string;
-  contributingFactors?: string[];
-  equipmentProceduresNote?: string;
-  preventiveActionSummary?: string;
-  capasVerified?: boolean;
-  mfaSigned?: boolean;
-  isEhsConfirmed?: boolean;
-  residualRisk?: string;
-  approverName?: string;
-  approverRole?: string;
-  approverInitials?: string;
-  isApproved?: boolean;
+/** Request body for PUT /api/Incident/{incidentId}/closure (`SaveIncidentClosureDto`). */
+export type SaveIncidentClosureDto = {
+  finalIncidentType?: string | null;
+  sifClassification?: string | null;
+  daysAwayFromWork?: number | null;
+  daysOnRestrictedDuty?: number | null;
+  isOshaRecordable?: boolean | null;
+  primaryRootCauseCategoryId?: number | null;
+  contributingFactorTags?: string[] | null;
+  rootCauseDescription?: string | null;
+  actionsTaken?: string | null;
+  attestationConfirmed?: boolean | null;
 };
+
+/** @deprecated Use SaveIncidentClosureDto */
+export type UpdateIncidentClosureRequestDto = SaveIncidentClosureDto;

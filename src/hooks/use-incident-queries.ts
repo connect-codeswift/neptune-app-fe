@@ -15,18 +15,16 @@ export const incidentQueryKeys = {
   list: (params: {
     pageNumber: number;
     pageSize: number;
-    userId: number;
-    subCompanyId: number;
     /** Server-side filters — part of the key so each filter set caches apart. */
     search: string;
     severity: string;
-    caseDisposition: string;
+    stage: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
   detail: (params: {
     id: number;
     userId: number;
-    subCompanyId: number;
-  }) => [...incidentQueryKeys.all, "detail", "v5", params] as const,
+    siteId: number;
+  }) => [...incidentQueryKeys.all, "detail", "v6", params] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 
@@ -43,17 +41,18 @@ export type UseIncidentsListQueryOptions = Readonly<{
   pageSize?: number;
   /** Substring match on description / location, applied server-side. */
   search?: string;
-  /** Exact match on the stored severity label, applied server-side. */
+  /** Workflow stage filter, applied server-side. */
+  stage?: string;
+  /** Severity filter, applied server-side. */
   severity?: string;
-  /** Exact match on the stored case disposition label, applied server-side. */
-  caseDisposition?: string;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
 }>;
 
 /**
  * Loads incidents via POST /api/Incident/GetAllIncidents
- * body: `{ pageNumber, pageSize, subCompanyId, userId, search?, severity?, caseDisposition? }`
+ * body: `{ pageNumber, pageSize, search?, stage?, severity?, site? }`
+ * Tenant scope is resolved from the JWT — not sent in the body.
  */
 export function useIncidentsListQuery(
   options: UseIncidentsListQueryOptions = {},
@@ -62,23 +61,16 @@ export function useIncidentsListQuery(
   const pageSize = options.pageSize ?? DEFAULT_INCIDENTS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
+  const stage = options.stage?.trim() ?? "";
   const severity = options.severity?.trim() ?? "";
-  const caseDisposition = options.caseDisposition?.trim() ?? "";
-
-  // Only read JWT/localStorage when the query is allowed to run (post-hydration).
-  const auth = enabled ? getAuthContext() : null;
-  const userId = auth?.userId ?? 0;
-  const subCompanyId = auth?.subCompanyId ?? 0;
 
   return useQuery({
     queryKey: incidentQueryKeys.list({
       pageNumber,
       pageSize,
-      userId,
-      subCompanyId,
       search,
       severity,
-      caseDisposition,
+      stage,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -86,11 +78,9 @@ export function useIncidentsListQuery(
       const response = await getAllIncidents({
         pageNumber,
         pageSize,
-        userId,
-        subCompanyId,
         ...(search ? { search } : {}),
+        ...(stage ? { stage } : {}),
         ...(severity ? { severity } : {}),
-        ...(caseDisposition ? { caseDisposition } : {}),
       });
 
       return {
@@ -109,7 +99,7 @@ export type UseIncidentByIdQueryOptions = Readonly<{
 
 /**
  * Loads a single incident via GET /api/Incident/GetIncidentById
- * query: `{ id, userId, subCompanyId }`
+ * query: `{ id, userId, siteId }`
  * header: `Authorization: Bearer <token>` (required)
  */
 export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
@@ -118,13 +108,13 @@ export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
 
   const auth = enabled ? getAuthContext() : null;
   const userId = auth?.userId ?? 0;
-  const subCompanyId = auth?.subCompanyId ?? 0;
+  const siteId = auth?.siteId ?? 0;
 
   return useQuery({
     queryKey: incidentQueryKeys.detail({
       id: id ?? 0,
       userId,
-      subCompanyId,
+      siteId,
     }),
     enabled,
     queryFn: async () => {
@@ -139,7 +129,7 @@ export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
       const dto = await getIncidentById({
         id,
         userId: auth.userId,
-        subCompanyId: auth.subCompanyId,
+        siteId: auth.siteId,
       });
 
       if (!dto) {
@@ -181,4 +171,3 @@ export function useIncidentClosureQuery(options: UseIncidentClosureQueryOptions)
     },
   });
 }
-

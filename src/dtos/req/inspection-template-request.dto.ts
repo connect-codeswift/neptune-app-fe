@@ -17,7 +17,7 @@ export type InspectionTemplateItemRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** Non-nullable on the backend; 0 on create, then set from the parent. */
   templateSectionId: number;
 };
@@ -31,7 +31,7 @@ export type InspectionTemplateSectionRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   /** Non-nullable on the backend; 0 on create, then set from the parent. */
   inspectionTemplateId: number;
   items: InspectionTemplateItemRequestDto[];
@@ -56,7 +56,7 @@ export type InspectionTemplateLogicRequestDto = {
   isDraft: boolean;
   isPublished: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   inspectionTemplateId: number;
 };
 
@@ -102,7 +102,7 @@ export type CreateInspectionTemplateRequestDto = {
   dueWindowDays: number;
   notifyAssignee: boolean;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   sections: InspectionTemplateSectionRequestDto[];
   conditionalLogics: InspectionTemplateLogicRequestDto[];
 };
