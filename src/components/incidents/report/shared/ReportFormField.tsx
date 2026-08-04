@@ -13,6 +13,7 @@ import {
   FIELD_SELECT_CLASS,
   FIELD_SELECT_PLACEHOLDER_CLASS,
   FIELD_TEXTAREA_CLASS,
+  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
 } from "@/components/ui/field-styles";
 
 /** @deprecated Import `FIELD_INPUT_CLASS` from `@/components/ui/field-styles`. */
@@ -198,11 +199,25 @@ export type ReportTextareaFieldProps = Readonly<
     required?: boolean;
     trailingHint?: string;
     className?: string;
+    /**
+     * Controls layered inside the field box — e.g. `<AiTextAssistant />`. They
+     * position themselves against the wrapper this adds, and the textarea grows
+     * a bottom strip so typed text never runs underneath them.
+     */
+    assistant?: ReactNode;
   }
 >;
 
 export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
-  const { label, required, trailingHint, className = "", id, ...rest } = props;
+  const {
+    label,
+    required,
+    trailingHint,
+    assistant,
+    className = "",
+    id,
+    ...rest
+  } = props;
 
   return (
     <div
@@ -219,7 +234,18 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
           ) : undefined
         }
       />
-      <textarea id={id} className={FIELD_TEXTAREA_CLASS} {...rest} />
+      <div className="relative">
+        <textarea
+          id={id}
+          className={
+            assistant
+              ? FIELD_TEXTAREA_WITH_CONTROLS_CLASS
+              : FIELD_TEXTAREA_CLASS
+          }
+          {...rest}
+        />
+        {assistant}
+      </div>
     </div>
   );
 }
