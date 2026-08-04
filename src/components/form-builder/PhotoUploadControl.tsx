@@ -120,7 +120,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
             .join(" ")}
           aria-hidden="true"
         />
-        <span className="text-ehs-gray text-sm">
+        <span className="text-ehs-gray text-base">
           {isUploading
             ? `Uploading ${String(pendingCount)} photo${pendingCount === 1 ? "" : "s"}...`
             : (field.placeholder ?? "Attach Photo Evidence")}
@@ -146,28 +146,63 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
 
       {value.length > 0 ? (
         <ul className="mt-1 flex flex-wrap gap-2">
-          {value.map((url, index) => (
-            <li
-              key={url}
-              className="group relative size-28 overflow-hidden rounded-xl border border-slate-900/10"
-            >
-              <Image
-                src={url}
-                alt={`Attached photo ${String(index + 1)}`}
-                fill
-                sizes="80px"
-                className="object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => removeAt(index)}
-                aria-label={`Remove photo ${String(index + 1)}`}
-                className="absolute top-1 right-1 rounded-full bg-slate-900/60 p-0.5 text-white transition-colors hover:bg-slate-900/80"
+          {value.map((entry, index) => {
+            const isUrl = /^https?:\/\//i.test(entry);
+            const fileName = isUrl
+              ? (entry.split("/").pop()?.split("?")[0] ?? entry)
+              : entry;
+
+            return (
+              <li
+                key={`${entry}-${String(index)}`}
+                className={
+                  isUrl
+                    ? "group relative size-28 overflow-hidden rounded-xl border border-slate-900/10"
+                    : "border-ehs-border flex min-w-[12rem] flex-1 items-center gap-3 rounded-[10px] border bg-white/50 p-3"
+                }
               >
-                <Icon icon="mdi:close" className="size-3.5" />
-              </button>
-            </li>
-          ))}
+                {isUrl ? (
+                  <Image
+                    src={entry}
+                    alt={`Attached photo ${String(index + 1)}`}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <>
+                    <span
+                      className="bg-ehs-normal-blue/10 flex size-8 shrink-0 items-center justify-center rounded-lg"
+                      aria-hidden="true"
+                    >
+                      <Icon
+                        icon="lucide:image"
+                        className="text-ehs-normal-blue size-4"
+                      />
+                    </span>
+                    <span className="text-ehs-dark-bg min-w-0 flex-1 truncate text-base font-semibold">
+                      {fileName}
+                    </span>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeAt(index)}
+                  aria-label={`Remove photo ${String(index + 1)}`}
+                  className={
+                    isUrl
+                      ? "absolute top-1 right-1 rounded-full bg-slate-900/60 p-0.5 text-white transition-colors hover:bg-slate-900/80"
+                      : "text-ehs-muted-text hover:text-ehs-red flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-900/5 bg-white/60 transition-colors"
+                  }
+                >
+                  <Icon
+                    icon="mdi:close"
+                    className={isUrl ? "size-3.5" : "size-2.5"}
+                  />
+                </button>
+              </li>
+            );
+          })}
         </ul>
       ) : null}
 

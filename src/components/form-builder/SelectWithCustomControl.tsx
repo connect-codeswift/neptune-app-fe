@@ -227,16 +227,26 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
         >
           {selected?.label ?? field.placeholder ?? "Select an option"}
         </span>
-        <Icon
-          icon="mdi:chevron-down"
-          className={[
-            "text-ehs-muted-text size-4 shrink-0 transition-transform",
-            isOpen ? "rotate-180" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          aria-hidden="true"
-        />
+        {field.variant === "search" ? (
+          // Reads as a search box whose menu opens from the round add button.
+          <span
+            className="bg-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full text-white"
+            aria-hidden="true"
+          >
+            <Icon icon="mdi:plus" className="size-4" />
+          </span>
+        ) : (
+          <Icon
+            icon="mdi:chevron-down"
+            className={[
+              "text-ehs-muted-text size-4 shrink-0 transition-transform",
+              isOpen ? "rotate-180" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            aria-hidden="true"
+          />
+        )}
       </button>
 
       {isOpen ? (
