@@ -11,6 +11,7 @@ export type RegulatoryComplianceCalendarGridProps = Readonly<{
   events: readonly CalendarEventItem[];
   activeStartDate: Date;
   onActiveStartDateChange: (date: Date) => void;
+  isLoading?: boolean;
   className?: string;
 }>;
 
@@ -26,6 +27,7 @@ export function RegulatoryComplianceCalendarGrid(
     events,
     activeStartDate,
     onActiveStartDateChange,
+    isLoading = false,
     className = "",
   } = props;
 
@@ -34,7 +36,12 @@ export function RegulatoryComplianceCalendarGrid(
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view !== "month") return null;
 
-    const dayEvents = events.filter((e) => e.day === date.getDate());
+    const dayEvents = events.filter(
+      (event) =>
+        event.day === date.getDate() &&
+        event.month === date.getMonth() &&
+        event.year === date.getFullYear(),
+    );
     if (dayEvents.length === 0) return null;
 
     const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
@@ -77,10 +84,17 @@ export function RegulatoryComplianceCalendarGrid(
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
+      className={["relative bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
         .filter(Boolean)
         .join(" ")}
     >
+      {isLoading ? (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[20px] bg-white/45 backdrop-blur-[1px]">
+          <Text as="span" className="text-ehs-muted-text text-[13px] font-medium">
+            Loading calendar…
+          </Text>
+        </div>
+      ) : null}
       <style jsx global>{`
         .custom-react-calendar {
           width: 100% !important;

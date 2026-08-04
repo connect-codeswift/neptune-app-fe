@@ -21,4 +21,3 @@ export { AddObligationHeaderCard } from "./calendar/new/AddObligationHeaderCard"
 export { AddObligationForm } from "./calendar/new/AddObligationForm";
 
 export * from "./regulatory-compliance-types";
-export * from "./regulatory-compliance-data";

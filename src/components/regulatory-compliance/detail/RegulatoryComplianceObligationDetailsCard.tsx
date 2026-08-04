@@ -95,6 +95,10 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
 
           <DetailField label="Completed Date" value={detail.completedDate} />
+          <DetailField
+            label="Completed By"
+            value={detail.completedByName}
+          />
         </div>
       </div>
     </IncidentGlassCard>
