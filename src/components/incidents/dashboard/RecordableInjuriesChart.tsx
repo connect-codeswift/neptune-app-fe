@@ -75,7 +75,7 @@ function RecordablesLineChart() {
               x={CHART.padLeft - 8}
               y={y + 3}
               textAnchor="end"
-              className="fill-ehs-muted-text text-[10px]"
+              className="fill-ehs-muted-text text-xs"
             >
               {tick}
             </text>
@@ -137,7 +137,7 @@ function RecordablesLineChart() {
             x={point.x}
             y={CHART.height - 8}
             textAnchor="middle"
-            className="fill-ehs-muted-text text-[10px]"
+            className="fill-ehs-muted-text text-xs"
           >
             {month}
           </text>
@@ -161,19 +161,19 @@ export function RecordableInjuriesChart(
         <div className="flex flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-ehs-darker text-[14px] font-bold tracking-[-0.14px]"
+            className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"
           >
             Recordable injuries · 12 months
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-[11px]">
+          <Text as="p" className="text-ehs-muted-text text-sm">
             Vs monthly target
           </Text>
         </div>
 
-        <span className="bg-ehs-green/14 text-ehs-green inline-flex items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[11px] font-bold">
+        <span className="bg-ehs-green/14 text-ehs-green inline-flex items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold">
           <Icon
             icon="mdi:trending-down"
-            className="text-[11px]"
+            className="text-sm"
             aria-hidden="true"
           />
           Improving
@@ -183,14 +183,14 @@ export function RecordableInjuriesChart(
       <RecordablesLineChart />
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="text-ehs-gray inline-flex items-center gap-1.5 text-[11px]">
+        <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
           <span
             className="bg-ehs-normal-blue size-2 rounded-[2px]"
             aria-hidden="true"
           />
           Recordables
         </span>
-        <span className="text-ehs-gray inline-flex items-center gap-1.5 text-[11px]">
+        <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
           <span
             className="bg-ehs-green size-2 rounded-[2px]"
             aria-hidden="true"

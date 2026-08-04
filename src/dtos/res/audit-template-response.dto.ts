@@ -18,7 +18,7 @@ export type AuditTemplateDto = {
   currentVersion: number;
   sectionCount: number;
   itemCount: number;
-  subCompanyId: number;
+  siteId: number;
   createdDate: string;
   updatedDate: string;
   lastUsedDate: string;

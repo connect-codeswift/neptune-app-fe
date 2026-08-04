@@ -53,7 +53,7 @@ export function ReportBodyMapFigure(props: Readonly<ReportBodyMapFigureProps>) {
     >
       <Text
         as="p"
-        className="text-ehs-muted-text shrink-0 py-px text-[11px] font-bold tracking-[1.2px] uppercase"
+        className="text-ehs-muted-text shrink-0 py-px text-sm font-bold tracking-[1.2px] uppercase"
       >
         {label}
       </Text>

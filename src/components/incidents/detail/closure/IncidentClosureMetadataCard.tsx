@@ -22,48 +22,48 @@ export function IncidentClosureMetadataCard(
       <div className="flex items-center justify-between">
         <Text
           as="h3"
-          className="text-[14px] leading-tight font-bold text-[#0b1320]"
+          className="text-sm leading-tight font-bold text-ehs-dark-bg"
         >
           Closure Metadata
         </Text>
-        <span className="rounded bg-[rgba(15,23,42,0.08)] px-2 py-0.5 text-[10px] font-semibold text-[#566072]">
+        <span className="rounded bg-[rgba(15,23,42,0.08)] px-2 py-0.5 text-xs font-semibold text-ehs-gray">
           Auto-generated
         </span>
       </div>
 
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text-[12px] font-normal text-[#8892a3]">
+          <Text as="span" className="text-sm font-normal text-ehs-muted-text">
             Closed by
           </Text>
-          <Text as="span" className="text-[12px] font-bold text-[#0b1320]">
+          <Text as="span" className="text-sm font-bold text-ehs-dark-bg">
             {data.closedBy}
           </Text>
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text-[12px] font-normal text-[#8892a3]">
+          <Text as="span" className="text-sm font-normal text-ehs-muted-text">
             Role
           </Text>
-          <Text as="span" className="text-[12px] font-semibold text-[#0b1320]">
+          <Text as="span" className="text-sm font-semibold text-ehs-dark-bg">
             {data.closedByRole}
           </Text>
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text-[12px] font-normal text-[#8892a3]">
+          <Text as="span" className="text-sm font-normal text-ehs-muted-text">
             Closure date
           </Text>
-          <Text as="span" className="text-[12px] font-semibold text-[#0b1320]">
+          <Text as="span" className="text-sm font-semibold text-ehs-dark-bg">
             {data.closureDate}
           </Text>
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text-[12px] font-normal text-[#8892a3]">
+          <Text as="span" className="text-sm font-normal text-ehs-muted-text">
             Duration open
           </Text>
-          <Text as="span" className="text-[12px] font-bold text-[#0b1320]">
+          <Text as="span" className="text-sm font-bold text-ehs-dark-bg">
             {data.durationOpen}
           </Text>
         </div>

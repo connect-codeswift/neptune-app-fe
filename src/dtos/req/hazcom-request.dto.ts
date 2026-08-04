@@ -10,7 +10,7 @@
  * Two conventions run through the whole module and differ from every other
  * feature in this app:
  *   - Every schema is `additionalProperties: false`, and none of them carry
- *     `subCompanyId`/`userId`. Sending those is rejected, so the endpoints must
+ *     `siteId`/`userId`. Sending those is rejected, so the endpoints must
  *     read them from the bearer token.
  *   - List-shaped values (pictograms, PPE, chemicals covered) are single
  *     strings on the wire, not arrays. The UI joins with ", " and splits on
@@ -34,6 +34,8 @@ export type ChemicalRequestDto = {
   hazardClass: string;
   /** Required by the API. */
   location: string;
+  /** Where waste / surplus is disposed; optional, max 250 chars. */
+  disposeLocation?: string | null;
   /** Required by the API. One combined string ("15 Liters"). */
   currentQuantity: string;
   /** "Danger" | "Warning" */
@@ -61,6 +63,8 @@ export type SafetyDataSheetRequestDto = {
   manufacturer?: string | null;
   casNumber?: string | null;
   hazardClass?: string | null;
+  /** Where waste / surplus is disposed; optional, max 250 chars. */
+  disposeLocation?: string | null;
   /** "Danger" | "Warning" */
   signalWord?: string | null;
   /** ISO date-time. */
@@ -90,6 +94,14 @@ export type PrecautionaryCodeRequestDto = {
   p_Codes: string;
 };
 
+/** Swagger `TrainingMaterialDto` — one uploaded training document. */
+export type TrainingMaterialRequestDto = {
+  id?: number;
+  fileUrl: string;
+  fileName: string;
+  fileType?: string | null;
+};
+
 /**
  * Swagger `TrainingLogDto` — body for POST /api/hazcom/training.
  *
@@ -108,7 +120,8 @@ export type TrainingLogRequestDto = {
   chemicalsCovered?: string | null;
   /** A string on the wire even though the UI collects a count. */
   attendees?: string | null;
-  materialsLink?: string | null;
+  /** Full materials list — PUT must send the entire array, not a patch. */
+  materials?: TrainingMaterialRequestDto[] | null;
   notes?: string | null;
 };
 

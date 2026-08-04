@@ -22,7 +22,7 @@ export type CreateDocumentRequestDto = {
   fileName: string;
   reviewCycle: string;
   createdBy: number;
-  subCompanyId: number;
+  siteId: number;
   /** Comma-separated user ids for acknowledgment tracking. */
   ackUserIds: string;
   /** Comma-separated user ids for approvals. */
@@ -51,7 +51,7 @@ export type CreateDocumentVersionRequestDto = {
 /**
  * Fields for PUT /api/Document/document (JSON body).
  * Dedicated update endpoint — unlike the POST create endpoint, this one
- * takes `updatedBy` (not `createdBy`/`subCompanyId`) and is meant to be
+ * takes `updatedBy` (not `createdBy`/`siteId`) and is meant to be
  * called with the document's existing `id`.
  */
 export type UpdateDocumentRequestDto = {

@@ -21,13 +21,13 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
     <div className="flex flex-col items-center gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-[26px] leading-[26px] font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text-2xl font-bold tracking-tight"
       >
         {String(value)}
       </Text>
       <Text
         as="p"
-        className="text-ehs-muted-text text-[10px] font-bold tracking-[0.8px] uppercase"
+        className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase"
       >
         {label}
       </Text>
@@ -69,10 +69,10 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
           </button>
         ) : null}
 
-        <div className="bg-ehs-normal-blue relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] shadow-[0px_8px_22px_-8px_#0891a6]">
+        <div className="bg-ehs-normal-blue relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] shadow-[0px_8px_22px_-8px_var(--ehs-normal-blue)]">
           <Icon
             icon="mdi:lightning-bolt"
-            className="size-[22px] text-white"
+            className="size-[22px] text-ehs-light-text"
             aria-hidden="true"
           />
         </div>
@@ -80,13 +80,13 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <Text
             as="p"
-            className="text-ehs-dark-blue text-[11px] font-bold tracking-[1.76px] uppercase"
+            className="text-ehs-dark-blue text-sm font-bold tracking-[1.76px] uppercase"
           >
             Horizontal Root Cause Analysis
           </Text>
           <Text
             as="h2"
-            className="text-ehs-dark-bg text-[18px] font-bold tracking-[-0.18px]"
+            className="text-ehs-dark-bg text-lg font-bold"
           >
             5 Whys across causal categories → root cause → corrective actions
           </Text>
@@ -136,11 +136,11 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         <div className="min-w-0 flex-1">
           <Text
             as="p"
-            className="text-ehs-muted-text text-[10.5px] font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text-xs font-bold tracking-[0.945px] uppercase"
           >
             Incident description
           </Text>
-          <p className="mt-0.5 text-[12.3px] leading-[19.38px] text-[#2a3446]">
+          <p className="mt-0.5 text-[12.3px] leading-[19.38px] text-ehs-slate">
             {meta.description}
           </p>
         </div>

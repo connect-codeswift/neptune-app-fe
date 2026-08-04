@@ -18,8 +18,8 @@ const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
 function toCreateRequest(
   report: NearMissReportValues,
 ): CreateNearMissRequestDto {
-  // userId / subCompanyId come from the signed-in user's access-token claims.
-  const { userId, subCompanyId } = getCurrentUser();
+  // userId / siteId come from the signed-in user's access-token claims.
+  const { userId, siteId } = getCurrentUser();
 
   return {
     dateOfEvent: report.dateOfEvent,
@@ -29,7 +29,7 @@ function toCreateRequest(
     contributingFactor: report.contributingFactors,
     isDrop: false,
     userId,
-    subCompanyId,
+    siteId,
   };
 }
 

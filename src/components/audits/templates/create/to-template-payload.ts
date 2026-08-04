@@ -41,7 +41,7 @@ export function toAuditTemplatePayload(
   options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateAuditTemplateRequestDto {
   const { values, sections, scoring, rules, settings } = draft;
-  const { userId, subCompanyId } = getCurrentUser();
+  const { userId, siteId } = getCurrentUser();
 
   const isPublished = options.publish;
   const isDraft = !options.publish;
@@ -79,7 +79,7 @@ export function toAuditTemplatePayload(
     notifyAssignee: true,
 
     userId,
-    subCompanyId,
+    siteId,
 
     sections: sections.map((section, sectionIndex) => {
       const sectionId = toBackendId(section.id);
@@ -92,7 +92,7 @@ export function toAuditTemplatePayload(
         isDraft,
         isPublished,
         userId,
-        subCompanyId,
+        siteId,
         auditTemplateId,
         items: section.items.map((item, itemIndex) => ({
           id: toBackendId(item.id),
@@ -111,7 +111,7 @@ export function toAuditTemplatePayload(
           isDraft,
           isPublished,
           userId,
-          subCompanyId,
+          siteId,
           templateSectionId: sectionId,
         })),
       };
@@ -134,7 +134,7 @@ export function toAuditTemplatePayload(
       isDraft,
       isPublished,
       userId,
-      subCompanyId,
+      siteId,
       auditTemplateId,
     })),
   };

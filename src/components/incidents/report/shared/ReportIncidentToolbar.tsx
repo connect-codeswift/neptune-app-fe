@@ -35,9 +35,9 @@ export function ReportIncidentToolbar(
         <input
           type="search"
           placeholder={searchPlaceholder}
-          className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-[13px] shadow-sm outline-none focus:ring-2"
+          className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-sm shadow-sm outline-none focus:ring-2"
         />
-        <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-[10px] font-medium sm:inline">
+        <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-xs font-medium sm:inline">
           ⌘K
         </kbd>
       </div>
@@ -45,7 +45,7 @@ export function ReportIncidentToolbar(
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="border-ehs-border text-ehs-gray inline-flex items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-[13px] shadow-sm"
+          className="border-ehs-border text-ehs-gray inline-flex items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-sm shadow-sm"
         >
           <Icon
             icon="mdi:calendar-outline"

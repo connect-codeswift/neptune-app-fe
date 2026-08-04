@@ -25,13 +25,13 @@ export function useDropHazardMutation() {
   return useMutation({
     mutationFn: ({
       id,
-      subCompanyId,
+      siteId,
       userId,
     }: {
       id: string;
-      subCompanyId: number;
+      siteId: number;
       userId: number;
-    }) => dropHazard(id, { subCompanyId, userId }),
+    }) => dropHazard(id, { siteId, userId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hazard"] });
     },

@@ -12,7 +12,6 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
   const { segments } = props;
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
 
-  // Each arc starts where the previous one ended, walking clockwise from 12.
   const arcs = segments.reduce<
     { label: string; color: string; length: number; offset: number }[]
   >((acc, segment) => {
@@ -50,7 +49,7 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
         <span className="text-ehs-dark-bg text-3xl leading-none tabular-nums">
           {total}
         </span>
-        <span className="text-ehs-muted-text mt-1 text-[10px] font-bold tracking-wider uppercase">
+        <span className="text-ehs-muted-text mt-1 text-xs font-bold tracking-wider uppercase">
           Items
         </span>
       </div>
@@ -68,11 +67,13 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
   const { detail, className = "", onViewFindings } = props;
 
   const segments: readonly Segment[] = [
-    { label: "Pass", value: detail.items.pass, color: "#10b981" },
-    { label: "Action", value: detail.items.action, color: "#f59e0b" },
-    { label: "Critical", value: detail.items.critical, color: "#ef4444" },
-    { label: "Pending", value: detail.items.pending, color: "#b3bbc8" },
+    { label: "Pass", value: detail.items.pass, color: "var(--ehs-green)" },
+    { label: "Action", value: detail.items.action, color: "var(--ehs-yellow)" },
+    { label: "Critical", value: detail.items.critical, color: "var(--ehs-red)" },
+    { label: "Pending", value: detail.items.pending, color: "var(--ehs-muted-text)" },
   ];
+
+  const displayCode = detail.code ?? `I-${detail.id}`;
 
   return (
     <IncidentGlassCard className={className} incidentGlassCardClassName="gap-4">
@@ -80,7 +81,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
         <div className="flex min-w-0 flex-col gap-0.5">
           <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
           <p className="text-ehs-muted-text">
-            {`${detail.id} · ${String(detail.progress)}% complete`}
+            {`${displayCode} · ${String(detail.progress)}% complete`}
           </p>
         </div>
 
@@ -117,29 +118,31 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
           ))}
         </ul>
       </div>
-      {/* 
-      <div className="flex flex-col gap-2">
-        <h4 className="text-ehs-muted-text text-[10px] font-bold tracking-wider uppercase">
-          Top findings
-        </h4>
 
-        <ul className="flex flex-col">
-          {detail.topFindings.map((finding) => (
-            <li
-              key={finding}
-              className="flex items-center gap-2.5 border-t border-slate-900/10 py-2.5"
-            >
-              <span
-                className="bg-ehs-muted-text size-1.5 shrink-0 rounded-full"
-                aria-hidden="true"
-              />
-              <span className="text-ehs-darker min-w-0 flex-1 text-sm">
-                {finding}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div> */}
+      {detail.topFindings.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <h4 className="text-ehs-muted-text text-xs font-bold tracking-wider uppercase">
+            Top findings
+          </h4>
+
+          <ul className="flex flex-col">
+            {detail.topFindings.map((finding) => (
+              <li
+                key={finding}
+                className="flex items-center gap-2.5 border-t border-slate-900/10 py-2.5"
+              >
+                <span
+                  className="bg-ehs-muted-text size-1.5 shrink-0 rounded-full"
+                  aria-hidden="true"
+                />
+                <span className="text-ehs-darker min-w-0 flex-1 text-sm">
+                  {finding}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </IncidentGlassCard>
   );
 }

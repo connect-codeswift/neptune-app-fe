@@ -55,7 +55,7 @@ export function mapNearMissDtoToRecord(
     title: dto.whatHappened,
     hazardType: labelFor(HAZARD_TYPE_OPTIONS, dto.hazardType),
     location: labelFor(LOCATION_OPTIONS, dto.location),
-    site: `${dto.subCompanyId}`,
+    site: `${dto.siteId}`,
     // Placeholder until the caller resolves the id against /User/dropdown.
     reporter: `User ${String(dto.userId)}`,
     reporterId: dto.userId,

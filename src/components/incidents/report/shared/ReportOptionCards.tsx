@@ -92,16 +92,16 @@ export function ReportOptionCards<T extends string>(
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-wrap items-end gap-x-1.5 gap-y-0.5">
-        <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+        <Text as="span" className="text-sm font-bold text-ehs-slate">
           {label}
         </Text>
         {required ? (
-          <Text as="span" className="text-ehs-red text-[12px]">
+          <Text as="span" className="text-ehs-red text-sm">
             *
           </Text>
         ) : null}
         {trailingHint ? (
-          <Text as="span" className="text-ehs-muted-text ml-auto text-[9.8px]">
+          <Text as="span" className="text-ehs-muted-text ml-auto text-xs">
             {trailingHint}
           </Text>
         ) : null}
@@ -150,14 +150,14 @@ export function ReportOptionCards<T extends string>(
               >
                 <span
                   className={[
-                    "text-[12.8px] leading-normal font-bold",
+                    "text-sm leading-normal font-bold",
                     isSelected ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
                   ].join(" ")}
                 >
                   {option.label}
                 </span>
                 {option.description ? (
-                  <span className="text-ehs-muted-text text-[11px] leading-normal">
+                  <span className="text-ehs-muted-text text-sm leading-normal">
                     {option.description}
                   </span>
                 ) : null}
@@ -174,7 +174,7 @@ export function ReportOptionCards<T extends string>(
                 // forced the long labels to wrap while SIA/SIP sat in mostly
                 // empty boxes, and the ragged one- vs two-line heights never
                 // lined up — sizing to content fixes all three at once.
-                "inline-flex cursor-pointer items-center rounded-full border px-3.5 py-2 text-[12.5px] leading-none whitespace-nowrap transition-colors duration-150",
+                "inline-flex cursor-pointer items-center rounded-full border px-3.5 py-2 text-sm leading-none whitespace-nowrap transition-colors duration-150",
                 FOCUS_RING,
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/[0.10] text-ehs-dark-blue font-bold"

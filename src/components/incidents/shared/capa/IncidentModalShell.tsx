@@ -59,7 +59,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b1320]/45 p-3.5 backdrop-blur-[3px] sm:p-5"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ehs-dark-bg/45 p-3.5 backdrop-blur-[3px] sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -70,21 +70,21 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
         className={[
-          "flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl bg-[#e5e9ec] shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all",
+          "flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl bg-ehs-light-bg shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all",
           maxWidthClassName,
         ].join(" ")}
       >
-        <header className="relative shrink-0 border-b border-[#cfd6d9] px-4 py-4 sm:px-8 sm:pt-7 sm:pb-[17px]">
+        <header className="relative shrink-0 border-b border-ehs-border px-4 py-4 sm:px-8 sm:pt-7 sm:pb-[17px]">
           <Text
             as="h2"
             id={titleId}
-            className="pr-10 text-[18px] leading-7 font-normal text-[#1e293b] sm:text-[20px]"
+            className="pr-10 text-lg leading-7 font-normal text-ehs-dark-bg sm:text-xl"
           >
             {title}
           </Text>
           <Text
             as="p"
-            className="mt-0.5 truncate text-[12px] leading-5 font-normal text-[#64748b] sm:mt-1 sm:text-[14px]"
+            className="mt-0.5 truncate text-sm leading-5 font-normal text-ehs-gray sm:mt-1 sm:text-sm"
           >
             {subtitle}
           </Text>
@@ -110,12 +110,12 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
           {children}
         </div>
 
-        <footer className="flex shrink-0 flex-col-reverse gap-3 border-t border-[#cfd6d9] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
+        <footer className="flex shrink-0 flex-col-reverse gap-3 border-t border-ehs-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
           <div className="text-center sm:text-left">
             {typeof footerHint === "string" ? (
               <Text
                 as="p"
-                className="text-[12px] leading-[19.5px] text-[#94a3b8] sm:text-[13px]"
+                className="text-sm leading-[19.5px] text-ehs-muted-text sm:text-sm"
               >
                 {footerHint}
               </Text>
@@ -142,7 +142,7 @@ export function IncidentModalCancelButton(
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 rounded-xl border border-[#cbd5e1] px-[20px] py-[9.5px] text-[13px] leading-[19.5px] text-[#334155] transition-colors hover:bg-white/60 sm:flex-initial sm:px-[25px] sm:py-[11px]"
+      className="flex-1 rounded-xl border border-ehs-border px-[20px] py-[9.5px] text-sm leading-[19.5px] text-ehs-slate transition-colors hover:bg-white/60 sm:flex-initial sm:px-[25px] sm:py-[11px]"
     >
       {label}
     </button>
@@ -170,10 +170,10 @@ export function IncidentModalPrimaryButton(
       disabled={disabled}
       onClick={onClick}
       className={[
-        "inline-flex h-[39.5px] min-w-[134px] flex-1 items-center justify-center gap-2 rounded-xl px-5 text-[13px] leading-[19.5px] font-medium text-white transition-colors sm:flex-initial",
+        "inline-flex h-[39.5px] min-w-[134px] flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
         disabled
-          ? "cursor-not-allowed bg-[#7bc1c5]"
-          : "bg-[#06939b] hover:bg-[#058189]",
+          ? "cursor-not-allowed bg-ehs-light-blue"
+          : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active",
       ].join(" ")}
     >
       {iconSrc ? (

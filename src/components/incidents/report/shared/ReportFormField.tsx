@@ -33,16 +33,16 @@ export function ReportFieldLabel(props: Readonly<ReportFieldLabelProps>) {
 
   return (
     <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+      <Text as="span" className="text-sm font-bold text-ehs-slate">
         {label}
       </Text>
       {required ? (
-        <Text as="span" className="text-ehs-red text-[12px]">
+        <Text as="span" className="text-ehs-red text-sm">
           *
         </Text>
       ) : null}
       {hint ? (
-        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
+        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-xs">
           <Icon
             icon="mdi:information-outline"
             className="size-3"
@@ -88,7 +88,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined
@@ -109,7 +109,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         ) : null}
       </div>
       {helperText ? (
-        <Text as="p" className="text-ehs-muted-text text-[10px]">
+        <Text as="p" className="text-ehs-muted-text text-xs">
           {helperText}
         </Text>
       ) : null}
@@ -153,7 +153,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
         hint={hint}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined
@@ -228,7 +228,7 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined

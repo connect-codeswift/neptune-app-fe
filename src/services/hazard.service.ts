@@ -11,11 +11,12 @@ import type {
   GetTopHazardUsersResponseDto,
 } from "@/dtos/res/hazard-response.dto";
 import http from "@/lib/axios";
+import { normalizeHazardKpiDto } from "@/lib/map-hazard";
 
 const HAZARD_CREATE_PATH = "/Hazard/Hazards";
 const HAZARD_GET_ALL_PATH = "/Hazard/GetAllHazard";
 const HAZARD_BY_ID_PATH = "/Hazard/Hazard";
-const HAZARD_KPI_PATH = "/Hazard/HazardKpi";
+const HAZARD_KPI_COUNT_PATH = "/Hazard/HazardKpiCount";
 const HAZARD_TOP_USERS_PATH = "/Hazard/TopHazardUsers";
 const HAZARD_HEAT_MAP_PATH = "/Hazard/HazardApiForHeatMap";
 
@@ -38,10 +39,16 @@ export async function getAllHazard(payload: GetAllHazardRequestDto) {
   return data;
 }
 
-export async function getHazardKpi() {
-  const { data } = await http.get<GetHazardKpiResponseDto>(HAZARD_KPI_PATH);
+export async function getHazardKpiCount(params: Readonly<{ userId: number }>) {
+  const { data } = await http.get<GetHazardKpiResponseDto>(
+    HAZARD_KPI_COUNT_PATH,
+    { params: { userId: params.userId } },
+  );
 
-  return data;
+  return {
+    ...data,
+    dataModel: normalizeHazardKpiDto(data.dataModel),
+  };
 }
 
 export async function getTopHazardUsers() {
@@ -62,7 +69,7 @@ export async function getHazardHeatMap() {
 
 export async function getHazardById(
   id: string,
-  params: Readonly<{ subCompanyId: number; userId: number }>,
+  params: Readonly<{ siteId: number; userId: number }>,
 ) {
   const { data } = await http.get<GetHazardByIdResponseDto>(
     `${HAZARD_BY_ID_PATH}/${encodeURIComponent(id)}`,
@@ -74,7 +81,7 @@ export async function getHazardById(
 
 export async function dropHazard(
   id: string,
-  payload: Readonly<{ subCompanyId: number; userId: number }>,
+  payload: Readonly<{ siteId: number; userId: number }>,
 ) {
   const { data } = await http.put<unknown>(
     `/Hazard/DropHazard/${encodeURIComponent(id)}`,

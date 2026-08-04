@@ -43,17 +43,17 @@ export function IncidentDetailInvestigationCard(
 
   const statusTone =
     statusLabel === "Complete"
-      ? "bg-[rgba(16,185,129,0.14)] text-[#0f766e]"
+      ? "bg-ehs-green-bg-light text-ehs-dark-blue"
       : statusLabel === "In progress"
-        ? "bg-[rgba(59,130,246,0.14)] text-[#3b82f6]"
-        : "bg-[rgba(11,19,32,0.1)] text-[#566072]";
+        ? "bg-ehs-blue/14 text-ehs-blue"
+        : "bg-ehs-dark-bg/10 text-ehs-gray";
 
   const statusDot =
     statusLabel === "Complete"
-      ? "bg-[#10b981]"
+      ? "bg-ehs-green"
       : statusLabel === "In progress"
-        ? "bg-[#3b82f6]"
-        : "bg-[#8892a3]";
+        ? "bg-ehs-blue"
+        : "bg-ehs-muted-text";
 
   return (
     <div
@@ -61,7 +61,7 @@ export function IncidentDetailInvestigationCard(
     >
       <IncidentGlassCard paddingClassName="p-[19px]">
         <div className="flex flex-wrap items-center gap-[14px]">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-[rgba(8,145,166,0.18)] text-[#056e7e]">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-ehs-dark-blue-bg-light text-ehs-dark-blue">
             <Icon
               icon="mdi:star-four-points"
               className="size-5"
@@ -72,18 +72,18 @@ export function IncidentDetailInvestigationCard(
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <Text
               as="h3"
-              className="text-[14px] leading-normal font-bold text-[#0b1320]"
+              className="text-sm leading-normal font-bold text-ehs-dark-bg"
             >
               5-Why root cause analysis
             </Text>
-            <span className="text-[12px] leading-normal text-[#566072]">
+            <span className="text-sm leading-normal text-ehs-gray">
               {methodLine}
             </span>
           </div>
 
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide",
               statusTone,
             ].join(" ")}
           >
@@ -98,7 +98,7 @@ export function IncidentDetailInvestigationCard(
           <button
             type="button"
             onClick={handleOpenHrca}
-            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] bg-[#0891a6] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067a8c]"
+            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
           >
             <Icon
               icon="mdi:open-in-new"
@@ -118,17 +118,17 @@ export function IncidentDetailInvestigationCard(
         <div className="flex flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Why-chain
           </Text>
-          <span className="text-[10.8px] leading-normal text-[#8892a3]">
+          <span className="text-xs leading-normal text-ehs-muted-text">
             Drill from event to root cause
           </span>
         </div>
 
         {whyChain.length === 0 ? (
-          <div className="py-8 text-center text-[12px] text-[#8892a3]">
+          <div className="py-8 text-center text-sm text-ehs-muted-text">
             No investigation findings recorded for this incident yet.
           </div>
         ) : (
@@ -142,10 +142,10 @@ export function IncidentDetailInvestigationCard(
                   <div className="flex flex-col items-center self-stretch">
                     <div
                       className={[
-                        "flex size-7 shrink-0 items-center justify-center rounded-[14px] text-[12px] font-bold",
+                        "flex size-7 shrink-0 items-center justify-center rounded-[14px] text-sm font-bold",
                         isRoot
-                          ? "bg-[#0891a6] text-white"
-                          : "border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)] text-[#566072]",
+                          ? "bg-ehs-normal-blue text-ehs-light-text"
+                          : "border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)] text-ehs-gray",
                       ].join(" ")}
                     >
                       {item.step}
@@ -160,14 +160,14 @@ export function IncidentDetailInvestigationCard(
                       className={[
                         "flex flex-col gap-0.5 rounded-[10px] border px-[15px] py-[11px]",
                         isRoot
-                          ? "border-[#0891a6] bg-[rgba(8,145,166,0.18)]"
+                          ? "border-ehs-normal-blue bg-ehs-dark-blue-bg-light"
                           : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
                       ].join(" ")}
                     >
                       <span
                         className={[
                           "inline-flex items-center gap-1 text-[9.5px] font-bold tracking-[0.76px] uppercase",
-                          isRoot ? "text-[#056e7e]" : "text-[#8892a3]",
+                          isRoot ? "text-ehs-dark-blue" : "text-ehs-muted-text",
                         ].join(" ")}
                       >
                         {isRoot ? (
@@ -181,10 +181,10 @@ export function IncidentDetailInvestigationCard(
                       </span>
                       <p
                         className={[
-                          "text-[13px] leading-[18.85px]",
+                          "text-sm leading-[18.85px]",
                           isRoot
-                            ? "font-bold text-[#0b1320]"
-                            : "font-normal text-[#0b1320]",
+                            ? "font-bold text-ehs-dark-bg"
+                            : "font-normal text-ehs-dark-bg",
                         ].join(" ")}
                       >
                         {item.text}
@@ -206,7 +206,7 @@ export function IncidentDetailInvestigationCard(
         >
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Contributing factors
           </Text>
@@ -219,12 +219,12 @@ export function IncidentDetailInvestigationCard(
                 style={{ borderLeftColor: factor.accent }}
               >
                 <span
-                  className="min-w-[86px] shrink-0 text-[10px] font-bold tracking-[0.6px] uppercase"
+                  className="min-w-[86px] shrink-0 text-xs font-bold tracking-[0.6px] uppercase"
                   style={{ color: factor.accent }}
                 >
                   {factor.category}
                 </span>
-                <span className="text-[12.5px] leading-[18.13px] text-[#2a3446]">
+                <span className="text-sm leading-[18.13px] text-ehs-slate">
                   {factor.text}
                 </span>
               </div>

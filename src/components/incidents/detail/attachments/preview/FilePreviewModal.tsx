@@ -10,10 +10,10 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-[8px] bg-white text-[13px]">
+      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-[8px] bg-white text-sm">
         <Icon
           icon="mdi:loading"
-          className="size-6 animate-spin text-[#0891a6]"
+          className="size-6 animate-spin text-ehs-normal-blue"
         />
         <span>Loading PDF viewer...</span>
       </div>
@@ -45,12 +45,12 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute -top-12 right-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-white shadow-lg transition-all hover:bg-white/20"
+          className="absolute -top-12 right-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-ehs-light-text shadow-lg transition-all hover:bg-white/20"
         >
           <Icon icon="mdi:close" className="size-5" />
         </button>
 
-        <div className="flex min-h-[240px] min-w-[280px] items-center justify-center overflow-hidden rounded-[10px] bg-[#1c2a3d]">
+        <div className="flex min-h-[240px] min-w-[280px] items-center justify-center overflow-hidden rounded-[10px] bg-ehs-dark-bg">
           {isImage ? (
             <img
               src={fileUrl}
@@ -71,14 +71,14 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
           {isPdf ? <FilePreviewPdf fileUrl={fileUrl} /> : null}
         </div>
 
-        <div className="mt-2 flex w-full items-center justify-between px-3.5 py-1 text-white">
+        <div className="mt-2 flex w-full items-center justify-between px-3.5 py-1 text-ehs-light-text">
           <div className="flex min-w-0 flex-col pr-4">
-            <span className="truncate text-[13px] font-bold">{file.name}</span>
-            <span className="truncate text-[10.5px] text-white/70">
+            <span className="truncate text-sm font-bold">{file.name}</span>
+            <span className="truncate text-xs text-ehs-light-text/70">
               {file.description}
             </span>
           </div>
-          <span className="shrink-0 rounded-full bg-white/14 px-3 py-0.5 text-[10px] font-bold text-white/90">
+          <span className="shrink-0 rounded-full bg-white/14 px-3 py-0.5 text-xs font-bold text-ehs-light-text/90">
             {file.sizeLabel}
           </span>
         </div>

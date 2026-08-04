@@ -24,13 +24,13 @@ export function IncidentDetailSummaryCard(
     <IncidentGlassCard
       paddingClassName="p-[23px]"
       incidentGlassCardClassName="gap-[13px]"
-      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}
     >
       <Text
         as="h3"
-        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="text-ehs-dark-bg text-lg font-semibold"
       >
         Summary
       </Text>
@@ -40,10 +40,10 @@ export function IncidentDetailSummaryCard(
           onChange={(event) => onChangeSummary?.(event.target.value)}
           rows={5}
           placeholder="Describe what happened…"
-          className="min-h-[120px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-[13px] leading-[20.8px] text-[#2a3446] outline-none transition focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+          className="min-h-[120px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-sm leading-[20.8px] text-ehs-slate outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
         />
       ) : (
-        <p className="text-[13px] leading-[20.8px] whitespace-pre-wrap text-[#2a3446]">
+        <p className="text-sm leading-[20.8px] whitespace-pre-wrap text-ehs-slate">
           {summaryText.trim() || "No summary provided."}
         </p>
       )}

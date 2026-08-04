@@ -43,12 +43,12 @@ function WhyHeader(props: Readonly<{ step: number }>) {
   const { step } = props;
   return (
     <div className="flex h-[35px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[11px] py-[9px]">
-      <span className="inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] bg-[#2a3446] text-[10px] font-bold tracking-[0.23px] text-[#f3f5f8]">
+      <span className="inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] bg-ehs-slate text-xs font-bold tracking-[0.23px] text-ehs-light-bg">
         {String(step)}
       </span>
       <Text
         as="span"
-        className="text-[11.5px] font-bold tracking-[0.23px] text-[#566072]"
+        className="text-sm font-bold tracking-[0.23px] text-ehs-gray"
       >
         Why?
       </Text>
@@ -66,7 +66,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         header: () => (
           <Text
             as="span"
-            className="text-ehs-muted-text pl-1 text-[10.5px] font-bold tracking-[0.84px] uppercase"
+            className="text-ehs-muted-text pl-1 text-xs font-bold tracking-[0.84px] uppercase"
           >
             Category
           </Text>
@@ -76,10 +76,10 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("contributingFactor", {
         id: "contributingFactor",
         header: () => (
-          <div className="flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(8,145,166,0.13)] px-[11px] py-[9px]">
+          <div className="flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-ehs-normal-blue/13 px-[11px] py-[9px]">
             <Text
               as="span"
-              className="text-center text-[11.5px] font-bold tracking-[0.23px] text-[#056e7e]"
+              className="text-center text-sm font-bold tracking-[0.23px] text-ehs-dark-blue"
             >
               Contributing factor
             </Text>
@@ -123,15 +123,15 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("correctiveActions", {
         id: "correctiveActions",
         header: () => (
-          <div className="flex h-[31px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-[11px] py-[9px]">
+          <div className="flex h-[31px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-ehs-green-bg-light px-[11px] py-[9px]">
             <Icon
               icon="mdi:check"
-              className="size-3 text-[#10b981]"
+              className="size-3 text-ehs-green"
               aria-hidden="true"
             />
             <Text
               as="span"
-              className="text-center text-[11.5px] font-bold tracking-[0.23px] text-[#10b981]"
+              className="text-center text-sm font-bold tracking-[0.23px] text-ehs-green"
             >
               Corrective actions
             </Text>

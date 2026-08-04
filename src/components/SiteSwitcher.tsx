@@ -11,7 +11,7 @@ import { Icon } from "@iconify/react";
  *
  * NOTE: the backend has no company or site endpoint yet — the API surface
  * exposes no /Company, /Site or /SubCompany route, and the access-token JWT
- * carries only `subCompanyId` / `organizationId`, no names. So `company` and
+ * carries only `siteId` / `organizationId`, no names. So `company` and
  * `sites` are props with placeholder defaults: swap the defaults for a query
  * once that endpoint lands and nothing else here has to change.
  */

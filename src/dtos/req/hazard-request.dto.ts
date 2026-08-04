@@ -2,7 +2,7 @@
 export type GetAllHazardRequestDto = {
   pageNumber: number;
   pageSize: number;
-  subCompanyId: number;
+  siteId: number;
   userId: number;
 };
 
@@ -17,7 +17,7 @@ export type CreateHazardRequestDto = {
   /** 0 until the assign-hazard flow exists. */
   assignedTo: number;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   isDrop: boolean;
 };
 

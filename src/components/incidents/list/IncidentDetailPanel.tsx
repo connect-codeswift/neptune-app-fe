@@ -32,11 +32,11 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
     <div className="flex min-w-0 flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-muted-text text-[11px] font-semibold tracking-wide uppercase"
+        className="text-ehs-muted-text text-sm font-semibold tracking-wide uppercase"
       >
         {label}
       </Text>
-      <Text as="p" className="text-ehs-darker text-[13px]">
+      <Text as="p" className="text-ehs-darker text-sm">
         {value}
       </Text>
     </div>
@@ -115,7 +115,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           <div className="flex flex-wrap items-center gap-2">
             <Text
               as="span"
-              className="text-ehs-muted-text text-[12px] font-semibold"
+              className="text-ehs-muted-text text-sm font-semibold"
             >
               {incident.id}
             </Text>
@@ -150,13 +150,13 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
 
         <Text
           as="h2"
-          className="text-ehs-darker text-[18px] leading-[21px] font-bold"
+          className="text-ehs-darker text-lg font-bold"
         >
           {incident.title}
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text mt-2 text-[12px] leading-[13px]"
+          className="text-ehs-muted-text mt-2 text-sm leading-[13px]"
         >
           {incident.site}
         </Text>
@@ -172,11 +172,11 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 py-3.5">
         <Text
           as="p"
-          className="text-ehs-muted-text mb-2 text-[11px] font-semibold tracking-wide uppercase"
+          className="text-ehs-muted-text mb-2 text-sm font-semibold tracking-wide uppercase"
         >
           Summary
         </Text>
-        <Text as="p" className="text-ehs-gray text-[12px] leading-[18px]">
+        <Text as="p" className="text-ehs-gray text-sm leading-[18px]">
           {incident.summary}
         </Text>
       </div>
@@ -185,14 +185,14 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         <div className="mb-3 flex items-center justify-between gap-3">
           <Text
             as="p"
-            className="text-ehs-muted-text text-[11px] font-semibold tracking-wide uppercase"
+            className="text-ehs-muted-text text-sm font-semibold tracking-wide uppercase"
           >
             {`Corrective actions · ${String(incident.capas.length)}`}
           </Text>
           <button
             type="button"
             onClick={() => setIsAddCapaOpen(true)}
-            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1 text-[12px] font-semibold"
+            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1 text-sm font-semibold"
           >
             <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
             Add CAPA
@@ -200,7 +200,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         </div>
 
         {incident.capas.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-[12px]">
+          <Text as="p" className="text-ehs-muted-text text-sm">
             No linked CAPAs yet.
           </Text>
         ) : (
@@ -212,7 +212,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <Text
                   as="span"
-                  className="text-ehs-muted-text text-[11px] font-semibold"
+                  className="text-ehs-muted-text text-sm font-semibold"
                 >
                   {capa.id}
                 </Text>
@@ -222,11 +222,11 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               </div>
               <Text
                 as="p"
-                className="text-ehs-darker text-[12px] leading-[17px]"
+                className="text-ehs-darker text-sm leading-[17px]"
               >
                 {capa.description}
               </Text>
-              <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-[11px]">
+              <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-sm">
                 <span className="inline-flex items-center gap-1">
                   <Icon
                     icon="mdi:account-outline"
@@ -261,7 +261,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             incident.state === "Closed" ||
             incident.stage === "Closed"
           }
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap disabled:opacity-50 sm:px-3 sm:text-[13px]"
+          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap disabled:opacity-50 sm:px-3 sm:text-sm"
         >
           <Icon
             icon={
@@ -283,7 +283,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         <Button
           type="button"
           variant="tertiary"
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap sm:px-3 sm:text-[13px]"
+          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap sm:px-3 sm:text-sm"
         >
           <Icon
             icon="mdi:cog-outline"
@@ -296,7 +296,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           type="button"
           variant="tertiary"
           onClick={() => setIsAddCapaOpen(true)}
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-[12px] whitespace-nowrap sm:px-3 sm:text-[13px]"
+          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap sm:px-3 sm:text-sm"
         >
           <Icon
             icon="mdi:plus"

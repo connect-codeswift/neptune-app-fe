@@ -33,10 +33,10 @@ export function CapaSegmentedToggle(props: Readonly<CapaSegmentedToggleProps>) {
             aria-checked={isActive}
             onClick={() => onChange(option)}
             className={[
-              "flex min-w-0 flex-1 items-center justify-center rounded-[6px] py-1.5 text-[14px] leading-5 whitespace-nowrap transition-colors",
+              "flex min-w-0 flex-1 items-center justify-center rounded-[6px] py-1.5 text-sm leading-5 whitespace-nowrap transition-colors",
               isActive
-                ? "bg-[#06939b] text-white"
-                : "text-[#64748b] hover:bg-[#06939b]/10",
+                ? "bg-ehs-normal-blue text-ehs-light-text"
+                : "text-ehs-gray hover:bg-ehs-normal-blue/10",
             ].join(" ")}
           >
             {option}

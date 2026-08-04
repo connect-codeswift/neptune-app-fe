@@ -62,7 +62,7 @@ export function ReportIncidentStepFour(
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
-              className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
+              className="text-ehs-dark-blue text-xs font-bold tracking-wide uppercase"
             >
               Step 4
             </Text>
@@ -72,7 +72,7 @@ export function ReportIncidentStepFour(
             >
               Immediate response
             </Text>
-            <Text as="p" className="text-ehs-gray text-[12px]">
+            <Text as="p" className="text-ehs-gray text-sm">
               What&apos;s already been done? This helps us assess containment.
             </Text>
           </div>
@@ -82,7 +82,7 @@ export function ReportIncidentStepFour(
             <ReportFieldLabel
               label="Actions taken"
               trailing={
-                <Text as="span" className="text-ehs-muted-text text-[11px]">
+                <Text as="span" className="text-ehs-muted-text text-sm">
                   Tap any that apply.
                 </Text>
               }
@@ -98,7 +98,7 @@ export function ReportIncidentStepFour(
                     className={[
                       "flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-left transition-all duration-200",
                       isChecked
-                        ? "border-[#0891a6]/40 bg-[#0891a6]/8 shadow-[0_0_0_1px_rgba(8,145,166,0.06)]"
+                        ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_rgba(8,145,166,0.06)]"
                         : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
                     ].join(" ")}
                   >
@@ -106,7 +106,7 @@ export function ReportIncidentStepFour(
                       className={[
                         "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
                         isChecked
-                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-white"
+                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
                           : "border-[rgba(15,23,42,0.18)] bg-white",
                       ].join(" ")}
                     >
@@ -116,7 +116,7 @@ export function ReportIncidentStepFour(
                     </div>
                     <span
                       className={[
-                        "text-[13px] leading-normal font-semibold",
+                        "text-sm leading-normal font-semibold",
                         isChecked ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
                       ].join(" ")}
                     >
@@ -159,7 +159,7 @@ export function ReportIncidentStepFour(
                         className={[
                           "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
                           isChecked
-                            ? "bg-ehs-normal-blue border-ehs-normal-blue text-white"
+                            ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
                             : "border-[rgba(15,23,42,0.18)] bg-white",
                         ].join(" ")}
                       >
@@ -170,7 +170,7 @@ export function ReportIncidentStepFour(
                       <Text
                         as="span"
                         className={[
-                          "text-[13px] transition-colors",
+                          "text-sm transition-colors",
                           isChecked
                             ? "text-ehs-dark-blue font-bold"
                             : "text-ehs-dark-bg font-normal",
@@ -204,7 +204,7 @@ export function ReportIncidentStepFour(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -214,7 +214,7 @@ export function ReportIncidentStepFour(
               Back
             </Button>
 
-            <p className="text-ehs-muted-text min-w-0 flex-1 text-[10.8px]">
+            <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
@@ -223,7 +223,7 @@ export function ReportIncidentStepFour(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon

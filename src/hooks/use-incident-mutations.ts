@@ -43,7 +43,7 @@ export function useCloseIncidentMutation() {
 
       return closeIncident(incidentId, {
         userId: auth.userId,
-        subCompanyId: auth.subCompanyId,
+        siteId: auth.siteId,
       });
     },
     onSuccess: async () => {
@@ -70,7 +70,7 @@ export function useUpdateIncidentMutation() {
         input.incidentId,
         {
           userId: auth.userId,
-          subCompanyId: auth.subCompanyId,
+          siteId: auth.siteId,
         },
         input.patch,
       );
@@ -92,7 +92,6 @@ export function useUpdateIncidentClosureMutation() {
     }) => {
       const payload = mapIncidentClosureDataToUpdateDto(
         input.data,
-        input.incidentId,
       );
       return updateIncidentClosure(input.incidentId, payload);
     },

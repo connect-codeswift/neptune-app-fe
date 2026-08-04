@@ -4,7 +4,7 @@ import type {
   TenantUserContextDto,
   UpdateIncidentRequestDto,
 } from "@/dtos/req/incident-request.dto";
-import type { UpdateIncidentClosureRequestDto } from "@/dtos/req/incident-closure-request.dto";
+import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 import type {
   GetAllIncidentsResponseDto,
   IncidentDto,
@@ -134,6 +134,7 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
 
   return {
     id: asNumber(readProp(raw, "id", "Id")),
+    title: asString(readProp(raw, "title", "Title")) ?? null,
     severity: asString(readProp(raw, "severity", "Severity")) ?? null,
     site: asString(readProp(raw, "site", "Site")) ?? null,
     location: asString(readProp(raw, "location", "Location")) ?? null,
@@ -180,7 +181,9 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
       asString(readProp(raw, "affectedPersonId", "AffectedPersonId")) ?? null,
     reportedById: asNumber(readProp(raw, "reportedById", "ReportedById")),
     userId: asNumber(readProp(raw, "userId", "UserId")),
-    subCompanyId: asNumber(readProp(raw, "subCompanyId", "SubCompanyId")),
+    siteId:
+      asNumber(readProp(raw, "siteId", "SiteId")) ??
+      asNumber(readProp(raw, "subCompanyId", "SubCompanyId")),
     injuredBodyPart:
       asString(readProp(raw, "injuredBodyPart", "InjuredBodyPart")) ?? null,
     injuryDescription:
@@ -189,6 +192,9 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
       asString(
         readProp(raw, "incidentReporterEmail", "IncidentReporterEmail"),
       ) ?? null,
+    occurredInCanada: asBoolean(
+      readProp(raw, "occurredInCanada", "OccurredInCanada"),
+    ),
     nonEmployeInvolved: asBoolean(
       readProp(raw, "nonEmployeInvolved", "NonEmployeInvolved"),
     ),
@@ -343,21 +349,19 @@ function normalizeGetAllIncidentsResponse(
 }
 
 export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
-  const { pageNumber, pageSize, subCompanyId, userId } = request;
+  const { pageNumber, pageSize } = request;
   const search = request.search?.trim();
+  const stage = request.stage?.trim();
   const severity = request.severity?.trim();
-  const caseDisposition = request.caseDisposition?.trim();
+  const site = request.site?.trim();
 
-  // Only send the optional server-side filters when they are actually set, so
-  // an unfiltered request keeps the exact body shape older backends expect.
   const body: GetAllIncidentsRequestDto = {
     pageNumber,
     pageSize,
-    subCompanyId,
-    userId,
     ...(search ? { search } : {}),
+    ...(stage ? { stage } : {}),
     ...(severity ? { severity } : {}),
-    ...(caseDisposition ? { caseDisposition } : {}),
+    ...(site ? { site } : {}),
   };
 
   const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, body);
@@ -366,14 +370,14 @@ export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
 
 /**
  * GET /Incident/GetIncidentById
- * Query: `{ id, userId, subCompanyId }`
+ * Query: `{ id, userId, siteId }`
  * Header: `Authorization: Bearer <token>` (required by API security)
  */
 export async function getIncidentById(
   params: Readonly<{
     id: number;
     userId: number;
-    subCompanyId: number;
+    siteId: number;
   }>,
 ) {
   const accessToken = getAccessToken();
@@ -385,7 +389,7 @@ export async function getIncidentById(
     params: {
       id: params.id,
       userId: params.userId,
-      subCompanyId: params.subCompanyId,
+      siteId: params.siteId,
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -411,7 +415,7 @@ export async function updateIncidentById(
   params: Readonly<{
     id: number;
     userId: number;
-    subCompanyId: number;
+    siteId: number;
   }>,
   payload: UpdateIncidentRequestDto,
 ) {
@@ -424,7 +428,7 @@ export async function updateIncidentById(
     ...payload,
     id: params.id,
     userId: params.userId,
-    subCompanyId: params.subCompanyId,
+    siteId: params.siteId,
   };
 
   const { data } = await http.put<unknown>(
@@ -454,7 +458,7 @@ export async function updateIncident(
   const existing = await getIncidentById({
     id,
     userId: context.userId,
-    subCompanyId: context.subCompanyId,
+    siteId: context.siteId,
   });
 
   const payload: UpdateIncidentRequestDto = {
@@ -462,7 +466,7 @@ export async function updateIncident(
     ...patch,
     id,
     userId: context.userId,
-    subCompanyId: context.subCompanyId,
+    siteId: context.siteId,
     reportedById:
       patch.reportedById ?? existing?.reportedById ?? context.userId,
     isDrop: false,
@@ -472,7 +476,7 @@ export async function updateIncident(
     {
       id,
       userId: context.userId,
-      subCompanyId: context.subCompanyId,
+      siteId: context.siteId,
     },
     payload,
   );
@@ -693,7 +697,7 @@ export async function getIncidentClosure(
  */
 export async function updateIncidentClosure(
   incidentId: number,
-  payload: UpdateIncidentClosureRequestDto,
+  payload: SaveIncidentClosureDto,
 ): Promise<IncidentClosureResponseDto | null> {
   const accessToken = getAccessToken();
   if (!accessToken) {

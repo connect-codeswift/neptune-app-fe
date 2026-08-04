@@ -174,7 +174,7 @@ export function IncidentDetailHrcaBoard(
         onClose={onClose}
       />
 
-      <div className="text-ehs-muted-text flex items-start gap-2.5 px-1 text-[12px] leading-[17px]">
+      <div className="text-ehs-muted-text flex items-start gap-2.5 px-1 text-sm leading-[17px]">
         <Icon
           icon="mdi:information-outline"
           className="text-ehs-gray mt-0.5 size-[13px] shrink-0"
@@ -188,7 +188,7 @@ export function IncidentDetailHrcaBoard(
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-[12px]">
+        <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-sm">
           No HRCA factors recorded for this incident yet. Open findings will
           appear here once investigation fields are captured.
         </div>
@@ -196,7 +196,7 @@ export function IncidentDetailHrcaBoard(
         <HrcaTable rows={rows} handlers={handlers} />
       )}
 
-      <p className="text-ehs-muted-text px-1 pb-1 text-center text-[11px] leading-relaxed font-medium">
+      <p className="text-ehs-muted-text px-1 pb-1 text-center text-sm leading-relaxed font-medium">
         Read each lane left → right: the contributing factor, then ask
         &quot;Why?&quot; until you reach the root cause (yellow). Edits persist
         on this device

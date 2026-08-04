@@ -37,20 +37,20 @@ export function IncidentDetailInfoCard(
     <IncidentGlassCard
       paddingClassName="p-[23px]"
       incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}
     >
       <Text
         as="h3"
-        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="text-ehs-dark-bg text-lg font-semibold"
       >
         Incident details
       </Text>
 
       <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="col-span-full py-6 text-center text-[12px] text-[#8892a3]">
+          <div className="col-span-full py-6 text-center text-sm text-ehs-muted-text">
             No incident detail fields returned by the API.
           </div>
         ) : (
@@ -60,7 +60,7 @@ export function IncidentDetailInfoCard(
 
             return (
               <div key={item.key} className="flex flex-col gap-[3px]">
-                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
                   {item.label}
                 </span>
                 {canEdit && kind === "yesno" ? (
@@ -93,7 +93,7 @@ export function IncidentDetailInfoCard(
                   />
                 ) : null}
                 {!canEdit ? (
-                  <span className="text-[13px] leading-normal text-[#0b1320]">
+                  <span className="text-sm leading-normal text-ehs-dark-bg">
                     {item.value}
                   </span>
                 ) : null}

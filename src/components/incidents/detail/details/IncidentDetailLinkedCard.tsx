@@ -62,14 +62,14 @@ export function IncidentDetailLinkedCard(
       <div className="flex items-center justify-between pb-[14px]">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Linked items
         </Text>
         <button
           type="button"
           onClick={handleAddCapa}
-          className="inline-flex items-center gap-2 rounded-[10px] bg-[#0891a6] px-[11px] py-[6.5px] text-[11px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485]"
+          className="inline-flex items-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[11px] py-[6.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add CAPA
@@ -85,20 +85,20 @@ export function IncidentDetailLinkedCard(
             index === linkedItems.length - 1 ? "pb-[14px]" : "pb-[10px]",
           ].join(" ")}
         >
-          <div className="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)] text-[#566072]">
+          <div className="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)] text-ehs-gray">
             <Icon icon={item.icon} className="size-3.5" aria-hidden="true" />
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[12px] leading-normal font-bold text-[#0b1320]">
+            <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
               {item.id}
             </span>
-            <span className="truncate text-[11px] leading-normal text-[#8892a3]">
+            <span className="truncate text-sm leading-normal text-ehs-muted-text">
               {item.label}
             </span>
           </div>
           <Icon
             icon="mdi:chevron-right"
-            className="size-3.5 shrink-0 text-[#8892a3]"
+            className="size-3.5 shrink-0 text-ehs-muted-text"
             aria-hidden="true"
           />
         </button>
@@ -108,7 +108,7 @@ export function IncidentDetailLinkedCard(
         <button
           type="button"
           onClick={handleViewAll}
-          className="mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text-[11px] font-bold text-[#566072] transition-colors hover:text-[#0b1320]"
+          className="mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text-sm font-bold text-ehs-gray transition-colors hover:text-ehs-dark-bg"
         >
           View all linked items
           <Icon icon="mdi:arrow-right" className="size-3" aria-hidden="true" />

@@ -122,17 +122,17 @@ export function ReportIncidentStepOne(
         <div className="flex flex-col gap-1.5">
           <Text
             as="p"
-            className="text-[10px] font-bold tracking-[1.4px] text-[#056e7e] uppercase"
+            className="text-xs font-bold tracking-[1.4px] text-ehs-dark-blue uppercase"
           >
             Step 1
           </Text>
           <Text
             as="h2"
-            className="text-[21.3px] font-bold tracking-[-0.44px] text-[#0b1320]"
+            className="text-2xl font-semibold tracking-[-0.2px] text-ehs-dark-bg"
           >
             What & where
           </Text>
-          <Text as="p" className="text-[12px] text-[#566072]">
+          <Text as="p" className="text-sm text-ehs-gray">
             Classify the incident, then capture where and when it occurred.
           </Text>
         </div>
@@ -204,7 +204,7 @@ export function ReportIncidentStepOne(
         <div className="mt-1 flex flex-col">
           <Text
             as="p"
-            className="pt-px text-[10px] font-bold tracking-[1px] text-[#8892a3] uppercase"
+            className="pt-px text-xs font-bold tracking-[1px] text-ehs-muted-text uppercase"
           >
             Classification
           </Text>
@@ -241,7 +241,7 @@ export function ReportIncidentStepOne(
             type="button"
             variant="tertiary"
             onClick={onBack}
-            className="rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-transparent px-[15px] pt-2.5 pb-[10.5px] text-[13px] font-bold text-[#2a3446] opacity-40 transition hover:opacity-70"
+            className="rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-transparent px-[15px] pt-2.5 pb-[10.5px] text-sm font-bold text-ehs-slate opacity-40 transition hover:opacity-70"
           >
             <Icon
               icon="mdi:chevron-left"
@@ -251,16 +251,16 @@ export function ReportIncidentStepOne(
             Back
           </Button>
 
-          <p className="min-w-0 flex-1 text-[10.8px] text-[#8892a3]">
+          <p className="min-w-0 flex-1 text-xs text-ehs-muted-text">
             Required fields marked with{" "}
-            <span className="text-[#ef4444]">*</span>
+            <span className="text-ehs-red">*</span>
           </p>
 
           <Button
             type="button"
             variant="primary"
             onClick={handleContinue}
-            className="rounded-[10px] bg-[#0891a6] px-[15px] pt-2.5 pb-[10.5px] text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition hover:bg-[#067a8c]"
+            className="rounded-[10px] bg-ehs-normal-blue px-[15px] pt-2.5 pb-[10.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition hover:bg-ehs-normal-blue-active"
           >
             Continue
             <Icon

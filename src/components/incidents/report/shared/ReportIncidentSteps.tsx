@@ -29,7 +29,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
     >
       <Text
         as="p"
-        className="text-ehs-muted-text px-2 pt-[5px] pb-[11px] text-[10.5px] font-bold tracking-[1.05px] uppercase"
+        className="text-ehs-muted-text px-2 pt-[5px] pb-[11px] text-xs font-bold tracking-[1.05px] uppercase"
       >
         Steps
       </Text>
@@ -51,11 +51,11 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
             >
               <span
                 className={[
-                  "inline-flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-[10px] font-bold",
+                  "inline-flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-xs font-bold",
                   isComplete
-                    ? "bg-ehs-green text-white"
+                    ? "bg-ehs-green text-ehs-light-text"
                     : isActive
-                      ? "bg-ehs-normal-blue text-white"
+                      ? "bg-ehs-normal-blue text-ehs-light-text"
                       : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-white/82",
                 ].join(" ")}
               >
@@ -83,7 +83,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
                 </Text>
                 <Text
                   as="span"
-                  className="text-ehs-muted-text text-[10.5px] leading-normal font-normal"
+                  className="text-ehs-muted-text text-xs leading-normal font-normal"
                 >
                   {step.description}
                 </Text>
@@ -95,14 +95,14 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
 
       <div className="mt-[18px] border-t border-[rgba(15,23,42,0.08)] px-2 pt-3">
         <div className="mb-1.5 flex items-center justify-between">
-          <Text as="span" className="text-ehs-muted-text text-[10.5px]">
+          <Text as="span" className="text-ehs-muted-text text-xs">
             Progress
           </Text>
-          <Text as="span" className="text-ehs-muted-text text-[10.2px]">
+          <Text as="span" className="text-ehs-muted-text text-xs">
             {`${String(currentStep)} / 5`}
           </Text>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ehs-muted-text/20">
           <div
             className="bg-ehs-normal-blue h-full rounded-full transition-all"
             style={{ width: `${(currentStep / 5) * 100}%` }}

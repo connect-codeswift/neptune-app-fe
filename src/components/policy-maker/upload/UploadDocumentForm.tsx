@@ -318,7 +318,7 @@ export function UploadDocumentForm() {
         fileName: file.name,
         reviewCycle,
         createdBy: auth.userId,
-        subCompanyId: auth.subCompanyId,
+        siteId: auth.siteId,
         ackUserIds: ackUserIds.join(","),
         approvalUserIds: approverIds.join(","),
       },

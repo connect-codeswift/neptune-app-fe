@@ -44,7 +44,7 @@ export function toInspectionTemplatePayload(
   options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateInspectionTemplateRequestDto {
   const { values, sections, scoring, rules, settings } = draft;
-  const { userId, subCompanyId } = getCurrentUser();
+  const { userId, siteId } = getCurrentUser();
 
   const isPublished = options.publish;
   const isDraft = !options.publish;
@@ -82,7 +82,7 @@ export function toInspectionTemplatePayload(
     notifyAssignee: true,
 
     userId,
-    subCompanyId,
+    siteId,
 
     sections: sections.map((section, sectionIndex) => {
       const sectionId = toBackendId(section.id);
@@ -95,7 +95,7 @@ export function toInspectionTemplatePayload(
         isDraft,
         isPublished,
         userId,
-        subCompanyId,
+        siteId,
         inspectionTemplateId,
         items: section.items.map((item, itemIndex) => ({
           id: toBackendId(item.id),
@@ -114,7 +114,7 @@ export function toInspectionTemplatePayload(
           isDraft,
           isPublished,
           userId,
-          subCompanyId,
+          siteId,
           templateSectionId: sectionId,
         })),
       };
@@ -137,7 +137,7 @@ export function toInspectionTemplatePayload(
       isDraft,
       isPublished,
       userId,
-      subCompanyId,
+      siteId,
       inspectionTemplateId,
     })),
   };

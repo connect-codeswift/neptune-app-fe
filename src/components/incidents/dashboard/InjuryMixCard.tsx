@@ -50,13 +50,13 @@ function DonutChart() {
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <Text
           as="p"
-          className="text-ehs-darker text-[28px] leading-none font-semibold tabular-nums"
+          className="text-ehs-darker text-3xl leading-none font-semibold tabular-nums"
         >
           {String(INJURY_MIX_TOTAL)}
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text mt-1 text-[10px] font-semibold tracking-[0.08em]"
+          className="text-ehs-muted-text mt-1 text-xs font-semibold tracking-[0.08em]"
         >
           RECORD.
         </Text>
@@ -76,11 +76,11 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
       <div className="mb-4 flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-ehs-darker text-[14px] font-bold tracking-[-0.14px]"
+          className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"
         >
           Recordable injury mix
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <Text as="p" className="text-ehs-muted-text text-sm">
           Composition of recordable outcomes
         </Text>
       </div>
@@ -98,13 +98,13 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
               />
               <Text
                 as="span"
-                className="text-ehs-gray min-w-0 flex-1 truncate text-[12px]"
+                className="text-ehs-gray min-w-0 flex-1 truncate text-sm"
               >
                 {item.label}
               </Text>
               <Text
                 as="span"
-                className="text-ehs-darker shrink-0 text-[12px] font-medium tabular-nums"
+                className="text-ehs-darker shrink-0 text-sm font-medium tabular-nums"
               >
                 {String(item.value)}
               </Text>

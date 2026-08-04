@@ -53,7 +53,7 @@ export function IncidentKpisDashboard(
         <InjuryMixCard />
       </div>
 
-      <Text as="p" className="text-ehs-muted-text text-[14px] leading-4">
+      <Text as="p" className="text-ehs-muted-text text-sm leading-4">
         {INCIDENT_KPIS_FOOTNOTE}
       </Text>
     </div>
