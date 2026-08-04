@@ -99,10 +99,14 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         <button
           type="button"
           onClick={openPicker}
-          className="text-ehs-muted-text absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-0.5 transition hover:text-ehs-dark-bg"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-0.5 transition"
           aria-label={`Open calendar for ${label}`}
         >
-          <Icon icon="mdi:calendar-outline" className="size-[13px]" aria-hidden="true" />
+          <Icon
+            icon="mdi:calendar-outline"
+            className="size-[13px]"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </div>

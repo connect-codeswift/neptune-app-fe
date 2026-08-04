@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Text } from "@/components/Text";
 
 export type ReportOptionCardOption<T extends string = string> = Readonly<{
@@ -24,6 +25,9 @@ export type ReportOptionCardsProps<T extends string = string> = Readonly<{
   className?: string;
 }>;
 
+const FOCUS_RING =
+  "outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+
 export function ReportOptionCards<T extends string>(
   props: Readonly<ReportOptionCardsProps<T>>,
 ) {
@@ -39,11 +43,55 @@ export function ReportOptionCards<T extends string>(
     className = "",
   } = props;
 
+  const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const selectedIndex = options.findIndex((option) => option.id === value);
+  /** Which card is reachable by Tab — the standard roving-tabindex pattern. */
+  const tabbableIndex = selectedIndex >= 0 ? selectedIndex : 0;
+
+  /**
+   * Arrow keys move between radios and select as they go, per the WAI-ARIA
+   * radiogroup pattern. Without this every card was its own tab stop and the
+   * arrows did nothing, so the group was awkward to operate from a keyboard.
+   */
+  function handleKeyDown(event: React.KeyboardEvent, index: number) {
+    const lastIndex = options.length - 1;
+    let nextIndex: number | null = null;
+
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        nextIndex = index === lastIndex ? 0 : index + 1;
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        nextIndex = index === 0 ? lastIndex : index - 1;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = lastIndex;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const nextOption = options[nextIndex];
+    if (!nextOption) {
+      return;
+    }
+
+    onChange(nextOption.id);
+    buttonsRef.current[nextIndex]?.focus();
+  }
+
   return (
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <div className="flex items-end gap-1.5">
+      <div className="flex flex-wrap items-end gap-x-1.5 gap-y-0.5">
         <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
           {label}
         </Text>
@@ -53,10 +101,7 @@ export function ReportOptionCards<T extends string>(
           </Text>
         ) : null}
         {trailingHint ? (
-          <Text
-            as="span"
-            className="text-ehs-muted-text ml-auto text-[9.8px]"
-          >
+          <Text as="span" className="text-ehs-muted-text ml-auto text-[9.8px]">
             {trailingHint}
           </Text>
         ) : null}
@@ -65,26 +110,39 @@ export function ReportOptionCards<T extends string>(
       <div
         className={
           variant === "tile"
-            ? "grid grid-cols-1 sm:grid-cols-2 gap-2.5"
-            : "flex flex-wrap gap-[11px]"
+            ? "grid grid-cols-1 gap-2.5 sm:grid-cols-2"
+            : "flex flex-wrap items-center gap-2"
         }
         role="radiogroup"
         aria-label={ariaLabel ?? label}
       >
-        {options.map((option) => {
+        {options.map((option, index) => {
           const isSelected = option.id === value;
-          const titleLines = option.lines ?? [option.label];
+
+          const shared = {
+            ref: (node: HTMLButtonElement | null) => {
+              buttonsRef.current[index] = node;
+            },
+            type: "button" as const,
+            role: "radio",
+            "aria-checked": isSelected,
+            tabIndex: index === tabbableIndex ? 0 : -1,
+            onClick: () => {
+              onChange(option.id);
+            },
+            onKeyDown: (event: React.KeyboardEvent) => {
+              handleKeyDown(event, index);
+            },
+          };
 
           if (variant === "tile") {
             return (
               <button
                 key={option.id}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
-                onClick={() => onChange(option.id)}
+                {...shared}
                 className={[
-                  "flex min-h-[57px] flex-col items-start gap-0.5 rounded-[10px] border p-[13px] text-left transition-all duration-200",
+                  "flex min-h-[57px] cursor-pointer flex-col items-start gap-0.5 rounded-[10px] border p-[13px] text-left transition-all duration-200",
+                  FOCUS_RING,
                   isSelected
                     ? "border-ehs-normal-blue bg-ehs-normal-blue/18 shadow-[0_0_0_1px_rgba(8,145,166,0.12)]"
                     : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
@@ -110,35 +168,20 @@ export function ReportOptionCards<T extends string>(
           return (
             <button
               key={option.id}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => onChange(option.id)}
+              {...shared}
               className={[
-                "flex h-[67px] w-[96px] min-w-[96px] flex-col items-start gap-1.5 rounded-[10px] border px-[13px] py-[11px] text-left transition-all duration-200",
+                // Auto width, single line, label only. Fixed equal widths
+                // forced the long labels to wrap while SIA/SIP sat in mostly
+                // empty boxes, and the ragged one- vs two-line heights never
+                // lined up — sizing to content fixes all three at once.
+                "inline-flex cursor-pointer items-center rounded-full border px-3.5 py-2 text-[12.5px] leading-none whitespace-nowrap transition-colors duration-150",
+                FOCUS_RING,
                 isSelected
-                  ? "border-[#0891a6] bg-[rgba(8,145,166,0.14)] shadow-[0_0_0_1px_rgba(8,145,166,0.08)]"
-                  : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/80",
+                  ? "border-ehs-normal-blue bg-ehs-normal-blue/[0.10] text-ehs-dark-blue font-bold"
+                  : "text-ehs-gray hover:text-ehs-dark-bg border-[rgba(15,23,42,0.10)] bg-white/[0.62] font-semibold hover:border-[rgba(15,23,42,0.22)]",
               ].join(" ")}
             >
-              <span
-                className={[
-                  "size-2 shrink-0 rounded-[4px] transition-colors",
-                  isSelected ? "bg-[#0891a6]" : "bg-[#566072]",
-                ].join(" ")}
-              />
-              <span
-                className={[
-                  "text-[12.5px] leading-[15px] font-bold",
-                  isSelected ? "text-[#0891a6]" : "text-[#0b1320]",
-                ].join(" ")}
-              >
-                {titleLines.map((line) => (
-                  <span key={line} className="block">
-                    {line}
-                  </span>
-                ))}
-              </span>
+              {option.label}
             </button>
           );
         })}

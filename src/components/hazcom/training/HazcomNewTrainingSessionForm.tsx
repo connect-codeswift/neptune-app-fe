@@ -11,6 +11,10 @@ import {
   HazcomTextareaField,
   HazcomTextField,
 } from "@/components/hazcom/shared";
+import type { TrainingLogRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
+import { toast } from "@/lib/toast";
 
 type NewTrainingSessionFormState = Readonly<{
   date: string;
@@ -32,6 +36,37 @@ const INITIAL_FORM_STATE: NewTrainingSessionFormState = {
   notes: "",
 };
 
+const TRAINING_LOG_ROUTE = "/dashboard/hazcom/training";
+
+/**
+ * `sessionDate` is a date-time on the wire while the field collects a plain
+ * date, so the day is sent as UTC midnight.
+ */
+function toSessionDate(date: string): string {
+  const parsed = new Date(date);
+  return Number.isNaN(parsed.getTime()) ? date : parsed.toISOString();
+}
+
+function toTrainingLogRequest(
+  form: NewTrainingSessionFormState,
+): TrainingLogRequestDto {
+  return {
+    sessionDate: toSessionDate(form.date),
+    trainer: form.trainer.trim(),
+    // The API has no "topic" column; `trainerTitle` is the only free-text
+    // field this can land in.
+    trainerTitle: form.topic.trim(),
+    chemicalsCovered: form.chemicals.trim(),
+    // A string on the wire even though the field collects a count.
+    attendees: form.attendees.trim(),
+    materialsLink: form.materialsLink.trim(),
+    notes: form.notes.trim(),
+    // The form covers a session, not a specific chemical; the list of names
+    // it collects goes to `chemicalsCovered` instead.
+    chemicalId: null,
+  };
+}
+
 export type HazcomNewTrainingSessionFormProps = Readonly<{
   className?: string;
 }>;
@@ -41,9 +76,9 @@ export function HazcomNewTrainingSessionForm(
 ) {
   const { className = "" } = props;
   const router = useRouter();
-  const [form, setForm] = useState<NewTrainingSessionFormState>(
-    INITIAL_FORM_STATE,
-  );
+  const createTrainingLog = useCreateTrainingLogMutation();
+  const [form, setForm] =
+    useState<NewTrainingSessionFormState>(INITIAL_FORM_STATE);
 
   const updateField = <K extends keyof NewTrainingSessionFormState>(
     field: K,
@@ -54,7 +89,34 @@ export function HazcomNewTrainingSessionForm(
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push("/hazcom/training");
+
+    // The two fields the API requires; both are asterisked in the form.
+    const missing =
+      form.date.trim() === ""
+        ? "Session Date"
+        : form.trainer.trim() === ""
+          ? "Trainer"
+          : null;
+
+    if (missing !== null) {
+      toast.error(`${missing} is required`);
+      return;
+    }
+
+    createTrainingLog.mutate(toTrainingLogRequest(form), {
+      onSuccess: () => {
+        toast.success("Training session logged");
+        router.push(TRAINING_LOG_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not save the training session. Please try again.",
+          ),
+        );
+      },
+    });
   };
 
   return (
@@ -95,9 +157,7 @@ export function HazcomNewTrainingSessionForm(
             label="Chemicals Covered"
             placeholder="e.g. HCI, Acetone, NaOH"
             value={form.chemicals}
-            onChange={(event) =>
-              updateField("chemicals", event.target.value)
-            }
+            onChange={(event) => updateField("chemicals", event.target.value)}
           />
           <HazcomTextField
             label="Attendees (count)"
@@ -105,9 +165,7 @@ export function HazcomNewTrainingSessionForm(
             min={0}
             placeholder="0"
             value={form.attendees}
-            onChange={(event) =>
-              updateField("attendees", event.target.value)
-            }
+            onChange={(event) => updateField("attendees", event.target.value)}
           />
           <HazcomTextField
             label="Training Materials Link"
@@ -127,14 +185,18 @@ export function HazcomNewTrainingSessionForm(
         />
 
         <div className="mt-2 flex items-center justify-end gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
-          <Link href="/hazcom/training">
+          <Link href={TRAINING_LOG_ROUTE}>
             <Button type="button" variant="tertiary">
               Cancel
             </Button>
           </Link>
-          <Button type="submit" variant="primary">
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={createTrainingLog.isPending}
+          >
             <Icon icon="mdi:check" className="text-base" aria-hidden="true" />
-            Save Session
+            {createTrainingLog.isPending ? "Saving…" : "Save Session"}
           </Button>
         </div>
       </form>

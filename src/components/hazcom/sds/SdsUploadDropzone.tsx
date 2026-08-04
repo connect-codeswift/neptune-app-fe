@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/Button";
 
 export type SdsUploadDropzoneProps = Readonly<{
   fileName: string | null;
-  onFileNameChange: (name: string | null) => void;
+  /** Receives the picked File so the caller can upload it, or null to clear. */
+  onFileChange: (file: File | null) => void;
+  /** Blocks re-picking while the caller is uploading. */
+  disabled?: boolean;
   className?: string;
 }>;
 
 export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
-  const { fileName, onFileNameChange, className = "" } = props;
+  const { fileName, onFileChange, disabled = false, className = "" } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -32,15 +35,18 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
     event.stopPropagation();
     setDragActive(false);
 
+    if (disabled) {
+      return;
+    }
+
     const file = event.dataTransfer.files?.[0];
     if (file) {
-      onFileNameChange(file.name);
+      onFileChange(file);
     }
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    onFileNameChange(file ? file.name : null);
+    onFileChange(event.target.files?.[0] ?? null);
   };
 
   return (
@@ -49,7 +55,11 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
       onDragOver={handleDrag}
       onDragLeave={handleDrag}
       onDrop={handleDrop}
-      onClick={() => inputRef.current?.click()}
+      onClick={() => {
+        if (!disabled) {
+          inputRef.current?.click();
+        }
+      }}
       className={[
         "flex min-h-[190px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
         dragActive
@@ -65,6 +75,7 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
         type="file"
         accept="application/pdf"
         onChange={handleChange}
+        disabled={disabled}
         className="hidden"
         aria-label="SDS PDF file"
       />
@@ -88,6 +99,7 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
       <Button
         type="button"
         variant="secondary"
+        disabled={disabled}
         onClick={(event) => {
           event.stopPropagation();
           inputRef.current?.click();

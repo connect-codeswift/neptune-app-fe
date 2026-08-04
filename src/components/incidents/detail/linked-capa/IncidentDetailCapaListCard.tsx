@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
+import { SkeletonListRows } from "@/components/ui/skeletons";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 
 export type { CapaItem };
@@ -82,9 +83,7 @@ export function IncidentDetailCapaListCard(
 
         <div className="flex flex-col gap-3">
           {isLoading ? (
-            <div className="py-8 text-center text-[12px] text-[#8892a3]">
-              Loading linked CAPAs…
-            </div>
+            <SkeletonListRows rows={3} />
           ) : capas.length === 0 ? (
             <div className="py-8 text-center text-[12px] text-[#8892a3]">
               No linked CAPA actions found for this incident.

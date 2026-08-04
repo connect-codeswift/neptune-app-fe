@@ -35,6 +35,8 @@ export type TableProps<TData> = {
   pagination?: TablePagination;
   /** Toolbar rendered inside the card, above the table (title, filters, …). */
   header?: ReactNode;
+  /** Visual variant for domain-specific table styling. */
+  variant?: "default" | "compliance";
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -49,7 +51,10 @@ export function Table<TData>(props: TableProps<TData>) {
     containerClassName = "",
     pagination,
     header,
+    variant = "default",
   } = props;
+
+  const isCompliance = variant === "compliance";
 
   const table = useReactTable({
     data: data as TData[],
@@ -70,7 +75,12 @@ export function Table<TData>(props: TableProps<TData>) {
         .join(" ")}
     >
       {header ? (
-        <div className="border-b border-[rgba(15,23,42,0.08)] px-4 py-2.5">
+        <div
+          className={[
+            "border-b border-[rgba(15,23,42,0.08)]",
+            isCompliance ? "px-[15.57px] py-0" : "px-4 py-2.5",
+          ].join(" ")}
+        >
           {header}
         </div>
       ) : null}
@@ -85,7 +95,11 @@ export function Table<TData>(props: TableProps<TData>) {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr
                 key={headerGroup.id}
-                className="border-ehs-border/40 border-b"
+                className={
+                  isCompliance
+                    ? "border-b border-[rgba(15,23,42,0.08)]"
+                    : "border-ehs-border/40 border-b"
+                }
               >
                 {headerGroup.headers.map((header) => {
                   const meta = header.column.columnDef.meta as
@@ -110,7 +124,9 @@ export function Table<TData>(props: TableProps<TData>) {
                             : undefined,
                       }}
                       className={[
-                        "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
+                        isCompliance
+                          ? "px-[15.57px] py-3 text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
+                          : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
                         alignClass,
                       ].join(" ")}
                     >
@@ -145,11 +161,17 @@ export function Table<TData>(props: TableProps<TData>) {
                     key={row.id}
                     onClick={() => onRowClick?.(row.original)}
                     className={[
-                      "border-ehs-border/45 border-b transition-colors last:border-b-0",
+                      isCompliance
+                        ? "border-t border-[rgba(15,23,42,0.08)] transition-colors"
+                        : "border-ehs-border/45 border-b last:border-b-0",
                       onRowClick ? "cursor-pointer" : "",
-                      isSelected
-                        ? "bg-ehs-normal-blue/18"
-                        : "hover:bg-ehs-normal-blue/18",
+                      isCompliance
+                        ? isSelected
+                          ? "bg-[rgba(8,145,166,0.18)]"
+                          : "hover:bg-[rgba(8,145,166,0.08)]"
+                        : isSelected
+                          ? "bg-ehs-normal-blue/18"
+                          : "hover:bg-ehs-normal-blue/18",
                     ].join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
@@ -168,7 +190,9 @@ export function Table<TData>(props: TableProps<TData>) {
                         <td
                           key={cell.id}
                           className={[
-                            "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
+                            isCompliance
+                              ? "px-[15.57px] py-[14px] align-middle text-sm font-normal"
+                              : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
                             alignClass,
                           ].join(" ")}
                         >
@@ -187,7 +211,9 @@ export function Table<TData>(props: TableProps<TData>) {
         </table>
       </div>
 
-      {pagination ? <TablePaginationBar {...pagination} /> : null}
+      {pagination ? (
+        <TablePaginationBar {...pagination} variant={variant} />
+      ) : null}
     </IncidentGlassCard>
   );
 }
@@ -195,8 +221,12 @@ export function Table<TData>(props: TableProps<TData>) {
 const pageButtonClass =
   "inline-flex cursor-pointer items-center gap-1 rounded-lg border border-ehs-border bg-ehs-light-text px-3 py-1.5 text-xs font-medium text-ehs-gray transition-colors hover:bg-ehs-light-bg disabled:cursor-not-allowed disabled:opacity-50";
 
-function TablePaginationBar(props: Readonly<TablePagination>) {
-  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading } = props;
+function TablePaginationBar(
+  props: Readonly<TablePagination & { variant?: "default" | "compliance" }>,
+) {
+  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading, variant = "default" } =
+    props;
+  const isCompliance = variant === "compliance";
 
   // The API is 1-based; guard against a 0/negative page size so the maths
   // below can't divide by zero or produce a negative page count.
@@ -212,8 +242,21 @@ function TablePaginationBar(props: Readonly<TablePagination>) {
   const canGoForward = currentPage < pageCount && !isLoading;
 
   return (
-    <div className="border-ehs-border/45 flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3">
-      <span className="text-ehs-muted-text text-xs">
+    <div
+      className={[
+        "flex flex-wrap items-center justify-between gap-3 border-t py-3",
+        isCompliance
+          ? "border-[rgba(15,23,42,0.08)] px-[15.57px]"
+          : "border-ehs-border/45 px-4",
+      ].join(" ")}
+    >
+      <span
+        className={
+          isCompliance
+            ? "text-[12px] text-[#8892a3]"
+            : "text-ehs-muted-text text-xs"
+        }
+      >
         {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
       </span>
 

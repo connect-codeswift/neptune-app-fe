@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { EditDocumentView } from "@/components/policy-maker/edit/EditDocumentView";
+import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useDocumentByIdQuery,
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
-import { getAccessToken } from "@/lib/axios";
 
 export type EditDocumentContentProps = Readonly<{
   documentIdParam: string;
@@ -27,17 +28,11 @@ function parseDocumentId(raw: string): number | null {
 /**
  * Loads a document via GET /api/Document/{id} and renders the edit view.
  */
-export function EditDocumentContent(
-  props: Readonly<EditDocumentContentProps>,
-) {
+export function EditDocumentContent(props: Readonly<EditDocumentContentProps>) {
   const { documentIdParam } = props;
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const numericId = parseDocumentId(documentIdParam);
 
@@ -63,18 +58,9 @@ export function EditDocumentContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading document…
-          </Text>
-        </IncidentGlassCard>
-      </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
+          <SkeletonFormPage fields={8} />
+        </div>
     );
   }
 

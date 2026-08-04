@@ -23,7 +23,6 @@ import {
   categoryOptionLabel,
   departmentOptionLabel,
 } from "@/services/mappers/document-list.mapper";
-import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthContext } from "@/lib/auth-context";
 import {
   CLOUDINARY_MAX_BYTES,
@@ -252,11 +251,7 @@ export function UploadDocumentForm() {
         throw new Error("Only PDF documents can be uploaded.");
       }
       const originalName = next.name.trim() || result.name;
-      const secureUrl = withAttachmentDisplayName(
-        result.secureUrl,
-        originalName,
-      );
-      setPdfSecureUrl(secureUrl);
+      setPdfSecureUrl(result.secureUrl);
       toast.success("PDF uploaded", `"${originalName}" is ready to submit.`);
     } catch (error: unknown) {
       clearPdf();
@@ -319,7 +314,8 @@ export function UploadDocumentForm() {
         title: title.trim(),
         categoryId: Number(categoryId),
         departmentId: Number(departmentId),
-        pdfFile: file,
+        pdfPath: pdfSecureUrl,
+        fileName: file.name,
         reviewCycle,
         createdBy: auth.userId,
         subCompanyId: auth.subCompanyId,

@@ -6,15 +6,22 @@ import Link from "next/link";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_CHEMICALS,
+  HazcomErrorCard,
+  HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
+  HazcomPager,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
 import {
   chemicalMatchesSearch,
   exportChemicalsToCsv,
 } from "@/components/hazcom/chemicals/chemical-utils";
+import {
+  DEFAULT_CHEMICALS_PAGE_NUMBER,
+  DEFAULT_CHEMICALS_PAGE_SIZE,
+  useChemicalsListQuery,
+} from "@/hooks/use-hazcom-queries";
 
 export type ChemicalListViewProps = Readonly<{
   className?: string;
@@ -26,18 +33,34 @@ const searchInputClass =
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;
   const [searchQuery, setSearchQuery] = useState("");
+  const [pageNumber, setPageNumber] = useState(DEFAULT_CHEMICALS_PAGE_NUMBER);
+  const [pageSize] = useState(DEFAULT_CHEMICALS_PAGE_SIZE);
 
+  const {
+    items: chemicals,
+    totalRecords,
+    isLoading,
+    isFetching,
+    errorMessage,
+    refetch,
+  } = useChemicalsListQuery({ pageNumber, pageSize });
+
+  /**
+   * Page-scoped search: GET /api/hazcom/chemical accepts only pageNumber and
+   * pageSize, so there is nothing to hand the server. This filters the rows
+   * already on screen, not the whole inventory.
+   */
   const filteredChemicals = useMemo(
     () =>
-      HAZCOM_CHEMICALS.filter((chemical) =>
+      chemicals.filter((chemical) =>
         chemicalMatchesSearch(chemical, searchQuery),
       ),
-    [searchQuery],
+    [chemicals, searchQuery],
   );
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-5", className]
+      className={["flex min-w-0 flex-col gap-5 px-3 lg:px-4", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -52,19 +75,28 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
             <Button
               type="button"
               variant="tertiary"
-              onClick={() => exportChemicalsToCsv(HAZCOM_CHEMICALS)}
+              disabled={chemicals.length === 0}
+              onClick={() => exportChemicalsToCsv(chemicals)}
               className="rounded-lg px-4 py-2 text-[13px]"
             >
-              <Icon icon="mdi:download" className="text-base" aria-hidden="true" />
+              <Icon
+                icon="mdi:download"
+                className="text-base"
+                aria-hidden="true"
+              />
               Export
             </Button>
-            <Link href="/hazcom/chemicals/new">
+            <Link href="/dashboard/hazcom/chemicals/new">
               <Button
                 type="button"
                 variant="primary"
                 className="rounded-lg px-4 py-2 text-[13px]"
               >
-                <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+                <Icon
+                  icon="mdi:plus"
+                  className="text-base"
+                  aria-hidden="true"
+                />
                 Add Chemical
               </Button>
             </Link>
@@ -73,7 +105,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
       />
 
       <div className="flex flex-wrap items-center gap-4">
-        <div className="relative min-w-0 flex-1">
+        <div className="relative max-w-md min-w-0 flex-1">
           <Icon
             icon="mdi:magnify"
             className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
@@ -89,13 +121,36 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
           />
         </div>
         <Text as="p" className="text-ehs-muted-text shrink-0 text-[13px]">
-          {`${String(filteredChemicals.length)} ${
-            filteredChemicals.length === 1 ? "chemical" : "chemicals"
+          {`${String(totalRecords)} ${
+            totalRecords === 1 ? "chemical" : "chemicals"
           }`}
         </Text>
       </div>
 
-      <ChemicalListTable chemicals={filteredChemicals} />
+      {errorMessage ? (
+        <HazcomErrorCard
+          title="Couldn’t load chemicals"
+          message={errorMessage}
+          onRetry={refetch}
+        />
+      ) : null}
+
+      {!errorMessage && isLoading ? (
+        <HazcomLoadingCard message="Loading chemicals…" />
+      ) : null}
+
+      {!errorMessage && !isLoading ? (
+        <>
+          <ChemicalListTable chemicals={filteredChemicals} />
+          <HazcomPager
+            pageNumber={pageNumber}
+            pageSize={pageSize}
+            totalRecords={totalRecords}
+            isFetching={isFetching}
+            onPageChange={setPageNumber}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

@@ -101,10 +101,7 @@ export function PolicyMakerLibraryNav(
             className="size-[12.65px] text-[#0b1320]"
             aria-hidden="true"
           />
-          <Text
-            as="span"
-            className="text-[12px] font-bold text-[#0b1320]"
-          >
+          <Text as="span" className="text-[12px] font-bold text-[#0b1320]">
             New document
           </Text>
         </button>

@@ -1,49 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_CHEMICALS,
-  HAZCOM_PICTOGRAMS,
   HazcomGlassCard,
   HazcomModuleTabs,
   HazcomPageHeader,
   HazcomPictogramChip,
   HazcomSelectField,
   HazcomTextField,
-  type HazcomPictogram,
   type HazcomSignalWord,
+  type HazcomStatementCode,
 } from "@/components/hazcom/shared";
 import { SdsUploadDropzone } from "@/components/hazcom/sds/SdsUploadDropzone";
+import type { SafetyDataSheetRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateSdsMutation } from "@/hooks/use-hazcom-mutations";
+import {
+  useChemicalsListQuery,
+  useHazardHCodesQuery,
+  usePrecautionaryCodesQuery,
+} from "@/hooks/use-hazcom-queries";
+import { toast } from "@/lib/toast";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
-const STATEMENT_PLACEHOLDER_OPTION = { value: "", label: "Select a statement…" };
+const SDS_LIBRARY_ROUTE = "/dashboard/hazcom/sds";
 
-function buildStatementOptions(
-  pick: "hazardStatements" | "precautionaryStatements",
-): readonly { value: string; label: string }[] {
-  const seen = new Map<string, string>();
-
-  HAZCOM_CHEMICALS.forEach((chemical) => {
-    chemical[pick].forEach((statement) => {
-      if (!seen.has(statement.code)) {
-        seen.set(statement.code, `${statement.code} — ${statement.text}`);
-      }
-    });
-  });
-
-  return [STATEMENT_PLACEHOLDER_OPTION, ...Array.from(seen, ([value, label]) => ({ value, label }))];
-}
-
-const HAZARD_STATEMENT_OPTIONS = buildStatementOptions("hazardStatements");
-const PRECAUTIONARY_STATEMENT_OPTIONS = buildStatementOptions(
-  "precautionaryStatements",
-);
+/**
+ * The chemical endpoint has no search param, so one large page stands in for
+ * the whole inventory in the picker.
+ */
+const CHEMICAL_PICKER_PAGE_SIZE = 100;
 
 const SIGNAL_WORD_OPTIONS: readonly HazcomSignalWord[] = ["Danger", "Warning"];
+
+/** Marks the fields the product picker owns as read-only. */
+const lockedFieldClass = "opacity-70";
 
 function signalWordButtonClass(
   word: HazcomSignalWord,
@@ -60,35 +56,184 @@ function signalWordButtonClass(
     : "border-ehs-yellow/40 bg-white text-ehs-yellow hover:bg-ehs-yellow/10";
 }
 
+/** Builds the picker options from a GHS code library. */
+function toCodeOptions(
+  codes: readonly HazcomStatementCode[],
+  isLoading: boolean,
+): readonly { value: string; label: string }[] {
+  return [
+    {
+      value: "",
+      label: isLoading ? "Loading codes…" : "Select a statement…",
+    },
+    ...codes.map((entry) => ({
+      value: entry.code,
+      label: entry.text ? `${entry.code} — ${entry.text}` : entry.code,
+    })),
+  ];
+}
+
 export function SdsUploadPageClient() {
   const router = useRouter();
+  const createSds = useCreateSdsMutation();
+
+  // The full inventory rows, not just names: the picker fills CAS, hazard
+  // class, signal word and pictograms straight from the chosen chemical, so
+  // the sheet can't contradict the record it documents.
+  const { items: chemicals, isLoading: isLoadingChemicals } =
+    useChemicalsListQuery({
+      pageNumber: 1,
+      pageSize: CHEMICAL_PICKER_PAGE_SIZE,
+    });
+  const { codes: hazardCodes, isLoading: isLoadingHazardCodes } =
+    useHazardHCodesQuery();
+  const { codes: precautionaryCodes, isLoading: isLoadingPrecautionaryCodes } =
+    usePrecautionaryCodesQuery();
 
   const [fileName, setFileName] = useState<string | null>(null);
-  const [productName, setProductName] = useState("");
+  /** Cloudinary URL of the uploaded sheet; "" until one lands. */
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  /**
+   * The product a sheet documents is always a chemical already in the
+   * inventory, so this one picker drives the whole GHS block below: the
+   * product name, the `chemicalId` link, and every field the chemical record
+   * already answers.
+   */
+  const [chemicalId, setChemicalId] = useState("");
   const [manufacturer, setManufacturer] = useState("");
-  const [casNumber, setCasNumber] = useState("");
-  const [hazardClass, setHazardClass] = useState("");
-  const [signalWord, setSignalWord] = useState<HazcomSignalWord | null>(null);
   const [revisionDate, setRevisionDate] = useState("");
   const [version, setVersion] = useState("");
-  const [selectedPictograms, setSelectedPictograms] = useState<
-    readonly HazcomPictogram[]
-  >([]);
   const [hazardStatementCode, setHazardStatementCode] = useState("");
   const [precautionaryStatementCode, setPrecautionaryStatementCode] =
     useState("");
 
-  const togglePictogram = (pictogram: HazcomPictogram) => {
-    setSelectedPictograms((current) =>
-      current.includes(pictogram)
-        ? current.filter((item) => item !== pictogram)
-        : [...current, pictogram],
-    );
+  const chemicalOptions = useMemo(
+    () => [
+      {
+        value: "",
+        label: isLoadingChemicals ? "Loading chemicals…" : "Select a chemical…",
+      },
+      ...chemicals.map((chemical) => ({
+        value: chemical.id,
+        label: chemical.name,
+      })),
+    ],
+    [chemicals, isLoadingChemicals],
+  );
+
+  const selectedChemical = chemicals.find(
+    (chemical) => chemical.id === chemicalId,
+  );
+
+  /**
+   * Everything the inventory already knows is derived from the selection
+   * rather than kept in state, so these fields can't drift out of step with
+   * the chemical record — they are display-only in the form below.
+   */
+  const productName = selectedChemical?.name ?? "";
+  const casNumber = selectedChemical?.casNumber ?? "";
+  const hazardClass = selectedChemical?.hazardClass ?? "";
+  const signalWord = selectedChemical?.signalWord ?? null;
+  const selectedPictograms = selectedChemical?.pictograms ?? [];
+
+  const hazardOptions = useMemo(
+    () => toCodeOptions(hazardCodes, isLoadingHazardCodes),
+    [hazardCodes, isLoadingHazardCodes],
+  );
+  const precautionaryOptions = useMemo(
+    () => toCodeOptions(precautionaryCodes, isLoadingPrecautionaryCodes),
+    [precautionaryCodes, isLoadingPrecautionaryCodes],
+  );
+
+  /**
+   * The record stores a URL, so the PDF goes to Cloudinary as soon as it is
+   * picked — the same path the incident and document uploads take.
+   */
+  const handleFileChange = async (file: File | null) => {
+    if (!file) {
+      setFileName(null);
+      setPdfUrl("");
+      return;
+    }
+
+    setFileName(file.name);
+    setIsUploading(true);
+
+    try {
+      const uploaded = await uploadFileToCloudinary(file);
+      setPdfUrl(uploaded.secureUrl);
+    } catch (error) {
+      setFileName(null);
+      setPdfUrl("");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not upload the PDF. Please try again.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleDone = () => {
-    router.push("/hazcom/sds");
+  const buildRequest = (isDraft: boolean): SafetyDataSheetRequestDto => ({
+    chemicalId: chemicalId === "" ? null : Number(chemicalId),
+    pdfUrl,
+    productName,
+    manufacturer: manufacturer.trim(),
+    casNumber: casNumber.trim(),
+    hazardClass: hazardClass.trim(),
+    signalWord: signalWord ?? "",
+    // A plain date in the UI, a date-time on the wire.
+    revisionDate:
+      revisionDate === "" ? null : new Date(revisionDate).toISOString(),
+    version: version.trim(),
+    // One string, not a list.
+    ghsPictograms: selectedPictograms.join(", "),
+    hazardStatement: hazardStatementCode,
+    precautionaryStatement: precautionaryStatementCode,
+    isDraft,
+  });
+
+  const save = (isDraft: boolean) => {
+    if (isUploading) {
+      toast.error("Wait for the PDF upload to finish");
+      return;
+    }
+
+    // The three fields the API requires. Statements are not asterisked in the
+    // form but are `minLength: 1` on the wire, so a blank one 400s.
+    const missing =
+      productName === ""
+        ? "Product"
+        : hazardStatementCode === ""
+          ? "Hazard Statements (Section 2)"
+          : precautionaryStatementCode === ""
+            ? "Precautionary Statements (Section 2)"
+            : null;
+
+    if (missing !== null) {
+      toast.error(`${missing} is required`);
+      return;
+    }
+
+    createSds.mutate(buildRequest(isDraft), {
+      onSuccess: () => {
+        toast.success(isDraft ? "SDS saved as draft" : "SDS record saved");
+        router.push(SDS_LIBRARY_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not save the SDS record. Please try again.",
+          ),
+        );
+      },
+    });
   };
+
+  const isBusy = isUploading || createSds.isPending;
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pt-4 pb-8 sm:px-4">
@@ -105,74 +250,102 @@ export function SdsUploadPageClient() {
         hazcomGlassCardClassName="gap-6"
         className="mx-auto w-full max-w-3xl"
       >
-        <SdsUploadDropzone fileName={fileName} onFileNameChange={setFileName} />
+        <SdsUploadDropzone
+          fileName={fileName}
+          disabled={isBusy}
+          onFileChange={(file) => void handleFileChange(file)}
+        />
+
+        {isUploading ? (
+          <Text as="p" className="text-ehs-muted-text text-[12px]">
+            Uploading PDF…
+          </Text>
+        ) : null}
 
         <div className="flex flex-col gap-4">
           <Text as="h2" className="text-ehs-darker text-[15px] font-bold">
             GHS Metadata
           </Text>
 
-          <HazcomTextField
-            label="Product Name"
+          <HazcomSelectField
+            label="Product"
             required
-            placeholder="Full product name from SDS Section 1"
-            value={productName}
-            onChange={(event) => setProductName(event.target.value)}
+            hint="Fills the fields below from the chemical record"
+            options={chemicalOptions}
+            value={chemicalId}
+            onChange={(event) => setChemicalId(event.target.value)}
           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <HazcomTextField
               label="Manufacturer"
-              required
               placeholder="e.g. Sigma-Aldrich"
               value={manufacturer}
               onChange={(event) => setManufacturer(event.target.value)}
+              // Nothing sits beside it until a product fills in the CAS.
+              className={selectedChemical ? "" : "sm:col-span-2"}
             />
-            <HazcomTextField
-              label="CAS Number"
-              placeholder="e.g. 7647-01-0"
-              value={casNumber}
-              onChange={(event) => setCasNumber(event.target.value)}
-            />
+            {selectedChemical ? (
+              <HazcomTextField
+                label="CAS Number"
+                readOnly
+                trailingHint="From chemical"
+                value={casNumber}
+                className={lockedFieldClass}
+              />
+            ) : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <HazcomTextField
-              label="Hazard Class"
-              value={hazardClass}
-              onChange={(event) => setHazardClass(event.target.value)}
-            />
+          {/*
+            The fields the chemical record answers stay hidden until there is
+            a record to answer them — an empty locked input reads as broken.
+          */}
+          {selectedChemical ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <HazcomTextField
+                label="Hazard Class"
+                readOnly
+                trailingHint="From chemical"
+                value={hazardClass}
+                className={lockedFieldClass}
+              />
 
-            <div className="flex flex-col gap-1.5">
-              <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
-                Signal Word
-              </Text>
-              <div className="flex gap-2">
-                {SIGNAL_WORD_OPTIONS.map((word) => {
-                  const selected = signalWord === word;
+              <div className={`flex flex-col gap-1.5 ${lockedFieldClass}`}>
+                <div className="flex min-h-7 flex-wrap items-end gap-1.5">
+                  <Text
+                    as="span"
+                    className="text-[12px] font-bold text-[#2a3446]"
+                  >
+                    Signal Word
+                  </Text>
+                  <Text
+                    as="span"
+                    className="text-ehs-muted-text ml-auto text-[10px]"
+                  >
+                    From chemical
+                  </Text>
+                </div>
+                <div className="flex gap-2">
+                  {SIGNAL_WORD_OPTIONS.map((word) => {
+                    const selected = signalWord === word;
 
-                  return (
-                    <button
-                      key={word}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() =>
-                        setSignalWord((current) =>
-                          current === word ? null : word,
-                        )
-                      }
-                      className={[
-                        "h-9 flex-1 rounded-[10px] border text-[13px] font-bold tracking-[0.4px] uppercase transition-colors",
-                        signalWordButtonClass(word, selected),
-                      ].join(" ")}
-                    >
-                      {word}
-                    </button>
-                  );
-                })}
+                    return (
+                      <span
+                        key={word}
+                        aria-hidden={!selected}
+                        className={[
+                          "flex h-9 flex-1 items-center justify-center rounded-[10px] border text-[13px] font-bold tracking-[0.4px] uppercase",
+                          signalWordButtonClass(word, selected),
+                        ].join(" ")}
+                      >
+                        {word}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <HazcomTextField
@@ -189,32 +362,52 @@ export function SdsUploadPageClient() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
-              GHS Pictograms
-            </Text>
-            <div className="flex flex-wrap gap-2">
-              {HAZCOM_PICTOGRAMS.map((pictogram) => (
-                <HazcomPictogramChip
-                  key={pictogram}
-                  pictogram={pictogram}
-                  selected={selectedPictograms.includes(pictogram)}
-                  onToggle={() => togglePictogram(pictogram)}
-                />
-              ))}
+          {selectedChemical ? (
+            <div className={`flex flex-col gap-1.5 ${lockedFieldClass}`}>
+              <div className="flex min-h-7 flex-wrap items-end gap-1.5">
+                <Text
+                  as="span"
+                  className="text-[12px] font-bold text-[#2a3446]"
+                >
+                  GHS Pictograms
+                </Text>
+                <Text
+                  as="span"
+                  className="text-ehs-muted-text ml-auto text-[10px]"
+                >
+                  From chemical
+                </Text>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedPictograms.length === 0 ? (
+                  <Text as="p" className="text-ehs-muted-text text-[13px]">
+                    This chemical has no pictograms recorded.
+                  </Text>
+                ) : (
+                  selectedPictograms.map((pictogram) => (
+                    <HazcomPictogramChip
+                      key={pictogram}
+                      pictogram={pictogram}
+                      selected
+                    />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <HazcomSelectField
               label="Hazard Statements (Section 2)"
-              options={HAZARD_STATEMENT_OPTIONS}
+              required
+              options={hazardOptions}
               value={hazardStatementCode}
               onChange={(event) => setHazardStatementCode(event.target.value)}
             />
             <HazcomSelectField
               label="Precautionary Statements (Section 2)"
-              options={PRECAUTIONARY_STATEMENT_OPTIONS}
+              required
+              options={precautionaryOptions}
               value={precautionaryStatementCode}
               onChange={(event) =>
                 setPrecautionaryStatementCode(event.target.value)
@@ -224,24 +417,38 @@ export function SdsUploadPageClient() {
         </div>
 
         <div className="border-ehs-border flex items-center justify-between border-t pt-5">
-          <Link href="/hazcom/sds">
+          <Link href={SDS_LIBRARY_ROUTE}>
             <Button type="button" variant="tertiary">
-              <Icon icon="mdi:arrow-left" className="text-base" aria-hidden="true" />
+              <Icon
+                icon="mdi:arrow-left"
+                className="text-base"
+                aria-hidden="true"
+              />
               Cancel
             </Button>
           </Link>
 
           <div className="flex items-center gap-2">
-            <Button type="button" variant="secondary" onClick={handleDone}>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isBusy}
+              onClick={() => save(true)}
+            >
               Save as Draft
             </Button>
-            <Button type="button" variant="primary" onClick={handleDone}>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => save(false)}
+            >
               <Icon
                 icon="mdi:tray-arrow-up"
                 className="text-base"
                 aria-hidden="true"
               />
-              Save SDS Record
+              {createSds.isPending ? "Saving…" : "Save SDS Record"}
             </Button>
           </div>
         </div>

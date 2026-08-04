@@ -32,7 +32,11 @@ function parseClosureStatus(
 }
 
 function parseSifClassification(raw: string | null | undefined): string {
-  if (raw === "Potential SIF (P-SIF)" || raw === "SIF Potential" || raw === "Potential SIF") {
+  if (
+    raw === "Potential SIF (P-SIF)" ||
+    raw === "SIF Potential" ||
+    raw === "Potential SIF"
+  ) {
     return "Potential SIF (P-SIF)";
   }
   if (raw === "Actual SIF" || raw === "SIF Actual") {
@@ -81,7 +85,8 @@ function mapLinkedCapaItemDto(
     id: item.id ?? `capa-${index + 1}`,
     title: item.title ?? `CAPA-${String(index + 1).padStart(3, "0")}`,
     subtitle: item.subtitle ?? "",
-    progressPercent: typeof item.progressPercent === "number" ? item.progressPercent : 0,
+    progressPercent:
+      typeof item.progressPercent === "number" ? item.progressPercent : 0,
     status: parseCapaStatus(item.status),
   };
 }
@@ -99,7 +104,8 @@ export function mapIncidentClosureDtoToData(
   }
 
   const currentStep = parseStepNumber(dto.currentStep) ?? fallback.currentStep;
-  const closureStatus = parseClosureStatus(dto.closureStatus) ?? fallback.closureStatus;
+  const closureStatus =
+    parseClosureStatus(dto.closureStatus) ?? fallback.closureStatus;
 
   const verificationChecklist: readonly ClosureChecklistItem[] =
     dto.verificationChecklist && dto.verificationChecklist.length > 0
@@ -121,34 +127,67 @@ export function mapIncidentClosureDtoToData(
     closureDate: dto.closureDate ?? fallback.closureDate,
     durationOpen: dto.durationOpen ?? fallback.durationOpen,
     finalIncidentType: dto.finalIncidentType ?? fallback.finalIncidentType,
-    sifClassification: parseSifClassification(dto.sifClassification ?? fallback.sifClassification),
-    daysAwayFromWork: typeof dto.daysAwayFromWork === "number" ? dto.daysAwayFromWork : fallback.daysAwayFromWork,
-    daysOnRestrictedDuty: typeof dto.daysOnRestrictedDuty === "number" ? dto.daysOnRestrictedDuty : fallback.daysOnRestrictedDuty,
-    isOshaRecordable: typeof dto.isOshaRecordable === "boolean" ? dto.isOshaRecordable : (typeof dto.isOSHARecordable === "boolean" ? dto.isOSHARecordable : fallback.isOshaRecordable),
+    sifClassification: parseSifClassification(
+      dto.sifClassification ?? fallback.sifClassification,
+    ),
+    daysAwayFromWork:
+      typeof dto.daysAwayFromWork === "number"
+        ? dto.daysAwayFromWork
+        : fallback.daysAwayFromWork,
+    daysOnRestrictedDuty:
+      typeof dto.daysOnRestrictedDuty === "number"
+        ? dto.daysOnRestrictedDuty
+        : fallback.daysOnRestrictedDuty,
+    isOshaRecordable:
+      typeof dto.isOshaRecordable === "boolean"
+        ? dto.isOshaRecordable
+        : typeof dto.isOSHARecordable === "boolean"
+          ? dto.isOSHARecordable
+          : fallback.isOshaRecordable,
     oshaOverrideReason: dto.oshaOverrideReason ?? fallback.oshaOverrideReason,
     closureStatement: dto.closureStatement ?? fallback.closureStatement,
     lessonsLearned: dto.lessonsLearned ?? fallback.lessonsLearned,
     closureNotes: dto.closureNotes ?? fallback.closureNotes,
-    rootCauseSummary: dto.rootCauseSummary ?? dto.rootCauseDescription ?? fallback.rootCauseSummary,
+    rootCauseSummary:
+      dto.rootCauseSummary ??
+      dto.rootCauseDescription ??
+      fallback.rootCauseSummary,
     primaryRootCauseCategoryIds:
       dto.primaryRootCauseCategoryIds?.map(String) ??
       (dto.primaryRootCauseCategoryId != null
         ? [String(dto.primaryRootCauseCategoryId)]
         : fallback.primaryRootCauseCategoryIds),
-    contributingFactors: dto.contributingFactors ?? dto.contributingFactorTags ?? fallback.contributingFactors,
-    equipmentProceduresNote: dto.equipmentProceduresNote ?? fallback.equipmentProceduresNote,
+    contributingFactors:
+      dto.contributingFactors ??
+      dto.contributingFactorTags ??
+      fallback.contributingFactors,
+    equipmentProceduresNote:
+      dto.equipmentProceduresNote ?? fallback.equipmentProceduresNote,
     actionsTaken: dto.actionsTaken ?? fallback.actionsTaken,
-    preventiveActionSummary: dto.preventiveActionSummary ?? fallback.preventiveActionSummary,
+    preventiveActionSummary:
+      dto.preventiveActionSummary ?? fallback.preventiveActionSummary,
     closureLinkedCapas,
-    capasVerified: typeof dto.capasVerified === "boolean" ? dto.capasVerified : fallback.capasVerified,
-    mfaSigned: typeof dto.mfaSigned === "boolean" ? dto.mfaSigned : fallback.mfaSigned,
-    isEhsConfirmed: typeof dto.isEhsConfirmed === "boolean" ? dto.isEhsConfirmed : (typeof dto.attestationConfirmed === "boolean" ? dto.attestationConfirmed : fallback.isEhsConfirmed),
+    capasVerified:
+      typeof dto.capasVerified === "boolean"
+        ? dto.capasVerified
+        : fallback.capasVerified,
+    mfaSigned:
+      typeof dto.mfaSigned === "boolean" ? dto.mfaSigned : fallback.mfaSigned,
+    isEhsConfirmed:
+      typeof dto.isEhsConfirmed === "boolean"
+        ? dto.isEhsConfirmed
+        : typeof dto.attestationConfirmed === "boolean"
+          ? dto.attestationConfirmed
+          : fallback.isEhsConfirmed,
     residualRisk: parseResidualRisk(dto.residualRisk),
     verificationChecklist,
     approverName: dto.approverName ?? fallback.approverName,
     approverRole: dto.approverRole ?? fallback.approverRole,
     approverInitials: dto.approverInitials ?? fallback.approverInitials,
-    isApproved: typeof dto.isApproved === "boolean" ? dto.isApproved : fallback.isApproved,
+    isApproved:
+      typeof dto.isApproved === "boolean"
+        ? dto.isApproved
+        : fallback.isApproved,
   };
 }
 
@@ -205,4 +244,3 @@ export function mapIncidentClosureDataToUpdateDto(
     isApproved: data.isApproved,
   };
 }
-

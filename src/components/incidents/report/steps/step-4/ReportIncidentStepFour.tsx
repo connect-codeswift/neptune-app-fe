@@ -22,6 +22,14 @@ export type ReportIncidentStepFourProps = Readonly<{
   className?: string;
 }>;
 
+/**
+ * Hidden for now — the "AI suggested" follow-ups are placeholder copy with no
+ * model behind them yet. Flip to `true` to bring the section back; the
+ * `suggestedFollowUp` form field, its Step 5 review row and its mapper handling
+ * are all left intact, so nothing else has to change when it returns.
+ */
+const SHOW_SUGGESTED_FOLLOW_UP = false;
+
 export function ReportIncidentStepFour(
   props: Readonly<ReportIncidentStepFourProps>,
 ) {
@@ -132,57 +140,61 @@ export function ReportIncidentStepFour(
           />
 
           {/* Section 3: Suggested follow-up checkbox list */}
-          <div className="flex flex-col gap-2 pt-[14px]">
-            <ReportFieldLabel label="Suggested follow-up" />
-            <div className="flex flex-col gap-1 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-3.5">
-              {SUGGESTED_FOLLOW_UP_OPTIONS.map((followUp) => {
-                const isChecked = form.suggestedFollowUp.includes(followUp.id);
-                return (
-                  <button
-                    key={followUp.id}
-                    type="button"
-                    onClick={() => toggleFollowUp(followUp.id)}
-                    className="-mx-2 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-black/[0.01]"
-                  >
-                    <div
-                      className={[
-                        "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
-                        isChecked
-                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-white"
-                          : "border-[rgba(15,23,42,0.18)] bg-white",
-                      ].join(" ")}
+          {SHOW_SUGGESTED_FOLLOW_UP ? (
+            <div className="flex flex-col gap-2 pt-[14px]">
+              <ReportFieldLabel label="Suggested follow-up" />
+              <div className="flex flex-col gap-1 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-3.5">
+                {SUGGESTED_FOLLOW_UP_OPTIONS.map((followUp) => {
+                  const isChecked = form.suggestedFollowUp.includes(
+                    followUp.id,
+                  );
+                  return (
+                    <button
+                      key={followUp.id}
+                      type="button"
+                      onClick={() => toggleFollowUp(followUp.id)}
+                      className="-mx-2 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-black/[0.01]"
                     >
-                      {isChecked && (
-                        <Icon icon="mdi:check" className="size-3.5" />
-                      )}
-                    </div>
-                    <Text
-                      as="span"
-                      className={[
-                        "text-[13px] transition-colors",
-                        isChecked
-                          ? "text-ehs-dark-blue font-bold"
-                          : "text-ehs-dark-bg font-normal",
-                      ].join(" ")}
-                    >
-                      {followUp.label}
-                    </Text>
+                      <div
+                        className={[
+                          "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
+                          isChecked
+                            ? "bg-ehs-normal-blue border-ehs-normal-blue text-white"
+                            : "border-[rgba(15,23,42,0.18)] bg-white",
+                        ].join(" ")}
+                      >
+                        {isChecked && (
+                          <Icon icon="mdi:check" className="size-3.5" />
+                        )}
+                      </div>
+                      <Text
+                        as="span"
+                        className={[
+                          "text-[13px] transition-colors",
+                          isChecked
+                            ? "text-ehs-dark-blue font-bold"
+                            : "text-ehs-dark-bg font-normal",
+                        ].join(" ")}
+                      >
+                        {followUp.label}
+                      </Text>
 
-                    {/* AI Suggested Badge */}
-                    <div className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1">
-                      <Icon
-                        icon="mdi:creation-outline"
-                        className="size-3 shrink-0"
-                      />
-                      <span className="text-[9.5px] font-bold tracking-[0.2px]">
-                        AI suggested
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+                      {/* AI Suggested Badge */}
+                      <div className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1">
+                        <Icon
+                          icon="mdi:creation-outline"
+                          className="size-3 shrink-0"
+                        />
+                        <span className="text-[9.5px] font-bold tracking-[0.2px]">
+                          AI suggested
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
 
         {/* Form Bottom Toolbar Actions */}

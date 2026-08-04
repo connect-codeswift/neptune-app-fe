@@ -103,10 +103,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
           </div>
         </div>
 
-        <Text
-          as="p"
-          className="text-[12px] leading-4 text-[#2a3446]"
-        >
+        <Text as="p" className="text-[12px] leading-4 text-[#2a3446]">
           {entry.changeLog}
         </Text>
 

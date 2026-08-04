@@ -37,7 +37,10 @@ function normalizeControlLevel(value: string): string {
   const trimmed = value.trim();
   const lower = trimmed.toLowerCase();
 
-  if (lower === "administrative controls" || lower === "administrative control") {
+  if (
+    lower === "administrative controls" ||
+    lower === "administrative control"
+  ) {
     return "Administrative Controls";
   }
   if (lower === "engineering controls" || lower === "engineering control") {
@@ -72,17 +75,13 @@ function formatDueDate(value: string | null | undefined): string {
   return `${String(y)}-${m}-${d}`;
 }
 
-function normalizeActionType(
-  value: string,
-): CapaItem["actionType"] {
+function normalizeActionType(value: string): CapaItem["actionType"] {
   return value.trim().toLowerCase() === "preventive"
     ? "Preventive"
     : "Corrective";
 }
 
-function normalizeStatus(
-  dto: CapaDto,
-): CapaItem["status"] {
+function normalizeStatus(dto: CapaDto): CapaItem["status"] {
   const raw = (dto.status ?? "").trim().toLowerCase();
 
   if (raw === "verified" || raw === "complete" || raw === "completed") {
@@ -140,18 +139,12 @@ function resolveAssignee(
   dto: CapaDto,
   options?: Readonly<{ currentUserId?: number }>,
 ): string {
-  const named =
-    dto.assigneeName?.trim() ||
-    dto.ownerName?.trim() ||
-    "";
+  const named = dto.assigneeName?.trim() || dto.ownerName?.trim() || "";
   if (named) {
     return named;
   }
 
-  if (
-    options?.currentUserId != null &&
-    dto.userId === options.currentUserId
-  ) {
+  if (options?.currentUserId != null && dto.userId === options.currentUserId) {
     return getAuthDisplayName(`User ${String(dto.userId)}`);
   }
 

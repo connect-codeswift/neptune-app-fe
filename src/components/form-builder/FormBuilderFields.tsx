@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import type {

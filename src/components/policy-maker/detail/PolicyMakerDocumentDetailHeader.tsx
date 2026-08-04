@@ -11,6 +11,12 @@ export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
   onVersionHistory?: () => void;
   onApproval?: () => void;
   onAcknowledgment?: () => void;
+  /** Only the assigned approver sees the Approval action. */
+  canApprove?: boolean;
+  /** Only the assigned ack-user sees the Acknowledgment action. */
+  canAcknowledge?: boolean;
+  isApproved?: boolean;
+  isApproving?: boolean;
   className?: string;
 }>;
 
@@ -32,6 +38,10 @@ export function PolicyMakerDocumentDetailHeader(
     onVersionHistory,
     onApproval,
     onAcknowledgment,
+    canApprove = false,
+    canAcknowledge = false,
+    isApproved = false,
+    isApproving = false,
     className = "",
   } = props;
 
@@ -87,22 +97,31 @@ export function PolicyMakerDocumentDetailHeader(
           >
             Version History
           </Button>
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={onApproval}
-            className={`${actionBaseClass} !bg-ehs-green !text-ehs-light-text hover:!bg-ehs-green/90 !border-transparent !shadow-none`}
-          >
-            Approval
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onAcknowledgment}
-            className={`${actionBaseClass} !bg-ehs-blue !text-ehs-light-text hover:!bg-ehs-blue/90 !border-transparent !shadow-none`}
-          >
-            Acknowledgment
-          </Button>
+          {canApprove ? (
+            <Button
+              type="button"
+              variant="tertiary"
+              onClick={onApproval}
+              disabled={isApproved || isApproving}
+              className={`${actionBaseClass} !bg-ehs-green !text-ehs-light-text hover:!bg-ehs-green/90 !border-transparent !shadow-none disabled:opacity-70`}
+            >
+              {isApproving
+                ? "Approving…"
+                : isApproved
+                  ? "Approved"
+                  : "Approval"}
+            </Button>
+          ) : null}
+          {canAcknowledge ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={onAcknowledgment}
+              className={`${actionBaseClass} !bg-ehs-blue !text-ehs-light-text hover:!bg-ehs-blue/90 !border-transparent !shadow-none`}
+            >
+              Acknowledgment
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>

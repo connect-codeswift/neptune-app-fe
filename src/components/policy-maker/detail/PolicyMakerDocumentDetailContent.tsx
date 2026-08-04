@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -8,13 +8,16 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailView } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailView";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useApproveDocumentMutation } from "@/hooks/use-document-mutations";
 import {
   useDocumentByIdQuery,
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
-import { getAccessToken } from "@/lib/axios";
+import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 
 export type PolicyMakerDocumentDetailContentProps = Readonly<{
@@ -34,13 +37,9 @@ export function PolicyMakerDocumentDetailContent(
 ) {
   const { documentIdParam } = props;
   const router = useRouter();
-  const [isClientReady, setIsClientReady] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAccessToken()));
-    setIsClientReady(true);
-  }, []);
+  const accessTokenState = useHasAccessToken();
+  const isClientReady = accessTokenState !== null;
+  const hasToken = accessTokenState === true;
 
   const numericId = parseDocumentId(documentIdParam);
 
@@ -60,24 +59,53 @@ export function PolicyMakerDocumentDetailContent(
 
   const document = documentQuery.data ?? null;
 
+  const approveMutation = useApproveDocumentMutation();
+  const [isApproved, setIsApproved] = useState(false);
+
+  const auth = useMemo(
+    () => (isClientReady && hasToken ? getAuthContext() : null),
+    [isClientReady, hasToken],
+  );
+  const canApprove =
+    auth != null &&
+    (document?.approverIds?.includes(String(auth.userId)) ?? false);
+  const canAcknowledge =
+    auth != null &&
+    (document?.ackUserIds?.includes(String(auth.userId)) ?? false);
+
+  const handleApproval = async () => {
+    if (!auth || !document || document.versionId == null) {
+      return;
+    }
+
+    try {
+      await approveMutation.mutateAsync({
+        approverId: auth.userId,
+        docVersionId: document.versionId,
+        comments: "Approved",
+      });
+      setIsApproved(true);
+      toast.success(
+        "Document approved",
+        `${document.title} has been approved.`,
+      );
+    } catch (error: unknown) {
+      toast.error(
+        "Could not approve document",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  };
+
   const showBootLoading = !isClientReady;
   const showQueryLoading =
     isClientReady && hasToken && numericId != null && documentQuery.isLoading;
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:loading"
-            className="text-ehs-normal-blue size-8 animate-spin"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading document…
-          </Text>
-        </IncidentGlassCard>
-      </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
+          <SkeletonDetailPage />
+        </div>
     );
   }
 
@@ -158,7 +186,11 @@ export function PolicyMakerDocumentDetailContent(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/versions`,
         )
       }
-      onApproval={() => toast.success("Approval", "Approval flow coming soon.")}
+      onApproval={() => void handleApproval()}
+      canApprove={canApprove}
+      canAcknowledge={canAcknowledge}
+      isApproved={isApproved}
+      isApproving={approveMutation.isPending}
       onAcknowledgment={() =>
         router.push(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/acknowledge`,

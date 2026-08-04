@@ -1,6 +1,6 @@
-import { Icon } from "@iconify/react";
-import Link from "next/link";
+import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";
+import { GlassCard } from "@/components/ui/GlassCard";
 
 export type ComplianceDeadlinesItem = Readonly<{
   title: string;
@@ -110,21 +110,22 @@ export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-ehs-darker text-sm leading-snug">
+        <p className="text-ehs-slate text-[12px] leading-snug">
           {emphasis ? (
             <>
-              <span className="font-semibold">{emphasis}</span> {title}
+              <span className="text-ehs-dark-bg font-semibold">{emphasis}</span>{" "}
+              {title}
             </>
           ) : (
-            <span className="font-medium">{title}</span>
+            <span className="text-ehs-dark-bg font-medium">{title}</span>
           )}
         </p>
-        <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
+        <Text as="p" className="text-ehs-muted-text mt-[2px] text-[11px]">
           {subtitle}
         </Text>
       </div>
 
-      <span className="border-ehs-border bg-ehs-light-bg text-ehs-gray shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold">
+      <span className="border-ehs-border/70 bg-ehs-light-bg/70 text-ehs-gray shrink-0 rounded-full border px-2.5 py-[3px] text-[11px] font-semibold">
         {badge}
       </span>
     </div>
@@ -153,53 +154,29 @@ export function ComplianceDeadlinesCard(
   } = props;
 
   return (
-    <article
-      className={[
-        "border-ehs-border bg-ehs-light-text flex flex-col gap-4 rounded-2xl border p-5 shadow-sm",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <Text as="h2" className="text-ehs-darker text-base font-bold">
-            {title}
-          </Text>
-          <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
-            {subtitle}
-          </Text>
-        </div>
-
-        <Link
-          href={viewAllHref}
-          className="text-ehs-gray hover:text-ehs-darker inline-flex items-center gap-0.5 text-xs font-medium transition-colors"
-        >
-          View all
-          <Icon
-            icon="mdi:chevron-right"
-            className="text-sm"
-            aria-hidden="true"
-          />
-        </Link>
-      </div>
+    <GlassCard className={className}>
+      <CardHeading
+        title={title}
+        subtitle={subtitle}
+        viewAllHref={viewAllHref}
+      />
 
       <div
         className={
           showDividers
-            ? "divide-ehs-border flex flex-col divide-y"
-            : "flex flex-col gap-4"
+            ? "divide-ehs-border/60 mt-[7px] flex flex-col divide-y"
+            : "mt-[7px] flex flex-col gap-[14px]"
         }
       >
         {items.map((item) => (
           <div
             key={`${item.title}-${item.subtitle}`}
-            className={showDividers ? "py-4 first:pt-0 last:pb-0" : undefined}
+            className={showDividers ? "py-3 first:pt-0 last:pb-0" : undefined}
           >
             <ListItemRow {...item} />
           </div>
         ))}
       </div>
-    </article>
+    </GlassCard>
   );
 }

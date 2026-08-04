@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -14,6 +15,7 @@ import {
   TREATMENT_PROVIDER_OPTIONS,
   WHAT_TREATMENT_GIVEN_OPTIONS,
   YES_NO_OPTIONS,
+  type CustomOptionField,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
 import {
@@ -21,6 +23,7 @@ import {
   ReportTextareaField,
   ReportTextField,
 } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
 import { toast } from "@/lib/toast";
 
@@ -48,6 +51,16 @@ export function ReportIncidentStepTwo(
   const { form, onChange, onBack, onContinue, className = "" } = props;
   const photos = form.photos ?? [];
   const isFirstAid = form.severity === "first-aid";
+
+  /** Appends a reporter-typed option to one of the extendable dropdowns. */
+  const addCustomOption = (field: CustomOptionField, option: string) => {
+    onChange({
+      customOptions: {
+        ...form.customOptions,
+        [field]: [...form.customOptions[field], option],
+      },
+    });
+  };
 
   const handleContinue = () => {
     const validationError = validateStepTwo(form);
@@ -92,18 +105,29 @@ export function ReportIncidentStepTwo(
             value={form.description}
             onChange={(event) => onChange({ description: event.target.value })}
             placeholder="Describe what happened…"
+            assistant={
+              <AiTextAssistant
+                value={form.description}
+                onApply={(description) => onChange({ description })}
+                context="a workplace safety incident report — keep every fact, time and name exactly as written"
+              />
+            }
           />
 
           <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">
             <div className="pb-[18px]">
-              <ReportSelectField
+              <ReportSelectWithAdd
                 label="Initial Treatment"
                 required
                 value={form.initialTreatment}
-                onChange={(event) =>
-                  onChange({ initialTreatment: event.target.value })
-                }
+                onChange={(initialTreatment) => onChange({ initialTreatment })}
                 options={[...INITIAL_TREATMENT_OPTIONS]}
+                customOptions={form.customOptions.initialTreatment}
+                onAddCustomOption={(option) =>
+                  addCustomOption("initialTreatment", option)
+                }
+                addLabel="Add more treatments"
+                addPlaceholder="e.g. Physiotherapy referral"
               />
             </div>
             <div className="pb-[18px]">
@@ -120,25 +144,35 @@ export function ReportIncidentStepTwo(
               />
             </div>
             <div className="pb-[18px]">
-              <ReportSelectField
+              <ReportSelectWithAdd
                 label="Mechanism of Injury"
                 required
                 value={form.mechanismOfInjury}
-                onChange={(event) =>
-                  onChange({ mechanismOfInjury: event.target.value })
+                onChange={(mechanismOfInjury) =>
+                  onChange({ mechanismOfInjury })
                 }
                 options={[...MECHANISM_OPTIONS]}
+                customOptions={form.customOptions.mechanismOfInjury}
+                onAddCustomOption={(option) =>
+                  addCustomOption("mechanismOfInjury", option)
+                }
+                addLabel="Add more injuries"
+                addPlaceholder="e.g. Crushed between rollers"
               />
             </div>
             <div className="pb-[18px]">
-              <ReportSelectField
+              <ReportSelectWithAdd
                 label="Nature of Injury"
                 required
                 value={form.natureOfInjury}
-                onChange={(event) =>
-                  onChange({ natureOfInjury: event.target.value })
-                }
+                onChange={(natureOfInjury) => onChange({ natureOfInjury })}
                 options={[...NATURE_OF_INJURY_OPTIONS]}
+                customOptions={form.customOptions.natureOfInjury}
+                onAddCustomOption={(option) =>
+                  addCustomOption("natureOfInjury", option)
+                }
+                addLabel="Add custom injuries"
+                addPlaceholder="e.g. Chemical inhalation"
               />
             </div>
           </div>

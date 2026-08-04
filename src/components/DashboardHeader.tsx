@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { SiteSwitcher } from "@/components/SiteSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
@@ -8,13 +9,19 @@ export type DashboardHeaderProps = Readonly<{
   title?: string;
   searchPlaceholder?: string;
   dateRangeLabel?: string;
-  siteChangerLabel?: string;
+  /** Company shown on the scope picker; its sites live in the dropdown. */
+  companyName?: string;
+  /** Sites offered under `companyName`. Defaults to the SiteSwitcher's own list. */
+  sites?: readonly string[];
   actionLabel?: string;
   className?: string;
   onActionClick?: () => void;
   onNotificationsClick?: () => void;
   onDateRangeClick?: () => void;
-  onSiteChangerClick?: () => void;
+  onSiteChange?: (site: string) => void;
+  /** Pass to control the search input; omit to leave it uncontrolled. */
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
   hasUnreadNotifications?: boolean;
   searchonleft?: boolean;
 }>;
@@ -22,8 +29,14 @@ export type DashboardHeaderProps = Readonly<{
 const headerControlClass =
   "border-ehs-border inline-flex shrink-0 items-center bg-white shadow-sm transition-colors hover:bg-ehs-light-bg";
 
-function SearchField(props: Readonly<{ placeholder: string }>) {
-  const { placeholder } = props;
+function SearchField(
+  props: Readonly<{
+    placeholder: string;
+    value?: string;
+    onChange?: (value: string) => void;
+  }>,
+) {
+  const { placeholder, value, onChange } = props;
 
   return (
     <div className="relative w-full min-w-0 sm:w-88">
@@ -35,6 +48,15 @@ function SearchField(props: Readonly<{ placeholder: string }>) {
       <input
         type="search"
         placeholder={placeholder}
+        aria-label={placeholder}
+        {...(onChange
+          ? {
+              value: value ?? "",
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                onChange(event.target.value);
+              },
+            }
+          : {})}
         className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2.5 pr-14 pl-9 text-sm shadow-sm transition outline-none focus:ring-2"
       />
       <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1 py-px text-[8px] font-medium sm:inline">
@@ -90,22 +112,6 @@ function ActionButton(
   );
 }
 
-function SiteChanger(props: Readonly<{ label: string; onClick?: () => void }>) {
-  const { label, onClick } = props;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`${headerControlClass} text-ehs-darker gap-2 rounded-lg border px-3 py-2 text-sm font-semibold`}
-    >
-      <Icon icon="mdi:factory" className="text-base" aria-hidden="true" />
-      <span className="whitespace-nowrap">{label}</span>
-      <Icon icon="mdi:chevron-down" className="text-base" aria-hidden="true" />
-    </button>
-  );
-}
-
 function NotificationsButton(
   props: Readonly<{
     hasUnread: boolean;
@@ -141,12 +147,15 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
     title,
     searchPlaceholder,
     dateRangeLabel,
-    siteChangerLabel,
+    companyName,
+    sites,
     actionLabel,
     onActionClick,
     onNotificationsClick,
     onDateRangeClick,
-    onSiteChangerClick,
+    onSiteChange,
+    searchValue,
+    onSearchChange,
     hasUnreadNotifications,
     className = "",
     searchonleft,
@@ -157,7 +166,7 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
 
   const showRightControls =
     Boolean(dateRangeLabel) ||
-    Boolean(siteChangerLabel) ||
+    Boolean(companyName) ||
     Boolean(actionLabel) ||
     showNotifications ||
     (!searchonleft && Boolean(searchPlaceholder));
@@ -183,14 +192,30 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
         ) : null}
 
         {searchonleft && searchPlaceholder ? (
-          <SearchField placeholder={searchPlaceholder} />
+          <SearchField
+            placeholder={searchPlaceholder}
+            value={searchValue}
+            onChange={onSearchChange}
+          />
         ) : null}
       </div>
 
       {showRightControls ? (
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
           {!searchonleft && searchPlaceholder ? (
-            <SearchField placeholder={searchPlaceholder} />
+            <SearchField
+            placeholder={searchPlaceholder}
+            value={searchValue}
+            onChange={onSearchChange}
+          />
+          ) : null}
+
+          {companyName ? (
+            <SiteSwitcher
+              company={companyName}
+              sites={sites}
+              onChange={onSiteChange}
+            />
           ) : null}
 
           {dateRangeLabel ? (
@@ -204,13 +229,6 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
             <NotificationsButton
               hasUnread={hasUnreadNotifications ?? false}
               onClick={onNotificationsClick}
-            />
-          ) : null}
-
-          {siteChangerLabel ? (
-            <SiteChanger
-              label={siteChangerLabel}
-              onClick={onSiteChangerClick}
             />
           ) : null}
 

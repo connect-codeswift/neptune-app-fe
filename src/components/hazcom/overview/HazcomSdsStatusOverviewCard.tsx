@@ -1,7 +1,10 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard, type HazcomBadgeTone } from "@/components/hazcom/shared";
+import {
+  HazcomGlassCard,
+  type HazcomBadgeTone,
+} from "@/components/hazcom/shared";
 import { HAZCOM_SDS_STATUS_ROWS } from "@/components/hazcom/overview/hazcom-overview-panel-data";
 import {
   ehsButtonBaseClass,
@@ -52,7 +55,7 @@ export function HazcomSdsStatusOverviewCard(
           SDS Status Overview
         </Text>
         <Link
-          href="/hazcom/sds"
+          href="/dashboard/hazcom/sds"
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
         >
           View SDS library
@@ -99,19 +102,23 @@ export function HazcomSdsStatusOverviewCard(
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         <Link
-          href="/hazcom/sds/upload"
-          className={[ehsButtonBaseClass, ehsButtonSecondaryClass, "text-[13px]"].join(
-            " ",
-          )}
+          href="/dashboard/hazcom/sds/upload"
+          className={[
+            ehsButtonBaseClass,
+            ehsButtonSecondaryClass,
+            "text-[13px]",
+          ].join(" ")}
         >
           <Icon icon="mdi:upload" className="text-sm" aria-hidden="true" />
           Upload SDS
         </Link>
         <Link
-          href="/hazcom/risk-assessments"
-          className={[ehsButtonBaseClass, ehsButtonTertiaryClass, "text-[13px]"].join(
-            " ",
-          )}
+          href="/dashboard/hazcom/risk-assessments"
+          className={[
+            ehsButtonBaseClass,
+            ehsButtonTertiaryClass,
+            "text-[13px]",
+          ].join(" ")}
         >
           <Icon icon="mdi:chart-bar" className="text-sm" aria-hidden="true" />
           Reports

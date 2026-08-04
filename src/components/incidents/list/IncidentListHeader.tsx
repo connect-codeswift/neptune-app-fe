@@ -23,6 +23,8 @@ export type IncidentListHeaderProps = Readonly<{
   actionLabelShort?: string;
   /** Hides the primary CTA button entirely (e.g. read-only register screens). */
   showAction?: boolean;
+  /** Hides the global header search field. */
+  showSearch?: boolean;
   /** Where the search field renders: next to the title ("start") or in the right-hand utility cluster ("end", default). */
   searchPosition?: "start" | "end";
   className?: string;
@@ -44,10 +46,11 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     onDateRangeClick,
     onNotificationsClick,
     hasUnreadNotifications = true,
-    reportHref = "/incidents/report",
+    reportHref = "/dashboard/incidents/report",
     actionLabel = "Report incident",
     actionLabelShort,
     showAction = true,
+    showSearch = true,
     searchPosition = "end",
     className = "",
   } = props;
@@ -112,11 +115,11 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
             {title}
           </Text>
         ) : null}
-        {searchPosition === "start" ? searchInput : null}
+        {searchPosition === "start" && showSearch ? searchInput : null}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
-        {searchPosition === "end" ? searchInput : null}
+        {searchPosition === "end" && showSearch ? searchInput : null}
 
         <button
           type="button"

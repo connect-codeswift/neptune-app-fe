@@ -9,6 +9,7 @@ import {
   useAuditFindingsQuery,
   useAuditForTemplate,
 } from "@/hooks/use-audit-queries";
+import { SkeletonTable } from "@/components/ui/skeletons";
 import { mapFindingDtoToFinding } from "@/lib/map-audit";
 import { getAuditReport } from "@/services/audit.service";
 
@@ -62,9 +63,7 @@ export default function AuditFindingsPage() {
         />
 
         {isPending ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text text-sm">Loading findings...</p>
-          </div>
+          <SkeletonTable rows={8} columns={5} />
         ) : findingsQuery.isError ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-ehs-red text-sm">Could not load findings.</p>

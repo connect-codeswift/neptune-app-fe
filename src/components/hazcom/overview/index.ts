@@ -1,6 +1,3 @@
-export { HazcomOverviewView } from "./HazcomOverviewView";
-export type { HazcomOverviewViewProps } from "./HazcomOverviewView";
-
 export { HazcomOverviewSkeleton } from "./HazcomOverviewSkeleton";
 export type { HazcomOverviewSkeletonProps } from "./HazcomOverviewSkeleton";
 

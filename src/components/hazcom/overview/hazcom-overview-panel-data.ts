@@ -23,7 +23,12 @@ export type HazcomOverviewPanelRow = Readonly<{
 }>;
 
 export const HAZCOM_SDS_STATUS_ROWS: readonly HazcomOverviewPanelRow[] = [
-  { id: "compliant", label: "Current & Compliant", value: 128, tone: "success" },
+  {
+    id: "compliant",
+    label: "Current & Compliant",
+    value: 128,
+    tone: "success",
+  },
   {
     id: "expiring-90",
     label: "Expiring Within 90 Days",

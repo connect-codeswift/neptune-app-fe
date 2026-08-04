@@ -68,7 +68,7 @@ function HazcomOverviewStatCardSkeleton() {
     <HazcomGlassCard paddingClassName="p-5" className="min-w-0">
       <div className="flex items-start justify-between gap-3">
         <Skeleton className="h-3 w-24" />
-        <Skeleton className="size-8 rounded-lg" />
+        <Skeleton className="size-4.5 rounded" />
       </div>
       <Skeleton className="mt-3 h-8 w-16" />
       <Skeleton className="mt-3 h-3 w-20" />
@@ -76,9 +76,7 @@ function HazcomOverviewStatCardSkeleton() {
   );
 }
 
-function HazcomPanelHeaderSkeleton(
-  props: Readonly<{ showLink?: boolean }>,
-) {
+function HazcomPanelHeaderSkeleton(props: Readonly<{ showLink?: boolean }>) {
   const { showLink = true } = props;
 
   return (
@@ -167,7 +165,10 @@ export function HazcomOverviewSkeleton(
 
   return (
     <div
-      className={["flex min-h-screen flex-1 flex-col gap-5 px-4 py-6", className]
+      className={[
+        "flex min-h-screen flex-1 flex-col gap-5 px-4 py-6",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
       aria-busy="true"

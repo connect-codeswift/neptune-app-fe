@@ -129,7 +129,7 @@ export function IncidentDetailHeader(
       {/* Breadcrumb Navigation */}
       <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text-[11px] font-semibold tracking-wide uppercase">
         <span
-          onClick={() => router.push("/incidents/list")}
+          onClick={() => router.push("/dashboard/incidents/list")}
           className="hover:text-ehs-dark-bg cursor-pointer hover:underline"
         >
           Incidents

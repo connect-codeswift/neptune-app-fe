@@ -5,15 +5,11 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  GENDER_OPTIONS,
   INJURY_LEVEL_OPTIONS,
   type InjuryLevelId,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
-import {
-  ReportSelectField,
-  ReportTextareaField,
-} from "@/components/incidents/report/shared/ReportFormField";
+import { ReportTextareaField } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { ReportBodyPartField } from "@/components/incidents/report/steps/step-3/ReportBodyPartField";
 
@@ -61,9 +57,7 @@ export function ReportIncidentStepThree(
             required
             variant="tile"
             value={form.injuryLevel}
-            onChange={(injuryLevel: InjuryLevelId) =>
-              onChange({ injuryLevel })
-            }
+            onChange={(injuryLevel: InjuryLevelId) => onChange({ injuryLevel })}
             options={INJURY_LEVEL_OPTIONS.map((option) => ({
               id: option.id,
               label: option.label,
@@ -72,16 +66,8 @@ export function ReportIncidentStepThree(
             className="pt-[22px]"
           />
 
-          <div className="w-full max-w-[497px] pt-2 pb-[18px]">
-            <ReportSelectField
-              label="Gender"
-              required
-              value={form.gender}
-              onChange={(event) => onChange({ gender: event.target.value })}
-              options={[...GENDER_OPTIONS]}
-            />
-          </div>
-
+          {/* Gender moved to Step 1, next to Affected person — it belongs with
+              the person's details, not with the injury. */}
           <ReportBodyPartField
             bodyParts={form.bodyParts ?? []}
             bodyPartSides={form.bodyPartSides ?? {}}
@@ -94,6 +80,10 @@ export function ReportIncidentStepThree(
             onBodySideChange={(bodySide) => onChange({ bodySide })}
             onMultiSelectChange={(bodyMultiSelect) =>
               onChange({ bodyMultiSelect })
+            }
+            customBodyParts={form.customBodyParts ?? []}
+            onCustomBodyPartsChange={(customBodyParts) =>
+              onChange({ customBodyParts })
             }
           />
 

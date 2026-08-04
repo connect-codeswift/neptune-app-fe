@@ -9,6 +9,11 @@ export type HazcomPictogramChipProps = Readonly<{
   onToggle?: () => void;
 }>;
 
+export type HazcomPictogramIconProps = Readonly<{
+  pictogram: HazcomPictogram;
+  className?: string;
+}>;
+
 const pictogramIcon: Record<HazcomPictogram, string> = {
   Flammable: "mdi:fire",
   Toxic: "mdi:skull-crossbones",
@@ -21,9 +26,32 @@ const pictogramIcon: Record<HazcomPictogram, string> = {
   "Health Hazard": "mdi:heart-pulse",
 };
 
-export function HazcomPictogramChip(
-  props: Readonly<HazcomPictogramChipProps>,
-) {
+/**
+ * Bare pictogram glyph for dense contexts (table cells) where the labelled
+ * chip would wrap. The name stays reachable via the accessible label/tooltip.
+ */
+export function HazcomPictogramIcon(props: Readonly<HazcomPictogramIconProps>) {
+  const { pictogram, className = "" } = props;
+
+  return (
+    <span
+      role="img"
+      aria-label={pictogram}
+      title={pictogram}
+      className={["text-ehs-gray inline-flex shrink-0", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Icon
+        icon={pictogramIcon[pictogram]}
+        className="size-4"
+        aria-hidden="true"
+      />
+    </span>
+  );
+}
+
+export function HazcomPictogramChip(props: Readonly<HazcomPictogramChipProps>) {
   const { pictogram, selected = false, onToggle } = props;
   const icon = pictogramIcon[pictogram];
 

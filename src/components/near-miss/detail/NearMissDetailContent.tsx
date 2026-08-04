@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { NearMissDetailView } from "@/components/near-miss/detail/NearMissDetailView";
 import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMissHeader";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCloseNearMissMutation,
@@ -198,9 +199,7 @@ export function NearMissDetailContent(
         />
 
         {detailQuery.isPending && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            Loading near miss...
-          </Text>
+          <SkeletonDetailPage />
         )}
 
         {detailQuery.isError && (

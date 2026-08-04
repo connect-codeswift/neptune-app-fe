@@ -1,19 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import {
-  getAcknowledgmentMetrics,
-  getAcknowledgmentRecordsForDocument,
-} from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-data";
 import { AcknowledgmentTrackingHeader } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingHeader";
 import { AcknowledgmentTrackingMetrics } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingMetrics";
 import { AcknowledgmentTrackingTable } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingTable";
+import type {
+  AcknowledgmentRecord,
+  AcknowledgmentTrackingMetric,
+} from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-types";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 import { toast } from "@/lib/toast";
 
 export type AcknowledgmentTrackingViewProps = Readonly<{
   document: PolicyDocument;
+  records: readonly AcknowledgmentRecord[];
+  metrics: readonly AcknowledgmentTrackingMetric[];
 }>;
 
 /**
@@ -22,16 +23,7 @@ export type AcknowledgmentTrackingViewProps = Readonly<{
 export function AcknowledgmentTrackingView(
   props: Readonly<AcknowledgmentTrackingViewProps>,
 ) {
-  const { document } = props;
-
-  const records = useMemo(
-    () => getAcknowledgmentRecordsForDocument(document.id),
-    [document.id],
-  );
-  const metrics = useMemo(
-    () => getAcknowledgmentMetrics(records),
-    [records],
-  );
+  const { document, records, metrics } = props;
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">

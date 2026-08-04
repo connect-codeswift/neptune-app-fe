@@ -1,39 +1,65 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import { resolveFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import type { VersionHistoryCardModel } from "@/components/policy-maker/version-history/version-history-utils";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+
+const FilePreviewPdf = dynamic(
+  () =>
+    import("@/components/incidents/detail/attachments/preview/FilePreviewPdf").then(
+      (module) => module.FilePreviewPdf,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[70vh] w-full flex-col items-center justify-center gap-2 rounded-[8px] bg-white text-[13px] text-[#566072]">
+        <Icon
+          icon="mdi:loading"
+          className="size-6 animate-spin text-[#0891a6]"
+        />
+        <span>Loading PDF viewer…</span>
+      </div>
+    ),
+  },
+);
 
 export type VersionDocumentPreviewModalProps = Readonly<{
   policyDocument: PolicyDocument;
   entry: VersionHistoryCardModel;
   onClose: () => void;
   onDownload?: () => void;
-  pageCount?: number;
 }>;
 
 /**
- * Document preview modal opened from Version History eye action.
- * Visual language matches Acknowledge PDF viewer (Figma 5568:25391).
+ * Document preview modal opened from the Document Detail "Preview Document"
+ * button and Version History's eye action. Renders the real uploaded PDF for
+ * the specific version being previewed (`entry.filePath`/`fileName`), falling
+ * back to the document's current-version file only if that version entry
+ * doesn't carry its own (e.g. documents predating per-version file tracking).
  */
 export function VersionDocumentPreviewModal(
   props: Readonly<VersionDocumentPreviewModalProps>,
 ) {
-  const { policyDocument, entry, onClose, onDownload, pageCount = 14 } = props;
+  const { policyDocument, entry, onClose, onDownload } = props;
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
-  const [page, setPage] = useState(1);
 
-  const versionNum = entry.version.replace(/^v/i, "");
-  const fileName = `${policyDocument.id.toUpperCase()}_${policyDocument.title
-    .split(/[-–—]/)[0]
-    .trim()
-    .replace(/[^a-zA-Z0-9]+/g, "")
-    .slice(0, 20)}_v${versionNum}.pdf`;
+  const fileUrl = entry.filePath ?? policyDocument.filePath;
+  const fileName = resolveFileName(
+    entry.filePath
+      ? entry
+      : {
+          fileName: policyDocument.fileName,
+          filePath: policyDocument.filePath,
+        },
+    policyDocument.title,
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -140,113 +166,26 @@ export function VersionDocumentPreviewModal(
           >
             {fileName}
           </Text>
-          <Text
-            as="span"
-            className="hidden shrink-0 text-[10px] text-[#8892a3] sm:inline"
-          >
-            {`· ${String(pageCount)} pages`}
-          </Text>
-
-          <div className="ml-auto flex items-center gap-1.5">
-            <button
-              type="button"
-              aria-label="Previous page"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              disabled={page <= 1}
-              className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
-            >
-              <Icon
-                icon="mdi:chevron-left"
-                className="size-3"
-                aria-hidden="true"
-              />
-            </button>
-            <Text
-              as="span"
-              className="min-w-[40px] text-center text-[11px] text-[#566072]"
-            >
-              {`${String(page)} / ${String(pageCount)}`}
-            </Text>
-            <button
-              type="button"
-              aria-label="Next page"
-              onClick={() =>
-                setPage((current) => Math.min(pageCount, current + 1))
-              }
-              disabled={page >= pageCount}
-              className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
-            >
-              <Icon
-                icon="mdi:chevron-right"
-                className="size-3"
-                aria-hidden="true"
-              />
-            </button>
-          </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-auto bg-[#eef1f6]/70 px-4 py-8 sm:px-8 sm:py-10">
-          <article className="relative mx-auto w-full max-w-[540px] rounded bg-white px-5 pt-10 pb-14 shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)] sm:px-10 sm:pt-12 sm:pb-[62px]">
-            <Text
-              as="p"
-              className="text-[9px] leading-[15.3px] font-bold tracking-[1.26px] text-[#8892a3] uppercase"
-            >
-              {`Standard Operating Procedure · ${policyDocument.code}`}
-            </Text>
-            <Text
-              as="h3"
-              className="mt-1 text-[18px] leading-[34px] font-bold text-[#0b1320] sm:text-[20px]"
-            >
-              {policyDocument.title}
-            </Text>
-            <Text
-              as="p"
-              className="text-[10px] leading-[17px] text-[#566072]"
-            >
-              {`Version ${versionNum} · ${entry.isCurrent ? "CURRENT" : "ARCHIVED"} · ${entry.publishedAt}`}
-            </Text>
-
-            <Text
-              as="h4"
-              className="mt-[19px] text-[13px] leading-[22.1px] font-bold text-[#0b1320]"
-            >
-              Version notes
-            </Text>
-            <Text
-              as="p"
-              className="mt-1 text-[11px] leading-[18.7px] text-[#0b1320]"
-            >
-              {entry.changeLog}
-            </Text>
-
-            <Text
-              as="h4"
-              className="mt-5 text-[13px] leading-[22.1px] font-bold text-[#0b1320]"
-            >
-              2. Pre-operation inspection
-            </Text>
-            <p className="mt-1 text-[10.8px] leading-[18.7px] text-[#0b1320]">
-              {`Before each shift, the operator shall perform a documented visual inspection as detailed in checklist ${policyDocument.code}-A.`}
-            </p>
-            <ul className="mt-1.5 list-disc space-y-0 pl-[16.5px] text-[11px] leading-[18.7px] text-[#0b1320]">
-              <li>Hydraulic hose condition — chafing, kinks, bulges at couplings</li>
-              <li>Pressure gauge — operating within 2,500 – 2,900 psi range</li>
-              <li>Guarding — all panels secured, interlocks functional</li>
-              <li>Emergency stop — confirmed responsive via pre-shift test</li>
-            </ul>
-
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-[11px] leading-[18px] text-[#8892a3]">
-              <span>{`Author: ${entry.authorFullName}`}</span>
-              <span>{`Published: ${entry.publishedAt}`}</span>
+        <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto bg-[#eef1f6]/70 px-4 py-8 sm:px-8 sm:py-10">
+          {fileUrl ? (
+            <FilePreviewPdf fileUrl={fileUrl} />
+          ) : (
+            <div className="flex h-[50vh] w-full max-w-[540px] flex-col items-center justify-center gap-2 rounded bg-white text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
+              <Icon
+                icon="mdi:file-alert-outline"
+                className="size-8 text-[#8892a3]"
+                aria-hidden="true"
+              />
+              <Text as="p" className="text-[13px] font-semibold text-[#0b1320]">
+                Preview unavailable
+              </Text>
+              <Text as="p" className="max-w-[320px] text-[12px] text-[#8892a3]">
+                This document has no file URL on record yet.
+              </Text>
             </div>
-
-            <Text
-              as="p"
-              className="absolute right-6 bottom-6 text-[9px] leading-[15.3px] text-[#b3bbc8] sm:right-10"
-            >
-              {`Page ${String(page)} of ${String(pageCount)} · Neptune Doc Control`}
-            </Text>
-          </article>
+          )}
         </div>
       </div>
     </div>,
