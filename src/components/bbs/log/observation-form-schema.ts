@@ -18,36 +18,33 @@ export const OBSERVATION_TYPE_OPTIONS: readonly TileOption[] = [
   },
 ];
 
-/** Offered from the add button beside Behavior Category; the field is free-text. */
-export const OBSERVATION_CATEGORY_SUGGESTIONS: readonly string[] = [
-  "Forklift",
-  "Lift Truck",
-  "Fork hoist",
-];
-
 /** Step 1 — what did you observe? */
-export const observationTypeSchema: FormSchema = [
-  {
-    type: "tiles",
-    name: "observationType",
-    label: "Observation Type",
-    required: true,
-    colSpan: 12,
-    options: OBSERVATION_TYPE_OPTIONS,
-    // The card header already asks the question, so the label would repeat it.
-    hideLabel: true,
-  },
-  {
-    type: "text",
-    name: "category",
-    label: "Behavior Category",
-    required: true,
-    colSpan: 12,
-    placeholder: "Search or add new",
-    // Free text, with the add button offering the common categories.
-    suggestions: OBSERVATION_CATEGORY_SUGGESTIONS,
-  },
-];
+export function buildObservationTypeSchema(
+  categorySuggestions: readonly string[],
+): FormSchema {
+  return [
+    {
+      type: "tiles",
+      name: "observationType",
+      label: "Observation Type",
+      required: true,
+      colSpan: 12,
+      options: OBSERVATION_TYPE_OPTIONS,
+      // The card header already asks the question, so the label would repeat it.
+      hideLabel: true,
+    },
+    {
+      type: "text",
+      name: "category",
+      label: "Behavior Category",
+      required: true,
+      colSpan: 12,
+      placeholder: "Search or add new",
+      // Free text, with the add button offering categories from the API.
+      suggestions: categorySuggestions,
+    },
+  ];
+}
 
 /** Step 2 — where & what happened? */
 export const observationDetailsSchema: FormSchema = [

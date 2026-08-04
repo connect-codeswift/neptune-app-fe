@@ -5,12 +5,17 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateBbsObservationMutation } from "@/hooks/use-bbs-mutations";
+import { useBehaviorCategoriesQuery } from "@/hooks/use-bbs-queries";
+import { toCreateBbsObservationRequest } from "@/lib/map-bbs";
 import { toast } from "@/lib/toast";
 import { LogObservationHeader } from "./LogObservationHeader";
 import { ObservationStepper } from "./ObservationStepper";
 import { ObservationDetailsStep } from "./ObservationDetailsStep";
 import { ObservationReviewStep } from "./ObservationReviewStep";
 import { ObservationTypeStep } from "./ObservationTypeStep";
+import type { ObservationFormValues } from "./observation-form-schema";
 
 const BBS_ROUTE = "/dashboard/bbs";
 const LAST_STEP = 3;
@@ -21,8 +26,26 @@ const STEP_FORM_IDS: Record<number, string> = {
   2: "observation-step-2-form",
 };
 
+function toObservationFormValues(
+  values: Record<string, string | string[]>,
+): ObservationFormValues {
+  const photos = Array.isArray(values.photos) ? values.photos : [];
+
+  return {
+    observationType:
+      typeof values.observationType === "string" ? values.observationType : "",
+    category: typeof values.category === "string" ? values.category : "",
+    location: typeof values.location === "string" ? values.location : "",
+    description:
+      typeof values.description === "string" ? values.description : "",
+    photos,
+  };
+}
+
 export function LogObservationContent() {
   const router = useRouter();
+  const createObservation = useCreateBbsObservationMutation();
+  const categoriesQuery = useBehaviorCategoriesQuery();
 
   const [step, setStep] = useState(1);
 
@@ -38,12 +61,11 @@ export function LogObservationContent() {
   const commitValues = (next: Record<string, string | string[]>) => {
     setValues(next);
   };
-  console.log(values);
+
   /** Step 1's form passed validation — persist and advance. */
   const handleStepOneSubmit = (
     submitted: Record<string, string | string[]>,
   ) => {
-    console.log(submitted);
     setValues(submitted);
     setStep(2);
   };
@@ -52,15 +74,37 @@ export function LogObservationContent() {
   const handleStepTwoSubmit = (
     submitted: Record<string, string | string[]>,
   ) => {
-    console.log(submitted);
     setValues(submitted);
     setStep(3);
   };
 
   const handleSubmit = () => {
-    // TODO: wire to POST /api/bbs/observations once the payload is agreed.
-    toast.success("Observation logged");
-    router.push(BBS_ROUTE);
+    const formValues = toObservationFormValues(values);
+    const payload = toCreateBbsObservationRequest(
+      formValues,
+      categoriesQuery.data ?? [],
+    );
+
+    if (!payload) {
+      toast.error("Select a behavior category from the list.");
+      setStep(1);
+      return;
+    }
+
+    createObservation.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Observation logged");
+        router.push(BBS_ROUTE);
+      },
+      onError: (error) => {
+        toast.error(
+          getMutationErrorMessage(
+            error,
+            "Could not submit the observation. Please try again.",
+          ),
+        );
+      },
+    });
   };
 
   const formId = STEP_FORM_IDS[step];
@@ -117,10 +161,13 @@ export function LogObservationContent() {
               <Button
                 type="button"
                 variant="primary"
+                disabled={createObservation.isPending}
                 onClick={handleSubmit}
                 className="shrink-0 rounded-[10px] px-5 py-2.5 font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
               >
-                Submit Observation
+                {createObservation.isPending
+                  ? "Submitting..."
+                  : "Submit Observation"}
               </Button>
             ) : (
               /* Submits the step's form so its required-field validation runs. */
