@@ -87,9 +87,9 @@ export function IncidentDetailHeader(
           <input
             type="search"
             placeholder="Search incidents, actions, docs…"
-            className="placeholder-ehs-muted-text text-ehs-dark-bg focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border border-[rgba(15,23,42,0.12)] bg-white/70 py-[7px] pr-8 pl-8.5 text-[13px] shadow-sm backdrop-blur-[4px] transition-all outline-none focus:ring-2"
+            className="placeholder-ehs-muted-text text-ehs-dark-bg focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border border-[rgba(15,23,42,0.12)] bg-white/70 py-[7px] pr-8 pl-8.5 text-sm shadow-sm backdrop-blur-[4px] transition-all outline-none focus:ring-2"
           />
-          <kbd className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded border border-[rgba(15,23,42,0.12)] bg-white/60 px-1.5 py-0.5 font-sans text-[10px] font-medium shadow-[0_1px_1px_rgba(0,0,0,0.03)] sm:inline-block">
+          <kbd className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded border border-[rgba(15,23,42,0.12)] bg-white/60 px-1.5 py-0.5 font-sans text-xs font-medium shadow-[0_1px_1px_rgba(0,0,0,0.03)] sm:inline-block">
             ⌘K
           </kbd>
         </div>
@@ -97,7 +97,7 @@ export function IncidentDetailHeader(
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
           <button
             type="button"
-            className="text-ehs-gray hover:bg-ehs-light-bg inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-[13px] shadow-sm transition-colors sm:px-3.5"
+            className="text-ehs-gray hover:bg-ehs-light-bg inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-sm shadow-sm transition-colors sm:px-3.5"
           >
             <Icon
               icon="mdi:calendar-range"
@@ -127,7 +127,7 @@ export function IncidentDetailHeader(
       </header>
 
       {/* Breadcrumb Navigation */}
-      <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text-[11px] font-semibold tracking-wide uppercase">
+      <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text-xs font-medium">
         <span
           onClick={() => router.push("/dashboard/incidents/list")}
           className="hover:text-ehs-dark-bg cursor-pointer hover:underline"
@@ -142,7 +142,7 @@ export function IncidentDetailHeader(
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-4">
         <Text
           as="h1"
-          className="text-ehs-dark-bg text-[22px] font-bold tracking-tight"
+          className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
         >
           {incidentId}
         </Text>
@@ -157,8 +157,8 @@ export function IncidentDetailHeader(
                 disabled={isSaving}
                 className={
                   isEditing
-                    ? "rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
-                    : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-[13px] font-bold text-[#2a3446] transition-colors hover:bg-white/70 disabled:opacity-50"
+                    ? "rounded-[10px] bg-ehs-normal-blue px-4 py-2 text-sm font-medium text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active disabled:opacity-50"
+                    : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium text-ehs-slate transition-colors hover:bg-white/70 disabled:opacity-50"
                 }
               >
                 {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
@@ -169,7 +169,7 @@ export function IncidentDetailHeader(
               variant="primary"
               onClick={handleClose}
               disabled={closeDisabled || isClosingIncident}
-              className="rounded-[10px] bg-[#0891a6] px-4 py-2 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485] disabled:opacity-50"
+              className="rounded-[10px] bg-ehs-normal-blue px-4 py-2 text-sm font-medium text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active disabled:opacity-50"
             >
               {isClosingIncident
                 ? "Closing…"
@@ -192,9 +192,9 @@ export function IncidentDetailHeader(
                 type="button"
                 onClick={() => onTabChange(tab.id)}
                 className={[
-                  "border-b-2 py-2.5 text-[13px] font-semibold transition-all",
+                  "border-b-2 py-2.5 text-sm font-semibold transition-all",
                   isActive
-                    ? "border-[#0891a6] text-[#056e7e]"
+                    ? "border-ehs-normal-blue text-ehs-dark-blue"
                     : "text-ehs-gray hover:text-ehs-dark-bg border-transparent",
                 ].join(" ")}
               >

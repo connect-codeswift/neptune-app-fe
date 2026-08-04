@@ -80,17 +80,17 @@ export function ReportIncidentStepTwo(
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
-              className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
+              className="text-ehs-dark-blue text-xs font-bold tracking-wide uppercase"
             >
               Step 2
             </Text>
             <Text
               as="h2"
-              className="text-ehs-dark-bg text-[22px] font-bold tracking-[-0.44px]"
+              className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
             >
               Incident details
             </Text>
-            <Text as="p" className="text-ehs-gray text-[12px]">
+            <Text as="p" className="text-ehs-gray text-sm">
               Describe what happened and capture treatment, mechanism, and
               nature of injury.
             </Text>
@@ -304,7 +304,7 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-[13px] font-bold text-[#2a3446]"
+              className="rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold text-ehs-slate"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -314,7 +314,7 @@ export function ReportIncidentStepTwo(
               Back
             </Button>
 
-            <p className="text-ehs-muted-text min-w-0 flex-1 text-[10.8px]">
+            <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
@@ -323,7 +323,7 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="primary"
               onClick={handleContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon

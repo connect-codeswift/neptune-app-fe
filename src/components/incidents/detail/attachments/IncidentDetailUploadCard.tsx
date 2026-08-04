@@ -123,11 +123,11 @@ export function IncidentDetailUploadCard(
       <div className="flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Upload
         </Text>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           Drag & drop or browse
         </span>
       </div>
@@ -149,7 +149,7 @@ export function IncidentDetailUploadCard(
         className={[
           "relative flex min-h-[174px] cursor-pointer flex-col items-center justify-center rounded-[12px] border-2 border-dashed p-6 text-center transition-all",
           dragActive
-            ? "border-[#0891a6] bg-[rgba(8,145,166,0.08)]"
+            ? "border-ehs-normal-blue bg-[rgba(8,145,166,0.08)]"
             : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
           isUploading ? "pointer-events-none opacity-60" : "",
         ].join(" ")}
@@ -158,25 +158,25 @@ export function IncidentDetailUploadCard(
           <div className="flex flex-col items-center justify-center gap-2">
             <Icon
               icon="mdi:loading"
-              className="size-8 animate-spin text-[#0891a6]"
+              className="size-8 animate-spin text-ehs-normal-blue"
               aria-hidden="true"
             />
-            <span className="text-[11.5px] font-bold text-[#0b1320]">
+            <span className="text-sm font-bold text-ehs-dark-bg">
               Uploading...
             </span>
           </div>
         ) : (
           <>
-            <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)] text-[#056e7e]">
+            <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)] text-ehs-dark-blue">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="mt-2.5 text-[13px] font-bold text-[#0b1320]">
+            <span className="mt-2.5 text-sm font-bold text-ehs-dark-bg">
               Drop files here
             </span>
-            <span className="mt-1 text-[10px] text-[#8892a3]">
+            <span className="mt-1 text-xs text-ehs-muted-text">
               JPG, PNG, MP4, PDF up to 50 MB
             </span>
-            <span className="mt-3.5 text-[11.5px] font-bold text-[#056e7e]">
+            <span className="mt-3.5 text-sm font-bold text-ehs-dark-blue">
               Browse files
             </span>
           </>

@@ -34,9 +34,9 @@ const fieldInputClass = FIELD_INPUT_CLASS;
 
 function responderBadgeClass(tone: ResponderMember["badgeTone"]): string {
   if (tone === "teal" || tone === "green" || tone === "blue") {
-    return "bg-[rgba(8,145,166,0.18)] text-[#056e7e]";
+    return "bg-ehs-dark-blue-bg-light text-ehs-dark-blue";
   }
-  return "bg-[rgba(11,19,32,0.14)] text-[#566072]";
+  return "bg-ehs-dark-bg/14 text-ehs-gray";
 }
 
 function editableDisplayValue(value: string): string {
@@ -80,11 +80,11 @@ export function IncidentDetailPeopleCard(
       <IncidentGlassCard
         paddingClassName="p-[23px]"
         incidentGlassCardClassName="gap-[14px]"
-        className={isEditing ? "ring-1 ring-[#0891a6]/25" : ""}
+        className={isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""}
       >
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Affected person
         </Text>
@@ -92,7 +92,7 @@ export function IncidentDetailPeopleCard(
         {hasAffected ? (
           <>
             <div className="flex items-center gap-[14px]">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-[14.4px] bg-[rgba(8,145,166,0.18)] text-[16px] font-bold text-[#056e7e]">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-[14.4px] bg-ehs-dark-blue-bg-light text-base font-bold text-ehs-dark-blue">
                 {affectedInitials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -112,7 +112,7 @@ export function IncidentDetailPeopleCard(
                       className={fieldInputClass}
                       aria-label="Affected person name"
                     />
-                    <span className="truncate text-[12px] leading-normal text-[#566072]">
+                    <span className="truncate text-sm leading-normal text-ehs-gray">
                       {affectedRole}
                     </span>
                     <input
@@ -128,13 +128,13 @@ export function IncidentDetailPeopleCard(
                   </>
                 ) : (
                   <>
-                    <span className="text-[15px] leading-normal font-bold text-[#0b1320]">
+                    <span className="text-base leading-normal font-bold text-ehs-dark-bg">
                       {affectedName}
                     </span>
-                    <span className="truncate text-[12px] leading-normal text-[#566072]">
+                    <span className="truncate text-sm leading-normal text-ehs-gray">
                       {affectedRole}
                     </span>
-                    <span className="text-[11px] leading-normal text-[#8892a3]">
+                    <span className="text-sm leading-normal text-ehs-muted-text">
                       {affectedEmpId}
                     </span>
                   </>
@@ -152,7 +152,7 @@ export function IncidentDetailPeopleCard(
                   aria-label="Injury level"
                 />
               ) : (
-                <span className="shrink-0 rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px] text-[#566072]">
+                <span className="shrink-0 rounded-full bg-ehs-dark-bg/14 px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide text-ehs-gray">
                   {affectedInjuryLabel}
                 </span>
               )}
@@ -160,7 +160,7 @@ export function IncidentDetailPeopleCard(
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
                   Body part
                 </span>
                 {isEditing ? (
@@ -172,13 +172,13 @@ export function IncidentDetailPeopleCard(
                     aria-label="Body part"
                   />
                 ) : (
-                  <span className="text-[15px] leading-normal text-[#0b1320]">
+                  <span className="text-base leading-normal text-ehs-dark-bg">
                     {bodyPart}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
                   Treatment
                 </span>
                 {isEditing ? (
@@ -192,23 +192,23 @@ export function IncidentDetailPeopleCard(
                     aria-label="Treatment"
                   />
                 ) : (
-                  <span className="text-[15px] leading-normal text-[#0b1320]">
+                  <span className="text-base leading-normal text-ehs-dark-bg">
                     {treatment}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase">
+                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
                   Days away
                 </span>
-                <span className="text-[15px] leading-normal text-[#0b1320]">
+                <span className="text-base leading-normal text-ehs-dark-bg">
                   {daysAway}
                 </span>
               </div>
             </div>
           </>
         ) : (
-          <div className="py-6 text-center text-[12px] text-[#8892a3]">
+          <div className="py-6 text-center text-sm text-ehs-muted-text">
             No affected person returned by the API.
           </div>
         )}
@@ -216,22 +216,22 @@ export function IncidentDetailPeopleCard(
 
       <IncidentGlassCard
         paddingClassName="p-[23px]"
-        className={isEditing ? "ring-1 ring-[#0891a6]/25" : ""}
+        className={isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""}
       >
         <div className="pb-[14px]">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Responders & assignees
           </Text>
-          <span className="text-[11px] leading-normal text-[#8892a3]">
+          <span className="text-sm leading-normal text-ehs-muted-text">
             {responders.length} people
           </span>
         </div>
 
         {responders.length === 0 ? (
-          <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-[12px] text-[#8892a3]">
+          <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm text-ehs-muted-text">
             No responders returned by the API.
           </div>
         ) : (
@@ -240,7 +240,7 @@ export function IncidentDetailPeopleCard(
               key={`${person.role}-${person.name}-${String(index)}`}
               className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
             >
-              <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] bg-[rgba(8,145,166,0.18)] text-[11.6px] font-bold text-[#056e7e]">
+              <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] bg-ehs-dark-blue-bg-light text-sm font-bold text-ehs-dark-blue">
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-px">
@@ -265,16 +265,16 @@ export function IncidentDetailPeopleCard(
                           role: event.target.value,
                         })
                       }
-                      className={`${fieldInputClass} mt-1 text-[11px]`}
+                      className={`${fieldInputClass} mt-1 text-sm`}
                       aria-label="Role"
                     />
                   </>
                 ) : (
                   <>
-                    <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+                    <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
                       {person.name}
                     </span>
-                    <span className="truncate text-[11px] leading-normal text-[#566072]">
+                    <span className="truncate text-sm leading-normal text-ehs-gray">
                       {person.role}
                     </span>
                   </>
@@ -288,17 +288,17 @@ export function IncidentDetailPeopleCard(
                     onChangeResponder?.(index, { empId: event.target.value })
                   }
                   placeholder="ID / email"
-                  className={`${fieldInputClass} max-w-[140px] shrink-0 text-[11px]`}
+                  className={`${fieldInputClass} max-w-[140px] shrink-0 text-sm`}
                   aria-label="Employee ID or email"
                 />
               ) : (
-                <span className="shrink-0 text-[11px] leading-normal text-[#8892a3]">
+                <span className="shrink-0 text-sm leading-normal text-ehs-muted-text">
                   {person.empId}
                 </span>
               )}
               <span
                 className={[
-                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide",
                   responderBadgeClass(person.badgeTone),
                 ].join(" ")}
               >

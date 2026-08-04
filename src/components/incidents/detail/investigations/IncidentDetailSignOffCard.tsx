@@ -57,7 +57,7 @@ export function IncidentDetailSignOffCard(
     >
       <Text
         as="h3"
-        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="text-ehs-dark-bg text-lg font-semibold"
       >
         Sign-off
       </Text>
@@ -77,26 +77,26 @@ export function IncidentDetailSignOffCard(
               className={[
                 "flex size-8 shrink-0 items-center justify-center rounded-[9.6px] text-[10.9px] font-bold",
                 index === 0
-                  ? "bg-[rgba(8,145,166,0.18)] text-[#056e7e]"
-                  : "bg-[rgba(255,255,255,0.82)] text-[#566072]",
+                  ? "bg-ehs-dark-blue-bg-light text-ehs-dark-blue"
+                  : "bg-[rgba(255,255,255,0.82)] text-ehs-gray",
               ].join(" ")}
             >
               {person.initials}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-[12px] leading-normal font-bold text-[#0b1320]">
+              <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
                 {person.name}
               </span>
-              <span className="truncate text-[11px] leading-normal text-[#8892a3]">
+              <span className="truncate text-sm leading-normal text-ehs-muted-text">
                 {person.role.replace(/\s*-\s*/g, " · ")}
               </span>
             </div>
             <span
               className={[
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px] text-ehs-gray",
                 person.badgeTone === "green"
-                  ? "bg-[rgba(11,19,32,0.14)]"
-                  : "bg-[rgba(11,19,32,0.16)]",
+                  ? "bg-ehs-dark-bg/14"
+                  : "bg-ehs-dark-bg/16",
               ].join(" ")}
             >
               {person.badgeTone === "green" ? (
@@ -111,7 +111,7 @@ export function IncidentDetailSignOffCard(
       <button
         type="button"
         onClick={handleRequest}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-[#0891a6] px-[15px] py-2.5 text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067a8c]"
+        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] py-2.5 text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
       >
         <Icon icon="mdi:check" className="size-3.5" aria-hidden="true" />
         Request approval

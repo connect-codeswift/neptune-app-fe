@@ -34,7 +34,7 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
       <div className="flex shrink-0 items-center">
-        <span className="border-ehs-border/80 text-ehs-darker inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-lg border bg-white/80 px-2.5 text-xs font-bold shadow-xs">
+        <span className="border-ehs-border/80 text-ehs-darker inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-xl border bg-white/80 px-2.5 py-2 text-sm font-bold shadow-xs">
           <img
             src="/icons/filter-variant.svg"
             alt=""

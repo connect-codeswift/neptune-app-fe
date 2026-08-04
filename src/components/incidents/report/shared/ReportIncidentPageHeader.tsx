@@ -28,7 +28,7 @@ export function ReportIncidentPageHeader(
         <nav aria-label="Breadcrumb" className="flex items-center gap-1">
           <Link
             href="/dashboard/incidents/list"
-            className="text-ehs-muted-text hover:text-ehs-gray text-[11px] font-medium transition-colors"
+            className="text-ehs-muted-text hover:text-ehs-gray text-sm font-medium transition-colors"
           >
             Incidents
           </Link>
@@ -37,13 +37,13 @@ export function ReportIncidentPageHeader(
             className="text-ehs-muted-text size-[11px]"
             aria-hidden="true"
           />
-          <Text as="span" className="text-ehs-gray text-[11px] font-medium">
+          <Text as="span" className="text-ehs-gray text-sm font-medium">
             Report
           </Text>
         </nav>
         <Text
           as="h1"
-          className="text-ehs-dark-bg text-[22px] font-semibold tracking-[-0.48px]"
+          className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
         >
           Report an incident
         </Text>
@@ -53,7 +53,7 @@ export function ReportIncidentPageHeader(
         type="button"
         variant="tertiary"
         onClick={onSaveExit}
-        className="text-ehs-dark-bg relative z-[1] rounded-[10px] border-[rgba(11,19,32,0.14)] px-[15px] py-2.5 text-[12.8px] font-bold"
+        className="text-ehs-dark-bg relative z-[1] rounded-[10px] border-[rgba(11,19,32,0.14)] px-[15px] py-2.5 text-sm font-bold"
       >
         Save & exit
       </Button>

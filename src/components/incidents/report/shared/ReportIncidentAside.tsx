@@ -46,7 +46,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
       <IncidentGlassCard paddingClassName="p-[17px]" className="gap-0">
         <Text
           as="p"
-          className="text-ehs-muted-text text-[10.5px] font-bold tracking-[1.05px] uppercase"
+          className="text-ehs-muted-text text-xs font-bold tracking-[1.05px] uppercase"
         >
           Live preview
         </Text>
@@ -54,15 +54,15 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         <div className="mt-1 flex flex-wrap items-center gap-1.5 pt-1">
           <Text
             as="span"
-            className="text-ehs-muted-text text-[10.5px] font-bold"
+            className="text-ehs-muted-text text-xs font-bold"
           >
             INC-DRAFT
           </Text>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] py-[2.5px]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ehs-dark-bg/14 px-[9px] py-[2.5px]">
             <span className="bg-ehs-gray size-1.5 rounded-[3px]" />
             <Text
               as="span"
-              className="text-ehs-gray text-[10.7px] font-bold tracking-[0.22px]"
+              className="text-ehs-gray text-xs font-bold tracking-wide"
             >
               {severityBadge}
             </Text>
@@ -71,7 +71,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
 
         <p
           className={[
-            "mt-1 min-h-[38px] pt-0.5 pb-5 text-[13.5px] leading-[18px]",
+            "mt-1 min-h-[38px] pt-0.5 pb-5 text-sm leading-[18px]",
             hasTitle
               ? "text-ehs-dark-bg font-bold not-italic"
               : "text-ehs-muted-text italic",
@@ -83,7 +83,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         <Text
           as="p"
           className={[
-            "pb-[7px] text-[11px] leading-normal",
+            "pb-[7px] text-sm leading-normal",
             hasLocation
               ? "text-ehs-muted-text not-italic"
               : "text-ehs-muted-text italic",
@@ -96,7 +96,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
 
         <p
           className={[
-            "max-h-[70px] overflow-hidden pt-1.5 text-[11.5px] leading-[17px]",
+            "max-h-[70px] overflow-hidden pt-1.5 text-sm leading-[17px]",
             hasDescription
               ? "text-ehs-gray not-italic"
               : "text-ehs-muted-text italic",
@@ -109,7 +109,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
       <IncidentGlassCard paddingClassName="p-[17px]">
         <Text
           as="p"
-          className="text-ehs-muted-text mb-2.5 text-[10.5px] font-bold tracking-[1.05px] uppercase"
+          className="text-ehs-muted-text mb-2.5 text-xs font-bold tracking-[1.05px] uppercase"
         >
           At this site
         </Text>
@@ -119,12 +119,12 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
               key={stat.label}
               className="flex items-center justify-between gap-3"
             >
-              <Text as="span" className="text-ehs-gray text-[11.5px]">
+              <Text as="span" className="text-ehs-gray text-sm">
                 {stat.label}
               </Text>
               <Text
                 as="span"
-                className="text-ehs-dark-bg text-[12.7px] font-bold"
+                className="text-ehs-dark-bg text-sm font-bold"
               >
                 {stat.value}
               </Text>
@@ -133,7 +133,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         </div>
       </IncidentGlassCard>
 
-      <div className="relative flex flex-col gap-[7px] rounded-[20px] border border-[rgba(8,145,166,0.3)] bg-[rgba(8,145,166,0.18)] p-[17px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']">
+      <div className="relative flex flex-col gap-[7px] rounded-[20px] border border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light p-[17px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']">
         <div className="relative z-[1] flex items-center gap-1.5">
           <Icon
             icon="mdi:lightbulb-on-outline"
@@ -142,14 +142,14 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
           />
           <Text
             as="span"
-            className="text-ehs-dark-blue text-[10.5px] font-bold tracking-[1.05px] uppercase"
+            className="text-ehs-dark-blue text-xs font-bold tracking-[1.05px] uppercase"
           >
             Tip
           </Text>
         </div>
         <Text
           as="p"
-          className="relative z-[1] text-[11.5px] leading-[17.8px] text-[#2a3446]"
+          className="relative z-[1] text-sm leading-[17.8px] text-ehs-slate"
         >
           {tip}
         </Text>

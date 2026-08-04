@@ -37,12 +37,12 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
           <div className="min-w-0">
             <Text
               as="p"
-              className="text-ehs-darker text-[12px] leading-[15px] font-semibold"
+              className="text-ehs-darker text-sm leading-[15px] font-semibold"
             >
               {titlePrimary}
             </Text>
             {titleSecondary ? (
-              <Text as="p" className="text-ehs-muted-text text-[11px]">
+              <Text as="p" className="text-ehs-muted-text text-sm">
                 {titleSecondary}
               </Text>
             ) : null}
@@ -51,7 +51,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
 
         <Text
           as="p"
-          className="text-ehs-darker text-[32px] leading-[32px] font-medium tracking-[-0.6px] tabular-nums"
+          className="text-ehs-darker text-3xl leading-none font-medium tracking-tight tabular-nums"
         >
           {metric.value}
         </Text>
@@ -68,7 +68,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
           ) : null}
 
           {metric.footnote ? (
-            <Text as="p" className="text-ehs-muted-text text-[11px]">
+            <Text as="p" className="text-ehs-muted-text text-sm">
               {metric.footnote}
             </Text>
           ) : null}

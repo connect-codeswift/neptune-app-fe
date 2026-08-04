@@ -63,11 +63,11 @@ function AttachmentTile(
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[linear-gradient(135deg,#3b4f66_0%,#1c2a3d_100%)] px-1.5">
           <Icon
             icon={isPdf ? "mdi:file-pdf-box" : "mdi:image-outline"}
-            className="size-7 text-white/90"
+            className="size-7 text-ehs-light-text/90"
             aria-hidden="true"
           />
           {!file.isUploading ? (
-            <span className="text-[9px] font-semibold tracking-wide text-white/80 uppercase">
+            <span className="text-xs font-semibold tracking-wide text-ehs-light-text/80 uppercase">
               {isPdf ? "PDF" : "FILE"}
             </span>
           ) : null}
@@ -78,7 +78,7 @@ function AttachmentTile(
         <div className="absolute inset-0 flex items-center justify-center bg-black/45">
           <Icon
             icon="mdi:loading"
-            className="size-5 animate-spin text-white"
+            className="size-5 animate-spin text-ehs-light-text"
             aria-hidden="true"
           />
         </div>
@@ -86,7 +86,7 @@ function AttachmentTile(
 
       {file.error ? (
         <div className="bg-ehs-red/80 absolute inset-0 flex items-center justify-center px-1">
-          <span className="text-center text-[9px] leading-tight text-white">
+          <span className="text-center text-xs leading-tight text-ehs-light-text">
             Failed
           </span>
         </div>
@@ -94,10 +94,10 @@ function AttachmentTile(
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-1.5 pt-4 pb-0.5">
         <div className="flex items-end justify-between gap-1">
-          <span className="truncate text-[9px] text-white/90">
+          <span className="truncate text-xs text-ehs-light-text/90">
             {truncateName(file.name)}
           </span>
-          <span className="shrink-0 text-[9px] text-white/85">
+          <span className="shrink-0 text-xs text-ehs-light-text/85">
             {file.sizeLabel}
           </span>
         </div>
@@ -108,7 +108,7 @@ function AttachmentTile(
         aria-label={`Remove ${file.name}`}
         onClick={onRemove}
         disabled={file.isUploading}
-        className="absolute top-1 right-1 inline-flex size-[18px] items-center justify-center rounded-[9px] bg-black/50 text-white transition hover:bg-black/70 disabled:opacity-50"
+        className="absolute top-1 right-1 inline-flex size-[18px] items-center justify-center rounded-[9px] bg-black/50 text-ehs-light-text transition hover:bg-black/70 disabled:opacity-50"
       >
         <Icon icon="mdi:close" className="size-2.5" aria-hidden="true" />
       </button>
@@ -251,7 +251,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
       <ReportFieldLabel
         label="Photos & files"
         trailing={
-          <Text as="span" className="text-ehs-muted-text text-[10px]">
+          <Text as="span" className="text-ehs-muted-text text-xs">
             Up to 10 files, 50 MB each. Images or PDF.
           </Text>
         }
@@ -298,7 +298,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
               .join(" ")}
             aria-hidden="true"
           />
-          <Text as="span" className="text-ehs-gray text-[10.8px]">
+          <Text as="span" className="text-ehs-gray text-xs">
             {isUploading ? "Uploading" : "Add file"}
           </Text>
         </button>

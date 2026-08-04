@@ -36,11 +36,11 @@ export function IncidentDetailResponseCard(
       <div className="flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Immediate response
         </Text>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           Actions taken on-scene
         </span>
       </div>
@@ -52,18 +52,18 @@ export function IncidentDetailResponseCard(
             className={[
               "flex h-[38px] items-center gap-[10px] rounded-lg border px-[13px] py-[11px]",
               action.completed
-                ? "border-[#10b981] bg-[rgba(16,185,129,0.14)]"
+                ? "border-ehs-green bg-ehs-green-bg-light"
                 : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
             ].join(" ")}
           >
             {action.completed ? (
-              <div className="flex size-4 shrink-0 items-center justify-center rounded bg-[#10b981] text-white">
+              <div className="flex size-4 shrink-0 items-center justify-center rounded bg-ehs-green text-ehs-light-text">
                 <Icon icon="mdi:check" className="size-[11px]" aria-hidden="true" />
               </div>
             ) : (
               <div className="size-4 shrink-0 rounded border border-[rgba(15,23,42,0.14)] bg-transparent" />
             )}
-            <span className="truncate text-[12px] leading-normal text-[#0b1320]">
+            <span className="truncate text-sm leading-normal text-ehs-dark-bg">
               {action.label}
             </span>
           </div>

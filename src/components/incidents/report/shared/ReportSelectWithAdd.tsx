@@ -128,12 +128,12 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
                   cancel();
                 }
               }}
-              className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-[12px] outline-none focus:ring-2"
+              className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:ring-2"
             />
             <button
               type="button"
               onClick={commit}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover shrink-0 cursor-pointer rounded-lg px-3 py-2 text-[12px] font-bold text-white transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold text-ehs-light-text transition-colors"
             >
               Add
             </button>
@@ -147,7 +147,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
             </button>
           </div>
           {error ? (
-            <p className="text-ehs-red text-[10.8px]" role="alert">
+            <p className="text-ehs-red text-xs" role="alert">
               {error}
             </p>
           ) : null}
@@ -156,7 +156,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex w-fit cursor-pointer items-center gap-1 text-[11px] font-semibold transition-colors"
+          className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex w-fit cursor-pointer items-center gap-1 text-sm font-semibold transition-colors"
         >
           <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
           {addLabel}

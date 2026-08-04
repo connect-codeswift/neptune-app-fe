@@ -85,13 +85,13 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         <span
           className={[
             "inline-flex items-center gap-0.5 font-bold",
-            compact ? "text-[10px]" : "text-[10.3px]",
+            compact ? "text-xs" : "text-[10.3px]",
             isOn ? "text-ehs-green" : "text-ehs-red",
           ].join(" ")}
         >
           <Icon
             icon={isOn ? "mdi:check-circle" : "mdi:trending-up"}
-            className={compact ? "text-[10px]" : "text-[11px]"}
+            className={compact ? "text-xs" : "text-sm"}
             aria-hidden="true"
           />
           {isOn ? "On / under target" : "Off target"}
@@ -101,7 +101,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
           as="span"
           className={[
             "text-ehs-muted-text whitespace-nowrap",
-            compact ? "text-[10px]" : "text-[10.5px]",
+            compact ? "text-xs" : "text-xs",
           ].join(" ")}
         >
           {targetLabel}

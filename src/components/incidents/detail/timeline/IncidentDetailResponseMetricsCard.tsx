@@ -29,7 +29,7 @@ export function IncidentDetailResponseMetricsCard(
       <div className="pb-[14px]">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Response metrics
         </Text>
@@ -40,10 +40,10 @@ export function IncidentDetailResponseMetricsCard(
           key={metric.label}
           className="flex items-center justify-between border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
         >
-          <span className="text-[12px] leading-normal text-[#566072]">
+          <span className="text-sm leading-normal text-ehs-gray">
             {metric.label}
           </span>
-          <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+          <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
             {metric.value}
           </span>
         </div>

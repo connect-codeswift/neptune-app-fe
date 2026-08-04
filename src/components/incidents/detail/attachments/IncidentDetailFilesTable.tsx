@@ -38,11 +38,11 @@ function FilesContent(
       <div className="flex flex-col gap-0.5 pt-0.5">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           All files
         </Text>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           {attachments.length} items
         </span>
       </div>
@@ -66,7 +66,7 @@ function FilesContent(
                 <th
                   key={column.label || `action-${String(index)}`}
                   className={[
-                    "pt-[11px] pb-[11.5px] text-[10px] font-bold tracking-[0.8px] text-[#8892a3] uppercase",
+                    "pt-[11px] pb-[11.5px] text-xs font-bold tracking-wide text-ehs-muted-text uppercase",
                     column.align === "right" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
@@ -80,7 +80,7 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="border-t border-[rgba(15,23,42,0.08)] py-8 text-center text-[12px] text-[#8892a3]"
+                  className="border-t border-[rgba(15,23,42,0.08)] py-8 text-center text-sm text-ehs-muted-text"
                 >
                   No files uploaded.
                 </td>
@@ -103,28 +103,28 @@ function FilesContent(
                 >
                   <td className="py-[14px] pr-3">
                     <div className="flex items-center gap-[10px]">
-                      <div className="flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] text-[#566072]">
+                      <div className="flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] text-ehs-gray">
                         <Icon
                           icon={getFileIcon(item.kind)}
                           className="size-[13px]"
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="max-w-[140px] truncate text-[12px] leading-normal text-[#0b1320]">
+                      <span className="max-w-[140px] truncate text-sm leading-normal text-ehs-dark-bg">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-[14px] pr-3 text-[12px] leading-normal text-[#566072]">
+                  <td className="py-[14px] pr-3 text-sm leading-normal text-ehs-gray">
                     {item.description}
                   </td>
-                  <td className="py-[14px] pr-3 text-[12px] leading-normal whitespace-nowrap text-[#566072]">
+                  <td className="py-[14px] pr-3 text-sm leading-normal whitespace-nowrap text-ehs-gray">
                     {item.sizeLabel}
                   </td>
-                  <td className="py-[14px] pr-3 text-[12px] leading-normal whitespace-nowrap text-[#566072]">
+                  <td className="py-[14px] pr-3 text-sm leading-normal whitespace-nowrap text-ehs-gray">
                     {item.addedBy}
                   </td>
-                  <td className="py-[14px] text-right text-[12px] leading-normal whitespace-nowrap text-[#8892a3]">
+                  <td className="py-[14px] text-right text-sm leading-normal whitespace-nowrap text-ehs-muted-text">
                     {item.time}
                   </td>
                   {isEditing ? (
@@ -135,7 +135,7 @@ function FilesContent(
                           event.stopPropagation();
                           onDeleteFile?.(item);
                         }}
-                        className="inline-flex size-7 items-center justify-center rounded-[8px] text-[#8892a3] transition-colors hover:bg-[rgba(180,35,24,0.1)] hover:text-[#b42318]"
+                        className="inline-flex size-7 items-center justify-center rounded-[8px] text-ehs-muted-text transition-colors hover:bg-ehs-red/10 hover:text-ehs-red"
                         aria-label={`Delete ${item.name}`}
                       >
                         <Icon
@@ -193,7 +193,7 @@ export function IncidentDetailFilesTable(
     <IncidentGlassCard
       paddingClassName="p-[23px]"
       incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-[#0891a6]/25" : ""]
+      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}
     >

@@ -27,7 +27,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-[13px] leading-[19.5px] text-[#475569]"
+      className="block text-sm leading-[19.5px] text-ehs-gray"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -85,7 +85,7 @@ export function EditIncidentDetailsModal(
           onChange={(event) => setDraftSummary(event.target.value)}
           placeholder="Describe what happened…"
           rows={6}
-          className="min-h-[160px] w-full resize-none rounded-xl bg-white px-3.5 py-3 text-[13.5px] leading-5 text-[#1e293b] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-[#94a3b8] focus:ring-2 focus:ring-[#06939b]/25 sm:text-[14px]"
+          className="min-h-[160px] w-full resize-none rounded-xl bg-white px-3.5 py-3 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:text-sm"
         />
       </section>
     </IncidentModalShell>
