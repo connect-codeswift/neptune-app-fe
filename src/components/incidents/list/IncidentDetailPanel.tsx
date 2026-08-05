@@ -19,6 +19,8 @@ import { toast } from "@/lib/toast";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
+  /** Navigates to the full incident detail page (Details tab). */
+  onOpenFullDetail?: () => void;
   /** Sets the incident status to Closed (does not dismiss the sidebar). */
   onCloseIncident?: () => void;
   isClosingIncident?: boolean;
@@ -46,6 +48,7 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const {
     incident,
+    onOpenFullDetail,
     // onCloseIncident,
     // isClosingIncident = false,
     className = "",
@@ -137,12 +140,14 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
 
           <button
             type="button"
-            aria-label="More actions"
-            className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-6 items-center justify-center rounded-md"
+            onClick={onOpenFullDetail}
+            disabled={!onOpenFullDetail}
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
+            Open details
             <Icon
-              icon="mdi:dots-horizontal"
-              className="text-lg"
+              icon="mdi:arrow-right"
+              className="size-3.5"
               aria-hidden="true"
             />
           </button>

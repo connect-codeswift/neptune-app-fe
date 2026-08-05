@@ -4,12 +4,15 @@
  */
 export type CapaDto = {
   id: number;
+  title?: string | null;
   capaType: string;
   priority: string;
   controlLevel: string;
   description: string;
   userId: number;
   incidentId: number;
+  assignedId?: number | null;
+  rcaId?: number | null;
   dueDate?: string | null;
   isDrop?: boolean;
   /** Undocumented / future fields */

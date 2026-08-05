@@ -86,14 +86,14 @@ export function IncidentClosureStepRootCause(
     <div className="flex flex-col gap-5">
       <Text
         as="h2"
-        className="text-lg font-semibold text-ehs-dark-bg"
+        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
       >
         Root Cause Summary
       </Text>
 
       {/* Primary Root Cause */}
       <div className="flex flex-col">
-        <label className="mb-2 text-sm font-bold tracking-[0.08em] text-ehs-muted-text uppercase">
+        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           PRIMARY ROOT CAUSE
         </label>
         <CreatableMultiSelectInput
@@ -113,14 +113,14 @@ export function IncidentClosureStepRootCause(
 
       {/* Contributing Factors */}
       <div className="flex flex-col">
-        <label className="mb-2 text-sm font-bold tracking-[0.08em] text-ehs-muted-text uppercase">
+        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           CONTRIBUTING FACTORS
         </label>
         <div className="relative flex min-h-[46px] flex-wrap items-center gap-2 rounded-[14px] border border-ehs-border bg-white p-2.5 shadow-xs">
           {currentFactors.map((factor) => (
             <span
               key={factor}
-              className="inline-flex items-center gap-1.5 rounded-full bg-ehs-light-blue px-3 py-1 text-sm font-semibold text-ehs-normal-blue"
+              className="inline-flex items-center gap-1.5 rounded-full bg-ehs-light-blue px-3 py-1 text-[13px] font-semibold text-ehs-normal-blue"
             >
               <span>{factor}</span>
               <button
@@ -139,7 +139,7 @@ export function IncidentClosureStepRootCause(
               <button
                 type="button"
                 onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
-                className="inline-flex items-center gap-1 rounded-full border border-dashed border-ehs-normal-blue/40 bg-white px-2.5 py-1 text-sm font-bold text-ehs-normal-blue transition-colors hover:bg-ehs-light-blue/40"
+                className="inline-flex items-center gap-1 rounded-full border border-dashed border-ehs-normal-blue/40 bg-white px-2.5 py-1 text-[13px] font-bold text-ehs-normal-blue transition-colors hover:bg-ehs-light-blue/40"
               >
                 <Icon icon="mdi:plus" className="size-3.5" />
                 <span>Add Factor</span>
@@ -152,7 +152,7 @@ export function IncidentClosureStepRootCause(
                       key={f}
                       type="button"
                       onClick={() => handleAddFactor(f)}
-                      className="w-full rounded-lg px-3 py-1.5 text-left text-sm font-semibold text-ehs-dark-bg hover:bg-ehs-light-blue/40 hover:text-ehs-normal-blue"
+                      className="w-full rounded-lg px-3 py-1.5 text-left text-[13px] font-normal text-ehs-dark-bg hover:bg-ehs-light-blue/40 hover:text-ehs-normal-blue"
                     >
                       {f}
                     </button>
@@ -166,7 +166,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Root Cause Description */}
       <div className="flex flex-col">
-        <label className="mb-2 text-sm font-bold tracking-[0.08em] text-ehs-muted-text uppercase">
+        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
         <textarea
@@ -175,9 +175,9 @@ export function IncidentClosureStepRootCause(
           rows={4}
           maxLength={1000}
           placeholder="Describe the root cause details..."
-          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-sm leading-[20px] font-medium text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-[13px] leading-[20px] font-normal text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
         />
-        <span className="mt-1.5 self-end text-sm font-semibold text-ehs-muted-text">
+        <span className="mt-1.5 self-end text-[11px] font-normal text-ehs-muted-text">
           {`${String(data.rootCauseSummary.length)} / 1000 min`}
         </span>
       </div>

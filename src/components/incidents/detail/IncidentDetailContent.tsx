@@ -11,6 +11,10 @@ import type {
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
+import {
+  createInitialClosureData,
+  resetClosureWizardFields,
+} from "@/components/incidents/detail/closure/closure-form-state";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
@@ -71,6 +75,7 @@ export function IncidentDetailContent(
 
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [showHrca, setShowHrca] = useState(false);
+  const [openAddCapaOnLinkedTab, setOpenAddCapaOnLinkedTab] = useState(false);
   const [previewFile, setPreviewFile] = useState<AttachmentItem | null>(null);
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
@@ -91,72 +96,9 @@ export function IncidentDetailContent(
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
-  const [closureData, setClosureData] = useState<IncidentClosureData>({
-    currentStep: 1,
-    closureStatus: "Pending Checklist",
-    closureId: undefined,
-    closedAt: undefined,
-    closedBy: getAuthDisplayName() || "EHS Lead",
-    closedByRole: "EHS Manager",
-    closureDate: formatShortDateTime(new Date()),
-    durationOpen: "—",
-    finalIncidentType: "Select option",
-    sifClassification: "Not SIF",
-    daysAwayFromWork: 0,
-    daysOnRestrictedDuty: 0,
-    isOshaRecordable: false,
-    oshaOverrideReason: undefined,
-    closureStatement: "",
-    lessonsLearned: "",
-    closureNotes: "",
-    rootCauseSummary: "",
-    primaryRootCauseCategoryIds: [],
-    contributingFactors: [],
-    equipmentProceduresNote: "",
-    actionsTaken: "",
-    preventiveActionSummary: "",
-    closureLinkedCapas: [],
-    capasVerified: false,
-    mfaSigned: false,
-    isEhsConfirmed: false,
-    residualRisk: "Low",
-    verificationChecklist: [
-      {
-        id: "chk-1",
-        label: "Immediate containment & emergency response completed",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-2",
-        label: "Root cause analysis & 5-Why investigation finalized",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-3",
-        label: "Corrective and Preventive Actions (CAPA) assigned",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-4",
-        label: "Regulatory notification & compliance report submitted",
-        completed: false,
-        required: false,
-      },
-      {
-        id: "chk-5",
-        label: "Final EHS Manager closure review & sign-off",
-        completed: false,
-        required: true,
-      },
-    ],
-    approverName: getAuthDisplayName() || "EHS Lead",
-    approverRole: "EHS Manager",
-    approverInitials: initialsFromName(getAuthDisplayName() || "EL"),
-    isApproved: false,
-  });
+  const [closureData, setClosureData] = useState<IncidentClosureData>(() =>
+    createInitialClosureData(),
+  );
   const [editScope, setEditScope] = useState<EditScope | null>(null);
   const openUploadPickerRef = useRef<(() => void) | null>(null);
 
@@ -377,6 +319,22 @@ export function IncidentDetailContent(
     setActiveTab(tab);
     setShowHrca(false);
   };
+
+  const handleNavigateToLinkedCapa = useCallback(
+    (options?: Readonly<{ openAddModal?: boolean }>) => {
+      setOpenAddCapaOnLinkedTab(Boolean(options?.openAddModal));
+      setActiveTab("linked-capa");
+      setShowHrca(false);
+      if (editScope != null) {
+        setEditScope(null);
+      }
+    },
+    [editScope],
+  );
+
+  const handleAddCapaModalOpened = useCallback(() => {
+    setOpenAddCapaOnLinkedTab(false);
+  }, []);
 
   const beginEditDetails = () => {
     if (!detail) {
@@ -694,6 +652,9 @@ export function IncidentDetailContent(
       linkedCapa={linkedCapa}
       isCapaLoading={capaQuery.isPending}
       isCapaSubmitting={createCapaMutation.isPending}
+      openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
+      onAddCapaModalOpened={handleAddCapaModalOpened}
+      onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
       onSubmitCapa={async (payload) => {
         if (!detail) {
           return;
@@ -748,6 +709,18 @@ export function IncidentDetailContent(
               : item,
           ),
         }));
+      }}
+      onCancelClosure={() => {
+        const intakeType = detail?.infoItems?.find((item) =>
+          item.key.toLowerCase().includes("type"),
+        )?.value;
+
+        setClosureData((prev) =>
+          resetClosureWizardFields(prev, {
+            finalIncidentType:
+              intakeType && intakeType !== "—" ? intakeType : "Select option",
+          }),
+        );
       }}
       onSaveClosureDraft={async () => {
         const targetId = detail?.numericId ?? numericId;

@@ -104,6 +104,10 @@ export function mapIncidentClosureDtoToData(
   }
 
   const currentStep = parseStepNumber(dto.currentStep) ?? fallback.currentStep;
+  const maxAccessibleStep = Math.max(
+    currentStep,
+    fallback.maxAccessibleStep ?? 1,
+  ) as IncidentClosureData["maxAccessibleStep"];
   const closureStatus =
     parseClosureStatus(dto.closureStatus) ?? fallback.closureStatus;
 
@@ -119,6 +123,7 @@ export function mapIncidentClosureDtoToData(
 
   return {
     currentStep,
+    maxAccessibleStep,
     closureStatus,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
     closedAt: dto.closedAt ?? fallback.closedAt,
