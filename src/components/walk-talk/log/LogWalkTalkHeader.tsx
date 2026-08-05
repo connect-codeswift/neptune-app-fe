@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
 
 const WALK_TALK_ROUTE = "/dashboard/walk-talk";
 
@@ -49,13 +48,10 @@ export function LogWalkTalkHeader() {
           >
             <Icon icon="mdi:chevron-left" className="size-3.5" />
           </Link>
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-[22px] md:font-semibold"
-          >
+          <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-[22px] md:font-semibold">
             <span className="md:hidden">Log Walk-and-Talk</span>
             <span className="hidden md:inline">Walk-and-Talks</span>
-          </Text>
+          </h1>
         </div>
       </div>
     </div>
