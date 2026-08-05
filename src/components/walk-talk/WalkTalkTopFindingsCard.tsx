@@ -1,4 +1,9 @@
+"use client";
+
+import { useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents";
+import { useWalkTalkTopFindingsQuery } from "@/hooks/use-walk-talk-queries";
+import { toWalkTalkTopFindings } from "@/lib/map-walk-talk";
 import type {
   FindingTone,
   WalkTalkFinding,
@@ -28,7 +33,7 @@ function FindingRow(
       </div>
 
       <span
-        className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.18)]"
+        className="h-2 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.18)]"
         aria-hidden="true"
       >
         <span
@@ -44,12 +49,17 @@ function FindingRow(
 }
 
 export type WalkTalkTopFindingsCardProps = Readonly<{
-  findings: readonly WalkTalkFinding[];
   className?: string;
 }>;
 
 export function WalkTalkTopFindingsCard(props: WalkTalkTopFindingsCardProps) {
-  const { findings, className = "" } = props;
+  const { className = "" } = props;
+  const findingsQuery = useWalkTalkTopFindingsQuery();
+
+  const findings = useMemo(
+    () => toWalkTalkTopFindings(findingsQuery.data?.dataModel),
+    [findingsQuery.data?.dataModel],
+  );
 
   const max = findings.reduce(
     (highest, finding) => Math.max(highest, finding.count),
@@ -67,7 +77,9 @@ export function WalkTalkTopFindingsCard(props: WalkTalkTopFindingsCardProps) {
         <p className="text-ehs-muted-text text-sm">Top categories observed</p>
       </header>
 
-      {findings.length === 0 ? (
+      {findingsQuery.isPending ? (
+        <p className="text-ehs-muted-text text-sm">Loading…</p>
+      ) : findings.length === 0 ? (
         <p className="text-ehs-muted-text text-sm">No findings recorded.</p>
       ) : (
         <ul className="flex flex-col gap-3.5">

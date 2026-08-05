@@ -35,7 +35,7 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-/** Uppercase micro-label above its value. */
+/** Desktop: label above value. */
 function Field(props: Readonly<{ label: string; children: React.ReactNode }>) {
   const { label, children } = props;
 
@@ -49,31 +49,72 @@ function Field(props: Readonly<{ label: string; children: React.ReactNode }>) {
   );
 }
 
+/** Mobile: label left / value right — matches Figma 6415:35096. */
+function InfoRow(
+  props: Readonly<{
+    label: string;
+    value: string;
+    showDivider?: boolean;
+  }>,
+) {
+  const { label, value, showDivider = true } = props;
+
+  return (
+    <div
+      className={[
+        "flex items-center justify-between gap-3 py-2",
+        showDivider ? "border-ehs-border border-b" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <span className="w-30 shrink-0 text-[13px] font-medium text-[#566072]">
+        {label}
+      </span>
+      <span className="text-ehs-dark-bg min-w-0 truncate text-right text-[13px] font-semibold">
+        {value}
+      </span>
+    </div>
+  );
+}
+
 function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
   const { children } = props;
   return (
-    <h2 className="text-ehs-dark-bg text-lg font-bold tracking-[-0.14px]">
+    <h2 className="text-ehs-dark-bg text-base font-bold tracking-[-0.14px] md:text-lg">
       {children}
     </h2>
   );
 }
 
-function ParticipantRow(props: Readonly<{ participant: WalkTalkParticipant }>) {
-  const { participant } = props;
+function ParticipantRow(
+  props: Readonly<{
+    participant: WalkTalkParticipant;
+    showDivider?: boolean;
+  }>,
+) {
+  const { participant, showDivider = false } = props;
 
   return (
-    <li className="flex items-center gap-3">
+    <li
+      className={[
+        "flex items-center gap-3 py-2 md:py-0",
+        showDivider ? "border-ehs-border border-b md:border-b-0" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <span
-        className="bg-ehs-normal-blue/14 text-ehs-dark-blue flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+        className="bg-ehs-normal-blue/14 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold md:size-9 md:text-sm"
         aria-hidden="true"
       >
         {initialsOf(participant.name)}
       </span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg text-base font-bold">
+        <span className="text-ehs-dark-bg text-[13px] font-bold md:text-base">
           {participant.name}
         </span>
-        <span className="text-ehs-muted-text text-base">
+        <span className="text-ehs-muted-text text-[11px] md:text-base">
           {participant.role}
         </span>
       </div>
@@ -82,7 +123,7 @@ function ParticipantRow(props: Readonly<{ participant: WalkTalkParticipant }>) {
 }
 
 const statusClass: Record<WalkTalkActionStatus, string> = {
-  Open: "bg-[rgba(217,119,6,0.14)] text-[#d97706]",
+  Open: "bg-[rgba(8,145,166,0.1)] text-[#0891a6]",
   Closed: "bg-ehs-green/14 text-ehs-green",
   "In Progress": "bg-[rgba(86,96,114,0.14)] text-[#566072]",
 };
@@ -90,23 +131,67 @@ const statusClass: Record<WalkTalkActionStatus, string> = {
 function StatusBadge(props: Readonly<{ status: WalkTalkActionStatus }>) {
   const { status } = props;
   const showChevron = status === "In Progress";
+  const label =
+    status === "Closed" ? "Done" : status === "In Progress" ? "State" : status;
 
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-bold uppercase",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase md:rounded-full md:px-2.5 md:py-1 md:text-sm",
         statusClass[status],
       ].join(" ")}
     >
-      {status === "In Progress" ? "State" : status}
+      {label}
       {showChevron ? (
         <Icon
           icon="mdi:chevron-down"
-          className="size-4 shrink-0"
+          className="size-3.5 shrink-0 md:size-4"
           aria-hidden="true"
         />
       ) : null}
     </span>
+  );
+}
+
+/** Mobile follow-up cards — matches Figma 6415:35142. */
+function FollowUpCards(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
+  const { rows } = props;
+
+  if (rows.length === 0) {
+    return (
+      <p className="text-ehs-muted-text text-sm">No follow-up actions recorded.</p>
+    );
+  }
+
+  return (
+    <ul className="flex flex-col">
+      {rows.map((row, index) => (
+        <li
+          key={`${row.action}-${row.assignedTo}`}
+          className={[
+            "flex flex-col gap-2.5 py-2.5",
+            index < rows.length - 1 ? "border-ehs-border border-b" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <p className="text-ehs-dark-bg text-[13px] font-semibold">
+            {row.action}
+          </p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-ehs-muted-text flex min-w-0 items-center gap-2 text-[11px] font-medium">
+              <span className="truncate">{row.assignedTo}</span>
+              <span
+                className="bg-ehs-muted-text size-1 shrink-0 rounded-full"
+                aria-hidden="true"
+              />
+              <span className="text-[#8892a3] shrink-0">{row.dueDate}</span>
+            </div>
+            <StatusBadge status={row.status} />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -169,12 +254,24 @@ export type WalkTalkDetailContentProps = Readonly<{
 export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
   const { detail } = props;
 
+  const infoFields = [
+    { label: "Observer", value: detail.observer },
+    { label: "Date", value: detail.date },
+    { label: "Time", value: detail.time },
+    { label: "Location", value: detail.location },
+    { label: "Topic / Focus Area", value: detail.topic },
+    { label: "Site", value: detail.site },
+  ] as const;
+
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-      {/* Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+      {/* Header — compact on mobile */}
+      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1">
+          <nav
+            aria-label="Breadcrumb"
+            className="hidden items-center gap-1 overflow-x-auto md:flex"
+          >
             <span className="text-ehs-muted-text text-sm font-medium">
               Safety
             </span>
@@ -188,60 +285,113 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
             </span>
           </nav>
 
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-[22px] font-semibold tracking-[-0.2px]"
-          >
-            Walk-and-Talks
-          </Text>
+          <div className="flex items-center gap-2 md:block">
+            <Link
+              href={WALK_TALK_ROUTE}
+              aria-label="Back to Walk & Talk"
+              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors md:hidden"
+            >
+              <Icon icon="mdi:chevron-left" className="size-3.5" />
+            </Link>
+            <Text
+              as="h1"
+              className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-[22px] md:font-semibold"
+            >
+              <span className="md:hidden">Walk-and-Talk Detail</span>
+              <span className="hidden md:inline">Walk-and-Talks</span>
+            </Text>
+          </div>
         </div>
       </div>
 
-      {/* Session info + notes + follow-ups, with participants rail. */}
-      <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      {/* Stack until lg; participants below on mobile (Figma order). */}
+      <div className="grid min-w-0 items-start gap-3.5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
           <IncidentGlassCard
-            paddingClassName="p-5"
+            paddingClassName="p-4 md:p-5"
             className="min-w-0"
-            incidentGlassCardClassName="gap-1.5"
+            incidentGlassCardClassName="gap-3"
           >
             <SectionTitle>Session Information</SectionTitle>
-            <div className="grid gap-3 sm:grid-cols-2 sm:gap-x-6">
-              <Field label="Observer">{detail.observer}</Field>
-              <Field label="Date">{detail.date}</Field>
-              <Field label="Time">{detail.time}</Field>
-              <Field label="Location">{detail.location}</Field>
-              <Field label="Topic / Focus Area">{detail.topic}</Field>
-              <Field label="Site">{detail.site}</Field>
+
+            {/* Mobile rows */}
+            <div className="flex flex-col md:hidden">
+              {infoFields.map((field, index) => (
+                <InfoRow
+                  key={field.label}
+                  label={field.label}
+                  value={field.value}
+                  showDivider={index < infoFields.length - 1}
+                />
+              ))}
+            </div>
+
+            {/* Desktop grid */}
+            <div className="hidden gap-3 sm:gap-x-6 md:grid md:grid-cols-2">
+              {infoFields.map((field) => (
+                <Field key={field.label} label={field.label}>
+                  {field.value}
+                </Field>
+              ))}
             </div>
           </IncidentGlassCard>
 
+          {/* Participants — mobile order before notes (Figma) */}
           <IncidentGlassCard
-            paddingClassName="p-5"
+            paddingClassName="p-4 md:p-5"
+            className="min-w-0 lg:hidden"
+            incidentGlassCardClassName="gap-3"
+          >
+            <SectionTitle>Participants</SectionTitle>
+            {detail.participants.length === 0 ? (
+              <p className="text-ehs-muted-text text-sm">
+                No participants listed.
+              </p>
+            ) : (
+              <ul className="flex flex-col">
+                {detail.participants.map((participant, index) => (
+                  <ParticipantRow
+                    key={participant.name}
+                    participant={participant}
+                    showDivider={index < detail.participants.length - 1}
+                  />
+                ))}
+              </ul>
+            )}
+          </IncidentGlassCard>
+
+          <IncidentGlassCard
+            paddingClassName="p-4 md:p-5"
             className="min-w-0"
-            incidentGlassCardClassName="gap-1.5"
+            incidentGlassCardClassName="gap-3"
           >
             <SectionTitle>Discussion Notes</SectionTitle>
-            <p className="text-base leading-5.5 text-[#566072]">
+            <p className="text-[13px] leading-5 text-[#0b1320] md:text-base md:leading-5.5 md:text-[#566072]">
               {detail.notes}
             </p>
           </IncidentGlassCard>
 
           <IncidentGlassCard
-            paddingClassName="p-0"
+            paddingClassName="p-4 md:p-0"
             className="min-w-0 overflow-hidden"
-            incidentGlassCardClassName="gap-0"
+            incidentGlassCardClassName="gap-3 md:gap-0"
           >
-            <div className="px-5 pt-5 pb-2">
+            <div className="md:px-5 md:pt-5 md:pb-2">
               <SectionTitle>Follow-Up Actions</SectionTitle>
             </div>
-            <FollowUpTable rows={detail.followUps} />
+            <div className="md:hidden">
+              <FollowUpCards rows={detail.followUps} />
+            </div>
+            <div className="hidden md:block">
+              <FollowUpTable rows={detail.followUps} />
+            </div>
           </IncidentGlassCard>
         </div>
 
+        {/* Desktop participants rail */}
         <IncidentGlassCard
           paddingClassName="p-5"
-          className="min-w-0"
+          className="hidden min-w-0 lg:block"
           incidentGlassCardClassName="gap-4"
         >
           <SectionTitle>Participants</SectionTitle>
@@ -250,7 +400,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
               No participants listed.
             </p>
           ) : (
-            <ul className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:gap-12 xl:gap-4">
+            <ul className="flex flex-col gap-4">
               {detail.participants.map((participant) => (
                 <ParticipantRow
                   key={participant.name}

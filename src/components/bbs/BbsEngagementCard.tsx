@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Area,
   CartesianGrid,
@@ -11,14 +12,14 @@ import {
   YAxis,
 } from "recharts";
 import { IncidentGlassCard } from "@/components/incidents";
-import type { EngagementPoint } from "@/app/dashboard/bbs/bbs-data";
+import {
+  DEFAULT_BBS_GRAPH_WEEKS,
+  useBbsGraphQuery,
+} from "@/hooks/use-bbs-queries";
+import { toBbsEngagementPoints } from "@/lib/map-bbs";
 
 const SAFE_COLOR = "#0891a6";
 const AT_RISK_COLOR = "#ef4444";
-
-/** Fixed domain and ticks, matching the design's scale. */
-const Y_DOMAIN: [number, number] = [0, 18];
-const Y_TICKS = [4, 9, 13, 17];
 
 const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
 
@@ -27,7 +28,7 @@ type TooltipEntry = Readonly<{
   value?: number | string;
 }>;
 
-/** Values live in the tooltip — 16 points can't carry direct labels. */
+/** Values live in the tooltip — dense week series can't carry direct labels. */
 function ChartTooltip(
   props: Readonly<{
     active?: boolean;
@@ -86,13 +87,36 @@ function LegendItem(props: Readonly<{ color: string; label: string }>) {
   );
 }
 
+/** Scale the Y axis to the series peak (min 4), rounded up to a clean step. */
+function toYScale(points: readonly { safe: number; atRisk: number }[]) {
+  const peak = points.reduce(
+    (highest, point) => Math.max(highest, point.safe, point.atRisk),
+    0,
+  );
+  const yMax = Math.max(4, Math.ceil(peak / 4) * 4 || 4);
+  const step = yMax / 4;
+
+  return {
+    domain: [0, yMax] as [number, number],
+    ticks: [step, step * 2, step * 3, yMax],
+  };
+}
+
 export type BbsEngagementCardProps = Readonly<{
-  points: readonly EngagementPoint[];
+  weeks?: number;
   className?: string;
 }>;
 
 export function BbsEngagementCard(props: BbsEngagementCardProps) {
-  const { points, className = "" } = props;
+  const { weeks = DEFAULT_BBS_GRAPH_WEEKS, className = "" } = props;
+  const graphQuery = useBbsGraphQuery(weeks);
+
+  const points = useMemo(
+    () => toBbsEngagementPoints(graphQuery.data?.dataModel),
+    [graphQuery.data?.dataModel],
+  );
+
+  const yScale = useMemo(() => toYScale(points), [points]);
 
   return (
     <IncidentGlassCard
@@ -102,76 +126,84 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
     >
       <header className="flex flex-col gap-0.5">
         <h3 className="text-ehs-dark-bg text-lg font-bold">Engagement</h3>
-        <p className="text-ehs-muted-text text-sm">Sessions logged · 8 weeks</p>
+        <p className="text-ehs-muted-text text-sm">
+          {`Sessions logged · ${String(weeks)} weeks`}
+        </p>
       </header>
 
       {/* Grows to fill the card so it matches the neighbouring card's height. */}
-      <div className="min-h-52 min-w-0 flex-1">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={[...points]}
-            margin={{ top: 8, right: 8, bottom: 0, left: -18 }}
-          >
-            {/* Recessive horizontal rules only. `syncWithTicks` keeps the grid
-                to the ticks — without it Recharts also rules the domain edges,
-                which drew a stray line above the 17 gridline. */}
-            <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
+      <div className="min-h-40 min-w-0 flex-1 sm:min-h-52">
+        {graphQuery.isPending && points.length === 0 ? (
+          <p className="text-ehs-muted-text text-sm">Loading…</p>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={[...points]}
+              margin={{ top: 8, right: 4, bottom: 0, left: -24 }}
+            >
+              {/* Recessive horizontal rules only. `syncWithTicks` keeps the grid
+                  to the ticks — without it Recharts also rules the domain edges,
+                  which drew a stray line above the top gridline. */}
+              <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
 
-            <XAxis
-              dataKey="label"
-              tick={AXIS_TICK}
-              tickLine={false}
-              // The baseline the area sits on — the grid no longer draws it.
-              axisLine={{ stroke: "#e5e7eb" }}
-              tickMargin={10}
-            />
-            <YAxis
-              domain={Y_DOMAIN}
-              ticks={Y_TICKS}
-              tick={AXIS_TICK}
-              tickLine={false}
-              axisLine={false}
-              width={40}
-            />
+              <XAxis
+                dataKey="label"
+                tick={AXIS_TICK}
+                tickLine={false}
+                // The baseline the area sits on — the grid no longer draws it.
+                axisLine={{ stroke: "#e5e7eb" }}
+                tickMargin={10}
+                interval="preserveStartEnd"
+                minTickGap={16}
+              />
+              <YAxis
+                domain={yScale.domain}
+                ticks={yScale.ticks}
+                tick={AXIS_TICK}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+              />
 
-            <Tooltip
-              content={<ChartTooltip />}
-              cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
-            />
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
+              />
 
-            {/* Safe observations carry the area fill, matching the design. */}
-            <Area
-              type="linear"
-              dataKey="safe"
-              stroke={SAFE_COLOR}
-              strokeWidth={2}
-              fill={SAFE_COLOR}
-              fillOpacity={0.08}
-              dot={{
-                r: 4,
-                fill: "#ffffff",
-                stroke: SAFE_COLOR,
-                strokeWidth: 2,
-              }}
-              activeDot={{ r: 5 }}
-              isAnimationActive={false}
-            />
-            <Line
-              type="linear"
-              dataKey="atRisk"
-              stroke={AT_RISK_COLOR}
-              strokeWidth={2}
-              dot={{
-                r: 4,
-                fill: "#ffffff",
-                stroke: AT_RISK_COLOR,
-                strokeWidth: 2,
-              }}
-              activeDot={{ r: 5 }}
-              isAnimationActive={false}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+              {/* Safe observations carry the area fill, matching the design. */}
+              <Area
+                type="linear"
+                dataKey="safe"
+                stroke={SAFE_COLOR}
+                strokeWidth={2}
+                fill={SAFE_COLOR}
+                fillOpacity={0.08}
+                dot={{
+                  r: 4,
+                  fill: "#ffffff",
+                  stroke: SAFE_COLOR,
+                  strokeWidth: 2,
+                }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+              <Line
+                type="linear"
+                dataKey="atRisk"
+                stroke={AT_RISK_COLOR}
+                strokeWidth={2}
+                dot={{
+                  r: 4,
+                  fill: "#ffffff",
+                  stroke: AT_RISK_COLOR,
+                  strokeWidth: 2,
+                }}
+                activeDot={{ r: 5 }}
+                isAnimationActive={false}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-5">

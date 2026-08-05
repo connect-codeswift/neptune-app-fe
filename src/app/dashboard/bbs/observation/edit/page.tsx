@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { ObservationEditContent } from "@/components/bbs/observation/ObservationEditContent";
-import { getObservationDetail } from "../../bbs-data";
+import { toBbsObservationApiId } from "@/hooks/use-bbs-queries";
 
 const BBS_ROUTE = "/dashboard/bbs";
 
@@ -13,9 +13,8 @@ const BBS_ROUTE = "/dashboard/bbs";
 function ObservationEdit() {
   const searchParams = useSearchParams();
   const id = decodeURIComponent(searchParams.get("id") ?? "");
-  const detail = getObservationDetail(id);
 
-  if (!detail) {
+  if (!id || toBbsObservationApiId(id) === null) {
     return (
       <div className="flex flex-1 flex-col items-start gap-2 px-4 pb-8">
         <p className="text-ehs-muted-text text-sm">
@@ -31,7 +30,7 @@ function ObservationEdit() {
     );
   }
 
-  return <ObservationEditContent detail={detail} />;
+  return <ObservationEditContent observationId={id} />;
 }
 
 export default function ObservationEditPage() {

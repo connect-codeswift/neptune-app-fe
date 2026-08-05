@@ -26,7 +26,7 @@ export const EDIT_LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "Plant B - Dispatch", label: "Plant B - Dispatch" },
 ];
 
-/** Behavior categories offered in the edit dropdown. */
+/** Behavior categories offered in the edit dropdown (fallback when API empty). */
 export const EDIT_CATEGORY_OPTIONS: readonly SelectOption[] = [
   { value: "PPE Usage", label: "PPE Usage" },
   { value: "Lifting Technique", label: "Lifting Technique" },
@@ -35,59 +35,93 @@ export const EDIT_CATEGORY_OPTIONS: readonly SelectOption[] = [
   { value: "Pedestrian / FPV", label: "Pedestrian / FPV" },
 ];
 
+function withCurrentOption(
+  options: readonly SelectOption[],
+  current: string,
+): SelectOption[] {
+  const trimmed = current.trim();
+  if (!trimmed) return [...options];
+  if (options.some((option) => option.value === trimmed)) return [...options];
+  return [{ value: trimmed, label: trimmed }, ...options];
+}
+
 /** Observation Information card fields. */
-export const observationInfoSchema: FormSchema = [
-  {
-    type: "text",
-    name: "observer",
-    label: "Observer",
-    required: true,
-    colSpan: 6,
-    placeholder: "Observer name",
-  },
-  {
-    type: "date",
-    name: "date",
-    label: "Date",
-    required: true,
-    colSpan: 6,
-  },
-  {
-    type: "time",
-    name: "time",
-    label: "Time",
-    required: true,
-    colSpan: 6,
-  },
-  {
-    type: "select",
-    name: "location",
-    label: "Location",
-    required: true,
-    colSpan: 6,
-    options: EDIT_LOCATION_OPTIONS,
-    placeholder: "Select a location",
-  },
-  {
-    type: "select",
-    name: "category",
-    label: "Behavior Category",
-    required: true,
-    colSpan: 6,
-    options: EDIT_CATEGORY_OPTIONS,
-    placeholder: "Select a category",
-  },
-  {
-    type: "tiles",
-    name: "type",
-    label: "Observation Type",
-    required: true,
-    colSpan: 6,
-    columns: 2,
-    variant: "segmented",
-    options: EDIT_TYPE_OPTIONS,
-  },
-];
+export function buildObservationInfoSchema(args: {
+  categoryOptions?: readonly SelectOption[];
+  locationOptions?: readonly SelectOption[];
+  currentCategory?: string;
+  currentLocation?: string;
+}): FormSchema {
+  const categoryOptions = withCurrentOption(
+    args.categoryOptions?.length
+      ? args.categoryOptions
+      : EDIT_CATEGORY_OPTIONS,
+    args.currentCategory ?? "",
+  );
+  const locationOptions = withCurrentOption(
+    args.locationOptions?.length
+      ? args.locationOptions
+      : EDIT_LOCATION_OPTIONS,
+    args.currentLocation ?? "",
+  );
+
+  return [
+    {
+      type: "text",
+      name: "observer",
+      label: "Observer",
+      required: true,
+      colSpan: 6,
+      placeholder: "Observer name",
+    },
+    {
+      type: "date",
+      name: "date",
+      label: "Date",
+      required: true,
+      colSpan: 6,
+    },
+    {
+      type: "time",
+      name: "time",
+      label: "Time",
+      required: true,
+      colSpan: 6,
+    },
+    {
+      type: "select",
+      name: "location",
+      label: "Location",
+      required: true,
+      colSpan: 6,
+      options: locationOptions,
+      allowCustom: true,
+      placeholder: "Select a location",
+    },
+    {
+      type: "select",
+      name: "category",
+      label: "Behavior Category",
+      required: true,
+      colSpan: 6,
+      options: categoryOptions,
+      placeholder: "Select a category",
+    },
+    {
+      type: "tiles",
+      name: "type",
+      label: "Observation Type",
+      required: true,
+      colSpan: 6,
+      columns: 2,
+      variant: "segmented",
+      options: EDIT_TYPE_OPTIONS,
+    },
+  ];
+}
+
+/** @deprecated Prefer {@link buildObservationInfoSchema}. */
+export const observationInfoSchema: FormSchema = buildObservationInfoSchema({});
 
 /** Behavior Details card fields. */
 export const observationDetailsSchema: FormSchema = [
@@ -108,6 +142,7 @@ export const observationPhotosSchema: FormSchema = [
     type: "photo",
     name: "photos",
     label: "Photo Evidence",
+    required: true,
     colSpan: 12,
     placeholder: "Tap to add photo",
     helperText: "Drop files here or click to upload",
@@ -124,9 +159,8 @@ export function toObservationEditValues(detail: ObservationDetail): FormValues {
     category: detail.category,
     type: detail.type,
     observed: detail.observed,
-    // Photo field value is a string[] (Cloudinary URLs once uploaded; mock
-    // attachments seed with the file name until real URLs are available).
-    photos: detail.photos.map((photo) => photo.name),
+    // Prefer remote URLs so Save can send photoUrl; fall back to name for mocks.
+    photos: detail.photos.map((photo) => photo.url ?? photo.name),
   };
 }
 
