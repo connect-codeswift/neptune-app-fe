@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# testsprite: tmp/ holds config.json (plaintext login + API key) and mcp.log.
+# Must use forward slashes — git does not treat "\" as a path separator, so the
+# backslash form this tool writes by default never matches anything.
+testsprite_tests/tmp/

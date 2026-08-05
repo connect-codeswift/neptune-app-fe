@@ -100,7 +100,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
   return (
     <header
       className={[
-        "flex flex-col gap-4 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between",
+        "flex flex-col gap-3 px-4 py-4 sm:px-6 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4",
         className,
       ]
         .filter(Boolean)
@@ -118,7 +118,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
         {searchPosition === "start" && showSearch ? searchInput : null}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 lg:justify-end">
         {searchPosition === "end" && showSearch ? searchInput : null}
 
         <button

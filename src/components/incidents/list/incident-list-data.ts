@@ -3,13 +3,6 @@ import type { IncidentRecord } from "@/components/incidents/list/incident-list-t
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
-export const STAGE_FILTERS = [
-  "All",
-  "New",
-  "Investigating",
-  "Corrective",
-  "Closed",
-] as const;
 export const SEVERITY_FILTERS = [
   "All",
   "First Aid",
@@ -50,34 +43,6 @@ export function toApiSeverityFilter(
   }
 
   return severityFilter === "Recordable" ? "recordable" : severityFilter;
-}
-
-/**
- * Translates UI state/stage filters into the `stage` token for GetAllIncidents.
- *
- * Explicit stage selection wins. When only State = Closed is chosen, map to
- * stage "Closed". "Open" cannot be expressed server-side and stays client-only.
- */
-export function toApiStageFilter(
-  stateFilter: string,
-  stageFilter: string,
-): string | undefined {
-  if (stageFilter !== "All") {
-    return stageFilter;
-  }
-
-  if (stateFilter === "Closed") {
-    return "Closed";
-  }
-
-  return undefined;
-}
-
-/** @deprecated Replaced by `toApiStageFilter` after the site-rename API update. */
-export function toApiCaseDispositionFilter(
-  stateFilter: string,
-): string | undefined {
-  return toApiStageFilter(stateFilter, "All");
 }
 
 /** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */

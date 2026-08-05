@@ -13,7 +13,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import {
   IncidentBadge,
   severityTone,
-  stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
@@ -61,11 +60,13 @@ function siteLines(site: string): readonly [string, string?] {
   ];
 }
 
-function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unknown>[] {
+function createIncidentColumns(
+  expanded: boolean,
+): ColumnDef<IncidentRecord, unknown>[] {
   return [
     columnHelper.accessor("id", {
       header: "ID",
-      size: expanded ? 120 : 90,
+      size: expanded ? 110 : 90,
       minSize: 72,
       meta: { align: "left" as const },
       cell: (info) => (
@@ -80,7 +81,7 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
     columnHelper.display({
       id: "incident",
       header: "Incident",
-      size: expanded ? 420 : 220,
+      size: expanded ? 480 : 240,
       minSize: 140,
       meta: { align: "left" as const },
       cell: ({ row }) => (
@@ -102,7 +103,7 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
     }),
     columnHelper.accessor("site", {
       header: "Site",
-      size: expanded ? 160 : 100,
+      size: expanded ? 170 : 110,
       minSize: 80,
       meta: { align: "left" as const },
       cell: (info) => {
@@ -132,18 +133,6 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
           label={info.getValue()}
           tone={severityTone(info.getValue())}
           showDot
-        />
-      ),
-    }),
-    columnHelper.accessor("stage", {
-      header: "Stage",
-      size: expanded ? 150 : 110,
-      minSize: 90,
-      meta: { align: "center" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={stageTone(info.getValue())}
         />
       ),
     }),
