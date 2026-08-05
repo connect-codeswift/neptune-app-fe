@@ -1,14 +1,32 @@
-/** The two rewrite styles offered by the magic button on long-text fields. */
-export type AiTextMode = "paraphrase" | "proofread";
-
 /**
- * Matches backend body for POST /api/Incident/proofread — the route that
- * proxies ChatGPT 5.6 Luna (gpt-5.6-luna). The key never touches the browser:
- * we post the reporter's text to our own API and the backend talks to the
- * model. Deliberately generic (no incident fields) — the same endpoint is
- * reused as-is for NearMiss, Hazard, WalkTalk and BBS.
+ * Request bodies for the two incident AI-assist endpoints.
+ *
+ * Both are suggest-only: neither persists anything, and POST /Incident/incident
+ * is still the only call that saves a record. The API key never touches the
+ * browser — we post the reporter's text to our own API and the backend talks to
+ * the model.
+ *
+ * Caller identity (userId, siteId) and the model id are deliberately absent.
+ * The backend reads identity from the JWT and owns the model choice; sending
+ * either from here would be ignored at best and spoofable at worst.
  */
-export type RewriteTextRequestDto = {
-  /** Required, max 8000 chars. */
+
+/** Body for POST /api/Incident/proofread. */
+export type ProofreadRequestDto = {
+  /** Backend rejects blank, and caps at 8000 characters. */
   text: string;
 };
+
+/** Body for POST /api/Incident/draft-assist. */
+export type IncidentDraftRequestDto = {
+  /** The step 2 description. Required; backend caps at 8000 characters. */
+  description: string;
+  /** Optional step 1 context — these only sharpen the follow-up suggestions. */
+  severity?: string;
+  location?: string;
+  /** ISO-8601 UTC. */
+  incidentAt?: string;
+};
+
+/** Longest text either endpoint accepts, mirroring the backend's [MaxLength]. */
+export const AI_TEXT_MAX_CHARS = 8000;

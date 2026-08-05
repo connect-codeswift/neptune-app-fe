@@ -18,9 +18,17 @@ import {
   WHAT_TREATMENT_GIVEN_OPTIONS,
 } from "@/components/incidents/report/shared/report-treatment";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
-import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
+import type {
+  IncidentDto,
+  IncidentFollowUpDto,
+  PersonDto,
+} from "@/dtos/res/incident-response.dto";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
+
+/** Mirrors the backend's [MaxLength] on each field. */
+const FOLLOW_UP_TEXT_MAX_CHARS = 500;
+const AI_ASSISTED_FIELDS_MAX_CHARS = 200;
 
 /** `""` (unanswered) and `"No"` both map to false. */
 function yes(value: "Yes" | "No" | "" | undefined): boolean {
@@ -175,15 +183,48 @@ function buildOtherNotes(form: ReportIncidentFormState): string {
     parts.push(`Witnesses: ${form.witnesses.trim()}`);
   }
 
-  if (form.suggestedFollowUp.length > 0) {
-    parts.push(`Suggested follow-up: ${form.suggestedFollowUp.join(", ")}`);
-  }
+  // Follow-ups used to be concatenated in here as raw option ids
+  // ("root-cause, sop-review"). They have their own table on the backend now
+  // and travel as `followUps`, so nothing about them belongs in free text.
 
   if (form.gender.trim()) {
     parts.push(`Gender: ${form.gender.trim()}`);
   }
 
   return parts.join("\n");
+}
+
+/**
+ * Every follow-up goes up, checked or not.
+ *
+ * Sending only the checked ones would lose the fact that a human was shown a
+ * suggestion and declined it — which, on an OSHA-relevant record, is exactly
+ * the kind of thing worth being able to answer later.
+ */
+function buildFollowUps(form: ReportIncidentFormState): IncidentFollowUpDto[] {
+  // Always an array, never null. `IncidentDto.FollowUps` is a non-nullable
+  // reference type, so ASP.NET's implicit-required rule rejects a null with
+  // "The FollowUps field is required" — a 400 before the request reaches any
+  // application code. An empty list is the correct way to say "none".
+  return form.followUps
+    .map((item) => ({
+      text: item.text.trim().slice(0, FOLLOW_UP_TEXT_MAX_CHARS),
+      isAiSuggested: item.isAiSuggested,
+      isSelected: item.isSelected,
+    }))
+    .filter((item) => item.text !== "");
+}
+
+/**
+ * Which fields the reporter accepted an AI draft into, as the backend's
+ * comma-separated string. Null when they wrote everything themselves.
+ */
+function buildAiAssistedFields(form: ReportIncidentFormState): string | null {
+  if (form.aiAssistedFields.length === 0) {
+    return null;
+  }
+
+  return form.aiAssistedFields.join(",").slice(0, AI_ASSISTED_FIELDS_MAX_CHARS);
 }
 
 function buildPeople(form: ReportIncidentFormState): PersonDto[] {
@@ -351,7 +392,14 @@ export function mapReportFormToIncidentDto(
     images,
     people: buildPeople(source),
     actionTaken: buildActionTaken(source) || null,
-    otherNotes: buildOtherNotes(source) || null,
+    // `""`, not null: OtherNotes is non-nullable on the backend DTO, so a null
+    // is rejected by model validation as a required field. That was already
+    // true, but follow-ups used to be concatenated in here, which kept it
+    // populated on most reports and hid it. Now that they travel separately,
+    // a report with no witnesses and no gender would 400 on every submit.
+    otherNotes: buildOtherNotes(source),
+    followUps: buildFollowUps(source),
+    aiAssistedFields: buildAiAssistedFields(source),
     isFitForFullDuty: source.isFitForFullDuty.trim() || "N/A",
     caseDisposition:
       optionLabel(CASE_DISPOSITION_OPTIONS, source.caseDisposition) ||
