@@ -47,6 +47,7 @@ import type {
   IncidentDetailViewModel,
   IncidentInvestigationView,
 } from "@/services/mappers/incident-detail.mapper";
+import type { RcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailViewProps = Readonly<{
   displayId: string;
@@ -64,6 +65,12 @@ export type IncidentDetailViewProps = Readonly<{
 
   detail: IncidentDetailViewModel | null;
   investigation: IncidentInvestigationView;
+  rcaInvestigationPreview: RcaInvestigationPreview | null;
+  isRcaInvestigationLoading: boolean;
+  rcaInvestigationError: string | null;
+  onRetryRca: () => void;
+  incidentNumericId: number | null;
+  hrcaQueryEnabled: boolean;
   showHrca: boolean;
   onOpenHrca: () => void;
   onCloseHrca: () => void;
@@ -159,6 +166,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onRetry,
     detail,
     investigation,
+    rcaInvestigationPreview,
+    isRcaInvestigationLoading,
+    rcaInvestigationError,
+    onRetryRca,
+    incidentNumericId,
+    hrcaQueryEnabled,
     showHrca,
     onOpenHrca,
     onCloseHrca,
@@ -451,29 +464,41 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "investigation" &&
-              (showHrca ? (
+              (showHrca && incidentNumericId != null ? (
                 <IncidentDetailHrcaBoard
+                  incidentId={incidentNumericId}
+                  queryEnabled={hrcaQueryEnabled}
                   onClose={onCloseHrca}
                   meta={investigation.hrcaMeta}
-                  initialRows={investigation.hrcaRows}
                   incidentLabel={displayId}
                 />
+              ) : showHrca ? (
+                <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-sm">
+                  Sign in and open a valid incident to load the HRCA worksheet.
+                </div>
               ) : (
                 <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                   <IncidentDetailInvestigationCard
-                    whyChain={investigation.whyChain}
-                    contributingFactors={investigation.hrcaRows.map((row) => ({
-                      category: row.category,
-                      text: row.contributingFactor,
-                      accent: row.accent,
-                    }))}
-                    methodLine={investigation.methodLine}
-                    statusLabel={investigation.statusLabel}
+                    whyChain={rcaInvestigationPreview?.whyChain ?? []}
+                    contributingFactors={
+                      rcaInvestigationPreview?.contributingFactors ?? []
+                    }
+                    methodLine={
+                      rcaInvestigationPreview?.methodLine ??
+                      investigation.methodLine
+                    }
+                    statusLabel={
+                      rcaInvestigationPreview?.statusLabel ?? "Not started"
+                    }
+                    isLoading={isRcaInvestigationLoading}
+                    errorMessage={rcaInvestigationError}
+                    onRetry={onRetryRca}
                     onOpenHrca={onOpenHrca}
                   />
                   <div className="flex flex-col gap-[14px]">
                     <IncidentDetailInvestigationStatusCard
-                      steps={investigation.statusSteps}
+                      steps={rcaInvestigationPreview?.statusSteps ?? []}
+                      isLoading={isRcaInvestigationLoading}
                     />
                     <IncidentDetailSignOffCard
                       signoffs={investigation.signoffs}

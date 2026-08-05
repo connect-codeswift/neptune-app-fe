@@ -1,17 +1,27 @@
 export type HrcaWhyStep = Readonly<{
+  /** Persisted why id from GET /api/Rca/Incident/{id}. */
+  id?: number;
   num: number;
   text: string;
   isRootCause?: boolean;
 }>;
 
+export type HrcaCorrectiveAction = Readonly<{
+  /** Persisted corrective action id from GET /api/Rca/Incident/{id}. */
+  id?: number;
+  text: string;
+}>;
+
 export type HrcaRow = Readonly<{
   id: string;
+  categoryId: number;
   category: string;
   /** Accent used for CF labels, Why badges, root-cause ring */
   accent: string;
+  contributingFactorId: number | null;
   contributingFactor: string;
   whys: readonly HrcaWhyStep[];
-  correctiveActions: readonly string[];
+  correctiveActions: readonly HrcaCorrectiveAction[];
 }>;
 
 export type HrcaMeta = Readonly<{
@@ -31,9 +41,11 @@ export const HRCA_META: HrcaMeta = {
 
 export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
   {
-    id: "process",
+    id: "1",
+    categoryId: 1,
     category: "Process / Procedures",
     accent: "#e6932e",
+    contributingFactorId: null,
     contributingFactor:
       "The process was in place, but there was a lack of training because the employee was a new hire.",
     whys: [
@@ -48,14 +60,16 @@ export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
       },
     ],
     correctiveActions: [
-      "Review and update the JHA & JSA for coil band-cutting tasks.",
-      "Create a standardized coil band-cutting procedure.",
+      { text: "Review and update the JHA & JSA for coil band-cutting tasks." },
+      { text: "Create a standardized coil band-cutting procedure." },
     ],
   },
   {
-    id: "behaviors",
+    id: "2",
+    categoryId: 2,
     category: "Behaviors",
     accent: "#e0413b",
+    contributingFactorId: null,
     contributingFactor:
       "Employee did not choose to use the pneumatic band cutter.",
     whys: [
@@ -70,14 +84,16 @@ export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
       },
     ],
     correctiveActions: [
-      "Conduct a safety stand-down focused on stored-energy hazards.",
-      "Provide refresher training on safe coil handling.",
+      { text: "Conduct a safety stand-down focused on stored-energy hazards." },
+      { text: "Provide refresher training on safe coil handling." },
     ],
   },
   {
-    id: "competency",
+    id: "3",
+    categoryId: 3,
     category: "Competency / Skills",
     accent: "#7c8794",
+    contributingFactorId: null,
     contributingFactor:
       "Training did not emphasize previous serious-injury events and did not cover the JSA.",
     whys: [
@@ -101,13 +117,17 @@ export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
       },
     ],
     correctiveActions: [
-      "Review previous SI injuries on the Zee Line with new hires during onboarding.",
+      {
+        text: "Review previous SI injuries on the Zee Line with new hires during onboarding.",
+      },
     ],
   },
   {
-    id: "equipment",
+    id: "4",
+    categoryId: 4,
     category: "Equipment",
     accent: "#2f7fd1",
+    contributingFactorId: null,
     contributingFactor:
       "The available pneumatic cutter was not used during coil band-cutting.",
     whys: [
@@ -130,13 +150,17 @@ export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
       },
     ],
     correctiveActions: [
-      "Update the JHA & JSA to require the pneumatic cutter for coil band-cutting, machine-specific.",
+      {
+        text: "Update the JHA & JSA to require the pneumatic cutter for coil band-cutting, machine-specific.",
+      },
     ],
   },
   {
-    id: "ppe",
+    id: "5",
+    categoryId: 5,
     category: "PPE",
     accent: "#d4a017",
+    contributingFactorId: null,
     contributingFactor:
       "Eye / face protection was not enforced for the band-cutting task.",
     whys: [
@@ -151,7 +175,9 @@ export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [
       },
     ],
     correctiveActions: [
-      "Add face shield / impact eye protection to the PPE requirements for coil band-cutting.",
+      {
+        text: "Add face shield / impact eye protection to the PPE requirements for coil band-cutting.",
+      },
     ],
   },
 ];

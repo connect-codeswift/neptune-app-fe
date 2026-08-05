@@ -17,4 +17,6 @@ export {
   HRCA_META,
   INITIAL_HRCA_ROWS,
   markRootCauses,
+  type HrcaCorrectiveAction,
+  type HrcaMeta,
 } from "./hrca-data";

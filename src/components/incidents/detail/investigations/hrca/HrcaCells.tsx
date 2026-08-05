@@ -2,7 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import type { HrcaWhyStep } from "@/components/incidents/detail/investigations/hrca/hrca-data";
+import type {
+  HrcaCorrectiveAction,
+  HrcaWhyStep,
+} from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
 function hexToRgba(hex: string, alpha: number) {
   const value = hex.replace("#", "");
@@ -201,7 +204,7 @@ export function HrcaWhyCell(
 
 export function HrcaCorrectiveActionsCell(
   props: Readonly<{
-    actions: readonly string[];
+    actions: readonly HrcaCorrectiveAction[];
     onAdd: () => void;
     onRemove: (index: number) => void;
   }>,
@@ -215,12 +218,15 @@ export function HrcaCorrectiveActionsCell(
       </p>
       <div className="flex w-full flex-1 flex-col gap-2">
         {actions.map((action, index) => (
-          <div key={`${action}-${index}`} className="group flex items-start gap-2">
+          <div
+            key={action.id ?? `${action.text}-${index}`}
+            className="group flex items-start gap-2"
+          >
             <span className="mt-px flex size-[17px] shrink-0 items-center justify-center rounded-[5px] text-ehs-green">
               <Icon icon="mdi:check" className="size-[11px]" aria-hidden="true" />
             </span>
             <p className="min-w-0 flex-1 text-[11.8px] leading-[17.4px] font-normal text-ehs-slate">
-              {action}
+              {action.text}
             </p>
             <button
               type="button"
