@@ -4,6 +4,7 @@ import type {
   HierarchyControlRow,
 } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { IncidentLinkedItem } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
+import type { IncidentCapa } from "@/components/incidents/list/incident-list-types";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -172,6 +173,7 @@ export function mapCapaDtoToItem(
     title: dto.title?.trim() || dto.description.trim(),
     assignee: resolveAssignee(dto, options),
     dueDate: formatDueDate(dto.dueDate),
+    priority: dto.priority?.trim() || "Medium",
     progressPercent,
   };
 }
@@ -244,6 +246,22 @@ export function mapCapaItemsToLinkedItems(
       item.actionType === "Preventive"
         ? "mdi:shield-check-outline"
         : "mdi:clipboard-check-outline",
+  }));
+}
+
+/** Maps linked CAPA view items for the incident list sidebar panel. */
+export function mapCapaItemsToIncidentCapas(
+  items: readonly CapaItem[],
+): readonly IncidentCapa[] {
+  return items.map((item) => ({
+    id: item.code,
+    hierarchy: item.controlCategory,
+    status: item.status,
+    priority: item.priority,
+    description: item.title,
+    assignee: item.assignee,
+    dueDate: item.dueDate,
+    type: item.actionType,
   }));
 }
 

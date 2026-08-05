@@ -9,7 +9,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   HrcaCategoryCell,
   HrcaContributingFactorCell,
@@ -17,6 +16,10 @@ import {
   HrcaWhyCell,
 } from "@/components/incidents/detail/investigations/hrca/HrcaCells";
 import type { HrcaRow } from "@/components/incidents/detail/investigations/hrca/hrca-data";
+import {
+  HRCA_TABLE_MIN_WIDTH_PX,
+  hrcaDesktopGridClass,
+} from "@/components/incidents/detail/investigations/hrca/hrca-layout";
 
 export type HrcaTableHandlers = Readonly<{
   onEditFactor: (rowId: string, current: string) => void;
@@ -24,6 +27,7 @@ export type HrcaTableHandlers = Readonly<{
   onRemoveWhy: (rowId: string, whyIndex: number) => void;
   onAddWhy: (rowId: string) => void;
   onAddAction: (rowId: string) => void;
+  onEditAction: (rowId: string, actionIndex: number, current: string) => void;
   onRemoveAction: (rowId: string, actionIndex: number) => void;
 }>;
 
@@ -35,20 +39,16 @@ export type HrcaTableProps = Readonly<{
 
 const columnHelper = createColumnHelper<HrcaRow>();
 
-/** Matches Figma grid: 136px | 1.2fr | 5×1fr | 1.35fr */
-const gridColsClass =
-  "grid grid-cols-[136px_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)] gap-x-2.5";
-
 function WhyHeader(props: Readonly<{ step: number }>) {
   const { step } = props;
   return (
     <div className="flex h-[35px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[11px] py-[9px]">
-      <span className="inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] bg-ehs-slate text-xs font-bold tracking-[0.23px] text-ehs-light-bg">
+      <span className="bg-ehs-slate inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] text-[10px] font-bold tracking-[0.23px] text-[#f3f5f8]">
         {String(step)}
       </span>
       <Text
         as="span"
-        className="text-sm font-bold tracking-[0.23px] text-ehs-gray"
+        className="text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#566072]"
       >
         Why?
       </Text>
@@ -66,7 +66,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         header: () => (
           <Text
             as="span"
-            className="text-ehs-muted-text pl-1 text-xs font-bold tracking-[0.84px] uppercase"
+            className="text-ehs-muted-text pl-1 text-[10.5px] leading-none font-bold tracking-[0.84px] uppercase"
           >
             Category
           </Text>
@@ -76,10 +76,10 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("contributingFactor", {
         id: "contributingFactor",
         header: () => (
-          <div className="flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-ehs-normal-blue/13 px-[11px] py-[9px]">
+          <div className="bg-ehs-normal-blue/13 my-[2px] flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] px-[11px] py-[9px]">
             <Text
               as="span"
-              className="text-center text-sm font-bold tracking-[0.23px] text-ehs-dark-blue"
+              className="text-center text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#056e7e]"
             >
               Contributing factor
             </Text>
@@ -123,15 +123,15 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("correctiveActions", {
         id: "correctiveActions",
         header: () => (
-          <div className="flex h-[31px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-ehs-green-bg-light px-[11px] py-[9px]">
+          <div className="my-[2px] flex h-[31px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-[11px] py-[9px]">
             <Icon
               icon="mdi:check"
-              className="size-3 text-ehs-green"
+              className="size-3 text-[#10b981]"
               aria-hidden="true"
             />
             <Text
               as="span"
-              className="text-center text-sm font-bold tracking-[0.23px] text-ehs-green"
+              className="text-center text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#10b981]"
             >
               Corrective actions
             </Text>
@@ -141,6 +141,9 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
           <HrcaCorrectiveActionsCell
             actions={info.getValue()}
             onAdd={() => handlers.onAddAction(info.row.original.id)}
+            onEdit={(actionIndex, current) =>
+              handlers.onEditAction(info.row.original.id, actionIndex, current)
+            }
             onRemove={(actionIndex) =>
               handlers.onRemoveAction(info.row.original.id, actionIndex)
             }
@@ -158,16 +161,25 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
   });
 
   return (
-    <IncidentGlassCard
-      paddingClassName="overflow-hidden p-[17px]"
-      className={className}
+    <article
+      className={[
+        "relative overflow-hidden rounded-[20px] border border-white/90 bg-white/62 p-[17px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div className="w-full overflow-x-auto">
-        <div className="flex min-w-[1500px] flex-col gap-2.5">
+      <div className="relative z-1 w-full overflow-x-auto overscroll-x-contain">
+        <div
+          className="flex flex-col gap-[10px]"
+          style={{ minWidth: `${String(HRCA_TABLE_MIN_WIDTH_PX)}px` }}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className={[gridColsClass, "h-[35px] items-center"].join(" ")}
+              className={[hrcaDesktopGridClass, "h-[35px] items-center"].join(
+                " ",
+              )}
             >
               {headerGroup.headers.map((header) => (
                 <div
@@ -175,7 +187,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
                   className={[
                     "flex items-center",
                     header.column.id === "category"
-                      ? "justify-start"
+                      ? "sticky left-0 z-20 justify-start pr-1"
                       : "justify-center",
                   ].join(" ")}
                 >
@@ -194,12 +206,18 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
             {table.getRowModel().rows.map((row) => (
               <div
                 key={row.id}
-                className={[gridColsClass, "min-h-[128px] items-stretch"].join(
-                  " ",
-                )}
+                className={[hrcaDesktopGridClass, "items-stretch"].join(" ")}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <div key={cell.id} className="min-w-0">
+                  <div
+                    key={cell.id}
+                    className={[
+                      "min-w-0",
+                      cell.column.id === "category"
+                        ? "sticky left-0 z-10 bg-[rgba(255,255,255,0.95)] backdrop-blur-sm"
+                        : "",
+                    ].join(" ")}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 ))}
@@ -208,6 +226,6 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
           </div>
         </div>
       </div>
-    </IncidentGlassCard>
+    </article>
   );
 }

@@ -768,8 +768,10 @@ function buildHrcaRows(incident: IncidentDto): readonly HrcaRow[] {
   return [
     {
       id: "recorded-factors",
+      categoryId: 0,
       category: "Recorded factors",
       accent: "#0891a6",
+      contributingFactorId: null,
       contributingFactor:
         factorParts.join(" · ") ||
         incident.natureOfInjury?.trim() ||
@@ -783,7 +785,7 @@ function buildHrcaRows(incident: IncidentDto): readonly HrcaRow[] {
                 text: "Click to define Why 1 analysis detail...",
               },
             ]),
-      correctiveActions: actions,
+      correctiveActions: actions.map((text) => ({ text })),
     },
   ];
 }

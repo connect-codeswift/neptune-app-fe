@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AttachmentItem,
   IncidentClosureData,
@@ -27,6 +27,7 @@ import {
   useIncidentByIdQuery,
   useIncidentClosureQuery,
 } from "@/hooks/use-incident-queries";
+import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
@@ -44,6 +45,9 @@ import {
   parseIncidentRouteId,
 } from "@/services/mappers/incident-detail.mapper";
 import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
+import {
+  buildRcaInvestigationPreview,
+} from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
   /** Route param: numeric id or `INC-{id}`. */
@@ -137,8 +141,43 @@ export function IncidentDetailContent(
       hasToken &&
       (detail?.numericId != null || numericId != null),
   });
+  const rcaIncidentId = detail?.numericId ?? numericId;
+  const rcaQueryEnabled =
+    isClientReady &&
+    hasToken &&
+    rcaIncidentId != null &&
+    rcaIncidentId > 0 &&
+    (activeTab === "investigation" || showHrca);
+  const rcaQuery = useRcaByIncidentQuery({
+    incidentId: rcaIncidentId,
+    enabled: rcaQueryEnabled,
+  });
   const linkedCapa = capaQuery.data ?? EMPTY_LINKED_CAPA_VIEW;
   const investigation = detail?.investigation ?? EMPTY_INCIDENT_INVESTIGATION;
+  const rcaInvestigationPreview = useMemo(() => {
+    if (!rcaQuery.data) {
+      return null;
+    }
+
+    return buildRcaInvestigationPreview(rcaQuery.data.lanes, {
+      ledBy: investigation.ledBy,
+      isClosed: detail?.isClosed ?? false,
+      attachmentCount: attachments.length,
+      witnessCount: witnesses.length,
+      capaCount: linkedCapa.items.length,
+    });
+  }, [
+    attachments.length,
+    detail?.isClosed,
+    investigation.ledBy,
+    linkedCapa.items.length,
+    rcaQuery.data,
+    witnesses.length,
+  ]);
+  const rcaInvestigationError =
+    rcaQueryEnabled && rcaQuery.isError
+      ? getMutationErrorMessage(rcaQuery.error, "Failed to load RCA data.")
+      : null;
   const displayId =
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
@@ -540,6 +579,16 @@ export function IncidentDetailContent(
       }}
       detail={detail}
       investigation={investigation}
+      rcaInvestigationPreview={rcaInvestigationPreview}
+      isRcaInvestigationLoading={
+        rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
+      }
+      rcaInvestigationError={rcaInvestigationError}
+      onRetryRca={() => {
+        void rcaQuery.refetch();
+      }}
+      incidentNumericId={rcaIncidentId}
+      hrcaQueryEnabled={rcaQueryEnabled}
       showHrca={showHrca}
       onOpenHrca={() => setShowHrca(true)}
       onCloseHrca={() => setShowHrca(false)}

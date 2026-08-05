@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-// import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -16,7 +15,10 @@ import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
+import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
+import { mapCapaItemsToIncidentCapas } from "@/services/mappers/capa.mapper";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
@@ -47,12 +49,22 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const {
     incident,
-    // onCloseIncident,
-    // isClosingIncident = false,
     className = "",
   } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
   const createCapaMutation = useCreateCapaMutation();
+  const accessTokenState = useHasAccessToken();
+  const hasToken = accessTokenState === true;
+
+  const capaQuery = useCapasByIncidentQuery({
+    incidentId: incident?.numericId ?? null,
+    enabled: hasToken && (incident?.numericId ?? 0) > 0,
+  });
+
+  const capas = useMemo(
+    () => mapCapaItemsToIncidentCapas(capaQuery.data?.items ?? []),
+    [capaQuery.data?.items],
+  );
 
   if (!incident) {
     return (
@@ -71,7 +83,6 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
     );
   }
 
-  // Same CAPA creation path the detail page uses (IncidentDetailContent).
   const handleSubmitCapa = async (
     payload: Readonly<{
       controlLevel: string;
@@ -101,7 +112,6 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         "Could not create CAPA",
         getMutationErrorMessage(error, "Please try again."),
       );
-      // Rethrow so AddCapaModal keeps itself open for a retry.
       throw error;
     }
   };
@@ -164,10 +174,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           )}
         </div>
 
-        <Text
-          as="h2"
-          className="text-ehs-darker text-lg font-bold"
-        >
+        <Text as="h2" className="text-ehs-darker text-lg font-bold">
           {incident.title}
         </Text>
         <Text
@@ -203,127 +210,79 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             as="p"
             className="text-ehs-muted-text text-sm font-semibold tracking-wide uppercase"
           >
-            {`Corrective actions · ${String(incident.capas.length)}`}
+            {capaQuery.isPending
+              ? "Corrective actions · …"
+              : `Corrective actions · ${String(capas.length)}`}
           </Text>
           <button
             type="button"
             onClick={() => setIsAddCapaOpen(true)}
-            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1 text-sm font-semibold"
+            disabled={incident.numericId <= 0}
+            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
             Add CAPA
           </button>
         </div>
 
-        {incident.capas.length === 0 ? (
+        {capaQuery.isPending ? (
+          <Text as="p" className="text-ehs-muted-text text-sm">
+            Loading linked CAPAs…
+          </Text>
+        ) : capaQuery.isError ? (
+          <Text as="p" className="text-ehs-red text-sm">
+            Could not load linked CAPAs.
+          </Text>
+        ) : capas.length === 0 ? (
           <Text as="p" className="text-ehs-muted-text text-sm">
             No linked CAPAs yet.
           </Text>
         ) : (
-          incident.capas.map((capa) => (
-            <div
-              key={capa.id}
-              className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
-            >
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <Text
-                  as="span"
-                  className="text-ehs-muted-text text-sm font-semibold"
-                >
-                  {capa.id}
-                </Text>
-                <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
-                <IncidentBadge label={capa.status} tone="muted" />
-                <IncidentBadge label={capa.priority} tone="neutral" />
-              </div>
-              <Text
-                as="p"
-                className="text-ehs-darker text-sm leading-[17px]"
+          <div className="flex flex-col gap-2.5">
+            {capas.map((capa) => (
+              <div
+                key={capa.id}
+                className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
               >
-                {capa.description}
-              </Text>
-              <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-sm">
-                <span className="inline-flex items-center gap-1">
-                  <Icon
-                    icon="mdi:account-outline"
-                    className="text-xs"
-                    aria-hidden="true"
-                  />
-                  {capa.assignee}
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <Icon
-                    icon="mdi:calendar-outline"
-                    className="text-xs"
-                    aria-hidden="true"
-                  />
-                  {capa.dueDate}
-                </span>
-                <span>· {capa.type}</span>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <Text
+                    as="span"
+                    className="text-ehs-muted-text text-sm font-semibold"
+                  >
+                    {capa.id}
+                  </Text>
+                  <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
+                  <IncidentBadge label={capa.status} tone="muted" />
+                  <IncidentBadge label={capa.priority} tone="neutral" />
+                </div>
+                <Text as="p" className="text-ehs-darker text-sm leading-[17px]">
+                  {capa.description}
+                </Text>
+                <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-sm">
+                  <span className="inline-flex items-center gap-1">
+                    <Icon
+                      icon="mdi:account-outline"
+                      className="text-xs"
+                      aria-hidden="true"
+                    />
+                    {capa.assignee}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Icon
+                      icon="mdi:calendar-outline"
+                      className="text-xs"
+                      aria-hidden="true"
+                    />
+                    {capa.dueDate}
+                  </span>
+                  <span>· {capa.type}</span>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Temporarily hidden — Close Incident / Open HRCA / Add CAPA
-      <div className="border-ehs-border flex min-w-0 flex-nowrap items-center gap-1.5 border-t px-3 py-3 sm:gap-2 sm:px-5">
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onCloseIncident}
-          disabled={
-            isClosingIncident ||
-            incident.state === "Closed" ||
-            incident.stage === "Closed"
-          }
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap disabled:opacity-50 sm:px-3 sm:text-sm"
-        >
-          <Icon
-            icon={
-              incident.state === "Closed" || incident.stage === "Closed"
-                ? "mdi:lock-check-outline"
-                : "mdi:check"
-            }
-            className="size-3.5 shrink-0 sm:size-4"
-            aria-hidden="true"
-          />
-          <span className="truncate">
-            {isClosingIncident
-              ? "Closing…"
-              : incident.state === "Closed" || incident.stage === "Closed"
-                ? "Closed"
-                : "Close incident"}
-          </span>
-        </Button>
-        <Button
-          type="button"
-          variant="tertiary"
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap sm:px-3 sm:text-sm"
-        >
-          <Icon
-            icon="mdi:cog-outline"
-            className="size-3.5 shrink-0 sm:size-4"
-            aria-hidden="true"
-          />
-          <span className="truncate">Open HRCA</span>
-        </Button>
-        <Button
-          type="button"
-          variant="tertiary"
-          onClick={() => setIsAddCapaOpen(true)}
-          className="min-w-0 flex-1 justify-center gap-1 rounded-lg px-2 py-2 text-sm whitespace-nowrap sm:px-3 sm:text-sm"
-        >
-          <Icon
-            icon="mdi:plus"
-            className="size-3.5 shrink-0 sm:size-4"
-            aria-hidden="true"
-          />
-          <span className="truncate">Add CAPA</span>
-        </Button>
-      </div>
-      
-*/}
       {isAddCapaOpen ? (
         <AddCapaModal
           incidentId={incident.id}

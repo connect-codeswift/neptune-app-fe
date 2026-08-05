@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import {
   createColumnHelper,
   flexRender,
@@ -27,10 +27,11 @@ export type IncidentListTableProps<
   /** Column defs for `data`. Defaults to incident columns when using `incidents`. */
   columns?: ColumnDef<TData, unknown>[];
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  /** Row selection for generic tables (e.g. policy documents). */
+  onSelect?: (id: string) => void;
   /** Opens the preview panel for the selected incident. */
   onViewMore?: (id: string) => void;
-  /** Opens the full detail page (second click on the selected row). */
+  /** Opens the full detail page (second click on a selected generic row). */
   onOpenDetail?: (id: string) => void;
   /** When true (detail panel closed), columns and text use a wider layout */
   expanded?: boolean;
@@ -212,7 +213,13 @@ export function IncidentListTable<
   } = props;
 
   const resolvedData = (data ?? incidents ?? []) as TData[];
-  const handleViewMore = onViewMore ?? onOpenDetail ?? onSelect;
+  const isIncidentTable = columnsProp == null;
+  const handleViewMore = useCallback(
+    (id: string) => {
+      onViewMore?.(id);
+    },
+    [onViewMore],
+  );
 
   const columns = useMemo(() => {
     if (columnsProp) {
@@ -309,30 +316,39 @@ export function IncidentListTable<
             ) : (
               table.getRowModel().rows.map((row) => {
                 const isSelected = selectedId === row.original.id;
+                const handleRowClick =
+                  isIncidentTable || !onSelect
+                    ? undefined
+                    : () => {
+                        if (isSelected && onOpenDetail) {
+                          onOpenDetail(row.original.id);
+                          return;
+                        }
+                        onSelect(row.original.id);
+                      };
 
                 return (
                   <tr
                     key={row.id}
-                    onClick={() => {
-                      if (isSelected && onOpenDetail) {
-                        onOpenDetail(row.original.id);
-                        return;
-                      }
-                      onSelect(row.original.id);
-                    }}
+                    onClick={handleRowClick}
                     title={
-                      onOpenDetail
+                      handleRowClick && onOpenDetail
                         ? isSelected
                           ? "Click again to open details"
                           : "Click to preview"
                         : undefined
                     }
                     className={[
-                      "cursor-pointer border-t border-[rgba(15,23,42,0.08)] transition-colors",
+                      handleRowClick ? "cursor-pointer" : "",
+                      "border-t border-[rgba(15,23,42,0.08)] transition-colors",
                       isSelected
                         ? "bg-ehs-normal-blue/18"
-                        : "hover:bg-ehs-light-bg/70",
-                    ].join(" ")}
+                        : handleRowClick
+                          ? "hover:bg-ehs-light-bg/70"
+                          : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
                       const align = cell.column.columnDef.meta?.align;

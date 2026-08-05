@@ -38,7 +38,7 @@ export function IncidentClosureStepRootCause(
   const createRcaCategoryMutation = useCreateRcaCategoryMutation();
 
   const rcaCategoryOptions: SelectOption[] = (
-    rcaCategoriesQuery.data ?? []
+    rcaCategoriesQuery.data?.all ?? []
   ).map((category) => ({
     value: String(category.id),
     label: category.name,
