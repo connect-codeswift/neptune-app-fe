@@ -14,7 +14,7 @@ export function IncidentsListPageClient() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 sm:px-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 sm:px-6">
         <IncidentViewTabs />
         <IncidentListViewClient searchQuery={searchQuery} />
       </div>

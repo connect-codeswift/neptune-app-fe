@@ -14,7 +14,7 @@ export const IncidentListViewClient = dynamic(
     // Mirrors IncidentListView's own layout (KPI row, filter bar, table) so the
     // page doesn't reflow when the chunk arrives.
     loading: () => (
-      <SkeletonListPage kpis={4} filters={3} rows={8} columns={7} />
+      <SkeletonListPage kpis={4} filters={2} rows={8} columns={5} />
     ),
   },
 );
