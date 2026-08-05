@@ -125,7 +125,7 @@ export function IncidentClosureStepClassification(
     <div className="flex flex-col gap-[18px]">
       <Text
         as="h2"
-        className="text-base leading-tight font-bold text-ehs-dark-bg"
+        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
       >
         Closure Classification
       </Text>
@@ -134,7 +134,7 @@ export function IncidentClosureStepClassification(
       {isFatality && (
         <div className="flex items-start gap-3 rounded-[10px] border border-ehs-red/30 bg-ehs-red/10 p-3 text-ehs-red">
           <Icon icon="mdi:alert-circle" className="mt-0.5 size-5 shrink-0 text-ehs-red" />
-          <div className="flex flex-col text-sm font-medium leading-relaxed">
+          <div className="flex flex-col text-[13px] font-normal leading-relaxed">
             <span className="font-bold text-ehs-red">
               Regulatory Action Required (OSHA 8-Hour Reporting)
             </span>
@@ -150,7 +150,7 @@ export function IncidentClosureStepClassification(
         <div className="flex flex-col gap-6 sm:flex-row">
           {/* Final Incident Type */}
           <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-sm font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               Final Incident Type
             </label>
             <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
@@ -158,7 +158,7 @@ export function IncidentClosureStepClassification(
                 value={selectedIncidentType}
                 onChange={(e) => handleIncidentTypeChange(e.target.value)}
                 className={[
-                  "w-full appearance-none bg-transparent pr-6 text-sm font-normal outline-none",
+                  "w-full appearance-none bg-transparent pr-6 text-[13px] font-normal outline-none",
                   selectedIncidentType === "Select option"
                     ? "text-ehs-muted-text"
                     : "text-ehs-dark-bg",
@@ -183,14 +183,14 @@ export function IncidentClosureStepClassification(
                 className="pointer-events-none absolute right-3 text-sm text-ehs-gray"
               />
             </div>
-            <span className="text-sm font-normal text-ehs-muted-text">
+            <span className="text-[11px] font-normal text-ehs-muted-text">
               Defaults from intake — verify before closing
             </span>
           </div>
 
           {/* SIF Classification */}
           <div className="flex flex-1 flex-col gap-[6px]">
-            <label className="text-sm font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               SIF Classification
             </label>
             <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
@@ -199,7 +199,7 @@ export function IncidentClosureStepClassification(
                 onChange={(e) =>
                   onChangeField("sifClassification", e.target.value)
                 }
-                className="w-full appearance-none bg-transparent pr-6 text-sm font-semibold text-ehs-dark-bg outline-none"
+                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-ehs-dark-bg outline-none"
               >
                 {SIF_CLASSIFICATIONS.map((sif) => (
                   <option key={sif} value={sif} className="text-ehs-dark-bg">
@@ -212,7 +212,7 @@ export function IncidentClosureStepClassification(
                 className="pointer-events-none absolute right-3 text-sm text-ehs-gray"
               />
             </div>
-            <span className="text-sm font-normal text-ehs-muted-text">
+            <span className="text-[11px] font-normal text-ehs-muted-text">
               Independent of incident type — assess separately
             </span>
           </div>
@@ -224,7 +224,7 @@ export function IncidentClosureStepClassification(
             {/* Days Away From Work */}
             {showDaysAway && (
               <div className="flex flex-1 flex-col gap-[6px]">
-                <label className="text-sm font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+                <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
                   Days Away from Work
                 </label>
                 <div
@@ -245,7 +245,7 @@ export function IncidentClosureStepClassification(
                         Math.max(0, parseInt(e.target.value || "0", 10)),
                       )
                     }
-                    className="w-full [appearance:textfield] appearance-none bg-transparent text-sm font-semibold text-ehs-dark-bg outline-none"
+                    className="w-full [appearance:textfield] appearance-none bg-transparent text-[13px] font-semibold text-ehs-dark-bg outline-none"
                   />
                   <div className="flex flex-col gap-[2px]">
                     <button
@@ -267,7 +267,7 @@ export function IncidentClosureStepClassification(
                   </div>
                 </div>
                 {lostTimeMissingDays && (
-                  <span className="text-sm font-normal text-ehs-red">
+                  <span className="text-[11px] font-normal text-ehs-red">
                     Lost Time requires at least 1 day away.
                   </span>
                 )}
@@ -277,7 +277,7 @@ export function IncidentClosureStepClassification(
             {/* Days On Restricted Duty */}
             {showDaysRestricted && (
               <div className="flex flex-1 flex-col gap-[6px]">
-                <label className="text-sm font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+                <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
                   Days on Restricted Duty
                 </label>
                 <div
@@ -298,7 +298,7 @@ export function IncidentClosureStepClassification(
                         Math.max(0, parseInt(e.target.value || "0", 10)),
                       )
                     }
-                    className="w-full [appearance:textfield] appearance-none bg-transparent text-sm font-semibold text-ehs-dark-bg outline-none"
+                    className="w-full [appearance:textfield] appearance-none bg-transparent text-[13px] font-semibold text-ehs-dark-bg outline-none"
                   />
                   <div className="flex flex-col gap-[2px]">
                     <button
@@ -320,7 +320,7 @@ export function IncidentClosureStepClassification(
                   </div>
                 </div>
                 {restrictedMissingDays && (
-                  <span className="text-sm font-normal text-ehs-red">
+                  <span className="text-[11px] font-normal text-ehs-red">
                     Restricted Work / Job Transfer requires at least 1 day on restricted duty.
                   </span>
                 )}
@@ -330,7 +330,7 @@ export function IncidentClosureStepClassification(
         )}
 
         {medicalOnlyWithDaysAway && (
-          <span className="text-sm font-normal text-ehs-yellow">
+          <span className="text-[11px] font-normal text-ehs-yellow">
             Days away or restricted duty is unusual for {selectedIncidentType} — please verify classification.
           </span>
         )}
@@ -338,14 +338,14 @@ export function IncidentClosureStepClassification(
 
       {/* Recordable Under OSHA */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           Recordable under OSHA
         </label>
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => handleRecordableChange(true)}
-            className="flex items-center gap-2 text-sm font-normal text-ehs-dark-bg"
+            className="flex items-center gap-2 text-[13px] font-normal text-ehs-dark-bg"
           >
             <div
               className={[
@@ -365,7 +365,7 @@ export function IncidentClosureStepClassification(
           <button
             type="button"
             onClick={() => handleRecordableChange(false)}
-            className="flex items-center gap-2 text-sm font-normal text-ehs-dark-bg"
+            className="flex items-center gap-2 text-[13px] font-normal text-ehs-dark-bg"
           >
             <div
               className={[
@@ -384,12 +384,12 @@ export function IncidentClosureStepClassification(
         </div>
 
         {!isOverridden ? (
-          <span className="text-sm font-normal text-ehs-muted-text">
+          <span className="text-[11px] font-normal text-ehs-muted-text">
             Auto-set from Final Incident Type
           </span>
         ) : (
           <div className="mt-2 flex flex-col gap-1 rounded-[10px] border border-ehs-yellow/40 bg-ehs-yellow/10 p-3">
-            <label className="text-sm font-bold tracking-[0.5px] text-ehs-yellow uppercase">
+            <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-yellow uppercase">
               Why does this differ from the standard classification? *
             </label>
             <input
@@ -397,10 +397,10 @@ export function IncidentClosureStepClassification(
               value={data.oshaOverrideReason ?? ""}
               onChange={(e) => onChangeField("oshaOverrideReason", e.target.value)}
               placeholder="Enter required reason for OSHA recordability override..."
-              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white px-3 py-1.5 text-sm text-ehs-dark-bg outline-none focus:border-ehs-yellow"
+              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white px-3 py-1.5 text-[13px] font-normal text-ehs-dark-bg outline-none focus:border-ehs-yellow"
             />
             {overrideReasonMissing && (
-              <span className="text-sm font-normal text-ehs-red">
+              <span className="text-[11px] font-normal text-ehs-red">
                 An override reason is required for audit trails when changing default OSHA recordability.
               </span>
             )}

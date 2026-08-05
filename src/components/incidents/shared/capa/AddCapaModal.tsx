@@ -200,7 +200,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
                   type="text"
                   value={owner}
                   onChange={(event) => setOwner(event.target.value)}
-                  placeholder="e.g. M. Torres"
+                  placeholder="Name or user ID (optional)"
                   className="h-10 w-full rounded-[10px] bg-white px-3.5 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:text-sm"
                 />
               </div>

@@ -17,26 +17,29 @@ import {
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
-export type IncidentListTableProps<TData extends { id: string } = IncidentRecord> =
-  Readonly<{
-    /** Incident rows (default mode). Ignored when `data` is provided. */
-    incidents?: readonly IncidentRecord[];
-    /** Generic rows (e.g. policy documents). Requires `columns`. */
-    data?: readonly TData[];
-    /** Column defs for `data`. Defaults to incident columns when using `incidents`. */
-    columns?: ColumnDef<TData, unknown>[];
-    selectedId: string | null;
-    onSelect: (id: string) => void;
-    /** Opens the full detail page (second click on the selected row). */
-    onOpenDetail?: (id: string) => void;
-    /** When true (detail panel closed), columns and text use a wider layout */
-    expanded?: boolean;
-    /** Optional chrome above the table (filters, title, tabs). */
-    toolbar?: ReactNode;
-    /** Denser row height for document-style tables. */
-    compact?: boolean;
-    className?: string;
-  }>;
+export type IncidentListTableProps<
+  TData extends { id: string } = IncidentRecord,
+> = Readonly<{
+  /** Incident rows (default mode). Ignored when `data` is provided. */
+  incidents?: readonly IncidentRecord[];
+  /** Generic rows (e.g. policy documents). Requires `columns`. */
+  data?: readonly TData[];
+  /** Column defs for `data`. Defaults to incident columns when using `incidents`. */
+  columns?: ColumnDef<TData, unknown>[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  /** Opens the preview panel for the selected incident. */
+  onViewMore?: (id: string) => void;
+  /** Opens the full detail page (second click on the selected row). */
+  onOpenDetail?: (id: string) => void;
+  /** When true (detail panel closed), columns and text use a wider layout */
+  expanded?: boolean;
+  /** Optional chrome above the table (filters, title, tabs). */
+  toolbar?: ReactNode;
+  /** Denser row height for document-style tables. */
+  compact?: boolean;
+  className?: string;
+}>;
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData, TValue> {
@@ -62,7 +65,13 @@ function siteLines(site: string): readonly [string, string?] {
 
 function createIncidentColumns(
   expanded: boolean,
+  options: Readonly<{
+    selectedId: string | null;
+    onViewMore: (id: string) => void;
+  }>,
 ): ColumnDef<IncidentRecord, unknown>[] {
+  const { selectedId, onViewMore } = options;
+
   return [
     columnHelper.accessor("id", {
       header: "ID",
@@ -84,22 +93,43 @@ function createIncidentColumns(
       size: expanded ? 480 : 240,
       minSize: 140,
       meta: { align: "left" as const },
-      cell: ({ row }) => (
-        <div className="flex w-full min-w-0 flex-col gap-1">
-          <Text
-            as="p"
-            className="text-ehs-dark-bg text-sm leading-normal font-normal first-letter:uppercase"
-          >
-            {row.original.title}
-          </Text>
-          <Text
-            as="p"
-            className="text-ehs-muted-text text-sm leading-normal font-normal first-letter:uppercase"
-          >
-            {row.original.description}
-          </Text>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const isRowSelected = selectedId === row.original.id;
+
+        return (
+          <div className="flex w-full min-w-0 flex-col gap-1">
+            <Text
+              as="p"
+              className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            <Text
+              as="p"
+              className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+              title={row.original.description}
+            >
+              {row.original.description}
+            </Text>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onViewMore(row.original.id);
+              }}
+              className={[
+                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
+                isRowSelected
+                  ? "text-ehs-normal-blue"
+                  : "text-ehs-gray hover:text-ehs-normal-blue",
+              ].join(" ")}
+            >
+              View more
+            </button>
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("site", {
       header: "Site",
@@ -164,15 +194,16 @@ function alignClass(align: "left" | "center" | "right" | undefined) {
   return "text-left";
 }
 
-export function IncidentListTable<TData extends { id: string } = IncidentRecord>(
-  props: Readonly<IncidentListTableProps<TData>>,
-) {
+export function IncidentListTable<
+  TData extends { id: string } = IncidentRecord,
+>(props: Readonly<IncidentListTableProps<TData>>) {
   const {
     incidents,
     data,
     columns: columnsProp,
     selectedId,
     onSelect,
+    onViewMore,
     onOpenDetail,
     expanded = false,
     toolbar,
@@ -181,13 +212,17 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
   } = props;
 
   const resolvedData = (data ?? incidents ?? []) as TData[];
+  const handleViewMore = onViewMore ?? onOpenDetail ?? onSelect;
 
   const columns = useMemo(() => {
     if (columnsProp) {
       return columnsProp;
     }
-    return createIncidentColumns(expanded) as ColumnDef<TData, unknown>[];
-  }, [columnsProp, expanded]);
+    return createIncidentColumns(expanded, {
+      selectedId,
+      onViewMore: handleViewMore,
+    }) as ColumnDef<TData, unknown>[];
+  }, [columnsProp, expanded, selectedId, handleViewMore]);
 
   const table = useReactTable({
     data: resolvedData,
@@ -204,8 +239,8 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
   const cellPadClass = compact
     ? "h-auto min-h-[64px] px-[15.57px] py-3"
     : expanded
-      ? "h-[108px] px-5"
-      : "h-[97px] px-3 sm:px-4";
+      ? "h-auto min-h-[88px] px-5 py-3"
+      : "h-auto min-h-[80px] px-3 py-3 sm:px-4";
   const headerPadClass = compact
     ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-xs"
     : expanded
@@ -310,19 +345,20 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
                             totalSize,
                           )}
                           className={[
-                            "min-w-0 align-middle",
+                            "min-w-0",
+                            align === "left" ? "align-top" : "align-middle",
                             cellPadClass,
                             alignClass(align),
                           ].join(" ")}
                         >
                           <div
                             className={[
-                              "flex w-full min-w-0 items-center",
+                              "flex w-full min-w-0",
                               align === "center"
-                                ? "justify-center"
+                                ? "items-center justify-center"
                                 : align === "right"
-                                  ? "justify-end"
-                                  : "justify-start",
+                                  ? "items-center justify-end"
+                                  : "items-start justify-start",
                             ].join(" ")}
                           >
                             {flexRender(

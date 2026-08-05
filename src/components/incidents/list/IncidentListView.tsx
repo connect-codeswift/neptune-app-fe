@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -27,6 +27,7 @@ import {
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
 import { toast } from "@/lib/toast";
+import { safeAppNavigate } from "@/lib/safe-app-navigation";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
 export type IncidentListViewProps = Readonly<{
@@ -119,16 +120,18 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [incidents, appliedSearch, severityFilter, stateFilter]);
 
-  // Keep the detail sidebar open; default to the first incident on the page,
-  // and fall back to it whenever filtering drops the current selection.
-  // Derived during render rather than synced through an effect, so there is no
-  // pass where the sidebar still points at a row that is no longer listed.
+  // Preview panel opens only after explicit row selection (View more or row click).
   const selectedListIncident =
-    (selectedId == null
-      ? undefined
-      : filteredIncidents.find((incident) => incident.id === selectedId)) ??
-    filteredIncidents[0] ??
-    null;
+    selectedId == null
+      ? null
+      : (filteredIncidents.find((incident) => incident.id === selectedId) ??
+        null);
+
+  useEffect(() => {
+    if (selectedId != null && selectedListIncident == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedListIncident]);
 
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
@@ -147,13 +150,20 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
   const isPanelOpen = selectedListIncident != null;
 
+  const handleOpenDetailPanel = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
+
   const openIncidentDetail = (listId: string) => {
     const incident = filteredIncidents.find((row) => row.id === listId);
     if (!incident || incident.numericId <= 0) {
       return;
     }
 
-    router.push(`/dashboard/incidents/${String(incident.numericId)}`);
+    safeAppNavigate(
+      router,
+      `/dashboard/incidents/${String(incident.numericId)}`,
+    );
   };
 
   const handleCloseIncident = async () => {
@@ -278,8 +288,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               <div className="flex min-w-0 flex-col gap-3">
                 <IncidentListTable
                   incidents={filteredIncidents}
-                  selectedId={selectedListIncident?.id ?? null}
-                  onSelect={setSelectedId}
+                  selectedId={selectedId}
+                  onSelect={handleOpenDetailPanel}
+                  onViewMore={handleOpenDetailPanel}
                   onOpenDetail={openIncidentDetail}
                   expanded={!isPanelOpen}
                   className="min-w-0"
@@ -335,7 +346,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 </div>
               </div>
 
-              {isPanelOpen ? (
+              {isPanelOpen && selectedListIncident ? (
                 <IncidentDetailPanel
                   incident={selectedIncident}
                   onCloseIncident={() => {

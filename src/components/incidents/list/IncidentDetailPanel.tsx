@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 // import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -135,17 +136,32 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             />
           </div>
 
-          <button
-            type="button"
-            aria-label="More actions"
-            className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-6 items-center justify-center rounded-md"
-          >
-            <Icon
-              icon="mdi:dots-horizontal"
-              className="text-lg"
-              aria-hidden="true"
-            />
-          </button>
+          {incident.numericId > 0 ? (
+            <Link
+              href={`/dashboard/incidents/${String(incident.numericId)}`}
+              className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold transition-colors"
+            >
+              Open details
+              <Icon
+                icon="mdi:arrow-right"
+                className="size-3.5"
+                aria-hidden="true"
+              />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="border-ehs-border text-ehs-normal-blue inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold opacity-50"
+            >
+              Open details
+              <Icon
+                icon="mdi:arrow-right"
+                className="size-3.5"
+                aria-hidden="true"
+              />
+            </button>
+          )}
         </div>
 
         <Text

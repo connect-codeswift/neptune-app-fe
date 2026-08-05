@@ -39,7 +39,10 @@ import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeli
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
-import type { LinkedCapaViewModel } from "@/services/mappers/capa.mapper";
+import {
+  mapCapaItemsToLinkedItems,
+  type LinkedCapaViewModel,
+} from "@/services/mappers/capa.mapper";
 import type {
   IncidentDetailViewModel,
   IncidentInvestigationView,
@@ -111,6 +114,9 @@ export type IncidentDetailViewProps = Readonly<{
   linkedCapa: LinkedCapaViewModel;
   isCapaLoading: boolean;
   isCapaSubmitting: boolean;
+  openAddCapaOnLinkedTab?: boolean;
+  onAddCapaModalOpened?: () => void;
+  onNavigateToLinkedCapa: (options?: Readonly<{ openAddModal?: boolean }>) => void;
   onSubmitCapa: (payload: {
     controlLevel: string;
     description: string;
@@ -132,6 +138,7 @@ export type IncidentDetailViewProps = Readonly<{
   onToggleClosureCheckItem: (itemId: string) => void;
   onSaveClosureDraft?: () => void;
   onFinalizeClosure?: () => void;
+  onCancelClosure?: () => void;
   isClosureSubmitting?: boolean;
 }>;
 
@@ -198,6 +205,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     linkedCapa,
     isCapaLoading,
     isCapaSubmitting,
+    openAddCapaOnLinkedTab,
+    onAddCapaModalOpened,
+    onNavigateToLinkedCapa,
     onSubmitCapa,
     previewFile,
     onClosePreview,
@@ -207,6 +217,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onToggleClosureCheckItem,
     onSaveClosureDraft,
     onFinalizeClosure,
+    onCancelClosure,
     isClosureSubmitting,
   } = props;
 
@@ -320,7 +331,18 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
 
                 <div className="flex flex-col gap-[14px]">
                   <IncidentDetailRoutingCard members={detail.routingMembers} />
-                  <IncidentDetailLinkedCard />
+                  <IncidentDetailLinkedCard
+                    linkedItems={mapCapaItemsToLinkedItems(linkedCapa.items, {
+                      limit: 3,
+                    })}
+                    totalLinkedCount={linkedCapa.summary.totalCount}
+                    isLoading={isCapaLoading}
+                    onAddCapa={() =>
+                      onNavigateToLinkedCapa({ openAddModal: true })
+                    }
+                    onViewAll={() => onNavigateToLinkedCapa()}
+                    onSelectItem={() => onNavigateToLinkedCapa()}
+                  />
                   <IncidentDetailAiCard />
                 </div>
               </div>
@@ -476,6 +498,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   capas={linkedCapa.items}
                   isLoading={isCapaLoading}
                   isSubmitting={isCapaSubmitting}
+                  openAddModal={openAddCapaOnLinkedTab}
+                  onAddModalOpened={onAddCapaModalOpened}
                   onSubmitCapa={onSubmitCapa}
                 />
                 <div className="flex flex-col gap-[14px]">
@@ -503,6 +527,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 onToggleCheckItem={onToggleClosureCheckItem}
                 onSaveAsDraft={onSaveClosureDraft}
                 onFinalizeClosure={onFinalizeClosure}
+                onCancel={onCancelClosure}
                 isSubmitting={isClosureSubmitting}
               />
             )}

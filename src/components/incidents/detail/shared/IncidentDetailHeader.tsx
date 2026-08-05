@@ -19,7 +19,6 @@ export type IncidentDetailHeaderProps = Readonly<{
   incidentId: string;
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
-  onCloseIncident?: () => void;
   onEdit?: () => void;
   /** When true, the Edit control shows as Save. */
   isEditing?: boolean;
@@ -38,7 +37,6 @@ export function IncidentDetailHeader(
     incidentId,
     activeTab,
     onTabChange,
-    onCloseIncident,
     onEdit,
     isEditing = false,
     isSaving = false,
@@ -53,15 +51,6 @@ export function IncidentDetailHeader(
     onEdit ??
     (() => {
       toast.info("Edit mode coming soon", "This feature is being developed.");
-    });
-
-  const handleClose =
-    onCloseIncident ??
-    (() => {
-      toast.success(
-        "Incident Closed",
-        `Incident ${incidentId} has been successfully closed.`,
-      );
     });
 
   const tabs: { id: TabId; label: string }[] = [
@@ -157,26 +146,13 @@ export function IncidentDetailHeader(
                 disabled={isSaving}
                 className={
                   isEditing
-                    ? "rounded-[10px] bg-ehs-normal-blue px-4 py-2 text-sm font-medium text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active disabled:opacity-50"
-                    : "rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium text-ehs-slate transition-colors hover:bg-white/70 disabled:opacity-50"
+                    ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-[10px] px-4 py-2 text-sm font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
+                    : "text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
                 }
               >
                 {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
               </Button>
             ) : null}
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleClose}
-              disabled={closeDisabled || isClosingIncident}
-              className="rounded-[10px] bg-ehs-normal-blue px-4 py-2 text-sm font-medium text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active disabled:opacity-50"
-            >
-              {isClosingIncident
-                ? "Closing…"
-                : closeDisabled
-                  ? "Closed"
-                  : "Close Incident"}
-            </Button>
           </div>
         ) : null}
       </div>

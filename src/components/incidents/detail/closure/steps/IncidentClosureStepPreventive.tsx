@@ -223,7 +223,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
 
                   <span
                     className={[
-                      "rounded-full px-2.5 py-0.5 text-sm font-bold whitespace-nowrap",
+                      "rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap",
                       capaBadgeStyle(item.status),
                     ].join(" ")}
                   >
@@ -272,14 +272,14 @@ export function IncidentClosureStepPreventive(
     <div className="flex flex-col gap-6">
       <Text
         as="h2"
-        className="text-lg font-semibold text-ehs-dark-bg"
+        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
       >
         Preventive Measures & CAPAs
       </Text>
 
       {/* Actions Taken */}
       <div className="flex flex-col">
-        <label className="mb-2 text-sm font-bold tracking-[0.08em] text-ehs-muted-text uppercase">
+        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           ACTIONS TAKEN
         </label>
         <textarea
@@ -287,13 +287,13 @@ export function IncidentClosureStepPreventive(
           onChange={(e) => onChangeField("actionsTaken", e.target.value)}
           rows={3}
           placeholder="Detail preventive actions taken..."
-          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-sm leading-[20px] font-medium text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-[13px] leading-[20px] font-normal text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
         />
       </div>
 
       {/* Linked CAPAs */}
       <div className="flex flex-col">
-        <label className="mb-2.5 text-sm font-bold tracking-[0.08em] text-ehs-muted-text uppercase">
+        <label className="mb-2.5 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           LINKED CAPAS
         </label>
 
@@ -310,13 +310,13 @@ export function IncidentClosureStepPreventive(
                 <div className="flex flex-col gap-0.5">
                   <Text
                     as="span"
-                    className="text-sm font-bold text-ehs-dark-bg"
+                    className="text-[13px] font-bold text-ehs-dark-bg"
                   >
                     {capa.title}
                   </Text>
                   <Text
                     as="span"
-                    className="text-sm font-medium text-ehs-muted-text"
+                    className="text-[13px] font-normal text-ehs-muted-text"
                   >
                     {capa.subtitle}
                   </Text>
@@ -332,7 +332,7 @@ export function IncidentClosureStepPreventive(
                 </div>
                 <span
                   className={[
-                    "rounded-full px-2.5 py-0.5 text-sm font-bold whitespace-nowrap",
+                    "rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap",
                     capaBadgeStyle(capa.status),
                   ].join(" ")}
                 >
@@ -346,7 +346,7 @@ export function IncidentClosureStepPreventive(
         <button
           type="button"
           onClick={handleOpenModal}
-          className="mt-3 flex items-center gap-1.5 text-sm font-bold text-ehs-normal-blue transition-colors hover:underline"
+          className="mt-3 flex items-center gap-1.5 text-[13px] font-bold text-ehs-normal-blue transition-colors hover:underline"
         >
           <Icon icon="mdi:plus" className="size-4" />
           <span>Link additional CAPA or Action Item</span>
