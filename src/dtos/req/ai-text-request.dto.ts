@@ -2,17 +2,13 @@
 export type AiTextMode = "paraphrase" | "proofread";
 
 /**
- * Matches backend body for POST /api/Ai/RewriteText — the route that proxies
- * ChatGPT 5.6 Luna. The key never touches the browser: we post the reporter's
- * text to our own API and the backend talks to the model.
+ * Matches backend body for POST /api/Incident/proofread — the route that
+ * proxies ChatGPT 5.6 Luna (gpt-5.6-luna). The key never touches the browser:
+ * we post the reporter's text to our own API and the backend talks to the
+ * model. Deliberately generic (no incident fields) — the same endpoint is
+ * reused as-is for NearMiss, Hazard, WalkTalk and BBS.
  */
 export type RewriteTextRequestDto = {
+  /** Required, max 8000 chars. */
   text: string;
-  mode: AiTextMode;
-  /** Model id the backend should route to, e.g. "gpt-5.6-luna". */
-  model: string;
-  /** What the text is for, so the model keeps the right register. */
-  context?: string;
-  userId: number;
-  subCompanyId: number;
 };
