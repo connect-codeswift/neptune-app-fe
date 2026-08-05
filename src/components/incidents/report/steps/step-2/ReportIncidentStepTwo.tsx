@@ -15,6 +15,7 @@ import {
   TREATMENT_PROVIDER_OPTIONS,
   WHAT_TREATMENT_GIVEN_OPTIONS,
   YES_NO_OPTIONS,
+  markAiAssisted,
   type CustomOptionField,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -108,8 +109,17 @@ export function ReportIncidentStepTwo(
             assistant={
               <AiTextAssistant
                 value={form.description}
-                onApply={(description) => onChange({ description })}
-                context="a workplace safety incident report — keep every fact, time and name exactly as written"
+                onApply={(description) => {
+                  onChange({ description });
+                }}
+                onAssisted={() => {
+                  onChange({
+                    aiAssistedFields: markAiAssisted(
+                      form.aiAssistedFields,
+                      "description",
+                    ),
+                  });
+                }}
               />
             }
           />

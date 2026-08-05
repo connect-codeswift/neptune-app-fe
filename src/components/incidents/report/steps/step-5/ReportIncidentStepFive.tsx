@@ -10,7 +10,6 @@ import {
   SEVERITY_OPTIONS,
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
-  SUGGESTED_FOLLOW_UP_OPTIONS,
   formatBodyPartSelection,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
@@ -160,15 +159,17 @@ export function ReportIncidentStepFive(
 
   const photosCountLabel =
     form.photos.length > 0 ? `${String(form.photos.length)} attached` : "None";
+  // Only the checked ones are reviewed here. The unchecked ones are still
+  // submitted (§ create payload), but this card is what the reporter is
+  // confirming, so it shows what they actually chose.
+  const selectedFollowUps = form.followUps.filter((item) => item.isSelected);
+  // The detail cards are a narrow two-column grid, and follow-ups are full
+  // sentences — joining them into one cell turns the card into a column of
+  // single words. The count goes here; the sentences get their own full-width
+  // section below, where they are actually readable before submitting.
   const followUpsLabel =
-    form.suggestedFollowUp.length > 0
-      ? form.suggestedFollowUp
-          .map(
-            (id) =>
-              SUGGESTED_FOLLOW_UP_OPTIONS.find((option) => option.id === id)
-                ?.label ?? id,
-          )
-          .join(" · ")
+    selectedFollowUps.length > 0
+      ? `${String(selectedFollowUps.length)} selected`
       : "None";
 
   const reporterName = form.reportedBy.trim() || "—";
@@ -262,6 +263,7 @@ export function ReportIncidentStepFive(
                 { label: "Follow-ups", value: followUpsLabel },
               ]}
             />
+
             <ReportReviewDetailCard
               title="Reporter"
               paddingClassName="px-[15px] pt-[15px] pb-[29px]"
@@ -272,6 +274,40 @@ export function ReportIncidentStepFive(
               ]}
             />
           </div>
+
+          {/* Section 2b: the follow-ups themselves, full width and readable */}
+          {selectedFollowUps.length > 0 ? (
+            <div className="border-ehs-border flex flex-col gap-2 rounded-[12px] border bg-white/62 p-[15px]">
+              <Text
+                as="p"
+                className="text-ehs-dark-blue text-[10px] font-bold tracking-[1px] uppercase"
+              >
+                Follow-up actions
+              </Text>
+              <ul className="flex flex-col gap-1.5">
+                {selectedFollowUps.map((item) => (
+                  <li key={item.id} className="flex items-start gap-2">
+                    <Icon
+                      icon="mdi:check-circle-outline"
+                      className="text-ehs-normal-blue mt-0.5 size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text
+                      as="span"
+                      className="text-ehs-dark-bg min-w-0 flex-1 text-sm"
+                    >
+                      {item.text}
+                    </Text>
+                    {item.isAiSuggested ? (
+                      <span className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[9.5px] font-bold tracking-[0.2px]">
+                        AI
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {/* Section 3: Routing preview banner */}
           <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">

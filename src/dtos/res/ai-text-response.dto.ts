@@ -1,10 +1,21 @@
-import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
+/** Responses from the two incident AI-assist endpoints (inside `dataModel`). */
 
-export type RewriteTextDataDto = {
-  /** The rewritten text, ready to drop back into the field. */
-  text: string;
-  /** Echoed back by the backend so we can log which model answered. */
-  model?: string | null;
+/** POST /api/Incident/proofread */
+export type ProofreadResultDto = {
+  rewrittenText: string;
 };
 
-export type RewriteTextResponseDto = ApiEnvelopeDto<RewriteTextDataDto>;
+/**
+ * POST /api/Incident/draft-assist — all three drafts from one call.
+ *
+ * `null` on either text field is a real answer, not a failure: it means the
+ * reporter described no injury / no response actions. Forcing a draft there is
+ * exactly what would push the model into inventing one, so absence is
+ * meaningful and must render as nothing at all.
+ */
+export type IncidentDraftResultDto = {
+  injuryDescription: string | null;
+  actionNotes: string | null;
+  /** Can legitimately be empty when the description is too sparse. */
+  suggestedFollowUps: string[];
+};

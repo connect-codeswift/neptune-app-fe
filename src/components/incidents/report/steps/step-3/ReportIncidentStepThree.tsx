@@ -4,8 +4,10 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { AiDraftSuggestion } from "@/components/ai/AiDraftSuggestion";
 import {
   INJURY_LEVEL_OPTIONS,
+  markAiAssisted,
   type InjuryLevelId,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -87,16 +89,42 @@ export function ReportIncidentStepThree(
             }
           />
 
-          <ReportTextareaField
-            className="pt-[18px] [&_textarea]:min-h-[66px]"
-            label="Injury description"
-            value={form.injuryDescription}
-            onChange={(event) =>
-              onChange({ injuryDescription: event.target.value })
-            }
-            placeholder="Describe the injury…"
-            rows={3}
-          />
+          <div className="pt-[18px]">
+            <ReportTextareaField
+              className="[&_textarea]:min-h-[66px]"
+              label="Injury description"
+              value={form.injuryDescription}
+              onChange={(event) =>
+                onChange({ injuryDescription: event.target.value })
+              }
+              placeholder="Describe the injury…"
+              rows={3}
+            />
+            <AiDraftSuggestion
+              draft={form.aiDrafts.injuryDescription}
+              // Only wait where a draft could actually land. Once the reporter
+              // has written here their words win, and the arriving draft is
+              // discarded — so a spinner would resolve to nothing every time.
+              pending={
+                form.aiDraftPending && form.injuryDescription.trim() === ""
+              }
+              onAccept={(text) =>
+                onChange({
+                  injuryDescription: text,
+                  aiAssistedFields: markAiAssisted(
+                    form.aiAssistedFields,
+                    "injuryDescription",
+                  ),
+                  aiDrafts: { ...form.aiDrafts, injuryDescription: null },
+                })
+              }
+              onDismiss={() =>
+                onChange({
+                  aiDrafts: { ...form.aiDrafts, injuryDescription: null },
+                })
+              }
+            />
+          </div>
         </div>
 
         <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
