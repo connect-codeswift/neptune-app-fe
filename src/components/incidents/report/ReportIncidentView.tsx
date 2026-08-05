@@ -28,6 +28,7 @@ import {
   validateStepOne,
 } from "@/components/incidents/report/steps";
 import { toast } from "@/lib/toast";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 
 function renderStepForm(
   currentStep: ReportStepId,
@@ -193,7 +194,12 @@ export function ReportIncidentView() {
           ),
         }));
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        // Deliberately silent for the reporter — drafts are an offer, and a
+        // failed offer should not interrupt the report. Silent for us too was
+        // the mistake: without this the whole feature can be dark and look
+        // like the model simply had nothing to suggest.
+        logAiAssistFailure("draft-assist", error);
         setForm((prev) => ({
           ...prev,
           aiDraftPending: false,

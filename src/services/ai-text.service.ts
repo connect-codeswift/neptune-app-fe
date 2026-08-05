@@ -34,6 +34,30 @@ export class AiAssistError extends Error {
     this.name = "AiAssistError";
     this.status = status;
   }
+
+  /**
+   * What actually went wrong, for the console only — never for the reporter.
+   * Without this the fixed toast copy is all anyone gets, and a missing API key
+   * (503), a rate limit (429) and a model timeout are indistinguishable from
+   * each other and from a bug in this file.
+   */
+  get diagnostic(): string {
+    switch (this.status) {
+      case 401:
+      case 403:
+        return "not authorised — token expired, or the role lacks Incident.Create";
+      case 429:
+        return "rate limited — 12 assist calls/min per user; check the Retry-After header";
+      case 503:
+        return "Ai__ApiKey is not set on this environment, so the endpoint is inert";
+      case 500:
+        return "server error, most likely the 30s model timeout";
+      case undefined:
+        return "no response — network, CORS, or the client's own 45s timeout";
+      default:
+        return `unexpected status ${this.status}`;
+    }
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -60,6 +84,19 @@ function readString(source: unknown, key: string): string | null {
 
   const value = source[key];
   return typeof value === "string" && value.trim() !== "" ? value : null;
+}
+
+/**
+ * Logs why an assist call failed. The reporter is shown fixed copy either way,
+ * so this is the only place the cause is recoverable from a running app.
+ */
+export function logAiAssistFailure(label: string, error: unknown): void {
+  if (error instanceof AiAssistError) {
+    console.warn(`[ai-assist] ${label} failed (${error.status ?? "no status"}): ${error.diagnostic}`);
+    return;
+  }
+
+  console.warn(`[ai-assist] ${label} failed:`, error);
 }
 
 function toStatus(error: unknown): number | undefined {
