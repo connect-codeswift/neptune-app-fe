@@ -52,9 +52,6 @@ export type IncidentDetailViewProps = Readonly<{
   onEditOrSave: () => void;
   isEditing: boolean;
   isSaving: boolean;
-  onCloseIncident: () => void;
-  isClosingIncident: boolean;
-  closeDisabled: boolean;
 
   errorMessage: string | null;
   showLoading: boolean;
@@ -147,9 +144,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onEditOrSave,
     isEditing,
     isSaving,
-    onCloseIncident,
-    isClosingIncident,
-    closeDisabled,
+
     errorMessage,
     showLoading,
     hasToken,
@@ -225,9 +220,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             activeTab !== "people" &&
             activeTab !== "attachments"
           }
-          onCloseIncident={onCloseIncident}
-          isClosingIncident={isClosingIncident}
-          closeDisabled={closeDisabled}
         />
 
         {errorMessage ? (
