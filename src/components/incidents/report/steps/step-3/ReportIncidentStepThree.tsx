@@ -102,7 +102,12 @@ export function ReportIncidentStepThree(
             />
             <AiDraftSuggestion
               draft={form.aiDrafts.injuryDescription}
-              pending={form.aiDraftPending}
+              // Only wait where a draft could actually land. Once the reporter
+              // has written here their words win, and the arriving draft is
+              // discarded — so a spinner would resolve to nothing every time.
+              pending={
+                form.aiDraftPending && form.injuryDescription.trim() === ""
+              }
               onAccept={(text) =>
                 onChange({
                   injuryDescription: text,

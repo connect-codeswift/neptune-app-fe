@@ -167,7 +167,10 @@ export function ReportIncidentStepFour(
             />
             <AiDraftSuggestion
               draft={form.aiDrafts.actionNotes}
-              pending={form.aiDraftPending}
+              // Same rule as the injury draft on step 3: no waiting state for a
+              // field the reporter has already filled, because the incoming
+              // draft is discarded rather than shown.
+              pending={form.aiDraftPending && form.actionNotes.trim() === ""}
               onAccept={(text) =>
                 onChange({
                   actionNotes: text,
