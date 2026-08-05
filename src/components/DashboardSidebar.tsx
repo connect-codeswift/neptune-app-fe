@@ -135,8 +135,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               {user.displayName}
             </Text>
             <Text as="p" className="text-ehs-muted-text truncate text-xs">
-              {user.role}
-              {user.siteName ? ` · ${user.siteName}` : ""}
+              {[user.role, user.siteName].filter(Boolean).join(" · ")}
             </Text>
           </div>
         </div>
