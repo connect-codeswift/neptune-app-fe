@@ -6,7 +6,12 @@ import { Text } from "@/components/Text";
 export type AiDraftSuggestionProps = Readonly<{
   /** The drafted text, or null when there is nothing to offer. */
   draft: string | null;
-  /** True while the draft-assist call is still in flight. */
+  /**
+   * True while the draft-assist call is still in flight AND this field is
+   * still empty. Callers must not pass the raw in-flight flag: a field the
+   * reporter has already written in will never be offered a draft, so showing
+   * a wait there promises something that cannot arrive.
+   */
   pending?: boolean;
   onAccept: (text: string) => void;
   onDismiss: () => void;
@@ -24,6 +29,11 @@ export type AiDraftSuggestionProps = Readonly<{
  *    had nothing to say". For `injuryDescription` a null is meaningful: it
  *    means the description mentioned no injury, and drawing attention to that
  *    absence would invite someone to fill it in.
+ *
+ * Because of rule 2 the waiting state cannot promise an outcome — plenty of
+ * reports legitimately produce no draft. It says the assistant is looking,
+ * not that something is coming, so resolving to nothing reads as an answer
+ * rather than as a failure.
  */
 export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
   const { draft, pending = false, onAccept, onDismiss, className = "" } = props;
@@ -42,7 +52,7 @@ export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
           aria-hidden="true"
         />
         <Text as="span" className="text-ehs-muted-text text-xs">
-          Drafting a suggestion…
+          Checking for a suggestion…
         </Text>
       </div>
     );
