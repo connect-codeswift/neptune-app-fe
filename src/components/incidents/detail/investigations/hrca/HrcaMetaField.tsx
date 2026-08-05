@@ -10,6 +10,7 @@ export type HrcaMetaFieldProps = Readonly<{
   /** Stack label on two lines (e.g. Type of / report) */
   labelLines?: readonly [string, string];
   showChevron?: boolean;
+  valueClassName?: string;
   className?: string;
 }>;
 
@@ -20,13 +21,14 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
     value,
     labelLines,
     showChevron = false,
+    valueClassName = "text-sm leading-[17.5px] font-bold",
     className = "",
   } = props;
 
   return (
     <div
       className={[
-        "flex items-center gap-[11px] px-5 py-3",
+        "flex min-h-[65px] items-center gap-[11px] py-3 pl-5 pr-[21px]",
         className,
       ]
         .filter(Boolean)
@@ -37,7 +39,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
       </div>
       <div className="relative min-w-0 flex-1">
         {labelLines ? (
-          <p className="text-ehs-muted-text text-xs leading-[13px] font-bold tracking-[0.945px] uppercase">
+          <p className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase">
             {labelLines[0]}
             <br />
             {labelLines[1]}
@@ -45,15 +47,15 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
         ) : (
           <Text
             as="p"
-            className="text-ehs-muted-text text-xs font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase"
           >
             {label}
           </Text>
         )}
-        <div className="relative mt-0.5 flex min-h-[18px] items-center pr-[18px]">
+        <div className="relative mt-[2px] flex min-h-[18px] items-center pr-[18px]">
           <Text
             as="p"
-            className="text-ehs-dark-bg truncate text-sm leading-[17.5px] font-bold"
+            className={["text-ehs-dark-bg truncate", valueClassName].join(" ")}
           >
             {value}
           </Text>

@@ -25,6 +25,8 @@ export type IncidentDetailHeaderProps = Readonly<{
   isSaving?: boolean;
   /** Hides Edit and treats the page as view-only. */
   readOnly?: boolean;
+  /** Hides breadcrumb, incident title, edit toolbar, and tabs (HRCA worksheet view). */
+  hideIncidentChrome?: boolean;
   isClosingIncident?: boolean;
   closeDisabled?: boolean;
   className?: string;
@@ -41,6 +43,7 @@ export function IncidentDetailHeader(
     isEditing = false,
     isSaving = false,
     readOnly = false,
+    hideIncidentChrome = false,
     isClosingIncident = false,
     closeDisabled = false,
     className = "",
@@ -115,71 +118,75 @@ export function IncidentDetailHeader(
         </div>
       </header>
 
-      {/* Breadcrumb Navigation */}
-      <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text-xs font-medium">
-        <span
-          onClick={() => router.push("/dashboard/incidents/list")}
-          className="hover:text-ehs-dark-bg cursor-pointer hover:underline"
-        >
-          Incidents
-        </span>
-        <Icon icon="mdi:chevron-right" className="text-ehs-muted-text size-3" />
-        <span className="text-ehs-gray">{incidentId}</span>
-      </div>
+      {!hideIncidentChrome ? (
+        <>
+          {/* Breadcrumb Navigation */}
+          <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text-xs font-medium">
+            <span
+              onClick={() => router.push("/dashboard/incidents/list")}
+              className="hover:text-ehs-dark-bg cursor-pointer hover:underline"
+            >
+              Incidents
+            </span>
+            <Icon icon="mdi:chevron-right" className="text-ehs-muted-text size-3" />
+            <span className="text-ehs-gray">{incidentId}</span>
+          </div>
 
-      {/* Page Title & Actions Toolbar */}
-      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-4">
-        <Text
-          as="h1"
-          className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-        >
-          {incidentId}
-        </Text>
+          {/* Page Title & Actions Toolbar */}
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-4">
+            <Text
+              as="h1"
+              className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
+            >
+              {incidentId}
+            </Text>
 
-        {activeTab !== "closure" ? (
-          <div className="flex items-center gap-2">
-            {!readOnly ? (
-              <Button
-                type="button"
-                variant={isEditing ? "primary" : "tertiary"}
-                onClick={handleEdit}
-                disabled={isSaving}
-                className={
-                  isEditing
-                    ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-[10px] px-4 py-2 text-sm font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
-                    : "text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
-                }
-              >
-                {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
-              </Button>
+            {activeTab !== "closure" ? (
+              <div className="flex items-center gap-2">
+                {!readOnly ? (
+                  <Button
+                    type="button"
+                    variant={isEditing ? "primary" : "tertiary"}
+                    onClick={handleEdit}
+                    disabled={isSaving}
+                    className={
+                      isEditing
+                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-[10px] px-4 py-2 text-sm font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
+                        : "text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
+                    }
+                  >
+                    {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+                  </Button>
+                ) : null}
+              </div>
             ) : null}
           </div>
-        ) : null}
-      </div>
 
-      {/* Horizontal Tabs List */}
-      <div className="mt-4 flex scrollbar-none overflow-x-auto border-b border-[rgba(15,23,42,0.08)]">
-        <nav className="flex gap-6 px-1 whitespace-nowrap">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onTabChange(tab.id)}
-                className={[
-                  "border-b-2 py-2.5 text-sm font-semibold transition-all",
-                  isActive
-                    ? "border-ehs-normal-blue text-ehs-dark-blue"
-                    : "text-ehs-gray hover:text-ehs-dark-bg border-transparent",
-                ].join(" ")}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+          {/* Horizontal Tabs List */}
+          <div className="mt-4 flex scrollbar-none overflow-x-auto border-b border-[rgba(15,23,42,0.08)]">
+            <nav className="flex gap-6 px-1 whitespace-nowrap">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => onTabChange(tab.id)}
+                    className={[
+                      "border-b-2 py-2.5 text-sm font-semibold transition-all",
+                      isActive
+                        ? "border-ehs-normal-blue text-ehs-dark-blue"
+                        : "text-ehs-gray hover:text-ehs-dark-bg border-transparent",
+                    ].join(" ")}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

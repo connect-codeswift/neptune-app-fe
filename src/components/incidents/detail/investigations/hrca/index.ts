@@ -5,6 +5,8 @@ export type {
   HrcaWhyStep,
 } from "./IncidentDetailHrcaBoard";
 export { HrcaHeaderCard } from "./HrcaHeaderCard";
+export { HrcaCellModal } from "./HrcaCellModal";
+export { HrcaConfirmModal } from "./HrcaConfirmModal";
 export { HrcaTable } from "./HrcaTable";
 export { HrcaMetaField } from "./HrcaMetaField";
 export {

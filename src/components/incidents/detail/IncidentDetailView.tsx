@@ -239,6 +239,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
           onEdit={onEditOrSave}
           isEditing={isEditing}
           isSaving={isSaving}
+          hideIncidentChrome={showHrca}
           readOnly={
             activeTab !== "details" &&
             activeTab !== "people" &&
@@ -470,7 +471,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   queryEnabled={hrcaQueryEnabled}
                   onClose={onCloseHrca}
                   meta={investigation.hrcaMeta}
-                  incidentLabel={displayId}
                 />
               ) : showHrca ? (
                 <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-sm">
