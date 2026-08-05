@@ -452,23 +452,6 @@ export function IncidentDetailContent(
     }
   };
 
-  const handleCloseIncident = async () => {
-    if (!detail || detail.isClosed) {
-      return;
-    }
-
-    try {
-      await closeIncidentMutation.mutateAsync(detail.numericId);
-      toast.success("Incident closed", `${detail.displayId} is now Closed.`);
-      await detailQuery.refetch();
-    } catch (error) {
-      toast.error(
-        "Could not close incident",
-        getMutationErrorMessage(error, "Please try again."),
-      );
-    }
-  };
-
   const handleUploadSuccess = async (item: AttachmentItem) => {
     if (!detail) {
       setAttachments((prev) => [...prev, item]);
@@ -548,11 +531,6 @@ export function IncidentDetailContent(
       }}
       isEditing={isEditing}
       isSaving={updateIncidentMutation.isPending}
-      onCloseIncident={() => {
-        void handleCloseIncident();
-      }}
-      isClosingIncident={closeIncidentMutation.isPending}
-      closeDisabled={!detail || detail.isClosed}
       errorMessage={errorMessage}
       showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
       hasToken={hasToken}
