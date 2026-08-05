@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import { useProofreadMutation } from "@/hooks/use-ai-text-mutations";
 import { toast } from "@/lib/toast";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 
 /**
  * The magic button that sits inside a long-text field: proofreads what the
@@ -100,9 +101,11 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
         "Proofread",
         "Not what you wanted? Use Undo next to the button.",
       );
-    } catch {
+    } catch (error) {
       // Never surfaces the backend's own text. A timeout is not thrown as an
-      // AppException, so its message is a raw .NET string.
+      // AppException, so its message is a raw .NET string. The cause goes to
+      // the console instead, so this toast is not the end of the trail.
+      logAiAssistFailure("proofread", error);
       toast.error(
         "Couldn't generate a suggestion",
         "Your text is unchanged. Try again in a moment.",
