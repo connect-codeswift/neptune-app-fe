@@ -5,12 +5,16 @@ import { useState } from "react";
 import {
   applySeverityFieldDefaults,
   createInitialReportFormState,
+  EMPTY_AI_DRAFTS,
   EMPTY_FIRST_AID_FIELDS,
   NON_FIRST_AID_FIELD_DEFAULTS,
+  replaceAiFollowUps,
   SEVERITY_OPTIONS,
   type ReportIncidentFormState,
   type ReportStepId,
 } from "@/components/incidents/report/shared/report-incident-data";
+import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
+import { parseReportDateTime } from "@/services/mappers/report-incident.mapper";
 import { ReportIncidentAside } from "@/components/incidents/report/shared/ReportIncidentAside";
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
 import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
@@ -61,6 +65,7 @@ export function ReportIncidentView() {
   const [form, setForm] = useState<ReportIncidentFormState>(
     createInitialReportFormState,
   );
+  const draftAssist = useDraftAssistMutation();
 
   // Fast Refresh can keep older form state that predates step-2 fields.
   const formDefaults = createInitialReportFormState();
@@ -124,10 +129,84 @@ export function ReportIncidentView() {
       }
     }
 
+    // Skipping ahead out of step 2 via the stepper has to draft just as
+    // Continue does, or the reporter reaches step 3 with nothing waiting.
+    if (currentStep === 2 && step > currentStep) {
+      requestDrafts(normalizedForm);
+    }
+
     setCurrentStep(step);
   };
 
+  /**
+   * Generates the step 3 and 4 drafts from the step 2 description.
+   *
+   * Fire and forget on purpose: the reporter lands on step 3 immediately and
+   * the drafts settle in behind them. Nothing here may ever block or slow
+   * reporting an incident, so every failure path is silent — no toast, because
+   * they never asked for this call and interrupting them over it would be
+   * worse than the missing suggestion.
+   */
+  const requestDrafts = (source: ReportIncidentFormState) => {
+    const description = source.description.trim();
+
+    if (!description || draftAssist.isPending) {
+      return;
+    }
+
+    // Unchanged description means the drafts we already hold are still good.
+    if (description === source.aiDraftSource) {
+      return;
+    }
+
+    updateForm({ aiDraftPending: true });
+
+    draftAssist
+      .mutateAsync({
+        description,
+        severity:
+          SEVERITY_OPTIONS.find((option) => option.id === source.severity)
+            ?.label ?? source.severity,
+        location: source.location,
+        incidentAt: parseReportDateTime(
+          source.incidentDate,
+          source.incidentTime,
+        ),
+      })
+      .then((drafts) => {
+        setForm((prev) => ({
+          ...prev,
+          aiDraftPending: false,
+          aiDraftSource: description,
+          aiDrafts: {
+            // A field the reporter has already filled in is theirs. Offering a
+            // draft over the top of their own words is the one place this
+            // feature could destroy work rather than save it.
+            injuryDescription: prev.injuryDescription.trim()
+              ? null
+              : drafts.injuryDescription,
+            actionNotes: prev.actionNotes.trim() ? null : drafts.actionNotes,
+          },
+          followUps: replaceAiFollowUps(
+            prev.followUps,
+            drafts.suggestedFollowUps,
+          ),
+        }));
+      })
+      .catch(() => {
+        setForm((prev) => ({
+          ...prev,
+          aiDraftPending: false,
+          aiDrafts: EMPTY_AI_DRAFTS,
+        }));
+      });
+  };
+
   const handleContinue = () => {
+    if (currentStep === 2) {
+      requestDrafts(normalizedForm);
+    }
+
     if (currentStep < 5) {
       setCurrentStep((currentStep + 1) as ReportStepId);
     }

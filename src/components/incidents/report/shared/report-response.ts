@@ -7,8 +7,7 @@ export const IMMEDIATE_ACTION_OPTIONS = [
   { id: "photos-captured", label: "Photos captured" },
 ] as const;
 
-export const SUGGESTED_FOLLOW_UP_OPTIONS = [
-  { id: "root-cause", label: "Schedule root-cause analysis" },
-  { id: "sop-review", label: "Review SOP for hose inspection" },
-  { id: "brief-operators", label: "Brief next-shift operators" },
-] as const;
+// SUGGESTED_FOLLOW_UP_OPTIONS used to live here: three hardcoded items, one of
+// them ("Review SOP for hose inspection") wired to the hose-rupture demo
+// scenario. Follow-ups now come from POST /Incident/draft-assist or from the
+// reporter typing their own, so there is nothing left to hardcode.
