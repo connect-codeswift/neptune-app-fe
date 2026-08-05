@@ -27,6 +27,7 @@ import {
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
 import { toast } from "@/lib/toast";
+import { safeAppNavigate } from "@/lib/safe-app-navigation";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
 export type IncidentListViewProps = Readonly<{
@@ -159,7 +160,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       return;
     }
 
-    router.push(`/dashboard/incidents/${String(incident.numericId)}`);
+    safeAppNavigate(
+      router,
+      `/dashboard/incidents/${String(incident.numericId)}`,
+    );
   };
 
   const handleCloseIncident = async () => {
@@ -345,9 +349,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               {isPanelOpen && selectedListIncident ? (
                 <IncidentDetailPanel
                   incident={selectedIncident}
-                  onOpenFullDetail={() =>
-                    openIncidentDetail(selectedListIncident.id)
-                  }
                   onCloseIncident={() => {
                     void handleCloseIncident();
                   }}

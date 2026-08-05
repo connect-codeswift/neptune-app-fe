@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { getAccessToken } from "@/lib/axios";
+import { safeAppNavigate } from "@/lib/safe-app-navigation";
 import { Icon } from "@iconify/react";
 
 export type AppShellProps = Readonly<{
@@ -17,7 +18,7 @@ export function AppShell(props: Readonly<AppShellProps>) {
 
   useEffect(() => {
     if (!getAccessToken()) {
-      router.replace("/login");
+      safeAppNavigate(router, "/login", { replace: true });
     }
   }, [router]);
 

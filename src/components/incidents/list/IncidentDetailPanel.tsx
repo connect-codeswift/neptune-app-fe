@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 // import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -19,8 +20,6 @@ import { toast } from "@/lib/toast";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
-  /** Navigates to the full incident detail page (Details tab). */
-  onOpenFullDetail?: () => void;
   /** Sets the incident status to Closed (does not dismiss the sidebar). */
   onCloseIncident?: () => void;
   isClosingIncident?: boolean;
@@ -48,7 +47,6 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const {
     incident,
-    onOpenFullDetail,
     // onCloseIncident,
     // isClosingIncident = false,
     className = "",
@@ -138,19 +136,32 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             />
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenFullDetail}
-            disabled={!onOpenFullDetail}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Open details
-            <Icon
-              icon="mdi:arrow-right"
-              className="size-3.5"
-              aria-hidden="true"
-            />
-          </button>
+          {incident.numericId > 0 ? (
+            <Link
+              href={`/dashboard/incidents/${String(incident.numericId)}`}
+              className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold transition-colors"
+            >
+              Open details
+              <Icon
+                icon="mdi:arrow-right"
+                className="size-3.5"
+                aria-hidden="true"
+              />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="border-ehs-border text-ehs-normal-blue inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold opacity-50"
+            >
+              Open details
+              <Icon
+                icon="mdi:arrow-right"
+                className="size-3.5"
+                aria-hidden="true"
+              />
+            </button>
+          )}
         </div>
 
         <Text

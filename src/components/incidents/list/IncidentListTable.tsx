@@ -13,7 +13,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import {
   IncidentBadge,
   severityTone,
-  stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
@@ -113,23 +112,21 @@ function createIncidentColumns(
             >
               {row.original.description}
             </Text>
-            <div className="mt-0.5 flex w-full justify-end">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onViewMore(row.original.id);
-                }}
-                className={[
-                  "w-fit text-left text-xs font-bold transition-colors",
-                  isRowSelected
-                    ? "text-ehs-normal-blue"
-                    : "text-ehs-gray hover:text-ehs-normal-blue",
-                ].join(" ")}
-              >
-                View more
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onViewMore(row.original.id);
+              }}
+              className={[
+                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
+                isRowSelected
+                  ? "text-ehs-normal-blue"
+                  : "text-ehs-gray hover:text-ehs-normal-blue",
+              ].join(" ")}
+            >
+              View more
+            </button>
           </div>
         );
       },
@@ -166,18 +163,6 @@ function createIncidentColumns(
           label={info.getValue()}
           tone={severityTone(info.getValue())}
           showDot
-        />
-      ),
-    }),
-    columnHelper.accessor("stage", {
-      header: "Stage",
-      size: expanded ? 150 : 110,
-      minSize: 90,
-      meta: { align: "center" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={stageTone(info.getValue())}
         />
       ),
     }),
