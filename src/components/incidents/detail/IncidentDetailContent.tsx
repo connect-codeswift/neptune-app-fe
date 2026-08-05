@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AttachmentItem,
   IncidentClosureData,
@@ -11,6 +11,10 @@ import type {
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
+import {
+  createInitialClosureData,
+  resetClosureWizardFields,
+} from "@/components/incidents/detail/closure/closure-form-state";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
@@ -23,6 +27,7 @@ import {
   useIncidentByIdQuery,
   useIncidentClosureQuery,
 } from "@/hooks/use-incident-queries";
+import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
@@ -40,6 +45,9 @@ import {
   parseIncidentRouteId,
 } from "@/services/mappers/incident-detail.mapper";
 import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
+import {
+  buildRcaInvestigationPreview,
+} from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
   /** Route param: numeric id or `INC-{id}`. */
@@ -71,6 +79,7 @@ export function IncidentDetailContent(
 
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [showHrca, setShowHrca] = useState(false);
+  const [openAddCapaOnLinkedTab, setOpenAddCapaOnLinkedTab] = useState(false);
   const [previewFile, setPreviewFile] = useState<AttachmentItem | null>(null);
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
@@ -91,72 +100,9 @@ export function IncidentDetailContent(
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
-  const [closureData, setClosureData] = useState<IncidentClosureData>({
-    currentStep: 1,
-    closureStatus: "Pending Checklist",
-    closureId: undefined,
-    closedAt: undefined,
-    closedBy: getAuthDisplayName() || "EHS Lead",
-    closedByRole: "EHS Manager",
-    closureDate: formatShortDateTime(new Date()),
-    durationOpen: "—",
-    finalIncidentType: "Select option",
-    sifClassification: "Not SIF",
-    daysAwayFromWork: 0,
-    daysOnRestrictedDuty: 0,
-    isOshaRecordable: false,
-    oshaOverrideReason: undefined,
-    closureStatement: "",
-    lessonsLearned: "",
-    closureNotes: "",
-    rootCauseSummary: "",
-    primaryRootCauseCategoryIds: [],
-    contributingFactors: [],
-    equipmentProceduresNote: "",
-    actionsTaken: "",
-    preventiveActionSummary: "",
-    closureLinkedCapas: [],
-    capasVerified: false,
-    mfaSigned: false,
-    isEhsConfirmed: false,
-    residualRisk: "Low",
-    verificationChecklist: [
-      {
-        id: "chk-1",
-        label: "Immediate containment & emergency response completed",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-2",
-        label: "Root cause analysis & 5-Why investigation finalized",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-3",
-        label: "Corrective and Preventive Actions (CAPA) assigned",
-        completed: false,
-        required: true,
-      },
-      {
-        id: "chk-4",
-        label: "Regulatory notification & compliance report submitted",
-        completed: false,
-        required: false,
-      },
-      {
-        id: "chk-5",
-        label: "Final EHS Manager closure review & sign-off",
-        completed: false,
-        required: true,
-      },
-    ],
-    approverName: getAuthDisplayName() || "EHS Lead",
-    approverRole: "EHS Manager",
-    approverInitials: initialsFromName(getAuthDisplayName() || "EL"),
-    isApproved: false,
-  });
+  const [closureData, setClosureData] = useState<IncidentClosureData>(() =>
+    createInitialClosureData(),
+  );
   const [editScope, setEditScope] = useState<EditScope | null>(null);
   const openUploadPickerRef = useRef<(() => void) | null>(null);
 
@@ -195,8 +141,43 @@ export function IncidentDetailContent(
       hasToken &&
       (detail?.numericId != null || numericId != null),
   });
+  const rcaIncidentId = detail?.numericId ?? numericId;
+  const rcaQueryEnabled =
+    isClientReady &&
+    hasToken &&
+    rcaIncidentId != null &&
+    rcaIncidentId > 0 &&
+    (activeTab === "investigation" || showHrca);
+  const rcaQuery = useRcaByIncidentQuery({
+    incidentId: rcaIncidentId,
+    enabled: rcaQueryEnabled,
+  });
   const linkedCapa = capaQuery.data ?? EMPTY_LINKED_CAPA_VIEW;
   const investigation = detail?.investigation ?? EMPTY_INCIDENT_INVESTIGATION;
+  const rcaInvestigationPreview = useMemo(() => {
+    if (!rcaQuery.data) {
+      return null;
+    }
+
+    return buildRcaInvestigationPreview(rcaQuery.data.lanes, {
+      ledBy: investigation.ledBy,
+      isClosed: detail?.isClosed ?? false,
+      attachmentCount: attachments.length,
+      witnessCount: witnesses.length,
+      capaCount: linkedCapa.items.length,
+    });
+  }, [
+    attachments.length,
+    detail?.isClosed,
+    investigation.ledBy,
+    linkedCapa.items.length,
+    rcaQuery.data,
+    witnesses.length,
+  ]);
+  const rcaInvestigationError =
+    rcaQueryEnabled && rcaQuery.isError
+      ? getMutationErrorMessage(rcaQuery.error, "Failed to load RCA data.")
+      : null;
   const displayId =
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
@@ -378,6 +359,22 @@ export function IncidentDetailContent(
     setShowHrca(false);
   };
 
+  const handleNavigateToLinkedCapa = useCallback(
+    (options?: Readonly<{ openAddModal?: boolean }>) => {
+      setOpenAddCapaOnLinkedTab(Boolean(options?.openAddModal));
+      setActiveTab("linked-capa");
+      setShowHrca(false);
+      if (editScope != null) {
+        setEditScope(null);
+      }
+    },
+    [editScope],
+  );
+
+  const handleAddCapaModalOpened = useCallback(() => {
+    setOpenAddCapaOnLinkedTab(false);
+  }, []);
+
   const beginEditDetails = () => {
     if (!detail) {
       return;
@@ -494,23 +491,6 @@ export function IncidentDetailContent(
     }
   };
 
-  const handleCloseIncident = async () => {
-    if (!detail || detail.isClosed) {
-      return;
-    }
-
-    try {
-      await closeIncidentMutation.mutateAsync(detail.numericId);
-      toast.success("Incident closed", `${detail.displayId} is now Closed.`);
-      await detailQuery.refetch();
-    } catch (error) {
-      toast.error(
-        "Could not close incident",
-        getMutationErrorMessage(error, "Please try again."),
-      );
-    }
-  };
-
   const handleUploadSuccess = async (item: AttachmentItem) => {
     if (!detail) {
       setAttachments((prev) => [...prev, item]);
@@ -590,11 +570,6 @@ export function IncidentDetailContent(
       }}
       isEditing={isEditing}
       isSaving={updateIncidentMutation.isPending}
-      onCloseIncident={() => {
-        void handleCloseIncident();
-      }}
-      isClosingIncident={closeIncidentMutation.isPending}
-      closeDisabled={!detail || detail.isClosed}
       errorMessage={errorMessage}
       showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
       hasToken={hasToken}
@@ -604,6 +579,16 @@ export function IncidentDetailContent(
       }}
       detail={detail}
       investigation={investigation}
+      rcaInvestigationPreview={rcaInvestigationPreview}
+      isRcaInvestigationLoading={
+        rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
+      }
+      rcaInvestigationError={rcaInvestigationError}
+      onRetryRca={() => {
+        void rcaQuery.refetch();
+      }}
+      incidentNumericId={rcaIncidentId}
+      hrcaQueryEnabled={rcaQueryEnabled}
       showHrca={showHrca}
       onOpenHrca={() => setShowHrca(true)}
       onCloseHrca={() => setShowHrca(false)}
@@ -694,6 +679,9 @@ export function IncidentDetailContent(
       linkedCapa={linkedCapa}
       isCapaLoading={capaQuery.isPending}
       isCapaSubmitting={createCapaMutation.isPending}
+      openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
+      onAddCapaModalOpened={handleAddCapaModalOpened}
+      onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
       onSubmitCapa={async (payload) => {
         if (!detail) {
           return;
@@ -748,6 +736,18 @@ export function IncidentDetailContent(
               : item,
           ),
         }));
+      }}
+      onCancelClosure={() => {
+        const intakeType = detail?.infoItems?.find((item) =>
+          item.key.toLowerCase().includes("type"),
+        )?.value;
+
+        setClosureData((prev) =>
+          resetClosureWizardFields(prev, {
+            finalIncidentType:
+              intakeType && intakeType !== "—" ? intakeType : "Select option",
+          }),
+        );
       }}
       onSaveClosureDraft={async () => {
         const targetId = detail?.numericId ?? numericId;

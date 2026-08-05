@@ -194,7 +194,7 @@ export function ReportIncidentStepFive(
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
-              className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
+              className="text-ehs-dark-blue text-xs font-bold tracking-wide uppercase"
             >
               Step 5
             </Text>
@@ -204,7 +204,7 @@ export function ReportIncidentStepFive(
             >
               Review & submit
             </Text>
-            <Text as="p" className="text-ehs-gray text-[12px]">
+            <Text as="p" className="text-ehs-gray text-sm">
               Quick check, then this routes to EHS automatically.
             </Text>
           </div>
@@ -212,13 +212,13 @@ export function ReportIncidentStepFive(
           {/* Section 1: Top nested summary card */}
           <div className="flex flex-col gap-2.5 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/42 p-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-[10.5px] font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {severityBadge}
               </span>
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-[10.5px] font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {typeBadge}
               </span>
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-[10.5px] font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {siteBadge}
               </span>
             </div>
@@ -230,7 +230,7 @@ export function ReportIncidentStepFive(
               {incidentTitle}
             </Text>
 
-            <p className="text-ehs-gray text-[11.5px] leading-[17.5px]">
+            <p className="text-ehs-gray text-sm leading-[17.5px]">
               {form.description.trim() || "No description provided."}
             </p>
           </div>
@@ -275,17 +275,17 @@ export function ReportIncidentStepFive(
 
           {/* Section 3: Routing preview banner */}
           <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
-            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-[#0891a6]/10">
+            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-ehs-normal-blue/10">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
               <Text
                 as="span"
-                className="text-[11.5px] font-bold text-[#056e7e]"
+                className="text-sm font-bold text-ehs-dark-blue"
               >
                 Routing preview
               </Text>
-              <p className="text-ehs-gray text-[10.8px] leading-normal">
+              <p className="text-ehs-gray text-xs leading-normal">
                 After submit, this report will be routed to the site EHS owner
                 and relevant supervisors based on your organization settings.
               </p>
@@ -293,18 +293,18 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 4: AI summary ready banner */}
-          <div className="from-ehs-light-blue to-ehs-light-blue-hover flex items-start gap-3 rounded-[12px] border border-[#0891a6]/15 bg-gradient-to-r p-3.5">
+          <div className="from-ehs-light-blue to-ehs-light-blue-hover flex items-start gap-3 rounded-[12px] border border-ehs-normal-blue/15 bg-gradient-to-r p-3.5">
             <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-white shadow-sm">
               <Icon icon="mdi:creation-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
               <Text
                 as="span"
-                className="text-ehs-normal-blue text-[11.5px] font-bold"
+                className="text-ehs-normal-blue text-sm font-bold"
               >
                 AI summary ready
               </Text>
-              <p className="text-[10.8px] leading-[15px] text-[#2a3446]">
+              <p className="text-xs leading-[15px] text-ehs-slate">
                 {form.description.trim() ||
                   "AI summary will be generated from your report after submit."}
               </p>
@@ -320,7 +320,7 @@ export function ReportIncidentStepFive(
               variant="tertiary"
               onClick={onBack}
               disabled={createIncidentMutation.isPending}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -330,7 +330,7 @@ export function ReportIncidentStepFive(
               Back
             </Button>
 
-            <p className="text-ehs-muted-text min-w-0 flex-1 text-[10.8px]">
+            <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
@@ -340,7 +340,7 @@ export function ReportIncidentStepFive(
               variant="primary"
               onClick={() => void handleSubmit()}
               disabled={createIncidentMutation.isPending}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               {createIncidentMutation.isPending ? (
                 <>

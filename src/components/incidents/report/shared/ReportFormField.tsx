@@ -13,6 +13,7 @@ import {
   FIELD_SELECT_CLASS,
   FIELD_SELECT_PLACEHOLDER_CLASS,
   FIELD_TEXTAREA_CLASS,
+  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
 } from "@/components/ui/field-styles";
 
 /** @deprecated Import `FIELD_INPUT_CLASS` from `@/components/ui/field-styles`. */
@@ -32,16 +33,16 @@ export function ReportFieldLabel(props: Readonly<ReportFieldLabelProps>) {
 
   return (
     <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+      <Text as="span" className="text-sm font-bold text-ehs-slate">
         {label}
       </Text>
       {required ? (
-        <Text as="span" className="text-ehs-red text-[12px]">
+        <Text as="span" className="text-ehs-red text-sm">
           *
         </Text>
       ) : null}
       {hint ? (
-        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
+        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-xs">
           <Icon
             icon="mdi:information-outline"
             className="size-3"
@@ -87,7 +88,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined
@@ -108,7 +109,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         ) : null}
       </div>
       {helperText ? (
-        <Text as="p" className="text-ehs-muted-text text-[10px]">
+        <Text as="p" className="text-ehs-muted-text text-xs">
           {helperText}
         </Text>
       ) : null}
@@ -152,7 +153,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
         hint={hint}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined
@@ -198,11 +199,25 @@ export type ReportTextareaFieldProps = Readonly<
     required?: boolean;
     trailingHint?: string;
     className?: string;
+    /**
+     * Controls layered inside the field box — e.g. `<AiTextAssistant />`. They
+     * position themselves against the wrapper this adds, and the textarea grows
+     * a bottom strip so typed text never runs underneath them.
+     */
+    assistant?: ReactNode;
   }
 >;
 
 export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
-  const { label, required, trailingHint, className = "", id, ...rest } = props;
+  const {
+    label,
+    required,
+    trailingHint,
+    assistant,
+    className = "",
+    id,
+    ...rest
+  } = props;
 
   return (
     <div
@@ -213,13 +228,24 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined
         }
       />
-      <textarea id={id} className={FIELD_TEXTAREA_CLASS} {...rest} />
+      <div className="relative">
+        <textarea
+          id={id}
+          className={
+            assistant
+              ? FIELD_TEXTAREA_WITH_CONTROLS_CLASS
+              : FIELD_TEXTAREA_CLASS
+          }
+          {...rest}
+        />
+        {assistant}
+      </div>
     </div>
   );
 }

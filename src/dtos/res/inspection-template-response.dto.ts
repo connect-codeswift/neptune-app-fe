@@ -19,7 +19,7 @@ export type InspectionTemplateDto = {
   sectionCount: number;
   itemCount: number;
   userId: number;
-  subCompanyId: number;
+  siteId: number;
   createdDate: string;
   updatedDate: string;
   lastUsedDate: string;

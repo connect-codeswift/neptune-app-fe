@@ -23,11 +23,11 @@ export function RecordablesBySiteCard(
       <div className="mb-[14px] flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-ehs-darker text-[14px] font-bold tracking-[-0.14px]"
+          className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"
         >
           Recordables by site
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <Text as="p" className="text-ehs-muted-text text-sm">
           Year to date
         </Text>
       </div>
@@ -39,12 +39,12 @@ export function RecordablesBySiteCard(
           return (
             <div key={item.site} className="flex flex-col gap-[5px]">
               <div className="flex items-center justify-between gap-2">
-                <Text as="span" className="text-xs text-[#2a3446]">
+                <Text as="span" className="text-xs text-ehs-slate">
                   {item.site}
                 </Text>
                 <Text
                   as="span"
-                  className="text-ehs-gray text-[11px] tabular-nums"
+                  className="text-ehs-gray text-sm tabular-nums"
                 >
                   {String(item.count)}
                 </Text>

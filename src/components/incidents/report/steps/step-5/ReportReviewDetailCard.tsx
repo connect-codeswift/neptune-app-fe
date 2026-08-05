@@ -39,7 +39,7 @@ export function ReportReviewDetailCard(
       <div className="relative z-[1] flex w-full flex-col items-start py-px">
         <Text
           as="p"
-          className="text-ehs-muted-text w-full text-[10.5px] font-bold tracking-[1.05px] uppercase"
+          className="text-ehs-muted-text w-full text-xs font-bold tracking-[1.05px] uppercase"
         >
           {title}
         </Text>
@@ -52,7 +52,7 @@ export function ReportReviewDetailCard(
             className="flex w-full items-start justify-between gap-3"
           >
             <div className="shrink-0 py-px">
-              <Text as="p" className="text-ehs-muted-text text-[12px]">
+              <Text as="p" className="text-ehs-muted-text text-sm">
                 {row.label}
               </Text>
             </div>
@@ -60,12 +60,12 @@ export function ReportReviewDetailCard(
               {typeof row.value === "string" ? (
                 <Text
                   as="p"
-                  className="text-ehs-dark-bg text-[12px] break-words"
+                  className="text-ehs-dark-bg text-sm break-words"
                 >
                   {row.value}
                 </Text>
               ) : (
-                <div className="text-ehs-dark-bg text-[12px] break-words">
+                <div className="text-ehs-dark-bg text-sm break-words">
                   {row.value}
                 </div>
               )}

@@ -16,6 +16,8 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   incidentTitle: string;
   isLoading?: boolean;
   isSubmitting?: boolean;
+  openAddModal?: boolean;
+  onAddModalOpened?: () => void;
   onSubmitCapa?: (payload: {
     controlLevel: string;
     description: string;
@@ -36,11 +38,22 @@ export function IncidentDetailCapaListCard(
     incidentTitle,
     isLoading = false,
     isSubmitting = false,
+    openAddModal = false,
+    onAddModalOpened,
     onSubmitCapa,
     className = "",
   } = props;
 
-  const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
+  const [addModalRequestedLocally, setAddModalRequestedLocally] =
+    useState(false);
+
+  // Derive from prop + local click — avoids setState inside useEffect (eslint cascade rule).
+  const isAddCapaOpen = addModalRequestedLocally || openAddModal;
+
+  const handleCloseAddModal = () => {
+    setAddModalRequestedLocally(false);
+    onAddModalOpened?.();
+  };
 
   return (
     <>
@@ -51,13 +64,10 @@ export function IncidentDetailCapaListCard(
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
-            <Text
-              as="h3"
-              className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
-            >
-              Linked corrective & preventive actions
+            <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+              Linked Corrective & Preventive Actions
             </Text>
-            <span className="text-[11px] leading-normal text-[#8892a3]">
+            <span className="text-ehs-muted-text text-sm leading-normal">
               {isLoading
                 ? `Loading CAPAs for ${incidentId}…`
                 : `${String(capas.length)} linked to ${incidentId}`}
@@ -67,9 +77,9 @@ export function IncidentDetailCapaListCard(
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsAddCapaOpen(true)}
+              onClick={() => setAddModalRequestedLocally(true)}
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 rounded-[10px] bg-[#0891a6] px-3 py-[7.5px] text-[12px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067a8c] disabled:cursor-not-allowed disabled:opacity-60"
+              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-[10px] px-3 py-[7.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Icon
                 icon="mdi:plus"
@@ -85,7 +95,7 @@ export function IncidentDetailCapaListCard(
           {isLoading ? (
             <SkeletonListRows rows={3} />
           ) : capas.length === 0 ? (
-            <div className="py-8 text-center text-[12px] text-[#8892a3]">
+            <div className="text-ehs-muted-text py-8 text-center text-sm">
               No linked CAPA actions found for this incident.
             </div>
           ) : (
@@ -99,35 +109,35 @@ export function IncidentDetailCapaListCard(
                   className="flex flex-col gap-[7px] rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] p-[17px]"
                 >
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                    <span className="text-[11px] font-bold text-[#8892a3]">
+                    <span className="text-ehs-muted-text text-sm font-bold">
                       {item.code}
                     </span>
-                    <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] py-[3px] text-[10.5px] font-bold text-[#566072]">
-                      <span className="size-1.5 rounded-[3px] bg-[#566072]" />
+                    <span className="bg-ehs-dark-bg/14 text-ehs-gray inline-flex items-center gap-[5px] rounded-full px-[9px] py-[3px] text-xs font-bold">
+                      <span className="bg-ehs-gray size-1.5 rounded-[3px]" />
                       {item.controlCategory}
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-[rgba(86,96,114,0.14)] px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]">
+                    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]">
                       {item.actionType}
                     </span>
                     <span
                       className={[
-                        "ml-auto inline-flex items-center rounded-full px-[9px] py-[3px] text-[10px] leading-[14px] font-bold tracking-[0.2px] text-[#566072]",
+                        "text-ehs-gray ml-auto inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]",
                         item.status === "Planning"
-                          ? "bg-[rgba(86,96,114,0.14)]"
-                          : "bg-[rgba(11,19,32,0.14)]",
+                          ? "bg-ehs-gray/14"
+                          : "bg-ehs-dark-bg/14",
                       ].join(" ")}
                     >
                       {item.status}
                     </span>
                   </div>
 
-                  <h4 className="text-[13.5px] leading-[19.58px] font-normal text-[#0b1320]">
+                  <h4 className="text-ehs-dark-bg text-sm leading-[19.58px] font-normal">
                     {item.title}
                   </h4>
 
                   <div className="flex flex-col gap-2 pt-[3px] sm:flex-row sm:items-center sm:gap-[14px]">
                     <div className="flex shrink-0 items-center gap-[14px]">
-                      <span className="inline-flex items-center gap-[5px] text-[11px] text-[#566072]">
+                      <span className="text-ehs-gray inline-flex items-center gap-[5px] text-sm">
                         <Icon
                           icon="mdi:account-outline"
                           className="size-3"
@@ -135,7 +145,7 @@ export function IncidentDetailCapaListCard(
                         />
                         {item.assignee}
                       </span>
-                      <span className="inline-flex items-center gap-[5px] text-[11px] text-[#566072]">
+                      <span className="text-ehs-gray inline-flex items-center gap-[5px] text-sm">
                         <Icon
                           icon="mdi:calendar-outline"
                           className="size-3"
@@ -146,16 +156,16 @@ export function IncidentDetailCapaListCard(
                     </div>
 
                     <div className="flex min-w-0 flex-1 items-center gap-2">
-                      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]">
+                      <div className="bg-ehs-muted-text/20 relative h-1.5 w-full overflow-hidden rounded-full">
                         <div
                           className={[
                             "h-full rounded-full transition-all duration-300",
-                            isCompleted ? "bg-[#10b981]" : "bg-[#0891a6]",
+                            isCompleted ? "bg-ehs-green" : "bg-ehs-normal-blue",
                           ].join(" ")}
                           style={{ width: `${String(item.progressPercent)}%` }}
                         />
                       </div>
-                      <span className="min-w-[30px] shrink-0 text-right text-[11px] text-[#8892a3]">
+                      <span className="text-ehs-muted-text min-w-[30px] shrink-0 text-right text-sm">
                         {item.progressPercent}%
                       </span>
                     </div>
@@ -172,7 +182,7 @@ export function IncidentDetailCapaListCard(
           incidentId={incidentId}
           incidentTitle={incidentTitle}
           isSubmitting={isSubmitting}
-          onClose={() => setIsAddCapaOpen(false)}
+          onClose={handleCloseAddModal}
           onSubmit={onSubmitCapa}
         />
       ) : null}

@@ -34,11 +34,11 @@ export function IncidentDetailStorageCard(
       <div className="flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Storage
         </Text>
-        <span className="text-[11px] leading-normal text-[#8892a3]">
+        <span className="text-sm leading-normal text-ehs-muted-text">
           Per incident
         </span>
       </div>
@@ -46,13 +46,13 @@ export function IncidentDetailStorageCard(
       <div className="flex flex-col gap-2">
         <div className="relative h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.06)]">
           <div
-            className="h-full rounded-full bg-[#0891a6] transition-all duration-300"
+            className="h-full rounded-full bg-ehs-normal-blue transition-all duration-300"
             style={{ width: `${String(percentage)}%` }}
           />
         </div>
 
-        <div className="flex items-center justify-between text-[11px] font-semibold text-[#8892a3]">
-          <span className="text-[#566072]">
+        <div className="flex items-center justify-between text-sm font-semibold text-ehs-muted-text">
+          <span className="text-ehs-gray">
             {usedMB} MB of {maxMB} MB
           </span>
           <span>{percentage}%</span>

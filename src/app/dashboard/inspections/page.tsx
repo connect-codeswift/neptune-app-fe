@@ -3,10 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import {
-  StatMetricCard,
-  type StatMetricCardProps,
-} from "@/components/StatMetricCard";
+import { StatMetricCard } from "@/components/StatMetricCard";
 import { Table } from "@/components/ui/Table";
 import { inspectionColumns } from "@/components/inspections/InspectionColumns";
 import { InspectionDetailPanel } from "@/components/inspections/InspectionDetailPanel";
@@ -16,86 +13,63 @@ import {
 } from "@/components/inspections/InspectionPageSkeleton";
 import { InspectionRegisterToolbar } from "@/components/inspections/InspectionRegisterToolbar";
 import {
-  useInspectionDetailQuery,
+  useInspectionDetailSummaryQuery,
   useInspectionsQuery,
+  useInspectionSummaryQuery,
 } from "@/hooks/use-inspection-queries";
+import { mapInspectionDtoToRecord } from "@/lib/map-inspection";
 import {
-  mapInspectionDetailDtoToDetail,
-  mapInspectionDtoToRecord,
-} from "@/lib/map-inspection";
+  mapInspectionDetailSummaryToDetail,
+  mapSummaryToMetrics,
+} from "@/lib/map-audit-inspection-dashboard";
+import {
+  REGISTER_STATUS_FILTERS,
+  toApiStatusFilter,
+  type RegisterStatusFilter,
+} from "@/lib/audit-inspection-status";
+import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
+import { getCurrentUser } from "@/lib/current-user";
 
 const PAGE_SIZE = 10;
 
-const INSPECTION_METRICS: readonly StatMetricCardProps[] = [
-  {
-    title: "Inspections YTD",
-    value: 29,
-    trendValue: "+5",
-    trendTone: "positive",
-  },
-  {
-    title: "Open findings",
-    value: 19,
-    trendValue: "-4",
-    trendTone: "negative",
-  },
-  {
-    title: "On-time closure",
-    value: "92%",
-    trendValue: "+2pp",
-    trendTone: "positive",
-  },
-  {
-    title: "Avg findings/inspection",
-    value: "2.1",
-    trendValue: "-0.3",
-    trendTone: "negative",
-  },
-];
-
 export default function InspectionsPage() {
   const router = useRouter();
-  const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const { userId } = getCurrentUser();
+  const [selectedStatus, setSelectedStatus] =
+    useState<RegisterStatusFilter>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
 
-  const inspectionsQuery = useInspectionsQuery({
-    pageNumber,
-    pageSize: PAGE_SIZE,
-  });
+  const listParams = useMemo(
+    () => ({
+      pageNumber,
+      pageSize: PAGE_SIZE,
+      status: toApiStatusFilter(selectedStatus),
+    }),
+    [pageNumber, selectedStatus],
+  );
+
+  const summaryQuery = useInspectionSummaryQuery(userId);
+  const inspectionsQuery = useInspectionsQuery(listParams);
+
+  const metrics = useMemo(
+    () => mapSummaryToMetrics(summaryQuery.data?.dataModel, "inspection"),
+    [summaryQuery.data],
+  );
+
   const page = inspectionsQuery.data?.dataModel;
   const records = useMemo(
     () => (page?.data ?? []).map(mapInspectionDtoToRecord),
     [page],
   );
 
-  // Only offer filters for statuses the backend actually returned.
-  const statuses = useMemo(
-    () => ["All", ...new Set(records.map((record) => record.status))],
-    [records],
-  );
+  const detailSummaryQuery = useInspectionDetailSummaryQuery(selectedId);
+  const detail = useMemo(() => {
+    const dto = detailSummaryQuery.data?.dataModel;
+    return dto ? mapInspectionDetailSummaryToDetail(dto) : null;
+  }, [detailSummaryQuery.data]);
 
-  // If the chosen status vanishes on a refetch, fall back to "All" rather than
-  // leaving the table empty with no segment selected.
-  const activeStatus = statuses.includes(selectedStatus)
-    ? selectedStatus
-    : "All";
-
-  const filteredRecords = useMemo(
-    () =>
-      records.filter(
-        (record) => activeStatus === "All" || record.status === activeStatus,
-      ),
-    [records, activeStatus],
-  );
-
-  // Fetch the clicked inspection's detail for the side panel.
-  const detailQuery = useInspectionDetailQuery(selectedId);
-  const detailDto = detailQuery.data?.dataModel ?? null;
-  const detail = useMemo(
-    () => (detailDto ? mapInspectionDetailDtoToDetail(detailDto) : null),
-    [detailDto],
-  );
+  const isInitialLoading = summaryQuery.isPending && inspectionsQuery.isPending;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -104,28 +78,30 @@ export default function InspectionsPage() {
         searchPlaceholder="Search incidents, actions, docs..."
         dateRangeLabel="March 25 — April 24, 2026"
         hasUnreadNotifications
-        // actionLabel="Start Inspection"
-        // onActionClick={() => router.push("/dashboard/inspections/start")}
       />
-      {inspectionsQuery.isPending ? (
+      {isInitialLoading ? (
         <InspectionPageSkeleton />
       ) : (
         <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics */}
           <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-            {INSPECTION_METRICS.map((metric) => (
+            {metrics.map((metric) => (
               <StatMetricCard key={metric.title} {...metric} />
             ))}
           </div>
+
+          {summaryQuery.isError ? (
+            <p className="text-ehs-red text-sm">
+              Could not load inspection KPIs.
+            </p>
+          ) : null}
 
           {inspectionsQuery.isError ? (
             <p className="text-ehs-red text-sm">Could not load inspections.</p>
           ) : null}
 
-          {/* Inspection register + selected inspection breakdown */}
           <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <Table
-              data={filteredRecords}
+              data={records}
               columns={inspectionColumns}
               selectedRowId={selectedId}
               onRowClick={(row) => setSelectedId(row.id)}
@@ -140,9 +116,12 @@ export default function InspectionsPage() {
               }}
               header={
                 <InspectionRegisterToolbar
-                  status={activeStatus}
-                  statuses={statuses}
-                  onStatusChange={setSelectedStatus}
+                  status={selectedStatus}
+                  statuses={REGISTER_STATUS_FILTERS}
+                  onStatusChange={(value) => {
+                    setSelectedStatus(value as RegisterStatusFilter);
+                    setPageNumber(1);
+                  }}
                   onTemplatesClick={() =>
                     router.push("/dashboard/inspections/template")
                   }
@@ -151,11 +130,11 @@ export default function InspectionsPage() {
             />
 
             {selectedId !== null ? (
-              detailQuery.isPending ? (
+              detailSummaryQuery.isPending ? (
                 <InspectionDetailPanelSkeleton />
-              ) : detailQuery.isError ? (
+              ) : detailSummaryQuery.isError ? (
                 <p className="text-ehs-red text-sm">
-                  Could not load inspection detail.
+                  {detailSummaryErrorMessage(detailSummaryQuery.error)}
                 </p>
               ) : detail ? (
                 <InspectionDetailPanel
@@ -163,7 +142,7 @@ export default function InspectionsPage() {
                   className="min-w-0"
                   onViewFindings={() =>
                     router.push(
-                      `/dashboard/inspections/report?inspectionid=${encodeURIComponent(selectedId)}`,
+                      `/dashboard/inspections/findings/${encodeURIComponent(selectedId)}`,
                     )
                   }
                 />

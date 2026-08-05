@@ -78,6 +78,7 @@
   --color-ehs-dark-blue-bg-light: var(--ehs-dark-blue-bg-light);
 
   --color-ehs-darker: var(--ehs-darker);
+  --color-ehs-form-classes-bg: var(--ehs-form-classes-bg);
   --color-ehs-green-bg-light: var(--ehs-green-bg-light);
 
   --font-sans: var(--font-geist-sans);
@@ -205,6 +206,63 @@ body {
 
 @utility animate-check-ripple {
   animation-name: check-ripple;
+  animation-duration: 0.7s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+/* Blade of light that sweeps a field while an AI rewrite is in flight. The
+   blade is a third of the field wide, so it travels well past both edges. */
+@keyframes ai-blade-sweep {
+  from {
+    transform: translateX(-150%) skewX(-18deg);
+  }
+
+  to {
+    transform: translateX(340%) skewX(-18deg);
+  }
+}
+
+@utility animate-ai-blade-sweep {
+  animation-name: ai-blade-sweep;
+  animation-duration: 1.15s;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+}
+
+/* Breathing outline under the blade — reads as "thinking" rather than "stuck" */
+@keyframes ai-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@utility animate-ai-halo-pulse {
+  animation-name: ai-halo-pulse;
+  animation-duration: 1.6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* One-shot confirmation ring when the rewritten text lands in the field */
+@keyframes ai-result-flash {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@utility animate-ai-result-flash {
+  animation-name: ai-result-flash;
   animation-duration: 0.7s;
   animation-timing-function: ease-out;
   animation-iteration-count: 1;

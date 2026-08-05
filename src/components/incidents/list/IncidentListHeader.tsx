@@ -31,7 +31,7 @@ export type IncidentListHeaderProps = Readonly<{
 }>;
 
 const controlClass =
-  "border-ehs-border text-ehs-gray inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-2 text-[13px] shadow-sm transition-colors hover:bg-ehs-light-bg sm:px-3.5";
+  "border-ehs-border text-ehs-gray inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-2 text-sm shadow-sm transition-colors hover:bg-ehs-light-bg sm:px-3.5";
 
 const iconControlClass =
   "border-ehs-border relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border bg-white shadow-sm transition-colors hover:bg-ehs-light-bg";
@@ -89,9 +89,9 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
         onChange={(event) => onSearchChange?.(event.target.value)}
         placeholder={searchPlaceholder}
         aria-label="Search incidents"
-        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-[13px] shadow-sm outline-none focus:ring-2"
+        className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border bg-white py-2 pr-12 pl-9 text-sm shadow-sm outline-none focus:ring-2"
       />
-      <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-[10px] font-medium sm:inline">
+      <kbd className="border-ehs-border text-ehs-muted-text bg-ehs-light-bg pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded border px-1.5 py-px text-xs font-medium sm:inline">
         ⌘K
       </kbd>
     </div>
@@ -100,7 +100,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
   return (
     <header
       className={[
-        "flex flex-col gap-4 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between",
+        "flex flex-col gap-3 px-4 py-4 sm:px-6 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4",
         className,
       ]
         .filter(Boolean)
@@ -118,7 +118,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
         {searchPosition === "start" && showSearch ? searchInput : null}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:justify-end">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 lg:justify-end">
         {searchPosition === "end" && showSearch ? searchInput : null}
 
         <button
@@ -165,7 +165,7 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
             <Button
               type="button"
               variant="primary"
-              className="w-full rounded-lg px-3 py-2 text-[13px] sm:w-auto sm:px-4"
+              className="w-full rounded-lg px-3 py-2 text-sm sm:w-auto sm:px-4"
             >
               <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
               <span className="sm:hidden">{shortLabel}</span>

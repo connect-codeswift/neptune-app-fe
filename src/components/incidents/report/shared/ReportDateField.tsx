@@ -64,7 +64,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
           ) : undefined

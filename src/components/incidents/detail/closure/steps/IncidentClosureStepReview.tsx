@@ -17,28 +17,28 @@ export function IncidentClosureStepReview(
 ) {
   const { data, onChangeField } = props;
 
-  const isConfirmed = data.isEhsConfirmed ?? true;
+  const isConfirmed = data.isEhsConfirmed ?? false;
 
   return (
     <div className="flex flex-col gap-5">
       <div>
         <Text
           as="h2"
-          className="text-[18px] leading-tight font-bold tracking-tight text-[#0f172a]"
+          className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
         >
           Digital Sign-off & Submission
         </Text>
-        <Text as="p" className="mt-2 text-[13px] font-medium leading-[20px] text-[#64748b]">
+        <Text as="p" className="mt-2 text-[13px] font-normal leading-[20px] text-ehs-gray">
           Closing this incident creates a legal compliance record. Verification of security credentials and multi-factor authorization is requested to finalize digital signatures.
         </Text>
       </div>
 
       {/* Sign-off Green/Teal Box */}
-      <div className="rounded-[14px] border border-[#008ba3]/40 bg-[#d2eff4]/40 p-4 shadow-xs">
-        <Text as="p" className="text-[13px] font-bold text-[#0f172a]">
+      <div className="rounded-[14px] border border-ehs-normal-blue/40 bg-ehs-light-blue/40 p-4 shadow-xs">
+        <Text as="p" className="text-[13px] font-bold text-ehs-dark-bg">
           {data.closedBy || "Sarah Mitchell"}
         </Text>
-        <Text as="p" className="mt-0.5 text-[12px] font-medium text-[#64748b]">
+        <Text as="p" className="mt-0.5 text-[13px] font-normal text-ehs-gray">
           {`${data.closedByRole || "EHS Manager"} · ${data.closureDate || "24 Apr 2026, 15:04"}`}
         </Text>
       </div>
@@ -53,15 +53,15 @@ export function IncidentClosureStepReview(
           className={[
             "flex size-5 shrink-0 items-center justify-center rounded transition-colors",
             isConfirmed
-              ? "bg-[#008ba3] text-white"
-              : "border border-[#cbd5e1] bg-white",
+              ? "bg-ehs-normal-blue text-ehs-light-text"
+              : "border border-ehs-border bg-white",
           ].join(" ")}
         >
           {isConfirmed ? (
             <Icon icon="mdi:check" className="size-4 stroke-[3]" />
           ) : null}
         </div>
-        <Text as="span" className="text-[13px] font-bold text-[#0f172a]">
+        <Text as="span" className="text-[13px] font-bold text-ehs-dark-bg">
           I confirm all corrective actions are complete and verified per EHS guidelines.
         </Text>
       </button>

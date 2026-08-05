@@ -8,6 +8,7 @@ export type CapaItem = Readonly<{
   title: string;
   assignee: string;
   dueDate: string;
+  priority: string;
   progressPercent: number;
 }>;
 

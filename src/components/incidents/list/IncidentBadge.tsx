@@ -37,7 +37,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.11px] whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-bold tracking-wide whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
@@ -58,7 +58,26 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   );
 }
 
-export function severityTone(_severity: string): IncidentBadgeTone {
+export function severityTone(severity: string): IncidentBadgeTone {
+  const lower = severity.trim().toLowerCase();
+
+  if (lower.includes("first aid") || lower === "first-aid") {
+    return "success";
+  }
+
+  if (
+    lower === "sip" ||
+    lower.includes("lost time") ||
+    lower === "lti" ||
+    lower.includes("lost-time")
+  ) {
+    return "warn";
+  }
+
+  if (lower === "sia" || lower.includes("recordable") || lower === "osha") {
+    return "danger";
+  }
+
   return "neutral";
 }
 

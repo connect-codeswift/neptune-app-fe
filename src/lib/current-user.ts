@@ -71,7 +71,11 @@ const USER_ID_CLAIM_KEYS = [
   "id",
 ] as const;
 
-const SUB_COMPANY_ID_CLAIM_KEYS = [
+const SITE_ID_CLAIM_KEYS = [
+  "siteId",
+  "SiteId",
+  "site_id",
+  // Legacy claims from tokens issued before the site rename.
   "subCompanyId",
   "SubCompanyId",
   "sub_company_id",
@@ -109,21 +113,29 @@ function readStringClaim(
 
 export type CurrentUser = Readonly<{
   userId: number;
+  /** Tenant site id from the SiteId JWT claim (formerly SubCompanyId). */
+  siteId: number;
+  /** @deprecated Alias for `siteId` — kept during the site rename rollout. */
   subCompanyId: number;
   role: string | null;
 }>;
 
 /**
- * Extract `userId` / `subCompanyId` / `role` from the access token's claims.
+ * Extract `userId` / `siteId` / `role` from the access token's claims.
  * Falls back to 0 / null when the token is missing or a claim isn't present.
  */
 export function getCurrentUser(): CurrentUser {
   const claims = decodeAccessTokenClaims();
-  if (!claims) return { userId: 0, subCompanyId: 0, role: null };
+  if (!claims) {
+    return { userId: 0, siteId: 0, subCompanyId: 0, role: null };
+  }
+
+  const siteId = readNumericClaim(claims, SITE_ID_CLAIM_KEYS) ?? 0;
 
   return {
     userId: readNumericClaim(claims, USER_ID_CLAIM_KEYS) ?? 0,
-    subCompanyId: readNumericClaim(claims, SUB_COMPANY_ID_CLAIM_KEYS) ?? 0,
+    siteId,
+    subCompanyId: siteId,
     role: readStringClaim(claims, ROLE_CLAIM_KEYS) ?? null,
   };
 }

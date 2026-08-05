@@ -30,19 +30,19 @@ export function IncidentDetailAiCard(props: Readonly<IncidentDetailAiCardProps>)
   return (
     <div
       className={[
-        "flex flex-col gap-[7px] rounded-[20px] border border-[rgba(8,145,166,0.3)] bg-[rgba(8,145,166,0.18)] p-[19px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]",
+        "flex flex-col gap-[7px] rounded-[20px] border border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light p-[19px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex items-center gap-1.5 text-[#056e7e]">
+      <div className="flex items-center gap-1.5 text-ehs-dark-blue">
         <Icon icon="mdi:creation-outline" className="size-[13px]" aria-hidden="true" />
-        <span className="text-[10px] font-bold tracking-[1px] uppercase">
+        <span className="text-xs font-bold tracking-[1px] uppercase">
           AI insight
         </span>
       </div>
-      <p className="text-[12px] leading-[18.6px] text-[#2a3446]">
+      <p className="text-sm leading-[18.6px] text-ehs-slate">
         {matched ? (
           <>
             {before}

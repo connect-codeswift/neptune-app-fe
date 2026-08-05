@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -13,7 +12,6 @@ import {
   buildIncidentListKpis,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
-  toApiCaseDispositionFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -40,9 +38,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
-  const router = useRouter();
   const [stateFilter, setStateFilter] = useState("All");
-  const [stageFilter, setStageFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const accessTokenState = useHasAccessToken();
@@ -76,11 +72,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
   };
 
-  const handleStageFilterChange = (value: string) => {
-    setStageFilter(value);
-    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
-  };
-
   const handleSeverityFilterChange = (value: string) => {
     setSeverityFilter(value);
     setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
@@ -91,7 +82,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     pageSize,
     search: appliedSearch,
     severity: toApiSeverityFilter(severityFilter),
-    caseDisposition: toApiCaseDispositionFilter(stateFilter),
     enabled: isClientReady && hasToken,
   });
   const closeIncidentMutation = useCloseIncidentMutation();
@@ -105,40 +95,40 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   /**
    * Second filtering pass, on purpose (belt and braces).
    *
-   * `search` / `severity` / `caseDisposition` are now sent to GetAllIncidents so
+   * `search` / `severity` are now sent to GetAllIncidents so
    * filtering spans every page instead of the 10 visible rows. But backend
    * deploys here are manual and can lag the frontend: an older API silently
    * ignores the new params and returns an unfiltered page. Re-running the
    * filters locally is a no-op when the server honored them, and keeps the list
-   * correct (page-scoped, as before) when it did not. `stage` has no server
-   * counterpart at all and is only ever filtered here.
+   * correct (page-scoped, as before) when it did not. `state: Open` has no
+   * server counterpart and is only ever filtered here.
    */
   const filteredIncidents = useMemo(() => {
     return incidents.filter((incident) => {
       const matchesSearch = incidentMatchesSearch(incident, appliedSearch);
       const matchesState =
         stateFilter === "All" || incident.state === stateFilter;
-      const matchesStage =
-        stageFilter === "All" || incident.stage === stageFilter;
       const matchesSeverity = incidentMatchesSeverityFilter(
         incident,
         severityFilter,
       );
 
-      return matchesSearch && matchesState && matchesStage && matchesSeverity;
+      return matchesSearch && matchesState && matchesSeverity;
     });
-  }, [incidents, appliedSearch, severityFilter, stageFilter, stateFilter]);
+  }, [incidents, appliedSearch, severityFilter, stateFilter]);
 
-  // Keep the detail sidebar open; default to the first incident on the page,
-  // and fall back to it whenever filtering drops the current selection.
-  // Derived during render rather than synced through an effect, so there is no
-  // pass where the sidebar still points at a row that is no longer listed.
+  // Preview panel opens only after explicit row selection (View more or row click).
   const selectedListIncident =
-    (selectedId == null
-      ? undefined
-      : filteredIncidents.find((incident) => incident.id === selectedId)) ??
-    filteredIncidents[0] ??
-    null;
+    selectedId == null
+      ? null
+      : (filteredIncidents.find((incident) => incident.id === selectedId) ??
+        null);
+
+  useEffect(() => {
+    if (selectedId != null && selectedListIncident == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedListIncident]);
 
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
@@ -157,14 +147,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
   const isPanelOpen = selectedListIncident != null;
 
-  const openIncidentDetail = (listId: string) => {
-    const incident = filteredIncidents.find((row) => row.id === listId);
-    if (!incident || incident.numericId <= 0) {
-      return;
-    }
-
-    router.push(`/dashboard/incidents/${String(incident.numericId)}`);
-  };
+  const handleOpenDetailPanel = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
 
   const handleCloseIncident = async () => {
     const target = selectedIncident ?? selectedListIncident;
@@ -206,7 +191,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-6", className]
+      className={["flex min-w-0 flex-col gap-5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -222,10 +207,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
       <IncidentFilterBar
         state={stateFilter}
-        stage={stageFilter}
         severity={severityFilter}
         onStateChange={handleStateFilterChange}
-        onStageChange={handleStageFilterChange}
         onSeverityChange={handleSeverityFilterChange}
       />
 
@@ -246,7 +229,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
             <button
               type="button"
               onClick={() => void incidentsQuery.refetch()}
-              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-[13px] font-semibold"
+              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-sm font-semibold"
             >
               <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
               Retry
@@ -256,7 +239,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       ) : null}
 
       {!errorMessage && (showBootLoading || showQueryLoading) ? (
-        <SkeletonTable rows={8} columns={7} />
+        <SkeletonTable rows={8} columns={5} />
       ) : null}
 
       {!errorMessage &&
@@ -265,7 +248,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       isClientReady ? (
         <div
           className={[
-            "grid min-w-0 items-start gap-x-[14px] gap-y-6",
+            "grid min-w-0 items-start gap-x-[14px] gap-y-5",
             isPanelOpen
               ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
               : "xl:grid-cols-1",
@@ -290,15 +273,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               <div className="flex min-w-0 flex-col gap-3">
                 <IncidentListTable
                   incidents={filteredIncidents}
-                  selectedId={selectedListIncident?.id ?? null}
-                  onSelect={setSelectedId}
-                  onOpenDetail={openIncidentDetail}
+                  selectedId={selectedId}
+                  onViewMore={handleOpenDetailPanel}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <Text as="p" className="text-ehs-muted-text text-[12px]">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
+                  <Text as="p" className="text-ehs-muted-text text-sm">
                     {[
                       `Page ${String(pageNumber)} of ${String(totalPages)}`,
                       totalCount > 0 ? `${String(totalCount)} total` : null,
@@ -308,38 +290,38 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                       .join(" · ")}
                   </Text>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Button
                       type="button"
                       variant="tertiary"
+                      aria-label="Previous page"
                       disabled={!canGoPrevious}
                       onClick={() =>
                         setPageNumber((current) => Math.max(1, current - 1))
                       }
-                      className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
+                      className="rounded-lg px-2.5 py-1.5 text-sm font-semibold disabled:opacity-40"
                     >
                       <Icon
                         icon="mdi:chevron-left"
-                        className="size-[14px]"
+                        className="size-4"
                         aria-hidden="true"
                       />
-                      Previous
                     </Button>
                     <Button
                       type="button"
                       variant="tertiary"
+                      aria-label="Next page"
                       disabled={!canGoNext}
                       onClick={() =>
                         setPageNumber((current) =>
                           Math.min(totalPages, current + 1),
                         )
                       }
-                      className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
+                      className="rounded-lg px-2.5 py-1.5 text-sm font-semibold disabled:opacity-40"
                     >
-                      Next
                       <Icon
                         icon="mdi:chevron-right"
-                        className="size-[14px]"
+                        className="size-4"
                         aria-hidden="true"
                       />
                     </Button>
@@ -347,7 +329,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 </div>
               </div>
 
-              {isPanelOpen ? (
+              {isPanelOpen && selectedListIncident ? (
                 <IncidentDetailPanel
                   incident={selectedIncident}
                   onCloseIncident={() => {

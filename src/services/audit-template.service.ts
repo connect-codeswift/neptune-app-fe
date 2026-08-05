@@ -50,7 +50,7 @@ export async function updateAuditTemplate(
 
 export type PublishAuditTemplatePayload = Readonly<{
   userId: number;
-  subCompanyId: number;
+  siteId: number;
 }>;
 
 export async function publishAuditTemplate(

@@ -2,12 +2,15 @@ import type {
   InspectionDetail,
   InspectionRecord,
 } from "@/app/dashboard/inspections/inspections-data";
+import type { InspectionFinding } from "@/app/dashboard/inspections/findings/inspection-findings-data";
 import type { InspectionChecklist } from "@/app/dashboard/inspections/checklist/inspection-checklist-data";
 import type { InspectionReport } from "@/app/dashboard/inspections/report/inspection-report-data";
 import type {
   InspectionDetailDto,
   InspectionDto,
+  InspectionFindingDto,
 } from "@/dtos/res/inspection-response.dto";
+import { formatRunStatus } from "@/lib/audit-inspection-status";
 
 const SHORT_MONTHS = [
   "Jan",
@@ -69,12 +72,26 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
     site: formatLocation(dto.location ?? ""),
     inspector: dto.inspectorName || "Unassigned",
     progress: dto.progressPct ?? 0,
-    status: (dto.status ?? "").trim(),
+    status: formatRunStatus((dto.status ?? "").trim()),
     dueDate: formatInspectionDate(dto.scheduleDate ?? ""),
     findings:
       (dto.findingCount ?? 0) > 0
         ? `${String(dto.findingCount)} open`
         : null,
+  };
+}
+
+/** Map an API finding onto the findings page card shape. */
+export function mapFindingDtoToFinding(
+  dto: InspectionFindingDto,
+): InspectionFinding {
+  return {
+    id: String(dto.id),
+    severity: dto.severity ?? dto.findingSeverity ?? "—",
+    category: dto.category ?? dto.findingCategory ?? "General",
+    description: dto.description ?? dto.title ?? dto.question ?? "",
+    status: dto.status ?? "Open",
+    capaCreated: dto.capaCreated ?? dto.isCapaCreated ?? false,
   };
 }
 

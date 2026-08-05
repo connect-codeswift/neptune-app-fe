@@ -3,13 +3,6 @@ import type { IncidentRecord } from "@/components/incidents/list/incident-list-t
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
-export const STAGE_FILTERS = [
-  "All",
-  "New",
-  "Investigating",
-  "Corrective",
-  "Closed",
-] as const;
 export const SEVERITY_FILTERS = [
   "All",
   "First Aid",
@@ -50,26 +43,6 @@ export function toApiSeverityFilter(
   }
 
   return severityFilter === "Recordable" ? "recordable" : severityFilter;
-}
-
-/**
- * Translates the "State" segmented filter into the `caseDisposition` token for
- * the server-side filter on GetAllIncidents.
- *
- * The server matches case-insensitive Contains, and "closed" is a derived
- * state: any stored disposition whose label contains "close" counts
- * ("Case closed - no further actions", "Closed", legacy variants), mirroring
- * isClosedIncident / deriveState. Sending the token instead of one exact
- * label keeps legacy labels from silently dropping out.
- *
- * Only "Closed" is expressible: "Open" means "any disposition that is not a
- * closed one", which a single Contains parameter cannot represent, so it is
- * left entirely to the client-side pass.
- */
-export function toApiCaseDispositionFilter(
-  stateFilter: string,
-): string | undefined {
-  return stateFilter === "Closed" ? "close" : undefined;
 }
 
 /** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */

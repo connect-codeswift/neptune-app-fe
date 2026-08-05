@@ -38,7 +38,7 @@ export function IncidentDetailCapaSummaryCard(
     >
       <Text
         as="h3"
-        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="text-ehs-dark-bg text-lg font-semibold"
       >
         CAPA summary
       </Text>
@@ -51,14 +51,14 @@ export function IncidentDetailCapaSummaryCard(
           >
             <span
               className={[
-                "text-[26px] leading-[26px] font-bold",
-                item.emphasize ? "text-[#0b1320]" : "text-[#566072]",
+                "text-2xl font-bold",
+                item.emphasize ? "text-ehs-dark-bg" : "text-ehs-gray",
                 isLoading ? "opacity-40" : "",
               ].join(" ")}
             >
               {isLoading ? "—" : item.value}
             </span>
-            <span className="text-[11px] leading-normal text-[#8892a3]">
+            <span className="text-sm leading-normal text-ehs-muted-text">
               {item.label}
             </span>
           </div>

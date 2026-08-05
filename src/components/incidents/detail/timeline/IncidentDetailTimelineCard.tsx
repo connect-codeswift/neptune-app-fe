@@ -52,18 +52,18 @@ export function IncidentDetailTimelineCard(
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Activity timeline
           </Text>
-          <span className="text-[11px] leading-normal text-[#8892a3]">
+          <span className="text-sm leading-normal text-ehs-muted-text">
             {events.length} events · most recent last
           </span>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-[#0b1320] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
           <Icon icon="mdi:export-variant" className="size-[13px]" aria-hidden="true" />
           Export log
@@ -71,7 +71,7 @@ export function IncidentDetailTimelineCard(
       </div>
 
       {events.length === 0 ? (
-        <div className="py-10 text-center text-[12px] text-[#8892a3]">
+        <div className="py-10 text-center text-sm text-ehs-muted-text">
           No activity recorded for this incident yet.
         </div>
       ) : (
@@ -86,31 +86,31 @@ export function IncidentDetailTimelineCard(
                 key={event.id}
                 className="flex items-start gap-[14px] py-2"
               >
-                <div className="relative z-1 flex size-9 shrink-0 items-center justify-center rounded-[11px] border-2 border-[#eef1f6] bg-[rgba(11,19,32,0.14)] text-[#566072]">
+                <div className="relative z-1 flex size-9 shrink-0 items-center justify-center rounded-[11px] border-2 border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray">
                   <Icon icon={event.icon} className="size-4" aria-hidden="true" />
                 </div>
 
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px] pb-1.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-[13px] leading-normal font-bold text-[#0b1320]">
+                    <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
                       {event.title}
                     </span>
-                    <span className="ml-auto text-[11px] leading-normal whitespace-nowrap text-[#8892a3]">
+                    <span className="ml-auto text-sm leading-normal whitespace-nowrap text-ehs-muted-text">
                       {event.time}
                     </span>
                   </div>
-                  <p className="text-[12px] leading-[18px] text-[#566072]">
+                  <p className="text-sm leading-[18px] text-ehs-gray">
                     {event.description}
                   </p>
                   <div className="flex items-center gap-1.5 pt-[3px]">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-[rgba(8,145,166,0.18)] text-[7px] font-bold text-[#056e7e]">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-ehs-dark-blue-bg-light text-xs font-bold text-ehs-dark-blue">
                       {event.actorInitials}
                     </span>
-                    <span className="text-[11px] leading-normal text-[#566072]">
+                    <span className="text-sm leading-normal text-ehs-gray">
                       {event.actorName}
                     </span>
                     {event.actorRole ? (
-                      <span className="text-[11px] leading-normal text-[#8892a3]">
+                      <span className="text-sm leading-normal text-ehs-muted-text">
                         · {event.actorRole}
                       </span>
                     ) : null}

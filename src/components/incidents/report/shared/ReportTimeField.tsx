@@ -28,7 +28,6 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
     value,
     onChange,
     required,
-    trailingHint = "24-hour",
     placeholder = "HH:MM",
     className = "",
     id,
@@ -58,7 +57,7 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel label={label} required={required} hint={trailingHint} />
+      <ReportFieldLabel label={label} required={required} />
       <div className="relative">
         <input
           id={inputId}

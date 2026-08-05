@@ -8,7 +8,7 @@ import type {
   ClosureLinkedCapaItemDto,
   IncidentClosureResponseDto,
 } from "@/dtos/res/incident-closure-response.dto";
-import type { UpdateIncidentClosureRequestDto } from "@/dtos/req/incident-closure-request.dto";
+import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 
 function parseStepNumber(raw: number | null | undefined): 1 | 2 | 3 | 4 {
   if (raw === 1 || raw === 2 || raw === 3 || raw === 4) {
@@ -104,6 +104,10 @@ export function mapIncidentClosureDtoToData(
   }
 
   const currentStep = parseStepNumber(dto.currentStep) ?? fallback.currentStep;
+  const maxAccessibleStep = Math.max(
+    currentStep,
+    fallback.maxAccessibleStep ?? 1,
+  ) as IncidentClosureData["maxAccessibleStep"];
   const closureStatus =
     parseClosureStatus(dto.closureStatus) ?? fallback.closureStatus;
 
@@ -119,6 +123,7 @@ export function mapIncidentClosureDtoToData(
 
   return {
     currentStep,
+    maxAccessibleStep,
     closureStatus,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
     closedAt: dto.closedAt ?? fallback.closedAt,
@@ -192,55 +197,27 @@ export function mapIncidentClosureDtoToData(
 }
 
 /**
- * Maps IncidentClosureData view model into UpdateIncidentClosureRequestDto for PUT /api/Incident/{incidentId}/closure
+ * Maps IncidentClosureData view model into SaveIncidentClosureDto for
+ * PUT /api/Incident/{incidentId}/closure
  */
 export function mapIncidentClosureDataToUpdateDto(
   data: IncidentClosureData,
-  incidentId: number,
-): UpdateIncidentClosureRequestDto {
+): SaveIncidentClosureDto {
   const primaryRootCauseCategoryIds = data.primaryRootCauseCategoryIds
     .map((id) => Math.trunc(Number(id)))
     .filter((id) => Number.isFinite(id));
-  const primaryRootCauseCategoryId = primaryRootCauseCategoryIds[0] ?? 0;
+  const primaryRootCauseCategoryId = primaryRootCauseCategoryIds[0] ?? null;
 
   return {
-    finalIncidentType: data.finalIncidentType,
-    sifClassification: data.sifClassification,
+    finalIncidentType: data.finalIncidentType || null,
+    sifClassification: data.sifClassification || null,
     daysAwayFromWork: data.daysAwayFromWork,
     daysOnRestrictedDuty: data.daysOnRestrictedDuty,
     isOshaRecordable: data.isOshaRecordable,
     primaryRootCauseCategoryId,
-    primaryRootCauseCategoryIds,
     contributingFactorTags: Array.from(data.contributingFactors),
-    rootCauseDescription: data.rootCauseSummary || data.closureNotes,
-    actionsTaken: data.actionsTaken || data.preventiveActionSummary,
+    rootCauseDescription: data.rootCauseSummary || data.closureNotes || null,
+    actionsTaken: data.actionsTaken || data.preventiveActionSummary || null,
     attestationConfirmed: data.isEhsConfirmed || data.isApproved,
-
-    // Extended / legacy fields
-    incidentId,
-    closureId: data.closureId,
-    currentStep: data.currentStep,
-    closureStatus: data.closureStatus,
-    closedAt: data.closedAt,
-    closedBy: data.closedBy,
-    closedByRole: data.closedByRole,
-    closureDate: data.closureDate,
-    durationOpen: data.durationOpen,
-    oshaOverrideReason: data.oshaOverrideReason,
-    closureStatement: data.closureStatement,
-    lessonsLearned: data.lessonsLearned,
-    closureNotes: data.closureNotes,
-    rootCauseSummary: data.rootCauseSummary,
-    contributingFactors: Array.from(data.contributingFactors),
-    equipmentProceduresNote: data.equipmentProceduresNote,
-    preventiveActionSummary: data.preventiveActionSummary,
-    capasVerified: data.capasVerified,
-    mfaSigned: data.mfaSigned,
-    isEhsConfirmed: data.isEhsConfirmed,
-    residualRisk: data.residualRisk,
-    approverName: data.approverName,
-    approverRole: data.approverRole,
-    approverInitials: data.approverInitials,
-    isApproved: data.isApproved,
   };
 }
