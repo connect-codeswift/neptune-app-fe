@@ -112,7 +112,7 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
       paddingClassName="p-4"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="flex h-full flex-col gap-1.5">
+      <div className="flex h-full flex-col gap-2">
         <div className="flex w-full items-start justify-between gap-3">
           <Text
             as="p"

@@ -14,7 +14,6 @@ import {
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
-  toApiStageFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
@@ -42,7 +41,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
   const router = useRouter();
   const [stateFilter, setStateFilter] = useState("All");
-  const [stageFilter, setStageFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const accessTokenState = useHasAccessToken();
@@ -76,11 +74,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
   };
 
-  const handleStageFilterChange = (value: string) => {
-    setStageFilter(value);
-    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
-  };
-
   const handleSeverityFilterChange = (value: string) => {
     setSeverityFilter(value);
     setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
@@ -91,7 +84,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     pageSize,
     search: appliedSearch,
     severity: toApiSeverityFilter(severityFilter),
-    stage: toApiStageFilter(stateFilter, stageFilter),
     enabled: isClientReady && hasToken,
   });
   const closeIncidentMutation = useCloseIncidentMutation();
@@ -105,7 +97,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   /**
    * Second filtering pass, on purpose (belt and braces).
    *
-   * `search` / `severity` / `stage` are now sent to GetAllIncidents so
+   * `search` / `severity` are now sent to GetAllIncidents so
    * filtering spans every page instead of the 10 visible rows. But backend
    * deploys here are manual and can lag the frontend: an older API silently
    * ignores the new params and returns an unfiltered page. Re-running the
@@ -118,16 +110,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       const matchesSearch = incidentMatchesSearch(incident, appliedSearch);
       const matchesState =
         stateFilter === "All" || incident.state === stateFilter;
-      const matchesStage =
-        stageFilter === "All" || incident.stage === stageFilter;
       const matchesSeverity = incidentMatchesSeverityFilter(
         incident,
         severityFilter,
       );
 
-      return matchesSearch && matchesState && matchesStage && matchesSeverity;
+      return matchesSearch && matchesState && matchesSeverity;
     });
-  }, [incidents, appliedSearch, severityFilter, stageFilter, stateFilter]);
+  }, [incidents, appliedSearch, severityFilter, stateFilter]);
 
   // Preview panel opens only after explicit row selection (View more or row click).
   const selectedListIncident =
@@ -212,7 +202,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-6", className]
+      className={["flex min-w-0 flex-col gap-5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -228,10 +218,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
       <IncidentFilterBar
         state={stateFilter}
-        stage={stageFilter}
         severity={severityFilter}
         onStateChange={handleStateFilterChange}
-        onStageChange={handleStageFilterChange}
         onSeverityChange={handleSeverityFilterChange}
       />
 
@@ -262,7 +250,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       ) : null}
 
       {!errorMessage && (showBootLoading || showQueryLoading) ? (
-        <SkeletonTable rows={8} columns={7} />
+        <SkeletonTable rows={8} columns={5} />
       ) : null}
 
       {!errorMessage &&
@@ -271,7 +259,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       isClientReady ? (
         <div
           className={[
-            "grid min-w-0 items-start gap-x-[14px] gap-y-6",
+            "grid min-w-0 items-start gap-x-[14px] gap-y-5",
             isPanelOpen
               ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
               : "xl:grid-cols-1",
@@ -304,7 +292,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                   className="min-w-0"
                 />
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
                   <Text as="p" className="text-ehs-muted-text text-sm">
                     {[
                       `Page ${String(pageNumber)} of ${String(totalPages)}`,
@@ -315,38 +303,38 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                       .join(" · ")}
                   </Text>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Button
                       type="button"
                       variant="tertiary"
+                      aria-label="Previous page"
                       disabled={!canGoPrevious}
                       onClick={() =>
                         setPageNumber((current) => Math.max(1, current - 1))
                       }
-                      className="rounded-[10px] px-3 py-2 text-sm font-semibold disabled:opacity-40"
+                      className="rounded-lg px-2.5 py-1.5 text-sm font-semibold disabled:opacity-40"
                     >
                       <Icon
                         icon="mdi:chevron-left"
-                        className="size-[14px]"
+                        className="size-4"
                         aria-hidden="true"
                       />
-                      Previous
                     </Button>
                     <Button
                       type="button"
                       variant="tertiary"
+                      aria-label="Next page"
                       disabled={!canGoNext}
                       onClick={() =>
                         setPageNumber((current) =>
                           Math.min(totalPages, current + 1),
                         )
                       }
-                      className="rounded-[10px] px-3 py-2 text-sm font-semibold disabled:opacity-40"
+                      className="rounded-lg px-2.5 py-1.5 text-sm font-semibold disabled:opacity-40"
                     >
-                      Next
                       <Icon
                         icon="mdi:chevron-right"
-                        className="size-[14px]"
+                        className="size-4"
                         aria-hidden="true"
                       />
                     </Button>

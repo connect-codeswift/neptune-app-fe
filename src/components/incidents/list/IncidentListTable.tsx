@@ -29,7 +29,7 @@ export type IncidentListTableProps<
   columns?: ColumnDef<TData, unknown>[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  /** Navigates to the incident detail page (Details tab). */
+  /** Opens the preview panel for the selected incident. */
   onViewMore?: (id: string) => void;
   /** Opens the full detail page (second click on the selected row). */
   onOpenDetail?: (id: string) => void;
@@ -76,7 +76,7 @@ function createIncidentColumns(
   return [
     columnHelper.accessor("id", {
       header: "ID",
-      size: expanded ? 120 : 90,
+      size: expanded ? 110 : 90,
       minSize: 72,
       meta: { align: "left" as const },
       cell: (info) => (
@@ -91,7 +91,7 @@ function createIncidentColumns(
     columnHelper.display({
       id: "incident",
       header: "Incident",
-      size: expanded ? 420 : 220,
+      size: expanded ? 480 : 240,
       minSize: 140,
       meta: { align: "left" as const },
       cell: ({ row }) => {
@@ -113,28 +113,30 @@ function createIncidentColumns(
             >
               {row.original.description}
             </Text>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onViewMore(row.original.id);
-              }}
-              className={[
-                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
-                isRowSelected
-                  ? "text-ehs-normal-blue"
-                  : "text-ehs-gray hover:text-ehs-normal-blue",
-              ].join(" ")}
-            >
-              View more
-            </button>
+            <div className="mt-0.5 flex w-full justify-end">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onViewMore(row.original.id);
+                }}
+                className={[
+                  "w-fit text-left text-xs font-bold transition-colors",
+                  isRowSelected
+                    ? "text-ehs-normal-blue"
+                    : "text-ehs-gray hover:text-ehs-normal-blue",
+                ].join(" ")}
+              >
+                View more
+              </button>
+            </div>
           </div>
         );
       },
     }),
     columnHelper.accessor("site", {
       header: "Site",
-      size: expanded ? 160 : 100,
+      size: expanded ? 170 : 110,
       minSize: 80,
       meta: { align: "left" as const },
       cell: (info) => {
