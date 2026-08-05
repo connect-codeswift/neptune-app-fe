@@ -349,6 +349,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onViewAll={() => onNavigateToLinkedCapa()}
                     onSelectItem={() => onNavigateToLinkedCapa()}
                   />
+                  {/* Renders nothing until an insight exists to pass in: no
+                      endpoint generates one, and the card no longer invents
+                      placeholder copy to fill the space. */}
                   <IncidentDetailAiCard />
                 </div>
               </div>
