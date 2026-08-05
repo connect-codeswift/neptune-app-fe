@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -27,7 +26,6 @@ import {
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
 import { toast } from "@/lib/toast";
-import { safeAppNavigate } from "@/lib/safe-app-navigation";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 
 export type IncidentListViewProps = Readonly<{
@@ -40,7 +38,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
-  const router = useRouter();
   const [stateFilter, setStateFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -153,18 +150,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const handleOpenDetailPanel = useCallback((id: string) => {
     setSelectedId(id);
   }, []);
-
-  const openIncidentDetail = (listId: string) => {
-    const incident = filteredIncidents.find((row) => row.id === listId);
-    if (!incident || incident.numericId <= 0) {
-      return;
-    }
-
-    safeAppNavigate(
-      router,
-      `/dashboard/incidents/${String(incident.numericId)}`,
-    );
-  };
 
   const handleCloseIncident = async () => {
     const target = selectedIncident ?? selectedListIncident;
@@ -289,9 +274,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 <IncidentListTable
                   incidents={filteredIncidents}
                   selectedId={selectedId}
-                  onSelect={handleOpenDetailPanel}
                   onViewMore={handleOpenDetailPanel}
-                  onOpenDetail={openIncidentDetail}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />
