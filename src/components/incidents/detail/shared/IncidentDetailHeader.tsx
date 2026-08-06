@@ -71,56 +71,6 @@ export function IncidentDetailHeader(
 
   return (
     <div className={["flex flex-col", className].filter(Boolean).join(" ")}>
-      {/* Top Header Section (Search & Controls) */}
-      <header className="flex flex-col gap-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="relative w-full min-w-0 sm:w-[220px] lg:w-[280px]">
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            placeholder="Search incidents, actions, docs…"
-            className="placeholder-ehs-muted-text text-ehs-dark-bg focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-lg border border-[rgba(15,23,42,0.12)] bg-white/70 py-[7px] pr-8 pl-8.5 text-sm shadow-sm backdrop-blur-[4px] transition-all outline-none focus:ring-2"
-          />
-          <kbd className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded border border-[rgba(15,23,42,0.12)] bg-white/60 px-1.5 py-0.5 font-sans text-xs font-medium shadow-[0_1px_1px_rgba(0,0,0,0.03)] sm:inline-block">
-            ⌘K
-          </kbd>
-        </div>
-
-        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <button
-            type="button"
-            className="text-ehs-gray hover:bg-ehs-light-bg inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-sm shadow-sm transition-colors sm:px-3.5"
-          >
-            <Icon
-              icon="mdi:calendar-range"
-              className="text-sm"
-              aria-hidden="true"
-            />
-            <span>March 25 — April 24, 2026</span>
-            <Icon
-              icon="mdi:chevron-down"
-              className="text-xs"
-              aria-hidden="true"
-            />
-          </button>
-
-          <button
-            type="button"
-            className="hover:bg-ehs-light-bg relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.12)] bg-white shadow-sm transition-colors"
-          >
-            <Icon
-              icon="mdi:bell-outline"
-              className="text-ehs-gray text-lg"
-              aria-hidden="true"
-            />
-            <span className="bg-ehs-red absolute top-1.5 right-1.5 size-2 rounded-full border-2 border-white" />
-          </button>
-        </div>
-      </header>
-
       {!hideIncidentChrome ? (
         <>
           {/* Breadcrumb Navigation */}

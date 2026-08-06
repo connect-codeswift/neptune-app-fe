@@ -201,12 +201,6 @@ export function PolicyMakerDocumentDetailContent(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/acknowledgments`,
         )
       }
-      onDateRangeClick={() =>
-        toast.success("Date range", "Date filter coming soon.")
-      }
-      onNotificationsClick={() =>
-        toast.success("Notifications", "Notifications coming soon.")
-      }
     />
   );
 }

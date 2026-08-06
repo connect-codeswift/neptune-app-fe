@@ -61,7 +61,6 @@ export function RegulatoryComplianceDetailView(
 
   const markCompleteMutation = useMarkCompleteComplianceMutation();
   const deleteComplianceMutation = useDeleteComplianceMutation();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const record = detailQuery.data;
@@ -211,14 +210,9 @@ export function RegulatoryComplianceDetailView(
     <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
       <IncidentListHeader
         title=""
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications={true}
         reportHref="/dashboard/regulatory-compliance"
         actionLabel="Back to Register"
         actionLabelShort="Back"
-        searchPosition="start"
         className="px-0 py-0"
       />
 

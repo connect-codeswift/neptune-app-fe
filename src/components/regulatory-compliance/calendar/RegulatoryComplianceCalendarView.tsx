@@ -17,7 +17,6 @@ function startOfMonth(date: Date): Date {
 
 export function RegulatoryComplianceCalendarView() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeStartDate, setActiveStartDate] = useState(() =>
     startOfMonth(new Date()),
   );
@@ -67,13 +66,8 @@ export function RegulatoryComplianceCalendarView() {
     <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
       <IncidentListHeader
         title=""
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications={true}
         reportHref="/dashboard/incidents/report-incident"
         actionLabel="Report incident"
-        searchPosition="start"
         className="px-0 py-0"
       />
 

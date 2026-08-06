@@ -42,7 +42,6 @@ import {
 } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { mapCategoryToLibraryId } from "@/services/mappers/document-list.mapper";
-import { toast } from "@/lib/toast";
 
 /** Builds Library nav counts from GET /api/Document/category-stats (whole library, not just the current page). */
 function buildLibraryCategories(
@@ -116,7 +115,6 @@ export function PolicyMakerView() {
   const [categoryId, setCategoryId] = useState<LibraryCategoryId>("sops");
   const [statusFilter, setStatusFilter] = useState<DocumentStatusFilter>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(DEFAULT_DOCUMENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_DOCUMENTS_PAGE_SIZE);
   const accessTokenState = useHasAccessToken();
@@ -150,20 +148,10 @@ export function PolicyMakerView() {
     [kpisQuery.data, totalCount],
   );
 
-  const documents = useMemo(() => {
-    const byCategory = filterDocuments(allDocuments, categoryId, statusFilter);
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) {
-      return byCategory;
-    }
-    return byCategory.filter(
-      (doc) =>
-        doc.title.toLowerCase().includes(query) ||
-        doc.code.toLowerCase().includes(query) ||
-        doc.owner.toLowerCase().includes(query) ||
-        doc.site.toLowerCase().includes(query),
-    );
-  }, [allDocuments, categoryId, statusFilter, searchQuery]);
+  const documents = useMemo(
+    () => filterDocuments(allDocuments, categoryId, statusFilter),
+    [allDocuments, categoryId, statusFilter],
+  );
 
   // Default to the first document, falling back to it whenever filtering drops
   // the current selection. Derived during render rather than synced through an
@@ -202,23 +190,9 @@ export function PolicyMakerView() {
     <div className="flex min-h-screen flex-1 flex-col">
       <IncidentListHeader
         title="Policy Maker"
-        searchPlaceholder="Search incidents, actions, docs…"
-        searchQuery={searchQuery}
-        onSearchChange={(value) => {
-          setSearchQuery(value);
-          setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
-        }}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
         actionLabel="Upload a Document"
         actionLabelShort="Upload"
         reportHref="/dashboard/policy-maker/upload"
-        onDateRangeClick={() =>
-          toast.success("Date range", "Date filter coming soon.")
-        }
-        onNotificationsClick={() =>
-          toast.success("Notifications", "Notifications coming soon.")
-        }
       />
 
       <div className="flex flex-1 flex-col gap-[13.62px] px-4 pb-8">

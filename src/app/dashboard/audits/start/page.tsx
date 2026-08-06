@@ -8,12 +8,7 @@ import { StartAuditHeader } from "@/components/audits/start/StartAuditHeader";
 export default function StartAuditPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader />
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         <StartAuditHeader />

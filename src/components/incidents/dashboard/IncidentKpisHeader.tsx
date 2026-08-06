@@ -7,9 +7,7 @@ import { Text } from "@/components/Text";
 export type IncidentKpisHeaderProps = Readonly<{
   title?: string;
   siteLabel?: string;
-  dateRangeLabel?: string;
   onSiteClick?: () => void;
-  onDateRangeClick?: () => void;
   onExportClick?: () => void;
   className?: string;
 }>;
@@ -21,9 +19,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
   const {
     title = "Incident KPIs",
     siteLabel = "Rawalpindi",
-    dateRangeLabel = "Year to date",
     onSiteClick,
-    onDateRangeClick,
     onExportClick,
     className = "",
   } = props;
@@ -45,7 +41,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
       </Text>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={onSiteClick} className={controlClass}>
+        {/* <button type="button" onClick={onSiteClick} className={controlClass}>
           <Icon
             icon="mdi:factory"
             className="text-ehs-muted-text text-sm"
@@ -59,27 +55,9 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
             className="text-ehs-muted-text text-sm"
             aria-hidden="true"
           />
-        </button>
+        </button> */}
 
-        <button
-          type="button"
-          onClick={onDateRangeClick}
-          className={controlClass}
-        >
-          <Icon
-            icon="mdi:calendar-outline"
-            className="text-ehs-muted-text text-sm"
-            aria-hidden="true"
-          />
-          <span className="whitespace-nowrap">{dateRangeLabel}</span>
-          <Icon
-            icon="mdi:chevron-down"
-            className="text-ehs-muted-text text-sm"
-            aria-hidden="true"
-          />
-        </button>
-
-        <Button
+        {/* <Button
           type="button"
           variant="tertiary"
           onClick={onExportClick}
@@ -87,7 +65,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
         >
           <Icon icon="mdi:download" className="text-sm" aria-hidden="true" />
           Export
-        </Button>
+        </Button> */}
       </div>
     </header>
   );

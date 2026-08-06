@@ -34,12 +34,7 @@ export default function BbsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        title="Proactive Safety"
-        searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader title="Proactive Safety" />
 
       {isBootLoading ? (
         <BbsPageSkeleton />
