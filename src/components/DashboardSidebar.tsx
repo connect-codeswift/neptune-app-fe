@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Text } from "@/components/Text";
+import { useLogout } from "@/hooks/use-logout";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import type { AppNavItem } from "@/lib/app-nav";
 
@@ -73,7 +74,7 @@ function SidebarNavSkeleton() {
 
 function SidebarUserSkeleton() {
   return (
-    <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+    <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2">
       <div
         className="bg-ehs-light-bg h-9 w-9 shrink-0 animate-pulse rounded-lg"
         aria-hidden="true"
@@ -97,7 +98,7 @@ function SidebarUserFooter(
   const { displayName, initials, role, siteName } = props;
 
   return (
-    <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+    <>
       <div
         className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
         aria-hidden="true"
@@ -115,7 +116,7 @@ function SidebarUserFooter(
           {[role, siteName].filter(Boolean).join(" · ")}
         </Text>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -123,6 +124,8 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   const { className = "" } = props;
   const pathname = usePathname();
   const { navGroups, isLoading, isUserReady, user } = useSessionBootstrap();
+  const { signOut, isLoggingOut } = useLogout();
+  const profileActive = isActivePath(pathname, "/dashboard/my-profile");
 
   return (
     <aside
@@ -168,14 +171,40 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
       </nav>
 
       <div className="border-t border-white/40 px-4 py-4">
-        {isUserReady ?
-          <SidebarUserFooter
-            displayName={user.displayName}
-            initials={user.initials}
-            role={user.role}
-            siteName={user.siteName}
-          />
-        : <SidebarUserSkeleton />}
+        <div className="flex items-center gap-1">
+          {isUserReady ? (
+            <Link
+              href="/dashboard/my-profile"
+              className={[
+                "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
+                profileActive
+                  ? "bg-ehs-light-blue text-ehs-darker"
+                  : "hover:bg-white/35",
+              ].join(" ")}
+              aria-current={profileActive ? "page" : undefined}
+            >
+              <SidebarUserFooter
+                displayName={user.displayName}
+                initials={user.initials}
+                role={user.role}
+                siteName={user.siteName}
+              />
+            </Link>
+          ) : (
+            <SidebarUserSkeleton />
+          )}
+
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            disabled={isLoggingOut || !isUserReady}
+            aria-label="Log out"
+            title="Log out"
+            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon icon="mdi:logout" className="text-lg" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </aside>
   );

@@ -105,10 +105,13 @@ export function useSessionBootstrap() {
       ?.siteName ??
     null;
 
+  const isUserReady =
+    hasToken !== true || sessionQuery.isFetched;
+
   return {
     navGroups,
     isLoading: hasToken === null || (hasToken === true && sessionQuery.isLoading),
-    isUserReady: hasToken !== null,
+    isUserReady,
     isError: sessionQuery.isError,
     sites: session?.sites ?? [],
     user: {
