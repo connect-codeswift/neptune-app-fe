@@ -12,6 +12,10 @@ import {
   type ClassificationValue,
 } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
+import {
+  EMPTY_DESCRIPTION_DRAFT,
+  type ReportDescriptionDraft,
+} from "./report-description-draft";
 
 /** Step 2 dropdowns the reporter can extend with their own options. */
 export type CustomOptionField =
@@ -78,6 +82,12 @@ export type ReportIncidentFormState = Readonly<{
   /** `""` until the reporter answers — see ClassificationValue. */
   classifications: Record<string, ClassificationValue>;
   description: string;
+  /**
+   * A draft offered for `description`, built from the answers above it. Held
+   * outside `description` until accepted, so it can never overwrite words the
+   * reporter wrote themselves.
+   */
+  descriptionDraft: ReportDescriptionDraft;
   title: string;
   initialTreatment: string;
   secondaryTreatment: "Yes" | "No";
@@ -194,6 +204,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
       ]),
     ) as Record<string, ClassificationValue>,
     description: "",
+    descriptionDraft: EMPTY_DESCRIPTION_DRAFT,
     // Mirrors default severity so Live preview title is populated from the start.
     title: "First Aid",
     initialTreatment: "",
