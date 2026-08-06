@@ -159,19 +159,6 @@ export function ReportIncidentStepFive(
 
   const photosCountLabel =
     form.photos.length > 0 ? `${String(form.photos.length)} attached` : "None";
-  // Only the checked ones are reviewed here. The unchecked ones are still
-  // submitted (§ create payload), but this card is what the reporter is
-  // confirming, so it shows what they actually chose.
-  const selectedFollowUps = form.followUps.filter((item) => item.isSelected);
-  // The detail cards are a narrow two-column grid, and follow-ups are full
-  // sentences — joining them into one cell turns the card into a column of
-  // single words. The count goes here; the sentences get their own full-width
-  // section below, where they are actually readable before submitting.
-  const followUpsLabel =
-    selectedFollowUps.length > 0
-      ? `${String(selectedFollowUps.length)} selected`
-      : "None";
-
   const reporterName = form.reportedBy.trim() || "—";
   // Figma Reporter card: Department = site · area (from Plant / Location).
   const departmentLabel =
@@ -260,7 +247,6 @@ export function ReportIncidentStepFive(
               rows={[
                 { label: "Actions", value: actionsLabel },
                 { label: "Photos", value: photosCountLabel },
-                { label: "Follow-ups", value: followUpsLabel },
               ]}
             />
 
@@ -275,50 +261,13 @@ export function ReportIncidentStepFive(
             />
           </div>
 
-          {/* Section 2b: the follow-ups themselves, full width and readable */}
-          {selectedFollowUps.length > 0 ? (
-            <div className="border-ehs-border flex flex-col gap-2 rounded-[12px] border bg-white/62 p-[15px]">
-              <Text
-                as="p"
-                className="text-ehs-dark-blue text-[10px] font-bold tracking-[1px] uppercase"
-              >
-                Follow-up actions
-              </Text>
-              <ul className="flex flex-col gap-1.5">
-                {selectedFollowUps.map((item) => (
-                  <li key={item.id} className="flex items-start gap-2">
-                    <Icon
-                      icon="mdi:check-circle-outline"
-                      className="text-ehs-normal-blue mt-0.5 size-4 shrink-0"
-                      aria-hidden="true"
-                    />
-                    <Text
-                      as="span"
-                      className="text-ehs-dark-bg min-w-0 flex-1 text-sm"
-                    >
-                      {item.text}
-                    </Text>
-                    {item.isAiSuggested ? (
-                      <span className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[9.5px] font-bold tracking-[0.2px]">
-                        AI
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
           {/* Section 3: Routing preview banner */}
           <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
-            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-ehs-normal-blue/10">
+            <div className="text-ehs-normal-blue bg-ehs-normal-blue/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px]">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
-              <Text
-                as="span"
-                className="text-sm font-bold text-ehs-dark-blue"
-              >
+              <Text as="span" className="text-ehs-dark-blue text-sm font-bold">
                 Routing preview
               </Text>
               <p className="text-ehs-gray text-xs leading-normal">
@@ -329,7 +278,7 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 4: AI summary ready banner */}
-          <div className="from-ehs-light-blue to-ehs-light-blue-hover flex items-start gap-3 rounded-[12px] border border-ehs-normal-blue/15 bg-gradient-to-r p-3.5">
+          <div className="from-ehs-light-blue to-ehs-light-blue-hover border-ehs-normal-blue/15 flex items-start gap-3 rounded-[12px] border bg-gradient-to-r p-3.5">
             <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-white shadow-sm">
               <Icon icon="mdi:creation-outline" className="size-3.5" />
             </div>
@@ -340,7 +289,7 @@ export function ReportIncidentStepFive(
               >
                 AI summary ready
               </Text>
-              <p className="text-xs leading-[15px] text-ehs-slate">
+              <p className="text-ehs-slate text-xs leading-[15px]">
                 {form.description.trim() ||
                   "AI summary will be generated from your report after submit."}
               </p>

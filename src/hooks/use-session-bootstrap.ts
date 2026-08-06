@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -10,6 +10,17 @@ import {
   getCurrentUserPermissions,
 } from "@/lib/jwt-permissions";
 import { mergePermissionSets } from "@/lib/normalize-session";
+import {
+  getCachedAccessWindow,
+  setCachedAccessWindow,
+  shouldShowAccessWindowBanner,
+  type AccessWindowState,
+} from "@/lib/access-window";
+import {
+  getOrganizationLimitsState,
+  shouldShowOrganizationLimitsBanner,
+  type OrganizationLimitsState,
+} from "@/lib/organization-limits";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getOrgSession } from "@/services/session.service";
 
@@ -36,8 +47,11 @@ function getUserInitials(displayName: string): string {
 
 export function useSessionBootstrap() {
   const hasToken = useHasAccessToken();
-  const authContext = getAuthContext();
-  const currentUser = getCurrentUser();
+  const authContext = hasToken === true ? getAuthContext() : null;
+  const currentUser =
+    hasToken === true ?
+      getCurrentUser()
+    : { userId: 0, siteId: 0, subCompanyId: 0, role: null };
 
   const sessionQuery = useQuery({
     queryKey: sessionQueryKeys.me,
@@ -49,6 +63,46 @@ export function useSessionBootstrap() {
 
   const session = sessionQuery.data;
 
+  const accessWindow = useMemo((): AccessWindowState | null => {
+    if (
+      session &&
+      shouldShowAccessWindowBanner(session.accessExpiresAt)
+    ) {
+      return {
+        accessExpiresAt: session.accessExpiresAt!,
+        daysRemaining: session.daysRemaining ?? 0,
+      };
+    }
+
+    return getCachedAccessWindow();
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (shouldShowAccessWindowBanner(session.accessExpiresAt)) {
+      setCachedAccessWindow({
+        accessExpiresAt: session.accessExpiresAt!,
+        daysRemaining: session.daysRemaining ?? 0,
+      });
+      return;
+    }
+
+    if (session.accessExpiresAt === null) {
+      setCachedAccessWindow(null);
+    }
+  }, [session]);
+
+  const organizationLimits = useMemo((): OrganizationLimitsState | null => {
+    if (!session) {
+      return null;
+    }
+    const limits = getOrganizationLimitsState(session);
+    return limits && shouldShowOrganizationLimitsBanner(limits) ? limits : null;
+  }, [session]);
+
   const activatedModules = useMemo(
     () => parseActivatedModuleSet(session?.activatedModules),
     [session?.activatedModules],
@@ -58,6 +112,10 @@ export function useSessionBootstrap() {
   const moduleOnlyGating = Boolean(session?.activatedModules?.trim());
 
   const permissions = useMemo(() => {
+    if (hasToken !== true) {
+      return new Set<string>();
+    }
+
     if (moduleOnlyGating) {
       return new Set<string>();
     }
@@ -67,9 +125,9 @@ export function useSessionBootstrap() {
       session?.permissions ?? [],
     );
   }, [
+    hasToken,
     moduleOnlyGating,
     session?.permissions,
-    hasToken,
     sessionQuery.dataUpdatedAt,
   ]);
 
@@ -88,7 +146,9 @@ export function useSessionBootstrap() {
   );
 
   const displayName =
-    session?.fullName?.trim() || getAuthDisplayName();
+    hasToken === true ?
+      session?.fullName?.trim() || getAuthDisplayName()
+    : "";
   const siteLabel =
     session?.siteName ??
     authContext?.siteName ??
@@ -96,20 +156,29 @@ export function useSessionBootstrap() {
       ?.siteName ??
     null;
 
+  const isUserReady =
+    hasToken !== true || sessionQuery.isFetched;
+
   return {
     navGroups,
     isLoading: hasToken === null || (hasToken === true && sessionQuery.isLoading),
+    isUserReady,
     isError: sessionQuery.isError,
+    sites: session?.sites ?? [],
     user: {
       displayName,
       initials: getUserInitials(displayName),
+      profileUrl: session?.profileUrl ?? null,
       role: role ?? "User",
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,
       organizationName: session?.organizationName ?? null,
+      organizationId: session?.organizationId ?? authContext?.organizationId ?? null,
     },
     activatedModules,
     permissions,
     moduleOnlyGating,
+    accessWindow,
+    organizationLimits,
   };
 }

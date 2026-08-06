@@ -37,6 +37,22 @@ function asNumber(value: unknown): number | null {
   return null;
 }
 
+function asNullableString(value: unknown): string | null {
+  if (value === null) {
+    return null;
+  }
+
+  return asString(value);
+}
+
+function asNullableNumber(value: unknown): number | null {
+  if (value === null) {
+    return null;
+  }
+
+  return asNumber(value);
+}
+
 function unwrapEnvelope(data: unknown): unknown {
   if (!isRecord(data)) {
     return data;
@@ -233,9 +249,36 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     ),
     siteId: asNumber(readProp(unwrapped, "siteId", "SiteId")),
     siteName: asString(readProp(unwrapped, "siteName", "SiteName")),
+    profileUrl: asString(
+      readProp(unwrapped, "profileUrl", "ProfileUrl"),
+    ),
     activatedModules: extractActivatedModules(unwrapped),
     permissions: extractPermissions(unwrapped),
     sites,
+    accessExpiresAt: asNullableString(
+      readProp(unwrapped, "accessExpiresAt", "AccessExpiresAt"),
+    ),
+    daysRemaining: asNullableNumber(
+      readProp(
+        unwrapped,
+        "daysRemaining",
+        "DaysRemaining",
+        "accessDaysRemaining",
+        "AccessDaysRemaining",
+      ),
+    ),
+    maxSeats: asNullableNumber(readProp(unwrapped, "maxSeats", "MaxSeats")),
+    maxSites: asNullableNumber(readProp(unwrapped, "maxSites", "MaxSites")),
+    seatsUsed: asNumber(readProp(unwrapped, "seatsUsed", "SeatsUsed")) ?? 0,
+    sitesUsed: asNumber(readProp(unwrapped, "sitesUsed", "SitesUsed")) ?? 0,
+    seatsAvailable: asNullableNumber(
+      readProp(unwrapped, "seatsAvailable", "SeatsAvailable"),
+    ),
+    sitesAvailable: asNullableNumber(
+      readProp(unwrapped, "sitesAvailable", "SitesAvailable"),
+    ),
+    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSeatLimit")),
+    atSiteLimit: Boolean(readProp(unwrapped, "atSiteLimit", "AtSiteLimit")),
   };
 }
 

@@ -95,8 +95,12 @@ export function applyDetailEditDraft(
   const siteLocation = byKey.get("siteLocation");
   if (siteLocation !== undefined) {
     const { site, location } = splitSiteLocation(siteLocation);
-    patch.site = site || null;
-    patch.location = location || null;
+    // `""`, not null: Site and Location are `[Required]` non-nullable strings
+    // on the backend, so clearing the field in edit mode would 400 the PUT the
+    // same way a null ActionTaken 400s a create. See EMPTY_NOT_NULL in
+    // `report-incident.mapper.ts`.
+    patch.site = site || "";
+    patch.location = location || "";
   }
 
   const incidentAt = parseEditableDateTime(byKey.get("incidentAt") ?? "");

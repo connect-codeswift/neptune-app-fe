@@ -1054,6 +1054,49 @@
         }
       }
     },
+    "/api/Auth/avatar/upload": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAvatarDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAvatarDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserAvatarDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Auth/avatar": {
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Auth/mfa/setup": {
       "post": {
         "tags": [
@@ -8695,6 +8738,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -9143,6 +9194,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "organizationId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "requestBody": {
@@ -9179,6 +9238,14 @@
             "name": "siteId",
             "in": "path",
             "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -12498,6 +12565,16 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "injuredBodyPart": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "injuryLevel": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -13750,6 +13827,11 @@
         ],
         "type": "object",
         "properties": {
+          "organizationId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "siteName": {
             "maxLength": 150,
             "minLength": 1,
@@ -13807,6 +13889,11 @@
           },
           "fullName": {
             "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "maxLength": 30,
             "type": "string",
             "nullable": true
           },
@@ -13934,6 +14021,11 @@
         "properties": {
           "fullName": {
             "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "maxLength": 30,
             "type": "string",
             "nullable": true
           },
@@ -14666,6 +14758,21 @@
           "status": {
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserAvatarDto": {
+        "required": [
+          "profileUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "profileUrl": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string",
+            "format": "uri"
           }
         },
         "additionalProperties": false

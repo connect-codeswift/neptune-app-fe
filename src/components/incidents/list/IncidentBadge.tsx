@@ -84,7 +84,3 @@ export function severityTone(severity: string): IncidentBadgeTone {
 export function stateTone(state: string): IncidentBadgeTone {
   return state === "Open" ? "teal" : "muted";
 }
-
-export function stageTone(_stage: string): IncidentBadgeTone {
-  return "muted";
-}

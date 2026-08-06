@@ -23,7 +23,6 @@ export default function DashboardPage() {
       <DashboardHeader
         title="EHS Command Center"
         searchPlaceholder="Search incidents, actions, docs..."
-        companyName="Neptune Industries"
         dateRangeLabel="Year to date"
         hasUnreadNotifications
       />

@@ -27,6 +27,8 @@ export type IncidentDetailHeaderProps = Readonly<{
   readOnly?: boolean;
   /** Hides breadcrumb, incident title, edit toolbar, and tabs (HRCA worksheet view). */
   hideIncidentChrome?: boolean;
+  /** When true, the Closure tab is not selectable (incident already closed). */
+  closureTabDisabled?: boolean;
   isClosingIncident?: boolean;
   closeDisabled?: boolean;
   className?: string;
@@ -44,6 +46,7 @@ export function IncidentDetailHeader(
     isSaving = false,
     readOnly = false,
     hideIncidentChrome = false,
+    closureTabDisabled = false,
     isClosingIncident = false,
     closeDisabled = false,
     className = "",
@@ -167,16 +170,32 @@ export function IncidentDetailHeader(
             <nav className="flex gap-6 px-1 whitespace-nowrap">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
+                const isDisabled =
+                  tab.id === "closure" && closureTabDisabled;
+
                 return (
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => onTabChange(tab.id)}
+                    disabled={isDisabled}
+                    onClick={() => {
+                      if (!isDisabled) {
+                        onTabChange(tab.id);
+                      }
+                    }}
+                    aria-disabled={isDisabled || undefined}
+                    title={
+                      isDisabled
+                        ? "Closure is unavailable for closed incidents"
+                        : undefined
+                    }
                     className={[
                       "border-b-2 py-2.5 text-sm font-semibold transition-all",
-                      isActive
-                        ? "border-ehs-normal-blue text-ehs-dark-blue"
-                        : "text-ehs-gray hover:text-ehs-dark-bg border-transparent",
+                      isDisabled
+                        ? "text-ehs-muted-text/70 cursor-not-allowed border-transparent"
+                        : isActive
+                          ? "border-ehs-normal-blue text-ehs-dark-blue"
+                          : "text-ehs-gray hover:text-ehs-dark-bg border-transparent",
                     ].join(" ")}
                   >
                     {tab.label}

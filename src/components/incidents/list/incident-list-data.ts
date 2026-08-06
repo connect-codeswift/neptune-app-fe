@@ -1,6 +1,7 @@
 import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
+import { isIncidentClosed } from "@/services/mappers/incident-state";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
 export const SEVERITY_FILTERS = [
@@ -21,8 +22,7 @@ const LTI_BEST_TARGET_DAYS = 112;
 const ASSUMED_EXPOSURE_HOURS = 200_000;
 
 function isClosedIncident(incident: IncidentDto): boolean {
-  const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
-  return disposition.includes("close") || disposition === "closed";
+  return isIncidentClosed(incident);
 }
 
 /**
@@ -72,7 +72,7 @@ export function incidentMatchesSeverityFilter(
  * search in GetAllIncidents (IncidentRepository.cs) covers every one of these
  * fields' source columns, so nothing the client could match is ever dropped
  * server-side before pagination. Fields intentionally NOT searched here:
- * stage/state (derived labels with dedicated segmented filters), reportedAt
+ * state (derived label with a dedicated segmented filter), reportedAt
  * (a formatted date string with no server-representable equivalent) and
  * assignee (always "—").
  */
