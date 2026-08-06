@@ -29,10 +29,11 @@ import {
 import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
 import {
-  buildDescriptionFacts,
+  buildDraftAssistInput,
   canDraftDescription,
-} from "@/components/incidents/report/shared/report-description-draft";
-import { useDescriptionDraftMutation } from "@/hooks/use-ai-text-mutations";
+  draftInputKey,
+} from "@/components/incidents/report/shared/report-ai-draft";
+import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
 import { logAiAssistFailure } from "@/services/ai-text.service";
 import { toast } from "@/lib/toast";
 
@@ -63,28 +64,29 @@ export function ReportIncidentStepTwo(
   const { form, onChange, onBack, onContinue, className = "" } = props;
   const photos = form.photos ?? [];
   const isFirstAid = form.severity === "first-aid";
-  const descriptionDraftMutation = useDescriptionDraftMutation();
-  // The draft owns the field's controls while it is being fetched or
-  // offered; once resolved the proofread button takes the slot back.
+  const draftAssist = useDraftAssistMutation();
+  // The draft owns the field's controls while it is being fetched or offered;
+  // once resolved the rewrite buttons take the slot back.
   const showsDraft =
     form.descriptionDraft.pending || form.descriptionDraft.text !== null;
 
-  const draftFacts = buildDescriptionFacts(form);
+  const draftInput = buildDraftAssistInput(form);
+  const draftKey = draftInputKey(draftInput);
   const wantsDraft =
     canDraftDescription(form) &&
     form.description.trim() === "" &&
     !form.descriptionDraft.dismissed &&
     !form.descriptionDraft.pending &&
-    draftFacts !== form.descriptionDraft.source;
+    draftKey !== form.descriptionDraft.source;
 
   /**
    * Drafts the description once the answers above it are substantial enough to
    * be worth summarising.
    *
-   * Debounced rather than fired per keystroke because those answers arrive one
-   * dropdown at a time, and every intermediate state would otherwise cost a
-   * model call. Re-runs only when the composed facts actually change, so
-   * re-picking the same option is free.
+   * Debounced because those answers arrive one dropdown at a time, and every
+   * intermediate state would otherwise cost a call out of the 20-per-minute
+   * budget shared with both rewrite buttons. Keyed on the request itself, so
+   * re-picking the same option costs nothing.
    */
   useEffect(() => {
     if (!wantsDraft) {
@@ -96,35 +98,34 @@ export function ReportIncidentStepTwo(
         descriptionDraft: {
           ...form.descriptionDraft,
           pending: true,
-          source: draftFacts,
+          source: draftKey,
         },
       });
 
-      descriptionDraftMutation
-        .mutateAsync(draftFacts)
-        .then((text) => {
+      draftAssist
+        .mutateAsync(draftInput)
+        .then((drafts) => {
+          // A null description is an answer, not a failure — it means the
+          // reporter already wrote one, so there is nothing to offer.
           onChange({
             descriptionDraft: {
-              text,
-              isAi: true,
+              text: drafts.description,
               pending: false,
-              source: draftFacts,
+              source: draftKey,
               dismissed: false,
             },
           });
         })
         .catch((error: unknown) => {
-          // The composed facts are still a usable draft, so offer them rather
-          // than nothing — labelled as ours, not the model's. This is also the
-          // path taken wherever `Ai__ApiKey` isn't configured, which is why the
-          // feature must not depend on the call succeeding.
-          logAiAssistFailure("description-draft", error);
+          // Additive feature: no ghost text, no toast, field behaves exactly as
+          // it does without the assistant. Also the path taken wherever
+          // `Ai__ApiKey` is unset and the endpoint is inert.
+          logAiAssistFailure("draft-assist", error);
           onChange({
             descriptionDraft: {
-              text: draftFacts,
-              isAi: false,
+              text: null,
               pending: false,
-              source: draftFacts,
+              source: draftKey,
               dismissed: false,
             },
           });
@@ -134,8 +135,11 @@ export function ReportIncidentStepTwo(
     return () => {
       globalThis.clearTimeout(timer);
     };
+    // `onChange` and the mutation are deliberately excluded: both change
+    // identity every render, and including them would restart the debounce on
+    // each keystroke behind the field.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wantsDraft, draftFacts]);
+  }, [wantsDraft, draftKey]);
 
   /** Appends a reporter-typed option to one of the extendable dropdowns. */
   const addCustomOption = (field: CustomOptionField, option: string) => {
@@ -372,27 +376,13 @@ export function ReportIncidentStepTwo(
                 <AiInFieldDraft
                   draft={form.descriptionDraft.text}
                   pending={form.descriptionDraft.pending}
-                  // Only claims the model wrote it when the model actually did
-                  // — the fallback is composed by `buildDescriptionFacts`.
-                  label={
-                    form.descriptionDraft.isAi
-                      ? "AI draft"
-                      : "Draft from your answers"
-                  }
                   onAccept={(text) =>
                     onChange({
                       description: text,
-                      // Provenance follows the same rule: a locally composed
-                      // draft is not an AI-assisted field, and saying it was
-                      // would put a false claim on an OSHA-relevant record.
-                      ...(form.descriptionDraft.isAi
-                        ? {
-                            aiAssistedFields: markAiAssisted(
-                              form.aiAssistedFields,
-                              "description",
-                            ),
-                          }
-                        : {}),
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "description",
+                      ),
                       descriptionDraft: {
                         ...form.descriptionDraft,
                         text: null,
