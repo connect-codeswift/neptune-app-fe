@@ -24,4 +24,12 @@ export type SessionBootstrapDto = Readonly<{
   accessExpiresAt: string | null;
   /** Whole days left in the access window; null = permanent. Can be 0 on the final day. */
   daysRemaining: number | null;
+  maxSeats: number | null;
+  maxSites: number | null;
+  seatsUsed: number;
+  sitesUsed: number;
+  seatsAvailable: number | null;
+  sitesAvailable: number | null;
+  atSeatLimit: boolean;
+  atSiteLimit: boolean;
 }>;

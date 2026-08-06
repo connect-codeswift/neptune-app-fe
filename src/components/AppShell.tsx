@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AccessWindowBanner } from "@/components/AccessWindowBanner";
+import { OrganizationLimitsBanner } from "@/components/OrganizationLimitsBanner";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { getAccessToken } from "@/lib/axios";
@@ -17,7 +18,7 @@ export function AppShell(props: Readonly<AppShellProps>) {
   const { children } = props;
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { accessWindow } = useSessionBootstrap();
+  const { accessWindow, organizationLimits } = useSessionBootstrap();
 
   useEffect(() => {
     if (!getAccessToken()) {
@@ -62,6 +63,12 @@ export function AppShell(props: Readonly<AppShellProps>) {
         {accessWindow ? (
           <AccessWindowBanner
             accessWindow={accessWindow}
+            className="mb-2 shrink-0"
+          />
+        ) : null}
+        {organizationLimits ? (
+          <OrganizationLimitsBanner
+            limits={organizationLimits}
             className="mb-2 shrink-0"
           />
         ) : null}

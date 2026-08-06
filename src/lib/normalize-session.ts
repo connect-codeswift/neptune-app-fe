@@ -267,6 +267,18 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
         "AccessDaysRemaining",
       ),
     ),
+    maxSeats: asNullableNumber(readProp(unwrapped, "maxSeats", "MaxSeats")),
+    maxSites: asNullableNumber(readProp(unwrapped, "maxSites", "MaxSites")),
+    seatsUsed: asNumber(readProp(unwrapped, "seatsUsed", "SeatsUsed")) ?? 0,
+    sitesUsed: asNumber(readProp(unwrapped, "sitesUsed", "SitesUsed")) ?? 0,
+    seatsAvailable: asNullableNumber(
+      readProp(unwrapped, "seatsAvailable", "SeatsAvailable"),
+    ),
+    sitesAvailable: asNullableNumber(
+      readProp(unwrapped, "sitesAvailable", "SitesAvailable"),
+    ),
+    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSeatLimit")),
+    atSiteLimit: Boolean(readProp(unwrapped, "atSiteLimit", "AtSiteLimit")),
   };
 }
 

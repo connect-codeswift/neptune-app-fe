@@ -16,6 +16,11 @@ import {
   shouldShowAccessWindowBanner,
   type AccessWindowState,
 } from "@/lib/access-window";
+import {
+  getOrganizationLimitsState,
+  shouldShowOrganizationLimitsBanner,
+  type OrganizationLimitsState,
+} from "@/lib/organization-limits";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getOrgSession } from "@/services/session.service";
 
@@ -88,6 +93,14 @@ export function useSessionBootstrap() {
     if (session.accessExpiresAt === null) {
       setCachedAccessWindow(null);
     }
+  }, [session]);
+
+  const organizationLimits = useMemo((): OrganizationLimitsState | null => {
+    if (!session) {
+      return null;
+    }
+    const limits = getOrganizationLimitsState(session);
+    return limits && shouldShowOrganizationLimitsBanner(limits) ? limits : null;
   }, [session]);
 
   const activatedModules = useMemo(
@@ -166,5 +179,6 @@ export function useSessionBootstrap() {
     permissions,
     moduleOnlyGating,
     accessWindow,
+    organizationLimits,
   };
 }
