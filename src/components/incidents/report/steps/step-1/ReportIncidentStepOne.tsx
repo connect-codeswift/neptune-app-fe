@@ -336,10 +336,28 @@ export function ReportIncidentStepOne(
             <ReportSelectField
               label="Gender"
               required
-              // Says why the field answered itself. Same treatment as "Set from
-              // severity" on OSHA Recordable — a value that appears without
-              // being typed reads as a bug unless it explains itself.
-              hint={form.genderFromProfile ? "From their profile" : undefined}
+              // Says why the field answered itself, because a value that
+              // appears without being typed reads as a bug otherwise. An icon
+              // rather than the words "From their profile": this column is
+              // 180px, and the text wrapped onto a second line, which grew the
+              // label and dropped this input below Affected person's.
+              trailing={
+                form.genderFromProfile ? (
+                  <span
+                    title="Filled from this person's profile"
+                    className="text-ehs-dark-blue inline-flex items-center"
+                  >
+                    <Icon
+                      icon="mdi:account-check-outline"
+                      className="size-3.5"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">
+                      Filled from this person&apos;s profile
+                    </span>
+                  </span>
+                ) : undefined
+              }
               value={form.gender}
               onChange={(gender) => {
                 // Their answer wins over any lookup still in flight.

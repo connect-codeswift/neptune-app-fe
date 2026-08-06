@@ -149,6 +149,12 @@ export type ReportSelectFieldProps = Readonly<{
   required?: boolean;
   hint?: string;
   trailingHint?: string;
+  /**
+   * Right-aligned label content. Takes precedence over `trailingHint`. Use for
+   * anything that must not wrap — in a narrow grid column a wrapping label
+   * grows a second line and drops this field's input below its neighbour's.
+   */
+  trailing?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -177,6 +183,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
     required,
     hint,
     trailingHint,
+    trailing,
     placeholder = "Select…",
     disabled = false,
     className = "",
@@ -273,11 +280,12 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
         required={required}
         hint={hint}
         trailing={
-          trailingHint ? (
+          trailing ??
+          (trailingHint ? (
             <Text as="span" className="text-ehs-muted-text text-xs">
               {trailingHint}
             </Text>
-          ) : undefined
+          ) : undefined)
         }
       />
 
