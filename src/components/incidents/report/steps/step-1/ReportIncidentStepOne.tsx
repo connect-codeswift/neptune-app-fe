@@ -206,9 +206,13 @@ export function ReportIncidentStepOne(
 
   /**
    * The affected person's own record answers the Gender question, so it isn't
-   * asked twice — but only when the record actually carries one. Overwriting
-   * unconditionally would wipe an answer the reporter had already given every
-   * time they picked a name.
+   * asked twice.
+   *
+   * Changing the person invalidates a gender that was read off the previous
+   * one — it describes somebody else, and leaving it would quietly attribute
+   * one colleague's gender to another on a regulated record. An answer the
+   * reporter chose themselves is theirs and survives: that is the whole reason
+   * `genderFromProfile` tracks where the value came from.
    */
   const handlePersonChange = (person: ReportPersonSelection) => {
     const identity = {
@@ -224,7 +228,14 @@ export function ReportIncidentStepOne(
       return;
     }
 
-    onChange({ ...identity, genderFromProfile: false });
+    // Cleared before the lookup rather than after it comes back empty: showing
+    // the last person's gender while this one resolves presents a stale answer
+    // as though it were this person's.
+    onChange(
+      form.genderFromProfile
+        ? { ...identity, gender: "", genderFromProfile: false }
+        : identity,
+    );
     genderRequestRef.current = person.userId;
 
     if (!person.userId) {
