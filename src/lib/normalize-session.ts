@@ -37,6 +37,22 @@ function asNumber(value: unknown): number | null {
   return null;
 }
 
+function asNullableString(value: unknown): string | null {
+  if (value === null) {
+    return null;
+  }
+
+  return asString(value);
+}
+
+function asNullableNumber(value: unknown): number | null {
+  if (value === null) {
+    return null;
+  }
+
+  return asNumber(value);
+}
+
 function unwrapEnvelope(data: unknown): unknown {
   if (!isRecord(data)) {
     return data;
@@ -239,6 +255,18 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     activatedModules: extractActivatedModules(unwrapped),
     permissions: extractPermissions(unwrapped),
     sites,
+    accessExpiresAt: asNullableString(
+      readProp(unwrapped, "accessExpiresAt", "AccessExpiresAt"),
+    ),
+    daysRemaining: asNullableNumber(
+      readProp(
+        unwrapped,
+        "daysRemaining",
+        "DaysRemaining",
+        "accessDaysRemaining",
+        "AccessDaysRemaining",
+      ),
+    ),
   };
 }
 

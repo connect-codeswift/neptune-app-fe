@@ -23,6 +23,8 @@ function mapUserByIdFallback(
     activatedModules: user.activatedModules,
     permissions: [],
     sites: user.sites,
+    accessExpiresAt: null,
+    daysRemaining: null,
   };
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -10,6 +10,12 @@ import {
   getCurrentUserPermissions,
 } from "@/lib/jwt-permissions";
 import { mergePermissionSets } from "@/lib/normalize-session";
+import {
+  getCachedAccessWindow,
+  setCachedAccessWindow,
+  shouldShowAccessWindowBanner,
+  type AccessWindowState,
+} from "@/lib/access-window";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getOrgSession } from "@/services/session.service";
 
@@ -51,6 +57,38 @@ export function useSessionBootstrap() {
   });
 
   const session = sessionQuery.data;
+
+  const accessWindow = useMemo((): AccessWindowState | null => {
+    if (
+      session &&
+      shouldShowAccessWindowBanner(session.accessExpiresAt)
+    ) {
+      return {
+        accessExpiresAt: session.accessExpiresAt!,
+        daysRemaining: session.daysRemaining ?? 0,
+      };
+    }
+
+    return getCachedAccessWindow();
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (shouldShowAccessWindowBanner(session.accessExpiresAt)) {
+      setCachedAccessWindow({
+        accessExpiresAt: session.accessExpiresAt!,
+        daysRemaining: session.daysRemaining ?? 0,
+      });
+      return;
+    }
+
+    if (session.accessExpiresAt === null) {
+      setCachedAccessWindow(null);
+    }
+  }, [session]);
 
   const activatedModules = useMemo(
     () => parseActivatedModuleSet(session?.activatedModules),
@@ -127,5 +165,6 @@ export function useSessionBootstrap() {
     activatedModules,
     permissions,
     moduleOnlyGating,
+    accessWindow,
   };
 }
