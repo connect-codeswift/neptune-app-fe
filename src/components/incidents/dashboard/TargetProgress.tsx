@@ -7,8 +7,8 @@ import type {
 
 export type TargetProgressProps = Readonly<{
   current: number;
-  target: number;
-  targetLabel: string;
+  target: number | null;
+  targetLabel: string | null;
   direction?: TargetDirection;
   compact?: boolean;
   className?: string;
@@ -56,6 +56,44 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
     className = "",
   } = props;
 
+  if (target == null) {
+    return (
+      <div
+        className={["flex w-full flex-col gap-1.5", className]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <div className="bg-ehs-muted-text/20 relative h-1.5 w-full rounded-full">
+          <div
+            className="bg-ehs-muted-text/35 absolute inset-y-0 left-0 w-[8%] rounded-full"
+            aria-hidden="true"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <Text
+            as="span"
+            className={[
+              "text-ehs-muted-text font-medium",
+              compact ? "text-xs" : "text-[10.3px]",
+            ].join(" ")}
+          >
+            No target configured
+          </Text>
+          <Text
+            as="span"
+            className={[
+              "text-ehs-muted-text whitespace-nowrap",
+              compact ? "text-xs" : "text-xs",
+            ].join(" ")}
+          >
+            {targetLabel ?? ""}
+          </Text>
+        </div>
+      </div>
+    );
+  }
+
   const status = resolveTargetStatus(current, target, direction);
   const fillPercent = getFillPercent(current, target, direction);
   const isOn = status === "on";
@@ -98,13 +136,13 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         </span>
 
         <Text
-          as="span"
+          as="p"
           className={[
             "text-ehs-muted-text whitespace-nowrap",
             compact ? "text-xs" : "text-xs",
           ].join(" ")}
         >
-          {targetLabel}
+          {targetLabel ?? ""}
         </Text>
       </div>
     </div>
