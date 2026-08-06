@@ -32,12 +32,12 @@ function SiteCardSkeleton() {
   return (
     <IncidentGlassCard
       paddingClassName="px-[23px] pt-[23px] pb-6"
-      className="min-h-[326px]"
+      className="flex h-[326px] max-h-[326px] min-h-[326px] flex-col overflow-hidden"
     >
-      <Skeleton className="mb-4 h-4 w-40" />
-      <div className="flex flex-col gap-3">
+      <Skeleton className="mb-4 h-4 w-40 shrink-0" />
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
         {Array.from({ length: 5 }).map((_, index) => (
-          <Skeleton key={index} className="h-8 w-full" />
+          <Skeleton key={index} className="h-8 w-full shrink-0" />
         ))}
       </div>
     </IncidentGlassCard>

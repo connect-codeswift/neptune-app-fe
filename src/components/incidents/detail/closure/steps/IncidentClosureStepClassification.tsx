@@ -1,7 +1,10 @@
-"use client";
-
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import {
+  INCIDENT_TYPE_OPTIONS,
+  SIF_CLASSIFICATION_OPTIONS,
+  incidentTypeLabel,
+} from "@/components/incidents/detail/closure/closure-classification-options";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 
 export type IncidentClosureStepClassificationProps = Readonly<{
@@ -12,29 +15,13 @@ export type IncidentClosureStepClassificationProps = Readonly<{
   ) => void;
 }>;
 
-const INCIDENT_TYPES = [
-  "Select option",
-  "Near Miss",
-  "First Aid Only",
-  "Medical Treatment Only",
-  "Restricted Work / Job Transfer",
-  "Lost Time",
-  "Fatality",
-];
-
-const SIF_CLASSIFICATIONS = [
-  "Not SIF",
-  "Potential SIF (P-SIF)",
-  "Actual SIF",
-];
-
 function getDerivedRecordable(finalIncidentType: string): boolean {
   switch (finalIncidentType) {
     case "Near Miss":
-    case "First Aid Only":
+    case "First Aid":
       return false;
-    case "Medical Treatment Only":
-    case "Restricted Work / Job Transfer":
+    case "Medical Only":
+    case "Restricted Work":
     case "Lost Time":
     case "Fatality":
       return true;
@@ -48,7 +35,7 @@ function showDaysAwayField(finalIncidentType: string): boolean {
 }
 
 function showDaysRestrictedField(finalIncidentType: string): boolean {
-  return finalIncidentType === "Restricted Work / Job Transfer";
+  return finalIncidentType === "Restricted Work";
 }
 
 export function IncidentClosureStepClassification(
@@ -59,7 +46,7 @@ export function IncidentClosureStepClassification(
   const selectedIncidentType = data.finalIncidentType || "Select option";
   const selectedSifClassification =
     !data.sifClassification || data.sifClassification === "Select option"
-      ? "Not SIF"
+      ? "Non-SIF"
       : data.sifClassification;
 
   const derivedRecordable = getDerivedRecordable(selectedIncidentType);
@@ -74,12 +61,12 @@ export function IncidentClosureStepClassification(
     selectedIncidentType === "Lost Time" && data.daysAwayFromWork < 1;
 
   const restrictedMissingDays =
-    selectedIncidentType === "Restricted Work / Job Transfer" &&
+    selectedIncidentType === "Restricted Work" &&
     data.daysOnRestrictedDuty < 1;
 
   const medicalOnlyWithDaysAway =
-    (selectedIncidentType === "Medical Treatment Only" ||
-      selectedIncidentType === "First Aid Only") &&
+    (selectedIncidentType === "Medical Only" ||
+      selectedIncidentType === "First Aid") &&
     (data.daysAwayFromWork > 0 || data.daysOnRestrictedDuty > 0);
 
   const overrideReasonMissing = isOverridden && !data.oshaOverrideReason?.trim();
@@ -164,17 +151,17 @@ export function IncidentClosureStepClassification(
                     : "text-ehs-dark-bg",
                 ].join(" ")}
               >
-                {INCIDENT_TYPES.map((type) => (
+                {INCIDENT_TYPE_OPTIONS.map((option) => (
                   <option
-                    key={type}
-                    value={type}
+                    key={option.value}
+                    value={option.value}
                     className={
-                      type === "Select option"
+                      option.value === "Select option"
                         ? "text-ehs-muted-text"
                         : "text-ehs-dark-bg"
                     }
                   >
-                    {type}
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -201,9 +188,13 @@ export function IncidentClosureStepClassification(
                 }
                 className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-ehs-dark-bg outline-none"
               >
-                {SIF_CLASSIFICATIONS.map((sif) => (
-                  <option key={sif} value={sif} className="text-ehs-dark-bg">
-                    {sif}
+                {SIF_CLASSIFICATION_OPTIONS.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    className="text-ehs-dark-bg"
+                  >
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -331,7 +322,7 @@ export function IncidentClosureStepClassification(
 
         {medicalOnlyWithDaysAway && (
           <span className="text-[11px] font-normal text-ehs-yellow">
-            Days away or restricted duty is unusual for {selectedIncidentType} — please verify classification.
+            Days away or restricted duty is unusual for {incidentTypeLabel(selectedIncidentType)} — please verify classification.
           </span>
         )}
       </div>

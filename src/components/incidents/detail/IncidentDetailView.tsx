@@ -240,6 +240,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
           isEditing={isEditing}
           isSaving={isSaving}
           hideIncidentChrome={showHrca}
+          closureTabDisabled={detail?.isClosed ?? false}
           readOnly={
             activeTab !== "details" &&
             activeTab !== "people" &&
