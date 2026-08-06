@@ -120,8 +120,7 @@ export function IssuePpeContent() {
           return;
         }
 
-        const { organizationName, subCompanyId } = getCurrentUser();
-        const siteId = subCompanyId;
+        const { organizationName, siteId } = getCurrentUser();
 
         if (!organizationName) {
           toast.error(
