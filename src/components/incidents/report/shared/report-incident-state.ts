@@ -182,9 +182,15 @@ export type ReportIncidentFormState = Readonly<{
   /** Pending drafts for steps 3 and 4. */
   aiDrafts: ReportAiDrafts;
   /**
-   * The description the current drafts were generated from. Compared against
-   * the live description to spot a stale draft when the reporter goes back to
-   * step 2 and edits; `""` means nothing has been drafted yet.
+   * What the current drafts were generated from: the description, plus the
+   * injury level and body part once the reporter has chosen them. Compared
+   * against the live values to spot a stale draft when they go back and edit;
+   * `""` means nothing has been drafted yet.
+   *
+   * The injury selections are part of the key because they arrive after the
+   * first call — they live on step 3, and the first request goes out when the
+   * reporter leaves step 2. Keying on the description alone would mean the
+   * injury draft is generated once, without the body part, and never retried.
    */
   aiDraftSource: string;
   /** True while a draft-assist call is in flight. */
