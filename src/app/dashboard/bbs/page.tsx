@@ -37,9 +37,7 @@ export default function BbsPage() {
       <DashboardHeader
         title="Proactive Safety"
         searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       {isBootLoading ? (
         <BbsPageSkeleton />

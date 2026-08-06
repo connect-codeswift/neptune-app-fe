@@ -36,9 +36,7 @@ export default function WalkAndTalkPage() {
       <DashboardHeader
         title="Walk & Talk"
         searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       {isBootLoading ? (
         <WalkTalkPageSkeleton />

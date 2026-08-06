@@ -1,5 +1,8 @@
 import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import type { DateRange } from "@/lib/date-range";
+import { isDateWithinRange } from "@/lib/date-range";
+import { startOfDay } from "@/components/incidents/report/shared/report-date-time";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 import { isIncidentClosed } from "@/services/mappers/incident-state";
 
@@ -100,6 +103,22 @@ export function incidentMatchesSearch(
     .toLowerCase();
 
   return haystack.includes(query);
+}
+
+export function incidentMatchesDateRange(
+  incident: IncidentRecord,
+  range: DateRange,
+): boolean {
+  if (!incident.incidentAt?.trim()) {
+    return true;
+  }
+
+  const date = parseIncidentDate(incident.incidentAt);
+  if (!date) {
+    return true;
+  }
+
+  return isDateWithinRange(startOfDay(date), range);
 }
 
 function parseIncidentDate(value: string | null | undefined): Date | null {

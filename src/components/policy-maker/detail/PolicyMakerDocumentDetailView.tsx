@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { NotificationBellButton } from "@/components/notifications/NotificationBellButton";
 import { PolicyMakerDocumentDetailHeader } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailHeader";
 import { documentFileName } from "@/components/policy-maker/edit/edit-document-utils";
 import {
@@ -22,7 +23,6 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
   onAcknowledgment?: () => void;
   onApprovals?: () => void;
   onDateRangeClick?: () => void;
-  onNotificationsClick?: () => void;
   /** Only the assigned approver sees the Approval action. */
   canApprove?: boolean;
   /** Only the assigned ack-user sees the Acknowledgment action. */
@@ -61,7 +61,6 @@ export function PolicyMakerDocumentDetailView(
     onAcknowledgment,
     onApprovals,
     onDateRangeClick,
-    onNotificationsClick,
     canApprove,
     canAcknowledge,
     isApproved,
@@ -159,22 +158,10 @@ export function PolicyMakerDocumentDetailView(
               aria-hidden="true"
             />
           </button>
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={onNotificationsClick}
-            className="relative inline-flex shrink-0 items-center rounded-[9.73px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-2.5 py-2 shadow-sm backdrop-blur-[5.838px] transition-colors hover:bg-white/80 sm:px-[10.7px] sm:py-[8.8px]"
-          >
-            <Icon
-              icon="mdi:bell-outline"
-              className="size-[15.6px] text-[#0b1320]"
-              aria-hidden="true"
-            />
-            <span
-              className="absolute top-1.5 right-1.5 size-[6.8px] rounded-[3.4px] border-[1.946px] border-[#eef1f6] bg-[#ef4444]"
-              aria-hidden="true"
-            />
-          </button>
+          <NotificationBellButton
+            buttonClassName="relative inline-flex shrink-0 items-center rounded-[9.73px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-2.5 py-2 shadow-sm backdrop-blur-[5.838px] transition-colors hover:bg-white/80 sm:px-[10.7px] sm:py-[8.8px]"
+            iconClassName="size-[15.6px] text-[#0b1320]"
+          />
         </div>
       </header>
 

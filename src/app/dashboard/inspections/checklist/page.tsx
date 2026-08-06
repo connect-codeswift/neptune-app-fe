@@ -27,9 +27,7 @@ export default function InspectionChecklistPage() {
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs..."
         searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-        actionLabel="Start Inspection"
+        dateRangeLabel="March 25 — April 24, 2026"        actionLabel="Start Inspection"
         onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />
 

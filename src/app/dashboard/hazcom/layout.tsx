@@ -9,9 +9,7 @@ export default function HazcomLayout({
     <div className="flex min-h-screen flex-1 flex-col pb-4">
       <DashboardHeader
         title="HazCom Overview"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       <main>{children}</main> 
     </div>

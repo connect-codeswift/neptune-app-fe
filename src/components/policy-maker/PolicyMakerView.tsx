@@ -208,16 +208,11 @@ export function PolicyMakerView() {
           setSearchQuery(value);
           setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
         }}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-        actionLabel="Upload a Document"
+        dateRangeLabel="March 25 — April 24, 2026"        actionLabel="Upload a Document"
         actionLabelShort="Upload"
         reportHref="/dashboard/policy-maker/upload"
         onDateRangeClick={() =>
           toast.success("Date range", "Date filter coming soon.")
-        }
-        onNotificationsClick={() =>
-          toast.success("Notifications", "Notifications coming soon.")
         }
       />
 

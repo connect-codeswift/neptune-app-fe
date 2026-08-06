@@ -85,9 +85,7 @@ export default function HazardPage() {
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Hazard Reporting"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       {isPageLoading ? (
         <HazardPageSkeleton />

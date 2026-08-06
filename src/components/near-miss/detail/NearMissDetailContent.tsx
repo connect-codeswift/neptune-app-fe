@@ -110,9 +110,7 @@ export function NearMissDetailContent(
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs..."
         searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
       <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
         <ReportNearMissHeader
           action={
