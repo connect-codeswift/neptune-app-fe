@@ -126,6 +126,45 @@ export function nowHhMm(): string {
   return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 }
 
+export type Meridiem = "AM" | "PM";
+
+export type TimeParts = Readonly<{
+  /** 1–12, as spoken. */
+  hour12: number;
+  minute: number;
+  meridiem: Meridiem;
+}>;
+
+/**
+ * Splits `HH:MM` into the parts a picker offers.
+ *
+ * An unreadable or empty value falls back to the current hour on the hour,
+ * rather than to midnight: it means one click on the picker always produces a
+ * plausible time, instead of leaving 12:00 AM behind when someone chooses only
+ * a minute.
+ */
+export function toTimeParts(value: string): TimeParts {
+  const parsed = parseTimeInput(value);
+  const source = parsed ?? `${nowHhMm().slice(0, 2)}:00`;
+  const [hh, mm] = source.split(":").map(Number);
+  const hours = hh ?? 0;
+
+  return {
+    hour12: hours % 12 === 0 ? 12 : hours % 12,
+    minute: mm ?? 0,
+    meridiem: hours >= 12 ? "PM" : "AM",
+  };
+}
+
+/** Recombines picker parts into the `HH:MM` the field stores. */
+export function fromTimeParts(parts: TimeParts): string {
+  const { hour12, minute, meridiem } = parts;
+  const base = hour12 % 12;
+  const hours = meridiem === "PM" ? base + 12 : base;
+
+  return `${String(hours).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
 /** `MM/DD/YYYY` → local-midnight `Date`, or `null` when it isn't a real date. */
 export function parseMmDdYyyy(value: string): Date | null {
   const iso = mmDdYyyyToIsoDate(value);

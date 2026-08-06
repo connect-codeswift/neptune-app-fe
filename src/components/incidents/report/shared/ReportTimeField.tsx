@@ -1,13 +1,15 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useId } from "react";
+import { useId, useRef, useState } from "react";
 import { Text } from "@/components/Text";
 import {
   ReportFieldError,
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportTimePopover } from "@/components/incidents/report/shared/ReportTimePopover";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   formatHhMmAs12Hour,
   maskHhMm,
@@ -45,6 +47,17 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+
+  useDismissOnOutsideClick(rootRef, open, () => setOpen(false));
+
+  /** Closing hands focus back to the trigger — the popover took it on open. */
+  function close() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
 
   // The field stores 24-hour, which is right for the record and ambiguous to
   // read at a glance — so echo the 12-hour reading next to the label. Someone
@@ -54,7 +67,10 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
 
   return (
     <div
-      className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+      ref={rootRef}
+      className={["relative flex flex-col gap-1.5", className]
+        .filter(Boolean)
+        .join(" ")}
     >
       <ReportFieldLabel
         label={label}
@@ -92,11 +108,33 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
           className={`${FIELD_INPUT_CLASS} pr-9`}
           maxLength={8}
         />
-        <Icon
-          icon="mdi:clock-outline"
-          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[15px] -translate-y-1/2"
-          aria-hidden="true"
-        />
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={() => setOpen((current) => !current)}
+          aria-label={`Open time picker for ${label}`}
+          aria-expanded={open}
+          className={[
+            "absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer rounded p-0.5 transition-colors",
+            open
+              ? "text-ehs-normal-blue"
+              : "text-ehs-muted-text hover:text-ehs-dark-bg",
+          ].join(" ")}
+        >
+          <Icon
+            icon="mdi:clock-outline"
+            className="size-[15px]"
+            aria-hidden="true"
+          />
+        </button>
+
+        {open ? (
+          <ReportTimePopover
+            value={value}
+            onSelect={onChange}
+            onClose={close}
+          />
+        ) : null}
       </div>
 
       {showNow ? (

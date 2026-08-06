@@ -30,6 +30,28 @@ import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 const FOLLOW_UP_TEXT_MAX_CHARS = 500;
 const AI_ASSISTED_FIELDS_MAX_CHARS = 200;
 
+/**
+ * EMPTY_NOT_NULL — why unanswered optional fields below travel as `""`.
+ *
+ * Swagger marks most of `IncidentDto`'s strings `nullable: true`, but the C#
+ * DTO declares them as non-nullable `string` with implicit `[Required]`. So a
+ * JSON `null` is rejected by model validation *before* the handler runs: the
+ * response is a raw `application/problem+json` 400 ("The X field is
+ * required."), not the API's usual `{ isError, message }` envelope — which is
+ * why it surfaces as an unexplained Bad Request rather than a readable error.
+ *
+ * Verified against staging by posting nulls: ActionTaken, InjuredBodyPart,
+ * InjuryDescription, AffectedPersonId, IncidentReporterEmail, Site, Location,
+ * Severity, Description, InitialTreatment, MechanismOfInjury, NatureOfInjury,
+ * ObjectInvolved, WhatTreatmentWasGiven, TreatmentProvidedBy, TreatmentLocation,
+ * IsFitForFullDuty, CaseDisposition and Feedback all reject null. Only Title,
+ * OtherNotes and AiAssistedFields accept one.
+ *
+ * The five this mapper could actually leave empty in ordinary use are the
+ * bug: a report with no immediate actions, no body part selected, or no injury
+ * description would 400 on submit with nothing on screen to explain it.
+ */
+
 /** `""` (unanswered) and `"No"` both map to false. */
 function yes(value: "Yes" | "No" | "" | undefined): boolean {
   return value === "Yes";
@@ -370,13 +392,14 @@ export function mapReportFormToIncidentDto(
     ),
     objectInvolved: source.objectInvolved.trim(),
     isOSHANotificationRequired: yes(source.oshaNotificationRequired),
-    affectedPersonId: affectedPersonId || affectedName || null,
+    // `""`, not null — see EMPTY_NOT_NULL above.
+    affectedPersonId: affectedPersonId || affectedName || "",
     reportedById: auth?.userId ?? 0,
     userId: auth?.userId ?? 0,
     siteId: auth?.siteId ?? 0,
-    injuredBodyPart: bodyPartLabels || null,
-    injuryDescription: source.injuryDescription.trim() || null,
-    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    injuredBodyPart: bodyPartLabels || "",
+    injuryDescription: source.injuryDescription.trim() || "",
+    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || "",
     occurredInCanada: false,
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
@@ -395,12 +418,14 @@ export function mapReportFormToIncidentDto(
     furtherMedicalRecommendations: source.furtherMedicalRecommended === "Yes",
     images,
     people: buildPeople(source),
-    actionTaken: buildActionTaken(source) || null,
-    // `""`, not null: OtherNotes is non-nullable on the backend DTO, so a null
-    // is rejected by model validation as a required field. That was already
-    // true, but follow-ups used to be concatenated in here, which kept it
-    // populated on most reports and hid it. Now that they travel separately,
-    // a report with no witnesses and no gender would 400 on every submit.
+    // `""`, not null — see EMPTY_NOT_NULL above. This is the one that was
+    // actually failing: a report filed with no immediate actions sent
+    // `actionTaken: null` and got back a bare 400.
+    actionTaken: buildActionTaken(source),
+    // Same rule. This one used to be hidden by follow-ups being concatenated
+    // in, which kept it populated on most reports; now that they travel
+    // separately as `followUps`, a report with no witnesses and no gender
+    // would 400 on every submit.
     otherNotes: buildOtherNotes(source),
     followUps: buildFollowUps(source),
     aiAssistedFields: buildAiAssistedFields(source),
