@@ -1,11 +1,8 @@
 import type { SessionBootstrapDto } from "@/dtos/res/session-response.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import { getCurrentUser } from "@/lib/current-user";
-import { normalizeSessionBootstrap, hasSessionData } from "@/lib/normalize-session";
-import http from "@/lib/axios";
+import { getOrgMe } from "@/services/org.service";
 import { getUserById } from "@/services/user.service";
-
-const AUTH_ORG_ME_PATH = "/Auth/Org/me";
 
 function mapUserByIdFallback(
   user: NonNullable<Awaited<ReturnType<typeof getUserById>>>,
@@ -34,10 +31,9 @@ function mapUserByIdFallback(
  */
 export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
   try {
-    const { data } = await http.get<unknown>(AUTH_ORG_ME_PATH);
-    const session = normalizeSessionBootstrap(data);
+    const session = await getOrgMe();
 
-    if (hasSessionData(session)) {
+    if (session) {
       return session;
     }
   } catch {
