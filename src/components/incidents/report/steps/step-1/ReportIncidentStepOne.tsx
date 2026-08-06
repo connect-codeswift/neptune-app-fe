@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -32,7 +33,8 @@ import {
 } from "@/components/incidents/report/shared/report-date-time";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { useCurrentSite } from "@/hooks/use-current-site";
-import { useUserGenderQuery } from "@/hooks/use-user-queries";
+import { userGenderQueryKey } from "@/hooks/use-user-queries";
+import { getUserGenderById } from "@/services/user.service";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 
@@ -152,38 +154,11 @@ export function ReportIncidentStepOne(
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
   const site = useCurrentSite();
+  const queryClient = useQueryClient();
 
-  // `GET /Auth/GetUsersBySiteId` doesn't project `gender`, so the roster row the
-  // picker already holds can't answer this and the person has to be looked up
-  // one at a time. Skipped entirely when the row does carry a gender, so this
-  // stops firing the day that endpoint includes the field.
-  const needsGenderLookup =
-    form.affectedPersonId !== "" &&
-    form.genderSourceUserId !== form.affectedPersonId;
-  const genderQuery = useUserGenderQuery(
-    Number(form.affectedPersonId) || 0,
-    needsGenderLookup,
-  );
-
-  useEffect(() => {
-    if (!needsGenderLookup || genderQuery.isPending) {
-      return;
-    }
-
-    // Latch on the person either way. A record with no gender is an answer too
-    // — without recording it, this would re-ask on every render.
-    const resolved = normalizeGender(genderQuery.data);
-    onChange({
-      genderSourceUserId: form.affectedPersonId,
-      ...(resolved ? { gender: resolved, genderFromProfile: true } : {}),
-    });
-  }, [
-    needsGenderLookup,
-    genderQuery.isPending,
-    genderQuery.data,
-    form.affectedPersonId,
-    onChange,
-  ]);
+  // Which person the in-flight gender lookup is for. Picking someone else
+  // before the first lookup lands must not let the slower answer win.
+  const genderRequestRef = useRef("");
 
   // Plant / Location is the reporter's own site, not a question. Stamped here
   // rather than in the initial form state because the site name arrives with
@@ -241,25 +216,47 @@ export function ReportIncidentStepOne(
       affectedPersonId: person.userId,
     };
 
-    // The roster row already knows — no lookup needed.
+    // The roster row already knows — no lookup needed. This is the path taken
+    // once `GET /Auth/GetUsersBySiteId` projects `gender`.
     if (person.gender) {
-      onChange({
-        ...identity,
-        gender: person.gender,
-        genderFromProfile: true,
-        genderSourceUserId: person.userId,
-      });
+      genderRequestRef.current = person.userId;
+      onChange({ ...identity, gender: person.gender, genderFromProfile: true });
       return;
     }
 
-    // Otherwise leave the current answer alone and let the lookup above settle
-    // it. Clearing the latch is what lets a new person be looked up; dropping
-    // the flag stops the hint claiming this value came from them before it has.
-    onChange({
-      ...identity,
-      genderFromProfile: false,
-      genderSourceUserId: "",
-    });
+    onChange({ ...identity, genderFromProfile: false });
+    genderRequestRef.current = person.userId;
+
+    if (!person.userId) {
+      return;
+    }
+
+    // Until that projection exists, the person has to be fetched one at a time.
+    // Done here rather than in an effect because it is a response to one
+    // deliberate action — picking a name — not a state the screen has to keep
+    // in sync. `fetchQuery` still caches, so re-picking the same colleague
+    // costs nothing.
+    const userId = Number(person.userId);
+    void queryClient
+      .fetchQuery({
+        queryKey: userGenderQueryKey(userId),
+        queryFn: () => getUserGenderById(userId),
+        staleTime: Infinity,
+      })
+      .then((raw) => {
+        const resolved = normalizeGender(raw);
+        // Ignore a late answer for someone who is no longer the affected
+        // person, and never overwrite a gender the reporter has since chosen.
+        if (!resolved || genderRequestRef.current !== person.userId) {
+          return;
+        }
+
+        onChange({ gender: resolved, genderFromProfile: true });
+      })
+      .catch(() => {
+        // Silent: gender stays for the reporter to answer by hand. A failed
+        // convenience lookup is not worth interrupting an incident report.
+      });
   };
 
   const handleContinue = () => {
@@ -333,16 +330,11 @@ export function ReportIncidentStepOne(
               // being typed reads as a bug unless it explains itself.
               hint={form.genderFromProfile ? "From their profile" : undefined}
               value={form.gender}
-              // Latch the lookup on the way past: a reporter correcting an
-              // auto-filled answer must not have it overwritten when the same
-              // query settles again.
-              onChange={(gender) =>
-                onChange({
-                  gender,
-                  genderFromProfile: false,
-                  genderSourceUserId: form.affectedPersonId,
-                })
-              }
+              onChange={(gender) => {
+                // Their answer wins over any lookup still in flight.
+                genderRequestRef.current = "";
+                onChange({ gender, genderFromProfile: false });
+              }}
               options={[...GENDER_OPTIONS]}
             />
 

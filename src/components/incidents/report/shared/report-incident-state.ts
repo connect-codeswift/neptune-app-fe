@@ -103,15 +103,6 @@ export type ReportIncidentFormState = Readonly<{
    * provenance claim is worse than none on a regulated record.
    */
   genderFromProfile: boolean;
-  /**
-   * Which affected person the current `gender` has already been resolved for.
-   *
-   * Separate from the flag above because they answer different questions: this
-   * is "stop looking", the flag is "say where it came from". Without it a
-   * reporter who corrects an auto-filled gender would have their correction
-   * overwritten the moment the same lookup settled again.
-   */
-  genderSourceUserId: string;
   bodyParts: readonly BodyPartId[];
   /**
    * Free-text parts the reporter added because the anatomical list didn't
@@ -217,7 +208,6 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     injuryLevel: "no-injury",
     gender: "",
     genderFromProfile: false,
-    genderSourceUserId: "",
     bodyParts: [],
     customBodyParts: [],
     bodySide: "Left",

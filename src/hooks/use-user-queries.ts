@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getUserDropdown,
-  getUserGenderById,
   getUsersBySiteId,
   type SiteUsersParams,
 } from "@/services/user.service";
@@ -37,17 +36,15 @@ export function useSiteUsersQuery(
 }
 
 /**
- * One user's gender, for filling the incident form's Gender from the affected
- * person's own record.
+ * Cache key for one user's gender.
  *
- * A person's gender does not change between page loads, so this is cached for
- * the session — picking the same colleague twice costs one request, not two.
+ * Exported as a key rather than wrapped in a `useQuery` hook because the only
+ * caller fetches imperatively — the lookup answers a single deliberate action
+ * (picking the affected person), not a state the screen has to stay in sync
+ * with. Sharing the key still means picking the same colleague twice costs one
+ * request, and pairs with `staleTime: Infinity` at the call site: a person's
+ * gender does not change while a form is open.
  */
-export function useUserGenderQuery(userId: number, enabled = true) {
-  return useQuery({
-    queryKey: ["user", "gender", userId] as const,
-    queryFn: () => getUserGenderById(userId),
-    enabled: enabled && userId > 0,
-    staleTime: Infinity,
-  });
+export function userGenderQueryKey(userId: number) {
+  return ["user", "gender", userId] as const;
 }
