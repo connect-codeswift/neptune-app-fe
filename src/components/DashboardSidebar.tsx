@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Text } from "@/components/Text";
+import { useLogout } from "@/hooks/use-logout";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import type { AppNavItem } from "@/lib/app-nav";
 
@@ -75,6 +76,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   const { className = "" } = props;
   const pathname = usePathname();
   const { navGroups, isLoading, user } = useSessionBootstrap();
+  const { signOut, isLoggingOut } = useLogout();
 
   return (
     <aside
@@ -120,24 +122,50 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
       </nav>
 
       <div className="border-t border-white/40 px-4 py-4">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div
-            className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
-            aria-hidden="true"
+        <div className="flex items-center gap-1">
+          <Link
+            href="/dashboard/my-profile"
+            className={[
+              "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
+              isActivePath(pathname, "/dashboard/my-profile")
+                ? "bg-ehs-light-blue text-ehs-darker"
+                : "hover:bg-white/35",
+            ].join(" ")}
+            aria-current={
+              isActivePath(pathname, "/dashboard/my-profile")
+                ? "page"
+                : undefined
+            }
           >
-            {user.initials}
-          </div>
-          <div className="min-w-0">
-            <Text
-              as="p"
-              className="text-ehs-darker truncate text-sm font-semibold"
+            <div
+              className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+              aria-hidden="true"
             >
-              {user.displayName}
-            </Text>
-            <Text as="p" className="text-ehs-muted-text truncate text-xs">
-              {[user.role, user.siteName].filter(Boolean).join(" · ")}
-            </Text>
-          </div>
+              {user.initials}
+            </div>
+            <div className="min-w-0">
+              <Text
+                as="p"
+                className="text-ehs-darker truncate text-sm font-semibold"
+              >
+                {user.displayName}
+              </Text>
+              <Text as="p" className="text-ehs-muted-text truncate text-xs">
+                {[user.role, user.siteName].filter(Boolean).join(" · ")}
+              </Text>
+            </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            disabled={isLoggingOut}
+            aria-label="Log out"
+            title="Log out"
+            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon icon="mdi:logout" className="text-lg" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </aside>
