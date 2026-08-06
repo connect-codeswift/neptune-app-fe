@@ -13,7 +13,6 @@ export function CapaPageClient() {
       <DashboardHeader
         title="CAPA"
         searchPlaceholder="Search CAPAs by code, action or owner..."
-        companyName="Neptune Industries"
         dateRangeLabel="Year to date"
         actionLabel="Create CAPA"
         hasUnreadNotifications

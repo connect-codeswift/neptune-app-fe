@@ -100,6 +100,7 @@ export function useSessionBootstrap() {
     navGroups,
     isLoading: hasToken === null || (hasToken === true && sessionQuery.isLoading),
     isError: sessionQuery.isError,
+    sites: session?.sites ?? [],
     user: {
       displayName,
       initials: getUserInitials(displayName),
@@ -107,6 +108,7 @@ export function useSessionBootstrap() {
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,
       organizationName: session?.organizationName ?? null,
+      organizationId: session?.organizationId ?? authContext?.organizationId ?? null,
     },
     activatedModules,
     permissions,

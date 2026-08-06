@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { SiteSwitcher } from "@/components/SiteSwitcher";
+import { OrgSiteSwitcher } from "@/components/OrgSiteSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
@@ -9,16 +9,14 @@ export type DashboardHeaderProps = Readonly<{
   title?: string;
   searchPlaceholder?: string;
   dateRangeLabel?: string;
-  /** Company shown on the scope picker; its sites live in the dropdown. */
-  companyName?: string;
-  /** Sites offered under `companyName`. Defaults to the SiteSwitcher's own list. */
-  sites?: readonly string[];
+  /** When true (default), loads org + sites from GET /Auth/Org/me. */
+  showSiteSwitcher?: boolean;
   actionLabel?: string;
   className?: string;
   onActionClick?: () => void;
   onNotificationsClick?: () => void;
   onDateRangeClick?: () => void;
-  onSiteChange?: (site: string) => void;
+  onSiteChange?: (siteId: number | null) => void;
   /** Pass to control the search input; omit to leave it uncontrolled. */
   searchValue?: string;
   onSearchChange?: (value: string) => void;
@@ -147,8 +145,7 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
     title,
     searchPlaceholder,
     dateRangeLabel,
-    companyName,
-    sites,
+    showSiteSwitcher = true,
     actionLabel,
     onActionClick,
     onNotificationsClick,
@@ -166,7 +163,7 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
 
   const showRightControls =
     Boolean(dateRangeLabel) ||
-    Boolean(companyName) ||
+    showSiteSwitcher ||
     Boolean(actionLabel) ||
     showNotifications ||
     (!searchonleft && Boolean(searchPlaceholder));
@@ -210,12 +207,8 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
           />
           ) : null}
 
-          {companyName ? (
-            <SiteSwitcher
-              company={companyName}
-              sites={sites}
-              onChange={onSiteChange}
-            />
+          {showSiteSwitcher ? (
+            <OrgSiteSwitcher onSiteChange={onSiteChange} />
           ) : null}
 
           {dateRangeLabel ? (

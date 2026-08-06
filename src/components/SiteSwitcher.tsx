@@ -2,55 +2,61 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import type { SessionSiteDto } from "@/dtos/res/session-response.dto";
 
 /**
  * Company / site scope picker in the dashboard header.
  *
  * The trigger shows the company; the menu lists that company's sites so the
  * user can narrow the dashboard to one of them (or back to "All sites").
- *
- * NOTE: the backend has no company or site endpoint yet — the API surface
- * exposes no /Company, /Site or /SubCompany route, and the access-token JWT
- * carries only `siteId` / `organizationId`, no names. So `company` and
- * `sites` are props with placeholder defaults: swap the defaults for a query
- * once that endpoint lands and nothing else here has to change.
  */
 export const ALL_SITES = "All sites";
 
+export type SiteSwitcherSite = Pick<SessionSiteDto, "id" | "siteName">;
+
 export type SiteSwitcherProps = Readonly<{
-  company?: string;
-  sites?: readonly string[];
-  /** Selected site, or `ALL_SITES`. Omit to let the component own it. */
-  value?: string;
-  onChange?: (site: string) => void;
+  company: string;
+  sites?: readonly SiteSwitcherSite[];
+  /** Selected site id, or `null` for all sites. Omit to let the component own it. */
+  selectedSiteId?: number | null;
+  onChange?: (siteId: number | null) => void;
   className?: string;
 }>;
 
-const DEFAULT_COMPANY = "Neptune Industries";
-const DEFAULT_SITES: readonly string[] = [
-  "Rawalpindi",
-  "Islamabad",
-  "Lahore",
-  "Karachi",
-];
-
 export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
   const {
-    company = DEFAULT_COMPANY,
-    sites = DEFAULT_SITES,
-    value,
+    company,
+    sites = [],
+    selectedSiteId,
     onChange,
     className = "",
   } = props;
 
   const [open, setOpen] = useState(false);
-  const [internalSite, setInternalSite] = useState(ALL_SITES);
+  const [internalSiteId, setInternalSiteId] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
 
-  const selectedSite = value ?? internalSite;
+  const activeSiteId = selectedSiteId === undefined ? internalSiteId : selectedSiteId;
+  const selectedSiteName =
+    activeSiteId == null
+      ? ALL_SITES
+      : (sites.find((site) => site.id === activeSiteId)?.siteName ?? ALL_SITES);
 
-  // Close the menu on outside click and on Escape while it's open.
+  useEffect(() => {
+    if (selectedSiteId !== undefined) {
+      return;
+    }
+
+    setInternalSiteId((current) => {
+      if (current != null && sites.some((site) => site.id === current)) {
+        return current;
+      }
+
+      return null;
+    });
+  }, [selectedSiteId, sites]);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -77,15 +83,13 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
     };
   }, [open]);
 
-  function selectSite(site: string) {
-    if (value === undefined) {
-      setInternalSite(site);
+  function selectSite(siteId: number | null) {
+    if (selectedSiteId === undefined) {
+      setInternalSiteId(siteId);
     }
-    onChange?.(site);
+    onChange?.(siteId);
     setOpen(false);
   }
-
-  const options = [ALL_SITES, ...sites];
 
   return (
     <div ref={menuRef} className={["relative shrink-0", className].join(" ")}>
@@ -105,9 +109,9 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
         <span className="max-w-[12rem] truncate whitespace-nowrap">
           {company}
         </span>
-        {selectedSite === ALL_SITES ? null : (
+        {selectedSiteName === ALL_SITES ? null : (
           <span className="bg-ehs-light-blue text-ehs-dark-blue max-w-[8rem] truncate rounded-full px-2 py-px text-[10px] font-semibold">
-            {selectedSite}
+            {selectedSiteName}
           </span>
         )}
         <Icon
@@ -131,16 +135,38 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
             {company}
           </p>
 
-          {options.map((site) => {
-            const isSelected = site === selectedSite;
+          <button
+            type="button"
+            role="menuitemradio"
+            aria-checked={activeSiteId == null}
+            onClick={() => selectSite(null)}
+            className={[
+              "flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors",
+              activeSiteId == null
+                ? "text-ehs-dark-blue font-semibold"
+                : "text-ehs-darker hover:bg-ehs-light-bg",
+            ].join(" ")}
+          >
+            <span className="truncate">{ALL_SITES}</span>
+            {activeSiteId == null ? (
+              <Icon
+                icon="mdi:check"
+                className="size-4 shrink-0"
+                aria-hidden="true"
+              />
+            ) : null}
+          </button>
+
+          {sites.map((site) => {
+            const isSelected = site.id === activeSiteId;
 
             return (
               <button
-                key={site}
+                key={site.id}
                 type="button"
                 role="menuitemradio"
                 aria-checked={isSelected}
-                onClick={() => selectSite(site)}
+                onClick={() => selectSite(site.id)}
                 className={[
                   "flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors",
                   isSelected
@@ -148,7 +174,7 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
                     : "text-ehs-darker hover:bg-ehs-light-bg",
                 ].join(" ")}
               >
-                <span className="truncate">{site}</span>
+                <span className="truncate">{site.siteName}</span>
                 {isSelected ? (
                   <Icon
                     icon="mdi:check"
