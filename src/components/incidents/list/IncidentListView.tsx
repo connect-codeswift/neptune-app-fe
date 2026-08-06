@@ -9,7 +9,6 @@ import { IncidentFilterBar } from "@/components/incidents/list/IncidentFilterBar
 import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
-  buildIncidentListKpis,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
@@ -19,6 +18,7 @@ import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
+import { useIncidentListKpisQuery, useKpiTargetsQuery } from "@/hooks/use-incident-kpi-queries";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
@@ -27,6 +27,10 @@ import {
 } from "@/hooks/use-incident-queries";
 import { toast } from "@/lib/toast";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
+import {
+  mapIncidentListKpisToMetrics,
+  mapKpiTargetsToLookup,
+} from "@/services/mappers/incident-kpi.mapper";
 
 export type IncidentListViewProps = Readonly<{
   searchQuery?: string;
@@ -84,6 +88,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     severity: toApiSeverityFilter(severityFilter),
     enabled: isClientReady && hasToken,
   });
+  const listKpisQuery = useIncidentListKpisQuery(isClientReady && hasToken);
+  const kpiTargetsQuery = useKpiTargetsQuery(isClientReady && hasToken);
   const closeIncidentMutation = useCloseIncidentMutation();
 
   const incidents = incidentsQuery.data?.records ?? [];
@@ -171,14 +177,33 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       );
     }
   };
+  const targetsLookup = useMemo(
+    () => mapKpiTargetsToLookup(kpiTargetsQuery.data?.dataModel),
+    [kpiTargetsQuery.data?.dataModel],
+  );
+
   const kpiMetrics = useMemo(
-    () => buildIncidentListKpis(incidentsQuery.data?.items ?? []),
-    [incidentsQuery.data?.items],
+    () =>
+      mapIncidentListKpisToMetrics(
+        listKpisQuery.data?.dataModel,
+        targetsLookup,
+      ),
+    [listKpisQuery.data?.dataModel, targetsLookup],
   );
 
   const showBootLoading = !isClientReady;
+  const showKpiLoading = showBootLoading || (hasToken && listKpisQuery.isLoading);
   const showQueryLoading =
     isClientReady && hasToken && incidentsQuery.isLoading;
+  const kpiErrorMessage =
+    isClientReady && !hasToken
+      ? "Please sign in to load incident KPIs."
+      : isClientReady && listKpisQuery.isError
+        ? getMutationErrorMessage(
+            listKpisQuery.error,
+            "Failed to load incident KPIs.",
+          )
+        : null;
   const errorMessage =
     isClientReady && !hasToken
       ? "Please sign in to load incidents."
@@ -195,13 +220,20 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      {showBootLoading || showQueryLoading ? (
-        <SkeletonKpiRow count={kpiMetrics.length || 4} />
+      {showKpiLoading ? (
+        <SkeletonKpiRow count={4} />
       ) : (
-        <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
-          {kpiMetrics.map((metric) => (
-            <IncidentListKpiCard key={metric.id} {...metric} />
-          ))}
+        <div className="flex flex-col gap-2">
+          {kpiErrorMessage ? (
+            <Text as="p" className="text-ehs-red text-sm">
+              {kpiErrorMessage}
+            </Text>
+          ) : null}
+          <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
+            {kpiMetrics.map((metric) => (
+              <IncidentListKpiCard key={metric.id} {...metric} />
+            ))}
+          </div>
         </div>
       )}
 

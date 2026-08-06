@@ -1,11 +1,10 @@
 import { Text } from "@/components/Text";
-import { HeroKpiCard } from "@/components/incidents/dashboard/HeroKpiCard";
+import { IncidentKpisHeroRow } from "@/components/incidents/dashboard/IncidentKpisHeroRow";
 import { IndicatorCard } from "@/components/incidents/dashboard/IndicatorCard";
 import { InjuryMixCard } from "@/components/incidents/dashboard/InjuryMixCard";
 import { RecordableInjuriesChart } from "@/components/incidents/dashboard/RecordableInjuriesChart";
 import { RecordablesBySiteCard } from "@/components/incidents/dashboard/RecordablesBySiteCard";
 import {
-  HERO_KPI_METRICS,
   INCIDENT_KPIS_FOOTNOTE,
   INDICATOR_METRICS,
 } from "@/components/incidents/dashboard/incident-kpis-data";
@@ -31,11 +30,7 @@ export function IncidentKpisDashboard(
     <div
       className={["flex flex-col gap-6", className].filter(Boolean).join(" ")}
     >
-      <div className="grid gap-x-[14px] gap-y-6 md:grid-cols-2 xl:grid-cols-3">
-        {HERO_KPI_METRICS.map((metric) => (
-          <HeroKpiCard key={metric.id} metric={metric} />
-        ))}
-      </div>
+      <IncidentKpisHeroRow />
 
       <div className="grid gap-x-[14px] gap-y-6 xl:grid-cols-[1.55fr_1fr]">
         <RecordableInjuriesChart />

@@ -71,10 +71,58 @@ function SidebarNavSkeleton() {
   );
 }
 
+function SidebarUserSkeleton() {
+  return (
+    <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+      <div
+        className="bg-ehs-light-bg h-9 w-9 shrink-0 animate-pulse rounded-lg"
+        aria-hidden="true"
+      />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="bg-ehs-light-bg h-3.5 w-24 animate-pulse rounded" />
+        <div className="bg-ehs-light-bg h-3 w-32 animate-pulse rounded" />
+      </div>
+    </div>
+  );
+}
+
+function SidebarUserFooter(
+  props: Readonly<{
+    displayName: string;
+    initials: string;
+    role: string;
+    siteName: string | null;
+  }>,
+) {
+  const { displayName, initials, role, siteName } = props;
+
+  return (
+    <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+      <div
+        className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+        aria-hidden="true"
+      >
+        {initials}
+      </div>
+      <div className="min-w-0">
+        <Text
+          as="p"
+          className="text-ehs-darker truncate text-sm font-semibold"
+        >
+          {displayName}
+        </Text>
+        <Text as="p" className="text-ehs-muted-text truncate text-xs">
+          {[role, siteName].filter(Boolean).join(" · ")}
+        </Text>
+      </div>
+    </div>
+  );
+}
+
 export function DashboardSidebar(props: Readonly<SidebarProps>) {
   const { className = "" } = props;
   const pathname = usePathname();
-  const { navGroups, isLoading, user } = useSessionBootstrap();
+  const { navGroups, isLoading, isUserReady, user } = useSessionBootstrap();
 
   return (
     <aside
@@ -120,25 +168,14 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
       </nav>
 
       <div className="border-t border-white/40 px-4 py-4">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div
-            className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
-            aria-hidden="true"
-          >
-            {user.initials}
-          </div>
-          <div className="min-w-0">
-            <Text
-              as="p"
-              className="text-ehs-darker truncate text-sm font-semibold"
-            >
-              {user.displayName}
-            </Text>
-            <Text as="p" className="text-ehs-muted-text truncate text-xs">
-              {[user.role, user.siteName].filter(Boolean).join(" · ")}
-            </Text>
-          </div>
-        </div>
+        {isUserReady ?
+          <SidebarUserFooter
+            displayName={user.displayName}
+            initials={user.initials}
+            role={user.role}
+            siteName={user.siteName}
+          />
+        : <SidebarUserSkeleton />}
       </div>
     </aside>
   );
