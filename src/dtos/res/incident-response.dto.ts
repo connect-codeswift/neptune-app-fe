@@ -44,6 +44,13 @@ export type IncidentDto = {
   treatmentLocation?: string | null;
   isFitForFullDuty?: string | boolean | null;
   caseDisposition?: string | null;
+  /** Some list/detail payloads expose lifecycle directly (near-miss style). */
+  status?: string | null;
+  /** Grid rows may expose Open/Closed as `state`. */
+  state?: string | null;
+  /** Present when closure summary is included on the incident payload. */
+  closureStatus?: string | null;
+  isClosed?: boolean | null;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;
   people?: PersonDto[] | null;

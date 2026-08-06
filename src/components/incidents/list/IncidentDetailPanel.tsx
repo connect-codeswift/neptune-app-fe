@@ -8,7 +8,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import {
   IncidentBadge,
   severityTone,
-  stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
@@ -139,10 +138,6 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               label={incident.state}
               tone={stateTone(incident.state)}
               showDot
-            />
-            <IncidentBadge
-              label={incident.stage}
-              tone={stageTone(incident.stage)}
             />
           </div>
 

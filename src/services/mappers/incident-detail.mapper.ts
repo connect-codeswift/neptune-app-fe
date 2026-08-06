@@ -84,7 +84,6 @@ export type IncidentDetailViewModel = Readonly<{
   routingMembers: readonly IncidentRoutingMember[];
   severity: string;
   state: string;
-  stage: string;
   site: string;
   reportedAt: string;
   reporter: string;
@@ -335,7 +334,6 @@ function buildTimelineEvents(
     severity: string;
     reporter: string;
     site: string;
-    stage: string;
     isClosed: boolean;
   }>,
 ): readonly TimelineEvent[] {
@@ -508,9 +506,7 @@ function buildTimelineEvents(
   if (disposition) {
     push(reportedAt, {
       title: listMeta.isClosed ? "Incident closed" : "Case disposition updated",
-      description: `Disposition: ${disposition}${
-        listMeta.stage ? ` · Stage: ${listMeta.stage}` : ""
-      }`,
+      description: `Disposition: ${disposition}`,
       icon: listMeta.isClosed
         ? "mdi:lock-check-outline"
         : "mdi:clipboard-check-outline",
@@ -854,7 +850,6 @@ function buildInfoItems(
       kind: "text",
     },
     { key: "state", label: "State", value: listRecord.state, kind: "readonly" },
-    { key: "stage", label: "Stage", value: listRecord.stage, kind: "readonly" },
     {
       key: "siteLocation",
       label: "Site / location",
@@ -1169,7 +1164,6 @@ export function mapIncidentDtoToDetailView(
     severity: listRecord.severity,
     reporter: listRecord.reporter,
     site: listRecord.site,
-    stage: listRecord.stage,
     isClosed,
   });
   const responseMetrics = buildResponseMetrics(incident, {
@@ -1246,7 +1240,6 @@ export function mapIncidentDtoToDetailView(
     routingMembers,
     severity: listRecord.severity,
     state: listRecord.state,
-    stage: listRecord.stage,
     site: listRecord.site,
     reportedAt: listRecord.reportedAt,
     reporter: listRecord.reporter,

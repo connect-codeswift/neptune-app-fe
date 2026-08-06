@@ -23,10 +23,12 @@ import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
   useIncidentByIdQuery,
+  useIncidentClosureQuery,
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
 import { toast } from "@/lib/toast";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
+import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import {
   mapIncidentListKpisToMetrics,
   mapKpiTargetsToLookup,
@@ -39,6 +41,15 @@ export type IncidentListViewProps = Readonly<{
 
 /** `searchQuery` is typed live, so settle it before hitting the paged endpoint. */
 const SEARCH_DEBOUNCE_MS = 300;
+
+function withClosedState(
+  record: IncidentRecord,
+  closed: boolean,
+): IncidentRecord {
+  return closed && record.state !== "Closed"
+    ? { ...record, state: "Closed" }
+    : record;
+}
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const { searchQuery = "", className = "" } = props;
@@ -139,6 +150,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
     id: selectedListIncident?.numericId ?? null,
+    alwaysFresh: true,
     enabled:
       isClientReady &&
       hasToken &&
@@ -146,12 +158,37 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       selectedListIncident.numericId > 0,
   });
 
-  const selectedIncident =
-    selectedDetailQuery.data?.dto != null
-      ? mapIncidentDtoToListRecord(selectedDetailQuery.data.dto)
-      : selectedListIncident;
-
   const isPanelOpen = selectedListIncident != null;
+
+  const selectedClosureQuery = useIncidentClosureQuery({
+    incidentId: selectedListIncident?.numericId ?? null,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      isPanelOpen &&
+      (selectedListIncident?.numericId ?? 0) > 0,
+  });
+
+  const selectedIncident = useMemo(() => {
+    if (selectedDetailQuery.data?.dto != null) {
+      return mapIncidentDtoToListRecord(selectedDetailQuery.data.dto);
+    }
+
+    if (!selectedListIncident) {
+      return null;
+    }
+
+    const closureClosed =
+      selectedClosureQuery.data?.closureStatus?.trim().toLowerCase() ===
+      "closed";
+    return closureClosed
+      ? withClosedState(selectedListIncident, true)
+      : selectedListIncident;
+  }, [
+    selectedDetailQuery.data?.dto,
+    selectedListIncident,
+    selectedClosureQuery.data?.closureStatus,
+  ]);
 
   const handleOpenDetailPanel = useCallback((id: string) => {
     setSelectedId(id);
@@ -169,7 +206,11 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         "Incident closed",
         `${target.id} is now Closed and still available in filters.`,
       );
-      await selectedDetailQuery.refetch();
+      await Promise.all([
+        incidentsQuery.refetch(),
+        selectedDetailQuery.refetch(),
+        selectedClosureQuery.refetch(),
+      ]);
     } catch (error) {
       toast.error(
         "Could not close incident",

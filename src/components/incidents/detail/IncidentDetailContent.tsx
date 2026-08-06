@@ -801,6 +801,7 @@ export function IncidentDetailContent(
             data: updatedData,
           });
           await closeIncidentMutation.mutateAsync(targetId);
+          await closureQuery.refetch();
           toast.success(
             "Incident Officially Closed",
             `Incident ${displayId} has been successfully closed and verified.`,

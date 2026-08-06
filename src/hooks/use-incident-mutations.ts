@@ -6,8 +6,8 @@ import { getAuthContext } from "@/lib/auth-context";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 import {
-  closeIncident,
   createIncident,
+  submitIncidentClosure,
   updateIncident,
   updateIncidentClosure,
 } from "@/services/incident.service";
@@ -30,23 +30,32 @@ export function useCreateIncidentMutation() {
   });
 }
 
-/** Sets incident status to Closed; keeps the record for list/filter. */
+/** Submits closure and marks the incident closed via POST /closure/submit. */
 export function useCloseIncidentMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (incidentId: number) => {
-      const auth = getAuthContext();
-      if (!auth) {
+      if (!getAuthContext()) {
         throw new Error("Sign in required to close an incident.");
       }
 
-      return closeIncident(incidentId, {
-        userId: auth.userId,
-        siteId: auth.siteId,
-      });
+      return submitIncidentClosure(incidentId);
     },
-    onSuccess: async () => {
+    onSuccess: async (_result, incidentId) => {
+      const auth = getAuthContext();
+      await queryClient.invalidateQueries({
+        queryKey: incidentQueryKeys.closure(incidentId),
+      });
+      if (auth) {
+        await queryClient.invalidateQueries({
+          queryKey: incidentQueryKeys.detail({
+            id: incidentId,
+            userId: auth.userId,
+            siteId: auth.siteId,
+          }),
+        });
+      }
       await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });
     },
   });
