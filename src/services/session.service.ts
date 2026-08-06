@@ -25,6 +25,14 @@ function mapUserByIdFallback(
     sites: user.sites,
     accessExpiresAt: null,
     daysRemaining: null,
+    maxSeats: null,
+    maxSites: null,
+    seatsUsed: 0,
+    sitesUsed: 0,
+    seatsAvailable: null,
+    sitesAvailable: null,
+    atSeatLimit: false,
+    atSiteLimit: false,
   };
 }
 
