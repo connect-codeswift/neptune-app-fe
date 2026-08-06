@@ -14,9 +14,7 @@ export function CapaPageClient() {
         title="CAPA"
         searchPlaceholder="Search CAPAs by code, action or owner..."
         dateRangeLabel="Year to date"
-        actionLabel="Create CAPA"
-        hasUnreadNotifications
-        onSearchChange={setSearchQuery}
+        actionLabel="Create CAPA"        onSearchChange={setSearchQuery}
       />
 
       <div className="flex min-w-0 flex-1 flex-col px-4 pb-8">

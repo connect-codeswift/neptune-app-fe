@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { OrgSiteSwitcher } from "@/components/OrgSiteSwitcher";
+import { NotificationBellButton } from "@/components/notifications/NotificationBellButton";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
@@ -14,13 +15,17 @@ export type DashboardHeaderProps = Readonly<{
   actionLabel?: string;
   className?: string;
   onActionClick?: () => void;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   onNotificationsClick?: () => void;
   onDateRangeClick?: () => void;
   onSiteChange?: (siteId: number | null) => void;
   /** Pass to control the search input; omit to leave it uncontrolled. */
   searchValue?: string;
   onSearchChange?: (value: string) => void;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   hasUnreadNotifications?: boolean;
+  /** When false, hides the notification bell entirely. */
+  enableNotifications?: boolean;
   searchonleft?: boolean;
 }>;
 
@@ -154,12 +159,16 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
     searchValue,
     onSearchChange,
     hasUnreadNotifications,
+    enableNotifications = true,
     className = "",
     searchonleft,
   } = props;
 
-  const showNotifications =
-    onNotificationsClick !== undefined || hasUnreadNotifications !== undefined;
+  const useLegacyNotifications =
+    onNotificationsClick !== undefined ||
+    hasUnreadNotifications !== undefined;
+
+  const showNotifications = enableNotifications || useLegacyNotifications;
 
   const showRightControls =
     Boolean(dateRangeLabel) ||
@@ -201,10 +210,10 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
           {!searchonleft && searchPlaceholder ? (
             <SearchField
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={onSearchChange}
-          />
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={onSearchChange}
+            />
           ) : null}
 
           {showSiteSwitcher ? (
@@ -219,10 +228,14 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
           ) : null}
 
           {showNotifications ? (
-            <NotificationsButton
-              hasUnread={hasUnreadNotifications ?? false}
-              onClick={onNotificationsClick}
-            />
+            useLegacyNotifications ? (
+              <NotificationsButton
+                hasUnread={hasUnreadNotifications ?? false}
+                onClick={onNotificationsClick}
+              />
+            ) : (
+              <NotificationBellButton />
+            )
           ) : null}
 
           {actionLabel ? (

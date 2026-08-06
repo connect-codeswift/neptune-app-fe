@@ -9,6 +9,7 @@ import { IncidentFilterBar } from "@/components/incidents/list/IncidentFilterBar
 import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
+  incidentMatchesDateRange,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
@@ -26,6 +27,7 @@ import {
   useIncidentClosureQuery,
   useIncidentsListQuery,
 } from "@/hooks/use-incident-queries";
+import type { DateRange } from "@/lib/date-range";
 import { toast } from "@/lib/toast";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
@@ -36,6 +38,7 @@ import {
 
 export type IncidentListViewProps = Readonly<{
   searchQuery?: string;
+  dateRange?: DateRange;
   className?: string;
 }>;
 
@@ -52,7 +55,7 @@ function withClosedState(
 }
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
-  const { searchQuery = "", className = "" } = props;
+  const { searchQuery = "", dateRange, className = "" } = props;
   const [stateFilter, setStateFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -80,6 +83,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       clearTimeout(timer);
     };
   }, [searchQuery, appliedSearch]);
+
+  useEffect(() => {
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  }, [dateRange?.start.getTime(), dateRange?.end.getTime()]);
 
   // Every filter change invalidates the current page offset.
   const handleStateFilterChange = (value: string) => {
@@ -129,10 +136,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         incident,
         severityFilter,
       );
+      const matchesDateRange =
+        dateRange == null || incidentMatchesDateRange(incident, dateRange);
 
-      return matchesSearch && matchesState && matchesSeverity;
+      return (
+        matchesSearch && matchesState && matchesSeverity && matchesDateRange
+      );
     });
-  }, [incidents, appliedSearch, severityFilter, stateFilter]);
+  }, [incidents, appliedSearch, severityFilter, stateFilter, dateRange]);
 
   // Preview panel opens only after explicit row selection (View more or row click).
   const selectedListIncident =

@@ -30,6 +30,8 @@ export type TableProps<TData> = {
   onRowClick?: (row: TData) => void;
   selectedRowId?: string | null;
   getRowId?: (row: TData) => string;
+  /** Extra classes merged onto each body row (e.g. attention highlight). */
+  getRowClassName?: (row: TData) => string | undefined;
   className?: string;
   containerClassName?: string;
   pagination?: TablePagination;
@@ -47,6 +49,7 @@ export function Table<TData>(props: TableProps<TData>) {
     onRowClick,
     selectedRowId,
     getRowId,
+    getRowClassName,
     className = "",
     containerClassName = "",
     pagination,
@@ -155,6 +158,7 @@ export function Table<TData>(props: TableProps<TData>) {
             ) : (
               table.getRowModel().rows.map((row) => {
                 const isSelected = selectedRowId === row.id;
+                const rowClassName = getRowClassName?.(row.original);
 
                 return (
                   <tr
@@ -172,7 +176,10 @@ export function Table<TData>(props: TableProps<TData>) {
                         : isSelected
                           ? "bg-ehs-normal-blue/18"
                           : "hover:bg-ehs-normal-blue/18",
-                    ].join(" ")}
+                      rowClassName,
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
                       const meta = cell.column.columnDef.meta as

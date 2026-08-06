@@ -70,7 +70,6 @@ export function RegulatoryComplianceCalendarView() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications={true}
         reportHref="/dashboard/incidents/report-incident"
         actionLabel="Report incident"
         searchPosition="start"

@@ -50,9 +50,7 @@ export default function AuditTemplatesPage() {
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs..."
         searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-        actionLabel="Start Audit"
+        dateRangeLabel="March 25 — April 24, 2026"        actionLabel="Start Audit"
         onActionClick={() => router.push(START_AUDIT_ROUTE)}
       />
 

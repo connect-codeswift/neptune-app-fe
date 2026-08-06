@@ -35,6 +35,7 @@ export type ReportCalendarPopoverProps = Readonly<{
   minDate?: Date | null;
   maxDate?: Date | null;
   labelledBy?: string;
+  className?: string;
 }>;
 
 /**
@@ -49,7 +50,8 @@ export type ReportCalendarPopoverProps = Readonly<{
 export function ReportCalendarPopover(
   props: Readonly<ReportCalendarPopoverProps>,
 ) {
-  const { value, onSelect, onClose, minDate, maxDate, labelledBy } = props;
+  const { value, onSelect, onClose, minDate, maxDate, labelledBy, className } =
+    props;
 
   const todayDate = today();
   const initialFocus = value ?? clampToRange(todayDate, minDate, maxDate);
@@ -150,7 +152,10 @@ export function ReportCalendarPopover(
       // three-column grid, so anchoring left would push the last column's
       // popover off the card and anchoring right would do the same to the
       // first. Centring keeps all three inside it.
-      className="animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-[260px] -translate-x-1/2 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+      className={
+        className ??
+        "animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-[260px] -translate-x-1/2 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+      }
     >
       <div className="flex items-center justify-between pb-2">
         <button

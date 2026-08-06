@@ -204,9 +204,6 @@ export function PolicyMakerDocumentDetailContent(
       onDateRangeClick={() =>
         toast.success("Date range", "Date filter coming soon.")
       }
-      onNotificationsClick={() =>
-        toast.success("Notifications", "Notifications coming soon.")
-      }
     />
   );
 }

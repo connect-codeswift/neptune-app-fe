@@ -23,6 +23,8 @@ export type {
   ReportPersonSearchFieldProps,
   ReportPersonSelection,
 } from "./ReportPersonSearchField";
+export { ReportWitnessesField } from "./ReportWitnessesField";
+export type { ReportWitnessesFieldProps } from "./ReportWitnessesField";
 export { ReportSelectWithAdd } from "./ReportSelectWithAdd";
 export type { ReportSelectWithAddProps } from "./ReportSelectWithAdd";
 export { ReportSiteField } from "./ReportSiteField";

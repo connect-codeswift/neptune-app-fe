@@ -1,13 +1,18 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { NotificationBellButton } from "@/components/notifications/NotificationBellButton";
 import { Text } from "@/components/Text";
 
 export type CompliancePageHeaderProps = Readonly<{
   dateRangeLabel?: string;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   hasUnreadNotifications?: boolean;
   onDateRangeClick?: () => void;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   onNotificationsClick?: () => void;
+  /** When false, hides the notification bell entirely. */
+  enableNotifications?: boolean;
   /** When false, hides the page title (e.g. add-obligation form). */
   showTitle?: boolean;
   /** When false, omits the calendar icon from the date-range control. */
@@ -18,9 +23,10 @@ export type CompliancePageHeaderProps = Readonly<{
 export function CompliancePageHeader(props: CompliancePageHeaderProps) {
   const {
     dateRangeLabel = "March 25 — April 24, 2026",
-    hasUnreadNotifications = true,
+    hasUnreadNotifications,
     onDateRangeClick,
     onNotificationsClick,
+    enableNotifications = true,
     showTitle = true,
     showDateRangeCalendarIcon = true,
     className = "",
@@ -46,6 +52,39 @@ export function CompliancePageHeader(props: CompliancePageHeaderProps) {
       </kbd>
     </div>
   );
+
+  const useLegacyNotifications =
+    onNotificationsClick !== undefined ||
+    hasUnreadNotifications !== undefined;
+
+  const notificationControl =
+    enableNotifications || useLegacyNotifications ? (
+      useLegacyNotifications ? (
+        <button
+          type="button"
+          aria-label="Notifications"
+          onClick={onNotificationsClick}
+          className="relative inline-flex h-[33.081px] w-[36.973px] shrink-0 items-center justify-center rounded-[9.73px] border border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+        >
+          <Icon
+            icon="mdi:bell-outline"
+            className="size-[15.568px] text-[#0b1320]"
+            aria-hidden
+          />
+          {hasUnreadNotifications ? (
+            <span
+              className="absolute top-[5.84px] right-[5.84px] size-[6.811px] rounded-[3.405px] border-2 border-[#eef1f6] bg-[#ef4444]"
+              aria-hidden
+            />
+          ) : null}
+        </button>
+      ) : (
+        <NotificationBellButton
+          buttonClassName="relative inline-flex h-[33.081px] w-[36.973px] shrink-0 items-center justify-center rounded-[9.73px] border border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          iconClassName="size-[15.568px] text-[#0b1320]"
+        />
+      )
+    ) : null;
 
   const utilityCluster = (
     <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-[14px]">
@@ -73,24 +112,7 @@ export function CompliancePageHeader(props: CompliancePageHeaderProps) {
         />
       </button>
 
-      <button
-        type="button"
-        aria-label="Notifications"
-        onClick={onNotificationsClick}
-        className="relative inline-flex h-[33.081px] w-[36.973px] shrink-0 items-center justify-center rounded-[9.73px] border border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[6px] transition-colors hover:bg-white/80"
-      >
-        <Icon
-          icon="mdi:bell-outline"
-          className="size-[15.568px] text-[#0b1320]"
-          aria-hidden
-        />
-        {hasUnreadNotifications ? (
-          <span
-            className="absolute top-[5.84px] right-[5.84px] size-[6.811px] rounded-[3.405px] border-2 border-[#eef1f6] bg-[#ef4444]"
-            aria-hidden
-          />
-        ) : null}
-      </button>
+      {notificationControl}
     </div>
   );
 

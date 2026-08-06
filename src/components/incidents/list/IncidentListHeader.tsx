@@ -3,18 +3,28 @@
 import { useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
+import { HeaderDateRangePicker } from "@/components/HeaderDateRangePicker";
+import { NotificationBellButton } from "@/components/notifications/NotificationBellButton";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import type { DateRange } from "@/lib/date-range";
 
 export type IncidentListHeaderProps = Readonly<{
   title?: string;
   searchPlaceholder?: string;
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
+  dateRange?: DateRange;
+  onDateRangeChange?: (range: DateRange) => void;
+  /** Legacy static label when `onDateRangeClick` is supplied instead of the picker. */
   dateRangeLabel?: string;
   onDateRangeClick?: () => void;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   onNotificationsClick?: () => void;
+  /** @deprecated Use built-in notification bell (`enableNotifications`). */
   hasUnreadNotifications?: boolean;
+  /** When false, hides the notification bell entirely. */
+  enableNotifications?: boolean;
   /** Primary CTA href (incidents report, document upload, etc.). */
   reportHref?: string;
   /** Primary CTA label. Defaults to “Report incident”. */
@@ -42,10 +52,13 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     searchPlaceholder = "Search incidents, actions, docs…",
     searchQuery = "",
     onSearchChange,
+    dateRange,
+    onDateRangeChange,
     dateRangeLabel = "March 25 — April 24, 2026",
     onDateRangeClick,
     onNotificationsClick,
-    hasUnreadNotifications = true,
+    hasUnreadNotifications,
+    enableNotifications = true,
     reportHref = "/dashboard/incidents/report",
     actionLabel = "Report incident",
     actionLabelShort,
@@ -97,6 +110,10 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
     </div>
   );
 
+  const useLegacyNotifications =
+    onNotificationsClick !== undefined ||
+    hasUnreadNotifications !== undefined;
+
   return (
     <header
       className={[
@@ -121,44 +138,58 @@ export function IncidentListHeader(props: Readonly<IncidentListHeaderProps>) {
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 lg:justify-end">
         {searchPosition === "end" && showSearch ? searchInput : null}
 
-        <button
-          type="button"
-          onClick={onDateRangeClick}
-          className={controlClass}
-        >
-          <Icon
-            icon="mdi:calendar-outline"
-            className="text-ehs-muted-text text-sm"
-            aria-hidden="true"
-          />
-          <span className="max-w-[140px] truncate whitespace-nowrap md:max-w-none">
-            {dateRangeLabel}
-          </span>
-          <Icon
-            icon="mdi:chevron-down"
-            className="text-ehs-muted-text hidden text-sm sm:inline"
-            aria-hidden="true"
-          />
-        </button>
-
-        <button
-          type="button"
-          aria-label="Notifications"
-          onClick={onNotificationsClick}
-          className={iconControlClass}
-        >
-          <Icon
-            icon="mdi:bell-outline"
-            className="text-ehs-darker text-lg"
-            aria-hidden="true"
-          />
-          {hasUnreadNotifications ? (
-            <span
-              className="bg-ehs-red border-ehs-light-text absolute top-2 right-2 h-1.5 w-1.5 rounded-full border"
+        {onDateRangeClick && !onDateRangeChange ? (
+          <button
+            type="button"
+            onClick={onDateRangeClick}
+            className={controlClass}
+          >
+            <Icon
+              icon="mdi:calendar-outline"
+              className="text-ehs-muted-text text-sm"
               aria-hidden="true"
             />
-          ) : null}
-        </button>
+            <span className="max-w-[140px] truncate whitespace-nowrap md:max-w-none">
+              {dateRangeLabel}
+            </span>
+            <Icon
+              icon="mdi:chevron-down"
+              className="text-ehs-muted-text hidden text-sm sm:inline"
+              aria-hidden="true"
+            />
+          </button>
+        ) : (
+          <HeaderDateRangePicker
+            value={dateRange}
+            onChange={onDateRangeChange}
+            buttonClassName={controlClass}
+          />
+        )}
+
+        {enableNotifications || useLegacyNotifications ? (
+          useLegacyNotifications ? (
+            <button
+              type="button"
+              aria-label="Notifications"
+              onClick={onNotificationsClick}
+              className={iconControlClass}
+            >
+              <Icon
+                icon="mdi:bell-outline"
+                className="text-ehs-darker text-lg"
+                aria-hidden="true"
+              />
+              {hasUnreadNotifications ? (
+                <span
+                  className="bg-ehs-red border-ehs-light-text absolute top-2 right-2 h-1.5 w-1.5 rounded-full border"
+                  aria-hidden="true"
+                />
+              ) : null}
+            </button>
+          ) : (
+            <NotificationBellButton buttonClassName={iconControlClass} />
+          )
+        ) : null}
 
         {showAction ? (
           <Link href={reportHref} className="min-w-0 sm:shrink-0">
