@@ -16,6 +16,7 @@ import {
   type ProfileCertification,
 } from "@/components/profile/my-profile-data";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
+import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
 
 function ProfileDetailRow(
   props: Readonly<{ label: string; value: string }>,
@@ -206,12 +207,11 @@ export function MyProfilePageClient() {
           <GlassCard className="gap-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex min-w-0 flex-1 items-start gap-4">
-                <div
-                  className="bg-ehs-normal-blue text-ehs-light-text flex size-16 shrink-0 items-center justify-center rounded-full text-xl font-semibold"
-                  aria-hidden="true"
-                >
-                  {user.initials}
-                </div>
+                <AvatarPreview
+                  profileUrl={user.profileUrl}
+                  initials={user.initials}
+                  sizeClassName="size-16 text-xl"
+                />
 
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-2">

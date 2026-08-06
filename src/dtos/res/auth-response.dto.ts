@@ -16,6 +16,7 @@ export type AuthResponseDto = {
   organizationId: number;
   organizationName: string;
   activatedModules: string;
+  profileUrl?: string | null;
   sites: SiteDto[];
 };
 

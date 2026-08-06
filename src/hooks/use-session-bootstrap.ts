@@ -117,6 +117,7 @@ export function useSessionBootstrap() {
     user: {
       displayName,
       initials: getUserInitials(displayName),
+      profileUrl: session?.profileUrl ?? null,
       role: role ?? "User",
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,

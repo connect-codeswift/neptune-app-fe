@@ -16,6 +16,7 @@ export type SessionBootstrapDto = Readonly<{
   organizationName: string | null;
   siteId: number | null;
   siteName: string | null;
+  profileUrl: string | null;
   activatedModules: string | null;
   permissions: readonly string[];
   sites: readonly SessionSiteDto[];
