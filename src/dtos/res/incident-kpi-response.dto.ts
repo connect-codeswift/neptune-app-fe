@@ -72,3 +72,49 @@ export type GetSiteWorkHoursResponseDto = ApiEnvelopeDto<
 >;
 
 export type SaveSiteWorkHoursResponseDto = ApiEnvelopeDto<unknown>;
+
+/** One site row on GET /api/Incident/dashboard-kpis. */
+export type RecordablesBySiteDto = {
+  site: string;
+  count: number;
+};
+
+/** One monthly row on GET /api/Incident/dashboard-kpis. */
+export type RecordablesMonthlyDto = {
+  year: number;
+  month: number;
+  label: string;
+  count: number;
+};
+
+/** Recordable mix breakdown on GET /api/Incident/dashboard-kpis. */
+export type RecordableMixDto = {
+  lostTime: number;
+  restricted: number;
+  medicalOnly: number;
+  firstAid: number;
+};
+
+/** Optional targets bundled with GET /api/Incident/dashboard-kpis. */
+export type IncidentDashboardTargetsDto = Record<string, number>;
+
+/** dataModel shape for GET /api/Incident/dashboard-kpis. */
+export type IncidentDashboardKpisDto = {
+  totalRecordable: number;
+  lostTimeCount: number;
+  restrictedWorkCount: number;
+  medicalOnlyCount: number;
+  firstAidCount: number;
+  fatalityCount: number;
+  lostDays: number;
+  restrictedDays: number;
+  siaCount: number;
+  sipCount: number;
+  recordablesBySite: readonly RecordablesBySiteDto[];
+  recordablesMonthly: readonly RecordablesMonthlyDto[];
+  recordableMix: RecordableMixDto;
+  targets: IncidentDashboardTargetsDto;
+};
+
+export type GetIncidentDashboardKpisResponseDto =
+  ApiEnvelopeDto<IncidentDashboardKpisDto | null>;

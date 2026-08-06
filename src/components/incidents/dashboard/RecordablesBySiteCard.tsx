@@ -1,19 +1,17 @@
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { RECORDABLES_BY_SITE } from "@/components/incidents/dashboard/incident-kpis-data";
+import type { SiteRecordable } from "@/components/incidents/dashboard/incident-kpis-data";
 
 export type RecordablesBySiteCardProps = Readonly<{
+  sites: readonly SiteRecordable[];
   className?: string;
 }>;
 
 export function RecordablesBySiteCard(
   props: Readonly<RecordablesBySiteCardProps>,
 ) {
-  const { className = "" } = props;
-  const maxCount = Math.max(
-    ...RECORDABLES_BY_SITE.map((item) => item.count),
-    1,
-  );
+  const { sites, className = "" } = props;
+  const maxCount = Math.max(...sites.map((item) => item.count), 1);
 
   return (
     <IncidentGlassCard
@@ -33,28 +31,37 @@ export function RecordablesBySiteCard(
       </div>
 
       <div className="flex flex-col gap-3">
-        {RECORDABLES_BY_SITE.map((item) => {
-          const widthPercent = (item.count / maxCount) * 100;
+        {sites.length === 0 ? (
+          <Text as="p" className="text-ehs-muted-text text-sm">
+            No recordables by site returned.
+          </Text>
+        ) : (
+          sites.map((item) => {
+            const widthPercent = (item.count / maxCount) * 100;
 
-          return (
-            <div key={item.site} className="flex flex-col gap-[5px]">
-              <div className="flex items-center justify-between gap-2">
-                <Text as="span" className="text-ehs-slate text-xs">
-                  {item.site}
-                </Text>
-                <Text as="span" className="text-ehs-gray text-sm tabular-nums">
-                  {String(item.count)}
-                </Text>
+            return (
+              <div key={item.site} className="flex flex-col gap-[5px]">
+                <div className="flex items-center justify-between gap-2">
+                  <Text as="span" className="text-ehs-slate text-xs">
+                    {item.site}
+                  </Text>
+                  <Text
+                    as="span"
+                    className="text-ehs-gray text-sm tabular-nums"
+                  >
+                    {String(item.count)}
+                  </Text>
+                </div>
+                <div className="bg-ehs-muted-text/15 h-1.5 w-full overflow-hidden rounded-full">
+                  <div
+                    className="bg-ehs-normal-blue h-full rounded-full"
+                    style={{ width: `${widthPercent}%` }}
+                  />
+                </div>
               </div>
-              <div className="bg-ehs-muted-text/15 h-1.5 w-full overflow-hidden rounded-full">
-                <div
-                  className="bg-ehs-normal-blue h-full rounded-full"
-                  style={{ width: `${widthPercent}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </IncidentGlassCard>
   );

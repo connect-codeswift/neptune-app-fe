@@ -59,11 +59,20 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
   if (target == null) {
     return (
       <div
-        className={["flex w-full flex-col gap-1.5", className]
+        className={[
+          "flex w-full flex-col",
+          compact ? "gap-1" : "gap-1.5",
+          className,
+        ]
           .filter(Boolean)
           .join(" ")}
       >
-        <div className="bg-ehs-muted-text/20 relative h-1.5 w-full rounded-full">
+        <div
+          className={[
+            "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+            compact ? "h-[6px]" : "h-1.5",
+          ].join(" ")}
+        >
           <div
             className="bg-ehs-muted-text/35 absolute inset-y-0 left-0 w-[8%] rounded-full"
             aria-hidden="true"
@@ -75,7 +84,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
             as="span"
             className={[
               "text-ehs-muted-text font-medium",
-              compact ? "text-xs" : "text-[10.3px]",
+              compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
             ].join(" ")}
           >
             No target configured
@@ -84,7 +93,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
             as="span"
             className={[
               "text-ehs-muted-text whitespace-nowrap",
-              compact ? "text-xs" : "text-xs",
+              compact ? "text-[9.5px] leading-normal" : "text-xs",
             ].join(" ")}
           >
             {targetLabel ?? ""}
@@ -100,11 +109,20 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
 
   return (
     <div
-      className={["flex w-full flex-col gap-1.5", className]
+      className={[
+        "flex w-full flex-col",
+        compact ? "gap-1" : "gap-1.5",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="bg-ehs-muted-text/20 relative h-1.5 w-full rounded-full">
+      <div
+        className={[
+          "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+          compact ? "h-[6px]" : "h-1.5",
+        ].join(" ")}
+      >
         <div
           className={[
             "absolute inset-y-0 left-0 rounded-full",
@@ -113,33 +131,35 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
           style={{ width: `${fillPercent}%` }}
         />
         <div
-          className="bg-ehs-darker absolute top-[-2px] bottom-[-2px] w-0.5 rounded-[2px]"
+          className={[
+            "bg-ehs-slate absolute top-[-2px] bottom-[-2px] w-[2px] rounded-[2px]",
+          ].join(" ")}
           style={{ left: `${TARGET_MARKER_PCT}%` }}
           aria-hidden="true"
         />
       </div>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <span
           className={[
-            "inline-flex items-center gap-0.5 font-bold",
-            compact ? "text-xs" : "text-[10.3px]",
+            "inline-flex items-center gap-[3px] font-bold",
+            compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
             isOn ? "text-ehs-green" : "text-ehs-red",
           ].join(" ")}
         >
           <Icon
             icon={isOn ? "mdi:check-circle" : "mdi:trending-up"}
-            className={compact ? "text-xs" : "text-sm"}
+            className={compact ? "size-[10px]" : "text-sm"}
             aria-hidden="true"
           />
           {isOn ? "On / under target" : "Off target"}
         </span>
 
         <Text
-          as="p"
+          as="span"
           className={[
-            "text-ehs-muted-text whitespace-nowrap",
-            compact ? "text-xs" : "text-xs",
+            "text-ehs-muted-text py-px whitespace-nowrap",
+            compact ? "text-[9.5px] leading-normal" : "text-xs",
           ].join(" ")}
         >
           {targetLabel ?? ""}
