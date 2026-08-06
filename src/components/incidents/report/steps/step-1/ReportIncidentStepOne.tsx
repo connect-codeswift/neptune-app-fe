@@ -72,11 +72,12 @@ export function validateTiming(
   const incidentTimeError =
     form.incidentTime.trim() && !incidentTime ? "Try 14:30 or 2:30 PM." : null;
 
+  // Like the incident date, the report date is unbounded in both directions —
+  // only its shape is checked, plus the one rule below that relates it to the
+  // incident.
   let reportDateError: string | null = null;
   if (isComplete(form.reportDate) && !reportDate) {
     reportDateError = "That isn't a real date — try 03/14/2026.";
-  } else if (reportDate && reportDate > todayDate) {
-    reportDateError = "The report date can't be in the future.";
   } else if (
     reportDate &&
     incidentDate &&
@@ -185,7 +186,6 @@ export function ReportIncidentStepOne(
   }, [form.reportedBy, form.reporterEmail, form.reportDate, onChange]);
 
   const timing = validateTiming(form);
-  const todayValue = formatMmDdYyyy(today());
   // The report date floor tracks the incident date, but only when that is a
   // real date in the past: an unparseable one would disable the whole calendar,
   // and a forward-dated incident is reported before it happens by definition.
@@ -347,10 +347,9 @@ export function ReportIncidentStepOne(
               required
               value={form.reportDate}
               onChange={(reportDate) => onChange({ reportDate })}
-              // Bounded on both sides: filed no earlier than the incident, no
-              // later than today.
+              // Floored at the incident date when that is in the past, and
+              // otherwise unbounded — a report can be dated forward.
               minDate={minReportDate}
-              maxDate={todayValue}
               quickPicks={["today"]}
               error={timing.reportDate}
               className="pb-[6px] sm:pb-[18px]"
