@@ -1,8 +1,8 @@
-type SubcompanyDto = {
+type SiteDto = {
   id: number;
   industryType: string;
-  companySize: string;
-  companyName: string;
+  siteSize: string;
+  siteName: string;
   location: string;
 };
 
@@ -16,10 +16,15 @@ export type AuthResponseDto = {
   organizationId: number;
   organizationName: string;
   activatedModules: string;
-  subcompany: SubcompanyDto[];
+  profileUrl?: string | null;
+  sites: SiteDto[];
 };
 
 export type LoginResponseDto = {
   accessToken: string;
   refreshToken: string;
+  /** Present only when the org has a time-boxed access window. */
+  accessDaysRemaining?: number;
+  /** UTC instant when org access ends. Omitted when access is permanent. */
+  accessExpiresAt?: string;
 };

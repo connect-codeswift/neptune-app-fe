@@ -3,6 +3,8 @@ import type {
   CapaSummaryCounts,
   HierarchyControlRow,
 } from "@/components/incidents/detail/linked-capa/capa-types";
+import type { IncidentLinkedItem } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
+import type { IncidentCapa } from "@/components/incidents/list/incident-list-types";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -168,9 +170,10 @@ export function mapCapaDtoToItem(
     actionType: normalizeActionType(dto.capaType),
     status,
     statusTone: status === "Verified" ? "green" : "gray",
-    title: dto.description.trim(),
+    title: dto.title?.trim() || dto.description.trim(),
     assignee: resolveAssignee(dto, options),
     dueDate: formatDueDate(dto.dueDate),
+    priority: dto.priority?.trim() || "Medium",
     progressPercent,
   };
 }
@@ -230,6 +233,38 @@ export function buildCoverageNotice(
   return "No elimination control yet. Consider removing or redesigning the hazard at source.";
 }
 
+export function mapCapaItemsToLinkedItems(
+  items: readonly CapaItem[],
+  options?: Readonly<{ limit?: number }>,
+): readonly IncidentLinkedItem[] {
+  const visible = options?.limit ? items.slice(0, options.limit) : items;
+
+  return visible.map((item) => ({
+    id: item.code,
+    label: item.title,
+    icon:
+      item.actionType === "Preventive"
+        ? "mdi:shield-check-outline"
+        : "mdi:clipboard-check-outline",
+  }));
+}
+
+/** Maps linked CAPA view items for the incident list sidebar panel. */
+export function mapCapaItemsToIncidentCapas(
+  items: readonly CapaItem[],
+): readonly IncidentCapa[] {
+  return items.map((item) => ({
+    id: item.code,
+    hierarchy: item.controlCategory,
+    status: item.status,
+    priority: item.priority,
+    description: item.title,
+    assignee: item.assignee,
+    dueDate: item.dueDate,
+    type: item.actionType,
+  }));
+}
+
 export function mapCapaDtosToLinkedView(
   dtos: readonly CapaDto[],
   options?: Readonly<{ currentUserId?: number }>,
@@ -257,6 +292,28 @@ export function toApiControlLevel(level: string): string {
   return normalizeControlLevel(level);
 }
 
+/** Short label required by POST /CAPA/Capa — derived from the action description. */
+export function buildCapaTitleFromDescription(description: string): string {
+  const trimmed = description.trim();
+  const firstLine = trimmed.split(/\r?\n/)[0]?.trim() ?? trimmed;
+  if (firstLine.length <= 120) {
+    return firstLine;
+  }
+  return `${firstLine.slice(0, 117)}…`;
+}
+
+function parseOptionalUserId(value: string): number | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+  return Math.trunc(parsed);
+}
+
 export function buildCreateCapaRequest(input: {
   incidentId: number;
   controlLevel: string;
@@ -267,24 +324,28 @@ export function buildCreateCapaRequest(input: {
   priority: string;
 }): CreateCapaRequestDto {
   const auth = getAuthContext();
-  const ownerTrimmed = input.owner.trim();
-  const ownerAsId = Number(ownerTrimmed);
-  const userId =
-    Number.isFinite(ownerAsId) && ownerTrimmed !== "" && ownerAsId > 0
-      ? Math.trunc(ownerAsId)
-      : (auth?.userId ?? 0);
+  const userId = auth?.userId ?? 0;
+  if (userId <= 0) {
+    throw new Error("Sign in required to create a CAPA.");
+  }
+
+  const description = input.description.trim();
+  const assignedId = parseOptionalUserId(input.owner);
 
   return {
     id: 0,
+    title: buildCapaTitleFromDescription(description),
     incidentId: input.incidentId,
     userId,
+    assignedId,
+    rcaId: null,
     capaType:
       input.type.trim().toLowerCase() === "preventive"
         ? "Preventive"
         : "Corrective",
     priority: normalizePriority(input.priority),
     controlLevel: toApiControlLevel(input.controlLevel),
-    description: input.description.trim(),
+    description,
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
     isDrop: false,
   };

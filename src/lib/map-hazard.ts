@@ -1,6 +1,6 @@
 import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
-import type { HazardDto } from "@/dtos/res/hazard-response.dto";
+import type { HazardDto, HazardKpiDto } from "@/dtos/res/hazard-response.dto";
 import {
   HAZARD_TYPE_OPTIONS,
   LOCATION_OPTIONS,
@@ -10,6 +10,59 @@ import type {
   HazardStage,
   HazardStatus,
 } from "@/app/dashboard/hazard/hazard-data";
+import {
+  asNumber,
+  isRecord,
+  readProp,
+} from "@/services/mappers/record-readers";
+
+/**
+ * Normalizes GET /api/Hazard/HazardKpiCount payload (camelCase or PascalCase).
+ */
+export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {  if (!isRecord(raw)) {
+    return null;
+  }
+
+  const totalHazards =
+    asNumber(
+      readProp(
+        raw,
+        "totalHazards",
+        "TotalHazards",
+        "totalHazardCount",
+        "TotalHazardCount",
+      ),
+    ) ?? 0;
+
+  const hazardConvertedToIncidentCount =
+    asNumber(
+      readProp(
+        raw,
+        "hazardConvertedToIncidentCount",
+        "HazardConvertedToIncidentCount",
+        "convertedToIncidents",
+        "ConvertedToIncidents",
+      ),
+    ) ?? 0;
+
+  return { totalHazards, hazardConvertedToIncidentCount };
+}
+
+/** Builds the two hazard dashboard KPI cards from the API payload. */
+export function mapHazardKpiToMetrics(
+  dto: HazardKpiDto | null | undefined,
+): readonly { title: string; value: number }[] {
+  return [
+    {
+      title: "Total hazards reports",
+      value: dto?.totalHazards ?? 0,
+    },
+    {
+      title: "Converted to incidents",
+      value: dto?.hazardConvertedToIncidentCount ?? 0,
+    },
+  ];
+}
 
 /**
  * The backend stores type / location as slugs ("warehouse-1"). Reuse the

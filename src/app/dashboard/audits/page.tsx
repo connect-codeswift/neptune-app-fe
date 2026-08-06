@@ -3,15 +3,24 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import { useAuditDetailQuery, useAuditsQuery } from "@/hooks/use-audit-queries";
 import {
-  mapAuditDetailDtoToDetail,
-  mapAuditDtoToRecord,
-} from "@/lib/map-audit";
+  useAuditDetailSummaryQuery,
+  useAuditsQuery,
+  useAuditSummaryQuery,
+} from "@/hooks/use-audit-queries";
+import { mapAuditDtoToRecord } from "@/lib/map-audit";
 import {
-  StatMetricCard,
-  type StatMetricCardProps,
-} from "@/components/StatMetricCard";
+  mapAuditDetailSummaryToDetail,
+  mapSummaryToMetrics,
+} from "@/lib/map-audit-inspection-dashboard";
+import {
+  REGISTER_STATUS_FILTERS,
+  toApiStatusFilter,
+  type RegisterStatusFilter,
+} from "@/lib/audit-inspection-status";
+import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
+import { getCurrentUser } from "@/lib/current-user";
+import { StatMetricCard } from "@/components/StatMetricCard";
 import { Table } from "@/components/ui/Table";
 import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
@@ -23,105 +32,72 @@ import { AuditRegisterToolbar } from "@/components/audits/AuditRegisterToolbar";
 
 const PAGE_SIZE = 10;
 
-const AUDIT_METRICS: readonly StatMetricCardProps[] = [
-  {
-    title: "Audits YTD",
-    value: 29,
-    trendValue: "+5",
-    trendTone: "positive",
-  },
-  {
-    title: "Open findings",
-    value: 19,
-    trendValue: "-4",
-    trendTone: "negative",
-  },
-  {
-    title: "On-time closure",
-    value: "92%",
-    trendValue: "+2pp",
-    trendTone: "positive",
-  },
-  {
-    title: "Avg findings/audit",
-    value: "2.1",
-    trendValue: "-0.3",
-    trendTone: "negative",
-  },
-];
-
 export default function AuditsPage() {
   const router = useRouter();
-  const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const { userId } = getCurrentUser();
+  const [selectedStatus, setSelectedStatus] =
+    useState<RegisterStatusFilter>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const [pageNumber, setPageNumber] = useState(1);
 
-  const auditsQuery = useAuditsQuery({ pageNumber, pageSize: PAGE_SIZE });
+  const listParams = useMemo(
+    () => ({
+      pageNumber,
+      pageSize: PAGE_SIZE,
+      status: toApiStatusFilter(selectedStatus),
+    }),
+    [pageNumber, selectedStatus],
+  );
+
+  const summaryQuery = useAuditSummaryQuery(userId);
+  const auditsQuery = useAuditsQuery(listParams);
+
+  const metrics = useMemo(
+    () => mapSummaryToMetrics(summaryQuery.data?.dataModel, "audit"),
+    [summaryQuery.data],
+  );
+
   const page = auditsQuery.data?.dataModel;
   const records = useMemo(
     () => (page?.data ?? []).map(mapAuditDtoToRecord),
     [page],
   );
-  console.log(page);
-  // Only offer filters for statuses the backend actually returned.
-  const statuses = useMemo(
-    () => ["All", ...new Set(records.map((record) => record.status))],
-    [records],
-  );
 
-  // If the chosen status vanishes on a refetch, fall back to "All" rather than
-  // leaving the table empty with no segment selected.
-  const activeStatus = statuses.includes(selectedStatus)
-    ? selectedStatus
-    : "All";
+  const detailSummaryQuery = useAuditDetailSummaryQuery(selectedId);
+  const detail = useMemo(() => {
+    const dto = detailSummaryQuery.data?.dataModel;
+    return dto ? mapAuditDetailSummaryToDetail(dto) : null;
+  }, [detailSummaryQuery.data]);
 
-  const filteredRecords = useMemo(
-    () =>
-      records.filter(
-        (record) => activeStatus === "All" || record.status === activeStatus,
-      ),
-    [records, activeStatus],
-  );
-
-  // Fetch the clicked audit's detail (GET /api/Audit/{id}) for the side panel.
-  const detailQuery = useAuditDetailQuery(selectedId);
-  const detailDto = detailQuery.data?.dataModel ?? null;
-  console.log(detailDto);
-  const detail = useMemo(
-    () => (detailDto ? mapAuditDetailDtoToDetail(detailDto) : null),
-    [detailDto],
-  );
+  const isInitialLoading = summaryQuery.isPending && auditsQuery.isPending;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Audits"
         searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-        // actionLabel="Start Audit"
-        // onActionClick={() => router.push("/dashboard/audits/start")}
-      />
-      {auditsQuery.isPending ? (
+        dateRangeLabel="March 25 — April 24, 2026"      />
+      {isInitialLoading ? (
         <AuditPageSkeleton />
       ) : (
         <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics */}
           <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-            {AUDIT_METRICS.map((metric) => (
+            {metrics.map((metric) => (
               <StatMetricCard key={metric.title} {...metric} />
             ))}
           </div>
+
+          {summaryQuery.isError ? (
+            <p className="text-ehs-red text-sm">Could not load audit KPIs.</p>
+          ) : null}
 
           {auditsQuery.isError ? (
             <p className="text-ehs-red text-sm">Could not load audits.</p>
           ) : null}
 
-          {/* Audit register + selected audit breakdown */}
           <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <Table
-              data={filteredRecords}
+              data={records}
               columns={auditColumns}
               selectedRowId={selectedId}
               onRowClick={(row) => setSelectedId(row.id)}
@@ -136,9 +112,12 @@ export default function AuditsPage() {
               }}
               header={
                 <AuditRegisterToolbar
-                  status={activeStatus}
-                  statuses={statuses}
-                  onStatusChange={setSelectedStatus}
+                  status={selectedStatus}
+                  statuses={REGISTER_STATUS_FILTERS}
+                  onStatusChange={(value) => {
+                    setSelectedStatus(value as RegisterStatusFilter);
+                    setPageNumber(1);
+                  }}
                   onTemplatesClick={() =>
                     router.push("/dashboard/audits/template")
                   }
@@ -147,11 +126,11 @@ export default function AuditsPage() {
             />
 
             {selectedId !== null ? (
-              detailQuery.isPending ? (
+              detailSummaryQuery.isPending ? (
                 <AuditDetailPanelSkeleton />
-              ) : detailQuery.isError ? (
+              ) : detailSummaryQuery.isError ? (
                 <p className="text-ehs-red text-sm">
-                  Could not load audit detail.
+                  {detailSummaryErrorMessage(detailSummaryQuery.error)}
                 </p>
               ) : detail ? (
                 <AuditDetailPanel
@@ -159,7 +138,7 @@ export default function AuditsPage() {
                   className="min-w-0"
                   onViewFindings={() =>
                     router.push(
-                      `/dashboard/audits/report?auditid=${encodeURIComponent(selectedId)}`,
+                      `/dashboard/audits/findings/${encodeURIComponent(selectedId)}`,
                     )
                   }
                 />

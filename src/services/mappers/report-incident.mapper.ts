@@ -22,6 +22,31 @@ import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
+/** Mirrors the backend's [MaxLength] on the field. */
+const AI_ASSISTED_FIELDS_MAX_CHARS = 200;
+
+/**
+ * EMPTY_NOT_NULL — why unanswered optional fields below travel as `""`.
+ *
+ * Swagger marks most of `IncidentDto`'s strings `nullable: true`, but the C#
+ * DTO declares them as non-nullable `string` with implicit `[Required]`. So a
+ * JSON `null` is rejected by model validation *before* the handler runs: the
+ * response is a raw `application/problem+json` 400 ("The X field is
+ * required."), not the API's usual `{ isError, message }` envelope — which is
+ * why it surfaces as an unexplained Bad Request rather than a readable error.
+ *
+ * Verified against staging by posting nulls: ActionTaken, InjuredBodyPart,
+ * InjuryDescription, AffectedPersonId, IncidentReporterEmail, Site, Location,
+ * Severity, Description, InitialTreatment, MechanismOfInjury, NatureOfInjury,
+ * ObjectInvolved, WhatTreatmentWasGiven, TreatmentProvidedBy, TreatmentLocation,
+ * IsFitForFullDuty, CaseDisposition and Feedback all reject null. Only Title,
+ * OtherNotes and AiAssistedFields accept one.
+ *
+ * The five this mapper could actually leave empty in ordinary use are the
+ * bug: a report with no immediate actions, no body part selected, or no injury
+ * description would 400 on submit with nothing on screen to explain it.
+ */
+
 /** `""` (unanswered) and `"No"` both map to false. */
 function yes(value: "Yes" | "No" | "" | undefined): boolean {
   return value === "Yes";
@@ -136,15 +161,15 @@ export function parseReportDateTime(
   return fallback.toISOString();
 }
 
-function buildDescription(form: ReportIncidentFormState): string {
-  const title = form.title.trim();
-  const description = form.description.trim();
+function buildIncidentTitle(
+  form: ReportIncidentFormState,
+  severityLabel: string,
+): string {
+  return form.title.trim() || severityLabel;
+}
 
-  if (title && description) {
-    return `${title}\n\n${description}`;
-  }
-
-  return title || description;
+function buildIncidentDescription(form: ReportIncidentFormState): string {
+  return form.description.trim();
 }
 
 function buildActionTaken(form: ReportIncidentFormState): string {
@@ -175,15 +200,23 @@ function buildOtherNotes(form: ReportIncidentFormState): string {
     parts.push(`Witnesses: ${form.witnesses.trim()}`);
   }
 
-  if (form.suggestedFollowUp.length > 0) {
-    parts.push(`Suggested follow-up: ${form.suggestedFollowUp.join(", ")}`);
-  }
-
   if (form.gender.trim()) {
     parts.push(`Gender: ${form.gender.trim()}`);
   }
 
   return parts.join("\n");
+}
+
+/**
+ * Which fields the reporter accepted an AI draft into, as the backend's
+ * comma-separated string. Null when they wrote everything themselves.
+ */
+function buildAiAssistedFields(form: ReportIncidentFormState): string | null {
+  if (form.aiAssistedFields.length === 0) {
+    return null;
+  }
+
+  return form.aiAssistedFields.join(",").slice(0, AI_ASSISTED_FIELDS_MAX_CHARS);
 }
 
 function buildPeople(form: ReportIncidentFormState): PersonDto[] {
@@ -261,9 +294,13 @@ export function mapReportFormToIncidentDto(
   // Non–First Aid severities get First Aid field defaults from form state.
   const source = applySeverityFieldDefaults(form);
   const { site, location } = splitSiteLocation(source.location);
-  const { name: affectedName, affectedPersonId } = parseAffectedPerson(
-    source.affectedPerson,
-  );
+  const { name: affectedName, affectedPersonId: parsedAffectedPersonId } =
+    parseAffectedPerson(source.affectedPerson);
+  // Picking from the site roster gives a real user id; typing a name gives the
+  // parsed text, as before. The id wins where both exist — it is the only one
+  // of the two that identifies a person rather than describing them.
+  const affectedPersonId =
+    source.affectedPersonId.trim() || parsedAffectedPersonId;
   const severityLabel =
     SEVERITY_OPTIONS.find((option) => option.id === source.severity)?.label ??
     source.severity;
@@ -298,10 +335,11 @@ export function mapReportFormToIncidentDto(
 
   return {
     id: 0,
+    title: buildIncidentTitle(source, severityLabel),
     severity: severityLabel,
     site,
     location,
-    description: buildDescription(source),
+    description: buildIncidentDescription(source),
     isDrop: false,
     incidentAt,
     incidentReportedAt,
@@ -324,13 +362,15 @@ export function mapReportFormToIncidentDto(
     ),
     objectInvolved: source.objectInvolved.trim(),
     isOSHANotificationRequired: yes(source.oshaNotificationRequired),
-    affectedPersonId: affectedPersonId || affectedName || null,
+    // `""`, not null — see EMPTY_NOT_NULL above.
+    affectedPersonId: affectedPersonId || affectedName || "",
     reportedById: auth?.userId ?? 0,
     userId: auth?.userId ?? 0,
-    subCompanyId: auth?.subCompanyId ?? 0,
-    injuredBodyPart: bodyPartLabels || null,
-    injuryDescription: source.injuryDescription.trim() || null,
-    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || null,
+    siteId: auth?.siteId ?? 0,
+    injuredBodyPart: bodyPartLabels || "",
+    injuryDescription: source.injuryDescription.trim() || "",
+    incidentReporterEmail: source.reporterEmail.trim() || auth?.email || "",
+    occurredInCanada: false,
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
       optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||
@@ -348,8 +388,14 @@ export function mapReportFormToIncidentDto(
     furtherMedicalRecommendations: source.furtherMedicalRecommended === "Yes",
     images,
     people: buildPeople(source),
-    actionTaken: buildActionTaken(source) || null,
-    otherNotes: buildOtherNotes(source) || null,
+    // `""`, not null — see EMPTY_NOT_NULL above. This is the one that was
+    // actually failing: a report filed with no immediate actions sent
+    // `actionTaken: null` and got back a bare 400.
+    actionTaken: buildActionTaken(source),
+    // Same rule. A report with no witnesses and no gender leaves this empty,
+    // which used to 400 on every submit.
+    otherNotes: buildOtherNotes(source),
+    aiAssistedFields: buildAiAssistedFields(source),
     isFitForFullDuty: source.isFitForFullDuty.trim() || "N/A",
     caseDisposition:
       optionLabel(CASE_DISPOSITION_OPTIONS, source.caseDisposition) ||

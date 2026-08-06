@@ -1,15 +1,12 @@
 import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import type { DateRange } from "@/lib/date-range";
+import { isDateWithinRange } from "@/lib/date-range";
+import { startOfDay } from "@/components/incidents/report/shared/report-date-time";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
+import { isIncidentClosed } from "@/services/mappers/incident-state";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
-export const STAGE_FILTERS = [
-  "All",
-  "New",
-  "Investigating",
-  "Corrective",
-  "Closed",
-] as const;
 export const SEVERITY_FILTERS = [
   "All",
   "First Aid",
@@ -28,8 +25,7 @@ const LTI_BEST_TARGET_DAYS = 112;
 const ASSUMED_EXPOSURE_HOURS = 200_000;
 
 function isClosedIncident(incident: IncidentDto): boolean {
-  const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
-  return disposition.includes("close") || disposition === "closed";
+  return isIncidentClosed(incident);
 }
 
 /**
@@ -50,26 +46,6 @@ export function toApiSeverityFilter(
   }
 
   return severityFilter === "Recordable" ? "recordable" : severityFilter;
-}
-
-/**
- * Translates the "State" segmented filter into the `caseDisposition` token for
- * the server-side filter on GetAllIncidents.
- *
- * The server matches case-insensitive Contains, and "closed" is a derived
- * state: any stored disposition whose label contains "close" counts
- * ("Case closed - no further actions", "Closed", legacy variants), mirroring
- * isClosedIncident / deriveState. Sending the token instead of one exact
- * label keeps legacy labels from silently dropping out.
- *
- * Only "Closed" is expressible: "Open" means "any disposition that is not a
- * closed one", which a single Contains parameter cannot represent, so it is
- * left entirely to the client-side pass.
- */
-export function toApiCaseDispositionFilter(
-  stateFilter: string,
-): string | undefined {
-  return stateFilter === "Closed" ? "close" : undefined;
 }
 
 /** Severity filter: "Recordable" includes OSHA Recordable (flag and/or label). */
@@ -99,7 +75,7 @@ export function incidentMatchesSeverityFilter(
  * search in GetAllIncidents (IncidentRepository.cs) covers every one of these
  * fields' source columns, so nothing the client could match is ever dropped
  * server-side before pagination. Fields intentionally NOT searched here:
- * stage/state (derived labels with dedicated segmented filters), reportedAt
+ * state (derived label with a dedicated segmented filter), reportedAt
  * (a formatted date string with no server-representable equivalent) and
  * assignee (always "—").
  */
@@ -127,6 +103,22 @@ export function incidentMatchesSearch(
     .toLowerCase();
 
   return haystack.includes(query);
+}
+
+export function incidentMatchesDateRange(
+  incident: IncidentRecord,
+  range: DateRange,
+): boolean {
+  if (!incident.incidentAt?.trim()) {
+    return true;
+  }
+
+  const date = parseIncidentDate(incident.incidentAt);
+  if (!date) {
+    return true;
+  }
+
+  return isDateWithinRange(startOfDay(date), range);
 }
 
 function parseIncidentDate(value: string | null | undefined): Date | null {

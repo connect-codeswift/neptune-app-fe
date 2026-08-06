@@ -25,16 +25,16 @@ export function FilePreviewPdf(props: Readonly<FilePreviewPdfProps>) {
         file={fileUrl}
         onLoadSuccess={({ numPages: loadedPages }) => setNumPages(loadedPages)}
         loading={
-          <div className="text-ehs-gray flex flex-col items-center justify-center gap-2 py-12 text-[13px]">
+          <div className="text-ehs-gray flex flex-col items-center justify-center gap-2 py-12 text-sm">
             <Icon
               icon="mdi:loading"
-              className="size-6 animate-spin text-[#0891a6]"
+              className="size-6 animate-spin text-ehs-normal-blue"
             />
             <span>Loading PDF document...</span>
           </div>
         }
         error={
-          <div className="text-ehs-red py-12 text-center text-[13px]">
+          <div className="text-ehs-red py-12 text-center text-sm">
             Failed to load PDF. Unsigned raw Cloudinary assets may require local
             download permissions.
           </div>
@@ -46,7 +46,7 @@ export function FilePreviewPdf(props: Readonly<FilePreviewPdfProps>) {
             pageNumber={index + 1}
             renderTextLayer={false}
             renderAnnotationLayer={false}
-            className="mx-auto mb-4 border border-gray-100 shadow-sm"
+            className="mx-auto mb-4 border border-ehs-border shadow-sm"
             width={pageWidth}
           />
         ))}

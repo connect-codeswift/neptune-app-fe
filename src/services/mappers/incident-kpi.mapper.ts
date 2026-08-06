@@ -1,0 +1,400 @@
+import type {
+  HeaderKpiDto,
+  IncidentKpiCardDto,
+  IncidentKpiStatusDto,
+  IncidentListKpiDto,
+  KpiMetricKey,
+  KpiTargetDto,
+  KpiTargetsLookup,
+  SiteWorkHoursDto,
+} from "@/dtos/res/incident-kpi-response.dto";
+import type {
+  HeroKpiMetric,
+  TargetStatus,
+} from "@/components/incidents/dashboard/incident-kpis-data";
+import type {
+  IncidentListKpiMetric,
+} from "@/components/incidents/list/IncidentListKpiCard";
+
+const HEADER_KPI_DEFINITIONS = [
+  {
+    key: "rir",
+    id: "rir",
+    title: "RIR",
+    subtitle: "Recordable Incident Rate",
+  },
+  {
+    key: "ltir",
+    id: "ltir",
+    title: "LTIR",
+    subtitle: "Lost Time Incident Rate",
+  },
+  {
+    key: "mttc",
+    id: "mttc",
+    title: "MTTC",
+    subtitle: "Mean Time to Close",
+  },
+] as const;
+
+type HeaderKpiKey = (typeof HEADER_KPI_DEFINITIONS)[number]["key"];
+
+const LIST_KPI_DEFINITIONS = [
+  {
+    key: "openIncidents",
+    id: "open-incidents",
+    title: "Open Incidents",
+    direction: "lower-better",
+    valueFormat: "integer",
+  },
+  {
+    key: "mttc",
+    id: "mean-time-to-close",
+    title: "Mean Time to Close",
+    direction: "lower-better",
+    valueFormat: "decimal",
+  },
+  {
+    key: "rir",
+    id: "recordable-rate",
+    title: "Recordable Rate",
+    direction: "lower-better",
+    valueFormat: "decimal",
+  },
+  {
+    key: "daysWithoutLti",
+    id: "days-without-lti",
+    title: "Days Without LTI",
+    direction: "higher-better",
+    valueFormat: "integer",
+  },
+] as const;
+
+type ListKpiKey = (typeof LIST_KPI_DEFINITIONS)[number]["key"];
+type MetricDirection = "lower-better" | "higher-better";
+type ValueFormat = "integer" | "decimal";
+
+/** Backend swagger has shown `mttr` — normalize to `mttc`. */
+const KPI_METRIC_ALIASES: Partial<Record<string, KpiMetricKey>> = {
+  mttr: "mttc",
+};
+
+function isKpiMetricKey(value: string): value is KpiMetricKey {
+  return (
+    value === "rir" ||
+    value === "ltir" ||
+    value === "mttc" ||
+    value === "openIncidents" ||
+    value === "daysWithoutLti"
+  );
+}
+
+/** Normalizes API metric strings (case-insensitive) to known card keys. */
+export function normalizeKpiMetricKey(metric: string): KpiMetricKey | null {
+  const normalized = metric.trim().toLowerCase();
+  const resolved = KPI_METRIC_ALIASES[normalized] ?? normalized;
+  return isKpiMetricKey(resolved) ? resolved : null;
+}
+
+/** Builds a lookup table from GET /api/Incident/kpi-targets. */
+export function mapKpiTargetsToLookup(
+  targets: readonly KpiTargetDto[] | null | undefined,
+): KpiTargetsLookup {
+  const lookup: KpiTargetsLookup = {};
+
+  for (const item of targets ?? []) {
+    const key = normalizeKpiMetricKey(item.metric);
+    if (key != null && Number.isFinite(item.targetValue)) {
+      lookup[key] = item.targetValue;
+    }
+  }
+
+  return lookup;
+}
+
+function computeKpiStatus(
+  value: number,
+  target: number,
+  direction: MetricDirection,
+): IncidentKpiStatusDto {
+  if (direction === "lower-better") {
+    return value <= target ? "OnTarget" : "OffTarget";
+  }
+
+  return value >= target ? "OnTarget" : "OffTarget";
+}
+
+function enrichKpiCard(
+  card: IncidentKpiCardDto | undefined,
+  metricKey: KpiMetricKey,
+  lookup: KpiTargetsLookup | undefined,
+  direction: MetricDirection,
+): IncidentKpiCardDto | undefined {
+  if (!card || card.target != null || !lookup) {
+    return card;
+  }
+
+  const target = lookup[metricKey];
+  if (target == null) {
+    return card;
+  }
+
+  return {
+    ...card,
+    target,
+    status:
+      card.status ?? computeKpiStatus(card.value, target, direction),
+  };
+}
+
+function formatMetricValue(value: number, format: ValueFormat = "decimal"): string {
+  if (!Number.isFinite(value)) {
+    return "—";
+  }
+
+  if (format === "integer") {
+    return String(Math.round(value));
+  }
+
+  const fixed = value.toFixed(1);
+  return fixed.endsWith(".0") ? fixed.slice(0, -2) : fixed;
+}
+
+function formatTrendDelta(delta: number | null): string {
+  if (delta == null || !Number.isFinite(delta)) {
+    return "—";
+  }
+
+  const rounded = Number(delta.toFixed(1));
+  if (Object.is(rounded, -0) || rounded === 0) {
+    return "0";
+  }
+
+  return rounded > 0 ? `+${String(rounded)}` : String(rounded);
+}
+
+function resolveListTrend(
+  delta: number | null,
+  direction: MetricDirection,
+): Pick<
+  IncidentListKpiMetric,
+  "trendValue" | "trendDirection" | "trendTone"
+> {
+  const value = delta ?? 0;
+  const trendValue = formatTrendDelta(delta);
+  const trendDirection = value >= 0 ? "up" : "down";
+
+  if (value === 0) {
+    return {
+      trendValue,
+      trendDirection: "down",
+      trendTone: "positive",
+    };
+  }
+
+  if (direction === "lower-better") {
+    return {
+      trendValue,
+      trendDirection: value > 0 ? "up" : "down",
+      trendTone: value > 0 ? "negative" : "positive",
+    };
+  }
+
+  return {
+    trendValue,
+    trendDirection: value > 0 ? "up" : "down",
+    trendTone: value > 0 ? "positive" : "negative",
+  };
+}
+
+function buildListTargetLabel(
+  target: number | null,
+  unit: string,
+  direction: MetricDirection,
+  valueFormat: ValueFormat,
+): string | null {
+  if (target == null || !Number.isFinite(target)) {
+    return null;
+  }
+
+  const formattedTarget = formatMetricValue(target, valueFormat);
+  const comparator = direction === "lower-better" ? "≤" : "≥";
+  return `Target ${comparator} ${formattedTarget}${unit ? ` · ${unit}` : ""}`;
+}
+
+function mapApiStatus(status: IncidentKpiStatusDto): TargetStatus | null {
+  if (status === "OnTarget") {
+    return "on";
+  }
+  if (status === "OffTarget") {
+    return "off";
+  }
+  return null;
+}
+
+function buildTargetLabel(
+  target: number | null,
+  unit: string,
+): string | null {
+  if (target == null || !Number.isFinite(target)) {
+    return null;
+  }
+
+  return `Target ${formatMetricValue(target)} · ${unit}`;
+}
+
+/**
+ * MTTC weeks with zero closures should not read as "0 days average".
+ * Keep the sparkline when at least two non-zero points exist; otherwise
+ * fall back to the raw trend so the card still renders a flat line.
+ */
+function toMttcChartData(trend: readonly number[]): readonly number[] {
+  const nonZeroPoints = trend.filter((value) => value > 0);
+  return nonZeroPoints.length >= 2 ? nonZeroPoints : trend;
+}
+
+function toChartData(
+  trend: readonly number[],
+  metricKey: HeaderKpiKey,
+): readonly number[] {
+  if (metricKey !== "mttc") {
+    return trend;
+  }
+
+  return toMttcChartData(trend);
+}
+
+function toListChartData(
+  trend: readonly number[],
+  metricKey: ListKpiKey,
+): readonly number[] {
+  if (metricKey === "mttc") {
+    return toMttcChartData(trend);
+  }
+
+  return trend;
+}
+
+function mapKpiCardToHeroMetric(
+  definition: (typeof HEADER_KPI_DEFINITIONS)[number],
+  card: IncidentKpiCardDto | undefined,
+): HeroKpiMetric {
+  const value = card?.value ?? 0;
+  const target = card?.target ?? null;
+  const unit = card?.unit?.trim() || undefined;
+
+  return {
+    id: definition.id,
+    title: definition.title,
+    subtitle: definition.subtitle,
+    value: formatMetricValue(value),
+    unit,
+    target,
+    current: value,
+    targetLabel: buildTargetLabel(target, card?.unit ?? ""),
+    direction: "lower-better",
+    chartData: toChartData(card?.trend ?? [], definition.key),
+    status: mapApiStatus(card?.status ?? null),
+  };
+}
+
+function mapKpiCardToListMetric(
+  definition: (typeof LIST_KPI_DEFINITIONS)[number],
+  card: IncidentKpiCardDto | undefined,
+): IncidentListKpiMetric {
+  const value = card?.value ?? 0;
+  const target = card?.target ?? null;
+  const unit = card?.unit?.trim() || undefined;
+  const trend = resolveListTrend(
+    card?.trendDelta ?? null,
+    definition.direction,
+  );
+
+  return {
+    id: definition.id,
+    title: definition.title,
+    value: formatMetricValue(value, definition.valueFormat),
+    unit,
+    ...trend,
+    targetLabel: buildListTargetLabel(
+      target,
+      card?.unit ?? "",
+      definition.direction,
+      definition.valueFormat,
+    ),
+    chartData: toListChartData(card?.trend ?? [], definition.key),
+  };
+}
+
+/** Maps GET /api/Incident/GetHeaderKpi into dashboard hero cards. */
+export function mapHeaderKpisToHeroMetrics(
+  dto: HeaderKpiDto | null | undefined,
+  targetsLookup?: KpiTargetsLookup,
+): readonly HeroKpiMetric[] {
+  if (!dto) {
+    return [];
+  }
+
+  return HEADER_KPI_DEFINITIONS.map((definition) =>
+    mapKpiCardToHeroMetric(
+      definition,
+      enrichKpiCard(
+        dto[definition.key],
+        definition.key,
+        targetsLookup,
+        "lower-better",
+      ),
+    ),
+  );
+}
+
+/** Maps GET /api/Incident/GetIncidentListKpis into list KPI cards. */
+export function mapIncidentListKpisToMetrics(
+  dto: IncidentListKpiDto | null | undefined,
+  targetsLookup?: KpiTargetsLookup,
+): readonly IncidentListKpiMetric[] {
+  if (!dto) {
+    return [];
+  }
+
+  return LIST_KPI_DEFINITIONS.map((definition) =>
+    mapKpiCardToListMetric(
+      definition,
+      enrichKpiCard(
+        dto[definition.key],
+        definition.key,
+        targetsLookup,
+        definition.direction,
+      ),
+    ),
+  );
+}
+
+/** Whether any stored month has hours greater than zero. */
+export function hasSiteWorkHours(
+  records: readonly SiteWorkHoursDto[] | null | undefined,
+): boolean {
+  return (records ?? []).some((record) => record.hours > 0);
+}
+
+/** Sums stored hours for a calendar year (defaults to current UTC year). */
+export function sumSiteWorkHoursForYear(
+  records: readonly SiteWorkHoursDto[] | null | undefined,
+  year = new Date().getUTCFullYear(),
+): number {
+  return (records ?? [])
+    .filter((record) => record.year === year)
+    .reduce((total, record) => total + record.hours, 0);
+}
+
+/** Finds the stored hours entry for a specific year/month, if present. */
+export function getSiteWorkHoursForMonth(
+  records: readonly SiteWorkHoursDto[] | null | undefined,
+  year: number,
+  month: number,
+): SiteWorkHoursDto | undefined {
+  return (records ?? []).find(
+    (record) => record.year === year && record.month === month,
+  );
+}
+

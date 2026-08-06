@@ -48,7 +48,7 @@ export function IncidentDetailAddTimelineCard(
     >
       <Text
         as="h3"
-        className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+        className="text-ehs-dark-bg text-lg font-semibold"
       >
         Add to timeline
       </Text>
@@ -57,14 +57,14 @@ export function IncidentDetailAddTimelineCard(
         value={text}
         onChange={(event) => setText(event.target.value)}
         placeholder="Add a note or status update…"
-        className="min-h-[72px] w-full resize-none rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] py-4 text-[13px] leading-normal text-[#0b1320] outline-none backdrop-blur-[5px] transition placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+        className="min-h-[72px] w-full resize-none rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] py-4 text-sm leading-normal text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
       />
 
       <div className="flex gap-2">
         <button
           type="button"
           onClick={handleAttachPhoto}
-          className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-[#0b1320] backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
           <Icon icon="mdi:camera-outline" className="size-[13px]" aria-hidden="true" />
           Photo
@@ -73,7 +73,7 @@ export function IncidentDetailAddTimelineCard(
         <button
           type="button"
           onClick={handlePost}
-          className="relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#0891a6] px-[15px] pt-[10px] pb-[10.5px] text-[13px] font-bold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors hover:bg-[#067485]"
+          className="relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
         >
           <Icon icon="mdi:check" className="size-[13px]" aria-hidden="true" />
           Post

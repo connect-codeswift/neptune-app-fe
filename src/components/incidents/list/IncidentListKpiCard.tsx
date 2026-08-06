@@ -14,7 +14,7 @@ export type IncidentListKpiMetric = Readonly<{
   trendValue: string;
   trendDirection: "up" | "down";
   trendTone: IncidentListKpiTone;
-  targetLabel: string;
+  targetLabel: string | null;
   chartData: readonly number[];
 }>;
 
@@ -109,58 +109,54 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
-      className={[
-        "min-h-[141px] min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      paddingClassName="p-4"
+      className={["min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="flex h-full flex-col gap-[10px]">
+      <div className="flex h-full flex-col gap-2">
         <div className="flex w-full items-start justify-between gap-3">
           <Text
             as="p"
-            className="text-ehs-gray py-px text-[11px] font-bold tracking-[0.22px] uppercase"
+            className="text-ehs-muted-text py-px text-xs font-bold tracking-wide uppercase"
           >
             {title}
           </Text>
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-[6px] rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.22px]",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
               trendClass,
             ].join(" ")}
           >
             <Icon
               icon={trendIcon}
-              className="size-[11px] shrink-0"
+              className="size-3 shrink-0"
               aria-hidden="true"
             />
             {trendValue}
           </span>
         </div>
 
-        <div className="flex h-10 w-full items-baseline">
+        <div className="flex w-full items-baseline">
           <Text
             as="p"
-            className="text-ehs-dark-bg text-[40px] leading-[40px] tracking-[-1.2px] tabular-nums"
+            className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
           >
             {value}
           </Text>
           {unit ? (
-            <Text
-              as="span"
-              className="text-ehs-gray ml-1.5 text-[12px] tracking-[0.48px]"
-            >
+            <Text as="span" className="text-ehs-gray ml-1.5 text-sm">
               {unit}
             </Text>
           ) : null}
         </div>
 
         <div className="mt-auto flex w-full items-end justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text py-px text-[10px]">
-            {targetLabel}
-          </Text>
+          {targetLabel ? (
+            <Text as="p" className="text-ehs-muted-text py-px text-xs">
+              {targetLabel}
+            </Text>
+          ) : (
+            <span />
+          )}
           <MiniSparkline data={chartData} tone={trendTone} />
         </div>
       </div>

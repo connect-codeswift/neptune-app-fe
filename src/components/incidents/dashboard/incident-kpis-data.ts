@@ -8,11 +8,13 @@ export type HeroKpiMetric = Readonly<{
   subtitle: string;
   value: string;
   unit?: string;
-  target: number;
+  target: number | null;
   current: number;
-  targetLabel: string;
+  targetLabel: string | null;
   direction: TargetDirection;
   chartData: readonly number[];
+  /** When omitted, derived from target/current. Null hides the status pill. */
+  status?: TargetStatus | null;
 }>;
 
 export type SiteRecordable = Readonly<{
@@ -197,18 +199,7 @@ export const INDICATOR_METRICS: readonly IndicatorMetric[] = [
     value: "9",
     hasIndicator: false,
     footnote: "Leading indicator · no target",
-    titleDot: "var(--ehs-normal-blue)",
-  },
-  {
-    id: "swa",
-    title: "Stop Work Authority",
-    titleLines: ["Stop Work Authority", "SWA Count"],
-    value: "92",
-    hasIndicator: true,
-    current: 92,
-    target: 80,
-    targetLabel: "Target 80",
-    direction: "higher-better",
+    titleDot: "var(--ehs-gray)",
   },
   {
     id: "near-miss",
@@ -233,10 +224,10 @@ export const INDICATOR_METRICS: readonly IndicatorMetric[] = [
 ];
 
 export const INJURY_MIX = [
-  { label: "First aid", value: 132, color: "var(--ehs-green)" },
-  { label: "Medical only", value: 11, color: "var(--ehs-normal-blue)" },
-  { label: "Restricted", value: 11, color: "var(--ehs-yellow)" },
-  { label: "Lost time", value: 10, color: "var(--ehs-red)" },
+  { label: "Fatality", value: 32, color: "var(--ehs-green)" },
+  { label: "Restricted Work", value: 11, color: "var(--ehs-normal-blue)" },
+  { label: "Lost Time", value: 11, color: "var(--ehs-yellow)" },
+  { label: "Medical Only", value: 10, color: "var(--ehs-red)" },
 ] as const;
 
 export const INJURY_MIX_TOTAL = 32;

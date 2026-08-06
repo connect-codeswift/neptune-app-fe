@@ -11,23 +11,22 @@ export type HrcaHeaderCardProps = Readonly<{
   categories: number;
   whySteps: number;
   actions: number;
-  onClose?: () => void;
   className?: string;
 }>;
 
 function StatBlock(props: Readonly<{ value: number; label: string }>) {
   const { value, label } = props;
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-[26px] leading-[26px] font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text-center text-[26px] leading-[26px] font-bold tracking-[-0.52px]"
       >
         {String(value)}
       </Text>
       <Text
         as="p"
-        className="text-ehs-muted-text text-[10px] font-bold tracking-[0.8px] uppercase"
+        className="text-ehs-muted-text text-center text-[10px] leading-none font-bold tracking-[0.8px] uppercase"
       >
         {label}
       </Text>
@@ -36,70 +35,54 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
 }
 
 export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
-  const {
-    meta,
-    categories,
-    whySteps,
-    actions,
-    onClose,
-    className = "",
-  } = props;
+  const { meta, categories, whySteps, actions, className = "" } = props;
 
   return (
     <IncidentGlassCard
       paddingClassName="overflow-hidden p-0"
       className={className}
     >
-      {/* Title + stats */}
       <div
-        className="flex items-center gap-4 px-6 py-5"
+        className="px-6 py-5"
         style={{
           backgroundImage:
-            "linear-gradient(121deg, rgba(8, 145, 166, 0.22) 0%, rgba(8, 145, 166, 0) 60%)",
+            "linear-gradient(120.95deg, rgba(8, 145, 166, 0.22) 0%, rgba(8, 145, 166, 0) 60%)",
         }}
       >
-        {onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-ehs-gray hover:text-ehs-dark-bg inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[rgba(15,23,42,0.08)] bg-white/70 transition-colors"
-            title="Back to investigation"
-          >
-            <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
-          </button>
-        ) : null}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <div className="relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] bg-ehs-normal-blue shadow-[0px_8px_22px_-8px_#0891a6]">
+              <Icon
+                icon="mdi:lightning-bolt"
+                className="size-[22px] text-ehs-light-text"
+                aria-hidden="true"
+              />
+            </div>
 
-        <div className="bg-ehs-normal-blue relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] shadow-[0px_8px_22px_-8px_#0891a6]">
-          <Icon
-            icon="mdi:lightning-bolt"
-            className="size-[22px] text-white"
-            aria-hidden="true"
-          />
-        </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+              <Text
+                as="p"
+                className="text-[#056e7e] text-[11px] leading-none font-bold tracking-[1.76px] uppercase"
+              >
+                Horizontal Root Cause Analysis
+              </Text>
+              <Text
+                as="h2"
+                className="text-ehs-dark-bg text-lg leading-normal font-bold tracking-[-0.18px]"
+              >
+                5 Whys across causal categories → root cause → corrective actions
+              </Text>
+            </div>
+          </div>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <Text
-            as="p"
-            className="text-ehs-dark-blue text-[11px] font-bold tracking-[1.76px] uppercase"
-          >
-            Horizontal Root Cause Analysis
-          </Text>
-          <Text
-            as="h2"
-            className="text-ehs-dark-bg text-[18px] font-bold tracking-[-0.18px]"
-          >
-            5 Whys across causal categories → root cause → corrective actions
-          </Text>
-        </div>
-
-        <div className="hidden shrink-0 items-start gap-[22px] sm:flex">
-          <StatBlock value={categories} label="Categories" />
-          <StatBlock value={whySteps} label="Why steps" />
-          <StatBlock value={actions} label="Actions" />
+          <div className="flex shrink-0 items-start gap-[22px] lg:justify-end">
+            <StatBlock value={categories} label="Categories" />
+            <StatBlock value={whySteps} label="Why steps" />
+            <StatBlock value={actions} label="Actions" />
+          </div>
         </div>
       </div>
 
-      {/* Meta: type / date / injury */}
       <div className="grid grid-cols-1 border-t border-[rgba(15,23,42,0.08)] sm:grid-cols-[180px_200px_minmax(0,1fr)]">
         <div className="border-[rgba(15,23,42,0.08)] sm:border-r">
           <HrcaMetaField
@@ -108,24 +91,28 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             labelLines={["Type of", "report"]}
             value={meta.reportType}
             showChevron
+            valueClassName="text-[13px] leading-[13px] font-normal"
           />
         </div>
-        <div className="border-[rgba(15,23,42,0.08)] sm:border-r">
+        <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0 sm:border-r">
           <HrcaMetaField
             icon="mdi:calendar-outline"
             label="Date"
             value={meta.date}
+            valueClassName="text-[12.3px] leading-[17.5px] font-bold"
           />
         </div>
-        <HrcaMetaField
-          icon="mdi:heart-outline"
-          label="Injury"
-          value={meta.injury}
-        />
+        <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0">
+          <HrcaMetaField
+            icon="mdi:heart-outline"
+            label="Injury"
+            value={meta.injury}
+            valueClassName="text-[12.5px] leading-[17.5px] font-bold"
+          />
+        </div>
       </div>
 
-      {/* Description */}
-      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-[15px] pb-3.5">
+      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-[15px] pb-[14px]">
         <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-white/62">
           <Icon
             icon="mdi:file-document-outline"
@@ -136,11 +123,11 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         <div className="min-w-0 flex-1">
           <Text
             as="p"
-            className="text-ehs-muted-text text-[10.5px] font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase"
           >
             Incident description
           </Text>
-          <p className="mt-0.5 text-[12.3px] leading-[19.38px] text-[#2a3446]">
+          <p className="mt-[2px] text-[12.3px] leading-[19.38px] font-normal text-ehs-slate">
             {meta.description}
           </p>
         </div>

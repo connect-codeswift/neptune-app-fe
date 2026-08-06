@@ -123,3 +123,30 @@ export type InspectionResponsesResultDto = {
 /** Matches the backend response for PUT /api/Inspection/{id}/responses. */
 export type SaveInspectionResponsesResponseDto =
   ApiEnvelopeDto<InspectionResponsesResultDto | null>;
+
+/**
+ * A finding raised against an inspection. Fields stay optional and duplicated
+ * across likely names since the exact response shape isn't pinned down yet.
+ */
+export type InspectionFindingDto = {
+  id: number;
+  severity?: string;
+  findingSeverity?: string;
+  category?: string;
+  findingCategory?: string;
+  description?: string;
+  title?: string;
+  question?: string;
+  status?: string;
+  capaCreated?: boolean;
+  isCapaCreated?: boolean;
+};
+
+/**
+ * Matches the backend response for GET /api/Inspection/{id}/findings.
+ * On success, `dataModel` is always an array — empty when there are no findings:
+ * `{ isError: false, dataModel: [], success: true, message: "Findings fetched successfully" }`
+ */
+export type GetInspectionFindingsResponseDto = ApiEnvelopeDto<
+  InspectionFindingDto[]
+>;

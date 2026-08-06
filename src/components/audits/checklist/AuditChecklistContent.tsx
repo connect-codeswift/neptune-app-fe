@@ -167,7 +167,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
       return;
     }
 
-    const { userId, subCompanyId } = getCurrentUser();
+    const { userId, siteId } = getCurrentUser();
     // Every item is answered by this point, so send them all as responses.
     const responses = items.map((item) => {
       const answer = answers[item.id];
@@ -185,7 +185,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
     saveResponses.mutate(
       {
         auditId: String(audit.id),
-        payload: { userId, subCompanyId, score, responses },
+        payload: { userId, siteId, score, responses },
       },
       {
         onSuccess: (response) => {

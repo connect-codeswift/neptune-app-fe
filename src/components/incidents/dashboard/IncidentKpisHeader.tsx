@@ -1,29 +1,31 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { HeaderDateRangePicker } from "@/components/HeaderDateRangePicker";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import type { DateRange } from "@/lib/date-range";
 
 export type IncidentKpisHeaderProps = Readonly<{
   title?: string;
   siteLabel?: string;
-  dateRangeLabel?: string;
+  dateRange?: DateRange;
+  onDateRangeChange?: (range: DateRange) => void;
   onSiteClick?: () => void;
-  onDateRangeClick?: () => void;
   onExportClick?: () => void;
   className?: string;
 }>;
 
 const controlClass =
-  "border-ehs-border text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-[13px] shadow-sm transition-colors hover:bg-ehs-light-bg";
+  "border-ehs-border text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-3.5 py-2 text-sm shadow-sm transition-colors hover:bg-ehs-light-bg";
 
 export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
   const {
     title = "Incident KPIs",
     siteLabel = "Rawalpindi",
-    dateRangeLabel = "Year to date",
+    dateRange,
+    onDateRangeChange,
     onSiteClick,
-    onDateRangeClick,
     onExportClick,
     className = "",
   } = props;
@@ -61,29 +63,17 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
           />
         </button>
 
-        <button
-          type="button"
-          onClick={onDateRangeClick}
-          className={controlClass}
-        >
-          <Icon
-            icon="mdi:calendar-outline"
-            className="text-ehs-muted-text text-sm"
-            aria-hidden="true"
-          />
-          <span className="whitespace-nowrap">{dateRangeLabel}</span>
-          <Icon
-            icon="mdi:chevron-down"
-            className="text-ehs-muted-text text-sm"
-            aria-hidden="true"
-          />
-        </button>
+        <HeaderDateRangePicker
+          value={dateRange}
+          onChange={onDateRangeChange}
+          buttonClassName={controlClass}
+        />
 
         <Button
           type="button"
           variant="tertiary"
           onClick={onExportClick}
-          className="rounded-lg px-3.5 py-2 text-[13px] font-semibold"
+          className="rounded-lg px-3.5 py-2 text-sm font-semibold"
         >
           <Icon icon="mdi:download" className="text-sm" aria-hidden="true" />
           Export

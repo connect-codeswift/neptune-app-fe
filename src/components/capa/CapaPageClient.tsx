@@ -13,11 +13,8 @@ export function CapaPageClient() {
       <DashboardHeader
         title="CAPA"
         searchPlaceholder="Search CAPAs by code, action or owner..."
-        companyName="Neptune Industries"
         dateRangeLabel="Year to date"
-        actionLabel="Create CAPA"
-        hasUnreadNotifications
-        onSearchChange={setSearchQuery}
+        actionLabel="Create CAPA"        onSearchChange={setSearchQuery}
       />
 
       <div className="flex min-w-0 flex-1 flex-col px-4 pb-8">

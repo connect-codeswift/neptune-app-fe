@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
 import { useBbsObservationDetailQuery } from "@/hooks/use-bbs-queries";
@@ -213,13 +212,10 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
-            <Text
-              as="h1"
-              className="text-ehs-dark-bg min-w-0 truncate text-base font-bold tracking-[-0.2px] md:text-2xl md:font-semibold"
-            >
+            <h1 className="text-ehs-dark-bg min-w-0 truncate text-base font-bold tracking-[-0.2px] md:text-2xl md:font-semibold">
               <span className="md:hidden">{detail.id}</span>
               <span className="hidden md:inline">{`Observation ${detail.id}`}</span>
-            </Text>
+            </h1>
           </div>
         </div>
 

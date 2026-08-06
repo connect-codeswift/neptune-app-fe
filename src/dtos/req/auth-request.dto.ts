@@ -8,13 +8,16 @@ export const strongPasswordSchema = z
   .string()
   .regex(STRONG_PASSWORD_REGEX, WEAK_PASSWORD_MESSAGE);
 
-export const subcompanyRequestSchema = z.object({
+export const siteRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
   industryType: z.string().trim().min(1, "Industry is required."),
-  companySize: z.string().trim().nullable().optional(),
-  companyName: z.string().trim().min(1, "Site name is required."),
+  siteSize: z.string().trim().nullable().optional(),
+  siteName: z.string().trim().min(1, "Site name is required."),
   location: z.string().trim().min(1, "Location is required."),
 });
+
+/** @deprecated Use {@link siteRequestSchema} */
+export const subcompanyRequestSchema = siteRequestSchema;
 
 /** Matches backend `UserDto` for POST /Auth/register */
 export const registerRequestSchema = z.object({
@@ -27,8 +30,8 @@ export const registerRequestSchema = z.object({
   organizationId: z.number().int().nonnegative(),
   organizationName: z.string().trim().min(1, "Organization name is required."),
   activatedModules: z.string().trim().min(1, "Select at least one module."),
-  subcompany: z
-    .array(subcompanyRequestSchema)
+  sites: z
+    .array(siteRequestSchema)
     .min(1, "At least one site is required."),
 });
 
@@ -64,7 +67,9 @@ export const resetPasswordRequestSchema = z.object({
 
 // =====================================================
 
-export type SubcompanyRequestDto = z.infer<typeof subcompanyRequestSchema>;
+export type SiteRequestDto = z.infer<typeof siteRequestSchema>;
+/** @deprecated Use {@link SiteRequestDto} */
+export type SubcompanyRequestDto = SiteRequestDto;
 export type RegisterRequestDto = z.infer<typeof registerRequestSchema>;
 export type SignupFormDto = z.infer<typeof signupFormSchema>;
 export type LoginRequestDto = z.infer<typeof loginRequestSchema>;

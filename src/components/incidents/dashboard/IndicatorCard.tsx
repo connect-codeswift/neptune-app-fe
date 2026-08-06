@@ -8,41 +8,55 @@ export type IndicatorCardProps = Readonly<{
   className?: string;
 }>;
 
+const indicatorCardShellClass =
+  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]";
+
 export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
   const { metric, className = "" } = props;
   const titlePrimary = metric.titleLines?.[0] ?? metric.title;
   const titleSecondary = metric.titleLines?.[1];
   const { current, target, targetLabel, hasIndicator } = metric;
-  const canRenderIndicator =
-    hasIndicator &&
-    current !== undefined &&
-    target !== undefined &&
-    targetLabel !== undefined;
+  const canRenderIndicator = hasIndicator;
+  const isFootnoteOnly = !canRenderIndicator && Boolean(metric.footnote);
 
   return (
     <IncidentGlassCard
-      paddingClassName="px-5 py-5"
-      className={["min-h-[168px]", className].filter(Boolean).join(" ")}
+      paddingClassName={
+        isFootnoteOnly
+          ? "px-[17px] pt-[17px] pb-[27px]"
+          : "p-[17px]"
+      }
+      className={[indicatorCardShellClass, className].filter(Boolean).join(" ")}
     >
-      <div className="flex h-full flex-col gap-3">
-        <div className="flex min-h-[34px] items-start gap-[6px]">
+      <div className="flex h-full flex-col gap-2">
+        <div
+          className={[
+            "flex min-h-[30px] w-full items-start",
+            metric.titleDot ? "gap-[6px]" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {metric.titleDot ? (
             <span
-              className="mt-[5px] size-[7px] shrink-0 rounded-[2px]"
+              className="mt-[5px] size-[7px] shrink-0 rounded-[3.5px]"
               style={{ backgroundColor: metric.titleDot }}
               aria-hidden="true"
             />
           ) : null}
 
-          <div className="min-w-0">
+          <div className="min-w-0 pb-[15.35px]">
             <Text
               as="p"
-              className="text-ehs-darker text-[12px] leading-[15px] font-semibold"
+              className="text-ehs-gray text-[11px] leading-[14.3px] font-bold tracking-[0.11px]"
             >
               {titlePrimary}
             </Text>
             {titleSecondary ? (
-              <Text as="p" className="text-ehs-muted-text text-[11px]">
+              <Text
+                as="p"
+                className="text-ehs-muted-text pt-px text-[10.8px] leading-normal"
+              >
                 {titleSecondary}
               </Text>
             ) : null}
@@ -51,24 +65,27 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
 
         <Text
           as="p"
-          className="text-ehs-darker text-[32px] leading-[32px] font-medium tracking-[-0.6px] tabular-nums"
+          className="text-ehs-dark-bg text-[30px] leading-[30px] font-normal tracking-[-0.75px] tabular-nums"
         >
           {metric.value}
         </Text>
 
-        <div className="mt-auto flex flex-col gap-2">
+        <div className="mt-auto flex flex-col gap-1">
           {canRenderIndicator ? (
             <TargetProgress
-              current={current}
-              target={target}
-              targetLabel={targetLabel}
+              current={current ?? 0}
+              target={target ?? null}
+              targetLabel={targetLabel ?? null}
               direction={metric.direction}
               compact
             />
           ) : null}
 
           {metric.footnote ? (
-            <Text as="p" className="text-ehs-muted-text text-[11px]">
+            <Text
+              as="p"
+              className="text-ehs-muted-text py-px text-[9.8px] leading-normal"
+            >
               {metric.footnote}
             </Text>
           ) : null}

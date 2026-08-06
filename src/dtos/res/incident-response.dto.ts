@@ -9,6 +9,7 @@ export type PersonDto = {
 /** Matches backend `IncidentDto` from GET/POST Incident APIs */
 export type IncidentDto = {
   id?: number;
+  title?: string | null;
   severity?: string | null;
   site?: string | null;
   location?: string | null;
@@ -32,22 +33,36 @@ export type IncidentDto = {
   affectedPersonId?: string | null;
   reportedById?: number;
   userId?: number;
-  subCompanyId?: number;
+  siteId?: number;
   injuredBodyPart?: string | null;
   injuryDescription?: string | null;
   incidentReporterEmail?: string | null;
+  occurredInCanada?: boolean;
   nonEmployeInvolved?: boolean;
   whatTreatmentWasGiven?: string | null;
   treatmentProvidedBy?: string | null;
   treatmentLocation?: string | null;
   isFitForFullDuty?: string | boolean | null;
   caseDisposition?: string | null;
+  /** Some list/detail payloads expose lifecycle directly (near-miss style). */
+  status?: string | null;
+  /** Grid rows may expose Open/Closed as `state`. */
+  state?: string | null;
+  /** Present when closure summary is included on the incident payload. */
+  closureStatus?: string | null;
+  isClosed?: boolean | null;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;
   people?: PersonDto[] | null;
   actionTaken?: string | null;
   otherNotes?: string | null;
   feedback?: string | null;
+  /**
+   * Comma-separated names of the fields whose text the reporter accepted from
+   * an AI draft, e.g. "description,injuryDescription". Backend caps at 200
+   * characters and records it verbatim rather than inferring it.
+   */
+  aiAssistedFields?: string | null;
 };
 
 export type GetAllIncidentsResponseDto = {

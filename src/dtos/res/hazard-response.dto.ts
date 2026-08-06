@@ -19,18 +19,15 @@ export type GetAllHazardResponseDto = ApiEnvelopeDto<PagedDataDto<HazardDto>>;
 export type GetHazardByIdResponseDto = ApiEnvelopeDto<HazardDto | null>;
 
 /**
- * KPI counters from GET /api/Hazard/HazardKpi. The backend's exact key names
- * aren't pinned down yet, so the likely spellings are optional here and the
- * page reads whichever is present.
+ * KPI counters from GET /api/Hazard/HazardKpiCount.
  */
 export type HazardKpiDto = {
-  totalHazardCount?: number;
-  totalHazardReports?: number;
-  total?: number;
-  convertedToIncidents?: number;
-  convertedIncidents?: number;
-  converted?: number;
+  totalHazards: number;
+  hazardConvertedToIncidentCount: number;
 };
+
+/** Matches backend response for GET /api/Hazard/HazardKpiCount. */
+export type GetHazardKpiResponseDto = ApiEnvelopeDto<HazardKpiDto | null>;
 
 /** One cell of GET /api/Hazard/HazardApiForHeatMap — a location/type tally. */
 export type HazardHeatMapCellDto = {
@@ -55,6 +52,3 @@ export type TopHazardUserDto = {
 export type GetTopHazardUsersResponseDto = ApiEnvelopeDto<
   TopHazardUserDto[] | null
 >;
-
-/** Matches backend response for GET /api/Hazard/HazardKpi. */
-export type GetHazardKpiResponseDto = ApiEnvelopeDto<HazardKpiDto | null>;

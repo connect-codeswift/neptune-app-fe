@@ -57,11 +57,11 @@ export function IncidentDetailClosureChecklistCard(
         <div className="flex items-center justify-between">
           <Text
             as="h3"
-            className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg font-semibold"
           >
             Closure Checklist
           </Text>
-          <span className="rounded-full bg-[#0891a6]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#0891a6]">
+          <span className="rounded-full bg-ehs-normal-blue/10 px-2.5 py-0.5 text-sm font-bold text-ehs-normal-blue">
             {completedCount}/{totalCount} Completed
           </span>
         </div>
@@ -75,7 +75,7 @@ export function IncidentDetailClosureChecklistCard(
               className={[
                 "flex items-start gap-3 rounded-xl border p-3 text-left transition-all",
                 item.completed
-                  ? "border-[#0891a6]/20 bg-[#0891a6]/5"
+                  ? "border-ehs-normal-blue/20 bg-ehs-normal-blue/5"
                   : "border-[rgba(15,23,42,0.08)] bg-white/70 hover:bg-white",
               ].join(" ")}
             >
@@ -83,7 +83,7 @@ export function IncidentDetailClosureChecklistCard(
                 className={[
                   "mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-md border transition-colors",
                   item.completed
-                    ? "border-[#0891a6] bg-[#0891a6] text-white"
+                    ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-light-text"
                     : "border-[rgba(15,23,42,0.25)] bg-white",
                 ].join(" ")}
               >
@@ -96,22 +96,22 @@ export function IncidentDetailClosureChecklistCard(
                   <Text
                     as="span"
                     className={[
-                      "text-[13px] font-semibold",
+                      "text-sm font-semibold",
                       item.completed
-                        ? "text-[#0b1320] line-through opacity-80"
-                        : "text-[#0b1320]",
+                        ? "text-ehs-dark-bg line-through opacity-80"
+                        : "text-ehs-dark-bg",
                     ].join(" ")}
                   >
                     {item.label}
                   </Text>
                   {item.required ? (
-                    <span className="text-[10px] font-bold text-[#e11d48] uppercase">
+                    <span className="text-xs font-bold text-ehs-red uppercase">
                       Required
                     </span>
                   ) : null}
                 </div>
                 {item.completedAt ? (
-                  <span className="text-[11px] text-[#566072]">
+                  <span className="text-sm text-ehs-gray">
                     Verified: {item.completedAt}{" "}
                     {item.completedBy ? `by ${item.completedBy}` : ""}
                   </span>
@@ -129,7 +129,7 @@ export function IncidentDetailClosureChecklistCard(
       >
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Residual Risk Evaluation
         </Text>
@@ -137,9 +137,9 @@ export function IncidentDetailClosureChecklistCard(
           <div className="flex items-center gap-2.5">
             <Icon
               icon="mdi:shield-check-outline"
-              className="size-5 text-[#0891a6]"
+              className="size-5 text-ehs-normal-blue"
             />
-            <Text as="span" className="text-[13px] font-medium text-[#2a3446]">
+            <Text as="span" className="text-sm font-medium text-ehs-slate">
               Post-mitigation Risk Level:
             </Text>
           </div>
@@ -158,21 +158,21 @@ export function IncidentDetailClosureChecklistCard(
       >
         <Text
           as="h3"
-          className="text-[14px] leading-normal font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-ehs-dark-bg text-lg font-semibold"
         >
           Closure Approval & Sign-off
         </Text>
 
         <div className="flex items-center justify-between rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-full bg-[#0891a6]/15 font-bold text-[#056e7e]">
+            <div className="flex size-9 items-center justify-center rounded-full bg-ehs-normal-blue/15 font-bold text-ehs-dark-blue">
               {data.approverInitials}
             </div>
             <div>
-              <Text as="p" className="text-[13px] font-bold text-[#0b1320]">
+              <Text as="p" className="text-sm font-bold text-ehs-dark-bg">
                 {data.approverName}
               </Text>
-              <Text as="p" className="text-[11px] text-[#566072]">
+              <Text as="p" className="text-sm text-ehs-gray">
                 {data.approverRole}
               </Text>
             </div>
@@ -192,12 +192,12 @@ export function IncidentDetailClosureChecklistCard(
             data.closureStatus === "Closed"
           }
           className={[
-            "flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-bold shadow-md transition-all",
+            "flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold shadow-md transition-all",
             data.closureStatus === "Closed"
               ? "cursor-default border border-emerald-200 bg-emerald-50 text-emerald-700"
               : isAllRequiredCompleted
-                ? "cursor-pointer bg-[#0891a6] text-white shadow-[#0891a6]/20 hover:bg-[#067485]"
-                : "cursor-not-allowed bg-[#0891a6]/40 text-white",
+                ? "cursor-pointer bg-ehs-normal-blue text-ehs-light-text shadow-[var(--ehs-normal-blue)]/20 hover:bg-ehs-normal-blue-active"
+                : "cursor-not-allowed bg-ehs-normal-blue/40 text-ehs-light-text",
           ].join(" ")}
         >
           <Icon

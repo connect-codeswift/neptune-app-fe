@@ -11,6 +11,10 @@ import { IncidentClosureStepRootCause } from "@/components/incidents/detail/clos
 import { IncidentClosureStepPreventive } from "@/components/incidents/detail/closure/steps/IncidentClosureStepPreventive";
 import { IncidentClosureStepReview } from "@/components/incidents/detail/closure/steps/IncidentClosureStepReview";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
+import {
+  validateClosureStep,
+  validateClosureStepsBefore,
+} from "@/components/incidents/detail/closure/closure-step-validation";
 import { toast } from "@/lib/toast";
 
 export type IncidentDetailClosureCardProps = Readonly<{
@@ -55,40 +59,47 @@ export function IncidentDetailClosureCard(
   } = props;
 
   const currentStep = data.currentStep;
+  const maxAccessibleStep = data.maxAccessibleStep ?? 1;
 
-  const handleProceedNext = () => {
-    if (currentStep === 1) {
-      if (data.finalIncidentType === "Lost Time" && data.daysAwayFromWork < 1) {
-        toast.error("Validation Error", "Lost Time requires at least 1 day away.");
-        return;
-      }
-      if (
-        data.finalIncidentType === "Restricted Work / Job Transfer" &&
-        data.daysOnRestrictedDuty < 1
-      ) {
-        toast.error(
-          "Validation Error",
-          "Restricted Work / Job Transfer requires at least 1 day on restricted duty.",
-        );
-        return;
-      }
-      const isRecordableDerived =
-        data.finalIncidentType === "Medical Treatment Only" ||
-        data.finalIncidentType === "Restricted Work / Job Transfer" ||
-        data.finalIncidentType === "Lost Time" ||
-        data.finalIncidentType === "Fatality";
-      const isOverridden = data.isOshaRecordable !== isRecordableDerived;
-      if (isOverridden && !data.oshaOverrideReason?.trim()) {
-        toast.error(
-          "Validation Error",
-          "An override reason is required for audit trails when changing default OSHA recordability.",
-        );
+  /**
+   * Sidebar navigation follows the same rule as the incident report stepper:
+   * going back is always allowed; jumping forward is only allowed into steps
+   * already unlocked via Proceed.
+   */
+  const goToStep = (step: ClosureStepId) => {
+    if (step > maxAccessibleStep) {
+      toast.error(
+        "Complete the current step",
+        "Fill in the required fields and use Proceed to unlock the next step.",
+      );
+      return;
+    }
+
+    if (step > currentStep) {
+      const validationError = validateClosureStepsBefore(step, data);
+      if (validationError) {
+        toast.error("Validation Error", validationError);
         return;
       }
     }
 
+    onSelectStep(step);
+  };
+
+  const handleProceedNext = () => {
+    const validationError = validateClosureStep(currentStep, data);
+    if (validationError) {
+      toast.error("Validation Error", validationError);
+      return;
+    }
+
     if (currentStep < 4) {
-      onSelectStep((currentStep + 1) as ClosureStepId);
+      const nextStep = (currentStep + 1) as ClosureStepId;
+      onChangeField(
+        "maxAccessibleStep",
+        Math.max(maxAccessibleStep, nextStep) as IncidentClosureData["maxAccessibleStep"],
+      );
+      onSelectStep(nextStep);
     } else {
       onFinalizeClosure?.();
     }
@@ -114,7 +125,8 @@ export function IncidentDetailClosureCard(
       {/* Left Column: Steps Navigation Sidebar */}
       <IncidentClosureStepsSidebar
         currentStep={currentStep}
-        onSelectStep={onSelectStep}
+        maxAccessibleStep={maxAccessibleStep}
+        onSelectStep={goToStep}
       />
 
       {/* Center Column: Active Step Form & Action Bar */}
@@ -164,7 +176,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={handleBackPrevious}
-                className="rounded-[10px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-[#1e293b] shadow-xs transition-colors hover:bg-[#f8fafc]"
+                className="rounded-[10px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-ehs-dark-bg shadow-xs transition-colors hover:bg-ehs-light-bg"
               >
                 {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
               </button>
@@ -175,8 +187,8 @@ export function IncidentDetailClosureCard(
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-3.5 py-2.5 text-[13px] font-bold text-[#566072] transition-colors hover:text-[#0b1320]"
+                onClick={() => onCancel?.()}
+                className="px-3.5 py-2.5 text-[13px] font-bold text-ehs-gray transition-colors hover:text-ehs-dark-bg"
               >
                 Cancel
               </button>
@@ -184,7 +196,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={onSaveAsDraft}
-                className="rounded-[10px] border border-[#0891a6] bg-white px-4 py-2.5 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                className="rounded-[10px] border border-ehs-normal-blue bg-white px-4 py-2.5 text-[13px] font-bold text-ehs-normal-blue transition-colors hover:bg-[rgba(8,145,166,0.06)]"
               >
                 Save as Draft
               </button>
@@ -197,10 +209,10 @@ export function IncidentDetailClosureCard(
                   (currentStep === 4 && data.closureStatus === "Closed")
                 }
                 className={[
-                  "rounded-[10px] px-5 py-2.5 text-[13px] font-bold text-white transition-all",
+                  "rounded-[10px] px-5 py-2.5 text-[13px] font-bold text-ehs-light-text transition-all",
                   data.closureStatus === "Closed" && currentStep === 4
                     ? "cursor-default bg-emerald-600"
-                    : "bg-[#0891a6] hover:bg-[#067485] active:scale-[0.99]",
+                    : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active active:scale-[0.99]",
                 ].join(" ")}
               >
                 {isSubmitting ? "Processing…" : STEP_NEXT_LABELS[currentStep]}

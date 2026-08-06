@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import {
   createColumnHelper,
   flexRender,
@@ -13,31 +13,34 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import {
   IncidentBadge,
   severityTone,
-  stageTone,
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 
-export type IncidentListTableProps<TData extends { id: string } = IncidentRecord> =
-  Readonly<{
-    /** Incident rows (default mode). Ignored when `data` is provided. */
-    incidents?: readonly IncidentRecord[];
-    /** Generic rows (e.g. policy documents). Requires `columns`. */
-    data?: readonly TData[];
-    /** Column defs for `data`. Defaults to incident columns when using `incidents`. */
-    columns?: ColumnDef<TData, unknown>[];
-    selectedId: string | null;
-    onSelect: (id: string) => void;
-    /** Opens the full detail page (second click on the selected row). */
-    onOpenDetail?: (id: string) => void;
-    /** When true (detail panel closed), columns and text use a wider layout */
-    expanded?: boolean;
-    /** Optional chrome above the table (filters, title, tabs). */
-    toolbar?: ReactNode;
-    /** Denser row height for document-style tables. */
-    compact?: boolean;
-    className?: string;
-  }>;
+export type IncidentListTableProps<
+  TData extends { id: string } = IncidentRecord,
+> = Readonly<{
+  /** Incident rows (default mode). Ignored when `data` is provided. */
+  incidents?: readonly IncidentRecord[];
+  /** Generic rows (e.g. policy documents). Requires `columns`. */
+  data?: readonly TData[];
+  /** Column defs for `data`. Defaults to incident columns when using `incidents`. */
+  columns?: ColumnDef<TData, unknown>[];
+  selectedId: string | null;
+  /** Row selection for generic tables (e.g. policy documents). */
+  onSelect?: (id: string) => void;
+  /** Opens the preview panel for the selected incident. */
+  onViewMore?: (id: string) => void;
+  /** Opens the full detail page (second click on a selected generic row). */
+  onOpenDetail?: (id: string) => void;
+  /** When true (detail panel closed), columns and text use a wider layout */
+  expanded?: boolean;
+  /** Optional chrome above the table (filters, title, tabs). */
+  toolbar?: ReactNode;
+  /** Denser row height for document-style tables. */
+  compact?: boolean;
+  className?: string;
+}>;
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData, TValue> {
@@ -61,20 +64,25 @@ function siteLines(site: string): readonly [string, string?] {
   ];
 }
 
-function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unknown>[] {
+function createIncidentColumns(
+  expanded: boolean,
+  options: Readonly<{
+    selectedId: string | null;
+    onViewMore: (id: string) => void;
+  }>,
+): ColumnDef<IncidentRecord, unknown>[] {
+  const { selectedId, onViewMore } = options;
+
   return [
     columnHelper.accessor("id", {
       header: "ID",
-      size: expanded ? 120 : 90,
+      size: expanded ? 110 : 90,
       minSize: 72,
       meta: { align: "left" as const },
       cell: (info) => (
         <Text
           as="span"
-          className={[
-            "text-ehs-muted-text block font-normal tabular-nums",
-            expanded ? "text-[13px]" : "truncate text-[11px]",
-          ].join(" ")}
+          className="text-ehs-muted-text text-xs font-semibold tabular-nums"
         >
           {info.getValue()}
         </Text>
@@ -83,37 +91,50 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
     columnHelper.display({
       id: "incident",
       header: "Incident",
-      size: expanded ? 420 : 220,
+      size: expanded ? 480 : 240,
       minSize: 140,
       meta: { align: "left" as const },
-      cell: ({ row }) => (
-        <div className="flex w-full min-w-0 flex-col gap-1">
-          <Text
-            as="p"
-            className={[
-              "text-ehs-dark-bg leading-normal font-normal first-letter:uppercase",
-              expanded ? "text-[14px] leading-5" : "line-clamp-2 text-[11.6px]",
-            ].join(" ")}
-          >
-            {row.original.title}
-          </Text>
-          <Text
-            as="p"
-            className={[
-              "text-ehs-muted-text leading-normal font-normal first-letter:uppercase",
-              expanded
-                ? "text-[12px] leading-[16px]"
-                : "line-clamp-2 text-[10px]",
-            ].join(" ")}
-          >
-            {row.original.description}
-          </Text>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const isRowSelected = selectedId === row.original.id;
+
+        return (
+          <div className="flex w-full min-w-0 flex-col gap-1">
+            <Text
+              as="p"
+              className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            <Text
+              as="p"
+              className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+              title={row.original.description}
+            >
+              {row.original.description}
+            </Text>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onViewMore(row.original.id);
+              }}
+              className={[
+                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
+                isRowSelected
+                  ? "text-ehs-normal-blue"
+                  : "text-ehs-gray hover:text-ehs-normal-blue",
+              ].join(" ")}
+            >
+              View more
+            </button>
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("site", {
       header: "Site",
-      size: expanded ? 160 : 100,
+      size: expanded ? 170 : 110,
       minSize: 80,
       meta: { align: "left" as const },
       cell: (info) => {
@@ -121,23 +142,11 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
 
         return (
           <div className="w-full min-w-0">
-            <Text
-              as="p"
-              className={[
-                "text-ehs-gray",
-                expanded ? "text-[13px]" : "truncate text-[12px]",
-              ].join(" ")}
-            >
+            <Text as="p" className="text-ehs-gray text-sm font-normal">
               {sitePrimary}
             </Text>
             {siteSecondary ? (
-              <Text
-                as="p"
-                className={[
-                  "text-ehs-gray",
-                  expanded ? "text-[13px]" : "truncate text-[12px]",
-                ].join(" ")}
-              >
+              <Text as="p" className="text-ehs-gray text-sm font-normal">
                 {siteSecondary}
               </Text>
             ) : null}
@@ -155,18 +164,6 @@ function createIncidentColumns(expanded: boolean): ColumnDef<IncidentRecord, unk
           label={info.getValue()}
           tone={severityTone(info.getValue())}
           showDot
-        />
-      ),
-    }),
-    columnHelper.accessor("stage", {
-      header: "Stage",
-      size: expanded ? 150 : 110,
-      minSize: 90,
-      meta: { align: "center" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={stageTone(info.getValue())}
         />
       ),
     }),
@@ -198,15 +195,16 @@ function alignClass(align: "left" | "center" | "right" | undefined) {
   return "text-left";
 }
 
-export function IncidentListTable<TData extends { id: string } = IncidentRecord>(
-  props: Readonly<IncidentListTableProps<TData>>,
-) {
+export function IncidentListTable<
+  TData extends { id: string } = IncidentRecord,
+>(props: Readonly<IncidentListTableProps<TData>>) {
   const {
     incidents,
     data,
     columns: columnsProp,
     selectedId,
     onSelect,
+    onViewMore,
     onOpenDetail,
     expanded = false,
     toolbar,
@@ -215,13 +213,23 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
   } = props;
 
   const resolvedData = (data ?? incidents ?? []) as TData[];
+  const isIncidentTable = columnsProp == null;
+  const handleViewMore = useCallback(
+    (id: string) => {
+      onViewMore?.(id);
+    },
+    [onViewMore],
+  );
 
   const columns = useMemo(() => {
     if (columnsProp) {
       return columnsProp;
     }
-    return createIncidentColumns(expanded) as ColumnDef<TData, unknown>[];
-  }, [columnsProp, expanded]);
+    return createIncidentColumns(expanded, {
+      selectedId,
+      onViewMore: handleViewMore,
+    }) as ColumnDef<TData, unknown>[];
+  }, [columnsProp, expanded, selectedId, handleViewMore]);
 
   const table = useReactTable({
     data: resolvedData,
@@ -238,13 +246,13 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
   const cellPadClass = compact
     ? "h-auto min-h-[64px] px-[15.57px] py-3"
     : expanded
-      ? "h-[108px] px-5"
-      : "h-[97px] px-3 sm:px-4";
+      ? "h-auto min-h-[88px] px-5 py-3"
+      : "h-auto min-h-[80px] px-3 py-3 sm:px-4";
   const headerPadClass = compact
-    ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-[10px]"
+    ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-xs"
     : expanded
-      ? "px-5 pt-4 pb-4 text-[11px]"
-      : "px-3 pt-[13px] pb-[13.5px] text-[10px] sm:px-4";
+      ? "px-5 pt-4 pb-4 text-xs"
+      : "px-3 pt-[13px] pb-[13.5px] text-xs sm:px-4";
 
   return (
     <IncidentGlassCard
@@ -254,7 +262,7 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
       {toolbar}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-        <table className="w-full table-fixed border-collapse text-left">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
               <col
@@ -275,7 +283,7 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text font-bold tracking-[0.8px] uppercase",
+                        "text-ehs-muted-text text-xs font-bold tracking-wide uppercase",
                         headerPadClass,
                         alignClass(align),
                       ].join(" ")}
@@ -308,30 +316,39 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
             ) : (
               table.getRowModel().rows.map((row) => {
                 const isSelected = selectedId === row.original.id;
+                const handleRowClick =
+                  isIncidentTable || !onSelect
+                    ? undefined
+                    : () => {
+                        if (isSelected && onOpenDetail) {
+                          onOpenDetail(row.original.id);
+                          return;
+                        }
+                        onSelect(row.original.id);
+                      };
 
                 return (
                   <tr
                     key={row.id}
-                    onClick={() => {
-                      if (isSelected && onOpenDetail) {
-                        onOpenDetail(row.original.id);
-                        return;
-                      }
-                      onSelect(row.original.id);
-                    }}
+                    onClick={handleRowClick}
                     title={
-                      onOpenDetail
+                      handleRowClick && onOpenDetail
                         ? isSelected
                           ? "Click again to open details"
                           : "Click to preview"
                         : undefined
                     }
                     className={[
-                      "cursor-pointer border-t border-[rgba(15,23,42,0.08)] transition-colors",
+                      handleRowClick ? "cursor-pointer" : "",
+                      "border-t border-[rgba(15,23,42,0.08)] transition-colors",
                       isSelected
                         ? "bg-ehs-normal-blue/18"
-                        : "hover:bg-ehs-light-bg/70",
-                    ].join(" ")}
+                        : handleRowClick
+                          ? "hover:bg-ehs-light-bg/70"
+                          : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
                       const align = cell.column.columnDef.meta?.align;
@@ -344,19 +361,20 @@ export function IncidentListTable<TData extends { id: string } = IncidentRecord>
                             totalSize,
                           )}
                           className={[
-                            "min-w-0 align-middle",
+                            "min-w-0",
+                            align === "left" ? "align-top" : "align-middle",
                             cellPadClass,
                             alignClass(align),
                           ].join(" ")}
                         >
                           <div
                             className={[
-                              "flex w-full min-w-0 items-center",
+                              "flex w-full min-w-0",
                               align === "center"
-                                ? "justify-center"
+                                ? "items-center justify-center"
                                 : align === "right"
-                                  ? "justify-end"
-                                  : "justify-start",
+                                  ? "items-center justify-end"
+                                  : "items-start justify-start",
                             ].join(" ")}
                           >
                             {flexRender(

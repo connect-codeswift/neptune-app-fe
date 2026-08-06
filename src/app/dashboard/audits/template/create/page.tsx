@@ -7,9 +7,7 @@ export default function CreateAuditTemplatePage() {
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs..."
         searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       <CreateTemplateContent />
     </div>

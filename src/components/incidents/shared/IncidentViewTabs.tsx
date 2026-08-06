@@ -47,9 +47,9 @@ export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
             role="tab"
             aria-selected={isActive}
             className={[
-              "inline-flex w-fit items-center gap-[7px] rounded-[9px] px-4 py-[9px] text-[13px] font-bold transition-colors",
+              "inline-flex w-fit items-center gap-[7px] rounded-[9px] px-4 py-[9px] text-sm font-bold transition-colors",
               isActive
-                ? "bg-ehs-normal-blue text-ehs-light-text shadow-[0px_4px_12px_-4px_#0891a6]"
+                ? "bg-ehs-normal-blue text-ehs-light-text shadow-[0px_4px_12px_-4px_var(--ehs-normal-blue)]"
                 : "text-ehs-gray hover:bg-white/70",
             ].join(" ")}
           >

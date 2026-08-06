@@ -4,7 +4,7 @@ import type {
   TenantUserContextDto,
   UpdateIncidentRequestDto,
 } from "@/dtos/req/incident-request.dto";
-import type { UpdateIncidentClosureRequestDto } from "@/dtos/req/incident-closure-request.dto";
+import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 import type {
   GetAllIncidentsResponseDto,
   IncidentDto,
@@ -21,7 +21,10 @@ const INCIDENT_GET_ALL_PATH = "/Incident/GetAllIncidents";
 const INCIDENT_CREATE_PATH = "/Incident/incident";
 const INCIDENT_GET_BY_ID_PATH = "/Incident/GetIncidentById";
 const INCIDENT_UPDATE_PATH = "/Incident/UpdateIncident";
-const INCIDENT_CLOSE_PATH = "/Incident/CloseIncident";
+
+function incidentClosurePath(incidentId: number): string {
+  return `/Incident/${String(incidentId)}/closure`;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -120,105 +123,146 @@ function coercePerson(value: unknown): PersonDto | null {
 }
 
 /**
+ * Some grid endpoints wrap the incident DTO and attach lifecycle fields at the
+ * row level. Merge those onto the nested incident before coercion.
+ */
+function unwrapIncidentRaw(
+  raw: Record<string, unknown>,
+): Record<string, unknown> {
+  const nested = readProp(raw, "incident", "Incident");
+  if (!isRecord(nested)) {
+    return raw;
+  }
+
+  const merged: Record<string, unknown> = { ...nested };
+  for (const [camel, pascal] of [
+    ["status", "Status"],
+    ["state", "State"],
+    ["closureStatus", "ClosureStatus"],
+    ["isClosed", "IsClosed"],
+    ["caseDisposition", "CaseDisposition"],
+  ] as const) {
+    const topLevel = readProp(raw, camel, pascal);
+    if (topLevel !== undefined && topLevel !== null) {
+      merged[camel] = topLevel;
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Maps API payload (camelCase or PascalCase) into the FE IncidentDto shape.
  */
 function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
-  const peopleRaw = readProp(raw, "people", "People");
+  const source = unwrapIncidentRaw(raw);
+  const peopleRaw = readProp(source, "people", "People");
   const people = Array.isArray(peopleRaw)
     ? peopleRaw
         .map(coercePerson)
         .filter((person): person is PersonDto => person != null)
     : null;
 
-  const fitRaw = readProp(raw, "isFitForFullDuty", "IsFitForFullDuty");
+  const fitRaw = readProp(source, "isFitForFullDuty", "IsFitForFullDuty");
 
   return {
-    id: asNumber(readProp(raw, "id", "Id")),
-    severity: asString(readProp(raw, "severity", "Severity")) ?? null,
-    site: asString(readProp(raw, "site", "Site")) ?? null,
-    location: asString(readProp(raw, "location", "Location")) ?? null,
-    description: asString(readProp(raw, "description", "Description")) ?? null,
-    isDrop: asBoolean(readProp(raw, "isDrop", "IsDrop")) ?? null,
-    incidentAt: asString(readProp(raw, "incidentAt", "IncidentAt")) ?? null,
+    id: asNumber(readProp(source, "id", "Id")),
+    title: asString(readProp(source, "title", "Title")) ?? null,
+    severity: asString(readProp(source, "severity", "Severity")) ?? null,
+    site: asString(readProp(source, "site", "Site")) ?? null,
+    location: asString(readProp(source, "location", "Location")) ?? null,
+    description: asString(readProp(source, "description", "Description")) ?? null,
+    isDrop: asBoolean(readProp(source, "isDrop", "IsDrop")) ?? null,
+    incidentAt: asString(readProp(source, "incidentAt", "IncidentAt")) ?? null,
     incidentReportedAt:
-      asString(readProp(raw, "incidentReportedAt", "IncidentReportedAt")) ??
+      asString(readProp(source, "incidentReportedAt", "IncidentReportedAt")) ??
       null,
     isOSHARecordable: asBoolean(
-      readProp(raw, "isOSHARecordable", "IsOSHARecordable"),
+      readProp(source, "isOSHARecordable", "IsOSHARecordable"),
     ),
-    isWorkRelated: asBoolean(readProp(raw, "isWorkRelated", "IsWorkRelated")),
+    isWorkRelated: asBoolean(readProp(source, "isWorkRelated", "IsWorkRelated")),
     isDrugOrAlcoholRelated: asBoolean(
-      readProp(raw, "isDrugOrAlcoholRelated", "IsDrugOrAlcoholRelated"),
+      readProp(source, "isDrugOrAlcoholRelated", "IsDrugOrAlcoholRelated"),
     ),
     isFleetVehicleInvolved: asBoolean(
-      readProp(raw, "isFleetVehicleInvolved", "IsFleetVehicleInvolved"),
+      readProp(source, "isFleetVehicleInvolved", "IsFleetVehicleInvolved"),
     ),
     isSeriousIncident: asBoolean(
-      readProp(raw, "isSeriousIncident", "IsSeriousIncident"),
+      readProp(source, "isSeriousIncident", "IsSeriousIncident"),
     ),
     isEmergencyServiceCalled: asBoolean(
-      readProp(raw, "isEmergencyServiceCalled", "IsEmergencyServiceCalled"),
+      readProp(source, "isEmergencyServiceCalled", "IsEmergencyServiceCalled"),
     ),
     isThirdPartyInvolved: asBoolean(
-      readProp(raw, "isThirdPartyInvolved", "IsThirdPartyInvolved"),
+      readProp(source, "isThirdPartyInvolved", "IsThirdPartyInvolved"),
     ),
     initialTreatment:
-      asString(readProp(raw, "initialTreatment", "InitialTreatment")) ?? null,
+      asString(readProp(source, "initialTreatment", "InitialTreatment")) ?? null,
     isSecondaryTreatmentSought: asBoolean(
-      readProp(raw, "isSecondaryTreatmentSought", "IsSecondaryTreatmentSought"),
+      readProp(source, "isSecondaryTreatmentSought", "IsSecondaryTreatmentSought"),
     ),
     mechanismOfInjury:
-      asString(readProp(raw, "mechanismOfInjury", "MechanismOfInjury")) ?? null,
+      asString(readProp(source, "mechanismOfInjury", "MechanismOfInjury")) ?? null,
     natureOfInjury:
-      asString(readProp(raw, "natureOfInjury", "NatureOfInjury")) ?? null,
+      asString(readProp(source, "natureOfInjury", "NatureOfInjury")) ?? null,
     objectInvolved:
-      asString(readProp(raw, "objectInvolved", "ObjectInvolved")) ?? null,
+      asString(readProp(source, "objectInvolved", "ObjectInvolved")) ?? null,
     isOSHANotificationRequired: asBoolean(
-      readProp(raw, "isOSHANotificationRequired", "IsOSHANotificationRequired"),
+      readProp(source, "isOSHANotificationRequired", "IsOSHANotificationRequired"),
     ),
     affectedPersonId:
-      asString(readProp(raw, "affectedPersonId", "AffectedPersonId")) ?? null,
-    reportedById: asNumber(readProp(raw, "reportedById", "ReportedById")),
-    userId: asNumber(readProp(raw, "userId", "UserId")),
-    subCompanyId: asNumber(readProp(raw, "subCompanyId", "SubCompanyId")),
+      asString(readProp(source, "affectedPersonId", "AffectedPersonId")) ?? null,
+    reportedById: asNumber(readProp(source, "reportedById", "ReportedById")),
+    userId: asNumber(readProp(source, "userId", "UserId")),
+    siteId:
+      asNumber(readProp(source, "siteId", "SiteId")) ??
+      asNumber(readProp(source, "subCompanyId", "SubCompanyId")),
     injuredBodyPart:
-      asString(readProp(raw, "injuredBodyPart", "InjuredBodyPart")) ?? null,
+      asString(readProp(source, "injuredBodyPart", "InjuredBodyPart")) ?? null,
     injuryDescription:
-      asString(readProp(raw, "injuryDescription", "InjuryDescription")) ?? null,
+      asString(readProp(source, "injuryDescription", "InjuryDescription")) ?? null,
     incidentReporterEmail:
       asString(
-        readProp(raw, "incidentReporterEmail", "IncidentReporterEmail"),
+        readProp(source, "incidentReporterEmail", "IncidentReporterEmail"),
       ) ?? null,
+    occurredInCanada: asBoolean(
+      readProp(source, "occurredInCanada", "OccurredInCanada"),
+    ),
     nonEmployeInvolved: asBoolean(
-      readProp(raw, "nonEmployeInvolved", "NonEmployeInvolved"),
+      readProp(source, "nonEmployeInvolved", "NonEmployeInvolved"),
     ),
     whatTreatmentWasGiven:
       asString(
-        readProp(raw, "whatTreatmentWasGiven", "WhatTreatmentWasGiven"),
+        readProp(source, "whatTreatmentWasGiven", "WhatTreatmentWasGiven"),
       ) ?? null,
     treatmentProvidedBy:
-      asString(readProp(raw, "treatmentProvidedBy", "TreatmentProvidedBy")) ??
+      asString(readProp(source, "treatmentProvidedBy", "TreatmentProvidedBy")) ??
       null,
     treatmentLocation:
-      asString(readProp(raw, "treatmentLocation", "TreatmentLocation")) ?? null,
+      asString(readProp(source, "treatmentLocation", "TreatmentLocation")) ?? null,
     isFitForFullDuty:
       typeof fitRaw === "boolean" || typeof fitRaw === "string"
         ? fitRaw
         : (asString(fitRaw) ?? null),
     caseDisposition:
-      asString(readProp(raw, "caseDisposition", "CaseDisposition")) ?? null,
+      asString(readProp(source, "caseDisposition", "CaseDisposition")) ?? null,
+    status: asString(readProp(source, "status", "Status")) ?? null,
+    state: asString(readProp(source, "state", "State")) ?? null,
+    closureStatus:
+      asString(readProp(source, "closureStatus", "ClosureStatus")) ?? null,
+    isClosed: asBoolean(readProp(source, "isClosed", "IsClosed")) ?? null,
     furtherMedicalRecommendations: asBoolean(
       readProp(
-        raw,
+        source,
         "furtherMedicalRecommendations",
         "FurtherMedicalRecommendations",
       ),
     ),
-    images: asStringArray(readProp(raw, "images", "Images")) ?? null,
+    images: asStringArray(readProp(source, "images", "Images")) ?? null,
     people,
-    actionTaken: asString(readProp(raw, "actionTaken", "ActionTaken")) ?? null,
-    otherNotes: asString(readProp(raw, "otherNotes", "OtherNotes")) ?? null,
-    feedback: asString(readProp(raw, "feedback", "Feedback")) ?? null,
+    actionTaken: asString(readProp(source, "actionTaken", "ActionTaken")) ?? null,
+    otherNotes: asString(readProp(source, "otherNotes", "OtherNotes")) ?? null,
+    feedback: asString(readProp(source, "feedback", "Feedback")) ?? null,
   };
 }
 
@@ -343,21 +387,17 @@ function normalizeGetAllIncidentsResponse(
 }
 
 export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
-  const { pageNumber, pageSize, subCompanyId, userId } = request;
+  const { pageNumber, pageSize } = request;
   const search = request.search?.trim();
   const severity = request.severity?.trim();
-  const caseDisposition = request.caseDisposition?.trim();
+  const site = request.site?.trim();
 
-  // Only send the optional server-side filters when they are actually set, so
-  // an unfiltered request keeps the exact body shape older backends expect.
   const body: GetAllIncidentsRequestDto = {
     pageNumber,
     pageSize,
-    subCompanyId,
-    userId,
     ...(search ? { search } : {}),
     ...(severity ? { severity } : {}),
-    ...(caseDisposition ? { caseDisposition } : {}),
+    ...(site ? { site } : {}),
   };
 
   const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, body);
@@ -366,14 +406,14 @@ export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
 
 /**
  * GET /Incident/GetIncidentById
- * Query: `{ id, userId, subCompanyId }`
+ * Query: `{ id, userId, siteId }`
  * Header: `Authorization: Bearer <token>` (required by API security)
  */
 export async function getIncidentById(
   params: Readonly<{
     id: number;
     userId: number;
-    subCompanyId: number;
+    siteId: number;
   }>,
 ) {
   const accessToken = getAccessToken();
@@ -385,7 +425,7 @@ export async function getIncidentById(
     params: {
       id: params.id,
       userId: params.userId,
-      subCompanyId: params.subCompanyId,
+      siteId: params.siteId,
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -411,7 +451,7 @@ export async function updateIncidentById(
   params: Readonly<{
     id: number;
     userId: number;
-    subCompanyId: number;
+    siteId: number;
   }>,
   payload: UpdateIncidentRequestDto,
 ) {
@@ -424,7 +464,7 @@ export async function updateIncidentById(
     ...payload,
     id: params.id,
     userId: params.userId,
-    subCompanyId: params.subCompanyId,
+    siteId: params.siteId,
   };
 
   const { data } = await http.put<unknown>(
@@ -454,7 +494,7 @@ export async function updateIncident(
   const existing = await getIncidentById({
     id,
     userId: context.userId,
-    subCompanyId: context.subCompanyId,
+    siteId: context.siteId,
   });
 
   const payload: UpdateIncidentRequestDto = {
@@ -462,7 +502,7 @@ export async function updateIncident(
     ...patch,
     id,
     userId: context.userId,
-    subCompanyId: context.subCompanyId,
+    siteId: context.siteId,
     reportedById:
       patch.reportedById ?? existing?.reportedById ?? context.userId,
     isDrop: false,
@@ -472,16 +512,36 @@ export async function updateIncident(
     {
       id,
       userId: context.userId,
-      subCompanyId: context.subCompanyId,
+      siteId: context.siteId,
     },
     payload,
   );
 }
 
-export async function closeIncident(id: number, context: TenantUserContextDto) {
-  return updateIncident(id, context, {
-    caseDisposition: "Closed",
-  });
+export async function submitIncidentClosure(
+  incidentId: number,
+): Promise<IncidentClosureResponseDto | null> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to submit incident closure.");
+  }
+
+  const { data } = await http.post<unknown>(
+    `${incidentClosurePath(incidentId)}/submit`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeIncidentClosureDto(data);
+}
+
+/** @deprecated Prefer submitIncidentClosure — closes via POST /closure/submit. */
+export async function closeIncident(incidentId: number) {
+  return submitIncidentClosure(incidentId);
 }
 
 function coerceChecklistItemDto(
@@ -675,7 +735,7 @@ export async function getIncidentClosure(
   }
 
   const { data } = await http.get<unknown>(
-    `/Incident/${String(incidentId)}/closure`,
+    incidentClosurePath(incidentId),
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -693,7 +753,7 @@ export async function getIncidentClosure(
  */
 export async function updateIncidentClosure(
   incidentId: number,
-  payload: UpdateIncidentClosureRequestDto,
+  payload: SaveIncidentClosureDto,
 ): Promise<IncidentClosureResponseDto | null> {
   const accessToken = getAccessToken();
   if (!accessToken) {
@@ -701,7 +761,7 @@ export async function updateIncidentClosure(
   }
 
   const { data } = await http.put<unknown>(
-    `/Incident/${String(incidentId)}/closure`,
+    incidentClosurePath(incidentId),
     payload,
     {
       headers: {

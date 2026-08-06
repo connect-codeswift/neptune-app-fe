@@ -1,10 +1,11 @@
 export const PASSWORD_STRENGTH_SEGMENTS = 5;
 
-/** Matches backend RegularExpression for strong passwords. */
+/** Matches backend UserDto password rule (letter + digit + symbol, 8+ chars). */
 export const STRONG_PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
-export const WEAK_PASSWORD_MESSAGE = "Weak password";
+export const WEAK_PASSWORD_MESSAGE =
+  "Password must be at least 8 characters and include a letter, a number and a symbol.";
 
 export function isStrongPassword(password: string): boolean {
   return STRONG_PASSWORD_REGEX.test(password);
@@ -21,7 +22,7 @@ export function getPasswordStrengthScore(password: string): number {
     score++;
   }
 
-  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
+  if (/[A-Za-z]/.test(password)) {
     score++;
   }
 
@@ -29,7 +30,7 @@ export function getPasswordStrengthScore(password: string): number {
     score++;
   }
 
-  if (/[@$!%*?&]/.test(password)) {
+  if (/[^A-Za-z\d]/.test(password)) {
     score++;
   }
 

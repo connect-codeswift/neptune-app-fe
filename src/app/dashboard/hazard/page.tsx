@@ -18,7 +18,7 @@ import {
   useHazardListQuery,
 } from "@/hooks/use-hazard-queries";
 import { canViewHazardInsights, getCurrentUser } from "@/lib/current-user";
-import { mapHazardDtoToRecord } from "@/lib/map-hazard";
+import { mapHazardDtoToRecord, mapHazardKpiToMetrics } from "@/lib/map-hazard";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup } from "@/lib/map-user";
 
@@ -29,12 +29,12 @@ export default function HazardPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [pageNumber, setPageNumber] = useState(1);
 
-  // userId / subCompanyId come from the signed-in user's access-token claims.
-  const { userId, subCompanyId } = getCurrentUser();
+  // userId / siteId come from the signed-in user's access-token claims.
+  const { userId, siteId } = getCurrentUser();
   const hazardListQuery = useHazardListQuery({
     pageNumber,
     pageSize: PAGE_SIZE,
-    subCompanyId,
+    siteId,
     userId,
   });
 
@@ -52,27 +52,13 @@ export default function HazardPage() {
   }, []);
 
   // Only elevated roles see the KPI cards, so nobody else pays for the call.
-  const kpiQuery = useHazardKpiQuery(canViewInsights);
+  const kpiQuery = useHazardKpiQuery({ userId }, canViewInsights);
 
   const page = hazardListQuery.data?.dataModel;
-  const metrics: readonly StatMetricCardProps[] = useMemo(() => {
-    const kpi = kpiQuery.data?.dataModel;
-
-    return [
-      {
-        title: "Total hazards reports",
-        value: kpi?.totalHazardCount ?? 0,
-      },
-      {
-        title: "Converted to incidents",
-        value:
-          kpi?.convertedToIncidents ??
-          kpi?.convertedIncidents ??
-          kpi?.converted ??
-          0,
-      },
-    ];
-  }, [kpiQuery.data]);
+  const metrics: readonly StatMetricCardProps[] = useMemo(
+    () => mapHazardKpiToMetrics(kpiQuery.data?.dataModel),
+    [kpiQuery.data],
+  );
 
   const records = useMemo(
     () => (page?.data ?? []).map(mapHazardDtoToRecord),
@@ -99,9 +85,7 @@ export default function HazardPage() {
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
         title="Hazard Reporting"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       {isPageLoading ? (
         <HazardPageSkeleton />

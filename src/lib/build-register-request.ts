@@ -35,10 +35,10 @@ export function buildRegisterRequest(
 ): RegisterRequestDto {
   const activatedModules = getActivatedModules(onboarding);
 
-  const subcompany = getRegisterableSites(onboarding.sites).map((site) => ({
+  const sites = getRegisterableSites(onboarding.sites).map((site) => ({
     industryType: site.industry || "other",
-    companySize: site.companySize || null,
-    companyName: site.siteName.trim(),
+    siteSize: site.companySize || null,
+    siteName: site.siteName.trim(),
     location: site.region.trim(),
   }));
 
@@ -51,6 +51,6 @@ export function buildRegisterRequest(
     organizationId: DEFAULT_ORGANIZATION_ID,
     organizationName: onboarding.organizationName.trim(),
     activatedModules,
-    subcompany,
+    sites,
   });
 }

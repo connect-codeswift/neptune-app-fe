@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "PowerShell($k = 'sk-user-mgAhssIqblXlEypW2lPL1HpDiUy_cJdtERfbXuR7rlTf-NrRe5aT9ZPjgFuDVxp-GumNJrfx6WH2-lLxkEF3tAj-ri4kO6Nsbc5Hx1NI4SKGgLI7m2TtEHsXluKUJjWt6F0'; claude mcp add TestSprite --scope local --env \"API_KEY=$k\" -- npx '@testsprite/testsprite-mcp@latest')",
+      "PowerShell($p = \"$env:USERPROFILE\\\\.claude.json\"; if \\(Test-Path $p\\) { $j = Get-Content $p -Raw | ConvertFrom-Json; \"top-level keys:\"; $j.PSObject.Properties.Name -join ', '; \"---projects---\"; $j.projects.PSObject.Properties.Name } else { \"NO ~/.claude.json\" })",
+      "PowerShell($p = \"$env:USERPROFILE\\\\.claude.json\"; $j = Get-Content $p -Raw | ConvertFrom-Json; $proj = $j.projects.'c:/Users/dell/OneDrive/Desktop/Projects/neptune-ehss-fe'; \"project keys: \" + \\($proj.PSObject.Properties.Name -join ', '\\); \"---existing project mcpServers---\"; $proj.mcpServers | ConvertTo-Json -Depth 5)",
+      "PowerShell(node \"C:\\\\Users\\\\dell\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-dell-OneDrive-Desktop-Projects-neptune-ehss-fe\\\\96f24ac9-5beb-46ef-97d2-919b9d9fb7dc\\\\scratchpad\\\\add-mcp.js\")",
+      "PowerShell($given = 'sk-user-mgAhssIqblXlEypW2lPL1HpDiUy_cJdtERfbXuR7rlTf-NrRe5aT9ZPjgFuDVxp-GumNJrfx6WH2-lLxkEF3tAj-ri4kO6Nsbc5Hx1NI4SKGgLI7m2TtEHsXluKUJjWt6F0'; $j = Get-Content \"$env:USERPROFILE\\\\.claude.json\" -Raw | ConvertFrom-Json; $stored = $j.projects.'c:/Users/dell/OneDrive/Desktop/Projects/neptune-ehss-fe'.mcpServers.TestSprite.env.API_KEY; \"stored length: $\\($stored.Length\\)  given length: $\\($given.Length\\)\"; if \\($stored -ceq $given\\) { \"MATCH - identical\" } else { \"DIFFERENT\" })",
+      "mcp__TestSprite__testsprite_check_account_info",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell(npm run start)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1; if \\($c\\) { $p = Get-Process -Id $c.OwningProcess; \"PID $\\($p.Id\\)  Name: $\\($p.ProcessName\\)  Started: $\\($p.StartTime\\)\"; \"CmdLine: \" + \\(Get-CimInstance Win32_Process -Filter \"ProcessId=$\\($p.Id\\)\"\\).CommandLine } else { \"nothing listening on 3000\" }; \"\"; \"--- HTTP probe ---\"; try { $r = Invoke-WebRequest \"http://localhost:3000/login\" -UseBasicParsing -TimeoutSec 10; \"status: $\\($r.StatusCode\\)  length: $\\($r.Content.Length\\)\" } catch { \"probe failed: $\\($_.Exception.Message\\)\" })",
+      "PowerShell($env:PORT='3001'; npm run start)",
+      "PowerShell(try { $r = Invoke-WebRequest \"http://localhost:3001/login\" -UseBasicParsing -TimeoutSec 15; \"login  -> $\\($r.StatusCode\\)  $\\($r.Content.Length\\) bytes\" } catch { \"login FAILED: $\\($_.Exception.Message\\)\" }; try { $r2 = Invoke-WebRequest \"http://localhost:3001/dashboard\" -UseBasicParsing -TimeoutSec 15 -MaximumRedirection 0 -ErrorAction Stop; \"dashboard -> $\\($r2.StatusCode\\)\" } catch { \"dashboard -> $\\($_.Exception.Response.StatusCode.value__\\) \\(redirect/guard: expected if auth-gated\\)\" })",
+      "mcp__TestSprite__testsprite_bootstrap",
+      "mcp__TestSprite__testsprite_generate_code_summary"
+    ]
+  }
+}

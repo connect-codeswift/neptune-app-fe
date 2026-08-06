@@ -1,6 +1,6 @@
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
-import http, { getAccessToken } from "@/lib/axios";
+import http, { getAccessToken, HttpError } from "@/lib/axios";
 
 const CAPA_CREATE_PATH = "/CAPA/Capa";
 const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
@@ -59,6 +59,7 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
   const id = asNumber(readProp(raw, "id", "Id"));
   const incidentId = asNumber(readProp(raw, "incidentId", "IncidentId"));
   const userId = asNumber(readProp(raw, "userId", "UserId"));
+  const title = asString(readProp(raw, "title", "Title"));
   const description = asString(
     readProp(raw, "description", "Description"),
   );
@@ -67,12 +68,15 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     readProp(raw, "controlLevel", "ControlLevel"),
   );
   const priority = asString(readProp(raw, "priority", "Priority"));
+  const resolvedDescription = description ?? title;
+  const resolvedTitle = title ?? description;
 
   if (
     id == null ||
     incidentId == null ||
     userId == null ||
-    !description ||
+    !resolvedDescription ||
+    !resolvedTitle ||
     !capaType ||
     !controlLevel ||
     !priority
@@ -88,10 +92,14 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     id,
     incidentId,
     userId,
-    description,
+    title: resolvedTitle,
+    description: resolvedDescription,
     capaType,
     controlLevel,
     priority,
+    assignedId:
+      asNumber(readProp(raw, "assignedId", "AssignedId")) ?? null,
+    rcaId: asNumber(readProp(raw, "rcaId", "RcaId")) ?? null,
     dueDate: asString(readProp(raw, "dueDate", "DueDate")) ?? null,
     isDrop: asBoolean(readProp(raw, "isDrop", "IsDrop")) ?? false,
     status: asString(readProp(raw, "status", "Status")) ?? null,
@@ -107,6 +115,24 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
+}
+
+function readApiEnvelopeMessage(data: unknown): string {
+  if (!isRecord(data)) {
+    return "";
+  }
+  const message = data.message ?? data.Message;
+  return typeof message === "string" ? message : "";
+}
+
+/** Backend returns 400 when an incident has zero linked CAPAs. Treat as empty list. */
+function isEmptyIncidentCapaListError(error: unknown): boolean {
+  if (!(error instanceof HttpError) || error.status !== 400) {
+    return false;
+  }
+
+  const message = readApiEnvelopeMessage(error.data).toLowerCase();
+  return message.includes("no capas found");
 }
 
 function asCapaArray(value: unknown): CapaDto[] {
@@ -183,16 +209,23 @@ export async function getCapasByIncidentId(incidentId: number) {
     throw new Error("Sign in required to load CAPAs.");
   }
 
-  const { data } = await http.get<unknown>(
-    `${CAPA_BY_INCIDENT_PATH}/${encodeURIComponent(String(incidentId))}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+  try {
+    const { data } = await http.get<unknown>(
+      `${CAPA_BY_INCIDENT_PATH}/${encodeURIComponent(String(incidentId))}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    },
-  );
+    );
 
-  return normalizeCapaList(data);
+    return normalizeCapaList(data);
+  } catch (error) {
+    if (isEmptyIncidentCapaListError(error)) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 /** POST /CAPA/Capa */

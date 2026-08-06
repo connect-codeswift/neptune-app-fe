@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,10 +11,20 @@ import {
   HazcomTextareaField,
   HazcomTextField,
 } from "@/components/hazcom/shared";
-import type { TrainingLogRequestDto } from "@/dtos/req/hazcom-request.dto";
+import type {
+  TrainingLogRequestDto,
+  TrainingMaterialRequestDto,
+} from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { toast } from "@/lib/toast";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+
+type TrainingMaterialDraft = Readonly<{
+  fileUrl: string;
+  fileName: string;
+  fileType?: string | null;
+}>;
 
 type NewTrainingSessionFormState = Readonly<{
   date: string;
@@ -22,7 +32,7 @@ type NewTrainingSessionFormState = Readonly<{
   topic: string;
   chemicals: string;
   attendees: string;
-  materialsLink: string;
+  materials: readonly TrainingMaterialDraft[];
   notes: string;
 }>;
 
@@ -32,7 +42,7 @@ const INITIAL_FORM_STATE: NewTrainingSessionFormState = {
   topic: "",
   chemicals: "",
   attendees: "",
-  materialsLink: "",
+  materials: [],
   notes: "",
 };
 
@@ -50,6 +60,14 @@ function toSessionDate(date: string): string {
 function toTrainingLogRequest(
   form: NewTrainingSessionFormState,
 ): TrainingLogRequestDto {
+  const materials: TrainingMaterialRequestDto[] = form.materials.map(
+    (material) => ({
+      fileUrl: material.fileUrl,
+      fileName: material.fileName,
+      ...(material.fileType ? { fileType: material.fileType } : {}),
+    }),
+  );
+
   return {
     sessionDate: toSessionDate(form.date),
     trainer: form.trainer.trim(),
@@ -59,7 +77,7 @@ function toTrainingLogRequest(
     chemicalsCovered: form.chemicals.trim(),
     // A string on the wire even though the field collects a count.
     attendees: form.attendees.trim(),
-    materialsLink: form.materialsLink.trim(),
+    materials: materials.length > 0 ? materials : null,
     notes: form.notes.trim(),
     // The form covers a session, not a specific chemical; the list of names
     // it collects goes to `chemicalsCovered` instead.
@@ -77,8 +95,10 @@ export function HazcomNewTrainingSessionForm(
   const { className = "" } = props;
   const router = useRouter();
   const createTrainingLog = useCreateTrainingLogMutation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] =
     useState<NewTrainingSessionFormState>(INITIAL_FORM_STATE);
+  const [isUploadingMaterial, setIsUploadingMaterial] = useState(false);
 
   const updateField = <K extends keyof NewTrainingSessionFormState>(
     field: K,
@@ -87,8 +107,54 @@ export function HazcomNewTrainingSessionForm(
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const removeMaterial = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      materials: prev.materials.filter((_, itemIndex) => itemIndex !== index),
+    }));
+  };
+
+  const handleMaterialUpload = async (file: File | undefined) => {
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingMaterial(true);
+    try {
+      const uploaded = await uploadFileToCloudinary(file);
+      setForm((prev) => ({
+        ...prev,
+        materials: [
+          ...prev.materials,
+          {
+            fileUrl: uploaded.secureUrl,
+            fileName: file.name.trim() || uploaded.name,
+            fileType: uploaded.mimeType || uploaded.format || null,
+          },
+        ],
+      }));
+      toast.success("Training material uploaded");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not upload the training material.",
+      );
+    } finally {
+      setIsUploadingMaterial(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isUploadingMaterial) {
+      toast.error("Wait for the material upload to finish");
+      return;
+    }
 
     // The two fields the API requires; both are asterisked in the form.
     const missing =
@@ -152,7 +218,7 @@ export function HazcomNewTrainingSessionForm(
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <HazcomTextField
             label="Chemicals Covered"
             placeholder="e.g. HCI, Acetone, NaOH"
@@ -167,14 +233,61 @@ export function HazcomNewTrainingSessionForm(
             value={form.attendees}
             onChange={(event) => updateField("attendees", event.target.value)}
           />
-          <HazcomTextField
-            label="Training Materials Link"
-            placeholder="Document ID or URL"
-            value={form.materialsLink}
-            onChange={(event) =>
-              updateField("materialsLink", event.target.value)
-            }
+        </div>
+
+        <div className="flex flex-col gap-2.5">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+              Training Materials
+            </Text>
+            <Button
+              type="button"
+              variant="tertiary"
+              disabled={isUploadingMaterial}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Icon icon="mdi:upload" className="text-base" aria-hidden="true" />
+              {isUploadingMaterial ? "Uploading…" : "Add file"}
+            </Button>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.ppt,.pptx,.doc,.docx,image/*"
+            className="hidden"
+            onChange={(event) => {
+              void handleMaterialUpload(event.target.files?.[0]);
+            }}
           />
+          {form.materials.length === 0 ? (
+            <Text as="p" className="text-ehs-muted-text text-[13px]">
+              No materials attached yet.
+            </Text>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {form.materials.map((material, index) => (
+                <li
+                  key={`${material.fileUrl}-${String(index)}`}
+                  className="border-ehs-border flex items-center justify-between gap-3 rounded-[10px] border bg-white/60 px-3 py-2"
+                >
+                  <Text
+                    as="span"
+                    className="text-ehs-dark-bg min-w-0 truncate text-[13px] font-medium"
+                  >
+                    {material.fileName}
+                  </Text>
+                  <button
+                    type="button"
+                    className="text-ehs-muted-text hover:text-ehs-red shrink-0"
+                    aria-label={`Remove ${material.fileName}`}
+                    onClick={() => removeMaterial(index)}
+                  >
+                    <Icon icon="mdi:close" className="text-base" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <HazcomTextareaField
@@ -193,7 +306,7 @@ export function HazcomNewTrainingSessionForm(
           <Button
             type="submit"
             variant="primary"
-            disabled={createTrainingLog.isPending}
+            disabled={createTrainingLog.isPending || isUploadingMaterial}
           >
             <Icon icon="mdi:check" className="text-base" aria-hidden="true" />
             {createTrainingLog.isPending ? "Saving…" : "Save Session"}

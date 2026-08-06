@@ -4,8 +4,11 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   INJURY_LEVEL_OPTIONS,
+  markAiAssisted,
   type InjuryLevelId,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -26,6 +29,13 @@ export function ReportIncidentStepThree(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
+  // Only wait where a draft could actually land. Once the reporter has written
+  // here their words win and the arriving draft is discarded, so a spinner
+  // would resolve to nothing every time.
+  const draftPending =
+    form.aiDraftPending && form.injuryDescription.trim() === "";
+  const showsDraft = draftPending || form.aiDrafts.injuryDescription !== null;
+
   return (
     <IncidentGlassCard
       paddingClassName="p-4 sm:p-[29px]"
@@ -36,7 +46,7 @@ export function ReportIncidentStepThree(
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
-              className="text-ehs-dark-blue text-[10px] font-bold tracking-[1.4px] uppercase"
+              className="text-ehs-dark-blue text-xs font-bold tracking-wide uppercase"
             >
               Step 3
             </Text>
@@ -46,7 +56,7 @@ export function ReportIncidentStepThree(
             >
               People & injury
             </Text>
-            <Text as="p" className="text-ehs-gray text-[12px]">
+            <Text as="p" className="text-ehs-gray text-sm">
               If anyone was hurt, capture the basics now. You can add a full
               investigation later.
             </Text>
@@ -87,16 +97,77 @@ export function ReportIncidentStepThree(
             }
           />
 
-          <ReportTextareaField
-            className="pt-[18px] [&_textarea]:min-h-[66px]"
-            label="Injury description"
-            value={form.injuryDescription}
-            onChange={(event) =>
-              onChange({ injuryDescription: event.target.value })
-            }
-            placeholder="Describe the injury…"
-            rows={3}
-          />
+          <div className="pt-[18px]">
+            {/* Only ever taller than the default, never shorter: the controls
+                reserve a strip along the bottom, so squeezing the box puts the
+                buttons on top of the text — and a drafted injury description
+                needs the room to be readable before it is accepted. */}
+            <ReportTextareaField
+              className="[&_textarea]:min-h-[150px]"
+              label="Injury description"
+              value={form.injuryDescription}
+              onChange={(event) => {
+                const injuryDescription = event.target.value;
+                // Their own words take over: a draft still sitting underneath
+                // while they type is an offer they have already answered.
+                onChange({
+                  injuryDescription,
+                  ...(form.aiDrafts.injuryDescription
+                    ? {
+                        aiDrafts: {
+                          ...form.aiDrafts,
+                          injuryDescription: null,
+                        },
+                      }
+                    : {}),
+                });
+              }}
+              // Suppressed while a draft occupies the field — the browser would
+              // otherwise paint the placeholder underneath the ghost text.
+              placeholder={showsDraft ? "" : "Describe the injury…"}
+              rows={3}
+              assistant={
+                showsDraft ? (
+                  <AiInFieldDraft
+                    draft={form.aiDrafts.injuryDescription}
+                    pending={draftPending}
+                    onAccept={(text) =>
+                      onChange({
+                        injuryDescription: text,
+                        aiAssistedFields: markAiAssisted(
+                          form.aiAssistedFields,
+                          "injuryDescription",
+                        ),
+                        aiDrafts: { ...form.aiDrafts, injuryDescription: null },
+                      })
+                    }
+                    onDismiss={() =>
+                      onChange({
+                        aiDrafts: { ...form.aiDrafts, injuryDescription: null },
+                      })
+                    }
+                  />
+                ) : (
+                  // The rewrite buttons need text to work on, so they only take
+                  // the slot back once the draft has been resolved either way.
+                  <AiTextAssistant
+                    value={form.injuryDescription}
+                    onApply={(injuryDescription) => {
+                      onChange({ injuryDescription });
+                    }}
+                    onAssisted={() => {
+                      onChange({
+                        aiAssistedFields: markAiAssisted(
+                          form.aiAssistedFields,
+                          "injuryDescription",
+                        ),
+                      });
+                    }}
+                  />
+                )
+              }
+            />
+          </div>
         </div>
 
         <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
@@ -105,7 +176,7 @@ export function ReportIncidentStepThree(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -115,7 +186,7 @@ export function ReportIncidentStepThree(
               Back
             </Button>
 
-            <p className="text-ehs-muted-text min-w-0 flex-1 text-[10.8px]">
+            <p className="text-ehs-muted-text min-w-0 flex-1 text-xs">
               Required fields marked with{" "}
               <span className="text-ehs-red">*</span>
             </p>
@@ -124,7 +195,7 @@ export function ReportIncidentStepThree(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon

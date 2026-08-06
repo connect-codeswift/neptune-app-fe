@@ -7,14 +7,6 @@ export type IncidentSeverity =
   | "SIP"
   | (string & {});
 
-export type IncidentStage =
-  | "Open"
-  | "New"
-  | "Investigating"
-  | "Corrective"
-  | "Closed"
-  | (string & {});
-
 export type IncidentState = "Open" | "Closed" | (string & {});
 
 export type IncidentCapa = Readonly<{
@@ -42,13 +34,14 @@ export type IncidentRecord = Readonly<{
   description: string;
   site: string;
   severity: IncidentSeverity;
-  stage: IncidentStage;
   state: IncidentState;
   reportedAt: string;
   reporter: string;
   assignee: string;
   injury: string;
   summary: string;
+  /** Raw incident datetime from the API, used for header date-range filtering. */
+  incidentAt: string | null;
   isOshaRecordable: boolean;
   capas: readonly IncidentCapa[];
   timeline: readonly IncidentTimelineItem[];

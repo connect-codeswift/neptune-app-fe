@@ -1,9 +1,11 @@
 import type {
+  HazcomTrainingMaterial,
   HazcomTrainingSession,
   HazcomTrainingStatus,
 } from "@/components/hazcom/shared";
 import {
   asLeadingNumber,
+  asNumber,
   asString,
   isRecord,
   readProp,
@@ -44,6 +46,56 @@ function toTrainingStatus(
   return parsed.getTime() <= Date.now() ? "Completed" : "Scheduled";
 }
 
+function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+
+  const fileUrl = asString(readProp(raw, "fileUrl", "FileUrl"));
+  const fileName = asString(readProp(raw, "fileName", "FileName"));
+  if (fileUrl === "" || fileName === "") {
+    return null;
+  }
+
+  const id = asNumber(readProp(raw, "id", "Id"));
+  const fileType = asString(readProp(raw, "fileType", "FileType"));
+
+  return {
+    ...(id === null ? {} : { id }),
+    fileUrl,
+    fileName,
+    ...(fileType === "" ? {} : { fileType }),
+  };
+}
+
+function toTrainingMaterials(value: unknown): readonly HazcomTrainingMaterial[] {
+  if (!Array.isArray(value)) {
+    // Legacy single-link responses before materials[] shipped.
+    const legacyLink = asString(value);
+    if (legacyLink === "") {
+      return [];
+    }
+    const fileName =
+      legacyLink.split("/").pop()?.trim() || "Training material";
+    return [{ fileUrl: legacyLink, fileName }];
+  }
+
+  return value
+    .map((item) => mapTrainingMaterial(item))
+    .filter((item): item is HazcomTrainingMaterial => item !== null);
+}
+
+function toAttendeeCount(record: Record<string, unknown>): number {
+  const attendeesCount = asNumber(
+    readProp(record, "attendeesCount", "AttendeesCount"),
+  );
+  if (attendeesCount !== null && attendeesCount >= 0) {
+    return attendeesCount;
+  }
+
+  return asLeadingNumber(readProp(record, "attendees", "Attendees"));
+}
+
 export function mapTrainingLogDtoToHazcomSession(
   raw: unknown,
 ): HazcomTrainingSession {
@@ -51,8 +103,13 @@ export function mapTrainingLogDtoToHazcomSession(
   const date = toIsoDate(
     readProp(record, "sessionDate", "SessionDate", "date", "Date"),
   );
-  const materialsLink = asString(
-    readProp(record, "materialsLink", "MaterialsLink"),
+
+  const materialsRaw = readProp(
+    record,
+    "materials",
+    "Materials",
+    "materialsLink",
+    "MaterialsLink",
   );
 
   return {
@@ -67,10 +124,9 @@ export function mapTrainingLogDtoToHazcomSession(
     chemicals: toStringList(
       readProp(record, "chemicalsCovered", "ChemicalsCovered", "chemicals"),
     ),
-    // A string on the wire; the table counts heads.
-    attendees: asLeadingNumber(readProp(record, "attendees", "Attendees")),
+    attendees: toAttendeeCount(record),
     status: toTrainingStatus(readProp(record, "status", "Status"), date),
-    materialsLink: materialsLink === "" ? null : materialsLink,
+    materials: toTrainingMaterials(materialsRaw),
     notes: asString(readProp(record, "notes", "Notes")),
   };
 }

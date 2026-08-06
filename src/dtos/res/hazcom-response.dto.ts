@@ -23,7 +23,9 @@ import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 /** Fields every raw HazCom entity carries once serialised. */
 type PersistedEntityDto = {
   id: number;
+  /** Legacy entity column; prefer `siteId` when present on newer responses. */
   subCompId: number;
+  siteId?: number;
   userId: number;
   createdAt: string;
   updatedAt: string | null;
@@ -52,6 +54,7 @@ export type ChemicalDto = PersistedEntityDto & {
   caS_Number: string | null;
   hazardClass: string;
   location: string;
+  disposeLocation: string | null;
   currentQuantity: string;
   ghsSignal: string | null;
   linkToSdsRecord: string | null;
@@ -109,6 +112,7 @@ export type SafetyDataSheetDto = PersistedEntityDto & {
   manufacturer: string | null;
   casNumber: string | null;
   hazardClass: string | null;
+  disposeLocation: string | null;
   signalWord: string | null;
   revisionDate: string | null;
   version: string | null;
@@ -220,6 +224,13 @@ export type GetPrecautionaryCodesResponseDto = ApiEnvelopeDto<
 /* Training                                                                   */
 /* -------------------------------------------------------------------------- */
 
+export type TrainingMaterialDto = {
+  id?: number;
+  fileUrl: string;
+  fileName: string;
+  fileType?: string | null;
+};
+
 /** The `TrainingLog` entity, serialised raw. Has no `IsDrop` column. */
 export type TrainingLogDto = PersistedEntityDto & {
   chemicalId: number | null;
@@ -232,7 +243,9 @@ export type TrainingLogDto = PersistedEntityDto & {
   chemicalsCovered: string | null;
   /** A string column even though the UI collects a head count. */
   attendees: string | null;
-  materialsLink: string | null;
+  /** Server-derived head count when provided; read-only on responses. */
+  attendeesCount?: number | null;
+  materials: TrainingMaterialDto[] | null;
   notes: string | null;
   /** Nullable: the create body carries no status, so new rows have none. */
   status: string | null;

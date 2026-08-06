@@ -23,10 +23,7 @@ export default function DashboardPage() {
       <DashboardHeader
         title="EHS Command Center"
         searchPlaceholder="Search incidents, actions, docs..."
-        companyName="Neptune Industries"
-        dateRangeLabel="Year to date"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="Year to date"      />
 
       <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
         <DashboardKpiMetrics />

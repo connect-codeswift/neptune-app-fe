@@ -2,9 +2,8 @@ import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 import type {
   IncidentRecord,
   IncidentSeverity,
-  IncidentStage,
-  IncidentState,
 } from "@/components/incidents/list/incident-list-types";
+import { deriveIncidentState } from "@/services/mappers/incident-state";
 
 function formatDateTime(value: string | null | undefined): string {
   if (!value) {
@@ -64,49 +63,6 @@ function normalizeSeverity(value: string | null | undefined): IncidentSeverity {
   return match ?? (trimmed as IncidentSeverity);
 }
 
-function deriveState(incident: IncidentDto): IncidentState {
-  const disposition = incident.caseDisposition?.trim().toLowerCase() ?? "";
-  if (disposition.includes("close") || disposition === "closed") {
-    return "Closed";
-  }
-
-  // Soft-deleted / dropped records are not treated as filterable "Closed".
-  if (incident.isDrop) {
-    return "Closed";
-  }
-
-  return "Open";
-}
-
-function deriveStage(incident: IncidentDto): IncidentStage {
-  const disposition = incident.caseDisposition?.trim();
-  if (!disposition) {
-    return incident.isDrop ? "Closed" : "New";
-  }
-
-  const known: IncidentStage[] = [
-    "Open",
-    "New",
-    "Investigating",
-    "Corrective",
-    "Closed",
-  ];
-
-  const match = known.find(
-    (item) => item.toLowerCase() === disposition.toLowerCase(),
-  );
-
-  if (match) {
-    return match;
-  }
-
-  if (disposition.toLowerCase().includes("close")) {
-    return "Closed";
-  }
-
-  return "Open";
-}
-
 function capitalizeFirst(text: string | null | undefined): string {
   if (!text) {
     return "";
@@ -119,6 +75,13 @@ function capitalizeFirst(text: string | null | undefined): string {
 }
 
 function buildTitle(incident: IncidentDto): string {
+  const apiTitle = incident.title?.trim();
+  if (apiTitle) {
+    const truncated =
+      apiTitle.length > 80 ? `${apiTitle.slice(0, 77)}...` : apiTitle;
+    return capitalizeFirst(truncated);
+  }
+
   const description = incident.description?.trim();
   if (description) {
     const firstSentence = description.split(/[.?\n]/)[0]?.trim();
@@ -227,8 +190,7 @@ export function mapIncidentDtoToListRecord(
     description,
     site: buildSite(incident),
     severity: normalizeSeverity(incident.severity),
-    stage: deriveStage(incident),
-    state: deriveState(incident),
+    state: deriveIncidentState(incident),
     reportedAt: formatDateTime(
       incident.incidentReportedAt ?? incident.incidentAt,
     ),
@@ -236,6 +198,7 @@ export function mapIncidentDtoToListRecord(
     assignee: "—",
     injury: buildInjury(incident),
     summary: description,
+    incidentAt: incident.incidentAt ?? incident.incidentReportedAt ?? null,
     isOshaRecordable: Boolean(incident.isOSHARecordable),
     capas: [],
     timeline: [],
