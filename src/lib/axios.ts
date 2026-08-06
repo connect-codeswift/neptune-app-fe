@@ -234,9 +234,7 @@ async function requestNewAccessToken(): Promise<string | null> {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message ??
-        error.response?.data?.Message ??
-        "";
+        error.response?.data?.message ?? error.response?.data?.Message ?? "";
 
       if (
         error.response?.status === 401 &&
