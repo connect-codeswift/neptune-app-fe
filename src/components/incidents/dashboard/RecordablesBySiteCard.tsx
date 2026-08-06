@@ -39,13 +39,10 @@ export function RecordablesBySiteCard(
           return (
             <div key={item.site} className="flex flex-col gap-[5px]">
               <div className="flex items-center justify-between gap-2">
-                <Text as="span" className="text-xs text-ehs-slate">
+                <Text as="span" className="text-ehs-slate text-xs">
                   {item.site}
                 </Text>
-                <Text
-                  as="span"
-                  className="text-ehs-gray text-sm tabular-nums"
-                >
+                <Text as="span" className="text-ehs-gray text-sm tabular-nums">
                   {String(item.count)}
                 </Text>
               </div>

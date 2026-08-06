@@ -1,3 +1,4 @@
+export { IncidentKpisHeroRow } from "./IncidentKpisHeroRow";
 export { IncidentKpisDashboard } from "./IncidentKpisDashboard";
 export type { IncidentKpisDashboardProps } from "./IncidentKpisDashboard";
 export { IncidentKpisHeader } from "./IncidentKpisHeader";

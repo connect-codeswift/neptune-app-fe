@@ -36,8 +36,11 @@ function getUserInitials(displayName: string): string {
 
 export function useSessionBootstrap() {
   const hasToken = useHasAccessToken();
-  const authContext = getAuthContext();
-  const currentUser = getCurrentUser();
+  const authContext = hasToken === true ? getAuthContext() : null;
+  const currentUser =
+    hasToken === true ?
+      getCurrentUser()
+    : { userId: 0, siteId: 0, subCompanyId: 0, role: null };
 
   const sessionQuery = useQuery({
     queryKey: sessionQueryKeys.me,
@@ -58,6 +61,10 @@ export function useSessionBootstrap() {
   const moduleOnlyGating = Boolean(session?.activatedModules?.trim());
 
   const permissions = useMemo(() => {
+    if (hasToken !== true) {
+      return new Set<string>();
+    }
+
     if (moduleOnlyGating) {
       return new Set<string>();
     }
@@ -67,9 +74,9 @@ export function useSessionBootstrap() {
       session?.permissions ?? [],
     );
   }, [
+    hasToken,
     moduleOnlyGating,
     session?.permissions,
-    hasToken,
     sessionQuery.dataUpdatedAt,
   ]);
 
@@ -88,7 +95,9 @@ export function useSessionBootstrap() {
   );
 
   const displayName =
-    session?.fullName?.trim() || getAuthDisplayName();
+    hasToken === true ?
+      session?.fullName?.trim() || getAuthDisplayName()
+    : "";
   const siteLabel =
     session?.siteName ??
     authContext?.siteName ??
@@ -99,6 +108,7 @@ export function useSessionBootstrap() {
   return {
     navGroups,
     isLoading: hasToken === null || (hasToken === true && sessionQuery.isLoading),
+    isUserReady: hasToken !== null,
     isError: sessionQuery.isError,
     user: {
       displayName,

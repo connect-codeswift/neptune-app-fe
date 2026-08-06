@@ -14,7 +14,7 @@ export type IncidentListKpiMetric = Readonly<{
   trendValue: string;
   trendDirection: "up" | "down";
   trendTone: IncidentListKpiTone;
-  targetLabel: string;
+  targetLabel: string | null;
   chartData: readonly number[];
 }>;
 
@@ -150,9 +150,13 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
         </div>
 
         <div className="mt-auto flex w-full items-end justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text py-px text-xs">
-            {targetLabel}
-          </Text>
+          {targetLabel ? (
+            <Text as="p" className="text-ehs-muted-text py-px text-xs">
+              {targetLabel}
+            </Text>
+          ) : (
+            <span />
+          )}
           <MiniSparkline data={chartData} tone={trendTone} />
         </div>
       </div>

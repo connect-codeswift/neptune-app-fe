@@ -67,11 +67,16 @@ function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
 
 export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
   const { metric, className = "" } = props;
-  const status = resolveTargetStatus(
-    metric.current,
-    metric.target,
-    metric.direction,
-  );
+  const hasTarget = metric.target != null;
+  const status =
+    metric.status ??
+    (hasTarget
+      ? resolveTargetStatus(
+          metric.current,
+          metric.target as number,
+          metric.direction,
+        )
+      : null);
 
   return (
     <IncidentGlassCard
@@ -91,23 +96,25 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
             </Text>
           </div>
 
-          <span
-            className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold tracking-[0.11px]",
-              status === "on"
-                ? "bg-ehs-green/14 text-ehs-green"
-                : "bg-ehs-red/14 text-ehs-red",
-            ].join(" ")}
-          >
+          {status ? (
             <span
               className={[
-                "size-1.5 rounded-[3px]",
-                status === "on" ? "bg-ehs-green" : "bg-ehs-red",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold tracking-[0.11px]",
+                status === "on"
+                  ? "bg-ehs-green/14 text-ehs-green"
+                  : "bg-ehs-red/14 text-ehs-red",
               ].join(" ")}
-              aria-hidden="true"
-            />
-            {status === "on" ? "On target" : "Off target"}
-          </span>
+            >
+              <span
+                className={[
+                  "size-1.5 rounded-[3px]",
+                  status === "on" ? "bg-ehs-green" : "bg-ehs-red",
+                ].join(" ")}
+                aria-hidden="true"
+              />
+              {status === "on" ? "On target" : "Off target"}
+            </span>
+          ) : null}
         </div>
 
         <div className="flex items-end justify-between gap-3">

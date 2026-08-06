@@ -8,11 +8,13 @@ export type HeroKpiMetric = Readonly<{
   subtitle: string;
   value: string;
   unit?: string;
-  target: number;
+  target: number | null;
   current: number;
-  targetLabel: string;
+  targetLabel: string | null;
   direction: TargetDirection;
   chartData: readonly number[];
+  /** When omitted, derived from target/current. Null hides the status pill. */
+  status?: TargetStatus | null;
 }>;
 
 export type SiteRecordable = Readonly<{
