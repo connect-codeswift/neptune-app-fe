@@ -136,13 +136,13 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         </span>
 
         <Text
-          as="span"
+          as="p"
           className={[
             "text-ehs-muted-text whitespace-nowrap",
             compact ? "text-xs" : "text-xs",
           ].join(" ")}
         >
-          {targetLabel}
+          {targetLabel ?? ""}
         </Text>
       </div>
     </div>
