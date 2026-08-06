@@ -1,4 +1,6 @@
 import type { SessionBootstrapDto, SessionSiteDto } from "@/dtos/res/session-response.dto";
+import { getAuthContext } from "@/lib/auth-context";
+import { getCurrentUser } from "@/lib/current-user";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -224,7 +226,81 @@ function normalizeSites(raw: unknown): SessionSiteDto[] {
     .filter((site): site is SessionSiteDto => site !== null);
 }
 
-/** Normalize GET /Auth/Org/me (and similar envelope payloads) for session bootstrap. */
+/** Normalize GET /Auth/Org/me — org-centric payload (`id` is organization id, not user id). */
+export function normalizeOrgMeResponse(data: unknown): SessionBootstrapDto | null {
+  const unwrapped = unwrapEnvelope(data);
+
+  if (!isRecord(unwrapped)) {
+    return null;
+  }
+
+  const sites = normalizeSites(readProp(unwrapped, "sites", "Sites"));
+
+  return mergeJwtUserIntoSession({
+    id: null,
+    fullName: null,
+    email: null,
+    role: null,
+    organizationId: asNumber(
+      readProp(unwrapped, "id", "Id", "organizationId", "OrganizationId"),
+    ),
+    organizationName: asString(
+      readProp(unwrapped, "name", "Name", "organizationName", "OrganizationName"),
+    ),
+    siteId: null,
+    siteName: null,
+    profileUrl: null,
+    activatedModules: extractActivatedModules(unwrapped),
+    permissions: [],
+    sites,
+    accessExpiresAt: asNullableString(
+      readProp(unwrapped, "accessExpiresAt", "AccessExpiresAt"),
+    ),
+    daysRemaining: asNullableNumber(
+      readProp(
+        unwrapped,
+        "daysRemaining",
+        "DaysRemaining",
+        "accessDaysRemaining",
+        "AccessDaysRemaining",
+      ),
+    ),
+    maxSeats: asNullableNumber(readProp(unwrapped, "maxSeats", "MaxSeats")),
+    maxSites: asNullableNumber(readProp(unwrapped, "maxSites", "MaxSites")),
+    seatsUsed: asNumber(readProp(unwrapped, "seatsUsed", "SeatsUsed")) ?? 0,
+    sitesUsed: asNumber(readProp(unwrapped, "sitesUsed", "SitesUsed")) ?? 0,
+    seatsAvailable: asNullableNumber(
+      readProp(unwrapped, "seatsAvailable", "SeatsAvailable"),
+    ),
+    sitesAvailable: asNullableNumber(
+      readProp(unwrapped, "sitesAvailable", "SitesAvailable"),
+    ),
+    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSeatLimit")),
+    atSiteLimit: Boolean(readProp(unwrapped, "atSiteLimit", "AtSiteLimit")),
+  });
+}
+
+/** Fill user/site identity from the access token after Org/me (which is org-scoped only). */
+export function mergeJwtUserIntoSession(
+  session: SessionBootstrapDto,
+): SessionBootstrapDto {
+  const auth = getAuthContext();
+  const currentUser = getCurrentUser();
+
+  return {
+    ...session,
+    id: auth?.userId ?? currentUser.userId ?? session.id,
+    fullName: auth?.fullName ?? session.fullName,
+    email: auth?.email ?? session.email,
+    role: currentUser.role ?? session.role,
+    siteId: auth?.siteId ?? session.siteId,
+    siteName: auth?.siteName ?? session.siteName,
+    organizationId: session.organizationId ?? auth?.organizationId ?? null,
+    organizationName: session.organizationName ?? auth?.organizationName ?? null,
+  };
+}
+
+/** Normalize GET /Auth/GetUserById and similar user-entity payloads. */
 export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | null {
   const unwrapped = unwrapEnvelope(data);
 
@@ -234,7 +310,7 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
 
   const sites = normalizeSites(readProp(unwrapped, "sites", "Sites"));
 
-  return {
+  return mergeJwtUserIntoSession({
     id: asNumber(readProp(unwrapped, "id", "Id", "userId", "UserId")),
     fullName: asString(readProp(unwrapped, "fullName", "FullName")),
     email: asString(readProp(unwrapped, "email", "Email")),
@@ -242,10 +318,10 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
       readProp(unwrapped, "role", "Role", "roleName", "RoleName"),
     ),
     organizationId: asNumber(
-      readProp(unwrapped, "organizationId", "OrganizationId", "id", "Id"),
+      readProp(unwrapped, "organizationId", "OrganizationId"),
     ),
     organizationName: asString(
-      readProp(unwrapped, "organizationName", "OrganizationName", "name", "Name"),
+      readProp(unwrapped, "organizationName", "OrganizationName"),
     ),
     siteId: asNumber(readProp(unwrapped, "siteId", "SiteId")),
     siteName: asString(readProp(unwrapped, "siteName", "SiteName")),
@@ -277,9 +353,9 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     sitesAvailable: asNullableNumber(
       readProp(unwrapped, "sitesAvailable", "SitesAvailable"),
     ),
-    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSeatLimit")),
+    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSiteLimit")),
     atSiteLimit: Boolean(readProp(unwrapped, "atSiteLimit", "AtSiteLimit")),
-  };
+  });
 }
 
 export function mergePermissionSets(

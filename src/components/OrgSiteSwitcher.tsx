@@ -24,13 +24,20 @@ export function OrgSiteSwitcher(props: Readonly<OrgSiteSwitcherProps>) {
     [sites],
   );
 
-  if (isLoading || !user.organizationName) {
+  const organizationName =
+    user.organizationName ?? authContext?.organizationName ?? null;
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!organizationName || switcherSites.length === 0) {
     return null;
   }
 
   return (
     <SiteSwitcher
-      company={user.organizationName}
+      company={organizationName}
       sites={switcherSites}
       selectedSiteId={selectedSiteId}
       className={className}

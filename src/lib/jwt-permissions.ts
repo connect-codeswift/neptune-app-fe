@@ -77,5 +77,10 @@ export function isAdminRole(role: string | null | undefined): boolean {
   }
 
   const normalized = role.trim().toLowerCase().replace(/\s+/g, " ");
-  return normalized === "admin" || normalized === "system admin";
+  return (
+    normalized === "admin" ||
+    normalized === "system admin" ||
+    normalized === "primary_admin" ||
+    normalized === "primary admin"
+  );
 }
