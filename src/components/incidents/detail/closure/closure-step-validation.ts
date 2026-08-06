@@ -4,10 +4,10 @@ import type { IncidentClosureData } from "@/components/incidents/detail/incident
 function getDerivedRecordable(finalIncidentType: string): boolean {
   switch (finalIncidentType) {
     case "Near Miss":
-    case "First Aid Only":
+    case "First Aid":
       return false;
-    case "Medical Treatment Only":
-    case "Restricted Work / Job Transfer":
+    case "Medical Only":
+    case "Restricted Work":
     case "Lost Time":
     case "Fatality":
       return true;
@@ -31,7 +31,7 @@ export function validateClosureStepOne(
   }
 
   if (
-    incidentType === "Restricted Work / Job Transfer" &&
+    incidentType === "Restricted Work" &&
     data.daysOnRestrictedDuty < 1
   ) {
     return "Restricted Work / Job Transfer requires at least 1 day on restricted duty.";

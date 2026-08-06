@@ -1,16 +1,27 @@
 import {
   AI_TEXT_MAX_CHARS,
   type IncidentDraftRequestDto,
-  type ProofreadRequestDto,
+  type RewriteRequestDto,
 } from "@/dtos/req/ai-text-request.dto";
 import type {
   IncidentDraftResultDto,
-  ProofreadResultDto,
+  RewriteResultDto,
 } from "@/dtos/res/ai-text-response.dto";
 import http from "@/lib/axios";
 
-const PROOFREAD_PATH = "/Incident/proofread";
 const DRAFT_ASSIST_PATH = "/Incident/draft-assist";
+
+/**
+ * The two rewrite operations. Same request and response shape, same error
+ * handling, same rate-limit bucket — they differ only in path and in what the
+ * model is told to do, so they share one function rather than two near-copies.
+ */
+export const REWRITE_PATHS = {
+  proofread: "/Incident/proofread",
+  paraphrase: "/Incident/paraphrase",
+} as const;
+
+export type RewriteOperation = keyof typeof REWRITE_PATHS;
 
 /**
  * Model calls run 3-4s in practice against a 30s server-side ceiling. The
@@ -47,7 +58,7 @@ export class AiAssistError extends Error {
       case 403:
         return "not authorised — token expired, or the role lacks Incident.Create";
       case 429:
-        return "rate limited — 12 assist calls/min per user; check the Retry-After header";
+        return "rate limited — 20 assist calls/min per user, shared across proofread, paraphrase and draft-assist; check the Retry-After header";
       case 503:
         return "Ai__ApiKey is not set on this environment, so the endpoint is inert";
       case 500:
@@ -92,7 +103,9 @@ function readString(source: unknown, key: string): string | null {
  */
 export function logAiAssistFailure(label: string, error: unknown): void {
   if (error instanceof AiAssistError) {
-    console.warn(`[ai-assist] ${label} failed (${error.status ?? "no status"}): ${error.diagnostic}`);
+    console.warn(
+      `[ai-assist] ${label} failed (${error.status ?? "no status"}): ${error.diagnostic}`,
+    );
     return;
   }
 
@@ -107,16 +120,27 @@ function toStatus(error: unknown): number | undefined {
   return undefined;
 }
 
-/** Cleans up grammar and clarity without changing meaning. Never persists. */
-export async function proofreadText(text: string): Promise<string> {
-  const body: ProofreadRequestDto = { text: text.slice(0, AI_TEXT_MAX_CHARS) };
+/**
+ * Rewrites one field's text. Never persists.
+ *
+ * `proofread` corrects spelling, grammar and punctuation only — it does not
+ * restructure, and returns the text unchanged when nothing is wrong.
+ * `paraphrase` rewrites more freely: run-ons merged, events ordered
+ * chronologically, casual phrasing lifted into report register and blame
+ * language removed, with every fact and every hedge preserved.
+ */
+export async function rewriteText(
+  operation: RewriteOperation,
+  text: string,
+): Promise<string> {
+  const body: RewriteRequestDto = { text: text.slice(0, AI_TEXT_MAX_CHARS) };
 
   try {
-    const { data } = await http.post<unknown>(PROOFREAD_PATH, body, {
+    const { data } = await http.post<unknown>(REWRITE_PATHS[operation], body, {
       timeout: AI_REQUEST_TIMEOUT_MS,
     });
 
-    const result = unwrapDataModel(data) as ProofreadResultDto | null;
+    const result = unwrapDataModel(data) as RewriteResultDto | null;
     const rewritten = readString(result, "rewrittenText");
 
     if (!rewritten) {
@@ -132,29 +156,33 @@ export async function proofreadText(text: string): Promise<string> {
 }
 
 /**
- * Injury description, action notes and follow-up suggestions in one call,
- * fired when the reporter leaves step 2. One call rather than three keeps the
- * drafts consistent with each other and avoids a per-field round trip.
+ * Description, injury description and action notes in one call.
+ *
+ * Every field is optional and blanks are dropped rather than sent as empty
+ * strings the model then has to interpret — an empty label reads as a fact
+ * about the incident, not as an absent one. An entirely empty body is a 400,
+ * so callers must send something.
  */
 export async function draftIncidentAssist(
   input: Readonly<IncidentDraftRequestDto>,
 ): Promise<IncidentDraftResultDto> {
-  const body: IncidentDraftRequestDto = {
-    description: input.description.slice(0, AI_TEXT_MAX_CHARS),
-  };
+  const body: IncidentDraftRequestDto = {};
 
-  // Omitted entirely when blank rather than sent as an empty label the model
-  // then has to interpret.
-  if (input.severity?.trim()) {
-    body.severity = input.severity.trim();
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === "string" && value.trim()) {
+      body[key as keyof IncidentDraftRequestDto] =
+        key === "description"
+          ? value.slice(0, AI_TEXT_MAX_CHARS)
+          : value.trim();
+    }
   }
 
-  if (input.location?.trim()) {
-    body.location = input.location.trim();
+  if (input.injuredBodyPart?.trim()) {
+    body.injuredBodyPart = input.injuredBodyPart.trim();
   }
 
-  if (input.incidentAt) {
-    body.incidentAt = input.incidentAt;
+  if (input.injuryLevel?.trim()) {
+    body.injuryLevel = input.injuryLevel.trim();
   }
 
   try {
@@ -168,19 +196,10 @@ export async function draftIncidentAssist(
       throw new AiAssistError();
     }
 
-    const followUps = Array.isArray(result.suggestedFollowUps)
-      ? result.suggestedFollowUps
-          .filter(
-            (item): item is string =>
-              typeof item === "string" && item.trim() !== "",
-          )
-          .map((item) => item.trim())
-      : [];
-
     return {
+      description: readString(result, "description"),
       injuryDescription: readString(result, "injuryDescription"),
       actionNotes: readString(result, "actionNotes"),
-      suggestedFollowUps: followUps,
     };
   } catch (error) {
     throw error instanceof AiAssistError

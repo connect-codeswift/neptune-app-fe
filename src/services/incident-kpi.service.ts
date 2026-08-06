@@ -4,18 +4,22 @@ import type {
 } from "@/dtos/req/incident-kpi-request.dto";
 import type {
   GetHeaderKpiResponseDto,
+  GetIncidentDashboardKpisResponseDto,
   GetIncidentListKpisResponseDto,
   GetKpiTargetsResponseDto,
   GetSiteWorkHoursResponseDto,
+  IncidentDashboardKpisDto,
   KpiTargetDto,
   SaveKpiTargetResponseDto,
   SaveSiteWorkHoursResponseDto,
   SiteWorkHoursDto,
 } from "@/dtos/res/incident-kpi-response.dto";
+import { normalizeIncidentDashboardKpisDto } from "@/services/mappers/incident-dashboard.mapper";
 import http from "@/lib/axios";
 
 const INCIDENT_HEADER_KPI_PATH = "/Incident/GetHeaderKpi";
 const INCIDENT_LIST_KPI_PATH = "/Incident/GetIncidentListKpis";
+const INCIDENT_DASHBOARD_KPIS_PATH = "/Incident/dashboard-kpis";
 const INCIDENT_KPI_TARGETS_PATH = "/Incident/kpi-targets";
 const INCIDENT_SITE_WORK_HOURS_PATH = "/Incident/site-work-hours";
 
@@ -175,6 +179,26 @@ export async function getIncidentListKpis() {
   }
 
   return data;
+}
+
+/** GET /api/Incident/dashboard-kpis */
+export async function getIncidentDashboardKpis(): Promise<
+  GetIncidentDashboardKpisResponseDto & {
+    dataModel: IncidentDashboardKpisDto | null;
+  }
+> {
+  const { data } = await http.get<GetIncidentDashboardKpisResponseDto>(
+    INCIDENT_DASHBOARD_KPIS_PATH,
+  );
+
+  if (!data.success) {
+    throw new Error(data.message || "Failed to load incident dashboard KPIs.");
+  }
+
+  return {
+    ...data,
+    dataModel: normalizeIncidentDashboardKpisDto(data.dataModel),
+  };
 }
 
 /** GET /api/Incident/kpi-targets */

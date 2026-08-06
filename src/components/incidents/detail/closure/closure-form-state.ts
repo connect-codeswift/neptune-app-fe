@@ -70,7 +70,7 @@ export function createInitialClosureData(
     closureDate: formatShortDateTime(new Date()),
     durationOpen: "—",
     finalIncidentType: options.finalIncidentType ?? "Select option",
-    sifClassification: "Not SIF",
+    sifClassification: "Non-SIF",
     daysAwayFromWork: 0,
     daysOnRestrictedDuty: 0,
     isOshaRecordable: false,
