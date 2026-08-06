@@ -18,29 +18,35 @@ const injuryMixCardShellClass =
 
 function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>) {
   const { items, total } = props;
-  const segmentTotal = items.reduce((sum, item) => sum + item.value, 0) || 1;
+  const mixTotal = items.reduce((sum, item) => sum + item.value, 0);
+  const hasMixData = mixTotal > 0;
 
-  const segments = items.reduce<
-    ReadonlyArray<{
-      label: string;
-      color: string;
-      length: number;
-      offset: number;
-    }>
-  >((accumulated, item) => {
-    const length = (item.value / segmentTotal) * CIRCUMFERENCE;
-    const offset = accumulated.reduce((sum, segment) => sum + segment.length, 0);
+  const segments = hasMixData
+    ? items.reduce<
+        ReadonlyArray<{
+          label: string;
+          color: string;
+          length: number;
+          offset: number;
+        }>
+      >((accumulated, item) => {
+        const length = (item.value / mixTotal) * CIRCUMFERENCE;
+        const offset = accumulated.reduce(
+          (sum, segment) => sum + segment.length,
+          0,
+        );
 
-    return [
-      ...accumulated,
-      {
-        label: item.label,
-        color: item.color,
-        length,
-        offset,
-      },
-    ];
-  }, []);
+        return [
+          ...accumulated,
+          {
+            label: item.label,
+            color: item.color,
+            length,
+            offset,
+          },
+        ];
+      }, [])
+    : [];
 
   return (
     <div className="relative size-[132px] shrink-0">
@@ -50,20 +56,32 @@ function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: nu
         role="img"
         aria-label="Recordable injury mix"
       >
-        {segments.map((segment) => (
+        {hasMixData ? (
+          segments.map((segment) => (
+            <circle
+              key={segment.label}
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke={segment.color}
+              strokeWidth={STROKE}
+              strokeDasharray={`${segment.length} ${CIRCUMFERENCE - segment.length}`}
+              strokeDashoffset={-segment.offset}
+              strokeLinecap="butt"
+            />
+          ))
+        ) : (
           <circle
-            key={segment.label}
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke={segment.color}
+            stroke="rgba(136, 146, 163, 0.18)"
             strokeWidth={STROKE}
-            strokeDasharray={`${segment.length} ${CIRCUMFERENCE - segment.length}`}
-            strokeDashoffset={-segment.offset}
-            strokeLinecap="butt"
+            aria-hidden="true"
           />
-        ))}
+        )}
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-[2px]">

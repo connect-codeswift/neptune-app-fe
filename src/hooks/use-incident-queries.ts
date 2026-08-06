@@ -18,13 +18,12 @@ export const incidentQueryKeys = {
     /** Server-side filters — part of the key so each filter set caches apart. */
     search: string;
     severity: string;
-    stage: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
   detail: (params: {
     id: number;
     userId: number;
     siteId: number;
-  }) => [...incidentQueryKeys.all, "detail", "v6", params] as const,
+  }) => [...incidentQueryKeys.all, "detail", "v7", params] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 
@@ -41,8 +40,6 @@ export type UseIncidentsListQueryOptions = Readonly<{
   pageSize?: number;
   /** Substring match on description / location, applied server-side. */
   search?: string;
-  /** Workflow stage filter, applied server-side. */
-  stage?: string;
   /** Severity filter, applied server-side. */
   severity?: string;
   /** Parent should enable only after client mount + token check. */
@@ -51,7 +48,7 @@ export type UseIncidentsListQueryOptions = Readonly<{
 
 /**
  * Loads incidents via POST /api/Incident/GetAllIncidents
- * body: `{ pageNumber, pageSize, search?, stage?, severity?, site? }`
+ * body: `{ pageNumber, pageSize, search?, severity?, site? }`
  * Tenant scope is resolved from the JWT — not sent in the body.
  */
 export function useIncidentsListQuery(
@@ -61,7 +58,6 @@ export function useIncidentsListQuery(
   const pageSize = options.pageSize ?? DEFAULT_INCIDENTS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
-  const stage = options.stage?.trim() ?? "";
   const severity = options.severity?.trim() ?? "";
 
   return useQuery({
@@ -70,7 +66,6 @@ export function useIncidentsListQuery(
       pageSize,
       search,
       severity,
-      stage,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -79,7 +74,6 @@ export function useIncidentsListQuery(
         pageNumber,
         pageSize,
         ...(search ? { search } : {}),
-        ...(stage ? { stage } : {}),
         ...(severity ? { severity } : {}),
       });
 
@@ -95,6 +89,8 @@ export type UseIncidentByIdQueryOptions = Readonly<{
   id: number | null;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
+  /** Refetch on every mount — use for list preview panel so state stays in sync. */
+  alwaysFresh?: boolean;
 }>;
 
 /**
@@ -105,6 +101,7 @@ export type UseIncidentByIdQueryOptions = Readonly<{
 export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
   const id = options.id;
   const enabled = (options.enabled ?? false) && id != null && id > 0;
+  const alwaysFresh = options.alwaysFresh ?? false;
 
   const auth = enabled ? getAuthContext() : null;
   const userId = auth?.userId ?? 0;
@@ -117,6 +114,8 @@ export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
       siteId,
     }),
     enabled,
+    staleTime: alwaysFresh ? 0 : undefined,
+    refetchOnMount: alwaysFresh ? "always" : undefined,
     queryFn: async () => {
       if (id == null || id <= 0) {
         return null;

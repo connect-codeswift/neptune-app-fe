@@ -119,19 +119,45 @@ function attachAuthHeader(config: InternalAxiosRequestConfig) {
   return config;
 }
 
+/** Flattens ASP.NET ValidationProblemDetails.errors into one readable line. */
+function readValidationErrors(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) return null;
+
+  const errors = (data as { errors?: unknown }).errors;
+  if (typeof errors !== "object" || errors === null) return null;
+
+  const messages = Object.values(errors as Record<string, unknown>)
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter(
+      (value): value is string => typeof value === "string" && !!value.trim(),
+    );
+
+  return messages.length > 0 ? messages.join(" ") : null;
+}
+
 function toApiError(
-  error: AxiosError<{ message?: string; Message?: string }>,
+  error: AxiosError<{
+    message?: string;
+    Message?: string;
+    title?: string;
+    errors?: Record<string, string[]>;
+  }>,
 ): ApiError {
+  const data = error.response?.data;
+
   return {
-    // The backend returns `message` on success-path envelopes but `Message`
-    // on ones thrown by its exception middleware.
+    // The backend returns `message` on success-path envelopes, `Message` on ones
+    // thrown by its exception middleware, and neither on [ApiController]'s
+    // automatic model-validation 400 — that shape carries `errors` and `title`.
     message:
-      error.response?.data?.message ??
-      error.response?.data?.Message ??
+      data?.message ??
+      data?.Message ??
+      readValidationErrors(data) ??
+      data?.title ??
       error.message ??
       "Something went wrong. Please try again.",
     status: error.response?.status,
-    data: error.response?.data,
+    data,
   };
 }
 

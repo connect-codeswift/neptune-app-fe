@@ -26,12 +26,7 @@ function buildYTicks(yMax: number): readonly number[] {
   return [0, mid, yMax];
 }
 
-function getPoint(
-  value: number,
-  index: number,
-  count: number,
-  yMax: number,
-) {
+function getPoint(value: number, index: number, count: number, yMax: number) {
   const plotWidth = CHART.width - CHART.padLeft - CHART.padRight;
   const plotHeight = CHART.height - CHART.padTop - CHART.padBottom;
   const x = CHART.padLeft + (index / Math.max(count - 1, 1)) * plotWidth;
@@ -40,15 +35,16 @@ function getPoint(
   return { x, y };
 }
 
-function RecordablesLineChart(props: Readonly<{ chart: RecordableChartViewModel }>) {
+function RecordablesLineChart(
+  props: Readonly<{ chart: RecordableChartViewModel }>,
+) {
   const { chart } = props;
   const { months, series, target, yMax } = chart;
   const count = Math.max(series.length, 1);
   const points = series.map((value, index) =>
     getPoint(value, index, count, yMax),
   );
-  const targetY =
-    target != null ? getPoint(target, 0, count, yMax).y : null;
+  const targetY = target != null ? getPoint(target, 0, count, yMax).y : null;
   const yTicks = buildYTicks(yMax);
 
   const linePath = points
@@ -64,8 +60,7 @@ function RecordablesLineChart(props: Readonly<{ chart: RecordableChartViewModel 
       : "";
 
   const trendImproving =
-    series.length >= 2 &&
-    (series.at(-1) ?? 0) <= (series.at(-2) ?? 0);
+    series.length >= 2 && (series.at(-1) ?? 0) <= (series.at(-2) ?? 0);
 
   return (
     <>

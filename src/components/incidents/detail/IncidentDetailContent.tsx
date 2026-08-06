@@ -15,6 +15,7 @@ import {
   createInitialClosureData,
   resetClosureWizardFields,
 } from "@/components/incidents/detail/closure/closure-form-state";
+import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/closure-classification-options";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
@@ -217,7 +218,7 @@ export function IncidentDetailContent(
         ...prev,
         finalIncidentType:
           prev.finalIncidentType === "Select option"
-            ? intakeType || "Near Miss"
+            ? toCanonicalIncidentType(intakeType)
             : prev.finalIncidentType,
         closedBy: prev.closedBy || getAuthDisplayName() || "EHS User",
         approverName: prev.approverName || getAuthDisplayName() || "EHS User",
@@ -347,7 +348,16 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
+  useEffect(() => {
+    if (detail?.isClosed && activeTab === "closure") {
+      setActiveTab("details");
+    }
+  }, [activeTab, detail?.isClosed]);
+
   const handleTabChange = (tab: TabId) => {
+    if (tab === "closure" && detail?.isClosed) {
+      return;
+    }
     if (
       (editScope === "details" && tab !== "details") ||
       (editScope === "people" && tab !== "people") ||
@@ -744,8 +754,7 @@ export function IncidentDetailContent(
 
         setClosureData((prev) =>
           resetClosureWizardFields(prev, {
-            finalIncidentType:
-              intakeType && intakeType !== "—" ? intakeType : "Select option",
+            finalIncidentType: toCanonicalIncidentType(intakeType),
           }),
         );
       }}
@@ -792,6 +801,7 @@ export function IncidentDetailContent(
             data: updatedData,
           });
           await closeIncidentMutation.mutateAsync(targetId);
+          await closureQuery.refetch();
           toast.success(
             "Incident Officially Closed",
             `Incident ${displayId} has been successfully closed and verified.`,
