@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getUserDropdown,
+  getUserGenderById,
   getUsersBySiteId,
   type SiteUsersParams,
 } from "@/services/user.service";
@@ -32,5 +33,21 @@ export function useSiteUsersQuery(
     queryFn: () => getUsersBySiteId(siteId, params),
     enabled: enabled && siteId > 0,
     staleTime: SITE_USERS_STALE_TIME_MS,
+  });
+}
+
+/**
+ * One user's gender, for filling the incident form's Gender from the affected
+ * person's own record.
+ *
+ * A person's gender does not change between page loads, so this is cached for
+ * the session — picking the same colleague twice costs one request, not two.
+ */
+export function useUserGenderQuery(userId: number, enabled = true) {
+  return useQuery({
+    queryKey: ["user", "gender", userId] as const,
+    queryFn: () => getUserGenderById(userId),
+    enabled: enabled && userId > 0,
+    staleTime: Infinity,
   });
 }

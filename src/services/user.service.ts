@@ -72,6 +72,40 @@ export async function getUsersBySiteId(
   return (data.dataModel?.data ?? []).filter((user) => !user.isDrop);
 }
 
+/**
+ * The one field of a user record the incident form needs: their gender.
+ *
+ * Separate from `getUserById` on purpose. `GET /Auth/GetUserById/{id}` returns
+ * the entire row — `passwordHash`, `resetOtp`, `totpSecret` — and none of that
+ * should be sitting in a React Query cache in the browser because a form wanted
+ * one string. This reads the field and drops the rest on the floor.
+ *
+ * It exists at all only because `GET /Auth/GetUsersBySiteId/{siteId}` doesn't
+ * project `gender`, so the picker can't read it off the roster row it already
+ * has. Once that endpoint carries it this whole call goes away — the caller
+ * checks the row first and only falls back to here.
+ */
+export async function getUserGenderById(userId: number): Promise<string> {
+  const { data } = await http.get<ApiEnvelopeDto<unknown>>(
+    `${AUTH_GET_USER_BY_ID_PATH}/${String(userId)}`,
+  );
+
+  const model = data.dataModel;
+  if (typeof model !== "object" || model === null) {
+    return "";
+  }
+
+  const record = model as Record<string, unknown>;
+  for (const key of ["gender", "Gender", "sex", "Sex"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
 /** GET /Auth/GetUserById/{id} — fallback when Org/me is unavailable. */
 export async function getUserById(
   userId: number,

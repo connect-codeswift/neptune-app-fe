@@ -9,6 +9,7 @@ import {
   CLASSIFICATION_FIELDS,
   GENDER_OPTIONS,
   YES_NO_OPTIONS,
+  normalizeGender,
   oshaRecordableForSeverity,
   type ReportIncidentFormState,
   type SeverityId,
@@ -31,6 +32,7 @@ import {
 } from "@/components/incidents/report/shared/report-date-time";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { useUserGenderQuery } from "@/hooks/use-user-queries";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 
@@ -151,6 +153,38 @@ export function ReportIncidentStepOne(
 
   const site = useCurrentSite();
 
+  // `GET /Auth/GetUsersBySiteId` doesn't project `gender`, so the roster row the
+  // picker already holds can't answer this and the person has to be looked up
+  // one at a time. Skipped entirely when the row does carry a gender, so this
+  // stops firing the day that endpoint includes the field.
+  const needsGenderLookup =
+    form.affectedPersonId !== "" &&
+    form.genderSourceUserId !== form.affectedPersonId;
+  const genderQuery = useUserGenderQuery(
+    Number(form.affectedPersonId) || 0,
+    needsGenderLookup,
+  );
+
+  useEffect(() => {
+    if (!needsGenderLookup || genderQuery.isPending) {
+      return;
+    }
+
+    // Latch on the person either way. A record with no gender is an answer too
+    // — without recording it, this would re-ask on every render.
+    const resolved = normalizeGender(genderQuery.data);
+    onChange({
+      genderSourceUserId: form.affectedPersonId,
+      ...(resolved ? { gender: resolved, genderFromProfile: true } : {}),
+    });
+  }, [
+    needsGenderLookup,
+    genderQuery.isPending,
+    genderQuery.data,
+    form.affectedPersonId,
+    onChange,
+  ]);
+
   // Plant / Location is the reporter's own site, not a question. Stamped here
   // rather than in the initial form state because the site name arrives with
   // the session query, which resolves after this form first renders.
@@ -207,18 +241,25 @@ export function ReportIncidentStepOne(
       affectedPersonId: person.userId,
     };
 
+    // The roster row already knows — no lookup needed.
     if (person.gender) {
-      onChange({ ...identity, gender: person.gender, genderFromProfile: true });
+      onChange({
+        ...identity,
+        gender: person.gender,
+        genderFromProfile: true,
+        genderSourceUserId: person.userId,
+      });
       return;
     }
 
-    // The value stays for the reporter to correct, but it can no longer claim
-    // to have come from this person's profile.
-    onChange(
-      form.genderFromProfile
-        ? { ...identity, genderFromProfile: false }
-        : identity,
-    );
+    // Otherwise leave the current answer alone and let the lookup above settle
+    // it. Clearing the latch is what lets a new person be looked up; dropping
+    // the flag stops the hint claiming this value came from them before it has.
+    onChange({
+      ...identity,
+      genderFromProfile: false,
+      genderSourceUserId: "",
+    });
   };
 
   const handleContinue = () => {
@@ -292,8 +333,15 @@ export function ReportIncidentStepOne(
               // being typed reads as a bug unless it explains itself.
               hint={form.genderFromProfile ? "From their profile" : undefined}
               value={form.gender}
+              // Latch the lookup on the way past: a reporter correcting an
+              // auto-filled answer must not have it overwritten when the same
+              // query settles again.
               onChange={(gender) =>
-                onChange({ gender, genderFromProfile: false })
+                onChange({
+                  gender,
+                  genderFromProfile: false,
+                  genderSourceUserId: form.affectedPersonId,
+                })
               }
               options={[...GENDER_OPTIONS]}
             />

@@ -37,21 +37,6 @@ export type AiAssistedFieldName =
   | "actionNotes";
 
 /**
- * One follow-up action in the Immediate Response step.
- *
- * Unselected items stay in state and are still submitted — declining a
- * suggestion is information worth keeping, and it is the only way "the
- * assistant proposed this and a human rejected it" stays answerable.
- */
-export type ReportFollowUpItem = Readonly<{
-  /** Client-side key only. Never sent; the backend assigns real ids. */
-  id: string;
-  text: string;
-  isAiSuggested: boolean;
-  isSelected: boolean;
-}>;
-
-/**
  * Drafts from one `draft-assist` call, held until the reporter accepts or
  * dismisses each one. `null` means either "the model returned nothing for this
  * field" or "already dealt with" — both render as nothing at all, which is the
@@ -73,43 +58,6 @@ export function markAiAssisted(
   field: AiAssistedFieldName,
 ): readonly AiAssistedFieldName[] {
   return current.includes(field) ? current : [...current, field];
-}
-
-let followUpKeySeq = 0;
-
-/**
- * Ids are generated in event handlers only, never during render, so they can't
- * cause a hydration mismatch.
- */
-export function createFollowUpItem(
-  text: string,
-  options: Readonly<{ isAiSuggested: boolean; isSelected?: boolean }>,
-): ReportFollowUpItem {
-  followUpKeySeq += 1;
-
-  return {
-    id: `follow-up-${String(followUpKeySeq)}`,
-    text,
-    isAiSuggested: options.isAiSuggested,
-    isSelected: options.isSelected ?? true,
-  };
-}
-
-/**
- * Replaces the AI-suggested follow-ups with a fresh set while keeping every
- * item the reporter typed themselves. Regenerating a draft must never discard
- * their own work.
- */
-export function replaceAiFollowUps(
-  current: readonly ReportFollowUpItem[],
-  suggestions: readonly string[],
-): readonly ReportFollowUpItem[] {
-  const own = current.filter((item) => !item.isAiSuggested);
-  const suggested = suggestions.map((text) =>
-    createFollowUpItem(text, { isAiSuggested: true }),
-  );
-
-  return [...suggested, ...own];
 }
 
 export type ReportIncidentFormState = Readonly<{
@@ -151,10 +99,19 @@ export type ReportIncidentFormState = Readonly<{
   /**
    * True while `gender` is the value read off the affected person's own record
    * rather than one the reporter chose. Drives the "From their profile" hint,
-   * and is cleared the moment either the person or the answer changes — a
-   * stale provenance claim is worse than none on a regulated record.
+   * and is cleared the moment the reporter picks a different answer — a stale
+   * provenance claim is worse than none on a regulated record.
    */
   genderFromProfile: boolean;
+  /**
+   * Which affected person the current `gender` has already been resolved for.
+   *
+   * Separate from the flag above because they answer different questions: this
+   * is "stop looking", the flag is "say where it came from". Without it a
+   * reporter who corrects an auto-filled gender would have their correction
+   * overwritten the moment the same lookup settled again.
+   */
+  genderSourceUserId: string;
   bodyParts: readonly BodyPartId[];
   /**
    * Free-text parts the reporter added because the anatomical list didn't
@@ -171,8 +128,6 @@ export type ReportIncidentFormState = Readonly<{
   injuryDescription: string;
   immediateActions: readonly string[];
   actionNotes: string;
-  /** AI-suggested and reporter-typed follow-ups, selected or not. */
-  followUps: readonly ReportFollowUpItem[];
   /**
    * Which fields the reporter accepted an AI draft into. Marked on Accept and
    * kept marked even if they then edit the text — partial provenance is the
@@ -262,6 +217,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     injuryLevel: "no-injury",
     gender: "",
     genderFromProfile: false,
+    genderSourceUserId: "",
     bodyParts: [],
     customBodyParts: [],
     bodySide: "Left",
@@ -270,7 +226,6 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     injuryDescription: "",
     immediateActions: [],
     actionNotes: "",
-    followUps: [],
     aiAssistedFields: [],
     aiDrafts: EMPTY_AI_DRAFTS,
     aiDraftSource: "",
