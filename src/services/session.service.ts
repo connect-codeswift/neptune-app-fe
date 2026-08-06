@@ -19,6 +19,7 @@ function mapUserByIdFallback(
     organizationName: user.organizationName,
     siteId: authContext?.siteId ?? null,
     siteName: authContext?.siteName ?? null,
+    profileUrl: user.profileUrl ?? null,
     activatedModules: user.activatedModules,
     permissions: [],
     sites: user.sites,
@@ -34,6 +35,16 @@ export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
     const session = await getOrgMe();
 
     if (session) {
+      if (!session.profileUrl) {
+        const userId = session.id ?? getAuthContext()?.userId ?? 0;
+        if (userId > 0) {
+          const user = await getUserById(userId);
+          if (user?.profileUrl) {
+            return { ...session, profileUrl: user.profileUrl };
+          }
+        }
+      }
+
       return session;
     }
   } catch {

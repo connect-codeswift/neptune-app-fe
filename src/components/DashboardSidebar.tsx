@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
@@ -91,20 +92,33 @@ function SidebarUserFooter(
   props: Readonly<{
     displayName: string;
     initials: string;
+    profileUrl: string | null;
     role: string;
     siteName: string | null;
   }>,
 ) {
-  const { displayName, initials, role, siteName } = props;
+  const { displayName, initials, profileUrl, role, siteName } = props;
 
   return (
     <>
-      <div
-        className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
-        aria-hidden="true"
-      >
-        {initials}
-      </div>
+      {profileUrl ? (
+        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
+          <Image
+            src={profileUrl}
+            alt=""
+            fill
+            sizes="36px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div
+          className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+          aria-hidden="true"
+        >
+          {initials}
+        </div>
+      )}
       <div className="min-w-0">
         <Text
           as="p"
@@ -186,6 +200,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               <SidebarUserFooter
                 displayName={user.displayName}
                 initials={user.initials}
+                profileUrl={user.profileUrl}
                 role={user.role}
                 siteName={user.siteName}
               />

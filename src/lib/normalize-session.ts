@@ -233,6 +233,9 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     ),
     siteId: asNumber(readProp(unwrapped, "siteId", "SiteId")),
     siteName: asString(readProp(unwrapped, "siteName", "SiteName")),
+    profileUrl: asString(
+      readProp(unwrapped, "profileUrl", "ProfileUrl"),
+    ),
     activatedModules: extractActivatedModules(unwrapped),
     permissions: extractPermissions(unwrapped),
     sites,

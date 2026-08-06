@@ -28,6 +28,7 @@ function mapSessionToUserDto(
     organizationId: session.organizationId ?? 0,
     organizationName: session.organizationName ?? "",
     activatedModules: session.activatedModules ?? "",
+    profileUrl: session.profileUrl,
     sites: [...session.sites],
   };
 }

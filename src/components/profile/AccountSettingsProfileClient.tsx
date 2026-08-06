@@ -23,7 +23,9 @@ import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
+import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
+import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
 
 type ProfileFormState = Readonly<{
   firstName: string;
@@ -69,6 +71,7 @@ function buildInitialFormState(
 
 export function AccountSettingsProfileClient() {
   const { user, sites } = useSessionBootstrap();
+  const currentUser = getCurrentUser();
   const initialState = useMemo(
     () =>
       buildInitialFormState(
@@ -120,34 +123,11 @@ export function AccountSettingsProfileClient() {
             </Text>
           </div>
 
-          <div className="flex items-start gap-5 px-5 py-5">
-            <div
-              className="bg-ehs-normal-blue text-ehs-light-text flex size-20 shrink-0 items-center justify-center rounded-full text-2xl font-semibold"
-              aria-hidden="true"
-            >
-              {user.initials}
-            </div>
-
-            <div className="flex min-w-0 flex-col gap-2 pt-1">
-              <div className="flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  className="border-ehs-normal-blue text-ehs-normal-blue hover:bg-ehs-light-blue rounded-lg border bg-white px-4 py-2 text-sm font-semibold transition-colors"
-                >
-                  Upload Photo
-                </button>
-                <button
-                  type="button"
-                  className="text-ehs-gray hover:text-ehs-darker text-sm font-medium transition-colors"
-                >
-                  Remove
-                </button>
-              </div>
-              <Text as="p" className="text-ehs-muted-text text-xs">
-                Recommended: 200x200px, JPG or PNG
-              </Text>
-            </div>
-          </div>
+          <ProfileAvatarUpload
+            userId={currentUser.userId}
+            initials={user.initials}
+            profileUrl={user.profileUrl}
+          />
         </GlassCard>
 
         <GlassCard>
