@@ -20,4 +20,16 @@ export type SessionBootstrapDto = Readonly<{
   activatedModules: string | null;
   permissions: readonly string[];
   sites: readonly SessionSiteDto[];
+  /** UTC instant when org access ends; null = permanent. From GET /Auth/Org/me. */
+  accessExpiresAt: string | null;
+  /** Whole days left in the access window; null = permanent. Can be 0 on the final day. */
+  daysRemaining: number | null;
+  maxSeats: number | null;
+  maxSites: number | null;
+  seatsUsed: number;
+  sitesUsed: number;
+  seatsAvailable: number | null;
+  sitesAvailable: number | null;
+  atSeatLimit: boolean;
+  atSiteLimit: boolean;
 }>;

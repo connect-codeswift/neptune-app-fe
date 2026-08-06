@@ -5,6 +5,11 @@ import type {
   ResetPasswordRequestDto,
 } from "@/dtos/req/auth-request.dto";
 import type { LoginResponseDto } from "@/dtos/res/auth-response.dto";
+import {
+  readAccessWindowFromAuthPayload,
+  setCachedAccessWindow,
+  unwrapAuthPayload,
+} from "@/lib/access-window";
 import { buildRegisterRequest } from "@/lib/build-register-request";
 import http, {
   refreshAccessToken,
@@ -20,17 +25,49 @@ const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset pas
 const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
 const AUTH_LOGOUT_PATH = "/Auth/logout";
 
+function readLoginTokens(data: unknown): LoginResponseDto | null {
+  const payload = unwrapAuthPayload(data);
+
+  if (!payload) {
+    return null;
+  }
+
+  const accessToken = payload.accessToken ?? payload.AccessToken;
+  const refreshToken = payload.refreshToken ?? payload.RefreshToken;
+
+  if (typeof accessToken !== "string" || accessToken === "") {
+    return null;
+  }
+
+  const accessWindow = readAccessWindowFromAuthPayload(payload);
+
+  return {
+    accessToken,
+    refreshToken: typeof refreshToken === "string" ? refreshToken : "",
+    ...(accessWindow
+      ? {
+          accessDaysRemaining: accessWindow.daysRemaining,
+          accessExpiresAt: accessWindow.accessExpiresAt,
+        }
+      : {}),
+  };
+}
+
 export async function registerUser(payload: RegisterRequestDto) {
   await http.post(AUTH_REGISTER_PATH, payload);
 }
 
 export async function loginUser(credentials: LoginRequestDto) {
-  const { data } = await http.post<LoginResponseDto>(
-    AUTH_LOGIN_PATH,
-    credentials,
-  );
+  const { data } = await http.post<unknown>(AUTH_LOGIN_PATH, credentials);
+  const tokens = readLoginTokens(data);
 
-  return data;
+  if (!tokens) {
+    throw new Error(
+      `Login succeeded but returned no accessToken. Response keys: ${Object.keys((typeof data === "object" && data !== null ? data : {}) as object).join(", ") || "(none)"}`,
+    );
+  }
+
+  return tokens;
 }
 
 export async function authenticateUser(credentials: LoginRequestDto) {
@@ -47,6 +84,9 @@ export async function authenticateUser(credentials: LoginRequestDto) {
 
   setAccessToken(tokens.accessToken);
   setRefreshToken(tokens.refreshToken);
+
+  const accessWindow = readAccessWindowFromAuthPayload(tokens);
+  setCachedAccessWindow(accessWindow);
 
   return tokens;
 }

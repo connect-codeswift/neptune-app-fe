@@ -9,8 +9,6 @@ export type AiInFieldDraftProps = Readonly<{
   pending?: boolean;
   onAccept: (text: string) => void;
   onDismiss: () => void;
-  /** What produced the draft. Callers that composed it themselves must say so. */
-  label?: string;
 }>;
 
 /**
@@ -28,13 +26,7 @@ export type AiInFieldDraftProps = Readonly<{
  * the caret and the field looks broken rather than helpful.
  */
 export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
-  const {
-    draft,
-    pending = false,
-    onAccept,
-    onDismiss,
-    label = "AI draft",
-  } = props;
+  const { draft, pending = false, onAccept, onDismiss } = props;
 
   if (pending) {
     return (
@@ -82,7 +74,7 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
         <span className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5">
           <Icon icon="mdi:creation-outline" className="size-3 shrink-0" />
           <span className="text-[9.5px] font-bold tracking-[0.2px]">
-            {label}
+            AI draft
           </span>
         </span>
 
