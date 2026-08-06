@@ -53,3 +53,20 @@ export function userNameFor(
   const id = String(userId);
   return lookup?.get(id) ?? `User ${id}`;
 }
+
+/** Resolve subCompId for a dropdown user id — used when the JWT has no site claim. */
+export function toUserSubCompId(
+  items: readonly UserDropdownItemDto[],
+  userId: string,
+): number | null {
+  const match = items.find(
+    (item) =>
+      String(item.userId ?? item.id ?? item.value ?? "") === userId ||
+      String(item.id ?? "") === userId,
+  );
+
+  if (!match?.subCompId) return null;
+
+  const parsed = Number(match.subCompId);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}

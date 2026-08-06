@@ -204,10 +204,10 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
           {!searchonleft && searchPlaceholder ? (
             <SearchField
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={onSearchChange}
-          />
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={onSearchChange}
+            />
           ) : null}
 
           {companyName ? (

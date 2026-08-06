@@ -119,19 +119,64 @@ function attachAuthHeader(config: InternalAxiosRequestConfig) {
   return config;
 }
 
+/** Pull a user-facing message from common API error envelopes (incl. ASP.NET validation). */
+export function getApiErrorMessageFromData(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  const record = data as Record<string, unknown>;
+  const errors = record.errors;
+
+  if (typeof errors === "object" && errors !== null) {
+    const messages = Object.values(errors as Record<string, unknown>).flatMap(
+      (value) => {
+        if (Array.isArray(value)) {
+          return value.filter(
+            (item): item is string => typeof item === "string" && item.trim(),
+          );
+        }
+
+        if (typeof value === "string" && value.trim()) {
+          return [value];
+        }
+
+        return [];
+      },
+    );
+
+    if (messages.length > 0) {
+      return messages.join(" ");
+    }
+  }
+
+  if (typeof record.message === "string" && record.message.trim()) {
+    return record.message;
+  }
+
+  if (typeof record.Message === "string" && record.Message.trim()) {
+    return record.Message;
+  }
+
+  if (typeof record.title === "string" && record.title.trim()) {
+    return record.title;
+  }
+
+  return null;
+}
+
 function toApiError(
   error: AxiosError<{ message?: string; Message?: string }>,
 ): ApiError {
+  const data = error.response?.data;
+
   return {
-    // The backend returns `message` on success-path envelopes but `Message`
-    // on ones thrown by its exception middleware.
     message:
-      error.response?.data?.message ??
-      error.response?.data?.Message ??
+      getApiErrorMessageFromData(data) ??
       error.message ??
       "Something went wrong. Please try again.",
     status: error.response?.status,
-    data: error.response?.data,
+    data,
   };
 }
 

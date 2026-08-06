@@ -96,7 +96,7 @@ export type WalkTalkTrendsCardProps = Readonly<{
 export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
   const { className = "", weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS } = props;
   const graphQuery = useWalkTalkGraphQuery(weeks);
-
+  console.log(graphQuery.data);
   const points = useMemo(
     () => toWalkTalkTrendPoints(graphQuery.data?.dataModel),
     [graphQuery.data?.dataModel],
@@ -150,8 +150,7 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
                 tickLine={false}
                 axisLine={{ stroke: "#e5e7eb" }}
                 tickMargin={10}
-                interval="preserveStartEnd"
-                minTickGap={16}
+                interval={0}
               />
               <YAxis
                 domain={yScale.domain}
