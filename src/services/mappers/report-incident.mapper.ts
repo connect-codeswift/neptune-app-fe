@@ -200,11 +200,6 @@ function buildOtherNotes(form: ReportIncidentFormState): string {
     parts.push(`Witnesses: ${form.witnesses.trim()}`);
   }
 
-  // Follow-ups used to be concatenated in here as raw option ids
-  // ("root-cause, sop-review"), then moved to their own `followUps` field.
-  // The feature has since been removed from the form entirely, so there is
-  // nothing to write here either way.
-
   if (form.gender.trim()) {
     parts.push(`Gender: ${form.gender.trim()}`);
   }
@@ -397,17 +392,9 @@ export function mapReportFormToIncidentDto(
     // actually failing: a report filed with no immediate actions sent
     // `actionTaken: null` and got back a bare 400.
     actionTaken: buildActionTaken(source),
-    // Same rule. This one used to be hidden by follow-ups being concatenated
-    // in, which kept it populated on most reports; now that they travel
-    // separately as `followUps`, a report with no witnesses and no gender
-    // would 400 on every submit.
+    // Same rule. A report with no witnesses and no gender leaves this empty,
+    // which used to 400 on every submit.
     otherNotes: buildOtherNotes(source),
-    // The follow-up list was removed from step 4, so there are never any to
-    // send. Still an empty array and never null or omitted: `IncidentDto`
-    // declares `FollowUps` as a non-nullable reference type, so ASP.NET's
-    // implicit-required rule rejects a null with "The FollowUps field is
-    // required" — see EMPTY_NOT_NULL above.
-    followUps: [],
     aiAssistedFields: buildAiAssistedFields(source),
     isFitForFullDuty: source.isFitForFullDuty.trim() || "N/A",
     caseDisposition:

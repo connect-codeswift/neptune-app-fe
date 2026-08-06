@@ -1,0 +1,133 @@
+import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
+import type { ReportIncidentFormState } from "./report-incident-state";
+import { SEVERITY_OPTIONS } from "./report-severity";
+import { INJURY_LEVEL_OPTIONS } from "./report-injury-level";
+import { BODY_PART_OPTIONS } from "./report-body-parts";
+import {
+  INITIAL_TREATMENT_OPTIONS,
+  MECHANISM_OPTIONS,
+  NATURE_OF_INJURY_OPTIONS,
+} from "./report-treatment";
+import { parseReportDateTime } from "@/services/mappers/report-incident.mapper";
+
+/**
+ * The draft offered for "Describe incident in detail".
+ *
+ * Held outside `description` until accepted, so a draft can never be submitted
+ * by someone who simply didn't notice it sitting in the field.
+ */
+export type ReportDescriptionDraft = Readonly<{
+  text: string | null;
+  pending: boolean;
+  /** Fingerprint of the answers this draft was asked for; `""` before the first run. */
+  source: string;
+  /** Set once the reporter declines it or starts writing their own. */
+  dismissed: boolean;
+}>;
+
+export const EMPTY_DESCRIPTION_DRAFT: ReportDescriptionDraft = {
+  text: null,
+  pending: false,
+  source: "",
+  dismissed: false,
+};
+
+function optionLabel(
+  options: readonly { value: string; label: string }[],
+  value: string,
+): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return options.find((option) => option.value === trimmed)?.label ?? trimmed;
+}
+
+/**
+ * Turns the form into a draft-assist request.
+ *
+ * Labels throughout, never ids — the model reads these as prose, so `severity`
+ * goes as `"Serious"` and the classification answers as the `"Yes"` / `"No"`
+ * the reporter actually saw. Blank fields are left out: an empty string reads
+ * as a fact about the incident rather than an absent one.
+ */
+export function buildDraftAssistInput(
+  form: ReportIncidentFormState,
+): IncidentDraftRequestDto {
+  const bodyParts = [
+    ...form.bodyParts.map(
+      (id) => BODY_PART_OPTIONS.find((part) => part.id === id)?.label ?? id,
+    ),
+    ...(form.customBodyParts ?? []).filter((part) => part.trim()),
+  ].join(", ");
+
+  const input: IncidentDraftRequestDto = {
+    severity:
+      SEVERITY_OPTIONS.find((option) => option.id === form.severity)?.label ??
+      "",
+    location: form.location.trim(),
+    workRelated: form.classifications.workRelated ?? "",
+    fleetVehicleInvolved: form.classifications.fleet ?? "",
+    thirdPartyInvolved: form.classifications.tempWorker ?? "",
+    emergencyServicesCalled: form.classifications.emergency ?? "",
+    seriousIncident: form.classifications.serious ?? "",
+    mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, form.mechanismOfInjury),
+    natureOfInjury: optionLabel(NATURE_OF_INJURY_OPTIONS, form.natureOfInjury),
+    objectInvolved: form.objectInvolved.trim(),
+    initialTreatment: optionLabel(
+      INITIAL_TREATMENT_OPTIONS,
+      form.initialTreatment,
+    ),
+    injuredBodyPart: bodyParts,
+    injuryLevel:
+      INJURY_LEVEL_OPTIONS.find((option) => option.id === form.injuryLevel)
+        ?.label ?? "",
+  };
+
+  // Only sent once a date exists — `parseReportDateTime` falls back to "now"
+  // for a blank one, which would tell the model the incident happened at the
+  // moment the form was opened.
+  if (form.incidentDate.trim()) {
+    input.incidentAt = parseReportDateTime(
+      form.incidentDate,
+      form.incidentTime,
+    );
+  }
+
+  // Sending the reporter's own words makes the response's `description` null —
+  // the backend refuses to replace an account a human has already given. That
+  // is exactly what should happen, so it is sent whenever it exists.
+  if (form.description.trim()) {
+    input.description = form.description.trim();
+  }
+
+  return Object.fromEntries(
+    Object.entries(input).filter(([, value]) => value !== ""),
+  ) as IncidentDraftRequestDto;
+}
+
+/**
+ * A stable fingerprint of a request, so the same answers are never drafted
+ * twice. Key order is fixed by `buildDraftAssistInput`, so serialising is
+ * enough — no sorting needed.
+ */
+export function draftInputKey(input: IncidentDraftRequestDto): string {
+  return JSON.stringify(input);
+}
+
+/**
+ * Whether there is enough for a description draft to be worth firing.
+ *
+ * The guide fires it once "What happened" and "Details" are filled. Two
+ * specifics beyond the date, because a draft built from severity and location
+ * alone tells the reporter nothing they did not just type — and every call
+ * comes out of a 20-per-minute budget shared with both rewrite buttons.
+ */
+export function canDraftDescription(form: ReportIncidentFormState): boolean {
+  const specifics = [
+    form.mechanismOfInjury.trim(),
+    form.natureOfInjury.trim(),
+    form.objectInvolved.trim(),
+    form.initialTreatment.trim(),
+  ].filter(Boolean);
+
+  return specifics.length >= 2 && form.incidentDate.trim() !== "";
+}

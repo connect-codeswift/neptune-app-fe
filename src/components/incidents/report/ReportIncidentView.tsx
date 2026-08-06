@@ -14,8 +14,8 @@ import {
   type ReportIncidentFormState,
   type ReportStepId,
 } from "@/components/incidents/report/shared/report-incident-data";
+import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
 import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
-import { parseReportDateTime } from "@/services/mappers/report-incident.mapper";
 import { ReportIncidentAside } from "@/components/incidents/report/shared/ReportIncidentAside";
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
 import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
@@ -204,20 +204,12 @@ export function ReportIncidentView() {
 
     updateForm({ aiDraftPending: true });
 
+    // The full picture, not just the description: the injury draft now reads
+    // mechanism, nature and initial treatment alongside body part and injury
+    // level, which is what lets it produce clinical detail rather than
+    // restating "was injured".
     draftAssist
-      .mutateAsync({
-        description,
-        severity:
-          SEVERITY_OPTIONS.find((option) => option.id === source.severity)
-            ?.label ?? source.severity,
-        location: source.location,
-        incidentAt: parseReportDateTime(
-          source.incidentDate,
-          source.incidentTime,
-        ),
-        injuryLevel: injury.injuryLevel,
-        injuredBodyPart: injury.injuredBodyPart,
-      })
+      .mutateAsync(buildDraftAssistInput(source))
       .then((drafts) => {
         setForm((prev) => ({
           ...prev,
@@ -232,10 +224,10 @@ export function ReportIncidentView() {
               : drafts.injuryDescription,
             actionNotes: prev.actionNotes.trim() ? null : drafts.actionNotes,
           },
-          // `drafts.suggestedFollowUps` is deliberately dropped. The follow-up
-          // list was removed from step 4, so there is nowhere to review or
-          // decline a suggestion — keeping this would file model-written
-          // actions on the report as though a human had accepted them.
+          // `drafts.description` is ignored here on purpose. It is offered in
+          // the field itself on step 2, and by the time this runs the reporter
+          // has left that step — putting a draft behind them is not an offer
+          // they can act on.
         }));
       })
       .catch((error: unknown) => {

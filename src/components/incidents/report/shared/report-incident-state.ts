@@ -15,7 +15,7 @@ import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
 import {
   EMPTY_DESCRIPTION_DRAFT,
   type ReportDescriptionDraft,
-} from "./report-description-draft";
+} from "./report-ai-draft";
 
 /** Step 2 dropdowns the reporter can extend with their own options. */
 export type CustomOptionField =

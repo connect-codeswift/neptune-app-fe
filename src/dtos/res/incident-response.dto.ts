@@ -51,30 +51,11 @@ export type IncidentDto = {
   otherNotes?: string | null;
   feedback?: string | null;
   /**
-   * Follow-up actions from the Immediate Response step, AI-suggested or typed
-   * by the reporter. Replaces concatenating option ids into `otherNotes`.
-   */
-  followUps?: IncidentFollowUpDto[] | null;
-  /**
    * Comma-separated names of the fields whose text the reporter accepted from
    * an AI draft, e.g. "description,injuryDescription". Backend caps at 200
    * characters and records it verbatim rather than inferring it.
    */
   aiAssistedFields?: string | null;
-};
-
-/**
- * One follow-up action as submitted with the incident.
- *
- * Unselected items are sent too: "the assistant proposed this and a human
- * declined it" is a question an auditor can legitimately ask, and it is only
- * answerable if the declined ones are stored alongside the accepted ones.
- */
-export type IncidentFollowUpDto = {
-  /** Max 500 characters; blank entries are dropped server-side. */
-  text: string;
-  isAiSuggested: boolean;
-  isSelected: boolean;
 };
 
 export type GetAllIncidentsResponseDto = {

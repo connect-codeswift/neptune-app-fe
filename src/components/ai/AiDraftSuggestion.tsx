@@ -15,12 +15,6 @@ export type AiDraftSuggestionProps = Readonly<{
   pending?: boolean;
   onAccept: (text: string) => void;
   onDismiss: () => void;
-  /**
-   * What produced this draft. Defaults to the model. Callers that compose a
-   * draft themselves must say so — the badge is the only thing on screen
-   * telling the reporter whether a model wrote this.
-   */
-  label?: string;
   className?: string;
 }>;
 
@@ -42,14 +36,7 @@ export type AiDraftSuggestionProps = Readonly<{
  * rather than as a failure.
  */
 export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
-  const {
-    draft,
-    pending = false,
-    onAccept,
-    onDismiss,
-    label = "AI draft",
-    className = "",
-  } = props;
+  const { draft, pending = false, onAccept, onDismiss, className = "" } = props;
 
   if (pending) {
     return (
@@ -88,7 +75,7 @@ export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
         <div className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1">
           <Icon icon="mdi:creation-outline" className="size-3 shrink-0" />
           <span className="text-[9.5px] font-bold tracking-[0.2px]">
-            {label}
+            AI draft
           </span>
         </div>
         <Text
