@@ -135,8 +135,10 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               {user.displayName}
             </Text>
             <Text as="p" className="text-ehs-muted-text truncate text-xs">
-              {user.role}
-              {user.siteName ? ` · ${user.siteName}` : ""}
+              {/* One interpolated string, not two children: Text types its
+                  children as a single string, and the two-expression form
+                  widens to string[] and fails the production type check. */}
+              {`${user.role}${user.siteName ? ` · ${user.siteName}` : ""}`}
             </Text>
           </div>
         </div>
