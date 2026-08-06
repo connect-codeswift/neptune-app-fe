@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AiDraftSuggestion } from "@/components/ai/AiDraftSuggestion";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   INJURY_LEVEL_OPTIONS,
   markAiAssisted,
@@ -90,8 +91,10 @@ export function ReportIncidentStepThree(
           />
 
           <div className="pt-[18px]">
+            {/* No min-height override here: the assistant reserves a strip
+                along the bottom of the field, and squeezing the box shorter
+                puts the button on top of the third line of text. */}
             <ReportTextareaField
-              className="[&_textarea]:min-h-[66px]"
               label="Injury description"
               value={form.injuryDescription}
               onChange={(event) =>
@@ -99,6 +102,22 @@ export function ReportIncidentStepThree(
               }
               placeholder="Describe the injury…"
               rows={3}
+              assistant={
+                <AiTextAssistant
+                  value={form.injuryDescription}
+                  onApply={(injuryDescription) => {
+                    onChange({ injuryDescription });
+                  }}
+                  onAssisted={() => {
+                    onChange({
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "injuryDescription",
+                      ),
+                    });
+                  }}
+                />
+              }
             />
             <AiDraftSuggestion
               draft={form.aiDrafts.injuryDescription}

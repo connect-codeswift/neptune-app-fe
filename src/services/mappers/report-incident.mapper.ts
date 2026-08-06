@@ -302,9 +302,13 @@ export function mapReportFormToIncidentDto(
   // Non–First Aid severities get First Aid field defaults from form state.
   const source = applySeverityFieldDefaults(form);
   const { site, location } = splitSiteLocation(source.location);
-  const { name: affectedName, affectedPersonId } = parseAffectedPerson(
-    source.affectedPerson,
-  );
+  const { name: affectedName, affectedPersonId: parsedAffectedPersonId } =
+    parseAffectedPerson(source.affectedPerson);
+  // Picking from the site roster gives a real user id; typing a name gives the
+  // parsed text, as before. The id wins where both exist — it is the only one
+  // of the two that identifies a person rather than describing them.
+  const affectedPersonId =
+    source.affectedPersonId.trim() || parsedAffectedPersonId;
   const severityLabel =
     SEVERITY_OPTIONS.find((option) => option.id === source.severity)?.label ??
     source.severity;

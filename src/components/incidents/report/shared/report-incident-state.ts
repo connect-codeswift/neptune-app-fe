@@ -115,6 +115,12 @@ export function replaceAiFollowUps(
 export type ReportIncidentFormState = Readonly<{
   severity: SeverityId;
   affectedPerson: string;
+  /**
+   * Backend user id of the affected person, when they were picked from the
+   * site roster rather than typed. `""` for a free-typed name — contractors and
+   * visitors have no account, and those incidents still have to be filable.
+   */
+  affectedPersonId: string;
   location: string;
   reportedBy: string;
   reporterEmail: string;
@@ -142,6 +148,13 @@ export type ReportIncidentFormState = Readonly<{
   photos: readonly ReportPhotoFile[];
   injuryLevel: InjuryLevelId;
   gender: string;
+  /**
+   * True while `gender` is the value read off the affected person's own record
+   * rather than one the reporter chose. Drives the "From their profile" hint,
+   * and is cleared the moment either the person or the answer changes — a
+   * stale provenance claim is worse than none on a regulated record.
+   */
+  genderFromProfile: boolean;
   bodyParts: readonly BodyPartId[];
   /**
    * Free-text parts the reporter added because the anatomical list didn't
@@ -216,6 +229,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
   return {
     severity: "first-aid",
     affectedPerson: "",
+    affectedPersonId: "",
     location: "",
     reportedBy: "",
     reporterEmail: "",
@@ -247,6 +261,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     photos: DEFAULT_REPORT_PHOTOS,
     injuryLevel: "no-injury",
     gender: "",
+    genderFromProfile: false,
     bodyParts: [],
     customBodyParts: [],
     bodySide: "Left",

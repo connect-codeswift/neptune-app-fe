@@ -1,14 +1,19 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useId, useRef } from "react";
+import { useId } from "react";
+import { Text } from "@/components/Text";
 import {
+  ReportFieldError,
   ReportFieldLabel,
-  reportFieldInputClass,
 } from "@/components/incidents/report/shared/ReportFormField";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import {
+  formatHhMmAs12Hour,
   maskHhMm,
   normalizeHhMm,
+  nowHhMm,
+  parseTimeInput,
 } from "@/components/incidents/report/shared/report-date-time";
 
 export type ReportTimeFieldProps = Readonly<{
@@ -16,10 +21,12 @@ export type ReportTimeFieldProps = Readonly<{
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
-  trailingHint?: string;
   placeholder?: string;
   className?: string;
   id?: string;
+  /** Offer a "Now" shortcut. Off for times that can't sensibly be the present. */
+  showNow?: boolean;
+  error?: string | null;
 }>;
 
 export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
@@ -31,76 +38,83 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
     placeholder = "HH:MM",
     className = "",
     id,
+    showNow = false,
+    error = null,
   } = props;
 
   const generatedId = useId();
   const inputId = id ?? generatedId;
-  const pickerRef = useRef<HTMLInputElement>(null);
-  const normalized = normalizeHhMm(value);
-  const pickerValue = /^\d{2}:\d{2}$/.test(normalized) ? normalized : "";
+  const errorId = `${inputId}-error`;
 
-  const openPicker = () => {
-    const picker = pickerRef.current;
-    if (!picker) return;
-    if (typeof picker.showPicker === "function") {
-      try {
-        picker.showPicker();
-        return;
-      } catch {
-        // Fall through to click() when showPicker is blocked.
-      }
-    }
-    picker.click();
-  };
+  // The field stores 24-hour, which is right for the record and ambiguous to
+  // read at a glance — so echo the 12-hour reading next to the label. Someone
+  // who meant half past two in the afternoon can see whether they got it.
+  const twelveHour = formatHhMmAs12Hour(value);
+  const isUnreadable = value.trim() !== "" && parseTimeInput(value) === null;
 
   return (
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel label={label} required={required} />
+      <ReportFieldLabel
+        label={label}
+        required={required}
+        trailing={
+          twelveHour ? (
+            <Text
+              as="span"
+              className="text-ehs-dark-blue text-xs font-semibold"
+            >
+              {twelveHour}
+            </Text>
+          ) : undefined
+        }
+      />
+
       <div className="relative">
         <input
           id={inputId}
           type="text"
-          inputMode="numeric"
           autoComplete="off"
           spellCheck={false}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(maskHhMm(event.target.value))}
+          // Normalizing on blur rather than per-keystroke: rewriting "2:3" to
+          // "02:03" while someone is still typing "2:30" is how you fight the
+          // person filling the form.
           onBlur={() => {
             if (!value.trim()) return;
             onChange(normalizeHhMm(value));
           }}
-          className={`${reportFieldInputClass} pr-9`}
-          pattern="\d{2}:\d{2}"
-          maxLength={5}
+          aria-invalid={error || isUnreadable ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          className={`${FIELD_INPUT_CLASS} pr-9`}
+          maxLength={8}
         />
-        <input
-          ref={pickerRef}
-          type="time"
-          tabIndex={-1}
+        <Icon
+          icon="mdi:clock-outline"
+          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[15px] -translate-y-1/2"
           aria-hidden="true"
-          value={pickerValue}
-          onChange={(event) => {
-            const next = event.target.value;
-            onChange(next ? normalizeHhMm(next) : "");
-          }}
-          className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
         />
-        <button
-          type="button"
-          onClick={openPicker}
-          className="text-ehs-muted-text hover:text-ehs-dark-bg absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-0.5 transition"
-          aria-label={`Open time picker for ${label}`}
-        >
-          <Icon
-            icon="mdi:clock-outline"
-            className="size-[13px]"
-            aria-hidden="true"
-          />
-        </button>
       </div>
+
+      {showNow ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onChange(nowHhMm())}
+            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg cursor-pointer rounded-full border border-[rgba(15,23,42,0.1)] px-2 py-px text-[11px] font-semibold transition-colors"
+          >
+            Now
+          </button>
+          <Text as="span" className="text-ehs-muted-text text-[11px]">
+            24h or 2:30 PM
+          </Text>
+        </div>
+      ) : null}
+
+      {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );
 }

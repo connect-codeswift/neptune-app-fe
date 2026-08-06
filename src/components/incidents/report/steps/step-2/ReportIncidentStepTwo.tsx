@@ -145,9 +145,9 @@ export function ReportIncidentStepTwo(
                 label="Was Secondary Treatment Sought"
                 required
                 value={form.secondaryTreatment}
-                onChange={(event) =>
+                onChange={(answer) =>
                   onChange({
-                    secondaryTreatment: event.target.value as "Yes" | "No",
+                    secondaryTreatment: answer as "Yes" | "No",
                   })
                 }
                 options={[...YES_NO_OPTIONS]}
@@ -194,8 +194,8 @@ export function ReportIncidentStepTwo(
                   label="What treatment was given?"
                   required
                   value={form.whatTreatmentWasGiven}
-                  onChange={(event) =>
-                    onChange({ whatTreatmentWasGiven: event.target.value })
+                  onChange={(answer) =>
+                    onChange({ whatTreatmentWasGiven: answer })
                   }
                   options={[...WHAT_TREATMENT_GIVEN_OPTIONS]}
                 />
@@ -205,8 +205,8 @@ export function ReportIncidentStepTwo(
                   label="Treatment provided by?"
                   required
                   value={form.treatmentProvidedBy}
-                  onChange={(event) =>
-                    onChange({ treatmentProvidedBy: event.target.value })
+                  onChange={(answer) =>
+                    onChange({ treatmentProvidedBy: answer })
                   }
                   options={[...TREATMENT_PROVIDER_OPTIONS]}
                 />
@@ -216,9 +216,7 @@ export function ReportIncidentStepTwo(
                   label="Treatment location?"
                   required
                   value={form.treatmentLocation}
-                  onChange={(event) =>
-                    onChange({ treatmentLocation: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ treatmentLocation: answer })}
                   options={[...TREATMENT_LOCATION_OPTIONS]}
                 />
               </div>
@@ -227,9 +225,7 @@ export function ReportIncidentStepTwo(
                   label="Is employee able to return to full duty?"
                   required
                   value={form.isFitForFullDuty}
-                  onChange={(event) =>
-                    onChange({ isFitForFullDuty: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ isFitForFullDuty: answer })}
                   options={[...FIT_FOR_DUTY_OPTIONS]}
                 />
               </div>
@@ -238,9 +234,7 @@ export function ReportIncidentStepTwo(
                   label="Case disposition?"
                   required
                   value={form.caseDisposition}
-                  onChange={(event) =>
-                    onChange({ caseDisposition: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ caseDisposition: answer })}
                   options={[...CASE_DISPOSITION_OPTIONS]}
                 />
               </div>
@@ -248,11 +242,9 @@ export function ReportIncidentStepTwo(
                 <ReportSelectField
                   label="Was further medical attention recommended"
                   value={form.furtherMedicalRecommended}
-                  onChange={(event) =>
+                  onChange={(answer) =>
                     onChange({
-                      furtherMedicalRecommended: event.target.value as
-                        | "Yes"
-                        | "No",
+                      furtherMedicalRecommended: answer as "Yes" | "No",
                     })
                   }
                   options={[...YES_NO_OPTIONS]}
@@ -275,9 +267,9 @@ export function ReportIncidentStepTwo(
             <ReportSelectField
               label="OSHA Notification Required?"
               value={form.oshaNotificationRequired}
-              onChange={(event) =>
+              onChange={(answer) =>
                 onChange({
-                  oshaNotificationRequired: event.target.value as "Yes" | "No",
+                  oshaNotificationRequired: answer as "Yes" | "No",
                 })
               }
               options={[...YES_NO_OPTIONS]}
@@ -303,11 +295,11 @@ export function ReportIncidentStepTwo(
               className="pt-[18px]"
               label="Emergency Service Called?"
               value={form.classifications.emergency ?? "No"}
-              onChange={(event) =>
+              onChange={(answer) =>
                 onChange({
                   classifications: {
                     ...form.classifications,
-                    emergency: event.target.value as "Yes" | "No",
+                    emergency: answer as "Yes" | "No",
                   },
                 })
               }
@@ -322,7 +314,7 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold text-ehs-slate"
+              className="text-ehs-slate rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"

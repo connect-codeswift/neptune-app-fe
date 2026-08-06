@@ -98,7 +98,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
         required={required}
         hint={hint}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={onChange}
         options={mergedOptions}
       />
 
@@ -133,7 +133,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
             <button
               type="button"
               onClick={commit}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold text-ehs-light-text transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold transition-colors"
             >
               Add
             </button>
