@@ -37,7 +37,12 @@ import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
 import { logAiAssistFailure } from "@/services/ai-text.service";
 import { toast } from "@/lib/toast";
 
-/** Long enough that filling several dropdowns in a row is one call, not five. */
+/**
+ * Object Involved is the last required answer and it is typed, not picked, so
+ * this is also what keeps a half-typed "Pall" from being drafted on its way to
+ * "Pallet" — it waits for the typing to stop, not just for the field to be
+ * non-empty.
+ */
 const DRAFT_DEBOUNCE_MS = 900;
 
 export type ReportIncidentStepTwoProps = Readonly<{

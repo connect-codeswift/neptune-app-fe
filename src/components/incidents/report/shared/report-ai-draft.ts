@@ -114,20 +114,24 @@ export function draftInputKey(input: IncidentDraftRequestDto): string {
 }
 
 /**
- * Whether there is enough for a description draft to be worth firing.
+ * Whether the answers a description is drafted from are complete.
  *
- * The guide fires it once "What happened" and "Details" are filled. Two
- * specifics beyond the date, because a draft built from severity and location
- * alone tells the reporter nothing they did not just type — and every call
- * comes out of a 20-per-minute budget shared with both rewrite buttons.
+ * Every required field above the description box, in the order they appear:
+ * Object Involved is the last of them, so in practice this turns true the
+ * moment it is filled and the draft fires off the back of it.
+ *
+ * Waiting for all of them rather than guessing from a couple is what stops the
+ * reporter being handed a draft built from half the facts — and every call
+ * comes out of a 20-per-minute budget shared with both rewrite buttons, so a
+ * draft that has to be regenerated as the remaining answers arrive is spend
+ * for nothing.
  */
 export function canDraftDescription(form: ReportIncidentFormState): boolean {
-  const specifics = [
-    form.mechanismOfInjury.trim(),
-    form.natureOfInjury.trim(),
-    form.objectInvolved.trim(),
-    form.initialTreatment.trim(),
-  ].filter(Boolean);
-
-  return specifics.length >= 2 && form.incidentDate.trim() !== "";
+  return [
+    form.initialTreatment,
+    form.secondaryTreatment,
+    form.mechanismOfInjury,
+    form.natureOfInjury,
+    form.objectInvolved,
+  ].every((answer) => answer.trim() !== "");
 }
