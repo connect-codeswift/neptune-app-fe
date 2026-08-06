@@ -34,3 +34,17 @@ export function useSiteUsersQuery(
     staleTime: SITE_USERS_STALE_TIME_MS,
   });
 }
+
+/**
+ * Cache key for one user's gender.
+ *
+ * Exported as a key rather than wrapped in a `useQuery` hook because the only
+ * caller fetches imperatively — the lookup answers a single deliberate action
+ * (picking the affected person), not a state the screen has to stay in sync
+ * with. Sharing the key still means picking the same colleague twice costs one
+ * request, and pairs with `staleTime: Infinity` at the call site: a person's
+ * gender does not change while a form is open.
+ */
+export function userGenderQueryKey(userId: number) {
+  return ["user", "gender", userId] as const;
+}

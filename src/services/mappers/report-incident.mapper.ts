@@ -18,16 +18,11 @@ import {
   WHAT_TREATMENT_GIVEN_OPTIONS,
 } from "@/components/incidents/report/shared/report-treatment";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
-import type {
-  IncidentDto,
-  IncidentFollowUpDto,
-  PersonDto,
-} from "@/dtos/res/incident-response.dto";
+import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
-/** Mirrors the backend's [MaxLength] on each field. */
-const FOLLOW_UP_TEXT_MAX_CHARS = 500;
+/** Mirrors the backend's [MaxLength] on the field. */
 const AI_ASSISTED_FIELDS_MAX_CHARS = 200;
 
 /**
@@ -206,35 +201,15 @@ function buildOtherNotes(form: ReportIncidentFormState): string {
   }
 
   // Follow-ups used to be concatenated in here as raw option ids
-  // ("root-cause, sop-review"). They have their own table on the backend now
-  // and travel as `followUps`, so nothing about them belongs in free text.
+  // ("root-cause, sop-review"), then moved to their own `followUps` field.
+  // The feature has since been removed from the form entirely, so there is
+  // nothing to write here either way.
 
   if (form.gender.trim()) {
     parts.push(`Gender: ${form.gender.trim()}`);
   }
 
   return parts.join("\n");
-}
-
-/**
- * Every follow-up goes up, checked or not.
- *
- * Sending only the checked ones would lose the fact that a human was shown a
- * suggestion and declined it — which, on an OSHA-relevant record, is exactly
- * the kind of thing worth being able to answer later.
- */
-function buildFollowUps(form: ReportIncidentFormState): IncidentFollowUpDto[] {
-  // Always an array, never null. `IncidentDto.FollowUps` is a non-nullable
-  // reference type, so ASP.NET's implicit-required rule rejects a null with
-  // "The FollowUps field is required" — a 400 before the request reaches any
-  // application code. An empty list is the correct way to say "none".
-  return form.followUps
-    .map((item) => ({
-      text: item.text.trim().slice(0, FOLLOW_UP_TEXT_MAX_CHARS),
-      isAiSuggested: item.isAiSuggested,
-      isSelected: item.isSelected,
-    }))
-    .filter((item) => item.text !== "");
 }
 
 /**
@@ -427,7 +402,12 @@ export function mapReportFormToIncidentDto(
     // separately as `followUps`, a report with no witnesses and no gender
     // would 400 on every submit.
     otherNotes: buildOtherNotes(source),
-    followUps: buildFollowUps(source),
+    // The follow-up list was removed from step 4, so there are never any to
+    // send. Still an empty array and never null or omitted: `IncidentDto`
+    // declares `FollowUps` as a non-nullable reference type, so ASP.NET's
+    // implicit-required rule rejects a null with "The FollowUps field is
+    // required" — see EMPTY_NOT_NULL above.
+    followUps: [],
     aiAssistedFields: buildAiAssistedFields(source),
     isFitForFullDuty: source.isFitForFullDuty.trim() || "N/A",
     caseDisposition:

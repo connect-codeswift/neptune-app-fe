@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -9,6 +10,7 @@ import {
   CLASSIFICATION_FIELDS,
   GENDER_OPTIONS,
   YES_NO_OPTIONS,
+  normalizeGender,
   oshaRecordableForSeverity,
   type ReportIncidentFormState,
   type SeverityId,
@@ -31,6 +33,8 @@ import {
 } from "@/components/incidents/report/shared/report-date-time";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { userGenderQueryKey } from "@/hooks/use-user-queries";
+import { getUserGenderById } from "@/services/user.service";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 
@@ -150,6 +154,11 @@ export function ReportIncidentStepOne(
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
   const site = useCurrentSite();
+  const queryClient = useQueryClient();
+
+  // Which person the in-flight gender lookup is for. Picking someone else
+  // before the first lookup lands must not let the slower answer win.
+  const genderRequestRef = useRef("");
 
   // Plant / Location is the reporter's own site, not a question. Stamped here
   // rather than in the initial form state because the site name arrives with
@@ -197,9 +206,13 @@ export function ReportIncidentStepOne(
 
   /**
    * The affected person's own record answers the Gender question, so it isn't
-   * asked twice — but only when the record actually carries one. Overwriting
-   * unconditionally would wipe an answer the reporter had already given every
-   * time they picked a name.
+   * asked twice.
+   *
+   * Changing the person invalidates a gender that was read off the previous
+   * one — it describes somebody else, and leaving it would quietly attribute
+   * one colleague's gender to another on a regulated record. An answer the
+   * reporter chose themselves is theirs and survives: that is the whole reason
+   * `genderFromProfile` tracks where the value came from.
    */
   const handlePersonChange = (person: ReportPersonSelection) => {
     const identity = {
@@ -207,18 +220,54 @@ export function ReportIncidentStepOne(
       affectedPersonId: person.userId,
     };
 
+    // The roster row already knows — no lookup needed. This is the path taken
+    // once `GET /Auth/GetUsersBySiteId` projects `gender`.
     if (person.gender) {
+      genderRequestRef.current = person.userId;
       onChange({ ...identity, gender: person.gender, genderFromProfile: true });
       return;
     }
 
-    // The value stays for the reporter to correct, but it can no longer claim
-    // to have come from this person's profile.
+    // Cleared before the lookup rather than after it comes back empty: showing
+    // the last person's gender while this one resolves presents a stale answer
+    // as though it were this person's.
     onChange(
       form.genderFromProfile
-        ? { ...identity, genderFromProfile: false }
+        ? { ...identity, gender: "", genderFromProfile: false }
         : identity,
     );
+    genderRequestRef.current = person.userId;
+
+    if (!person.userId) {
+      return;
+    }
+
+    // Until that projection exists, the person has to be fetched one at a time.
+    // Done here rather than in an effect because it is a response to one
+    // deliberate action — picking a name — not a state the screen has to keep
+    // in sync. `fetchQuery` still caches, so re-picking the same colleague
+    // costs nothing.
+    const userId = Number(person.userId);
+    void queryClient
+      .fetchQuery({
+        queryKey: userGenderQueryKey(userId),
+        queryFn: () => getUserGenderById(userId),
+        staleTime: Infinity,
+      })
+      .then((raw) => {
+        const resolved = normalizeGender(raw);
+        // Ignore a late answer for someone who is no longer the affected
+        // person, and never overwrite a gender the reporter has since chosen.
+        if (!resolved || genderRequestRef.current !== person.userId) {
+          return;
+        }
+
+        onChange({ gender: resolved, genderFromProfile: true });
+      })
+      .catch(() => {
+        // Silent: gender stays for the reporter to answer by hand. A failed
+        // convenience lookup is not worth interrupting an incident report.
+      });
   };
 
   const handleContinue = () => {
@@ -287,14 +336,34 @@ export function ReportIncidentStepOne(
             <ReportSelectField
               label="Gender"
               required
-              // Says why the field answered itself. Same treatment as "Set from
-              // severity" on OSHA Recordable — a value that appears without
-              // being typed reads as a bug unless it explains itself.
-              hint={form.genderFromProfile ? "From their profile" : undefined}
-              value={form.gender}
-              onChange={(gender) =>
-                onChange({ gender, genderFromProfile: false })
+              // Says why the field answered itself, because a value that
+              // appears without being typed reads as a bug otherwise. An icon
+              // rather than the words "From their profile": this column is
+              // 180px, and the text wrapped onto a second line, which grew the
+              // label and dropped this input below Affected person's.
+              trailing={
+                form.genderFromProfile ? (
+                  <span
+                    title="Filled from this person's profile"
+                    className="text-ehs-dark-blue inline-flex items-center"
+                  >
+                    <Icon
+                      icon="mdi:account-check-outline"
+                      className="size-3.5"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">
+                      Filled from this person&apos;s profile
+                    </span>
+                  </span>
+                ) : undefined
               }
+              value={form.gender}
+              onChange={(gender) => {
+                // Their answer wins over any lookup still in flight.
+                genderRequestRef.current = "";
+                onChange({ gender, genderFromProfile: false });
+              }}
               options={[...GENDER_OPTIONS]}
             />
 

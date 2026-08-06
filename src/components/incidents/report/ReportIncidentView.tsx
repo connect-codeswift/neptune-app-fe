@@ -10,7 +10,6 @@ import {
   formatBodyPartSelection,
   INJURY_LEVEL_OPTIONS,
   NON_FIRST_AID_FIELD_DEFAULTS,
-  replaceAiFollowUps,
   SEVERITY_OPTIONS,
   type ReportIncidentFormState,
   type ReportStepId,
@@ -233,10 +232,10 @@ export function ReportIncidentView() {
               : drafts.injuryDescription,
             actionNotes: prev.actionNotes.trim() ? null : drafts.actionNotes,
           },
-          followUps: replaceAiFollowUps(
-            prev.followUps,
-            drafts.suggestedFollowUps,
-          ),
+          // `drafts.suggestedFollowUps` is deliberately dropped. The follow-up
+          // list was removed from step 4, so there is nowhere to review or
+          // decline a suggestion — keeping this would file model-written
+          // actions on the report as though a human had accepted them.
         }));
       })
       .catch((error: unknown) => {

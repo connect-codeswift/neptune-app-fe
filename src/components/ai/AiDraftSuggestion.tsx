@@ -15,6 +15,12 @@ export type AiDraftSuggestionProps = Readonly<{
   pending?: boolean;
   onAccept: (text: string) => void;
   onDismiss: () => void;
+  /**
+   * What produced this draft. Defaults to the model. Callers that compose a
+   * draft themselves must say so — the badge is the only thing on screen
+   * telling the reporter whether a model wrote this.
+   */
+  label?: string;
   className?: string;
 }>;
 
@@ -36,7 +42,14 @@ export type AiDraftSuggestionProps = Readonly<{
  * rather than as a failure.
  */
 export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
-  const { draft, pending = false, onAccept, onDismiss, className = "" } = props;
+  const {
+    draft,
+    pending = false,
+    onAccept,
+    onDismiss,
+    label = "AI draft",
+    className = "",
+  } = props;
 
   if (pending) {
     return (
@@ -75,7 +88,7 @@ export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
         <div className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1">
           <Icon icon="mdi:creation-outline" className="size-3 shrink-0" />
           <span className="text-[9.5px] font-bold tracking-[0.2px]">
-            AI draft
+            {label}
           </span>
         </div>
         <Text
@@ -84,24 +97,29 @@ export function AiDraftSuggestion(props: Readonly<AiDraftSuggestionProps>) {
         >
           {draft}
         </Text>
-      </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => onAccept(draft)}
-          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-dark-blue inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors"
-        >
-          <Icon icon="mdi:check" className="size-3.5" aria-hidden="true" />
-          Use this
-        </button>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer rounded-lg px-2 py-1.5 text-xs font-semibold transition-colors"
-        >
-          Dismiss
-        </button>
+        {/* Tick and cross sit with the text rather than under it: the draft is
+            a yes/no question, and two icon buttons read as one at a glance. */}
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onAccept(draft)}
+            title="Use this draft"
+            aria-label="Use this draft"
+            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-dark-blue focus-visible:ring-ehs-normal-blue/40 inline-flex size-7 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          >
+            <Icon icon="mdi:check" className="size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={onDismiss}
+            title="Discard this draft"
+            aria-label="Discard this draft"
+            className="text-ehs-muted-text hover:text-ehs-red focus-visible:ring-ehs-red/30 inline-flex size-7 cursor-pointer items-center justify-center rounded-full border border-[rgba(15,23,42,0.12)] bg-white transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          >
+            <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
   );

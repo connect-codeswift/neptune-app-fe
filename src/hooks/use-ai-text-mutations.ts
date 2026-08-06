@@ -16,6 +16,26 @@ export function useProofreadMutation() {
 }
 
 /**
+ * Turn the reporter's own answers into a first draft of the description.
+ *
+ * Uses `proofread` rather than `draft-assist` because the API has no endpoint
+ * that writes a description from structured fields — `draft-assist` runs the
+ * other way, taking a description and producing the injury and action drafts
+ * from it. So the facts are composed here and the model is asked only to make
+ * them read well, which also keeps it on the one job it is documented to do:
+ * fix wording without changing meaning.
+ *
+ * Not retried, for the same reason as `useDraftAssistMutation` — the reporter
+ * never asked for this call.
+ */
+export function useDescriptionDraftMutation() {
+  return useMutation({
+    mutationFn: (facts: string) => proofreadText(facts),
+    retry: false,
+  });
+}
+
+/**
  * Generate the step 3 and step 4 drafts from the step 2 description.
  *
  * Deliberately not retried. The reporter never asked for this call, so a
