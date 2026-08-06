@@ -118,9 +118,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     <div className="flex min-h-screen flex-1 flex-col gap-5">
       <DashboardHeader
         title="Hazard Reporting"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+        dateRangeLabel="March 25 — April 24, 2026"      />
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
         {detailQuery.isPending && (

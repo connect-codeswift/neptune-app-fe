@@ -2,9 +2,12 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { HeaderDateRangePicker } from "@/components/HeaderDateRangePicker";
+import { NotificationBellButton } from "@/components/notifications/NotificationBellButton";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { toast } from "@/lib/toast";
+import type { DateRange } from "@/lib/date-range";
 
 export type TabId =
   | "details"
@@ -31,6 +34,8 @@ export type IncidentDetailHeaderProps = Readonly<{
   closureTabDisabled?: boolean;
   isClosingIncident?: boolean;
   closeDisabled?: boolean;
+  dateRange?: DateRange;
+  onDateRangeChange?: (range: DateRange) => void;
   className?: string;
 }>;
 
@@ -49,6 +54,8 @@ export function IncidentDetailHeader(
     closureTabDisabled = false,
     isClosingIncident = false,
     closeDisabled = false,
+    dateRange,
+    onDateRangeChange,
     className = "",
   } = props;
   const router = useRouter();
@@ -90,34 +97,17 @@ export function IncidentDetailHeader(
         </div>
 
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <button
-            type="button"
-            className="text-ehs-gray hover:bg-ehs-light-bg inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-sm shadow-sm transition-colors sm:px-3.5"
-          >
-            <Icon
-              icon="mdi:calendar-range"
-              className="text-sm"
-              aria-hidden="true"
-            />
-            <span>March 25 — April 24, 2026</span>
-            <Icon
-              icon="mdi:chevron-down"
-              className="text-xs"
-              aria-hidden="true"
-            />
-          </button>
+          <HeaderDateRangePicker
+            value={dateRange}
+            onChange={onDateRangeChange}
+            icon="mdi:calendar-range"
+            buttonClassName="text-ehs-gray hover:bg-ehs-light-bg inline-flex min-w-0 shrink-0 items-center gap-1.5 rounded-lg border border-[rgba(15,23,42,0.12)] bg-white px-2.5 py-2 text-sm shadow-sm transition-colors sm:px-3.5"
+          />
 
-          <button
-            type="button"
-            className="hover:bg-ehs-light-bg relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.12)] bg-white shadow-sm transition-colors"
-          >
-            <Icon
-              icon="mdi:bell-outline"
-              className="text-ehs-gray text-lg"
-              aria-hidden="true"
-            />
-            <span className="bg-ehs-red absolute top-1.5 right-1.5 size-2 rounded-full border-2 border-white" />
-          </button>
+          <NotificationBellButton
+            buttonClassName="hover:bg-ehs-light-bg relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.12)] bg-white shadow-sm transition-colors"
+            iconClassName="text-ehs-gray text-lg"
+          />
         </div>
       </header>
 

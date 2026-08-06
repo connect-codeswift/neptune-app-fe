@@ -198,6 +198,7 @@ export function mapIncidentDtoToListRecord(
     assignee: "—",
     injury: buildInjury(incident),
     summary: description,
+    incidentAt: incident.incidentAt ?? incident.incidentReportedAt ?? null,
     isOshaRecordable: Boolean(incident.isOSHARecordable),
     capas: [],
     timeline: [],

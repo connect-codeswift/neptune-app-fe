@@ -15,13 +15,8 @@ export function UploadDocumentView() {
       <DashboardHeader
         searchPlaceholder="Search incidents, actions, docs…"
         searchonleft
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-        onDateRangeClick={() =>
+        dateRangeLabel="March 25 — April 24, 2026"        onDateRangeClick={() =>
           toast.success("Date range", "Date filter coming soon.")
-        }
-        onNotificationsClick={() =>
-          toast.success("Notifications", "Notifications coming soon.")
         }
       />
 
