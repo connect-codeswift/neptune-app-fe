@@ -3,6 +3,13 @@ import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from "axios";
+import {
+  isOrgAccessExpiredMessage,
+  readAccessWindowFromAuthPayload,
+  redirectToLoginFromAppShell,
+  setAuthRedirectMessage,
+  setCachedAccessWindow,
+} from "@/lib/access-window";
 
 const ACCESS_TOKEN_KEY = "neptune-access-token";
 const REFRESH_TOKEN_KEY = "neptune-refresh-token";
@@ -220,8 +227,26 @@ async function requestNewAccessToken(): Promise<string | null> {
       setRefreshToken(rotatedRefresh);
     }
 
+    const accessWindow = readAccessWindowFromAuthPayload(payload);
+    setCachedAccessWindow(accessWindow);
+
     return accessToken;
-  } catch {
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ??
+        error.response?.data?.Message ??
+        "";
+
+      if (
+        error.response?.status === 401 &&
+        typeof message === "string" &&
+        isOrgAccessExpiredMessage(message)
+      ) {
+        setAuthRedirectMessage(message);
+      }
+    }
+
     return null;
   }
 }
@@ -278,6 +303,7 @@ function createHttpClient(): AxiosInstance {
         // Refresh failed — the session is unrecoverable, so don't leave a
         // dead token behind to fail every subsequent request.
         clearAuthTokens();
+        redirectToLoginFromAppShell();
       }
 
       return Promise.reject(new HttpError(toApiError(error)));
