@@ -45,13 +45,17 @@ export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
     const session = await getOrgMe();
 
     if (session) {
-      if (!session.profileUrl) {
-        const userId = session.id ?? getAuthContext()?.userId ?? 0;
-        if (userId > 0) {
+      const userId =
+        getAuthContext()?.userId ?? getCurrentUser().userId ?? 0;
+
+      if (!session.profileUrl && userId > 0) {
+        try {
           const user = await getUserById(userId);
           if (user?.profileUrl) {
             return { ...session, profileUrl: user.profileUrl };
           }
+        } catch {
+          // Optional profile enrichment — never discard a valid Org/me session.
         }
       }
 
@@ -62,12 +66,16 @@ export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
   }
 
   const authContext = getAuthContext();
-  const userId = authContext?.userId ?? 0;
+  const userId = authContext?.userId ?? getCurrentUser().userId ?? 0;
 
   if (userId <= 0) {
     return null;
   }
 
-  const user = await getUserById(userId);
-  return user ? mapUserByIdFallback(user) : null;
+  try {
+    const user = await getUserById(userId);
+    return user ? mapUserByIdFallback(user) : null;
+  } catch {
+    return null;
+  }
 }

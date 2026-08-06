@@ -34,14 +34,18 @@ export async function getUserDropdown() {
 
 /** GET /Auth/GetUserById/{id} — fallback when Org/me is unavailable. */
 export async function getUserById(userId: number): Promise<AuthResponseDto | null> {
-  const { data } = await http.get<ApiEnvelopeDto<unknown>>(
-    `${AUTH_GET_USER_BY_ID_PATH}/${userId}`,
-  );
+  try {
+    const { data } = await http.get<ApiEnvelopeDto<unknown>>(
+      `${AUTH_GET_USER_BY_ID_PATH}/${userId}`,
+    );
 
-  const session = normalizeSessionBootstrap(data);
-  if (!hasSessionData(session)) {
+    const session = normalizeSessionBootstrap(data);
+    if (!hasSessionData(session)) {
+      return null;
+    }
+
+    return mapSessionToUserDto(session!);
+  } catch {
     return null;
   }
-
-  return mapSessionToUserDto(session!);
 }
