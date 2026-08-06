@@ -26,6 +26,18 @@ export type IncidentDraftRequestDto = {
   location?: string;
   /** ISO-8601 UTC. */
   incidentAt?: string;
+  /**
+   * The reporter's step 3 selections, as labels rather than ids.
+   *
+   * Unlike the fields above these are not garnish. The model is forbidden from
+   * inventing a body part, so a description that never names one yields no
+   * injury draft at all — and plenty of real descriptions ("he fell off the
+   * ladder and was taken to hospital") never name one. These are what make the
+   * injury draft possible, which is why it is requested again once the reporter
+   * has chosen them.
+   */
+  injuredBodyPart?: string;
+  injuryLevel?: string;
 };
 
 /** Longest text either endpoint accepts, mirroring the backend's [MaxLength]. */

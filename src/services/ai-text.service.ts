@@ -157,6 +157,14 @@ export async function draftIncidentAssist(
     body.incidentAt = input.incidentAt;
   }
 
+  if (input.injuredBodyPart?.trim()) {
+    body.injuredBodyPart = input.injuredBodyPart.trim();
+  }
+
+  if (input.injuryLevel?.trim()) {
+    body.injuryLevel = input.injuryLevel.trim();
+  }
+
   try {
     const { data } = await http.post<unknown>(DRAFT_ASSIST_PATH, body, {
       timeout: AI_REQUEST_TIMEOUT_MS,
