@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
+  AcceptInvitationRequestDto,
+  EnableMfaRequestDto,
   ForgotPasswordRequestDto,
   LoginRequestDto,
   ResetPasswordRequestDto,
@@ -9,10 +11,14 @@ import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
 import { sessionQueryKeys } from "@/hooks/use-session-bootstrap";
 import {
+  acceptInvitation,
   authenticateUser,
   completeRegistration,
+  dismissMfaPrompt,
+  enableMfa,
   forgotPassword,
   resetPassword,
+  setupMfa,
 } from "@/services/auth.service";
 
 type CompleteRegistrationVariables = Readonly<{
@@ -53,6 +59,32 @@ export function useResetPasswordMutation() {
   return useMutation({
     mutationFn: (payload: ResetPasswordRequestDto) => resetPassword(payload),
   });
+}
+
+export function useAcceptInvitationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AcceptInvitationRequestDto) =>
+      acceptInvitation(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
+    },
+  });
+}
+
+export function useSetupMfaMutation() {
+  return useMutation({ mutationFn: () => setupMfa() });
+}
+
+export function useEnableMfaMutation() {
+  return useMutation({
+    mutationFn: (payload: EnableMfaRequestDto) => enableMfa(payload),
+  });
+}
+
+export function useDismissMfaPromptMutation() {
+  return useMutation({ mutationFn: () => dismissMfaPrompt() });
 }
 
 export function getMutationErrorMessage(error: unknown, fallback: string) {
