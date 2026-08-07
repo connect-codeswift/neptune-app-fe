@@ -2,9 +2,15 @@
 
 import { useMutation } from "@tanstack/react-query";
 import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
+import type {
+  HazardDraftRequestDto,
+  NearMissDraftRequestDto,
+} from "@/dtos/req/ai-text-request.dto";
 import {
   draftIncidentAssist,
+  draftNarrative,
   rewriteText,
+  type AiModule,
   type RewriteOperation,
 } from "@/services/ai-text.service";
 
@@ -17,11 +23,11 @@ import {
  * only have a single rewrite in flight — firing proofread and paraphrase at
  * once would race two answers into the same box.
  */
-export function useRewriteMutation() {
+export function useRewriteMutation(module: AiModule) {
   return useMutation({
     mutationFn: (
       input: Readonly<{ operation: RewriteOperation; text: string }>,
-    ) => rewriteText(input.operation, input.text),
+    ) => rewriteText(module, input.operation, input.text),
   });
 }
 
@@ -37,6 +43,24 @@ export function useDraftAssistMutation() {
   return useMutation({
     mutationFn: (input: Readonly<IncidentDraftRequestDto>) =>
       draftIncidentAssist(input),
+    retry: false,
+  });
+}
+
+/**
+ * Draft the single narrative on the Near Miss or Hazard form.
+ *
+ * Same discipline as `useDraftAssistMutation` and for the same reason: the
+ * reporter never asked for this call, so a failure stays silent and a retry
+ * would only spend more of the 20/min bucket that all three modules share.
+ */
+export function useNarrativeDraftMutation(
+  module: Extract<AiModule, "nearMiss" | "hazard">,
+) {
+  return useMutation({
+    mutationFn: (
+      input: Readonly<NearMissDraftRequestDto | HazardDraftRequestDto>,
+    ) => draftNarrative(module, input),
     retry: false,
   });
 }

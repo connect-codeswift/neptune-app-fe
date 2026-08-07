@@ -72,6 +72,14 @@ export const nearMissReportSchema: FormSchema = [
     addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
   },
   {
+    type: "checkbox-group",
+    name: "contributingFactors",
+    label: "Contributing Factors (select all that apply)",
+    colSpan: 12,
+    columns: 2,
+    options: CONTRIBUTING_FACTOR_OPTIONS,
+  },
+  {
     type: "textarea",
     name: "whatHappened",
     label: "What happened?",
@@ -80,13 +88,5 @@ export const nearMissReportSchema: FormSchema = [
     rows: 4,
     placeholder:
       "Describe what almost happened and what conditions were present...",
-  },
-  {
-    type: "checkbox-group",
-    name: "contributingFactors",
-    label: "Contributing Factors (select all that apply)",
-    colSpan: 12,
-    columns: 2,
-    options: CONTRIBUTING_FACTOR_OPTIONS,
   },
 ];

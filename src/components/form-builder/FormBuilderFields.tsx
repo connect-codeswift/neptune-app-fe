@@ -395,7 +395,9 @@ function TextareaControl(
   }>,
 ) {
   const { field, value, error, onChange } = props;
-  return (
+  const hasAssistant = field.assistant !== undefined;
+
+  const textarea = (
     <textarea
       id={field.name}
       name={field.name}
@@ -406,11 +408,27 @@ function TextareaControl(
       onChange={(event) => onChange(event.target.value)}
       className={[
         "text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 bg-white px-3 py-2.5 text-base! leading-6 transition outline-none focus:ring-2",
+        // The strip along the bottom the controls sit in, so typed text never
+        // runs underneath them. Mirrors FIELD_TEXTAREA_WITH_CONTROLS_CLASS.
+        hasAssistant ? "min-h-[150px] pb-10" : "",
         error ? errorRingClass : "",
       ]
         .filter(Boolean)
         .join(" ")}
     />
+  );
+
+  if (!field.assistant) {
+    return textarea;
+  }
+
+  // `AiInFieldDraft` positions itself against this wrapper — it is absolute,
+  // so without a positioned ancestor the ghost text escapes the field.
+  return (
+    <div className="relative">
+      {textarea}
+      {field.assistant({ value, onChange })}
+    </div>
   );
 }
 
