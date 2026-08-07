@@ -135,6 +135,11 @@ export type IncidentDetailViewProps = Readonly<{
     capa: CapaItem,
     payload: CapaTaskFormPayload,
   ) => void | Promise<void>;
+  isDeletingCapaTask?: boolean;
+  onDeleteCapaTask?: (
+    capa: CapaItem,
+    taskId: number,
+  ) => void | Promise<void>;
   isVerifyingCapa?: boolean;
   onVerifyCapa?: (
     capa: CapaItem,
@@ -231,6 +236,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onUpdateCapa,
     isCreatingCapaTask,
     onCreateCapaTask,
+    isDeletingCapaTask,
+    onDeleteCapaTask,
     isVerifyingCapa,
     onVerifyCapa,
     previewFile,
@@ -544,6 +551,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   onUpdateCapa={onUpdateCapa}
                   isCreatingCapaTask={isCreatingCapaTask}
                   onCreateCapaTask={onCreateCapaTask}
+                  isDeletingCapaTask={isDeletingCapaTask}
+                  onDeleteCapaTask={onDeleteCapaTask}
                   isVerifying={isVerifyingCapa}
                   onVerifyCapa={onVerifyCapa}
                 />

@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
 import { CapaModalFieldLabel } from "@/components/incidents/shared/capa/CapaModalFieldLabel";
+import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
@@ -17,7 +18,9 @@ import { useCurrentSite } from "@/hooks/use-current-site";
 export type CapaTaskFormPayload = Readonly<{
   task: string;
   owner: string;
+  ownerName?: string;
   dueDate: string;
+  priority?: string;
 }>;
 
 export type AddTaskModalProps = Readonly<{
@@ -28,6 +31,8 @@ export type AddTaskModalProps = Readonly<{
   onClose: () => void;
   onSubmit?: (payload: CapaTaskFormPayload) => void | Promise<void>;
 }>;
+
+const PRIORITY_OPTIONS = ["High", "Medium", "Low"] as const;
 
 export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   const {
@@ -46,6 +51,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   const [owner, setOwner] = useState("");
   const [ownerUserId, setOwnerUserId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState<string>(PRIORITY_OPTIONS[1]);
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
   const busy = isSubmitting || isLocalSubmitting;
@@ -61,7 +67,9 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
       await onSubmit?.({
         task: task.trim(),
         owner: ownerUserId.trim() || owner.trim(),
+        ownerName: owner.trim() || undefined,
         dueDate,
+        priority,
       });
       onClose();
     } catch {
@@ -156,6 +164,16 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
             value={dueDate}
             onChange={setDueDate}
             placeholder="MM/DD/YYYY"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <CapaModalFieldLabel>Priority</CapaModalFieldLabel>
+          <CapaSegmentedToggle
+            ariaLabel="Task priority"
+            options={PRIORITY_OPTIONS}
+            value={priority}
+            onChange={setPriority}
           />
         </div>
       </div>

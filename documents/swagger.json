@@ -893,6 +893,35 @@
         }
       }
     },
+    "/api/Auth/select-site": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": ["Auth"],
@@ -4818,6 +4847,93 @@
         }
       }
     },
+    "/api/Hazard/proofread": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Hazard/paraphrase": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Hazard/draft-assist": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Hazard/Hazards": {
       "post": {
         "tags": ["Hazard"],
@@ -6863,6 +6979,93 @@
         }
       }
     },
+    "/api/NearMiss/proofread": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/NearMiss/paraphrase": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/NearMiss/draft-assist": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/NearMiss/NearMiss": {
       "post": {
         "tags": ["NearMiss"],
@@ -7094,6 +7297,56 @@
     "/api/notification/read-all": {
       "put": {
         "tags": ["Notification"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/deploy-status": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/deploy-history": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/alerts": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -11736,6 +11989,31 @@
         },
         "additionalProperties": false
       },
+      "HazardDraftRequestDto": {
+        "type": "object",
+        "properties": {
+          "hazardType": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "potentialConsequence": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
       "HazardDto": {
         "required": ["description", "siteId", "userId"],
         "type": "object",
@@ -12215,6 +12493,14 @@
             "type": "integer",
             "format": "int32"
           },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
           "roleId": {
             "type": "integer",
             "format": "int32"
@@ -12278,6 +12564,39 @@
           "password": {
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NearMissDraftRequestDto": {
+        "type": "object",
+        "properties": {
+          "dateOfEvent": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "hazardType": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "contributingFactors": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
           }
         },
         "additionalProperties": false
@@ -12865,6 +13184,17 @@
         },
         "additionalProperties": false
       },
+      "SelectSiteDto": {
+        "required": ["siteId"],
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "SetAccessWindowDto": {
         "type": "object",
         "properties": {
@@ -13151,6 +13481,14 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -13275,6 +13613,14 @@
           "siteId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
             "nullable": true
           }
         },
