@@ -1,10 +1,16 @@
 import type {
+  AcceptInvitationRequestDto,
+  EnableMfaRequestDto,
   ForgotPasswordRequestDto,
   LoginRequestDto,
   RegisterRequestDto,
   ResetPasswordRequestDto,
 } from "@/dtos/req/auth-request.dto";
-import type { LoginResponseDto } from "@/dtos/res/auth-response.dto";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
+import type {
+  LoginResponseDto,
+  MfaSetupResponseDto,
+} from "@/dtos/res/auth-response.dto";
 import {
   readAccessWindowFromAuthPayload,
   setCachedAccessWindow,
@@ -24,6 +30,10 @@ const AUTH_LOGIN_PATH = "/Auth/login";
 const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset password
 const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
 const AUTH_LOGOUT_PATH = "/Auth/logout";
+const USER_ACCEPT_INVITATION_PATH = "/User/accept-invitation";
+const AUTH_MFA_SETUP_PATH = "/Auth/mfa/setup";
+const AUTH_MFA_ENABLE_PATH = "/Auth/mfa/enable";
+const AUTH_MFA_DISMISS_PATH = "/Auth/mfa/dismiss";
 
 function readLoginTokens(data: unknown): LoginResponseDto | null {
   const payload = unwrapAuthPayload(data);
@@ -111,6 +121,37 @@ export async function resetPassword(payload: ResetPasswordRequestDto) {
 
 export async function forgotPassword(payload: ForgotPasswordRequestDto) {
   await http.post(AUTH_FORGOT_PASSWORD_PATH, payload);
+}
+
+/**
+ * Finishes an invitation: sets the password on the pending user row and flips IsInvited off.
+ *
+ * The endpoint issues no session of its own, so we log in immediately afterwards with the
+ * password just chosen. That token is what the optional MFA step needs — /Auth/mfa/setup and
+ * /Auth/mfa/enable are both [Authorize]d, so without it there is nothing to attach the
+ * authenticator to and the invitee would have to sign in a second time to add 2FA.
+ */
+export async function acceptInvitation(payload: AcceptInvitationRequestDto) {
+  await http.post<ApiEnvelopeDto<string>>(USER_ACCEPT_INVITATION_PATH, payload);
+
+  // A freshly accepted user always has MfaEnabled false, so login returns tokens
+  // outright rather than an MFA challenge.
+  return authenticateUser({ email: payload.email, password: payload.password });
+}
+
+export async function setupMfa() {
+  const { data } = await http.post<MfaSetupResponseDto>(AUTH_MFA_SETUP_PATH);
+
+  return data;
+}
+
+export async function enableMfa(payload: EnableMfaRequestDto) {
+  await http.post(AUTH_MFA_ENABLE_PATH, payload);
+}
+
+/** "Not now" on the optional MFA offer, so later logins stop asking. */
+export async function dismissMfaPrompt() {
+  await http.post(AUTH_MFA_DISMISS_PATH);
 }
 
 export async function logout() {
