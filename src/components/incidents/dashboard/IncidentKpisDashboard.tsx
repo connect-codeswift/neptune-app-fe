@@ -2,6 +2,7 @@ import { Text } from "@/components/Text";
 import { IncidentKpisHeroRow } from "@/components/incidents/dashboard/IncidentKpisHeroRow";
 import { IncidentKpisDashboardSections } from "@/components/incidents/dashboard/IncidentKpisDashboardSections";
 import { INCIDENT_KPIS_FOOTNOTE } from "@/components/incidents/dashboard/incident-kpis-data";
+import { SiteWorkHoursMissingBanner } from "@/components/incidents/shared";
 
 export type IncidentKpisDashboardProps = Readonly<{
   className?: string;

@@ -111,9 +111,18 @@ export function mapDashboardKpisToMetrics(
   const ltirTarget = dto.lostTimeInjuryRateTarget ?? FALLBACK_LTIR_TARGET;
   const complianceTarget = dto.complianceTarget ?? FALLBACK_COMPLIANCE_TARGET;
   const capaTarget = dto.capaClosureTarget ?? FALLBACK_CAPA_CLOSURE_TARGET;
+  const ratesAvailable =
+    dto.ratesAvailable ??
+    ((dto.workHoursYtd ?? 0) >= 5000);
 
-  const trirTrend = trendForMaxTarget(dto.trir, trirTarget);
-  const ltirTrend = trendForMaxTarget(dto.lostTimeInjuryRate, ltirTarget);
+  const trirTrend = trendForMaxTarget(
+    ratesAvailable ? dto.trir : null,
+    trirTarget,
+  );
+  const ltirTrend = trendForMaxTarget(
+    ratesAvailable ? dto.lostTimeInjuryRate : null,
+    ltirTarget,
+  );
   const complianceTrend = trendForMinTargetPercent(
     dto.compliancePercentage,
     complianceTarget,
@@ -126,19 +135,23 @@ export function mapDashboardKpisToMetrics(
   return [
     {
       title: "Total Recordable Rate",
-      value: formatRate(dto.trir),
-      unit: "TRIR",
+      value: ratesAvailable ? formatRate(dto.trir) : "—",
+      unit: ratesAvailable ? "per 200k hrs" : "",
       ...optionalTrend(trirTrend),
-      targetLabel: `Target ≤ ${String(trirTarget)}`,
-      chartData: toSparkline(dto.trirTrend),
+      targetLabel: ratesAvailable
+        ? `Target ≤ ${String(trirTarget)}`
+        : "Add monthly work hours in Settings",
+      chartData: ratesAvailable ? toSparkline(dto.trirTrend) : undefined,
     },
     {
       title: "Lost Time Injury Rate",
-      value: formatRate(dto.lostTimeInjuryRate),
-      unit: "LTIR",
+      value: ratesAvailable ? formatRate(dto.lostTimeInjuryRate) : "—",
+      unit: ratesAvailable ? "per 200k hrs" : "",
       ...optionalTrend(ltirTrend),
-      targetLabel: `Target ≤ ${String(ltirTarget)}`,
-      chartData: toSparkline(dto.lostTimeInjuryRateTrend),
+      targetLabel: ratesAvailable
+        ? `Target ≤ ${String(ltirTarget)}`
+        : "Add monthly work hours in Settings",
+      chartData: ratesAvailable ? toSparkline(dto.lostTimeInjuryRateTrend) : undefined,
     },
     {
       title: "Safety Compliance",

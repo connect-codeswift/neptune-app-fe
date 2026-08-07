@@ -1,5 +1,7 @@
 export { AddCapaModal } from "./AddCapaModal";
 export type { AddCapaModalProps } from "./AddCapaModal";
+export { AddTaskModal } from "./AddTaskModal";
+export type { AddTaskModalProps, CapaTaskFormPayload } from "./AddTaskModal";
 export {
   IncidentModalShell,
   IncidentModalCancelButton,

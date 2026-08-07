@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-
-const PPE_ROUTE = "/dashboard/ppe-management";
+import { PpeBackLink, PPE_ROUTE } from "@/components/ppe/PpeBackLink";
 
 const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
 const crumbLink =
@@ -38,14 +37,8 @@ export function ReplacementRequestHeader() {
           <span className={crumbMuted}>Replacement Request</span>
         </nav>
 
-        <div className="flex items-center gap-2 md:block">
-          <Link
-            href={PPE_ROUTE}
-            aria-label="Back to PPE Management"
-            className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors hover:bg-slate-50 md:hidden"
-          >
-            <Icon icon="mdi:chevron-left" className="size-3.5" />
-          </Link>
+        <div className="flex items-center gap-2">
+          <PpeBackLink />
           <div className="flex min-w-0 flex-col gap-1">
             <Text
               as="h1"

@@ -1,28 +1,45 @@
 import {
   createInitialValues,
+  type FieldConfig,
   type FormSchema,
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
 import type { IssuePpeRequestDto } from "@/dtos/req/ppe-request.dto";
 
+export type IssuePpeEmployeeFieldOptions = Readonly<{
+  siteId: number;
+  siteName?: string | null;
+  /** When true, lock to the current user (non-elevated). */
+  disabled: boolean;
+  helperText?: string;
+}>;
+
 export function buildIssuePpeSchema(
-  employeeOptions: readonly SelectOption[],
   ppeItemOptions: readonly SelectOption[],
   sizeOptions: readonly SelectOption[],
   isPpeItemSelected: boolean,
+  employeeField: IssuePpeEmployeeFieldOptions,
+  showEmployeeAcknowledgement = false,
 ): FormSchema {
   const hasSizeOptions = sizeOptions.length > 0;
 
-  return [
+  const fields: FieldConfig[] = [
     {
-      type: "select",
+      type: "person",
       name: "employee",
       label: "Employee",
       required: true,
       colSpan: 12,
-      options: employeeOptions,
-      placeholder: "Select employee",
+      siteId: employeeField.siteId,
+      siteName: employeeField.siteName,
+      displayNameField: "employeeName",
+      disabled: employeeField.disabled,
+      trailingHint: employeeField.disabled
+        ? undefined
+        : "Search people at your site.",
+      placeholder: "Start typing a name…",
+      helperText: employeeField.helperText,
     },
     {
       type: "select",
@@ -64,26 +81,47 @@ export function buildIssuePpeSchema(
       showOptional: true,
       placeholder: "Task context, replacement reason, special instructions…",
     },
-    {
+  ];
+
+  if (showEmployeeAcknowledgement) {
+    fields.push({
       type: "switch",
       name: "employeeAcknowledgement",
       label: "Employee Acknowledgement",
       colSpan: 12,
-    },
-  ];
+    });
+  }
+
+  return fields;
 }
 
-export function createIssuePpeValues(schema: FormSchema): FormValues {
+export function createIssuePpeValues(
+  schema: FormSchema,
+  options: Readonly<{
+    showEmployeeAcknowledgement?: boolean;
+    employeeUserId?: string;
+    employeeName?: string;
+  }> = {},
+): FormValues {
+  const {
+    showEmployeeAcknowledgement = false,
+    employeeUserId = "",
+    employeeName = "",
+  } = options;
+
   return {
     ...createInitialValues(schema),
     quantity: "1",
-    employeeAcknowledgement: "true",
+    employee: employeeUserId,
+    employeeName,
+    ...(showEmployeeAcknowledgement ? { employeeAcknowledgement: "true" } : {}),
   };
 }
 
 /** Strongly-typed shape of the issue PPE form. */
 export type IssuePpeFormValues = {
   employee: string;
+  employeeName: string;
   ppeItem: string;
   quantity: string;
   size: string;
@@ -108,12 +146,16 @@ export function toIssuePpeRequest(
   ppeItemOptions: readonly SelectOption[],
   sizeOptions: readonly SelectOption[],
 ): IssuePpeRequestDto {
+  const sizeValue = values.size.trim();
+  const size =
+    sizeOptions.length > 0 ? labelForOption(sizeOptions, sizeValue) : sizeValue;
+
   return {
     assignTo: Number(values.employee) || 0,
     ppeId: Number(values.ppeItem) || 0,
     item: labelForOption(ppeItemOptions, values.ppeItem),
     quantity: Number(values.quantity) || 0,
-    size: labelForOption(sizeOptions, values.size),
+    size,
     note: values.notes.trim(),
   };
 }

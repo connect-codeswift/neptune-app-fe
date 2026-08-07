@@ -11,6 +11,7 @@ import {
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
+import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
@@ -80,16 +81,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
     );
   }
 
-  const handleSubmitCapa = async (
-    payload: Readonly<{
-      controlLevel: string;
-      description: string;
-      type: string;
-      owner: string;
-      dueDate: string;
-      priority: string;
-    }>,
-  ) => {
+  const handleSubmitCapa = async (payload: CapaFormPayload) => {
     try {
       await createCapaMutation.mutateAsync({
         incidentId: incident.numericId,
@@ -99,10 +91,14 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         owner: payload.owner,
         dueDate: payload.dueDate,
         priority: payload.priority,
+        tasks: payload.tasks,
       });
+      const taskCount = payload.tasks?.length ?? 0;
       toast.success(
         "CAPA created",
-        `Added ${payload.type.toLowerCase()} action for ${incident.id}.`,
+        taskCount > 0
+          ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
+          : `Added ${payload.type.toLowerCase()} action for ${incident.id}.`,
       );
     } catch (error) {
       toast.error(

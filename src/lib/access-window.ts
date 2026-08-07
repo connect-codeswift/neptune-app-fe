@@ -129,13 +129,13 @@ export function formatAccessWindowRemaining(
 
 /** Date only — the sidebar has no room for a timestamp, and 2:15 AM told nobody anything. */
 export function formatAccessWindowExpiry(accessExpiresAt: string): string {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
     new Date(accessExpiresAt),
   );
 }
 
 let cachedAccessWindowRaw: string | null | undefined;
-let cachedAccessWindowSnapshot: AccessWindowState | null | undefined;
+let cachedAccessWindowSnapshot: AccessWindowState | null = null;
 
 function parseCachedAccessWindow(raw: string | null): AccessWindowState | null {
   if (!raw) {
@@ -167,18 +167,21 @@ export function getCachedAccessWindow(): AccessWindowState | null {
     return null;
   }
 
-  const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
+  try {
+    const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
 
-  if (
-    raw === cachedAccessWindowRaw &&
-    cachedAccessWindowSnapshot !== undefined
-  ) {
+    if (raw === cachedAccessWindowRaw) {
+      return cachedAccessWindowSnapshot;
+    }
+
+    cachedAccessWindowRaw = raw;
+    cachedAccessWindowSnapshot = parseCachedAccessWindow(raw);
     return cachedAccessWindowSnapshot;
+  } catch {
+    cachedAccessWindowRaw = null;
+    cachedAccessWindowSnapshot = null;
+    return null;
   }
-
-  cachedAccessWindowRaw = raw;
-  cachedAccessWindowSnapshot = parseCachedAccessWindow(raw);
-  return cachedAccessWindowSnapshot;
 }
 
 export function setCachedAccessWindow(window: AccessWindowState | null) {
@@ -186,18 +189,17 @@ export function setCachedAccessWindow(window: AccessWindowState | null) {
     return;
   }
 
-  cachedAccessWindowRaw = undefined;
-  cachedAccessWindowSnapshot = undefined;
-
   if (!window) {
     globalThis.sessionStorage.removeItem(ACCESS_WINDOW_STORAGE_KEY);
+    cachedAccessWindowRaw = null;
+    cachedAccessWindowSnapshot = null;
     return;
   }
 
-  globalThis.sessionStorage.setItem(
-    ACCESS_WINDOW_STORAGE_KEY,
-    JSON.stringify(window),
-  );
+  const raw = JSON.stringify(window);
+  globalThis.sessionStorage.setItem(ACCESS_WINDOW_STORAGE_KEY, raw);
+  cachedAccessWindowRaw = raw;
+  cachedAccessWindowSnapshot = window;
 }
 
 export function setAuthRedirectMessage(message: string) {

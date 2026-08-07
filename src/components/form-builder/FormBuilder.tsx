@@ -95,9 +95,27 @@ export function FormBuilder(props: FormBuilderProps) {
     // Clear a field's error as soon as the user edits it.
     setErrors((prev) => {
       if (!prev[name]) return prev;
-      const next = { ...prev };
-      delete next[name];
-      return next;
+      const cleared = { ...prev };
+      delete cleared[name];
+      return cleared;
+    });
+  };
+
+  const patchValues = (patch: FormValues) => {
+    const next = { ...values, ...patch };
+    setValues(next);
+    onChange?.(next);
+
+    setErrors((prev) => {
+      let changed = false;
+      const cleared = { ...prev };
+      for (const key of Object.keys(patch)) {
+        if (cleared[key]) {
+          delete cleared[key];
+          changed = true;
+        }
+      }
+      return changed ? cleared : prev;
     });
   };
 
@@ -128,8 +146,10 @@ export function FormBuilder(props: FormBuilderProps) {
             <FieldRenderer
               field={field}
               value={values[field.name]}
+              values={values}
               error={errors[field.name]}
               onChange={(value) => setValue(field.name, value)}
+              onPatchValues={patchValues}
             />
           </div>
         ))}

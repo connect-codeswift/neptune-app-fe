@@ -11,7 +11,6 @@ import { TextInput } from "@/components/inputs/TextInput";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
 import {
-  INVITE_PASSWORD_MESSAGE,
   safeParseAcceptInvitationRequest,
   safeParseEnableMfaRequest,
 } from "@/dtos/req/auth-request.dto";
@@ -23,6 +22,7 @@ import {
   useSetupMfaMutation,
 } from "@/hooks/use-auth-mutations";
 import { ehsLinkClass } from "@/lib/ehs-classes";
+import { WEAK_PASSWORD_MESSAGE } from "@/lib/password-strength";
 import { toast } from "@/lib/toast";
 
 function getFormString(formData: FormData, name: string) {
@@ -296,7 +296,7 @@ export default function AcceptInvitationRightPanel() {
             />
 
             <Text as="p" className="text-ehs-muted-text text-xs">
-              {INVITE_PASSWORD_MESSAGE}
+              {WEAK_PASSWORD_MESSAGE}
             </Text>
 
             {formError ? (
