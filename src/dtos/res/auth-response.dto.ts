@@ -17,6 +17,8 @@ export type AuthResponseDto = {
   organizationName: string;
   activatedModules: string;
   profileUrl?: string | null;
+  /** Free-text job title, distinct from the role. Null until someone sets it. */
+  jobTitle?: string | null;
   sites: SiteDto[];
 };
 

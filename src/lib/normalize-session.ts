@@ -241,6 +241,7 @@ export function normalizeOrgMeResponse(data: unknown): SessionBootstrapDto | nul
     fullName: null,
     email: null,
     role: null,
+    jobTitle: asString(readProp(unwrapped, "jobTitle", "JobTitle")),
     organizationId: asNumber(
       readProp(unwrapped, "id", "Id", "organizationId", "OrganizationId"),
     ),
@@ -317,6 +318,7 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     role: asString(
       readProp(unwrapped, "role", "Role", "roleName", "RoleName"),
     ),
+    jobTitle: asString(readProp(unwrapped, "jobTitle", "JobTitle")),
     organizationId: asNumber(
       readProp(unwrapped, "organizationId", "OrganizationId"),
     ),

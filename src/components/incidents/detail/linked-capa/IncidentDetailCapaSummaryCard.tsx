@@ -16,18 +16,18 @@ export function IncidentDetailCapaSummaryCard(
 ) {
   const {
     totalCount = 0,
+    notStartedCount = 0,
     inProgressCount = 0,
-    verifiedCount = 0,
-    planningCount = 0,
+    completedCount = 0,
     isLoading = false,
     className = "",
   } = props;
 
   const stats = [
     { label: "Total CAPAs", value: totalCount, emphasize: true },
+    { label: "Not started", value: notStartedCount, emphasize: false },
     { label: "In progress", value: inProgressCount, emphasize: false },
-    { label: "Verified", value: verifiedCount, emphasize: false },
-    { label: "Planning", value: planningCount, emphasize: false },
+    { label: "Completed", value: completedCount, emphasize: false },
   ];
 
   return (
@@ -36,12 +36,14 @@ export function IncidentDetailCapaSummaryCard(
       incidentGlassCardClassName="gap-[14px]"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg text-lg font-semibold"
-      >
-        CAPA summary
-      </Text>
+      <div className="flex flex-col gap-0.5">
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+          CAPA summary
+        </Text>
+        <span className="text-ehs-muted-text text-sm leading-normal">
+          Counts reflect assignee status on each action
+        </span>
+      </div>
 
       <div className="grid grid-cols-2 gap-2.5">
         {stats.map((item) => (
@@ -58,7 +60,7 @@ export function IncidentDetailCapaSummaryCard(
             >
               {isLoading ? "—" : item.value}
             </span>
-            <span className="text-sm leading-normal text-ehs-muted-text">
+            <span className="text-ehs-muted-text text-sm leading-normal">
               {item.label}
             </span>
           </div>

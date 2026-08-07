@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
 import {
@@ -23,6 +24,7 @@ import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
+import { useUpdateMyProfileMutation } from "@/hooks/use-profile-avatar";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
 import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
@@ -33,7 +35,6 @@ type ProfileFormState = Readonly<{
   phone: string;
   jobTitle: string;
   department: string;
-  siteId: string;
   office: string;
   reportsTo: string;
   emergencyName: string;
@@ -45,8 +46,7 @@ type ProfileFormState = Readonly<{
 
 function buildInitialFormState(
   displayName: string,
-  role: string,
-  siteId: number | null,
+  jobTitle: string | null,
 ): ProfileFormState {
   const { firstName, lastName } = splitDisplayName(displayName);
 
@@ -54,9 +54,10 @@ function buildInitialFormState(
     firstName,
     lastName,
     phone: DEFAULT_PROFILE_FORM.phone,
-    jobTitle: role || DEFAULT_PROFILE_FORM.jobTitle,
+    // Blank rather than the role when unset. The sidebar falls back to the role for display,
+    // but seeding it here would make an untouched Save write the role in as a job title.
+    jobTitle: jobTitle ?? "",
     department: DEFAULT_PROFILE_FORM.department,
-    siteId: siteId != null ? String(siteId) : "",
     office: DEFAULT_PROFILE_FORM.office,
     reportsTo: DEFAULT_PROFILE_FORM.reportsTo,
     emergencyName: DEFAULT_EMERGENCY_CONTACT.name,
@@ -72,23 +73,27 @@ function buildInitialFormState(
 export function AccountSettingsProfileClient() {
   const { user, sites } = useSessionBootstrap();
   const currentUser = getCurrentUser();
+  const updateProfile = useUpdateMyProfileMutation();
   const initialState = useMemo(
-    () =>
-      buildInitialFormState(
-        user.displayName,
-        user.role,
-        sites.find((site) => site.siteName === user.siteName)?.id ?? sites[0]?.id ?? null,
-      ),
-    [user.displayName, user.role, user.siteName, sites],
+    () => buildInitialFormState(user.displayName, user.jobTitle),
+    [user.displayName, user.jobTitle],
   );
   const [form, setForm] = useState<ProfileFormState>(initialState);
   const [savedSnapshot, setSavedSnapshot] =
     useState<ProfileFormState>(initialState);
 
-  const siteOptions = sites.map((site) => ({
-    value: String(site.id),
-    label: site.siteName,
-  }));
+  const assignedSiteOptions = useMemo(
+    () =>
+      sites.map((site) => ({
+        value: String(site.id),
+        label: site.siteName,
+      })),
+    [sites],
+  );
+  const assignedSiteIds = useMemo(
+    () => assignedSiteOptions.map((site) => site.value),
+    [assignedSiteOptions],
+  );
 
   const updateField = <K extends keyof ProfileFormState>(
     key: K,
@@ -97,9 +102,38 @@ export function AccountSettingsProfileClient() {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
+  const saveProfile = async () => {
+    if (updateProfile.isPending) {
+      return;
+    }
+
+    const fullName = [form.firstName, form.lastName]
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join(" ");
+
+    if (!fullName) {
+      toast.error("Enter a first or last name.");
+      return;
+    }
+
+    try {
+      // Only the fields the API actually stores. Phone, department, office and reports-to are
+      // still placeholder data on this screen, and sending the seeded phone number would fail
+      // the backend's format check.
+      await updateProfile.mutateAsync({
+        fullName,
+        jobTitle: form.jobTitle.trim(),
+      });
+      setSavedSnapshot(form);
+      toast.success("Profile settings saved");
+    } catch {
+      toast.error("Could not save your profile. Try again.");
+    }
+  };
+
   const handleSave = () => {
-    setSavedSnapshot(form);
-    toast.success("Profile settings saved");
+    void saveProfile();
   };
 
   const handleCancel = () => {
@@ -112,7 +146,7 @@ export function AccountSettingsProfileClient() {
       onSave={handleSave}
       onCancel={handleCancel}
     >
-      <div className="grid gap-[14px] lg:grid-cols-2">
+      <div className="grid gap-[14px]">
         <GlassCard className="gap-0 overflow-hidden p-0">
           <div className="border-ehs-border/60 border-b px-5 py-4">
             <Text
@@ -130,7 +164,7 @@ export function AccountSettingsProfileClient() {
           />
         </GlassCard>
 
-        <GlassCard>
+        {/* <GlassCard>
           <CardHeading title="Emergency Contact" />
           <div className="mt-2 grid gap-4 sm:grid-cols-2">
             <TextInput
@@ -171,7 +205,7 @@ export function AccountSettingsProfileClient() {
               }
             />
           </div>
-        </GlassCard>
+        </GlassCard> */}
       </div>
 
       <div className="grid gap-[14px] lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -221,38 +255,21 @@ export function AccountSettingsProfileClient() {
               onChange={(event) => updateField("jobTitle", event.target.value)}
             />
 
-            <SelectInput
-              label="Department"
-              labelClassName={settingsLabelClass}
-              placeholder="Select department"
-              options={DEPARTMENT_OPTIONS}
-              value={form.department}
-              onChange={(event) => updateField("department", event.target.value)}
-            />
-            <SelectInput
-              label="Site / Location"
-              labelClassName={settingsLabelClass}
-              placeholder="Select site"
-              options={siteOptions}
-              value={form.siteId}
-              onChange={(event) => updateField("siteId", event.target.value)}
-            />
-
-            <TextInput
-              label="Employee ID"
-              labelClassName={settingsLabelClass}
-              placeholder="Employee ID"
-              value={PLACEHOLDER_PERSONAL_INFO.employeeId}
-              disabled
-            />
-            <SelectInput
-              label="Reports To"
-              labelClassName={settingsLabelClass}
-              placeholder="Select manager"
-              options={REPORTS_TO_OPTIONS}
-              value={form.reportsTo}
-              onChange={(event) => updateField("reportsTo", event.target.value)}
-            />
+            <div className="sm:col-span-2">
+              <MultiSelectInput
+                label="Sites"
+                labelClassName={settingsLabelClass}
+                placeholder="No sites assigned"
+                options={assignedSiteOptions}
+                value={assignedSiteIds}
+                onChange={() => undefined}
+                disabled
+              />
+              <Text as="p" className="text-ehs-muted-text mt-1 text-xs">
+                Managed by administrator. Switch your
+                active site from the header.
+              </Text>
+            </div>
 
             <div className="sm:col-span-2">
               <TextInput

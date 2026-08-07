@@ -9,6 +9,7 @@ import { parseActivatedModuleSet } from "@/lib/ehs-modules";
 import {
   getCurrentUserPermissions,
 } from "@/lib/jwt-permissions";
+import { formatJobTitleLabel } from "@/lib/format-job-title";
 import { mergePermissionSets } from "@/lib/normalize-session";
 import {
   getCachedAccessWindow,
@@ -31,9 +32,14 @@ export const sessionQueryKeys = {
 
 const SESSION_STALE_TIME_MS = 5 * 60 * 1000;
 
-/** Session storage is unavailable during SSR — mirror `useHasAccessToken`. */
-const subscribeToNothing = () => () => {};
+/** No-op subscribe — access-window cache is written by our own effects. */
+const subscribeToNothing = () => () => undefined;
 
+/**
+ * sessionStorage cache for the access-window banner.
+ * Server snapshot is always null so SSR HTML matches the first client hydrate.
+ * {@link getCachedAccessWindow} returns a stable object reference when unchanged.
+ */
 function useCachedAccessWindow(): AccessWindowState | null {
   return useSyncExternalStore(
     subscribeToNothing,
@@ -58,6 +64,7 @@ function getUserInitials(displayName: string): string {
 
 export function useSessionBootstrap() {
   const hasToken = useHasAccessToken();
+  const cachedAccessWindow = useCachedAccessWindow();
   const authContext = hasToken === true ? getAuthContext() : null;
   const currentUser =
     hasToken === true ?
@@ -73,7 +80,6 @@ export function useSessionBootstrap() {
   });
 
   const session = sessionQuery.data;
-  const cachedAccessWindow = useCachedAccessWindow();
 
   const accessWindow = useMemo((): AccessWindowState | null => {
     if (
@@ -193,6 +199,11 @@ export function useSessionBootstrap() {
       initials: getUserInitials(displayName),
       profileUrl: session?.profileUrl ?? null,
       role: role ?? "User",
+      /** As stored — null when unset. Forms must use this, never the label below, or saving
+       *  an untouched profile would silently turn the role into a job title. */
+      jobTitle: session?.jobTitle?.trim() || null,
+      /** For display: the job title when there is one, otherwise the prettified role. */
+      jobTitleLabel: session?.jobTitle?.trim() || formatJobTitleLabel(role),
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,
       organizationName: session?.organizationName ?? null,

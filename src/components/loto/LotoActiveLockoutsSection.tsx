@@ -58,14 +58,14 @@ export function LotoActiveLockoutsSection() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h3 className="text-ehs-darker text-[15px] leading-[22.5px] font-bold">
+                <h3 className="text-ehs-darker text-lg leading-[22.5px] font-bold">
                   {item.equipmentName}
                 </h3>
-                <span className="inline-flex rounded-full bg-[rgba(239,68,68,0.12)] px-2.5 py-0.5 text-[11px] font-bold text-[#ef4444]">
+                <span className="inline-flex rounded-full px-2.5 py-0.5 text-sm font-bold text-[#ef4444]">
                   LOCKED OUT
                 </span>
               </div>
-              <p className="mt-[3px] text-[12.5px] leading-[18.75px] text-[#566072]">
+              <p className="text-ehs-darker/70 mt-0.75 text-sm leading-[18.75px]">
                 {item.purpose}
               </p>
             </div>
@@ -75,7 +75,7 @@ export function LotoActiveLockoutsSection() {
               onClick={() => {
                 router.push(lotoRemoveLockoutRoute(item.id));
               }}
-              className="inline-flex h-[39px] shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 text-[13px] font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="inline-flex h-[39px] shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-4 text-base font-medium text-[#2a3446] transition-colors"
             >
               <Icon icon="mdi:lock-open-outline" className="size-3.5" />
               Remove Lockout
@@ -86,19 +86,19 @@ export function LotoActiveLockoutsSection() {
             {META_FIELDS.map((field) => (
               <div
                 key={field.key}
-                className="rounded-[10px] bg-[rgba(15,23,42,0.03)] px-3 pt-2.5 pb-2.5"
+                className="rounded-[10px] px-3 pt-2.5 pb-2.5"
               >
                 <div className="flex items-center gap-[5px]">
                   <Icon
                     icon={field.icon}
-                    className="size-[11px] text-[#b3bbc8]"
+                    className="size-3.5 text-[#b3bbc8]"
                     aria-hidden="true"
                   />
-                  <span className="text-[10px] font-semibold tracking-[0.6px] text-[#b3bbc8] uppercase">
+                  <span className="text-xs font-semibold tracking-[0.6px] text-[#b3bbc8] uppercase">
                     {field.label}
                   </span>
                 </div>
-                <p className="text-ehs-darker mt-1 text-[13px] leading-[19.5px] font-semibold">
+                <p className="text-ehs-darker mt-1 text-sm leading-[19.5px] font-semibold">
                   {field.getValue(item)}
                 </p>
               </div>

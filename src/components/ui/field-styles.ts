@@ -34,19 +34,19 @@ const FIELD_BASE = [
 ].join(" ");
 
 /** Single-line inputs and selects. */
-export const FIELD_INPUT_CLASS = `h-9 px-[13px] text-sm ${FIELD_BASE}`;
+export const FIELD_INPUT_CLASS = ` p-3 text-base  ${FIELD_BASE}`;
 
 /**
  * Selects: native chevron removed so we can draw our own, with room for it.
  */
-export const FIELD_SELECT_CLASS = `${FIELD_INPUT_CLASS} cursor-pointer appearance-none pr-9`;
+export const FIELD_SELECT_CLASS = `${FIELD_INPUT_CLASS} cursor-pointer appearance-none pr-9 `;
 
 /**
  * Applied while a select has no value, so "Select…" reads as a prompt rather
  * than an answer. Matters now that the classification questions start blank —
  * an unanswered field should look unanswered.
  */
-export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text";
+export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text text-base";
 
 /** Multi-line inputs — same skin, no fixed height. */
 export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text-sm leading-normal ${FIELD_BASE}`;

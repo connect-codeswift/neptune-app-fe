@@ -15,6 +15,7 @@ function mapUserByIdFallback(
     fullName: user.fullName,
     email: user.email,
     role: currentUser.role,
+    jobTitle: user.jobTitle ?? null,
     organizationId: user.organizationId,
     organizationName: user.organizationName,
     siteId: authContext?.siteId ?? null,

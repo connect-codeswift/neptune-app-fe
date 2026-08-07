@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
@@ -9,14 +9,13 @@ import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useIssuePpeMutation } from "@/hooks/use-ppe-mutations";
 import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
-import { getCurrentUser } from "@/lib/current-user";
+import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
+import { canManagePpeInventory, getCurrentUser } from "@/lib/current-user";
 import {
   toPpeItemOptions,
   toIssueIdFromResponse,
   toPpeSizeOptionsForItem,
 } from "@/lib/map-ppe";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { acknowledgePpe } from "@/services/ppe.service";
 import { toast } from "@/lib/toast";
 import { IssuePpeHeader } from "./IssuePpeHeader";
@@ -43,12 +42,34 @@ const fieldLabelClass = [
 export function IssuePpeContent() {
   const router = useRouter();
   const issuePpe = useIssuePpeMutation();
-  const userDropdownQuery = useUserDropdownQuery();
   const ppeItemsQuery = usePpeItemsQuery();
   const [selectedPpeItemId, setSelectedPpeItemId] = useState("");
   const [formSeed, setFormSeed] = useState<FormValues | null>(null);
+  // Resolve role / identity after mount — JWT lives in localStorage.
+  const [roleReady, setRoleReady] = useState(false);
+  const [isElevated, setIsElevated] = useState(false);
+  const [employeeUserId, setEmployeeUserId] = useState("");
+  const [employeeName, setEmployeeName] = useState("");
+  const [siteId, setSiteId] = useState(0);
+  const [siteName, setSiteName] = useState<string | null>(null);
 
-  const users = userDropdownQuery.data?.dataModel;
+  useEffect(() => {
+    const elevated = canManagePpeInventory();
+    const current = getCurrentUser();
+    const auth = getAuthContext();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time identity read from localStorage token
+    setIsElevated(elevated);
+    setSiteId(current.siteId || auth?.siteId || 0);
+    setSiteName(auth?.siteName ?? null);
+
+    if (!elevated && current.userId > 0) {
+      setEmployeeUserId(String(current.userId));
+      setEmployeeName(getAuthDisplayName());
+    }
+
+    setRoleReady(true);
+  }, []);
+
   const ppeItems = ppeItemsQuery.data;
   const ppeItemOptions = useMemo(
     () => toPpeItemOptions(ppeItems ?? []),
@@ -62,16 +83,36 @@ export function IssuePpeContent() {
   const schema = useMemo(
     () =>
       buildIssuePpeSchema(
-        toAssigneeOptions(users ?? []),
         ppeItemOptions,
         sizeOptions,
         selectedPpeItemId !== "",
+        {
+          siteId,
+          siteName,
+          disabled: !isElevated,
+          helperText: !isElevated
+            ? "Issuances are assigned to your account."
+            : undefined,
+        },
+        isElevated,
       ),
-    [users, ppeItemOptions, sizeOptions, selectedPpeItemId],
+    [
+      ppeItemOptions,
+      sizeOptions,
+      selectedPpeItemId,
+      siteId,
+      siteName,
+      isElevated,
+    ],
   );
   const defaultInitialValues = useMemo(
-    () => createIssuePpeValues(schema),
-    [schema],
+    () =>
+      createIssuePpeValues(schema, {
+        showEmployeeAcknowledgement: isElevated,
+        employeeUserId,
+        employeeName,
+      }),
+    [schema, isElevated, employeeUserId, employeeName],
   );
   const initialValues = formSeed ?? defaultInitialValues;
 
@@ -93,16 +134,23 @@ export function IssuePpeContent() {
 
   const handleSubmit = (values: FormValues) => {
     const formValues = values as IssuePpeFormValues;
+
+    if (!String(formValues.employee ?? "").trim()) {
+      toast.error("Select an employee.");
+      return;
+    }
+
     const payload = toIssuePpeRequest(formValues, ppeItemOptions, sizeOptions);
-    const shouldAcknowledge = isEmployeeAcknowledged(
-      formValues.employeeAcknowledgement,
-    );
+    const shouldAcknowledge =
+      isElevated && isEmployeeAcknowledged(formValues.employeeAcknowledgement);
 
     issuePpe.mutate(payload, {
       onSuccess: (response) => {
+        const afterIssueRoute = isElevated ? ISSUANCE_LOG_ROUTE : PPE_ROUTE;
+
         const finish = () => {
           toast.success("PPE issuance confirmed");
-          router.push(ISSUANCE_LOG_ROUTE);
+          router.push(afterIssueRoute);
         };
 
         if (!shouldAcknowledge) {
@@ -116,32 +164,32 @@ export function IssuePpeContent() {
           toast.error(
             "Issuance saved but could not acknowledge — missing issue id.",
           );
-          router.push(ISSUANCE_LOG_ROUTE);
+          router.push(afterIssueRoute);
           return;
         }
 
-        const { organizationName, siteId } = getCurrentUser();
+        const { organizationName, siteId: ackSiteId } = getCurrentUser();
 
         if (!organizationName) {
           toast.error(
             "Issuance saved but could not acknowledge — missing organization.",
           );
-          router.push(ISSUANCE_LOG_ROUTE);
+          router.push(afterIssueRoute);
           return;
         }
 
-        if (siteId <= 0) {
+        if (ackSiteId <= 0) {
           toast.error(
             "Issuance saved but could not acknowledge — missing site id.",
           );
-          router.push(ISSUANCE_LOG_ROUTE);
+          router.push(afterIssueRoute);
           return;
         }
 
         void acknowledgePpe({
           issueId,
           org: organizationName,
-          siteId,
+          siteId: ackSiteId,
         })
           .then(() => {
             toast.success("PPE acknowledgement confirmed");
@@ -156,7 +204,7 @@ export function IssuePpeContent() {
                 "Issuance saved but could not acknowledge PPE.",
               ),
             );
-            router.push(ISSUANCE_LOG_ROUTE);
+            router.push(afterIssueRoute);
           });
       },
       onError: (error) => {
@@ -170,9 +218,9 @@ export function IssuePpeContent() {
     });
   };
 
-  const isLoading = userDropdownQuery.isPending || ppeItemsQuery.isPending;
+  const isLoading = ppeItemsQuery.isPending;
 
-  if (isLoading && !userDropdownQuery.data && !ppeItemsQuery.data) {
+  if ((isLoading && !ppeItemsQuery.data) || !roleReady) {
     return <PpeFormPageSkeleton fields={6} />;
   }
 
@@ -190,15 +238,6 @@ export function IssuePpeContent() {
               Issuance Details
             </Text>
 
-            {userDropdownQuery.isError ? (
-              <Text as="p" className="text-ehs-red text-sm">
-                {getMutationErrorMessage(
-                  userDropdownQuery.error,
-                  "Could not load employees.",
-                )}
-              </Text>
-            ) : null}
-
             {ppeItemsQuery.isError ? (
               <Text as="p" className="text-ehs-red text-sm">
                 {getMutationErrorMessage(
@@ -209,7 +248,7 @@ export function IssuePpeContent() {
             ) : null}
 
             <FormBuilder
-              key={selectedPpeItemId}
+              key={`${selectedPpeItemId}-${String(isElevated)}-${employeeUserId}`}
               formId={ISSUE_PPE_FORM_ID}
               schema={schema}
               initialValues={initialValues}

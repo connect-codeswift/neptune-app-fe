@@ -1,18 +1,9 @@
 /** Filter options for the CAPA register. */
 export const CAPA_STATE_FILTERS = ["All", "Open", "Overdue", "Closed"] as const;
 
-export const CAPA_PRIORITY_FILTERS = [
-  "All",
-  "High",
-  "Medium",
-  "Low",
-] as const;
+export const CAPA_PRIORITY_FILTERS = ["All", "High", "Medium", "Low"] as const;
 
-export const CAPA_TYPE_FILTERS = [
-  "All",
-  "Corrective",
-  "Preventive",
-] as const;
+export const CAPA_TYPE_FILTERS = ["All", "Corrective", "Preventive"] as const;
 
 export type CapaStateFilter = (typeof CAPA_STATE_FILTERS)[number];
 

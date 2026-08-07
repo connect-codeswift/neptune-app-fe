@@ -126,20 +126,50 @@ function attachAuthHeader(config: InternalAxiosRequestConfig) {
   return config;
 }
 
-/** Flattens ASP.NET ValidationProblemDetails.errors into one readable line. */
-function readValidationErrors(data: unknown): string | null {
-  if (typeof data !== "object" || data === null) return null;
+/** Pull a user-facing message from common API error envelopes (incl. ASP.NET validation). */
+export function getApiErrorMessageFromData(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
 
-  const errors = (data as { errors?: unknown }).errors;
-  if (typeof errors !== "object" || errors === null) return null;
+  const record = data as Record<string, unknown>;
+  const errors = record.errors;
 
-  const messages = Object.values(errors as Record<string, unknown>)
-    .flatMap((value) => (Array.isArray(value) ? value : [value]))
-    .filter(
-      (value): value is string => typeof value === "string" && !!value.trim(),
+  if (typeof errors === "object" && errors !== null) {
+    const messages = Object.values(errors as Record<string, unknown>).flatMap(
+      (value) => {
+        if (Array.isArray(value)) {
+          return value.filter(
+            (item): item is string => typeof item === "string" && !!item.trim(),
+          );
+        }
+
+        if (typeof value === "string" && value.trim()) {
+          return [value];
+        }
+
+        return [];
+      },
     );
 
-  return messages.length > 0 ? messages.join(" ") : null;
+    if (messages.length > 0) {
+      return messages.join(" ");
+    }
+  }
+
+  if (typeof record.message === "string" && record.message.trim()) {
+    return record.message;
+  }
+
+  if (typeof record.Message === "string" && record.Message.trim()) {
+    return record.Message;
+  }
+
+  if (typeof record.title === "string" && record.title.trim()) {
+    return record.title;
+  }
+
+  return null;
 }
 
 function toApiError(
@@ -157,10 +187,7 @@ function toApiError(
     // thrown by its exception middleware, and neither on [ApiController]'s
     // automatic model-validation 400 — that shape carries `errors` and `title`.
     message:
-      data?.message ??
-      data?.Message ??
-      readValidationErrors(data) ??
-      data?.title ??
+      getApiErrorMessageFromData(data) ??
       error.message ??
       "Something went wrong. Please try again.",
     status: error.response?.status,

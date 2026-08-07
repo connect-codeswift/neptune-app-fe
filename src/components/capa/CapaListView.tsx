@@ -210,7 +210,8 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
 
   // `hasToken === null` means we haven't hydrated yet, so the skeleton also
   // covers the first paint on a hard refresh — not just the fetch.
-  const showSkeleton = hasToken === null || (hasToken && actionsQuery.isLoading);
+  const showSkeleton =
+    hasToken === null || (hasToken && actionsQuery.isLoading);
   const showSignInPrompt = hasToken === false;
   const showError = hasToken === true && actionsQuery.isError;
 
