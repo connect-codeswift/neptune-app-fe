@@ -131,7 +131,10 @@ function IssuanceLogMobileCard(
   );
 }
 
-export function PpeIssuanceLogContent() {
+export function PpeIssuanceLogContent(
+  props: Readonly<{ embedded?: boolean }> = {},
+) {
+  const { embedded = false } = props;
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<LogStatusFilter>("all");
@@ -173,8 +176,15 @@ export function PpeIssuanceLogContent() {
   ];
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4">
+    <div
+      className={
+        embedded
+          ? "flex min-w-0 flex-col gap-3.5"
+          : "flex flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4"
+      }
+    >
       <PpeIssuanceLogHeader
+        embedded={embedded}
         onExportCsv={() => {
           if (filtered.length === 0) {
             toast.error("No issuances to export");

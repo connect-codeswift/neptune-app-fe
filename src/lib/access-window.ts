@@ -107,7 +107,8 @@ export function formatAccessWindowBannerMessage(
   accessExpiresAt: string,
 ): string {
   const days = daysRemaining ?? 0;
-  const expiryLabel = new Intl.DateTimeFormat(undefined, {
+  // Fixed locale — `undefined` follows the browser and can disagree with SSR.
+  const expiryLabel = new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(accessExpiresAt));

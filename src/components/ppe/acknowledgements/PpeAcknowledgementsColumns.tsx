@@ -45,7 +45,7 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
     <Button
       type="button"
       variant="primary"
-      className="pointer-events-none rounded-lg px-3.5 py-1.5 text-xs font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)]"
+      className="pointer-events-none rounded-lg px-3.5 py-1.5 text-lg font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)]"
     >
       Acknowledge
     </Button>

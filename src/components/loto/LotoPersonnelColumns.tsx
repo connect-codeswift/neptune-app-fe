@@ -23,7 +23,7 @@ export function buildLotoPersonnelColumns(
   return [
     columnHelper.accessor("name", {
       header: "NAME",
-      size: 170,
+      size: 120,
       cell: (info) => {
         const item = info.row.original;
         return (
@@ -31,7 +31,7 @@ export function buildLotoPersonnelColumns(
             <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-[rgba(8,145,166,0.12)] text-[11px] font-bold text-[#0891a6]">
               {item.initials}
             </span>
-            <span className="text-ehs-darker text-[13.5px] leading-5 font-semibold">
+            <span className="text-ehs-darker text-base leading-5 font-semibold">
               {item.name}
             </span>
           </div>
@@ -42,11 +42,11 @@ export function buildLotoPersonnelColumns(
     columnHelper.display({
       id: "role",
       header: "ROLE & DEPARTMENT",
-      size: 150,
+      size: 120,
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="text-[13px] text-[#2a3446]">{row.original.role}</span>
-          <span className="text-[11.5px] text-[#b3bbc8]">
+          <span className="text-base text-[#2a3446]">{row.original.role}</span>
+          <span className="text-sm text-[#b3bbc8]">
             {row.original.department}
           </span>
         </div>
@@ -55,21 +55,21 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.accessor("certifiedOn", {
       header: "CERTIFIED",
-      size: 100,
+      size: 120,
       cell: (info) => (
-        <span className="text-[12.5px] text-[#566072]">{info.getValue()}</span>
+        <span className="text-base text-[#566072]">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("expiresOn", {
       header: "EXPIRES",
-      size: 100,
+      size: 120,
       cell: (info) => {
         const expired = info.row.original.status === "Expired";
         return (
           <span
             className={[
-              "text-[12.5px] font-semibold",
+              "text-base font-semibold",
               expired ? "text-[#ef4444]" : "text-[#2a3446]",
             ].join(" ")}
           >
@@ -81,13 +81,13 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.accessor("equipmentIds", {
       header: "EQUIPMENT",
-      size: 280,
+      size: 120,
       cell: (info) => (
         <div className="flex max-w-70 flex-wrap gap-1">
-          {info.getValue().map((equipmentId) => (
+          {info.getValue().map((equipmentId: string) => (
             <span
               key={equipmentId}
-              className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#566072]"
+              className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm font-medium text-[#566072]"
             >
               {equipmentId}
             </span>
@@ -98,12 +98,12 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.accessor("status", {
       header: "STATUS",
-      size: 90,
+      size: 120,
       cell: (info) => (
         <span
           className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-            statusClassName[info.getValue()],
+            "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
+            statusClassName[info.getValue() as LotoPersonnelStatus],
           ].join(" ")}
         >
           {info.getValue()}
@@ -113,8 +113,8 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.display({
       id: "actions",
-      header: "",
-      size: 100,
+      header: "actions",
+      size: 120,
       cell: ({ row }) => {
         const item = row.original;
         const isExpired = item.status === "Expired";
@@ -124,7 +124,7 @@ export function buildLotoPersonnelColumns(
             {isExpired ? (
               <button
                 type="button"
-                className="cursor-pointer text-xs font-semibold text-[#ef4444] hover:underline"
+                className="cursor-pointer text-base font-semibold text-[#ef4444] hover:underline"
                 onClick={(event) => {
                   event.stopPropagation();
                   actions.onRenew(item);
@@ -135,7 +135,7 @@ export function buildLotoPersonnelColumns(
             ) : null}
             <button
               type="button"
-              className="cursor-pointer text-xs font-semibold text-[#566072] hover:underline"
+              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onEdit(item);

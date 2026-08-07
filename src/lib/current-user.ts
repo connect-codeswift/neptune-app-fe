@@ -211,3 +211,12 @@ export function canViewNearMissInsights(): boolean {
 export function canViewHazardInsights(): boolean {
   return hasElevatedRole();
 }
+
+/**
+ * True when the signed-in user may manage PPE inventory (catalog, View Issues)
+ * — EHS Manager, EHS Director, or Lead. Non-elevated users see the issuance log
+ * on the PPE Management home instead.
+ */
+export function canManagePpeInventory(): boolean {
+  return hasElevatedRole();
+}

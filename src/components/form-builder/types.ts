@@ -178,6 +178,26 @@ export type SwitchFieldConfig = BaseField &
     type: "switch";
   }>;
 
+/**
+ * Site roster person picker (search + avatar list).
+ * Field value is the selected user id. Display name is kept in
+ * {@link displayNameField} (defaults to `${name}Name`).
+ */
+export type PersonFieldConfig = BaseField &
+  Readonly<{
+    type: "person";
+    placeholder?: string;
+    /** Hint opposite the label, e.g. "Search people at your site." */
+    trailingHint?: string;
+    /** Site whose roster is searched. `0` disables search. */
+    siteId: number;
+    siteName?: string | null;
+    /** Form value key for the display name. Defaults to `${name}Name`. */
+    displayNameField?: string;
+    /** Lock the control — show the current display name, no search. */
+    disabled?: boolean;
+  }>;
+
 export type FieldConfig =
   | TextFieldConfig
   | DateFieldConfig
@@ -188,7 +208,8 @@ export type FieldConfig =
   | ChipsFieldConfig
   | PhotoFieldConfig
   | TilesFieldConfig
-  | SwitchFieldConfig;
+  | SwitchFieldConfig
+  | PersonFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
 

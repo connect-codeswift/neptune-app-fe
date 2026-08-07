@@ -12,6 +12,8 @@ import type {
   DateFieldConfig,
   FieldConfig,
   FieldValue,
+  FormValues,
+  PersonFieldConfig,
   SelectFieldConfig,
   SwitchFieldConfig,
   TextFieldConfig,
@@ -20,6 +22,8 @@ import type {
   TileTone,
   TimeFieldConfig,
 } from "./types";
+import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 
 const inputClass =
   "p-3 w-full rounded-lg border border-slate-900/10 bg-white text-base! text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
@@ -126,8 +130,12 @@ function FieldShell(
 export type FieldRendererProps = Readonly<{
   field: FieldConfig;
   value: FieldValue;
+  /** Full form map — person fields read the companion display-name value. */
+  values: FormValues;
   error?: string;
   onChange: (value: FieldValue) => void;
+  /** Patch one or more form keys in a single update (person id + display name). */
+  onPatchValues: (patch: FormValues) => void;
 }>;
 
 function TextControl(
@@ -735,8 +743,65 @@ function SwitchControl(
   );
 }
 
+function personDisplayNameKey(field: PersonFieldConfig): string {
+  return field.displayNameField ?? `${field.name}Name`;
+}
+
+function PersonControl(
+  props: Readonly<{
+    field: PersonFieldConfig;
+    userId: string;
+    displayName: string;
+    error?: string;
+    onPatchValues: (patch: FormValues) => void;
+  }>,
+) {
+  const { field, userId, displayName, error, onPatchValues } = props;
+  const nameKey = personDisplayNameKey(field);
+
+  if (field.disabled) {
+    return (
+      <FieldShell field={field} error={error}>
+        <input
+          id={field.name}
+          name={field.name}
+          type="text"
+          value={displayName}
+          disabled
+          readOnly
+          aria-label={field.label}
+          className={`${FIELD_INPUT_CLASS} cursor-not-allowed opacity-70`}
+        />
+        <input type="hidden" name={field.name} value={userId} />
+      </FieldShell>
+    );
+  }
+
+  return (
+    <FieldShell field={field} error={error} hideLabel showMessages>
+      <ReportPersonSearchField
+        label={field.label}
+        required={field.required}
+        value={displayName}
+        selectedUserId={userId}
+        onChange={(next) => {
+          onPatchValues({
+            [field.name]: next.userId,
+            [nameKey]: next.name,
+          });
+        }}
+        siteId={field.siteId}
+        siteName={field.siteName}
+        trailingHint={field.trailingHint}
+        placeholder={field.placeholder ?? "Start typing a name…"}
+        variant="embedded"
+      />
+    </FieldShell>
+  );
+}
+
 export function FieldRenderer(props: FieldRendererProps) {
-  const { field, value, error, onChange } = props;
+  const { field, value, values, error, onChange, onPatchValues } = props;
 
   switch (field.type) {
     case "text":
@@ -867,6 +932,19 @@ export function FieldRenderer(props: FieldRendererProps) {
           />
         </FieldShell>
       );
+    case "person": {
+      const nameKey = personDisplayNameKey(field);
+      const displayName = String(values[nameKey] ?? "");
+      return (
+        <PersonControl
+          field={field}
+          userId={value as string}
+          displayName={displayName}
+          error={error}
+          onPatchValues={onPatchValues}
+        />
+      );
+    }
     default: {
       // Exhaustiveness guard — a new field type must be handled above.
       const _never: never = field;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -47,6 +47,9 @@ function getUserInitials(displayName: string): string {
 
 export function useSessionBootstrap() {
   const hasToken = useHasAccessToken();
+  // null on server + first client paint; hydrate from sessionStorage after mount.
+  const [cachedAccessWindow, setCachedAccessWindowState] =
+    useState<AccessWindowState | null>(null);
   const authContext = hasToken === true ? getAuthContext() : null;
   const currentUser =
     hasToken === true ?
@@ -63,6 +66,10 @@ export function useSessionBootstrap() {
 
   const session = sessionQuery.data;
 
+  useEffect(() => {
+    setCachedAccessWindowState(getCachedAccessWindow());
+  }, []);
+
   const accessWindow = useMemo((): AccessWindowState | null => {
     if (
       session &&
@@ -74,8 +81,8 @@ export function useSessionBootstrap() {
       };
     }
 
-    return getCachedAccessWindow();
-  }, [session]);
+    return cachedAccessWindow;
+  }, [session, cachedAccessWindow]);
 
   useEffect(() => {
     if (!session) {
@@ -83,15 +90,18 @@ export function useSessionBootstrap() {
     }
 
     if (shouldShowAccessWindowBanner(session.accessExpiresAt)) {
-      setCachedAccessWindow({
+      const next: AccessWindowState = {
         accessExpiresAt: session.accessExpiresAt!,
         daysRemaining: session.daysRemaining ?? 0,
-      });
+      };
+      setCachedAccessWindow(next);
+      setCachedAccessWindowState(next);
       return;
     }
 
     if (session.accessExpiresAt === null) {
       setCachedAccessWindow(null);
+      setCachedAccessWindowState(null);
     }
   }, [session]);
 

@@ -22,15 +22,15 @@ export function buildLotoHistoryColumns(
   return [
     columnHelper.accessor("logId", {
       header: "LOG ID",
-      size: 110,
+      size: 120,
       cell: (info) => (
         <button
           type="button"
-          className="cursor-pointer font-mono text-xs font-bold text-[#0891a6] hover:underline"
-          onClick={(event) => {
-            event.stopPropagation();
-            actions.onLogClick(info.row.original);
-          }}
+          className="cursor-pointer font-mono text-base font-bold text-[#0891a6] hover:underline"
+          // onClick={(event) => {
+          //   event.stopPropagation();
+          //   actions.onLogClick(info.row.original);
+          // }}
         >
           {info.getValue()}
         </button>
@@ -39,9 +39,9 @@ export function buildLotoHistoryColumns(
     }),
     columnHelper.accessor("equipment", {
       header: "EQUIPMENT",
-      size: 160,
+      size: 120,
       cell: (info) => (
-        <span className="text-ehs-darker line-clamp-1 text-[12.5px] font-medium">
+        <span className="text-ehs-darker line-clamp-1 text-base font-medium">
           {info.getValue()}
         </span>
       ),
@@ -51,17 +51,17 @@ export function buildLotoHistoryColumns(
       header: "OPERATOR",
       size: 120,
       cell: (info) => (
-        <span className="text-[12.5px] font-medium text-[#2a3446]">
+        <span className="text-base font-medium text-[#2a3446]">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lockNumber", {
-      header: "LOCK #",
-      size: 80,
+      header: "LOCK",
+      size: 120,
       cell: (info) => (
-        <span className="font-mono text-xs text-[#566072]">
+        <span className="font-mono text-base text-[#566072]">
           {info.getValue()}
         </span>
       ),
@@ -69,9 +69,9 @@ export function buildLotoHistoryColumns(
     }),
     columnHelper.accessor("startAt", {
       header: "START",
-      size: 130,
+      size: 120,
       cell: (info) => (
-        <span className="text-xs whitespace-nowrap text-[#566072]">
+        <span className="text-base whitespace-nowrap text-[#566072]">
           {info.getValue()}
         </span>
       ),
@@ -79,9 +79,9 @@ export function buildLotoHistoryColumns(
     }),
     columnHelper.accessor("endAt", {
       header: "END",
-      size: 130,
+      size: 120,
       cell: (info) => (
-        <span className="text-xs whitespace-nowrap text-[#8892a3]">
+        <span className="text-base whitespace-nowrap text-[#8892a3]">
           {info.getValue()}
         </span>
       ),
@@ -89,9 +89,9 @@ export function buildLotoHistoryColumns(
     }),
     columnHelper.accessor("purpose", {
       header: "PURPOSE",
-      size: 160,
+      size: 120,
       cell: (info) => (
-        <span className="line-clamp-1 max-w-40 text-[12.5px] text-[#2a3446]">
+        <span className="line-clamp-1 max-w-40 text-base text-[#2a3446]">
           {info.getValue()}
         </span>
       ),
@@ -101,7 +101,9 @@ export function buildLotoHistoryColumns(
       header: "DURATION",
       size: 90,
       cell: (info) => (
-        <span className="font-mono text-xs text-[#8892a3]">{info.getValue()}</span>
+        <span className="font-mono text-base text-[#8892a3]">
+          {info.getValue()}
+        </span>
       ),
       meta: { align: "left" as const },
     }),
@@ -111,8 +113,8 @@ export function buildLotoHistoryColumns(
       cell: (info) => (
         <span
           className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-            resultClassName[info.getValue()],
+            "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
+            resultClassName[info.getValue() as LotoHistoryResult],
           ].join(" ")}
         >
           {info.getValue()}

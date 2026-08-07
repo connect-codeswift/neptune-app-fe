@@ -53,7 +53,7 @@ export default function LockoutTagoutPage() {
         hasUnreadNotifications
       />
 
-      <div className="flex flex-1 flex-col gap-5 px-4 pb-8">
+      <div className="flex flex-1 flex-col gap-6 px-4 pb-8">
         <LotoModuleTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}
