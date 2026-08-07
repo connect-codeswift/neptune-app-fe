@@ -9,14 +9,22 @@ export type HazardCategoryCountDto = {
 /** dataModel shape for GET /api/EHSCommandCenter/GetMainDashboardKpis. */
 export type DashboardKpisDto = {
   siteId?: number | null;
+  /** OSHA recordable injury rate (cases × 200,000 ÷ hours worked YTD). */
   trir?: number | null;
+  trirTarget?: number | null;
+  trirTrend?: readonly number[] | null;
+  /** Lost-time injury rate (LTI cases × 200,000 ÷ hours worked YTD). */
   lostTimeInjuryRate?: number | null;
+  lostTimeInjuryRateTarget?: number | null;
+  lostTimeInjuryRateTrend?: readonly number[] | null;
   totalCompliance?: number | null;
   compliantCount?: number | null;
   compliancePercentage?: number | null;
+  complianceTarget?: number | null;
   totalCapa?: number | null;
   closedCapaCount?: number | null;
   capaClosurePercentage?: number | null;
+  capaClosureTarget?: number | null;
   hazardsByCategory?: HazardCategoryCountDto[] | null;
 };
 

@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
 export type IncidentListKpiTone = "positive" | "negative";
 
@@ -120,19 +121,21 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
           >
             {title}
           </Text>
-          <span
-            className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
-              trendClass,
-            ].join(" ")}
-          >
-            <Icon
-              icon={trendIcon}
-              className="size-3 shrink-0"
-              aria-hidden="true"
-            />
-            {trendValue}
-          </span>
+          {SHOW_KPI_TREND_BADGES ? (
+            <span
+              className={[
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
+                trendClass,
+              ].join(" ")}
+            >
+              <Icon
+                icon={trendIcon}
+                className="size-3 shrink-0"
+                aria-hidden="true"
+              />
+              {trendValue}
+            </span>
+          ) : null}
         </div>
 
         <div className="flex w-full items-baseline">

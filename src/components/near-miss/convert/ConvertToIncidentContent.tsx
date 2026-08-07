@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -99,10 +99,7 @@ export function ConvertToIncidentContent(
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"      />
+      <DashboardHeader />
 
       <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
         {/* Page header */}

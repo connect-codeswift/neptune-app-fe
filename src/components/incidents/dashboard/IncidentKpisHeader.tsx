@@ -1,16 +1,12 @@
-"use client";
+﻿"use client";
 
 import { Icon } from "@iconify/react";
-import { HeaderDateRangePicker } from "@/components/HeaderDateRangePicker";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import type { DateRange } from "@/lib/date-range";
 
 export type IncidentKpisHeaderProps = Readonly<{
   title?: string;
   siteLabel?: string;
-  dateRange?: DateRange;
-  onDateRangeChange?: (range: DateRange) => void;
   onSiteClick?: () => void;
   onExportClick?: () => void;
   className?: string;
@@ -23,8 +19,6 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
   const {
     title = "Incident KPIs",
     siteLabel = "Rawalpindi",
-    dateRange,
-    onDateRangeChange,
     onSiteClick,
     onExportClick,
     className = "",
@@ -47,7 +41,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
       </Text>
 
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={onSiteClick} className={controlClass}>
+        {/* <button type="button" onClick={onSiteClick} className={controlClass}>
           <Icon
             icon="mdi:factory"
             className="text-ehs-muted-text text-sm"
@@ -61,15 +55,9 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
             className="text-ehs-muted-text text-sm"
             aria-hidden="true"
           />
-        </button>
+        </button> */}
 
-        <HeaderDateRangePicker
-          value={dateRange}
-          onChange={onDateRangeChange}
-          buttonClassName={controlClass}
-        />
-
-        <Button
+        {/* <Button
           type="button"
           variant="tertiary"
           onClick={onExportClick}
@@ -77,7 +65,7 @@ export function IncidentKpisHeader(props: Readonly<IncidentKpisHeaderProps>) {
         >
           <Icon icon="mdi:download" className="text-sm" aria-hidden="true" />
           Export
-        </Button>
+        </Button> */}
       </div>
     </header>
   );

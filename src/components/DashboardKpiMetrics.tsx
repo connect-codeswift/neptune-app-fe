@@ -12,8 +12,8 @@ const subscribeToNothing = () => () => {};
 
 /**
  * KPI row (Figma dashboard header cards). Loads live values from
- * GET /api/EHSCommandCenter/GetMainDashboardKpis; trend/target/sparkline
- * decoration comes from DEFAULT_KPI_METRICS since the API has no history.
+ * GET /api/EHSCommandCenter/GetMainDashboardKpis — TRIR/LTIR use the
+ * shared OSHA rate engine; compliance and CAPA use site-scoped counts.
  */
 export function DashboardKpiMetrics() {
   // `null` until hydrated, so the skeleton also covers the first paint on a

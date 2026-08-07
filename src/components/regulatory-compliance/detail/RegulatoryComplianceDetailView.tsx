@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -61,7 +61,6 @@ export function RegulatoryComplianceDetailView(
 
   const markCompleteMutation = useMarkCompleteComplianceMutation();
   const deleteComplianceMutation = useDeleteComplianceMutation();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const record = detailQuery.data;
@@ -195,7 +194,7 @@ export function RegulatoryComplianceDetailView(
           Obligation not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No compliance obligation matches “${id}”.`}
+          {`No compliance obligation matches ΓÇ£${id}ΓÇ¥.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
@@ -211,13 +210,9 @@ export function RegulatoryComplianceDetailView(
     <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
       <IncidentListHeader
         title=""
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        dateRangeLabel="March 25 — April 24, 2026"
         reportHref="/dashboard/regulatory-compliance"
         actionLabel="Back to Register"
         actionLabelShort="Back"
-        searchPosition="start"
         className="px-0 py-0"
       />
 

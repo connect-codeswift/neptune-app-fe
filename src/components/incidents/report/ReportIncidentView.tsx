@@ -19,7 +19,6 @@ import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
 import { ReportIncidentAside } from "@/components/incidents/report/shared/ReportIncidentAside";
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
 import { ReportIncidentSteps } from "@/components/incidents/report/shared/ReportIncidentSteps";
-import { ReportIncidentToolbar } from "@/components/incidents/report/shared/ReportIncidentToolbar";
 import {
   ReportIncidentStepFive,
   ReportIncidentStepFour,
@@ -300,8 +299,6 @@ export function ReportIncidentView() {
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-      <ReportIncidentToolbar className="px-3 sm:px-4" />
-
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
           onSaveExit={() => router.push("/dashboard/incidents/list")}

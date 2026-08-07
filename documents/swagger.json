@@ -6212,17 +6212,48 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProofreadRequestDto"
+                "$ref": "#/components/schemas/TextAssistRequestDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProofreadRequestDto"
+                "$ref": "#/components/schemas/TextAssistRequestDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/ProofreadRequestDto"
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Incident/paraphrase": {
+      "post": {
+        "tags": [
+          "Incident"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
               }
             }
           }
@@ -7932,6 +7963,37 @@
         }
       }
     },
+    "/api/ppe/replace-request": {
+      "post": {
+        "tags": [
+          "PPE"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PPEReplaceRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PPEReplaceRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PPEReplaceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/ppe/kpi": {
       "get": {
         "tags": [
@@ -8819,6 +8881,71 @@
       }
     },
     "/api/SuperAdminCompanies/{organizationId}/access/history": {
+      "get": {
+        "tags": [
+          "SuperAdminCompanies"
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/SuperAdminCompanies/{organizationId}/limits": {
+      "put": {
+        "tags": [
+          "SuperAdminCompanies"
+        ],
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetOrganizationLimitsDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetOrganizationLimitsDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetOrganizationLimitsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/SuperAdminCompanies/{organizationId}/limits/history": {
       "get": {
         "tags": [
           "SuperAdminCompanies"
@@ -12543,17 +12670,18 @@
         "additionalProperties": false
       },
       "IncidentDraftRequestDto": {
-        "required": [
-          "description"
-        ],
         "type": "object",
         "properties": {
           "description": {
             "maxLength": 8000,
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "severity": {
+            "type": "string",
+            "nullable": true
+          },
+          "site": {
             "type": "string",
             "nullable": true
           },
@@ -12566,6 +12694,51 @@
             "format": "date-time",
             "nullable": true
           },
+          "workRelated": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "fleetVehicleInvolved": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "thirdPartyInvolved": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "emergencyServicesCalled": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "seriousIncident": {
+            "maxLength": 20,
+            "type": "string",
+            "nullable": true
+          },
+          "mechanismOfInjury": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "natureOfInjury": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "objectInvolved": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "initialTreatment": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
           "injuredBodyPart": {
             "maxLength": 300,
             "type": "string",
@@ -12575,6 +12748,10 @@
             "maxLength": 100,
             "type": "string",
             "nullable": true
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
           }
         },
         "additionalProperties": false
@@ -12748,37 +12925,10 @@
             "type": "string",
             "nullable": true
           },
-          "followUps": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IncidentFollowUpDto"
-            },
-            "nullable": true
-          },
           "aiAssistedFields": {
             "maxLength": 200,
             "type": "string",
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "IncidentFollowUpDto": {
-        "required": [
-          "text"
-        ],
-        "type": "object",
-        "properties": {
-          "text": {
-            "maxLength": 500,
-            "minLength": 1,
-            "type": "string"
-          },
-          "isAiSuggested": {
-            "type": "boolean"
-          },
-          "isSelected": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -13177,6 +13327,36 @@
         },
         "additionalProperties": false
       },
+      "PPEReplaceRequestDto": {
+        "required": [
+          "replaceReason",
+          "urgency"
+        ],
+        "type": "object",
+        "properties": {
+          "issuePPEId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "replaceReason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "urgency": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "evidenceLink": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "PagedTenantUserRequestDto": {
         "required": [
           "siteId",
@@ -13267,20 +13447,6 @@
         "type": "object",
         "properties": {
           "p_Codes": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ProofreadRequestDto": {
-        "required": [
-          "text"
-        ],
-        "type": "object",
-        "properties": {
-          "text": {
-            "maxLength": 8000,
             "minLength": 1,
             "type": "string"
           }
@@ -13616,6 +13782,27 @@
           "expiresAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "note": {
+            "maxLength": 512,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetOrganizationLimitsDto": {
+        "type": "object",
+        "properties": {
+          "maxSeats": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxSites": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "note": {
@@ -14078,6 +14265,20 @@
           "userId": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TextAssistRequestDto": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false

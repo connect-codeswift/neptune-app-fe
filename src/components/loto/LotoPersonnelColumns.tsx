@@ -82,9 +82,11 @@ export function buildLotoPersonnelColumns(
     columnHelper.accessor("equipmentIds", {
       header: "EQUIPMENT",
       size: 280,
-      cell: (info) => (
+      cell: (info) => {
+        const equipmentIds = info.getValue() as LotoPersonnel["equipmentIds"];
+        return (
         <div className="flex max-w-70 flex-wrap gap-1">
-          {info.getValue().map((equipmentId) => (
+          {equipmentIds.map((equipmentId: string) => (
             <span
               key={equipmentId}
               className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-medium text-[#566072]"
@@ -93,22 +95,26 @@ export function buildLotoPersonnelColumns(
             </span>
           ))}
         </div>
-      ),
+        );
+      },
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
       header: "STATUS",
       size: 90,
-      cell: (info) => (
+      cell: (info) => {
+        const status = info.getValue() as LotoPersonnelStatus;
+        return (
         <span
           className={[
             "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-            statusClassName[info.getValue()],
+            statusClassName[status],
           ].join(" ")}
         >
-          {info.getValue()}
+          {status}
         </span>
-      ),
+        );
+      },
       meta: { align: "left" as const },
     }),
     columnHelper.display({
