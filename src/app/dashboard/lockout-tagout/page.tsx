@@ -48,7 +48,7 @@ export default function LockoutTagoutPage() {
     <div className="flex flex-1 flex-col gap-3.5">
       <DashboardHeader title="Lockout / Tagout (LOTO)" />
 
-      <div className="flex flex-1 flex-col gap-5 px-4 pb-8">
+      <div className="flex flex-1 flex-col gap-6 px-4 pb-8">
         <LotoModuleTabs
           activeTab={activeTab}
           onTabChange={handleTabChange}

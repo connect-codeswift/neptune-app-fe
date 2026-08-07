@@ -22,7 +22,7 @@ import { useSiteUsersQuery } from "@/hooks/use-user-queries";
 const SEARCH_DEBOUNCE_MS = 300;
 
 const EMBEDDED_INPUT_CLASS =
-  "h-10 w-full rounded-[10px] bg-white px-3.5 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+  " w-full rounded-[10px] bg-white px-3.5 text-base text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
 
 type MenuPosition = Readonly<{
   top: number;
@@ -305,7 +305,7 @@ export function ReportPersonSearchField(
   const listbox = (
     <>
       {siteName ? (
-        <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-2 pb-1.5 text-[10px] font-semibold tracking-wider uppercase">
+        <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-2 pb-1.5 text-sm font-semibold tracking-wider uppercase">
           People at {siteName}
         </p>
       ) : null}
@@ -317,7 +317,7 @@ export function ReportPersonSearchField(
         className="max-h-56 overflow-y-auto p-1"
       >
         {siteId <= 0 ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
+          <li className="text-ehs-muted-text px-2.5 py-3 text-base">
             Your sign-in isn&apos;t linked to a site, so there&apos;s no roster
             to search. Type the person&apos;s name instead.
           </li>
@@ -326,12 +326,12 @@ export function ReportPersonSearchField(
             {[0, 1, 2].map((row) => (
               <span
                 key={row}
-                className="h-10 animate-pulse rounded-[8px] bg-[rgba(15,23,42,0.06)]"
+                className="h-10 animate-pulse rounded-lg bg-[rgba(15,23,42,0.06)]"
               />
             ))}
           </li>
         ) : usersQuery.isError ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
+          <li className="text-ehs-muted-text px-2.5 py-3 text-base">
             Couldn&apos;t load people for this site. Type the name instead, or
             try again in a moment.
           </li>
@@ -375,11 +375,11 @@ export function ReportPersonSearchField(
                     {initialsFor(name)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-ehs-dark-bg truncate text-[13.5px] font-semibold">
+                    <span className="text-ehs-dark-bg truncate text-base font-semibold">
                       {name}
                     </span>
                     {secondary ? (
-                      <span className="text-ehs-muted-text truncate text-[11.5px]">
+                      <span className="text-ehs-muted-text truncate text-sm">
                         {secondary}
                       </span>
                     ) : null}
@@ -453,7 +453,11 @@ export function ReportPersonSearchField(
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        className={[inputClass, hasSelection ? "pr-16" : "pr-9"].join(" ")}
+        className={[
+          inputClass,
+          "border border-slate-900/10 py-3.5",
+          hasSelection ? "pr-16" : "pr-9",
+        ].join(" ")}
       />
 
       <div className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1">
@@ -482,7 +486,7 @@ export function ReportPersonSearchField(
           <Icon
             icon={isSearching ? "mdi:loading" : "mdi:magnify"}
             className={[
-              "text-ehs-muted-text pointer-events-none size-[15px]",
+              "text-ehs-muted-text pointer-events-none size-3.75",
               isSearching ? "animate-spin motion-reduce:animate-none" : "",
             ]
               .filter(Boolean)
@@ -505,7 +509,7 @@ export function ReportPersonSearchField(
       >
         <label
           htmlFor={fieldId}
-          className="block text-sm leading-[19.5px] text-ehs-gray"
+          className="text-ehs-gray block text-base leading-[19.5px]"
         >
           {label}
           {required ? <span className="text-ehs-red"> *</span> : null}
@@ -531,7 +535,7 @@ export function ReportPersonSearchField(
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
+            <Text as="span" className="text-ehs-muted-text text-base">
               {trailingHint}
             </Text>
           ) : undefined

@@ -18,7 +18,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
   const { activeTab, onTabChange, onCreateProcedure } = props;
 
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[rgba(15,23,42,0.08)]">
+    <div className="border-ehs-border flex flex-wrap items-center justify-between gap-3">
       <div
         className="flex min-w-0 flex-1 gap-0 overflow-x-auto"
         role="tablist"
@@ -37,19 +37,19 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                 onTabChange(tab.id);
               }}
               className={[
-                "inline-flex shrink-0 cursor-pointer items-center gap-1.5 border-b-[1.5px] px-[18px] pt-2.5 pb-[11px] text-[13px] whitespace-nowrap transition-colors",
+                "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 text-base whitespace-nowrap transition-colors",
                 isActive
                   ? "border-ehs-normal-blue text-ehs-normal-blue font-semibold"
-                  : "border-transparent font-normal text-[#8892a3] hover:text-[#566072]",
+                  : "text-ehs-muted-text hover:text-ehs-gray border-transparent font-normal",
               ].join(" ")}
             >
               {tab.label}
               <span
                 className={[
-                  "rounded-[10px] px-[7px] py-px text-[11px] font-semibold",
+                  "rounded-lg px-2 py-px text-xs font-semibold",
                   isActive
-                    ? "bg-[rgba(8,145,166,0.12)] text-ehs-normal-blue"
-                    : "bg-[rgba(15,23,42,0.07)] text-[#b3bbc8]",
+                    ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
+                    : "bg-slate-900/5 text-slate-400",
                 ].join(" ")}
               >
                 {String(tab.count)}
@@ -64,9 +64,9 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
           type="button"
           variant="primary"
           onClick={onCreateProcedure}
-          className="mb-1.5 shrink-0 gap-2 rounded-[10px] px-4 py-2 text-[13px] font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.24)]"
+          className="shrink-0 gap-2 rounded-lg px-4 py-2 text-base! font-semibold shadow-sm"
         >
-          <Icon icon="mdi:file-document-outline" className="size-3.5 shrink-0" />
+          <Icon icon="mdi:file-document-outline" className="size-4 shrink-0" />
           Create Procedure
         </Button>
       ) : null}
