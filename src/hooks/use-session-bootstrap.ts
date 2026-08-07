@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -30,6 +30,17 @@ export const sessionQueryKeys = {
 };
 
 const SESSION_STALE_TIME_MS = 5 * 60 * 1000;
+
+/** Session storage is unavailable during SSR — mirror `useHasAccessToken`. */
+const subscribeToNothing = () => () => {};
+
+function useCachedAccessWindow(): AccessWindowState | null {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    getCachedAccessWindow,
+    () => null,
+  );
+}
 
 function getUserInitials(displayName: string): string {
   const parts = displayName.trim().split(/\s+/).filter(Boolean);
@@ -62,6 +73,7 @@ export function useSessionBootstrap() {
   });
 
   const session = sessionQuery.data;
+  const cachedAccessWindow = useCachedAccessWindow();
 
   const accessWindow = useMemo((): AccessWindowState | null => {
     if (
@@ -74,8 +86,19 @@ export function useSessionBootstrap() {
       };
     }
 
-    return getCachedAccessWindow();
-  }, [session]);
+    // Avoid reading sessionStorage during SSR/hydration — show cached banner only
+    // after we know the user is signed in and Org/me has not resolved yet.
+    if (hasToken === true && !sessionQuery.isFetched) {
+      return cachedAccessWindow;
+    }
+
+    return null;
+  }, [
+    session,
+    cachedAccessWindow,
+    hasToken,
+    sessionQuery.isFetched,
+  ]);
 
   useEffect(() => {
     if (!session) {
