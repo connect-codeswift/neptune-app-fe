@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -25,9 +25,7 @@ export default function InspectionChecklistPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"        actionLabel="Start Inspection"
+        actionLabel="Start Inspection"
         onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />
 

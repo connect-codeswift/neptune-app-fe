@@ -45,6 +45,8 @@ export type IncidentListTableProps<
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData, TValue> {
     align?: "left" | "center" | "right";
+    /** Row vertical alignment; defaults to top for left-aligned columns. */
+    verticalAlign?: "top" | "middle";
   }
 }
 
@@ -76,13 +78,13 @@ function createIncidentColumns(
   return [
     columnHelper.accessor("id", {
       header: "ID",
-      size: expanded ? 110 : 90,
-      minSize: 72,
-      meta: { align: "left" as const },
+      size: expanded ? 120 : 100,
+      minSize: 84,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
         <Text
           as="span"
-          className="text-ehs-muted-text text-xs font-semibold tabular-nums"
+          className="text-ehs-muted-text text-xs font-semibold whitespace-nowrap tabular-nums"
         >
           {info.getValue()}
         </Text>
@@ -136,7 +138,7 @@ function createIncidentColumns(
       header: "Site",
       size: expanded ? 170 : 110,
       minSize: 80,
-      meta: { align: "left" as const },
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => {
         const [sitePrimary, siteSecondary] = siteLines(info.getValue());
 
@@ -193,6 +195,34 @@ function alignClass(align: "left" | "center" | "right" | undefined) {
   if (align === "center") return "text-center";
   if (align === "right") return "text-right";
   return "text-left";
+}
+
+function cellVerticalAlignClass(
+  align: "left" | "center" | "right" | undefined,
+  verticalAlign: "top" | "middle" | undefined,
+) {
+  if (verticalAlign === "middle") return "align-middle";
+  if (verticalAlign === "top") return "align-top";
+  return align === "left" ? "align-top" : "align-middle";
+}
+
+function cellFlexAlignClass(
+  align: "left" | "center" | "right" | undefined,
+  verticalAlign: "top" | "middle" | undefined,
+) {
+  const isMiddle = verticalAlign === "middle" || (verticalAlign !== "top" && align !== "left");
+
+  if (align === "center") {
+    return isMiddle
+      ? "items-center justify-center"
+      : "items-start justify-center";
+  }
+
+  if (align === "right") {
+    return isMiddle ? "items-center justify-end" : "items-start justify-end";
+  }
+
+  return isMiddle ? "items-center justify-start" : "items-start justify-start";
 }
 
 export function IncidentListTable<
@@ -352,6 +382,8 @@ export function IncidentListTable<
                   >
                     {row.getVisibleCells().map((cell) => {
                       const align = cell.column.columnDef.meta?.align;
+                      const verticalAlign =
+                        cell.column.columnDef.meta?.verticalAlign;
 
                       return (
                         <td
@@ -362,7 +394,7 @@ export function IncidentListTable<
                           )}
                           className={[
                             "min-w-0",
-                            align === "left" ? "align-top" : "align-middle",
+                            cellVerticalAlignClass(align, verticalAlign),
                             cellPadClass,
                             alignClass(align),
                           ].join(" ")}
@@ -370,11 +402,7 @@ export function IncidentListTable<
                           <div
                             className={[
                               "flex w-full min-w-0",
-                              align === "center"
-                                ? "items-center justify-center"
-                                : align === "right"
-                                  ? "items-center justify-end"
-                                  : "items-start justify-start",
+                              cellFlexAlignClass(align, verticalAlign),
                             ].join(" ")}
                           >
                             {flexRender(

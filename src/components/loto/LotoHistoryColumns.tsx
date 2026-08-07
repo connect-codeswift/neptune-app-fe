@@ -108,16 +108,19 @@ export function buildLotoHistoryColumns(
     columnHelper.accessor("result", {
       header: "RESULT",
       size: 100,
-      cell: (info) => (
+      cell: (info) => {
+        const result = info.getValue() as LotoHistoryResult;
+        return (
         <span
           className={[
             "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-            resultClassName[info.getValue()],
+            resultClassName[result],
           ].join(" ")}
         >
-          {info.getValue()}
+          {result}
         </span>
-      ),
+        );
+      },
       meta: { align: "left" as const },
     }),
   ];

@@ -4,18 +4,12 @@ import {
   type KpiMetricTone,
 } from "@/components/KpiMetricCard";
 import type { DashboardKpisDto } from "@/dtos/res/ehs-command-center-response.dto";
+import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
-/**
- * Fixed business targets. The dashboard API returns only current-period
- * values (no prior period, no time series), so the trend badge below is
- * computed as the live gap to these thresholds — not a real
- * period-over-period delta, which this API can't supply.
- */
-const TRIR_TARGET = 2.5; // lower is better
-const LTIR_TARGET = 1.0; // lower is better
-const COMPLIANCE_TARGET_PERCENT = 85; // higher is better
-/** No CAPA-closure target exists elsewhere in the app — placeholder until confirmed. */
-const CAPA_CLOSURE_TARGET_PERCENT = 80; // higher is better
+const FALLBACK_TRIR_TARGET = 2.5;
+const FALLBACK_LTIR_TARGET = 1.0;
+const FALLBACK_COMPLIANCE_TARGET = 85;
+const FALLBACK_CAPA_CLOSURE_TARGET = 80;
 
 type Trend = Readonly<{
   label: string;
@@ -23,7 +17,6 @@ type Trend = Readonly<{
   tone: KpiMetricTone;
 }>;
 
-/** Gap vs. a "lower is better" target (TRIR, LTIR). */
 function trendForMaxTarget(
   value: number | null | undefined,
   target: number,
@@ -44,7 +37,6 @@ function trendForMaxTarget(
     : { label: `+${gap.toFixed(1)}`, direction: "up", tone: "negative" };
 }
 
-/** Gap vs. a "higher is better" percentage target (compliance, CAPA closure). */
 function trendForMinTargetPercent(
   value: number | null | undefined,
   target: number,
@@ -58,21 +50,14 @@ function trendForMinTargetPercent(
     : { label: `${String(gap)}pp`, direction: "down", tone: "negative" };
 }
 
-/**
- * Sparkline anchored on the two real numbers available: the fixed target
- * (start) and today's fetched API value (end). The API has no time series,
- * so the points in between are a straight-line interpolation, not real
- * history — but both endpoints are genuine data, not an arbitrary guess.
- */
-function buildTargetAnchoredSeries(
-  currentValue: number,
-  target: number,
-): readonly number[] {
-  const points = 7;
-  return Array.from({ length: points }, (_, index) => {
-    const t = index / (points - 1);
-    return Number((target + (currentValue - target) * t).toFixed(3));
-  });
+function toSparkline(
+  trend: readonly number[] | null | undefined,
+): readonly number[] | undefined {
+  if (!trend || trend.length < 2) {
+    return undefined;
+  }
+
+  return trend.map((value) => Number(value));
 }
 
 function formatRate(value: number | null | undefined): string {
@@ -96,6 +81,24 @@ function formatCount(value: number | null | undefined): string | number {
   return value;
 }
 
+function optionalTrend(
+  trend: Trend,
+): Pick<KpiMetricCardProps, "trendValue" | "trendDirection" | "trendTone"> {
+  if (!SHOW_KPI_TREND_BADGES) {
+    return {
+      trendValue: "",
+      trendDirection: "down",
+      trendTone: "positive",
+    };
+  }
+
+  return {
+    trendValue: trend.label,
+    trendDirection: trend.direction,
+    trendTone: trend.tone,
+  };
+}
+
 /** Builds the 4 KPI cards from GET /api/EHSCommandCenter/GetMainDashboardKpis. */
 export function mapDashboardKpisToMetrics(
   dto: DashboardKpisDto | null | undefined,
@@ -104,15 +107,20 @@ export function mapDashboardKpisToMetrics(
     return DEFAULT_KPI_METRICS;
   }
 
-  const trirTrend = trendForMaxTarget(dto.trir, TRIR_TARGET);
-  const ltirTrend = trendForMaxTarget(dto.lostTimeInjuryRate, LTIR_TARGET);
+  const trirTarget = dto.trirTarget ?? FALLBACK_TRIR_TARGET;
+  const ltirTarget = dto.lostTimeInjuryRateTarget ?? FALLBACK_LTIR_TARGET;
+  const complianceTarget = dto.complianceTarget ?? FALLBACK_COMPLIANCE_TARGET;
+  const capaTarget = dto.capaClosureTarget ?? FALLBACK_CAPA_CLOSURE_TARGET;
+
+  const trirTrend = trendForMaxTarget(dto.trir, trirTarget);
+  const ltirTrend = trendForMaxTarget(dto.lostTimeInjuryRate, ltirTarget);
   const complianceTrend = trendForMinTargetPercent(
     dto.compliancePercentage,
-    COMPLIANCE_TARGET_PERCENT,
+    complianceTarget,
   );
   const capaTrend = trendForMinTargetPercent(
     dto.capaClosurePercentage,
-    CAPA_CLOSURE_TARGET_PERCENT,
+    capaTarget,
   );
 
   return [
@@ -120,36 +128,24 @@ export function mapDashboardKpisToMetrics(
       title: "Total Recordable Rate",
       value: formatRate(dto.trir),
       unit: "TRIR",
-      trendValue: trirTrend.label,
-      trendDirection: trirTrend.direction,
-      trendTone: trirTrend.tone,
-      targetLabel: `Target ≤ ${String(TRIR_TARGET)}`,
-      chartData:
-        dto.trir != null && Number.isFinite(dto.trir)
-          ? buildTargetAnchoredSeries(dto.trir, TRIR_TARGET)
-          : undefined,
+      ...optionalTrend(trirTrend),
+      targetLabel: `Target ≤ ${String(trirTarget)}`,
+      chartData: toSparkline(dto.trirTrend),
     },
     {
       title: "Lost Time Injury Rate",
       value: formatRate(dto.lostTimeInjuryRate),
       unit: "LTIR",
-      trendValue: ltirTrend.label,
-      trendDirection: ltirTrend.direction,
-      trendTone: ltirTrend.tone,
-      targetLabel: `Target ≤ ${String(LTIR_TARGET)}`,
-      chartData:
-        dto.lostTimeInjuryRate != null &&
-        Number.isFinite(dto.lostTimeInjuryRate)
-          ? buildTargetAnchoredSeries(dto.lostTimeInjuryRate, LTIR_TARGET)
-          : undefined,
+      ...optionalTrend(ltirTrend),
+      targetLabel: `Target ≤ ${String(ltirTarget)}`,
+      chartData: toSparkline(dto.lostTimeInjuryRateTrend),
     },
     {
       title: "Safety Compliance",
       value: formatPercent(dto.compliancePercentage),
       unit: "%",
-      trendValue: complianceTrend.label,
-      trendDirection: complianceTrend.direction,
-      trendTone: complianceTrend.tone,
+      ...optionalTrend(complianceTrend),
+      targetLabel: `Target ≥ ${String(complianceTarget)}%`,
       counts: {
         closedLabel: "Closed Compliances",
         closedValue: formatCount(dto.compliantCount),
@@ -161,9 +157,8 @@ export function mapDashboardKpisToMetrics(
       title: "Action Closure Rate",
       value: formatPercent(dto.capaClosurePercentage),
       unit: "%",
-      trendValue: capaTrend.label,
-      trendDirection: capaTrend.direction,
-      trendTone: capaTrend.tone,
+      ...optionalTrend(capaTrend),
+      targetLabel: `Target ≥ ${String(capaTarget)}%`,
       counts: {
         closedLabel: "Closed CAPAs",
         closedValue: formatCount(dto.closedCapaCount),
