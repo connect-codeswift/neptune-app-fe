@@ -105,7 +105,10 @@ export function AcknowledgmentTrackingContent(
   if (documentQuery.isError) {
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
+        <IncidentGlassCard
+          className="min-h-[220px] text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
@@ -136,7 +139,10 @@ export function AcknowledgmentTrackingContent(
   if (acknowledgementsQuery.isError) {
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
+        <IncidentGlassCard
+          className="min-h-[220px] text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
