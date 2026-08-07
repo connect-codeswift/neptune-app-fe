@@ -192,6 +192,18 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       },
     ],
   },
+  {
+    title: "System",
+    items: [
+      {
+        label: "Settings",
+        href: "/dashboard/settings",
+        icon: "mdi:cog-outline",
+        alwaysVisible: true,
+        requiredPermissions: [],
+      },
+    ],
+  },
 ];
 
 function passesModuleLicenseGate(

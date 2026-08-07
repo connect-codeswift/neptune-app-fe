@@ -14,7 +14,7 @@ import {
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentGlassCard, SiteWorkHoursMissingBanner } from "@/components/incidents/shared";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";

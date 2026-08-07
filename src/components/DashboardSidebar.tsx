@@ -93,11 +93,10 @@ function SidebarUserFooter(
     displayName: string;
     initials: string;
     profileUrl: string | null;
-    role: string;
-    siteName: string | null;
+    email: string | null;
   }>,
 ) {
-  const { displayName, initials, profileUrl, role, siteName } = props;
+  const { displayName, initials, profileUrl, email } = props;
 
   return (
     <>
@@ -127,7 +126,7 @@ function SidebarUserFooter(
           {displayName}
         </Text>
         <Text as="p" className="text-ehs-muted-text truncate text-xs">
-          {[role, siteName].filter(Boolean).join(" · ")}
+          {email ?? ""}
         </Text>
       </div>
     </>
@@ -201,8 +200,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                 displayName={user.displayName}
                 initials={user.initials}
                 profileUrl={user.profileUrl}
-                role={user.role}
-                siteName={user.siteName}
+                email={user.email}
               />
             </Link>
           ) : (

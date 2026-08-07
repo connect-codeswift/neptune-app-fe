@@ -8,6 +8,7 @@ import {
   useState,
   type ChangeEvent,
 } from "react";
+import { Icon } from "@iconify/react";
 import Cropper, { type Area } from "react-easy-crop";
 import Image from "next/image";
 import { createPortal } from "react-dom";
@@ -35,23 +36,32 @@ function AvatarPreview(
     profileUrl: string | null;
     initials: string;
     sizeClassName?: string;
+    isBusy?: boolean;
   }>,
 ) {
-  const { profileUrl, initials, sizeClassName = "size-20" } = props;
+  const {
+    profileUrl,
+    initials,
+    sizeClassName = "size-20",
+    isBusy = false,
+  } = props;
+
+  const frameClass = [
+    "relative shrink-0 overflow-hidden rounded-full ring-4 ring-ehs-light-bg shadow-sm transition-opacity",
+    sizeClassName,
+    isBusy ? "opacity-60" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (profileUrl) {
     return (
-      <div
-        className={[
-          "relative shrink-0 overflow-hidden rounded-full",
-          sizeClassName,
-        ].join(" ")}
-      >
+      <div className={frameClass}>
         <Image
           src={profileUrl}
           alt=""
           fill
-          sizes="80px"
+          sizes="96px"
           className="object-cover"
         />
       </div>
@@ -61,8 +71,8 @@ function AvatarPreview(
   return (
     <div
       className={[
-        "bg-ehs-normal-blue text-ehs-light-text flex shrink-0 items-center justify-center rounded-full text-2xl font-semibold",
-        sizeClassName,
+        frameClass,
+        "bg-ehs-normal-blue text-ehs-light-text flex items-center justify-center text-2xl font-semibold",
       ].join(" ")}
       aria-hidden="true"
     >
@@ -287,31 +297,82 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
 
   return (
     <>
-      <div className="flex items-start gap-5 px-5 py-5">
-        <AvatarPreview profileUrl={resolvedProfileUrl} initials={initials} />
+      <div className="flex flex-col gap-5 px-5 py-5 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={openFilePicker}
+          disabled={isBusy}
+          className="group relative mx-auto shrink-0 sm:mx-0"
+          aria-label="Change profile photo"
+        >
+          <AvatarPreview
+            profileUrl={resolvedProfileUrl}
+            initials={initials}
+            sizeClassName="size-24"
+            isBusy={isBusy}
+          />
+          <span className="bg-ehs-dark-bg/55 text-ehs-light-text absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 disabled:opacity-0">
+            <Icon icon="mdi:camera-outline" className="text-2xl" aria-hidden />
+          </span>
+          {isBusy ? (
+            <span className="border-ehs-normal-blue absolute inset-0 flex items-center justify-center rounded-full border-2 border-dashed bg-white/70">
+              <Icon
+                icon="mdi:loading"
+                className="text-ehs-normal-blue animate-spin text-2xl"
+                aria-hidden
+              />
+            </span>
+          ) : null}
+        </button>
 
-        <div className="flex min-w-0 flex-col gap-2 pt-1">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-3 text-center sm:text-left">
+          <div>
+            <Text
+              as="p"
+              className="text-ehs-darker text-sm font-semibold tracking-tight"
+            >
+              {resolvedProfileUrl ? "Update your photo" : "Add a profile photo"}
+            </Text>
+            <Text as="p" className="text-ehs-muted-text mt-1 text-xs leading-relaxed">
+              Shown on your profile, sidebar, and anywhere your name appears in
+              Neptune.
+            </Text>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
             <button
               type="button"
               onClick={openFilePicker}
               disabled={isBusy}
-              className="border-ehs-normal-blue text-ehs-normal-blue hover:bg-ehs-light-blue rounded-lg border bg-white px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-darker inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Upload Photo
+              <Icon icon="mdi:upload-outline" className="text-base" aria-hidden />
+              {resolvedProfileUrl ? "Change photo" : "Upload photo"}
             </button>
-            <button
-              type="button"
-              onClick={() => void handleRemove()}
-              disabled={isBusy || !resolvedProfileUrl}
-              className="text-ehs-gray hover:text-ehs-darker text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Remove
-            </button>
+            {resolvedProfileUrl ? (
+              <button
+                type="button"
+                onClick={() => void handleRemove()}
+                disabled={isBusy}
+                className="border-ehs-border/60 text-ehs-gray hover:text-ehs-red hover:border-ehs-red/30 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Icon icon="mdi:trash-can-outline" className="text-base" aria-hidden />
+                Remove
+              </button>
+            ) : null}
           </div>
-          <Text as="p" className="text-ehs-muted-text text-xs">
-            Recommended: 200x200px, JPG or PNG
-          </Text>
+
+          <div className="text-ehs-muted-text flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:justify-start">
+            <span className="inline-flex items-center gap-1">
+              <Icon icon="mdi:image-outline" className="text-sm" aria-hidden />
+              JPG or PNG
+            </span>
+            <span aria-hidden="true">·</span>
+            <span className="inline-flex items-center gap-1">
+              <Icon icon="mdi:crop-square" className="text-sm" aria-hidden />
+              Square, min 200×200
+            </span>
+          </div>
         </div>
       </div>
 

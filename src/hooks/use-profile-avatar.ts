@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sessionQueryKeys } from "@/hooks/use-session-bootstrap";
-import { removeAvatar, uploadAvatar } from "@/services/profile.service";
+import {
+  removeAvatar,
+  updateMyProfile,
+  uploadAvatar,
+} from "@/services/profile.service";
 import { getUserById } from "@/services/user.service";
 
 export const profileQueryKeys = {
@@ -37,6 +41,20 @@ export function useRemoveProfileAvatarMutation() {
 
   return useMutation({
     mutationFn: removeAvatar,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
+      await queryClient.invalidateQueries({ queryKey: profileQueryKeys.all });
+    },
+  });
+}
+
+/** Saving the account settings profile card. Refreshes the session so the sidebar picks up
+ *  a renamed user or a new job title without a reload. */
+export function useUpdateMyProfileMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyProfile,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
       await queryClient.invalidateQueries({ queryKey: profileQueryKeys.all });
