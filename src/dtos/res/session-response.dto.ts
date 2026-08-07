@@ -12,6 +12,12 @@ export type SessionBootstrapDto = Readonly<{
   fullName: string | null;
   email: string | null;
   role: string | null;
+  /**
+   * What the person does, as stored on their account — not the role, which decides what they
+   * may do. Null until someone sets it, and callers that need something to display should fall
+   * back to the role rather than treating null as an error.
+   */
+  jobTitle: string | null;
   organizationId: number | null;
   organizationName: string | null;
   siteId: number | null;

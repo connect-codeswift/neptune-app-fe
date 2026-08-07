@@ -66,25 +66,17 @@ export const resetPasswordRequestSchema = z.object({
 });
 
 /**
- * Deliberately NOT {@link strongPasswordSchema}. `AcceptInvitationDto` on the backend
- * enforces a stricter, different rule than every other password endpoint: it demands an
- * upper AND a lower case letter, and restricts symbols to `@$!%*?&`. A password this app's
- * shared rule accepts (say `neptune1#`) is rejected there by model validation, which
- * returns a bare 400 with no usable message — so the rules have to match exactly.
+ * Must stay {@link strongPasswordSchema}. `AcceptInvitationDto` on the backend rejects a
+ * mismatch with a bare 400 carrying no usable message, so the two rules have to agree
+ * exactly — this schema used to be stricter to mirror an older backend rule.
  */
-export const INVITE_PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-export const INVITE_PASSWORD_MESSAGE =
-  "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number and one of @ $ ! % * ? &.";
-
 export const acceptInvitationRequestSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
   contactNo: z.string().trim().max(30).optional(),
   siteId: z.number().int().nonnegative(),
   userId: z.number().int().nonnegative(),
   email: z.email("Enter a valid email address."),
-  password: z.string().regex(INVITE_PASSWORD_REGEX, INVITE_PASSWORD_MESSAGE),
+  password: strongPasswordSchema,
 });
 
 export const enableMfaRequestSchema = z.object({
