@@ -21,7 +21,7 @@ export function LotoMetricsSection() {
             </Text>
             <Text
               as="p"
-              className="text-ehs-muted-text pt-1 text-xs font-semibold"
+              className="text-ehs-darker/70 pt-1 text-base font-semibold"
             >
               {metric.label}
             </Text>

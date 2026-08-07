@@ -7,6 +7,7 @@ export { PpeManagementActions } from "./PpeManagementActions";
 export { PpeInventoryCard } from "./PpeInventoryCard";
 export { ppeInventoryColumns } from "./PpeInventoryColumns";
 export { PpeSearchBar, PpeInventoryHeader } from "./PpeInventoryToolbar";
+export { PpeBackLink, PPE_ROUTE } from "./PpeBackLink";
 export { IssuePpeContent } from "./issue/IssuePpeContent";
 export { IssuePpeHeader } from "./issue/IssuePpeHeader";
 export { PpeCatalogDetailContent } from "./catalog/PpeCatalogDetailContent";

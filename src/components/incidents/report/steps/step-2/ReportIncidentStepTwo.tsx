@@ -412,6 +412,7 @@ export function ReportIncidentStepTwo(
                 // The proofread button needs text to work on, so it only takes
                 // the slot back once the draft has been resolved either way.
                 <AiTextAssistant
+                  module="incident"
                   value={form.description}
                   onApply={(description) => {
                     onChange({ description });

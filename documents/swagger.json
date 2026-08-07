@@ -7,9 +7,7 @@
   "paths": {
     "/api/AdminPortalAuth/login": {
       "post": {
-        "tags": [
-          "AdminPortalAuth"
-        ],
+        "tags": ["AdminPortalAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -38,9 +36,7 @@
     },
     "/api/Audit": {
       "post": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -67,9 +63,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "Kind",
@@ -142,9 +136,7 @@
     },
     "/api/Audit/summary": {
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "kind",
@@ -163,9 +155,7 @@
     },
     "/api/Audit/{auditId}": {
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -186,9 +176,7 @@
     },
     "/api/Audit/{auditId}/responses": {
       "put": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -228,9 +216,7 @@
     },
     "/api/Audit/{auditId}/attachments": {
       "post": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -292,9 +278,7 @@
     },
     "/api/Audit/{auditId}/submit": {
       "post": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -334,9 +318,7 @@
     },
     "/api/Audit/{auditId}/reopen": {
       "post": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -376,9 +358,7 @@
     },
     "/api/Audit/{auditId}/report": {
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -399,9 +379,7 @@
     },
     "/api/Audit/{auditId}/findings": {
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -420,9 +398,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -462,9 +438,7 @@
     },
     "/api/Audit/{auditId}/detail-summary": {
       "get": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "auditId",
@@ -485,9 +459,7 @@
     },
     "/api/Audit/findings/{findingId}": {
       "put": {
-        "tags": [
-          "Audit"
-        ],
+        "tags": ["Audit"],
         "parameters": [
           {
             "name": "findingId",
@@ -527,9 +499,7 @@
     },
     "/api/AuditTemplate": {
       "post": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -558,9 +528,7 @@
     },
     "/api/AuditTemplate/{templateId}": {
       "put": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -598,9 +566,7 @@
         }
       },
       "get": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -621,9 +587,7 @@
     },
     "/api/AuditTemplate/GetAll": {
       "get": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "kind",
@@ -667,9 +631,7 @@
     },
     "/api/AuditTemplate/{templateId}/publish": {
       "post": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -709,9 +671,7 @@
     },
     "/api/AuditTemplate/{templateId}/duplicate": {
       "post": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -751,9 +711,7 @@
     },
     "/api/AuditTemplate/{templateId}/archive": {
       "post": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -793,9 +751,7 @@
     },
     "/api/AuditTemplate/GetSectionsByTemplateId/{templateId}": {
       "get": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -816,9 +772,7 @@
     },
     "/api/AuditTemplate/GetItemsBySectionId/{sectionId}": {
       "get": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "sectionId",
@@ -839,9 +793,7 @@
     },
     "/api/AuditTemplate/GetConditionalLogicsByTemplateId/{templateId}": {
       "get": {
-        "tags": [
-          "AuditTemplate"
-        ],
+        "tags": ["AuditTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -862,9 +814,7 @@
     },
     "/api/Auth/register": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -893,9 +843,7 @@
     },
     "/api/Auth/DeleteDemoUser/{id}": {
       "delete": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "id",
@@ -916,9 +864,7 @@
     },
     "/api/Auth/GetUserById/{id}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "id",
@@ -939,9 +885,36 @@
     },
     "/api/Auth/Org/me": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Auth/select-site": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectSiteDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -951,9 +924,7 @@
     },
     "/api/Auth/login": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -982,9 +953,7 @@
     },
     "/api/Auth/verify-mfa": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1013,9 +982,7 @@
     },
     "/api/Auth/sso": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1044,9 +1011,7 @@
     },
     "/api/Auth/mfa/dismiss": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1056,9 +1021,7 @@
     },
     "/api/Auth/avatar/upload": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1087,9 +1050,7 @@
     },
     "/api/Auth/avatar": {
       "delete": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1099,9 +1060,7 @@
     },
     "/api/Auth/mfa/setup": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1111,9 +1070,7 @@
     },
     "/api/Auth/mfa/enable": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1142,9 +1099,7 @@
     },
     "/api/Auth/refresh-token": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "token",
@@ -1163,9 +1118,7 @@
     },
     "/api/Auth/logout": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "token",
@@ -1184,9 +1137,7 @@
     },
     "/api/Auth/forgot-password": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1215,9 +1166,7 @@
     },
     "/api/Auth/verify-otp": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1246,9 +1195,7 @@
     },
     "/api/Auth/CreateRole": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1277,9 +1224,7 @@
     },
     "/api/Auth/GetAllRoles": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1289,9 +1234,7 @@
     },
     "/api/Auth/GetSitesByOrganizationId/{organizationId}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "organizationId",
@@ -1337,9 +1280,7 @@
     },
     "/api/Auth/GetUsersByOrganizationId/{organizationId}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "organizationId",
@@ -1385,9 +1326,7 @@
     },
     "/api/Auth/GetUsersBySiteId/{siteId}": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "parameters": [
           {
             "name": "siteId",
@@ -1433,9 +1372,7 @@
     },
     "/api/Auth/assign-permissions": {
       "post": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1464,9 +1401,7 @@
     },
     "/api/Auth/all-Permissions": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1476,9 +1411,7 @@
     },
     "/api/Auth/AllRolesPermissions": {
       "get": {
-        "tags": [
-          "Auth"
-        ],
+        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1488,9 +1421,7 @@
     },
     "/api/bbs": {
       "post": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1517,9 +1448,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "parameters": [
           {
             "name": "observe",
@@ -1564,9 +1493,7 @@
     },
     "/api/bbs/by-user": {
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1576,9 +1503,7 @@
     },
     "/api/bbs/{id}": {
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "parameters": [
           {
             "name": "id",
@@ -1599,9 +1524,7 @@
     },
     "/api/bbs/dashboard-kpi": {
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1611,9 +1534,7 @@
     },
     "/api/bbs/graph": {
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "parameters": [
           {
             "name": "weeks",
@@ -1634,9 +1555,7 @@
     },
     "/api/bbs/at-risk-categories": {
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1646,9 +1565,7 @@
     },
     "/api/bbs/behavior-categories": {
       "post": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1675,9 +1592,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Bbs"
-        ],
+        "tags": ["Bbs"],
         "parameters": [
           {
             "name": "search",
@@ -1696,9 +1611,7 @@
     },
     "/api/CAPA/Capa": {
       "post": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1725,9 +1638,7 @@
         }
       },
       "put": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1756,9 +1667,7 @@
     },
     "/api/CAPA/Capa/{id}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "id",
@@ -1779,9 +1688,7 @@
     },
     "/api/CAPA/Incident/{incidentId}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "incidentId",
@@ -1802,9 +1709,7 @@
     },
     "/api/CAPA/Rca/{rcaId}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "rcaId",
@@ -1825,9 +1730,7 @@
     },
     "/api/CAPA/GetAll": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1837,9 +1740,7 @@
     },
     "/api/CAPA/Drop/{id}": {
       "patch": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "id",
@@ -1860,9 +1761,7 @@
     },
     "/api/CAPA/Task": {
       "post": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1889,9 +1788,7 @@
         }
       },
       "put": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1920,9 +1817,7 @@
     },
     "/api/CAPA/Task/Status": {
       "patch": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1951,9 +1846,7 @@
     },
     "/api/CAPA/Tasks/{capaId}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "capaId",
@@ -1974,9 +1867,7 @@
     },
     "/api/CAPA/Comment": {
       "post": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2005,9 +1896,7 @@
     },
     "/api/CAPA/Comments": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "capaId",
@@ -2043,9 +1932,7 @@
     },
     "/api/CAPA/Verification": {
       "post": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2074,9 +1961,7 @@
     },
     "/api/CAPA/Verification/{capaId}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "capaId",
@@ -2097,9 +1982,7 @@
     },
     "/api/CAPA/UploadCapaAttachments": {
       "post": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2128,9 +2011,7 @@
     },
     "/api/CAPA/Attachments/{capaId}": {
       "get": {
-        "tags": [
-          "CAPA"
-        ],
+        "tags": ["CAPA"],
         "parameters": [
           {
             "name": "capaId",
@@ -2151,9 +2032,7 @@
     },
     "/api/Compliance/AddCompliance": {
       "post": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2182,9 +2061,7 @@
     },
     "/api/Compliance/{id}": {
       "get": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "parameters": [
           {
             "name": "id",
@@ -2203,9 +2080,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "parameters": [
           {
             "name": "id",
@@ -2226,9 +2101,7 @@
     },
     "/api/Compliance/GetAllCompliances": {
       "post": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2257,9 +2130,7 @@
     },
     "/api/Compliance/upcoming-filings": {
       "get": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "responses": {
           "200": {
             "description": "Success"
@@ -2269,9 +2140,7 @@
     },
     "/api/Compliance/dashboard-kpis": {
       "get": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "responses": {
           "200": {
             "description": "Success"
@@ -2281,9 +2150,7 @@
     },
     "/api/Compliance/category-stats": {
       "get": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "responses": {
           "200": {
             "description": "Success"
@@ -2293,9 +2160,7 @@
     },
     "/api/Compliance/calendar": {
       "get": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "parameters": [
           {
             "name": "startDate",
@@ -2323,9 +2188,7 @@
     },
     "/api/Compliance/Update": {
       "put": {
-        "tags": [
-          "Compliance"
-        ],
+        "tags": ["Compliance"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2354,9 +2217,7 @@
     },
     "/api/DemoChat/{demoUserId}/messages": {
       "get": {
-        "tags": [
-          "DemoChat"
-        ],
+        "tags": ["DemoChat"],
         "parameters": [
           {
             "name": "demoUserId",
@@ -2394,9 +2255,7 @@
     },
     "/api/DemoChat/{demoUserId}/read": {
       "post": {
-        "tags": [
-          "DemoChat"
-        ],
+        "tags": ["DemoChat"],
         "parameters": [
           {
             "name": "demoUserId",
@@ -2417,9 +2276,7 @@
     },
     "/api/DemoChat/unread-counts": {
       "get": {
-        "tags": [
-          "DemoChat"
-        ],
+        "tags": ["DemoChat"],
         "responses": {
           "200": {
             "description": "Success"
@@ -2429,9 +2286,7 @@
     },
     "/api/DemoHostDocuments": {
       "post": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2460,9 +2315,7 @@
     },
     "/api/DemoHostDocuments/{id}": {
       "get": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -2481,9 +2334,7 @@
         }
       },
       "put": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -2521,9 +2372,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -2544,9 +2393,7 @@
     },
     "/api/DemoHostDocuments/by-company/{companyName}": {
       "get": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "parameters": [
           {
             "name": "companyName",
@@ -2566,9 +2413,7 @@
     },
     "/api/DemoHostDocuments/by-host/{hostId}": {
       "get": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "parameters": [
           {
             "name": "hostId",
@@ -2589,9 +2434,7 @@
     },
     "/api/DemoHostDocuments/filter-by-category": {
       "post": {
-        "tags": [
-          "DemoHostDocuments"
-        ],
+        "tags": ["DemoHostDocuments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2620,9 +2463,7 @@
     },
     "/api/DemoHosts": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2649,9 +2490,7 @@
         }
       },
       "get": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "responses": {
           "200": {
             "description": "Success"
@@ -2661,9 +2500,7 @@
     },
     "/api/DemoHosts/ByToken": {
       "get": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "token",
@@ -2682,9 +2519,7 @@
     },
     "/api/DemoHosts/signup": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2713,9 +2548,7 @@
     },
     "/api/DemoHosts/verify-signup": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2744,9 +2577,7 @@
     },
     "/api/DemoHosts/resend-signup-otp": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2775,9 +2606,7 @@
     },
     "/api/DemoHosts/login": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2806,9 +2635,7 @@
     },
     "/api/DemoHosts/verify-mfa": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2837,9 +2664,7 @@
     },
     "/api/DemoHosts/{id}/mfa/setup": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -2879,9 +2704,7 @@
     },
     "/api/DemoHosts/{id}/mfa/enable": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -2921,9 +2744,7 @@
     },
     "/api/DemoHosts/{id}/mfa/disable": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -2963,9 +2784,7 @@
     },
     "/api/DemoHosts/validate-session": {
       "get": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "email",
@@ -2984,9 +2803,7 @@
     },
     "/api/DemoHosts/{id}/logout": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3026,9 +2843,7 @@
     },
     "/api/DemoHosts/{id}/invite": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3049,9 +2864,7 @@
     },
     "/api/DemoHosts/forgot-password": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3080,9 +2893,7 @@
     },
     "/api/DemoHosts/{id}/change-password": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3122,9 +2933,7 @@
     },
     "/api/DemoHosts/microsoft": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3153,9 +2962,7 @@
     },
     "/api/DemoHosts/{id}": {
       "put": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3193,9 +3000,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3216,9 +3021,7 @@
     },
     "/api/DemoHosts/{id}/avatar": {
       "post": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "parameters": [
           {
             "name": "id",
@@ -3258,9 +3061,7 @@
     },
     "/api/DemoHosts/priority": {
       "put": {
-        "tags": [
-          "DemoHosts"
-        ],
+        "tags": ["DemoHosts"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3301,9 +3102,7 @@
     },
     "/api/DemoUserActionPlans": {
       "post": {
-        "tags": [
-          "DemoUserActionPlans"
-        ],
+        "tags": ["DemoUserActionPlans"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3332,9 +3131,7 @@
     },
     "/api/DemoUserActionPlans/{id}": {
       "get": {
-        "tags": [
-          "DemoUserActionPlans"
-        ],
+        "tags": ["DemoUserActionPlans"],
         "parameters": [
           {
             "name": "id",
@@ -3353,9 +3150,7 @@
         }
       },
       "put": {
-        "tags": [
-          "DemoUserActionPlans"
-        ],
+        "tags": ["DemoUserActionPlans"],
         "parameters": [
           {
             "name": "id",
@@ -3393,9 +3188,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "DemoUserActionPlans"
-        ],
+        "tags": ["DemoUserActionPlans"],
         "parameters": [
           {
             "name": "id",
@@ -3416,9 +3209,7 @@
     },
     "/api/DemoUserActionPlans/demo-user/{demoUserId}": {
       "get": {
-        "tags": [
-          "DemoUserActionPlans"
-        ],
+        "tags": ["DemoUserActionPlans"],
         "parameters": [
           {
             "name": "demoUserId",
@@ -3439,9 +3230,7 @@
     },
     "/api/DemoUserDocuments": {
       "post": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3470,9 +3259,7 @@
     },
     "/api/DemoUserDocuments/{id}": {
       "get": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -3491,9 +3278,7 @@
         }
       },
       "put": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -3531,9 +3316,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "id",
@@ -3554,9 +3337,7 @@
     },
     "/api/DemoUserDocuments/UploadByHost/{companyName}": {
       "post": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "companyName",
@@ -3595,9 +3376,7 @@
     },
     "/api/DemoUserDocuments/{companyName}": {
       "get": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "companyName",
@@ -3617,9 +3396,7 @@
     },
     "/api/DemoUserDocuments/demo-user/{demoUserId}": {
       "get": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "parameters": [
           {
             "name": "demoUserId",
@@ -3640,9 +3417,7 @@
     },
     "/api/DemoUserDocuments/filter-by-category": {
       "post": {
-        "tags": [
-          "DemoUserDocuments"
-        ],
+        "tags": ["DemoUserDocuments"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3671,9 +3446,7 @@
     },
     "/api/DemoUsers": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3702,9 +3475,7 @@
     },
     "/api/DemoUsers/update-profile-Img": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3733,9 +3504,7 @@
     },
     "/api/DemoUsers/sendOtp": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3764,9 +3533,7 @@
     },
     "/api/DemoUsers/verify-otp": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3795,9 +3562,7 @@
     },
     "/api/DemoUsers/resend-otp": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3826,9 +3591,7 @@
     },
     "/api/DemoUsers/validate-session": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "email",
@@ -3847,9 +3610,7 @@
     },
     "/api/DemoUsers/logout": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3878,9 +3639,7 @@
     },
     "/api/DemoUsers/send-meeting-reminders": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -3890,9 +3649,7 @@
     },
     "/api/DemoUsers/send-host-join-emails": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -3902,9 +3659,7 @@
     },
     "/api/DemoUsers/{id}": {
       "delete": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -3925,9 +3680,7 @@
     },
     "/api/DemoUsers/{id}/status": {
       "put": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -3967,9 +3720,7 @@
     },
     "/api/DemoUsers/{id}/send-reschedule": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -3990,9 +3741,7 @@
     },
     "/api/DemoUsers/reschedule": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4021,9 +3770,7 @@
     },
     "/api/DemoUsers/invite-meeting": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4052,9 +3799,7 @@
     },
     "/api/DemoUsers/getAllDemoUsers": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4064,9 +3809,7 @@
     },
     "/api/DemoUsers/getDemoUserById/{id}": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4087,9 +3830,7 @@
     },
     "/api/DemoUsers/by-company/{companyName}": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "companyName",
@@ -4109,9 +3850,7 @@
     },
     "/api/DemoUsers/hubs": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4121,9 +3860,7 @@
     },
     "/api/DemoUsers/{id}/cms": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4142,9 +3879,7 @@
         }
       },
       "put": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4184,9 +3919,7 @@
     },
     "/api/DemoUsers/hub/{slug}/cms": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "slug",
@@ -4206,9 +3939,7 @@
     },
     "/api/DemoUsers/{id}/logo": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4248,9 +3979,7 @@
     },
     "/api/DemoUsers/{id}/send-hub-invite": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4271,9 +4000,7 @@
     },
     "/api/DemoUsers/invite": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4302,9 +4029,7 @@
     },
     "/api/DemoUsers/{id}/colleagues": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4325,9 +4050,7 @@
     },
     "/api/DemoUsers/CheckUniqueCompany": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "company",
@@ -4346,9 +4069,7 @@
     },
     "/api/DemoUsers/{id}/meetings": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4369,9 +4090,7 @@
     },
     "/api/DemoUsers/{id}/hosts": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4390,9 +4109,7 @@
         }
       },
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4432,9 +4149,7 @@
     },
     "/api/DemoUsers/{id}/hosts/{hostId}": {
       "delete": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4464,9 +4179,7 @@
     },
     "/api/DemoUsers/{id}/archive": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4487,9 +4200,7 @@
     },
     "/api/DemoUsers/{id}/restore": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "id",
@@ -4510,9 +4221,7 @@
     },
     "/api/DemoUsers/getAllBookingSlot": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4522,9 +4231,7 @@
     },
     "/api/DemoUsers/AddBlockSlots": {
       "post": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4562,9 +4269,7 @@
     },
     "/api/DemoUsers/getAllBlockSlotsByEmail": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "email",
@@ -4583,9 +4288,7 @@
     },
     "/api/DemoUsers/getAllBlockSlots": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4595,9 +4298,7 @@
     },
     "/api/DemoUsers/email-logs": {
       "get": {
-        "tags": [
-          "DemoUsers"
-        ],
+        "tags": ["DemoUsers"],
         "parameters": [
           {
             "name": "take",
@@ -4625,9 +4326,7 @@
     },
     "/api/Document/document": {
       "post": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4654,9 +4353,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4685,9 +4382,7 @@
     },
     "/api/Document/document_version": {
       "post": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4716,9 +4411,7 @@
     },
     "/api/Document/Acknowledgement": {
       "put": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "docVersionId",
@@ -4746,9 +4439,7 @@
     },
     "/api/Document/DocApproval": {
       "put": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4777,9 +4468,7 @@
     },
     "/api/Document/allDocuments": {
       "post": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4808,9 +4497,7 @@
     },
     "/api/Document/AddDepartment": {
       "post": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4839,9 +4526,7 @@
     },
     "/api/Document/GetAllDepartments": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4851,9 +4536,7 @@
     },
     "/api/Document/AddCategory": {
       "post": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4882,9 +4565,7 @@
     },
     "/api/Document/GetAllCategories": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4894,9 +4575,7 @@
     },
     "/api/Document/Category/{id}": {
       "put": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "id",
@@ -4934,9 +4613,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "id",
@@ -4957,9 +4634,7 @@
     },
     "/api/Document/dashboard-kpis": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4969,9 +4644,7 @@
     },
     "/api/Document/category-stats": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "responses": {
           "200": {
             "description": "Success"
@@ -4981,9 +4654,7 @@
     },
     "/api/Document/versions/{documentVersionId}/acknowledgements": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "documentVersionId",
@@ -5004,9 +4675,7 @@
     },
     "/api/Document/{documentId}/versions": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "documentId",
@@ -5035,9 +4704,7 @@
     },
     "/api/Document/{id}": {
       "get": {
-        "tags": [
-          "Document"
-        ],
+        "tags": ["Document"],
         "parameters": [
           {
             "name": "id",
@@ -5058,9 +4725,7 @@
     },
     "/api/EHSCommandCenter/GetMainDashboardKpis": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5070,9 +4735,7 @@
     },
     "/api/EHSCommandCenter/GetIncidentTrends": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "parameters": [
           {
             "name": "weeks",
@@ -5093,9 +4756,7 @@
     },
     "/api/EHSCommandCenter/GetMyActions": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "parameters": [
           {
             "name": "take",
@@ -5116,9 +4777,7 @@
     },
     "/api/EHSCommandCenter/GetComplianceDeadlines": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "parameters": [
           {
             "name": "days",
@@ -5148,9 +4807,7 @@
     },
     "/api/EHSCommandCenter/GetInspectionRatesByCategory": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "parameters": [
           {
             "name": "take",
@@ -5171,9 +4828,7 @@
     },
     "/api/EHSCommandCenter/GetRecentActivity": {
       "get": {
-        "tags": [
-          "EHSCommandCenter"
-        ],
+        "tags": ["EHSCommandCenter"],
         "parameters": [
           {
             "name": "take",
@@ -5192,11 +4847,96 @@
         }
       }
     },
+    "/api/Hazard/proofread": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Hazard/paraphrase": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Hazard/draft-assist": {
+      "post": {
+        "tags": ["Hazard"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HazardDraftRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Hazard/Hazards": {
       "post": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5225,9 +4965,7 @@
     },
     "/api/Hazard/GetAllHazard": {
       "post": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5256,9 +4994,7 @@
     },
     "/api/Hazard/Hazard/{id}": {
       "get": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "parameters": [
           {
             "name": "id",
@@ -5295,9 +5031,7 @@
     },
     "/api/Hazard/DropHazard/{id}": {
       "put": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "parameters": [
           {
             "name": "id",
@@ -5337,9 +5071,7 @@
     },
     "/api/Hazard/CloseHazard/{id}": {
       "put": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "parameters": [
           {
             "name": "id",
@@ -5360,9 +5092,7 @@
     },
     "/api/Hazard/HazardKpiCount": {
       "get": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "parameters": [
           {
             "name": "userId",
@@ -5382,9 +5112,7 @@
     },
     "/api/Hazard/TopHazardUsers": {
       "get": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5394,9 +5122,7 @@
     },
     "/api/Hazard/MonthlyHazardUsers": {
       "get": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "parameters": [
           {
             "name": "year",
@@ -5424,9 +5150,7 @@
     },
     "/api/Hazard/HazardApiForHeatMap": {
       "get": {
-        "tags": [
-          "Hazard"
-        ],
+        "tags": ["Hazard"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5436,9 +5160,7 @@
     },
     "/api/hazcom/chemical": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5465,9 +5187,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -5497,9 +5217,7 @@
     },
     "/api/hazcom/chemical/{id}": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5518,9 +5236,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5541,9 +5257,7 @@
     },
     "/api/hazcom/chemical/drafts": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -5573,9 +5287,7 @@
     },
     "/api/hazcom/chemical/published": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -5605,9 +5317,7 @@
     },
     "/api/hazcom/chemical/names": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5617,9 +5327,7 @@
     },
     "/api/hazcom/sds": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5646,9 +5354,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -5678,9 +5384,7 @@
     },
     "/api/hazcom/sds/{id}": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5699,9 +5403,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5722,9 +5424,7 @@
     },
     "/api/hazcom/sds/{id}/statements": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5745,9 +5445,7 @@
     },
     "/api/hazcom/sds/{id}/label": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5768,9 +5466,7 @@
     },
     "/api/hazcom/sds/{id}/statements/pdf": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5791,9 +5487,7 @@
     },
     "/api/hazcom/hazard-hcode": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5820,9 +5514,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5832,9 +5524,7 @@
     },
     "/api/hazcom/precautionary-code": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5861,9 +5551,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5873,9 +5561,7 @@
     },
     "/api/hazcom/training": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -5902,9 +5588,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -5934,9 +5618,7 @@
     },
     "/api/hazcom/training/{id}": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5955,9 +5637,7 @@
         }
       },
       "put": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -5997,9 +5677,7 @@
     },
     "/api/hazcom/risk-assessment": {
       "post": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6026,9 +5704,7 @@
         }
       },
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -6058,9 +5734,7 @@
     },
     "/api/hazcom/risk-assessment/{id}": {
       "get": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -6079,9 +5753,7 @@
         }
       },
       "put": {
-        "tags": [
-          "HazCom"
-        ],
+        "tags": ["HazCom"],
         "parameters": [
           {
             "name": "id",
@@ -6121,9 +5793,7 @@
     },
     "/api/Incident/dashboard-kpis": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6133,9 +5803,7 @@
     },
     "/api/Incident/kpi-targets": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6143,9 +5811,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6174,9 +5840,7 @@
     },
     "/api/Incident/incident": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6205,9 +5869,7 @@
     },
     "/api/Incident/proofread": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6236,9 +5898,7 @@
     },
     "/api/Incident/paraphrase": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6267,9 +5927,7 @@
     },
     "/api/Incident/draft-assist": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6298,9 +5956,7 @@
     },
     "/api/Incident/UpdateIncident/{id}": {
       "put": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "id",
@@ -6340,9 +5996,7 @@
     },
     "/api/Incident/GetAllIncidents": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6371,9 +6025,7 @@
     },
     "/api/Incident/GetIncidentById": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "id",
@@ -6409,9 +6061,7 @@
     },
     "/api/Incident/DropIncident/{id}": {
       "put": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "id",
@@ -6451,9 +6101,7 @@
     },
     "/api/Incident/GetHeaderKpi": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6463,9 +6111,7 @@
     },
     "/api/Incident/GetIncidentListKpis": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6475,9 +6121,7 @@
     },
     "/api/Incident/site-work-hours": {
       "put": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6504,9 +6148,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6516,9 +6158,7 @@
     },
     "/api/Incident/{incidentId}/closure": {
       "get": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "incidentId",
@@ -6537,9 +6177,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "incidentId",
@@ -6579,9 +6217,7 @@
     },
     "/api/Incident/{incidentId}/closure/submit": {
       "post": {
-        "tags": [
-          "Incident"
-        ],
+        "tags": ["Incident"],
         "parameters": [
           {
             "name": "incidentId",
@@ -6602,9 +6238,7 @@
     },
     "/api/Inspection": {
       "post": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6631,9 +6265,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "Status",
@@ -6699,9 +6331,7 @@
     },
     "/api/Inspection/summary": {
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "responses": {
           "200": {
             "description": "Success"
@@ -6711,9 +6341,7 @@
     },
     "/api/Inspection/{inspectionId}": {
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6734,9 +6362,7 @@
     },
     "/api/Inspection/{inspectionId}/responses": {
       "put": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6776,9 +6402,7 @@
     },
     "/api/Inspection/{inspectionId}/attachments": {
       "post": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6818,9 +6442,7 @@
     },
     "/api/Inspection/{inspectionId}/submit": {
       "post": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6860,9 +6482,7 @@
     },
     "/api/Inspection/{inspectionId}/reopen": {
       "post": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6902,9 +6522,7 @@
     },
     "/api/Inspection/{inspectionId}/report": {
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6925,9 +6543,7 @@
     },
     "/api/Inspection/{inspectionId}/findings": {
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6946,9 +6562,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -6988,9 +6602,7 @@
     },
     "/api/Inspection/{inspectionId}/detail-summary": {
       "get": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "inspectionId",
@@ -7011,9 +6623,7 @@
     },
     "/api/Inspection/findings/{findingId}": {
       "put": {
-        "tags": [
-          "Inspection"
-        ],
+        "tags": ["Inspection"],
         "parameters": [
           {
             "name": "findingId",
@@ -7053,9 +6663,7 @@
     },
     "/api/InspectionTemplate": {
       "post": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7084,9 +6692,7 @@
     },
     "/api/InspectionTemplate/{templateId}": {
       "put": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7124,9 +6730,7 @@
         }
       },
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7147,9 +6751,7 @@
     },
     "/api/InspectionTemplate/GetAll": {
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "status",
@@ -7186,9 +6788,7 @@
     },
     "/api/InspectionTemplate/{templateId}/sections": {
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7209,9 +6809,7 @@
     },
     "/api/InspectionTemplate/sections/{sectionId}/items": {
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "sectionId",
@@ -7232,9 +6830,7 @@
     },
     "/api/InspectionTemplate/{templateId}/conditional-logics": {
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7255,9 +6851,7 @@
     },
     "/api/InspectionTemplate/response-sets": {
       "get": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7267,9 +6861,7 @@
     },
     "/api/InspectionTemplate/{templateId}/publish": {
       "post": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7309,9 +6901,7 @@
     },
     "/api/InspectionTemplate/{templateId}/duplicate": {
       "post": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7351,9 +6941,7 @@
     },
     "/api/InspectionTemplate/{templateId}/archive": {
       "post": {
-        "tags": [
-          "InspectionTemplate"
-        ],
+        "tags": ["InspectionTemplate"],
         "parameters": [
           {
             "name": "templateId",
@@ -7391,11 +6979,96 @@
         }
       }
     },
+    "/api/NearMiss/proofread": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/NearMiss/paraphrase": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAssistRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/NearMiss/draft-assist": {
+      "post": {
+        "tags": ["NearMiss"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearMissDraftRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/NearMiss/NearMiss": {
       "post": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7424,9 +7097,7 @@
     },
     "/api/NearMiss/GetAllNearMiss": {
       "post": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7455,9 +7126,7 @@
     },
     "/api/NearMiss/NearMiss/{id}": {
       "get": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "parameters": [
           {
             "name": "id",
@@ -7476,9 +7145,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "parameters": [
           {
             "name": "id",
@@ -7499,9 +7166,7 @@
     },
     "/api/NearMiss/CloseNearMiss/{id}": {
       "put": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "parameters": [
           {
             "name": "id",
@@ -7522,9 +7187,7 @@
     },
     "/api/NearMiss/NearMissKpi": {
       "get": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7534,9 +7197,7 @@
     },
     "/api/NearMiss/TopNearMissUsers": {
       "get": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7546,9 +7207,7 @@
     },
     "/api/NearMiss/NearMissApiForHeatMap": {
       "get": {
-        "tags": [
-          "NearMiss"
-        ],
+        "tags": ["NearMiss"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7558,9 +7217,7 @@
     },
     "/health": {
       "get": {
-        "tags": [
-          "Neptune"
-        ],
+        "tags": ["Neptune"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7570,9 +7227,7 @@
     },
     "/api/notification": {
       "get": {
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "unreadOnly",
@@ -7610,9 +7265,7 @@
     },
     "/api/notification/unread-count": {
       "get": {
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7622,9 +7275,7 @@
     },
     "/api/notification/{id}/read": {
       "put": {
-        "tags": [
-          "Notification"
-        ],
+        "tags": ["Notification"],
         "parameters": [
           {
             "name": "id",
@@ -7645,8 +7296,56 @@
     },
     "/api/notification/read-all": {
       "put": {
-        "tags": [
-          "Notification"
+        "tags": ["Notification"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/deploy-status": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/deploy-history": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/PlatformOps/alerts": {
+      "get": {
+        "tags": ["PlatformOps"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -7657,9 +7356,7 @@
     },
     "/api/ppe/issue": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7688,9 +7385,7 @@
     },
     "/api/ppe/issue/{id}": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "id",
@@ -7711,9 +7406,7 @@
     },
     "/api/ppe/issue/assigned-to": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7723,9 +7416,7 @@
     },
     "/api/ppe/issue/count-by-status": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7735,9 +7426,7 @@
     },
     "/api/ppe/issue/by-status": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "status",
@@ -7775,9 +7464,7 @@
     },
     "/api/ppe": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7804,9 +7491,7 @@
         }
       },
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -7836,9 +7521,7 @@
     },
     "/api/ppe/{id}": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "id",
@@ -7857,9 +7540,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "id",
@@ -7880,9 +7561,7 @@
     },
     "/api/ppe/inspection-checklist": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7911,9 +7590,7 @@
     },
     "/api/ppe/inspection-checklist/{ppeId}": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "ppeId",
@@ -7934,9 +7611,7 @@
     },
     "/api/ppe/inspection-status": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7965,9 +7640,7 @@
     },
     "/api/ppe/replace-request": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -7996,9 +7669,7 @@
     },
     "/api/ppe/kpi": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "responses": {
           "200": {
             "description": "Success"
@@ -8008,9 +7679,7 @@
     },
     "/api/ppe/kpi-inventory": {
       "get": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "responses": {
           "200": {
             "description": "Success"
@@ -8020,9 +7689,7 @@
     },
     "/api/ppe/acknowledge": {
       "post": {
-        "tags": [
-          "PPE"
-        ],
+        "tags": ["PPE"],
         "parameters": [
           {
             "name": "issueId",
@@ -8057,9 +7724,7 @@
     },
     "/api/Rca/ContributingFactor": {
       "post": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8086,9 +7751,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8117,9 +7780,7 @@
     },
     "/api/Rca/Whys": {
       "post": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8148,9 +7809,7 @@
     },
     "/api/Rca/CorrectiveAction": {
       "post": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8177,9 +7836,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8208,9 +7865,7 @@
     },
     "/api/Rca/ContributingFactor/Drop/{id}": {
       "patch": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "parameters": [
           {
             "name": "id",
@@ -8250,9 +7905,7 @@
     },
     "/api/Rca/Why/Drop/{id}": {
       "patch": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "parameters": [
           {
             "name": "id",
@@ -8292,9 +7945,7 @@
     },
     "/api/Rca/CorrectiveAction/Drop/{id}": {
       "patch": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "parameters": [
           {
             "name": "id",
@@ -8334,9 +7985,7 @@
     },
     "/api/Rca/Why": {
       "put": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8365,9 +8014,7 @@
     },
     "/api/Rca/Incident/{incidentId}": {
       "get": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "parameters": [
           {
             "name": "incidentId",
@@ -8388,9 +8035,7 @@
     },
     "/api/Rca/Categories": {
       "get": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "responses": {
           "200": {
             "description": "Success"
@@ -8398,9 +8043,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Rca"
-        ],
+        "tags": ["Rca"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8429,9 +8072,7 @@
     },
     "/api/ResponseSet": {
       "get": {
-        "tags": [
-          "ResponseSet"
-        ],
+        "tags": ["ResponseSet"],
         "responses": {
           "200": {
             "description": "Success"
@@ -8439,9 +8080,7 @@
         }
       },
       "post": {
-        "tags": [
-          "ResponseSet"
-        ],
+        "tags": ["ResponseSet"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8470,9 +8109,7 @@
     },
     "/api/SuperAdminAuth/login": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8501,9 +8138,7 @@
     },
     "/api/SuperAdminAuth/verify-mfa": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8532,9 +8167,7 @@
     },
     "/api/SuperAdminAuth/mfa/setup": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8563,9 +8196,7 @@
     },
     "/api/SuperAdminAuth/mfa/enable": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8594,9 +8225,7 @@
     },
     "/api/SuperAdminAuth/forgot-password": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8625,9 +8254,7 @@
     },
     "/api/SuperAdminAuth/reset-password": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8656,9 +8283,7 @@
     },
     "/api/SuperAdminAuth/bootstrap": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8687,9 +8312,7 @@
     },
     "/api/SuperAdminAuth/create": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8718,9 +8341,7 @@
     },
     "/api/SuperAdminAuth/select-company": {
       "post": {
-        "tags": [
-          "SuperAdminAuth"
-        ],
+        "tags": ["SuperAdminAuth"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8749,9 +8370,7 @@
     },
     "/api/SuperAdminCompanies": {
       "get": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "search",
@@ -8788,9 +8407,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/sites": {
       "get": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8819,9 +8436,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/access": {
       "post": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8859,9 +8474,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8882,9 +8495,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/access/history": {
       "get": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8905,9 +8516,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/limits": {
       "put": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8947,9 +8556,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/limits/history": {
       "get": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8970,9 +8577,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}": {
       "get": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -8991,9 +8596,7 @@
         }
       },
       "put": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -9033,9 +8636,7 @@
     },
     "/api/SuperAdminCompanies/{organizationId}/modules": {
       "put": {
-        "tags": [
-          "SuperAdminCompanies"
-        ],
+        "tags": ["SuperAdminCompanies"],
         "parameters": [
           {
             "name": "organizationId",
@@ -9075,9 +8676,7 @@
     },
     "/api/SuperAdminDashboard/summary": {
       "get": {
-        "tags": [
-          "SuperAdminDashboard"
-        ],
+        "tags": ["SuperAdminDashboard"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9087,9 +8686,7 @@
     },
     "/api/SuperAdminDashboard/recent-activity": {
       "get": {
-        "tags": [
-          "SuperAdminDashboard"
-        ],
+        "tags": ["SuperAdminDashboard"],
         "parameters": [
           {
             "name": "limit",
@@ -9110,9 +8707,7 @@
     },
     "/api/SuperAdminRoles": {
       "get": {
-        "tags": [
-          "SuperAdminRoles"
-        ],
+        "tags": ["SuperAdminRoles"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -9140,9 +8735,7 @@
         }
       },
       "post": {
-        "tags": [
-          "SuperAdminRoles"
-        ],
+        "tags": ["SuperAdminRoles"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9171,9 +8764,7 @@
     },
     "/api/SuperAdminRoles/permissions": {
       "get": {
-        "tags": [
-          "SuperAdminRoles"
-        ],
+        "tags": ["SuperAdminRoles"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9183,9 +8774,7 @@
     },
     "/api/SuperAdminRoles/with-permissions": {
       "get": {
-        "tags": [
-          "SuperAdminRoles"
-        ],
+        "tags": ["SuperAdminRoles"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9195,9 +8784,7 @@
     },
     "/api/SuperAdminRoles/{roleId}/permissions": {
       "put": {
-        "tags": [
-          "SuperAdminRoles"
-        ],
+        "tags": ["SuperAdminRoles"],
         "parameters": [
           {
             "name": "roleId",
@@ -9237,9 +8824,7 @@
     },
     "/api/SuperAdminSites": {
       "get": {
-        "tags": [
-          "SuperAdminSites"
-        ],
+        "tags": ["SuperAdminSites"],
         "parameters": [
           {
             "name": "includeDeleted",
@@ -9257,9 +8842,7 @@
         }
       },
       "post": {
-        "tags": [
-          "SuperAdminSites"
-        ],
+        "tags": ["SuperAdminSites"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9288,9 +8871,7 @@
     },
     "/api/SuperAdminSites/{siteId}": {
       "get": {
-        "tags": [
-          "SuperAdminSites"
-        ],
+        "tags": ["SuperAdminSites"],
         "parameters": [
           {
             "name": "siteId",
@@ -9309,9 +8890,7 @@
         }
       },
       "put": {
-        "tags": [
-          "SuperAdminSites"
-        ],
+        "tags": ["SuperAdminSites"],
         "parameters": [
           {
             "name": "siteId",
@@ -9357,9 +8936,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "SuperAdminSites"
-        ],
+        "tags": ["SuperAdminSites"],
         "parameters": [
           {
             "name": "siteId",
@@ -9388,9 +8965,7 @@
     },
     "/api/SuperAdminUsers": {
       "get": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "parameters": [
           {
             "name": "siteId",
@@ -9435,9 +9010,7 @@
     },
     "/api/SuperAdminUsers/stats": {
       "get": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "parameters": [
           {
             "name": "siteId",
@@ -9457,9 +9030,7 @@
     },
     "/api/SuperAdminUsers/{userId}": {
       "get": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "parameters": [
           {
             "name": "userId",
@@ -9478,9 +9049,7 @@
         }
       },
       "put": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "parameters": [
           {
             "name": "userId",
@@ -9520,9 +9089,7 @@
     },
     "/api/SuperAdminUsers/invite": {
       "post": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9551,9 +9118,7 @@
     },
     "/api/SuperAdminUsers/{userId}/status": {
       "put": {
-        "tags": [
-          "SuperAdminUsers"
-        ],
+        "tags": ["SuperAdminUsers"],
         "parameters": [
           {
             "name": "userId",
@@ -9581,9 +9146,7 @@
     },
     "/api/User/invite": {
       "post": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9621,9 +9184,7 @@
     },
     "/api/User/associates": {
       "get": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9633,9 +9194,7 @@
     },
     "/api/User/dropdown": {
       "get": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9645,9 +9204,7 @@
     },
     "/api/User/accept-invitation": {
       "post": {
-        "tags": [
-          "User"
-        ],
+        "tags": ["User"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9676,9 +9233,7 @@
     },
     "/api/walkandtalk": {
       "post": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9705,9 +9260,7 @@
         }
       },
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "parameters": [
           {
             "name": "pageNumber",
@@ -9737,9 +9290,7 @@
     },
     "/api/walkandtalk/by-user": {
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9749,9 +9300,7 @@
     },
     "/api/walkandtalk/{id}": {
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "parameters": [
           {
             "name": "id",
@@ -9772,9 +9321,7 @@
     },
     "/api/walkandtalk/dashboard-counts": {
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9784,9 +9331,7 @@
     },
     "/api/walkandtalk/graph": {
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "parameters": [
           {
             "name": "weeks",
@@ -9807,9 +9352,7 @@
     },
     "/api/walkandtalk/top-findings": {
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9819,9 +9362,7 @@
     },
     "/api/walkandtalk/participants": {
       "post": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9848,9 +9389,7 @@
         }
       },
       "get": {
-        "tags": [
-          "WalkTalk"
-        ],
+        "tags": ["WalkTalk"],
         "responses": {
           "200": {
             "description": "Success"
@@ -9862,13 +9401,7 @@
   "components": {
     "schemas": {
       "AcceptInvitationDto": {
-        "required": [
-          "email",
-          "fullName",
-          "password",
-          "siteId",
-          "userId"
-        ],
+        "required": ["email", "fullName", "password", "siteId", "userId"],
         "type": "object",
         "properties": {
           "fullName": {
@@ -9905,12 +9438,7 @@
         "additionalProperties": false
       },
       "AddAuditFindingDto": {
-        "required": [
-          "severity",
-          "siteId",
-          "title",
-          "userId"
-        ],
+        "required": ["severity", "siteId", "title", "userId"],
         "type": "object",
         "properties": {
           "templateItemId": {
@@ -10059,9 +9587,7 @@
         "additionalProperties": false
       },
       "AddConditionalLogicDto": {
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "type": "object",
         "properties": {
           "id": {
@@ -10180,9 +9706,7 @@
         "additionalProperties": false
       },
       "AddDocCategoryDto": {
-        "required": [
-          "categorytName"
-        ],
+        "required": ["categorytName"],
         "type": "object",
         "properties": {
           "categorytName": {
@@ -10215,9 +9739,7 @@
         "additionalProperties": false
       },
       "AddDocDepartmentDto": {
-        "required": [
-          "departmentName"
-        ],
+        "required": ["departmentName"],
         "type": "object",
         "properties": {
           "departmentName": {
@@ -10598,9 +10120,7 @@
         "additionalProperties": false
       },
       "AddRcaCategoryDto": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -10632,9 +10152,7 @@
         "additionalProperties": false
       },
       "AddResponseOptionDto": {
-        "required": [
-          "label"
-        ],
+        "required": ["label"],
         "type": "object",
         "properties": {
           "label": {
@@ -10659,12 +10177,7 @@
         "additionalProperties": false
       },
       "AddResponseSetDto": {
-        "required": [
-          "name",
-          "options",
-          "siteId",
-          "userId"
-        ],
+        "required": ["name", "options", "siteId", "userId"],
         "type": "object",
         "properties": {
           "name": {
@@ -10689,10 +10202,7 @@
         "additionalProperties": false
       },
       "AddTemplateItemDto": {
-        "required": [
-          "itemType",
-          "question"
-        ],
+        "required": ["itemType", "question"],
         "type": "object",
         "properties": {
           "id": {
@@ -10765,9 +10275,7 @@
         "additionalProperties": false
       },
       "AddTemplateSectionDto": {
-        "required": [
-          "sectionTitle"
-        ],
+        "required": ["sectionTitle"],
         "type": "object",
         "properties": {
           "id": {
@@ -10916,9 +10424,7 @@
         "additionalProperties": false
       },
       "BehaviorCategoryDto": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -10929,11 +10435,7 @@
         "additionalProperties": false
       },
       "CapaAttachmentDto": {
-        "required": [
-          "attachments",
-          "capaId",
-          "userId"
-        ],
+        "required": ["attachments", "capaId", "userId"],
         "type": "object",
         "properties": {
           "capaId": {
@@ -10954,10 +10456,7 @@
         "additionalProperties": false
       },
       "CapaAttachmentItemDto": {
-        "required": [
-          "attachmentTitle",
-          "attachmentUrl"
-        ],
+        "required": ["attachmentTitle", "attachmentUrl"],
         "type": "object",
         "properties": {
           "attachmentUrl": {
@@ -10976,9 +10475,7 @@
         "additionalProperties": false
       },
       "CapaChecklistItemDto": {
-        "required": [
-          "item"
-        ],
+        "required": ["item"],
         "type": "object",
         "properties": {
           "item": {
@@ -10992,12 +10489,7 @@
         "additionalProperties": false
       },
       "CapaCommentDto": {
-        "required": [
-          "assignedId",
-          "capaId",
-          "description",
-          "userId"
-        ],
+        "required": ["assignedId", "capaId", "description", "userId"],
         "type": "object",
         "properties": {
           "capaId": {
@@ -11091,11 +10583,7 @@
         "additionalProperties": false
       },
       "CapaTaskDto": {
-        "required": [
-          "capaId",
-          "task",
-          "userId"
-        ],
+        "required": ["capaId", "task", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -11127,11 +10615,7 @@
         "additionalProperties": false
       },
       "CapaTaskStatusDto": {
-        "required": [
-          "id",
-          "status",
-          "userId"
-        ],
+        "required": ["id", "status", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -11151,11 +10635,7 @@
         "additionalProperties": false
       },
       "CapaVerificationDto": {
-        "required": [
-          "capaId",
-          "effectiveness",
-          "userId"
-        ],
+        "required": ["capaId", "effectiveness", "userId"],
         "type": "object",
         "properties": {
           "capaId": {
@@ -11249,9 +10729,7 @@
         "additionalProperties": false
       },
       "ChemicalRiskAssessmentDto": {
-        "required": [
-          "chemicalId"
-        ],
+        "required": ["chemicalId"],
         "type": "object",
         "properties": {
           "chemicalId": {
@@ -11486,10 +10964,7 @@
         "additionalProperties": false
       },
       "DemoBlockSlotDto": {
-        "required": [
-          "day",
-          "email"
-        ],
+        "required": ["day", "email"],
         "type": "object",
         "properties": {
           "id": {
@@ -11515,9 +10990,7 @@
         "additionalProperties": false
       },
       "DemoHostAvatarDto": {
-        "required": [
-          "avatarUrl"
-        ],
+        "required": ["avatarUrl"],
         "type": "object",
         "properties": {
           "avatarUrl": {
@@ -11530,11 +11003,7 @@
         "additionalProperties": false
       },
       "DemoHostChangePasswordDto": {
-        "required": [
-          "email",
-          "newPassword",
-          "oldPassword"
-        ],
+        "required": ["email", "newPassword", "oldPassword"],
         "type": "object",
         "properties": {
           "email": {
@@ -11555,10 +11024,7 @@
         "additionalProperties": false
       },
       "DemoHostDisableMfaDto": {
-        "required": [
-          "code",
-          "email"
-        ],
+        "required": ["code", "email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11651,10 +11117,7 @@
         "additionalProperties": false
       },
       "DemoHostDocumentFilterDto": {
-        "required": [
-          "category",
-          "company"
-        ],
+        "required": ["category", "company"],
         "type": "object",
         "properties": {
           "company": {
@@ -11676,11 +11139,7 @@
         "additionalProperties": false
       },
       "DemoHostDto": {
-        "required": [
-          "email",
-          "firstName",
-          "lastName"
-        ],
+        "required": ["email", "firstName", "lastName"],
         "type": "object",
         "properties": {
           "id": {
@@ -11748,10 +11207,7 @@
         "additionalProperties": false
       },
       "DemoHostEnableMfaDto": {
-        "required": [
-          "code",
-          "email"
-        ],
+        "required": ["code", "email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11769,9 +11225,7 @@
         "additionalProperties": false
       },
       "DemoHostForgotPasswordDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11784,10 +11238,7 @@
         "additionalProperties": false
       },
       "DemoHostLoginDto": {
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -11804,9 +11255,7 @@
         "additionalProperties": false
       },
       "DemoHostLogoutDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11819,9 +11268,7 @@
         "additionalProperties": false
       },
       "DemoHostMfaSetupDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11834,9 +11281,7 @@
         "additionalProperties": false
       },
       "DemoHostMicrosoftAuthDto": {
-        "required": [
-          "idToken"
-        ],
+        "required": ["idToken"],
         "type": "object",
         "properties": {
           "idToken": {
@@ -11847,9 +11292,7 @@
         "additionalProperties": false
       },
       "DemoHostResendSignupOtpDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -11862,12 +11305,7 @@
         "additionalProperties": false
       },
       "DemoHostSignupDto": {
-        "required": [
-          "confirmPassword",
-          "email",
-          "name",
-          "password"
-        ],
+        "required": ["confirmPassword", "email", "name", "password"],
         "type": "object",
         "properties": {
           "name": {
@@ -11893,10 +11331,7 @@
         "additionalProperties": false
       },
       "DemoHostVerifyMfaDto": {
-        "required": [
-          "code",
-          "mfaToken"
-        ],
+        "required": ["code", "mfaToken"],
         "type": "object",
         "properties": {
           "mfaToken": {
@@ -11912,10 +11347,7 @@
         "additionalProperties": false
       },
       "DemoHostVerifySignupDto": {
-        "required": [
-          "email",
-          "otp"
-        ],
+        "required": ["email", "otp"],
         "type": "object",
         "properties": {
           "email": {
@@ -12017,10 +11449,7 @@
         "additionalProperties": false
       },
       "DemoRescheduleDto": {
-        "required": [
-          "meetingDateTime",
-          "token"
-        ],
+        "required": ["meetingDateTime", "token"],
         "type": "object",
         "properties": {
           "token": {
@@ -12041,10 +11470,7 @@
         "additionalProperties": false
       },
       "DemoUserActionPlanDto": {
-        "required": [
-          "demoUserId",
-          "title"
-        ],
+        "required": ["demoUserId", "title"],
         "type": "object",
         "properties": {
           "id": {
@@ -12088,12 +11514,7 @@
         "additionalProperties": false
       },
       "DemoUserDocumentDto": {
-        "required": [
-          "category",
-          "demoUserId",
-          "documentUrl",
-          "title"
-        ],
+        "required": ["category", "demoUserId", "documentUrl", "title"],
         "type": "object",
         "properties": {
           "id": {
@@ -12158,10 +11579,7 @@
         "additionalProperties": false
       },
       "DemoUserDocumentFilterDto": {
-        "required": [
-          "category",
-          "demoUserId"
-        ],
+        "required": ["category", "demoUserId"],
         "type": "object",
         "properties": {
           "demoUserId": {
@@ -12182,13 +11600,7 @@
         "additionalProperties": false
       },
       "DemoUserDto": {
-        "required": [
-          "company",
-          "email",
-          "firstName",
-          "lastName",
-          "role"
-        ],
+        "required": ["company", "email", "firstName", "lastName", "role"],
         "type": "object",
         "properties": {
           "id": {
@@ -12294,9 +11706,7 @@
         "additionalProperties": false
       },
       "DemoUserImgDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -12315,10 +11725,7 @@
         "additionalProperties": false
       },
       "DemoUserInviteDto": {
-        "required": [
-          "demoUserId",
-          "email"
-        ],
+        "required": ["demoUserId", "email"],
         "type": "object",
         "properties": {
           "demoUserId": {
@@ -12345,9 +11752,7 @@
         "additionalProperties": false
       },
       "DemoUserLogoDto": {
-        "required": [
-          "logoUrl"
-        ],
+        "required": ["logoUrl"],
         "type": "object",
         "properties": {
           "logoUrl": {
@@ -12360,9 +11765,7 @@
         "additionalProperties": false
       },
       "DemoUserLogoutDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -12374,9 +11777,7 @@
         "additionalProperties": false
       },
       "DemoUserOtpRequestDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -12389,9 +11790,7 @@
         "additionalProperties": false
       },
       "DemoWorkspaceHostDto": {
-        "required": [
-          "hostId"
-        ],
+        "required": ["hostId"],
         "type": "object",
         "properties": {
           "hostId": {
@@ -12402,10 +11801,7 @@
         "additionalProperties": false
       },
       "DocApprovalDto": {
-        "required": [
-          "approverId",
-          "docVersionId"
-        ],
+        "required": ["approverId", "docVersionId"],
         "type": "object",
         "properties": {
           "approverId": {
@@ -12552,9 +11948,7 @@
         "additionalProperties": false
       },
       "EnableMfaDto": {
-        "required": [
-          "code"
-        ],
+        "required": ["code"],
         "type": "object",
         "properties": {
           "code": {
@@ -12567,9 +11961,7 @@
         "additionalProperties": false
       },
       "ForgotPasswordDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -12597,12 +11989,33 @@
         },
         "additionalProperties": false
       },
+      "HazardDraftRequestDto": {
+        "type": "object",
+        "properties": {
+          "hazardType": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "potentialConsequence": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
       "HazardDto": {
-        "required": [
-          "description",
-          "siteId",
-          "userId"
-        ],
+        "required": ["description", "siteId", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -12657,9 +12070,7 @@
         "additionalProperties": false
       },
       "HazardHCodeDto": {
-        "required": [
-          "codes"
-        ],
+        "required": ["codes"],
         "type": "object",
         "properties": {
           "codes": {
@@ -12757,10 +12168,7 @@
         "additionalProperties": false
       },
       "IncidentDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -12964,9 +12372,7 @@
         "additionalProperties": false
       },
       "IncidentKpiTargetDto": {
-        "required": [
-          "metric"
-        ],
+        "required": ["metric"],
         "type": "object",
         "properties": {
           "metric": {
@@ -13020,9 +12426,7 @@
         "additionalProperties": false
       },
       "InspectionStatusDto": {
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "type": "object",
         "properties": {
           "ppeId": {
@@ -13089,6 +12493,14 @@
             "type": "integer",
             "format": "int32"
           },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
           "roleId": {
             "type": "integer",
             "format": "int32"
@@ -13110,10 +12522,7 @@
         "additionalProperties": false
       },
       "IssuePPEDto": {
-        "required": [
-          "item",
-          "size"
-        ],
+        "required": ["item", "size"],
         "type": "object",
         "properties": {
           "assignTo": {
@@ -13144,10 +12553,7 @@
         "additionalProperties": false
       },
       "LoginDto": {
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -13158,6 +12564,39 @@
           "password": {
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NearMissDraftRequestDto": {
+        "type": "object",
+        "properties": {
+          "dateOfEvent": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "hazardType": {
+            "maxLength": 200,
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "maxLength": 300,
+            "type": "string",
+            "nullable": true
+          },
+          "contributingFactors": {
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "isEmpty": {
+            "type": "boolean",
+            "readOnly": true
           }
         },
         "additionalProperties": false
@@ -13229,9 +12668,7 @@
         "additionalProperties": false
       },
       "PPEDto": {
-        "required": [
-          "category"
-        ],
+        "required": ["category"],
         "type": "object",
         "properties": {
           "id": {
@@ -13304,9 +12741,7 @@
         "additionalProperties": false
       },
       "PPEInspectionCheckListDto": {
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "type": "object",
         "properties": {
           "ppeId": {
@@ -13328,10 +12763,7 @@
         "additionalProperties": false
       },
       "PPEReplaceRequestDto": {
-        "required": [
-          "replaceReason",
-          "urgency"
-        ],
+        "required": ["replaceReason", "urgency"],
         "type": "object",
         "properties": {
           "issuePPEId": {
@@ -13358,10 +12790,7 @@
         "additionalProperties": false
       },
       "PagedTenantUserRequestDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "pageNumber": {
@@ -13398,9 +12827,7 @@
         "additionalProperties": false
       },
       "ParticipantDto": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -13441,9 +12868,7 @@
         "additionalProperties": false
       },
       "PrecautionaryCodeDto": {
-        "required": [
-          "p_Codes"
-        ],
+        "required": ["p_Codes"],
         "type": "object",
         "properties": {
           "p_Codes": {
@@ -13471,11 +12896,7 @@
         "additionalProperties": false
       },
       "ReopenAuditDto": {
-        "required": [
-          "reason",
-          "siteId",
-          "userId"
-        ],
+        "required": ["reason", "siteId", "userId"],
         "type": "object",
         "properties": {
           "userId": {
@@ -13512,9 +12933,7 @@
         "additionalProperties": false
       },
       "RoleDto": {
-        "required": [
-          "roleName"
-        ],
+        "required": ["roleName"],
         "type": "object",
         "properties": {
           "id": {
@@ -13605,11 +13024,7 @@
         "additionalProperties": false
       },
       "SaveAuditResponsesDto": {
-        "required": [
-          "responses",
-          "siteId",
-          "userId"
-        ],
+        "required": ["responses", "siteId", "userId"],
         "type": "object",
         "properties": {
           "userId": {
@@ -13743,9 +13158,7 @@
         "additionalProperties": false
       },
       "SaveResponseEntryDto": {
-        "required": [
-          "templateItemId"
-        ],
+        "required": ["templateItemId"],
         "type": "object",
         "properties": {
           "templateItemId": {
@@ -13767,6 +13180,17 @@
           },
           "isNA": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SelectSiteDto": {
+        "required": ["siteId"],
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -13814,12 +13238,7 @@
         "additionalProperties": false
       },
       "SiteDto": {
-        "required": [
-          "industryType",
-          "location",
-          "siteName",
-          "siteSize"
-        ],
+        "required": ["industryType", "location", "siteName", "siteSize"],
         "type": "object",
         "properties": {
           "id": {
@@ -13846,11 +13265,7 @@
         "additionalProperties": false
       },
       "SiteWorkHoursDto": {
-        "required": [
-          "hours",
-          "month",
-          "year"
-        ],
+        "required": ["hours", "month", "year"],
         "type": "object",
         "properties": {
           "year": {
@@ -13874,10 +13289,7 @@
         "additionalProperties": false
       },
       "SsoLoginDto": {
-        "required": [
-          "idToken",
-          "provider"
-        ],
+        "required": ["idToken", "provider"],
         "type": "object",
         "properties": {
           "provider": {
@@ -13892,10 +13304,7 @@
         "additionalProperties": false
       },
       "SubmitAuditDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "userId": {
@@ -13924,9 +13333,7 @@
         "additionalProperties": false
       },
       "SuperAdminAssignPermissionsDto": {
-        "required": [
-          "permissionIds"
-        ],
+        "required": ["permissionIds"],
         "type": "object",
         "properties": {
           "permissionIds": {
@@ -13940,11 +13347,7 @@
         "additionalProperties": false
       },
       "SuperAdminBootstrapDto": {
-        "required": [
-          "bootstrapKey",
-          "email",
-          "password"
-        ],
+        "required": ["bootstrapKey", "email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -13964,11 +13367,7 @@
         "additionalProperties": false
       },
       "SuperAdminCreateDto": {
-        "required": [
-          "email",
-          "fullName",
-          "password"
-        ],
+        "required": ["email", "fullName", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -13989,9 +13388,7 @@
         "additionalProperties": false
       },
       "SuperAdminCreateRoleDto": {
-        "required": [
-          "roleName"
-        ],
+        "required": ["roleName"],
         "type": "object",
         "properties": {
           "roleName": {
@@ -14008,10 +13405,7 @@
         "additionalProperties": false
       },
       "SuperAdminCreateSiteDto": {
-        "required": [
-          "location",
-          "siteName"
-        ],
+        "required": ["location", "siteName"],
         "type": "object",
         "properties": {
           "organizationId": {
@@ -14048,9 +13442,7 @@
         "additionalProperties": false
       },
       "SuperAdminForgotPasswordDto": {
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object",
         "properties": {
           "email": {
@@ -14062,10 +13454,7 @@
         "additionalProperties": false
       },
       "SuperAdminInviteUserDto": {
-        "required": [
-          "email",
-          "roleId"
-        ],
+        "required": ["email", "roleId"],
         "type": "object",
         "properties": {
           "email": {
@@ -14092,15 +13481,20 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "SuperAdminLoginDto": {
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -14116,9 +13510,7 @@
         "additionalProperties": false
       },
       "SuperAdminMfaSetupDto": {
-        "required": [
-          "mfaToken"
-        ],
+        "required": ["mfaToken"],
         "type": "object",
         "properties": {
           "mfaToken": {
@@ -14129,11 +13521,7 @@
         "additionalProperties": false
       },
       "SuperAdminResetPasswordDto": {
-        "required": [
-          "email",
-          "newPassword",
-          "otp"
-        ],
+        "required": ["email", "newPassword", "otp"],
         "type": "object",
         "properties": {
           "email": {
@@ -14155,10 +13543,7 @@
         "additionalProperties": false
       },
       "SuperAdminSelectCompanyDto": {
-        "required": [
-          "organizationId",
-          "siteId"
-        ],
+        "required": ["organizationId", "siteId"],
         "type": "object",
         "properties": {
           "organizationId": {
@@ -14229,15 +13614,20 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "siteIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "TemplateActionDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "userId": {
@@ -14252,10 +13642,7 @@
         "additionalProperties": false
       },
       "TenantUserContextDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "siteId": {
@@ -14270,9 +13657,7 @@
         "additionalProperties": false
       },
       "TextAssistRequestDto": {
-        "required": [
-          "text"
-        ],
+        "required": ["text"],
         "type": "object",
         "properties": {
           "text": {
@@ -14284,10 +13669,7 @@
         "additionalProperties": false
       },
       "TrainingLogDto": {
-        "required": [
-          "sessionDate",
-          "trainer"
-        ],
+        "required": ["sessionDate", "trainer"],
         "type": "object",
         "properties": {
           "chemicalId": {
@@ -14330,10 +13712,7 @@
         "additionalProperties": false
       },
       "TrainingMaterialDto": {
-        "required": [
-          "fileName",
-          "fileUrl"
-        ],
+        "required": ["fileName", "fileUrl"],
         "type": "object",
         "properties": {
           "id": {
@@ -14366,10 +13745,7 @@
         "additionalProperties": false
       },
       "UpdateAuditFindingDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "title": {
@@ -14579,10 +13955,7 @@
         "additionalProperties": false
       },
       "UpdateContributingFactorDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "siteId": {
@@ -14613,10 +13986,7 @@
         "additionalProperties": false
       },
       "UpdateCorrectiveActionDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "siteId": {
@@ -14639,9 +14009,7 @@
         "additionalProperties": false
       },
       "UpdateDemoStatusDto": {
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "type": "object",
         "properties": {
           "status": {
@@ -14880,10 +14248,7 @@
         "additionalProperties": false
       },
       "UpdateRcaWhyDto": {
-        "required": [
-          "siteId",
-          "userId"
-        ],
+        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "siteId": {
@@ -14913,11 +14278,7 @@
         "additionalProperties": false
       },
       "UpdateTrainingLogDto": {
-        "required": [
-          "sessionDate",
-          "status",
-          "trainer"
-        ],
+        "required": ["sessionDate", "status", "trainer"],
         "type": "object",
         "properties": {
           "chemicalId": {
@@ -14964,9 +14325,7 @@
         "additionalProperties": false
       },
       "UpdateUserAvatarDto": {
-        "required": [
-          "profileUrl"
-        ],
+        "required": ["profileUrl"],
         "type": "object",
         "properties": {
           "profileUrl": {
@@ -15044,10 +14403,7 @@
         "additionalProperties": false
       },
       "VerifyDemoUserOtpDto": {
-        "required": [
-          "email",
-          "otp"
-        ],
+        "required": ["email", "otp"],
         "type": "object",
         "properties": {
           "email": {
@@ -15064,10 +14420,7 @@
         "additionalProperties": false
       },
       "VerifyMfaDto": {
-        "required": [
-          "code",
-          "mfaToken"
-        ],
+        "required": ["code", "mfaToken"],
         "type": "object",
         "properties": {
           "mfaToken": {
@@ -15084,10 +14437,7 @@
         "additionalProperties": false
       },
       "WalkAndTalkDto": {
-        "required": [
-          "location",
-          "observer"
-        ],
+        "required": ["location", "observer"],
         "type": "object",
         "properties": {
           "observer": {
@@ -15132,9 +14482,7 @@
         "additionalProperties": false
       },
       "WalkAndTalkFollowUpDto": {
-        "required": [
-          "followUpTitle"
-        ],
+        "required": ["followUpTitle"],
         "type": "object",
         "properties": {
           "followUpTitle": {
@@ -15165,7 +14513,7 @@
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Bearer": []
     }
   ]
 }
