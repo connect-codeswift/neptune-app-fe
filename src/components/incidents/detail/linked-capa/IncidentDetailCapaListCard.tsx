@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
+import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
+import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
+import { CapaCompletionReviewModal } from "@/components/incidents/shared/capa/CapaCompletionReviewModal";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
+import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
+import {
+  capaNeedsManagerReview,
+  capaTaskStatusBadgeClass,
+  formatCapaTaskStatusLabel,
+} from "@/services/mappers/capa.mapper";
 
 export type { CapaItem };
 
@@ -16,18 +25,29 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   incidentTitle: string;
   isLoading?: boolean;
   isSubmitting?: boolean;
+  isVerifying?: boolean;
   openAddModal?: boolean;
   onAddModalOpened?: () => void;
-  onSubmitCapa?: (payload: {
-    controlLevel: string;
-    description: string;
-    type: string;
-    owner: string;
-    dueDate: string;
-    priority: string;
-  }) => void | Promise<void>;
+  onSubmitCapa?: (payload: CapaFormPayload) => void | Promise<void>;
+  onUpdateCapa?: (
+    capa: CapaItem,
+    payload: CapaFormPayload,
+  ) => void | Promise<void>;
+  isCreatingCapaTask?: boolean;
+  onCreateCapaTask?: (
+    capa: CapaItem,
+    payload: CapaTaskFormPayload,
+  ) => void | Promise<void>;
+  onVerifyCapa?: (
+    capa: CapaItem,
+    input: { effectiveness: CapaEffectiveness; notes: string },
+  ) => void | Promise<void>;
   className?: string;
 }>;
+
+function reviewDismissKey(capaId: string) {
+  return `capa-review-dismissed-${capaId}`;
+}
 
 export function IncidentDetailCapaListCard(
   props: Readonly<IncidentDetailCapaListCardProps>,
@@ -38,22 +58,61 @@ export function IncidentDetailCapaListCard(
     incidentTitle,
     isLoading = false,
     isSubmitting = false,
+    isVerifying = false,
     openAddModal = false,
     onAddModalOpened,
     onSubmitCapa,
+    onUpdateCapa,
+    isCreatingCapaTask = false,
+    onCreateCapaTask,
+    onVerifyCapa,
     className = "",
   } = props;
 
   const [addModalRequestedLocally, setAddModalRequestedLocally] =
     useState(false);
+  const [editingCapa, setEditingCapa] = useState<CapaItem | null>(null);
+  const [reviewCapa, setReviewCapa] = useState<CapaItem | null>(null);
+  const autoPromptedRef = useRef<ReadonlySet<string>>(new Set());
 
-  // Derive from prop + local click — avoids setState inside useEffect (eslint cascade rule).
   const isAddCapaOpen = addModalRequestedLocally || openAddModal;
 
   const handleCloseAddModal = () => {
     setAddModalRequestedLocally(false);
     onAddModalOpened?.();
   };
+
+  const openReview = (capa: CapaItem) => {
+    setReviewCapa(capa);
+  };
+
+  const closeReview = () => {
+    if (reviewCapa) {
+      sessionStorage.setItem(reviewDismissKey(reviewCapa.id), "1");
+    }
+    setReviewCapa(null);
+  };
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    const pendingReview = capas.find(
+      (item) =>
+        capaNeedsManagerReview(item) &&
+        !autoPromptedRef.current.has(item.id) &&
+        sessionStorage.getItem(reviewDismissKey(item.id)) !== "1",
+    );
+
+    if (pendingReview) {
+      autoPromptedRef.current = new Set([
+        ...autoPromptedRef.current,
+        pendingReview.id,
+      ]);
+      setReviewCapa(pendingReview);
+    }
+  }, [capas, isLoading]);
 
   return (
     <>
@@ -70,7 +129,7 @@ export function IncidentDetailCapaListCard(
             <span className="text-ehs-muted-text text-sm leading-normal">
               {isLoading
                 ? `Loading CAPAs for ${incidentId}…`
-                : `${String(capas.length)} linked to ${incidentId}`}
+                : `${String(capas.length)} linked to ${incidentId} · review completed actions to verify and close`}
             </span>
           </div>
 
@@ -100,13 +159,22 @@ export function IncidentDetailCapaListCard(
             </div>
           ) : (
             capas.map((item) => {
-              const isCompleted =
-                item.progressPercent === 100 || item.status === "Verified";
+              const taskStatusLabel = formatCapaTaskStatusLabel(item.taskStatus);
+              const isCompleted = item.taskStatus === "Completed";
+              const needsReview = capaNeedsManagerReview(item);
+              const isVerified =
+                item.status === "Verified" || item.status === "Closed";
+              const hasLinkedTask = item.primaryTaskId != null;
 
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-[7px] rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] p-[17px]"
+                  className={[
+                    "flex flex-col gap-[7px] rounded-[12px] border bg-[rgba(255,255,255,0.82)] p-[17px]",
+                    needsReview
+                      ? "border-ehs-green/30 ring-1 ring-ehs-green/20"
+                      : "border-[rgba(15,23,42,0.08)]",
+                  ].join(" ")}
                 >
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                     <span className="text-ehs-muted-text text-sm font-bold">
@@ -119,16 +187,53 @@ export function IncidentDetailCapaListCard(
                     <span className="bg-ehs-gray/14 text-ehs-gray inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]">
                       {item.actionType}
                     </span>
-                    <span
-                      className={[
-                        "text-ehs-gray ml-auto inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]",
-                        item.status === "Planning"
-                          ? "bg-ehs-gray/14"
-                          : "bg-ehs-dark-bg/14",
-                      ].join(" ")}
-                    >
-                      {item.status}
-                    </span>
+
+                    <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                      {needsReview ? (
+                        <button
+                          type="button"
+                          onClick={() => openReview(item)}
+                          className="bg-ehs-green/14 text-ehs-green hover:bg-ehs-green/20 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold transition-colors"
+                        >
+                          <Icon
+                            icon="mdi:eye-check-outline"
+                            className="size-3.5"
+                            aria-hidden="true"
+                          />
+                          Review
+                        </button>
+                      ) : null}
+                      <span
+                        className={[
+                          "inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]",
+                          isVerified
+                            ? "bg-ehs-green/14 text-ehs-green"
+                            : capaTaskStatusBadgeClass(item.taskStatus),
+                        ].join(" ")}
+                        title={
+                          isVerified
+                            ? "Verified and closed by manager"
+                            : hasLinkedTask
+                              ? "Status set by the assignee"
+                              : "Action task not created yet"
+                        }
+                      >
+                        {isVerified ? "Verified" : taskStatusLabel}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Edit ${item.code}`}
+                        disabled={isSubmitting}
+                        onClick={() => setEditingCapa(item)}
+                        className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Icon
+                          icon="mdi:pencil-outline"
+                          className="size-4"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <h4 className="text-ehs-dark-bg text-sm leading-[19.58px] font-normal">
@@ -136,14 +241,19 @@ export function IncidentDetailCapaListCard(
                   </h4>
 
                   <div className="flex flex-col gap-2 pt-[3px] sm:flex-row sm:items-center sm:gap-[14px]">
-                    <div className="flex shrink-0 items-center gap-[14px]">
+                    <div className="flex shrink-0 flex-wrap items-center gap-x-[14px] gap-y-1">
                       <span className="text-ehs-gray inline-flex items-center gap-[5px] text-sm">
                         <Icon
-                          icon="mdi:account-outline"
-                          className="size-3"
+                          icon="mdi:account-arrow-right-outline"
+                          className="size-3.5"
                           aria-hidden="true"
                         />
-                        {item.assignee}
+                        <span>
+                          Assigned to{" "}
+                          <span className="text-ehs-dark-bg font-medium">
+                            {item.assignee}
+                          </span>
+                        </span>
                       </span>
                       <span className="text-ehs-gray inline-flex items-center gap-[5px] text-sm">
                         <Icon
@@ -151,24 +261,48 @@ export function IncidentDetailCapaListCard(
                           className="size-3"
                           aria-hidden="true"
                         />
-                        {item.dueDate}
+                        Due {item.dueDate}
                       </span>
                     </div>
 
-                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={!isCompleted && !isVerified}
+                      onClick={() => {
+                        if (isCompleted || isVerified) {
+                          openReview(item);
+                        }
+                      }}
+                      className={[
+                        "flex min-w-0 flex-1 items-center gap-2 text-left",
+                        isCompleted || isVerified
+                          ? "cursor-pointer rounded-lg transition-colors hover:opacity-90"
+                          : "cursor-default",
+                      ].join(" ")}
+                      title={
+                        isCompleted
+                          ? "Assignee marked complete — click to review and verify"
+                          : isVerified
+                            ? "View verification record"
+                            : "Progress updates when the assignee works this CAPA"
+                      }
+                    >
                       <div className="bg-ehs-muted-text/20 relative h-1.5 w-full overflow-hidden rounded-full">
                         <div
                           className={[
                             "h-full rounded-full transition-all duration-300",
-                            isCompleted ? "bg-ehs-green" : "bg-ehs-normal-blue",
+                            isCompleted || isVerified
+                              ? "bg-ehs-green"
+                              : "bg-ehs-normal-blue",
                           ].join(" ")}
                           style={{ width: `${String(item.progressPercent)}%` }}
                         />
                       </div>
-                      <span className="text-ehs-muted-text min-w-[30px] shrink-0 text-right text-sm">
+                      <span className="text-ehs-muted-text min-w-[72px] shrink-0 text-right text-xs sm:text-sm">
+                        {isVerified ? "Verified" : taskStatusLabel} ·{" "}
                         {item.progressPercent}%
                       </span>
-                    </div>
+                    </button>
                   </div>
                 </div>
               );
@@ -179,11 +313,38 @@ export function IncidentDetailCapaListCard(
 
       {isAddCapaOpen ? (
         <AddCapaModal
+          key="add-capa"
           incidentId={incidentId}
           incidentTitle={incidentTitle}
           isSubmitting={isSubmitting}
           onClose={handleCloseAddModal}
           onSubmit={onSubmitCapa}
+        />
+      ) : null}
+
+      {editingCapa ? (
+        <AddCapaModal
+          key={`edit-capa-${editingCapa.id}`}
+          incidentId={incidentId}
+          incidentTitle={incidentTitle}
+          capaToEdit={editingCapa}
+          isSubmitting={isSubmitting}
+          isCreatingTask={isCreatingCapaTask}
+          onClose={() => setEditingCapa(null)}
+          onSubmit={(payload) => onUpdateCapa?.(editingCapa, payload)}
+          onCreateTask={(payload) => onCreateCapaTask?.(editingCapa, payload)}
+        />
+      ) : null}
+
+      {reviewCapa ? (
+        <CapaCompletionReviewModal
+          key={`review-capa-${reviewCapa.id}`}
+          capa={reviewCapa}
+          incidentId={incidentId}
+          incidentTitle={incidentTitle}
+          isSubmitting={isVerifying}
+          onClose={closeReview}
+          onVerify={(input) => onVerifyCapa?.(reviewCapa, input)}
         />
       ) : null}
     </>

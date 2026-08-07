@@ -9,6 +9,31 @@ export type AccessWindowState = Readonly<{
 const ACCESS_WINDOW_STORAGE_KEY = "neptune-access-window";
 const AUTH_REDIRECT_MESSAGE_KEY = "neptune-auth-redirect-message";
 
+/** Stable snapshot for `useSyncExternalStore` — must not allocate on every read. */
+let cachedStorageRaw: string | null | undefined;
+let cachedStorageSnapshot: AccessWindowState | null = null;
+
+function stableAccessWindow(
+  accessExpiresAt: string,
+  daysRemaining: number,
+): AccessWindowState {
+  if (
+    cachedStorageSnapshot &&
+    cachedStorageSnapshot.accessExpiresAt === accessExpiresAt &&
+    cachedStorageSnapshot.daysRemaining === daysRemaining
+  ) {
+    return cachedStorageSnapshot;
+  }
+
+  cachedStorageSnapshot = { accessExpiresAt, daysRemaining };
+  return cachedStorageSnapshot;
+}
+
+function clearAccessWindowCache() {
+  cachedStorageRaw = null;
+  cachedStorageSnapshot = null;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -156,8 +181,9 @@ function parseCachedAccessWindow(raw: string | null): AccessWindowState | null {
       return null;
     }
 
-    return { accessExpiresAt, daysRemaining };
+    return stableAccessWindow(accessExpiresAt, daysRemaining);
   } catch {
+    clearAccessWindowCache();
     return null;
   }
 }
@@ -191,12 +217,16 @@ export function setCachedAccessWindow(window: AccessWindowState | null) {
 
   if (!window) {
     globalThis.sessionStorage.removeItem(ACCESS_WINDOW_STORAGE_KEY);
+    clearAccessWindowCache();
     return;
   }
 
-  globalThis.sessionStorage.setItem(
-    ACCESS_WINDOW_STORAGE_KEY,
-    JSON.stringify(window),
+  const raw = JSON.stringify(window);
+  globalThis.sessionStorage.setItem(ACCESS_WINDOW_STORAGE_KEY, raw);
+  cachedStorageRaw = raw;
+  cachedStorageSnapshot = stableAccessWindow(
+    window.accessExpiresAt,
+    window.daysRemaining,
   );
 }
 
