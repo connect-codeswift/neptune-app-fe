@@ -65,6 +65,35 @@ export const resetPasswordRequestSchema = z.object({
   newPassword: strongPasswordSchema,
 });
 
+/**
+ * Deliberately NOT {@link strongPasswordSchema}. `AcceptInvitationDto` on the backend
+ * enforces a stricter, different rule than every other password endpoint: it demands an
+ * upper AND a lower case letter, and restricts symbols to `@$!%*?&`. A password this app's
+ * shared rule accepts (say `neptune1#`) is rejected there by model validation, which
+ * returns a bare 400 with no usable message — so the rules have to match exactly.
+ */
+export const INVITE_PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+export const INVITE_PASSWORD_MESSAGE =
+  "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number and one of @ $ ! % * ? &.";
+
+export const acceptInvitationRequestSchema = z.object({
+  fullName: z.string().trim().min(1, "Full name is required.").max(50),
+  contactNo: z.string().trim().max(30).optional(),
+  siteId: z.number().int().nonnegative(),
+  userId: z.number().int().nonnegative(),
+  email: z.email("Enter a valid email address."),
+  password: z.string().regex(INVITE_PASSWORD_REGEX, INVITE_PASSWORD_MESSAGE),
+});
+
+export const enableMfaRequestSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app."),
+});
+
 // =====================================================
 
 export type SiteRequestDto = z.infer<typeof siteRequestSchema>;
@@ -79,6 +108,10 @@ export type ResetPasswordRequestDto = z.infer<
 export type ForgotPasswordRequestDto = z.infer<
   typeof forgotPasswordRequestSchema
 >;
+export type AcceptInvitationRequestDto = z.infer<
+  typeof acceptInvitationRequestSchema
+>;
+export type EnableMfaRequestDto = z.infer<typeof enableMfaRequestSchema>;
 
 // =====================================================
 
@@ -104,4 +137,12 @@ export function safeParseResetPasswordRequest(data: unknown) {
 
 export function safeParseForgotPasswordRequest(data: unknown) {
   return forgotPasswordRequestSchema.safeParse(data);
+}
+
+export function safeParseAcceptInvitationRequest(data: unknown) {
+  return acceptInvitationRequestSchema.safeParse(data);
+}
+
+export function safeParseEnableMfaRequest(data: unknown) {
+  return enableMfaRequestSchema.safeParse(data);
 }
