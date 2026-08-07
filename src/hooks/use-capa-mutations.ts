@@ -6,16 +6,14 @@ import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto
 import type {
   CapaTaskStatus,
 } from "@/dtos/req/capa-task-status-request.dto";
-import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import {
   createCapa,
   createCapaTask,
+  deleteCapaTask,
   dropCapa,
-  getCapaTasksByCapaId,
   submitCapaVerification,
   updateCapa,
-  updateCapaTask,
   updateCapaTaskStatus,
 } from "@/services/capa.service";
 import {
@@ -23,7 +21,6 @@ import {
   buildCreateCapaTaskRequest,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
-  buildUpdateCapaTaskRequest,
   buildUpdateCapaTaskStatusRequest,
   buildVerifiedCapaUpdateRequest,
 } from "@/services/mappers/capa.mapper";
@@ -37,6 +34,11 @@ export type CreateCapaInput = Readonly<{
   owner: string;
   dueDate: string;
   priority: string;
+  tasks?: readonly Readonly<{
+    task: string;
+    owner: string;
+    dueDate: string;
+  }>[];
 }>;
 
 export type UpdateCapaInput = Readonly<{
@@ -57,54 +59,18 @@ export type UpdateCapaTaskStatusInput = Readonly<{
   userId?: number;
 }>;
 
-async function syncCapaActionTask(input: Readonly<{
-  capaId: number;
-  task: string;
-  owner: string;
-  dueDate: string;
-}>) {
-  const trimmedTask = input.task.trim();
-  if (!trimmedTask) {
-    return null;
-  }
-
-  const existingTasks = await getCapaTasksByCapaId(input.capaId);
-  const existingTask = existingTasks[0];
-
-  let savedTask: CapaTaskDto | null;
-
-  if (existingTask) {
-    savedTask =
-      (await updateCapaTask(
-        buildUpdateCapaTaskRequest({
-          id: existingTask.id,
-          capaId: existingTask.capaId,
-          userId: existingTask.userId,
-          task: trimmedTask,
-          owner: input.owner,
-          dueDate: input.dueDate,
-        }),
-      )) ?? existingTask;
-  } else {
-    savedTask = await createCapaTask(
-      buildCreateCapaTaskRequest({
-        capaId: input.capaId,
-        task: trimmedTask,
-        owner: input.owner,
-        dueDate: input.dueDate,
-      }),
-    );
-  }
-
-  return savedTask;
-}
-
 export type CreateCapaTaskInput = Readonly<{
   capaId: number;
   incidentId: number;
   task: string;
   owner: string;
   dueDate: string;
+}>;
+
+export type DeleteCapaTaskInput = Readonly<{
+  taskId: number;
+  capaId: number;
+  incidentId: number;
 }>;
 
 export function useCreateCapaTaskMutation() {
@@ -141,6 +107,33 @@ export function useCreateCapaTaskMutation() {
   });
 }
 
+export function useDeleteCapaTaskMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: DeleteCapaTaskInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to delete a CAPA task.");
+      }
+
+      return deleteCapaTask(input.taskId);
+    },
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byIncident(variables.incidentId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.tasks(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
 export function useCreateCapaMutation() {
   const queryClient = useQueryClient();
 
@@ -155,12 +148,21 @@ export function useCreateCapaMutation() {
       const capa = await createCapa(payload);
 
       if (capa?.id) {
-        await syncCapaActionTask({
-          capaId: capa.id,
-          task: input.description,
-          owner: input.owner,
-          dueDate: input.dueDate,
-        });
+        for (const task of input.tasks ?? []) {
+          const trimmedTask = task.task.trim();
+          if (!trimmedTask) {
+            continue;
+          }
+
+          await createCapaTask(
+            buildCreateCapaTaskRequest({
+              capaId: capa.id,
+              task: trimmedTask,
+              owner: task.owner,
+              dueDate: task.dueDate,
+            }),
+          );
+        }
       }
 
       return capa;
@@ -190,16 +192,7 @@ export function useUpdateCapaMutation() {
       }
 
       const payload = buildUpdateCapaRequest(input);
-      const capa = await updateCapa(payload);
-
-      await syncCapaActionTask({
-        capaId: input.capa.numericId,
-        task: input.description,
-        owner: input.owner,
-        dueDate: input.dueDate,
-      });
-
-      return capa;
+      return updateCapa(payload);
     },
     onSuccess: async (_result, variables) => {
       await queryClient.invalidateQueries({

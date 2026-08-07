@@ -78,7 +78,6 @@ export function CapaCompletionReviewModal(
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const review = reviewQuery.data;
-  const primaryTask = review?.tasks[0];
   const attachments = review?.attachments ?? [];
   const existingVerification = review?.verification;
   const isAlreadyVerified =
@@ -157,7 +156,7 @@ export function CapaCompletionReviewModal(
                 </h3>
               </div>
               <p className="text-ehs-dark-bg mb-4 text-sm leading-normal">
-                {primaryTask?.task ?? capa.description}
+                {capa.description}
               </p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DetailRow label="Assigned to" value={capa.assignee} />
