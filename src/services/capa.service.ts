@@ -1,10 +1,14 @@
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
+import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
+import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import http, { getAccessToken, HttpError } from "@/lib/axios";
 
 const CAPA_CREATE_PATH = "/CAPA/Capa";
 const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
 const CAPA_DROP_PATH = "/CAPA/Drop";
+const CAPA_TASK_PATH = "/CAPA/Task";
+const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -199,6 +203,71 @@ function normalizeCapaDto(data: unknown): CapaDto | null {
   return list[0] ?? null;
 }
 
+function coerceCapaTaskDto(raw: Record<string, unknown>): CapaTaskDto | null {
+  const id = asNumber(readProp(raw, "id", "Id"));
+  const capaId = asNumber(readProp(raw, "capaId", "CapaId"));
+  const userId = asNumber(readProp(raw, "userId", "UserId"));
+  const task = asString(readProp(raw, "task", "Task"));
+
+  if (id == null || capaId == null || userId == null || !task?.trim()) {
+    return null;
+  }
+
+  return {
+    id,
+    capaId,
+    userId,
+    task: task.trim(),
+    ownerId: asNumber(readProp(raw, "ownerId", "OwnerId")) ?? null,
+    dueDate: asString(readProp(raw, "dueDate", "DueDate")) ?? null,
+  };
+}
+
+function asCapaTaskArray(value: unknown): CapaTaskDto[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => isRecord(item))
+    .map((item) => coerceCapaTaskDto(item))
+    .filter((item): item is CapaTaskDto => item != null);
+}
+
+function normalizeCapaTaskList(data: unknown): CapaTaskDto[] {
+  const payload = unwrapPayload(data);
+
+  if (Array.isArray(payload)) {
+    return asCapaTaskArray(payload);
+  }
+
+  if (!isRecord(payload)) {
+    return [];
+  }
+
+  return asCapaTaskArray(
+    payload.data ??
+      payload.Data ??
+      payload.items ??
+      payload.Items ??
+      payload.tasks ??
+      payload.Tasks,
+  );
+}
+
+function normalizeCapaTaskDto(data: unknown): CapaTaskDto | null {
+  const payload = unwrapPayload(data);
+
+  if (isRecord(payload)) {
+    const single = coerceCapaTaskDto(payload);
+    if (single) {
+      return single;
+    }
+  }
+
+  return normalizeCapaTaskList(data)[0] ?? null;
+}
+
 /**
  * GET /CAPA/Incident/{incidentId}
  * Returns CAPAs linked to an incident (Bearer auth).
@@ -242,6 +311,85 @@ export async function createCapa(payload: CreateCapaRequestDto) {
   });
 
   return normalizeCapaDto(data);
+}
+
+/** PUT /CAPA/Capa — update an existing linked CAPA */
+export async function updateCapa(payload: CreateCapaRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA id is required to update.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA.");
+  }
+
+  const { data } = await http.put<unknown>(CAPA_CREATE_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaDto(data);
+}
+
+/** GET /CAPA/Tasks/{capaId} */
+export async function getCapaTasksByCapaId(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return [];
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA tasks.");
+  }
+
+  const { data } = await http.get<unknown>(
+    `${CAPA_TASKS_BY_CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaTaskList(data);
+}
+
+/** POST /CAPA/Task */
+export async function createCapaTask(payload: CapaTaskRequestDto) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to create a CAPA task.");
+  }
+
+  const { data } = await http.post<unknown>(CAPA_TASK_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaTaskDto(data);
+}
+
+/** PUT /CAPA/Task */
+export async function updateCapaTask(payload: CapaTaskRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA task.");
+  }
+
+  const { data } = await http.put<unknown>(CAPA_TASK_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaTaskDto(data);
 }
 
 /** PATCH /CAPA/Drop/{id} — soft-drop a CAPA */

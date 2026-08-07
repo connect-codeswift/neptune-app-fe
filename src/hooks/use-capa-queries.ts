@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAuthContext } from "@/lib/auth-context";
-import { getCapasByIncidentId } from "@/services/capa.service";
+import { getCapasByIncidentId, getCapaTasksByCapaId } from "@/services/capa.service";
 import {
   EMPTY_LINKED_CAPA_VIEW,
   mapCapaDtosToLinkedView,
@@ -12,6 +12,8 @@ export const capaQueryKeys = {
   all: ["capas"] as const,
   byIncident: (incidentId: number) =>
     [...capaQueryKeys.all, "incident", incidentId] as const,
+  tasks: (capaId: number) =>
+    [...capaQueryKeys.all, "tasks", capaId] as const,
 };
 
 export type UseCapasByIncidentQueryOptions = Readonly<{
@@ -44,6 +46,29 @@ export function useCapasByIncidentQuery(
       return mapCapaDtosToLinkedView(dtos, {
         currentUserId: auth?.userId,
       });
+    },
+  });
+}
+
+export type UseCapaTasksQueryOptions = Readonly<{
+  capaId: number | null;
+  enabled?: boolean;
+}>;
+
+/** Loads action tasks for a CAPA via GET /api/CAPA/Tasks/{capaId}. */
+export function useCapaTasksQuery(options: UseCapaTasksQueryOptions) {
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.tasks(capaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return [];
+      }
+
+      return getCapaTasksByCapaId(capaId);
     },
   });
 }

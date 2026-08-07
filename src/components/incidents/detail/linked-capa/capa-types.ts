@@ -1,5 +1,12 @@
 export type CapaItem = Readonly<{
   id: string;
+  numericId: number;
+  incidentId: number;
+  userId: number;
+  assignedId: number | null;
+  rcaId: number | null;
+  description: string;
+  isDrop: boolean;
   code: string;
   controlCategory: string;
   actionType: "Corrective" | "Preventive";

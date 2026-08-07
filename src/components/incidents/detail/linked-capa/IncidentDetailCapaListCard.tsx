@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
+import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 
@@ -18,14 +19,11 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   isSubmitting?: boolean;
   openAddModal?: boolean;
   onAddModalOpened?: () => void;
-  onSubmitCapa?: (payload: {
-    controlLevel: string;
-    description: string;
-    type: string;
-    owner: string;
-    dueDate: string;
-    priority: string;
-  }) => void | Promise<void>;
+  onSubmitCapa?: (payload: CapaFormPayload) => void | Promise<void>;
+  onUpdateCapa?: (
+    capa: CapaItem,
+    payload: CapaFormPayload,
+  ) => void | Promise<void>;
   className?: string;
 }>;
 
@@ -41,11 +39,13 @@ export function IncidentDetailCapaListCard(
     openAddModal = false,
     onAddModalOpened,
     onSubmitCapa,
+    onUpdateCapa,
     className = "",
   } = props;
 
   const [addModalRequestedLocally, setAddModalRequestedLocally] =
     useState(false);
+  const [editingCapa, setEditingCapa] = useState<CapaItem | null>(null);
 
   // Derive from prop + local click — avoids setState inside useEffect (eslint cascade rule).
   const isAddCapaOpen = addModalRequestedLocally || openAddModal;
@@ -129,6 +129,19 @@ export function IncidentDetailCapaListCard(
                     >
                       {item.status}
                     </span>
+                    <button
+                      type="button"
+                      aria-label={`Edit ${item.code}`}
+                      disabled={isSubmitting}
+                      onClick={() => setEditingCapa(item)}
+                      className="text-ehs-muted-text hover:text-ehs-normal-blue ml-1 inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <Icon
+                        icon="mdi:pencil-outline"
+                        className="size-4"
+                        aria-hidden="true"
+                      />
+                    </button>
                   </div>
 
                   <h4 className="text-ehs-dark-bg text-sm leading-[19.58px] font-normal">
@@ -179,11 +192,24 @@ export function IncidentDetailCapaListCard(
 
       {isAddCapaOpen ? (
         <AddCapaModal
+          key="add-capa"
           incidentId={incidentId}
           incidentTitle={incidentTitle}
           isSubmitting={isSubmitting}
           onClose={handleCloseAddModal}
           onSubmit={onSubmitCapa}
+        />
+      ) : null}
+
+      {editingCapa ? (
+        <AddCapaModal
+          key={`edit-capa-${editingCapa.id}`}
+          incidentId={incidentId}
+          incidentTitle={incidentTitle}
+          capaToEdit={editingCapa}
+          isSubmitting={isSubmitting}
+          onClose={() => setEditingCapa(null)}
+          onSubmit={(payload) => onUpdateCapa?.(editingCapa, payload)}
         />
       ) : null}
     </>

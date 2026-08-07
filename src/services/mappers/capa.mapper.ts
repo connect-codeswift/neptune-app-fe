@@ -6,6 +6,7 @@ import type {
 import type { IncidentLinkedItem } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
 import type { IncidentCapa } from "@/components/incidents/list/incident-list-types";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
+import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 
@@ -165,6 +166,13 @@ export function mapCapaDtoToItem(
 
   return {
     id: String(dto.id),
+    numericId: dto.id,
+    incidentId: dto.incidentId,
+    userId: dto.userId,
+    assignedId: dto.assignedId ?? null,
+    rcaId: dto.rcaId ?? null,
+    description: dto.description.trim(),
+    isDrop: dto.isDrop ?? false,
     code: dto.capaCode?.trim() || dto.code?.trim() || `CAPA-${String(dto.id)}`,
     controlCategory: normalizeControlLevel(dto.controlLevel),
     actionType: normalizeActionType(dto.capaType),
@@ -292,6 +300,21 @@ export function toApiControlLevel(level: string): string {
   return normalizeControlLevel(level);
 }
 
+/** Map API / view-model control level to hierarchy selector value. */
+export function toSelectorControlLevel(
+  value: string,
+): import("@/components/incidents/shared/capa/CapaHierarchySelector").ControlLevel | null {
+  const normalized = normalizeControlLevel(value).toLowerCase();
+
+  if (normalized === "elimination") return "Elimination";
+  if (normalized === "substitution") return "Substitution";
+  if (normalized.includes("engineering")) return "Engineering Controls";
+  if (normalized.includes("administrative")) return "Administrative controls";
+  if (normalized === "ppe") return "PPE";
+
+  return null;
+}
+
 /** Short label required by POST /CAPA/Capa — derived from the action description. */
 export function buildCapaTitleFromDescription(description: string): string {
   const trimmed = description.trim();
@@ -314,6 +337,47 @@ function parseOptionalUserId(value: string): number | null {
   return Math.trunc(parsed);
 }
 
+function normalizePriority(value: string): string {
+  const lower = value.trim().toLowerCase();
+  if (lower === "high") return "High";
+  if (lower === "low") return "Low";
+  return "Medium";
+}
+
+function buildCapaMutationPayload(input: {
+  id: number;
+  incidentId: number;
+  userId: number;
+  assignedId: number | null;
+  rcaId: number | null;
+  isDrop: boolean;
+  controlLevel: string;
+  description: string;
+  type: string;
+  dueDate: string;
+  priority: string;
+}): CreateCapaRequestDto {
+  const description = input.description.trim();
+
+  return {
+    id: input.id,
+    title: buildCapaTitleFromDescription(description),
+    incidentId: input.incidentId,
+    userId: input.userId,
+    assignedId: input.assignedId,
+    rcaId: input.rcaId,
+    capaType:
+      input.type.trim().toLowerCase() === "preventive"
+        ? "Preventive"
+        : "Corrective",
+    priority: normalizePriority(input.priority),
+    controlLevel: toApiControlLevel(input.controlLevel),
+    description,
+    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
+    isDrop: input.isDrop,
+  };
+}
+
 export function buildCreateCapaRequest(input: {
   incidentId: number;
   controlLevel: string;
@@ -329,31 +393,86 @@ export function buildCreateCapaRequest(input: {
     throw new Error("Sign in required to create a CAPA.");
   }
 
-  const description = input.description.trim();
   const assignedId = parseOptionalUserId(input.owner);
 
-  return {
+  return buildCapaMutationPayload({
     id: 0,
-    title: buildCapaTitleFromDescription(description),
     incidentId: input.incidentId,
     userId,
     assignedId,
     rcaId: null,
-    capaType:
-      input.type.trim().toLowerCase() === "preventive"
-        ? "Preventive"
-        : "Corrective",
-    priority: normalizePriority(input.priority),
-    controlLevel: toApiControlLevel(input.controlLevel),
-    description,
-    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
     isDrop: false,
+    controlLevel: input.controlLevel,
+    description: input.description,
+    type: input.type,
+    dueDate: input.dueDate,
+    priority: input.priority,
+  });
+}
+
+export function buildUpdateCapaRequest(input: {
+  capa: CapaItem;
+  controlLevel: string;
+  description: string;
+  type: string;
+  owner: string;
+  dueDate: string;
+  priority: string;
+}): CreateCapaRequestDto {
+  const assignedId =
+    parseOptionalUserId(input.owner) ?? input.capa.assignedId;
+
+  return buildCapaMutationPayload({
+    id: input.capa.numericId,
+    incidentId: input.capa.incidentId,
+    userId: input.capa.userId,
+    assignedId,
+    rcaId: input.capa.rcaId,
+    isDrop: input.capa.isDrop,
+    controlLevel: input.controlLevel,
+    description: input.description,
+    type: input.type,
+    dueDate: input.dueDate,
+    priority: input.priority,
+  });
+}
+
+export function buildCreateCapaTaskRequest(input: {
+  capaId: number;
+  task: string;
+  owner: string;
+  dueDate: string;
+}): CapaTaskRequestDto {
+  const auth = getAuthContext();
+  const userId = auth?.userId ?? 0;
+  if (userId <= 0) {
+    throw new Error("Sign in required to create a CAPA task.");
+  }
+
+  return {
+    id: 0,
+    capaId: input.capaId,
+    task: input.task.trim(),
+    ownerId: parseOptionalUserId(input.owner),
+    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
+    userId,
   };
 }
 
-function normalizePriority(value: string): string {
-  const lower = value.trim().toLowerCase();
-  if (lower === "high") return "High";
-  if (lower === "low") return "Low";
-  return "Medium";
+export function buildUpdateCapaTaskRequest(input: {
+  id: number;
+  capaId: number;
+  userId: number;
+  task: string;
+  owner: string;
+  dueDate: string;
+}): CapaTaskRequestDto {
+  return {
+    id: input.id,
+    capaId: input.capaId,
+    userId: input.userId,
+    task: input.task.trim(),
+    ownerId: parseOptionalUserId(input.owner),
+    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
+  };
 }

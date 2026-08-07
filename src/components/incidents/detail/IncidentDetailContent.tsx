@@ -17,7 +17,10 @@ import {
 } from "@/components/incidents/detail/closure/closure-form-state";
 import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/closure-classification-options";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
+import {
+  useCreateCapaMutation,
+  useUpdateCapaMutation,
+} from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
 import {
   useCloseIncidentMutation,
@@ -124,6 +127,7 @@ export function IncidentDetailContent(
   const updateIncidentMutation = useUpdateIncidentMutation();
   const updateClosureMutation = useUpdateIncidentClosureMutation();
   const createCapaMutation = useCreateCapaMutation();
+  const updateCapaMutation = useUpdateCapaMutation();
 
   const detail = detailQuery.data?.detail ?? null;
   const incidentDto = detailQuery.data?.dto ?? null;
@@ -688,7 +692,9 @@ export function IncidentDetailContent(
       onRegisterUploadOpen={registerUploadOpen}
       linkedCapa={linkedCapa}
       isCapaLoading={capaQuery.isPending}
-      isCapaSubmitting={createCapaMutation.isPending}
+      isCapaSubmitting={
+        createCapaMutation.isPending || updateCapaMutation.isPending
+      }
       openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
       onAddCapaModalOpened={handleAddCapaModalOpened}
       onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
@@ -713,6 +719,26 @@ export function IncidentDetailContent(
         } catch (error) {
           toast.error(
             "Could not create CAPA",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+          throw error;
+        }
+      }}
+      onUpdateCapa={async (capa, payload) => {
+        try {
+          await updateCapaMutation.mutateAsync({
+            capa,
+            controlLevel: payload.controlLevel,
+            description: payload.description,
+            type: payload.type,
+            owner: payload.owner,
+            dueDate: payload.dueDate,
+            priority: payload.priority,
+          });
+          toast.success("CAPA updated", `${capa.code} was saved.`);
+        } catch (error) {
+          toast.error(
+            "Could not update CAPA",
             getMutationErrorMessage(error, "Please try again."),
           );
           throw error;

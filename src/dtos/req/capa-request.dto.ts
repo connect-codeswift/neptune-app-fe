@@ -1,6 +1,6 @@
 /**
- * Body for POST /api/CAPA/Capa.
- * `id` is required by the schema; send `0` for create.
+ * Body for POST /api/CAPA/Capa (create with `id: 0`) and
+ * PUT /api/CAPA/Capa (update with existing `id`).
  */
 export type CreateCapaRequestDto = {
   id: number;
@@ -15,4 +15,8 @@ export type CreateCapaRequestDto = {
   assignedId?: number | null;
   dueDate?: string | null;
   isDrop?: boolean;
+};
+
+export type UpdateCapaRequestDto = CreateCapaRequestDto & {
+  id: number;
 };

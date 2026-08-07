@@ -25,6 +25,8 @@ import type {
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
+import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
+import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
 import { IncidentDetailCapaControlCoverageCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaControlCoverageCard";
 import { IncidentDetailCapaListCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaListCard";
 import { IncidentDetailCapaSummaryCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaSummaryCard";
@@ -121,14 +123,11 @@ export type IncidentDetailViewProps = Readonly<{
   openAddCapaOnLinkedTab?: boolean;
   onAddCapaModalOpened?: () => void;
   onNavigateToLinkedCapa: (options?: Readonly<{ openAddModal?: boolean }>) => void;
-  onSubmitCapa: (payload: {
-    controlLevel: string;
-    description: string;
-    type: string;
-    owner: string;
-    dueDate: string;
-    priority: string;
-  }) => void | Promise<void>;
+  onSubmitCapa: (payload: CapaFormPayload) => void | Promise<void>;
+  onUpdateCapa: (
+    capa: CapaItem,
+    payload: CapaFormPayload,
+  ) => void | Promise<void>;
 
   previewFile: AttachmentItem | null;
   onClosePreview: () => void;
@@ -217,6 +216,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onAddCapaModalOpened,
     onNavigateToLinkedCapa,
     onSubmitCapa,
+    onUpdateCapa,
     previewFile,
     onClosePreview,
     closureData,
@@ -522,6 +522,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   openAddModal={openAddCapaOnLinkedTab}
                   onAddModalOpened={onAddCapaModalOpened}
                   onSubmitCapa={onSubmitCapa}
+                  onUpdateCapa={onUpdateCapa}
                 />
                 <div className="flex flex-col gap-[14px]">
                   <IncidentDetailCapaSummaryCard

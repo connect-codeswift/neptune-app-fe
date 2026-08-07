@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
+import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import {
   CapaHierarchySelector,
   type ControlLevel,
@@ -15,32 +16,50 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { toSelectorControlLevel } from "@/services/mappers/capa.mapper";
+
+export type CapaFormPayload = Readonly<{
+  controlLevel: ControlLevel;
+  description: string;
+  type: string;
+  owner: string;
+  dueDate: string;
+  priority: string;
+}>;
 
 export type AddCapaModalProps = Readonly<{
   incidentId: string;
   incidentTitle: string;
   capaId?: string;
+  capaToEdit?: CapaItem;
   isSubmitting?: boolean;
   onClose: () => void;
-  onSubmit?: (payload: {
-    controlLevel: ControlLevel;
-    description: string;
-    type: string;
-    owner: string;
-    dueDate: string;
-    priority: string;
-  }) => void | Promise<void>;
+  onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
 }>;
 
 const TYPE_OPTIONS = ["Corrective", "Preventive"] as const;
 const PRIORITY_OPTIONS = ["High", "Medium", "Low"] as const;
 
+type CapaModalFormProps = Readonly<{
+  incidentId: string;
+  incidentTitle: string;
+  capaId: string;
+  capaToEdit?: CapaItem;
+  isSubmitting: boolean;
+  initialDescription: string;
+  initialOwnerUserId: string;
+  initialDueDate: string;
+  onClose: () => void;
+  onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
+}>;
+
 function StepBadge(props: Readonly<{ step: string }>) {
   const { step } = props;
 
   return (
-    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-ehs-normal-blue pt-[1.5px] pb-[2.5px] text-sm leading-5 text-ehs-light-text">
+    <span className="bg-ehs-normal-blue text-ehs-light-text inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[1.5px] pb-[2.5px] text-sm leading-5">
       {step}
     </span>
   );
@@ -54,7 +73,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="text-ehs-gray block text-sm leading-[19.5px]"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -62,31 +81,43 @@ function FieldLabel(
   );
 }
 
-export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
+function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   const {
     incidentId,
     incidentTitle,
-    capaId = "CAPA-0423",
-    isSubmitting = false,
+    capaId,
+    capaToEdit,
+    isSubmitting,
+    initialDescription,
+    initialOwnerUserId,
+    initialDueDate,
     onClose,
     onSubmit,
   } = props;
 
+  const isEditMode = capaToEdit != null;
   const descriptionFieldId = useId();
-
   const site = useCurrentSite();
-  const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState<string>(TYPE_OPTIONS[0]);
-  const [owner, setOwner] = useState("");
-  const [ownerUserId, setOwnerUserId] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [priority, setPriority] = useState<string>(PRIORITY_OPTIONS[1]);
+
+  const [controlLevel, setControlLevel] = useState<ControlLevel | null>(() =>
+    capaToEdit ? toSelectorControlLevel(capaToEdit.controlCategory) : null,
+  );
+  const [description, setDescription] = useState(initialDescription);
+  const [type, setType] = useState<string>(
+    () => capaToEdit?.actionType ?? TYPE_OPTIONS[0],
+  );
+  const [owner, setOwner] = useState(() => capaToEdit?.assignee ?? "");
+  const [ownerUserId, setOwnerUserId] = useState(initialOwnerUserId);
+  const [dueDate, setDueDate] = useState(initialDueDate);
+  const [priority, setPriority] = useState<string>(
+    () => capaToEdit?.priority ?? PRIORITY_OPTIONS[1],
+  );
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
   const busy = isSubmitting || isLocalSubmitting;
   const canSubmit =
     controlLevel != null && description.trim().length > 0 && !busy;
+  const modalCapaId = capaToEdit?.code ?? capaId;
 
   const handleSubmit = async () => {
     if (!controlLevel || !canSubmit) {
@@ -113,8 +144,8 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
 
   return (
     <IncidentModalShell
-      title="Add CAPA"
-      subtitle={`${incidentId} · ${incidentTitle} · new ${capaId}`}
+      title={isEditMode ? "Edit CAPA" : "Add CAPA"}
+      subtitle={`${incidentId} · ${incidentTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
       onClose={onClose}
       footerHint={
         controlLevel
@@ -129,7 +160,15 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
               void handleSubmit();
             }}
             disabled={!canSubmit}
-            label={busy ? "Adding…" : "Add CAPA"}
+            label={
+              busy
+                ? isEditMode
+                  ? "Saving…"
+                  : "Adding…"
+                : isEditMode
+                  ? "Save changes"
+                  : "Add CAPA"
+            }
           />
         </>
       }
@@ -141,14 +180,14 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
               <StepBadge step="1" />
               <Text
                 as="h3"
-                className="text-base leading-6 font-normal text-ehs-dark-bg sm:text-base"
+                className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
               >
                 Select control level
               </Text>
             </div>
             <Text
               as="p"
-              className="text-sm leading-[19.5px] font-normal text-ehs-gray sm:text-sm"
+              className="text-ehs-gray text-sm leading-[19.5px] font-normal sm:text-sm"
             >
               Most → least effective. Prefer higher-order controls.
             </Text>
@@ -165,7 +204,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
             <StepBadge step="2" />
             <Text
               as="h3"
-              className="text-base leading-6 font-normal text-ehs-dark-bg sm:text-base"
+              className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
             >
               What CAPA is needed?
             </Text>
@@ -183,12 +222,9 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Describe the corrective / preventive action..."
                   rows={3}
-                  className="h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:h-[108px] sm:text-sm"
+                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2 sm:h-[108px] sm:text-sm"
                 />
-                <AiTextAssistant
-                  value={description}
-                  onApply={setDescription}
-                />
+                <AiTextAssistant value={description} onApply={setDescription} />
               </div>
             </div>
 
@@ -239,5 +275,72 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         </section>
       </div>
     </IncidentModalShell>
+  );
+}
+
+export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
+  const {
+    incidentId,
+    incidentTitle,
+    capaId = "CAPA-0423",
+    capaToEdit,
+    isSubmitting = false,
+    onClose,
+    onSubmit,
+  } = props;
+
+  const isEditMode = capaToEdit != null;
+  const tasksQuery = useCapaTasksQuery({
+    capaId: capaToEdit?.numericId ?? null,
+    enabled: isEditMode,
+  });
+
+  if (isEditMode && tasksQuery.isLoading) {
+    return (
+      <IncidentModalShell
+        title="Edit CAPA"
+        subtitle={`${incidentId} · ${incidentTitle} · ${capaToEdit.code}`}
+        onClose={onClose}
+        footerActions={<IncidentModalCancelButton onClick={onClose} />}
+      >
+        <div className="text-ehs-muted-text py-12 text-center text-sm">
+          Loading action details…
+        </div>
+      </IncidentModalShell>
+    );
+  }
+
+  const primaryTask = tasksQuery.data?.[0];
+  const initialDescription = primaryTask?.task ?? capaToEdit?.description ?? "";
+  const initialOwnerUserId =
+    primaryTask?.ownerId != null
+      ? String(primaryTask.ownerId)
+      : capaToEdit?.assignedId != null
+        ? String(capaToEdit.assignedId)
+        : "";
+  const initialDueDate =
+    primaryTask?.dueDate?.trim() ||
+    (capaToEdit?.dueDate && capaToEdit.dueDate !== "—"
+      ? capaToEdit.dueDate
+      : "");
+
+  return (
+    <CapaModalForm
+      key={
+        isEditMode
+          ? `edit-${capaToEdit.id}-${primaryTask?.id ?? "none"}`
+          : "add"
+      }
+      incidentId={incidentId}
+      incidentTitle={incidentTitle}
+      capaId={capaId}
+      capaToEdit={capaToEdit}
+      isSubmitting={isSubmitting}
+      initialDescription={initialDescription}
+      initialOwnerUserId={initialOwnerUserId}
+      initialDueDate={initialDueDate}
+      onClose={onClose}
+      onSubmit={onSubmit}
+    />
   );
 }
