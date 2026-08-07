@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
 import {
   CapaHierarchySelector,
@@ -12,6 +13,9 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
+import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { useCurrentSite } from "@/hooks/use-current-site";
 
 export type AddCapaModalProps = Readonly<{
   incidentId: string;
@@ -69,13 +73,13 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
   } = props;
 
   const descriptionFieldId = useId();
-  const ownerFieldId = useId();
-  const dueDateFieldId = useId();
 
+  const site = useCurrentSite();
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
   const [description, setDescription] = useState("");
   const [type, setType] = useState<string>(TYPE_OPTIONS[0]);
   const [owner, setOwner] = useState("");
+  const [ownerUserId, setOwnerUserId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<string>(PRIORITY_OPTIONS[1]);
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
@@ -95,7 +99,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         controlLevel,
         description: description.trim(),
         type,
-        owner: owner.trim(),
+        owner: ownerUserId.trim() || owner.trim(),
         dueDate,
         priority,
       });
@@ -172,14 +176,20 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
               <FieldLabel htmlFor={descriptionFieldId} required>
                 Action description
               </FieldLabel>
-              <textarea
-                id={descriptionFieldId}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder="Describe the corrective / preventive action..."
-                rows={3}
-                className="h-[100px] w-full resize-none rounded-xl bg-white px-3.5 py-3 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:h-[108px] sm:text-sm"
-              />
+              <div className="relative">
+                <textarea
+                  id={descriptionFieldId}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  placeholder="Describe the corrective / preventive action..."
+                  rows={3}
+                  className="h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:h-[108px] sm:text-sm"
+                />
+                <AiTextAssistant
+                  value={description}
+                  onApply={setDescription}
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -192,40 +202,28 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <FieldLabel htmlFor={ownerFieldId}>Assigned</FieldLabel>
-                <input
-                  id={ownerFieldId}
-                  type="text"
-                  value={owner}
-                  onChange={(event) => setOwner(event.target.value)}
-                  placeholder="e.g. M. Torres"
-                  className="h-10 w-full rounded-[10px] bg-white px-3.5 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:text-sm"
-                />
-              </div>
+            <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2">
+              <ReportPersonSearchField
+                variant="embedded"
+                label="Assigned"
+                value={owner}
+                selectedUserId={ownerUserId}
+                onChange={({ name, userId }) => {
+                  setOwner(name);
+                  setOwnerUserId(userId);
+                }}
+                siteId={site.id}
+                siteName={site.name}
+                placeholder="Start typing a name…"
+              />
 
-              <div className="flex flex-col gap-1.5">
-                <FieldLabel htmlFor={dueDateFieldId}>Due date</FieldLabel>
-                <div className="relative">
-                  <input
-                    id={dueDateFieldId}
-                    type="text"
-                    value={dueDate}
-                    onChange={(event) => setDueDate(event.target.value)}
-                    placeholder="mm/dd/yyyy"
-                    className="h-10 w-full rounded-[10px] bg-white px-3.5 pr-10 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:text-sm"
-                  />
-                  <img
-                    src="/icons/capa/calendar.svg"
-                    alt=""
-                    width={16}
-                    height={16}
-                    className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
+              <ReportDateField
+                variant="embedded"
+                label="Due date"
+                value={dueDate}
+                onChange={setDueDate}
+                placeholder="MM/DD/YYYY"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">

@@ -12,8 +12,6 @@ export const getAllIncidentsRequestSchema = z.object({
   pageSize: z.number().int().positive(),
   /** Substring match on incident description / location. */
   search: z.string().optional(),
-  /** Workflow stage filter (e.g. "Investigating", "Closed"). */
-  stage: z.string().optional(),
   /** Severity label filter. */
   severity: z.string().optional(),
   /** Site name filter. */

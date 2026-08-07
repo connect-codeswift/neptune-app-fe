@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -21,8 +21,6 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
   onApproval?: () => void;
   onAcknowledgment?: () => void;
   onApprovals?: () => void;
-  onDateRangeClick?: () => void;
-  onNotificationsClick?: () => void;
   /** Only the assigned approver sees the Approval action. */
   canApprove?: boolean;
   /** Only the assigned ack-user sees the Acknowledgment action. */
@@ -49,7 +47,7 @@ function DetailField(props: Readonly<{ label: string; children: ReactNode }>) {
 
 /**
  * Document Detail View (Figma 5568:24538 / 53. Document Detail View).
- * AppShell owns the sidebar — this renders MainWorkspace content only.
+ * AppShell owns the sidebar ΓÇö this renders MainWorkspace content only.
  */
 export function PolicyMakerDocumentDetailView(
   props: Readonly<PolicyMakerDocumentDetailViewProps>,
@@ -60,17 +58,13 @@ export function PolicyMakerDocumentDetailView(
     onApproval,
     onAcknowledgment,
     onApprovals,
-    onDateRangeClick,
-    onNotificationsClick,
     canApprove,
     canAcknowledge,
     isApproved,
     isApproving,
   } = props;
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const ackPercent = acknowledgmentPercent(document);
 
   const previewEntry = useMemo(() => {
@@ -96,88 +90,8 @@ export function PolicyMakerDocumentDetailView(
   }, [document]);
   const displayStatus = documentDisplayStatus(document.status);
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (
-        !(event.metaKey || event.ctrlKey) ||
-        event.key.toLowerCase() !== "k"
-      ) {
-        return;
-      }
-      event.preventDefault();
-      searchInputRef.current?.focus();
-      searchInputRef.current?.select();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      {/* Top toolbar — stacks on mobile, row from sm up */}
-      <header className="flex flex-col gap-3 px-3 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-4 sm:py-[22px]">
-        <div className="relative w-full min-w-0 sm:max-w-[280px] sm:flex-1 lg:w-[280px] lg:max-w-none lg:flex-none">
-          <Icon
-            icon="mdi:magnify"
-            className="pointer-events-none absolute top-1/2 left-3 size-[14.6px] -translate-y-1/2 text-[#8892a3]"
-            aria-hidden="true"
-          />
-          <input
-            ref={searchInputRef}
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search incidents, actions, docs…"
-            aria-label="Search"
-            className="w-full rounded-[9.73px] border-[0.973px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-[9px] pr-12 pl-9 text-[12px] text-[#0b1320] shadow-sm backdrop-blur-[4.865px] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
-          />
-          <kbd className="pointer-events-none absolute top-1/2 right-2.5 hidden -translate-y-1/2 rounded-[3.892px] border-[0.973px] border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-[6.8px] py-[2.9px] text-[10px] text-[#566072] sm:inline">
-            ⌘K
-          </kbd>
-        </div>
-
-        <div className="flex min-w-0 items-center gap-2 sm:justify-end sm:gap-[14px]">
-          <button
-            type="button"
-            onClick={onDateRangeClick}
-            className="inline-flex min-w-0 flex-1 items-center gap-2 rounded-[9.73px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-3 py-2 text-[12px] font-bold text-[#0b1320] shadow-sm backdrop-blur-[5.838px] transition-colors hover:bg-white/80 sm:flex-none sm:gap-[7.8px] sm:px-[14.6px] sm:py-[8.8px]"
-          >
-            <Icon
-              icon="mdi:calendar-outline"
-              className="size-[14.6px] shrink-0 text-[#566072]"
-              aria-hidden="true"
-            />
-            <span className="truncate">
-              <span className="sm:hidden">Mar 25 — Apr 24</span>
-              <span className="hidden sm:inline">
-                March 25 — April 24, 2026
-              </span>
-            </span>
-            <Icon
-              icon="mdi:chevron-down"
-              className="ml-auto size-[12.6px] shrink-0 text-[#566072] sm:ml-0"
-              aria-hidden="true"
-            />
-          </button>
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={onNotificationsClick}
-            className="relative inline-flex shrink-0 items-center rounded-[9.73px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-2.5 py-2 shadow-sm backdrop-blur-[5.838px] transition-colors hover:bg-white/80 sm:px-[10.7px] sm:py-[8.8px]"
-          >
-            <Icon
-              icon="mdi:bell-outline"
-              className="size-[15.6px] text-[#0b1320]"
-              aria-hidden="true"
-            />
-            <span
-              className="absolute top-1.5 right-1.5 size-[6.8px] rounded-[3.4px] border-[1.946px] border-[#eef1f6] bg-[#ef4444]"
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-      </header>
-
       <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-[14px] sm:px-4 sm:pb-8">
         <PolicyMakerDocumentDetailHeader
           document={document}
@@ -190,7 +104,7 @@ export function PolicyMakerDocumentDetailView(
           isApproving={isApproving}
         />
 
-        {/* Preview + Details | Acknowledgment — fluid grid (Figma 5568:24604) */}
+        {/* Preview + Details | Acknowledgment ΓÇö fluid grid (Figma 5568:24604) */}
         <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,2.0fr)_minmax(240px,1fr)] lg:items-center lg:gap-7">
           <div className="flex min-w-0 flex-col gap-5">
             {/* File preview */}

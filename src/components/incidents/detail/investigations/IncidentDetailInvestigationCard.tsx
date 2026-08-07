@@ -16,6 +16,9 @@ export type IncidentDetailInvestigationCardProps = Readonly<{
   contributingFactors?: readonly ContributingFactorItem[];
   methodLine?: string;
   statusLabel?: "Not started" | "In progress" | "Complete";
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
   onOpenHrca?: () => void;
   className?: string;
 }>;
@@ -28,6 +31,9 @@ export function IncidentDetailInvestigationCard(
     contributingFactors = [],
     methodLine = "Method: 5 Whys · Linked to HRCA worksheet",
     statusLabel = "Not started",
+    isLoading = false,
+    errorMessage = null,
+    onRetry,
     onOpenHrca,
     className = "",
   } = props;
@@ -127,9 +133,27 @@ export function IncidentDetailInvestigationCard(
           </span>
         </div>
 
-        {whyChain.length === 0 ? (
+        {isLoading ? (
           <div className="py-8 text-center text-sm text-ehs-muted-text">
-            No investigation findings recorded for this incident yet.
+            Loading RCA analysis…
+          </div>
+        ) : errorMessage ? (
+          <div className="flex flex-col items-center gap-3 py-8 text-center text-sm">
+            <p className="text-ehs-red">{errorMessage}</p>
+            {onRetry ? (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="text-ehs-normal-blue font-semibold hover:underline"
+              >
+                Retry
+              </button>
+            ) : null}
+          </div>
+        ) : whyChain.length === 0 ? (
+          <div className="py-8 text-center text-sm text-ehs-muted-text">
+            No RCA recorded yet. Open HRCA to document contributing factors,
+            whys, and corrective actions.
           </div>
         ) : (
           <div className="flex flex-col">

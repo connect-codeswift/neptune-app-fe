@@ -10,7 +10,6 @@ import {
   SEVERITY_OPTIONS,
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
-  SUGGESTED_FOLLOW_UP_OPTIONS,
   formatBodyPartSelection,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
@@ -160,17 +159,6 @@ export function ReportIncidentStepFive(
 
   const photosCountLabel =
     form.photos.length > 0 ? `${String(form.photos.length)} attached` : "None";
-  const followUpsLabel =
-    form.suggestedFollowUp.length > 0
-      ? form.suggestedFollowUp
-          .map(
-            (id) =>
-              SUGGESTED_FOLLOW_UP_OPTIONS.find((option) => option.id === id)
-                ?.label ?? id,
-          )
-          .join(" · ")
-      : "None";
-
   const reporterName = form.reportedBy.trim() || "—";
   // Figma Reporter card: Department = site · area (from Plant / Location).
   const departmentLabel =
@@ -259,9 +247,9 @@ export function ReportIncidentStepFive(
               rows={[
                 { label: "Actions", value: actionsLabel },
                 { label: "Photos", value: photosCountLabel },
-                { label: "Follow-ups", value: followUpsLabel },
               ]}
             />
+
             <ReportReviewDetailCard
               title="Reporter"
               paddingClassName="px-[15px] pt-[15px] pb-[29px]"
@@ -275,14 +263,11 @@ export function ReportIncidentStepFive(
 
           {/* Section 3: Routing preview banner */}
           <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
-            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-ehs-normal-blue/10">
+            <div className="text-ehs-normal-blue bg-ehs-normal-blue/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px]">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
-              <Text
-                as="span"
-                className="text-sm font-bold text-ehs-dark-blue"
-              >
+              <Text as="span" className="text-ehs-dark-blue text-sm font-bold">
                 Routing preview
               </Text>
               <p className="text-ehs-gray text-xs leading-normal">
@@ -293,7 +278,7 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 4: AI summary ready banner */}
-          <div className="from-ehs-light-blue to-ehs-light-blue-hover flex items-start gap-3 rounded-[12px] border border-ehs-normal-blue/15 bg-gradient-to-r p-3.5">
+          <div className="from-ehs-light-blue to-ehs-light-blue-hover border-ehs-normal-blue/15 flex items-start gap-3 rounded-[12px] border bg-gradient-to-r p-3.5">
             <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-white shadow-sm">
               <Icon icon="mdi:creation-outline" className="size-3.5" />
             </div>
@@ -304,7 +289,7 @@ export function ReportIncidentStepFive(
               >
                 AI summary ready
               </Text>
-              <p className="text-xs leading-[15px] text-ehs-slate">
+              <p className="text-ehs-slate text-xs leading-[15px]">
                 {form.description.trim() ||
                   "AI summary will be generated from your report after submit."}
               </p>

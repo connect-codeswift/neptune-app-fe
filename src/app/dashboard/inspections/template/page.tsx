@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ export default function InspectionTemplatesPage() {
     [page],
   );
 
-  /** Switching status re-queries from page 1 — the old page may not exist. */
+  /** Switching status re-queries from page 1 ΓÇö the old page may not exist. */
   const handleStatusChange = (next: TemplateStatusFilter) => {
     setStatus(next);
     setPageNumber(1);
@@ -49,10 +49,6 @@ export default function InspectionTemplatesPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
         // actionLabel="Start Inspection"
         // onActionClick={() => router.push(START_INSPECTION_ROUTE)}
       />

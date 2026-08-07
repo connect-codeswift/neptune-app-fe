@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -19,7 +19,7 @@ function InspectionReport() {
   );
 
   // GET /api/Inspection/{id} carries the inspection, its template snapshot and
-  // the recorded responses — everything the report needs, from one call.
+  // the recorded responses ΓÇö everything the report needs, from one call.
   const detailQuery = useInspectionDetailQuery(inspectionId);
   const detail = detailQuery.data?.dataModel ?? null;
   const report = useMemo(
@@ -27,7 +27,7 @@ function InspectionReport() {
     [detail],
   );
 
-  // The printable region — captured as-is when exporting.
+  // The printable region ΓÇö captured as-is when exporting.
   const reportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -48,7 +48,7 @@ function InspectionReport() {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <InspectionReportHeader
-        inspectionId={report?.inspectionId ?? "—"}
+        inspectionId={report?.inspectionId ?? "ΓÇö"}
         subtitle={report?.title ?? ""}
         isExporting={isExporting}
         onExportPdf={report ? handleExportPdf : undefined}
@@ -78,12 +78,7 @@ function InspectionReport() {
 export default function InspectionReportPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader />
 
       <Suspense fallback={null}>
         <InspectionReport />

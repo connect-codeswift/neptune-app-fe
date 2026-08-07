@@ -3,29 +3,33 @@
 import { Icon } from "@iconify/react";
 
 export type IncidentDetailAiCardProps = Readonly<{
+  /**
+   * A model-generated observation about this incident. There is no backend
+   * that produces one yet, so in practice this is always absent and the card
+   * renders nothing — see the note at the render site.
+   */
   insightText?: string;
   className?: string;
 }>;
 
-const DEFAULT_INSIGHT =
-  "This is the third hose-related incident on Press #4 in 18 months. Consider preventive replacement schedule + supplier review.";
-
+/**
+ * "AI insight" panel on the incident detail page.
+ *
+ * Renders nothing without an insight, and there is deliberately no fallback
+ * copy. This card previously defaulted to a fixed sentence about hose failures
+ * on Press #4, which every incident then displayed under an "AI INSIGHT" badge
+ * regardless of what had actually happened — a fabricated finding on a record
+ * that is kept for compliance. An empty panel is the honest state until
+ * something real generates the text.
+ */
 export function IncidentDetailAiCard(props: Readonly<IncidentDetailAiCardProps>) {
-  const { insightText = DEFAULT_INSIGHT, className = "" } = props;
-  const text = insightText.trim() || DEFAULT_INSIGHT;
+  const { insightText, className = "" } = props;
 
-  const highlight = "third hose-related incident";
-  const highlightIndex = text.toLowerCase().indexOf(highlight);
-  const before =
-    highlightIndex >= 0 ? text.slice(0, highlightIndex) : text;
-  const matched =
-    highlightIndex >= 0
-      ? text.slice(highlightIndex, highlightIndex + highlight.length)
-      : "";
-  const after =
-    highlightIndex >= 0
-      ? text.slice(highlightIndex + highlight.length)
-      : "";
+  const text = insightText?.trim() ?? "";
+
+  if (text === "") {
+    return null;
+  }
 
   return (
     <div
@@ -42,17 +46,7 @@ export function IncidentDetailAiCard(props: Readonly<IncidentDetailAiCardProps>)
           AI insight
         </span>
       </div>
-      <p className="text-sm leading-[18.6px] text-ehs-slate">
-        {matched ? (
-          <>
-            {before}
-            <span className="font-bold">{matched}</span>
-            {after}
-          </>
-        ) : (
-          text
-        )}
-      </p>
+      <p className="text-sm leading-[18.6px] text-ehs-slate">{text}</p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -17,7 +17,7 @@ function AuditReport() {
   const auditId = decodeURIComponent(searchParams.get("auditid") ?? "");
 
   // GET /api/Audit/{id} carries the audit, its template snapshot and the
-  // recorded responses — everything the report needs, from one call.
+  // recorded responses ΓÇö everything the report needs, from one call.
   const detailQuery = useAuditDetailQuery(auditId);
   const detail = detailQuery.data?.dataModel ?? null;
 
@@ -26,7 +26,7 @@ function AuditReport() {
     [detail],
   );
 
-  // The printable region — captured as-is when exporting.
+  // The printable region ΓÇö captured as-is when exporting.
   const reportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -47,7 +47,7 @@ function AuditReport() {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <AuditReportHeader
-        auditId={report?.auditId ?? "—"}
+        auditId={report?.auditId ?? "ΓÇö"}
         subtitle={report?.title ?? ""}
         isExporting={isExporting}
         onExportPdf={report ? handleExportPdf : undefined}
@@ -77,12 +77,7 @@ function AuditReport() {
 export default function AuditReportPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader />
 
       <Suspense fallback={null}>
         <AuditReport />

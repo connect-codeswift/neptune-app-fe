@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ScrollLink } from "@/components/ScrollLink";
@@ -14,6 +14,7 @@ import {
   useLoginMutation,
 } from "@/hooks/use-auth-mutations";
 import { ehsLinkClass } from "@/lib/ehs-classes";
+import { consumeAuthRedirectMessage } from "@/lib/access-window";
 import { ShadeBall } from "@/components/ShadeBall";
 
 function getFormString(formData: FormData, name: string) {
@@ -25,6 +26,14 @@ export default function LoginRightPanel() {
   const router = useRouter();
   const [formError, setFormError] = useState("");
   const loginMutation = useLoginMutation();
+
+  useEffect(() => {
+    const redirectMessage = consumeAuthRedirectMessage();
+
+    if (redirectMessage) {
+      setFormError(redirectMessage);
+    }
+  }, []);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -1,6 +1,8 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useEffect } from "react";
+import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -15,6 +17,7 @@ import {
   TREATMENT_PROVIDER_OPTIONS,
   WHAT_TREATMENT_GIVEN_OPTIONS,
   YES_NO_OPTIONS,
+  markAiAssisted,
   type CustomOptionField,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -25,7 +28,24 @@ import {
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
+import { ReportWitnessesField } from "@/components/incidents/report/shared/ReportWitnessesField";
+import {
+  buildDraftAssistInput,
+  canDraftDescription,
+  draftInputKey,
+} from "@/components/incidents/report/shared/report-ai-draft";
+import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
+import { useCurrentSite } from "@/hooks/use-current-site";
+import { logAiAssistFailure } from "@/services/ai-text.service";
 import { toast } from "@/lib/toast";
+
+/**
+ * Object Involved is the last required answer and it is typed, not picked, so
+ * this is also what keeps a half-typed "Pall" from being drafted on its way to
+ * "Pallet" — it waits for the typing to stop, not just for the field to be
+ * non-empty.
+ */
+const DRAFT_DEBOUNCE_MS = 900;
 
 export type ReportIncidentStepTwoProps = Readonly<{
   form: ReportIncidentFormState;
@@ -49,8 +69,85 @@ export function ReportIncidentStepTwo(
   props: Readonly<ReportIncidentStepTwoProps>,
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
+  const site = useCurrentSite();
   const photos = form.photos ?? [];
   const isFirstAid = form.severity === "first-aid";
+  const draftAssist = useDraftAssistMutation();
+  // The draft owns the field's controls while it is being fetched or offered;
+  // once resolved the rewrite buttons take the slot back.
+  const showsDraft =
+    form.descriptionDraft.pending || form.descriptionDraft.text !== null;
+
+  const draftInput = buildDraftAssistInput(form);
+  const draftKey = draftInputKey(draftInput);
+  const wantsDraft =
+    canDraftDescription(form) &&
+    form.description.trim() === "" &&
+    !form.descriptionDraft.dismissed &&
+    !form.descriptionDraft.pending &&
+    draftKey !== form.descriptionDraft.source;
+
+  /**
+   * Drafts the description once the answers above it are substantial enough to
+   * be worth summarising.
+   *
+   * Debounced because those answers arrive one dropdown at a time, and every
+   * intermediate state would otherwise cost a call out of the 20-per-minute
+   * budget shared with both rewrite buttons. Keyed on the request itself, so
+   * re-picking the same option costs nothing.
+   */
+  useEffect(() => {
+    if (!wantsDraft) {
+      return;
+    }
+
+    const timer = globalThis.setTimeout(() => {
+      onChange({
+        descriptionDraft: {
+          ...form.descriptionDraft,
+          pending: true,
+          source: draftKey,
+        },
+      });
+
+      draftAssist
+        .mutateAsync(draftInput)
+        .then((drafts) => {
+          // A null description is an answer, not a failure — it means the
+          // reporter already wrote one, so there is nothing to offer.
+          onChange({
+            descriptionDraft: {
+              text: drafts.description,
+              pending: false,
+              source: draftKey,
+              dismissed: false,
+            },
+          });
+        })
+        .catch((error: unknown) => {
+          // Additive feature: no ghost text, no toast, field behaves exactly as
+          // it does without the assistant. Also the path taken wherever
+          // `Ai__ApiKey` is unset and the endpoint is inert.
+          logAiAssistFailure("draft-assist", error);
+          onChange({
+            descriptionDraft: {
+              text: null,
+              pending: false,
+              source: draftKey,
+              dismissed: false,
+            },
+          });
+        });
+    }, DRAFT_DEBOUNCE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timer);
+    };
+    // `onChange` and the mutation are deliberately excluded: both change
+    // identity every render, and including them would restart the debounce on
+    // each keystroke behind the field.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsDraft, draftKey]);
 
   /** Appends a reporter-typed option to one of the extendable dropdowns. */
   const addCustomOption = (field: CustomOptionField, option: string) => {
@@ -97,23 +194,6 @@ export function ReportIncidentStepTwo(
             </Text>
           </div>
 
-          <ReportTextareaField
-            className="pt-[22px]"
-            label="Describe incident in detail"
-            required
-            trailingHint="Events before, during & after."
-            value={form.description}
-            onChange={(event) => onChange({ description: event.target.value })}
-            placeholder="Describe what happened…"
-            assistant={
-              <AiTextAssistant
-                value={form.description}
-                onApply={(description) => onChange({ description })}
-                context="a workplace safety incident report — keep every fact, time and name exactly as written"
-              />
-            }
-          />
-
           <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">
             <div className="pb-[18px]">
               <ReportSelectWithAdd
@@ -135,9 +215,9 @@ export function ReportIncidentStepTwo(
                 label="Was Secondary Treatment Sought"
                 required
                 value={form.secondaryTreatment}
-                onChange={(event) =>
+                onChange={(answer) =>
                   onChange({
-                    secondaryTreatment: event.target.value as "Yes" | "No",
+                    secondaryTreatment: answer as "Yes" | "No",
                   })
                 }
                 options={[...YES_NO_OPTIONS]}
@@ -184,8 +264,8 @@ export function ReportIncidentStepTwo(
                   label="What treatment was given?"
                   required
                   value={form.whatTreatmentWasGiven}
-                  onChange={(event) =>
-                    onChange({ whatTreatmentWasGiven: event.target.value })
+                  onChange={(answer) =>
+                    onChange({ whatTreatmentWasGiven: answer })
                   }
                   options={[...WHAT_TREATMENT_GIVEN_OPTIONS]}
                 />
@@ -195,8 +275,8 @@ export function ReportIncidentStepTwo(
                   label="Treatment provided by?"
                   required
                   value={form.treatmentProvidedBy}
-                  onChange={(event) =>
-                    onChange({ treatmentProvidedBy: event.target.value })
+                  onChange={(answer) =>
+                    onChange({ treatmentProvidedBy: answer })
                   }
                   options={[...TREATMENT_PROVIDER_OPTIONS]}
                 />
@@ -206,9 +286,7 @@ export function ReportIncidentStepTwo(
                   label="Treatment location?"
                   required
                   value={form.treatmentLocation}
-                  onChange={(event) =>
-                    onChange({ treatmentLocation: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ treatmentLocation: answer })}
                   options={[...TREATMENT_LOCATION_OPTIONS]}
                 />
               </div>
@@ -217,9 +295,7 @@ export function ReportIncidentStepTwo(
                   label="Is employee able to return to full duty?"
                   required
                   value={form.isFitForFullDuty}
-                  onChange={(event) =>
-                    onChange({ isFitForFullDuty: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ isFitForFullDuty: answer })}
                   options={[...FIT_FOR_DUTY_OPTIONS]}
                 />
               </div>
@@ -228,9 +304,7 @@ export function ReportIncidentStepTwo(
                   label="Case disposition?"
                   required
                   value={form.caseDisposition}
-                  onChange={(event) =>
-                    onChange({ caseDisposition: event.target.value })
-                  }
+                  onChange={(answer) => onChange({ caseDisposition: answer })}
                   options={[...CASE_DISPOSITION_OPTIONS]}
                 />
               </div>
@@ -238,11 +312,9 @@ export function ReportIncidentStepTwo(
                 <ReportSelectField
                   label="Was further medical attention recommended"
                   value={form.furtherMedicalRecommended}
-                  onChange={(event) =>
+                  onChange={(answer) =>
                     onChange({
-                      furtherMedicalRecommended: event.target.value as
-                        | "Yes"
-                        | "No",
+                      furtherMedicalRecommended: answer as "Yes" | "No",
                     })
                   }
                   options={[...YES_NO_OPTIONS]}
@@ -265,27 +337,111 @@ export function ReportIncidentStepTwo(
             <ReportSelectField
               label="OSHA Notification Required?"
               value={form.oshaNotificationRequired}
-              onChange={(event) =>
+              onChange={(answer) =>
                 onChange({
-                  oshaNotificationRequired: event.target.value as "Yes" | "No",
+                  oshaNotificationRequired: answer as "Yes" | "No",
                 })
               }
               options={[...YES_NO_OPTIONS]}
             />
           </div>
 
+          {/* Last of the written fields on purpose: everything above it is a
+              structured answer, and those answers are what the draft below is
+              built from. Asking for the narrative first meant writing it out
+              and then re-picking the same facts from dropdowns. */}
+          <ReportTextareaField
+            // Taller than the default so a typical drafted narrative fits
+            // without being clipped by the control strip along the bottom.
+            className="pt-[18px] [&_textarea]:min-h-[164px]"
+            label="Describe incident in detail"
+            required
+            trailingHint="Events before, during & after."
+            value={form.description}
+            onChange={(event) => {
+              const description = event.target.value;
+              // Their own words take over: a draft still sitting underneath
+              // while they type is an offer they have already answered.
+              onChange({
+                description,
+                ...(form.descriptionDraft.text || form.descriptionDraft.pending
+                  ? {
+                      descriptionDraft: {
+                        ...form.descriptionDraft,
+                        text: null,
+                        pending: false,
+                        dismissed: true,
+                      },
+                    }
+                  : {}),
+              });
+            }}
+            // Suppressed while a draft occupies the field — the browser would
+            // otherwise paint the placeholder underneath the ghost text.
+            placeholder={showsDraft ? "" : "Describe what happened…"}
+            assistant={
+              showsDraft ? (
+                <AiInFieldDraft
+                  draft={form.descriptionDraft.text}
+                  pending={form.descriptionDraft.pending}
+                  onAccept={(text) =>
+                    onChange({
+                      description: text,
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "description",
+                      ),
+                      descriptionDraft: {
+                        ...form.descriptionDraft,
+                        text: null,
+                        dismissed: true,
+                      },
+                    })
+                  }
+                  onDismiss={() =>
+                    onChange({
+                      descriptionDraft: {
+                        ...form.descriptionDraft,
+                        text: null,
+                        dismissed: true,
+                      },
+                    })
+                  }
+                />
+              ) : (
+                // The proofread button needs text to work on, so it only takes
+                // the slot back once the draft has been resolved either way.
+                <AiTextAssistant
+                  value={form.description}
+                  onApply={(description) => {
+                    onChange({ description });
+                  }}
+                  onAssisted={() => {
+                    onChange({
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "description",
+                      ),
+                    });
+                  }}
+                />
+              )
+            }
+          />
+
           <ReportPhotosField
             photos={photos}
             onChange={(nextPhotos) => onChange({ photos: nextPhotos })}
           />
 
-          <ReportTextField
+          <ReportWitnessesField
             className="pt-[18px]"
             label="Witnesses"
-            trailingHint="Names or employee IDs, comma-separated."
+            trailingHint="Search people at your site, or press Enter to add a name."
             value={form.witnesses}
-            onChange={(event) => onChange({ witnesses: event.target.value })}
-            placeholder="Name or employee ID"
+            onChange={(witnesses) => onChange({ witnesses })}
+            siteId={site.id}
+            siteName={site.name}
           />
 
           {isFirstAid ? (
@@ -293,11 +449,11 @@ export function ReportIncidentStepTwo(
               className="pt-[18px]"
               label="Emergency Service Called?"
               value={form.classifications.emergency ?? "No"}
-              onChange={(event) =>
+              onChange={(answer) =>
                 onChange({
                   classifications: {
                     ...form.classifications,
-                    emergency: event.target.value as "Yes" | "No",
+                    emergency: answer as "Yes" | "No",
                   },
                 })
               }
@@ -312,7 +468,7 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold text-ehs-slate"
+              className="text-ehs-slate rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"

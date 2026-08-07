@@ -3,6 +3,13 @@ import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from "axios";
+import {
+  isOrgAccessExpiredMessage,
+  readAccessWindowFromAuthPayload,
+  redirectToLoginFromAppShell,
+  setAuthRedirectMessage,
+  setCachedAccessWindow,
+} from "@/lib/access-window";
 
 const ACCESS_TOKEN_KEY = "neptune-access-token";
 const REFRESH_TOKEN_KEY = "neptune-refresh-token";
@@ -119,20 +126,66 @@ function attachAuthHeader(config: InternalAxiosRequestConfig) {
   return config;
 }
 
+/** Flattens ASP.NET ValidationProblemDetails.errors into one readable line. */
+function readValidationErrors(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) return null;
+
+  const errors = (data as { errors?: unknown }).errors;
+  if (typeof errors !== "object" || errors === null) return null;
+
+  const messages = Object.values(errors as Record<string, unknown>)
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter(
+      (value): value is string => typeof value === "string" && !!value.trim(),
+    );
+
+  return messages.length > 0 ? messages.join(" ") : null;
+}
+
 function toApiError(
-  error: AxiosError<{ message?: string; Message?: string }>,
+  error: AxiosError<{
+    message?: string;
+    Message?: string;
+    title?: string;
+    errors?: Record<string, string[]>;
+  }>,
 ): ApiError {
+  const data = error.response?.data;
+
   return {
-    // The backend returns `message` on success-path envelopes but `Message`
-    // on ones thrown by its exception middleware.
+    // The backend returns `message` on success-path envelopes, `Message` on ones
+    // thrown by its exception middleware, and neither on [ApiController]'s
+    // automatic model-validation 400 — that shape carries `errors` and `title`.
     message:
-      error.response?.data?.message ??
-      error.response?.data?.Message ??
+      data?.message ??
+      data?.Message ??
+      readValidationErrors(data) ??
+      data?.title ??
       error.message ??
       "Something went wrong. Please try again.",
     status: error.response?.status,
-    data: error.response?.data,
+    data,
   };
+}
+
+export function getApiErrorMessageFromData(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  const record = data as {
+    message?: string;
+    Message?: string;
+    title?: string;
+  };
+
+  return (
+    record.message ??
+    record.Message ??
+    readValidationErrors(data) ??
+    record.title ??
+    null
+  );
 }
 
 export function isApiError(error: unknown): error is HttpError {
@@ -194,8 +247,24 @@ async function requestNewAccessToken(): Promise<string | null> {
       setRefreshToken(rotatedRefresh);
     }
 
+    const accessWindow = readAccessWindowFromAuthPayload(payload);
+    setCachedAccessWindow(accessWindow);
+
     return accessToken;
-  } catch {
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const message =
+        error.response?.data?.message ?? error.response?.data?.Message ?? "";
+
+      if (
+        error.response?.status === 401 &&
+        typeof message === "string" &&
+        isOrgAccessExpiredMessage(message)
+      ) {
+        setAuthRedirectMessage(message);
+      }
+    }
+
     return null;
   }
 }
@@ -252,6 +321,7 @@ function createHttpClient(): AxiosInstance {
         // Refresh failed — the session is unrecoverable, so don't leave a
         // dead token behind to fail every subsequent request.
         clearAuthTokens();
+        redirectToLoginFromAppShell();
       }
 
       return Promise.reject(new HttpError(toApiError(error)));

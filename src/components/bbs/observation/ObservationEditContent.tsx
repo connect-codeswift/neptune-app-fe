@@ -11,7 +11,6 @@ import {
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
-import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useUpdateBbsObservationMutation } from "@/hooks/use-bbs-mutations";
 import {
@@ -253,13 +252,10 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
-            <Text
-              as="h1"
-              className="text-ehs-dark-bg min-w-0 truncate text-base font-bold tracking-[-0.2px] md:text-2xl md:font-semibold"
-            >
+            <h1 className="text-ehs-dark-bg min-w-0 truncate text-base font-bold tracking-[-0.2px] md:text-2xl md:font-semibold">
               <span className="md:hidden">{`Edit ${detail.id}`}</span>
               <span className="hidden md:inline">{`Edit ${detail.id} Observation`}</span>
-            </Text>
+            </h1>
           </div>
         </div>
       </div>

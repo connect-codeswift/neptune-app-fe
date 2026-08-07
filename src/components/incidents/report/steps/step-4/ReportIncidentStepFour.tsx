@@ -8,10 +8,11 @@ import {
   ReportTextareaField,
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
+import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import {
+  markAiAssisted,
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
-  SUGGESTED_FOLLOW_UP_OPTIONS,
 } from "@/components/incidents/report/shared/report-incident-data";
 
 export type ReportIncidentStepFourProps = Readonly<{
@@ -22,18 +23,16 @@ export type ReportIncidentStepFourProps = Readonly<{
   className?: string;
 }>;
 
-/**
- * Hidden for now — the "AI suggested" follow-ups are placeholder copy with no
- * model behind them yet. Flip to `true` to bring the section back; the
- * `suggestedFollowUp` form field, its Step 5 review row and its mapper handling
- * are all left intact, so nothing else has to change when it returns.
- */
-const SHOW_SUGGESTED_FOLLOW_UP = false;
-
 export function ReportIncidentStepFour(
   props: Readonly<ReportIncidentStepFourProps>,
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
+
+  // Same rule as the injury draft on step 3: no waiting state for a field the
+  // reporter has already filled, because the incoming draft is discarded
+  // rather than shown.
+  const draftPending = form.aiDraftPending && form.actionNotes.trim() === "";
+  const showsDraft = draftPending || form.aiDrafts.actionNotes !== null;
 
   const toggleAction = (id: string) => {
     const isChecked = form.immediateActions.includes(id);
@@ -41,14 +40,6 @@ export function ReportIncidentStepFour(
       ? form.immediateActions.filter((a) => a !== id)
       : [...form.immediateActions, id];
     onChange({ immediateActions: nextActions });
-  };
-
-  const toggleFollowUp = (id: string) => {
-    const isChecked = form.suggestedFollowUp.includes(id);
-    const nextFollowUp = isChecked
-      ? form.suggestedFollowUp.filter((f) => f !== id)
-      : [...form.suggestedFollowUp, id];
-    onChange({ suggestedFollowUp: nextFollowUp });
   };
 
   return (
@@ -129,72 +120,56 @@ export function ReportIncidentStepFour(
           </div>
 
           {/* Section 2: Other actions or notes text area */}
-          <ReportTextareaField
-            className="pt-[14px] [&_textarea]:min-h-[86px]"
-            label="Other actions or notes"
-            trailingHint="Anything else responders should know?"
-            value={form.actionNotes}
-            onChange={(event) => onChange({ actionNotes: event.target.value })}
-            placeholder="List any additional actions, notifications, or follow-ups already underway…"
-            rows={3}
-          />
-
-          {/* Section 3: Suggested follow-up checkbox list */}
-          {SHOW_SUGGESTED_FOLLOW_UP ? (
-            <div className="flex flex-col gap-2 pt-[14px]">
-              <ReportFieldLabel label="Suggested follow-up" />
-              <div className="flex flex-col gap-1 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-3.5">
-                {SUGGESTED_FOLLOW_UP_OPTIONS.map((followUp) => {
-                  const isChecked = form.suggestedFollowUp.includes(
-                    followUp.id,
-                  );
-                  return (
-                    <button
-                      key={followUp.id}
-                      type="button"
-                      onClick={() => toggleFollowUp(followUp.id)}
-                      className="-mx-2 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-black/[0.01]"
-                    >
-                      <div
-                        className={[
-                          "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
-                          isChecked
-                            ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
-                            : "border-[rgba(15,23,42,0.18)] bg-white",
-                        ].join(" ")}
-                      >
-                        {isChecked && (
-                          <Icon icon="mdi:check" className="size-3.5" />
-                        )}
-                      </div>
-                      <Text
-                        as="span"
-                        className={[
-                          "text-sm transition-colors",
-                          isChecked
-                            ? "text-ehs-dark-blue font-bold"
-                            : "text-ehs-dark-bg font-normal",
-                        ].join(" ")}
-                      >
-                        {followUp.label}
-                      </Text>
-
-                      {/* AI Suggested Badge */}
-                      <div className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active ml-auto inline-flex items-center gap-1 rounded-full border px-2.5 py-1">
-                        <Icon
-                          icon="mdi:creation-outline"
-                          className="size-3 shrink-0"
-                        />
-                        <span className="text-[9.5px] font-bold tracking-[0.2px]">
-                          AI suggested
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : null}
+          <div className="pt-[14px]">
+            <ReportTextareaField
+              // Taller than it was: the draft controls reserve a strip along
+              // the bottom, and at 86px they landed on the text.
+              className="[&_textarea]:min-h-[150px]"
+              label="Other actions or notes"
+              trailingHint="Anything else responders should know?"
+              value={form.actionNotes}
+              onChange={(event) => {
+                const actionNotes = event.target.value;
+                // Their own words take over: a draft still sitting underneath
+                // while they type is an offer they have already answered.
+                onChange({
+                  actionNotes,
+                  ...(form.aiDrafts.actionNotes
+                    ? { aiDrafts: { ...form.aiDrafts, actionNotes: null } }
+                    : {}),
+                });
+              }}
+              placeholder={
+                showsDraft
+                  ? ""
+                  : "List any additional actions, notifications, or follow-ups already underway…"
+              }
+              rows={3}
+              assistant={
+                showsDraft ? (
+                  <AiInFieldDraft
+                    draft={form.aiDrafts.actionNotes}
+                    pending={draftPending}
+                    onAccept={(text) =>
+                      onChange({
+                        actionNotes: text,
+                        aiAssistedFields: markAiAssisted(
+                          form.aiAssistedFields,
+                          "actionNotes",
+                        ),
+                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
+                      })
+                    }
+                    onDismiss={() =>
+                      onChange({
+                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
+                      })
+                    }
+                  />
+                ) : undefined
+              }
+            />
+          </div>
         </div>
 
         {/* Form Bottom Toolbar Actions */}

@@ -1,12 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   ForgotPasswordRequestDto,
   LoginRequestDto,
   ResetPasswordRequestDto,
 } from "@/dtos/req/auth-request.dto";
-import { isApiError } from "@/lib/axios";
+import { getApiErrorMessageFromData, isApiError } from "@/lib/axios";
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
+import { sessionQueryKeys } from "@/hooks/use-session-bootstrap";
 import {
   authenticateUser,
   completeRegistration,
@@ -20,15 +21,25 @@ type CompleteRegistrationVariables = Readonly<{
 }>;
 
 export function useCompleteRegistrationMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ signup, onboarding }: CompleteRegistrationVariables) =>
       completeRegistration(signup, onboarding),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
+    },
   });
 }
 
 export function useLoginMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (credentials: LoginRequestDto) => authenticateUser(credentials),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
+    },
   });
 }
 
@@ -46,7 +57,7 @@ export function useResetPasswordMutation() {
 
 export function getMutationErrorMessage(error: unknown, fallback: string) {
   if (isApiError(error)) {
-    return error.message;
+    return getApiErrorMessageFromData(error.data) ?? error.message ?? fallback;
   }
 
   return fallback;

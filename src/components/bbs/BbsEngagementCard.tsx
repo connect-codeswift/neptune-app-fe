@@ -153,8 +153,7 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
                 // The baseline the area sits on — the grid no longer draws it.
                 axisLine={{ stroke: "#e5e7eb" }}
                 tickMargin={10}
-                interval="preserveStartEnd"
-                minTickGap={16}
+                interval={0}
               />
               <YAxis
                 domain={yScale.domain}

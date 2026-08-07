@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -42,7 +42,7 @@ function WalkTalkSessionDetail() {
     return (
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading session…
+          Loading sessionΓÇª
         </Text>
       </div>
     );
@@ -77,12 +77,7 @@ function WalkTalkSessionDetail() {
 export default function WalkTalkSessionDetailPage() {
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader />
 
       <Suspense fallback={null}>
         <WalkTalkSessionDetail />

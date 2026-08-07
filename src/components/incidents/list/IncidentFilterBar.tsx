@@ -3,30 +3,25 @@
 import { IncidentSegmentedControl } from "@/components/incidents/list/IncidentSegmentedControl";
 import {
   SEVERITY_FILTERS,
-  STAGE_FILTERS,
   STATE_FILTERS,
 } from "@/components/incidents/list/incident-list-data";
 
 export type IncidentFilterBarProps = Readonly<{
   state: string;
-  stage: string;
   severity: string;
   onStateChange: (value: string) => void;
-  onStageChange: (value: string) => void;
   onSeverityChange: (value: string) => void;
   className?: string;
 }>;
 
 const shellClass =
-  "relative flex h-auto min-h-[60px] w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 sm:px-4 sm:py-3.5 shadow-sm backdrop-blur-md";
+  "relative flex h-auto min-h-[60px] w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
 
 export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
   const {
     state,
-    stage,
     severity,
     onStateChange,
-    onStageChange,
     onSeverityChange,
     className = "",
   } = props;
@@ -57,19 +52,11 @@ export function IncidentFilterBar(props: Readonly<IncidentFilterBarProps>) {
         />
 
         <IncidentSegmentedControl
-          label="Stage"
-          options={STAGE_FILTERS}
-          value={stage}
-          onChange={onStageChange}
-          className="min-w-fit flex-[1.3]"
-        />
-
-        <IncidentSegmentedControl
           label="Severity"
           options={SEVERITY_FILTERS}
           value={severity}
           onChange={onSeverityChange}
-          className="min-w-fit flex-[1.6]"
+          className="min-w-fit flex-[1.35]"
         />
       </div>
     </div>

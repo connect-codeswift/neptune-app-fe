@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -17,13 +17,13 @@ const BBS_ROUTE = "/dashboard/bbs";
 function fallbackDetail(id: string): ObservationDetail {
   return {
     id,
-    observer: "—",
-    date: "—",
-    time: "—",
-    location: "—",
-    category: "—",
+    observer: "ΓÇö",
+    date: "ΓÇö",
+    time: "ΓÇö",
+    location: "ΓÇö",
+    category: "ΓÇö",
     type: "Safe",
-    observed: "—",
+    observed: "ΓÇö",
     photos: [],
   };
 }
@@ -56,12 +56,7 @@ function ObservationDetail() {
 export default function ObservationDetailPage() {
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader />
 
       <Suspense fallback={null}>
         <ObservationDetail />

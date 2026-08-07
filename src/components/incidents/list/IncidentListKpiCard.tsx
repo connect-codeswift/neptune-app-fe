@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
 export type IncidentListKpiTone = "positive" | "negative";
 
@@ -14,7 +15,7 @@ export type IncidentListKpiMetric = Readonly<{
   trendValue: string;
   trendDirection: "up" | "down";
   trendTone: IncidentListKpiTone;
-  targetLabel: string;
+  targetLabel: string | null;
   chartData: readonly number[];
 }>;
 
@@ -112,7 +113,7 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
       paddingClassName="p-4"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="flex h-full flex-col gap-1.5">
+      <div className="flex h-full flex-col gap-2">
         <div className="flex w-full items-start justify-between gap-3">
           <Text
             as="p"
@@ -120,19 +121,21 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
           >
             {title}
           </Text>
-          <span
-            className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
-              trendClass,
-            ].join(" ")}
-          >
-            <Icon
-              icon={trendIcon}
-              className="size-3 shrink-0"
-              aria-hidden="true"
-            />
-            {trendValue}
-          </span>
+          {SHOW_KPI_TREND_BADGES ? (
+            <span
+              className={[
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
+                trendClass,
+              ].join(" ")}
+            >
+              <Icon
+                icon={trendIcon}
+                className="size-3 shrink-0"
+                aria-hidden="true"
+              />
+              {trendValue}
+            </span>
+          ) : null}
         </div>
 
         <div className="flex w-full items-baseline">
@@ -150,9 +153,13 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
         </div>
 
         <div className="mt-auto flex w-full items-end justify-between gap-3">
-          <Text as="p" className="text-ehs-muted-text py-px text-xs">
-            {targetLabel}
-          </Text>
+          {targetLabel ? (
+            <Text as="p" className="text-ehs-muted-text py-px text-xs">
+              {targetLabel}
+            </Text>
+          ) : (
+            <span />
+          )}
           <MiniSparkline data={chartData} tone={trendTone} />
         </div>
       </div>

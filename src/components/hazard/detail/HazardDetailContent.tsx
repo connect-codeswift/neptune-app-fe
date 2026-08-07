@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -46,7 +46,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     userId,
   });
 
-  // The record carries a userId, not a reporter name — resolve it for display.
+  // The record carries a userId, not a reporter name ΓÇö resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
   const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
 
@@ -116,11 +116,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-5">
-      <DashboardHeader
-        title="Hazard Reporting"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader title="Hazard Reporting" />
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
         {detailQuery.isPending && (

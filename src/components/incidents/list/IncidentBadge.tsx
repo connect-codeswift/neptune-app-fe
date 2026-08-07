@@ -58,14 +58,29 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   );
 }
 
-export function severityTone(_severity: string): IncidentBadgeTone {
+export function severityTone(severity: string): IncidentBadgeTone {
+  const lower = severity.trim().toLowerCase();
+
+  if (lower.includes("first aid") || lower === "first-aid") {
+    return "success";
+  }
+
+  if (
+    lower === "sip" ||
+    lower.includes("lost time") ||
+    lower === "lti" ||
+    lower.includes("lost-time")
+  ) {
+    return "warn";
+  }
+
+  if (lower === "sia" || lower.includes("recordable") || lower === "osha") {
+    return "danger";
+  }
+
   return "neutral";
 }
 
 export function stateTone(state: string): IncidentBadgeTone {
   return state === "Open" ? "teal" : "muted";
-}
-
-export function stageTone(_stage: string): IncidentBadgeTone {
-  return "muted";
 }

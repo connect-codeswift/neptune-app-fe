@@ -8,6 +8,7 @@ export type AuthContext = Readonly<{
   subCompanyId: number;
   siteName: string | null;
   organizationId: number | null;
+  organizationName: string | null;
   email: string | null;
   fullName: string | null;
 }>;
@@ -90,6 +91,7 @@ export function getAuthContext(): AuthContext | null {
       subCompanyId: 0,
       siteName: null,
       organizationId: null,
+      organizationName: null,
       email: null,
       fullName: null,
     };
@@ -133,6 +135,14 @@ export function getAuthContext(): AuthContext | null {
         "OrgId",
       ]),
     ),
+    organizationName: toOptionalString(
+      readClaim(payload, [
+        "organizationName",
+        "OrganizationName",
+        "orgName",
+        "OrgName",
+      ]),
+    ),
     email: toOptionalString(
       readClaim(payload, [
         "email",
@@ -142,7 +152,13 @@ export function getAuthContext(): AuthContext | null {
       ]),
     ),
     fullName: toOptionalString(
-      readClaim(payload, ["fullName", "FullName", "name", "Name"]),
+      readClaim(payload, [
+        "fullName",
+        "FullName",
+        "name",
+        "Name",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+      ]),
     ),
   };
 }

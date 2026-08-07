@@ -39,11 +39,15 @@ import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeli
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
-import type { LinkedCapaViewModel } from "@/services/mappers/capa.mapper";
+import {
+  mapCapaItemsToLinkedItems,
+  type LinkedCapaViewModel,
+} from "@/services/mappers/capa.mapper";
 import type {
   IncidentDetailViewModel,
   IncidentInvestigationView,
 } from "@/services/mappers/incident-detail.mapper";
+import type { RcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailViewProps = Readonly<{
   displayId: string;
@@ -52,9 +56,6 @@ export type IncidentDetailViewProps = Readonly<{
   onEditOrSave: () => void;
   isEditing: boolean;
   isSaving: boolean;
-  onCloseIncident: () => void;
-  isClosingIncident: boolean;
-  closeDisabled: boolean;
 
   errorMessage: string | null;
   showLoading: boolean;
@@ -64,6 +65,12 @@ export type IncidentDetailViewProps = Readonly<{
 
   detail: IncidentDetailViewModel | null;
   investigation: IncidentInvestigationView;
+  rcaInvestigationPreview: RcaInvestigationPreview | null;
+  isRcaInvestigationLoading: boolean;
+  rcaInvestigationError: string | null;
+  onRetryRca: () => void;
+  incidentNumericId: number | null;
+  hrcaQueryEnabled: boolean;
   showHrca: boolean;
   onOpenHrca: () => void;
   onCloseHrca: () => void;
@@ -111,6 +118,9 @@ export type IncidentDetailViewProps = Readonly<{
   linkedCapa: LinkedCapaViewModel;
   isCapaLoading: boolean;
   isCapaSubmitting: boolean;
+  openAddCapaOnLinkedTab?: boolean;
+  onAddCapaModalOpened?: () => void;
+  onNavigateToLinkedCapa: (options?: Readonly<{ openAddModal?: boolean }>) => void;
   onSubmitCapa: (payload: {
     controlLevel: string;
     description: string;
@@ -132,6 +142,7 @@ export type IncidentDetailViewProps = Readonly<{
   onToggleClosureCheckItem: (itemId: string) => void;
   onSaveClosureDraft?: () => void;
   onFinalizeClosure?: () => void;
+  onCancelClosure?: () => void;
   isClosureSubmitting?: boolean;
 }>;
 
@@ -147,9 +158,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onEditOrSave,
     isEditing,
     isSaving,
-    onCloseIncident,
-    isClosingIncident,
-    closeDisabled,
+
     errorMessage,
     showLoading,
     hasToken,
@@ -157,6 +166,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onRetry,
     detail,
     investigation,
+    rcaInvestigationPreview,
+    isRcaInvestigationLoading,
+    rcaInvestigationError,
+    onRetryRca,
+    incidentNumericId,
+    hrcaQueryEnabled,
     showHrca,
     onOpenHrca,
     onCloseHrca,
@@ -198,6 +213,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     linkedCapa,
     isCapaLoading,
     isCapaSubmitting,
+    openAddCapaOnLinkedTab,
+    onAddCapaModalOpened,
+    onNavigateToLinkedCapa,
     onSubmitCapa,
     previewFile,
     onClosePreview,
@@ -207,6 +225,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onToggleClosureCheckItem,
     onSaveClosureDraft,
     onFinalizeClosure,
+    onCancelClosure,
     isClosureSubmitting,
   } = props;
 
@@ -220,14 +239,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
           onEdit={onEditOrSave}
           isEditing={isEditing}
           isSaving={isSaving}
+          hideIncidentChrome={showHrca}
+          closureTabDisabled={detail?.isClosed ?? false}
           readOnly={
             activeTab !== "details" &&
             activeTab !== "people" &&
             activeTab !== "attachments"
           }
-          onCloseIncident={onCloseIncident}
-          isClosingIncident={isClosingIncident}
-          closeDisabled={closeDisabled}
         />
 
         {errorMessage ? (
@@ -320,7 +338,21 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
 
                 <div className="flex flex-col gap-[14px]">
                   <IncidentDetailRoutingCard members={detail.routingMembers} />
-                  <IncidentDetailLinkedCard />
+                  <IncidentDetailLinkedCard
+                    linkedItems={mapCapaItemsToLinkedItems(linkedCapa.items, {
+                      limit: 3,
+                    })}
+                    totalLinkedCount={linkedCapa.summary.totalCount}
+                    isLoading={isCapaLoading}
+                    onAddCapa={() =>
+                      onNavigateToLinkedCapa({ openAddModal: true })
+                    }
+                    onViewAll={() => onNavigateToLinkedCapa()}
+                    onSelectItem={() => onNavigateToLinkedCapa()}
+                  />
+                  {/* Renders nothing until an insight exists to pass in: no
+                      endpoint generates one, and the card no longer invents
+                      placeholder copy to fill the space. */}
                   <IncidentDetailAiCard />
                 </div>
               </div>
@@ -437,29 +469,40 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "investigation" &&
-              (showHrca ? (
+              (showHrca && incidentNumericId != null ? (
                 <IncidentDetailHrcaBoard
+                  incidentId={incidentNumericId}
+                  queryEnabled={hrcaQueryEnabled}
                   onClose={onCloseHrca}
                   meta={investigation.hrcaMeta}
-                  initialRows={investigation.hrcaRows}
-                  incidentLabel={displayId}
                 />
+              ) : showHrca ? (
+                <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-sm">
+                  Sign in and open a valid incident to load the HRCA worksheet.
+                </div>
               ) : (
                 <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                   <IncidentDetailInvestigationCard
-                    whyChain={investigation.whyChain}
-                    contributingFactors={investigation.hrcaRows.map((row) => ({
-                      category: row.category,
-                      text: row.contributingFactor,
-                      accent: row.accent,
-                    }))}
-                    methodLine={investigation.methodLine}
-                    statusLabel={investigation.statusLabel}
+                    whyChain={rcaInvestigationPreview?.whyChain ?? []}
+                    contributingFactors={
+                      rcaInvestigationPreview?.contributingFactors ?? []
+                    }
+                    methodLine={
+                      rcaInvestigationPreview?.methodLine ??
+                      investigation.methodLine
+                    }
+                    statusLabel={
+                      rcaInvestigationPreview?.statusLabel ?? "Not started"
+                    }
+                    isLoading={isRcaInvestigationLoading}
+                    errorMessage={rcaInvestigationError}
+                    onRetry={onRetryRca}
                     onOpenHrca={onOpenHrca}
                   />
                   <div className="flex flex-col gap-[14px]">
                     <IncidentDetailInvestigationStatusCard
-                      steps={investigation.statusSteps}
+                      steps={rcaInvestigationPreview?.statusSteps ?? []}
+                      isLoading={isRcaInvestigationLoading}
                     />
                     <IncidentDetailSignOffCard
                       signoffs={investigation.signoffs}
@@ -476,6 +519,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   capas={linkedCapa.items}
                   isLoading={isCapaLoading}
                   isSubmitting={isCapaSubmitting}
+                  openAddModal={openAddCapaOnLinkedTab}
+                  onAddModalOpened={onAddCapaModalOpened}
                   onSubmitCapa={onSubmitCapa}
                 />
                 <div className="flex flex-col gap-[14px]">
@@ -503,6 +548,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 onToggleCheckItem={onToggleClosureCheckItem}
                 onSaveAsDraft={onSaveClosureDraft}
                 onFinalizeClosure={onFinalizeClosure}
+                onCancel={onCancelClosure}
                 isSubmitting={isClosureSubmitting}
               />
             )}
