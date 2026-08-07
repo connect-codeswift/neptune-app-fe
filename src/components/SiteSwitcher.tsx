@@ -20,6 +20,9 @@ export type SiteSwitcherProps = Readonly<{
   /** Selected site id, or `null` for all sites. Omit to let the component own it. */
   selectedSiteId?: number | null;
   onChange?: (siteId: number | null) => void;
+  /** Set false where a session must always be scoped to exactly one site. */
+  allowAllSites?: boolean;
+  disabled?: boolean;
   className?: string;
 }>;
 
@@ -29,6 +32,8 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
     sites = [],
     selectedSiteId,
     onChange,
+    allowAllSites = true,
+    disabled = false,
     className = "",
   } = props;
 
@@ -96,10 +101,11 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
       <button
         type="button"
         onClick={() => setOpen((previous) => !previous)}
+        disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="border-ehs-border text-ehs-darker hover:bg-ehs-light-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm font-semibold shadow-sm transition-colors"
+        className="border-ehs-border text-ehs-darker hover:bg-ehs-light-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm font-semibold shadow-sm transition-colors disabled:cursor-wait disabled:opacity-60"
       >
         <Icon
           icon="mdi:office-building-outline"
@@ -135,27 +141,29 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
             {company}
           </p>
 
-          <button
-            type="button"
-            role="menuitemradio"
-            aria-checked={activeSiteId == null}
-            onClick={() => selectSite(null)}
-            className={[
-              "flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors",
-              activeSiteId == null
-                ? "text-ehs-dark-blue font-semibold"
-                : "text-ehs-darker hover:bg-ehs-light-bg",
-            ].join(" ")}
-          >
-            <span className="truncate">{ALL_SITES}</span>
-            {activeSiteId == null ? (
-              <Icon
-                icon="mdi:check"
-                className="size-4 shrink-0"
-                aria-hidden="true"
-              />
-            ) : null}
-          </button>
+          {allowAllSites ? (
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-checked={activeSiteId == null}
+              onClick={() => selectSite(null)}
+              className={[
+                "flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors",
+                activeSiteId == null
+                  ? "text-ehs-dark-blue font-semibold"
+                  : "text-ehs-darker hover:bg-ehs-light-bg",
+              ].join(" ")}
+            >
+              <span className="truncate">{ALL_SITES}</span>
+              {activeSiteId == null ? (
+                <Icon
+                  icon="mdi:check"
+                  className="size-4 shrink-0"
+                  aria-hidden="true"
+                />
+              ) : null}
+            </button>
+          ) : null}
 
           {sites.map((site) => {
             const isSelected = site.id === activeSiteId;

@@ -9,6 +9,11 @@ import { Text } from "@/components/Text";
 import { useLogout } from "@/hooks/use-logout";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import type { AppNavItem } from "@/lib/app-nav";
+import {
+  formatAccessWindowExpiry,
+  formatAccessWindowRemaining,
+  type AccessWindowState,
+} from "@/lib/access-window";
 
 export type SidebarProps = Readonly<{
   className?: string;
@@ -88,6 +93,74 @@ function SidebarUserSkeleton() {
   );
 }
 
+/**
+ * Remaining trial window, sat under the nav.
+ *
+ * It used to be a full-width banner across the top of every page, which spent
+ * the most valuable strip of the screen on a sentence that does not change from
+ * one day to the next. Down here it is a status line rather than an alert: read
+ * once, then ignored until the number gets small.
+ *
+ * Which is why the copy escalates instead of the placement — "Contact CodeSwift"
+ * only appears in the last week, when it is finally something to act on.
+ */
+function SidebarAccessWindow(
+  props: Readonly<{ accessWindow: AccessWindowState }>,
+) {
+  const { accessWindow } = props;
+  const days = accessWindow.daysRemaining;
+  const hasExpired = days <= 0;
+  const isUrgent = days <= 7;
+
+  const tone = hasExpired
+    ? {
+        box: "border-ehs-red/25 bg-ehs-red/[0.06]",
+        icon: "text-ehs-red",
+        title: "text-ehs-red",
+      }
+    : isUrgent
+      ? {
+          box: "border-amber-300/50 bg-amber-50/70",
+          icon: "text-amber-600",
+          title: "text-amber-700",
+        }
+      : {
+          box: "border-ehs-border bg-ehs-light-bg/60",
+          icon: "text-ehs-muted-text",
+          title: "text-ehs-darker",
+        };
+
+  return (
+    <div className="px-4 pb-1">
+      <div
+        role="status"
+        className={`flex flex-col gap-0.5 rounded-xl border px-3 py-2.5 ${tone.box}`}
+      >
+        <div className="flex items-center gap-1.5">
+          <Icon
+            icon={hasExpired ? "mdi:alert-circle-outline" : "mdi:clock-outline"}
+            className={`size-3.5 shrink-0 ${tone.icon}`}
+            aria-hidden="true"
+          />
+          <Text as="span" className={`text-xs font-bold ${tone.title}`}>
+            {formatAccessWindowRemaining(days)}
+          </Text>
+        </div>
+
+        <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+          {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
+        </Text>
+
+        {isUrgent ? (
+          <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+            Contact CodeSwift to extend
+          </Text>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function SidebarUserFooter(
   props: Readonly<{
     displayName: string;
@@ -120,10 +193,7 @@ function SidebarUserFooter(
         </div>
       )}
       <div className="min-w-0">
-        <Text
-          as="p"
-          className="text-ehs-darker truncate text-sm font-semibold"
-        >
+        <Text as="p" className="text-ehs-darker truncate text-sm font-semibold">
           {displayName}
         </Text>
         <Text as="p" className="text-ehs-muted-text truncate text-xs">
@@ -137,7 +207,8 @@ function SidebarUserFooter(
 export function DashboardSidebar(props: Readonly<SidebarProps>) {
   const { className = "" } = props;
   const pathname = usePathname();
-  const { navGroups, isLoading, isUserReady, user } = useSessionBootstrap();
+  const { navGroups, isLoading, isUserReady, user, accessWindow } =
+    useSessionBootstrap();
   const { signOut, isLoggingOut } = useLogout();
   const profileActive = isActivePath(pathname, "/dashboard/my-profile");
 
@@ -183,6 +254,10 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           ))
         )}
       </nav>
+
+      {accessWindow ? (
+        <SidebarAccessWindow accessWindow={accessWindow} />
+      ) : null}
 
       <div className="border-t border-white/40 px-4 py-4">
         <div className="flex items-center gap-1">

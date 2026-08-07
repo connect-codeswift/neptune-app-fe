@@ -38,11 +38,12 @@ export function NearMissDetailPanel(props: Readonly<NearMissDetailPanelProps>) {
     return (
       <IncidentGlassCard
         className={[
-          "border-ehs-border min-h-60 min-w-0 items-center justify-center border bg-[#fafafa]",
+          "border-ehs-border min-h-60 min-w-0 border bg-[#fafafa]",
           className,
         ]
           .filter(Boolean)
           .join(" ")}
+        incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text-ehs-muted-text text-sm">
           Select a near miss record to view details.

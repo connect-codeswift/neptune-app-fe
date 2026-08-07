@@ -233,7 +233,11 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                   rows={3}
                   className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2 sm:h-[108px] sm:text-sm"
                 />
-                <AiTextAssistant value={description} onApply={setDescription} />
+                <AiTextAssistant
+                  module="incident"
+                  value={description}
+                  onApply={setDescription}
+                />
               </div>
             </div>
 

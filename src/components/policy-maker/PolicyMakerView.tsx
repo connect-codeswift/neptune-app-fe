@@ -203,7 +203,10 @@ export function PolicyMakerView() {
         </div>
 
         {errorMessage ? (
-          <IncidentGlassCard className="min-h-[180px] items-center justify-center gap-2 text-center">
+          <IncidentGlassCard
+            className="min-h-[180px] text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
             <Icon
               icon="mdi:alert-circle-outline"
               className="text-ehs-red size-8"
