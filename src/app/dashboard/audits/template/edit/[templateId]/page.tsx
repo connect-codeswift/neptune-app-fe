@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useParams } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -10,10 +10,7 @@ export default function EditAuditTemplatePage() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"      />
+      <DashboardHeader />
 
       <EditTemplateContent templateId={decodeURIComponent(templateId)} />
     </div>

@@ -110,16 +110,19 @@ export function buildLotoHistoryColumns(
     columnHelper.accessor("result", {
       header: "RESULT",
       size: 100,
-      cell: (info) => (
-        <span
-          className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
-            resultClassName[info.getValue() as LotoHistoryResult],
-          ].join(" ")}
-        >
-          {info.getValue()}
-        </span>
-      ),
+      cell: (info) => {
+        const result = info.getValue() as LotoHistoryResult;
+        return (
+          <span
+            className={[
+              "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
+              resultClassName[info.getValue() as LotoHistoryResult],
+            ].join(" ")}
+          >
+            {result}
+          </span>
+        );
+      },
       meta: { align: "left" as const },
     }),
   ];

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
 export const complianceGlassCardClass =
   "rounded-[19px] border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]";
@@ -36,7 +37,7 @@ export type ComplianceDeltaBadgeProps = Readonly<{
 export function ComplianceDeltaBadge(props: ComplianceDeltaBadgeProps) {
   const { value, tone } = props;
 
-  if (!value.trim()) {
+  if (!SHOW_KPI_TREND_BADGES || !value.trim()) {
     return null;
   }
 

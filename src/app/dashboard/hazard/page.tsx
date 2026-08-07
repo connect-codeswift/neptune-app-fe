@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ export default function HazardPage() {
     userId,
   });
 
-  // The list carries a userId, not a reporter name — resolve it for display.
+  // The list carries a userId, not a reporter name ΓÇö resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
   const users = userDropdownQuery.data?.dataModel;
   const userNames = useMemo(() => toUserNameLookup(users ?? []), [users]);
@@ -83,15 +83,13 @@ export default function HazardPage() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        title="Hazard Reporting"
-        dateRangeLabel="March 25 — April 24, 2026"      />
+      <DashboardHeader title="Hazard Reporting" />
 
       {isPageLoading ? (
         <HazardPageSkeleton />
       ) : (
         <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-          {/* KPI Metrics — elevated roles only */}
+          {/* KPI Metrics ΓÇö elevated roles only */}
           {canViewInsights ? (
             <div className="grid gap-4 sm:grid-cols-2">
               {metrics.map((metric) => (
@@ -107,7 +105,7 @@ export default function HazardPage() {
             onReportHazard={handleReportHazard}
           />
 
-          {/* Records Table + Insights — the table spans full width without them */}
+          {/* Records Table + Insights ΓÇö the table spans full width without them */}
           <div
             className={[
               "grid min-w-0 items-start gap-5",

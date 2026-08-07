@@ -14,12 +14,10 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
 
   return (
     <HazcomGlassCard
-      className={[
-        "min-h-[280px] items-center justify-center gap-3 text-center",
-        className,
-      ]
+      className={["min-h-[280px] text-center", className]
         .filter(Boolean)
         .join(" ")}
+      hazcomGlassCardClassName="items-center justify-center gap-3"
     >
       <Icon
         icon="mdi:flask-off-outline"

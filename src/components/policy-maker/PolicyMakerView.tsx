@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,7 +42,6 @@ import {
 } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { mapCategoryToLibraryId } from "@/services/mappers/document-list.mapper";
-import { toast } from "@/lib/toast";
 
 /** Builds Library nav counts from GET /api/Document/category-stats (whole library, not just the current page). */
 function buildLibraryCategories(
@@ -60,10 +59,10 @@ function buildLibraryCategories(
   }));
 }
 
-/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent — normalize either. */
+/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent ΓÇö normalize either. */
 function formatAckRate(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {
-    return "—";
+    return "ΓÇö";
   }
   const percent = value <= 1 ? value * 100 : value;
   return `${String(Math.round(percent))}%`;
@@ -116,7 +115,6 @@ export function PolicyMakerView() {
   const [categoryId, setCategoryId] = useState<LibraryCategoryId>("sops");
   const [statusFilter, setStatusFilter] = useState<DocumentStatusFilter>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(DEFAULT_DOCUMENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_DOCUMENTS_PAGE_SIZE);
   const accessTokenState = useHasAccessToken();
@@ -150,20 +148,10 @@ export function PolicyMakerView() {
     [kpisQuery.data, totalCount],
   );
 
-  const documents = useMemo(() => {
-    const byCategory = filterDocuments(allDocuments, categoryId, statusFilter);
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) {
-      return byCategory;
-    }
-    return byCategory.filter(
-      (doc) =>
-        doc.title.toLowerCase().includes(query) ||
-        doc.code.toLowerCase().includes(query) ||
-        doc.owner.toLowerCase().includes(query) ||
-        doc.site.toLowerCase().includes(query),
-    );
-  }, [allDocuments, categoryId, statusFilter, searchQuery]);
+  const documents = useMemo(
+    () => filterDocuments(allDocuments, categoryId, statusFilter),
+    [allDocuments, categoryId, statusFilter],
+  );
 
   // Default to the first document, falling back to it whenever filtering drops
   // the current selection. Derived during render rather than synced through an
@@ -202,18 +190,9 @@ export function PolicyMakerView() {
     <div className="flex min-h-screen flex-1 flex-col">
       <IncidentListHeader
         title="Policy Maker"
-        searchPlaceholder="Search incidents, actions, docs…"
-        searchQuery={searchQuery}
-        onSearchChange={(value) => {
-          setSearchQuery(value);
-          setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
-        }}
-        dateRangeLabel="March 25 — April 24, 2026"        actionLabel="Upload a Document"
+        actionLabel="Upload a Document"
         actionLabelShort="Upload"
         reportHref="/dashboard/policy-maker/upload"
-        onDateRangeClick={() =>
-          toast.success("Date range", "Date filter coming soon.")
-        }
       />
 
       <div className="flex flex-1 flex-col gap-[13.62px] px-4 pb-8">
@@ -224,7 +203,10 @@ export function PolicyMakerView() {
         </div>
 
         {errorMessage ? (
-          <IncidentGlassCard className="min-h-[180px] items-center justify-center gap-2 text-center">
+          <IncidentGlassCard
+            className="min-h-[180px] text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
             <Icon
               icon="mdi:alert-circle-outline"
               className="text-ehs-red size-8"
@@ -294,10 +276,10 @@ export function PolicyMakerView() {
                   {[
                     `Page ${String(pageNumber)} of ${String(totalPages)}`,
                     totalCount > 0 ? `${String(totalCount)} total` : null,
-                    documentsQuery.isFetching ? "Loading…" : null,
+                    documentsQuery.isFetching ? "LoadingΓÇª" : null,
                   ]
                     .filter(Boolean)
-                    .join(" · ")}
+                    .join(" ┬╖ ")}
                 </Text>
 
                 <div className="flex items-center gap-2">

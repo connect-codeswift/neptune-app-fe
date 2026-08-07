@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -31,6 +31,22 @@ export const sessionQueryKeys = {
 
 const SESSION_STALE_TIME_MS = 5 * 60 * 1000;
 
+/** No-op subscribe — access-window cache is written by our own effects. */
+const subscribeToNothing = () => () => undefined;
+
+/**
+ * sessionStorage cache for the access-window banner.
+ * Server snapshot is always null so SSR HTML matches the first client hydrate.
+ * {@link getCachedAccessWindow} returns a stable object reference when unchanged.
+ */
+function useCachedAccessWindow(): AccessWindowState | null {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    getCachedAccessWindow,
+    () => null,
+  );
+}
+
 function getUserInitials(displayName: string): string {
   const parts = displayName.trim().split(/\s+/).filter(Boolean);
 
@@ -47,9 +63,7 @@ function getUserInitials(displayName: string): string {
 
 export function useSessionBootstrap() {
   const hasToken = useHasAccessToken();
-  // null on server + first client paint; hydrate from sessionStorage after mount.
-  const [cachedAccessWindow, setCachedAccessWindowState] =
-    useState<AccessWindowState | null>(null);
+  const cachedAccessWindow = useCachedAccessWindow();
   const authContext = hasToken === true ? getAuthContext() : null;
   const currentUser =
     hasToken === true ?
@@ -66,10 +80,6 @@ export function useSessionBootstrap() {
 
   const session = sessionQuery.data;
 
-  useEffect(() => {
-    setCachedAccessWindowState(getCachedAccessWindow());
-  }, []);
-
   const accessWindow = useMemo((): AccessWindowState | null => {
     if (
       session &&
@@ -81,8 +91,19 @@ export function useSessionBootstrap() {
       };
     }
 
-    return cachedAccessWindow;
-  }, [session, cachedAccessWindow]);
+    // Avoid reading sessionStorage during SSR/hydration — show cached banner only
+    // after we know the user is signed in and Org/me has not resolved yet.
+    if (hasToken === true && !sessionQuery.isFetched) {
+      return cachedAccessWindow;
+    }
+
+    return null;
+  }, [
+    session,
+    cachedAccessWindow,
+    hasToken,
+    sessionQuery.isFetched,
+  ]);
 
   useEffect(() => {
     if (!session) {
@@ -90,18 +111,15 @@ export function useSessionBootstrap() {
     }
 
     if (shouldShowAccessWindowBanner(session.accessExpiresAt)) {
-      const next: AccessWindowState = {
+      setCachedAccessWindow({
         accessExpiresAt: session.accessExpiresAt!,
         daysRemaining: session.daysRemaining ?? 0,
-      };
-      setCachedAccessWindow(next);
-      setCachedAccessWindowState(next);
+      });
       return;
     }
 
     if (session.accessExpiresAt === null) {
       setCachedAccessWindow(null);
-      setCachedAccessWindowState(null);
     }
   }, [session]);
 

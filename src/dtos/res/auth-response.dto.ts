@@ -28,3 +28,9 @@ export type LoginResponseDto = {
   /** UTC instant when org access ends. Omitted when access is permanent. */
   accessExpiresAt?: string;
 };
+
+/** POST /Auth/mfa/setup — the shared secret plus the otpauth:// URI to encode as a QR. */
+export type MfaSetupResponseDto = {
+  mfaSecret: string;
+  otpAuthUri: string;
+};

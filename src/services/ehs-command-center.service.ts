@@ -1,9 +1,10 @@
 import type {
-  GetIncidentTrendsResponseDto,
   GetMainDashboardKpisResponseDto,
+  GetIncidentTrendsResponseDto,
   GetMyActionsResponseDto,
 } from "@/dtos/res/ehs-command-center-response.dto";
 import http from "@/lib/axios";
+import { normalizeDashboardKpisDto } from "@/services/mappers/dashboard-kpis.mapper";
 
 const DASHBOARD_KPIS_PATH = "/EHSCommandCenter/GetMainDashboardKpis";
 const INCIDENT_TRENDS_PATH = "/EHSCommandCenter/GetIncidentTrends";
@@ -15,7 +16,10 @@ export async function getMainDashboardKpis() {
     DASHBOARD_KPIS_PATH,
   );
 
-  return data;
+  return {
+    ...data,
+    dataModel: normalizeDashboardKpisDto(data.dataModel),
+  } satisfies GetMainDashboardKpisResponseDto;
 }
 
 /** GET /api/EHSCommandCenter/GetIncidentTrends */

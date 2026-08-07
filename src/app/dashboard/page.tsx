@@ -1,4 +1,4 @@
-import {
+﻿import {
   ComplianceDeadlinesCard,
   RECENT_ACTIVITY_ITEMS,
 } from "@/components/ComplianceDeadlinesCard";
@@ -20,10 +20,7 @@ import { InspectionRatesCard } from "@/components/InspectionRatesCard";
 export default function DashboardPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader
-        title="EHS Command Center"
-        searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="Year to date"      />
+      <DashboardHeader title="EHS Command Center" />
 
       <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
         <DashboardKpiMetrics />

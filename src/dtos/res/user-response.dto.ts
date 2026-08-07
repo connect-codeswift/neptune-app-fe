@@ -39,6 +39,10 @@ export type SiteUserDto = {
   siteId?: number | null;
   roleId?: number | null;
   roleName?: string | null;
+  /**
+   * True while an invitation is outstanding; cleared when the person sets their
+   * password. Such a row has no `fullName` yet, so it is filtered out of the pickers.
+   */
   isInvited?: boolean;
   /** Soft-deleted users. Filtered out of the picker. */
   isDrop?: boolean;

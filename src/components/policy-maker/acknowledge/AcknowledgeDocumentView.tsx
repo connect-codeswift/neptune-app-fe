@@ -1,11 +1,10 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AcknowledgeDocumentForm } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentForm";
 import { AcknowledgeDocumentHeader } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentHeader";
 import { AcknowledgeDocumentViewer } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentViewer";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
-import { toast } from "@/lib/toast";
 
 export type AcknowledgeDocumentViewProps = Readonly<{
   document: PolicyDocument;
@@ -21,13 +20,7 @@ export function AcknowledgeDocumentView(
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs…"
-        searchonleft
-        dateRangeLabel="March 25 — April 24, 2026"        onDateRangeClick={() =>
-          toast.success("Date range", "Date filter coming soon.")
-        }
-      />
+      <DashboardHeader />
 
       <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
         <AcknowledgeDocumentHeader document={document} />

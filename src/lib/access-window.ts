@@ -47,7 +47,9 @@ function asNumber(value: unknown): number | null {
 }
 
 /** Unwrap the standard API envelope, tolerating a bare auth payload. */
-export function unwrapAuthPayload(data: unknown): Record<string, unknown> | null {
+export function unwrapAuthPayload(
+  data: unknown,
+): Record<string, unknown> | null {
   if (!isRecord(data)) {
     return null;
   }
@@ -102,40 +104,45 @@ export function shouldShowAccessWindowBanner(
   return accessExpiresAt != null && accessExpiresAt !== "";
 }
 
-export function formatAccessWindowBannerMessage(
+/**
+ * "14 days left" / "1 day left" / "Ends today", for the sidebar card.
+ *
+ * Short because it sits in a 256px column under the nav. The full sentence the
+ * banner used ("Your organization's access ends in 14 days…") wrapped to three
+ * lines there and read as a warning rather than a status.
+ */
+export function formatAccessWindowRemaining(
   daysRemaining: number | null | undefined,
-  accessExpiresAt: string,
 ): string {
   const days = daysRemaining ?? 0;
-  // Fixed locale — `undefined` follows the browser and can disagree with SSR.
-  const expiryLabel = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(accessExpiresAt));
 
   if (days <= 0) {
-    return `Your organization's access ends today (${expiryLabel}). Contact CodeSwift to continue after expiry.`;
+    return "Ends today";
   }
 
   if (days === 1) {
-    return `Your organization's access ends in 1 day (${expiryLabel}). Contact CodeSwift to extend access.`;
+    return "1 day left";
   }
 
-  return `Your organization's access ends in ${days} days (${expiryLabel}). Contact CodeSwift to extend access.`;
+  return `${String(days)} days left`;
 }
 
-export function getCachedAccessWindow(): AccessWindowState | null {
-  if (globalThis.window === undefined) {
+/** Date only — the sidebar has no room for a timestamp, and 2:15 AM told nobody anything. */
+export function formatAccessWindowExpiry(accessExpiresAt: string): string {
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
+    new Date(accessExpiresAt),
+  );
+}
+
+let cachedAccessWindowRaw: string | null | undefined;
+let cachedAccessWindowSnapshot: AccessWindowState | null = null;
+
+function parseCachedAccessWindow(raw: string | null): AccessWindowState | null {
+  if (!raw) {
     return null;
   }
 
   try {
-    const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
-
-    if (!raw) {
-      return null;
-    }
-
     const parsed: unknown = JSON.parse(raw);
 
     if (!isRecord(parsed)) {
@@ -155,6 +162,28 @@ export function getCachedAccessWindow(): AccessWindowState | null {
   }
 }
 
+export function getCachedAccessWindow(): AccessWindowState | null {
+  if (globalThis.window === undefined) {
+    return null;
+  }
+
+  try {
+    const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
+
+    if (raw === cachedAccessWindowRaw) {
+      return cachedAccessWindowSnapshot;
+    }
+
+    cachedAccessWindowRaw = raw;
+    cachedAccessWindowSnapshot = parseCachedAccessWindow(raw);
+    return cachedAccessWindowSnapshot;
+  } catch {
+    cachedAccessWindowRaw = null;
+    cachedAccessWindowSnapshot = null;
+    return null;
+  }
+}
+
 export function setCachedAccessWindow(window: AccessWindowState | null) {
   if (globalThis.window === undefined) {
     return;
@@ -162,13 +191,15 @@ export function setCachedAccessWindow(window: AccessWindowState | null) {
 
   if (!window) {
     globalThis.sessionStorage.removeItem(ACCESS_WINDOW_STORAGE_KEY);
+    cachedAccessWindowRaw = null;
+    cachedAccessWindowSnapshot = null;
     return;
   }
 
-  globalThis.sessionStorage.setItem(
-    ACCESS_WINDOW_STORAGE_KEY,
-    JSON.stringify(window),
-  );
+  const raw = JSON.stringify(window);
+  globalThis.sessionStorage.setItem(ACCESS_WINDOW_STORAGE_KEY, raw);
+  cachedAccessWindowRaw = raw;
+  cachedAccessWindowSnapshot = window;
 }
 
 export function setAuthRedirectMessage(message: string) {

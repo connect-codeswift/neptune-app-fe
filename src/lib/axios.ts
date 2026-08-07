@@ -195,6 +195,26 @@ function toApiError(
   };
 }
 
+export function getApiErrorMessageFromData(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  const record = data as {
+    message?: string;
+    Message?: string;
+    title?: string;
+  };
+
+  return (
+    record.message ??
+    record.Message ??
+    readValidationErrors(data) ??
+    record.title ??
+    null
+  );
+}
+
 export function isApiError(error: unknown): error is HttpError {
   return error instanceof HttpError;
 }

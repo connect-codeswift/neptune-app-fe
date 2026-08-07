@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -131,7 +131,10 @@ export function PolicyMakerDocumentDetailContent(
   if (documentQuery.isError) {
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
+        <IncidentGlassCard
+          className="min-h-[220px] text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
@@ -166,7 +169,7 @@ export function PolicyMakerDocumentDetailContent(
           Document not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No document matches “${documentIdParam}”.`}
+          {`No document matches ΓÇ£${documentIdParam}ΓÇ¥.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"
@@ -200,9 +203,6 @@ export function PolicyMakerDocumentDetailContent(
         router.push(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/acknowledgments`,
         )
-      }
-      onDateRangeClick={() =>
-        toast.success("Date range", "Date filter coming soon.")
       }
     />
   );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { BbsAtRiskBehaviorsCard } from "@/components/bbs/BbsAtRiskBehaviorsCard";
@@ -34,10 +34,7 @@ export default function BbsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        title="Proactive Safety"
-        searchPlaceholder="Search incidents, actions, docs..."
-        dateRangeLabel="March 25 — April 24, 2026"      />
+      <DashboardHeader title="Proactive Safety" />
 
       {isBootLoading ? (
         <BbsPageSkeleton />
@@ -46,7 +43,7 @@ export default function BbsPage() {
           {/* KPI Metrics */}
           <BbsMetricsSection />
 
-          {/* Engagement trend + at-risk breakdown — stretched to equal height. */}
+          {/* Engagement trend + at-risk breakdown ΓÇö stretched to equal height. */}
           <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
             <BbsEngagementCard />
             <BbsAtRiskBehaviorsCard />

@@ -63,8 +63,8 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
 
         {!isLoading && !errorMessage ? (
           <HazcomGlassCard
-            className="min-h-[280px] items-center justify-center gap-2 text-center"
-            hazcomGlassCardClassName="items-center justify-center"
+            className="min-h-[280px] text-center"
+            hazcomGlassCardClassName="items-center justify-center gap-2"
           >
             <Icon
               icon="mdi:file-question-outline"

@@ -52,18 +52,21 @@ export function buildLotoEquipmentColumns(
     columnHelper.accessor("energySources", {
       header: "ENERGY SOURCES",
       size: 220,
-      cell: (info) => (
-        <div className="flex max-w-55 flex-wrap gap-1">
-          {info.getValue().map((source: string) => (
-            <span
-              key={source}
-              className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm text-[#566072]"
-            >
-              {source}
-            </span>
-          ))}
-        </div>
-      ),
+      cell: (info) => {
+        const sources = info.getValue() as LotoEquipmentItem["energySources"];
+        return (
+          <div className="flex max-w-55 flex-wrap gap-1">
+            {info.getValue().map((source: string) => (
+              <span
+                key={source}
+                className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm text-[#566072]"
+              >
+                {source}
+              </span>
+            ))}
+          </div>
+        );
+      },
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("procedureId", {
@@ -79,16 +82,19 @@ export function buildLotoEquipmentColumns(
     columnHelper.accessor("status", {
       header: "STATUS",
       size: 110,
-      cell: (info) => (
-        <span
-          className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold",
-            statusClassName[info.getValue() as LotoEquipmentStatus],
-          ].join(" ")}
-        >
-          {info.getValue()}
-        </span>
-      ),
+      cell: (info) => {
+        const status = info.getValue() as LotoEquipmentStatus;
+        return (
+          <span
+            className={[
+              "inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold",
+              statusClassName[info.getValue() as LotoEquipmentStatus],
+            ].join(" ")}
+          >
+            {status}
+          </span>
+        );
+      },
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lastInspection", {

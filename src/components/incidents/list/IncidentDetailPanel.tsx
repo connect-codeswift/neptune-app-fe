@@ -68,12 +68,10 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   if (!incident) {
     return (
       <IncidentGlassCard
-        className={[
-          "min-h-[240px] min-w-0 items-center justify-center",
-          className,
-        ]
+        className={["min-h-[240px] min-w-0", className]
           .filter(Boolean)
           .join(" ")}
+        incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text-ehs-muted-text text-sm">
           Select an incident to view details.

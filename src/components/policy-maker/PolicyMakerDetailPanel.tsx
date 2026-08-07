@@ -43,12 +43,10 @@ export function PolicyMakerDetailPanel(
     return (
       <IncidentGlassCard
         paddingClassName="p-[18.49px]"
-        className={[
-          "min-h-[240px] min-w-0 items-center justify-center",
-          className,
-        ]
+        className={["min-h-[240px] min-w-0", className]
           .filter(Boolean)
           .join(" ")}
+        incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text-center text-sm text-[#8892a3]">
           Select a document to view details.

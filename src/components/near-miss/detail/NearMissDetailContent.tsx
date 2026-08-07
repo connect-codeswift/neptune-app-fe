@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ export function NearMissDetailContent(
   const detailQuery = useNearMissDetailQuery(nearMissId);
   const dto = detailQuery.data?.dataModel ?? null;
 
-  // The record carries a userId, not a reporter name — resolve it for display.
+  // The record carries a userId, not a reporter name ΓÇö resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
   const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
 
@@ -107,10 +107,7 @@ export function NearMissDetailContent(
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader
-        searchPlaceholder="Search incidents, actions, docs..."
-        searchonleft={true}
-        dateRangeLabel="March 25 — April 24, 2026"      />
+      <DashboardHeader />
       <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
         <ReportNearMissHeader
           action={

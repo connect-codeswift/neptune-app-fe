@@ -46,12 +46,7 @@ export default function LockoutTagoutPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        title="Lockout / Tagout (LOTO)"
-        searchPlaceholder="Search incidents, actions, docs…"
-        dateRangeLabel="March 25 — April 24, 2026"
-        hasUnreadNotifications
-      />
+      <DashboardHeader title="Lockout / Tagout (LOTO)" />
 
       <div className="flex flex-1 flex-col gap-6 px-4 pb-8">
         <LotoModuleTabs

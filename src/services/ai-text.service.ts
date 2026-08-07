@@ -1,6 +1,8 @@
 import {
   AI_TEXT_MAX_CHARS,
+  type HazardDraftRequestDto,
   type IncidentDraftRequestDto,
+  type NearMissDraftRequestDto,
   type RewriteRequestDto,
 } from "@/dtos/req/ai-text-request.dto";
 import type {
@@ -9,19 +11,50 @@ import type {
 } from "@/dtos/res/ai-text-response.dto";
 import http from "@/lib/axios";
 
-const DRAFT_ASSIST_PATH = "/Incident/draft-assist";
-
 /**
  * The two rewrite operations. Same request and response shape, same error
  * handling, same rate-limit bucket — they differ only in path and in what the
  * model is told to do, so they share one function rather than two near-copies.
  */
-export const REWRITE_PATHS = {
-  proofread: "/Incident/proofread",
-  paraphrase: "/Incident/paraphrase",
-} as const;
+export type RewriteOperation = "proofread" | "paraphrase";
 
-export type RewriteOperation = keyof typeof REWRITE_PATHS;
+/** Which module's endpoints to call. */
+export type AiModule = "incident" | "nearMiss" | "hazard";
+
+/**
+ * Per-module paths, rather than one shared pair.
+ *
+ * Two reasons, and both matter. Permissions: each trio is gated on its own
+ * module's `.Create`, and the Incident endpoints do not accept `Ehs_Associate`
+ * — an associate reporting a hazard through `/Incident/proofread` would get a
+ * 403 on a form they are allowed to submit.
+ *
+ * Tense: a near miss is over, so its rewrites come back in the past tense; a
+ * hazard is a condition that still exists, so its rewrites stay in the present.
+ * Sending hazard text to the near-miss endpoint returns "a large puddle of oil
+ * *was* under the press", which reads as already dealt with on a report whose
+ * whole point is that it is not.
+ */
+const MODULE_PATHS: Record<
+  AiModule,
+  Readonly<{ proofread: string; paraphrase: string; draft: string }>
+> = {
+  incident: {
+    proofread: "/Incident/proofread",
+    paraphrase: "/Incident/paraphrase",
+    draft: "/Incident/draft-assist",
+  },
+  nearMiss: {
+    proofread: "/NearMiss/proofread",
+    paraphrase: "/NearMiss/paraphrase",
+    draft: "/NearMiss/draft-assist",
+  },
+  hazard: {
+    proofread: "/Hazard/proofread",
+    paraphrase: "/Hazard/paraphrase",
+    draft: "/Hazard/draft-assist",
+  },
+};
 
 /**
  * Model calls run 3-4s in practice against a 30s server-side ceiling. The
@@ -56,7 +89,7 @@ export class AiAssistError extends Error {
     switch (this.status) {
       case 401:
       case 403:
-        return "not authorised — token expired, or the role lacks Incident.Create";
+        return "not authorised — token expired, or the role lacks the module's Create permission (Incident.Create / NearMiss.Create / Hazard.Create)";
       case 429:
         return "rate limited — 20 assist calls/min per user, shared across proofread, paraphrase and draft-assist; check the Retry-After header";
       case 503:
@@ -130,15 +163,18 @@ function toStatus(error: unknown): number | undefined {
  * language removed, with every fact and every hedge preserved.
  */
 export async function rewriteText(
+  module: AiModule,
   operation: RewriteOperation,
   text: string,
 ): Promise<string> {
   const body: RewriteRequestDto = { text: text.slice(0, AI_TEXT_MAX_CHARS) };
 
   try {
-    const { data } = await http.post<unknown>(REWRITE_PATHS[operation], body, {
-      timeout: AI_REQUEST_TIMEOUT_MS,
-    });
+    const { data } = await http.post<unknown>(
+      MODULE_PATHS[module][operation],
+      body,
+      { timeout: AI_REQUEST_TIMEOUT_MS },
+    );
 
     const result = unwrapDataModel(data) as RewriteResultDto | null;
     const rewritten = readString(result, "rewrittenText");
@@ -186,9 +222,11 @@ export async function draftIncidentAssist(
   }
 
   try {
-    const { data } = await http.post<unknown>(DRAFT_ASSIST_PATH, body, {
-      timeout: AI_REQUEST_TIMEOUT_MS,
-    });
+    const { data } = await http.post<unknown>(
+      MODULE_PATHS.incident.draft,
+      body,
+      { timeout: AI_REQUEST_TIMEOUT_MS },
+    );
 
     const result = unwrapDataModel(data);
 
@@ -201,6 +239,48 @@ export async function draftIncidentAssist(
       injuryDescription: readString(result, "injuryDescription"),
       actionNotes: readString(result, "actionNotes"),
     };
+  } catch (error) {
+    throw error instanceof AiAssistError
+      ? error
+      : new AiAssistError(toStatus(error));
+  }
+}
+
+/**
+ * The single-narrative draft, for Near Miss and Hazard.
+ *
+ * Beside `draftIncidentAssist` rather than widening it: these return one
+ * `narrative` where the incident call returns three named drafts, and the two
+ * shapes have nothing to gain from being one function with a union return.
+ *
+ * A null narrative is returned as null, not thrown. It means the answers do not
+ * support a draft, which is an answer — see `NarrativeDraftResultDto`.
+ */
+export async function draftNarrative(
+  module: Extract<AiModule, "nearMiss" | "hazard">,
+  input: Readonly<NearMissDraftRequestDto | HazardDraftRequestDto>,
+): Promise<string | null> {
+  // Blanks dropped rather than sent as empty strings the model reads as facts.
+  // An entirely empty body is a 400, so callers gate on their own threshold
+  // before firing — see the draft triggers in the two forms.
+  const body: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === "string" && value.trim()) {
+      body[key] = value.trim();
+    } else if (Array.isArray(value) && value.length > 0) {
+      body[key] = value;
+    }
+  }
+
+  try {
+    const { data } = await http.post<unknown>(
+      MODULE_PATHS[module].draft,
+      body,
+      { timeout: AI_REQUEST_TIMEOUT_MS },
+    );
+
+    return readString(unwrapDataModel(data), "narrative");
   } catch (error) {
     throw error instanceof AiAssistError
       ? error
