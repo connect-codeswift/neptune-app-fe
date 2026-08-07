@@ -1,4 +1,4 @@
-import { DashboardHeader } from "@/components/DashboardHeader";
+﻿import { DashboardHeader } from "@/components/DashboardHeader";
 import { ReportHazardForm } from "@/components/hazard/report/ReportHazardForm";
 import { ReportHazardHeader } from "@/components/hazard/report/ReportHazardHeader";
 

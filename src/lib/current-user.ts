@@ -80,8 +80,17 @@ const SITE_ID_CLAIM_KEYS = [
   "SubCompanyId",
   "sub_company_id",
   "subcompanyId",
+  "SubCompId",
+  "subCompId",
   "subCompany",
   "companyId",
+] as const;
+
+const ORGANIZATION_NAME_CLAIM_KEYS = [
+  "organizationName",
+  "OrganizationName",
+  "org",
+  "Org",
 ] as const;
 
 // Adjust if the backend embeds the role under a different claim name.
@@ -117,17 +126,26 @@ export type CurrentUser = Readonly<{
   siteId: number;
   /** @deprecated Alias for `siteId` — kept during the site rename rollout. */
   subCompanyId: number;
+  /** Tenant database name, e.g. "Acme" — from Organizations.Name in the JWT. */
+  organizationName: string;
   role: string | null;
 }>;
 
 /**
- * Extract `userId` / `siteId` / `role` from the access token's claims.
- * Falls back to 0 / null when the token is missing or a claim isn't present.
+ * Extract `userId` / `siteId` / `organizationName` / `role` from the access token's claims.
+ * `subCompanyId` mirrors `siteId` for callers still on the old name.
+ * Falls back to 0 / "" / null when the token is missing or a claim isn't present.
  */
 export function getCurrentUser(): CurrentUser {
   const claims = decodeAccessTokenClaims();
   if (!claims) {
-    return { userId: 0, siteId: 0, subCompanyId: 0, role: null };
+    return {
+      userId: 0,
+      siteId: 0,
+      subCompanyId: 0,
+      organizationName: "",
+      role: null,
+    };
   }
 
   const siteId = readNumericClaim(claims, SITE_ID_CLAIM_KEYS) ?? 0;
@@ -136,6 +154,8 @@ export function getCurrentUser(): CurrentUser {
     userId: readNumericClaim(claims, USER_ID_CLAIM_KEYS) ?? 0,
     siteId,
     subCompanyId: siteId,
+    organizationName:
+      readStringClaim(claims, ORGANIZATION_NAME_CLAIM_KEYS) ?? "",
     role: readStringClaim(claims, ROLE_CLAIM_KEYS) ?? null,
   };
 }

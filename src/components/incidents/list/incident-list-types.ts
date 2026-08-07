@@ -40,6 +40,8 @@ export type IncidentRecord = Readonly<{
   assignee: string;
   injury: string;
   summary: string;
+  /** Raw incident datetime from the API, used for header date-range filtering. */
+  incidentAt: string | null;
   isOshaRecordable: boolean;
   capas: readonly IncidentCapa[];
   timeline: readonly IncidentTimelineItem[];

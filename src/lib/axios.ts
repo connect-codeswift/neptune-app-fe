@@ -168,6 +168,26 @@ function toApiError(
   };
 }
 
+export function getApiErrorMessageFromData(data: unknown): string | null {
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  const record = data as {
+    message?: string;
+    Message?: string;
+    title?: string;
+  };
+
+  return (
+    record.message ??
+    record.Message ??
+    readValidationErrors(data) ??
+    record.title ??
+    null
+  );
+}
+
 export function isApiError(error: unknown): error is HttpError {
   return error instanceof HttpError;
 }
@@ -234,9 +254,7 @@ async function requestNewAccessToken(): Promise<string | null> {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message ??
-        error.response?.data?.Message ??
-        "";
+        error.response?.data?.message ?? error.response?.data?.Message ?? "";
 
       if (
         error.response?.status === 401 &&

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -194,7 +194,7 @@ export function RegulatoryComplianceDetailView(
           Obligation not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No compliance obligation matches “${id}”.`}
+          {`No compliance obligation matches ΓÇ£${id}ΓÇ¥.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"

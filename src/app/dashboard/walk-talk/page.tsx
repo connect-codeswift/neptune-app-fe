@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { WalkTalkTrendsCard } from "@/components/walk-talk/WalkTalkTrendsCard";
@@ -42,7 +42,7 @@ export default function WalkAndTalkPage() {
           {/* KPI Metrics */}
           <WalkTalkMetricsSection />
 
-          {/* Trends + top findings — stretched to equal height. */}
+          {/* Trends + top findings ΓÇö stretched to equal height. */}
         <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
           <WalkTalkTrendsCard />
           <WalkTalkTopFindingsCard />

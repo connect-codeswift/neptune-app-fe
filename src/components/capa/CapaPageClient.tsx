@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { CapaListView } from "@/components/capa/CapaListView";
 import { DashboardHeader } from "@/components/DashboardHeader";
 
-/** CAPA register page shell — header + list view. */
+/** CAPA register page shell ΓÇö header + list view. */
 export function CapaPageClient() {
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">

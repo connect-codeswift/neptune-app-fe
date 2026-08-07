@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -52,7 +52,7 @@ export default function AuditFindingsPage() {
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <AuditFindingsHeader
-          auditId={audit ? `A-${String(audit.id)}` : "—"}
+          auditId={audit ? `A-${String(audit.id)}` : "ΓÇö"}
           subtitle={audit?.templateName ?? audit?.templateName ?? ""}
           onGenerateReport={handleGenerateReport}
         />

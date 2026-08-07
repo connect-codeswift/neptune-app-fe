@@ -12,6 +12,7 @@ export {
   type SelectFieldConfig,
   type SelectOption,
   type SelectPagination,
+  type SwitchFieldConfig,
   type TileOption,
   type TilesFieldConfig,
   type TileTone,

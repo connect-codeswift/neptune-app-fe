@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AcknowledgmentTrackingHeader } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingHeader";

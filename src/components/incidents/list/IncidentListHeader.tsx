@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Icon } from "@iconify/react";
 import Link from "next/link";
@@ -9,9 +9,9 @@ export type IncidentListHeaderProps = Readonly<{
   title?: string;
   /** Primary CTA href (incidents report, document upload, etc.). */
   reportHref?: string;
-  /** Primary CTA label. Defaults to “Report incident”. */
+  /** Primary CTA label. Defaults to ΓÇ£Report incidentΓÇ¥. */
   actionLabel?: string;
-  /** Short label for small screens. Defaults to first word of actionLabel / “Report”. */
+  /** Short label for small screens. Defaults to first word of actionLabel / ΓÇ£ReportΓÇ¥. */
   actionLabelShort?: string;
   /** Hides the primary CTA button entirely (e.g. read-only register screens). */
   showAction?: boolean;

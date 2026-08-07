@@ -1,4 +1,4 @@
-import { DashboardHeader } from "@/components/DashboardHeader";
+﻿import { DashboardHeader } from "@/components/DashboardHeader";
 import { LogObservationContent } from "@/components/bbs/log/LogObservationContent";
 
 export default function LogBbsObservationPage() {

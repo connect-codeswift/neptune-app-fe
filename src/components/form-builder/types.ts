@@ -25,6 +25,12 @@ type BaseField = Readonly<{
   label: string;
   required?: boolean;
   helperText?: string;
+  /** Append a muted "(optional)" beside the label when the field is not required. */
+  showOptional?: boolean;
+  /** Custom hint beside the label (overrides the default "(optional)" text). */
+  optionalHint?: string;
+  /** Extra classes for {@link optionalHint} / showOptional text. */
+  optionalHintClassName?: string;
   /** Columns to occupy in the 12-column grid on `sm` screens and up.
    * Defaults to 12 (full width). Ignored below the `sm` breakpoint. */
   colSpan?: number;
@@ -166,6 +172,12 @@ export type TilesFieldConfig = BaseField &
     variant?: "cards" | "segmented";
   }>;
 
+/** Boolean toggle stored as `"true"` / `"false"` string values. */
+export type SwitchFieldConfig = BaseField &
+  Readonly<{
+    type: "switch";
+  }>;
+
 export type FieldConfig =
   | TextFieldConfig
   | DateFieldConfig
@@ -175,7 +187,8 @@ export type FieldConfig =
   | CheckboxGroupFieldConfig
   | ChipsFieldConfig
   | PhotoFieldConfig
-  | TilesFieldConfig;
+  | TilesFieldConfig
+  | SwitchFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
 
@@ -187,6 +200,11 @@ export function createInitialValues(schema: FormSchema): FormValues {
       field.type === "checkbox-group" ||
       field.type === "photo" ||
       field.type === "chips";
+
+    if (field.type === "switch") {
+      values[field.name] = "false";
+      continue;
+    }
 
     values[field.name] = isMultiValue ? [] : "";
   }

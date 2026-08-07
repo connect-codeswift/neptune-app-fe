@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { EditDocumentForm } from "@/components/policy-maker/edit/EditDocumentForm";
@@ -11,7 +11,7 @@ export type EditDocumentViewProps = Readonly<{
 
 /**
  * Edit Document screen (Figma 5568:25788).
- * Same shell pattern as Upload Document — full-width header + centered form.
+ * Same shell pattern as Upload Document ΓÇö full-width header + centered form.
  */
 export function EditDocumentView(props: Readonly<EditDocumentViewProps>) {
   const { document } = props;

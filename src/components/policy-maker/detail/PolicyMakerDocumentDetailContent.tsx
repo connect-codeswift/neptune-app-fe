@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -166,7 +166,7 @@ export function PolicyMakerDocumentDetailContent(
           Document not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No document matches “${documentIdParam}”.`}
+          {`No document matches ΓÇ£${documentIdParam}ΓÇ¥.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"

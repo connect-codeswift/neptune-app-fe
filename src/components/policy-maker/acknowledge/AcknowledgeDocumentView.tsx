@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AcknowledgeDocumentForm } from "@/components/policy-maker/acknowledge/AcknowledgeDocumentForm";

@@ -62,8 +62,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   const sessions = observationsQuery.data?.sessions ?? [];
   const totalRecords = observationsQuery.data?.totalRecords ?? 0;
-  const currentPageNumber =
-    observationsQuery.data?.pageNumber ?? pageNumber;
+  const currentPageNumber = observationsQuery.data?.pageNumber ?? pageNumber;
   const currentPageSize =
     observationsQuery.data?.pageSize ?? DEFAULT_BBS_PAGE_SIZE;
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ export default function InspectionTemplatesPage() {
     [page],
   );
 
-  /** Switching status re-queries from page 1 — the old page may not exist. */
+  /** Switching status re-queries from page 1 ΓÇö the old page may not exist. */
   const handleStatusChange = (next: TemplateStatusFilter) => {
     setStatus(next);
     setPageNumber(1);

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -59,10 +59,10 @@ function buildLibraryCategories(
   }));
 }
 
-/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent — normalize either. */
+/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent ΓÇö normalize either. */
 function formatAckRate(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {
-    return "—";
+    return "ΓÇö";
   }
   const percent = value <= 1 ? value * 100 : value;
   return `${String(Math.round(percent))}%`;
@@ -273,10 +273,10 @@ export function PolicyMakerView() {
                   {[
                     `Page ${String(pageNumber)} of ${String(totalPages)}`,
                     totalCount > 0 ? `${String(totalCount)} total` : null,
-                    documentsQuery.isFetching ? "Loading…" : null,
+                    documentsQuery.isFetching ? "LoadingΓÇª" : null,
                   ]
                     .filter(Boolean)
-                    .join(" · ")}
+                    .join(" ┬╖ ")}
                 </Text>
 
                 <div className="flex items-center gap-2">

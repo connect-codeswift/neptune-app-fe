@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
 import { IncidentListViewClient } from "@/components/incidents/list/IncidentListViewClient";

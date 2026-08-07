@@ -28,12 +28,14 @@ import {
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
+import { ReportWitnessesField } from "@/components/incidents/report/shared/ReportWitnessesField";
 import {
   buildDraftAssistInput,
   canDraftDescription,
   draftInputKey,
 } from "@/components/incidents/report/shared/report-ai-draft";
 import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
+import { useCurrentSite } from "@/hooks/use-current-site";
 import { logAiAssistFailure } from "@/services/ai-text.service";
 import { toast } from "@/lib/toast";
 
@@ -67,6 +69,7 @@ export function ReportIncidentStepTwo(
   props: Readonly<ReportIncidentStepTwoProps>,
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
+  const site = useCurrentSite();
   const photos = form.photos ?? [];
   const isFirstAid = form.severity === "first-aid";
   const draftAssist = useDraftAssistMutation();
@@ -431,13 +434,14 @@ export function ReportIncidentStepTwo(
             onChange={(nextPhotos) => onChange({ photos: nextPhotos })}
           />
 
-          <ReportTextField
+          <ReportWitnessesField
             className="pt-[18px]"
             label="Witnesses"
-            trailingHint="Names or employee IDs, comma-separated."
+            trailingHint="Search people at your site, or press Enter to add a name."
             value={form.witnesses}
-            onChange={(event) => onChange({ witnesses: event.target.value })}
-            placeholder="Name or employee ID"
+            onChange={(witnesses) => onChange({ witnesses })}
+            siteId={site.id}
+            siteName={site.name}
           />
 
           {isFirstAid ? (

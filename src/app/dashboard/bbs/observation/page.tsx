@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense } from "react";
 import Link from "next/link";
@@ -17,13 +17,13 @@ const BBS_ROUTE = "/dashboard/bbs";
 function fallbackDetail(id: string): ObservationDetail {
   return {
     id,
-    observer: "—",
-    date: "—",
-    time: "—",
-    location: "—",
-    category: "—",
+    observer: "ΓÇö",
+    date: "ΓÇö",
+    time: "ΓÇö",
+    location: "ΓÇö",
+    category: "ΓÇö",
     type: "Safe",
-    observed: "—",
+    observed: "ΓÇö",
     photos: [],
   };
 }

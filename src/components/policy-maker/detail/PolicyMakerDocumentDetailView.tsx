@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
@@ -47,7 +47,7 @@ function DetailField(props: Readonly<{ label: string; children: ReactNode }>) {
 
 /**
  * Document Detail View (Figma 5568:24538 / 53. Document Detail View).
- * AppShell owns the sidebar — this renders MainWorkspace content only.
+ * AppShell owns the sidebar ΓÇö this renders MainWorkspace content only.
  */
 export function PolicyMakerDocumentDetailView(
   props: Readonly<PolicyMakerDocumentDetailViewProps>,
@@ -104,7 +104,7 @@ export function PolicyMakerDocumentDetailView(
           isApproving={isApproving}
         />
 
-        {/* Preview + Details | Acknowledgment — fluid grid (Figma 5568:24604) */}
+        {/* Preview + Details | Acknowledgment ΓÇö fluid grid (Figma 5568:24604) */}
         <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,2.0fr)_minmax(240px,1fr)] lg:items-center lg:gap-7">
           <div className="flex min-w-0 flex-col gap-5">
             {/* File preview */}

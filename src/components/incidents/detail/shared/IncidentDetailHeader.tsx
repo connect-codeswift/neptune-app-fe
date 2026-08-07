@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
@@ -108,7 +108,7 @@ export function IncidentDetailHeader(
                         : "text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
                     }
                   >
-                    {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+                    {isSaving ? "SavingΓÇª" : isEditing ? "Save" : "Edit"}
                   </Button>
                 ) : null}
               </div>

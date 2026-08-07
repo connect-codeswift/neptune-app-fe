@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
+import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import type {
@@ -12,6 +13,7 @@ import type {
   FieldConfig,
   FieldValue,
   SelectFieldConfig,
+  SwitchFieldConfig,
   TextFieldConfig,
   TextareaFieldConfig,
   TilesFieldConfig,
@@ -26,13 +28,40 @@ const errorRingClass =
   "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
 
 function FieldLabel(
-  props: Readonly<{ label: string; required?: boolean; htmlFor: string }>,
+  props: Readonly<{
+    label: string;
+    required?: boolean;
+    showOptional?: boolean;
+    optionalHint?: string;
+    optionalHintClassName?: string;
+    htmlFor: string;
+  }>,
 ) {
-  const { label, required, htmlFor } = props;
+  const {
+    label,
+    required,
+    showOptional,
+    optionalHint,
+    optionalHintClassName,
+    htmlFor,
+  } = props;
+  const hint =
+    optionalHint ?? (showOptional && !required ? "(optional)" : undefined);
+
   return (
     <label htmlFor={htmlFor} className="text-slate-70 font-medium">
       {label}
       {required ? <span className="text-ehs-red"> *</span> : null}
+      {hint ? (
+        <span
+          className={[
+            "font-normal",
+            optionalHintClassName ?? "text-[#b3bbc8]",
+          ].join(" ")}
+        >
+          {` ${hint}`}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -76,6 +105,9 @@ function FieldShell(
           <FieldLabel
             label={field.label}
             required={field.required}
+            showOptional={field.showOptional}
+            optionalHint={field.optionalHint}
+            optionalHintClassName={field.optionalHintClassName}
             htmlFor={field.name}
           />
           {trailing}
@@ -672,6 +704,37 @@ function CheckboxGroupControl(
   );
 }
 
+function SwitchControl(
+  props: Readonly<{
+    field: SwitchFieldConfig;
+    value: string;
+    onChange: (value: FieldValue) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+  const checked = value === "true";
+
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <label
+        htmlFor={field.name}
+        className="text-sm font-semibold tracking-[0.24px] text-[#566072]"
+      >
+        {field.label}
+        {field.required ? <span className="text-ehs-red"> *</span> : null}
+      </label>
+      <Toggle
+        id={field.name}
+        checked={checked}
+        aria-label={field.label}
+        onChange={(next) => {
+          onChange(next ? "true" : "false");
+        }}
+      />
+    </div>
+  );
+}
+
 export function FieldRenderer(props: FieldRendererProps) {
   const { field, value, error, onChange } = props;
 
@@ -788,6 +851,16 @@ export function FieldRenderer(props: FieldRendererProps) {
       return (
         <FieldShell field={field} error={error} hideLabel={field.hideLabel}>
           <TilesControl
+            field={field}
+            value={value as string}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "switch":
+      return (
+        <FieldShell field={field} error={error} hideLabel>
+          <SwitchControl
             field={field}
             value={value as string}
             onChange={onChange}
