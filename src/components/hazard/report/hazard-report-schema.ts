@@ -31,9 +31,36 @@ export const LOCATION_OPTIONS: readonly SelectOption[] = [
 ];
 
 /** Strongly-typed shape of a submitted Hazard report. */
+/**
+ * Outcomes, not categories — "someone could slip" rather than "slip hazard".
+ * The draft turns this into the risk clause of the narrative, so a category
+ * here produces a sentence that restates the hazard type instead of saying
+ * what it could do.
+ */
+export const POTENTIAL_CONSEQUENCE_OPTIONS: readonly SelectOption[] = [
+  { value: "slip-trip-fall", label: "Someone could slip, trip or fall" },
+  {
+    value: "struck-caught",
+    label: "Someone could be struck by or caught in equipment",
+  },
+  {
+    value: "harmful-exposure",
+    label: "Someone could be exposed to a harmful substance",
+  },
+  { value: "fire-explosion", label: "Fire or explosion" },
+  { value: "property-damage", label: "Equipment or property damage" },
+  { value: "environmental-release", label: "Environmental release" },
+];
+
 export type HazardReportValues = {
   hazardType: string;
   location: string;
+  /**
+   * Feeds the AI draft only. `POST /Hazard/Hazards` neither accepts nor stores
+   * it, so it must not reach the create payload — persisting it is a backend
+   * change and a migration.
+   */
+  potentialConsequence: string;
   description: string;
   /** Secure Cloudinary URLs of the attached photo evidence. */
   photos: string[];
@@ -63,6 +90,21 @@ export const hazardReportSchema: FormSchema = [
     allowCustom: true,
     addCustomLabel: "Add custom location",
     addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
+  },
+  {
+    // Above Description because the draft is composed from answers already
+    // given. It is also what makes the draft possible at all: type and
+    // location alone are below the backend's threshold, so without this every
+    // hazard draft call would come back null.
+    type: "select",
+    name: "potentialConsequence",
+    label: "What could happen if this isn't fixed?",
+    colSpan: 12,
+    placeholder: "Select potential consequence",
+    options: POTENTIAL_CONSEQUENCE_OPTIONS,
+    allowCustom: true,
+    addCustomLabel: "Describe it yourself",
+    addCustomPlaceholder: "e.g. Someone could be pinned against the racking",
   },
   {
     type: "textarea",

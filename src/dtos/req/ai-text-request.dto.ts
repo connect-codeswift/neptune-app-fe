@@ -74,3 +74,35 @@ export type IncidentDraftRequestDto = {
 
 /** Longest text the rewrite endpoints accept, mirroring the backend's [MaxLength]. */
 export const AI_TEXT_MAX_CHARS = 8000;
+
+/**
+ * Body for POST /api/NearMiss/draft-assist.
+ *
+ * Every field optional, but a request with all of them blank is a 400 — it is
+ * rejected before any upstream call, so don't fire one to see what happens.
+ *
+ * `narrative` comes back null unless at least one contributing factor is given.
+ * Padding two dropdown values into a sentence produces a restatement of what
+ * the reporter just picked, dressed as an observation.
+ */
+export type NearMissDraftRequestDto = {
+  /** As the reporter sees it — "7 August 2026", not an ISO string. */
+  dateOfEvent?: string;
+  hazardType?: string;
+  location?: string;
+  /** Max 20. */
+  contributingFactors?: string[];
+};
+
+/**
+ * Body for POST /api/Hazard/draft-assist.
+ *
+ * `narrative` comes back null unless `potentialConsequence` is given — type and
+ * location alone are below the threshold.
+ */
+export type HazardDraftRequestDto = {
+  hazardType?: string;
+  location?: string;
+  /** Max 500 characters. */
+  potentialConsequence?: string;
+};

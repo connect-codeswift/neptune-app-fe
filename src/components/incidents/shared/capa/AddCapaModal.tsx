@@ -40,7 +40,7 @@ function StepBadge(props: Readonly<{ step: string }>) {
   const { step } = props;
 
   return (
-    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-ehs-normal-blue pt-[1.5px] pb-[2.5px] text-sm leading-5 text-ehs-light-text">
+    <span className="bg-ehs-normal-blue text-ehs-light-text inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[1.5px] pb-[2.5px] text-sm leading-5">
       {step}
     </span>
   );
@@ -54,7 +54,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="text-ehs-gray block text-sm leading-[19.5px]"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -141,14 +141,14 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
               <StepBadge step="1" />
               <Text
                 as="h3"
-                className="text-base leading-6 font-normal text-ehs-dark-bg sm:text-base"
+                className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
               >
                 Select control level
               </Text>
             </div>
             <Text
               as="p"
-              className="text-sm leading-[19.5px] font-normal text-ehs-gray sm:text-sm"
+              className="text-ehs-gray text-sm leading-[19.5px] font-normal sm:text-sm"
             >
               Most → least effective. Prefer higher-order controls.
             </Text>
@@ -165,7 +165,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
             <StepBadge step="2" />
             <Text
               as="h3"
-              className="text-base leading-6 font-normal text-ehs-dark-bg sm:text-base"
+              className="text-ehs-dark-bg text-base leading-6 font-normal sm:text-base"
             >
               What CAPA is needed?
             </Text>
@@ -183,9 +183,10 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Describe the corrective / preventive action..."
                   rows={3}
-                  className="h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:h-[108px] sm:text-sm"
+                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2 sm:h-[108px] sm:text-sm"
                 />
                 <AiTextAssistant
+                  module="incident"
                   value={description}
                   onApply={setDescription}
                 />
