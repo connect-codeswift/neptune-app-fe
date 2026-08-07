@@ -10,7 +10,7 @@ export default async function RemoveLockoutPage(props: RemoveLockoutPageProps) {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader />
+      <DashboardHeader title="Remove Lockout" />
       <LotoRemoveLockoutContent lockoutId={decodeURIComponent(id)} />
     </div>
   );

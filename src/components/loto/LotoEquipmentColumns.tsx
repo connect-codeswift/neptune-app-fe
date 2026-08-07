@@ -25,7 +25,7 @@ export function buildLotoEquipmentColumns(
   return [
     columnHelper.accessor("name", {
       header: "EQUIPMENT",
-      size: 200,
+      size: 180,
       cell: (info) => (
         <span className="text-ehs-darker text-base leading-5 font-semibold">
           {info.getValue()}
@@ -107,7 +107,7 @@ export function buildLotoEquipmentColumns(
     }),
     columnHelper.display({
       id: "actions",
-      header: "",
+      header: "Actions",
       size: 100,
       cell: ({ row }) => {
         const item = row.original;
@@ -117,7 +117,7 @@ export function buildLotoEquipmentColumns(
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              className="cursor-pointer text-sm font-semibold text-[#566072] hover:underline"
+              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onView(item);
@@ -127,7 +127,7 @@ export function buildLotoEquipmentColumns(
             </button>
             <button
               type="button"
-              className="cursor-pointer text-sm font-semibold text-[#566072] hover:underline"
+              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onEdit(item);
@@ -138,7 +138,7 @@ export function buildLotoEquipmentColumns(
             {canLock ? (
               <button
                 type="button"
-                className="cursor-pointer text-sm font-semibold text-[#ef4444] hover:underline"
+                className="cursor-pointer text-base font-semibold text-[#ef4444] hover:underline"
                 onClick={(event) => {
                   event.stopPropagation();
                   actions.onLock(item);

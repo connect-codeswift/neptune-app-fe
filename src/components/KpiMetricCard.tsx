@@ -117,7 +117,7 @@ function CardFooter(
   }
   if (targetLabel) {
     return (
-      <Text as="p" className="text-ehs-muted-text text-[10.5px]">
+      <Text as="p" className="text-ehs-muted-text text-xs">
         {targetLabel}
       </Text>
     );
@@ -168,7 +168,7 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
       <div className="flex items-start justify-between gap-3">
         <Text
           as="p"
-          className="text-ehs-gray text-[11.5px] leading-normal font-bold tracking-[0.23px] uppercase"
+          className="text-ehs-gray text-xs leading-normal font-bold tracking-[0.23px] uppercase"
         >
           {title}
         </Text>
@@ -189,11 +189,11 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
       <div className="flex items-baseline gap-[10px]">
         <Text
           as="p"
-          className="text-ehs-dark-bg text-[40px] leading-[40px] tracking-[-1.2px] tabular-nums"
+          className="text-ehs-dark-bg text-4xl leading-[40px] tracking-[-1.2px] tabular-nums"
         >
           {String(value)}
         </Text>
-        <Text as="span" className="text-ehs-gray text-[12px] tracking-[0.48px]">
+        <Text as="span" className="text-ehs-gray text-xs tracking-[0.48px]">
           {unit}
         </Text>
       </div>

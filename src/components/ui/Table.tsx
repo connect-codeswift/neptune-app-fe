@@ -231,8 +231,14 @@ const pageButtonClass =
 function TablePaginationBar(
   props: Readonly<TablePagination & { variant?: "default" | "compliance" }>,
 ) {
-  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading, variant = "default" } =
-    props;
+  const {
+    pageNumber,
+    pageSize,
+    totalRecords,
+    onPageChange,
+    isLoading,
+    variant = "default",
+  } = props;
   const isCompliance = variant === "compliance";
 
   // The API is 1-based; guard against a 0/negative page size so the maths

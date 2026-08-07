@@ -91,7 +91,11 @@ export type LotoProcedureFormProps = Readonly<{
   onStepsChange: (steps: LotoIsolationStep[]) => void;
   preview: LotoProcedurePreview;
   onPreviewChange: (patch: Partial<LotoProcedurePreview>) => void;
-  onFormValid: (schema: FormSchema, values: FormValues, stepId?: string) => void;
+  onFormValid: (
+    schema: FormSchema,
+    values: FormValues,
+    stepId?: string,
+  ) => void;
 }>;
 
 function SummaryRow(
@@ -103,10 +107,10 @@ function SummaryRow(
 ) {
   return (
     <div className="flex items-start justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2">
-      <span className="text-xs text-[#8892a3]">{props.label}</span>
+      <span className="text-sm text-[#8892a3]">{props.label}</span>
       <span
         className={[
-          "text-right text-xs font-semibold",
+          "text-right text-sm font-semibold",
           props.valueClassName ?? "text-ehs-darker",
         ].join(" ")}
       >
@@ -145,15 +149,16 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
   };
 
   const ppeCountLabel =
-    preview.ppeCount === 1
-      ? "1 item"
-      : `${String(preview.ppeCount)} items`;
+    preview.ppeCount === 1 ? "1 item" : `${String(preview.ppeCount)} items`;
 
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_363px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
-          <h2 className="text-ehs-darker mb-4 text-sm font-bold">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
+          <h2 className="text-ehs-darker mb-4 text-lg font-bold">
             Equipment Information
           </h2>
           <FormBuilder
@@ -175,25 +180,28 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onSubmit={(values) => {
               onFormValid(lotoEquipmentSchema, values);
             }}
-            className={equipmentFieldClass}
+            // className={equipmentFieldClass}
           />
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 className="text-ehs-darker text-sm font-bold">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-ehs-darker text-lg font-bold">
               Isolation Steps
             </h2>
             <button
               type="button"
               onClick={addStep}
-              className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 text-[12.5px] font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+              className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 text-sm font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
             >
               <Icon icon="mdi:plus" className="size-3.5" />
               Add Step
             </button>
           </div>
-          <p className="mb-3 text-xs text-[#8892a3]">
+          <p className="mb-3 text-sm text-[#8892a3]">
             Document each energy isolation point in the sequence they must be
             performed
           </p>
@@ -206,7 +214,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#2a3446]">
+                    <span className="text-sm font-bold text-[#2a3446]">
                       Step {String(index + 1)}
                     </span>
                     {step.verified ? (
@@ -236,14 +244,17 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                   onSubmit={(values) => {
                     onFormValid(lotoStepSchema, values, step.id);
                   }}
-                  className={stepFieldClass}
+                  // className={stepFieldClass}
                 />
               </div>
             ))}
           </div>
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
           <FormBuilder
             formId={LOTO_VERIFICATION_FORM_ID}
             schema={lotoVerificationSchema}
@@ -252,7 +263,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onSubmit={(values) => {
               onFormValid(lotoVerificationSchema, values);
             }}
-            className={equipmentFieldClass}
+            // className={equipmentFieldClass}
           />
         </IncidentGlassCard>
       </div>
@@ -262,7 +273,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="px-[18px] py-[18px]"
           className="min-w-0 bg-[rgba(255,255,255,0.82)]"
         >
-          <h2 className="text-ehs-darker mb-3 text-[13px] font-bold">
+          <h2 className="text-ehs-darker mb-3 text-lg font-bold">
             Procedure Summary
           </h2>
           <div className="flex flex-col">
@@ -305,7 +316,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onSubmit={(values) => {
               onFormValid(lotoPpeSchema, values);
             }}
-            className={sidebarFieldClass}
+            // className={sidebarFieldClass}
           />
         </IncidentGlassCard>
 
@@ -318,7 +329,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onSubmit={(values) => {
               onFormValid(lotoPersonnelSchema, values);
             }}
-            className={sidebarFieldClass}
+            // className={sidebarFieldClass}
           />
         </IncidentGlassCard>
       </aside>

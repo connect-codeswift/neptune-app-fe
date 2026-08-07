@@ -7,7 +7,7 @@ import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
-const crumbMuted = "text-[#b3bbc8] text-xs font-normal";
+const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
 const crumbLink =
   "text-[#8892a3] hover:text-ehs-gray text-xs font-normal transition-colors";
 
@@ -34,9 +34,7 @@ export function LotoEquipmentDetailHeader(
 ) {
   const { detail, onApplyLockout, isLockedOut = false } = props;
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
-  const actionIcon = isLockedOut
-    ? "mdi:lock-open-outline"
-    : "mdi:lock-outline";
+  const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
   return (
     <div className="relative rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
@@ -70,7 +68,7 @@ export function LotoEquipmentDetailHeader(
               >
                 {detail.name}
               </Text>
-              <Text as="p" className="text-[13px] text-[#8892a3]">
+              <Text as="p" className="text-sm text-[#8892a3]">
                 {`${detail.type} · ${detail.location}`}
               </Text>
             </div>
@@ -81,7 +79,7 @@ export function LotoEquipmentDetailHeader(
             variant={isLockedOut ? "primary" : "danger"}
             onClick={onApplyLockout}
             className={[
-              "gap-2 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold",
+              "gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold",
               isLockedOut
                 ? "shadow-[0px_4px_7px_rgba(8,145,166,0.4)]"
                 : "shadow-[0px_4px_7px_rgba(239,68,68,0.4)]",
