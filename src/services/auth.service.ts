@@ -34,6 +34,7 @@ const USER_ACCEPT_INVITATION_PATH = "/User/accept-invitation";
 const AUTH_MFA_SETUP_PATH = "/Auth/mfa/setup";
 const AUTH_MFA_ENABLE_PATH = "/Auth/mfa/enable";
 const AUTH_MFA_DISMISS_PATH = "/Auth/mfa/dismiss";
+const AUTH_SELECT_SITE_PATH = "/Auth/select-site";
 
 function readLoginTokens(data: unknown): LoginResponseDto | null {
   const payload = unwrapAuthPayload(data);
@@ -152,6 +153,40 @@ export async function enableMfa(payload: EnableMfaRequestDto) {
 /** "Not now" on the optional MFA offer, so later logins stop asking. */
 export async function dismissMfaPrompt() {
   await http.post(AUTH_MFA_DISMISS_PATH);
+}
+
+/**
+ * Moves the session to another site the user is assigned to.
+ *
+ * The API answers with a replacement token pair rather than a flag, because the site the rest
+ * of the app is scoped to lives in the access token's SiteId claim. Both tokens are swapped
+ * here: keeping the old refresh token would let the next renewal quietly hand back a token for
+ * the previous site.
+ */
+export async function selectSite(siteId: number) {
+  const { data } = await http.post<unknown>(AUTH_SELECT_SITE_PATH, { siteId });
+  const payload = unwrapAuthPayload(data);
+
+  const accessToken = payload?.accessToken ?? payload?.AccessToken;
+  const refreshToken = payload?.refreshToken ?? payload?.RefreshToken;
+
+  if (typeof accessToken !== "string" || accessToken === "") {
+    throw new Error("Site switch succeeded but returned no access token.");
+  }
+
+  setAccessToken(accessToken);
+
+  if (typeof refreshToken === "string" && refreshToken !== "") {
+    setRefreshToken(refreshToken);
+  }
+
+  const switchedSiteId = payload?.siteId ?? payload?.SiteId;
+  const switchedSiteName = payload?.siteName ?? payload?.SiteName;
+
+  return {
+    siteId: typeof switchedSiteId === "number" ? switchedSiteId : siteId,
+    siteName: typeof switchedSiteName === "string" ? switchedSiteName : null,
+  };
 }
 
 export async function logout() {

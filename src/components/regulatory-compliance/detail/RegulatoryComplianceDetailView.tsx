@@ -159,7 +159,10 @@ export function RegulatoryComplianceDetailView(
   if (detailQuery.isError) {
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 items-center justify-center px-4">
-        <IncidentGlassCard className="min-h-[220px] items-center justify-center gap-2 text-center">
+        <IncidentGlassCard
+          className="min-h-[220px] text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
