@@ -264,7 +264,6 @@ export function mapCapaDtoToItem(
 ): CapaItem {
   const status = normalizeStatus(dto);
   const tasks = options?.tasks;
-  const primaryTask = tasks?.[0];
   const progressPercent = resolveCapaProgress(dto, status, tasks);
 
   return {
@@ -272,28 +271,23 @@ export function mapCapaDtoToItem(
     numericId: dto.id,
     incidentId: dto.incidentId,
     userId: dto.userId,
-    assignedId: primaryTask?.ownerId ?? dto.assignedId ?? null,
+    assignedId: dto.assignedId ?? null,
     rcaId: dto.rcaId ?? null,
-    description:
-      primaryTask?.task.trim() || dto.description.trim(),
+    description: dto.description.trim(),
     isDrop: dto.isDrop ?? false,
     code: dto.capaCode?.trim() || dto.code?.trim() || `CAPA-${String(dto.id)}`,
     controlCategory: normalizeControlLevel(dto.controlLevel),
     actionType: normalizeActionType(dto.capaType),
     status,
     statusTone: status === "Verified" ? "green" : "gray",
-    title:
-      dto.title?.trim() ||
-      primaryTask?.task.trim() ||
-      dto.description.trim(),
+    title: dto.title?.trim() || dto.description.trim(),
     assignee: resolveAssignee(dto, {
       currentUserId: options?.currentUserId,
-      taskOwnerName: primaryTask?.ownerName,
     }),
-    dueDate: formatDueDate(primaryTask?.dueDate ?? dto.dueDate),
+    dueDate: formatDueDate(dto.dueDate),
     priority: dto.priority?.trim() || "Medium",
     progressPercent,
-    primaryTaskId: primaryTask?.id ?? null,
+    primaryTaskId: tasks?.[0]?.id ?? null,
     taskStatus: resolvePrimaryCapaTaskStatus(tasks ?? []),
   };
 }

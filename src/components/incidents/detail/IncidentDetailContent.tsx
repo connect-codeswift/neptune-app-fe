@@ -20,6 +20,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaMutation,
   useCreateCapaTaskMutation,
+  useDeleteCapaTaskMutation,
   useUpdateCapaMutation,
   useVerifyCapaMutation,
 } from "@/hooks/use-capa-mutations";
@@ -131,6 +132,7 @@ export function IncidentDetailContent(
   const createCapaMutation = useCreateCapaMutation();
   const updateCapaMutation = useUpdateCapaMutation();
   const createCapaTaskMutation = useCreateCapaTaskMutation();
+  const deleteCapaTaskMutation = useDeleteCapaTaskMutation();
   const verifyCapaMutation = useVerifyCapaMutation();
 
   const detail = detailQuery.data?.detail ?? null;
@@ -700,6 +702,7 @@ export function IncidentDetailContent(
         createCapaMutation.isPending ||
         updateCapaMutation.isPending ||
         createCapaTaskMutation.isPending ||
+        deleteCapaTaskMutation.isPending ||
         verifyCapaMutation.isPending
       }
       openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
@@ -718,10 +721,14 @@ export function IncidentDetailContent(
             owner: payload.owner,
             dueDate: payload.dueDate,
             priority: payload.priority,
+            tasks: payload.tasks,
           });
+          const taskCount = payload.tasks?.length ?? 0;
           toast.success(
             "CAPA created",
-            `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
+            taskCount > 0
+              ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
+              : `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
           );
         } catch (error) {
           toast.error(
@@ -769,6 +776,27 @@ export function IncidentDetailContent(
         } catch (error) {
           toast.error(
             "Could not add task",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+          throw error;
+        }
+      }}
+      isDeletingCapaTask={deleteCapaTaskMutation.isPending}
+      onDeleteCapaTask={async (capa, taskId) => {
+        if (!detail) {
+          return;
+        }
+
+        try {
+          await deleteCapaTaskMutation.mutateAsync({
+            taskId,
+            capaId: capa.numericId,
+            incidentId: detail.numericId,
+          });
+          toast.success("Task removed", `Task deleted from ${capa.code}.`);
+        } catch (error) {
+          toast.error(
+            "Could not delete task",
             getMutationErrorMessage(error, "Please try again."),
           );
           throw error;

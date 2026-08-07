@@ -15,6 +15,7 @@ const CAPA_BY_ID_PATH = "/CAPA/Capa";
 const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
 const CAPA_DROP_PATH = "/CAPA/Drop";
 const CAPA_TASK_PATH = "/CAPA/Task";
+const CAPA_TASK_DROP_PATH = "/CAPA/Task/Drop";
 const CAPA_TASK_STATUS_PATH = "/CAPA/Task/Status";
 const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
 const CAPA_VERIFICATION_PATH = "/CAPA/Verification";
@@ -589,6 +590,30 @@ export async function updateCapaTask(payload: CapaTaskRequestDto) {
   });
 
   return normalizeCapaTaskDto(data);
+}
+
+/** PATCH /CAPA/Task/Drop/{id} — soft-drop a linked task. */
+export async function deleteCapaTask(taskId: number) {
+  if (!Number.isFinite(taskId) || taskId <= 0) {
+    throw new Error("CAPA task id is required to delete.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to delete a CAPA task.");
+  }
+
+  const { data } = await http.patch<unknown>(
+    `${CAPA_TASK_DROP_PATH}/${encodeURIComponent(String(taskId))}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return data;
 }
 
 /** PATCH /CAPA/Task/Status */
