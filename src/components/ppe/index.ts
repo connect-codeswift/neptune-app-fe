@@ -1,5 +1,8 @@
 export { PpeMetricsSection } from "./PpeMetricsSection";
 export { PpeInventorySection } from "./PpeInventorySection";
+export { PpeViewTabs } from "./PpeViewTabs";
+export { PpeDashboardPageClient } from "./PpeDashboardPageClient";
+export { PpeListPageClient } from "./PpeListPageClient";
 export { PpeManagementActions } from "./PpeManagementActions";
 export { PpeInventoryCard } from "./PpeInventoryCard";
 export { ppeInventoryColumns } from "./PpeInventoryColumns";

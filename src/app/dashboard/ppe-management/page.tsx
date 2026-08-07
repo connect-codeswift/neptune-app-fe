@@ -1,17 +1,5 @@
-"use client";
-
-import { DashboardHeader } from "@/components/DashboardHeader";
-import { PpeInventorySection, PpeMetricsSection } from "@/components/ppe";
+import { redirect } from "next/navigation";
 
 export default function PpeManagementPage() {
-  return (
-    <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader title="PPE Management" />
-
-      <div className="flex flex-1 flex-col gap-4.5 px-3 pb-8 sm:px-4">
-        <PpeMetricsSection />
-        <PpeInventorySection />
-      </div>
-    </div>
-  );
+  redirect("/dashboard/ppe-management/list");
 }
