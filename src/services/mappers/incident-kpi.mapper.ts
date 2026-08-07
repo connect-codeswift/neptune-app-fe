@@ -278,51 +278,63 @@ function toListChartData(
 function mapKpiCardToHeroMetric(
   definition: (typeof HEADER_KPI_DEFINITIONS)[number],
   card: IncidentKpiCardDto | undefined,
+  ratesAvailable: boolean,
 ): HeroKpiMetric {
+  const isRateMetric = definition.key === "rir" || definition.key === "ltir";
+  const showRate = !isRateMetric || ratesAvailable;
   const value = card?.value ?? 0;
   const target = card?.target ?? null;
-  const unit = card?.unit?.trim() || undefined;
+  const unit = showRate ? card?.unit?.trim() || undefined : undefined;
 
   return {
     id: definition.id,
     title: definition.title,
     subtitle: definition.subtitle,
-    value: formatMetricValue(value),
+    value: showRate ? formatMetricValue(value) : "—",
     unit,
     target,
-    current: value,
-    targetLabel: buildTargetLabel(target, card?.unit ?? ""),
+    current: showRate ? value : 0,
+    targetLabel: showRate
+      ? buildTargetLabel(target, card?.unit ?? "")
+      : "Add work hours in Settings",
     direction: "lower-better",
-    chartData: toChartData(card?.trend ?? [], definition.key),
-    status: mapApiStatus(card?.status ?? null),
+    chartData: showRate ? toChartData(card?.trend ?? [], definition.key) : [],
+    status: showRate ? mapApiStatus(card?.status ?? null) : null,
   };
 }
 
 function mapKpiCardToListMetric(
   definition: (typeof LIST_KPI_DEFINITIONS)[number],
   card: IncidentKpiCardDto | undefined,
+  ratesAvailable: boolean,
 ): IncidentListKpiMetric {
-  const value = card?.value ?? 0;
+  const isRateMetric = definition.key === "rir";
+  const showRate = !isRateMetric || ratesAvailable;
+  const rawValue = card?.value ?? 0;
   const target = card?.target ?? null;
-  const unit = card?.unit?.trim() || undefined;
+  const unit = showRate ? card?.unit?.trim() || undefined : undefined;
   const trend = resolveListTrend(
-    card?.trendDelta ?? null,
+    showRate ? (card?.trendDelta ?? null) : null,
     definition.direction,
   );
 
   return {
     id: definition.id,
     title: definition.title,
-    value: formatMetricValue(value, definition.valueFormat),
+    value: showRate
+      ? formatMetricValue(rawValue, definition.valueFormat)
+      : "—",
     unit,
     ...trend,
-    targetLabel: buildListTargetLabel(
-      target,
-      card?.unit ?? "",
-      definition.direction,
-      definition.valueFormat,
-    ),
-    chartData: toListChartData(card?.trend ?? [], definition.key),
+    targetLabel: showRate
+      ? buildListTargetLabel(
+          target,
+          card?.unit ?? "",
+          definition.direction,
+          definition.valueFormat,
+        )
+      : "Add work hours in Settings",
+    chartData: showRate ? toListChartData(card?.trend ?? [], definition.key) : [],
   };
 }
 
@@ -330,6 +342,7 @@ function mapKpiCardToListMetric(
 export function mapHeaderKpisToHeroMetrics(
   dto: HeaderKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,
+  ratesAvailable = true,
 ): readonly HeroKpiMetric[] {
   if (!dto) {
     return [];
@@ -344,6 +357,7 @@ export function mapHeaderKpisToHeroMetrics(
         targetsLookup,
         "lower-better",
       ),
+      ratesAvailable,
     ),
   );
 }
@@ -352,6 +366,7 @@ export function mapHeaderKpisToHeroMetrics(
 export function mapIncidentListKpisToMetrics(
   dto: IncidentListKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,
+  ratesAvailable = true,
 ): readonly IncidentListKpiMetric[] {
   if (!dto) {
     return [];
@@ -366,6 +381,7 @@ export function mapIncidentListKpisToMetrics(
         targetsLookup,
         definition.direction,
       ),
+      ratesAvailable,
     ),
   );
 }
@@ -385,6 +401,16 @@ export function sumSiteWorkHoursForYear(
   return (records ?? [])
     .filter((record) => record.year === year)
     .reduce((total, record) => total + record.hours, 0);
+}
+
+/** YTD workforce hours must reach this before OSHA rates are meaningful. */
+export const MIN_WORK_HOURS_FOR_RATES = 5000;
+
+export function hasSufficientSiteWorkHours(
+  records: readonly SiteWorkHoursDto[] | null | undefined,
+  year = new Date().getUTCFullYear(),
+): boolean {
+  return sumSiteWorkHoursForYear(records, year) >= MIN_WORK_HOURS_FOR_RATES;
 }
 
 /** Finds the stored hours entry for a specific year/month, if present. */

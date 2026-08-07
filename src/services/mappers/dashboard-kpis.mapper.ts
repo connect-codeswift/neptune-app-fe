@@ -81,5 +81,16 @@ export function normalizeDashboardKpisDto(raw: unknown): DashboardKpisDto | null
     hazardsByCategory: normalizeHazardsByCategory(
       readProp(raw, "hazardsByCategory", "HazardsByCategory"),
     ),
+    workHoursYtd: asNumber(readProp(raw, "workHoursYtd", "WorkHoursYtd")),
+    recordableCountYtd: asNumber(
+      readProp(raw, "recordableCountYtd", "RecordableCountYtd"),
+    ),
+    lostTimeCountYtd: asNumber(
+      readProp(raw, "lostTimeCountYtd", "LostTimeCountYtd"),
+    ),
+    ratesAvailable:
+      typeof readProp(raw, "ratesAvailable", "RatesAvailable") === "boolean"
+        ? (readProp(raw, "ratesAvailable", "RatesAvailable") as boolean)
+        : undefined,
   };
 }

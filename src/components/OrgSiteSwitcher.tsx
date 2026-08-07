@@ -4,10 +4,7 @@ import { useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SiteSwitcher } from "@/components/SiteSwitcher";
-import {
-  sessionQueryKeys,
-  useSessionBootstrap,
-} from "@/hooks/use-session-bootstrap";
+import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { getAuthContext } from "@/lib/auth-context";
 import { selectSite } from "@/services/auth.service";
 
@@ -33,18 +30,12 @@ export function OrgSiteSwitcher(props: Readonly<OrgSiteSwitcherProps>) {
 
   const switchSite = useMutation({
     mutationFn: (siteId: number) => selectSite(siteId),
-    onSuccess: async (result) => {
-      // Every cached response was fetched under the previous site, so none of it is valid
-      // here — dropping the lot is cheaper to reason about than listing what was scoped.
-      queryClient.clear();
-      await queryClient.refetchQueries({ queryKey: sessionQueryKeys.all });
-
-      toast.success(
-        result.siteName
-          ? `Switched to ${result.siteName}.`
-          : "Switched site.",
-      );
+    onSuccess: (result) => {
+      // Tokens are already swapped. A full reload is the only way to guarantee no
+      // site-scoped React state, module-level caches, or stale route data survive.
       onSiteChange?.(result.siteId);
+      queryClient.clear();
+      window.location.reload();
     },
     onError: (error) => {
       toast.error(

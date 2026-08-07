@@ -26,6 +26,10 @@ export type DashboardKpisDto = {
   capaClosurePercentage?: number | null;
   capaClosureTarget?: number | null;
   hazardsByCategory?: HazardCategoryCountDto[] | null;
+  workHoursYtd?: number | null;
+  recordableCountYtd?: number | null;
+  lostTimeCountYtd?: number | null;
+  ratesAvailable?: boolean | null;
 };
 
 export type GetMainDashboardKpisResponseDto = ApiEnvelopeDto<DashboardKpisDto | null>;

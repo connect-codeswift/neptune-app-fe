@@ -15,8 +15,11 @@ import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
 import {
   hasSiteWorkHours,
+  MIN_WORK_HOURS_FOR_RATES,
   sumSiteWorkHoursForYear,
 } from "@/services/mappers/incident-kpi.mapper";
+
+const MIN_MONTHLY_WORK_HOURS = 1000;
 
 const MONTH_LABELS = [
   "Jan",
@@ -106,6 +109,13 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
         return;
       }
 
+      if (hours > 0 && hours < MIN_MONTHLY_WORK_HOURS) {
+        toast.error(
+          `${MONTH_LABELS[month - 1]} needs at least ${String(MIN_MONTHLY_WORK_HOURS)} workforce hours (you entered ${String(Math.round(hours))}).`,
+        );
+        return;
+      }
+
       if (savedByMonth[month] === hours) {
         continue;
       }
@@ -183,10 +193,10 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
             as="p"
             className="text-ehs-muted-text mt-1 text-sm"
           >{`${String(currentYear)} year-to-date: ${formatHoursTotal(ytdHours)} hrs`}</Text>
-          <Text as="p" className="text-ehs-muted-text mt-2 max-w-2xl text-xs leading-snug">
-            Enter total employee hours worked each month (e.g. 16,000 for ~100
-            FTEs). Rates use (YTD recordable incidents ÷ YTD hours) × 200,000.
-          </Text>
+          <Text
+            as="p"
+            className="text-ehs-muted-text mt-2 max-w-2xl text-xs leading-snug"
+          >{`Enter total employee hours worked each month (e.g. 16,000 for ~100 FTEs). Rates need at least ${MIN_WORK_HOURS_FOR_RATES.toLocaleString()} YTD hours before they display.`}</Text>
         </div>
 
         {canEdit ? (

@@ -2,30 +2,30 @@
 
 import { ModuleViewTabs } from "@/components/ui/ModuleViewTabs";
 
-export type IncidentViewTabsProps = Readonly<{
+export type HazardViewTabsProps = Readonly<{
   className?: string;
 }>;
 
 const TABS = [
   {
-    href: "/dashboard/incidents/dashboard",
+    href: "/dashboard/hazard/dashboard",
     label: "Dashboard",
     icon: "mdi:view-dashboard-outline",
   },
   {
-    href: "/dashboard/incidents/list",
-    label: "Incident list",
+    href: "/dashboard/hazard/list",
+    label: "Hazard list",
     icon: "mdi:format-list-bulleted",
   },
 ] as const;
 
-export function IncidentViewTabs(props: Readonly<IncidentViewTabsProps>) {
+export function HazardViewTabs(props: Readonly<HazardViewTabsProps>) {
   const { className = "" } = props;
 
   return (
     <ModuleViewTabs
       tabs={TABS}
-      ariaLabel="Incident views"
+      ariaLabel="Hazard views"
       className={className}
     />
   );
