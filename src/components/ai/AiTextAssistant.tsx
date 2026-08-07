@@ -6,6 +6,7 @@ import { useRewriteMutation } from "@/hooks/use-ai-text-mutations";
 import { toast } from "@/lib/toast";
 import {
   logAiAssistFailure,
+  type AiModule,
   type RewriteOperation,
 } from "@/services/ai-text.service";
 
@@ -29,6 +30,12 @@ import {
  * the button rather than being pushed into the corner.
  */
 export type AiTextAssistantProps = Readonly<{
+  /**
+   * Which module's endpoints to call. Not cosmetic: each trio is gated on its
+   * own `.Create` permission, and the rewrites are tense-matched to the record
+   * — a near miss is over, a hazard still exists.
+   */
+  module: AiModule;
   value: string;
   onApply: (next: string) => void;
   /** Called when a rewrite is accepted, so the caller can record provenance. */
@@ -70,6 +77,7 @@ const REWRITE_ORDER: readonly RewriteOperation[] = ["proofread", "paraphrase"];
 
 export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
   const {
+    module,
     value,
     onApply,
     onAssisted,
@@ -83,7 +91,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
   const [status, setStatus] = useState("");
   const [running, setRunning] = useState<RewriteOperation | null>(null);
 
-  const rewrite = useRewriteMutation();
+  const rewrite = useRewriteMutation(module);
   const isBusy = rewrite.isPending;
 
   // Undo is only honest while the field still holds exactly what we wrote —

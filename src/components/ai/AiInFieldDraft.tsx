@@ -9,6 +9,17 @@ export type AiInFieldDraftProps = Readonly<{
   pending?: boolean;
   onAccept: (text: string) => void;
   onDismiss: () => void;
+  /**
+   * Padding and type metrics of the textarea this sits over.
+   *
+   * Defaults to `FIELD_TEXTAREA_WITH_CONTROLS_CLASS`, which the incident wizard
+   * uses. `FormBuilder`'s textarea is a different skin — solid white, 16px
+   * text — so the Near Miss and Hazard forms pass their own. These have to
+   * match the field underneath exactly or the ghost sits off the caret, which
+   * reads as a broken field rather than a suggestion.
+   */
+  fieldPaddingClassName?: string;
+  fieldTextClassName?: string;
 }>;
 
 /**
@@ -26,15 +37,24 @@ export type AiInFieldDraftProps = Readonly<{
  * the caret and the field looks broken rather than helpful.
  */
 export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
-  const { draft, pending = false, onAccept, onDismiss } = props;
+  const {
+    draft,
+    pending = false,
+    onAccept,
+    onDismiss,
+    fieldPaddingClassName = "px-[13px] pt-[10.5px]",
+    fieldTextClassName = "text-[13px] leading-[19.5px]",
+  } = props;
 
   if (pending) {
     return (
       <div
-        className="pointer-events-none absolute inset-0 flex items-start px-[13px] pt-[10.5px]"
+        className={`pointer-events-none absolute inset-0 flex items-start ${fieldPaddingClassName}`}
         aria-live="polite"
       >
-        <span className="text-ehs-muted-text inline-flex items-center gap-2 text-[13px] leading-[19.5px]">
+        <span
+          className={`text-ehs-muted-text inline-flex items-center gap-2 ${fieldTextClassName}`}
+        >
           <Icon
             icon="svg-spinners:3-dots-fade"
             className="text-ehs-dark-blue size-4 shrink-0"
@@ -53,12 +73,12 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
   return (
     <>
       <div
-        className="pointer-events-none absolute inset-0 overflow-hidden px-[13px] pt-[10.5px] pb-10"
+        className={`pointer-events-none absolute inset-0 overflow-hidden pb-10 ${fieldPaddingClassName}`}
         aria-hidden="true"
       >
         <Text
           as="p"
-          className="text-ehs-muted-text text-[13px] leading-[19.5px] italic"
+          className={`text-ehs-muted-text italic ${fieldTextClassName}`}
         >
           {draft}
         </Text>
