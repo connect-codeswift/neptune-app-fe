@@ -59,12 +59,10 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
 
   return (
     <HazcomGlassCard
-      className={[
-        "min-h-[180px] items-center justify-center gap-2 text-center",
-        className,
-      ]
+      className={["min-h-[180px] text-center", className]
         .filter(Boolean)
         .join(" ")}
+      hazcomGlassCardClassName="items-center justify-center gap-2"
     >
       <Icon
         icon="mdi:alert-circle-outline"
