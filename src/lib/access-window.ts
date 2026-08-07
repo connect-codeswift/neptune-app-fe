@@ -123,18 +123,15 @@ export function formatAccessWindowBannerMessage(
   return `Your organization's access ends in ${days} days (${expiryLabel}). Contact CodeSwift to extend access.`;
 }
 
-export function getCachedAccessWindow(): AccessWindowState | null {
-  if (globalThis.window === undefined) {
+let cachedAccessWindowRaw: string | null | undefined;
+let cachedAccessWindowSnapshot: AccessWindowState | null | undefined;
+
+function parseCachedAccessWindow(raw: string | null): AccessWindowState | null {
+  if (!raw) {
     return null;
   }
 
   try {
-    const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
-
-    if (!raw) {
-      return null;
-    }
-
     const parsed: unknown = JSON.parse(raw);
 
     if (!isRecord(parsed)) {
@@ -154,10 +151,29 @@ export function getCachedAccessWindow(): AccessWindowState | null {
   }
 }
 
+export function getCachedAccessWindow(): AccessWindowState | null {
+  if (globalThis.window === undefined) {
+    return null;
+  }
+
+  const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
+
+  if (raw === cachedAccessWindowRaw && cachedAccessWindowSnapshot !== undefined) {
+    return cachedAccessWindowSnapshot;
+  }
+
+  cachedAccessWindowRaw = raw;
+  cachedAccessWindowSnapshot = parseCachedAccessWindow(raw);
+  return cachedAccessWindowSnapshot;
+}
+
 export function setCachedAccessWindow(window: AccessWindowState | null) {
   if (globalThis.window === undefined) {
     return;
   }
+
+  cachedAccessWindowRaw = undefined;
+  cachedAccessWindowSnapshot = undefined;
 
   if (!window) {
     globalThis.sessionStorage.removeItem(ACCESS_WINDOW_STORAGE_KEY);
