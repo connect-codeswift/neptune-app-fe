@@ -297,7 +297,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       />
 
       {errorMessage ? (
-        <IncidentGlassCard className="min-h-[180px] items-center justify-center gap-2 text-center">
+        <IncidentGlassCard
+          className="min-h-[180px] text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
@@ -339,7 +342,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
           ].join(" ")}
         >
           {filteredIncidents.length === 0 ? (
-            <IncidentGlassCard className="min-h-[240px] items-center justify-center gap-2 text-center">
+            <IncidentGlassCard
+              className="min-h-[240px] text-center"
+              incidentGlassCardClassName="items-center justify-center gap-2"
+            >
               <Icon
                 icon="mdi:clipboard-text-off-outline"
                 className="text-ehs-muted-text size-8"
