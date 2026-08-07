@@ -19,7 +19,9 @@ import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/c
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaMutation,
+  useCreateCapaTaskMutation,
   useUpdateCapaMutation,
+  useVerifyCapaMutation,
 } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
 import {
@@ -128,6 +130,8 @@ export function IncidentDetailContent(
   const updateClosureMutation = useUpdateIncidentClosureMutation();
   const createCapaMutation = useCreateCapaMutation();
   const updateCapaMutation = useUpdateCapaMutation();
+  const createCapaTaskMutation = useCreateCapaTaskMutation();
+  const verifyCapaMutation = useVerifyCapaMutation();
 
   const detail = detailQuery.data?.detail ?? null;
   const incidentDto = detailQuery.data?.dto ?? null;
@@ -693,7 +697,10 @@ export function IncidentDetailContent(
       linkedCapa={linkedCapa}
       isCapaLoading={capaQuery.isPending}
       isCapaSubmitting={
-        createCapaMutation.isPending || updateCapaMutation.isPending
+        createCapaMutation.isPending ||
+        updateCapaMutation.isPending ||
+        createCapaTaskMutation.isPending ||
+        verifyCapaMutation.isPending
       }
       openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
       onAddCapaModalOpened={handleAddCapaModalOpened}
@@ -739,6 +746,54 @@ export function IncidentDetailContent(
         } catch (error) {
           toast.error(
             "Could not update CAPA",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+          throw error;
+        }
+      }}
+      isCreatingCapaTask={createCapaTaskMutation.isPending}
+      onCreateCapaTask={async (capa, payload) => {
+        if (!detail) {
+          return;
+        }
+
+        try {
+          await createCapaTaskMutation.mutateAsync({
+            capaId: capa.numericId,
+            incidentId: detail.numericId,
+            task: payload.task,
+            owner: payload.owner,
+            dueDate: payload.dueDate,
+          });
+          toast.success("Task added", `New task linked to ${capa.code}.`);
+        } catch (error) {
+          toast.error(
+            "Could not add task",
+            getMutationErrorMessage(error, "Please try again."),
+          );
+          throw error;
+        }
+      }}
+      isVerifyingCapa={verifyCapaMutation.isPending}
+      onVerifyCapa={async (capa, input) => {
+        if (!detail) {
+          return;
+        }
+
+        try {
+          await verifyCapaMutation.mutateAsync({
+            capa,
+            incidentId: detail.numericId,
+            effectiveness: input.effectiveness,
+            notes: input.notes,
+          });
+          toast.success(
+            "CAPA verified",
+            `${capa.code} has been verified and closed.`,
+          );
+        } catch (error) {
+          toast.error(
+            "Could not verify CAPA",
             getMutationErrorMessage(error, "Please try again."),
           );
           throw error;

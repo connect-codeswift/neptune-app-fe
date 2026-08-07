@@ -1,14 +1,24 @@
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
+import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
+import type { CapaAttachmentItemDto } from "@/dtos/res/capa-attachment-response.dto";
+import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
+import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
+import type { CapaTaskStatusRequestDto } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import http, { getAccessToken, HttpError } from "@/lib/axios";
+import { parseCapaApiDate } from "@/lib/parse-capa-api-date";
 
 const CAPA_CREATE_PATH = "/CAPA/Capa";
+const CAPA_BY_ID_PATH = "/CAPA/Capa";
 const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
 const CAPA_DROP_PATH = "/CAPA/Drop";
 const CAPA_TASK_PATH = "/CAPA/Task";
+const CAPA_TASK_STATUS_PATH = "/CAPA/Task/Status";
 const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
+const CAPA_VERIFICATION_PATH = "/CAPA/Verification";
+const CAPA_ATTACHMENTS_PATH = "/CAPA/Attachments";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -111,7 +121,15 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     progress: asNumber(readProp(raw, "progress", "Progress")) ?? null,
     assigneeName:
       asString(
-        readProp(raw, "assigneeName", "AssigneeName", "assignee", "Assignee"),
+        readProp(
+          raw,
+          "assigneeName",
+          "AssigneeName",
+          "assignedName",
+          "AssignedName",
+          "assignee",
+          "Assignee",
+        ),
       ) ?? null,
     ownerName:
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
@@ -203,15 +221,29 @@ function normalizeCapaDto(data: unknown): CapaDto | null {
   return list[0] ?? null;
 }
 
+function normalizeCapaTaskDueDate(value: string | null | undefined): string | null {
+  return parseCapaApiDate(value);
+}
+
 function coerceCapaTaskDto(raw: Record<string, unknown>): CapaTaskDto | null {
   const id = asNumber(readProp(raw, "id", "Id"));
   const capaId = asNumber(readProp(raw, "capaId", "CapaId"));
   const userId = asNumber(readProp(raw, "userId", "UserId"));
   const task = asString(readProp(raw, "task", "Task"));
+  const statusRaw = asString(readProp(raw, "status", "Status"));
 
   if (id == null || capaId == null || userId == null || !task?.trim()) {
     return null;
   }
+
+  const status =
+    statusRaw === "NotStarted" ||
+    statusRaw === "InProcess" ||
+    statusRaw === "Completed"
+      ? statusRaw
+      : null;
+
+  const dueDateRaw = asString(readProp(raw, "dueDate", "DueDate"));
 
   return {
     id,
@@ -219,7 +251,10 @@ function coerceCapaTaskDto(raw: Record<string, unknown>): CapaTaskDto | null {
     userId,
     task: task.trim(),
     ownerId: asNumber(readProp(raw, "ownerId", "OwnerId")) ?? null,
-    dueDate: asString(readProp(raw, "dueDate", "DueDate")) ?? null,
+    ownerName: asString(readProp(raw, "ownerName", "OwnerName")) ?? null,
+    dueDate: normalizeCapaTaskDueDate(dueDateRaw),
+    status,
+    createdAt: asString(readProp(raw, "createdAt", "CreatedAt")) ?? null,
   };
 }
 
@@ -266,6 +301,147 @@ function normalizeCapaTaskDto(data: unknown): CapaTaskDto | null {
   }
 
   return normalizeCapaTaskList(data)[0] ?? null;
+}
+
+function coerceCapaAttachmentItem(
+  raw: Record<string, unknown>,
+): CapaAttachmentItemDto | null {
+  const attachmentUrl = asString(
+    readProp(raw, "attachmentUrl", "AttachmentUrl", "url", "Url"),
+  );
+  const attachmentTitle = asString(
+    readProp(
+      raw,
+      "attachmentTitle",
+      "AttachmentTitle",
+      "title",
+      "Title",
+      "name",
+      "Name",
+    ),
+  );
+
+  if (!attachmentUrl?.trim() || !attachmentTitle?.trim()) {
+    return null;
+  }
+
+  return {
+    attachmentUrl: attachmentUrl.trim(),
+    attachmentTitle: attachmentTitle.trim(),
+    size: asString(readProp(raw, "size", "Size")) ?? null,
+  };
+}
+
+function normalizeCapaAttachmentList(data: unknown): CapaAttachmentItemDto[] {
+  const payload = unwrapPayload(data);
+
+  if (Array.isArray(payload)) {
+    return payload
+      .filter((item): item is Record<string, unknown> => isRecord(item))
+      .map((item) => coerceCapaAttachmentItem(item))
+      .filter((item): item is CapaAttachmentItemDto => item != null);
+  }
+
+  if (!isRecord(payload)) {
+    return [];
+  }
+
+  const nested =
+    payload.attachments ??
+    payload.Attachments ??
+    payload.data ??
+    payload.Data ??
+    payload.items ??
+    payload.Items;
+
+  if (Array.isArray(nested)) {
+    return nested
+      .filter((item): item is Record<string, unknown> => isRecord(item))
+      .map((item) => coerceCapaAttachmentItem(item))
+      .filter((item): item is CapaAttachmentItemDto => item != null);
+  }
+
+  return [];
+}
+
+function coerceCapaVerificationDto(
+  raw: Record<string, unknown>,
+): CapaVerificationDto | null {
+  const capaId = asNumber(readProp(raw, "capaId", "CapaId"));
+  const userId = asNumber(readProp(raw, "userId", "UserId"));
+  const effectivenessRaw = asString(
+    readProp(raw, "effectiveness", "Effectiveness"),
+  );
+
+  if (capaId == null || userId == null || !effectivenessRaw?.trim()) {
+    return null;
+  }
+
+  const effectiveness = effectivenessRaw.trim() as CapaEffectiveness;
+  if (
+    effectiveness !== "Effective" &&
+    effectiveness !== "Partially Effective" &&
+    effectiveness !== "Not Effective"
+  ) {
+    return null;
+  }
+
+  const checklistRaw =
+    readProp(raw, "checklist", "Checklist") ??
+    readProp(raw, "checkList", "CheckList");
+
+  const checklist = Array.isArray(checklistRaw)
+    ? checklistRaw
+        .filter((item): item is Record<string, unknown> => isRecord(item))
+        .map((item) => {
+          const itemText = asString(readProp(item, "item", "Item"));
+          if (!itemText?.trim()) {
+            return null;
+          }
+          return {
+            item: itemText.trim(),
+            isChecked:
+              asBoolean(readProp(item, "isChecked", "IsChecked")) ?? false,
+          };
+        })
+        .filter((item): item is { item: string; isChecked: boolean } => item != null)
+    : null;
+
+  return {
+    capaId,
+    userId,
+    effectiveness,
+    notes: asString(readProp(raw, "notes", "Notes")) ?? null,
+    checklist,
+    verifiedAt:
+      asString(readProp(raw, "verifiedAt", "VerifiedAt", "createdAt", "CreatedAt")) ??
+      null,
+    verifiedByName:
+      asString(
+        readProp(raw, "verifiedByName", "VerifiedByName", "userName", "UserName"),
+      ) ?? null,
+  };
+}
+
+function normalizeCapaVerificationDto(data: unknown): CapaVerificationDto | null {
+  const payload = unwrapPayload(data);
+
+  if (isRecord(payload)) {
+    const single = coerceCapaVerificationDto(payload);
+    if (single) {
+      return single;
+    }
+  }
+
+  if (Array.isArray(payload)) {
+    const first = payload
+      .filter((item): item is Record<string, unknown> => isRecord(item))
+      .map((item) => coerceCapaVerificationDto(item))
+      .find((item): item is CapaVerificationDto => item != null);
+    return first ?? null;
+  }
+
+  return null;
 }
 
 /**
@@ -333,6 +509,29 @@ export async function updateCapa(payload: CreateCapaRequestDto) {
   return normalizeCapaDto(data);
 }
 
+/** GET /CAPA/Capa/{id} */
+export async function getCapaById(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return null;
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA details.");
+  }
+
+  const { data } = await http.get<unknown>(
+    `${CAPA_BY_ID_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaDto(data);
+}
+
 /** GET /CAPA/Tasks/{capaId} */
 export async function getCapaTasksByCapaId(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {
@@ -392,6 +591,26 @@ export async function updateCapaTask(payload: CapaTaskRequestDto) {
   return normalizeCapaTaskDto(data);
 }
 
+/** PATCH /CAPA/Task/Status */
+export async function updateCapaTaskStatus(payload: CapaTaskStatusRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update status.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update CAPA task status.");
+  }
+
+  const { data } = await http.patch<unknown>(CAPA_TASK_STATUS_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaTaskDto(data);
+}
+
 /** PATCH /CAPA/Drop/{id} — soft-drop a CAPA */
 export async function dropCapa(id: number) {
   const accessToken = getAccessToken();
@@ -410,4 +629,75 @@ export async function dropCapa(id: number) {
   );
 
   return data;
+}
+
+/** GET /CAPA/Attachments/{capaId} */
+export async function getCapaAttachmentsByCapaId(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return [];
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA attachments.");
+  }
+
+  const { data } = await http.get<unknown>(
+    `${CAPA_ATTACHMENTS_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaAttachmentList(data);
+}
+
+/** GET /CAPA/Verification/{capaId} */
+export async function getCapaVerificationByCapaId(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return null;
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA verification.");
+  }
+
+  try {
+    const { data } = await http.get<unknown>(
+      `${CAPA_VERIFICATION_PATH}/${encodeURIComponent(String(capaId))}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    return normalizeCapaVerificationDto(data);
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/** POST /CAPA/Verification */
+export async function submitCapaVerification(
+  payload: CapaVerificationRequestDto,
+) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to verify a CAPA.");
+  }
+
+  const { data } = await http.post<unknown>(CAPA_VERIFICATION_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaVerificationDto(data);
 }

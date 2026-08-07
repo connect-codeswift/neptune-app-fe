@@ -2,7 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAuthContext } from "@/lib/auth-context";
-import { getCapasByIncidentId, getCapaTasksByCapaId } from "@/services/capa.service";
+import {
+  getCapaAttachmentsByCapaId,
+  getCapaById,
+  getCapasByIncidentId,
+  getCapaTasksByCapaId,
+  getCapaVerificationByCapaId,
+} from "@/services/capa.service";
+import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import {
   EMPTY_LINKED_CAPA_VIEW,
   mapCapaDtosToLinkedView,
@@ -14,6 +21,8 @@ export const capaQueryKeys = {
     [...capaQueryKeys.all, "incident", incidentId] as const,
   tasks: (capaId: number) =>
     [...capaQueryKeys.all, "tasks", capaId] as const,
+  review: (capaId: number) =>
+    [...capaQueryKeys.all, "review", capaId] as const,
 };
 
 export type UseCapasByIncidentQueryOptions = Readonly<{
@@ -43,8 +52,23 @@ export function useCapasByIncidentQuery(
       }
 
       const dtos = await getCapasByIncidentId(incidentId);
+      const activeDtos = dtos.filter((dto) => !dto.isDrop);
+      const tasksByCapaId = new Map<number, CapaTaskDto[]>();
+
+      await Promise.all(
+        activeDtos.map(async (dto) => {
+          try {
+            const tasks = await getCapaTasksByCapaId(dto.id);
+            tasksByCapaId.set(dto.id, tasks);
+          } catch {
+            tasksByCapaId.set(dto.id, []);
+          }
+        }),
+      );
+
       return mapCapaDtosToLinkedView(dtos, {
         currentUserId: auth?.userId,
+        tasksByCapaId,
       });
     },
   });
@@ -69,6 +93,36 @@ export function useCapaTasksQuery(options: UseCapaTasksQueryOptions) {
       }
 
       return getCapaTasksByCapaId(capaId);
+    },
+  });
+}
+
+export type UseCapaReviewQueryOptions = Readonly<{
+  capaId: number | null;
+  enabled?: boolean;
+}>;
+
+/** Loads CAPA detail, task, attachments, and verification for manager review. */
+export function useCapaReviewQuery(options: UseCapaReviewQueryOptions) {
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.review(capaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return null;
+      }
+
+      const [capa, tasks, attachments, verification] = await Promise.all([
+        getCapaById(capaId),
+        getCapaTasksByCapaId(capaId),
+        getCapaAttachmentsByCapaId(capaId),
+        getCapaVerificationByCapaId(capaId),
+      ]);
+
+      return { capa, tasks, attachments, verification };
     },
   });
 }

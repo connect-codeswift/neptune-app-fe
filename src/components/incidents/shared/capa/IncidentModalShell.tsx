@@ -13,6 +13,7 @@ export type IncidentModalShellProps = Readonly<{
   footerActions: ReactNode;
   /** Wider content area for dense grids. */
   maxWidthClassName?: string;
+  overlayClassName?: string;
 }>;
 
 /**
@@ -27,6 +28,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
     footerHint,
     footerActions,
     maxWidthClassName = "max-w-[928px]",
+    overlayClassName = "z-[100]",
   } = props;
 
   const titleId = useId();
@@ -59,7 +61,10 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-ehs-dark-bg/45 p-3.5 backdrop-blur-[3px] sm:p-5"
+      className={[
+        "fixed inset-0 flex items-center justify-center bg-ehs-dark-bg/45 p-3.5 backdrop-blur-[3px] sm:p-5",
+        overlayClassName,
+      ].join(" ")}
       onClick={onClose}
       role="presentation"
     >

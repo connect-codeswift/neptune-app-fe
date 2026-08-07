@@ -27,6 +27,8 @@ import type {
 import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
+import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
+import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import { IncidentDetailCapaControlCoverageCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaControlCoverageCard";
 import { IncidentDetailCapaListCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaListCard";
 import { IncidentDetailCapaSummaryCard } from "@/components/incidents/detail/linked-capa/IncidentDetailCapaSummaryCard";
@@ -128,6 +130,16 @@ export type IncidentDetailViewProps = Readonly<{
     capa: CapaItem,
     payload: CapaFormPayload,
   ) => void | Promise<void>;
+  isCreatingCapaTask?: boolean;
+  onCreateCapaTask?: (
+    capa: CapaItem,
+    payload: CapaTaskFormPayload,
+  ) => void | Promise<void>;
+  isVerifyingCapa?: boolean;
+  onVerifyCapa?: (
+    capa: CapaItem,
+    input: { effectiveness: CapaEffectiveness; notes: string },
+  ) => void | Promise<void>;
 
   previewFile: AttachmentItem | null;
   onClosePreview: () => void;
@@ -217,6 +229,10 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onNavigateToLinkedCapa,
     onSubmitCapa,
     onUpdateCapa,
+    isCreatingCapaTask,
+    onCreateCapaTask,
+    isVerifyingCapa,
+    onVerifyCapa,
     previewFile,
     onClosePreview,
     closureData,
@@ -523,13 +539,17 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   onAddModalOpened={onAddCapaModalOpened}
                   onSubmitCapa={onSubmitCapa}
                   onUpdateCapa={onUpdateCapa}
+                  isCreatingCapaTask={isCreatingCapaTask}
+                  onCreateCapaTask={onCreateCapaTask}
+                  isVerifying={isVerifyingCapa}
+                  onVerifyCapa={onVerifyCapa}
                 />
                 <div className="flex flex-col gap-[14px]">
                   <IncidentDetailCapaSummaryCard
                     totalCount={linkedCapa.summary.totalCount}
+                    notStartedCount={linkedCapa.summary.notStartedCount}
                     inProgressCount={linkedCapa.summary.inProgressCount}
-                    verifiedCount={linkedCapa.summary.verifiedCount}
-                    planningCount={linkedCapa.summary.planningCount}
+                    completedCount={linkedCapa.summary.completedCount}
                     isLoading={isCapaLoading}
                   />
                   <IncidentDetailCapaControlCoverageCard

@@ -5,10 +5,18 @@ import type {
 } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { IncidentLinkedItem } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
 import type { IncidentCapa } from "@/components/incidents/list/incident-list-types";
+import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
+import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
+import type {
+  CapaTaskStatus,
+  CapaTaskStatusRequestDto,
+} from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
+import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
+import { formatCapaApiDateForDisplay } from "@/lib/parse-capa-api-date";
 
 export const CAPA_CONTROL_LEVELS = [
   "Elimination",
@@ -31,9 +39,9 @@ export type LinkedCapaViewModel = Readonly<{
 
 const EMPTY_SUMMARY: CapaSummaryCounts = {
   totalCount: 0,
+  notStartedCount: 0,
   inProgressCount: 0,
-  verifiedCount: 0,
-  planningCount: 0,
+  completedCount: 0,
 };
 
 function normalizeControlLevel(value: string): string {
@@ -57,25 +65,7 @@ function normalizeControlLevel(value: string): string {
 }
 
 function formatDueDate(value: string | null | undefined): string {
-  if (!value || value.trim() === "") {
-    return "—";
-  }
-
-  const raw = value.trim();
-  // Prefer YYYY-MM-DD when the API sends ISO datetimes.
-  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
-    return raw.slice(0, 10);
-  }
-
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    return raw;
-  }
-
-  const y = parsed.getFullYear();
-  const m = String(parsed.getMonth() + 1).padStart(2, "0");
-  const d = String(parsed.getDate()).padStart(2, "0");
-  return `${String(y)}-${m}-${d}`;
+  return formatCapaApiDateForDisplay(value);
 }
 
 function normalizeActionType(value: string): CapaItem["actionType"] {
@@ -102,6 +92,9 @@ function normalizeStatus(dto: CapaDto): CapaItem["status"] {
     return "In progress";
   }
   if (raw === "planning" || raw === "planned" || raw === "new") {
+    return "Planning";
+  }
+  if (raw === "open") {
     return "Planning";
   }
 
@@ -138,11 +131,119 @@ function progressForStatus(
   }
 }
 
+/** Maps PATCH /CAPA/Task/Status values to progress bar fill. */
+export function capaTaskStatusToProgressPercent(
+  status: CapaTaskStatus | null | undefined,
+): number {
+  switch (status) {
+    case "Completed":
+      return 100;
+    case "InProcess":
+      return 50;
+    case "NotStarted":
+    default:
+      return 0;
+  }
+}
+
+/** Average progress across all tasks for a CAPA. */
+export function computeProgressPercentFromTasks(
+  tasks: readonly CapaTaskDto[],
+): number | null {
+  if (tasks.length === 0) {
+    return null;
+  }
+
+  const total = tasks.reduce(
+    (sum, task) => sum + capaTaskStatusToProgressPercent(task.status),
+    0,
+  );
+
+  return Math.round(total / tasks.length);
+}
+
+/** Primary task status when a CAPA has one or more tasks. */
+export function resolvePrimaryCapaTaskStatus(
+  tasks: readonly CapaTaskDto[],
+): CapaTaskStatus | null {
+  const primary = tasks[0];
+  return primary?.status ?? null;
+}
+
+/** Human-readable label for assignee task status. */
+export function formatCapaTaskStatusLabel(
+  status: CapaTaskStatus | null | undefined,
+): string {
+  switch (status) {
+    case "NotStarted":
+      return "Not started";
+    case "InProcess":
+      return "In progress";
+    case "Completed":
+      return "Completed";
+    default:
+      return "Not started";
+  }
+}
+
+export function capaTaskStatusBadgeClass(
+  status: CapaTaskStatus | null | undefined,
+): string {
+  switch (status) {
+    case "InProcess":
+      return "bg-ehs-normal-blue/14 text-ehs-normal-blue";
+    case "Completed":
+      return "bg-ehs-green/14 text-ehs-green";
+    case "NotStarted":
+    default:
+      return "bg-ehs-gray/14 text-ehs-gray";
+  }
+}
+
+/** Cycle task status when the assignee updates their CAPA action. */
+export function nextCapaTaskStatus(
+  current: CapaTaskStatus | null | undefined,
+): CapaTaskStatus {
+  switch (current) {
+    case "NotStarted":
+      return "InProcess";
+    case "InProcess":
+      return "Completed";
+    case "Completed":
+      return "NotStarted";
+    default:
+      return "InProcess";
+  }
+}
+
+function resolveCapaProgress(
+  dto: CapaDto,
+  status: CapaItem["status"],
+  tasks: readonly CapaTaskDto[] | undefined,
+): number {
+  if (tasks) {
+    if (tasks.length > 0) {
+      return computeProgressPercentFromTasks(tasks) ?? 0;
+    }
+    // Tasks were fetched but none exist — not started yet.
+    return 0;
+  }
+
+  return progressForStatus(status, dto.progressPercent ?? dto.progress);
+}
+
 function resolveAssignee(
   dto: CapaDto,
-  options?: Readonly<{ currentUserId?: number }>,
+  options?: Readonly<{
+    currentUserId?: number;
+    taskOwnerName?: string | null;
+  }>,
 ): string {
-  const named = dto.assigneeName?.trim() || dto.ownerName?.trim() || "";
+  const named =
+    options?.taskOwnerName?.trim() ||
+    dto.assigneeName?.trim() ||
+    dto.ownerName?.trim() ||
+    "";
   if (named) {
     return named;
   }
@@ -156,57 +257,74 @@ function resolveAssignee(
 
 export function mapCapaDtoToItem(
   dto: CapaDto,
-  options?: Readonly<{ currentUserId?: number }>,
+  options?: Readonly<{
+    currentUserId?: number;
+    tasks?: readonly CapaTaskDto[];
+  }>,
 ): CapaItem {
   const status = normalizeStatus(dto);
-  const progressPercent = progressForStatus(
-    status,
-    dto.progressPercent ?? dto.progress,
-  );
+  const tasks = options?.tasks;
+  const primaryTask = tasks?.[0];
+  const progressPercent = resolveCapaProgress(dto, status, tasks);
 
   return {
     id: String(dto.id),
     numericId: dto.id,
     incidentId: dto.incidentId,
     userId: dto.userId,
-    assignedId: dto.assignedId ?? null,
+    assignedId: primaryTask?.ownerId ?? dto.assignedId ?? null,
     rcaId: dto.rcaId ?? null,
-    description: dto.description.trim(),
+    description:
+      primaryTask?.task.trim() || dto.description.trim(),
     isDrop: dto.isDrop ?? false,
     code: dto.capaCode?.trim() || dto.code?.trim() || `CAPA-${String(dto.id)}`,
     controlCategory: normalizeControlLevel(dto.controlLevel),
     actionType: normalizeActionType(dto.capaType),
     status,
     statusTone: status === "Verified" ? "green" : "gray",
-    title: dto.title?.trim() || dto.description.trim(),
-    assignee: resolveAssignee(dto, options),
-    dueDate: formatDueDate(dto.dueDate),
+    title:
+      dto.title?.trim() ||
+      primaryTask?.task.trim() ||
+      dto.description.trim(),
+    assignee: resolveAssignee(dto, {
+      currentUserId: options?.currentUserId,
+      taskOwnerName: primaryTask?.ownerName,
+    }),
+    dueDate: formatDueDate(primaryTask?.dueDate ?? dto.dueDate),
     priority: dto.priority?.trim() || "Medium",
     progressPercent,
+    primaryTaskId: primaryTask?.id ?? null,
+    taskStatus: resolvePrimaryCapaTaskStatus(tasks ?? []),
   };
 }
 
 export function buildCapaSummary(
   items: readonly CapaItem[],
 ): CapaSummaryCounts {
+  let notStartedCount = 0;
   let inProgressCount = 0;
-  let verifiedCount = 0;
-  let planningCount = 0;
+  let completedCount = 0;
 
   for (const item of items) {
-    if (item.status === "In progress") inProgressCount += 1;
-    else if (item.status === "Verified" || item.status === "Closed") {
-      verifiedCount += 1;
-    } else {
-      planningCount += 1;
+    switch (item.taskStatus) {
+      case "InProcess":
+        inProgressCount += 1;
+        break;
+      case "Completed":
+        completedCount += 1;
+        break;
+      case "NotStarted":
+      default:
+        notStartedCount += 1;
+        break;
     }
   }
 
   return {
     totalCount: items.length,
+    notStartedCount,
     inProgressCount,
-    verifiedCount,
-    planningCount,
+    completedCount,
   };
 }
 
@@ -275,10 +393,18 @@ export function mapCapaItemsToIncidentCapas(
 
 export function mapCapaDtosToLinkedView(
   dtos: readonly CapaDto[],
-  options?: Readonly<{ currentUserId?: number }>,
+  options?: Readonly<{
+    currentUserId?: number;
+    tasksByCapaId?: ReadonlyMap<number, readonly CapaTaskDto[]>;
+  }>,
 ): LinkedCapaViewModel {
   const active = dtos.filter((dto) => !dto.isDrop);
-  const items = active.map((dto) => mapCapaDtoToItem(dto, options));
+  const items = active.map((dto) =>
+    mapCapaDtoToItem(dto, {
+      currentUserId: options?.currentUserId,
+      tasks: options?.tasksByCapaId?.get(dto.id),
+    }),
+  );
   const summary = buildCapaSummary(items);
   const hierarchy = buildControlCoverage(items);
   const noticeMessage = buildCoverageNotice(hierarchy);
@@ -475,4 +601,84 @@ export function buildUpdateCapaTaskRequest(input: {
     ownerId: parseOptionalUserId(input.owner),
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
   };
+}
+
+export function buildUpdateCapaTaskStatusRequest(input: {
+  id: number;
+  status: CapaTaskStatus;
+  userId?: number;
+}): CapaTaskStatusRequestDto {
+  const auth = getAuthContext();
+  const userId = input.userId ?? auth?.userId ?? 0;
+
+  if (userId <= 0) {
+    throw new Error("Sign in required to update CAPA task status.");
+  }
+
+  return {
+    id: input.id,
+    status: input.status,
+    userId,
+  };
+}
+
+/** Whether the assigner should review a completed CAPA before closing. */
+export function capaNeedsManagerReview(item: CapaItem): boolean {
+  return (
+    item.taskStatus === "Completed" &&
+    item.status !== "Verified" &&
+    item.status !== "Closed"
+  );
+}
+
+const DEFAULT_VERIFICATION_CHECKLIST = [
+  "Action was implemented as described",
+  "Evidence supports completion",
+  "No new hazards introduced",
+] as const;
+
+export function buildCapaVerificationRequest(input: {
+  capaId: number;
+  effectiveness: CapaEffectiveness;
+  notes?: string;
+  checklist?: readonly { item: string; isChecked: boolean }[];
+}): CapaVerificationRequestDto {
+  const auth = getAuthContext();
+  const userId = auth?.userId ?? 0;
+
+  if (userId <= 0) {
+    throw new Error("Sign in required to verify a CAPA.");
+  }
+
+  const checklist =
+    input.checklist ??
+    DEFAULT_VERIFICATION_CHECKLIST.map((item) => ({
+      item,
+      isChecked: true,
+    }));
+
+  return {
+    capaId: input.capaId,
+    userId,
+    effectiveness: input.effectiveness,
+    notes: input.notes?.trim() ? input.notes.trim() : null,
+    checklist,
+  };
+}
+
+/** Re-submit CAPA metadata after verification so the record reflects closed state. */
+export function buildVerifiedCapaUpdateRequest(capa: CapaItem): CreateCapaRequestDto {
+  return buildCapaMutationPayload({
+    id: capa.numericId,
+    incidentId: capa.incidentId,
+    userId: capa.userId,
+    assignedId: capa.assignedId,
+    rcaId: capa.rcaId,
+    isDrop: capa.isDrop,
+    controlLevel: capa.controlCategory,
+    description: capa.description,
+    type: capa.actionType,
+    dueDate: capa.dueDate === "—" ? "" : capa.dueDate,
+    priority: capa.priority,
+  });
 }
