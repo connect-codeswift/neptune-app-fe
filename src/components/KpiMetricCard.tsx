@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
 export type KpiMetricTone = "positive" | "negative";
 
@@ -172,15 +173,17 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
           {title}
         </Text>
 
-        <span
-          className={[
-            "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[10.5px] leading-[15.4px] font-bold tracking-[0.22px]",
-            toneClasses[trendTone].pill,
-          ].join(" ")}
-        >
-          <Icon icon={trendIcon} className="size-[11px]" aria-hidden="true" />
-          {trendValue}
-        </span>
+        {SHOW_KPI_TREND_BADGES ? (
+          <span
+            className={[
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-[10.5px] leading-[15.4px] font-bold tracking-[0.22px]",
+              toneClasses[trendTone].pill,
+            ].join(" ")}
+          >
+            <Icon icon={trendIcon} className="size-[11px]" aria-hidden="true" />
+            {trendValue}
+          </span>
+        ) : null}
       </div>
 
       <div className="flex items-baseline gap-[10px]">

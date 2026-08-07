@@ -47,10 +47,10 @@ type IndicatorDefinition = Readonly<{
 }>;
 
 const INJURY_MIX_COLORS = {
-  fatality: "var(--ehs-green)",
-  restricted: "var(--ehs-normal-blue)",
-  lostTime: "var(--ehs-yellow)",
-  medicalOnly: "var(--ehs-red)",
+  fatality: "var(--ehs-red)",
+  restricted: "var(--ehs-yellow)",
+  lostTime: "var(--ehs-normal-blue)",
+  medicalOnly: "var(--ehs-green)",
 } as const;
 
 const INDICATOR_DEFINITIONS: readonly IndicatorDefinition[] = [
