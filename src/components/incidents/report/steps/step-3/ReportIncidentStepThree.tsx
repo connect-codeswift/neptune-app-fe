@@ -151,6 +151,7 @@ export function ReportIncidentStepThree(
                   // The rewrite buttons need text to work on, so they only take
                   // the slot back once the draft has been resolved either way.
                   <AiTextAssistant
+                    module="incident"
                     value={form.injuryDescription}
                     onApply={(injuryDescription) => {
                       onChange({ injuryDescription });

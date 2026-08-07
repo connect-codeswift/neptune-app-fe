@@ -36,3 +36,18 @@ export type IncidentDraftResultDto = {
   injuryDescription: string | null;
   actionNotes: string | null;
 };
+
+/**
+ * POST /api/NearMiss/draft-assist and POST /api/Hazard/draft-assist.
+ *
+ * One field, not three: these forms have a single narrative box rather than the
+ * incident wizard's description / injury / actions split.
+ *
+ * `null` is a real answer and will be common — it means the answers given do
+ * not support a draft (§3 of the guide: near miss needs a contributing factor,
+ * hazard needs a potential consequence). Render nothing at all for it: no ghost
+ * text, no empty accept button, no "the assistant had nothing to say".
+ */
+export type NarrativeDraftResultDto = {
+  narrative: string | null;
+};

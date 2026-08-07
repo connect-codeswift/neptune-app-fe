@@ -47,7 +47,9 @@ function asNumber(value: unknown): number | null {
 }
 
 /** Unwrap the standard API envelope, tolerating a bare auth payload. */
-export function unwrapAuthPayload(data: unknown): Record<string, unknown> | null {
+export function unwrapAuthPayload(
+  data: unknown,
+): Record<string, unknown> | null {
   if (!isRecord(data)) {
     return null;
   }
@@ -102,25 +104,34 @@ export function shouldShowAccessWindowBanner(
   return accessExpiresAt != null && accessExpiresAt !== "";
 }
 
-export function formatAccessWindowBannerMessage(
+/**
+ * "14 days left" / "1 day left" / "Ends today", for the sidebar card.
+ *
+ * Short because it sits in a 256px column under the nav. The full sentence the
+ * banner used ("Your organization's access ends in 14 days…") wrapped to three
+ * lines there and read as a warning rather than a status.
+ */
+export function formatAccessWindowRemaining(
   daysRemaining: number | null | undefined,
-  accessExpiresAt: string,
 ): string {
   const days = daysRemaining ?? 0;
-  const expiryLabel = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(accessExpiresAt));
 
   if (days <= 0) {
-    return `Your organization's access ends today (${expiryLabel}). Contact CodeSwift to continue after expiry.`;
+    return "Ends today";
   }
 
   if (days === 1) {
-    return `Your organization's access ends in 1 day (${expiryLabel}). Contact CodeSwift to extend access.`;
+    return "1 day left";
   }
 
-  return `Your organization's access ends in ${days} days (${expiryLabel}). Contact CodeSwift to extend access.`;
+  return `${String(days)} days left`;
+}
+
+/** Date only — the sidebar has no room for a timestamp, and 2:15 AM told nobody anything. */
+export function formatAccessWindowExpiry(accessExpiresAt: string): string {
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+    new Date(accessExpiresAt),
+  );
 }
 
 let cachedAccessWindowRaw: string | null | undefined;
@@ -158,7 +169,10 @@ export function getCachedAccessWindow(): AccessWindowState | null {
 
   const raw = globalThis.sessionStorage.getItem(ACCESS_WINDOW_STORAGE_KEY);
 
-  if (raw === cachedAccessWindowRaw && cachedAccessWindowSnapshot !== undefined) {
+  if (
+    raw === cachedAccessWindowRaw &&
+    cachedAccessWindowSnapshot !== undefined
+  ) {
     return cachedAccessWindowSnapshot;
   }
 

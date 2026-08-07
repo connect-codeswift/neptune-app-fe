@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /**
  * Schema-driven form types for the reusable {@link FormBuilder}.
  *
@@ -105,6 +107,12 @@ export type SelectFieldConfig = BaseField &
     variant?: "default" | "search";
   }>;
 
+/** What a textarea hands its assistant so the assistant can write back. */
+export type TextareaAssistantField = Readonly<{
+  value: string;
+  onChange: (next: string) => void;
+}>;
+
 export type TextareaFieldConfig = BaseField &
   Readonly<{
     type: "textarea";
@@ -112,6 +120,21 @@ export type TextareaFieldConfig = BaseField &
     rows?: number;
     /** Caps input length and shows a "0/500" counter beside the label. */
     maxLength?: number;
+    /**
+     * Controls layered inside the field box — the AI rewrite buttons and the
+     * ghost draft.
+     *
+     * A render prop rather than a node, because both need to read and write
+     * this field: accepting a draft and applying a rewrite are writes.
+     * `FormBuilder` owns its values in local state, so handing the field's own
+     * `value` and `onChange` down is what avoids either a controlled mode or an
+     * imperative handle just to let the assistant type into the box.
+     *
+     * Same box contract as `ReportTextareaField` in the incident wizard: the
+     * textarea gains a `relative` wrapper and a reserved strip along the bottom
+     * so typed text never runs under the buttons.
+     */
+    assistant?: (field: TextareaAssistantField) => ReactNode;
   }>;
 
 /** Tag picker: options render as toggleable pills, value is the chosen set. */
