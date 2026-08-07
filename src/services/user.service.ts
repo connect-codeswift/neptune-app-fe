@@ -51,9 +51,12 @@ export type SiteUsersParams = Readonly<{
  * GET /Auth/GetUsersBySiteId/{siteId} — the people who belong to one site.
  *
  * The endpoint filters server-side via `search`, so the affected-person picker
- * does not have to hold the whole roster in memory to be searchable. Dropped
- * users are stripped here rather than in the component: nothing in the app has
- * a reason to offer a soft-deleted account.
+ * does not have to hold the whole roster in memory to be searchable.
+ *
+ * Deactivated accounts and unaccepted invitations are stripped here as well as
+ * server-side: nothing in the app has a reason to offer a soft-deleted account,
+ * and an outstanding invite has no `fullName` yet — it is collected when the
+ * person accepts — so it would show up as a nameless row.
  */
 export async function getUsersBySiteId(
   siteId: number,
@@ -70,7 +73,9 @@ export async function getUsersBySiteId(
     },
   );
 
-  return (data.dataModel?.data ?? []).filter((user) => !user.isDrop);
+  return (data.dataModel?.data ?? []).filter(
+    (user) => !user.isDrop && !user.isInvited,
+  );
 }
 
 /**
