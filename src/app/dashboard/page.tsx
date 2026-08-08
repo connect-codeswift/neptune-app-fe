@@ -25,17 +25,19 @@ export default function DashboardPage() {
       <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
         <DashboardKpiMetrics />
 
-        <div className="grid gap-[14px] lg:grid-cols-13">
+        {/* stagger-cards offsets each row's second card, so a row settles left
+            to right rather than both halves appearing at once. */}
+        <div className="stagger-cards grid gap-[14px] lg:grid-cols-13">
           <IncidentTrendsCard className="lg:col-span-8" />
           <HazardsByCategoryCard className="lg:col-span-5" />
         </div>
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="stagger-cards grid gap-[14px] lg:grid-cols-2">
           <InspectionRatesCard />
           <ComplianceDeadlinesCard />
         </div>
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="stagger-cards grid gap-[14px] lg:grid-cols-2">
           <DashboardMyActionsCard />
           <ComplianceDeadlinesCard
             title="Recent Activity"

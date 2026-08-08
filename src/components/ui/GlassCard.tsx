@@ -27,6 +27,11 @@ export function GlassCard(props: Readonly<GlassCardProps>) {
       className={[
         GLASS_SURFACE,
         "flex min-w-0 flex-col gap-[10px] p-[19px]",
+        // Entrance and hover response live on the surface itself, so every card
+        // in the app behaves the same way instead of each screen reinventing it.
+        // Both utilities self-disable under prefers-reduced-motion. `className`
+        // is appended last, so a caller can still override either one.
+        "animate-card-rise card-lift",
         className,
       ]
         .filter(Boolean)

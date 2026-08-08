@@ -20,7 +20,19 @@ export function IncidentGlassCard(props: Readonly<IncidentGlassCardProps>) {
 
   return (
     <article
-      className={[cardShellClass, paddingClassName, className]
+      className={[
+        cardShellClass,
+        // Same entrance and hover response as GlassCard, so incidents, PPE,
+        // audits and the rest move like the dashboard rather than sitting
+        // still next to it. Both utilities self-disable under
+        // prefers-reduced-motion; `className` still wins, being appended last.
+        //
+        // NOTE: this shell duplicates GlassCard's surface rather than reusing
+        // GLASS_SURFACE — worth unifying, at which point this line goes away.
+        "animate-card-rise card-lift",
+        paddingClassName,
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
