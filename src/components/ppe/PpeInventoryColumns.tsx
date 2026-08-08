@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeInventoryItem>();
@@ -21,8 +22,7 @@ const progressClassName: Record<"good" | "warn" | "danger", string> = {
   danger: "bg-[#ef4444]",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
+export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
   columnHelper.accessor("category", {
     header: "CATEGORY",
     size: 180,

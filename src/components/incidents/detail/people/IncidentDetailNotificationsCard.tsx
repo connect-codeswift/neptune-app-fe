@@ -16,31 +16,13 @@ export type IncidentDetailNotificationsCardProps = Readonly<{
   className?: string;
 }>;
 
-const DEFAULT_NOTIFICATIONS: readonly NotificationRow[] = [
-  {
-    target: "MOCK: On-call EHS lead",
-    channel: "Page + SMS",
-    time: "09:18",
-    icon: "mdi:bell-outline",
-  },
-  {
-    target: "MOCK: Site Supervisor",
-    channel: "Email",
-    time: "09:18",
-    icon: "mdi:bell-outline",
-  },
-  {
-    target: "MOCK: Plant Manager",
-    channel: "Email",
-    time: "09:35",
-    icon: "mdi:bell-outline",
-  },
-];
-
 export function IncidentDetailNotificationsCard(
   props: Readonly<IncidentDetailNotificationsCardProps>,
 ) {
-  const { notifications = DEFAULT_NOTIFICATIONS, className = "" } = props;
+  // No placeholder rows. Under the heading "Notifications sent", sample
+  // entries claim people were paged or emailed when they were not — the MOCK:
+  // prefix made that visible to us, not to whoever is reading the record.
+  const { notifications = [], className = "" } = props;
 
   return (
     <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
@@ -52,6 +34,12 @@ export function IncidentDetailNotificationsCard(
           Notifications sent
         </Text>
       </div>
+
+      {notifications.length === 0 ? (
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px] text-sm">
+          No notifications recorded for this incident.
+        </div>
+      ) : null}
 
       {notifications.map((notif, index) => (
         <div

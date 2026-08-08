@@ -1,6 +1,7 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
@@ -52,11 +53,7 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
   );
 }
 
-export function buildPpeAcknowledgementsColumns(): ColumnDef<
-  PpeAcknowledgementEntry,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any
->[] {
+export function buildPpeAcknowledgementsColumns(): TableColumns<PpeAcknowledgementEntry> {
   return [
     columnHelper.display({
       id: "assignTo",

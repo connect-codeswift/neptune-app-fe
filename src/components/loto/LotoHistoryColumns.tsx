@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoHistoryRecord,
   LotoHistoryResult,
@@ -17,8 +18,7 @@ export type LotoHistoryColumnActions = Readonly<{
 
 export function buildLotoHistoryColumns(
   actions: LotoHistoryColumnActions,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoHistoryRecord, any>[] {
+): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
       header: "LOG ID",

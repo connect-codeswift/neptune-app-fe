@@ -1,6 +1,7 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type {
   PpeIssuanceLogEntry,
@@ -22,8 +23,7 @@ export type PpeIssuanceLogColumnsOptions = Readonly<{
 
 export function buildPpeIssuanceLogColumns(
   options: PpeIssuanceLogColumnsOptions = {},
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<PpeIssuanceLogEntry, any>[] {
+): TableColumns<PpeIssuanceLogEntry> {
   const { onReturn } = options;
 
   return [

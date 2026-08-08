@@ -54,7 +54,7 @@ export function IncidentDetailPeopleCard(
     affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
-    daysAway = 0,
+    daysAway = "—",
     responders = [],
     isEditing = false,
     onChangeAffectedName,
