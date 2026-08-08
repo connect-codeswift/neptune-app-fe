@@ -355,7 +355,7 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     sitesAvailable: asNullableNumber(
       readProp(unwrapped, "sitesAvailable", "SitesAvailable"),
     ),
-    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSiteLimit")),
+    atSeatLimit: Boolean(readProp(unwrapped, "atSeatLimit", "AtSeatLimit")),
     atSiteLimit: Boolean(readProp(unwrapped, "atSiteLimit", "AtSiteLimit")),
   });
 }

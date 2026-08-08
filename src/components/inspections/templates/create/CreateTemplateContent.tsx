@@ -199,7 +199,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         { templateId, payload },
         {
           onSuccess: (response) => {
-            console.log(response);
             if (publish) {
               // The update returns the saved template — publish it by id.
               publishSavedTemplate(

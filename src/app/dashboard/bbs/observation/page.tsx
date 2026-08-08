@@ -17,13 +17,13 @@ const BBS_ROUTE = "/dashboard/bbs";
 function fallbackDetail(id: string): ObservationDetail {
   return {
     id,
-    observer: "ΓÇö",
-    date: "ΓÇö",
-    time: "ΓÇö",
-    location: "ΓÇö",
-    category: "ΓÇö",
+    observer: "—",
+    date: "—",
+    time: "—",
+    location: "—",
+    category: "—",
     type: "Safe",
-    observed: "ΓÇö",
+    observed: "—",
     photos: [],
   };
 }

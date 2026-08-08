@@ -1,13 +1,13 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { PpeIssuanceRecord } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeIssuanceRecord>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ppeIssuanceColumns: ColumnDef<PpeIssuanceRecord, any>[] = [
+export const ppeIssuanceColumns: TableColumns<PpeIssuanceRecord> = [
   columnHelper.accessor("employee", {
     header: "EMPLOYEE",
     size: 200,

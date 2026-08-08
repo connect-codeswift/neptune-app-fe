@@ -1,0 +1,5 @@
+# Vendored build artifact copied verbatim from pdfjs-dist (see
+# src/lib/pdf-worker.ts and `npm run sync:pdf-worker`). Kept byte-for-byte so
+# checkout never rewrites its line endings and it stays identical to the file
+# the installed pdfjs-dist ships.
+public/pdf.worker.min.mjs -text

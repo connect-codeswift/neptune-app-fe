@@ -43,8 +43,13 @@ export function useLoginMutation() {
 
   return useMutation({
     mutationFn: (credentials: LoginRequestDto) => authenticateUser(credentials),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
+    onSuccess: () => {
+      // Deliberately not awaited. `mutateAsync` awaits whatever onSuccess
+      // returns, and `invalidateQueries` resolves only once the active session
+      // queries have refetched — so awaiting it here held the caller (and the
+      // redirect to /dashboard) behind a network round trip that the dashboard
+      // is perfectly able to wait on itself with its own skeletons.
+      void queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
     },
   });
 }

@@ -29,7 +29,6 @@ export default function InspectionTemplatesPage() {
     pageSize: PAGE_SIZE,
     status,
   });
-  console.log(templatesQuery.data);
 
   const page = templatesQuery.data?.dataModel;
   const templates = useMemo(
@@ -37,7 +36,7 @@ export default function InspectionTemplatesPage() {
     [page],
   );
 
-  /** Switching status re-queries from page 1 ΓÇö the old page may not exist. */
+  /** Switching status re-queries from page 1 — the old page may not exist. */
   const handleStatusChange = (next: TemplateStatusFilter) => {
     setStatus(next);
     setPageNumber(1);

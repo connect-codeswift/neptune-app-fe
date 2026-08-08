@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { userNameFor } from "@/lib/map-user";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
@@ -11,8 +12,7 @@ export type HazardColumnHandlers = Readonly<{
 
 export function makeHazardColumns(
   handlers: HazardColumnHandlers,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<HazardRecord, any>[] {
+): TableColumns<HazardRecord> {
   const { userNames } = handlers;
 
   return [

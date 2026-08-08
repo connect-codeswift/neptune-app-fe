@@ -78,10 +78,17 @@ export function useInspectionTemplateDetailQuery(
   });
 }
 
-/** Fetches a single inspection template by id. */
+/**
+ * Fetches a single inspection template by id.
+ *
+ * Keyed "by-id" rather than "detail": `useInspectionTemplateDetailQuery` caches
+ * a composed InspectionTemplateDetail, and sharing one key meant whichever hook
+ * resolved first handed the other its own shape. Mutations invalidate on the
+ * ["inspection-template"] prefix, so both keys are still cleared together.
+ */
 export function useInspectionTemplateQuery(templateId: string) {
   return useQuery({
-    queryKey: ["inspection-template", "detail", templateId] as const,
+    queryKey: ["inspection-template", "by-id", templateId] as const,
     enabled: templateId !== "",
     queryFn: () => getInspectionTemplateById(templateId),
   });

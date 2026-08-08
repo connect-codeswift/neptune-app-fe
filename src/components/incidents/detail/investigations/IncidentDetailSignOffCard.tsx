@@ -4,7 +4,6 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { SignOffRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { toast } from "@/lib/toast";
 
 export type { SignOffRow };
 
@@ -14,40 +13,18 @@ export type IncidentDetailSignOffCardProps = Readonly<{
   className?: string;
 }>;
 
-const DEFAULT_SIGNOFFS: readonly SignOffRow[] = [
-  {
-    name: "Sarah Mitchell",
-    role: "EHS Manager · Investigator",
-    initials: "SM",
-    badgeLabel: "Signed",
-    badgeTone: "green",
-  },
-  {
-    name: "Tom Park",
-    role: "Plant Manager · Approver",
-    initials: "TP",
-    badgeLabel: "Awaiting",
-    badgeTone: "gray",
-  },
-];
-
 export function IncidentDetailSignOffCard(
   props: Readonly<IncidentDetailSignOffCardProps>,
 ) {
-  const {
-    signoffs = DEFAULT_SIGNOFFS,
-    onRequestApproval,
-    className = "",
-  } = props;
+  // No placeholder signatories: this card is the investigation's sign-off
+  // record, and named people with a "Signed" badge are indistinguishable from
+  // real approvals.
+  const { signoffs = [], onRequestApproval, className = "" } = props;
 
-  const handleRequest =
-    onRequestApproval ??
-    (() => {
-      toast.success(
-        "Approval Requested",
-        "EHS sign-off notifications dispatched to reviewers.",
-      );
-    });
+  // No caller supplies onRequestApproval yet, and the previous fallback
+  // toasted "notifications dispatched" without sending anything. Until there
+  // is a handler, the control says it is unavailable rather than lying.
+  const canRequestApproval = onRequestApproval != null;
 
   return (
     <IncidentGlassCard
@@ -62,8 +39,13 @@ export function IncidentDetailSignOffCard(
         Sign-off
       </Text>
 
-      <div className="mt-[18px] flex flex-col">
-        {signoffs.map((person, index) => (
+      {signoffs.length === 0 ? (
+        <Text as="p" className="text-ehs-muted-text mt-[18px] text-sm">
+          No sign-offs recorded for this investigation.
+        </Text>
+      ) : (
+        <div className="mt-[18px] flex flex-col">
+          {signoffs.map((person, index) => (
           <div
             key={`${person.name}-${String(index)}`}
             className={[
@@ -105,17 +87,28 @@ export function IncidentDetailSignOffCard(
               {person.badgeLabel}
             </span>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <button
         type="button"
-        onClick={handleRequest}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] py-2.5 text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
+        onClick={onRequestApproval}
+        disabled={!canRequestApproval}
+        title={
+          canRequestApproval ? undefined : "Approval requests are not available yet"
+        }
+        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] py-2.5 text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none disabled:hover:bg-ehs-normal-blue"
       >
         <Icon icon="mdi:check" className="size-3.5" aria-hidden="true" />
         Request approval
       </button>
+
+      {canRequestApproval ? null : (
+        <Text as="p" className="text-ehs-muted-text mt-1.5 text-center text-xs">
+          Approval requests are not available yet.
+        </Text>
+      )}
     </IncidentGlassCard>
   );
 }

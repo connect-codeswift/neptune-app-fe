@@ -42,7 +42,7 @@ export function NearMissDetailContent(
   const detailQuery = useNearMissDetailQuery(nearMissId);
   const dto = detailQuery.data?.dataModel ?? null;
 
-  // The record carries a userId, not a reporter name ΓÇö resolve it for display.
+  // The record carries a userId, not a reporter name — resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
   const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
 

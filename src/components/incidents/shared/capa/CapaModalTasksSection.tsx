@@ -16,7 +16,11 @@ type CapaModalTasksSectionProps = Readonly<{
   busy?: boolean;
   onOpenAddTask: () => void;
   onRemoveStagedTask?: (localId: string) => void;
-  onDeleteSavedTask?: (taskId: number) => void;
+  /**
+   * Async in practice (AddCapaModal passes a mutation). Typed as such so the
+   * returned promise can't be dropped silently the way a bare `void` allows.
+   */
+  onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   capaPriority?: string;
 }>;
 
@@ -108,7 +112,14 @@ export function CapaModalTasksSection(
                   priority={capaPriority}
                   onRemove={
                     onDeleteSavedTask
-                      ? () => onDeleteSavedTask(taskItem.id)
+                      ? () => {
+                          // The delete handler toasts its own failure and
+                          // re-throws; swallow it here so a failed delete
+                          // isn't an unhandled rejection.
+                          void Promise.resolve(
+                            onDeleteSavedTask(taskItem.id),
+                          ).catch(() => undefined);
+                        }
                       : undefined
                   }
                 />

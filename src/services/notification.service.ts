@@ -112,7 +112,10 @@ function coerceNotificationReadResult(
 
   return {
     id: asNumber(readProp(value, "id", "Id")) ?? fallbackId,
-    isRead: asBoolean(readProp(value, "isRead", "IsRead")) || true,
+    // Optimistic default: this is the reply to a mark-as-read call, so a
+    // missing field means read. `asBoolean` is non-nullable, so the previous
+    // `|| true` swallowed an explicit false instead of defaulting.
+    isRead: asBoolean(readProp(value, "isRead", "IsRead") ?? true),
     readAt: asString(readProp(value, "readAt", "ReadAt")),
   };
 }

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static assets are served verbatim, not authored here. Without this the
+    // vendored pdf.js worker (public/pdf.worker.min.mjs, ~1MB minified) is
+    // linted as source and reports well over a thousand problems.
+    "public/**",
   ]),
 ]);
 

@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Document, Page, pdfjs } from "react-pdf";
+import { Document, Page } from "react-pdf";
 import { Text } from "@/components/Text";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Side-effect import: configures the pdf.js worker before <Document> renders.
+import "@/lib/pdf-worker";
 
 export type AcknowledgePdfDocumentProps = Readonly<{
   fileUrl: string;
@@ -62,10 +62,14 @@ export function AcknowledgePdfDocument(
         ) : null}
 
         <div className="ml-auto flex items-center gap-1.5">
+          {/* No handler was ever attached — in-document search isn't
+              implemented. Disabled rather than presented as available. */}
           <button
             type="button"
-            aria-label="Search in document"
-            className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] transition-colors hover:bg-white/70"
+            disabled
+            aria-label="Search in document (not available yet)"
+            title="Searching inside the document is not available yet"
+            className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] opacity-40 disabled:cursor-not-allowed"
           >
             <Icon icon="mdi:magnify" className="size-3" aria-hidden="true" />
           </button>

@@ -61,8 +61,6 @@ export async function publishAuditTemplate(
     `${AUDIT_TEMPLATE_PATH}/${encodeURIComponent(templateId)}/publish`,
     payload,
   );
-  console.log("Publish audit template response", data);
-
   return data;
 }
 

@@ -234,15 +234,16 @@ export function buildCreateRcaWhysRequest(
     throw new Error("At least one why description is required.");
   }
 
-  const lastIndex = whys.length - 1;
-
   return {
     contributingFactorId: input.contributingFactorId,
     userId,
-    whys: whys.map((why, index) => ({
+    // The caller decides which why is the root cause — the HRCA board sends one
+    // why at a time, so deriving it from this array's own last index marked
+    // every single-why save as the root cause.
+    whys: whys.map((why) => ({
       stepNumber: why.stepNumber,
       description: why.description,
-      isRootCause: index === lastIndex,
+      isRootCause: why.isRootCause,
     })),
   };
 }

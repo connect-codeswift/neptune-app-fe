@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Table } from "@/components/ui/Table";
 import type { LotoHistoryRecord } from "@/app/dashboard/lockout-tagout/loto-data";
 import { toast } from "@/lib/toast";
@@ -13,9 +14,7 @@ const resultClassName: Record<LotoHistoryRecord["result"], string> = {
   Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
 };
 
-function buildColumns(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoHistoryRecord, any>[] {
+function buildColumns(): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
       header: "LOG ID",

@@ -96,7 +96,14 @@ export function CapaCompletionReviewModal(
   }, [existingVerification]);
 
   const handleVerify = async () => {
-    await onVerify({ effectiveness, notes: notes.trim() });
+    try {
+      await onVerify({ effectiveness, notes: notes.trim() });
+    } catch {
+      // The caller toasts the failure and re-throws to signal "stay open", so
+      // there is nothing to report here — just don't close, and don't let the
+      // rejection escape as an unhandled promise.
+      return;
+    }
     onClose();
   };
 

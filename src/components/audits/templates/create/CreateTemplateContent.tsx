@@ -137,6 +137,12 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
 
   const createTemplate = useCreateAuditTemplateMutation();
   const updateTemplate = useUpdateAuditTemplateMutation();
+  /**
+   * Either mutation blocks the submit controls: edit mode goes through
+   * updateTemplate, so gating on createTemplate alone left Save/Publish live
+   * during a PUT and allowed duplicate submits.
+   */
+  const isSavingTemplate = createTemplate.isPending || updateTemplate.isPending;
 
   /** Persist the wizard state as a draft or a published template. In edit mode
    * with a known id this PUTs an update; otherwise it POSTs a new template. */
@@ -163,7 +169,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
       // Both create and update answer with the standard envelope, so prefer the
       // backend's own wording and fall back to ours when it sends none.
       onSuccess: (response: ApiEnvelopeDto<unknown>) => {
-        console.log(response);
         toast.success(
           response.message || (publish ? "Template published" : "Draft saved"),
         );
@@ -298,7 +303,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         <button
           type="button"
           onClick={handleSaveDraft}
-          disabled={createTemplate.isPending}
+          disabled={isSavingTemplate}
           className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon
@@ -370,7 +375,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           scoring={scoring}
           rules={rules}
           settings={settings}
-          isSubmitting={createTemplate.isPending}
+          isSubmitting={isSavingTemplate}
           onEditStep={setStep}
           onPublish={handlePublish}
           onSaveDraft={handleSaveDraft}

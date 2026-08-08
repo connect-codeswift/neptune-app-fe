@@ -11,7 +11,6 @@ import { ToggleSwitch } from "@/components/profile/ToggleSwitch";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { toast } from "@/lib/toast";
 
 export function AccountSettingsSecurityClient() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -19,22 +18,14 @@ export function AccountSettingsSecurityClient() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
 
-  const handleUpdatePassword = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please complete all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation do not match");
-      return;
-    }
-
-    toast.success("Password updated");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-  };
+  /**
+   * There is no change-password endpoint yet — auth.service only exposes the
+   * OTP reset used by the forgot-password flow. This form previously validated
+   * the fields, cleared them and toasted "Password updated" without calling
+   * anything, so a user had every reason to believe their password had
+   * changed. Disabled until an endpoint exists rather than left to mislead.
+   */
+  const canChangePassword = false;
 
   return (
     <AccountSettingsShell activeTab="security" showActions={false}>
@@ -59,6 +50,12 @@ export function AccountSettingsSecurityClient() {
             Change Password
           </Text>
 
+          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+            Changing your password here isn&apos;t available yet. Use
+            &ldquo;Forgot password&rdquo; on the sign-in page to reset it by
+            email.
+          </Text>
+
           <div className="mt-4 grid max-w-xl gap-4">
             <TextInput
               label="Current Password"
@@ -66,6 +63,7 @@ export function AccountSettingsSecurityClient() {
               placeholder="Enter current password"
               type="password"
               value={currentPassword}
+              disabled={!canChangePassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
             />
             <TextInput
@@ -74,6 +72,7 @@ export function AccountSettingsSecurityClient() {
               placeholder="Enter new password"
               type="password"
               value={newPassword}
+              disabled={!canChangePassword}
               onChange={(event) => setNewPassword(event.target.value)}
             />
             <TextInput
@@ -82,6 +81,7 @@ export function AccountSettingsSecurityClient() {
               placeholder="Re-enter new password"
               type="password"
               value={confirmPassword}
+              disabled={!canChangePassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
             />
           </div>
@@ -90,7 +90,7 @@ export function AccountSettingsSecurityClient() {
             type="button"
             variant="primary"
             className="mt-5 rounded-lg px-4 py-2 text-sm"
-            onClick={handleUpdatePassword}
+            disabled={!canChangePassword}
           >
             Update Password
           </Button>

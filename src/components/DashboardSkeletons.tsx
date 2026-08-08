@@ -32,8 +32,10 @@ function KpiMetricCardSkeleton() {
 }
 
 export function KpiMetricsRowSkeleton() {
+  // Staggered to match KpiMetricsRow, so the loading row and the real row
+  // settle in with the same rhythm rather than switching cadence.
   return (
-    <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="stagger-cards grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
       {Array.from({ length: 4 }, (_, index) => (
         <KpiMetricCardSkeleton key={`kpi-skeleton-${String(index)}`} />
       ))}

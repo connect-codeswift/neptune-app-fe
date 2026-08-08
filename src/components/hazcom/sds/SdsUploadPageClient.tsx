@@ -25,6 +25,11 @@ import {
   useHazardHCodesQuery,
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
+import {
+  CLOUDINARY_MAX_BYTES,
+  formatFileSize,
+  isPdfMimeType,
+} from "@/lib/cloudinary-constants";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
@@ -155,6 +160,22 @@ export function SdsUploadPageClient() {
     if (!file) {
       setFileName(null);
       setPdfUrl("");
+      return;
+    }
+
+    // Enforced here rather than on the input: `accept` only filters the file
+    // picker, so a drag-and-drop bypassed both constraints entirely and the
+    // "PDF up to 50 MB" the dropzone promises went unchecked.
+    if (!isPdfMimeType(file.type)) {
+      toast.error("Unsupported file", "Safety data sheets must be PDF files.");
+      return;
+    }
+
+    if (file.size > CLOUDINARY_MAX_BYTES) {
+      toast.error(
+        "File too large",
+        `${formatFileSize(file.size)} exceeds the ${formatFileSize(CLOUDINARY_MAX_BYTES)} limit.`,
+      );
       return;
     }
 

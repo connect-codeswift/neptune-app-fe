@@ -197,7 +197,7 @@ export function RegulatoryComplianceDetailView(
           Obligation not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No compliance obligation matches ΓÇ£${id}ΓÇ¥.`}
+          {`No compliance obligation matches “${id}”.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"

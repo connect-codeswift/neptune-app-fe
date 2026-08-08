@@ -96,7 +96,6 @@ export type WalkTalkTrendsCardProps = Readonly<{
 export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
   const { className = "", weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS } = props;
   const graphQuery = useWalkTalkGraphQuery(weeks);
-  console.log(graphQuery.data);
   const points = useMemo(
     () => toWalkTalkTrendPoints(graphQuery.data?.dataModel),
     [graphQuery.data?.dataModel],
@@ -120,10 +119,14 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
             {`Sessions logged · ${String(displayWeeks)} weeks`}
           </p>
         </div>
+        {/* No onClick was ever attached, so this read as an available filter
+            and did nothing. Disabled until there is something to filter by. */}
         <button
           type="button"
-          aria-label="Filter trends"
-          className="text-ehs-muted-text hover:text-ehs-gray shrink-0 cursor-pointer rounded-lg p-1 transition-colors"
+          disabled
+          aria-label="Filter trends (not available yet)"
+          title="Filtering trends is not available yet"
+          className="text-ehs-muted-text shrink-0 rounded-lg p-1 opacity-40 disabled:cursor-not-allowed"
         >
           <Icon
             icon="mdi:filter-outline"

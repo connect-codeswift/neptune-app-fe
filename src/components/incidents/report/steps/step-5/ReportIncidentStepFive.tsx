@@ -262,7 +262,7 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 3: Routing preview banner */}
-          <div className="border-ehs-border bg---ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
+          <div className="border-ehs-border bg-ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
             <div className="text-ehs-normal-blue bg-ehs-normal-blue/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px]">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>

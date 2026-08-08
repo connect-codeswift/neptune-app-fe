@@ -1,11 +1,11 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
 
 const columnHelper = createColumnHelper<WalkTalkSession>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const walkTalkSessionColumns: ColumnDef<WalkTalkSession, any>[] = [
+export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
   columnHelper.accessor("id", {
     header: "ID",
     size: 110,

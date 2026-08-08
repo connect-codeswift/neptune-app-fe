@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoPersonnel,
   LotoPersonnelStatus,
@@ -18,8 +19,7 @@ export type LotoPersonnelColumnActions = Readonly<{
 
 export function buildLotoPersonnelColumns(
   actions: LotoPersonnelColumnActions,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoPersonnel, any>[] {
+): TableColumns<LotoPersonnel> {
   return [
     columnHelper.accessor("name", {
       header: "NAME",

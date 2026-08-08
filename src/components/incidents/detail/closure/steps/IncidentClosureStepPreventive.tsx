@@ -23,51 +23,6 @@ export type IncidentClosureStepPreventiveProps = Readonly<{
   onLinkAdditionalCapa?: () => void;
 }>;
 
-const AVAILABLE_CAPA_ITEMS: readonly ClosureLinkedCapaItem[] = [
-  {
-    id: "capa-12",
-    title: "CAPA-012",
-    subtitle: "Preventive replacement schedule for high-risk transfer lines",
-    progressPercent: 100,
-    status: "Completed",
-  },
-  {
-    id: "capa-14",
-    title: "CAPA-014",
-    subtitle: "Revised ultrasonic inspection SOP & checklist update",
-    progressPercent: 70,
-    status: "In Progress",
-  },
-  {
-    id: "capa-18",
-    title: "CAPA-018",
-    subtitle: "Secondary containment valve gasket upgrade & torque spec review",
-    progressPercent: 35,
-    status: "In Progress",
-  },
-  {
-    id: "capa-22",
-    title: "CAPA-022",
-    subtitle: "Pre-shift operator equipment safety briefing module",
-    progressPercent: 0,
-    status: "Planning",
-  },
-  {
-    id: "capa-25",
-    title: "CAPA-025",
-    subtitle: "Automated pressure transducer calibration protocol",
-    progressPercent: 10,
-    status: "Planning",
-  },
-  {
-    id: "capa-30",
-    title: "CAPA-030",
-    subtitle: "Emergency isolation valve accessibility redesign",
-    progressPercent: 100,
-    status: "Completed",
-  },
-];
-
 function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
   switch (status) {
     case "Completed":
@@ -94,9 +49,13 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
   );
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Deduplicate and combine available items with any currently linked items
+  // Only CAPAs actually linked to this incident are selectable. This list used
+  // to be seeded with six invented CAPAs (CAPA-012 … CAPA-030), which let a
+  // reviewer attach a CAPA that does not exist to a real closure record.
+  // There is no org-wide CAPA list endpoint yet — use-capa-queries only
+  // exposes per-incident, task and review queries — so until one exists there
+  // is nothing further to offer here.
   const allItemsMap = new Map<string, ClosureLinkedCapaItem>();
-  AVAILABLE_CAPA_ITEMS.forEach((item) => allItemsMap.set(item.id, item));
   currentlyLinked.forEach((item) => allItemsMap.set(item.id, item));
 
   const allItems = Array.from(allItemsMap.values());
@@ -241,7 +200,9 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                 className="size-8 text-ehs-muted-text"
               />
               <span className="mt-2 text-sm font-medium text-ehs-gray">
-                No CAPA or action items match your search.
+                {allItems.length === 0
+                  ? "No CAPAs are linked to this incident yet."
+                  : "No CAPA or action items match your search."}
               </span>
             </div>
           )}

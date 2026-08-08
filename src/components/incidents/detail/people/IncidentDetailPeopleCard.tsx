@@ -54,7 +54,7 @@ export function IncidentDetailPeopleCard(
     affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
-    daysAway = 0,
+    daysAway = "—",
     responders = [],
     isEditing = false,
     onChangeAffectedName,
@@ -237,7 +237,11 @@ export function IncidentDetailPeopleCard(
         ) : (
           responders.map((person, index) => (
             <div
-              key={`${person.role}-${person.name}-${String(index)}`}
+              // Index, not the person's fields: `name` is edited in place here,
+              // so keying on it remounted the row and dropped the caret on
+              // every keystroke. ResponderMember carries no stable id, and the
+              // list is not reordered or filtered while editing.
+              key={index}
               className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
             >
               <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] bg-ehs-dark-blue-bg-light text-sm font-bold text-ehs-dark-blue">

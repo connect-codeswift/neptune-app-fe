@@ -33,13 +33,17 @@ export function IncidentClosureStepReview(
         </Text>
       </div>
 
-      {/* Sign-off Green/Teal Box */}
+      {/* Sign-off Green/Teal Box. Never substitutes a placeholder identity:
+          the copy above calls this a legal compliance record, so an invented
+          signer name, role or timestamp would be indistinguishable from a real
+          signature. Missing values read as "Not recorded". */}
       <div className="rounded-[14px] border border-ehs-normal-blue/40 bg-ehs-light-blue/40 p-4 shadow-xs">
         <Text as="p" className="text-[13px] font-bold text-ehs-dark-bg">
-          {data.closedBy || "Sarah Mitchell"}
+          {data.closedBy || "Not recorded"}
         </Text>
         <Text as="p" className="mt-0.5 text-[13px] font-normal text-ehs-gray">
-          {`${data.closedByRole || "EHS Manager"} · ${data.closureDate || "24 Apr 2026, 15:04"}`}
+          {[data.closedByRole, data.closureDate].filter(Boolean).join(" · ") ||
+            "Role and date not recorded"}
         </Text>
       </div>
 

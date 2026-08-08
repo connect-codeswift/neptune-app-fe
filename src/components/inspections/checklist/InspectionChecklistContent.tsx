@@ -120,7 +120,6 @@ export function InspectionChecklistContent(
   // everything the checklist needs.
   const detailQuery = useInspectionDetailQuery(inspectionId);
   const detail = detailQuery.data?.dataModel ?? null;
-  console.log(detail);
   const checklist = useMemo(
     () => (detail ? mapInspectionDetailToChecklist(detail) : null),
     [detail],
