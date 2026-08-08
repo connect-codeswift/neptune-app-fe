@@ -59,10 +59,10 @@ function buildLibraryCategories(
   }));
 }
 
-/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent ΓÇö normalize either. */
+/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent — normalize either. */
 function formatAckRate(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {
-    return "ΓÇö";
+    return "—";
   }
   const percent = value <= 1 ? value * 100 : value;
   return `${String(Math.round(percent))}%`;
@@ -276,7 +276,7 @@ export function PolicyMakerView() {
                   {[
                     `Page ${String(pageNumber)} of ${String(totalPages)}`,
                     totalCount > 0 ? `${String(totalCount)} total` : null,
-                    documentsQuery.isFetching ? "LoadingΓÇª" : null,
+                    documentsQuery.isFetching ? "Loading…" : null,
                   ]
                     .filter(Boolean)
                     .join(" ┬╖ ")}

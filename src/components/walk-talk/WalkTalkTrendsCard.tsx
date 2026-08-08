@@ -96,7 +96,6 @@ export type WalkTalkTrendsCardProps = Readonly<{
 export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
   const { className = "", weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS } = props;
   const graphQuery = useWalkTalkGraphQuery(weeks);
-  console.log(graphQuery.data);
   const points = useMemo(
     () => toWalkTalkTrendPoints(graphQuery.data?.dataModel),
     [graphQuery.data?.dataModel],

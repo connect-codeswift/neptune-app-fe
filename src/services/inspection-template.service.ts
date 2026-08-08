@@ -33,8 +33,6 @@ export async function updateInspectionTemplate(
     `${INSPECTION_TEMPLATE_PATH}/${encodeURIComponent(templateId)}`,
     payload,
   );
-  console.log("Update inspection template response", data);
-
   return data;
 }
 

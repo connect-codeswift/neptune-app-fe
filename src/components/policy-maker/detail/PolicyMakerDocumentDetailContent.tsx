@@ -169,7 +169,7 @@ export function PolicyMakerDocumentDetailContent(
           Document not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No document matches ΓÇ£${documentIdParam}ΓÇ¥.`}
+          {`No document matches “${documentIdParam}”.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"

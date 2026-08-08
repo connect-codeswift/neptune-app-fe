@@ -37,7 +37,7 @@ export function buildLotoEquipmentColumns(
       header: "TYPE",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darket/10 text-base">{info.getValue()}</span>
+        <span className="text-ehs-darker text-base">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
@@ -45,7 +45,7 @@ export function buildLotoEquipmentColumns(
       header: "LOCATION",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darket/10 text-base">{info.getValue()}</span>
+        <span className="text-ehs-darker text-base">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
