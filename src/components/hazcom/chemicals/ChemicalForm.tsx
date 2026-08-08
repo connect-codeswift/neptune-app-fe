@@ -383,7 +383,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="button"
               variant="primary"
               className="rounded-lg px-5 py-2 text-[13px]"
-              disabled={saveChemical.isPending}
+              isLoading={saveChemical.isPending}
               onClick={() => save(false)}
             >
               {saveChemical.isPending ? "Saving..." : primaryLabel}

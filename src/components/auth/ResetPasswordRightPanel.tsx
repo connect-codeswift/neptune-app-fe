@@ -164,7 +164,7 @@ export default function ResetPasswordRightPanel() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={resetPasswordMutation.isPending}
+              isLoading={resetPasswordMutation.isPending}
             >
               {resetPasswordMutation.isPending ? (
                 "Updating..."

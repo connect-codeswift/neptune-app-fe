@@ -478,7 +478,8 @@ export function SdsUploadPageClient() {
             <Button
               type="button"
               variant="primary"
-              disabled={isBusy}
+              isLoading={createSds.isPending}
+              disabled={isUploading}
               onClick={() => save(false)}
             >
               <Icon

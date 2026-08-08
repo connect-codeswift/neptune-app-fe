@@ -346,7 +346,7 @@ export function LogWalkTalkContent() {
           <Button
             type="button"
             variant="primary"
-            disabled={createWalkTalk.isPending}
+            isLoading={createWalkTalk.isPending}
             onClick={saveAll}
             className="h-11 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:rounded-[10px] md:px-5 md:text-base md:font-semibold md:shadow-[0px_6px_18px_-6px_#0891a6]"
           >
