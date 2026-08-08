@@ -63,10 +63,9 @@ function IssuanceLogMobileCard(
   props: Readonly<{
     entry: PpeIssuanceLogEntry;
     onOpen: () => void;
-    onReturn: () => void;
   }>,
 ) {
-  const { entry, onOpen, onReturn } = props;
+  const { entry, onOpen } = props;
 
   return (
     <button
@@ -106,24 +105,19 @@ function IssuanceLogMobileCard(
             {entry.condition}
           </span>
         </p>
+        {/* Recording a return has no endpoint yet (use-ppe-mutations covers
+            issue and replacement only), and this used to toast "Return
+            recorded" without saving anything. Shown as unavailable rather than
+            actionable — and as plain text, since an interactive control nested
+            inside this card's own button was invalid markup and unreachable by
+            keyboard in a predictable order. The desktop table already has its
+            Return column disabled. */}
         {entry.canReturn ? (
           <span
-            role="button"
-            tabIndex={0}
-            onClick={(event) => {
-              event.stopPropagation();
-              onReturn();
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                event.stopPropagation();
-                onReturn();
-              }
-            }}
-            className="text-ehs-normal-blue cursor-pointer text-sm font-semibold"
+            className="text-ehs-muted-text text-sm font-semibold"
+            title="Recording returns is not available yet"
           >
-            Return
+            Return unavailable
           </span>
         ) : null}
       </div>
@@ -155,15 +149,9 @@ export function PpeIssuanceLogContent(
     [entries, query, statusFilter],
   );
 
-  const columns = useMemo(
-    () =>
-      buildPpeIssuanceLogColumns({
-        onReturn: (entry) => {
-          toast.success(`Return recorded for ${entry.issueId}`);
-        },
-      }),
-    [],
-  );
+  // No onReturn handler: the table's Return column is disabled while the
+  // endpoint is missing, so passing one only wired up a fake success toast.
+  const columns = useMemo(() => buildPpeIssuanceLogColumns(), []);
 
   const resultLabel = `${String(filtered.length)} ${
     filtered.length === 1 ? "issuance" : "issuances"
@@ -284,9 +272,6 @@ export function PpeIssuanceLogContent(
                       entry={entry}
                       onOpen={() => {
                         openProfile(entry);
-                      }}
-                      onReturn={() => {
-                        toast.success(`Return recorded for ${entry.issueId}`);
                       }}
                     />
                   </li>

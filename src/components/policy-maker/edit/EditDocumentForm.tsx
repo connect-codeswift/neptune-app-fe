@@ -502,6 +502,12 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           />
         </div>
 
+        {/* Disabled because there is nowhere to send it: neither
+            UpdateDocumentRequestDto nor CreateDocumentVersionRequestDto has a
+            notes field (only the separate approval endpoint takes `comments`).
+            Previously this was captured and dropped on submit, silently losing
+            the change rationale on a document-control screen where that
+            rationale is the point. */}
         <div className={fieldWrapperClass}>
           <label htmlFor={versionNotesId} className={fieldLabelClass}>
             Version Notes
@@ -510,11 +516,18 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             id={versionNotesId}
             value={versionNotes}
             onChange={(event) => setVersionNotes(event.target.value)}
-            placeholder="Describe what changed in this version…"
+            placeholder="Not available yet — version notes aren't saved with the document."
             rows={3}
-            disabled={busy}
-            className={`${controlClass} !h-auto resize-none`}
+            disabled
+            aria-describedby={`${versionNotesId}-hint`}
+            className={`${controlClass} !h-auto resize-none disabled:cursor-not-allowed disabled:opacity-60`}
           />
+          <p
+            id={`${versionNotesId}-hint`}
+            className="text-ehs-muted-text mt-1 text-xs"
+          >
+            Version notes can&apos;t be saved yet.
+          </p>
         </div>
 
         <div className="flex flex-col-reverse items-stretch gap-3 pt-2.5 sm:flex-row sm:items-center sm:justify-end">

@@ -17,15 +17,7 @@ const statusTone: Record<PpeLogStatus, "muted" | "neutral"> = {
   Returned: "neutral",
 };
 
-export type PpeIssuanceLogColumnsOptions = Readonly<{
-  onReturn?: (entry: PpeIssuanceLogEntry) => void;
-}>;
-
-export function buildPpeIssuanceLogColumns(
-  options: PpeIssuanceLogColumnsOptions = {},
-): TableColumns<PpeIssuanceLogEntry> {
-  const { onReturn } = options;
-
+export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> {
   return [
     columnHelper.accessor("issueId", {
       header: "ID",
@@ -114,26 +106,9 @@ export function buildPpeIssuanceLogColumns(
       ),
       meta: { align: "left" as const },
     }),
-    // columnHelper.display({
-    //   id: "action",
-    //   header: "ACTION",
-    //   size: 90,
-    //   cell: ({ row }) => {
-    //     if (!row.original.canReturn) return null;
-    //     return (
-    //       <button
-    //         type="button"
-    //         className="cursor-pointer rounded-[7px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-sm font-medium text-[#566072] transition-colors hover:bg-[rgba(15,23,42,0.1)]"
-    //         onClick={(event) => {
-    //           event.stopPropagation();
-    //           onReturn?.(row.original);
-    //         }}
-    //       >
-    //         Return
-    //       </button>
-    //     );
-    //   },
-    //   meta: { align: "left" as const },
-    // }),
+    // An ACTION column with a per-row Return button belongs here, but
+    // recording a return has no endpoint yet (use-ppe-mutations covers issue
+    // and replacement only). Left out rather than wired to a fake success
+    // toast; add it back with the mutation when the endpoint lands.
   ];
 }
