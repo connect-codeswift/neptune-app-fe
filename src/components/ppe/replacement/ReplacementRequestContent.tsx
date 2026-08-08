@@ -261,7 +261,11 @@ export function ReplacementRequestContent() {
               </Text>
 
               <FormBuilder
-                key={`${selectedEmployeeValue}-${issueIdParam}-${String(itemOptions.length)}`}
+                // Remount only when the values FormBuilder captures on mount
+                // change. itemOptions was in this key too, so the form was
+                // wiped mid-typing when the items query resolved — unnecessary,
+                // since options reach the fields through `schema` on re-render.
+                key={`${selectedEmployeeValue}-${issueIdParam}`}
                 formId={REPLACEMENT_REQUEST_FORM_ID}
                 schema={schema}
                 initialValues={initialValues}

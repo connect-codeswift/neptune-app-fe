@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Document, Page, pdfjs } from "react-pdf";
+import { Document, Page } from "react-pdf";
 import { Text } from "@/components/Text";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Side-effect import: configures the pdf.js worker before <Document> renders.
+import "@/lib/pdf-worker";
 
 export type AcknowledgePdfDocumentProps = Readonly<{
   fileUrl: string;

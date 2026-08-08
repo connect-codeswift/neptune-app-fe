@@ -116,6 +116,11 @@ export default function OrganizationSetupPage() {
         signup,
         onboarding,
       });
+      // Drop the stored password as soon as it has been used, rather than
+      // leaving it readable for as long as the success modal stays open. The
+      // signup guard above only runs on mount, so this cannot bounce the user
+      // back to /signup.
+      clearSignupState();
       setAllowLeave(true);
       setShowCompleteModal(true);
     } catch {
