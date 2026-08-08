@@ -32,6 +32,12 @@ export function IncidentDetailUploadCard(
     onRegisterOpen?.(() => {
       fileInputRef.current?.click();
     });
+
+    // Replace the registration on unmount so the parent isn't left holding a
+    // closure over this component's detached file input.
+    return () => {
+      onRegisterOpen?.(() => undefined);
+    };
   }, [onRegisterOpen]);
 
   const handleUploadFile = async (file: File) => {

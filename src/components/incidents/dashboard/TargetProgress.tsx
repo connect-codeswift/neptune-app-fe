@@ -28,22 +28,19 @@ export function resolveTargetStatus(
   return current <= target ? "on" : "off";
 }
 
-function getFillPercent(
-  current: number,
-  target: number,
-  direction: TargetDirection,
-) {
+/**
+ * Fill is deliberately direction-agnostic: the marker sits at
+ * TARGET_MARKER_PCT and represents the target value, so scaling by
+ * `current / target` puts the fill head exactly on the marker when the two
+ * are equal, whichever direction is better. Direction changes only the
+ * pass/fail reading, which `resolveTargetStatus` owns.
+ */
+function getFillPercent(current: number, target: number) {
   if (target === 0) {
     return current === 0 ? 8 : 100;
   }
 
-  const ratio = current / target;
-
-  if (direction === "higher-better") {
-    return Math.min(100, Math.max(6, ratio * TARGET_MARKER_PCT));
-  }
-
-  return Math.min(100, Math.max(6, ratio * TARGET_MARKER_PCT));
+  return Math.min(100, Math.max(6, (current / target) * TARGET_MARKER_PCT));
 }
 
 export function TargetProgress(props: Readonly<TargetProgressProps>) {
@@ -104,7 +101,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
   }
 
   const status = resolveTargetStatus(current, target, direction);
-  const fillPercent = getFillPercent(current, target, direction);
+  const fillPercent = getFillPercent(current, target);
   const isOn = status === "on";
 
   return (
