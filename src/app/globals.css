@@ -374,6 +374,34 @@ body {
   }
 }
 
+/* Arc travelling around the Neptune monogram's ring while the app boots. The
+   glyph itself stays still — a spinning letterform reads as a novelty, a
+   moving arc reads as progress. Rotates about the viewBox centre, so it needs
+   transform-box/transform-origin rather than Tailwind's default. */
+@keyframes mark-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-mark-orbit {
+  transform-box: view-box;
+  transform-origin: center;
+  animation-name: mark-orbit;
+  animation-duration: 1.1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+  /* Still ring instead of a spinner; the status text carries the meaning. */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Loading sheen for placeholder blocks. Replaces a flat opacity pulse, which
    blinks; a sweep reads as work in progress. Same gradient vocabulary as
    ai-blade-sweep, without the skew — these are small rectangles. */

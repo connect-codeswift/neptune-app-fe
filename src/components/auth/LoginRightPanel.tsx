@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { NeptuneLoader } from "@/components/ui/NeptuneLoader";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
@@ -25,6 +26,11 @@ function getFormString(formData: FormData, name: string) {
 export default function LoginRightPanel() {
   const router = useRouter();
   const [formError, setFormError] = useState("");
+  // Stays true from a successful sign-in until this panel unmounts, so the
+  // loader covers the route change too. `loginMutation.isPending` alone goes
+  // false the moment the request resolves, which is exactly when the blank
+  // gap used to start.
+  const [isEnteringApp, setIsEnteringApp] = useState(false);
   const loginMutation = useLoginMutation();
 
   useEffect(() => {
@@ -34,6 +40,14 @@ export default function LoginRightPanel() {
       setFormError(redirectMessage);
     }
   }, []);
+
+  useEffect(() => {
+    // /dashboard is reached by router.push, not a <Link>, so Next never
+    // prefetches it and the whole route — shell, sidebar, six cards and
+    // recharts — was still downloading after the password was accepted.
+    // Warming it while the user types turns that into a cache hit.
+    router.prefetch("/dashboard");
+  }, [router]);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -62,8 +76,10 @@ export default function LoginRightPanel() {
 
     try {
       await loginMutation.mutateAsync(parsed.data);
+      setIsEnteringApp(true);
       router.push("/dashboard");
     } catch (error) {
+      setIsEnteringApp(false);
       setFormError(
         getMutationErrorMessage(error, "Sign in failed. Please try again."),
       );
@@ -81,6 +97,10 @@ export default function LoginRightPanel() {
 
   return (
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-0 lg:px-8 lg:py-8">
+      {isEnteringApp ? (
+        <NeptuneLoader fullScreen label="Signing you in…" />
+      ) : null}
+
       <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
       <ShadeBall
         positionAsClassName="bottom-[-150px] left-[-150px]"
