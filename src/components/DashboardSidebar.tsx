@@ -3,9 +3,11 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Text } from "@/components/Text";
+import { NeptuneLoader } from "@/components/ui/NeptuneLoader";
 import { useLogout } from "@/hooks/use-logout";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import type { AppNavItem } from "@/lib/app-nav";
@@ -286,14 +288,36 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             type="button"
             onClick={() => void signOut()}
             disabled={isLoggingOut || !isUserReady}
-            aria-label="Log out"
-            title="Log out"
+            aria-label={isLoggingOut ? "Signing out" : "Log out"}
+            title={isLoggingOut ? "Signing out…" : "Log out"}
             className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Icon icon="mdi:logout" className="text-lg" aria-hidden="true" />
+            <Icon
+              icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}
+              className={[
+                "text-lg",
+                isLoggingOut ? "animate-spin motion-reduce:animate-none" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
+
+      {/* Portalled to <body> rather than rendered here: this aside sits inside
+          a translated container, and a transformed ancestor becomes the
+          containing block for fixed positioning — so a full-screen overlay
+          rendered in place would be clipped to the width of the sidebar.
+          Covers the sign-out round trip, and with it any last frame of the
+          session being torn down. */}
+      {isLoggingOut && globalThis.document !== undefined
+        ? createPortal(
+            <NeptuneLoader fullScreen label="Signing you out…" />,
+            globalThis.document.body,
+          )
+        : null}
     </aside>
   );
 }

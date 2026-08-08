@@ -188,7 +188,16 @@ export default function LoginRightPanel() {
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
-              "Signing in..."
+              <>
+                {/* A text swap alone reads as "nothing happened" — the button
+                    needs something moving while the request is in flight. */}
+                <Icon
+                  icon="mdi:loading"
+                  className="animate-spin text-lg motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+                Signing in…
+              </>
             ) : (
               <>
                 Sign in
