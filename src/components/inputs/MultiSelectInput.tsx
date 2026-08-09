@@ -231,10 +231,10 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex w-full min-w-0 items-center gap-2 rounded-[10px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-1.5 outline-none transition-colors",
+          "flex w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-1.5 outline-none backdrop-blur-[5px] transition-colors hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70",
           open
-            ? "border-[#0891a6] ring-2 ring-[#0891a6]/20"
-            : "focus-visible:border-[#0891a6] focus-visible:ring-2 focus-visible:ring-[#0891a6]/20",
+            ? "border-[#0891a6] ring-[3px] ring-[#0891a6]/15"
+            : "focus-visible:border-[#0891a6] focus-visible:ring-[3px] focus-visible:ring-[#0891a6]/15",
           selectedOptions.length > 0 ? "min-h-9" : "h-9 sm:h-[36px]",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,

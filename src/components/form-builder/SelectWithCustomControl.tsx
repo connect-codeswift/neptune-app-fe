@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import type { SelectFieldConfig, SelectOption } from "./types";
 
 export type SelectWithCustomControlProps = Readonly<{
@@ -107,7 +108,7 @@ function AddCustomForm(
               submit();
             }
           }}
-          className="border-ehs-normal-blue/40 focus:border-ehs-normal-blue min-w-0 flex-1 rounded-lg border bg-white px-2.5 py-1.5 outline-none"
+          className={`${FIELD_INPUT_LG_CLASS} min-w-0 flex-1`}
         />
       </div>
       <div className="flex justify-end gap-2">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 const crumbClass =
   "text-ehs-muted-text hover:text-ehs-gray text-sm font-medium transition-colors";
@@ -65,7 +66,7 @@ export function AuditTemplatesHeader(props: AuditTemplatesHeaderProps) {
             onChange={(event) =>
               onStatusChange?.(event.target.value as TemplateStatusFilter)
             }
-            className="border-ehs-border text-ehs-dark-bg focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full cursor-pointer appearance-none rounded-xl border bg-white py-2 pr-9 pl-3.5 font-medium transition outline-none focus:ring-2"
+            className={`${FIELD_INPUT_LG_CLASS} cursor-pointer appearance-none pr-9 font-medium`}
           >
             {TEMPLATE_STATUS_FILTERS.map((option) => (
               <option key={option} value={option}>

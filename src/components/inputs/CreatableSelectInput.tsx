@@ -320,10 +320,10 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex h-9 w-full min-w-0 items-center gap-2 rounded-[10px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-2 text-left outline-none transition-colors sm:h-[36px]",
+          "flex h-9 w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2 text-left outline-none backdrop-blur-[5px] transition-colors hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 sm:h-[36px]",
           open
-            ? "border-[#0891a6] ring-2 ring-[#0891a6]/20"
-            : "focus-visible:border-[#0891a6] focus-visible:ring-2 focus-visible:ring-[#0891a6]/20",
+            ? "border-[#0891a6] ring-[3px] ring-[#0891a6]/15"
+            : "focus-visible:border-[#0891a6] focus-visible:ring-[3px] focus-visible:ring-[#0891a6]/15",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,
         ]

@@ -57,8 +57,7 @@ function IconButton(
   );
 }
 
-const previewClass =
-  "w-full rounded-lg border border-slate-900/10 bg-white px-3 py-2 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const previewClass = FIELD_INPUT_LG_CLASS;
 
 const choiceLabelClass = "flex cursor-pointer items-center gap-2 text-ehs-gray";
 

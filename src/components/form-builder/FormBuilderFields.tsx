@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
@@ -23,13 +22,18 @@ import type {
   TimeFieldConfig,
 } from "./types";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_TEXTAREA_CLASS,
+  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
+} from "@/components/ui/field-styles";
 
-const inputClass =
-  "p-3 w-full rounded-lg border border-slate-900/10 bg-white text-base! text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const inputClass = FIELD_INPUT_CLASS;
 
+// `!` so the red border reliably beats the base hairline (same-property
+// utilities resolve by stylesheet order, not class order).
 const errorRingClass =
-  "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
+  "border-ehs-red/60! focus:border-ehs-red! focus:ring-ehs-red/20!";
 
 function FieldLabel(
   props: Readonly<{
@@ -415,10 +419,9 @@ function TextareaControl(
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[
-        "text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 bg-white px-3 py-2.5 text-base! leading-6 transition outline-none focus:ring-2",
-        // The strip along the bottom the controls sit in, so typed text never
-        // runs underneath them. Mirrors FIELD_TEXTAREA_WITH_CONTROLS_CLASS.
-        hasAssistant ? "min-h-[150px] pb-10" : "",
+        // The controls variant reserves a strip along the bottom, so typed
+        // text never runs underneath the in-field controls.
+        hasAssistant ? FIELD_TEXTAREA_WITH_CONTROLS_CLASS : FIELD_TEXTAREA_CLASS,
         error ? errorRingClass : "",
       ]
         .filter(Boolean)

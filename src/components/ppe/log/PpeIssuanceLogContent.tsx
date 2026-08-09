@@ -7,6 +7,7 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import type {
   PpeIssuanceLogEntry,
   PpeLogStatus,
@@ -224,7 +225,7 @@ export function PpeIssuanceLogContent(
                 }}
                 placeholder="Search by name, item, issue ID..."
                 aria-label="Search issuance log"
-                className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border bg-white py-2.5 pr-3 pl-9 shadow-sm transition outline-none focus:ring-2"
+                className={`${FIELD_INPUT_LG_CLASS} pl-9`}
               />
             </div>
             <span className="text-ehs-muted-text hidden shrink-0 text-base md:inline">

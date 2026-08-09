@@ -5,6 +5,7 @@ import {
   LOTO_STATUS_FILTERS,
   type LotoStatusFilter,
 } from "@/app/dashboard/lockout-tagout/loto-data";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 export type LotoEquipmentToolbarProps = Readonly<{
   query: string;
@@ -36,7 +37,7 @@ export function LotoEquipmentToolbar(
           }}
           placeholder="Search equipment…"
           aria-label="Search equipment"
-          className="border-ehs-border text-ehs-darker focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-[10px] border bg-white/55 py-2 pr-3 pl-9 text-base outline-none placeholder:text-[#8892a3] focus:ring-2"
+          className={`${FIELD_INPUT_LG_CLASS} pl-9`}
         />
       </div>
 

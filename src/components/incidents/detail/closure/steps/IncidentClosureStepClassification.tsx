@@ -140,7 +140,7 @@ export function IncidentClosureStepClassification(
             <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               Final Incident Type
             </label>
-            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-[9px] backdrop-blur-[5px]">
               <select
                 value={selectedIncidentType}
                 onChange={(e) => handleIncidentTypeChange(e.target.value)}
@@ -180,7 +180,7 @@ export function IncidentClosureStepClassification(
             <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               SIF Classification
             </label>
-            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
+            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-[9px] backdrop-blur-[5px]">
               <select
                 value={selectedSifClassification}
                 onChange={(e) =>
@@ -220,7 +220,7 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
                     lostTimeMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -273,7 +273,7 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
                     restrictedMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -388,7 +388,7 @@ export function IncidentClosureStepClassification(
               value={data.oshaOverrideReason ?? ""}
               onChange={(e) => onChangeField("oshaOverrideReason", e.target.value)}
               placeholder="Enter required reason for OSHA recordability override..."
-              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white px-3 py-1.5 text-[13px] font-normal text-ehs-dark-bg outline-none focus:border-ehs-yellow"
+              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white/55 px-3 py-1.5 text-[13px] font-normal text-ehs-dark-bg outline-none backdrop-blur-[5px] focus:border-ehs-yellow"
             />
             {overrideReasonMissing && (
               <span className="text-[11px] font-normal text-ehs-red">

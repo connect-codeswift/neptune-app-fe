@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { Switch } from "./Switch";
 import {
   RULE_ACTIONS,
@@ -20,11 +20,10 @@ import {
 const labelClass =
   "text-ehs-muted-text text-xs font-bold tracking-wider uppercase";
 
-const selectClass =
-  "w-full truncate appearance-none rounded-lg border border-slate-900/10 bg-white px-3 py-2 pr-9 text-ehs-dark-bg outline-none transition focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const selectClass = `${FIELD_INPUT_LG_CLASS} cursor-pointer truncate appearance-none pr-9`;
 
 /** Same frame as {@link selectClass}, without the chevron's right padding. */
-const inputClass = FIELD_INPUT_CLASS;
+const inputClass = FIELD_INPUT_LG_CLASS;
 
 /** Number of item weight rows shown before the "+N more" note. */
 const WEIGHTS_PREVIEW_COUNT = 3;
@@ -424,7 +423,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                     onChange={(event) => {
                       patchRule(rule.id, { thenValue: event.target.value });
                     }}
-                    className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border border-slate-900/10 bg-white px-3 py-2 outline-none focus:ring-2"
+                    className={`${FIELD_INPUT_LG_CLASS} min-w-0 flex-1`}
                   />
                 </div>
               </li>
