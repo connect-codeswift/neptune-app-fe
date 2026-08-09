@@ -92,7 +92,9 @@ export function useAuditForTemplate(templateId: string) {
     if (storedAudit && String(storedAudit.templateId) === templateId) {
       return storedAudit;
     }
-    const matches = (auditsQuery.data?.dataModel.data ?? []).filter(
+    // `?.` on dataModel too — see StartInspectionForm: the chain stopped one
+    // level short, so a null dataModel threw instead of yielding `[]`.
+    const matches = (auditsQuery.data?.dataModel?.data ?? []).filter(
       (row) => String(row.templateId) === templateId,
     );
     return matches.reduce<(typeof matches)[number] | null>(

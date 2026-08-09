@@ -138,8 +138,13 @@ export function ReportHazardForm() {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-6"
-      className="min-h-155 w-full max-w-3xl bg-white!"
+      paddingClassName="p-6 sm:p-8"
+      // Was `min-h-155 max-w-3xl bg-white!`: the forced 620px floor left a
+      // block of dead space under the last field, max-w-3xl made the card
+      // narrower than its own page header, and bg-white! overrode the glass so
+      // this was the one opaque slab on the page. Width comes from the page
+      // container now, height from the content.
+      className="w-full"
     >
       <FormBuilder
         schema={schema}

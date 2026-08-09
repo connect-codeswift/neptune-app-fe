@@ -8,7 +8,7 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HazcomGlassCard,
-  HazcomModuleTabs,
+  HazcomFormLayout,
   HazcomPageHeader,
   HazcomPictogramChip,
   HazcomSelectField,
@@ -259,9 +259,7 @@ export function SdsUploadPageClient() {
   const isBusy = isUploading || createSds.isPending;
 
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pt-4 pb-8 sm:px-4">
-      <HazcomModuleTabs />
-
+    <HazcomFormLayout>
       <HazcomPageHeader
         breadcrumb={["Safety", "HazCom", "SDS Library", "Upload"]}
         title="Upload Safety Data Sheet"
@@ -269,9 +267,9 @@ export function SdsUploadPageClient() {
       />
 
       <HazcomGlassCard
-        paddingClassName="p-6"
+        paddingClassName="p-6 sm:p-8"
         hazcomGlassCardClassName="gap-6"
-        className="mx-auto w-full max-w-3xl"
+        className="w-full"
       >
         <SdsUploadDropzone
           fileName={fileName}
@@ -348,7 +346,9 @@ export function SdsUploadPageClient() {
                 maxLength={250}
               />
 
-              <div className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}>
+              <div
+                className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}
+              >
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                   <Text
                     as="span"
@@ -492,6 +492,6 @@ export function SdsUploadPageClient() {
           </div>
         </div>
       </HazcomGlassCard>
-    </div>
+    </HazcomFormLayout>
   );
 }
