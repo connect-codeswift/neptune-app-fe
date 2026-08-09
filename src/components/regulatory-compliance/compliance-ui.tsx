@@ -18,7 +18,9 @@ export function CompliancePill(props: CompliancePillProps) {
   return (
     <span
       className={[
-        "inline-flex h-[20.244px] items-center rounded-full bg-[rgba(11,19,32,0.14)] px-[9px] text-[10px] leading-[15px] font-bold tracking-[0.21px] whitespace-nowrap text-[#566072]",
+        // Hairline for the frosted read; no backdrop-blur on per-row chips
+        // (see IncidentBadge for the rationale).
+        "inline-flex h-[20.244px] items-center rounded-full border border-white/50 bg-[rgba(11,19,32,0.14)] px-[9px] text-[10px] leading-[15px] font-bold tracking-[0.21px] whitespace-nowrap text-[#566072]",
         className,
       ]
         .filter(Boolean)
@@ -109,8 +111,10 @@ export type ComplianceRegisterSearchBarProps = Readonly<{
   className?: string;
 }>;
 
+// Was bg-ehs-border — the border-colour token as a background — which painted
+// the whole bar as a flat grey slab. Frosted to the app's field material.
 const registerToolbarBarClass =
-  "h-[36px] rounded-[8px] border-[0.727px] border-[rgba(255,255,255,0.35)] bg-ehs-border shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)]";
+  "h-[36px] rounded-[8px] border-[0.727px] border-[rgba(255,255,255,0.5)] bg-white/45 backdrop-blur-[5px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)]";
 
 const registerSearchBarClass =
   "h-[36px] rounded-[8px] border-[0.727px] border-[rgba(15,23,42,0.1)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)]";
