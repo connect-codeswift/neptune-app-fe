@@ -306,7 +306,8 @@ export function HazcomNewTrainingSessionForm(
           <Button
             type="submit"
             variant="primary"
-            disabled={createTrainingLog.isPending || isUploadingMaterial}
+            isLoading={createTrainingLog.isPending}
+            disabled={isUploadingMaterial}
           >
             <Icon icon="mdi:check" className="text-base" aria-hidden="true" />
             {createTrainingLog.isPending ? "Saving…" : "Save Session"}

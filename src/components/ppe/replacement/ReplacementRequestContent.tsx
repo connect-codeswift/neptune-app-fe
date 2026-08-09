@@ -287,11 +287,8 @@ export function ReplacementRequestContent() {
                   type="submit"
                   form={REPLACEMENT_REQUEST_FORM_ID}
                   variant="primary"
-                  disabled={
-                    replaceRequest.isPending ||
-                    !issueIdParam ||
-                    itemOptions.length === 0
-                  }
+                  isLoading={replaceRequest.isPending}
+                  disabled={!issueIdParam || itemOptions.length === 0}
                   className="w-full rounded-[10px] px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
                 >
                   {replaceRequest.isPending

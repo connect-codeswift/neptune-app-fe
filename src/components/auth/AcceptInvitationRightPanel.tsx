@@ -388,7 +388,7 @@ export default function AcceptInvitationRightPanel() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={enableMfaMutation.isPending}
+              isLoading={enableMfaMutation.isPending}
             >
               {enableMfaMutation.isPending
                 ? "Verifying..."
@@ -400,9 +400,8 @@ export default function AcceptInvitationRightPanel() {
               variant="tertiary"
               className="w-full"
               onClick={handleSkipMfa}
-              disabled={
-                enableMfaMutation.isPending || dismissMfaPromptMutation.isPending
-              }
+              isLoading={dismissMfaPromptMutation.isPending}
+              disabled={enableMfaMutation.isPending}
             >
               Skip For Now
             </Button>

@@ -121,7 +121,7 @@ export default function ForgotPasswordRightPanel() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={forgotPasswordMutation.isPending}
+              isLoading={forgotPasswordMutation.isPending}
             >
               {forgotPasswordMutation.isPending ? (
                 "Sending..."

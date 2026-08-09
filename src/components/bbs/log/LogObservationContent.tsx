@@ -157,7 +157,7 @@ export function LogObservationContent() {
               <Button
                 type="button"
                 variant="primary"
-                disabled={createObservation.isPending}
+                isLoading={createObservation.isPending}
                 onClick={handleSubmit}
                 className="h-11 flex-1 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >

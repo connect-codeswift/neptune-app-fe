@@ -273,7 +273,8 @@ export function IssuePpeContent() {
             type="submit"
             form={ISSUE_PPE_FORM_ID}
             variant="primary"
-            disabled={isLoading || issuePpe.isPending}
+            isLoading={issuePpe.isPending}
+            disabled={isLoading}
             className="w-full rounded-[10px] px-5 py-2.5 text-base! font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
           >
             {issuePpe.isPending ? "Confirming..." : "Confirm Issuance"}

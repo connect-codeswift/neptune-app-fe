@@ -23,6 +23,21 @@ function getFormString(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
+/**
+ * How long the sign-in loader is held before navigating.
+ *
+ * Prefetching /dashboard made the hand-off fast enough that the loader would
+ * otherwise flash for a frame or two — long enough to register as a flicker,
+ * too short to read as anything. This holds it just past that threshold so it
+ * lands as a deliberate beat rather than a glitch.
+ *
+ * It is real added latency, unlike the gap it replaced, so keep it short: at
+ * 800ms the arc travels a little under half a turn, which is enough to show
+ * the mark and that something is happening. Set to 0 to hand off as fast as
+ * the network allows and accept the flicker.
+ */
+const LOADER_MIN_VISIBLE_MS = 800;
+
 export default function LoginRightPanel() {
   const router = useRouter();
   const [formError, setFormError] = useState("");
@@ -77,6 +92,9 @@ export default function LoginRightPanel() {
     try {
       await loginMutation.mutateAsync(parsed.data);
       setIsEnteringApp(true);
+      await new Promise((resolve) => {
+        globalThis.setTimeout(resolve, LOADER_MIN_VISIBLE_MS);
+      });
       router.push("/dashboard");
     } catch (error) {
       setIsEnteringApp(false);
@@ -167,10 +185,10 @@ export default function LoginRightPanel() {
             type="submit"
             variant="primary"
             className="w-full"
-            disabled={loginMutation.isPending}
+            isLoading={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
-              "Signing in..."
+              "Signing in…"
             ) : (
               <>
                 Sign in

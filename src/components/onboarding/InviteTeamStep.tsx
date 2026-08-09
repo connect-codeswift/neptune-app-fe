@@ -224,7 +224,7 @@ export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
             type="button"
             variant="primary"
             onClick={() => void onLeaveSetup()}
-            disabled={isSubmitting}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Finishing setup..." : "Finish setup"}
           </Button>

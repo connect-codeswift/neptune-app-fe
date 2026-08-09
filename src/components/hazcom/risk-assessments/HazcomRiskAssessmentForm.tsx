@@ -273,7 +273,7 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="submit"
               variant="primary"
-              disabled={createAssessment.isPending}
+              isLoading={createAssessment.isPending}
             >
               {createAssessment.isPending ? "Saving…" : "Submit for Review"}
             </Button>

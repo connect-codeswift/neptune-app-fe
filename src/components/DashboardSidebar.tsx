@@ -2,10 +2,12 @@
 
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { Text } from "@/components/Text";
+import { NeptuneLoader } from "@/components/ui/NeptuneLoader";
 import { useLogout } from "@/hooks/use-logout";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import type { AppNavItem } from "@/lib/app-nav";
@@ -25,6 +27,31 @@ function isActivePath(pathname: string, href: string) {
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * Pending dot for a nav link, shown while its navigation is in flight.
+ *
+ * Only 3 of the app's ~112 routes ship a loading.tsx, so for nearly every
+ * sidebar item the click produced no feedback at all until the new page
+ * swapped in — the "I clicked and nothing happened" gap. `useLinkStatus` is
+ * Next's hook for exactly that case (a dynamic destination with no route-level
+ * fallback); it must live inside the <Link>, which is why this is a separate
+ * component rather than a flag on the parent.
+ */
+function SidebarNavLinkPending() {
+  const { pending } = useLinkStatus();
+
+  if (!pending) {
+    return null;
+  }
+
+  return (
+    <span
+      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-[1.5px] motion-reduce:animate-none"
+      aria-hidden="true"
+    />
+  );
 }
 
 function SidebarNavLink(
@@ -51,6 +78,7 @@ function SidebarNavLink(
         aria-hidden="true"
       />
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
         <span className="text-ehs-muted-text shrink-0 text-xs font-medium tabular-nums">
           {item.badge}
@@ -286,14 +314,36 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             type="button"
             onClick={() => void signOut()}
             disabled={isLoggingOut || !isUserReady}
-            aria-label="Log out"
-            title="Log out"
+            aria-label={isLoggingOut ? "Signing out" : "Log out"}
+            title={isLoggingOut ? "Signing out…" : "Log out"}
             className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Icon icon="mdi:logout" className="text-lg" aria-hidden="true" />
+            <Icon
+              icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}
+              className={[
+                "text-lg",
+                isLoggingOut ? "animate-spin motion-reduce:animate-none" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
+
+      {/* Portalled to <body> rather than rendered here: this aside sits inside
+          a translated container, and a transformed ancestor becomes the
+          containing block for fixed positioning — so a full-screen overlay
+          rendered in place would be clipped to the width of the sidebar.
+          Covers the sign-out round trip, and with it any last frame of the
+          session being torn down. */}
+      {isLoggingOut && globalThis.document !== undefined
+        ? createPortal(
+            <NeptuneLoader fullScreen label="Signing you out…" />,
+            globalThis.document.body,
+          )
+        : null}
     </aside>
   );
 }
