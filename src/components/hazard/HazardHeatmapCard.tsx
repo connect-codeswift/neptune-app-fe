@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useMemo } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useHazardHeatMapQuery } from "@/hooks/use-hazard-queries";
 import {

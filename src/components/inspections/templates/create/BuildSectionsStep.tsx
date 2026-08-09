@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";

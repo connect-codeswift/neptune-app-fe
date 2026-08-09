@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type {
   PpeIssuanceLogEntry,
   PpeLogStatus,

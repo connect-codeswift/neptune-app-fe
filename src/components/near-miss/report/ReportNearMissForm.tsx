@@ -11,7 +11,7 @@ import {
   type SelectOption,
 } from "@/components/form-builder";
 import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateNearMissMutation } from "@/hooks/use-near-miss-mutations";

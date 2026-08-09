@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import { useTopNearMissUsersQuery } from "@/hooks/use-near-miss-queries";
 

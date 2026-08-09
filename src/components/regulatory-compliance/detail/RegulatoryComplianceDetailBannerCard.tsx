@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard, IncidentBadge } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 

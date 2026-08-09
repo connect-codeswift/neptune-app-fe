@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card: label + trend pill, then value bar — matches Figma 4818:19714. */

@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   DEFAULT_WALK_TALK_GRAPH_WEEKS,
   useWalkTalkGraphQuery,

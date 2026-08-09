@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import type { ComplianceCategoryProgress } from "./regulatory-compliance-types";
 import { complianceGlassCardClass } from "./compliance-ui";

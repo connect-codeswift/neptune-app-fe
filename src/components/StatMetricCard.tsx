@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export type StatMetricTone = "positive" | "negative";
 

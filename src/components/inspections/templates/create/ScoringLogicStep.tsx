@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { Switch } from "./Switch";
 import {

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSaveInspectionResponsesMutation } from "@/hooks/use-inspection-mutations";
 import { useInspectionDetailQuery } from "@/hooks/use-inspection-queries";

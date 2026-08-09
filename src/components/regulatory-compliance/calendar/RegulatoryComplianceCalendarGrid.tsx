@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { IncidentGlassCard, IncidentBadge } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import type { CalendarEventItem } from "../regulatory-compliance-types";
 

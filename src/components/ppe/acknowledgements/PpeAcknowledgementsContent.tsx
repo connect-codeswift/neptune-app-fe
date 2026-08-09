@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
 import { usePpeIssuesAssignedToQuery } from "@/hooks/use-ppe-queries";
 import { PpeTableSkeleton } from "../PpeSkeletons";

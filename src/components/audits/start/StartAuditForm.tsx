@@ -8,7 +8,7 @@ import {
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateAuditMutation } from "@/hooks/use-audit-mutations";
 import { useAuditTemplatesQuery } from "@/hooks/use-audit-template-queries";

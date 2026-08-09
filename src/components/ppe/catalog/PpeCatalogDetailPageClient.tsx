@@ -8,7 +8,7 @@ import {
   PpeCatalogNotFound,
 } from "@/components/ppe/catalog/PpeCatalogDetailContent";
 import { PpeCatalogDetailSkeleton } from "@/components/ppe/PpeSkeletons";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { usePpeItemDetailQuery } from "@/hooks/use-ppe-queries";
 
 export type PpeCatalogDetailPageProps = Readonly<{

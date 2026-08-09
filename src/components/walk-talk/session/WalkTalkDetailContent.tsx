@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type {
   WalkTalkActionStatus,
   WalkTalkFollowUp,

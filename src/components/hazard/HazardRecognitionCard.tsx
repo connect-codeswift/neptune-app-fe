@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import { useTopHazardUsersQuery } from "@/hooks/use-hazard-queries";
 

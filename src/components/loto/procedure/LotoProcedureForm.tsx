@@ -6,7 +6,7 @@ import {
   type FormSchema,
   type FormValues,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   createEmptyIsolationStep,
   hazardLevelClassName,

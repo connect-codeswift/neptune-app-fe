@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { AuditDetail } from "@/app/dashboard/audits/audits-data";
 

@@ -9,7 +9,7 @@ import {
   type FormSchema,
   type FormValues,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useUpdateBbsObservationMutation } from "@/hooks/use-bbs-mutations";

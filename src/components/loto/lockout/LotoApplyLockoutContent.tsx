@@ -9,7 +9,7 @@ import {
 } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   getLotoApplyLockoutContext,
   type LotoApplyLockoutContext,
