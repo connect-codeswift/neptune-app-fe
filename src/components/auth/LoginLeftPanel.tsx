@@ -1,11 +1,23 @@
-import { Icon } from "@iconify/react";
-import { Logo } from "@/components/Logo";
+import { LogoIcon } from "@/components/LogoIcon";
+import { LogoMark } from "@/components/LogoMark";
 import { ShadeBall } from "@/components/ShadeBall";
-import { capas, incidents } from "@/lib/hardcoded-data";
 
+/**
+ * Brand panel for the auth pages (login, forgot/reset password, invitation).
+ *
+ * Deliberately minimal. The previous version imitated a live dashboard —
+ * invented incidents with named plants, pending CAPAs assigned to people who
+ * don't exist, a fictional OSHA inspection. Fabricated records are the wrong
+ * first impression for a compliance product, and the clutter competed with
+ * the sign-in form. What sells the product here is composure: the mark, one
+ * clear statement, and room to breathe.
+ *
+ * Stays a server component — no hooks, no motion. The focus of an auth page
+ * is the form on the right.
+ */
 export default function LoginLeftPanel() {
   return (
-    <div className="bg-ehs-dark-bg relative hidden h-full flex-col justify-center overflow-hidden px-12 py-2 lg:flex">
+    <div className="bg-ehs-dark-bg relative hidden h-full flex-col overflow-hidden px-12 py-10 lg:flex">
       <ShadeBall positionAsClassName="top-[-150px] left-[-150px]" blur={40} />
       <ShadeBall
         positionAsClassName="bottom-[-150px] right-[-150px]"
@@ -15,91 +27,51 @@ export default function LoginLeftPanel() {
       {/* over the top gradient */}
       <div className="from-ehs-normal-blue/10 pointer-events-none absolute inset-0 bg-linear-to-b via-transparent to-black/20" />
 
-      <div className="relative z-10 flex min-h-0 flex-col gap-3">
-        <Logo variant="light" />
+      {/* Oversized monogram bleeding off the bottom-right corner. A watermark,
+          not an illustration: low opacity keeps it behind the copy in
+          hierarchy, and the crop keeps it from reading as a badge. */}
+      <LogoMark
+        decorative
+        className="text-ehs-light-text pointer-events-none absolute -right-44 -bottom-44 size-[40rem] opacity-[0.06]"
+      />
 
-        <p className="text-ehs-muted-text mt-2 text-xs font-medium tracking-widest uppercase">
-          Your Workspace is waiting
-        </p>
-        <h1 className="text-ehs-light-text text-xl leading-tight font-medium lg:text-2xl">
-          Items Requiring
-          <br />
-          Your Attention.
-        </h1>
+      <div className="relative z-10 flex h-full flex-col justify-between">
+        {/* LogoIcon directly rather than <Logo>, which pins the wordmark to
+            h-6 for the app chrome — at this panel's scale it read as tiny. */}
+        <LogoIcon variant="light" className="h-8 w-auto xl:h-9" />
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
-            <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
-              Open Incidents
-            </h2>
-            <ul className="divide-y divide-white/10">
-              {incidents.map((incident) => (
-                <li
-                  key={incident.title}
-                  className="py-1.5 first:pt-0 last:pb-0"
-                >
-                  <p className="text-ehs-light-text text-xs font-medium">
-                    {incident.title}
-                  </p>
-                  <p className="text-ehs-muted-text mt-1 text-xs">
-                    {incident.location} · {incident.time}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
+        <div className="flex max-w-xl flex-col items-start gap-10">
+          <div className="relative">
+            {/* Soft teal halo so the mark sits in light, not on a hard edge */}
+            <div
+              className="bg-ehs-normal-blue/25 absolute -inset-7 rounded-full blur-3xl"
+              aria-hidden="true"
+            />
+            <LogoMark
+              decorative
+              className="text-ehs-light-text relative size-24 xl:size-28"
+            />
+          </div>
 
-          <section className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm">
-            <h2 className="text-ehs-light-text mb-2 text-xs font-semibold">
-              Pending CAPAs
-            </h2>
-            <ul className="divide-y divide-white/10">
-              {capas.map((capa) => (
-                <li
-                  key={capa.title}
-                  className="flex items-start gap-1.5 py-1.5 first:pt-0 last:pb-0"
-                >
-                  <Icon
-                    icon="mdi:bullhorn-outline"
-                    className="text-ehs-muted-text shrink-0 text-sm"
-                    aria-hidden="true"
-                  />
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <p className="text-ehs-light-text text-xs font-medium">
-                      {capa.title}
-                    </p>
-                    <p className="text-ehs-muted-text text-xs">
-                      {capa.assignee}
-                    </p>
-                  </div>
-                  <span className="text-ehs-muted-text shrink-0 text-xs">
-                    {capa.due}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section
-            className={`hidden items-start gap-2 rounded-2xl border-t border-white/60 bg-black/20 px-3 py-2 backdrop-blur-sm lg:min-[1200px]:flex`}
-          >
-            <div className="bg-ehs-normal-blue/20 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-              <Icon
-                icon="mdi:clipboard-text-outline"
-                className="text-ehs-normal-blue text-lg"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="min-w-0">
-              <p className="text-ehs-light-text text-xs font-semibold">
-                OSHA inspection - Leeds Plant
-              </p>
-              <p className="text-ehs-muted-text text-xs leading-relaxed">
-                Scheduled for Thu 5 Jun · Preparation 78% complete
-              </p>
-            </div>
-          </section>
+          <div className="flex flex-col gap-5">
+            <p className="text-ehs-normal-blue text-xs font-semibold tracking-[0.24em] uppercase">
+              EHS Command Center
+            </p>
+            <h1 className="text-ehs-light-text text-5xl leading-[1.08] font-semibold tracking-tight xl:text-6xl">
+              Safety work,
+              <br />
+              seen clearly.
+            </h1>
+            <p className="text-ehs-muted-text max-w-md text-base leading-relaxed xl:text-lg">
+              Incidents, hazards, audits and actions — one calm place for all
+              of it.
+            </p>
+          </div>
         </div>
+
+        <p className="text-ehs-muted-text/70 text-xs font-medium tracking-[0.18em] uppercase">
+          Incidents&ensp;·&ensp;Hazards&ensp;·&ensp;Audits&ensp;·&ensp;CAPAs&ensp;·&ensp;Compliance
+        </p>
       </div>
     </div>
   );

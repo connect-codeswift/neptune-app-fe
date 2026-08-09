@@ -1,34 +1,8 @@
-export const incidents = [
-  {
-    title: "Chemical spill — Storage B",
-    location: "Birmingham Plant",
-    time: "12 min ago",
-  },
-  {
-    title: "Machine stoppage — Line 4",
-    location: "Leeds Plant",
-    time: "1 hr ago",
-  },
-  {
-    title: "Near miss — Loading bay",
-    location: "Manchester Depot",
-    time: "3 hrs ago",
-  },
-] as const;
-
-export const capas = [
-  {
-    title: "Install secondary containment",
-    assignee: "J. Harris",
-    due: "Jun 4",
-  },
-  {
-    title: "Retrain Line 4 operators",
-    assignee: "M. Price",
-    due: "Jun 3",
-  },
-] as const;
-
+/**
+ * Marketing copy for the signup panel. The invented `incidents`/`capas`
+ * sample records that used to live here went with the login panel redesign —
+ * fabricated records, even decorative ones, are off-limits in this product.
+ */
 export const features = [
   {
     title: "Incident Management",
