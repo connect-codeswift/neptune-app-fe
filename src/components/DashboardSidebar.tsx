@@ -93,11 +93,11 @@ function SidebarNavSkeleton() {
     <div className="flex flex-col gap-6 px-4 py-5">
       {Array.from({ length: 4 }).map((_, groupIndex) => (
         <div key={groupIndex} className="flex flex-col gap-2">
-          <div className="bg-ehs-light-bg mx-3 h-2.5 w-16 animate-pulse rounded" />
+          <div className="mx-3 h-2.5 w-16 animate-pulse rounded bg-slate-300/40" />
           {Array.from({ length: 3 }).map((__, itemIndex) => (
             <div
               key={itemIndex}
-              className="bg-ehs-light-bg mx-2 h-9 animate-pulse rounded-lg"
+              className="mx-2 h-9 animate-pulse rounded-lg bg-slate-300/40"
             />
           ))}
         </div>
@@ -110,12 +110,12 @@ function SidebarUserSkeleton() {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2">
       <div
-        className="bg-ehs-light-bg h-9 w-9 shrink-0 animate-pulse rounded-lg"
+        className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-300/40"
         aria-hidden="true"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="bg-ehs-light-bg h-3.5 w-24 animate-pulse rounded" />
-        <div className="bg-ehs-light-bg h-3 w-32 animate-pulse rounded" />
+        <div className="h-3.5 w-24 animate-pulse rounded bg-slate-300/40" />
+        <div className="h-3 w-32 animate-pulse rounded bg-slate-300/40" />
       </div>
     </div>
   );
@@ -242,7 +242,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   return (
     <aside
       className={[
-        "my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col rounded-3xl bg-[#FFFFFF] shadow-lg backdrop-blur-3xl",
+        // Real glass, not bg-[#FFFFFF] — a solid fill made the blur that was
+        // already here a no-op. Same recipe as the auth card: thin white pane,
+        // heavy blur, hairline border, inset top highlight for the frosted
+        // edge. The colour it refracts comes from AppShell's blobs behind it.
+        "relative my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/45 backdrop-blur-2xl",
+        "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]",
         className,
       ]
         .filter(Boolean)
@@ -250,10 +255,9 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
     >
       <div className="flex flex-col items-center px-5 pt-5">
         <Logo />
-        <div
-          className="border-ehs-border mt-4 w-full border-t"
-          aria-hidden="true"
-        />
+        {/* White hairline rather than the app border token — on glass a grey
+            rule reads as a smudge. */}
+        <div className="mt-4 w-full border-t border-white/60" aria-hidden="true" />
       </div>
 
       <nav className="flex flex-1 scrollbar-none flex-col gap-6 overflow-y-auto px-4 py-5">
@@ -316,7 +320,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             disabled={isLoggingOut || !isUserReady}
             aria-label={isLoggingOut ? "Signing out" : "Log out"}
             title={isLoggingOut ? "Signing out…" : "Log out"}
-            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-ehs-muted-text hover:bg-white/50 hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon
               icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}

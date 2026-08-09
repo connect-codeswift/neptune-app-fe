@@ -50,13 +50,24 @@ export function AppShell(props: Readonly<AppShellProps>) {
         />
       )}
 
-      {/* Sidebar container */}
+      {/* Sidebar container. Transparent, not bg-ehs-light-bg: the sidebar is
+          now glass, and an opaque wrapper behind it would blank the blur. The
+          blobs are what the glass refracts — behind the aside, in front of
+          the page. */}
       <div
         className={[
-          "bg-ehs-light-bg fixed top-0 left-0 z-50 h-full w-68 transition-transform duration-300 lg:block lg:translate-x-0",
+          "fixed top-0 left-0 z-50 h-full w-68 transition-transform duration-300 lg:block lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          aria-hidden="true"
+        >
+          <div className="bg-ehs-normal-blue/20 absolute top-[-4rem] left-[-3rem] size-56 rounded-full blur-3xl" />
+          <div className="absolute top-[38%] right-[-4rem] size-56 rounded-full bg-cyan-300/25 blur-3xl" />
+          <div className="bg-ehs-normal-blue/15 absolute bottom-[-3rem] left-[10%] size-56 rounded-full blur-3xl" />
+        </div>
         <DashboardSidebar />
       </div>
 
