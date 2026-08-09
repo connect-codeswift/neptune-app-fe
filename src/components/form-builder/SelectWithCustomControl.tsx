@@ -284,10 +284,12 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
       </button>
 
       {isOpen ? (
-        // Frosted at 85% rather than the cards' 50: a floating menu overlaps
-        // arbitrary content, so it needs enough fill to stay readable while
-        // still reading as the app's glass.
-        <div className="animate-popover-in absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-white/60 bg-white/85 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+        // Near-opaque (96%) on purpose. At 85% the content underneath read
+        // straight through the menu — checkbox labels behind it were legible
+        // through the option rows. A floating menu has to win against
+        // whatever it covers, so the blur and hairline carry the material
+        // here and the fill stays high.
+        <div className="animate-popover-in absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-white/70 bg-white/96 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}

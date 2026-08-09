@@ -152,9 +152,10 @@ export function GlassSelect(props: GlassSelectProps) {
       </button>
 
       {isOpen ? (
-        // 85% fill rather than the cards' 50: a floating menu overlaps
-        // arbitrary content and has to stay readable over all of it.
-        <div className="animate-popover-in absolute z-20 mt-1.5 w-full min-w-40 overflow-hidden rounded-xl border border-white/60 bg-white/85 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+        // Near-opaque (96%) on purpose — at 85% the content behind the menu
+        // read through the option rows. A floating menu has to win against
+        // whatever it covers; the blur and hairline carry the material.
+        <div className="animate-popover-in absolute z-20 mt-1.5 w-full min-w-40 overflow-hidden rounded-xl border border-white/70 bg-white/96 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}
