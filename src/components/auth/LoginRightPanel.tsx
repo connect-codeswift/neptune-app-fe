@@ -145,7 +145,7 @@ export default function LoginRightPanel() {
         <div className="absolute top-[58%] left-1/2 size-80 -translate-x-[8%] rounded-full bg-cyan-300/30 blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-[34rem] flex-col gap-6">
+      <div className="relative z-10 flex w-full max-w-[30rem] flex-col gap-6">
         {/* The brand panel is hidden below lg, which left phones with no logo
             anywhere on the page — this is the mobile-only signature. */}
         <LogoIcon variant="dark" className="mx-auto h-5 w-auto lg:hidden" />
@@ -154,7 +154,7 @@ export default function LoginRightPanel() {
             form shouldn't lift under the cursor like a clickable card. The
             rise entrance alone is welcome here. */}
         <div
-          className={`${authGlassClass} animate-card-rise flex flex-col gap-6 p-7 sm:p-12`}
+          className={`${authGlassClass} animate-card-rise flex flex-col gap-6 p-7 sm:p-10`}
         >
           <div className="flex flex-col gap-1.5">
             <h2 className="text-ehs-darker text-2xl font-bold tracking-tight lg:text-3xl">
@@ -165,14 +165,28 @@ export default function LoginRightPanel() {
             </p>
           </div>
 
-          <Button
-            type="button"
-            variant="tertiary"
-            className="w-full bg-white font-medium"
-          >
-            <Icon icon="flat-color-icons:google" className="text-lg" />
-            Continue with Google
-          </Button>
+          {/* NOTE: neither provider button is wired yet — no onClick and no
+              OAuth flow exists in the codebase. They are kept enabled at the
+              owner's direction as the intended design; wire or disable before
+              release. */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="tertiary"
+              className="w-full bg-white font-medium"
+            >
+              <Icon icon="flat-color-icons:google" className="text-lg" />
+              Google
+            </Button>
+            <Button
+              type="button"
+              variant="tertiary"
+              className="w-full bg-white font-medium"
+            >
+              <Icon icon="logos:microsoft-icon" className="text-base" />
+              Microsoft
+            </Button>
+          </div>
 
           <div className="flex items-center gap-3">
             <hr className="border-ehs-border flex-1" />
