@@ -173,7 +173,7 @@ export default function LoginRightPanel() {
             <Button
               type="button"
               variant="tertiary"
-              className="w-full bg-white font-medium"
+              className="w-full font-medium"
             >
               <Icon icon="flat-color-icons:google" className="text-lg" />
               Google
@@ -181,7 +181,7 @@ export default function LoginRightPanel() {
             <Button
               type="button"
               variant="tertiary"
-              className="w-full bg-white font-medium"
+              className="w-full font-medium"
             >
               <Icon icon="logos:microsoft-icon" className="text-base" />
               Microsoft
