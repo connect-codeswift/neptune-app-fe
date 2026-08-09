@@ -125,13 +125,13 @@ export default function LoginRightPanel() {
         blur={80}
       />
 
-      <div className="flex w-full max-w-sm flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-ehs-darker text-2xl font-bold lg:text-4xl">
-            Welcome Back.
+      <div className="flex w-full max-w-sm flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="text-ehs-darker text-2xl font-bold tracking-tight lg:text-4xl">
+            Welcome back.
           </h2>
-          <p className="text-ehs-muted-text text-xs lg:text-sm">
-            Sign In To Your Neptune Workspace.
+          <p className="text-ehs-muted-text text-sm">
+            Sign in to your Neptune workspace.
           </p>
         </div>
 
@@ -140,10 +140,10 @@ export default function LoginRightPanel() {
           Continue with Google
         </Button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <hr className="border-ehs-border flex-1" />
           <span className="text-ehs-muted-text text-xs">
-            or Sign In With Email
+            or continue with email
           </span>
           <hr className="border-ehs-border flex-1" />
         </div>
@@ -152,26 +152,26 @@ export default function LoginRightPanel() {
           <EmailInput
             id="email"
             name="email"
-            label="Email Address"
-            placeholder="Enter Your Email Address"
+            label="Email address"
+            placeholder="you@company.com"
             required
             disabled={loginMutation.isPending}
           />
 
-          <div className="mt-1 mb-2 flex w-full flex-col gap-1">
+          <div className="mt-1 mb-2 flex w-full flex-col gap-1.5">
             <Password
               id="password"
               name="password"
               label="Password"
-              placeholder="Enter Your Password"
+              placeholder="Enter your password"
               required
               disabled={loginMutation.isPending}
             />
             <ScrollLink
               href="/forget-password"
-              className={`${ehsLinkClass} ml-auto block font-medium`}
+              className={`${ehsLinkClass} ml-auto block text-sm font-medium`}
             >
-              Forgot Password?
+              Forgot password?
             </ScrollLink>
           </div>
 
@@ -199,12 +199,12 @@ export default function LoginRightPanel() {
         </form>
 
         <p className="text-ehs-muted-text text-center text-sm">
-          Don&apos;t Have an Account?{" "}
+          Don&apos;t have an account?{" "}
           <ScrollLink
             href="/signup"
             className={`${ehsLinkClass} font-semibold`}
           >
-            Sign Up
+            Sign up
           </ScrollLink>
         </p>
       </div>

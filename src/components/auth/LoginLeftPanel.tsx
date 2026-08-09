@@ -36,9 +36,10 @@ export default function LoginLeftPanel() {
       />
 
       <div className="relative z-10 flex h-full flex-col justify-between">
-        {/* LogoIcon directly rather than <Logo>, which pins the wordmark to
-            h-6 for the app chrome — at this panel's scale it read as tiny. */}
-        <LogoIcon variant="light" className="h-8 w-auto xl:h-9" />
+        {/* LogoIcon directly rather than <Logo>, so this panel can size the
+            wordmark itself: a notch above the app chrome's h-6, without
+            letting it compete with the headline below. */}
+        <LogoIcon variant="light" className="h-6 w-auto xl:h-7" />
 
         <div className="flex max-w-xl flex-col items-start gap-10">
           <div className="relative">
