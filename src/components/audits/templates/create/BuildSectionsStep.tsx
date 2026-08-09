@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
@@ -526,26 +527,17 @@ function ItemRow(
 
           <div className="flex flex-col gap-1.5">
             <span className={labelClass}>Score Weight</span>
-            <div className="relative">
-              <select
-                value={item.scoreWeight}
-                onChange={(event) => {
-                  onChange({ scoreWeight: Number(event.target.value) });
-                }}
-                className={`${inputClass} appearance-none pr-9`}
-              >
-                {SCORE_WEIGHT_OPTIONS.map((weight) => (
-                  <option key={weight} value={weight}>
-                    {weight}
-                  </option>
-                ))}
-              </select>
-              <Icon
-                icon="mdi:chevron-down"
-                className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-                aria-hidden="true"
-              />
-            </div>
+            <GlassSelect
+              options={SCORE_WEIGHT_OPTIONS.map((weight) => ({
+                value: String(weight),
+                label: String(weight),
+              }))}
+              value={String(item.scoreWeight)}
+              onChange={(value) => {
+                onChange({ scoreWeight: Number(value) });
+              }}
+              aria-label="Score weight"
+            />
           </div>
         </div>
       ) : null}

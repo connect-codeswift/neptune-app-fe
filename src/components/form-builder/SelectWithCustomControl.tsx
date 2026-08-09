@@ -158,7 +158,10 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
     setIsAdding(false);
   };
 
-  // Close on outside click and on Escape while the popover is open.
+  // Close on outside click; keyboard on the list: Escape closes, arrows move
+  // through the option buttons, Home/End jump. Native selects give arrow
+  // traversal for free, so the custom listbox has to match it before it can
+  // stand in for one.
   useEffect(() => {
     if (!isOpen) return;
 
@@ -166,7 +169,37 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
       if (!containerRef.current?.contains(event.target as Node)) close();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        return;
+      }
+      const rows = [
+        ...(listRef.current?.querySelectorAll<HTMLButtonElement>(
+          '[role="option"]',
+        ) ?? []),
+      ];
+      if (rows.length === 0) return;
+      event.preventDefault();
+
+      const activeIndex = rows.findIndex(
+        (row) => row === document.activeElement,
+      );
+      const nextIndex =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? rows.length - 1
+            : event.key === "ArrowDown"
+              ? Math.min(rows.length - 1, activeIndex + 1)
+              : // ArrowUp from the trigger (activeIndex -1) lands on the last row.
+                activeIndex === -1
+                ? rows.length - 1
+                : Math.max(0, activeIndex - 1);
+      rows[nextIndex]?.focus();
     };
 
     document.addEventListener("mousedown", onPointerDown);
@@ -251,7 +284,10 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
       </button>
 
       {isOpen ? (
-        <div className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-slate-900/10 bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+        // Frosted at 85% rather than the cards' 50: a floating menu overlaps
+        // arbitrary content, so it needs enough fill to stay readable while
+        // still reading as the app's glass.
+        <div className="animate-popover-in absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-white/60 bg-white/85 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}

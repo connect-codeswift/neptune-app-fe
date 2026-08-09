@@ -6,7 +6,18 @@ import type {
   IncidentDetailInfoItemKind,
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+
+/**
+ * "" ("Select…") is a real, pickable entry — the native select allowed
+ * clearing back to unset, so the replacement must too.
+ */
+const YES_NO_OPTIONS = [
+  { value: "", label: "Select…" },
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+] as const;
 
 export type { IncidentDetailInfoItem, IncidentDetailInfoItemKind };
 
@@ -64,22 +75,17 @@ export function IncidentDetailInfoCard(
                   {item.label}
                 </span>
                 {canEdit && kind === "yesno" ? (
-                  <select
+                  <GlassSelect
+                    options={YES_NO_OPTIONS}
                     value={
                       item.value === "Yes" || item.value === "No"
                         ? item.value
                         : ""
                     }
-                    onChange={(event) =>
-                      onChangeItem?.(item.key, event.target.value)
-                    }
-                    className={fieldInputClass}
+                    onChange={(value) => onChangeItem?.(item.key, value)}
                     aria-label={item.label}
-                  >
-                    <option value="">Select…</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                    triggerClassName={fieldInputClass}
+                  />
                 ) : null}
                 {canEdit && kind === "text" ? (
                   <input

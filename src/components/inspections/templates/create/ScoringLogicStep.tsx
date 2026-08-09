@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { Switch } from "./Switch";
 import {
@@ -20,9 +21,7 @@ import {
 const labelClass =
   "text-ehs-muted-text text-xs font-bold tracking-wider uppercase";
 
-const selectClass = `${FIELD_INPUT_LG_CLASS} cursor-pointer truncate appearance-none pr-9`;
-
-/** Same frame as {@link selectClass}, without the chevron's right padding. */
+/** Same frame as GlassSelect's default trigger, minus the chevron. */
 const inputClass = FIELD_INPUT_LG_CLASS;
 
 /** Number of item weight rows shown before the "+N more" note. */
@@ -40,28 +39,14 @@ function Select(
   const { value, placeholder, options, ariaLabel, onChange } = props;
 
   return (
-    <div className="relative min-w-0 flex-1">
-      <select
-        value={value}
-        aria-label={ariaLabel}
-        onChange={(event) => onChange(event.target.value)}
-        className={[selectClass, value ? "" : "text-ehs-muted-text"].join(" ")}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((option) => (
-          <option key={option} value={option} className="text-ehs-dark-bg">
-            {option}
-          </option>
-        ))}
-      </select>
-      <Icon
-        icon="mdi:chevron-down"
-        className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-        aria-hidden="true"
-      />
-    </div>
+    <GlassSelect
+      options={options.map((option) => ({ value: option, label: option }))}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      className="min-w-0 flex-1"
+    />
   );
 }
 
@@ -166,24 +151,21 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
             <div className="flex flex-col gap-2">
               <span className={labelClass}>Scoring Method</span>
 
-              <div className="relative">
-                <select
-                  value={scoring.method}
-                  aria-label="Scoring method"
-                  onChange={(event) => {
-                    patchScoring({
-                      method: event.target.value as ScoringMethod,
-                    });
-                  }}
-                  className="border-ehs-normal-blue bg-ehs-normal-blue/15 text-ehs-dark-blue focus:ring-ehs-normal-blue/20 w-full cursor-pointer appearance-none rounded-xl border px-3 py-2.5 text-center text-sm font-bold transition outline-none focus:ring-2"
-                >
-                  {SCORING_METHODS.map((method) => (
-                    <option key={method} value={method}>
-                      {method}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <GlassSelect
+                options={SCORING_METHODS.map((method) => ({
+                  value: method,
+                  label: method,
+                }))}
+                value={scoring.method}
+                onChange={(value) => {
+                  patchScoring({ method: value as ScoringMethod });
+                }}
+                aria-label="Scoring method"
+                // The emphasized pill look. GlassSelect's value span carries
+                // its own color and the trigger its own text-left, so the
+                // pill's blue centered label is re-asserted on the span.
+                triggerClassName="border-ehs-normal-blue bg-ehs-normal-blue/15 text-ehs-dark-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border px-3 py-2.5 text-center text-sm font-bold transition outline-none focus:ring-2 [&>span]:text-center [&>span]:text-ehs-dark-blue"
+              />
             </div>
 
             <div className="flex flex-col gap-2.5">

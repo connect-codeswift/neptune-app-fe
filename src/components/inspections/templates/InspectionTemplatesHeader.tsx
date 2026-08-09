@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 const crumbClass =
@@ -61,27 +62,17 @@ export function InspectionTemplatesHeader(
       </div>
 
       <div className="relative z-1 flex flex-wrap items-center gap-3">
-        <div className="relative shrink-0">
-          <select
-            value={status}
-            aria-label="Template status"
-            onChange={(event) =>
-              onStatusChange?.(event.target.value as TemplateStatusFilter)
-            }
-            className={`${FIELD_INPUT_LG_CLASS} cursor-pointer appearance-none pr-9 font-medium`}
-          >
-            {TEMPLATE_STATUS_FILTERS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <Icon
-            icon="mdi:chevron-down"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-            aria-hidden="true"
-          />
-        </div>
+        <GlassSelect
+          options={TEMPLATE_STATUS_FILTERS.map((option) => ({
+            value: option,
+            label: option,
+          }))}
+          value={status}
+          onChange={(value) => onStatusChange?.(value as TemplateStatusFilter)}
+          aria-label="Template status"
+          className="shrink-0"
+          triggerClassName={`${FIELD_INPUT_LG_CLASS} font-medium`}
+        />
 
         <Button
           type="button"
