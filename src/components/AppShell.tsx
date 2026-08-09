@@ -29,6 +29,17 @@ export function AppShell(props: Readonly<AppShellProps>) {
 
   return (
     <div className="flex min-h-screen min-w-0 flex-col lg:ml-68 lg:flex-row">
+      {/* Ambient ground for the whole app: the body is flat ehs-light-bg, and
+          glass surfaces only read as glass with colour behind them to blur.
+          Fixed so it doesn't scroll with content; z-0 with content above. */}
+      <div
+        className="pointer-events-none fixed inset-0"
+        aria-hidden="true"
+      >
+        <div className="bg-ehs-normal-blue/12 absolute top-[-8rem] right-[10%] size-[28rem] rounded-full blur-3xl" />
+        <div className="absolute top-[35%] left-[30%] size-[26rem] rounded-full bg-cyan-300/15 blur-3xl" />
+        <div className="bg-ehs-normal-blue/10 absolute bottom-[-6rem] right-[25%] size-[24rem] rounded-full blur-3xl" />
+      </div>
       {/* Mobile top navigation header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 backdrop-blur-[14px] lg:hidden">
         <button
@@ -71,7 +82,9 @@ export function AppShell(props: Readonly<AppShellProps>) {
         <DashboardSidebar />
       </div>
 
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden px-1.5 pt-4">
+      {/* `relative` so the content column stacks above the fixed ambient
+          layer while its glass cards still blur the blobs behind them. */}
+      <div className="relative flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden px-1.5 pt-4">
         {organizationLimits ? (
           <OrganizationLimitsBanner
             limits={organizationLimits}
