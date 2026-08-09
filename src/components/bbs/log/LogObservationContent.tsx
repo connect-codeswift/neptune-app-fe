@@ -118,7 +118,7 @@ export function LogObservationContent() {
 
         <IncidentGlassCard
           paddingClassName="p-4 md:p-6"
-          className="w-full max-w-130 bg-white!"
+          className="w-full max-w-130"
           incidentGlassCardClassName="gap-4 md:gap-6"
         >
           {step === 1 ? (

@@ -205,7 +205,7 @@ export function StartAuditForm() {
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className="mx-auto w-full max-w-3xl bg-white!"
+      className="w-full"
     >
       <FormBuilder
         // Remount once when preselection flips in post-hydration, so the

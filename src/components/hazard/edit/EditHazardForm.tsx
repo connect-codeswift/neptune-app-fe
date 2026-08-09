@@ -61,7 +61,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className="mx-auto w-full max-w-3xl bg-white!"
+      className="w-full"
     >
       <FormBuilder
         schema={schema}

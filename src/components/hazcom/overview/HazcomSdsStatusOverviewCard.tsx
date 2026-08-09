@@ -1,3 +1,5 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
@@ -5,7 +7,7 @@ import {
   HazcomGlassCard,
   type HazcomBadgeTone,
 } from "@/components/hazcom/shared";
-import { HAZCOM_SDS_STATUS_ROWS } from "@/components/hazcom/overview/hazcom-overview-panel-data";
+import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
 import {
   ehsButtonBaseClass,
   ehsButtonSecondaryClass,
@@ -30,20 +32,59 @@ const valueClassByTone: Record<HazcomBadgeTone, string> = {
   success: "text-ehs-green",
 };
 
-const MAX_ROW_VALUE = Math.max(
-  ...HAZCOM_SDS_STATUS_ROWS.map((row) => row.value),
-  1,
-);
 const MIN_BAR_WIDTH_PERCENT = 4;
 
+type StatusRow = Readonly<{
+  id: string;
+  label: string;
+  value: number;
+  tone: HazcomBadgeTone;
+}>;
+
 export type HazcomSdsStatusOverviewCardProps = Readonly<{
+  overview: HazcomOverviewState;
   className?: string;
 }>;
 
+/**
+ * SDS compliance split, counted from the real SDS library.
+ *
+ * The four figures were hard-coded (128 / 5 / 4 / 7) and, by their own comment,
+ * deliberately unrelated to any row the API serves — so the bars summarised a
+ * library that did not exist. Each sheet's status is derived from its revision
+ * date by the SDS mapper; "Missing" counts inventory rows with no sheet linked.
+ */
 export function HazcomSdsStatusOverviewCard(
   props: Readonly<HazcomSdsStatusOverviewCardProps>,
 ) {
-  const { className = "" } = props;
+  const { overview, className = "" } = props;
+  const { sds } = overview;
+
+  const rows: readonly StatusRow[] = [
+    {
+      id: "compliant",
+      label: "Current & Compliant",
+      value: sds.compliant,
+      tone: "success",
+    },
+    {
+      id: "expiring-90",
+      label: "Expiring Soon",
+      value: sds.dueSoon,
+      tone: "muted",
+    },
+    {
+      id: "overdue",
+      label: "Overdue / Expired",
+      value: sds.overdue,
+      tone: "danger",
+    },
+    { id: "missing", label: "Missing SDS", value: sds.missing, tone: "danger" },
+  ];
+
+  // Bars are relative to the largest row, so an all-zero library draws none
+  // rather than dividing by zero.
+  const maxRowValue = Math.max(...rows.map((row) => row.value), 1);
 
   return (
     <HazcomGlassCard
@@ -64,9 +105,9 @@ export function HazcomSdsStatusOverviewCard(
       </div>
 
       <div className="mt-4 flex flex-col gap-3">
-        {HAZCOM_SDS_STATUS_ROWS.map((row) => {
+        {rows.map((row) => {
           const widthPercent = Math.max(
-            (row.value / MAX_ROW_VALUE) * 100,
+            (row.value / maxRowValue) * 100,
             row.value > 0 ? MIN_BAR_WIDTH_PERCENT : 0,
           );
 

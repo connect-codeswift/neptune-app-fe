@@ -702,7 +702,16 @@ function CheckboxGroupControl(
         return (
           <label
             key={option.value}
-            className="bg-ehs-light-bg/40 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-3 py-2"
+            className={[
+              // Was a flat bg-ehs-light-bg/40 slab with no border and no
+              // row-level selected state, so a group of these read as grey
+              // bars and the only feedback was the 16px box. Now frosted like
+              // every other control, and the whole row responds.
+              "flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 py-2.5 text-sm transition-colors",
+              checked
+                ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
+                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-[5px] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
+            ].join(" ")}
           >
             <input
               type="checkbox"

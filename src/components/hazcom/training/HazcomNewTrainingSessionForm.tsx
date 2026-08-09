@@ -191,8 +191,10 @@ export function HazcomNewTrainingSessionForm(
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {/* Names the section, not the page — the page header above already
+            says what this form creates. */}
         <Text as="h2" className="text-ehs-darker text-[15px] font-bold">
-          New Training Session
+          Session Details
         </Text>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

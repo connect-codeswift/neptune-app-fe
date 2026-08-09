@@ -253,6 +253,30 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                 </div>
               ) : (
                 <div className="mt-3 flex flex-col gap-3">
+                  {/*
+                    Labelled explicitly. The scaffold below describes what the
+                    standard requires this section to cover; it is not this
+                    product's own text. Unlabelled, a reader on "First-Aid
+                    Measures" could take it for Acetone's actual first-aid
+                    steps — the worst possible moment to be reading a
+                    placeholder. The attached PDF is the authoritative sheet.
+                  */}
+                  <div className="border-ehs-yellow/40 bg-ehs-yellow/8 flex items-start gap-2 rounded-[10px] border px-3 py-2.5">
+                    <Icon
+                      icon="mdi:information-outline"
+                      className="text-ehs-yellow mt-px size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text
+                      as="p"
+                      className="text-ehs-gray text-[12px] leading-[18px]"
+                    >
+                      This section isn’t stored on the record — what follows
+                      describes what the GHS standard requires here. Refer to
+                      the attached PDF for this product’s own text.
+                    </Text>
+                  </div>
+
                   {section.body.map((paragraph, index) => (
                     <Text
                       key={`${String(section.number)}-${String(index)}`}
