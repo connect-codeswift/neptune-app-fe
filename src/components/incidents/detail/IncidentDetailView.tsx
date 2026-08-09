@@ -12,6 +12,7 @@ import { IncidentDetailLinkedCard } from "@/components/incidents/detail/details/
 import { IncidentDetailResponseCard } from "@/components/incidents/detail/details/IncidentDetailResponseCard";
 import { IncidentDetailRoutingCard } from "@/components/incidents/detail/details/IncidentDetailRoutingCard";
 import { IncidentDetailSummaryCard } from "@/components/incidents/detail/details/IncidentDetailSummaryCard";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 import { IncidentDetailHrcaBoard } from "@/components/incidents/detail/investigations/IncidentDetailHrcaBoard";
 import { IncidentDetailInvestigationCard } from "@/components/incidents/detail/investigations/IncidentDetailInvestigationCard";
 import { IncidentDetailInvestigationStatusCard } from "@/components/incidents/detail/investigations/IncidentDetailInvestigationStatusCard";
@@ -348,7 +349,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                           }
                           rows={4}
                           placeholder="Add response notes…"
-                          className="min-h-[100px] w-full resize-y rounded-[12px] border border-[rgba(15,23,42,0.12)] bg-white px-3.5 py-3 text-sm leading-[20.8px] text-ehs-slate transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+                          className={FIELD_TEXTAREA_CLASS}
                         />
                       ) : (
                         <Text

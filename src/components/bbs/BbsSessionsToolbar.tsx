@@ -2,6 +2,8 @@
 
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
+import { GlassSelect } from "@/components/ui/GlassSelect";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 export type BbsCategoryOption = Readonly<{
   value: string;
@@ -49,33 +51,21 @@ export function BbsSearchBar(props: BbsSearchBarProps) {
             }}
             placeholder="Search by ID, observer, location..."
             aria-label="Search sessions"
-            className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border bg-white py-2.5 pr-3 pl-9 shadow-sm transition outline-none focus:ring-2"
+            className={`${FIELD_INPUT_LG_CLASS} pl-9`}
           />
         </div>
 
-        <div className="relative shrink-0">
-          <select
-            value={categoryId}
-            aria-label="Behavior category"
-            disabled={categoriesLoading}
-            onChange={(event) => {
-              onCategoryChange?.(event.target.value);
-            }}
-            className="border-ehs-border text-ehs-dark-bg focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full min-w-0 cursor-pointer appearance-none rounded-xl border bg-white py-2.5 pr-9 pl-3.5 font-medium transition outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-44"
-          >
-            <option value="">All</option>
-            {categoryOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <Icon
-            icon="mdi:chevron-down"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-            aria-hidden="true"
-          />
-        </div>
+        <GlassSelect
+          // "" is the real "All" choice here (not a placeholder), so it stays
+          // a selectable option and still routes through onChange.
+          options={[{ value: "", label: "All" }, ...categoryOptions]}
+          value={categoryId}
+          onChange={(value) => onCategoryChange?.(value)}
+          aria-label="Behavior category"
+          disabled={categoriesLoading}
+          className="shrink-0"
+          triggerClassName={`${FIELD_INPUT_LG_CLASS} min-w-0 font-medium sm:min-w-44`}
+        />
       </div>
 
       <span className="text-ehs-muted-text shrink-0">{resultLabel}</span>

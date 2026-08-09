@@ -10,7 +10,6 @@ import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
 import { toPpeInventoryItems } from "@/lib/map-ppe";
 import { PpeInventoryCard } from "./PpeInventoryCard";
 import { ppeInventoryColumns } from "./PpeInventoryColumns";
-import { PpeManagementActions } from "./PpeManagementActions";
 import {
   PpeInventoryHeader,
   PpeSearchBar,
@@ -104,8 +103,8 @@ export function PpeInventorySection() {
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
-      <PpeManagementActions />
-
+      {/* PpeManagementActions moved up to PpeListPageClient, into the tabs
+          row — as its own band here it was a mostly-empty strip. */}
       {ppeItemsQuery.isPending && !ppeItemsQuery.data ? (
         <>
           <PpeSearchBarSkeleton />

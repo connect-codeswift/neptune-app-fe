@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { CreatableSelectInput } from "@/components/inputs/CreatableSelectInput";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
@@ -43,8 +44,7 @@ export type EditDocumentFormProps = Readonly<{
 const fieldLabelClass =
   "block text-[12px] leading-normal font-semibold text-[#566072]";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1.5";
-const controlClass =
-  "!h-auto !min-w-0 !rounded-lg !border !border-[rgba(11,19,32,0.1)] !bg-white !px-3 !py-2.5 !text-[14px] !leading-normal !text-[#0b1320] !shadow-none focus:!border-[#0891a6] focus:!ring-[#0891a6]/20";
+const controlClass = `${FIELD_INPUT_LG_CLASS} min-w-0`;
 
 /** API expects years as a number string (e.g. `"1"` for 1 Year) — matches Upload. */
 const REVIEW_CYCLE_OPTIONS = [
@@ -465,7 +465,6 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             disabled={busy}
             labelClassName={fieldLabelClass}
             wrapperClassName={fieldWrapperClass}
-            className={controlClass}
           />
           <MultiSelectInput
             label={
@@ -520,7 +519,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             rows={3}
             disabled
             aria-describedby={`${versionNotesId}-hint`}
-            className={`${controlClass} !h-auto resize-none disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`${controlClass} resize-none`}
           />
           <p
             id={`${versionNotesId}-hint`}

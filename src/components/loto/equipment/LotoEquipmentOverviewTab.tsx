@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   statusClassName,
   type LotoEquipmentDetail,

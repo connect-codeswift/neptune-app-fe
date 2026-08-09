@@ -15,8 +15,14 @@ export type GlassCardProps = Readonly<{
   className?: string;
 }>;
 
+/**
+ * Thinner than the original 62%-white pane: with the ambient colour layer
+ * AppShell now paints behind every page, a lower fill and heavier blur let
+ * the ground refract through, which is what makes the surface read as glass
+ * rather than a white card. Matches the sidebar and auth card recipe.
+ */
 export const GLASS_SURFACE =
-  "rounded-[20px] border border-white/90 bg-white/[0.62] backdrop-blur-[10px] " +
+  "rounded-[20px] border border-white/70 bg-white/50 backdrop-blur-xl " +
   "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.14),inset_0_1px_0_1px_rgba(255,255,255,0.9)]";
 
 export function GlassCard(props: Readonly<GlassCardProps>) {

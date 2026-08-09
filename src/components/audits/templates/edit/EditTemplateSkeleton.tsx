@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**

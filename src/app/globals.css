@@ -3,6 +3,10 @@
 :root {
   --font-inter: var(--font-inter);
 
+  /* House easing for micro-interactions (popover-in, card motion). One
+     definition so the curves can't drift apart per animation. */
+  --ehs-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
   --ehs-light-bg: #f3f5f8;
   --ehs-dark-bg: #0b1320;
 
@@ -136,7 +140,7 @@ body {
 @utility animate-popover-in {
   animation-name: popover-in;
   animation-duration: 0.14s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: var(--ehs-ease-out);
   animation-fill-mode: both;
 }
 
@@ -322,7 +326,7 @@ body {
 @utility animate-card-rise {
   animation-name: card-rise;
   animation-duration: 0.18s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: var(--ehs-ease-out);
   animation-fill-mode: both;
 
   /* `both` holds the 0-opacity start frame through any animation-delay, which
@@ -354,8 +358,8 @@ body {
    with the lift shadow deepened and the inset highlight left untouched. */
 @utility card-lift {
   transition:
-    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.18s var(--ehs-ease-out),
+    box-shadow 0.18s var(--ehs-ease-out);
 
   &:hover {
     transform: translateY(-1px);

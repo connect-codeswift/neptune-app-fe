@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { Table } from "@/components/ui/Table";
 import type {

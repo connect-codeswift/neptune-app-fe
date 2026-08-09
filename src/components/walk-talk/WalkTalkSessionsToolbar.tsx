@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 export type WalkTalkSearchBarProps = Readonly<{
   value: string;
@@ -30,7 +31,7 @@ export function WalkTalkSearchBar(props: WalkTalkSearchBarProps) {
           }}
           placeholder="Search by ID, observer, site..."
           aria-label="Search sessions"
-          className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border bg-white py-2.5 pr-3 pl-9 shadow-sm transition outline-none focus:ring-2"
+          className={`${FIELD_INPUT_LG_CLASS} pl-9`}
         />
       </div>
 

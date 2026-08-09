@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { FormValues } from "@/components/form-builder";
 import type {
   ScoringConfig,

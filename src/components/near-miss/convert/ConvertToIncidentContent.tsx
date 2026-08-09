@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";

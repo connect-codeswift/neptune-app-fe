@@ -12,6 +12,10 @@ import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
+import {
+  FIELD_INPUT_LG_CLASS,
+  FIELD_TEXTAREA_CLASS,
+} from "@/components/ui/field-styles";
 
 export type IncidentClosureStepPreventiveProps = Readonly<{
   data: IncidentClosureData;
@@ -105,7 +109,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
     >
       <div className="flex flex-col gap-4">
         {/* Search Bar */}
-        <div className="relative flex items-center rounded-xl border border-ehs-border bg-white px-3.5 py-2.5 shadow-xs">
+        <div className={`${FIELD_INPUT_LG_CLASS} relative flex items-center`}>
           <Icon icon="mdi:magnify" className="mr-2 size-5 text-ehs-muted-text" />
           <input
             type="text"
@@ -248,7 +252,7 @@ export function IncidentClosureStepPreventive(
           onChange={(e) => onChangeField("actionsTaken", e.target.value)}
           rows={3}
           placeholder="Detail preventive actions taken..."
-          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-[13px] leading-[20px] font-normal text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+          className={FIELD_TEXTAREA_CLASS}
         />
       </div>
 

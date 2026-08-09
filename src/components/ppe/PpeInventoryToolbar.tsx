@@ -3,6 +3,8 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { GlassSelect } from "@/components/ui/GlassSelect";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
 export type PpeCategoryFilter = "all" | string;
 
@@ -38,7 +40,7 @@ export function PpeSearchBar(props: PpeSearchBarProps) {
           }}
           placeholder="Search by category, supplier..."
           aria-label="Search PPE inventory"
-          className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border bg-white py-2.5 pr-3 pl-9 shadow-sm transition outline-none focus:ring-2"
+          className={`${FIELD_INPUT_LG_CLASS} pl-9`}
         />
       </div>
 
@@ -71,27 +73,17 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
         </Text>
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
-          <div className="relative hidden shrink-0 md:block">
-            <select
-              value={category}
-              aria-label="Category filter"
-              onChange={(event) => {
-                onCategoryChange(event.target.value);
-              }}
-              className="border-ehs-border text-ehs-darker focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full min-w-0 cursor-pointer appearance-none rounded-xl border bg-white py-2 pr-9 pl-3.5 text-base font-medium transition outline-none focus:ring-2 sm:min-w-44"
-            >
-              {categories.map((filter) => (
-                <option key={filter.id} value={filter.id}>
-                  {filter.label}
-                </option>
-              ))}
-            </select>
-            <Icon
-              icon="mdi:chevron-down"
-              className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
-              aria-hidden="true"
-            />
-          </div>
+          <GlassSelect
+            options={categories.map((filter) => ({
+              value: filter.id,
+              label: filter.label,
+            }))}
+            value={category}
+            onChange={onCategoryChange}
+            aria-label="Category filter"
+            className="hidden shrink-0 md:block"
+            triggerClassName={`${FIELD_INPUT_LG_CLASS} min-w-0 font-medium sm:min-w-44`}
+          />
 
           <Button
             type="button"

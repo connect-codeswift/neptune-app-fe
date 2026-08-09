@@ -12,7 +12,7 @@ import {
   getPriorityTone,
   getStatusTone,
 } from "@/components/capa/capa-list-data";
-import { IncidentSegmentedControl } from "@/components/incidents";
+import { IncidentSegmentedControl } from "@/components/incidents/list/IncidentSegmentedControl";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";

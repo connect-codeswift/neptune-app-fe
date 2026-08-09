@@ -1,47 +1,22 @@
-import { features } from "@/lib/hardcoded-data";
-import { Logo } from "../Logo";
-import { ShadeBall } from "../ShadeBall";
+import { AuthBrandPanel } from "@/components/auth/AuthBrandPanel";
 
+/**
+ * Brand side of signup — same composition as the login panel, with copy for
+ * someone arriving rather than returning. The trial terms stay: they answer
+ * the question that actually blocks a signup.
+ */
 export default function SignupLeftPanel() {
   return (
-    <div className="from-ehs-light-blue to-ehs-light-blue/60 scrollbar-hidden relative hidden h-full flex-col justify-center bg-linear-to-br via-white p-8 lg:flex">
-      <ShadeBall
-        positionAsClassName="bottom-[-150px] right-[-150px]"
-        blur={120}
-      />
-      <div className="relative z-10 flex flex-col gap-6">
-        <Logo />
-
-        <div className="flex max-w-sm flex-col gap-6">
-          <h1 className="text-ehs-darker md:tex-2xl text-xl leading-tight font-bold lg:text-3xl">
-            Safety Management, Finally Unified.
-          </h1>
-          <p className="text-ehs-muted-text text-sm leading-relaxed">
-            Join 2,400+ sites using Neptune to manage Incidents, Audits, CAPAs,
-            and Sustainability — all in one place.
-          </p>
-        </div>
-
-        <ul className="flex max-w-lg flex-col gap-3">
-          {features.map((item) => (
-            <li key={item.title} className="flex flex-col gap-1">
-              <p className="text-ehs-darker text-sm font-semibold">
-                {item.title}
-              </p>
-              <p className="text-ehs-muted-text text-sm">{item.description}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="bg-ehs-normal-blue/15 relative z-10 mt-2 rounded-xl px-3 py-3 backdrop-blur-lg">
-        <p className="text-ehs-darker text-sm font-semibold">
-          30-day free trial, full access
-        </p>
-        <p className="text-ehs-muted-text mt-1 text-sm">
-          No Credit Card Required. Cancel Anytime.
-        </p>
-      </div>
-    </div>
+    <AuthBrandPanel
+      headline={
+        <>
+          Safety management,
+          <br />
+          finally unified.
+        </>
+      }
+      sub="Incidents, audits, CAPAs and sustainability — one workspace for every site you run."
+      note="30-day free trial · Full access · No credit card required"
+    />
   );
 }

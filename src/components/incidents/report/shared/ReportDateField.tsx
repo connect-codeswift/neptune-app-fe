@@ -16,7 +16,10 @@ import {
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportCalendarPopover } from "@/components/incidents/report/shared/ReportCalendarPopover";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_INPUT_LG_CLASS,
+} from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   addDays,
@@ -27,8 +30,7 @@ import {
   today,
 } from "@/components/incidents/report/shared/report-date-time";
 
-const EMBEDDED_INPUT_CLASS =
-  "h-10 w-full rounded-[10px] bg-white px-3.5 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
 
 type MenuPosition = Readonly<{
   top: number;

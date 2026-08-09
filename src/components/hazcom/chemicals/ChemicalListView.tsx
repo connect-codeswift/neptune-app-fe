@@ -13,6 +13,7 @@ import {
   HazcomPager,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import {
   chemicalMatchesSearch,
   exportChemicalsToCsv,
@@ -27,8 +28,7 @@ export type ChemicalListViewProps = Readonly<{
   className?: string;
 }>;
 
-const searchInputClass =
-  "border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 h-10 w-full rounded-lg border bg-white py-2 pr-3.5 pl-9 text-[13px] shadow-sm outline-none transition focus:ring-2";
+const searchInputClass = `${FIELD_INPUT_LG_CLASS} pl-9`;
 
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;

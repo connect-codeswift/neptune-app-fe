@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { useSaveAuditResponsesMutation } from "@/hooks/use-audit-mutations";
 import { useAuditForTemplate } from "@/hooks/use-audit-queries";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";

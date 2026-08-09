@@ -13,6 +13,7 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import { useCurrentSite } from "@/hooks/use-current-site";
 
 export type CapaTaskFormPayload = Readonly<{
@@ -137,7 +138,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
               onChange={(event) => setTask(event.target.value)}
               placeholder="Describe what the assignee needs to do…"
               rows={4}
-              className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[108px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2"
+              className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
             />
             <AiTextAssistant module="incident" value={task} onApply={setTask} />
           </div>

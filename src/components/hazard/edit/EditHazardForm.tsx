@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";

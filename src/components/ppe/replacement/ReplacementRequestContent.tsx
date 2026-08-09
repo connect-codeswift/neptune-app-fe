@@ -7,7 +7,7 @@ import {
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";

@@ -28,7 +28,7 @@ export function CompliancePageHeader(props: CompliancePageHeaderProps) {
         as="h1"
         className="text-[26px] leading-none font-bold tracking-[-0.51px] text-[#0b1320]"
       >
-        Regularity Compliance
+        Regulatory Compliance
       </Text>
     </header>
   );

@@ -36,8 +36,6 @@ import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 const fieldLabelClass =
   "block text-[12px] leading-4 font-medium text-[#566072]";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
-const controlClass =
-  "!h-9 !min-w-0 !rounded-[10px] !border-[0.8px] !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-3 !py-2 !text-[14px] !shadow-none focus:!border-[#0891a6] focus:!ring-[#0891a6]/20 sm:!h-[36px]";
 
 /** API expects years as a number string (e.g. `"1"` for 1 Year). */
 const REVIEW_CYCLE_OPTIONS = [
@@ -374,7 +372,6 @@ export function UploadDocumentForm() {
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
             />
             <CreatableSelectInput
               label="Category *"
@@ -430,7 +427,6 @@ export function UploadDocumentForm() {
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={controlClass}
             />
             <MultiSelectInput
               label={

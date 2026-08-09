@@ -1,75 +1,35 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Area,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { IncidentGlassCard } from "@/components/incidents";
+import dynamic from "next/dynamic";
+import { TrendChartSkeleton } from "@/components/DashboardSkeletons";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   DEFAULT_BBS_GRAPH_WEEKS,
   useBbsGraphQuery,
 } from "@/hooks/use-bbs-queries";
 import { toBbsEngagementPoints } from "@/lib/map-bbs";
 
+/**
+ * Recharts is ~340 KB of this route's client JS. Loading the chart on demand
+ * keeps it out of the initial bundle; the card's shell renders immediately.
+ * Nothing may be statically imported from the chart module, or the library is
+ * pulled straight back into this route's chunk.
+ */
+const BbsEngagementChart = dynamic(
+  () => import("./BbsEngagementChart").then((m) => m.BbsEngagementChart),
+  {
+    ssr: false,
+    // A chart-shaped skeleton, not a line of text: this is a page-load wait,
+    // and holding the chart's footprint stops the card collapsing and
+    // reflowing when the deferred chunk lands.
+    loading: () => <TrendChartSkeleton />,
+  },
+);
+
+/** Owned here so the legend below and the chart cannot drift apart. */
 const SAFE_COLOR = "#0891a6";
 const AT_RISK_COLOR = "#ef4444";
-
-const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
-
-type TooltipEntry = Readonly<{
-  dataKey?: string | number;
-  value?: number | string;
-}>;
-
-/** Values live in the tooltip — dense week series can't carry direct labels. */
-function ChartTooltip(
-  props: Readonly<{
-    active?: boolean;
-    payload?: readonly TooltipEntry[];
-    label?: string | number;
-  }>,
-) {
-  const { active, payload, label } = props;
-  if (!active || !payload || payload.length === 0) return null;
-
-  const valueOf = (key: string) =>
-    payload.find((entry) => entry.dataKey === key)?.value ?? 0;
-
-  return (
-    <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
-      <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
-      <div className="mt-1 flex flex-col gap-0.5">
-        <div className="flex items-center gap-2">
-          <span
-            className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: SAFE_COLOR }}
-            aria-hidden="true"
-          />
-          <span className="text-ehs-gray text-xs">
-            {`Safe ${String(valueOf("safe"))}`}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: AT_RISK_COLOR }}
-            aria-hidden="true"
-          />
-          <span className="text-ehs-gray text-xs">
-            {`At risk ${String(valueOf("atRisk"))}`}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /** Legend swatch + label; the label itself stays in text ink, not series colour. */
 function LegendItem(props: Readonly<{ color: string; label: string }>) {
@@ -136,72 +96,12 @@ export function BbsEngagementCard(props: BbsEngagementCardProps) {
         {graphQuery.isPending && points.length === 0 ? (
           <p className="text-ehs-muted-text text-sm">Loading…</p>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={[...points]}
-              margin={{ top: 8, right: 4, bottom: 0, left: -24 }}
-            >
-              {/* Recessive horizontal rules only. `syncWithTicks` keeps the grid
-                  to the ticks — without it Recharts also rules the domain edges,
-                  which drew a stray line above the top gridline. */}
-              <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
-
-              <XAxis
-                dataKey="label"
-                tick={AXIS_TICK}
-                tickLine={false}
-                // The baseline the area sits on — the grid no longer draws it.
-                axisLine={{ stroke: "#e5e7eb" }}
-                tickMargin={10}
-                interval={0}
-              />
-              <YAxis
-                domain={yScale.domain}
-                ticks={yScale.ticks}
-                tick={AXIS_TICK}
-                tickLine={false}
-                axisLine={false}
-                width={40}
-              />
-
-              <Tooltip
-                content={<ChartTooltip />}
-                cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
-              />
-
-              {/* Safe observations carry the area fill, matching the design. */}
-              <Area
-                type="linear"
-                dataKey="safe"
-                stroke={SAFE_COLOR}
-                strokeWidth={2}
-                fill={SAFE_COLOR}
-                fillOpacity={0.08}
-                dot={{
-                  r: 4,
-                  fill: "#ffffff",
-                  stroke: SAFE_COLOR,
-                  strokeWidth: 2,
-                }}
-                activeDot={{ r: 5 }}
-                isAnimationActive={false}
-              />
-              <Line
-                type="linear"
-                dataKey="atRisk"
-                stroke={AT_RISK_COLOR}
-                strokeWidth={2}
-                dot={{
-                  r: 4,
-                  fill: "#ffffff",
-                  stroke: AT_RISK_COLOR,
-                  strokeWidth: 2,
-                }}
-                activeDot={{ r: 5 }}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <BbsEngagementChart
+            points={points}
+            yScale={yScale}
+            safeColor={SAFE_COLOR}
+            atRiskColor={AT_RISK_COLOR}
+          />
         )}
       </div>
 

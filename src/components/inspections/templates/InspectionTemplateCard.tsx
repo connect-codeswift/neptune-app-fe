@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { InspectionTemplate } from "@/app/dashboard/inspections/template/inspection-templates-data";
 

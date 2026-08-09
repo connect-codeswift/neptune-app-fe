@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { useBbsObservationDetailQuery } from "@/hooks/use-bbs-queries";
 import { toObservationDetail } from "@/lib/map-bbs";

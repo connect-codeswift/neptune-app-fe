@@ -12,15 +12,18 @@
  * is `#8892a3` and `--ehs-normal-blue` is `#0891a6`, so this renders identically
  * while staying tied to the palette.
  *
- * Not to be confused with `ehsInputClass` in `@/lib/ehs-classes`: that is the
- * solid-panel treatment for the auth screens and the generic `components/inputs`
- * controls, which sit on opaque backgrounds where a frosted field would look
- * wrong. Two deliberate treatments for two contexts — both centralised.
+ * `ehsInputClass` in `@/lib/ehs-classes` (auth screens and the generic
+ * `components/inputs` controls) now mirrors this treatment — same fill,
+ * hairline, blur and focus halo. It used to be a solid panel because those
+ * screens sat on opaque backgrounds; the app went glass, and the fields went
+ * with it. If FIELD_BASE's material changes, change it there too.
  */
 
 const FIELD_BASE = [
   "w-full rounded-[10px] border border-[rgba(15,23,42,0.08)]",
-  "bg-white/[0.62] text-ehs-dark-bg backdrop-blur-[5px] outline-none",
+  // 55% white to sit on the thinner glass cards the app now uses — 62% read
+  // a step more solid than the surface underneath it.
+  "bg-white/55 text-ehs-dark-bg backdrop-blur-[5px] outline-none",
   "transition-[color,background-color,border-color,box-shadow] duration-150",
   "placeholder:text-ehs-muted-text",
   "hover:border-[rgba(15,23,42,0.18)] hover:bg-white/[0.78]",

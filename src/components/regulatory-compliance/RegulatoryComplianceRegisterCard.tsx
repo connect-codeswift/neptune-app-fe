@@ -80,11 +80,15 @@ const columns = [
     cell: (info) => <CompliancePill label={info.getValue()} />,
   }),
   columnHelper.accessor("nextDue", {
-    header: "Nextdue",
-    size: 81,
+    header: "Next due",
+    // 81px forced ISO dates to wrap mid-value ("2026-09-\n05").
+    size: 112,
     meta: { align: "center" },
     cell: (info) => (
-      <Text as="span" className="text-[12px] leading-normal text-[#566072]">
+      <Text
+        as="span"
+        className="text-[12px] leading-normal whitespace-nowrap tabular-nums text-[#566072]"
+      >
         {info.getValue()}
       </Text>
     ),

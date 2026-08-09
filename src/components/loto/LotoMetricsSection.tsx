@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { LOTO_METRICS } from "@/app/dashboard/lockout-tagout/loto-data";
 
 /** KPI strip — value above label, matching Figma 6835:39794. */

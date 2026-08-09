@@ -8,6 +8,7 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import { useCapaReviewQuery } from "@/hooks/use-capa-queries";
 import { formatCapaTaskStatusLabel } from "@/services/mappers/capa.mapper";
@@ -291,7 +292,7 @@ export function CapaCompletionReviewModal(
                       onChange={(event) => setNotes(event.target.value)}
                       rows={3}
                       placeholder="Document your review before closing this CAPA…"
-                      className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 w-full resize-none rounded-xl border border-[rgba(15,23,42,0.08)] bg-white px-3.5 py-3 text-sm leading-5 outline-none focus:ring-2"
+                      className={FIELD_TEXTAREA_CLASS}
                     />
                   </div>
                 </div>
