@@ -22,9 +22,15 @@ export type NearMissKpiDto = {
   totalNearMissCount?: number;
   totalNearMisses?: number;
   total?: number;
+  /** Period-over-period delta for total near misses (renders as `+N` / `-N`). */
+  totalNearMissDelta?: number;
+  totalNearMissChange?: number;
   convertedToIncidents?: number;
   convertedIncidents?: number;
   converted?: number;
+  /** Period-over-period delta for converted incidents (renders as `+N` / `-N`). */
+  convertedToIncidentsDelta?: number;
+  convertedToIncidentsChange?: number;
 };
 
 /** Matches backend response for GET /api/NearMiss/NearMissKpi. */
