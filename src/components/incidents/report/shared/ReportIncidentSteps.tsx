@@ -19,7 +19,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[14px]"
+      paddingClassName="p-3.5"
       className={[
         "w-full md:sticky md:top-0 md:w-[220px] md:shrink-0",
         className,
@@ -102,7 +102,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
             {`${String(currentStep)} / 5`}
           </Text>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ehs-muted-text/20">
+        <div className="bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full transition-all"
             style={{ width: `${(currentStep / 5) * 100}%` }}

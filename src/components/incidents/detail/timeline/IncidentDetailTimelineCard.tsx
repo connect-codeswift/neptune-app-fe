@@ -45,33 +45,34 @@ export function IncidentDetailTimelineCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
+      incidentGlassCardClassName="gap-3.5"
       className={className}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
             Activity timeline
           </Text>
-          <span className="text-sm leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text text-sm leading-normal">
             {events.length} events · most recent last
           </span>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
-          <Icon icon="mdi:export-variant" className="size-[13px]" aria-hidden="true" />
+          <Icon
+            icon="mdi:export-variant"
+            className="size-[13px]"
+            aria-hidden="true"
+          />
           Export log
         </button>
       </div>
 
       {events.length === 0 ? (
-        <div className="py-10 text-center text-sm text-ehs-muted-text">
+        <div className="text-ehs-muted-text py-10 text-center text-sm">
           No activity recorded for this incident yet.
         </div>
       ) : (
@@ -82,35 +83,36 @@ export function IncidentDetailTimelineCard(
           />
           <div className="relative flex flex-col gap-1">
             {events.map((event) => (
-              <div
-                key={event.id}
-                className="flex items-start gap-[14px] py-2"
-              >
-                <div className="relative z-1 flex size-9 shrink-0 items-center justify-center rounded-[11px] border-2 border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray">
-                  <Icon icon={event.icon} className="size-4" aria-hidden="true" />
+              <div key={event.id} className="flex items-start gap-3.5 py-2">
+                <div className="border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray relative z-1 flex size-9 shrink-0 items-center justify-center rounded-[11px] border-2">
+                  <Icon
+                    icon={event.icon}
+                    className="size-4"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px] pb-1.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
+                    <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
                       {event.title}
                     </span>
-                    <span className="ml-auto text-sm leading-normal whitespace-nowrap text-ehs-muted-text">
+                    <span className="text-ehs-muted-text ml-auto text-sm leading-normal whitespace-nowrap">
                       {event.time}
                     </span>
                   </div>
-                  <p className="text-sm leading-[18px] text-ehs-gray">
+                  <p className="text-ehs-gray text-sm leading-[18px]">
                     {event.description}
                   </p>
                   <div className="flex items-center gap-1.5 pt-[3px]">
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-ehs-dark-blue-bg-light text-xs font-bold text-ehs-dark-blue">
+                    <span className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-5 shrink-0 items-center justify-center rounded-md text-xs font-bold">
                       {event.actorInitials}
                     </span>
-                    <span className="text-sm leading-normal text-ehs-gray">
+                    <span className="text-ehs-gray text-sm leading-normal">
                       {event.actorName}
                     </span>
                     {event.actorRole ? (
-                      <span className="text-sm leading-normal text-ehs-muted-text">
+                      <span className="text-ehs-muted-text text-sm leading-normal">
                         · {event.actorRole}
                       </span>
                     ) : null}

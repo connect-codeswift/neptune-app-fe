@@ -32,16 +32,13 @@ export function AppShell(props: Readonly<AppShellProps>) {
       {/* Ambient ground for the whole app: the body is flat ehs-light-bg, and
           glass surfaces only read as glass with colour behind them to blur.
           Fixed so it doesn't scroll with content; z-0 with content above. */}
-      <div
-        className="pointer-events-none fixed inset-0"
-        aria-hidden="true"
-      >
+      <div className="pointer-events-none fixed inset-0" aria-hidden="true">
         <div className="bg-ehs-normal-blue/12 absolute top-[-8rem] right-[10%] size-[28rem] rounded-full blur-3xl" />
         <div className="absolute top-[35%] left-[30%] size-[26rem] rounded-full bg-cyan-300/15 blur-3xl" />
-        <div className="bg-ehs-normal-blue/10 absolute bottom-[-6rem] right-[25%] size-[24rem] rounded-full blur-3xl" />
+        <div className="bg-ehs-normal-blue/10 absolute right-[25%] bottom-[-6rem] size-[24rem] rounded-full blur-3xl" />
       </div>
       {/* Mobile top navigation header */}
-      <header className="z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 backdrop-blur-[14px] lg:hidden">
+      <header className="backdrop-blur-3.5 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 lg:hidden">
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}

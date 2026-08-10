@@ -224,7 +224,7 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 2: 2x2 detail cards — Figma 616:9073 */}
-          <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <ReportReviewDetailCard
               title="Where & when"
               rows={[

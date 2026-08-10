@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
 import {
   useNearMissKpiQuery,
   useNearMissListQuery,
@@ -11,8 +10,8 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatMetricCard } from "@/components/StatMetricCard";
 import { Table } from "@/components/ui/Table";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
-import { NearMissFilterBar } from "@/components/near-miss/NearMissFilterBar";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard";
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
 import { NearMissPageSkeleton } from "@/components/near-miss/NearMissPageSkeleton";
@@ -28,6 +27,13 @@ import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
+
+const STATUS_OPTIONS = [
+  "All",
+  "Open",
+  "Investigating",
+  "Closed",
+] as const;
 
 export function NearMissListPageClient() {
   const router = useRouter();
@@ -118,33 +124,29 @@ export function NearMissListPageClient() {
               </div>
             ) : null}
 
-            <NearMissFilterBar
-              status={selectedStatus}
-              onStatusChange={(status) => {
-                setSelectedStatus(status);
-              }}
-              onReportNearMiss={() => {
-                router.push("/dashboard/near-miss/report");
+            <ModuleFilterBar
+              segments={[
+                {
+                  label: "Status",
+                  options: STATUS_OPTIONS,
+                  value: selectedStatus,
+                  onChange: setSelectedStatus,
+                },
+              ]}
+              action={{
+                label: "Report Near Miss",
+                onClick: () => {
+                  router.push("/dashboard/near-miss/report");
+                },
               }}
             />
 
-            <div className="relative w-full max-w-md min-w-0">
-              <Icon
-                icon="mdi:magnify"
-                className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value);
-                }}
-                placeholder="Search by title, location, reporter..."
-                aria-label="Search near misses"
-                className={`${FIELD_INPUT_LG_CLASS} pl-9`}
-              />
-            </div>
+            <ModuleSearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search by title, location, reporter..."
+              aria-label="Search near misses"
+            />
 
             <div
               className={[

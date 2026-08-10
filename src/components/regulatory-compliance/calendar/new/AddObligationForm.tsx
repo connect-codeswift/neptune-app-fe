@@ -25,7 +25,7 @@ import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper"
 const fieldLabelClass = "text-[12px] leading-4 font-medium text-[#566072]";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
 const fieldShellClass =
-  "!min-w-0 !rounded-[10px] !border-[0.8px] !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-[11.2px] !py-2 !text-[14px] !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
+  "!min-w-0 !rounded-[10px] !border-[0.8px] !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-[11.2px] !py-2 !text-3.5 !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
 const textFieldClass = [
   fieldShellClass,
   "!text-[#0b1320] placeholder:!text-[#8892a3]",
@@ -448,14 +448,14 @@ export function AddObligationForm() {
               type="button"
               onClick={handleCancel}
               disabled={busy}
-              className="cursor-pointer text-center text-[14px] leading-5 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-3.5 cursor-pointer text-center leading-5 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy || !pdfSecureUrl}
-              className="inline-flex h-9 min-w-[197px] cursor-pointer items-center justify-center rounded-[10px] bg-[#0891a6] px-4 text-[14px] leading-5 font-medium text-white shadow-[inset_0px_0.972px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_5.834px_8.751px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-3.5 inline-flex h-9 min-w-[197px] cursor-pointer items-center justify-center rounded-[10px] bg-[#0891a6] px-4 leading-5 font-medium text-white shadow-[inset_0px_0.972px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_5.834px_8.751px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

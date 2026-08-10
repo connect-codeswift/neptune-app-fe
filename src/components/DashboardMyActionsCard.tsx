@@ -90,7 +90,7 @@ export function DashboardMyActionsCard(
           </Text>
         </div>
       ) : (
-        <div className="mt-[7px] flex flex-col gap-[14px]">
+        <div className="mt-[7px] flex flex-col gap-3.5">
           {items.map((item) => (
             <ListItemRow key={`${item.title}-${item.subtitle}`} {...item} />
           ))}

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
 import {
   useHazardKpiQuery,
   useHazardListQuery,
@@ -11,8 +10,8 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatMetricCard } from "@/components/StatMetricCard";
 import { Table } from "@/components/ui/Table";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
-import { HazardFilterBar } from "@/components/hazard/HazardFilterBar";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
 import { makeHazardColumns } from "@/components/hazard/HazardColumns";
@@ -27,6 +26,13 @@ import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
+
+const HAZARD_STATUS_OPTIONS = [
+  "All",
+  "Open",
+  "Investigating",
+  "Closed",
+] as const;
 
 export function HazardListPageClient() {
   const router = useRouter();
@@ -116,31 +122,29 @@ export function HazardListPageClient() {
               </div>
             ) : null}
 
-            <HazardFilterBar
-              status={selectedStatus}
-              onStatusChange={setSelectedStatus}
-              onReportHazard={() => {
-                router.push("/dashboard/hazard/report");
+            <ModuleFilterBar
+              segments={[
+                {
+                  label: "Status",
+                  options: HAZARD_STATUS_OPTIONS,
+                  value: selectedStatus,
+                  onChange: setSelectedStatus,
+                },
+              ]}
+              action={{
+                label: "Report Hazard",
+                onClick: () => {
+                  router.push("/dashboard/hazard/report");
+                },
               }}
             />
 
-            <div className="relative w-full max-w-md min-w-0">
-              <Icon
-                icon="mdi:magnify"
-                className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value);
-                }}
-                placeholder="Search by title, location, reporter..."
-                aria-label="Search hazards"
-                className={`${FIELD_INPUT_LG_CLASS} pl-9`}
-              />
-            </div>
+            <ModuleSearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search by title, location, reporter..."
+              aria-label="Search hazards"
+            />
 
             <div
               className={[

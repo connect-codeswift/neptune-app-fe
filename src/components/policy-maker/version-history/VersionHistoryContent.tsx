@@ -79,9 +79,9 @@ export function VersionHistoryContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
-          <SkeletonTable rows={6} columns={5} />
-        </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 py-4">
+        <SkeletonTable rows={6} columns={5} />
+      </div>
     );
   }
 
@@ -91,12 +91,12 @@ export function VersionHistoryContent(
         <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text-ehs-muted-text text-3.5">
           Please sign in to load this document.
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Document Library
         </Link>
@@ -147,12 +147,12 @@ export function VersionHistoryContent(
         <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
           Document not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text-ehs-muted-text text-3.5">
           {`No document matches “${documentIdParam}”.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Document Library
         </Link>

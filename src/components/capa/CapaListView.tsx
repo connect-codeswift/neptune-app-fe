@@ -12,11 +12,16 @@ import {
   getPriorityTone,
   getStatusTone,
 } from "@/components/capa/capa-list-data";
-import { IncidentSegmentedControl } from "@/components/incidents/list/IncidentSegmentedControl";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { Table } from "@/components/ui/Table";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
@@ -77,10 +82,33 @@ function CapaKpiTile(
   );
 }
 
-const FILTER_SHELL =
-  "relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
+function CreateCapaButton(
+  props: Readonly<{ className?: string; onClick?: () => void }>,
+) {
+  const { className = "", onClick } = props;
 
-export type CapaListViewProps = Readonly<{ searchQuery?: string }>;
+  return (
+    <Button
+      type="button"
+      variant="primary"
+      onClick={onClick}
+      className={[TABLE_HEADER_ACTION_CLASS, className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Icon
+        icon="mdi:plus"
+        className={TABLE_HEADER_ACTION_ICON_CLASS}
+        aria-hidden="true"
+      />
+      Create CAPA
+    </Button>
+  );
+}
+
+export type CapaListViewProps = Readonly<{
+  className?: string;
+}>;
 
 /**
  * CAPA register.
@@ -93,11 +121,12 @@ export type CapaListViewProps = Readonly<{ searchQuery?: string }>;
  * empty state is what renders until the backend fills it in.
  */
 export function CapaListView(props: Readonly<CapaListViewProps>) {
-  const { searchQuery = "" } = props;
+  const { className = "" } = props;
 
   const [state, setState] = useState<string>("All");
   const [priority, setPriority] = useState<string>("All");
   const [capaType, setCapaType] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // `null` until hydrated, then the real answer. Reading the token through
   // useSyncExternalStore keeps the server and first client render in agreement
@@ -115,6 +144,8 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
   );
 
   const filteredRows = useMemo(() => {
+    const needle = searchQuery.trim().toLowerCase();
+
     return rows.filter((row) => {
       const isClosed = getStatusTone(row.status) === "closed";
       const matchesState =
@@ -131,10 +162,20 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
         capaType === "All" ||
         row.capaType.toLowerCase().includes(capaType.toLowerCase());
 
-      return matchesState && matchesPriority && matchesType;
-    });
-  }, [rows, state, priority, capaType]);
+      const matchesSearch =
+        needle === "" ||
+        [row.code, row.title, row.owner, row.site, row.status, row.capaType]
+          .join(" ")
+          .toLowerCase()
+          .includes(needle);
 
+      return matchesState && matchesPriority && matchesType && matchesSearch;
+    });
+  }, [rows, state, priority, capaType, searchQuery]);
+
+  const resultLabel = `${String(filteredRows.length)} ${
+    filteredRows.length === 1 ? "CAPA" : "CAPAs"
+  }`;
   const summary = useMemo(() => summariseCapaRows(rows), [rows]);
 
   const columns = useMemo<ColumnDef<CapaListRow, unknown>[]>(
@@ -256,8 +297,12 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-[14px]">
-      <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div
+      className={["flex min-w-0 flex-col gap-3.5", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
         <CapaKpiTile
           label="Total CAPAs"
           value={summary.total}
@@ -284,36 +329,36 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
         />
       </div>
 
-      <div className={FILTER_SHELL}>
-        <span className="border-ehs-border/80 text-ehs-darker inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-lg border bg-white/80 px-2.5 text-xs font-bold shadow-xs">
-          <Icon icon="mdi:filter-variant" className="size-3.5" aria-hidden />
-          Filters
-        </span>
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "State",
+            options: CAPA_STATE_FILTERS,
+            value: state,
+            onChange: setState,
+          },
+          {
+            label: "Priority",
+            options: CAPA_PRIORITY_FILTERS,
+            value: priority,
+            onChange: setPriority,
+          },
+          {
+            label: "Type",
+            options: CAPA_TYPE_FILTERS,
+            value: capaType,
+            onChange: setCapaType,
+          },
+        ]}
+      />
 
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-3">
-          <IncidentSegmentedControl
-            label="State"
-            options={CAPA_STATE_FILTERS}
-            value={state}
-            onChange={setState}
-            className="min-w-fit flex-1"
-          />
-          <IncidentSegmentedControl
-            label="Priority"
-            options={CAPA_PRIORITY_FILTERS}
-            value={priority}
-            onChange={setPriority}
-            className="min-w-fit flex-1"
-          />
-          <IncidentSegmentedControl
-            label="Type"
-            options={CAPA_TYPE_FILTERS}
-            value={capaType}
-            onChange={setCapaType}
-            className="min-w-fit flex-1"
-          />
-        </div>
-      </div>
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by code, action, owner, site..."
+        aria-label="Search CAPAs"
+        resultLabel={resultLabel}
+      />
 
       {filteredRows.length === 0 ? (
         <GlassCard className="min-h-[240px] items-center justify-center gap-2 text-center">
@@ -330,15 +375,26 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
           <Text as="p" className="text-ehs-muted-text max-w-sm text-sm">
             {rows.length === 0
               ? "Corrective and preventive actions raised from incidents will appear here."
-              : "Try widening the state, priority or type filter."}
+              : "Try widening the state, priority, type, or search."}
           </Text>
+          {rows.length === 0 ? <CreateCapaButton className="mt-2" /> : null}
         </GlassCard>
       ) : (
         <Table
           data={filteredRows}
           columns={columns}
-          globalFilter={searchQuery}
           getRowId={(row) => row.id}
+          header={
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Text
+                as="h3"
+                className="text-ehs-darker shrink-0 text-base font-bold"
+              >
+                CAPAs
+              </Text>
+              <CreateCapaButton />
+            </div>
+          }
         />
       )}
     </div>

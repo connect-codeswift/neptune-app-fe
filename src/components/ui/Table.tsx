@@ -106,8 +106,7 @@ export function Table<TData>(props: TableProps<TData>) {
               >
                 {headerGroup.headers.map((header) => {
                   const meta = header.column.columnDef.meta as
-                    | { align?: "left" | "center" | "right" }
-                    | undefined;
+                    { align?: "left" | "center" | "right" } | undefined;
                   const align = meta?.align ?? "left";
                   const alignClass =
                     align === "center"
@@ -183,8 +182,7 @@ export function Table<TData>(props: TableProps<TData>) {
                   >
                     {row.getVisibleCells().map((cell) => {
                       const meta = cell.column.columnDef.meta as
-                        | { align?: "left" | "center" | "right" }
-                        | undefined;
+                        { align?: "left" | "center" | "right" } | undefined;
                       const align = meta?.align ?? "left";
                       const alignClass =
                         align === "center"
@@ -198,7 +196,7 @@ export function Table<TData>(props: TableProps<TData>) {
                           key={cell.id}
                           className={[
                             isCompliance
-                              ? "px-[15.57px] py-[14px] align-middle text-sm font-normal"
+                              ? "px-[15.57px] py-3.5 align-middle text-sm font-normal"
                               : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
                             alignClass,
                           ].join(" ")}
@@ -231,8 +229,14 @@ const pageButtonClass =
 function TablePaginationBar(
   props: Readonly<TablePagination & { variant?: "default" | "compliance" }>,
 ) {
-  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading, variant = "default" } =
-    props;
+  const {
+    pageNumber,
+    pageSize,
+    totalRecords,
+    onPageChange,
+    isLoading,
+    variant = "default",
+  } = props;
   const isCompliance = variant === "compliance";
 
   // The API is 1-based; guard against a 0/negative page size so the maths

@@ -25,19 +25,22 @@ function AccountSettingsTabs(
 ) {
   const { activeTab } = props;
 
-  const tabs: readonly { id: AccountSettingsTab; label: string; href: string }[] =
-    [
-      {
-        id: "profile",
-        label: "Profile",
-        href: "/dashboard/my-profile/settings",
-      },
-      {
-        id: "security",
-        label: "Security",
-        href: "/dashboard/my-profile/security",
-      },
-    ];
+  const tabs: readonly {
+    id: AccountSettingsTab;
+    label: string;
+    href: string;
+  }[] = [
+    {
+      id: "profile",
+      label: "Profile",
+      href: "/dashboard/my-profile/settings",
+    },
+    {
+      id: "security",
+      label: "Security",
+      href: "/dashboard/my-profile/security",
+    },
+  ];
 
   return (
     <div className="inline-flex items-center gap-2">
@@ -110,7 +113,9 @@ function BreadcrumbTrail() {
   );
 }
 
-export function AccountSettingsShell(props: Readonly<AccountSettingsShellProps>) {
+export function AccountSettingsShell(
+  props: Readonly<AccountSettingsShellProps>,
+) {
   const {
     activeTab,
     children,
@@ -131,7 +136,7 @@ export function AccountSettingsShell(props: Readonly<AccountSettingsShellProps>)
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <div className="flex flex-1 flex-col gap-[14px] px-4 pt-4 pb-8">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
         <header className="flex flex-col gap-3">
           <BreadcrumbTrail />
 

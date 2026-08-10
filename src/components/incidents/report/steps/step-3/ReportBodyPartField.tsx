@@ -162,7 +162,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
         .join(" ")}
     >
       <div className="flex flex-wrap items-end gap-2">
-        <Text as="span" className="text-sm font-bold text-ehs-slate">
+        <Text as="span" className="text-ehs-slate text-sm font-bold">
           Body part affected
         </Text>
         <Text as="span" className="text-ehs-muted-text ml-auto text-sm">
@@ -170,7 +170,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
         </Text>
       </div>
 
-      <div className="flex w-full flex-col gap-4 rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-white/62 p-4 sm:p-5">
+      <div className="rounded-3.5 flex w-full flex-col gap-4 border border-[rgba(15,23,42,0.08)] bg-white/62 p-4 sm:p-5">
         <div className="flex w-full rounded-[10px] bg-[rgba(15,23,42,0.04)] p-1 sm:hidden">
           <button
             type="button"
@@ -178,7 +178,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
             className={[
               "flex-1 rounded-[8px] py-1.5 text-sm font-bold transition-all duration-200",
               activeTab === "front"
-                ? "bg-white text-ehs-dark-blue shadow-sm"
+                ? "text-ehs-dark-blue bg-white shadow-sm"
                 : "text-ehs-gray hover:text-ehs-slate",
             ].join(" ")}
           >
@@ -190,7 +190,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
             className={[
               "flex-1 rounded-[8px] py-1.5 text-sm font-bold transition-all duration-200",
               activeTab === "back"
-                ? "bg-white text-ehs-dark-blue shadow-sm"
+                ? "text-ehs-dark-blue bg-white shadow-sm"
                 : "text-ehs-gray hover:text-ehs-slate",
             ].join(" ")}
           >
@@ -242,7 +242,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                   <span className="bg-ehs-normal-blue size-2.5 shrink-0 rounded-full" />
                   <Text
                     as="span"
-                    className="min-w-0 truncate text-sm font-bold text-ehs-dark-blue"
+                    className="text-ehs-dark-blue min-w-0 truncate text-sm font-bold"
                   >
                     {selectionLabel}
                   </Text>
@@ -251,7 +251,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                 <button
                   type="button"
                   onClick={switchSide}
-                  className="inline-flex h-7 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-3 py-1 text-sm font-bold text-ehs-slate transition-colors hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70"
+                  className="text-ehs-slate inline-flex h-7 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-3 py-1 text-sm font-bold transition-colors hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70"
                 >
                   <Icon
                     icon="mdi:chevron-left"
@@ -268,7 +268,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                     "inline-flex h-7 min-w-[84px] items-center justify-center rounded-[10px] border px-3 py-1 text-sm font-bold transition-colors",
                     multiSelect
                       ? "border-ehs-normal-blue bg-ehs-normal-blue/14 text-ehs-dark-blue"
-                      : "border-[rgba(15,23,42,0.14)] text-ehs-slate hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70",
+                      : "text-ehs-slate border-[rgba(15,23,42,0.14)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70",
                   ].join(" ")}
                 >
                   Multi-select
@@ -295,14 +295,16 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                       className={[
                         "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-all duration-150",
                         isSelected
-                          ? "border-ehs-normal-blue bg-ehs-normal-blue/18 font-bold text-ehs-dark-blue"
-                          : "border-[rgba(15,23,42,0.08)] bg-white/62 font-normal text-ehs-slate hover:border-[rgba(15,23,42,0.16)]",
+                          ? "border-ehs-normal-blue bg-ehs-normal-blue/18 text-ehs-dark-blue font-bold"
+                          : "text-ehs-slate border-[rgba(15,23,42,0.08)] bg-white/62 font-normal hover:border-[rgba(15,23,42,0.16)]",
                       ].join(" ")}
                     >
                       <span
                         className={[
                           "size-2 shrink-0 rounded-[3px]",
-                          isSelected ? "bg-ehs-normal-blue" : "bg-ehs-muted-text",
+                          isSelected
+                            ? "bg-ehs-normal-blue"
+                            : "bg-ehs-muted-text",
                         ].join(" ")}
                       />
                       {part.label}
@@ -315,7 +317,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                 {customBodyParts.map((part) => (
                   <span
                     key={part}
-                    className="border-ehs-normal-blue bg-ehs-normal-blue/18 inline-flex items-center gap-2 rounded-full border py-2 pr-1.5 pl-3 text-sm font-bold text-ehs-dark-blue"
+                    className="border-ehs-normal-blue bg-ehs-normal-blue/18 text-ehs-dark-blue inline-flex items-center gap-2 rounded-full border py-2 pr-1.5 pl-3 text-sm font-bold"
                   >
                     {part}
                     <button
@@ -362,7 +364,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                     <button
                       type="button"
                       onClick={commitCustomPart}
-                      className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover inline-flex h-[34px] cursor-pointer items-center rounded-full px-3 text-sm font-bold text-ehs-light-text transition-colors"
+                      className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex h-[34px] cursor-pointer items-center rounded-full px-3 text-sm font-bold transition-colors"
                     >
                       Add
                     </button>

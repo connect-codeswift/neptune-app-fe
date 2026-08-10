@@ -39,16 +39,13 @@ export function IncidentDetailInvestigationStatusCard(
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
-      <Text
-        as="h3"
-        className="pb-[14px] text-ehs-dark-bg text-lg font-semibold"
-      >
+      <Text as="h3" className="text-ehs-dark-bg pb-3.5 text-lg font-semibold">
         Investigation status
       </Text>
 
       <div className="flex flex-col">
         {isLoading ? (
-          <p className="py-4 text-sm text-ehs-muted-text">
+          <p className="text-ehs-muted-text py-4 text-sm">
             Loading investigation progress…
           </p>
         ) : (
@@ -58,8 +55,12 @@ export function IncidentDetailInvestigationStatusCard(
               className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-[9px]"
             >
               {step.completed ? (
-                <div className="flex size-[18px] shrink-0 items-center justify-center rounded-[9px] bg-ehs-green text-ehs-light-text">
-                  <Icon icon="mdi:check" className="size-[11px]" aria-hidden="true" />
+                <div className="bg-ehs-green text-ehs-light-text flex size-[18px] shrink-0 items-center justify-center rounded-[9px]">
+                  <Icon
+                    icon="mdi:check"
+                    className="size-[11px]"
+                    aria-hidden="true"
+                  />
                 </div>
               ) : (
                 <div className="size-[18px] shrink-0 rounded-[9px] border border-[rgba(15,23,42,0.14)] bg-transparent" />
@@ -79,13 +80,13 @@ export function IncidentDetailInvestigationStatusCard(
 
       {!isLoading ? (
         <div className="mt-3 flex flex-col gap-1.5">
-          <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-ehs-muted-text/20">
+          <div className="bg-ehs-muted-text/20 relative h-1.5 w-full overflow-hidden rounded-full">
             <div
-              className="h-full rounded-full bg-ehs-normal-blue transition-all duration-300"
+              className="bg-ehs-normal-blue h-full rounded-full transition-all duration-300"
               style={{ width: `${String(percentage)}%` }}
             />
           </div>
-          <span className="text-sm leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text text-sm leading-normal">
             {completedCount} of {steps.length} complete
           </span>
         </div>

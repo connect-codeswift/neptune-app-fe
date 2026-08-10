@@ -9,7 +9,7 @@ export const hrcaCardBorderClass = "border border-[rgba(11,19,32,0.14)]";
 export const hrcaCellShellClass = [
   "relative flex h-full w-full flex-col items-start rounded-[12px]",
   hrcaCardBorderClass,
-  "bg-white pt-[13px] px-[14px] pb-[14px] text-left transition-[border-color,box-shadow]",
+  "bg-white pt-[13px] px-3.5 pb-3.5 text-left transition-[border-color,box-shadow]",
 ].join(" ");
 
 export const HRCA_ROW_MIN_HEIGHT_CLASS = "min-h-[167px]";

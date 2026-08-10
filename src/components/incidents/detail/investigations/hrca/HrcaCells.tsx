@@ -205,7 +205,7 @@ export function HrcaWhyCell(
           onClick={onAdd}
           className={[
             HRCA_ROW_MIN_HEIGHT_CLASS,
-            "flex h-full min-h-[128px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.14)] px-[14px] py-[13px] transition-colors hover:border-[rgba(15,23,42,0.28)] hover:bg-white/40",
+            "flex h-full min-h-[128px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-[13px] transition-colors hover:border-[rgba(15,23,42,0.28)] hover:bg-white/40",
           ].join(" ")}
         >
           <span
@@ -236,7 +236,7 @@ export function HrcaWhyCell(
       <div
         className={[
           HRCA_ROW_MIN_HEIGHT_CLASS,
-          "flex h-full min-h-[128px] w-full items-center justify-center rounded-[12px] border border-dashed border-[rgba(15,23,42,0.14)] px-[14px] py-[13px]",
+          "flex h-full min-h-[128px] w-full items-center justify-center rounded-[12px] border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-[13px]",
         ].join(" ")}
       >
         <Text

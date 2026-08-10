@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_BBS_PAGE_NUMBER,
@@ -14,7 +16,7 @@ import {
 } from "@/hooks/use-bbs-queries";
 import { BbsObservationCard } from "./BbsObservationCard";
 import { bbsSessionColumns } from "./BbsSessionColumns";
-import { BbsSearchBar, BbsSessionsHeader } from "./BbsSessionsToolbar";
+import { BbsSessionsHeader } from "./BbsSessionsHeader";
 
 export type BbsRecentSessionsSectionProps = Readonly<{
   onLogObservation?: () => void;
@@ -94,14 +96,24 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
-      <BbsSearchBar
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Category",
+            options: [{ value: "", label: "All" }, ...categoryOptions],
+            value: categoryId,
+            onChange: handleCategoryChange,
+            disabled: categoriesQuery.isPending,
+          },
+        ]}
+      />
+
+      <ModuleSearchBar
         value={query}
         onChange={handleQueryChange}
+        placeholder="Search by ID, observer, location..."
+        aria-label="Search sessions"
         resultLabel={resultLabel}
-        categoryId={categoryId}
-        onCategoryChange={handleCategoryChange}
-        categoryOptions={categoryOptions}
-        categoriesLoading={categoriesQuery.isPending}
       />
 
       {observationsQuery.isPending && !observationsQuery.data ? (

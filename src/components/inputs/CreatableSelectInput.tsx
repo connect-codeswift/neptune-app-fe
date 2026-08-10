@@ -45,7 +45,9 @@ type MenuPosition = Readonly<{
  * Single-select dropdown with an inline “add new option” footer.
  * Menu is portaled so parent overflow cannot clip it.
  */
-export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>) {
+export function CreatableSelectInput(
+  props: Readonly<CreatableSelectInputProps>,
+) {
   const {
     label,
     placeholder,
@@ -215,7 +217,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                           close();
                         }}
                         className={[
-                          "flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-[14px] transition-colors",
+                          "text-3.5 flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left transition-colors",
                           isSelected
                             ? "bg-[rgba(8,145,166,0.12)] text-[#056e7e]"
                             : "text-[#0b1320] hover:bg-[rgba(15,23,42,0.04)]",
@@ -255,7 +257,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                         void submitCreate();
                       }
                     }}
-                    className="h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[14px] text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+                    className="text-3.5 h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
                   />
                   <div className="flex justify-end gap-2">
                     <button
@@ -271,9 +273,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                     </button>
                     <button
                       type="button"
-                      disabled={
-                        isCreating || disabled || !newLabel.trim()
-                      }
+                      disabled={isCreating || disabled || !newLabel.trim()}
                       onClick={() => {
                         void submitCreate();
                       }}
@@ -320,7 +320,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex h-9 w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2 text-left outline-none backdrop-blur-[5px] transition-colors hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 sm:h-[36px]",
+          "flex h-9 w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2 text-left backdrop-blur-[5px] transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 sm:h-[36px]",
           open
             ? "border-[#0891a6] ring-[3px] ring-[#0891a6]/15"
             : "focus-visible:border-[#0891a6] focus-visible:ring-[3px] focus-visible:ring-[#0891a6]/15",
@@ -332,11 +332,11 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
       >
         <span className="min-w-0 flex-1 truncate">
           {selected ? (
-            <Text as="span" className="text-[14px] text-[#0b1320]">
+            <Text as="span" className="text-3.5 text-[#0b1320]">
               {selected.label}
             </Text>
           ) : (
-            <Text as="span" className="text-[14px] text-[#8892a3]">
+            <Text as="span" className="text-3.5 text-[#8892a3]">
               {placeholder}
             </Text>
           )}

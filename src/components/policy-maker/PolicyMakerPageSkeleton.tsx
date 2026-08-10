@@ -90,7 +90,7 @@ function DocumentRowSkeleton(props: Readonly<{ selected?: boolean }>) {
  */
 export function PolicyMakerPageSkeleton() {
   return (
-    <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* Header — Figma 4818:18878 (h-52) */}
       <div className="flex h-[52px] w-full items-center justify-between">
         <Bar className="h-5 w-[180px] bg-[#d1d5db]" />

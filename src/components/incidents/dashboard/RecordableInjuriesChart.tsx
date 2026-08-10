@@ -64,7 +64,7 @@ function RecordablesLineChart(
 
   return (
     <>
-      <div className="mb-[14px] flex items-start justify-between gap-3">
+      <div className="mb-3.5 flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <Text
             as="h3"

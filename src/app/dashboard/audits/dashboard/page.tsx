@@ -1,5 +1,5 @@
-import { AuditsDashboardPageClient } from "@/components/audits/AuditsDashboardPageClient";
+import { redirect } from "next/navigation";
 
 export default function AuditsDashboardPage() {
-  return <AuditsDashboardPageClient />;
+  redirect("/dashboard/audits/list");
 }

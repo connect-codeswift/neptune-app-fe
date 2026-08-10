@@ -268,7 +268,7 @@ export function KpiMetricsRow(props: Readonly<KpiMetricsRowProps>) {
   return (
     <div
       className={[
-        "stagger-cards grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4",
+        "stagger-cards grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4",
         className,
       ]
         .filter(Boolean)

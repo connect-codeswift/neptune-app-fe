@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_WALK_TALK_PAGE_NUMBER,
@@ -13,10 +15,7 @@ import {
 } from "@/hooks/use-walk-talk-queries";
 import { WalkTalkSessionCard } from "./WalkTalkSessionCard";
 import { walkTalkSessionColumns } from "./WalkTalkSessionColumns";
-import {
-  WalkTalkSearchBar,
-  WalkTalkSessionsHeader,
-} from "./WalkTalkSessionsToolbar";
+import { WalkTalkSessionsHeader } from "./WalkTalkSessionsHeader";
 
 const LOG_ROUTE = "/dashboard/walk-talk/log";
 const SESSION_ROUTE = "/dashboard/walk-talk/session";
@@ -31,6 +30,7 @@ export function WalkTalkRecentSessionsSection(
   const { onStartWalkTalk } = props;
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("All");
   const [pageNumber, setPageNumber] = useState(DEFAULT_WALK_TALK_PAGE_NUMBER);
 
   const sessionsQuery = useWalkTalkSessionsQuery({
@@ -38,33 +38,54 @@ export function WalkTalkRecentSessionsSection(
     pageSize: DEFAULT_WALK_TALK_PAGE_SIZE,
   });
 
+  const sessions = sessionsQuery.data?.sessions ?? [];
   const totalRecords = sessionsQuery.data?.totalRecords ?? 0;
   const currentPageNumber = sessionsQuery.data?.pageNumber ?? pageNumber;
   const currentPageSize =
     sessionsQuery.data?.pageSize ?? DEFAULT_WALK_TALK_PAGE_SIZE;
 
-  const filtered = useMemo(() => {
-    const sessions = sessionsQuery.data?.sessions ?? [];
-    const needle = query.trim().toLowerCase();
-    if (needle === "") return sessions;
+  const typeOptions = useMemo(() => {
+    const types = [
+      ...new Set(
+        sessions
+          .map((session) => session.type.trim())
+          .filter((type) => type !== ""),
+      ),
+    ].sort((left, right) => left.localeCompare(right));
 
-    return sessions.filter((session) =>
-      [
+    return ["All", ...types] as const;
+  }, [sessions]);
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+
+    return sessions.filter((session) => {
+      if (selectedType !== "All" && session.type !== selectedType) {
+        return false;
+      }
+      if (needle === "") return true;
+
+      return [
         session.id,
         session.observer,
         session.focusArea,
         session.site,
         session.type,
-      ].some((field) => field.toLowerCase().includes(needle)),
-    );
-  }, [sessionsQuery.data?.sessions, query]);
+      ].some((field) => field.toLowerCase().includes(needle));
+    });
+  }, [sessions, query, selectedType]);
 
-  const resultLabel = `${String(totalRecords)} ${
-    totalRecords === 1 ? "session" : "sessions"
+  const resultLabel = `${String(filtered.length)} ${
+    filtered.length === 1 ? "session" : "sessions"
   }`;
 
   const handleQueryChange = (next: string) => {
     setQuery(next);
+    setPageNumber(DEFAULT_WALK_TALK_PAGE_NUMBER);
+  };
+
+  const handleTypeChange = (next: string) => {
+    setSelectedType(next);
     setPageNumber(DEFAULT_WALK_TALK_PAGE_NUMBER);
   };
 
@@ -82,9 +103,22 @@ export function WalkTalkRecentSessionsSection(
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
-      <WalkTalkSearchBar
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Type",
+            options: [...typeOptions],
+            value: selectedType,
+            onChange: handleTypeChange,
+          },
+        ]}
+      />
+
+      <ModuleSearchBar
         value={query}
         onChange={handleQueryChange}
+        placeholder="Search by ID, observer, site..."
+        aria-label="Search sessions"
         resultLabel={resultLabel}
       />
 
@@ -112,7 +146,7 @@ export function WalkTalkRecentSessionsSection(
 
       {!sessionsQuery.isPending || sessionsQuery.data ? (
         <>
-          {/* Mobile — card list (Figma 6415:34646) */}
+          {/* Mobile — card list */}
           <div className="flex flex-col gap-3 md:hidden">
             <WalkTalkSessionsHeader onStartWalkTalk={handleStartWalkTalk} />
             {filtered.length === 0 ? (

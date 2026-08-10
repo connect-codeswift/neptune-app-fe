@@ -535,7 +535,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="tertiary"
             onClick={handleCancel}
             disabled={busy}
-            className="h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 text-[14px] font-semibold text-[#566072] shadow-none hover:bg-[#eef1f6] sm:w-auto"
+            className="text-3.5 h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 font-semibold text-[#566072] shadow-none hover:bg-[#eef1f6] sm:w-auto"
           >
             Cancel
           </Button>
@@ -544,7 +544,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="primary"
             isLoading={isSubmitting}
             disabled={busy || lookupsLoading}
-            className="h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 text-[14px] font-semibold whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
+            className="text-3.5 h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 font-semibold whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "Save Changes"}
           </Button>

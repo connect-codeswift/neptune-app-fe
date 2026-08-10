@@ -1,12 +1,9 @@
 export { PpeMetricsSection } from "./PpeMetricsSection";
 export { PpeInventorySection } from "./PpeInventorySection";
-export { PpeViewTabs } from "./PpeViewTabs";
-export { PpeDashboardPageClient } from "./PpeDashboardPageClient";
 export { PpeListPageClient } from "./PpeListPageClient";
-export { PpeManagementActions } from "./PpeManagementActions";
 export { PpeInventoryCard } from "./PpeInventoryCard";
 export { ppeInventoryColumns } from "./PpeInventoryColumns";
-export { PpeSearchBar, PpeInventoryHeader } from "./PpeInventoryToolbar";
+export { PpeInventoryHeader } from "./PpeInventoryToolbar";
 export { PpeBackLink, PPE_ROUTE } from "./PpeBackLink";
 export { IssuePpeContent } from "./issue/IssuePpeContent";
 export { IssuePpeHeader } from "./issue/IssuePpeHeader";

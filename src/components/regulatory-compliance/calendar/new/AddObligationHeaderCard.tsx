@@ -22,7 +22,7 @@ export function AddObligationHeaderCard(
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col px-[22px] pt-[14px] pb-[22px]">
+      <div className="flex flex-col px-[22px] pt-3.5 pb-[22px]">
         <nav
           aria-label="Breadcrumb"
           className="flex h-[16.5px] items-center gap-[4px] text-[11px] leading-[16.5px] font-medium"

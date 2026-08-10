@@ -51,10 +51,10 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <div className="relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] bg-ehs-normal-blue shadow-[0px_8px_22px_-8px_#0891a6]">
+            <div className="bg-ehs-normal-blue relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] shadow-[0px_8px_22px_-8px_#0891a6]">
               <Icon
                 icon="mdi:lightning-bolt"
-                className="size-[22px] text-ehs-light-text"
+                className="text-ehs-light-text size-[22px]"
                 aria-hidden="true"
               />
             </div>
@@ -62,7 +62,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
               <Text
                 as="p"
-                className="text-[#056e7e] text-[11px] leading-none font-bold tracking-[1.76px] uppercase"
+                className="text-[11px] leading-none font-bold tracking-[1.76px] text-[#056e7e] uppercase"
               >
                 Horizontal Root Cause Analysis
               </Text>
@@ -70,7 +70,8 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
                 as="h2"
                 className="text-ehs-dark-bg text-lg leading-normal font-bold tracking-[-0.18px]"
               >
-                5 Whys across causal categories → root cause → corrective actions
+                5 Whys across causal categories → root cause → corrective
+                actions
               </Text>
             </div>
           </div>
@@ -112,7 +113,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-[15px] pb-[14px]">
+      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-[15px] pb-3.5">
         <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-white/62">
           <Icon
             icon="mdi:file-document-outline"
@@ -127,7 +128,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
           >
             Incident description
           </Text>
-          <p className="mt-[2px] text-[12.3px] leading-[19.38px] font-normal text-ehs-slate">
+          <p className="text-ehs-slate mt-[2px] text-[12.3px] leading-[19.38px] font-normal">
             {meta.description}
           </p>
         </div>

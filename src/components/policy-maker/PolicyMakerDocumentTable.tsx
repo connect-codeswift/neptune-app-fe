@@ -4,6 +4,7 @@ import { useMemo, type ComponentType } from "react";
 import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
 import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
 import {
@@ -11,10 +12,12 @@ import {
   type IncidentListTableProps,
 } from "@/components/incidents/list/IncidentListTable";
 import { PolicyMakerRowActionsMenu } from "@/components/policy-maker/PolicyMakerRowActionsMenu";
-import { PolicyMakerStatusTabs } from "@/components/policy-maker/PolicyMakerStatusTabs";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 import type {
   DocumentStatus,
-  DocumentStatusFilter,
   PolicyDocument,
 } from "@/components/policy-maker/policy-maker-types";
 
@@ -24,10 +27,8 @@ export type PolicyMakerDocumentTableProps = Readonly<{
   documents: readonly PolicyDocument[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  statusFilter: DocumentStatusFilter;
-  onStatusFilterChange: (value: DocumentStatusFilter) => void;
-  statusOptions: readonly DocumentStatusFilter[];
   onEditDocument?: (document: PolicyDocument) => void;
+  onUploadDocument?: () => void;
   /** Second click on selected row — opens full document detail. */
   onOpenDetail?: (id: string) => void;
   /** Table shell from incidents — defaults to IncidentListTable. */
@@ -69,7 +70,7 @@ function createDocumentColumns(
             <div className="flex size-[29.19px] shrink-0 items-center justify-center rounded-[3.89px] border-[0.97px] border-[rgba(15,23,42,0.08)] bg-gradient-to-b from-[rgba(255,255,255,0.82)] to-[rgba(255,255,255,0.62)]">
               <Icon
                 icon="mdi:file-document-outline"
-                className="size-[13.62px] text-[#566072]"
+                className="size-3.5 text-[#566072]"
                 aria-hidden="true"
               />
             </div>
@@ -153,10 +154,8 @@ export function PolicyMakerDocumentTable(
     documents,
     selectedId,
     onSelect,
-    statusFilter,
-    onStatusFilterChange,
-    statusOptions,
     onEditDocument,
+    onUploadDocument,
     onOpenDetail,
     ListTable = IncidentListTable,
     className = "",
@@ -177,11 +176,23 @@ export function PolicyMakerDocumentTable(
           {`${String(documentCount)} documents`}
         </Text>
       </div>
-      <PolicyMakerStatusTabs
-        options={statusOptions}
-        value={statusFilter}
-        onChange={onStatusFilterChange}
-      />
+
+      {onUploadDocument ? (
+        <Button
+          type="button"
+          variant="primary"
+          onClick={onUploadDocument}
+          className={TABLE_HEADER_ACTION_CLASS}
+        >
+          <Icon
+            icon="mdi:plus"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
+          <span className="sm:hidden">Upload</span>
+          <span className="hidden sm:inline">Upload a Document</span>
+        </Button>
+      ) : null}
     </div>
   );
 

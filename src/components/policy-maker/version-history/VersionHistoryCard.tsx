@@ -31,7 +31,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-[14px] pt-4 pb-4 sm:px-[16.8px] sm:pt-[16.8px] sm:pb-[16.8px]">
+      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-3.5 pt-4 pb-4 sm:px-[16.8px] sm:pt-[16.8px] sm:pb-[16.8px]">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <Text

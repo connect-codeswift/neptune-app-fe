@@ -34,7 +34,7 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
       <div className="flex min-w-0 flex-col gap-[2px]">
         <Text
           as="h2"
-          className="text-ehs-dark-bg text-[14px] leading-normal font-bold tracking-[-0.14px]"
+          className="text-ehs-dark-bg text-3.5 leading-normal font-bold tracking-[-0.14px]"
         >
           {title}
         </Text>

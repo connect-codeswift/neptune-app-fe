@@ -37,31 +37,23 @@ function editableDisplayValue(value: string): string {
 export function IncidentDetailInfoCard(
   props: Readonly<IncidentDetailInfoCardProps>,
 ) {
-  const {
-    items = [],
-    isEditing = false,
-    onChangeItem,
-    className = "",
-  } = props;
+  const { items = [], isEditing = false, onChangeItem, className = "" } = props;
 
   return (
     <IncidentGlassCard
       paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
+      incidentGlassCardClassName="gap-3.5"
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
         .join(" ")}
     >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg text-lg font-semibold"
-      >
+      <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
         Incident details
       </Text>
 
       <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="col-span-full py-6 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text col-span-full py-6 text-center text-sm">
             No incident detail fields returned by the API.
           </div>
         ) : (
@@ -71,7 +63,7 @@ export function IncidentDetailInfoCard(
 
             return (
               <div key={item.key} className="flex flex-col gap-[3px]">
-                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
+                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
                   {item.label}
                 </span>
                 {canEdit && kind === "yesno" ? (
@@ -99,7 +91,7 @@ export function IncidentDetailInfoCard(
                   />
                 ) : null}
                 {!canEdit ? (
-                  <span className="text-sm leading-normal text-ehs-dark-bg">
+                  <span className="text-ehs-dark-bg text-sm leading-normal">
                     {item.value}
                   </span>
                 ) : null}

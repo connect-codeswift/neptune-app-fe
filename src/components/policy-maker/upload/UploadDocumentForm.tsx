@@ -469,7 +469,7 @@ export function UploadDocumentForm() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="h-9 w-full rounded-[10px] border border-[rgba(11,19,32,0.14)] px-4 text-[14px] font-medium text-[#0b1320] shadow-none sm:w-auto"
+              className="text-3.5 h-9 w-full rounded-[10px] border border-[rgba(11,19,32,0.14)] px-4 font-medium text-[#0b1320] shadow-none sm:w-auto"
             >
               Cancel
             </Button>
@@ -478,7 +478,7 @@ export function UploadDocumentForm() {
               variant="primary"
               isLoading={isSubmitting}
               disabled={busy || !pdfSecureUrl || lookupsLoading}
-              className="h-[38px] w-full rounded-[10px] bg-[#0891a6] px-4 text-[14px] font-medium whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-[208px]"
+              className="text-3.5 h-[38px] w-full rounded-[10px] bg-[#0891a6] px-4 font-medium whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-[208px]"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"
