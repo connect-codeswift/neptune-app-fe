@@ -25,8 +25,8 @@ function CapaKpiTileSkeleton() {
  */
 export function CapaListSkeleton() {
   return (
-    <div className="flex min-w-0 flex-col gap-[14px]">
-      <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="flex min-w-0 flex-col gap-3.5">
+      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
           <CapaKpiTileSkeleton key={`capa-kpi-skeleton-${String(index)}`} />
         ))}

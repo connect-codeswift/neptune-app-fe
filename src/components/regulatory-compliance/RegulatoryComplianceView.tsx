@@ -215,7 +215,7 @@ export function RegulatoryComplianceView() {
         />
       </div>
 
-      <div className="mt-[14px] grid grid-cols-1 items-start gap-[13.62px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="mt-3.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <RegulatoryComplianceRegisterCard
           items={obligationItems}
           isLoading={showRegisterLoading}
@@ -228,7 +228,7 @@ export function RegulatoryComplianceView() {
           }}
         />
 
-        <div className="flex flex-col gap-[13.62px]">
+        <div className="flex flex-col gap-3.5">
           <RegulatoryComplianceByCategoryCard
             categories={categoryItems}
             isLoading={showCategoryLoading}

@@ -143,12 +143,12 @@ export function RegulatoryComplianceDetailView(
         <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text-ehs-muted-text text-3.5">
           Please sign in to load this compliance obligation.
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Compliance Register
         </Link>
@@ -196,12 +196,12 @@ export function RegulatoryComplianceDetailView(
         <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
           Obligation not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text-ehs-muted-text text-3.5">
           {`No compliance obligation matches “${id}”.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Compliance Register
         </Link>

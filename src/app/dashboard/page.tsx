@@ -22,22 +22,22 @@ export default function DashboardPage() {
     <div className="flex min-h-screen flex-1 flex-col">
       <DashboardHeader title="EHS Command Center" />
 
-      <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <DashboardKpiMetrics />
 
         {/* stagger-cards offsets each row's second card, so a row settles left
             to right rather than both halves appearing at once. */}
-        <div className="stagger-cards grid gap-[14px] lg:grid-cols-13">
+        <div className="stagger-cards grid gap-3.5 lg:grid-cols-13">
           <IncidentTrendsCard className="lg:col-span-8" />
           <HazardsByCategoryCard className="lg:col-span-5" />
         </div>
 
-        <div className="stagger-cards grid gap-[14px] lg:grid-cols-2">
+        <div className="stagger-cards grid gap-3.5 lg:grid-cols-2">
           <InspectionRatesCard />
           <ComplianceDeadlinesCard />
         </div>
 
-        <div className="stagger-cards grid gap-[14px] lg:grid-cols-2">
+        <div className="stagger-cards grid gap-3.5 lg:grid-cols-2">
           <DashboardMyActionsCard />
           <ComplianceDeadlinesCard
             title="Recent Activity"

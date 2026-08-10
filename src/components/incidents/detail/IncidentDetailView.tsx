@@ -125,7 +125,9 @@ export type IncidentDetailViewProps = Readonly<{
   isCapaSubmitting: boolean;
   openAddCapaOnLinkedTab?: boolean;
   onAddCapaModalOpened?: () => void;
-  onNavigateToLinkedCapa: (options?: Readonly<{ openAddModal?: boolean }>) => void;
+  onNavigateToLinkedCapa: (
+    options?: Readonly<{ openAddModal?: boolean }>,
+  ) => void;
   onSubmitCapa: (payload: CapaFormPayload) => void | Promise<void>;
   onUpdateCapa: (
     capa: CapaItem,
@@ -137,10 +139,7 @@ export type IncidentDetailViewProps = Readonly<{
     payload: CapaTaskFormPayload,
   ) => void | Promise<void>;
   isDeletingCapaTask?: boolean;
-  onDeleteCapaTask?: (
-    capa: CapaItem,
-    taskId: number,
-  ) => void | Promise<void>;
+  onDeleteCapaTask?: (capa: CapaItem, taskId: number) => void | Promise<void>;
   isVerifyingCapa?: boolean;
   onVerifyCapa?: (
     capa: CapaItem,
@@ -154,7 +153,7 @@ export type IncidentDetailViewProps = Readonly<{
   onSelectClosureStep: (step: 1 | 2 | 3 | 4) => void;
   onChangeClosureField: <K extends keyof IncidentClosureData>(
     field: K,
-    value: IncidentClosureData[K]
+    value: IncidentClosureData[K],
   ) => void;
   onToggleClosureCheckItem: (itemId: string) => void;
   onSaveClosureDraft?: () => void;
@@ -312,8 +311,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
         {detail && !errorMessage && !showLoading ? (
           <>
             {activeTab === "details" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-                <div className="flex flex-col gap-[14px]">
+              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+                <div className="flex flex-col gap-3.5">
                   <IncidentDetailSummaryCard
                     summaryText={summaryText}
                     isEditing={isEditingDetails}
@@ -332,7 +331,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       paddingClassName="p-[23px]"
                       incidentGlassCardClassName="gap-[13px]"
                       className={
-                        isEditingDetails ? "ring-1 ring-ehs-normal-blue/25" : ""
+                        isEditingDetails ? "ring-ehs-normal-blue/25 ring-1" : ""
                       }
                     >
                       <Text
@@ -354,7 +353,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       ) : (
                         <Text
                           as="p"
-                          className="text-sm leading-[20.8px] whitespace-pre-wrap text-ehs-slate"
+                          className="text-ehs-slate text-sm leading-[20.8px] whitespace-pre-wrap"
                         >
                           {responseNotes}
                         </Text>
@@ -363,7 +362,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   ) : null}
                 </div>
 
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-3.5">
                   <IncidentDetailRoutingCard members={detail.routingMembers} />
                   <IncidentDetailLinkedCard
                     linkedItems={mapCapaItemsToLinkedItems(linkedCapa.items, {
@@ -386,9 +385,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "timeline" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailTimelineCard events={timelineEvents} />
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-3.5">
                   <IncidentDetailResponseMetricsCard
                     metrics={detail.responseMetrics}
                   />
@@ -400,7 +399,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "people" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailPeopleCard
                   affectedName={
                     isEditingPeople ? affectedName : detail.affectedName
@@ -429,7 +428,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   onChangeTreatment={onChangeTreatment}
                   onChangeResponder={onChangeResponder}
                 />
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-3.5">
                   <IncidentDetailWitnessesCard
                     witnesses={witnesses}
                     isEditing={isEditingPeople}
@@ -443,12 +442,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "attachments" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentGlassCard
                   paddingClassName="p-[23px]"
-                  incidentGlassCardClassName="gap-[14px]"
+                  incidentGlassCardClassName="gap-3.5"
                   className={
-                    isEditingAttachments ? "ring-1 ring-ehs-normal-blue/25" : ""
+                    isEditingAttachments ? "ring-ehs-normal-blue/25 ring-1" : ""
                   }
                 >
                   <IncidentDetailPhotosCard
@@ -467,7 +466,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     embedded
                   />
                 </IncidentGlassCard>
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-3.5">
                   {!isEditingAttachments ? (
                     <IncidentDetailUploadCard
                       onUploadSuccess={onUploadSuccess}
@@ -484,7 +483,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       >
                         Delete files
                       </Text>
-                      <span className="text-sm leading-normal text-ehs-gray">
+                      <span className="text-ehs-gray text-sm leading-normal">
                         Remove photos or documents, then click Save. Uploads are
                         disabled while editing.
                       </span>
@@ -508,7 +507,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   Sign in and open a valid incident to load the HRCA worksheet.
                 </div>
               ) : (
-                <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+                <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                   <IncidentDetailInvestigationCard
                     whyChain={rcaInvestigationPreview?.whyChain ?? []}
                     contributingFactors={
@@ -526,7 +525,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onRetry={onRetryRca}
                     onOpenHrca={onOpenHrca}
                   />
-                  <div className="flex flex-col gap-[14px]">
+                  <div className="flex flex-col gap-3.5">
                     <IncidentDetailInvestigationStatusCard
                       steps={rcaInvestigationPreview?.statusSteps ?? []}
                       isLoading={isRcaInvestigationLoading}
@@ -539,7 +538,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               ))}
 
             {activeTab === "linked-capa" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-[14px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailCapaListCard
                   incidentId={displayId}
                   incidentTitle={detail.title}
@@ -557,7 +556,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   isVerifying={isVerifyingCapa}
                   onVerifyCapa={onVerifyCapa}
                 />
-                <div className="flex flex-col gap-[14px]">
+                <div className="flex flex-col gap-3.5">
                   <IncidentDetailCapaSummaryCard
                     totalCount={linkedCapa.summary.totalCount}
                     notStartedCount={linkedCapa.summary.notStartedCount}

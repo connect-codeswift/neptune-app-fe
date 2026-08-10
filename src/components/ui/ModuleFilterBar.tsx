@@ -1,6 +1,10 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 
 export type ModuleFilterOption = Readonly<{
   value: string;
@@ -105,11 +109,14 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
         <button
           type="button"
           onClick={action.onClick}
-          className="btn-sweep bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active ml-auto flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm"
+          className={[
+            "btn-sweep bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active ml-auto inline-flex cursor-pointer items-center justify-center shadow-sm",
+            TABLE_HEADER_ACTION_CLASS,
+          ].join(" ")}
         >
           <Icon
             icon={action.icon ?? "mdi:plus"}
-            className="text-base"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
             aria-hidden="true"
           />
           {action.label}

@@ -35,7 +35,7 @@ export function KpiMetricsRowSkeleton() {
   // Staggered to match KpiMetricsRow, so the loading row and the real row
   // settle in with the same rhythm rather than switching cadence.
   return (
-    <div className="stagger-cards grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="stagger-cards grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
       {Array.from({ length: 4 }, (_, index) => (
         <KpiMetricCardSkeleton key={`kpi-skeleton-${String(index)}`} />
       ))}
@@ -93,7 +93,7 @@ export function ListCardSkeleton(props: Readonly<{ rows?: number }>) {
   const { rows = 5 } = props;
 
   return (
-    <div className="mt-[7px] flex flex-col gap-[14px]">
+    <div className="mt-[7px] flex flex-col gap-3.5">
       {Array.from({ length: rows }, (_, index) => (
         <div
           key={`list-skeleton-${String(index)}`}
@@ -184,10 +184,10 @@ export function DashboardPageSkeleton() {
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col gap-[14px] px-4 pb-8">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <KpiMetricsRowSkeleton />
 
-        <div className="grid gap-[14px] lg:grid-cols-13">
+        <div className="grid gap-3.5 lg:grid-cols-13">
           <GlassCard className="lg:col-span-8">
             <CardHeadingSkeleton />
             <TrendChartSkeleton />
@@ -197,7 +197,7 @@ export function DashboardPageSkeleton() {
           </div>
         </div>
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="grid gap-3.5 lg:grid-cols-2">
           <ProgressCardSkeleton />
           <GlassCard>
             <CardHeadingSkeleton />
@@ -205,7 +205,7 @@ export function DashboardPageSkeleton() {
           </GlassCard>
         </div>
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="grid gap-3.5 lg:grid-cols-2">
           <GlassCard>
             <CardHeadingSkeleton />
             <ListCardSkeleton />

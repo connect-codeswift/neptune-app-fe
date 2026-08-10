@@ -2,6 +2,10 @@
 
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 
 export type BbsSessionsHeaderProps = Readonly<{
   onLogObservation?: () => void;
@@ -19,15 +23,15 @@ export function BbsSessionsHeader(props: BbsSessionsHeaderProps) {
         type="button"
         variant="primary"
         onClick={onLogObservation}
-        className="shrink-0 gap-2 rounded-[10px] px-3 py-2 sm:px-4 sm:py-2.5"
+        className={TABLE_HEADER_ACTION_CLASS}
       >
-        <Icon icon="mdi:plus" className="size-4 shrink-0" aria-hidden="true" />
-        <span className="text-sm font-semibold whitespace-nowrap sm:hidden">
-          Log
-        </span>
-        <span className="hidden text-sm font-semibold whitespace-nowrap sm:inline">
-          Log Observation
-        </span>
+        <Icon
+          icon="mdi:plus"
+          className={TABLE_HEADER_ACTION_ICON_CLASS}
+          aria-hidden="true"
+        />
+        <span className="sm:hidden">Log</span>
+        <span className="hidden sm:inline">Log Observation</span>
       </Button>
     </div>
   );

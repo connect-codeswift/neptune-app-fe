@@ -91,7 +91,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
       onClose={onClose}
       maxWidthClassName="max-w-[720px]"
       footerHint={
-        <span className="text-sm font-medium text-ehs-gray">
+        <span className="text-ehs-gray text-sm font-medium">
           {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
           selected
         </span>
@@ -110,13 +110,16 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
       <div className="flex flex-col gap-4">
         {/* Search Bar */}
         <div className={`${FIELD_INPUT_LG_CLASS} relative flex items-center`}>
-          <Icon icon="mdi:magnify" className="mr-2 size-5 text-ehs-muted-text" />
+          <Icon
+            icon="mdi:magnify"
+            className="text-ehs-muted-text mr-2 size-5"
+          />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search CAPAs or action items by title or description..."
-            className="w-full bg-transparent text-sm font-normal text-ehs-dark-bg outline-none placeholder:text-ehs-muted-text"
+            className="text-ehs-dark-bg placeholder:text-ehs-muted-text w-full bg-transparent text-sm font-normal outline-none"
           />
           {searchQuery && (
             <button
@@ -142,7 +145,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                   "flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all select-none",
                   isSelected
                     ? "border-ehs-normal-blue bg-ehs-light-blue"
-                    : "border-ehs-border bg-white hover:border-ehs-border",
+                    : "border-ehs-border hover:border-ehs-border bg-white",
                 ].join(" ")}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -161,11 +164,11 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
 
                   <div className="flex min-w-0 flex-col">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-ehs-dark-bg">
+                      <span className="text-ehs-dark-bg text-sm font-bold">
                         {item.title}
                       </span>
                     </div>
-                    <span className="truncate text-sm font-normal text-ehs-gray">
+                    <span className="text-ehs-gray truncate text-sm font-normal">
                       {item.subtitle}
                     </span>
                   </div>
@@ -173,13 +176,13 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
 
                 <div className="ml-3 flex shrink-0 items-center gap-3">
                   <div className="hidden items-center gap-2 sm:flex">
-                    <div className="h-[6px] w-16 overflow-hidden rounded-full bg-ehs-border">
+                    <div className="bg-ehs-border h-[6px] w-16 overflow-hidden rounded-full">
                       <div
-                        className="h-full rounded-full bg-ehs-normal-blue"
+                        className="bg-ehs-normal-blue h-full rounded-full"
                         style={{ width: `${String(item.progressPercent)}%` }}
                       />
                     </div>
-                    <span className="text-sm font-semibold text-ehs-gray">
+                    <span className="text-ehs-gray text-sm font-semibold">
                       {item.progressPercent}%
                     </span>
                   </div>
@@ -201,9 +204,9 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Icon
                 icon="mdi:clipboard-text-off-outline"
-                className="size-8 text-ehs-muted-text"
+                className="text-ehs-muted-text size-8"
               />
-              <span className="mt-2 text-sm font-medium text-ehs-gray">
+              <span className="text-ehs-gray mt-2 text-sm font-medium">
                 {allItems.length === 0
                   ? "No CAPAs are linked to this incident yet."
                   : "No CAPA or action items match your search."}
@@ -237,14 +240,14 @@ export function IncidentClosureStepPreventive(
     <div className="flex flex-col gap-6">
       <Text
         as="h2"
-        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
+        className="text-ehs-dark-bg text-[15px] leading-normal font-bold"
       >
         Preventive Measures & CAPAs
       </Text>
 
       {/* Actions Taken */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text-ehs-muted-text mb-2 text-[11px] font-bold tracking-[0.5px] uppercase">
           ACTIONS TAKEN
         </label>
         <textarea
@@ -258,7 +261,7 @@ export function IncidentClosureStepPreventive(
 
       {/* Linked CAPAs */}
       <div className="flex flex-col">
-        <label className="mb-2.5 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text-ehs-muted-text mb-2.5 text-[11px] font-bold tracking-[0.5px] uppercase">
           LINKED CAPAS
         </label>
 
@@ -266,22 +269,22 @@ export function IncidentClosureStepPreventive(
           {linkedCapas.map((capa) => (
             <div
               key={capa.id}
-              className="flex items-center justify-between rounded-[14px] border border-ehs-border bg-white px-4 py-3.5 shadow-xs transition-all hover:border-ehs-border"
+              className="rounded-3.5 border-ehs-border hover:border-ehs-border flex items-center justify-between border bg-white px-4 py-3.5 shadow-xs transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ehs-light-blue/60 text-ehs-normal-blue">
+                <div className="bg-ehs-light-blue/60 text-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full">
                   <Icon icon="mdi:check-circle-outline" className="size-5" />
                 </div>
                 <div className="flex flex-col gap-0.5">
                   <Text
                     as="span"
-                    className="text-[13px] font-bold text-ehs-dark-bg"
+                    className="text-ehs-dark-bg text-[13px] font-bold"
                   >
                     {capa.title}
                   </Text>
                   <Text
                     as="span"
-                    className="text-[13px] font-normal text-ehs-muted-text"
+                    className="text-ehs-muted-text text-[13px] font-normal"
                   >
                     {capa.subtitle}
                   </Text>
@@ -289,9 +292,9 @@ export function IncidentClosureStepPreventive(
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="h-[6px] w-24 overflow-hidden rounded-full bg-ehs-border">
+                <div className="bg-ehs-border h-[6px] w-24 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-ehs-normal-blue transition-all duration-300"
+                    className="bg-ehs-normal-blue h-full rounded-full transition-all duration-300"
                     style={{ width: `${String(capa.progressPercent)}%` }}
                   />
                 </div>
@@ -311,7 +314,7 @@ export function IncidentClosureStepPreventive(
         <button
           type="button"
           onClick={handleOpenModal}
-          className="mt-3 flex items-center gap-1.5 text-[13px] font-bold text-ehs-normal-blue transition-colors hover:underline"
+          className="text-ehs-normal-blue mt-3 flex items-center gap-1.5 text-[13px] font-bold transition-colors hover:underline"
         >
           <Icon icon="mdi:plus" className="size-4" />
           <span>Link additional CAPA or Action Item</span>

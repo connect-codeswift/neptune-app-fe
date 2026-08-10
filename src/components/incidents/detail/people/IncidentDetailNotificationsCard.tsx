@@ -26,11 +26,8 @@ export function IncidentDetailNotificationsCard(
 
   return (
     <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
-      <div className="pb-[14px]">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+      <div className="pb-3.5">
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Notifications sent
         </Text>
       </div>
@@ -46,7 +43,7 @@ export function IncidentDetailNotificationsCard(
           key={`${notif.target}-${notif.time}-${String(index)}`}
           className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px]"
         >
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)] text-ehs-gray">
+          <div className="text-ehs-gray flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)]">
             <Icon
               icon={notif.icon}
               className="size-[13px]"
@@ -54,14 +51,14 @@ export function IncidentDetailNotificationsCard(
             />
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-sm leading-normal text-ehs-dark-bg">
+            <span className="text-ehs-dark-bg text-sm leading-normal">
               {notif.target}
             </span>
-            <span className="truncate text-sm leading-normal text-ehs-muted-text">
+            <span className="text-ehs-muted-text truncate text-sm leading-normal">
               {notif.channel}
             </span>
           </div>
-          <span className="shrink-0 text-sm leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text shrink-0 text-sm leading-normal">
             {notif.time}
           </span>
         </div>

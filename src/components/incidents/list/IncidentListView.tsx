@@ -19,7 +19,11 @@ import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
-import { useIncidentListKpisQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
+import {
+  useIncidentListKpisQuery,
+  useKpiTargetsQuery,
+  useSiteWorkHoursQuery,
+} from "@/hooks/use-incident-kpi-queries";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
@@ -251,7 +255,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   );
 
   const showBootLoading = !isClientReady;
-  const showKpiLoading = showBootLoading || (hasToken && listKpisQuery.isLoading);
+  const showKpiLoading =
+    showBootLoading || (hasToken && listKpisQuery.isLoading);
   const showQueryLoading =
     isClientReady && hasToken && incidentsQuery.isLoading;
   const kpiErrorMessage =
@@ -288,7 +293,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               {kpiErrorMessage}
             </Text>
           ) : null}
-          <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid min-w-0 grid-cols-1 gap-x-3.5 gap-y-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {kpiMetrics.map((metric) => (
               <IncidentListKpiCard key={metric.id} {...metric} />
             ))}
@@ -342,7 +347,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       isClientReady ? (
         <div
           className={[
-            "grid min-w-0 items-start gap-x-[14px] gap-y-5",
+            "grid min-w-0 items-start gap-x-3.5 gap-y-5",
             isPanelOpen
               ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
               : "xl:grid-cols-1",

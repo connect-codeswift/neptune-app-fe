@@ -48,20 +48,17 @@ export function IncidentDetailClosureChecklistCard(
     .every((item) => item.completed);
 
   return (
-    <div className="flex flex-col gap-[14px]">
+    <div className="flex flex-col gap-3.5">
       {/* Readiness Checklist Card */}
       <IncidentGlassCard
         paddingClassName="p-[21px]"
-        incidentGlassCardClassName="gap-[14px]"
+        incidentGlassCardClassName="gap-3.5"
       >
         <div className="flex items-center justify-between">
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
             Closure Checklist
           </Text>
-          <span className="rounded-full bg-ehs-normal-blue/10 px-2.5 py-0.5 text-sm font-bold text-ehs-normal-blue">
+          <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue rounded-full px-2.5 py-0.5 text-sm font-bold">
             {completedCount}/{totalCount} Completed
           </span>
         </div>
@@ -105,13 +102,13 @@ export function IncidentDetailClosureChecklistCard(
                     {item.label}
                   </Text>
                   {item.required ? (
-                    <span className="text-xs font-bold text-ehs-red uppercase">
+                    <span className="text-ehs-red text-xs font-bold uppercase">
                       Required
                     </span>
                   ) : null}
                 </div>
                 {item.completedAt ? (
-                  <span className="text-sm text-ehs-gray">
+                  <span className="text-ehs-gray text-sm">
                     Verified: {item.completedAt}{" "}
                     {item.completedBy ? `by ${item.completedBy}` : ""}
                   </span>
@@ -127,19 +124,16 @@ export function IncidentDetailClosureChecklistCard(
         paddingClassName="p-[21px]"
         incidentGlassCardClassName="gap-[10px]"
       >
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Residual Risk Evaluation
         </Text>
         <div className="flex items-center justify-between rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-3.5">
           <div className="flex items-center gap-2.5">
             <Icon
               icon="mdi:shield-check-outline"
-              className="size-5 text-ehs-normal-blue"
+              className="text-ehs-normal-blue size-5"
             />
-            <Text as="span" className="text-sm font-medium text-ehs-slate">
+            <Text as="span" className="text-ehs-slate text-sm font-medium">
               Post-mitigation Risk Level:
             </Text>
           </div>
@@ -154,25 +148,22 @@ export function IncidentDetailClosureChecklistCard(
       {/* Approver Sign-off & Final Action Card */}
       <IncidentGlassCard
         paddingClassName="p-[21px]"
-        incidentGlassCardClassName="gap-[14px]"
+        incidentGlassCardClassName="gap-3.5"
       >
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Closure Approval & Sign-off
         </Text>
 
         <div className="flex items-center justify-between rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-full bg-ehs-normal-blue/15 font-bold text-ehs-dark-blue">
+            <div className="bg-ehs-normal-blue/15 text-ehs-dark-blue flex size-9 items-center justify-center rounded-full font-bold">
               {data.approverInitials}
             </div>
             <div>
-              <Text as="p" className="text-sm font-bold text-ehs-dark-bg">
+              <Text as="p" className="text-ehs-dark-bg text-sm font-bold">
                 {data.approverName}
               </Text>
-              <Text as="p" className="text-sm text-ehs-gray">
+              <Text as="p" className="text-ehs-gray text-sm">
                 {data.approverRole}
               </Text>
             </div>
@@ -196,8 +187,8 @@ export function IncidentDetailClosureChecklistCard(
             data.closureStatus === "Closed"
               ? "cursor-default border border-emerald-200 bg-emerald-50 text-emerald-700"
               : isAllRequiredCompleted
-                ? "cursor-pointer bg-ehs-normal-blue text-ehs-light-text shadow-[var(--ehs-normal-blue)]/20 hover:bg-ehs-normal-blue-active"
-                : "cursor-not-allowed bg-ehs-normal-blue/40 text-ehs-light-text",
+                ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active cursor-pointer shadow-[var(--ehs-normal-blue)]/20"
+                : "bg-ehs-normal-blue/40 text-ehs-light-text cursor-not-allowed",
           ].join(" ")}
         >
           <Icon

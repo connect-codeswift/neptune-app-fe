@@ -38,7 +38,7 @@ export function SkeletonKpiRow(props: Readonly<{ count?: number }>) {
   const { count = 4 } = props;
 
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
       {repeat(count, (index) => (
         <GlassCard key={`skeleton-kpi-${String(index)}`} className="gap-3">
           <div className="flex items-start justify-between gap-3">
@@ -113,7 +113,7 @@ export function SkeletonListRows(props: Readonly<{ rows?: number }>) {
   const { rows = 5 } = props;
 
   return (
-    <div className="flex flex-col gap-[14px]">
+    <div className="flex flex-col gap-3.5">
       {repeat(rows, (index) => (
         <div
           key={`skeleton-list-${String(index)}`}
@@ -166,7 +166,7 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-[14px]", className]
+      className={["flex min-w-0 flex-col gap-3.5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -183,8 +183,8 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
         </div>
       </GlassCard>
 
-      <div className="grid min-w-0 items-start gap-[14px] xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-[14px]">
+      <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3.5">
           <GlassCard>
             <SkeletonCardHeading action={false} />
             <div className="mt-2">
@@ -201,7 +201,7 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
           </GlassCard>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-[14px]">
+        <div className="flex min-w-0 flex-col gap-3.5">
           <GlassCard>
             <SkeletonCardHeading />
             <div className="mt-2">
@@ -316,7 +316,7 @@ export function SkeletonFormPage(props: Readonly<{ fields?: number }>) {
   const { fields = 8 } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-[14px]">
+    <div className="flex min-w-0 flex-col gap-3.5">
       <GlassCard className="gap-4">
         <SkeletonCardHeading action={false} />
         <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">

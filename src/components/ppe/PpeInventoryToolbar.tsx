@@ -4,6 +4,11 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+  TABLE_HEADER_SECONDARY_ACTION_CLASS,
+} from "@/components/ui/table-header-action";
 
 const ISSUANCE_LOG_ROUTE = "/dashboard/ppe-management/issuance-log";
 const ACKNOWLEDGEMENTS_ROUTE = "/dashboard/ppe-management/acknowledgements";
@@ -40,7 +45,7 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
         Inventory
       </Text>
 
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:gap-3">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
         {showViewIssues ? (
           <Button
             type="button"
@@ -48,14 +53,14 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
             onClick={() => {
               router.push(ISSUANCE_LOG_ROUTE);
             }}
-            className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
+            className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
           >
             <Icon
               icon="mdi:clipboard-list-outline"
-              className="size-4 shrink-0"
+              className={TABLE_HEADER_ACTION_ICON_CLASS}
               aria-hidden="true"
             />
-            <span className="whitespace-nowrap">View Issues</span>
+            View Issues
           </Button>
         ) : null}
 
@@ -65,30 +70,28 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
           onClick={() => {
             router.push(ACKNOWLEDGEMENTS_ROUTE);
           }}
-          className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
+          className={TABLE_HEADER_ACTION_CLASS}
         >
           <Icon
             icon="mdi:check-decagram-outline"
-            className="size-4 shrink-0"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
             aria-hidden="true"
           />
-          <span className="whitespace-nowrap">Employee Acknowledgement</span>
+          Employee Acknowledgement
         </Button>
 
         <Button
           type="button"
           variant="primary"
           onClick={handleIssue}
-          className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
+          className={TABLE_HEADER_ACTION_CLASS}
         >
           <Icon
             icon="mdi:plus"
-            className="size-3 shrink-0 md:size-3.5"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
             aria-hidden="true"
           />
-          <span className="text-xs font-bold whitespace-nowrap md:text-base">
-            Issue PPE
-          </span>
+          Issue PPE
         </Button>
       </div>
     </div>

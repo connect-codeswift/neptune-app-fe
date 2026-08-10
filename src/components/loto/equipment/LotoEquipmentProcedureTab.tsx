@@ -18,7 +18,7 @@ export function LotoEquipmentProcedureTab(
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <div className="flex gap-3 rounded-[14px] border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.06)] px-4 py-3.5">
+        <div className="rounded-3.5 flex gap-3 border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.06)] px-4 py-3.5">
           <Icon
             icon="mdi:alert"
             className="mt-0.5 size-4 shrink-0 text-[#ef4444]"
@@ -54,7 +54,10 @@ export function LotoEquipmentProcedureTab(
           </div>
         </div>
 
-        <IncidentGlassCard paddingClassName="p-0 overflow-hidden" className="min-w-0">
+        <IncidentGlassCard
+          paddingClassName="p-0 overflow-hidden"
+          className="min-w-0"
+        >
           <div className="border-b border-[rgba(15,23,42,0.08)] px-5 py-3.5">
             <h2 className="text-ehs-darker text-sm font-bold">
               {`Procedure — ${String(stepCount)} Steps`}

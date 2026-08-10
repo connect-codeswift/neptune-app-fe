@@ -91,7 +91,11 @@ export type LotoProcedureFormProps = Readonly<{
   onStepsChange: (steps: LotoIsolationStep[]) => void;
   preview: LotoProcedurePreview;
   onPreviewChange: (patch: Partial<LotoProcedurePreview>) => void;
-  onFormValid: (schema: FormSchema, values: FormValues, stepId?: string) => void;
+  onFormValid: (
+    schema: FormSchema,
+    values: FormValues,
+    stepId?: string,
+  ) => void;
 }>;
 
 function SummaryRow(
@@ -145,14 +149,15 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
   };
 
   const ppeCountLabel =
-    preview.ppeCount === 1
-      ? "1 item"
-      : `${String(preview.ppeCount)} items`;
+    preview.ppeCount === 1 ? "1 item" : `${String(preview.ppeCount)} items`;
 
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_363px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
           <h2 className="text-ehs-darker mb-4 text-sm font-bold">
             Equipment Information
           </h2>
@@ -179,7 +184,10 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           />
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
           <div className="mb-2 flex items-center justify-between gap-3">
             <h2 className="text-ehs-darker text-sm font-bold">
               Isolation Steps
@@ -202,7 +210,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className="rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
+                className="rounded-3.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -243,7 +251,10 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           </div>
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-5 md:p-[22px]" className="min-w-0">
+        <IncidentGlassCard
+          paddingClassName="p-5 md:p-[22px]"
+          className="min-w-0"
+        >
           <FormBuilder
             formId={LOTO_VERIFICATION_FORM_ID}
             schema={lotoVerificationSchema}

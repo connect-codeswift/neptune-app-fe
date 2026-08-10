@@ -6,6 +6,10 @@ import {
   LOTO_TABS,
   type LotoTabId,
 } from "@/app/dashboard/lockout-tagout/loto-data";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 
 export type LotoModuleTabsProps = Readonly<{
   activeTab: LotoTabId;
@@ -64,9 +68,13 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
           type="button"
           variant="primary"
           onClick={onCreateProcedure}
-          className="shrink-0 gap-2 rounded-lg px-4 py-2 text-base! font-semibold shadow-sm"
+          className={TABLE_HEADER_ACTION_CLASS}
         >
-          <Icon icon="mdi:file-document-outline" className="size-4 shrink-0" />
+          <Icon
+            icon="mdi:file-document-outline"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
           Create Procedure
         </Button>
       ) : null}

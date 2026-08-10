@@ -38,7 +38,7 @@ function createColumns(): ColumnDef<AcknowledgmentRecord, unknown>[] {
       size: 200,
       meta: { align: "left" as const },
       cell: ({ getValue }) => (
-        <Text as="span" className="text-[14px] leading-5 text-[#0b1320]">
+        <Text as="span" className="text-3.5 leading-5 text-[#0b1320]">
           {getValue()}
         </Text>
       ),
@@ -48,7 +48,7 @@ function createColumns(): ColumnDef<AcknowledgmentRecord, unknown>[] {
       size: 180,
       meta: { align: "left" as const },
       cell: ({ getValue }) => (
-        <Text as="span" className="text-[14px] leading-5 text-[#566072]">
+        <Text as="span" className="text-3.5 leading-5 text-[#566072]">
           {getValue()}
         </Text>
       ),

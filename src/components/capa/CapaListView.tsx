@@ -17,6 +17,10 @@ import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { Table } from "@/components/ui/Table";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
@@ -87,11 +91,15 @@ function CreateCapaButton(
       type="button"
       variant="primary"
       onClick={onClick}
-      className={["shrink-0 gap-1.5 rounded-xl px-4 py-2.5 text-sm", className]
+      className={[TABLE_HEADER_ACTION_CLASS, className]
         .filter(Boolean)
         .join(" ")}
     >
-      <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+      <Icon
+        icon="mdi:plus"
+        className={TABLE_HEADER_ACTION_ICON_CLASS}
+        aria-hidden="true"
+      />
       Create CAPA
     </Button>
   );
@@ -273,8 +281,8 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-[14px]">
-      <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+    <div className="flex min-w-0 flex-col gap-3.5">
+      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
         <CapaKpiTile
           label="Total CAPAs"
           value={summary.total}

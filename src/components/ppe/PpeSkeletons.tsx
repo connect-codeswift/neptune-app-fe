@@ -25,9 +25,7 @@ function PpeGlassShell(
 }
 
 /** Page breadcrumb + title bar placeholder. */
-export function PpePageHeaderSkeleton(
-  props: Readonly<{ actions?: number }>,
-) {
+export function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
   const { actions = 2 } = props;
 
   return (
@@ -89,9 +87,7 @@ export function PpeSearchBarSkeleton() {
 }
 
 /** Mobile inventory card placeholders. */
-export function PpeInventoryCardsSkeleton(
-  props: Readonly<{ rows?: number }>,
-) {
+export function PpeInventoryCardsSkeleton(props: Readonly<{ rows?: number }>) {
   const { rows = 4 } = props;
 
   return (
@@ -135,7 +131,10 @@ export function PpeTableSkeleton(
   const { rows = 6, columns = 6 } = props;
 
   return (
-    <PpeGlassShell paddingClassName="overflow-hidden p-0" className="hidden md:block">
+    <PpeGlassShell
+      paddingClassName="overflow-hidden p-0"
+      className="hidden md:block"
+    >
       <div className="border-b border-[rgba(15,23,42,0.08)] px-4 py-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Skeleton className="h-9 w-40 rounded-xl" />
@@ -145,10 +144,7 @@ export function PpeTableSkeleton(
       <div className="border-b border-[rgba(15,23,42,0.06)] px-4 py-3">
         <div className="flex gap-4">
           {repeat(columns, (index) => (
-            <Skeleton
-              key={`ppe-th-${String(index)}`}
-              className="h-3 flex-1"
-            />
+            <Skeleton key={`ppe-th-${String(index)}`} className="h-3 flex-1" />
           ))}
         </div>
       </div>
@@ -310,7 +306,7 @@ export function PpeEmployeeProfileSkeleton() {
         <PpeGlassShell>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3 md:gap-4">
-              <Skeleton className="size-12 shrink-0 rounded-full md:size-13 md:rounded-[14px]" />
+              <Skeleton className="md:rounded-3.5 size-12 shrink-0 rounded-full md:size-13" />
               <div className="flex min-w-0 flex-col gap-1.5">
                 <Skeleton className="h-4 w-40 md:h-5 md:w-48" />
                 <Skeleton className="h-3 w-32" />

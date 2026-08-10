@@ -135,9 +135,7 @@ export function PpeEmployeeProfileContent(
       params.set("issueId", issueId.trim());
     }
     const query = params.toString();
-    router.push(
-      query ? `${REPLACEMENT_ROUTE}?${query}` : REPLACEMENT_ROUTE,
-    );
+    router.push(query ? `${REPLACEMENT_ROUTE}?${query}` : REPLACEMENT_ROUTE);
   };
 
   return (
@@ -178,7 +176,7 @@ export function PpeEmployeeProfileContent(
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3 md:gap-4">
               <div
-                className="bg-ehs-normal-blue flex size-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white md:size-13 md:rounded-[14px] md:bg-[#566072] md:text-lg md:font-extrabold"
+                className="bg-ehs-normal-blue md:rounded-3.5 flex size-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white md:size-13 md:bg-[#566072] md:text-lg md:font-extrabold"
                 aria-hidden="true"
               >
                 {profile.initials}

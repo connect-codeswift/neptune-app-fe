@@ -69,7 +69,7 @@ export function PolicyMakerDetailPanel(
       <div className="flex flex-col gap-[1.95px]">
         <Text
           as="h3"
-          className="text-[14px] font-bold tracking-[-0.14px] text-[#0b1320]"
+          className="text-3.5 font-bold tracking-[-0.14px] text-[#0b1320]"
         >
           {document.title}
         </Text>
@@ -78,7 +78,7 @@ export function PolicyMakerDetailPanel(
         </Text>
       </div>
 
-      <div className="flex flex-col gap-[7.78px] pt-[13.62px] pb-[11.68px]">
+      <div className="flex flex-col gap-[7.78px] pt-3.5 pb-[11.68px]">
         <MetaRow label="Owner" value={document.ownerFullName} />
         <MetaRow label="Site" value={document.site} />
         <MetaRow label="Updated" value={document.updated} />

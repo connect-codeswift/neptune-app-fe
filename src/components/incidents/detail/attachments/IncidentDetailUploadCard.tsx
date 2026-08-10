@@ -123,17 +123,14 @@ export function IncidentDetailUploadCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[19px]"
-      incidentGlassCardClassName="gap-[14px]"
+      incidentGlassCardClassName="gap-3.5"
       className={className}
     >
       <div className="flex flex-col gap-0.5">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Upload
         </Text>
-        <span className="text-sm leading-normal text-ehs-muted-text">
+        <span className="text-ehs-muted-text text-sm leading-normal">
           Drag & drop or browse
         </span>
       </div>
@@ -164,25 +161,25 @@ export function IncidentDetailUploadCard(
           <div className="flex flex-col items-center justify-center gap-2">
             <Icon
               icon="mdi:loading"
-              className="size-8 animate-spin text-ehs-normal-blue"
+              className="text-ehs-normal-blue size-8 animate-spin"
               aria-hidden="true"
             />
-            <span className="text-sm font-bold text-ehs-dark-bg">
+            <span className="text-ehs-dark-bg text-sm font-bold">
               Uploading...
             </span>
           </div>
         ) : (
           <>
-            <div className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)] text-ehs-dark-blue">
+            <div className="text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="mt-2.5 text-sm font-bold text-ehs-dark-bg">
+            <span className="text-ehs-dark-bg mt-2.5 text-sm font-bold">
               Drop files here
             </span>
-            <span className="mt-1 text-xs text-ehs-muted-text">
+            <span className="text-ehs-muted-text mt-1 text-xs">
               JPG, PNG, MP4, PDF up to 50 MB
             </span>
-            <span className="mt-3.5 text-sm font-bold text-ehs-dark-blue">
+            <span className="text-ehs-dark-blue mt-3.5 text-sm font-bold">
               Browse files
             </span>
           </>

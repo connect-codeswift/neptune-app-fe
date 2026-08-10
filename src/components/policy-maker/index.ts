@@ -1,7 +1,5 @@
 export * from "./policy-maker-types";
 export * from "./policy-maker-data";
-export * from "./PolicyMakerLibraryNav";
-export * from "./PolicyMakerStatusTabs";
 export * from "./PolicyMakerDocumentTable";
 export * from "./PolicyMakerDetailPanel";
 export * from "./PolicyMakerRowActionsMenu";

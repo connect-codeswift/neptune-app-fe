@@ -16,7 +16,9 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const injuryMixCardShellClass =
   "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]";
 
-function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>) {
+function DonutChart(
+  props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>,
+) {
   const { items, total } = props;
   const mixTotal = items.reduce((sum, item) => sum + item.value, 0);
   const hasMixData = mixTotal > 0;
@@ -110,10 +112,10 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
       paddingClassName="p-[19px]"
       className={[injuryMixCardShellClass, className].filter(Boolean).join(" ")}
     >
-      <div className="pb-[14px]">
+      <div className="pb-3.5">
         <Text
           as="h3"
-          className="text-ehs-dark-bg pb-[2px] pt-px text-[14px] leading-normal font-bold tracking-[-0.14px]"
+          className="text-ehs-dark-bg text-3.5 pt-px pb-[2px] leading-normal font-bold tracking-[-0.14px]"
         >
           Recordable injury mix
         </Text>
@@ -132,7 +134,7 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
           {items.map((item) => (
             <div
               key={item.label}
-              className="flex h-[14px] min-w-0 items-center gap-2"
+              className="flex h-3.5 min-w-0 items-center gap-2"
             >
               <span
                 className="size-2 shrink-0 rounded-[2px]"

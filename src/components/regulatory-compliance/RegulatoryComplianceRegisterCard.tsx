@@ -8,6 +8,10 @@ import { Table, type TablePagination } from "@/components/ui/Table";
 import { Text } from "@/components/Text";
 import type { ComplianceObligationItem } from "./regulatory-compliance-types";
 import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 
 const CALENDAR_HREF = "/dashboard/regulatory-compliance/calendar";
 const ADD_OBLIGATION_HREF = "/dashboard/regulatory-compliance/calendar/new";
@@ -123,21 +127,28 @@ export function RegulatoryComplianceRegisterCard(
               href={CALENDAR_HREF}
               aria-label="Open calendar view"
               title="Calendar view"
-              className="text-ehs-normal-blue hover:bg-ehs-normal-blue/10 inline-flex size-9 cursor-pointer items-center justify-center rounded-xl transition-colors"
+              className="text-ehs-normal-blue hover:bg-ehs-normal-blue/10 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
             >
               <Icon
                 icon="mdi:calendar-month-outline"
-                className="size-5"
+                className="size-4.5"
                 aria-hidden
               />
             </Link>
 
             <Link
               href={ADD_OBLIGATION_HREF}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-colors"
+              className={[
+                "bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex items-center transition-colors",
+                TABLE_HEADER_ACTION_CLASS,
+              ].join(" ")}
             >
-              <Icon icon="mdi:plus" className="size-4" aria-hidden />
-              <span className="whitespace-nowrap">Add Obligation</span>
+              <Icon
+                icon="mdi:plus"
+                className={TABLE_HEADER_ACTION_ICON_CLASS}
+                aria-hidden
+              />
+              <span>Add Obligation</span>
             </Link>
           </div>
         </div>

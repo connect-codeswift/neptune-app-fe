@@ -27,7 +27,7 @@ function DetailField(props: Readonly<{ label: string; value: string }>) {
       <Text as="span" className="text-ehs-muted-text text-[12px] font-normal">
         {label}
       </Text>
-      <Text as="span" className="text-ehs-dark-bg text-[14px] font-light">
+      <Text as="span" className="text-ehs-dark-bg text-3.5 font-light">
         {value}
       </Text>
     </div>
@@ -96,10 +96,7 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
 
           <DetailField label="Completed Date" value={detail.completedDate} />
-          <DetailField
-            label="Completed By"
-            value={detail.completedByName}
-          />
+          <DetailField label="Completed By" value={detail.completedByName} />
         </div>
       </div>
     </IncidentGlassCard>

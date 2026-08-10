@@ -24,17 +24,14 @@ export function IncidentDetailResponseCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
+      incidentGlassCardClassName="gap-3.5"
       className={className}
     >
       <div className="flex flex-col gap-0.5">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Immediate response
         </Text>
-        <span className="text-sm leading-normal text-ehs-muted-text">
+        <span className="text-ehs-muted-text text-sm leading-normal">
           Actions taken on-scene
         </span>
       </div>
@@ -56,7 +53,7 @@ export function IncidentDetailResponseCard(
               ].join(" ")}
             >
               {action.completed ? (
-                <div className="flex size-4 shrink-0 items-center justify-center rounded bg-ehs-green text-ehs-light-text">
+                <div className="bg-ehs-green text-ehs-light-text flex size-4 shrink-0 items-center justify-center rounded">
                   <Icon
                     icon="mdi:check"
                     className="size-[11px]"
@@ -66,7 +63,7 @@ export function IncidentDetailResponseCard(
               ) : (
                 <div className="size-4 shrink-0 rounded border border-[rgba(15,23,42,0.14)] bg-transparent" />
               )}
-              <span className="truncate text-sm leading-normal text-ehs-dark-bg">
+              <span className="text-ehs-dark-bg truncate text-sm leading-normal">
                 {action.label}
               </span>
             </div>

@@ -81,7 +81,7 @@ export function RegulatoryComplianceDetailBannerCard(
         <div className="flex shrink-0 flex-wrap items-center gap-2.5">
           <Link
             href="/dashboard/regulatory-compliance"
-            className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-[14px] font-light shadow-xs transition-colors"
+            className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg text-3.5 inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 font-light shadow-xs transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -97,7 +97,7 @@ export function RegulatoryComplianceDetailBannerCard(
               onClick={onDelete}
               disabled={isDeleting || isMarkingComplete}
               className={[
-                "inline-flex items-center justify-center gap-1.5 rounded-xl border border-ehs-border bg-white/70 px-4 py-2.5 text-[14px] font-normal text-ehs-gray transition-all hover:bg-white",
+                "border-ehs-border text-3.5 text-ehs-gray inline-flex items-center justify-center gap-1.5 rounded-xl border bg-white/70 px-4 py-2.5 font-normal transition-all hover:bg-white",
                 isDeleting || isMarkingComplete
                   ? "cursor-not-allowed opacity-70"
                   : "",
@@ -119,12 +119,14 @@ export function RegulatoryComplianceDetailBannerCard(
             onClick={onMarkAsComplete}
             disabled={isMarkingComplete || isDeleting}
             className={[
-              "inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-[14px] font-normal shadow-xs transition-all",
+              "text-3.5 inline-flex items-center justify-center rounded-xl px-5 py-2.5 font-normal shadow-xs transition-all",
               "text-ehs-light-text",
               isCompliant
                 ? "bg-ehs-gray hover:bg-ehs-gray/90 active:bg-ehs-gray/80"
                 : "bg-ehs-green hover:bg-ehs-green/90 active:bg-ehs-green/80",
-              isMarkingComplete || isDeleting ? "cursor-not-allowed opacity-70" : "",
+              isMarkingComplete || isDeleting
+                ? "cursor-not-allowed opacity-70"
+                : "",
             ].join(" ")}
           >
             {isMarkingComplete
