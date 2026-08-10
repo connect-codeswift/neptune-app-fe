@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HazcomErrorCard,
@@ -13,7 +12,7 @@ import {
   HazcomPager,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
   chemicalMatchesSearch,
   exportChemicalsToCsv,
@@ -27,8 +26,6 @@ import {
 export type ChemicalListViewProps = Readonly<{
   className?: string;
 }>;
-
-const searchInputClass = `${FIELD_INPUT_LG_CLASS} pl-9`;
 
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;
@@ -57,6 +54,10 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
       ),
     [chemicals, searchQuery],
   );
+
+  const resultLabel = `${String(filteredChemicals.length)} ${
+    filteredChemicals.length === 1 ? "chemical" : "chemicals"
+  }`;
 
   return (
     <div
@@ -104,28 +105,13 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative max-w-md min-w-0 flex-1">
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by name, CAS#, location..."
-            aria-label="Search chemicals"
-            className={searchInputClass}
-          />
-        </div>
-        <Text as="p" className="text-ehs-muted-text shrink-0 text-[13px]">
-          {`${String(totalRecords)} ${
-            totalRecords === 1 ? "chemical" : "chemicals"
-          }`}
-        </Text>
-      </div>
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by name, CAS#, location..."
+        aria-label="Search chemicals"
+        resultLabel={resultLabel}
+      />
 
       {errorMessage ? (
         <HazcomErrorCard
