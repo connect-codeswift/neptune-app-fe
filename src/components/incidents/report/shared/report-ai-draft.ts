@@ -1,5 +1,7 @@
 import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
 import type { ReportIncidentFormState } from "./report-incident-state";
+import { seriousIncidentLabelForDraft } from "./report-classification";
+import { formatIncidentLocationsLabel } from "./ReportLocationsField";
 import { SEVERITY_OPTIONS } from "./report-severity";
 import { INJURY_LEVEL_OPTIONS } from "./report-injury-level";
 import { BODY_PART_OPTIONS } from "./report-body-parts";
@@ -59,16 +61,20 @@ export function buildDraftAssistInput(
     ...(form.customBodyParts ?? []).filter((part) => part.trim()),
   ].join(", ");
 
+  const incidentAreas = formatIncidentLocationsLabel(form.incidentLocations ?? []);
+  const plant = form.location.trim();
+
   const input: IncidentDraftRequestDto = {
     severity:
       SEVERITY_OPTIONS.find((option) => option.id === form.severity)?.label ??
       "",
-    location: form.location.trim(),
-    workRelated: form.classifications.workRelated ?? "",
+    location: [plant, incidentAreas].filter(Boolean).join(" · "),
     fleetVehicleInvolved: form.classifications.fleet ?? "",
     thirdPartyInvolved: form.classifications.tempWorker ?? "",
     emergencyServicesCalled: form.classifications.emergency ?? "",
-    seriousIncident: form.classifications.serious ?? "",
+    seriousIncident: seriousIncidentLabelForDraft(
+      form.classifications.serious,
+    ),
     mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, form.mechanismOfInjury),
     natureOfInjury: optionLabel(NATURE_OF_INJURY_OPTIONS, form.natureOfInjury),
     objectInvolved: form.objectInvolved.trim(),
@@ -127,11 +133,16 @@ export function draftInputKey(input: IncidentDraftRequestDto): string {
  * for nothing.
  */
 export function canDraftDescription(form: ReportIncidentFormState): boolean {
-  return [
-    form.initialTreatment,
+  const required = [
     form.secondaryTreatment,
     form.mechanismOfInjury,
     form.natureOfInjury,
     form.objectInvolved,
-  ].every((answer) => answer.trim() !== "");
+  ];
+
+  if (form.severity !== "first-aid") {
+    required.unshift(form.initialTreatment);
+  }
+
+  return required.every((answer) => answer.trim() !== "");
 }

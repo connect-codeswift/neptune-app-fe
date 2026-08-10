@@ -33,6 +33,47 @@ export const INJURY_LEVEL_OPTIONS: readonly InjuryLevelOption[] = [
   },
 ];
 
+/**
+ * Injury level is derived, never asked — the old step 3 picker duplicated
+ * what severity already says. Mapping per the rework spec: first-aid →
+ * first-aid, medical-treatment / restricted-duty → medical-treatment,
+ * lost-time / fatality → lost-time (EHS adjusts at closure). An unpicked
+ * severity derives to no-injury rather than guessing an injury.
+ *
+ * Legacy ids (`osha`, `sia`, `sip`) map defensively so stale state can never
+ * produce a value outside the union.
+ */
+export function injuryLevelForSeverity(severityId: string): InjuryLevelId {
+  switch (severityId) {
+    case "first-aid":
+      return "first-aid";
+    case "medical-treatment":
+    case "restricted-duty":
+    case "osha":
+      return "medical-treatment";
+    case "lost-time":
+    case "fatality":
+    case "sia":
+    case "sip":
+      return "lost-time";
+    default:
+      return "no-injury";
+  }
+}
+
+/**
+ * The derivation the report actually uses: Nature of Injury = `none` covers
+ * the old "No injury" pick and wins over whatever the severity implies.
+ */
+export function injuryLevelForReport(
+  severityId: string,
+  natureOfInjury: string,
+): InjuryLevelId {
+  return natureOfInjury === "none"
+    ? "no-injury"
+    : injuryLevelForSeverity(severityId);
+}
+
 export const GENDER_OPTIONS = [
   { value: "Male", label: "Male" },
   { value: "Female", label: "Female" },

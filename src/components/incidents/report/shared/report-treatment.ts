@@ -70,8 +70,10 @@ export const CASE_DISPOSITION_OPTIONS = [
   { value: "open", label: "Remains open" },
 ] as const;
 
+/** Form value for "Case closed - no further actions" — hides further-medical UI. */
+export const CASE_CLOSED_NO_FURTHER_VALUE = "case-closed-no-further" as const;
+
 /**
- * Disposition written when an incident is closed from the list/detail views.
  *
  * It is the *label* of the `case-closed-no-further` option, not its value,
  * because `mapReportFormToIncidentDto` persists `optionLabel(...)` — so stored

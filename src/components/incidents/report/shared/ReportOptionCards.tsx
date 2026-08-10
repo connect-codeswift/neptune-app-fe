@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Text } from "@/components/Text";
+import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 
 export type ReportOptionCardOption<T extends string = string> = Readonly<{
   id: T;
@@ -22,6 +23,7 @@ export type ReportOptionCardsProps<T extends string = string> = Readonly<{
   /** chip = Step 1 severity; tile = Step 3 injury level */
   variant?: "chip" | "tile";
   ariaLabel?: string;
+  error?: string | null;
   className?: string;
 }>;
 
@@ -40,6 +42,7 @@ export function ReportOptionCards<T extends string>(
     trailingHint,
     variant = "chip",
     ariaLabel,
+    error = null,
     className = "",
   } = props;
 
@@ -90,6 +93,7 @@ export function ReportOptionCards<T extends string>(
   return (
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <div className="flex flex-wrap items-end gap-x-1.5 gap-y-0.5">
         <Text as="span" className="text-sm font-bold text-ehs-slate">
@@ -115,6 +119,7 @@ export function ReportOptionCards<T extends string>(
         }
         role="radiogroup"
         aria-label={ariaLabel ?? label}
+        aria-invalid={error ? true : undefined}
       >
         {options.map((option, index) => {
           const isSelected = option.id === value;
@@ -186,6 +191,7 @@ export function ReportOptionCards<T extends string>(
           );
         })}
       </div>
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }
