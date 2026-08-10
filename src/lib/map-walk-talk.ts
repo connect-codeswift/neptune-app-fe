@@ -220,10 +220,14 @@ export function toWalkTalkMetricCards(
     {
       title: "Observations (30d)",
       value: counts?.totalObservationsCount ?? 0,
+      trendValue: "0",
+      trendTone: "positive",
     },
     {
       title: "Walk & Talks",
       value: counts?.totalWalkAndTalkCount ?? 0,
+      trendValue: "0",
+      trendTone: "positive",
     },
   ];
 }

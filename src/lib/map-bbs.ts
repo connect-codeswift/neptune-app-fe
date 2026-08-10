@@ -202,14 +202,20 @@ export function toBbsMetricCards(
     {
       title: "Observations (30d)",
       value: total,
+      trendValue: "0",
+      trendTone: "positive",
     },
     {
       title: "Safe behavior %",
       value: `${String(safePercent)}%`,
+      trendValue: "0",
+      trendTone: "positive",
     },
     {
       title: "At risk",
       value: atRisk,
+      trendValue: "0",
+      trendTone: "positive",
     },
   ];
 }

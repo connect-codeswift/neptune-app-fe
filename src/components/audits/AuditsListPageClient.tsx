@@ -2,17 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Table } from "@/components/ui/Table";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { auditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
 import {
   AuditDetailPanelSkeleton,
   AuditPageSkeleton,
 } from "@/components/audits/AuditPageSkeleton";
-import { AuditFilterBar } from "@/components/audits/AuditFilterBar";
 import {
   useAuditDetailSummaryQuery,
   useAuditsQuery,
@@ -24,6 +23,7 @@ import {
   mapSummaryToMetrics,
 } from "@/lib/map-audit-inspection-dashboard";
 import {
+  REGISTER_STATUS_FILTERS,
   toApiStatusFilter,
   type RegisterStatusFilter,
 } from "@/lib/audit-inspection-status";
@@ -121,34 +121,33 @@ export function AuditsListPageClient() {
               <p className="text-ehs-red text-sm">Could not load audits.</p>
             ) : null}
 
-            <AuditFilterBar
-              status={selectedStatus}
-              onStatusChange={(value) => {
-                setSelectedStatus(value as RegisterStatusFilter);
-                setPageNumber(1);
+            <ModuleFilterBar
+              segments={[
+                {
+                  label: "Status",
+                  options: REGISTER_STATUS_FILTERS,
+                  value: selectedStatus,
+                  onChange: (value) => {
+                    setSelectedStatus(value as RegisterStatusFilter);
+                    setPageNumber(1);
+                  },
+                },
+              ]}
+              action={{
+                label: "Templates",
+                icon: "mdi:file-document-outline",
+                onClick: () => {
+                  router.push("/dashboard/audits/template");
+                },
               }}
-              onTemplatesClick={() =>
-                router.push("/dashboard/audits/template")
-              }
             />
 
-            <div className="relative w-full max-w-md min-w-0">
-              <Icon
-                icon="mdi:magnify"
-                className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => {
-                  setSearchQuery(event.target.value);
-                }}
-                placeholder="Search by title, site, auditor..."
-                aria-label="Search audits"
-                className={`${FIELD_INPUT_LG_CLASS} pl-9`}
-              />
-            </div>
+            <ModuleSearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search by title, site, auditor..."
+              aria-label="Search audits"
+            />
 
             <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
               <Table
