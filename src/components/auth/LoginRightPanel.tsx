@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { LogoIcon } from "@/components/LogoIcon";
+import { AuthFooterLink } from "@/components/auth/AuthFooterLink";
+import { AuthFormPanel } from "@/components/auth/AuthFormPanel";
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons";
 import { NeptuneLoader } from "@/components/ui/NeptuneLoader";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
@@ -17,7 +19,6 @@ import {
 } from "@/hooks/use-auth-mutations";
 import { ehsLinkClass } from "@/lib/ehs-classes";
 import { consumeAuthRedirectMessage } from "@/lib/access-window";
-import { ShadeBall } from "@/components/ShadeBall";
 
 function getFormString(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -38,17 +39,6 @@ function getFormString(formData: FormData, name: string) {
  * the network allows and accept the flicker.
  */
 const LOADER_MIN_VISIBLE_MS = 800;
-
-/**
- * The auth card's own glass, not GLASS_SURFACE: the dashboard surface is
- * tuned for cards over the app's ambient gradient, and at 62% white on this
- * near-white page it reads as a plain card. Glass only reads as glass when
- * there is colour behind it to blur, so this pane is thinner (45% white,
- * heavier blur) and the panel paints soft colour blobs behind it below.
- */
-const authGlassClass =
-  "rounded-3xl border border-white/60 bg-white/45 backdrop-blur-2xl " +
-  "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]";
 
 export default function LoginRightPanel() {
   const router = useRouter();
@@ -126,137 +116,73 @@ export default function LoginRightPanel() {
       : "");
 
   return (
-    <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-0 lg:px-8 lg:py-8">
-      {isEnteringApp ? (
-        <NeptuneLoader fullScreen label="Signing you in…" />
-      ) : null}
+    <AuthFormPanel
+      title="Welcome back."
+      subtitle="Sign in to your Neptune workspace."
+      overlay={
+        isEnteringApp ? (
+          <NeptuneLoader fullScreen label="Signing you in…" />
+        ) : null
+      }
+      footer={
+        <AuthFooterLink
+          prompt="Don't have an account?"
+          href="/signup"
+          linkLabel="Sign up"
+        />
+      }
+    >
+      <AuthProviderButtons />
 
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
-      <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
-        blur={80}
-      />
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <EmailInput
+          id="email"
+          name="email"
+          label="Email address"
+          placeholder="you@company.com"
+          required
+          disabled={loginMutation.isPending}
+        />
 
-      {/* Colour for the glass to blur: without these, the pane sits on a
-          near-white ground and reads as a plain card. Placed to break across
-          the card's edges, where refraction is most visible. */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="bg-ehs-normal-blue/25 absolute top-[24%] left-1/2 size-80 -translate-x-[85%] rounded-full blur-3xl" />
-        <div className="absolute top-[58%] left-1/2 size-80 -translate-x-[8%] rounded-full bg-cyan-300/30 blur-3xl" />
-      </div>
-
-      <div className="relative z-10 flex w-full max-w-[30rem] flex-col gap-6">
-        {/* The brand panel is hidden below lg, which left phones with no logo
-            anywhere on the page — this is the mobile-only signature. */}
-        <LogoIcon variant="dark" className="mx-auto h-5 w-auto lg:hidden" />
-
-        {/* Not <GlassCard>: the shared component carries hover-lift, and a
-            form shouldn't lift under the cursor like a clickable card. The
-            rise entrance alone is welcome here. */}
-        <div
-          className={`${authGlassClass} animate-card-rise flex flex-col gap-6 p-7 sm:p-10`}
-        >
-          <div className="flex flex-col gap-1.5">
-            <h2 className="text-ehs-darker text-2xl font-bold tracking-tight lg:text-3xl">
-              Welcome back.
-            </h2>
-            <p className="text-ehs-muted-text text-sm">
-              Sign in to your Neptune workspace.
-            </p>
-          </div>
-
-          {/* NOTE: neither provider button is wired yet — no onClick and no
-              OAuth flow exists in the codebase. They are kept enabled at the
-              owner's direction as the intended design; wire or disable before
-              release. */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="tertiary"
-              className="w-full font-medium"
-            >
-              <Icon icon="flat-color-icons:google" className="text-lg" />
-              Google
-            </Button>
-            <Button
-              type="button"
-              variant="tertiary"
-              className="w-full font-medium"
-            >
-              <Icon icon="logos:microsoft-icon" className="text-base" />
-              Microsoft
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <hr className="border-ehs-border flex-1" />
-            <span className="text-ehs-muted-text text-xs">
-              or continue with email
-            </span>
-            <hr className="border-ehs-border flex-1" />
-          </div>
-
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <EmailInput
-            id="email"
-            name="email"
-            label="Email address"
-            placeholder="you@company.com"
+        <div className="mt-1 mb-2 flex w-full flex-col gap-1.5">
+          <Password
+            id="password"
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
             required
             disabled={loginMutation.isPending}
           />
-
-          <div className="mt-1 mb-2 flex w-full flex-col gap-1.5">
-            <Password
-              id="password"
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              required
-              disabled={loginMutation.isPending}
-            />
-            <ScrollLink
-              href="/forget-password"
-              className={`${ehsLinkClass} ml-auto block text-sm font-medium`}
-            >
-              Forgot password?
-            </ScrollLink>
-          </div>
-
-          {submitError ? (
-            <Text as="p" className="text-ehs-red text-xs" role="alert">
-              {submitError}
-            </Text>
-          ) : null}
-
-          <Button
-            type="submit"
-            variant="primary"
-            className="w-full"
-            isLoading={loginMutation.isPending}
+          <ScrollLink
+            href="/forget-password"
+            className={`${ehsLinkClass} ml-auto block text-sm font-medium`}
           >
-            {loginMutation.isPending ? (
-              "Signing in…"
-            ) : (
-              <>
-                Sign in
-                <Icon icon="mdi:arrow-right" className="text-lg" />
-              </>
-            )}
-          </Button>
-        </form>
+            Forgot password?
+          </ScrollLink>
         </div>
 
-        <p className="text-ehs-muted-text text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <ScrollLink
-            href="/signup"
-            className={`${ehsLinkClass} font-semibold`}
-          >
-            Sign up
-          </ScrollLink>
-        </p>
-      </div>
-    </div>
+        {submitError ? (
+          <Text as="p" className="text-ehs-red text-xs" role="alert">
+            {submitError}
+          </Text>
+        ) : null}
+
+        <Button
+          type="submit"
+          variant="primary"
+          className="w-full"
+          isLoading={loginMutation.isPending}
+        >
+          {loginMutation.isPending ? (
+            "Signing in…"
+          ) : (
+            <>
+              Sign in
+              <Icon icon="mdi:arrow-right" className="text-lg" />
+            </>
+          )}
+        </Button>
+      </form>
+    </AuthFormPanel>
   );
 }
