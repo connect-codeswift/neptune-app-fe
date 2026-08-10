@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
+import { toTitleCase } from "@/lib/string";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceDetailBannerCardProps = Readonly<{
@@ -32,7 +33,7 @@ export function RegulatoryComplianceDetailBannerCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-6"
+      paddingClassName="p-4 px-6"
       className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
         .filter(Boolean)
         .join(" ")}
@@ -66,7 +67,7 @@ export function RegulatoryComplianceDetailBannerCard(
               as="h1"
               className="text-ehs-dark-bg text-[22px] leading-tight font-bold"
             >
-              {detail.title}
+              {toTitleCase(detail.title)}
             </Text>
 
             <IncidentBadge
@@ -75,14 +76,21 @@ export function RegulatoryComplianceDetailBannerCard(
               showDot
             />
           </div>
-
-          {/* Subtitle */}
-          <Text as="p" className="text-ehs-muted-text text-[13px] font-light">
-            {detail.subtitle}
-          </Text>
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+          <Link
+            href="/dashboard/regulatory-compliance"
+            className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-[14px] font-light shadow-xs transition-colors"
+          >
+            <Icon
+              icon="mdi:arrow-left"
+              className="size-4 shrink-0"
+              aria-hidden="true"
+            />
+            <span>Go Back</span>
+          </Link>
+
           {onDelete ? (
             <button
               type="button"

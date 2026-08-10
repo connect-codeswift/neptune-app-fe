@@ -211,14 +211,6 @@ export function RegulatoryComplianceDetailView(
 
   return (
     <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
-      <IncidentListHeader
-        title=""
-        reportHref="/dashboard/regulatory-compliance"
-        actionLabel="Back to Register"
-        actionLabelShort="Back"
-        className="px-0 py-0"
-      />
-
       <RegulatoryComplianceDetailBannerCard
         detail={detail}
         onMarkAsComplete={handleMarkAsComplete}

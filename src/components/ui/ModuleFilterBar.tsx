@@ -29,7 +29,7 @@ export type ModuleFilterBarProps = Readonly<{
 }>;
 
 const shellClass =
-  "flex w-full min-w-0 flex-wrap items-center gap-x-6 gap-y-3 rounded-xl bg-white/40 px-5 py-3 shadow-md";
+  "flex w-full min-w-0 flex-wrap items-center gap-x-6 gap-y-3 rounded-xl bg-white/60 px-5 py-3 shadow-md";
 
 function toOptions(
   options: ModuleFilterSegment["options"],

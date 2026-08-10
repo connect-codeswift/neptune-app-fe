@@ -80,6 +80,26 @@ function CapaKpiTile(
 const FILTER_SHELL =
   "relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
 
+function CreateCapaButton(
+  props: Readonly<{ className?: string; onClick?: () => void }>,
+) {
+  const { className = "", onClick } = props;
+
+  return (
+    <Button
+      type="button"
+      variant="primary"
+      onClick={onClick}
+      className={["shrink-0 gap-1.5 rounded-xl px-4 py-2.5 text-sm", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+      Create CAPA
+    </Button>
+  );
+}
+
 export type CapaListViewProps = Readonly<{ searchQuery?: string }>;
 
 /**
@@ -332,6 +352,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
               ? "Corrective and preventive actions raised from incidents will appear here."
               : "Try widening the state, priority or type filter."}
           </Text>
+          {rows.length === 0 ? <CreateCapaButton className="mt-2" /> : null}
         </GlassCard>
       ) : (
         <Table
@@ -339,6 +360,17 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
           columns={columns}
           globalFilter={searchQuery}
           getRowId={(row) => row.id}
+          header={
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Text
+                as="h3"
+                className="text-ehs-darker shrink-0 text-base font-bold"
+              >
+                CAPAs
+              </Text>
+              <CreateCapaButton />
+            </div>
+          }
         />
       )}
     </div>

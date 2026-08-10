@@ -38,7 +38,7 @@ export function ModuleSearchBar(props: ModuleSearchBarProps) {
       <div className="relative w-full min-w-0 max-w-md">
         <Icon
           icon="mdi:magnify"
-          className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2"
+          className="text-ehs-normal-blue pointer-events-none absolute top-1/2 left-3 z-10 size-5 -translate-y-1/2"
           aria-hidden="true"
         />
         <input
@@ -49,7 +49,13 @@ export function ModuleSearchBar(props: ModuleSearchBarProps) {
           }}
           placeholder={placeholder}
           aria-label={ariaLabel}
-          className={`${FIELD_INPUT_LG_CLASS} pl-9`}
+          className={[
+            FIELD_INPUT_LG_CLASS,
+            "pl-9 [&::-webkit-search-cancel-button]:appearance-none",
+            "[&::-webkit-search-decoration]:appearance-none",
+            "[&::-webkit-search-results-button]:appearance-none",
+            "[&::-webkit-search-results-decoration]:appearance-none",
+          ].join(" ")}
         />
       </div>
 
