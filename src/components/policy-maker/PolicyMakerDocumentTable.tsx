@@ -1,25 +1,21 @@
 "use client";
 
-import { useMemo, type ComponentType } from "react";
+import { useMemo } from "react";
 import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
-import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
+import { Table, type TablePagination } from "@/components/ui/Table";
 import {
-  IncidentListTable,
-  type IncidentListTableProps,
-} from "@/components/incidents/list/IncidentListTable";
+  CompliancePill,
+  complianceGlassCardClass,
+} from "@/components/regulatory-compliance/compliance-ui";
 import { PolicyMakerRowActionsMenu } from "@/components/policy-maker/PolicyMakerRowActionsMenu";
 import {
   TABLE_HEADER_ACTION_CLASS,
   TABLE_HEADER_ACTION_ICON_CLASS,
 } from "@/components/ui/table-header-action";
-import type {
-  DocumentStatus,
-  PolicyDocument,
-} from "@/components/policy-maker/policy-maker-types";
+import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDocumentTableProps = Readonly<{
   categoryLabel: string;
@@ -31,27 +27,11 @@ export type PolicyMakerDocumentTableProps = Readonly<{
   onUploadDocument?: () => void;
   /** Second click on selected row — opens full document detail. */
   onOpenDetail?: (id: string) => void;
-  /** Table shell from incidents — defaults to IncidentListTable. */
-  ListTable?: ComponentType<IncidentListTableProps<PolicyDocument>>;
+  pagination?: TablePagination;
   className?: string;
 }>;
 
 const columnHelper = createColumnHelper<PolicyDocument>();
-
-function statusTone(status: DocumentStatus): IncidentBadgeTone {
-  if (status === "In review") {
-    return "teal";
-  }
-  if (status === "Expiring soon") {
-    return "warn";
-  }
-  return "muted";
-}
-
-function StatusBadge(props: Readonly<{ status: DocumentStatus }>) {
-  const { status } = props;
-  return <IncidentBadge label={status} tone={statusTone(status)} />;
-}
 
 function createDocumentColumns(
   onEditDocument?: (document: PolicyDocument) => void,
@@ -61,7 +41,6 @@ function createDocumentColumns(
       id: "document",
       header: "Document",
       size: 220,
-      minSize: 160,
       meta: { align: "left" as const },
       cell: ({ row }) => {
         const doc = row.original;
@@ -92,10 +71,12 @@ function createDocumentColumns(
     columnHelper.accessor("version", {
       header: "Ver",
       size: 54,
-      minSize: 48,
       meta: { align: "left" as const },
       cell: (info) => (
-        <Text as="span" className="text-[10px] font-bold text-[#0b1320]">
+        <Text
+          as="span"
+          className="text-[10px] leading-normal font-bold text-[#8892a3]"
+        >
           {info.getValue()}
         </Text>
       ),
@@ -103,10 +84,9 @@ function createDocumentColumns(
     columnHelper.accessor("owner", {
       header: "Owner",
       size: 90,
-      minSize: 70,
       meta: { align: "left" as const },
       cell: (info) => (
-        <Text as="span" className="text-[12px] text-[#566072]">
+        <Text as="span" className="text-[12px] leading-normal text-[#566072]">
           {info.getValue()}
         </Text>
       ),
@@ -114,17 +94,18 @@ function createDocumentColumns(
     columnHelper.accessor("status", {
       header: "Status",
       size: 130,
-      minSize: 100,
       meta: { align: "left" as const },
-      cell: (info) => <StatusBadge status={info.getValue()} />,
+      cell: (info) => <CompliancePill label={info.getValue()} />,
     }),
     columnHelper.accessor("expires", {
       header: "Expires",
       size: 100,
-      minSize: 80,
       meta: { align: "left" as const },
       cell: (info) => (
-        <Text as="span" className="text-[12px] text-[#566072]">
+        <Text
+          as="span"
+          className="text-[12px] leading-normal whitespace-nowrap tabular-nums text-[#566072]"
+        >
           {info.getValue()}
         </Text>
       ),
@@ -133,7 +114,6 @@ function createDocumentColumns(
       id: "actions",
       header: "",
       size: 48,
-      minSize: 44,
       meta: { align: "center" as const },
       cell: ({ row }) => (
         <PolicyMakerRowActionsMenu
@@ -157,7 +137,7 @@ export function PolicyMakerDocumentTable(
     onEditDocument,
     onUploadDocument,
     onOpenDetail,
-    ListTable = IncidentListTable,
+    pagination,
     className = "",
   } = props;
 
@@ -166,46 +146,56 @@ export function PolicyMakerDocumentTable(
     [onEditDocument],
   );
 
-  const toolbar = (
-    <div className="flex h-[50.6px] items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-[15.57px]">
-      <div className="flex min-w-0 items-baseline gap-2">
-        <Text as="p" className="text-[12px] font-bold text-[#0b1320]">
-          {categoryLabel}
-        </Text>
-        <Text as="p" className="text-[10px] text-[#8892a3]">
-          {`${String(documentCount)} documents`}
-        </Text>
-      </div>
-
-      {onUploadDocument ? (
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onUploadDocument}
-          className={TABLE_HEADER_ACTION_CLASS}
-        >
-          <Icon
-            icon="mdi:plus"
-            className={TABLE_HEADER_ACTION_ICON_CLASS}
-            aria-hidden="true"
-          />
-          <span className="sm:hidden">Upload</span>
-          <span className="hidden sm:inline">Upload a Document</span>
-        </Button>
-      ) : null}
-    </div>
-  );
-
   return (
-    <ListTable
+    <Table
+      variant="compliance"
       data={documents}
       columns={columns}
-      selectedId={selectedId}
-      onSelect={onSelect}
-      onOpenDetail={onOpenDetail}
-      toolbar={toolbar}
-      compact
-      className={className}
+      getRowId={(row) => row.id}
+      selectedRowId={selectedId}
+      onRowClick={(row) => {
+        if (selectedId === row.id && onOpenDetail) {
+          onOpenDetail(row.id);
+          return;
+        }
+        onSelect(row.id);
+      }}
+      pagination={pagination}
+      containerClassName={[complianceGlassCardClass, className]
+        .filter(Boolean)
+        .join(" ")}
+      header={
+        <div className="flex h-[50.595px] items-center justify-between gap-3">
+          <div className="flex min-w-0 items-baseline gap-2">
+            <Text
+              as="h2"
+              className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
+            >
+              {categoryLabel}
+            </Text>
+            <Text as="p" className="text-[10px] leading-none text-[#8892a3]">
+              {`${String(documentCount)} documents`}
+            </Text>
+          </div>
+
+          {onUploadDocument ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={onUploadDocument}
+              className={TABLE_HEADER_ACTION_CLASS}
+            >
+              <Icon
+                icon="mdi:plus"
+                className={TABLE_HEADER_ACTION_ICON_CLASS}
+                aria-hidden="true"
+              />
+              <span className="sm:hidden">Upload</span>
+              <span className="hidden sm:inline">Upload a Document</span>
+            </Button>
+          ) : null}
+        </div>
+      }
     />
   );
 }

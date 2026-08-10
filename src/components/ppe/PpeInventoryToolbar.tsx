@@ -22,7 +22,7 @@ export type PpeInventoryHeaderProps = Readonly<{
 
 /**
  * Inventory card header — title + View Issues / Employee Acknowledgement /
- * Issue PPE grouped on the right.
+ * Issue PPE grouped on the right (compliance register layout).
  */
 export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
   const { onIssuePpe, showViewIssues = true } = props;
@@ -37,15 +37,15 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
       <Text
-        as="h3"
-        className="text-ehs-darker shrink-0 text-lg font-extrabold md:text-xl md:font-bold"
+        as="h2"
+        className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
       >
         Inventory
       </Text>
 
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
         {showViewIssues ? (
           <Button
             type="button"
