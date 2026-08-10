@@ -119,7 +119,7 @@ export function RegulatoryComplianceRegisterCard(
             as="h2"
             className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
           >
-            Register
+            Obligations
           </Text>
 
           <div className="flex shrink-0 items-center gap-2">
