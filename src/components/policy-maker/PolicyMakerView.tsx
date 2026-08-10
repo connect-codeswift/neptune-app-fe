@@ -115,9 +115,6 @@ export function PolicyMakerView() {
   const kpisQuery = useDocumentDashboardKpisQuery(isClientReady && hasToken);
 
   const totalCount = documentsQuery.data?.totalCount ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const canGoPrevious = pageNumber > 1 && !documentsQuery.isFetching;
-  const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
 
   const metrics = useMemo(
     () =>
@@ -243,77 +240,33 @@ export function PolicyMakerView() {
               </div>
             ) : (
               <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
-                <div className="flex min-w-0 flex-col gap-3">
-                  <PolicyMakerDocumentTable
-                    categoryLabel={categoryLabel(categoryId)}
-                    documentCount={documents.length}
-                    documents={documents}
-                    selectedId={selectedDocument?.id ?? null}
-                    onSelect={setSelectedId}
-                    onUploadDocument={() =>
-                      router.push("/dashboard/policy-maker/upload")
-                    }
-                    onEditDocument={(document) =>
-                      router.push(
-                        `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
-                      )
-                    }
-                    onOpenDetail={(id) =>
-                      router.push(
-                        `/dashboard/policy-maker/${encodeURIComponent(id)}`,
-                      )
-                    }
-                  />
-
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <Text as="p" className="text-ehs-muted-text text-[12px]">
-                      {[
-                        `Page ${String(pageNumber)} of ${String(totalPages)}`,
-                        totalCount > 0 ? `${String(totalCount)} total` : null,
-                        documentsQuery.isFetching ? "Loading…" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </Text>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        disabled={!canGoPrevious}
-                        onClick={() =>
-                          setPageNumber((current) => Math.max(1, current - 1))
-                        }
-                        className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
-                      >
-                        <Icon
-                          icon="mdi:chevron-left"
-                          className="size-3.5"
-                          aria-hidden="true"
-                        />
-                        Previous
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        disabled={!canGoNext}
-                        onClick={() =>
-                          setPageNumber((current) =>
-                            Math.min(totalPages, current + 1),
-                          )
-                        }
-                        className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
-                      >
-                        Next
-                        <Icon
-                          icon="mdi:chevron-right"
-                          className="size-3.5"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <PolicyMakerDocumentTable
+                  categoryLabel={categoryLabel(categoryId)}
+                  documentCount={documents.length}
+                  documents={documents}
+                  selectedId={selectedDocument?.id ?? null}
+                  onSelect={setSelectedId}
+                  onUploadDocument={() =>
+                    router.push("/dashboard/policy-maker/upload")
+                  }
+                  onEditDocument={(document) =>
+                    router.push(
+                      `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
+                    )
+                  }
+                  onOpenDetail={(id) =>
+                    router.push(
+                      `/dashboard/policy-maker/${encodeURIComponent(id)}`,
+                    )
+                  }
+                  pagination={{
+                    pageNumber,
+                    pageSize,
+                    totalRecords: totalCount,
+                    onPageChange: setPageNumber,
+                    isLoading: documentsQuery.isFetching,
+                  }}
+                />
 
                 <PolicyMakerDetailPanel
                   document={selectedDocument}
