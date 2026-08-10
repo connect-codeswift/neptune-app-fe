@@ -14,12 +14,12 @@ import {
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
-import { useIncidentListKpisQuery, useKpiTargetsQuery } from "@/hooks/use-incident-kpi-queries";
+import { useIncidentListKpisQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
@@ -34,6 +34,7 @@ import type { IncidentRecord } from "@/components/incidents/list/incident-list-t
 import {
   mapIncidentListKpisToMetrics,
   mapKpiTargetsToLookup,
+  hasSufficientSiteWorkHours,
 } from "@/services/mappers/incident-kpi.mapper";
 
 export type IncidentListViewProps = Readonly<{
@@ -108,6 +109,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   });
   const listKpisQuery = useIncidentListKpisQuery(isClientReady && hasToken);
   const kpiTargetsQuery = useKpiTargetsQuery(isClientReady && hasToken);
+  const siteWorkHoursQuery = useSiteWorkHoursQuery(isClientReady && hasToken);
   const closeIncidentMutation = useCloseIncidentMutation();
 
   const incidents = incidentsQuery.data?.records ?? [];
@@ -234,13 +236,18 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     [kpiTargetsQuery.data?.dataModel],
   );
 
+  const ratesAvailable = hasSufficientSiteWorkHours(
+    siteWorkHoursQuery.data?.dataModel,
+  );
+
   const kpiMetrics = useMemo(
     () =>
       mapIncidentListKpisToMetrics(
         listKpisQuery.data?.dataModel,
         targetsLookup,
+        ratesAvailable,
       ),
-    [listKpisQuery.data?.dataModel, targetsLookup],
+    [listKpisQuery.data?.dataModel, targetsLookup, ratesAvailable],
   );
 
   const showBootLoading = !isClientReady;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Icon } from "@iconify/react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
@@ -15,6 +14,7 @@ import {
   AddTaskModal,
   type CapaTaskFormPayload,
 } from "@/components/incidents/shared/capa/AddTaskModal";
+import { CapaModalTasksSection } from "@/components/incidents/shared/capa/CapaModalTasksSection";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
@@ -25,11 +25,7 @@ import { ReportDateField } from "@/components/incidents/report/shared/ReportDate
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useCurrentSite } from "@/hooks/use-current-site";
-import {
-  formatCapaTaskStatusLabel,
-  toSelectorControlLevel,
-} from "@/services/mappers/capa.mapper";
-import { formatCapaApiDateForDisplay } from "@/lib/parse-capa-api-date";
+import { toSelectorControlLevel } from "@/services/mappers/capa.mapper";
 
 export type { CapaTaskFormPayload };
 
@@ -40,7 +36,13 @@ export type CapaFormPayload = Readonly<{
   owner: string;
   dueDate: string;
   priority: string;
+  tasks?: readonly CapaTaskFormPayload[];
 }>;
+
+export type StagedCapaTask = CapaTaskFormPayload &
+  Readonly<{
+    localId: string;
+  }>;
 
 export type AddCapaModalProps = Readonly<{
   incidentId: string;
@@ -49,9 +51,11 @@ export type AddCapaModalProps = Readonly<{
   capaToEdit?: CapaItem;
   isSubmitting?: boolean;
   isCreatingTask?: boolean;
+  isDeletingTask?: boolean;
   onClose: () => void;
   onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
   onCreateTask?: (payload: CapaTaskFormPayload) => void | Promise<void>;
+  onDeleteTask?: (taskId: number) => void | Promise<void>;
 }>;
 
 const TYPE_OPTIONS = ["Corrective", "Preventive"] as const;
@@ -67,8 +71,13 @@ type CapaModalFormProps = Readonly<{
   initialOwner: string;
   initialOwnerUserId: string;
   initialDueDate: string;
-  tasks: readonly CapaTaskDto[];
+  savedTasks: readonly CapaTaskDto[];
+  stagedTasks: readonly StagedCapaTask[];
   onOpenAddTask: () => void;
+  onRemoveStagedTask: (localId: string) => void;
+  onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
+  isCreatingTask: boolean;
+  isDeletingTask: boolean;
   onClose: () => void;
   onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
 }>;
@@ -98,8 +107,13 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
     initialOwner,
     initialOwnerUserId,
     initialDueDate,
-    tasks,
+    savedTasks,
+    stagedTasks,
     onOpenAddTask,
+    onRemoveStagedTask,
+    onDeleteSavedTask,
+    isCreatingTask,
+    isDeletingTask,
     onClose,
     onSubmit,
   } = props;
@@ -123,7 +137,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   );
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
-  const busy = isSubmitting || isLocalSubmitting;
+  const busy = isSubmitting || isLocalSubmitting || isCreatingTask || isDeletingTask;
   const canSubmit =
     controlLevel != null && description.trim().length > 0 && !busy;
   const modalCapaId = capaToEdit?.code ?? capaId;
@@ -142,6 +156,15 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
         owner: ownerUserId.trim() || owner.trim(),
         dueDate,
         priority,
+        tasks: isEditMode
+          ? undefined
+          : stagedTasks.map((task) => ({
+              task: task.task,
+              owner: task.owner,
+              ownerName: task.ownerName,
+              dueDate: task.dueDate,
+              priority: task.priority,
+            })),
       });
       onClose();
     } catch {
@@ -153,7 +176,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
 
   return (
     <IncidentModalShell
-      title={isEditMode ? "Edit CAPA" : "Add CAPA"}
+      title={isEditMode ? "Edit CAPA" : "Create CAPA"}
       subtitle={`${incidentId} · ${incidentTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
       onClose={onClose}
       footerHint={
@@ -183,8 +206,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
       }
     >
       <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-8 lg:gap-12">
-        <section className="w-full shrink-0 md:w-[320px] lg:w-[380px]">
-          <div className="mb-4 flex flex-col gap-[5px] sm:mb-6">
+          <section className="w-full shrink-0 md:w-[320px] lg:w-[380px]">
+            <div className="mb-4 flex flex-col gap-[5px] sm:mb-6">
             <div className="flex items-center gap-2.5">
               <StepBadge step="1" />
               <Text
@@ -200,13 +223,13 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
             >
               Most → least effective. Prefer higher-order controls.
             </Text>
-          </div>
+            </div>
 
-          <CapaHierarchySelector
-            value={controlLevel}
-            onChange={setControlLevel}
-          />
-        </section>
+            <CapaHierarchySelector
+              value={controlLevel}
+              onChange={setControlLevel}
+            />
+          </section>
 
         <section className="min-w-0 flex-1">
           <div className="mb-4 flex items-center gap-2.5 sm:mb-6">
@@ -263,7 +286,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 }}
                 siteId={site.id}
                 siteName={site.name}
-                placeholder="Start typing a name…"
+                placeholder="e.g. M. Torres"
               />
 
               <ReportDateField
@@ -285,80 +308,16 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
               />
             </div>
 
-            {isEditMode && capaToEdit ? (
-              <div className="flex flex-col gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[18px]">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-ehs-dark-bg text-sm leading-[19.5px] font-medium">
-                      Linked tasks
-                    </span>
-                    <span className="text-ehs-muted-text text-xs leading-normal">
-                      Assignees complete tasks to update CAPA progress.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={onOpenAddTask}
-                    disabled={busy}
-                    className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex shrink-0 items-center gap-2 rounded-[10px] px-3 py-[7.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <Icon
-                      icon="mdi:plus"
-                      className="size-[13px]"
-                      aria-hidden="true"
-                    />
-                    Add Task
-                  </button>
-                </div>
-
-                {tasks.length === 0 ? (
-                  <div className="text-ehs-muted-text rounded-xl border border-dashed border-[rgba(15,23,42,0.12)] bg-white/50 px-4 py-6 text-center text-sm">
-                    No tasks yet. Add one for the assignee to work on.
-                  </div>
-                ) : (
-                  <ul className="flex flex-col gap-2">
-                    {tasks.map((taskItem) => (
-                      <li
-                        key={taskItem.id}
-                        className="flex flex-col gap-1.5 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80 p-3.5"
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <p className="text-ehs-dark-bg min-w-0 flex-1 text-sm leading-[19.5px]">
-                            {taskItem.task}
-                          </p>
-                          <span className="bg-ehs-gray/14 text-ehs-gray shrink-0 rounded-full px-2.5 py-1 text-xs font-bold">
-                            {formatCapaTaskStatusLabel(taskItem.status)}
-                          </span>
-                        </div>
-                        <div className="text-ehs-muted-text flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                          {taskItem.ownerName ? (
-                            <span className="inline-flex items-center gap-1">
-                              <Icon
-                                icon="mdi:account-outline"
-                                className="size-3"
-                                aria-hidden="true"
-                              />
-                              {taskItem.ownerName}
-                            </span>
-                          ) : null}
-                          {taskItem.dueDate ? (
-                            <span className="inline-flex items-center gap-1">
-                              <Icon
-                                icon="mdi:calendar-outline"
-                                className="size-3"
-                                aria-hidden="true"
-                              />
-                              Due{" "}
-                              {formatCapaApiDateForDisplay(taskItem.dueDate)}
-                            </span>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : null}
+            <CapaModalTasksSection
+              isEditMode={isEditMode}
+              savedTasks={savedTasks}
+              stagedTasks={stagedTasks}
+              busy={busy}
+              onOpenAddTask={onOpenAddTask}
+              onRemoveStagedTask={onRemoveStagedTask}
+              onDeleteSavedTask={onDeleteSavedTask}
+              capaPriority={capaToEdit?.priority ?? priority}
+            />
           </div>
         </section>
       </div>
@@ -374,56 +333,61 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
     capaToEdit,
     isSubmitting = false,
     isCreatingTask = false,
+    isDeletingTask = false,
     onClose,
     onSubmit,
     onCreateTask,
+    onDeleteTask,
   } = props;
 
   const isEditMode = capaToEdit != null;
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [stagedTasks, setStagedTasks] = useState<readonly StagedCapaTask[]>([]);
   const tasksQuery = useCapaTasksQuery({
     capaId: capaToEdit?.numericId ?? null,
     enabled: isEditMode,
   });
 
-  if (isEditMode && tasksQuery.isLoading) {
-    return (
-      <IncidentModalShell
-        title="Edit CAPA"
-        subtitle={`${incidentId} · ${incidentTitle} · ${capaToEdit.code}`}
-        onClose={onClose}
-        footerActions={<IncidentModalCancelButton onClick={onClose} />}
-      >
-        <div className="text-ehs-muted-text py-12 text-center text-sm">
-          Loading action details…
-        </div>
-      </IncidentModalShell>
-    );
-  }
+  const handleAddTask = async (payload: CapaTaskFormPayload) => {
+    if (isEditMode) {
+      await onCreateTask?.(payload);
+      return;
+    }
 
-  const primaryTask = tasksQuery.data?.[0];
-  const tasks = tasksQuery.data ?? [];
-  const initialDescription = primaryTask?.task ?? capaToEdit?.description ?? "";
-  const initialOwner =
-    primaryTask?.ownerName?.trim() || capaToEdit?.assignee || "";
+    setStagedTasks((previous) => [
+      ...previous,
+      {
+        ...payload,
+        localId: crypto.randomUUID(),
+      },
+    ]);
+  };
+
+  const handleRemoveStagedTask = (localId: string) => {
+    setStagedTasks((previous) =>
+      previous.filter((task) => task.localId !== localId),
+    );
+  };
+
+  const handleDeleteSavedTask = async (taskId: number) => {
+    await onDeleteTask?.(taskId);
+  };
+
+  const addTaskCapaCode = isEditMode && capaToEdit ? capaToEdit.code : `new ${capaId}`;
+  const savedTasks = tasksQuery.data ?? [];
+  const initialDescription = capaToEdit?.description ?? "";
+  const initialOwner = capaToEdit?.assignee ?? "";
   const initialOwnerUserId =
-    primaryTask?.ownerId != null
-      ? String(primaryTask.ownerId)
-      : capaToEdit?.assignedId != null
-        ? String(capaToEdit.assignedId)
-        : "";
+    capaToEdit?.assignedId != null ? String(capaToEdit.assignedId) : "";
   const initialDueDate =
-    primaryTask?.dueDate?.trim() ||
-    (capaToEdit?.dueDate && capaToEdit.dueDate !== "—"
-      ? capaToEdit.dueDate
-      : "");
+    capaToEdit?.dueDate && capaToEdit.dueDate !== "—" ? capaToEdit.dueDate : "";
 
   return (
     <>
       <CapaModalForm
         key={
           isEditMode
-            ? `edit-${capaToEdit.id}-${primaryTask?.id ?? "none"}-${String(tasks.length)}`
+            ? `edit-${capaToEdit.id}-${String(savedTasks.length)}`
             : "add"
         }
         incidentId={incidentId}
@@ -435,20 +399,25 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         initialOwner={initialOwner}
         initialOwnerUserId={initialOwnerUserId}
         initialDueDate={initialDueDate}
-        tasks={tasks}
+        savedTasks={savedTasks}
+        stagedTasks={stagedTasks}
         onOpenAddTask={() => setIsAddTaskOpen(true)}
+        onRemoveStagedTask={handleRemoveStagedTask}
+        onDeleteSavedTask={isEditMode ? handleDeleteSavedTask : undefined}
+        isCreatingTask={isCreatingTask}
+        isDeletingTask={isDeletingTask}
         onClose={onClose}
         onSubmit={onSubmit}
       />
 
-      {isAddTaskOpen && capaToEdit ? (
+      {isAddTaskOpen ? (
         <AddTaskModal
           incidentId={incidentId}
           incidentTitle={incidentTitle}
-          capaCode={capaToEdit.code}
+          capaCode={addTaskCapaCode}
           isSubmitting={isCreatingTask}
           onClose={() => setIsAddTaskOpen(false)}
-          onSubmit={onCreateTask}
+          onSubmit={handleAddTask}
         />
       ) : null}
     </>

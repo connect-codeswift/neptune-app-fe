@@ -7,10 +7,11 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { useHeaderKpiQuery, useKpiTargetsQuery } from "@/hooks/use-incident-kpi-queries";
+import { useHeaderKpiQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
 import {
   mapHeaderKpisToHeroMetrics,
   mapKpiTargetsToLookup,
+  hasSufficientSiteWorkHours,
 } from "@/services/mappers/incident-kpi.mapper";
 
 function HeroKpiSkeleton() {
@@ -38,16 +39,25 @@ export function IncidentKpisHeroRow() {
 
   const headerKpiQuery = useHeaderKpiQuery(isClientReady && hasToken);
   const kpiTargetsQuery = useKpiTargetsQuery(isClientReady && hasToken);
+  const siteWorkHoursQuery = useSiteWorkHoursQuery(isClientReady && hasToken);
 
   const targetsLookup = useMemo(
     () => mapKpiTargetsToLookup(kpiTargetsQuery.data?.dataModel),
     [kpiTargetsQuery.data?.dataModel],
   );
 
+  const ratesAvailable = hasSufficientSiteWorkHours(
+    siteWorkHoursQuery.data?.dataModel,
+  );
+
   const heroMetrics = useMemo(
     () =>
-      mapHeaderKpisToHeroMetrics(headerKpiQuery.data?.dataModel, targetsLookup),
-    [headerKpiQuery.data?.dataModel, targetsLookup],
+      mapHeaderKpisToHeroMetrics(
+        headerKpiQuery.data?.dataModel,
+        targetsLookup,
+        ratesAvailable,
+      ),
+    [headerKpiQuery.data?.dataModel, targetsLookup, ratesAvailable],
   );
 
   const showBootLoading = !isClientReady;

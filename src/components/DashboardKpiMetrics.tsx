@@ -34,5 +34,9 @@ export function DashboardKpiMetrics() {
     ? mapDashboardKpisToMetrics(kpisQuery.data.dataModel)
     : DEFAULT_KPI_METRICS;
 
-  return <KpiMetricsRow metrics={metrics} />;
+  return (
+    <div className="flex flex-col gap-3">
+      <KpiMetricsRow metrics={metrics} />
+    </div>
+  );
 }

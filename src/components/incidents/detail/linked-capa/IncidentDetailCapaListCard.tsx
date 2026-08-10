@@ -38,6 +38,11 @@ export type IncidentDetailCapaListCardProps = Readonly<{
     capa: CapaItem,
     payload: CapaTaskFormPayload,
   ) => void | Promise<void>;
+  isDeletingCapaTask?: boolean;
+  onDeleteCapaTask?: (
+    capa: CapaItem,
+    taskId: number,
+  ) => void | Promise<void>;
   onVerifyCapa?: (
     capa: CapaItem,
     input: { effectiveness: CapaEffectiveness; notes: string },
@@ -65,6 +70,8 @@ export function IncidentDetailCapaListCard(
     onUpdateCapa,
     isCreatingCapaTask = false,
     onCreateCapaTask,
+    isDeletingCapaTask = false,
+    onDeleteCapaTask,
     onVerifyCapa,
     className = "",
   } = props;
@@ -330,9 +337,11 @@ export function IncidentDetailCapaListCard(
           capaToEdit={editingCapa}
           isSubmitting={isSubmitting}
           isCreatingTask={isCreatingCapaTask}
+          isDeletingTask={isDeletingCapaTask}
           onClose={() => setEditingCapa(null)}
           onSubmit={(payload) => onUpdateCapa?.(editingCapa, payload)}
           onCreateTask={(payload) => onCreateCapaTask?.(editingCapa, payload)}
+          onDeleteTask={(taskId) => onDeleteCapaTask?.(editingCapa, taskId)}
         />
       ) : null}
 

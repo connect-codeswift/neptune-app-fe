@@ -9,6 +9,7 @@ import { parseActivatedModuleSet } from "@/lib/ehs-modules";
 import {
   getCurrentUserPermissions,
 } from "@/lib/jwt-permissions";
+import { formatJobTitleLabel } from "@/lib/format-job-title";
 import { mergePermissionSets } from "@/lib/normalize-session";
 import {
   getCachedAccessWindow,
@@ -198,6 +199,11 @@ export function useSessionBootstrap() {
       initials: getUserInitials(displayName),
       profileUrl: session?.profileUrl ?? null,
       role: role ?? "User",
+      /** As stored — null when unset. Forms must use this, never the label below, or saving
+       *  an untouched profile would silently turn the role into a job title. */
+      jobTitle: session?.jobTitle?.trim() || null,
+      /** For display: the job title when there is one, otherwise the prettified role. */
+      jobTitleLabel: session?.jobTitle?.trim() || formatJobTitleLabel(role),
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,
       organizationName: session?.organizationName ?? null,
