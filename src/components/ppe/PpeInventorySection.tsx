@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
@@ -176,6 +177,7 @@ export function PpeInventorySection() {
           {/* Desktop — table */}
           <div className="hidden min-w-0 overflow-x-auto md:block">
             <Table
+              variant="compliance"
               data={filtered}
               columns={ppeInventoryColumns}
               getRowId={(row) => row.id}
@@ -185,7 +187,7 @@ export function PpeInventorySection() {
               onRowClick={(row) => {
                 openCatalog(row.id);
               }}
-              containerClassName="min-w-0"
+              containerClassName={complianceGlassCardClass}
               header={header}
             />
           </div>
