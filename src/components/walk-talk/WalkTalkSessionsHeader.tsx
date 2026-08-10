@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -16,8 +17,13 @@ export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
   const { onStartWalkTalk } = props;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h3 className="text-ehs-dark-bg shrink-0 font-bold">Recent sessions</h3>
+    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+      <Text
+        as="h2"
+        className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
+      >
+        Recent sessions
+      </Text>
 
       <Button
         type="button"

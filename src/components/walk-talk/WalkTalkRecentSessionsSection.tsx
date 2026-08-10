@@ -7,6 +7,7 @@ import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_WALK_TALK_PAGE_NUMBER,
@@ -200,13 +201,14 @@ export function WalkTalkRecentSessionsSection(
           {/* Desktop — table */}
           <div className="hidden min-w-0 md:block">
             <Table
+              variant="compliance"
               data={filtered}
               columns={walkTalkSessionColumns}
               getRowId={(row) => row.id}
               onRowClick={(row) => {
                 openSession(row.id);
               }}
-              containerClassName="min-w-0"
+              containerClassName={complianceGlassCardClass}
               pagination={{
                 pageNumber: currentPageNumber,
                 pageSize: currentPageSize,
