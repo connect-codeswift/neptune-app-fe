@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -13,6 +14,8 @@ import {
   formatBodyPartSelection,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
+import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
+import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
 import { getAccessToken } from "@/lib/axios";
@@ -27,22 +30,45 @@ export type ReportIncidentStepFiveProps = Readonly<{
 }>;
 
 function validateReportForm(form: ReportIncidentFormState): string | null {
-  if (!form.description.trim() && !form.title.trim()) {
-    return "Add an incident title or description before submitting.";
-  }
-  if (!form.location.trim()) {
-    return "Location is required.";
-  }
-  if (!form.incidentDate.trim()) {
-    return "Incident date is required.";
-  }
-  if (!form.mechanismOfInjury.trim()) {
-    return "Mechanism of injury is required.";
-  }
-  if (!form.natureOfInjury.trim()) {
-    return "Nature of injury is required.";
-  }
-  return null;
+  const errors = getReportFormErrors(form);
+  return (
+    errors.description ??
+    errors.location ??
+    errors.incidentDate ??
+    errors.mechanismOfInjury ??
+    errors.natureOfInjury
+  );
+}
+
+type ReportFormErrors = Readonly<{
+  description: string | null;
+  location: string | null;
+  incidentDate: string | null;
+  mechanismOfInjury: string | null;
+  natureOfInjury: string | null;
+}>;
+
+function getReportFormErrors(form: ReportIncidentFormState): ReportFormErrors {
+  return {
+    description:
+      form.description.trim() || form.title.trim()
+        ? null
+        : "Add an incident title or description before submitting.",
+    location: form.location.trim() ? null : "Location is required.",
+    incidentDate: form.incidentDate.trim()
+      ? null
+      : "Incident date is required.",
+    mechanismOfInjury: form.mechanismOfInjury.trim()
+      ? null
+      : "Mechanism of injury is required.",
+    natureOfInjury: form.natureOfInjury.trim()
+      ? null
+      : "Nature of injury is required.",
+  };
+}
+
+function hasReportFormErrors(errors: ReportFormErrors): boolean {
+  return Object.values(errors).some(Boolean);
 }
 
 function splitSiteAndArea(location: string): {
@@ -86,6 +112,8 @@ export function ReportIncidentStepFive(
   const { form, onBack, className = "" } = props;
   const router = useRouter();
   const createIncidentMutation = useCreateIncidentMutation();
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const submitErrors = attemptedSubmit ? getReportFormErrors(form) : null;
 
   const handleSubmit = async () => {
     if (!getAccessToken()) {
@@ -94,9 +122,9 @@ export function ReportIncidentStepFive(
       return;
     }
 
-    const validationError = validateReportForm(form);
-    if (validationError) {
-      toast.error("Missing required fields", validationError);
+    const errors = getReportFormErrors(form);
+    if (hasReportFormErrors(errors)) {
+      setAttemptedSubmit(true);
       return;
     }
 
@@ -132,6 +160,8 @@ export function ReportIncidentStepFive(
     "—";
   const typeBadge = form.injuryLevel !== "no-injury" ? "Injury" : "Near miss";
   const { site, area } = splitSiteAndArea(form.location);
+  const incidentAreasLabel =
+    formatIncidentLocationsLabel(form.incidentLocations ?? []) || area;
   const siteBadge = site;
   const when =
     form.incidentDate || form.incidentTime
@@ -221,6 +251,9 @@ export function ReportIncidentStepFive(
             <p className="text-ehs-gray text-sm leading-[17.5px]">
               {form.description.trim() || "No description provided."}
             </p>
+            {submitErrors?.description ? (
+              <ReportFieldError>{submitErrors.description}</ReportFieldError>
+            ) : null}
           </div>
 
           {/* Section 2: 2x2 detail cards — Figma 616:9073 */}
@@ -229,9 +262,12 @@ export function ReportIncidentStepFive(
               title="Where & when"
               rows={[
                 { label: "Site", value: site },
-                { label: "Area", value: area },
+                { label: "Area", value: incidentAreasLabel },
                 { label: "When", value: when },
               ]}
+              error={
+                submitErrors?.location ?? submitErrors?.incidentDate ?? null
+              }
             />
             <ReportReviewDetailCard
               title="People"
@@ -260,6 +296,25 @@ export function ReportIncidentStepFive(
               ]}
             />
           </div>
+
+          {submitErrors?.mechanismOfInjury ||
+          submitErrors?.natureOfInjury ? (
+            <div
+              className="flex flex-col gap-1"
+              data-field-error="true"
+            >
+              {submitErrors.mechanismOfInjury ? (
+                <ReportFieldError>
+                  {`${submitErrors.mechanismOfInjury} Go back to Step 2 to fix this.`}
+                </ReportFieldError>
+              ) : null}
+              {submitErrors.natureOfInjury ? (
+                <ReportFieldError>
+                  {`${submitErrors.natureOfInjury} Go back to Step 2 to fix this.`}
+                </ReportFieldError>
+              ) : null}
+            </div>
+          ) : null}
 
           {/* Section 3: Routing preview banner */}
           <div className="border-ehs-border bg-ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">

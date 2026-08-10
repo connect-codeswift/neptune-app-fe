@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Text } from "@/components/Text";
+import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 
 export type ReportReviewDetailRow = Readonly<{
   label: string;
@@ -11,6 +12,7 @@ export type ReportReviewDetailRow = Readonly<{
 export type ReportReviewDetailCardProps = Readonly<{
   title: string;
   rows: readonly ReportReviewDetailRow[];
+  error?: string | null;
   /** Defaults to Figma Where & when (`p-[15px]`). Reporter uses `pt-[15px] px-[15px] pb-[29px]`. */
   paddingClassName?: string;
   className?: string;
@@ -23,18 +25,21 @@ export type ReportReviewDetailCardProps = Readonly<{
 export function ReportReviewDetailCard(
   props: Readonly<ReportReviewDetailCardProps>,
 ) {
-  const { title, rows, paddingClassName = "p-[15px]", className = "" } = props;
+  const { title, rows, error = null, paddingClassName = "p-[15px]", className = "" } =
+    props;
 
   return (
     <div
       className={[
         "relative flex flex-col gap-[8px] rounded-[20px] border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]",
         paddingClassName,
+        error ? "border-ehs-red/40" : "",
         "before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <div className="relative z-[1] flex w-full flex-col items-start py-px">
         <Text
@@ -73,6 +78,7 @@ export function ReportReviewDetailCard(
           </div>
         ))}
       </div>
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }

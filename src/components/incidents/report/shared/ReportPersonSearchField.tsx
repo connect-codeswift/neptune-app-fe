@@ -11,7 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportFieldLabel, ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
 import {
   FIELD_INPUT_CLASS,
@@ -57,6 +57,7 @@ export type ReportPersonSearchFieldProps = Readonly<{
   /** Site whose roster is offered. `0` means the token carries no site claim. */
   siteId: number;
   siteName?: string | null;
+  error?: string | null;
   className?: string;
   /** Report forms use the default styling; modals use `embedded` with a portaled menu. */
   variant?: "report" | "embedded";
@@ -115,6 +116,7 @@ export function ReportPersonSearchField(
     onChange,
     siteId,
     siteName,
+    error = null,
     className = "",
     variant = "report",
   } = props;
@@ -442,6 +444,7 @@ export function ReportPersonSearchField(
             ? `${listboxId}-option-${String(activeIndex)}`
             : undefined
         }
+        aria-invalid={error ? true : undefined}
         value={value}
         placeholder={placeholder}
         onChange={(event) => {
@@ -531,6 +534,7 @@ export function ReportPersonSearchField(
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -545,6 +549,7 @@ export function ReportPersonSearchField(
       />
 
       {inputControl}
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }

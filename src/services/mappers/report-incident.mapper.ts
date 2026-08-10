@@ -8,6 +8,8 @@ import {
 } from "@/components/incidents/report/shared/report-body-parts";
 import { INJURY_LEVEL_OPTIONS } from "@/components/incidents/report/shared/report-injury-level";
 import { SEVERITY_OPTIONS } from "@/components/incidents/report/shared/report-severity";
+import { isSeriousIncidentClassification } from "@/components/incidents/report/shared/report-classification";
+import type { ClassificationValue } from "@/components/incidents/report/shared/report-classification";
 import {
   CASE_DISPOSITION_OPTIONS,
   INITIAL_TREATMENT_OPTIONS,
@@ -19,6 +21,7 @@ import {
 } from "@/components/incidents/report/shared/report-treatment";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
+import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
 
@@ -47,8 +50,8 @@ const AI_ASSISTED_FIELDS_MAX_CHARS = 200;
  * description would 400 on submit with nothing on screen to explain it.
  */
 
-/** `""` (unanswered) and `"No"` both map to false. */
-function yes(value: "Yes" | "No" | "" | undefined): boolean {
+/** `""` (unanswered), `"No"`, `"SIP"`, and other non-Yes values map to false. */
+function yes(value: ClassificationValue | undefined): boolean {
   return value === "Yes";
 }
 
@@ -82,6 +85,19 @@ function splitSiteLocation(raw: string): {
   return {
     site: trimmed.slice(0, index).trim(),
     location: trimmed.slice(index + separator.length).trim(),
+  };
+}
+
+function mapPlantAndIncidentLocations(
+  plantLocation: string,
+  incidentLocations: readonly string[],
+): { site: string; location: string } {
+  const { site, location: plantArea } = splitSiteLocation(plantLocation);
+  const areas = formatIncidentLocationsLabel(incidentLocations);
+
+  return {
+    site,
+    location: areas || plantArea || site,
   };
 }
 
@@ -293,7 +309,10 @@ export function mapReportFormToIncidentDto(
 ): IncidentDto {
   // Non–First Aid severities get First Aid field defaults from form state.
   const source = applySeverityFieldDefaults(form);
-  const { site, location } = splitSiteLocation(source.location);
+  const { site, location } = mapPlantAndIncidentLocations(
+    source.location,
+    source.incidentLocations ?? [],
+  );
   const { name: affectedName, affectedPersonId: parsedAffectedPersonId } =
     parseAffectedPerson(source.affectedPerson);
   // Picking from the site roster gives a real user id; typing a name gives the
@@ -344,10 +363,12 @@ export function mapReportFormToIncidentDto(
     incidentAt,
     incidentReportedAt,
     isOSHARecordable: yes(source.classifications.osha),
-    isWorkRelated: yes(source.classifications.workRelated),
+    isWorkRelated: false,
     isDrugOrAlcoholRelated: yes(source.classifications.drugAlcohol),
     isFleetVehicleInvolved: yes(source.classifications.fleet),
-    isSeriousIncident: yes(source.classifications.serious),
+    isSeriousIncident: isSeriousIncidentClassification(
+      source.classifications.serious,
+    ),
     isEmergencyServiceCalled: yes(source.classifications.emergency),
     isThirdPartyInvolved: yes(source.classifications.tempWorker),
     initialTreatment: optionLabel(

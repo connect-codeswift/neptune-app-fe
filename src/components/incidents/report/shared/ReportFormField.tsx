@@ -157,6 +157,7 @@ export type ReportSelectFieldProps = Readonly<{
   trailing?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
+  error?: string | null;
   className?: string;
   id?: string;
 }>;
@@ -186,6 +187,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
     trailing,
     placeholder = "Select…",
     disabled = false,
+    error = null,
     className = "",
     id,
   } = props;
@@ -193,6 +195,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const listboxId = `${fieldId}-listbox`;
+  const errorId = `${fieldId}-error`;
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -274,6 +277,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -299,6 +303,8 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           aria-expanded={open}
           aria-controls={open ? listboxId : undefined}
           aria-required={required || undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           disabled={disabled}
           onClick={() => (open ? close() : openMenu())}
           onKeyDown={onKeyDown}
@@ -378,6 +384,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           </ul>
         ) : null}
       </div>
+      {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );
 }
