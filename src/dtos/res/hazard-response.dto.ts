@@ -23,7 +23,13 @@ export type GetHazardByIdResponseDto = ApiEnvelopeDto<HazardDto | null>;
  */
 export type HazardKpiDto = {
   totalHazards: number;
+  /** Period-over-period delta for total hazards (renders as `+N` / `-N`). */
+  totalHazardsDelta?: number;
+  totalHazardsChange?: number;
   hazardConvertedToIncidentCount: number;
+  /** Period-over-period delta for converted incidents (renders as `+N` / `-N`). */
+  hazardConvertedToIncidentDelta?: number;
+  hazardConvertedToIncidentChange?: number;
 };
 
 /** Matches backend response for GET /api/Hazard/HazardKpiCount. */

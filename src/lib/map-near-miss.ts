@@ -1,6 +1,10 @@
 import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
-import type { CreateNearMissResponseDto } from "@/dtos/res/near-miss-response.dto";
+import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type {
+  CreateNearMissResponseDto,
+  NearMissKpiDto,
+} from "@/dtos/res/near-miss-response.dto";
 import {
   CONTRIBUTING_FACTOR_OPTIONS,
   HAZARD_TYPE_OPTIONS,
@@ -10,6 +14,11 @@ import type {
   NearMissRecord,
   NearMissStatus,
 } from "@/app/dashboard/near-miss/near-miss-data";
+import {
+  asNumber,
+  isRecord,
+  readProp,
+} from "@/services/mappers/record-readers";
 
 /**
  * The backend stores hazard type / location / contributing factors as slugs
@@ -70,4 +79,105 @@ export function mapNearMissDtoToRecord(
     ),
     relatedCapas: [],
   };
+}
+
+function formatTrendDelta(delta: number): string {
+  const value = Math.round(delta);
+  if (Object.is(value, -0) || value === 0) return "0";
+  return value > 0 ? `+${String(value)}` : String(value);
+}
+
+/** Finite number when present, otherwise undefined (so missing deltas stay hidden). */
+function asOptionalNumber(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = asNumber(value, Number.NaN);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+/**
+ * Normalizes GET /api/NearMiss/NearMissKpi (camelCase or PascalCase).
+ */
+export function normalizeNearMissKpiDto(raw: unknown): NearMissKpiDto | null {
+  if (!isRecord(raw)) return null;
+
+  return {
+    totalNearMissCount: asNumber(
+      readProp(
+        raw,
+        "totalNearMissCount",
+        "TotalNearMissCount",
+        "totalNearMisses",
+        "TotalNearMisses",
+        "total",
+        "Total",
+      ),
+    ),
+    totalNearMissDelta: asOptionalNumber(
+      readProp(
+        raw,
+        "totalNearMissDelta",
+        "TotalNearMissDelta",
+        "totalNearMissChange",
+        "TotalNearMissChange",
+      ),
+    ),
+    convertedToIncidents: asNumber(
+      readProp(
+        raw,
+        "convertedToIncidents",
+        "ConvertedToIncidents",
+        "convertedIncidents",
+        "ConvertedIncidents",
+        "converted",
+        "Converted",
+      ),
+    ),
+    convertedToIncidentsDelta: asOptionalNumber(
+      readProp(
+        raw,
+        "convertedToIncidentsDelta",
+        "ConvertedToIncidentsDelta",
+        "convertedToIncidentsChange",
+        "ConvertedToIncidentsChange",
+      ),
+    ),
+  };
+}
+
+function toTrendBadge(delta: number | null | undefined): Pick<
+  StatMetricCardProps,
+  "trendValue" | "trendTone"
+> {
+  const value = delta ?? 0;
+  return {
+    trendValue: formatTrendDelta(value),
+    // Sign-based: +N green, -N red; flat `0` uses the positive (green) pill.
+    trendTone: value >= 0 ? "positive" : "negative",
+  };
+}
+
+/** Builds the two near-miss KPI cards, including `+N` / `-N` / `0` trend badges. */
+export function mapNearMissKpiToMetrics(
+  dto: NearMissKpiDto | null | undefined,
+): readonly StatMetricCardProps[] {
+  const totalDelta = dto?.totalNearMissDelta ?? dto?.totalNearMissChange;
+  const convertedDelta =
+    dto?.convertedToIncidentsDelta ?? dto?.convertedToIncidentsChange;
+
+  return [
+    {
+      title: "Total near misses",
+      value: dto?.totalNearMissCount ?? dto?.totalNearMisses ?? dto?.total ?? 0,
+      ...toTrendBadge(totalDelta),
+    },
+    {
+      title: "Converted to incidents",
+      value:
+        dto?.convertedToIncidents ??
+        dto?.convertedIncidents ??
+        dto?.converted ??
+        0,
+      ...toTrendBadge(convertedDelta),
+    },
+  ];
 }

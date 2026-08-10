@@ -11,6 +11,20 @@ import {
 import type { SelectOption } from "@/components/form-builder";
 import type { NearMissHeatMapCellDto } from "@/dtos/res/near-miss-response.dto";
 
+/**
+ * Fixed heatmap columns — design baseline (Mech…Slip) plus Fire / Envt.
+ * Extra API types append after these so custom categories still appear.
+ */
+const HEATMAP_TYPE_COLUMNS = [
+  "mechanical",
+  "electrical",
+  "chemical",
+  "ergonomic",
+  "slip-trip-fall",
+  "fire-explosion",
+  "environmental",
+] as const;
+
 /** Slugs come back from the API; show the label the reporter picked. */
 function labelFor(options: readonly SelectOption[], value: string): string {
   return options.find((option) => option.value === value)?.label ?? value;
@@ -30,7 +44,9 @@ function shortTypeLabel(type: string): string {
 
 /** Map a report count to the teal fill opacity used in the Figma heatmap. */
 function cellStyle(value: number | null, max: number) {
-  if (value == null) return { backgroundColor: "rgba(255,255,255,0.62)" };
+  if (value == null || value <= 0) {
+    return { backgroundColor: "rgba(255,255,255,0.62)" };
+  }
   const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
   return {
     backgroundColor: `rgba(8,145,166,${(0.22 + ratio * 0.58).toFixed(3)})`,
@@ -40,7 +56,12 @@ function cellStyle(value: number | null, max: number) {
 /** Pivot the flat location/type tallies into the grid the card renders. */
 function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
   const locations = [...new Set(cells.map((cell) => cell.location))];
-  const types = [...new Set(cells.map((cell) => cell.type))];
+  const apiTypes = [...new Set(cells.map((cell) => cell.type))];
+  const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
+  const types = [
+    ...HEATMAP_TYPE_COLUMNS,
+    ...apiTypes.filter((type) => !knownTypeSet.has(type)),
+  ];
 
   const counts = new Map(
     cells.map((cell) => [`${cell.location}|${cell.type}`, cell.count]),
@@ -55,7 +76,7 @@ function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
   return {
     columns: types.map((type) => ({ key: type, label: shortTypeLabel(type) })),
     rows,
-    max: Math.max(1, ...cells.map((cell) => cell.count)),
+    max: Math.max(1, ...cells.map((cell) => cell.count), 0),
   };
 }
 
@@ -103,17 +124,14 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
                 <div
                   key={columns[index].key}
                   style={cellStyle(value, max)}
-                  className="flex h-8 items-center justify-center rounded border border-slate-900/10 text-xs font-bold"
+                  className={[
+                    "flex h-8 items-center justify-center rounded border border-slate-900/10 text-xs font-bold tabular-nums leading-none",
+                    value != null && value >= max * 0.75
+                      ? "text-white"
+                      : "text-slate-700",
+                  ].join(" ")}
                 >
-                  <span
-                    className={
-                      value != null && value >= max * 0.75
-                        ? "text-white"
-                        : "text-slate-700"
-                    }
-                  >
-                    {value ?? ""}
-                  </span>
+                  {value == null || value <= 0 ? "0" : String(value)}
                 </div>
               ))}
             </Fragment>
