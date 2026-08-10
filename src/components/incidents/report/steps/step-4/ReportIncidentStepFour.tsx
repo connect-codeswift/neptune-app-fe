@@ -1,19 +1,25 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   ReportTextareaField,
   ReportFieldLabel,
+  ReportSelectField,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import {
   markAiAssisted,
+  STEP_FOUR_CLASSIFICATION_FIELDS,
+  YES_NO_OPTIONS,
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
 } from "@/components/incidents/report/shared/report-incident-data";
+import { ReportDerivedClassificationBanner } from "@/components/incidents/report/shared/ReportDerivedClassificationBanner";
+import { toast } from "@/lib/toast";
 
 export type ReportIncidentStepFourProps = Readonly<{
   form: ReportIncidentFormState;
@@ -23,24 +29,64 @@ export type ReportIncidentStepFourProps = Readonly<{
   className?: string;
 }>;
 
+export function validateStepFour(form: ReportIncidentFormState): string | null {
+  for (const field of STEP_FOUR_CLASSIFICATION_FIELDS) {
+    if (!form.classifications[field.id]) {
+      return `Answer "${field.label}".`;
+    }
+  }
+
+  if (!form.oshaNotificationRequired) {
+    return 'Answer "OSHA Notification Required?".';
+  }
+
+  return null;
+}
+
 export function ReportIncidentStepFour(
   props: Readonly<ReportIncidentStepFourProps>,
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
-  // Same rule as the injury draft on step 3: no waiting state for a field the
-  // reporter has already filled, because the incoming draft is discarded
-  // rather than shown.
   const draftPending = form.aiDraftPending && form.actionNotes.trim() === "";
   const showsDraft = draftPending || form.aiDrafts.actionNotes !== null;
+
+  // Auto-tick when treatment includes first aid — only when treatment changes,
+  // so a reporter who unticks stays in control.
+  useEffect(() => {
+    if (
+      !form.initialTreatment.includes("first-aid-on-site") ||
+      form.immediateActions.includes("first-aid")
+    ) {
+      return;
+    }
+
+    onChange({
+      immediateActions: [...form.immediateActions, "first-aid"],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.initialTreatment]);
 
   const toggleAction = (id: string) => {
     const isChecked = form.immediateActions.includes(id);
     const nextActions = isChecked
-      ? form.immediateActions.filter((a) => a !== id)
+      ? form.immediateActions.filter((action) => action !== id)
       : [...form.immediateActions, id];
     onChange({ immediateActions: nextActions });
   };
+
+  const handleContinue = () => {
+    const validationError = validateStepFour(form);
+    if (validationError) {
+      toast.error("Missing required fields", validationError);
+      return;
+    }
+    onContinue?.();
+  };
+
+  const workRelatedField = STEP_FOUR_CLASSIFICATION_FIELDS[0];
+  const sifPotentialField = STEP_FOUR_CLASSIFICATION_FIELDS[1];
+  const remainingFields = STEP_FOUR_CLASSIFICATION_FIELDS.slice(2);
 
   return (
     <IncidentGlassCard
@@ -49,7 +95,6 @@ export function ReportIncidentStepFour(
     >
       <div className="flex flex-col gap-7">
         <div className="flex flex-col gap-5">
-          {/* Header Title & Subtitle */}
           <div className="flex flex-col gap-1.5">
             <Text
               as="p"
@@ -61,14 +106,76 @@ export function ReportIncidentStepFour(
               as="h2"
               className="text-ehs-dark-bg text-[21.8px] font-bold tracking-[-0.44px]"
             >
-              Immediate response
+              Classification & immediate response
             </Text>
             <Text as="p" className="text-ehs-gray text-sm">
-              What&apos;s already been done? This helps us assess containment.
+              Answer the judgment calls after describing what happened, then note
+              what was already done on site.
             </Text>
           </div>
 
-          {/* Section 1: Actions taken grid */}
+          <ReportDerivedClassificationBanner
+            severity={form.severity}
+            sipAnswer={form.classifications.serious}
+          />
+
+          <div className="grid grid-cols-1 gap-x-3 gap-y-0 sm:grid-cols-2">
+            {[workRelatedField, sifPotentialField].map((field) => (
+              <div key={field.id} className="pb-[18px]">
+                <ReportSelectField
+                  label={field.label}
+                  required
+                  hint={field.hint}
+                  value={form.classifications[field.id] ?? ""}
+                  onChange={(answer) =>
+                    onChange({
+                      classifications: {
+                        ...form.classifications,
+                        [field.id]: answer as "Yes" | "No",
+                      },
+                    })
+                  }
+                  options={[...YES_NO_OPTIONS]}
+                />
+              </div>
+            ))}
+
+            <div className="pb-[18px]">
+              <ReportSelectField
+                label="OSHA Notification Required?"
+                required
+                hint="Required for fatality (8 hrs), in-patient hospitalization, amputation, or loss of an eye (24 hrs) — 1904.39."
+                value={form.oshaNotificationRequired}
+                onChange={(answer) =>
+                  onChange({
+                    oshaNotificationRequired: answer as "Yes" | "No",
+                  })
+                }
+                options={[...YES_NO_OPTIONS]}
+              />
+            </div>
+
+            {remainingFields.map((field) => (
+              <div key={field.id} className="pb-[18px]">
+                <ReportSelectField
+                  label={field.label}
+                  required
+                  hint={field.hint}
+                  value={form.classifications[field.id] ?? ""}
+                  onChange={(answer) =>
+                    onChange({
+                      classifications: {
+                        ...form.classifications,
+                        [field.id]: answer as "Yes" | "No",
+                      },
+                    })
+                  }
+                  options={[...YES_NO_OPTIONS]}
+                />
+              </div>
+            ))}
+          </div>
+
           <div className="flex flex-col gap-1.5 pt-[14px]">
             <ReportFieldLabel
               label="Actions taken"
@@ -101,9 +208,9 @@ export function ReportIncidentStepFour(
                           : "border-[rgba(15,23,42,0.18)] bg-white",
                       ].join(" ")}
                     >
-                      {isChecked && (
+                      {isChecked ? (
                         <Icon icon="mdi:check" className="size-3.5" />
-                      )}
+                      ) : null}
                     </div>
                     <span
                       className={[
@@ -119,19 +226,14 @@ export function ReportIncidentStepFour(
             </div>
           </div>
 
-          {/* Section 2: Other actions or notes text area */}
           <div className="pt-[14px]">
             <ReportTextareaField
-              // Taller than it was: the draft controls reserve a strip along
-              // the bottom, and at 86px they landed on the text.
               className="[&_textarea]:min-h-[150px]"
               label="Other actions or notes"
               trailingHint="Anything else responders should know?"
               value={form.actionNotes}
               onChange={(event) => {
                 const actionNotes = event.target.value;
-                // Their own words take over: a draft still sitting underneath
-                // while they type is an offer they have already answered.
                 onChange({
                   actionNotes,
                   ...(form.aiDrafts.actionNotes
@@ -172,7 +274,6 @@ export function ReportIncidentStepFour(
           </div>
         </div>
 
-        {/* Form Bottom Toolbar Actions */}
         <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
@@ -197,7 +298,7 @@ export function ReportIncidentStepFour(
             <Button
               type="button"
               variant="primary"
-              onClick={onContinue}
+              onClick={handleContinue}
               className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue

@@ -1,13 +1,128 @@
+/**
+ * Step 3 Initial Treatment picklist. Multi-select; `none` is exclusive —
+ * picking it clears the rest, and picking anything else clears it.
+ *
+ * The old "minor-clinic" option lumped diagnostic testing in with recordable
+ * treatment; under 1904.7 diagnostics alone are not recordable, so the list now
+ * separates first aid, treatment beyond first aid, and emergency care.
+ */
 export const INITIAL_TREATMENT_OPTIONS = [
-  { value: "", label: "Select treatment…" },
-  {
-    value: "minor-clinic",
-    label: "Minor clinic/hospital medical remedies and diagnostic testing",
-  },
   { value: "first-aid-on-site", label: "First aid on site" },
-  { value: "none", label: "None" },
+  {
+    value: "medical-beyond-first-aid",
+    label: "Medical treatment beyond first aid (clinic/hospital)",
+  },
   { value: "emergency", label: "Emergency care / ER" },
+  { value: "none", label: "None" },
 ] as const;
+
+/** Treatments that usually make the case OSHA recordable on their own. */
+export const RECORDABLE_TREATMENT_VALUES: readonly string[] = [
+  "medical-beyond-first-aid",
+  "emergency",
+];
+
+/** First Aid severity can only claim on-site first aid or none — not ER. */
+const FIRST_AID_ALLOWED_TREATMENTS: readonly string[] = [
+  "first-aid-on-site",
+  "none",
+];
+
+/**
+ * Which Initial Treatment options the severity allows. First Aid hard-filters
+ * recordable care; every other severity offers the full list.
+ */
+export function allowedTreatmentValuesForSeverity(
+  severityId: string,
+): readonly string[] {
+  if (severityId === "first-aid") {
+    return FIRST_AID_ALLOWED_TREATMENTS;
+  }
+
+  return INITIAL_TREATMENT_OPTIONS.map((option) => option.value);
+}
+
+export function treatmentOptionsForSeverity(severityId: string) {
+  const allowed = new Set(allowedTreatmentValuesForSeverity(severityId));
+  return INITIAL_TREATMENT_OPTIONS.filter((option) => allowed.has(option.value));
+}
+
+/** Drops treatments that the current severity no longer allows. */
+export function filterTreatmentsForSeverity(
+  severityId: string,
+  treatments: readonly string[],
+): readonly string[] {
+  const allowed = new Set(allowedTreatmentValuesForSeverity(severityId));
+  return treatments.filter((value) => allowed.has(value));
+}
+
+/**
+ * Toggles one treatment within a multi-select value, keeping `none`
+ * exclusive in both directions. Illegal values for the severity are ignored.
+ */
+export function toggleInitialTreatment(
+  current: readonly string[],
+  value: string,
+  severityId = "",
+): readonly string[] {
+  if (
+    severityId &&
+    !allowedTreatmentValuesForSeverity(severityId).includes(value)
+  ) {
+    return current;
+  }
+
+  if (value === "none") {
+    return current.includes("none") ? [] : ["none"];
+  }
+
+  const withoutNone = current.filter((item) => item !== "none");
+  return withoutNone.includes(value)
+    ? withoutNone.filter((item) => item !== value)
+    : [...withoutNone, value];
+}
+
+function treatmentLabel(
+  options: readonly { value: string; label: string }[],
+  value: string,
+): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  return options.find((option) => option.value === trimmed)?.label ?? trimmed;
+}
+
+/** Joins multi-select treatment values into the label string the API expects. */
+export function formatInitialTreatmentLabels(
+  values: readonly string[],
+): string {
+  return values
+    .map((value) => treatmentLabel(INITIAL_TREATMENT_OPTIONS, value))
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/**
+ * Soft (non-blocking) hint when a recordable/DART severity still has only
+ * "None" selected. First Aid hard-filters the contradictory options instead.
+ */
+export function lightTreatmentForSeverityHint(
+  severityId: string,
+  treatments: readonly string[],
+): string | null {
+  if (
+    !severityId ||
+    severityId === "first-aid" ||
+    treatments.length === 0 ||
+    !treatments.every((value) => value === "none")
+  ) {
+    return null;
+  }
+
+  return "This severity usually implies more than no treatment — review if needed.";
+}
 
 export const MECHANISM_OPTIONS = [
   { value: "", label: "Select mechanism…" },

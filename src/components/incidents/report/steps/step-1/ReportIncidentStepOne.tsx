@@ -7,11 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  CLASSIFICATION_FIELDS,
-  GENDER_OPTIONS,
   YES_NO_OPTIONS,
+  filterTreatmentsForSeverity,
   normalizeGender,
-  oshaRecordableForSeverity,
   type ReportIncidentFormState,
   type SeverityId,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -107,6 +105,12 @@ export function validateTiming(
  * straight to Step 2 skips this check entirely.
  */
 export function validateStepOne(form: ReportIncidentFormState): string | null {
+  // No default severity: the intake report is the reporter's best guess, and
+  // a pre-selected answer would read as a deliberate one.
+  if (!form.severity) {
+    return "Pick a severity — your best guess is fine, EHS confirms it later.";
+  }
+
   if (!form.affectedPerson.trim()) {
     return "Enter the affected person's name or employee ID.";
   }
@@ -130,11 +134,8 @@ export function validateStepOne(form: ReportIncidentFormState): string | null {
   // Classification answers start blank rather than defaulting to "No", so an
   // unanswered question can't masquerade as a deliberate one. That only helps
   // if answering is actually enforced — otherwise blank just submits false.
-  const unanswered = CLASSIFICATION_FIELDS.find(
-    (field) => !form.classifications[field.id],
-  );
-  if (unanswered) {
-    return `Answer "${unanswered.label}" under Classification.`;
+  if (!form.classifications.tempWorker) {
+    return 'Answer "Temp / Non-Employee Involved?".';
   }
 
   return null;
@@ -205,14 +206,9 @@ export function ReportIncidentStepOne(
       : undefined;
 
   /**
-   * The affected person's own record answers the Gender question, so it isn't
-   * asked twice.
-   *
-   * Changing the person invalidates a gender that was read off the previous
-   * one — it describes somebody else, and leaving it would quietly attribute
-   * one colleague's gender to another on a regulated record. An answer the
-   * reporter chose themselves is theirs and survives: that is the whole reason
-   * `genderFromProfile` tracks where the value came from.
+   * Gender is never asked — employees carry it on their profile. Picking from
+   * the site roster stamps it silently for the submit payload; free-typed
+   * names leave it blank.
    */
   const handlePersonChange = (person: ReportPersonSelection) => {
     const identity = {
@@ -220,33 +216,19 @@ export function ReportIncidentStepOne(
       affectedPersonId: person.userId,
     };
 
-    // The roster row already knows — no lookup needed. This is the path taken
-    // once `GET /Auth/GetUsersBySiteId` projects `gender`.
     if (person.gender) {
       genderRequestRef.current = person.userId;
       onChange({ ...identity, gender: person.gender, genderFromProfile: true });
       return;
     }
 
-    // Cleared before the lookup rather than after it comes back empty: showing
-    // the last person's gender while this one resolves presents a stale answer
-    // as though it were this person's.
-    onChange(
-      form.genderFromProfile
-        ? { ...identity, gender: "", genderFromProfile: false }
-        : identity,
-    );
+    onChange({ ...identity, gender: "", genderFromProfile: false });
     genderRequestRef.current = person.userId;
 
     if (!person.userId) {
       return;
     }
 
-    // Until that projection exists, the person has to be fetched one at a time.
-    // Done here rather than in an effect because it is a response to one
-    // deliberate action — picking a name — not a state the screen has to keep
-    // in sync. `fetchQuery` still caches, so re-picking the same colleague
-    // costs nothing.
     const userId = Number(person.userId);
     void queryClient
       .fetchQuery({
@@ -256,8 +238,6 @@ export function ReportIncidentStepOne(
       })
       .then((raw) => {
         const resolved = normalizeGender(raw);
-        // Ignore a late answer for someone who is no longer the affected
-        // person, and never overwrite a gender the reporter has since chosen.
         if (!resolved || genderRequestRef.current !== person.userId) {
           return;
         }
@@ -265,8 +245,7 @@ export function ReportIncidentStepOne(
         onChange({ gender: resolved, genderFromProfile: true });
       })
       .catch(() => {
-        // Silent: gender stays for the reporter to answer by hand. A failed
-        // convenience lookup is not worth interrupting an incident report.
+        // Silent — gender is not a reporter question.
       });
   };
 
@@ -280,22 +259,32 @@ export function ReportIncidentStepOne(
   };
 
   /**
-   * Severity owns the "OSHA Recordable?" answer in both directions — see
-   * `oshaRecordableForSeverity`. The field stays editable, so a reporter can
-   * still override it by hand afterwards.
+   * Severity is picked once, here; OSHA recordability and DART are derived
+   * from it (see report-classification.ts) and never asked.
+   *
+   * Fatality is the one severity that answers two step 4 questions on its own:
+   * OSHA must be notified (1904.39, 8-hour clock) and SIF potential is
+   * implied. Both stay editable — these are suggestions, not locks.
    */
   const handleSeverityChange = (severity: SeverityId) => {
-    const osha = oshaRecordableForSeverity(severity);
+    // Drop treatments the new severity no longer allows (e.g. First Aid
+    // cannot keep ER / medical-beyond-first-aid).
+    const nextTreatments = filterTreatmentsForSeverity(
+      severity,
+      form.initialTreatment,
+    );
 
-    if (form.classifications.osha === osha) {
-      onChange({ severity });
+    if (severity === "fatality") {
+      onChange({
+        severity,
+        initialTreatment: nextTreatments,
+        oshaNotificationRequired: "Yes",
+        classifications: { ...form.classifications, serious: "Yes" },
+      });
       return;
     }
 
-    onChange({
-      severity,
-      classifications: { ...form.classifications, osha },
-    });
+    onChange({ severity, initialTreatment: nextTreatments });
   };
 
   return (
@@ -321,65 +310,18 @@ export function ReportIncidentStepOne(
             What & where
           </Text>
           <Text as="p" className="text-ehs-gray text-sm">
-            Classify the incident, then capture where and when it occurred.
+            Pick the outcome severity, then capture where and when it occurred.
           </Text>
         </div>
 
         <ReportSeverityPicker
           value={form.severity}
           onChange={handleSeverityChange}
+          trailingHint="Your best guess drives the initial classification. EHS confirms it later."
           className="pt-3"
         />
 
         <div className="flex flex-col pt-[18px]">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
-            <ReportSelectField
-              label="Gender"
-              required
-              // Says why the field answered itself, because a value that
-              // appears without being typed reads as a bug otherwise. An icon
-              // rather than the words "From their profile": this column is
-              // 180px, and the text wrapped onto a second line, which grew the
-              // label and dropped this input below Affected person's.
-              trailing={
-                form.genderFromProfile ? (
-                  <span
-                    title="Filled from this person's profile"
-                    className="text-ehs-dark-blue inline-flex items-center"
-                  >
-                    <Icon
-                      icon="mdi:account-check-outline"
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">
-                      Filled from this person&apos;s profile
-                    </span>
-                  </span>
-                ) : undefined
-              }
-              value={form.gender}
-              onChange={(gender) => {
-                // Their answer wins over any lookup still in flight.
-                genderRequestRef.current = "";
-                onChange({ gender, genderFromProfile: false });
-              }}
-              options={[...GENDER_OPTIONS]}
-            />
-
-            <ReportPersonSearchField
-              label="Affected person"
-              required
-              value={form.affectedPerson}
-              selectedUserId={form.affectedPersonId}
-              onChange={handlePersonChange}
-              siteId={site.id}
-              siteName={site.name}
-              trailingHint="Search people at your site."
-              placeholder="Start typing a name…"
-            />
-          </div>
-
           <ReportSiteField
             label="Plant / Location"
             required
@@ -387,7 +329,6 @@ export function ReportIncidentStepOne(
             onChange={(location) => onChange({ location })}
             siteName={site.name}
             isLoading={site.isLoading}
-            className="pt-3"
           />
 
           <div className="grid grid-cols-1 items-start gap-3 pt-3 sm:grid-cols-3 sm:gap-x-3">
@@ -424,38 +365,35 @@ export function ReportIncidentStepOne(
               className="pb-[6px] sm:pb-[18px]"
             />
           </div>
-        </div>
 
-        <div className="mt-1 flex flex-col">
-          <Text
-            as="p"
-            className="text-ehs-muted-text pt-px text-xs font-bold tracking-[1px] uppercase"
-          >
-            Classification
-          </Text>
-          <div className="grid grid-cols-1 gap-x-3 pt-1 sm:grid-cols-2">
-            {CLASSIFICATION_FIELDS.map((field) => (
-              <div key={field.id} className="pb-[18px]">
-                <ReportSelectField
-                  label={field.label}
-                  required
-                  // Say where the answer came from — this one is set by the
-                  // severity picker above, so an unexplained "Yes" appearing
-                  // here reads like a bug.
-                  hint={field.id === "osha" ? "Set from severity" : field.hint}
-                  value={form.classifications[field.id]}
-                  onChange={(answer) =>
-                    onChange({
-                      classifications: {
-                        ...form.classifications,
-                        [field.id]: answer as "Yes" | "No",
-                      },
-                    })
-                  }
-                  options={[...YES_NO_OPTIONS]}
-                />
-              </div>
-            ))}
+          <ReportPersonSearchField
+            label="Affected person"
+            required
+            value={form.affectedPerson}
+            selectedUserId={form.affectedPersonId}
+            onChange={handlePersonChange}
+            siteId={site.id}
+            siteName={site.name}
+            trailingHint="Search employees at your site."
+            placeholder="Start typing a name…"
+          />
+
+          <div className="pt-3 pb-[18px] sm:max-w-[50%]">
+            <ReportSelectField
+              label="Temp / Non-Employee Involved?"
+              required
+              hint="Contractor, agency worker or visitor without an account here."
+              value={form.classifications.tempWorker ?? ""}
+              onChange={(answer) =>
+                onChange({
+                  classifications: {
+                    ...form.classifications,
+                    tempWorker: answer as "Yes" | "No",
+                  },
+                })
+              }
+              options={[...YES_NO_OPTIONS]}
+            />
           </div>
         </div>
       </div>

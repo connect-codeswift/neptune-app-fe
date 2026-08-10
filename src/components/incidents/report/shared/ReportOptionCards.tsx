@@ -15,7 +15,8 @@ export type ReportOptionCardOption<T extends string = string> = Readonly<{
 export type ReportOptionCardsProps<T extends string = string> = Readonly<{
   label: string;
   options: readonly ReportOptionCardOption<T>[];
-  value: T;
+  /** `""` means nothing picked yet — no card renders selected. */
+  value: T | "";
   onChange: (value: T) => void;
   required?: boolean;
   trailingHint?: string;

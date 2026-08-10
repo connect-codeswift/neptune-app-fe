@@ -7,10 +7,13 @@ import {
   createInitialReportFormState,
   EMPTY_AI_DRAFTS,
   EMPTY_FIRST_AID_FIELDS,
+  filterTreatmentsForSeverity,
   formatBodyPartSelection,
+  injuryLevelForReport,
   INJURY_LEVEL_OPTIONS,
   NON_FIRST_AID_FIELD_DEFAULTS,
   SEVERITY_OPTIONS,
+  severityOptionFor,
   type ReportIncidentFormState,
   type ReportStepId,
 } from "@/components/incidents/report/shared/report-incident-data";
@@ -30,12 +33,19 @@ import {
 import { toast } from "@/lib/toast";
 import { logAiAssistFailure } from "@/services/ai-text.service";
 
+const PREVIEW_FORM_DEFAULTS: Partial<ReportIncidentFormState> = {
+  location: "Plant A · Assembly Line 2",
+  reportedBy: "Preview User",
+  reporterEmail: "preview@example.com",
+};
+
 function renderStepForm(
   currentStep: ReportStepId,
   form: ReportIncidentFormState,
   updateForm: (next: Partial<ReportIncidentFormState>) => void,
   handleBack: () => void,
   handleContinue: () => void,
+  previewMode: boolean,
 ) {
   const sharedProps = {
     form,
@@ -54,18 +64,27 @@ function renderStepForm(
     case 4:
       return <ReportIncidentStepFour {...sharedProps} />;
     case 5:
-      return <ReportIncidentStepFive {...sharedProps} />;
+      return (
+        <ReportIncidentStepFive {...sharedProps} previewMode={previewMode} />
+      );
     default:
       return null;
   }
 }
 
-export function ReportIncidentView() {
+export type ReportIncidentViewProps = Readonly<{
+  /** UI-only walkthrough — no login, no API submit. */
+  previewMode?: boolean;
+}>;
+
+export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
+  const { previewMode = false } = props;
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<ReportStepId>(1);
-  const [form, setForm] = useState<ReportIncidentFormState>(
-    createInitialReportFormState,
-  );
+  const [form, setForm] = useState<ReportIncidentFormState>(() => ({
+    ...createInitialReportFormState(),
+    ...(previewMode ? PREVIEW_FORM_DEFAULTS : {}),
+  }));
   const draftAssist = useDraftAssistMutation();
 
   // Fast Refresh can keep older form state that predates step-2 fields.
@@ -78,9 +97,10 @@ export function ReportIncidentView() {
     bodyPartSides: form.bodyPartSides ?? formDefaults.bodyPartSides,
   });
 
-  const severityOption =
-    SEVERITY_OPTIONS.find((option) => option.id === normalizedForm.severity) ??
-    SEVERITY_OPTIONS[1];
+  const severityOption = severityOptionFor(normalizedForm.severity);
+  const livePreviewBadge = severityOption?.previewBadge ?? "—";
+  const livePreviewTitle =
+    normalizedForm.title.trim() || severityOption?.label || "Incident report";
 
   const updateForm = (next: Partial<ReportIncidentFormState>) => {
     setForm((prev) => {
@@ -92,15 +112,21 @@ export function ReportIncidentView() {
 
       // Severity changed: First Aid → collect fields; other severities → defaults.
       // Also keep form.title in sync so Live preview / review use Severity as title.
+      // Illegal treatments for the new severity are dropped here too.
       if (next.severity !== undefined && next.severity !== prev.severity) {
         const severityTitle =
           SEVERITY_OPTIONS.find((option) => option.id === next.severity)
             ?.label ?? merged.title;
+        const initialTreatment = filterTreatmentsForSeverity(
+          next.severity,
+          merged.initialTreatment,
+        );
 
         if (next.severity === "first-aid") {
           return {
             ...merged,
             ...EMPTY_FIRST_AID_FIELDS,
+            initialTreatment,
             title: severityTitle,
           };
         }
@@ -108,6 +134,7 @@ export function ReportIncidentView() {
         return {
           ...merged,
           ...NON_FIRST_AID_FIELD_DEFAULTS,
+          initialTreatment,
           title: severityTitle,
         };
       }
@@ -122,18 +149,19 @@ export function ReportIncidentView() {
    * Going back is always allowed, so a reporter can review earlier answers.
    */
   const goToStep = (step: ReportStepId) => {
-    if (step > currentStep && currentStep === 1) {
-      const validationError = validateStepOne(form);
-      if (validationError) {
-        toast.error("Missing required fields", validationError);
-        return;
+    if (step > currentStep) {
+      if (currentStep === 1) {
+        const validationError = validateStepOne(form);
+        if (validationError) {
+          toast.error("Missing required fields", validationError);
+          return;
+        }
       }
     }
 
-    // Skipping ahead out of step 2 via the stepper has to draft just as
-    // Continue does, or the reporter reaches step 3 with nothing waiting.
-    if (currentStep === 2 && step > currentStep) {
-      requestDrafts(normalizedForm);
+    // Leaving step 3: kick off action-notes / injury drafts for later steps.
+    if (currentStep === 3 && step > currentStep) {
+      requestFollowUpDrafts(normalizedForm);
     }
 
     setCurrentStep(step);
@@ -156,8 +184,6 @@ export function ReportIncidentView() {
       source.bodyPartSides,
     );
 
-    // The formatter reports "None selected" for an empty pick; that is display
-    // copy, not a body part, and must never reach the model.
     const named = selected === "None selected" ? "" : selected;
     const injuredBodyPart = [named, ...source.customBodyParts]
       .filter(Boolean)
@@ -167,46 +193,43 @@ export function ReportIncidentView() {
       return { injuryLevel: "", injuredBodyPart: "" };
     }
 
+    const derivedLevel = injuryLevelForReport(
+      source.severity,
+      source.natureOfInjury,
+    );
+
     return {
       injuryLevel:
-        INJURY_LEVEL_OPTIONS.find((option) => option.id === source.injuryLevel)
+        INJURY_LEVEL_OPTIONS.find((option) => option.id === derivedLevel)
           ?.label ?? "",
       injuredBodyPart,
     };
   };
 
   /**
-   * Generates the step 3 and 4 drafts from the step 2 description.
-   *
-   * Fire and forget on purpose: the reporter lands on step 3 immediately and
-   * the drafts settle in behind them. Nothing here may ever block or slow
-   * reporting an incident, so every failure path is silent — no toast, because
-   * they never asked for this call and interrupting them over it would be
-   * worse than the missing suggestion.
+   * Injury-description and action-notes drafts (not the main narrative — that
+   * drafts in-field at the end of step 3). Fire-and-forget; never toast.
    */
-  const requestDrafts = (source: ReportIncidentFormState) => {
-    const description = source.description.trim();
-
-    if (!description || draftAssist.isPending) {
+  const requestFollowUpDrafts = (source: ReportIncidentFormState) => {
+    if (draftAssist.isPending) {
       return;
     }
 
     const injury = readInjuryContext(source);
-    const key = [description, injury.injuryLevel, injury.injuredBodyPart].join(
-      "|",
-    );
+    const key = [
+      source.description.trim(),
+      injury.injuryLevel,
+      injury.injuredBodyPart,
+      source.natureOfInjury,
+      source.initialTreatment.join(","),
+    ].join("|");
 
-    // Nothing the model depends on has changed, so the drafts we hold stand.
     if (key === source.aiDraftSource) {
       return;
     }
 
     updateForm({ aiDraftPending: true });
 
-    // The full picture, not just the description: the injury draft now reads
-    // mechanism, nature and initial treatment alongside body part and injury
-    // level, which is what lets it produce clinical detail rather than
-    // restating "was injured".
     draftAssist
       .mutateAsync(buildDraftAssistInput(source))
       .then((drafts) => {
@@ -215,25 +238,14 @@ export function ReportIncidentView() {
           aiDraftPending: false,
           aiDraftSource: key,
           aiDrafts: {
-            // A field the reporter has already filled in is theirs. Offering a
-            // draft over the top of their own words is the one place this
-            // feature could destroy work rather than save it.
             injuryDescription: prev.injuryDescription.trim()
               ? null
               : drafts.injuryDescription,
             actionNotes: prev.actionNotes.trim() ? null : drafts.actionNotes,
           },
-          // `drafts.description` is ignored here on purpose. It is offered in
-          // the field itself on step 2, and by the time this runs the reporter
-          // has left that step — putting a draft behind them is not an offer
-          // they can act on.
         }));
       })
       .catch((error: unknown) => {
-        // Deliberately silent for the reporter — drafts are an offer, and a
-        // failed offer should not interrupt the report. Silent for us too was
-        // the mistake: without this the whole feature can be dark and look
-        // like the model simply had nothing to suggest.
         logAiAssistFailure("draft-assist", error);
         setForm((prev) => ({
           ...prev,
@@ -244,44 +256,42 @@ export function ReportIncidentView() {
   };
 
   /**
-   * Ask again once the reporter has picked a body part or injury level.
-   *
-   * The first request goes out as they leave step 2, when neither of those
-   * exists yet — and the model may not invent a body part, so for any
-   * description that does not name one the injury draft comes back empty. This
-   * is the retry that makes it possible, fired from step 3 where the selections
-   * are made.
-   *
-   * Only when it can actually help: skipped once the reporter has written their
-   * own injury description, and skipped while a call is in flight. The delay
-   * lets someone click through several body parts without spending a request on
-   * each one, which also keeps this clear of the server's per-user limit.
+   * Offer an injury-description draft once nature + body part are chosen on
+   * step 3 — before the main narrative is written.
    */
   const injuryContextKey = (() => {
     const injury = readInjuryContext(normalizedForm);
-    return `${injury.injuryLevel}|${injury.injuredBodyPart}`;
+    return `${normalizedForm.natureOfInjury}|${injury.injuryLevel}|${injury.injuredBodyPart}`;
   })();
 
   useEffect(() => {
-    if (currentStep !== 3 || normalizedForm.injuryDescription.trim()) {
+    if (
+      currentStep !== 3 ||
+      !normalizedForm.natureOfInjury ||
+      normalizedForm.natureOfInjury === "none" ||
+      normalizedForm.injuryDescription.trim()
+    ) {
+      return;
+    }
+
+    const injury = readInjuryContext(normalizedForm);
+    if (!injury.injuredBodyPart) {
       return;
     }
 
     const timer = globalThis.setTimeout(() => {
-      requestDrafts(normalizedForm);
+      requestFollowUpDrafts(normalizedForm);
     }, 900);
 
     return () => {
       globalThis.clearTimeout(timer);
     };
-    // Keyed on the selections themselves: requestDrafts is a no-op when the
-    // model's inputs are unchanged, so a re-render cannot cause a second call.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, injuryContextKey, normalizedForm.injuryDescription]);
 
   const handleContinue = () => {
-    if (currentStep === 2) {
-      requestDrafts(normalizedForm);
+    if (currentStep === 3) {
+      requestFollowUpDrafts(normalizedForm);
     }
 
     if (currentStep < 5) {
@@ -294,14 +304,26 @@ export function ReportIncidentView() {
       setCurrentStep((currentStep - 1) as ReportStepId);
       return;
     }
-    router.push("/dashboard/incidents/list");
+    if (!previewMode) {
+      router.push("/dashboard/incidents/list");
+    }
   };
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      {previewMode ? (
+        <div className="border-b border-amber-200/80 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-950">
+          Preview mode — no login or backend. Walk the full 5-step flow; submit
+          is disabled.
+        </div>
+      ) : null}
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
-          onSaveExit={() => router.push("/dashboard/incidents/list")}
+          onSaveExit={() => {
+            if (!previewMode) {
+              router.push("/dashboard/incidents/list");
+            }
+          }}
         />
 
         <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
@@ -316,12 +338,13 @@ export function ReportIncidentView() {
             updateForm,
             handleBack,
             handleContinue,
+            previewMode,
           )}
 
           <ReportIncidentAside
-            severityBadge={severityOption.previewBadge}
+            severityBadge={livePreviewBadge}
             location={normalizedForm.location}
-            title={normalizedForm.title.trim() || severityOption.label}
+            title={livePreviewTitle}
             description={normalizedForm.description}
             currentStep={currentStep}
             className="col-span-1 md:col-span-2 xl:col-span-1"

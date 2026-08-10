@@ -6,11 +6,14 @@ import {
   formatBodyPartSelection,
   BODY_PART_OPTIONS,
 } from "@/components/incidents/report/shared/report-body-parts";
-import { INJURY_LEVEL_OPTIONS } from "@/components/incidents/report/shared/report-injury-level";
+import { INJURY_LEVEL_OPTIONS, injuryLevelForReport } from "@/components/incidents/report/shared/report-injury-level";
 import { SEVERITY_OPTIONS } from "@/components/incidents/report/shared/report-severity";
 import {
+  oshaRecordableForSeverity,
+} from "@/components/incidents/report/shared/report-classification";
+import {
   CASE_DISPOSITION_OPTIONS,
-  INITIAL_TREATMENT_OPTIONS,
+  formatInitialTreatmentLabels,
   MECHANISM_OPTIONS,
   NATURE_OF_INJURY_OPTIONS,
   TREATMENT_LOCATION_OPTIONS,
@@ -222,9 +225,13 @@ function buildAiAssistedFields(form: ReportIncidentFormState): string | null {
 function buildPeople(form: ReportIncidentFormState): PersonDto[] {
   const people: PersonDto[] = [];
   const { name } = parseAffectedPerson(form.affectedPerson);
+  const derivedInjuryLevel = injuryLevelForReport(
+    form.severity,
+    form.natureOfInjury,
+  );
   const injuryLevel =
-    INJURY_LEVEL_OPTIONS.find((option) => option.id === form.injuryLevel)
-      ?.label ?? form.injuryLevel;
+    INJURY_LEVEL_OPTIONS.find((option) => option.id === derivedInjuryLevel)
+      ?.label ?? derivedInjuryLevel;
   const mappedBodyParts = formatBodyPartSelection(
     form.bodyParts,
     form.bodySide,
@@ -343,17 +350,14 @@ export function mapReportFormToIncidentDto(
     isDrop: false,
     incidentAt,
     incidentReportedAt,
-    isOSHARecordable: yes(source.classifications.osha),
+    isOSHARecordable: yes(oshaRecordableForSeverity(source.severity)),
     isWorkRelated: yes(source.classifications.workRelated),
     isDrugOrAlcoholRelated: yes(source.classifications.drugAlcohol),
     isFleetVehicleInvolved: yes(source.classifications.fleet),
     isSeriousIncident: yes(source.classifications.serious),
     isEmergencyServiceCalled: yes(source.classifications.emergency),
     isThirdPartyInvolved: yes(source.classifications.tempWorker),
-    initialTreatment: optionLabel(
-      INITIAL_TREATMENT_OPTIONS,
-      source.initialTreatment,
-    ),
+    initialTreatment: formatInitialTreatmentLabels(source.initialTreatment),
     isSecondaryTreatmentSought: yes(source.secondaryTreatment),
     mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, source.mechanismOfInjury),
     natureOfInjury: optionLabel(
@@ -374,7 +378,7 @@ export function mapReportFormToIncidentDto(
     nonEmployeInvolved: yes(source.classifications.tempWorker),
     whatTreatmentWasGiven:
       optionLabel(WHAT_TREATMENT_GIVEN_OPTIONS, source.whatTreatmentWasGiven) ||
-      optionLabel(INITIAL_TREATMENT_OPTIONS, source.initialTreatment) ||
+      formatInitialTreatmentLabels(source.initialTreatment) ||
       "N/A",
     treatmentProvidedBy:
       optionLabel(TREATMENT_PROVIDER_OPTIONS, source.treatmentProvidedBy) ||

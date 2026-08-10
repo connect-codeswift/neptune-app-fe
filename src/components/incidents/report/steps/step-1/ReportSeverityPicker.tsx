@@ -11,7 +11,8 @@ import {
 
 export type ReportSeverityPickerProps<T extends string = SeverityId> =
   Readonly<{
-    value: T;
+    /** `""` means nothing picked yet — severity has no default. */
+    value: T | "";
     onChange: (value: T) => void;
     options?: readonly ReportOptionCardOption<T>[];
     label?: string;

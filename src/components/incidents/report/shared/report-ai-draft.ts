@@ -1,10 +1,13 @@
 import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
 import type { ReportIncidentFormState } from "./report-incident-state";
 import { SEVERITY_OPTIONS } from "./report-severity";
-import { INJURY_LEVEL_OPTIONS } from "./report-injury-level";
+import {
+  INJURY_LEVEL_OPTIONS,
+  injuryLevelForReport,
+} from "./report-injury-level";
 import { BODY_PART_OPTIONS } from "./report-body-parts";
 import {
-  INITIAL_TREATMENT_OPTIONS,
+  formatInitialTreatmentLabels,
   MECHANISM_OPTIONS,
   NATURE_OF_INJURY_OPTIONS,
 } from "./report-treatment";
@@ -72,14 +75,13 @@ export function buildDraftAssistInput(
     mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, form.mechanismOfInjury),
     natureOfInjury: optionLabel(NATURE_OF_INJURY_OPTIONS, form.natureOfInjury),
     objectInvolved: form.objectInvolved.trim(),
-    initialTreatment: optionLabel(
-      INITIAL_TREATMENT_OPTIONS,
-      form.initialTreatment,
-    ),
+    initialTreatment: formatInitialTreatmentLabels(form.initialTreatment),
     injuredBodyPart: bodyParts,
     injuryLevel:
-      INJURY_LEVEL_OPTIONS.find((option) => option.id === form.injuryLevel)
-        ?.label ?? "",
+      INJURY_LEVEL_OPTIONS.find((option) =>
+        option.id ===
+        injuryLevelForReport(form.severity, form.natureOfInjury),
+      )?.label ?? "",
   };
 
   // Only sent once a date exists — `parseReportDateTime` falls back to "now"
@@ -114,24 +116,13 @@ export function draftInputKey(input: IncidentDraftRequestDto): string {
 }
 
 /**
- * Whether the answers a description is drafted from are complete.
- *
- * Every required field above the description box, in the order they appear:
- * Object Involved is the last of them, so in practice this turns true the
- * moment it is filled and the draft fires off the back of it.
- *
- * Waiting for all of them rather than guessing from a couple is what stops the
- * reporter being handed a draft built from half the facts — and every call
- * comes out of a 20-per-minute budget shared with both rewrite buttons, so a
- * draft that has to be regenerated as the remaining answers arrive is spend
- * for nothing.
+ * Whether the answers above the description box on step 2 are complete enough
+ * to draft: severity (step 1) + object + mechanism.
  */
 export function canDraftDescription(form: ReportIncidentFormState): boolean {
-  return [
-    form.initialTreatment,
-    form.secondaryTreatment,
-    form.mechanismOfInjury,
-    form.natureOfInjury,
-    form.objectInvolved,
-  ].every((answer) => answer.trim() !== "");
+  return Boolean(
+    form.severity &&
+      form.objectInvolved.trim() &&
+      form.mechanismOfInjury.trim(),
+  );
 }

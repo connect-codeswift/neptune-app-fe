@@ -1,6 +1,5 @@
 import type { SeverityId } from "./report-severity";
 import type { ReportPhotoFile } from "./report-attachments";
-import type { InjuryLevelId } from "./report-injury-level";
 import type {
   BodyPartId,
   BodyPartSideMap,
@@ -8,7 +7,6 @@ import type {
 } from "./report-body-parts";
 import {
   CLASSIFICATION_FIELDS,
-  oshaRecordableForSeverity,
   type ClassificationValue,
 } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
@@ -17,7 +15,7 @@ import {
   type ReportDescriptionDraft,
 } from "./report-ai-draft";
 
-/** Step 2 dropdowns the reporter can extend with their own options. */
+/** Treatment / injury dropdowns the reporter can extend with their own options. */
 export type CustomOptionField =
   | "initialTreatment"
   | "mechanismOfInjury"
@@ -65,7 +63,13 @@ export function markAiAssisted(
 }
 
 export type ReportIncidentFormState = Readonly<{
-  severity: SeverityId;
+  /**
+   * `""` until the reporter picks one — severity has no default, because the
+   * intake report is a best guess and a pre-selected answer would read as a
+   * deliberate one. OSHA recordability and DART are derived from this, never
+   * asked — see report-classification.ts.
+   */
+  severity: SeverityId | "";
   affectedPerson: string;
   /**
    * Backend user id of the affected person, when they were picked from the
@@ -89,8 +93,13 @@ export type ReportIncidentFormState = Readonly<{
    */
   descriptionDraft: ReportDescriptionDraft;
   title: string;
-  initialTreatment: string;
-  secondaryTreatment: "Yes" | "No";
+  /**
+   * Step 3 Initial Treatment — multi-select, `none` exclusive. Labels are
+   * joined on submit; custom entries persist as typed.
+   */
+  initialTreatment: readonly string[];
+  /** `""` until answered — required on step 3. */
+  secondaryTreatment: ClassificationValue;
   mechanismOfInjury: string;
   natureOfInjury: string;
   /**
@@ -101,10 +110,13 @@ export type ReportIncidentFormState = Readonly<{
    */
   customOptions: Readonly<Record<CustomOptionField, readonly string[]>>;
   objectInvolved: string;
-  oshaNotificationRequired: "Yes" | "No";
+  /**
+   * `""` until answered — required on step 4. Auto-sets to "Yes" when severity
+   * is Fatality (1904.39 8-hour clock), but stays editable.
+   */
+  oshaNotificationRequired: ClassificationValue;
   witnesses: string;
   photos: readonly ReportPhotoFile[];
-  injuryLevel: InjuryLevelId;
   gender: string;
   /**
    * True while `gender` is the value read off the affected person's own record
@@ -139,9 +151,9 @@ export type ReportIncidentFormState = Readonly<{
   aiDrafts: ReportAiDrafts;
   /**
    * What the current drafts were generated from: the description, plus the
-   * injury level and body part once the reporter has chosen them. Compared
-   * against the live values to spot a stale draft when they go back and edit;
-   * `""` means nothing has been drafted yet.
+   * derived injury level and body part once the reporter has chosen one.
+   * Compared against the live values to spot a stale draft when they go back
+   * and edit; `""` means nothing has been drafted yet.
    *
    * The injury selections are part of the key because they arrive after the
    * first call — they live on step 3, and the first request goes out when the
@@ -189,7 +201,9 @@ export const EMPTY_FIRST_AID_FIELDS = {
 /** Empty form — no demo/mock incident content. */
 export function createInitialReportFormState(): ReportIncidentFormState {
   return {
-    severity: "first-aid",
+    // No default severity: the pick has to be a conscious one, and everything
+    // recordable is derived from it (see report-classification.ts).
+    severity: "",
     affectedPerson: "",
     affectedPersonId: "",
     location: "",
@@ -198,31 +212,24 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     incidentDate: "",
     incidentTime: "",
     reportDate: "",
-    // Every question starts unanswered except "OSHA Recordable?", which is
-    // derived from the severity above rather than asked — so it is seeded to
-    // match the default severity instead of sitting blank.
+    // Every question starts unanswered so a blank can't submit as a silent
+    // "No" on an audited record.
     classifications: Object.fromEntries(
-      CLASSIFICATION_FIELDS.map((field) => [
-        field.id,
-        field.id === "osha"
-          ? oshaRecordableForSeverity("first-aid")
-          : field.defaultValue,
-      ]),
+      CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, ClassificationValue>,
     description: "",
     descriptionDraft: EMPTY_DESCRIPTION_DRAFT,
-    // Mirrors default severity so Live preview title is populated from the start.
-    title: "First Aid",
-    initialTreatment: "",
-    secondaryTreatment: "No",
+    // Empty until a severity is picked — the Live preview title mirrors it.
+    title: "",
+    initialTreatment: [],
+    secondaryTreatment: "",
     mechanismOfInjury: "",
     natureOfInjury: "",
     customOptions: EMPTY_CUSTOM_OPTIONS,
     objectInvolved: "",
-    oshaNotificationRequired: "No",
+    oshaNotificationRequired: "",
     witnesses: "",
     photos: DEFAULT_REPORT_PHOTOS,
-    injuryLevel: "no-injury",
     gender: "",
     genderFromProfile: false,
     bodyParts: [],
