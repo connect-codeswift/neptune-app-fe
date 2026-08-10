@@ -65,18 +65,15 @@ export function PpePageHeaderSkeleton(
 /** Two KPI metric cards — matches PPE management overview. */
 export function PpeMetricsSkeleton() {
   return (
-    <div className="flex flex-col gap-2">
-      <Skeleton className="h-3 w-16 md:hidden" />
-      <div className="grid grid-cols-2 gap-3 sm:gap-3.5">
-        {repeat(2, (index) => (
-          <PpeGlassShell key={`ppe-kpi-${String(index)}`}>
-            <div className="flex flex-col gap-3">
-              <Skeleton className="h-3 w-24 sm:w-28" />
-              <Skeleton className="h-8 w-14 sm:h-9 sm:w-16" />
-            </div>
-          </PpeGlassShell>
-        ))}
-      </div>
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+      {repeat(2, (index) => (
+        <PpeGlassShell key={`ppe-kpi-${String(index)}`}>
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-3 w-24 sm:w-28" />
+            <Skeleton className="h-8 w-14 sm:h-9 sm:w-16" />
+          </div>
+        </PpeGlassShell>
+      ))}
     </div>
   );
 }
@@ -85,8 +82,8 @@ export function PpeMetricsSkeleton() {
 export function PpeSearchBarSkeleton() {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <Skeleton className="h-11 w-full rounded-xl sm:max-w-96" />
-      <Skeleton className="hidden h-3 w-16 md:block" />
+      <Skeleton className="h-11 w-full max-w-md rounded-xl" />
+      <Skeleton className="h-3 w-16" />
     </div>
   );
 }
@@ -100,8 +97,12 @@ export function PpeInventoryCardsSkeleton(
   return (
     <div className="flex flex-col gap-3 md:hidden">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Skeleton className="h-9 w-36 rounded-xl" />
-        <Skeleton className="h-9 w-28 rounded-[10px]" />
+        <Skeleton className="h-9 w-28 rounded-xl" />
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-9 w-24 rounded-[10px]" />
+          <Skeleton className="h-9 w-40 rounded-[10px]" />
+          <Skeleton className="h-9 w-28 rounded-[10px]" />
+        </div>
       </div>
       <ul className="flex flex-col gap-3">
         {repeat(rows, (index) => (

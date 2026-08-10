@@ -1,135 +1,95 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { GlassSelect } from "@/components/ui/GlassSelect";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 
-export type PpeCategoryFilter = "all" | string;
+const ISSUANCE_LOG_ROUTE = "/dashboard/ppe-management/issuance-log";
+const ACKNOWLEDGEMENTS_ROUTE = "/dashboard/ppe-management/acknowledgements";
+const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
 
-export type PpeCategoryOption = Readonly<{
-  id: PpeCategoryFilter;
-  label: string;
+export type PpeInventoryHeaderProps = Readonly<{
+  onIssuePpe?: () => void;
+  /** Elevated roles only — links to the full issuance log. Default true. */
+  showViewIssues?: boolean;
 }>;
 
-export type PpeSearchBarProps = Readonly<{
-  value: string;
-  onChange: (value: string) => void;
-  /** Right-aligned count, e.g. "7 items". */
-  resultLabel: string;
-}>;
+/**
+ * Inventory card header — title + View Issues / Employee Acknowledgement /
+ * Issue PPE grouped on the right.
+ */
+export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
+  const { onIssuePpe, showViewIssues = true } = props;
+  const router = useRouter();
 
-/** Search field above the inventory card. */
-export function PpeSearchBar(props: PpeSearchBarProps) {
-  const { value, onChange, resultLabel } = props;
+  const handleIssue = () => {
+    if (onIssuePpe) {
+      onIssuePpe();
+      return;
+    }
+    router.push(ISSUE_ROUTE);
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="relative w-full min-w-0 sm:max-w-96 sm:flex-1">
-        <Icon
-          icon="mdi:magnify"
-          className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-          aria-hidden="true"
-        />
-        <input
-          type="search"
-          value={value}
-          onChange={(event) => {
-            onChange(event.target.value);
-          }}
-          placeholder="Search by category, supplier..."
-          aria-label="Search PPE inventory"
-          className={`${FIELD_INPUT_LG_CLASS} pl-9`}
-        />
-      </div>
+      <Text
+        as="h3"
+        className="text-ehs-darker shrink-0 text-lg font-extrabold md:text-xl md:font-bold"
+      >
+        Inventory
+      </Text>
 
-      <span className="text-ehs-muted-text hidden shrink-0 text-sm md:inline">
-        {resultLabel}
-      </span>
-    </div>
-  );
-}
-
-export type PpeInventoryHeaderProps = Readonly<{
-  category: PpeCategoryFilter;
-  categories: readonly PpeCategoryOption[];
-  onCategoryChange: (category: PpeCategoryFilter) => void;
-  onIssuePpe?: () => void;
-}>;
-
-/** Card header for inventory — pills on mobile, dropdown on desktop. */
-export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
-  const { category, categories, onCategoryChange, onIssuePpe } = props;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Text
-          as="h3"
-          className="text-ehs-darker shrink-0 text-lg font-extrabold md:text-xl md:font-bold"
-        >
-          Inventory
-        </Text>
-
-        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
-          <GlassSelect
-            options={categories.map((filter) => ({
-              value: filter.id,
-              label: filter.label,
-            }))}
-            value={category}
-            onChange={onCategoryChange}
-            aria-label="Category filter"
-            className="hidden shrink-0 md:block"
-            triggerClassName={`${FIELD_INPUT_LG_CLASS} min-w-0 font-medium sm:min-w-44`}
-          />
-
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:gap-3">
+        {showViewIssues ? (
           <Button
             type="button"
-            variant="primary"
-            onClick={onIssuePpe}
+            variant="tertiary"
+            onClick={() => {
+              router.push(ISSUANCE_LOG_ROUTE);
+            }}
             className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
           >
             <Icon
-              icon="mdi:plus"
-              className="size-3 shrink-0 md:size-3.5"
+              icon="mdi:clipboard-list-outline"
+              className="size-4 shrink-0"
               aria-hidden="true"
             />
-            <span className="text-xs font-bold whitespace-nowrap md:text-base">
-              Issue PPE
-            </span>
+            <span className="whitespace-nowrap">View Issues</span>
           </Button>
-        </div>
-      </div>
+        ) : null}
 
-      <div
-        className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 md:hidden"
-        role="tablist"
-        aria-label="Category filter"
-      >
-        {categories.map((filter) => {
-          const isActive = category === filter.id;
-          return (
-            <button
-              key={filter.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => {
-                onCategoryChange(filter.id);
-              }}
-              className={[
-                "shrink-0 cursor-pointer rounded-[20px] px-3 py-1.5 text-[11px] whitespace-nowrap transition-colors",
-                isActive
-                  ? "bg-ehs-normal-blue font-bold text-white"
-                  : "border-ehs-border text-ehs-muted-text border bg-white font-medium",
-              ].join(" ")}
-            >
-              {filter.id === "all" ? "All" : filter.label}
-            </button>
-          );
-        })}
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => {
+            router.push(ACKNOWLEDGEMENTS_ROUTE);
+          }}
+          className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
+        >
+          <Icon
+            icon="mdi:check-decagram-outline"
+            className="size-4 shrink-0"
+            aria-hidden="true"
+          />
+          <span className="whitespace-nowrap">Employee Acknowledgement</span>
+        </Button>
+
+        <Button
+          type="button"
+          variant="primary"
+          onClick={handleIssue}
+          className="shrink-0 gap-1 rounded-lg px-3 py-1.5 md:gap-2 md:rounded-[10px] md:px-3.5 md:py-2"
+        >
+          <Icon
+            icon="mdi:plus"
+            className="size-3 shrink-0 md:size-3.5"
+            aria-hidden="true"
+          />
+          <span className="text-xs font-bold whitespace-nowrap md:text-base">
+            Issue PPE
+          </span>
+        </Button>
       </div>
     </div>
   );

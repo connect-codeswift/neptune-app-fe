@@ -4,18 +4,15 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
 import { toPpeInventoryItems } from "@/lib/map-ppe";
 import { PpeInventoryCard } from "./PpeInventoryCard";
 import { ppeInventoryColumns } from "./PpeInventoryColumns";
-import {
-  PpeInventoryHeader,
-  PpeSearchBar,
-  type PpeCategoryFilter,
-  type PpeCategoryOption,
-} from "./PpeInventoryToolbar";
+import { PpeInventoryHeader } from "./PpeInventoryToolbar";
 import {
   PpeInventoryCardsSkeleton,
   PpeSearchBarSkeleton,
@@ -24,6 +21,8 @@ import {
 
 const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
 const CATALOG_ROUTE = "/dashboard/ppe-management/catalog";
+
+type PpeCategoryFilter = "all" | string;
 
 function itemCategory(item: PpeInventoryItem): string {
   return item.protectionType?.trim() || item.category.trim();
@@ -48,17 +47,28 @@ function matchesCategory(
   return itemCategory(item) === category;
 }
 
-function toCategoryOptions(
-  items: readonly PpeInventoryItem[],
-): PpeCategoryOption[] {
+/** Short chip labels so the filter row stays on one line. */
+function toShortCategoryLabel(category: string): string {
+  const trimmed = category.trim();
+  if (trimmed === "Eye & Face Protection") return "Eye & Face";
+  if (trimmed.endsWith(" Protection")) {
+    return trimmed.slice(0, -" Protection".length);
+  }
+  return trimmed;
+}
+
+function toCategoryFilterOptions(items: readonly PpeInventoryItem[]) {
   const unique = Array.from(
     new Set(items.map(itemCategory).filter(Boolean)),
   ).sort((a, b) => a.localeCompare(b));
 
   return [
-    { id: "all", label: "All categories" },
-    ...unique.map((id) => ({ id, label: id })),
-  ];
+    { value: "all", label: "All" },
+    ...unique.map((id) => ({
+      value: id,
+      label: toShortCategoryLabel(id),
+    })),
+  ] as const;
 }
 
 export function PpeInventorySection() {
@@ -72,7 +82,10 @@ export function PpeInventorySection() {
     [ppeItemsQuery.data],
   );
 
-  const categories = useMemo(() => toCategoryOptions(inventory), [inventory]);
+  const categoryOptions = useMemo(
+    () => toCategoryFilterOptions(inventory),
+    [inventory],
+  );
 
   const filtered = useMemo(
     () =>
@@ -92,9 +105,6 @@ export function PpeInventorySection() {
 
   const header = (
     <PpeInventoryHeader
-      category={category}
-      categories={categories}
-      onCategoryChange={setCategory}
       onIssuePpe={() => {
         router.push(ISSUE_ROUTE);
       }}
@@ -103,8 +113,18 @@ export function PpeInventorySection() {
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
-      {/* PpeManagementActions moved up to PpeListPageClient, into the tabs
-          row — as its own band here it was a mostly-empty strip. */}
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Category",
+            options: [...categoryOptions],
+            value: category,
+            onChange: setCategory,
+            disabled: ppeItemsQuery.isPending && !ppeItemsQuery.data,
+          },
+        ]}
+      />
+
       {ppeItemsQuery.isPending && !ppeItemsQuery.data ? (
         <>
           <PpeSearchBarSkeleton />
@@ -124,9 +144,11 @@ export function PpeInventorySection() {
 
       {!ppeItemsQuery.isPending || ppeItemsQuery.data ? (
         <>
-          <PpeSearchBar
+          <ModuleSearchBar
             value={query}
             onChange={setQuery}
+            placeholder="Search by category, supplier..."
+            aria-label="Search PPE inventory"
             resultLabel={resultLabel}
           />
 

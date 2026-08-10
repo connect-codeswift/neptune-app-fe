@@ -29,7 +29,7 @@ export type ModuleFilterBarProps = Readonly<{
 }>;
 
 const shellClass =
-  "flex w-full min-w-0 flex-wrap items-center gap-x-6 gap-y-3 rounded-xl bg-white/70 px-5 py-3 shadow-xl";
+  "flex w-full min-w-0 flex-wrap items-center gap-x-6 gap-y-3 rounded-xl bg-white/40 px-5 py-3 shadow-md";
 
 function toOptions(
   options: ModuleFilterSegment["options"],
@@ -49,7 +49,7 @@ function FilterSegment(props: ModuleFilterSegment) {
         {label}
       </span>
 
-      <div className="border-ehs-border flex flex-wrap items-center gap-2 rounded-xl border bg-white p-2">
+      <div className="border-ehs-border flex flex-wrap items-center gap-2 rounded-xl border bg-white/60 p-2">
         {normalized.map((option) => {
           const isActive = value === option.value;
 
@@ -60,7 +60,7 @@ function FilterSegment(props: ModuleFilterSegment) {
               disabled={disabled}
               onClick={() => onChange(option.value)}
               className={[
-                "cursor-pointer rounded-lg px-2.5 py-1 text-sm whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                "cursor-pointer rounded-lg px-2 py-1 text-xs whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
                 isActive
                   ? "bg-ehs-dark-bg text-ehs-light-text"
                   : "text-ehs-gray hover:bg-black/5",
@@ -84,7 +84,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
 
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
-      <span className="text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-xl border bg-white p-2.5 text-sm font-bold">
+      <span className="text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-xl border bg-white/60 p-2.5 text-sm font-bold">
         <Icon
           icon="mdi:filter-variant"
           className="size-5 shrink-0"
