@@ -49,7 +49,7 @@ function FilterSegment(props: ModuleFilterSegment) {
         {label}
       </span>
 
-      <div className="border-ehs-border flex flex-wrap items-center gap-2 rounded-xl border bg-white/60 p-2">
+      <div className="border-ehs-border flex flex-wrap items-center gap-1 rounded-lg border bg-white/60 p-1">
         {normalized.map((option) => {
           const isActive = value === option.value;
 
@@ -60,7 +60,7 @@ function FilterSegment(props: ModuleFilterSegment) {
               disabled={disabled}
               onClick={() => onChange(option.value)}
               className={[
-                "cursor-pointer rounded-lg px-2 py-1 text-xs whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                "cursor-pointer rounded-md font-medium px-2 py-1 text-xs whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
                 isActive
                   ? "bg-ehs-dark-bg text-ehs-light-text"
                   : "text-ehs-gray hover:bg-black/5",
@@ -84,18 +84,22 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
 
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
-      <span className="text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-xl border bg-white/60 p-2.5 text-sm font-bold">
-        <Icon
-          icon="mdi:filter-variant"
-          className="size-5 shrink-0"
-          aria-hidden="true"
-        />
-        Filters
-      </span>
+      <div className="flex items-center gap-4">
+        <span className="text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white/60 p-2 text-xs font-bold">
+          <Icon
+            icon="mdi:filter-variant"
+            className="size-4 shrink-0"
+            aria-hidden="true"
+          />
+          Filters
+        </span>
 
-      {segments.map((segment) => (
-        <FilterSegment key={segment.label} {...segment} />
-      ))}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {segments.map((segment) => (
+            <FilterSegment key={segment.label} {...segment} />
+          ))}
+        </div>
+      </div>
 
       {action ? (
         <button

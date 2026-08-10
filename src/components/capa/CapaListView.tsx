@@ -12,10 +12,10 @@ import {
   getPriorityTone,
   getStatusTone,
 } from "@/components/capa/capa-list-data";
-import { IncidentSegmentedControl } from "@/components/incidents/list/IncidentSegmentedControl";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { Table } from "@/components/ui/Table";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
@@ -76,9 +76,6 @@ function CapaKpiTile(
     </GlassCard>
   );
 }
-
-const FILTER_SHELL =
-  "relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
 
 function CreateCapaButton(
   props: Readonly<{ className?: string; onClick?: () => void }>,
@@ -304,36 +301,28 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
         />
       </div>
 
-      <div className={FILTER_SHELL}>
-        <span className="border-ehs-border/80 text-ehs-darker inline-flex h-8 w-fit shrink-0 items-center gap-1.5 rounded-lg border bg-white/80 px-2.5 text-xs font-bold shadow-xs">
-          <Icon icon="mdi:filter-variant" className="size-3.5" aria-hidden />
-          Filters
-        </span>
-
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-3">
-          <IncidentSegmentedControl
-            label="State"
-            options={CAPA_STATE_FILTERS}
-            value={state}
-            onChange={setState}
-            className="min-w-fit flex-1"
-          />
-          <IncidentSegmentedControl
-            label="Priority"
-            options={CAPA_PRIORITY_FILTERS}
-            value={priority}
-            onChange={setPriority}
-            className="min-w-fit flex-1"
-          />
-          <IncidentSegmentedControl
-            label="Type"
-            options={CAPA_TYPE_FILTERS}
-            value={capaType}
-            onChange={setCapaType}
-            className="min-w-fit flex-1"
-          />
-        </div>
-      </div>
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "State",
+            options: CAPA_STATE_FILTERS,
+            value: state,
+            onChange: setState,
+          },
+          {
+            label: "Priority",
+            options: CAPA_PRIORITY_FILTERS,
+            value: priority,
+            onChange: setPriority,
+          },
+          {
+            label: "Type",
+            options: CAPA_TYPE_FILTERS,
+            value: capaType,
+            onChange: setCapaType,
+          },
+        ]}
+      />
 
       {filteredRows.length === 0 ? (
         <GlassCard className="min-h-[240px] items-center justify-center gap-2 text-center">
