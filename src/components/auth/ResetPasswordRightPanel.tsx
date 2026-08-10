@@ -3,19 +3,18 @@
 import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type SubmitEvent } from "react";
-import { ShadeBall } from "@/components/ShadeBall";
 import { Text } from "@/components/Text";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
 import { Button } from "@/components/ui/Button";
-import { ScrollLink } from "@/components/ScrollLink";
+import { AuthFooterLink } from "@/components/auth/AuthFooterLink";
+import { AuthFormPanel } from "@/components/auth/AuthFormPanel";
 import { safeParseResetPasswordRequest } from "@/dtos/req/auth-request.dto";
 import {
   getMutationErrorMessage,
   useResetPasswordMutation,
 } from "@/hooks/use-auth-mutations";
-import { ehsLinkClass } from "@/lib/ehs-classes";
 import { toast } from "@/lib/toast";
 
 function getFormString(formData: FormData, name: string) {
@@ -91,107 +90,85 @@ export default function ResetPasswordRightPanel() {
       : "");
 
   return (
-    <div className="relative h-full overflow-hidden">
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
-      <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
-        blur={80}
-      />
+    <AuthFormPanel
+      title="Reset password."
+      subtitle="Enter the code from your email and choose a new password."
+      footer={
+        <AuthFooterLink
+          prompt="Didn't get a code?"
+          href="/forget-password"
+          linkLabel="Request a new one"
+        />
+      }
+    >
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <EmailInput
+          id="email"
+          name="email"
+          label="Email address"
+          placeholder="you@company.com"
+          defaultValue={emailFromQuery}
+          required
+          disabled={resetPasswordMutation.isPending}
+        />
 
-      <div
-        className="flex h-full items-center justify-center p-8"
-        style={{ background: "var(--ehs-light-bg)" }}
-      >
-        <div className="flex w-full max-w-sm flex-col gap-6">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-ehs-darker text-2xl font-bold">
-              Reset Password
-            </h2>
-            <p className="text-ehs-muted-text mt-1.5 text-sm">
-              Enter the code from your email and choose a new password.
-            </p>
-          </div>
+        <TextInput
+          id="otp"
+          name="otp"
+          label="Reset code"
+          placeholder="6-digit code from your email"
+          autoComplete="one-time-code"
+          inputMode="numeric"
+          required
+          disabled={resetPasswordMutation.isPending}
+        />
 
-          <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-            <EmailInput
-              id="email"
-              name="email"
-              label="Email Address"
-              placeholder="Enter Your Email Address"
-              defaultValue={emailFromQuery}
-              required
-              disabled={resetPasswordMutation.isPending}
-            />
+        <Password
+          id="newPassword"
+          name="newPassword"
+          label="New password"
+          placeholder="Create a strong password"
+          autoComplete="new-password"
+          required
+          disabled={resetPasswordMutation.isPending}
+        />
 
-            <TextInput
-              id="otp"
-              name="otp"
-              label="Reset Code"
-              placeholder="Enter The Code From Your Email"
-              autoComplete="one-time-code"
-              inputMode="numeric"
-              required
-              disabled={resetPasswordMutation.isPending}
-            />
+        <Password
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Confirm password"
+          placeholder="Re-enter your new password"
+          autoComplete="new-password"
+          required
+          disabled={resetPasswordMutation.isPending}
+        />
 
-            <Password
-              id="newPassword"
-              name="newPassword"
-              label="New Password"
-              placeholder="Enter Your New Password"
-              autoComplete="new-password"
-              required
-              disabled={resetPasswordMutation.isPending}
-            />
+        {submitError ? (
+          <Text as="p" className="text-ehs-red text-xs" role="alert">
+            {submitError}
+          </Text>
+        ) : null}
 
-            <Password
-              id="confirmPassword"
-              name="confirmPassword"
-              label="Confirm Password"
-              placeholder="Confirm Your New Password"
-              autoComplete="new-password"
-              required
-              disabled={resetPasswordMutation.isPending}
-            />
-
-            {submitError ? (
-              <Text as="p" className="text-ehs-red text-xs" role="alert">
-                {submitError}
-              </Text>
-            ) : null}
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full"
-              isLoading={resetPasswordMutation.isPending}
-            >
-              {resetPasswordMutation.isPending ? (
-                "Updating..."
-              ) : (
-                <>
-                  Reset Password
-                  <Icon
-                    icon="mdi:arrow-right"
-                    className="text-lg"
-                    aria-hidden="true"
-                  />
-                </>
-              )}
-            </Button>
-          </form>
-
-          <p className="text-ehs-muted-text text-center text-sm">
-            Didn&apos;t Get A Code?{" "}
-            <ScrollLink
-              href="/forget-password"
-              className={`${ehsLinkClass} font-semibold`}
-            >
-              Request A New One
-            </ScrollLink>
-          </p>
-        </div>
-      </div>
-    </div>
+        <Button
+          type="submit"
+          variant="primary"
+          className="mt-1 w-full"
+          isLoading={resetPasswordMutation.isPending}
+        >
+          {resetPasswordMutation.isPending ? (
+            "Updating…"
+          ) : (
+            <>
+              Reset password
+              <Icon
+                icon="mdi:arrow-right"
+                className="text-lg"
+                aria-hidden="true"
+              />
+            </>
+          )}
+        </Button>
+      </form>
+    </AuthFormPanel>
   );
 }
