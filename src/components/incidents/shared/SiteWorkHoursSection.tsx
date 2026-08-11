@@ -66,7 +66,10 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
   const saveMutation = useSaveSiteWorkHoursMutation();
   const [draftHours, setDraftHours] = useState<Record<number, string>>({});
 
-  const records = workHoursQuery.data?.dataModel ?? [];
+  const records = useMemo(
+    () => workHoursQuery.data?.dataModel ?? [],
+    [workHoursQuery.data?.dataModel],
+  );
 
   const savedByMonth = useMemo(() => {
     const map: Record<number, number> = {};

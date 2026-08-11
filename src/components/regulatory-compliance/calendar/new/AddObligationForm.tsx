@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -51,9 +52,6 @@ const formCardClass =
   "relative w-full rounded-[16px] border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-[24px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
 
 /** Figma EHSS-Web node 3326:20854 — stash:data-date */
-const COMPLIANCE_DUE_DATE_CALENDAR_ICON =
-  "/icons/compliance/stash-data-date.svg";
-
 function openDatePicker(input: HTMLInputElement | null) {
   if (!input || input.disabled) {
     return;
@@ -360,11 +358,10 @@ export function AddObligationForm() {
                   aria-label="Open calendar"
                   className="absolute top-1/2 right-2 size-6 -translate-y-1/2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <img
-                    src={COMPLIANCE_DUE_DATE_CALENDAR_ICON}
-                    alt=""
+                  <Icon
+                    icon="stash:data-date"
+                    className="text-ehs-gray size-6"
                     aria-hidden="true"
-                    className="size-6"
                   />
                 </button>
               </div>

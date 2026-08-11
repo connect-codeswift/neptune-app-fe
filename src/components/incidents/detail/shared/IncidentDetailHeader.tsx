@@ -29,8 +29,6 @@ export type IncidentDetailHeaderProps = Readonly<{
   hideIncidentChrome?: boolean;
   /** When true, the Closure tab is not selectable (incident already closed). */
   closureTabDisabled?: boolean;
-  isClosingIncident?: boolean;
-  closeDisabled?: boolean;
   className?: string;
 }>;
 
@@ -47,8 +45,6 @@ export function IncidentDetailHeader(
     readOnly = false,
     hideIncidentChrome = false,
     closureTabDisabled = false,
-    isClosingIncident = false,
-    closeDisabled = false,
     className = "",
   } = props;
   const router = useRouter();

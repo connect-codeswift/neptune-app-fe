@@ -18,9 +18,7 @@ import {
 } from "@/lib/map-near-miss";
 import { toast } from "@/lib/toast";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
-import {
-  convertToIncidentSchema,
-} from "./convert-incident-schema";
+import { convertToIncidentSchema } from "./convert-incident-schema";
 
 const crumbMuted = "text4 font-normal text-ehs-gray";
 const crumbLink =
@@ -103,6 +101,7 @@ export function ConvertToIncidentContent(
     // needs a field mapping that hasn't been decided. The submit label says
     // "Convert & Create Incident", so this states plainly that nothing was
     // saved rather than logging the payload to the console and moving on.
+    void _values;
     toast.error(
       "Not available yet",
       "Converting a near miss to an incident isn't connected to the backend, so nothing was saved.",

@@ -3,20 +3,11 @@
 import { useMemo } from "react";
 import { Table } from "@/components/ui/Table";
 import { LOTO_HISTORY } from "@/app/dashboard/lockout-tagout/loto-data";
-import { toast } from "@/lib/toast";
 import { buildLotoHistoryColumns } from "./LotoHistoryColumns";
 
 /** Lockout history table — Figma 6888:49236. */
 export function LotoHistorySection() {
-  const columns = useMemo(
-    () =>
-      buildLotoHistoryColumns({
-        onLogClick: (item) => {
-          toast.info(`Open ${item.logId}`);
-        },
-      }),
-    [],
-  );
+  const columns = useMemo(() => buildLotoHistoryColumns(), []);
 
   return (
     <Table

@@ -86,15 +86,6 @@ function ProgressRowSkeleton() {
   );
 }
 
-function ListRowSkeleton() {
-  return (
-    <div className="flex items-center gap-[12px] border border-[rgba(15,23,42,0.05)] py-[4px]">
-      <Bar className="h-2 w-[40px]" opacity={0.5} />
-      <Bar className="h-2.5 w-[140px]" />
-    </div>
-  );
-}
-
 /**
  * Full-page loading placeholder for Regulatory Compliance.
  * Mirrors Figma `compliance-skeleton` (4818:19203) including header, KPIs,

@@ -1,13 +1,10 @@
 ﻿"use client";
 
-import { useRouter } from "next/navigation";
 import { CapaDashboardView } from "@/components/capa/CapaDashboardView";
 import { DashboardHeader } from "@/components/DashboardHeader";
 
 /** CAPA register page shell — header + list view. */
 export function CapaPageClient() {
-  const router = useRouter();
-
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <DashboardHeader title="CAPA" />

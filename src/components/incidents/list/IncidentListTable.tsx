@@ -43,13 +43,19 @@ export type IncidentListTableProps<
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-    /** Row vertical alignment; defaults to top for left-aligned columns. */
-    verticalAlign?: "top" | "middle";
-  }
-}
+/**
+ * Column presentation, keyed by column id. Kept out of each column's `meta`:
+ * `meta` is one interface shared by every table in the project, so `align` and
+ * `verticalAlign` declared there reach tables that never render them. Columns
+ * absent from these maps are left-aligned and top-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  severity: "center",
+  state: "center",
+  view: "center",
+};
+
+const MIDDLE_ALIGNED: ReadonlySet<string> = new Set(["id", "site", "view"]);
 
 const columnHelper = createColumnHelper<IncidentRecord>();
 
@@ -81,12 +87,8 @@ function createIncidentColumns(
       header: "ID",
       size: expanded ? 120 : 100,
       minSize: 84,
-      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text7 text-ehs-muted-text whitespace-nowrap"
-        >
+        <Text as="span" className="text7 text-ehs-muted-text whitespace-nowrap">
           {info.getValue()}
         </Text>
       ),
@@ -96,7 +98,6 @@ function createIncidentColumns(
       header: "Incident",
       size: expanded ? 480 : 240,
       minSize: 140,
-      meta: { align: "left" as const },
       cell: ({ row }) => (
         <div className="flex w-full min-w-0 flex-col gap-1">
           <Text
@@ -120,7 +121,6 @@ function createIncidentColumns(
       header: "Site",
       size: expanded ? 170 : 110,
       minSize: 80,
-      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => {
         const [sitePrimary, siteSecondary] = siteLines(info.getValue());
 
@@ -142,7 +142,6 @@ function createIncidentColumns(
       header: "Severity",
       size: expanded ? 160 : 130,
       minSize: 110,
-      meta: { align: "center" as const },
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
@@ -155,7 +154,6 @@ function createIncidentColumns(
       header: "State",
       size: expanded ? 130 : 90,
       minSize: 80,
-      meta: { align: "center" as const },
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
@@ -169,7 +167,6 @@ function createIncidentColumns(
       header: "",
       size: 56,
       minSize: 48,
-      meta: { align: "center" as const, verticalAlign: "middle" as const },
       cell: ({ row }) => {
         const isOpen = selectedId === row.original.id;
 
@@ -228,7 +225,8 @@ function cellFlexAlignClass(
   align: "left" | "center" | "right" | undefined,
   verticalAlign: "top" | "middle" | undefined,
 ) {
-  const isMiddle = verticalAlign === "middle" || (verticalAlign !== "top" && align !== "left");
+  const isMiddle =
+    verticalAlign === "middle" || (verticalAlign !== "top" && align !== "left");
 
   if (align === "center") {
     return isMiddle
@@ -324,7 +322,7 @@ export function IncidentListTable<
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
@@ -399,9 +397,10 @@ export function IncidentListTable<
                       .join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const align = cell.column.columnDef.meta?.align;
-                      const verticalAlign =
-                        cell.column.columnDef.meta?.verticalAlign;
+                      const align = COLUMN_ALIGN[cell.column.id] ?? "left";
+                      const verticalAlign = MIDDLE_ALIGNED.has(cell.column.id)
+                        ? "middle"
+                        : undefined;
 
                       return (
                         <td

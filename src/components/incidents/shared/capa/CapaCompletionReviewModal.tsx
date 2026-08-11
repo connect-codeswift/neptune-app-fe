@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { Icon } from "@iconify/react";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import {
@@ -77,24 +77,34 @@ export function CapaCompletionReviewModal(
     useState<CapaEffectiveness>("Effective");
   const [notes, setNotes] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [hydratedVerificationKey, setHydratedVerificationKey] = useState<
+    string | null
+  >(null);
 
   const review = reviewQuery.data;
   const attachments = review?.attachments ?? [];
   const existingVerification = review?.verification;
+  const verificationKey =
+    existingVerification == null
+      ? null
+      : `${existingVerification.effectiveness}\0${existingVerification.notes}`;
+
+  // Hydrate from the loaded verification record during render (not an effect).
+  if (
+    verificationKey != null &&
+    verificationKey !== hydratedVerificationKey &&
+    existingVerification
+  ) {
+    setHydratedVerificationKey(verificationKey);
+    setNotes(existingVerification.notes ?? "");
+    setEffectiveness(existingVerification.effectiveness ?? "Effective");
+  }
+
   const isAlreadyVerified =
     capa.status === "Verified" ||
     capa.status === "Closed" ||
     existingVerification != null;
   const isBusy = isSubmitting || reviewQuery.isLoading;
-
-  useEffect(() => {
-    if (existingVerification?.notes) {
-      setNotes(existingVerification.notes);
-    }
-    if (existingVerification?.effectiveness) {
-      setEffectiveness(existingVerification.effectiveness);
-    }
-  }, [existingVerification]);
 
   const handleVerify = async () => {
     try {
@@ -136,7 +146,7 @@ export function CapaCompletionReviewModal(
                 }}
                 disabled={isBusy}
                 label={isBusy ? "Saving…" : "Verify & close"}
-                iconSrc=""
+                icon=""
               />
             </>
           )

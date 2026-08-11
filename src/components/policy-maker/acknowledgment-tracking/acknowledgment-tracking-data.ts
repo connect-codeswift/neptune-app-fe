@@ -3,52 +3,6 @@ import type {
   AcknowledgmentTrackingMetric,
 } from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-types";
 
-/** Mock rows matching Figma 5568:25528 (+ 4th ack to match 67% / 4 of 6). */
-const ACKNOWLEDGMENT_RECORDS: readonly AcknowledgmentRecord[] = [
-  {
-    id: "ack-james",
-    name: "James Carter",
-    department: "Production",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-15",
-  },
-  {
-    id: "ack-maria",
-    name: "Maria Lopez",
-    department: "Production",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-16",
-  },
-  {
-    id: "ack-tom",
-    name: "Tom Bradley",
-    department: "Maintenance",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-14",
-  },
-  {
-    id: "ack-sarah",
-    name: "Sarah Mitchell",
-    department: "EHS",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-16",
-  },
-  {
-    id: "ack-anna",
-    name: "Anna Wang",
-    department: "Production",
-    status: "Pending",
-    acknowledgedDate: null,
-  },
-  {
-    id: "ack-carlos",
-    name: "Carlos Ruiz",
-    department: "Production",
-    status: "Pending",
-    acknowledgedDate: null,
-  },
-];
-
 export function getAcknowledgmentMetrics(
   records: readonly AcknowledgmentRecord[],
   apiCounts?: Readonly<{

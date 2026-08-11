@@ -21,18 +21,21 @@ export type HazcomTrainingLogTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomTrainingSession>();
 
 const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   columnHelper.accessor("id", {
     header: "ID",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text5 text-ehs-normal-blue">
         {info.getValue()}
@@ -41,7 +44,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("date", {
     header: "Date",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
@@ -50,7 +52,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("trainer", {
     header: "Trainer",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text4 text-ehs-dark-bg">
         {info.getValue()}
@@ -59,7 +60,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("topic", {
     header: "Topic",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text5 text-ehs-dark-bg">
         {info.getValue()}
@@ -68,7 +68,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("chemicals", {
     header: "Chemicals",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text4 text-ehs-gray">
         {info.getValue().join(", ")}
@@ -77,7 +76,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("attendees", {
     header: "Attendees",
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text5 text-ehs-dark-bg">
         {`${info.getValue()}`}
@@ -86,7 +84,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -97,7 +94,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   columnHelper.display({
     id: "actions",
     header: "",
-    meta: { align: "right" },
     cell: () => (
       <span
         aria-hidden="true"
@@ -132,7 +128,7 @@ export function HazcomTrainingLogTable(
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
@@ -174,7 +170,7 @@ export function HazcomTrainingLogTable(
                   className="border-t border-[rgba(15,23,42,0.08)]"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

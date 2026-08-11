@@ -12,13 +12,7 @@ const resultClassName: Record<LotoHistoryResult, string> = {
   Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
 };
 
-export type LotoHistoryColumnActions = Readonly<{
-  onLogClick: (item: LotoHistoryRecord) => void;
-}>;
-
-export function buildLotoHistoryColumns(
-  _actions: LotoHistoryColumnActions,
-): TableColumns<LotoHistoryRecord> {
+export function buildLotoHistoryColumns(): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
       header: "Log ID",

@@ -70,7 +70,10 @@ export default function AcceptInvitationRightPanel() {
 
     let cancelled = false;
 
-    QRCode.toDataURL(setupMfaMutation.data.otpAuthUri, { margin: 1, width: 220 })
+    QRCode.toDataURL(setupMfaMutation.data.otpAuthUri, {
+      margin: 1,
+      width: 220,
+    })
       .then((url) => {
         if (!cancelled) {
           setQrDataUrl(url);
@@ -209,7 +212,10 @@ export default function AcceptInvitationRightPanel() {
   if (!linkIsUsable) {
     return (
       <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
-        <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+        <ShadeBall
+          positionAsClassName="top-[-150px] right-[-150px]"
+          blur={80}
+        />
         <div className="flex w-full max-w-sm flex-col gap-4">
           <h2 className="text-ehs-darker text-2xl font-bold">
             This invitation link is incomplete
@@ -341,7 +347,9 @@ export default function AcceptInvitationRightPanel() {
 
           <div className="border-ehs-border flex flex-col items-center gap-3 rounded-xl border bg-white p-4">
             {qrDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- data: URI generated in the browser, nothing for the image optimizer to fetch
+              /* `qrDataUrl` is a client-generated data: URI — nothing for
+                 next/image to fetch or optimise. */
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={qrDataUrl}
                 alt="QR code for setting up two-factor authentication"

@@ -886,22 +886,6 @@ export function buildAddComplianceRequest(
   };
 }
 
-function toIsoDateTime(
-  value: string | null | undefined,
-  fallback: string,
-): string {
-  if (!value?.trim()) {
-    return fallback;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return parsed.toISOString();
-}
-
 /** Maps a ComplianceDto into PUT /api/Compliance/Update body. */
 /** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
 /** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
