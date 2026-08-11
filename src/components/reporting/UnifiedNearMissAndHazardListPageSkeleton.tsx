@@ -1,20 +1,9 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card placeholder: label + trend dot, then a value bar. */
-function KpiCardSkeleton() {
-  return (
-    <IncidentGlassCard paddingClassName="p-4" className="min-w-0 gap-6">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-2 w-24" />
-        <Skeleton className="size-3.5 rounded-full" />
-      </div>
-      <Skeleton className="h-5 w-12" />
-    </IncidentGlassCard>
-  );
-}
-
 /** One placeholder row in the records table. */
 function TableRowSkeleton() {
   return (
@@ -64,10 +53,7 @@ function InsightsCardSkeleton(props: Readonly<{ children: ReactNode }>) {
 export function UnifiedNearMissAndHazardListPageSkeleton() {
   return (
     <>
-      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-      </div>
+      <MetricCardsRowSkeleton count={2} />
 
       <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
         <InsightsCardSkeleton>

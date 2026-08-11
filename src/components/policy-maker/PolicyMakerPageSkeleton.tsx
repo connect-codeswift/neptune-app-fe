@@ -6,6 +6,8 @@
  * (header → KPIs → library + table), matching near-miss’s content-skeleton pattern.
  */
 
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
+
 function Bar(props: Readonly<{ className?: string }>) {
   const { className = "" } = props;
   return (
@@ -15,18 +17,6 @@ function Bar(props: Readonly<{ className?: string }>) {
         .filter(Boolean)
         .join(" ")}
     />
-  );
-}
-
-function KpiCardSkeleton() {
-  return (
-    <div className="flex min-w-0 flex-col gap-4 rounded-[19.45px] border-[0.97px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] p-4 backdrop-blur-[9.7px]">
-      <div className="flex items-center justify-between">
-        <Bar className="h-2 w-[100px] bg-[#8892a3]/45" />
-        <Bar className="size-3.5 rounded-full bg-[#d1d5db]" />
-      </div>
-      <Bar className="h-[22px] w-[50px] bg-[#d1d5db]" />
-    </div>
   );
 }
 
@@ -104,13 +94,8 @@ export function PolicyMakerPageSkeleton() {
         </div>
       </div>
 
-      {/* StatsGrid — Figma 4818:18886, gap 13.6px */}
-      <div className="grid grid-cols-1 gap-[13.6px] sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-      </div>
+      {/* StatsGrid — Figma 4818:18886 */}
+      <MetricCardsRowSkeleton />
 
       {/* DocumentGrid — library 206px + table (details pane is ~0px in Figma) */}
       <div className="grid min-w-0 items-start gap-[13.6px] xl:grid-cols-[206px_minmax(0,1fr)]">

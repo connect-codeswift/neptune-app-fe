@@ -4,12 +4,6 @@ export type { HazcomOverviewSkeletonProps } from "./HazcomOverviewSkeleton";
 export { HazcomOverviewStatsRow } from "./HazcomOverviewStatsRow";
 export type { HazcomOverviewStatsRowProps } from "./HazcomOverviewStatsRow";
 
-export { HazcomOverviewStatCard } from "./HazcomOverviewStatCard";
-export type {
-  HazcomOverviewStatCardProps,
-  HazcomOverviewStatTone,
-} from "./HazcomOverviewStatCard";
-
 export { HazcomRecentChemicalAdditionsCard } from "./HazcomRecentChemicalAdditionsCard";
 export type { HazcomRecentChemicalAdditionsCardProps } from "./HazcomRecentChemicalAdditionsCard";
 

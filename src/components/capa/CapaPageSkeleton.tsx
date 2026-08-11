@@ -1,3 +1,4 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
@@ -16,11 +17,7 @@ export function CapaPageSkeleton() {
       </header>
 
       <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-4 pb-8">
-        <div className="grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-[141px] rounded-2xl" />
-          ))}
-        </div>
+        <MetricCardsRowSkeleton />
 
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
           <Skeleton className="h-[296px] rounded-2xl" />
