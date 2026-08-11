@@ -5,16 +5,19 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailPanel } from "@/components/incidents/list/IncidentDetailPanel";
-import { IncidentFilterBar } from "@/components/incidents/list/IncidentFilterBar";
 import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
+  SEVERITY_FILTERS,
+  STATE_FILTERS,
   incidentMatchesDateRange,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
@@ -42,12 +45,11 @@ import {
 } from "@/services/mappers/incident-kpi.mapper";
 
 export type IncidentListViewProps = Readonly<{
-  searchQuery?: string;
   dateRange?: DateRange;
   className?: string;
 }>;
 
-/** `searchQuery` is typed live, so settle it before hitting the paged endpoint. */
+/** Search is typed live — settle before hitting the paged endpoint. */
 const SEARCH_DEBOUNCE_MS = 300;
 
 function withClosedState(
@@ -60,19 +62,20 @@ function withClosedState(
 }
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
-  const { searchQuery = "", dateRange, className = "" } = props;
+  const { dateRange, className = "" } = props;
   const [stateFilter, setStateFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
   const hasToken = accessTokenState === true;
   const [pageNumber, setPageNumber] = useState(DEFAULT_INCIDENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_INCIDENTS_PAGE_SIZE);
-  const [appliedSearch, setAppliedSearch] = useState(searchQuery.trim());
+  const [appliedSearch, setAppliedSearch] = useState("");
 
-  // Debounce the header search box, and rewind to page 1 once it settles —
-  // a stale page number would otherwise strand the user on an out-of-range page.
+  // Debounce search and rewind to page 1 once it settles — a stale page
+  // number would otherwise strand the user on an out-of-range page.
   useEffect(() => {
     const trimmed = searchQuery.trim();
     if (trimmed === appliedSearch) {
@@ -301,11 +304,31 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         </div>
       )}
 
-      <IncidentFilterBar
-        state={stateFilter}
-        severity={severityFilter}
-        onStateChange={handleStateFilterChange}
-        onSeverityChange={handleSeverityFilterChange}
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "State",
+            options: STATE_FILTERS,
+            value: stateFilter,
+            onChange: handleStateFilterChange,
+          },
+          {
+            label: "Severity",
+            options: SEVERITY_FILTERS,
+            value: severityFilter,
+            onChange: handleSeverityFilterChange,
+          },
+        ]}
+      />
+
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by ID, title, site..."
+        aria-label="Search incidents"
+        resultLabel={`${String(filteredIncidents.length)} ${
+          filteredIncidents.length === 1 ? "incident" : "incidents"
+        }`}
       />
 
       {errorMessage ? (
