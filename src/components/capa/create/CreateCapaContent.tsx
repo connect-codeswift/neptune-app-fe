@@ -204,7 +204,7 @@ export function CreateCapaContent() {
                     <button
                       type="button"
                       onClick={() => setAddTaskOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
                     >
                       <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
                       Add Task

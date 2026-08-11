@@ -1,76 +1,73 @@
 "use client";
 
-import { Icon } from "@iconify/react";
-import { Button } from "@/components/ui/Button";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import {
-  CAPA_DASHBOARD_STATUS_FILTERS,
-  CAPA_DASHBOARD_TYPE_FILTERS,
-} from "@/components/capa/capa-dashboard-data";
+  CAPA_PRIORITY_FILTER_OPTIONS,
+  CAPA_STATUS_FILTER_OPTIONS,
+  CAPA_TYPE_FILTER_OPTIONS,
+} from "@/lib/capa-filters";
 
 export type CapaDashboardFiltersProps = Readonly<{
   status: string;
   type: string;
+  priority: string;
   shownCount: number;
   totalCount: number;
   onStatusChange: (value: string) => void;
   onTypeChange: (value: string) => void;
+  onPriorityChange: (value: string) => void;
   onMyCapas: () => void;
   onNewCapa: () => void;
 }>;
 
-/** Filter toolbar — Figma 7123:42136. */
+/** Filter toolbar — Figma 7123:42136. Options match GET /api/CAPA query params. */
 export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
   const {
     status,
     type,
+    priority,
     shownCount,
     totalCount,
     onStatusChange,
     onTypeChange,
+    onPriorityChange,
     onMyCapas,
     onNewCapa,
   } = props;
 
   return (
-    <div className="flex flex-col gap-3">
-      <ModuleFilterBar
-        segments={[
-          {
-            label: "Status",
-            options: CAPA_DASHBOARD_STATUS_FILTERS,
-            value: status,
-            onChange: onStatusChange,
-          },
-          {
-            label: "Type",
-            options: CAPA_DASHBOARD_TYPE_FILTERS,
-            value: type,
-            onChange: onTypeChange,
-          },
-        ]}
-        action={{
-          label: "New CAPA",
-          onClick: onNewCapa,
-          icon: "mdi:plus",
-        }}
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-ehs-muted-text text-sm tabular-nums">
-          {`${String(shownCount)} of ${String(totalCount)}`}
-        </span>
-
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onMyCapas}
-          className="rounded-xl px-3.5 py-2 text-sm"
-        >
-          <Icon icon="mdi:account-outline" className="size-3.5" aria-hidden />
-          My CAPAs
-        </Button>
-      </div>
-    </div>
+    <ModuleFilterBar
+      segments={[
+        {
+          label: "Status",
+          options: CAPA_STATUS_FILTER_OPTIONS,
+          value: status,
+          onChange: onStatusChange,
+        },
+        {
+          label: "Type",
+          options: CAPA_TYPE_FILTER_OPTIONS,
+          value: type,
+          onChange: onTypeChange,
+        },
+        {
+          label: "Priority",
+          options: CAPA_PRIORITY_FILTER_OPTIONS,
+          value: priority,
+          onChange: onPriorityChange,
+        },
+      ]}
+      // meta={`${String(shownCount)} of ${String(totalCount)}`}
+      secondaryAction={{
+        label: "My CAPAs",
+        onClick: onMyCapas,
+        icon: "mdi:account-outline",
+      }}
+      action={{
+        label: "New CAPA",
+        onClick: onNewCapa,
+        icon: "mdi:plus",
+      }}
+    />
   );
 }

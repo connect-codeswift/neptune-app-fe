@@ -5,6 +5,9 @@ import type {
 } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { IncidentLinkedItem } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
 import type { IncidentCapa } from "@/components/incidents/list/incident-list-types";
+import type {
+  CapaDashboardItem,
+} from "@/components/capa/capa-dashboard-data";
 import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
@@ -13,7 +16,11 @@ import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import { formatCapaApiDateForDisplay } from "@/lib/parse-capa-api-date";
+import { formatCapaStatusDisplay } from "@/lib/capa-filters";
+import {
+  formatCapaApiDateForDisplay,
+  parseCapaApiDate,
+} from "@/lib/parse-capa-api-date";
 
 export const CAPA_CONTROL_LEVELS = [
   "Elimination",
@@ -72,7 +79,7 @@ function normalizeActionType(value: string): CapaItem["actionType"] {
 }
 
 function normalizeStatus(dto: CapaDto): CapaItem["status"] {
-  const raw = (dto.status ?? "").trim().toLowerCase();
+  const raw = (dto.status ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");
 
   if (raw === "verified" || raw === "complete" || raw === "completed") {
     return "Verified";
@@ -81,22 +88,28 @@ function normalizeStatus(dto: CapaDto): CapaItem["status"] {
     return "Closed";
   }
   if (
-    raw === "in progress" ||
-    raw === "in-progress" ||
+    raw === "inprogress" ||
     raw === "progress" ||
-    raw === "active"
+    raw === "active" ||
+    raw === "inprocess"
   ) {
     return "In progress";
   }
-  if (raw === "planning" || raw === "planned" || raw === "new") {
-    return "Planning";
+  if (raw === "overdue") {
+    // Dashboard register surfaces overdue as its own status.
+    return "In progress";
   }
-  if (raw === "open") {
+  if (
+    raw === "planning" ||
+    raw === "planned" ||
+    raw === "new" ||
+    raw === "open"
+  ) {
     return "Planning";
   }
 
   // API has no status today — derive a light signal from priority.
-  const priority = dto.priority.trim().toLowerCase();
+  const priority = (dto.priority ?? "").trim().toLowerCase();
   if (priority === "high") {
     return "In progress";
   }
@@ -105,7 +118,7 @@ function normalizeStatus(dto: CapaDto): CapaItem["status"] {
 }
 
 function progressForStatus(
-  status: CapaItem["status"],
+  _status: CapaItem["status"],
   explicit: number | null | undefined,
 ): number {
   if (
@@ -116,16 +129,7 @@ function progressForStatus(
     return Math.min(100, Math.max(0, Math.round(explicit)));
   }
 
-  switch (status) {
-    case "Verified":
-    case "Closed":
-      return 100;
-    case "In progress":
-      return 45;
-    case "Planning":
-    default:
-      return 10;
-  }
+  return 0;
 }
 
 /** Maps PATCH /CAPA/Task/Status values to progress bar fill. */
@@ -255,14 +259,16 @@ function mapCapaDtoToItem(
     userId: dto.userId,
     assignedId: dto.assignedId ?? null,
     rcaId: dto.rcaId ?? null,
-    description: dto.description.trim(),
+    description:
+      (dto.description ?? dto.title ?? "").trim() || `CAPA-${String(dto.id)}`,
     isDrop: dto.isDrop ?? false,
     code: dto.capaCode?.trim() || dto.code?.trim() || `CAPA-${String(dto.id)}`,
     controlCategory: normalizeControlLevel(dto.controlLevel),
     actionType: normalizeActionType(dto.capaType),
     status,
     statusTone: status === "Verified" ? "green" : "gray",
-    title: dto.title?.trim() || dto.description.trim(),
+    title:
+      dto.title?.trim() || dto.description?.trim() || `CAPA-${String(dto.id)}`,
     assignee: resolveAssignee(dto, {
       currentUserId: options?.currentUserId,
     }),
@@ -274,9 +280,7 @@ function mapCapaDtoToItem(
   };
 }
 
-function buildCapaSummary(
-  items: readonly CapaItem[],
-): CapaSummaryCounts {
+function buildCapaSummary(items: readonly CapaItem[]): CapaSummaryCounts {
   let notStartedCount = 0;
   let inProgressCount = 0;
   let completedCount = 0;
@@ -388,6 +392,91 @@ export function mapCapaDtosToLinkedView(
   return { items, summary, hierarchy, noticeMessage };
 }
 
+function dashboardPriority(value: string): CapaDashboardItem["priority"] {
+  const lower = value.trim().toLowerCase();
+  if (lower === "high") return "high";
+  if (lower === "low") return "low";
+  return "medium";
+}
+
+function isDueDateOverdue(dueDate: string | null | undefined): boolean {
+  const iso = parseCapaApiDate(dueDate);
+  if (!iso) return false;
+  const due = new Date(`${iso}T23:59:59`);
+  if (Number.isNaN(due.getTime())) return false;
+  return due.getTime() < Date.now();
+}
+
+function formatDashboardDueLabel(dueDate: string | null | undefined): string {
+  const iso = parseCapaApiDate(dueDate);
+  if (!iso) return "—";
+
+  const due = new Date(`${iso}T23:59:59`);
+  if (Number.isNaN(due.getTime())) return "—";
+
+  const days = Math.ceil((due.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  if (days < 0) return "Overdue";
+  if (days === 0) return "Due today";
+  return `${String(days)}d left`;
+}
+
+function lifecycleStepFromStatus(status: string): number {
+  switch (status) {
+    case "Verified":
+      return 5;
+    case "Overdue":
+    case "In progress":
+      return 4;
+    case "Open":
+    default:
+      return 2;
+  }
+}
+
+/** Maps GET /CAPA list rows into CAPA dashboard register items. */
+export function mapCapaDtoToDashboardItem(
+  dto: CapaDto,
+  options?: Readonly<{ currentUserId?: number }>,
+): CapaDashboardItem {
+  const item = mapCapaDtoToItem(dto, {
+    currentUserId: options?.currentUserId,
+  });
+  const status = formatCapaStatusDisplay(dto.status, {
+    overdueByDueDate: isDueDateOverdue(dto.dueDate),
+  });
+  const dueLabel = formatDashboardDueLabel(dto.dueDate);
+
+  return {
+    id: String(dto.id),
+    code: item.code,
+    type: item.actionType,
+    title: item.title,
+    source:
+      dto.incidentId > 0
+        ? `From Incident · ${String(dto.incidentId)}`
+        : item.controlCategory,
+    control: item.controlCategory,
+    owner: item.assignee,
+    progress: item.progressPercent,
+    status,
+    dueDate: item.dueDate,
+    dueLabel,
+    priority: dashboardPriority(item.priority),
+    daysLeft: dueLabel,
+    lifecycleStep: lifecycleStepFromStatus(status),
+    tasks: [],
+  };
+}
+
+export function mapCapaDtosToDashboardItems(
+  dtos: readonly CapaDto[],
+  options?: Readonly<{ currentUserId?: number }>,
+): CapaDashboardItem[] {
+  return dtos
+    .filter((dto) => !dto.isDrop)
+    .map((dto) => mapCapaDtoToDashboardItem(dto, options));
+}
+
 export const EMPTY_LINKED_CAPA_VIEW: LinkedCapaViewModel = {
   items: [],
   summary: EMPTY_SUMMARY,
@@ -398,14 +487,16 @@ export const EMPTY_LINKED_CAPA_VIEW: LinkedCapaViewModel = {
 };
 
 /** Normalize UI control level (Add CAPA modal) to API enum casing. */
-function toApiControlLevel(level: string): string {
+export function toApiControlLevel(level: string): string {
   return normalizeControlLevel(level);
 }
 
 /** Map API / view-model control level to hierarchy selector value. */
 export function toSelectorControlLevel(
   value: string,
-): import("@/components/incidents/shared/capa/CapaHierarchySelector").ControlLevel | null {
+):
+  | import("@/components/incidents/shared/capa/CapaHierarchySelector").ControlLevel
+  | null {
   const normalized = normalizeControlLevel(value).toLowerCase();
 
   if (normalized === "elimination") return "Elimination";
@@ -418,7 +509,7 @@ export function toSelectorControlLevel(
 }
 
 /** Short label required by POST /CAPA/Capa — derived from the action description. */
-function buildCapaTitleFromDescription(description: string): string {
+export function buildCapaTitleFromDescription(description: string): string {
   const trimmed = description.trim();
   const firstLine = trimmed.split(/\r?\n/)[0]?.trim() ?? trimmed;
   if (firstLine.length <= 120) {
@@ -530,8 +621,7 @@ export function buildUpdateCapaRequest(input: {
   dueDate: string;
   priority: string;
 }): CreateCapaRequestDto {
-  const assignedId =
-    parseOptionalUserId(input.owner) ?? input.capa.assignedId;
+  const assignedId = parseOptionalUserId(input.owner) ?? input.capa.assignedId;
 
   return buildCapaMutationPayload({
     id: input.capa.numericId,
@@ -619,7 +709,9 @@ export function buildCapaVerificationRequest(input: {
 }
 
 /** Re-submit CAPA metadata after verification so the record reflects closed state. */
-export function buildVerifiedCapaUpdateRequest(capa: CapaItem): CreateCapaRequestDto {
+export function buildVerifiedCapaUpdateRequest(
+  capa: CapaItem,
+): CreateCapaRequestDto {
   return buildCapaMutationPayload({
     id: capa.numericId,
     incidentId: capa.incidentId,

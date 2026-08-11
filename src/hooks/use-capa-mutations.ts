@@ -134,6 +134,7 @@ export function useCreateCapaMutation() {
       }
 
       const capa = await createCapa(input.payload);
+      console.log("capa", capa);
 
       if (capa?.id) {
         for (const task of input.tasks ?? []) {

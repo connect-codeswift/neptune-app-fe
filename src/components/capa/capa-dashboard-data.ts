@@ -1,9 +1,11 @@
 import type { KpiMetricCardProps } from "@/components/KpiMetricCard";
 
-/** Figma CAPA Dashboard status filter — node 7123:41912. */
+/** Figma CAPA Dashboard status filter — node 7123:41912.
+ * Prefer `CAPA_STATUS_FILTER_OPTIONS` in `@/lib/capa-filters` for live API filters.
+ */
 export const CAPA_DASHBOARD_STATUS_FILTERS = [
   "All",
-  "Planning",
+  "Open",
   "In progress",
   "Overdue",
   "Verified",
@@ -38,9 +40,12 @@ export type CapaDashboardItem = Readonly<{
   type: "Corrective" | "Preventive";
   title: string;
   source: string;
+  /** Hierarchy of controls level (e.g. Administrative Controls). */
+  control: string;
   owner: string;
   progress: number;
-  status: Exclude<CapaDashboardStatus, "All">;
+  /** Backend status display label (Open / In progress / Overdue / Verified / —). */
+  status: string;
   dueDate: string;
   dueLabel: string;
   priority: "high" | "medium" | "low";
@@ -117,7 +122,7 @@ export const CAPA_DASHBOARD_KPIS: readonly KpiMetricCardProps[] = [
 ];
 
 export const CAPA_LIFECYCLE_SLICES: readonly CapaLifecycleSlice[] = [
-  { label: "Planning", value: 1, color: "#0891a6" },
+  { label: "Open", value: 1, color: "#0891a6" },
   { label: "In progress", value: 5, color: "#3b82f6" },
   { label: "Overdue", value: 1, color: "#ef4444" },
   { label: "Verified", value: 2, color: "#10b981" },
@@ -192,6 +197,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Corrective",
     title: "Replace all hydraulic hoses on 800-series presses",
     source: "From INC-2207 · Plant A",
+    control: "Administrative Controls",
     owner: "M. Torres",
     progress: 62,
     status: "In progress",
@@ -208,6 +214,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Preventive",
     title: "Add pedestrian-zone barriers in Warehouse 1 dock",
     source: "From INC-2206 · Warehouse 1",
+    control: "Administrative Controls",
     owner: "A. Chen",
     progress: 35,
     status: "In progress",
@@ -224,6 +231,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Corrective",
     title: "Update SOP & retrain on chemical splash response",
     source: "From INC-2205 · Plant A",
+    control: "Administrative Controls",
     owner: "S. Mitchell",
     progress: 80,
     status: "Overdue",
@@ -240,6 +248,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Preventive",
     title: "Install non-slip flooring near loading bay 3",
     source: "From INC-2204 · Warehouse 2",
+    control: "Administrative Controls",
     owner: "R. Patel",
     progress: 18,
     status: "In progress",
@@ -256,6 +265,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Corrective",
     title: "Re-engineer guard interlock on Fab Line 1 grinder",
     source: "From INC-2203 · Plant B",
+    control: "Administrative Controls",
     owner: "D. Park",
     progress: 48,
     status: "In progress",
@@ -272,9 +282,10 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Preventive",
     title: "Pallet rack inspection program — quarterly",
     source: "From INC-2202 · All sites",
+    control: "Administrative Controls",
     owner: "J. Merrick",
     progress: 8,
-    status: "Planning",
+    status: "Open",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
     priority: "low",
@@ -288,6 +299,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Corrective",
     title: "Improve paint booth ventilation — Plant A",
     source: "From INC-2201 · Plant A",
+    control: "Administrative Controls",
     owner: "A. Osei",
     progress: 100,
     status: "Verified",
@@ -304,6 +316,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Preventive",
     title: "Confined space permit audit — quarterly cadence",
     source: "From INC-2200 · Plant B",
+    control: "Administrative Controls",
     owner: "P. Mehra",
     progress: 55,
     status: "In progress",
@@ -320,6 +333,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     type: "Preventive",
     title: "Ladder inspection tag program rollout",
     source: "From INC-2199 · All sites",
+    control: "Administrative Controls",
     owner: "J. Bell",
     progress: 100,
     status: "Verified",
