@@ -78,11 +78,11 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               variant="tertiary"
               disabled={chemicals.length === 0}
               onClick={() => exportChemicalsToCsv(chemicals)}
-              className="rounded-lg px-4 py-2 text-[13px]"
+              className="text4 rounded-lg px-4 py-2"
             >
               <Icon
                 icon="mdi:download"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Export
@@ -91,13 +91,9 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               <Button
                 type="button"
                 variant="primary"
-                className="rounded-lg px-4 py-2 text-[13px]"
+                className="text4 rounded-lg px-4 py-2"
               >
-                <Icon
-                  icon="mdi:plus"
-                  className="text-base"
-                  aria-hidden="true"
-                />
+                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 Add Chemical
               </Button>
             </Link>

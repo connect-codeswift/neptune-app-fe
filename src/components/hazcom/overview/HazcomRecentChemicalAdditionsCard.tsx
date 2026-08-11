@@ -39,15 +39,15 @@ export function HazcomRecentChemicalAdditionsCard(
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="flex items-center justify-between gap-3">
-        <Text as="h2" className="text-ehs-darker text-base font-bold">
+        <Text as="h2" className="text3 text-ehs-darker">
           Recent Chemical Additions
         </Text>
         <Link
           href="/dashboard/hazcom/chemicals"
-          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
+          className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5"
         >
           View all
-          <Icon icon="mdi:arrow-right" className="text-sm" aria-hidden="true" />
+          <Icon icon="mdi:arrow-right" className="size-3.5" aria-hidden="true" />
         </Link>
       </div>
 
@@ -58,12 +58,12 @@ export function HazcomRecentChemicalAdditionsCard(
             className="text-ehs-muted-text size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             No chemicals on the inventory yet.
           </Text>
           <Link
             href="/dashboard/hazcom/chemicals/new"
-            className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-xs font-semibold"
+            className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover"
           >
             Add the first chemical
           </Link>
@@ -79,18 +79,18 @@ export function HazcomRecentChemicalAdditionsCard(
               <span className="bg-ehs-dark-bg/6 text-ehs-gray flex size-9 shrink-0 items-center justify-center rounded-lg">
                 <Icon
                   icon="mdi:flask-outline"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
               </span>
               <div className="min-w-0 flex-1">
                 <Text
                   as="p"
-                  className="text-ehs-darker truncate text-sm font-semibold"
+                  className="text4 text-ehs-darker truncate"
                 >
                   {chemical.name}
                 </Text>
-                <Text as="p" className="text-ehs-muted-text truncate text-xs">
+                <Text as="p" className="text8 text-ehs-muted-text truncate">
                   {/* Either field can be blank on a real record, so the
                       separator is only drawn when both sides are present. */}
                   {[

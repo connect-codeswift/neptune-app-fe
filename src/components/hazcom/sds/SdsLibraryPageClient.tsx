@@ -62,7 +62,7 @@ export function SdsLibraryPageClient() {
             <Button type="button" variant="primary">
               <Icon
                 icon="mdi:tray-arrow-up"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Upload SDS

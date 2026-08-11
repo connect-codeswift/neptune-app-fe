@@ -84,7 +84,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
     chemical.sdsRecordId ? (
       <Link
         href={`/dashboard/hazcom/sds/${chemical.sdsRecordId}`}
-        className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-1.5 font-semibold underline underline-offset-2"
+        className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-1.5 underline underline-offset-2"
       >
         <Icon
           icon="mdi:file-document-outline"
@@ -104,7 +104,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
       </span>
     )
   ) : (
-    <Text as="span" className="text-ehs-muted-text">
+    <Text as="span" className="text4 text-ehs-muted-text">
       Not linked
     </Text>
   );
@@ -127,11 +127,11 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
               <Button
                 type="button"
                 variant="tertiary"
-                className="rounded-lg px-4 py-2 text-[13px]"
+                className="text4 rounded-lg px-4 py-2"
               >
                 <Icon
                   icon="mdi:pencil-outline"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
                 Edit
@@ -141,11 +141,11 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
               <Button
                 type="button"
                 variant="primary"
-                className="rounded-lg px-4 py-2 text-[13px]"
+                className="text4 rounded-lg px-4 py-2"
               >
                 <Icon
                   icon="mdi:printer-outline"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
                 Generate Label
@@ -160,7 +160,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
           <HazcomGlassCard>
             <Text
               as="h2"
-              className="text-ehs-darker mb-3 text-[15px] font-bold"
+              className="text3 text-ehs-darker mb-3"
             >
               Inventory Details
             </Text>
@@ -198,13 +198,13 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
           <HazcomGlassCard>
             <Text
               as="h2"
-              className="text-ehs-darker mb-3 text-[15px] font-bold"
+              className="text3 text-ehs-darker mb-3"
             >
               Storage &amp; Additional Information
             </Text>
             <Text
               as="p"
-              className="text-ehs-muted-text mb-2 text-[11px] font-bold tracking-[0.6px] uppercase"
+              className="text6 text-ehs-muted-text mb-2"
             >
               Storage &amp; Handling Notes
             </Text>
@@ -213,8 +213,8 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
                 as="p"
                 className={
                   chemical.storageNotes
-                    ? "text-ehs-darker text-[13px] leading-[19.5px]"
-                    : "text-ehs-muted-text text-[13px] leading-[19.5px]"
+                    ? "text4 text-ehs-darker"
+                    : "text4 text-ehs-muted-text"
                 }
               >
                 {chemical.storageNotes || "No notes recorded."}
@@ -227,19 +227,16 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
           <HazcomGlassCard>
             <Text
               as="h2"
-              className="text-ehs-darker mb-1 text-[15px] font-bold"
+              className="text3 text-ehs-darker mb-1"
             >
               GHS Hazard Identification
             </Text>
-            <Text
-              as="p"
-              className="text-ehs-muted-text mb-3 text-[11px] font-bold tracking-[0.6px] uppercase"
-            >
+            <Text as="p" className="text6 text-ehs-muted-text mb-3">
               Associated GHS Pictograms
             </Text>
             <div className="flex flex-wrap gap-2">
               {chemical.pictograms.length === 0 ? (
-                <Text as="p" className="text-ehs-muted-text text-[13px]">
+                <Text as="p" className="text4 text-ehs-muted-text">
                   No pictograms recorded.
                 </Text>
               ) : (
@@ -286,10 +283,8 @@ function DetailRow(props: Readonly<DetailRowProps>) {
         isLast ? "" : "border-b border-[rgba(15,23,42,0.06)]",
       ].join(" ")}
     >
-      <dt className="text-ehs-muted-text shrink-0 text-[13px]">{label}</dt>
-      <dd className="text-ehs-darker text-right text-[13px] font-semibold">
-        {value}
-      </dd>
+      <dt className="text8 text-ehs-muted-text shrink-0">{label}</dt>
+      <dd className="text4 text-ehs-darker text-right">{value}</dd>
     </div>
   );
 }
@@ -305,7 +300,7 @@ function StatementsCard(props: Readonly<StatementsCardProps>) {
 
   return (
     <HazcomGlassCard>
-      <Text as="h2" className="text-ehs-darker mb-3 text-[15px] font-bold">
+      <Text as="h2" className="text3 text-ehs-darker mb-3">
         {title}
       </Text>
       <div className="flex flex-col gap-2.5">
@@ -314,7 +309,7 @@ function StatementsCard(props: Readonly<StatementsCardProps>) {
           no field for them — so this is the usual case, not an edge case.
         */}
         {statements.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-[13px]">
+          <Text as="p" className="text4 text-ehs-muted-text">
             None recorded for this chemical.
           </Text>
         ) : null}
@@ -325,10 +320,7 @@ function StatementsCard(props: Readonly<StatementsCardProps>) {
               tone={tone}
               className="mt-0.5 shrink-0"
             />
-            <Text
-              as="p"
-              className="text-ehs-darker text-[13px] leading-[19.5px]"
-            >
+            <Text as="p" className="text4 text-ehs-darker">
               {statement.text}
             </Text>
           </div>

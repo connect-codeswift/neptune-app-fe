@@ -65,7 +65,7 @@ export function HazcomRiskAssessmentsPageClient() {
         actions={
           <Link href="/dashboard/hazcom/risk-assessments/new">
             <Button type="button" variant="primary">
-              <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+              <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
               New Assessment
             </Button>
           </Link>

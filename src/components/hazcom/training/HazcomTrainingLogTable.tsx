@@ -34,7 +34,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "ID",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-normal-blue text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-normal-blue">
         {info.getValue()}
       </Text>
     ),
@@ -43,7 +43,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "Date",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -52,7 +52,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "Trainer",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px]">
+      <Text as="span" className="text4 text-ehs-dark-bg">
         {info.getValue()}
       </Text>
     ),
@@ -61,7 +61,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "Topic",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-dark-bg">
         {info.getValue()}
       </Text>
     ),
@@ -70,7 +70,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "Chemicals",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue().join(", ")}
       </Text>
     ),
@@ -79,7 +79,7 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
     header: "Attendees",
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-dark-bg">
         {`${info.getValue()}`}
       </Text>
     ),
@@ -138,7 +138,7 @@ export function HazcomTrainingLogTable(
                     <th
                       key={header.id}
                       className={[
-                        "text-ehs-muted-text px-4 pt-[13px] pb-[13.5px] text-[10px] font-bold tracking-[0.8px] uppercase",
+                        "text6 text-ehs-muted-text px-4 pt-[13px] pb-[13.5px]",
                         align === "right" ? "text-right" : "text-left",
                       ].join(" ")}
                     >
@@ -162,7 +162,7 @@ export function HazcomTrainingLogTable(
                   colSpan={columns.length}
                   className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No training sessions logged yet.
                   </Text>
                 </td>
