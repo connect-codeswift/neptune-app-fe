@@ -22,6 +22,8 @@ import {
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCurrentSite } from "@/hooks/use-current-site";
 import { toast } from "@/lib/toast";
 
@@ -39,12 +41,12 @@ function StepBadge(props: Readonly<{ step: string }>) {
 export function CreateCapaContent() {
   const router = useRouter();
   const site = useCurrentSite();
+  const createCapaMutation = useCreateCapaMutation();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
   const [formValues, setFormValues] = useState<FormValues | null>(null);
   const [tasks, setTasks] = useState<CreateCapaTaskDraft[]>([]);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const schema = useMemo(
     () =>
@@ -61,6 +63,7 @@ export function CreateCapaContent() {
   );
 
   const description = fieldString(formValues ?? initialValues, "description");
+  const isSubmitting = createCapaMutation.isPending;
   const canSubmit =
     controlLevel != null && description.trim().length > 0 && !isSubmitting;
 
@@ -68,13 +71,44 @@ export function CreateCapaContent() {
     router.push(CAPA_ROUTE);
   };
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = async (values: FormValues) => {
     if (!controlLevel || isSubmitting) return;
 
-    setIsSubmitting(true);
-    const type = fieldString(values, "type");
-    toast.success("CAPA drafted", `${controlLevel} · ${type}`);
-    router.push(CAPA_ROUTE);
+    const type = fieldString(values, "type") || "Corrective";
+    const priority = fieldString(values, "priority") || "Medium";
+
+    try {
+      await createCapaMutation.mutateAsync({
+        incidentId: 0,
+        rcaId: null,
+        controlLevel,
+        description: fieldString(values, "description"),
+        type,
+        owner: fieldString(values, "assigned"),
+        dueDate: fieldString(values, "dueDate"),
+        priority,
+        tasks: tasks.map((task) => ({
+          task: task.name,
+          owner: fieldString(values, "assigned"),
+          dueDate: task.dueDate,
+          priority: task.priority,
+        })),
+      });
+
+      const taskCount = tasks.length;
+      toast.success(
+        "CAPA created",
+        taskCount > 0
+          ? `${controlLevel} · ${type} with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}`
+          : `${controlLevel} · ${type}`,
+      );
+      router.push(CAPA_ROUTE);
+    } catch (error) {
+      toast.error(
+        "Could not create CAPA",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
   };
 
   const removeTask = (id: string) => {
@@ -199,6 +233,7 @@ export function CreateCapaContent() {
               type="button"
               variant="tertiary"
               onClick={handleCancel}
+              disabled={isSubmitting}
               className="rounded-xl border border-[#cbd5e1] px-6 py-2.5 text-sm text-[#334155]"
             >
               Cancel

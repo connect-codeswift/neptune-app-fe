@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import {
@@ -24,15 +24,18 @@ export type CapaDetailAddTaskDraft = Readonly<{
 
 export type CapaDetailAddTaskModalProps = Readonly<{
   onClose: () => void;
-  onAssign?: (task: CapaDetailAddTaskDraft) => void;
+  isSubmitting?: boolean;
+  onAssign?: (task: CapaDetailAddTaskDraft) => void | Promise<void>;
 }>;
 
 /** Add New Task modal — Figma 5491:23536. Mount only while open for fresh form state. */
 export function CapaDetailAddTaskModal(
   props: Readonly<CapaDetailAddTaskModalProps>,
 ) {
-  const { onClose, onAssign } = props;
+  const { onClose, onAssign, isSubmitting = false } = props;
   const site = useCurrentSite();
+  const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
+  const busy = isSubmitting || isLocalSubmitting;
 
   const schema = useMemo(
     () =>
@@ -50,7 +53,7 @@ export function CapaDetailAddTaskModal(
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !busy) onClose();
     };
 
     document.addEventListener("keydown", onKeyDown);
@@ -61,18 +64,27 @@ export function CapaDetailAddTaskModal(
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [onClose]);
+  }, [busy, onClose]);
 
-  const handleSubmit = (values: FormValues) => {
-    onAssign?.({
-      name: fieldString(values, "name").trim(),
-      description: fieldString(values, "description").trim(),
-      assigneeName: fieldString(values, "assignedName").trim(),
-      assigneeUserId: fieldString(values, "assigned").trim(),
-      dueDate: fieldString(values, "dueDate"),
-      priority: fieldString(values, "priority") || "Medium",
-    });
-    onClose();
+  const handleSubmit = async (values: FormValues) => {
+    if (busy) return;
+
+    setIsLocalSubmitting(true);
+    try {
+      await onAssign?.({
+        name: fieldString(values, "name").trim(),
+        description: fieldString(values, "description").trim(),
+        assigneeName: fieldString(values, "assignedName").trim(),
+        assigneeUserId: fieldString(values, "assigned").trim(),
+        dueDate: fieldString(values, "dueDate"),
+        priority: fieldString(values, "priority") || "Medium",
+      });
+      onClose();
+    } catch {
+      // Parent shows toast; keep modal open for retry.
+    } finally {
+      setIsLocalSubmitting(false);
+    }
   };
 
   if (typeof document === "undefined") return null;
@@ -80,7 +92,9 @@ export function CapaDetailAddTaskModal(
   return createPortal(
     <div
       className="fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4 backdrop-blur-[2px]"
-      onClick={onClose}
+      onClick={() => {
+        if (!busy) onClose();
+      }}
       role="presentation"
     >
       <div
@@ -102,7 +116,8 @@ export function CapaDetailAddTaskModal(
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center text-[#566072] transition-colors hover:text-[#0b1320]"
+            disabled={busy}
+            className="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon="mdi:close" className="size-6" aria-hidden />
           </button>
@@ -114,7 +129,9 @@ export function CapaDetailAddTaskModal(
             schema={schema}
             initialValues={initialValues}
             hideActions
-            onSubmit={handleSubmit}
+            onSubmit={(values) => {
+              void handleSubmit(values);
+            }}
           />
         </div>
 
@@ -122,16 +139,18 @@ export function CapaDetailAddTaskModal(
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-[10px] border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc]"
+            disabled={busy}
+            className="cursor-pointer rounded-[10px] border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             form={CAPA_ADD_TASK_FORM_ID}
-            className="cursor-pointer rounded-[10px] bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395]"
+            disabled={busy}
+            className="cursor-pointer rounded-[10px] bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Assign Task
+            {busy ? "Assigning…" : "Assign Task"}
           </button>
         </footer>
       </div>

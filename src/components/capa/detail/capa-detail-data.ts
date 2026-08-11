@@ -45,6 +45,10 @@ export type CapaDetailAttachment = Readonly<{
 
 export type CapaDetailRecord = Readonly<{
   id: string;
+  /** Numeric API id for CAPA mutations. */
+  numericId: number;
+  /** Linked incident id when known; `0` for standalone. */
+  incidentId: number;
   code: string;
   title: string;
   priority: CapaDetailPriority;
@@ -160,10 +164,25 @@ export const CAPA_FIGMA_ATTACHMENTS: readonly CapaDetailAttachment[] = [
   },
 ];
 
+/** Parse numeric CAPA id from codes like `CAPA-0421` or dashboard ids like `capa-0421`. */
+export function parseCapaNumericId(idOrCode: string): number {
+  const match = /(\d+)\s*$/.exec(idOrCode.trim());
+  if (!match?.[1]) return 0;
+  return Number.parseInt(match[1], 10) || 0;
+}
+
 /** Full Figma CAPA detail — node 1366:2947 / 1370:*. */
 const FIGMA_DETAIL: Omit<
   CapaDetailRecord,
-  "id" | "code" | "title" | "owner" | "dueDate" | "progress" | "source"
+  | "id"
+  | "numericId"
+  | "incidentId"
+  | "code"
+  | "title"
+  | "owner"
+  | "dueDate"
+  | "progress"
+  | "source"
 > = {
   priority: "Critical",
   typeLabel: "Corrective Action",
@@ -201,11 +220,14 @@ function statusFromDashboard(status: CapaDashboardItem["status"]): string {
 
 function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
   const isPrimary = item.id === "capa-0421";
+  const numericId = parseCapaNumericId(item.code) || parseCapaNumericId(item.id);
 
   if (isPrimary) {
     return {
       ...FIGMA_DETAIL,
       id: item.id,
+      numericId,
+      incidentId: 0,
       code: item.code,
       title: item.title,
       owner: item.owner,
@@ -218,6 +240,8 @@ function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
 
   return {
     id: item.id,
+    numericId,
+    incidentId: 0,
     code: item.code,
     title: item.title,
     priority: priorityFromDashboard(item.priority),

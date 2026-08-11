@@ -16,6 +16,8 @@ import { FormBuilder } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateCapaTaskMutation } from "@/hooks/use-capa-mutations";
 import { toast } from "@/lib/toast";
 import { Icon } from "@iconify/react";
 import { useMemo, useState, type ReactNode } from "react";
@@ -154,6 +156,7 @@ export function CapaDetailTasksTab(
   const { record } = props;
   const columns = useMemo(() => buildTaskColumns(), []);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const createCapaTaskMutation = useCreateCapaTaskMutation();
   const doneCount = record.tasks.filter(
     (task) => task.status === "Completed",
   ).length;
@@ -175,6 +178,7 @@ export function CapaDetailTasksTab(
               type="button"
               variant="secondary"
               onClick={() => setIsAddTaskOpen(true)}
+              disabled={createCapaTaskMutation.isPending}
               className="rounded-xl border border-[rgba(43,127,255,0.3)] bg-transparent px-3 py-2! text-sm font-medium text-[#0891a6]! shadow-none hover:bg-[rgba(8,145,166,0.06)]"
             >
               <Icon icon="mdi:plus" className="size-3" aria-hidden />
@@ -187,8 +191,36 @@ export function CapaDetailTasksTab(
       {isAddTaskOpen ? (
         <CapaDetailAddTaskModal
           onClose={() => setIsAddTaskOpen(false)}
-          onAssign={() => {
-            toast.success("Task assigned");
+          isSubmitting={createCapaTaskMutation.isPending}
+          onAssign={async (draft) => {
+            if (record.numericId <= 0) {
+              toast.error(
+                "Could not add task",
+                "This CAPA is missing a server id. Refresh and try again.",
+              );
+              throw new Error("Missing CAPA numeric id");
+            }
+
+            try {
+              await createCapaTaskMutation.mutateAsync({
+                capaId: record.numericId,
+                incidentId: record.incidentId,
+                task: draft.name,
+                owner: draft.assigneeUserId,
+                dueDate: draft.dueDate,
+                priority: draft.priority,
+              });
+              toast.success(
+                "Task added",
+                `New task linked to ${record.code}.`,
+              );
+            } catch (error) {
+              toast.error(
+                "Could not add task",
+                getMutationErrorMessage(error, "Please try again."),
+              );
+              throw error;
+            }
           }}
         />
       ) : null}

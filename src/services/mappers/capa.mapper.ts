@@ -499,7 +499,8 @@ function buildCapaMutationPayload(input: {
 }
 
 export function buildCreateCapaRequest(input: {
-  incidentId: number;
+  incidentId?: number;
+  rcaId?: number | null;
   controlLevel: string;
   description: string;
   type: string;
@@ -514,13 +515,17 @@ export function buildCreateCapaRequest(input: {
   }
 
   const assignedId = parseOptionalUserId(input.owner);
+  const incidentId =
+    typeof input.incidentId === "number" && Number.isFinite(input.incidentId)
+      ? Math.max(0, Math.trunc(input.incidentId))
+      : 0;
 
   return buildCapaMutationPayload({
     id: 0,
-    incidentId: input.incidentId,
+    incidentId,
     userId,
     assignedId,
-    rcaId: null,
+    rcaId: input.rcaId ?? null,
     isDrop: false,
     controlLevel: input.controlLevel,
     description: input.description,
@@ -562,6 +567,7 @@ export function buildCreateCapaTaskRequest(input: {
   task: string;
   owner: string;
   dueDate: string;
+  priority?: string;
 }): CapaTaskRequestDto {
   const auth = getAuthContext();
   const userId = auth?.userId ?? 0;
@@ -573,6 +579,9 @@ export function buildCreateCapaTaskRequest(input: {
     id: 0,
     capaId: input.capaId,
     task: input.task.trim(),
+    priority: input.priority?.trim()
+      ? normalizePriority(input.priority)
+      : "Medium",
     ownerId: parseOptionalUserId(input.owner),
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
     userId,

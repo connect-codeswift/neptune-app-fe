@@ -771,6 +771,7 @@ export function IncidentDetailContent(
             task: payload.task,
             owner: payload.owner,
             dueDate: payload.dueDate,
+            priority: payload.priority,
           });
           toast.success("Task added", `New task linked to ${capa.code}.`);
         } catch (error) {
