@@ -84,7 +84,7 @@ export function setAccessToken(token: string | null) {
   globalThis.localStorage.removeItem(ACCESS_TOKEN_KEY);
 }
 
-export function getRefreshToken() {
+function getRefreshToken() {
   if (inMemoryRefreshToken) {
     return inMemoryRefreshToken;
   }

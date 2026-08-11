@@ -1,4 +1,4 @@
-export const ORG_ACCESS_EXPIRED_MESSAGE =
+const ORG_ACCESS_EXPIRED_MESSAGE =
   "This organization's access period has ended. Contact CodeSwift to continue.";
 
 export type AccessWindowState = Readonly<{

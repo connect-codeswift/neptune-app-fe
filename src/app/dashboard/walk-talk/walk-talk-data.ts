@@ -6,17 +6,6 @@ export type WalkTalkTrendPoint = Readonly<{
   issues: number;
 }>;
 
-export const WALK_TALK_TRENDS: readonly WalkTalkTrendPoint[] = [
-  { label: "W1", sessions: 6, issues: 2 },
-  { label: "W2", sessions: 7, issues: 3 },
-  { label: "W3", sessions: 8, issues: 2 },
-  { label: "W4", sessions: 9, issues: 4 },
-  { label: "W5", sessions: 10, issues: 3 },
-  { label: "W6", sessions: 11, issues: 5 },
-  { label: "W7", sessions: 12, issues: 4 },
-  { label: "W8", sessions: 14, issues: 6 },
-];
-
 /** Tone drives the bar colour; "primary" highlights the top finding. */
 export type FindingTone = "primary" | "muted";
 
@@ -25,14 +14,6 @@ export type WalkTalkFinding = Readonly<{
   count: number;
   tone: FindingTone;
 }>;
-
-export const TOP_FINDINGS: readonly WalkTalkFinding[] = [
-  { label: "PPE compliance", count: 18, tone: "primary" },
-  { label: "Housekeeping", count: 12, tone: "muted" },
-  { label: "Ergonomics", count: 8, tone: "muted" },
-  { label: "Chemical handling", count: 5, tone: "muted" },
-  { label: "Slip/trip/fall hazards", count: 4, tone: "muted" },
-];
 
 /** One row in the Recent sessions table. */
 export type WalkTalkSession = Readonly<{

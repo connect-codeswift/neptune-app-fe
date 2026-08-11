@@ -4,11 +4,11 @@ import {
   WEAK_PASSWORD_MESSAGE,
 } from "@/lib/password-strength";
 
-export const strongPasswordSchema = z
+const strongPasswordSchema = z
   .string()
   .regex(STRONG_PASSWORD_REGEX, WEAK_PASSWORD_MESSAGE);
 
-export const siteRequestSchema = z.object({
+const siteRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
   industryType: z.string().trim().min(1, "Industry is required."),
   siteSize: z.string().trim().nullable().optional(),
@@ -16,11 +16,8 @@ export const siteRequestSchema = z.object({
   location: z.string().trim().min(1, "Location is required."),
 });
 
-/** @deprecated Use {@link siteRequestSchema} */
-export const subcompanyRequestSchema = siteRequestSchema;
-
 /** Matches backend `UserDto` for POST /Auth/register */
-export const registerRequestSchema = z.object({
+const registerRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
   email: z.email("Enter a valid email address.").max(50),
@@ -35,7 +32,7 @@ export const registerRequestSchema = z.object({
     .min(1, "At least one site is required."),
 });
 
-export const signupFormSchema = z
+const signupFormSchema = z
   .object({
     fullName: z.string().trim().min(1, "Full name is required."),
     email: z.email("Enter a valid email address."),
@@ -50,16 +47,16 @@ export const signupFormSchema = z
     path: ["confirmPassword"],
   });
 
-export const loginRequestSchema = z.object({
+const loginRequestSchema = z.object({
   email: z.email("Enter a valid email address."),
   password: z.string().min(1, "Password is required."),
 });
 
-export const forgotPasswordRequestSchema = z.object({
+const forgotPasswordRequestSchema = z.object({
   email: z.email("Enter a valid email address."),
 });
 
-export const resetPasswordRequestSchema = z.object({
+const resetPasswordRequestSchema = z.object({
   email: z.email("Enter a valid email address."),
   otp: z.string().min(1, "OTP is required."),
   newPassword: strongPasswordSchema,
@@ -70,7 +67,7 @@ export const resetPasswordRequestSchema = z.object({
  * mismatch with a bare 400 carrying no usable message, so the two rules have to agree
  * exactly — this schema used to be stricter to mirror an older backend rule.
  */
-export const acceptInvitationRequestSchema = z.object({
+const acceptInvitationRequestSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
   contactNo: z.string().trim().max(30).optional(),
   siteId: z.number().int().nonnegative(),
@@ -79,7 +76,7 @@ export const acceptInvitationRequestSchema = z.object({
   password: strongPasswordSchema,
 });
 
-export const enableMfaRequestSchema = z.object({
+const enableMfaRequestSchema = z.object({
   code: z
     .string()
     .trim()
@@ -109,10 +106,6 @@ export type EnableMfaRequestDto = z.infer<typeof enableMfaRequestSchema>;
 
 export function parseRegisterRequest(data: unknown): RegisterRequestDto {
   return registerRequestSchema.parse(data);
-}
-
-export function safeParseRegisterRequest(data: unknown) {
-  return registerRequestSchema.safeParse(data);
 }
 
 export function safeParseSignupForm(data: unknown) {

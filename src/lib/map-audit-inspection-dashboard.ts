@@ -185,7 +185,3 @@ export function mapInspectionDetailSummaryToDetail(
 }
 
 /** Format average score for display; null → em dash. */
-export function formatAverageScore(score: number | null | undefined): string {
-  if (score === null || score === undefined) return "—";
-  return formatAverage(score);
-}

@@ -7,7 +7,6 @@ import type {
   AddDocDepartmentRequestDto,
   ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
-  CreateDocumentVersionRequestDto,
   UpdateDocumentRequestDto,
 } from "@/dtos/req/document-request.dto";
 import { documentQueryKeys } from "@/hooks/use-document-queries";
@@ -17,7 +16,6 @@ import {
   addDocDepartment,
   approveDocument,
   createDocument,
-  createDocumentVersion,
   updateDocument,
 } from "@/services/document.service";
 
@@ -38,19 +36,6 @@ export function useUpdateDocumentMutation() {
 
   return useMutation({
     mutationFn: (payload: UpdateDocumentRequestDto) => updateDocument(payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
-    },
-  });
-}
-
-/** POST /api/Document/document_version — attaches a new PDF revision. */
-export function useCreateDocumentVersionMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: CreateDocumentVersionRequestDto) =>
-      createDocumentVersion(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },

@@ -282,7 +282,7 @@ export function normalizeOrgMeResponse(data: unknown): SessionBootstrapDto | nul
 }
 
 /** Fill user/site identity from the access token after Org/me (which is org-scoped only). */
-export function mergeJwtUserIntoSession(
+function mergeJwtUserIntoSession(
   session: SessionBootstrapDto,
 ): SessionBootstrapDto {
   const auth = getAuthContext();

@@ -1,6 +1,5 @@
 import type {
   CreateContributingFactorRequestDto,
-  DropContributingFactorRequestDto,
   UpdateContributingFactorRequestDto,
 } from "@/dtos/req/rca-contributing-factor-request.dto";
 import type {
@@ -31,7 +30,7 @@ import type {
 import { getAuthContext } from "@/lib/auth-context";
 
 /** Stable ids seeded by migration — one HRCA lane per category. */
-export const HRCA_SEEDED_CATEGORY_IDS = [1, 2, 3, 4, 5] as const;
+const HRCA_SEEDED_CATEGORY_IDS = [1, 2, 3, 4, 5] as const;
 
 export type HrcaSeededCategoryId = (typeof HRCA_SEEDED_CATEGORY_IDS)[number];
 
@@ -183,18 +182,6 @@ export function buildUpdateContributingFactorRequest(
     rcaCategoryId: input.rcaCategoryId,
     description: input.description.trim(),
   };
-}
-
-export function buildDropContributingFactorRequest(): DropContributingFactorRequestDto {
-  const auth = getAuthContext();
-  const userId = auth?.userId ?? 0;
-  const siteId = auth?.siteId ?? 0;
-
-  if (userId <= 0 || siteId <= 0) {
-    throw new Error("Sign in required to delete a contributing factor.");
-  }
-
-  return { siteId, userId };
 }
 
 export type BuildCreateRcaWhysInput = Readonly<{
@@ -442,7 +429,7 @@ export function mapRcaContributingFactorDtoToView(
   };
 }
 
-export function mapRcaContributingFactorDtosToView(
+function mapRcaContributingFactorDtosToView(
   dtos: readonly RcaContributingFactorDto[],
 ): RcaContributingFactorViewModel[] {
   return dtos.map(mapRcaContributingFactorDtoToView);
@@ -484,7 +471,7 @@ function mapFactorToLane(
  * Builds five HRCA lanes from seeded categories and merges contributing factors
  * grouped by `rcaCategoryId`.
  */
-export function buildRcaHrcaLanes(
+function buildRcaHrcaLanes(
   categories: readonly RcaCategoryViewModel[],
   factors: readonly RcaContributingFactorViewModel[],
 ): RcaHrcaLaneViewModel[] {

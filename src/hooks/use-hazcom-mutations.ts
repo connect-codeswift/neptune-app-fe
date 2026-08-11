@@ -6,7 +6,6 @@ import type {
   ChemicalRiskAssessmentRequestDto,
   SafetyDataSheetRequestDto,
   TrainingLogRequestDto,
-  UpdateTrainingLogRequestDto,
 } from "@/dtos/req/hazcom-request.dto";
 import { hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
 import {
@@ -14,10 +13,6 @@ import {
   createChemicalRiskAssessment,
   createSafetyDataSheet,
   createTrainingLog,
-  deleteChemical,
-  deleteSafetyDataSheet,
-  updateChemicalRiskAssessment,
-  updateTrainingLog,
 } from "@/services/hazcom.service";
 
 /**
@@ -49,16 +44,6 @@ export function useCreateChemicalMutation() {
   });
 }
 
-/** DELETE /api/hazcom/chemical/{id} */
-export function useDeleteChemicalMutation() {
-  const invalidate = useHazcomInvalidator();
-
-  return useMutation({
-    mutationFn: (id: number) => deleteChemical(id),
-    onSuccess: invalidate,
-  });
-}
-
 /** POST /api/hazcom/sds */
 export function useCreateSdsMutation() {
   const invalidate = useHazcomInvalidator();
@@ -66,16 +51,6 @@ export function useCreateSdsMutation() {
   return useMutation({
     mutationFn: (payload: SafetyDataSheetRequestDto) =>
       createSafetyDataSheet(payload),
-    onSuccess: invalidate,
-  });
-}
-
-/** DELETE /api/hazcom/sds/{id} */
-export function useDeleteSdsMutation() {
-  const invalidate = useHazcomInvalidator();
-
-  return useMutation({
-    mutationFn: (id: number) => deleteSafetyDataSheet(id),
     onSuccess: invalidate,
   });
 }
@@ -90,19 +65,6 @@ export function useCreateTrainingLogMutation() {
   });
 }
 
-/** PUT /api/hazcom/training/{id} */
-export function useUpdateTrainingLogMutation() {
-  const invalidate = useHazcomInvalidator();
-
-  return useMutation({
-    mutationFn: (variables: {
-      id: number;
-      payload: UpdateTrainingLogRequestDto;
-    }) => updateTrainingLog(variables.id, variables.payload),
-    onSuccess: invalidate,
-  });
-}
-
 /** POST /api/hazcom/risk-assessment */
 export function useCreateRiskAssessmentMutation() {
   const invalidate = useHazcomInvalidator();
@@ -110,19 +72,6 @@ export function useCreateRiskAssessmentMutation() {
   return useMutation({
     mutationFn: (payload: ChemicalRiskAssessmentRequestDto) =>
       createChemicalRiskAssessment(payload),
-    onSuccess: invalidate,
-  });
-}
-
-/** PUT /api/hazcom/risk-assessment/{id} */
-export function useUpdateRiskAssessmentMutation() {
-  const invalidate = useHazcomInvalidator();
-
-  return useMutation({
-    mutationFn: (variables: {
-      id: number;
-      payload: ChemicalRiskAssessmentRequestDto;
-    }) => updateChemicalRiskAssessment(variables.id, variables.payload),
     onSuccess: invalidate,
   });
 }

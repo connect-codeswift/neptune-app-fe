@@ -24,7 +24,7 @@ export type CustomOptionField =
   | "mechanismOfInjury"
   | "natureOfInjury";
 
-export const EMPTY_CUSTOM_OPTIONS: Readonly<
+const EMPTY_CUSTOM_OPTIONS: Readonly<
   Record<CustomOptionField, readonly string[]>
 > = {
   initialTreatment: [],

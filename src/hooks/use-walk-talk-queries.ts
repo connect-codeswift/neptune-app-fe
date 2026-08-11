@@ -4,7 +4,6 @@ import { toWalkTalkSessions } from "@/lib/map-walk-talk";
 import {
   getWalkTalkDashboardCounts,
   getWalkTalkGraph,
-  getWalkTalkParticipants,
   getWalkTalkSessionById,
   getWalkTalkSessions,
   getWalkTalkTopFindings,
@@ -63,14 +62,6 @@ function toSessionsPage(payload: unknown): {
     pageNumber: DEFAULT_WALK_TALK_PAGE_NUMBER,
     pageSize: DEFAULT_WALK_TALK_PAGE_SIZE,
   };
-}
-
-/** Fetches GET /api/walkandtalk/participants for the log form. */
-export function useWalkTalkParticipantsQuery() {
-  return useQuery({
-    queryKey: ["walkandtalk", "participants"] as const,
-    queryFn: () => getWalkTalkParticipants(),
-  });
 }
 
 /** Fetches GET /api/walkandtalk/dashboard-counts for StatMetricCards. */

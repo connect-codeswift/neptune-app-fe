@@ -52,7 +52,7 @@ export type ReportStepTwoErrors = Readonly<{
   natureOfInjury: string | null;
 }>;
 
-export function getStepTwoErrors(
+function getStepTwoErrors(
   form: ReportIncidentFormState,
 ): ReportStepTwoErrors {
   return {
@@ -65,7 +65,7 @@ export function getStepTwoErrors(
   };
 }
 
-export function hasStepTwoErrors(errors: ReportStepTwoErrors): boolean {
+function hasStepTwoErrors(errors: ReportStepTwoErrors): boolean {
   return Boolean(errors.mechanismOfInjury || errors.natureOfInjury);
 }
 

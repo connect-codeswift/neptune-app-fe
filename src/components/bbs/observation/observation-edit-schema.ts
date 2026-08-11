@@ -7,7 +7,7 @@ import type {
 import type { ObservationDetail } from "@/app/dashboard/bbs/bbs-data";
 
 /** Safe / At-Risk rendered as the compact segmented control. */
-export const EDIT_TYPE_OPTIONS: readonly TileOption[] = [
+const EDIT_TYPE_OPTIONS: readonly TileOption[] = [
   {
     value: "Safe",
     label: "Safe",
@@ -19,7 +19,7 @@ export const EDIT_TYPE_OPTIONS: readonly TileOption[] = [
 ];
 
 /** Locations offered in the edit dropdown. */
-export const EDIT_LOCATION_OPTIONS: readonly SelectOption[] = [
+const EDIT_LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "Plant A - Assembly", label: "Plant A - Assembly" },
   { value: "Plant A - Fabrication", label: "Plant A - Fabrication" },
   { value: "Plant B - Warehouse", label: "Plant B - Warehouse" },
@@ -27,7 +27,7 @@ export const EDIT_LOCATION_OPTIONS: readonly SelectOption[] = [
 ];
 
 /** Behavior categories offered in the edit dropdown (fallback when API empty). */
-export const EDIT_CATEGORY_OPTIONS: readonly SelectOption[] = [
+const EDIT_CATEGORY_OPTIONS: readonly SelectOption[] = [
   { value: "PPE Usage", label: "PPE Usage" },
   { value: "Lifting Technique", label: "Lifting Technique" },
   { value: "Housekeeping", label: "Housekeeping" },
@@ -120,9 +120,6 @@ export function buildObservationInfoSchema(args: {
   ];
 }
 
-/** @deprecated Prefer {@link buildObservationInfoSchema}. */
-export const observationInfoSchema: FormSchema = buildObservationInfoSchema({});
-
 /** Behavior Details card fields. */
 export const observationDetailsSchema: FormSchema = [
   {
@@ -165,7 +162,7 @@ export function toObservationEditValues(detail: ObservationDetail): FormValues {
 }
 
 /** "April 22, 2025" -> "2025-04-22" for the native date input. */
-export function toDateInputValue(dateLabel: string): string {
+function toDateInputValue(dateLabel: string): string {
   const parsed = new Date(dateLabel);
   if (Number.isNaN(parsed.getTime())) return "";
   const year = parsed.getFullYear();
@@ -175,7 +172,7 @@ export function toDateInputValue(dateLabel: string): string {
 }
 
 /** "2:30 PM" -> "14:30" for the native time input; blank when unparseable. */
-export function toTimeInputValue(timeLabel: string): string {
+function toTimeInputValue(timeLabel: string): string {
   const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(timeLabel.trim());
   if (!match) return "";
   let hours = Number(match[1]);
@@ -187,13 +184,3 @@ export function toTimeInputValue(timeLabel: string): string {
 }
 
 /** "14:30" -> "2:30 PM" for the detail display. */
-export function fromTimeInputValue(timeValue: string): string {
-  const match = /^(\d{2}):(\d{2})$/.exec(timeValue);
-  if (!match) return timeValue;
-  let hours = Number(match[1]);
-  const minutes = match[2];
-  const meridiem = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  if (hours === 0) hours = 12;
-  return `${String(hours)}:${minutes} ${meridiem}`;
-}

@@ -8,10 +8,7 @@ import type { IncidentCapa } from "@/components/incidents/list/incident-list-typ
 import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
-import type {
-  CapaTaskStatus,
-  CapaTaskStatusRequestDto,
-} from "@/dtos/req/capa-task-status-request.dto";
+import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
@@ -132,7 +129,7 @@ function progressForStatus(
 }
 
 /** Maps PATCH /CAPA/Task/Status values to progress bar fill. */
-export function capaTaskStatusToProgressPercent(
+function capaTaskStatusToProgressPercent(
   status: CapaTaskStatus | null | undefined,
 ): number {
   switch (status) {
@@ -147,7 +144,7 @@ export function capaTaskStatusToProgressPercent(
 }
 
 /** Average progress across all tasks for a CAPA. */
-export function computeProgressPercentFromTasks(
+function computeProgressPercentFromTasks(
   tasks: readonly CapaTaskDto[],
 ): number | null {
   if (tasks.length === 0) {
@@ -163,7 +160,7 @@ export function computeProgressPercentFromTasks(
 }
 
 /** Primary task status when a CAPA has one or more tasks. */
-export function resolvePrimaryCapaTaskStatus(
+function resolvePrimaryCapaTaskStatus(
   tasks: readonly CapaTaskDto[],
 ): CapaTaskStatus | null {
   const primary = tasks[0];
@@ -201,21 +198,6 @@ export function capaTaskStatusBadgeClass(
 }
 
 /** Cycle task status when the assignee updates their CAPA action. */
-export function nextCapaTaskStatus(
-  current: CapaTaskStatus | null | undefined,
-): CapaTaskStatus {
-  switch (current) {
-    case "NotStarted":
-      return "InProcess";
-    case "InProcess":
-      return "Completed";
-    case "Completed":
-      return "NotStarted";
-    default:
-      return "InProcess";
-  }
-}
-
 function resolveCapaProgress(
   dto: CapaDto,
   status: CapaItem["status"],
@@ -255,7 +237,7 @@ function resolveAssignee(
   return `User ${String(dto.userId)}`;
 }
 
-export function mapCapaDtoToItem(
+function mapCapaDtoToItem(
   dto: CapaDto,
   options?: Readonly<{
     currentUserId?: number;
@@ -292,7 +274,7 @@ export function mapCapaDtoToItem(
   };
 }
 
-export function buildCapaSummary(
+function buildCapaSummary(
   items: readonly CapaItem[],
 ): CapaSummaryCounts {
   let notStartedCount = 0;
@@ -322,7 +304,7 @@ export function buildCapaSummary(
   };
 }
 
-export function buildControlCoverage(
+function buildControlCoverage(
   items: readonly CapaItem[],
 ): readonly HierarchyControlRow[] {
   const counts = new Map<string, number>(
@@ -342,7 +324,7 @@ export function buildControlCoverage(
   }));
 }
 
-export function buildCoverageNotice(
+function buildCoverageNotice(
   hierarchy: readonly HierarchyControlRow[],
 ): string | null {
   const elimination = hierarchy.find((row) => row.label === "Elimination");
@@ -416,7 +398,7 @@ export const EMPTY_LINKED_CAPA_VIEW: LinkedCapaViewModel = {
 };
 
 /** Normalize UI control level (Add CAPA modal) to API enum casing. */
-export function toApiControlLevel(level: string): string {
+function toApiControlLevel(level: string): string {
   return normalizeControlLevel(level);
 }
 
@@ -436,7 +418,7 @@ export function toSelectorControlLevel(
 }
 
 /** Short label required by POST /CAPA/Capa — derived from the action description. */
-export function buildCapaTitleFromDescription(description: string): string {
+function buildCapaTitleFromDescription(description: string): string {
   const trimmed = description.trim();
   const firstLine = trimmed.split(/\r?\n/)[0]?.trim() ?? trimmed;
   if (firstLine.length <= 120) {
@@ -584,43 +566,6 @@ export function buildCreateCapaTaskRequest(input: {
       : "Medium",
     ownerId: parseOptionalUserId(input.owner),
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
-    userId,
-  };
-}
-
-export function buildUpdateCapaTaskRequest(input: {
-  id: number;
-  capaId: number;
-  userId: number;
-  task: string;
-  owner: string;
-  dueDate: string;
-}): CapaTaskRequestDto {
-  return {
-    id: input.id,
-    capaId: input.capaId,
-    userId: input.userId,
-    task: input.task.trim(),
-    ownerId: parseOptionalUserId(input.owner),
-    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
-  };
-}
-
-export function buildUpdateCapaTaskStatusRequest(input: {
-  id: number;
-  status: CapaTaskStatus;
-  userId?: number;
-}): CapaTaskStatusRequestDto {
-  const auth = getAuthContext();
-  const userId = input.userId ?? auth?.userId ?? 0;
-
-  if (userId <= 0) {
-    throw new Error("Sign in required to update CAPA task status.");
-  }
-
-  return {
-    id: input.id,
-    status: input.status,
     userId,
   };
 }

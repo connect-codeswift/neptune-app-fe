@@ -117,7 +117,7 @@ export function createEmptyProcedureForm(): LotoProcedureFormState {
 }
 
 /** Edit sample — Figma 6915:56769 (EQ-0042). */
-export const LOTO_EDIT_PROCEDURE_SAMPLE: LotoProcedureFormState = {
+const LOTO_EDIT_PROCEDURE_SAMPLE: LotoProcedureFormState = {
   equipmentName: "Conveyor Belt Motor CB-04",
   equipmentCode: "EQ-0042",
   location: "Plant B - Line 3",

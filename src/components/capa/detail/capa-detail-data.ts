@@ -165,7 +165,7 @@ export const CAPA_FIGMA_ATTACHMENTS: readonly CapaDetailAttachment[] = [
 ];
 
 /** Parse numeric CAPA id from codes like `CAPA-0421` or dashboard ids like `capa-0421`. */
-export function parseCapaNumericId(idOrCode: string): number {
+function parseCapaNumericId(idOrCode: string): number {
   const match = /(\d+)\s*$/.exec(idOrCode.trim());
   if (!match?.[1]) return 0;
   return Number.parseInt(match[1], 10) || 0;

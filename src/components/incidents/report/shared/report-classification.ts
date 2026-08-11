@@ -36,7 +36,7 @@ export const CLASSIFICATION_FIELDS: readonly ClassificationField[] = [
 ];
 
 /** Medical Treatment, Restricted Duty, Lost Time, and Fatality use SIA / SIP / SIF. */
-export const SIA_SIP_SEVERITY_IDS = [
+const SIA_SIP_SEVERITY_IDS = [
   "medical-treatment",
   "restricted-duty",
   "lost-time",
@@ -45,9 +45,9 @@ export const SIA_SIP_SEVERITY_IDS = [
 
 export type SiaSipSeverityId = (typeof SIA_SIP_SEVERITY_IDS)[number];
 
-export const SERIOUS_INCIDENT_SIA_SIP_LABEL = "Is this a SIA, SIP, or SIF";
+const SERIOUS_INCIDENT_SIA_SIP_LABEL = "Is this a SIA, SIP, or SIF";
 
-export const SERIOUS_INCIDENT_SIA_SIP_OPTIONS = [
+const SERIOUS_INCIDENT_SIA_SIP_OPTIONS = [
   { value: "SIP", label: "SIP" },
   { value: "SIA", label: "SIA" },
   { value: "SIF", label: "SIF" },

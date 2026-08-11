@@ -1,5 +1,5 @@
 /** Backend status values — exact casing from the API contract. */
-export const RUN_STATUS = {
+const RUN_STATUS = {
   scheduled: "Scheduled",
   inProgress: "InProgress",
   submitted: "Submitted",
