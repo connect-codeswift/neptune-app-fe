@@ -1,6 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
 import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import { formatHazardDisplayId } from "@/lib/map-hazard";
 import { userNameFor } from "@/lib/map-user";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
@@ -8,12 +10,13 @@ const columnHelper = createColumnHelper<HazardRecord>();
 
 export type HazardColumnHandlers = Readonly<{
   userNames?: ReadonlyMap<string, string>;
+  onView: (record: HazardRecord) => void;
 }>;
 
 export function makeHazardColumns(
   handlers: HazardColumnHandlers,
 ): TableColumns<HazardRecord> {
-  const { userNames } = handlers;
+  const { userNames, onView } = handlers;
 
   return [
     columnHelper.accessor("id", {
@@ -69,6 +72,24 @@ export function makeHazardColumns(
         </span>
       ),
       meta: { align: "right" as const },
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+          aria-label={`View hazard ${formatHazardDisplayId(row.original.id)}`}
+          onClick={() => {
+            onView(row.original);
+          }}
+        >
+          <Icon icon="lets-icons:view" className="size-5" aria-hidden="true" />
+        </button>
+      ),
+      meta: { align: "center" as const },
     }),
   ];
 }
