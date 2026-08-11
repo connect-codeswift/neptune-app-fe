@@ -10,7 +10,7 @@ import type { SessionSiteDto } from "@/dtos/res/session-response.dto";
  * The trigger shows the company; the menu lists that company's sites so the
  * user can narrow the dashboard to one of them (or back to "All sites").
  */
-export const ALL_SITES = "All sites";
+const ALL_SITES = "All sites";
 
 export type SiteSwitcherSite = Pick<SessionSiteDto, "id" | "siteName">;
 

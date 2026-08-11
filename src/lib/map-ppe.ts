@@ -35,35 +35,8 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
   });
 }
 
-/**
- * Turn GET /api/ppe/issue/assigned-to rows into replacement dropdown options.
- * value = issuance id (not catalogue ppeId); label = item name.
- */
-export function toAssignedPpeIssueOptions(
-  issues: readonly PpeIssueDto[] | null | undefined,
-): SelectOption[] {
-  if (!issues?.length) return [];
-
-  return issues.flatMap((issue) => {
-    if (
-      issue.id === undefined ||
-      issue.id === null ||
-      String(issue.id) === ""
-    ) {
-      return [];
-    }
-
-    return [
-      {
-        value: String(issue.id),
-        label: toIssueItemName(issue),
-      },
-    ];
-  });
-}
-
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
-export function toPpeSizeOptions(
+function toPpeSizeOptions(
   availableSize?: string | null,
 ): SelectOption[] {
   if (!availableSize?.trim()) return [];
@@ -334,7 +307,7 @@ function toHistoryFromIssue(
 }
 
 /** Map API `issues` into catalog issuance rows. */
-export function toPpeIssuanceRecords(
+function toPpeIssuanceRecords(
   issues: readonly PpeIssueDto[] | null | undefined,
 ): PpeIssuanceRecord[] {
   if (!issues?.length) return [];
@@ -559,7 +532,7 @@ export function toIssueIdFromResponse(
 }
 
 /** Read siteId from POST /api/ppe/issue when the JWT has no site claim. */
-export function toSiteIdFromIssueResponse(
+function toSiteIdFromIssueResponse(
   response: Readonly<{
     dataModel?: { siteId?: number | string; SiteId?: number | string } | null;
   }>,
@@ -577,28 +550,6 @@ export function toSiteIdFromIssueResponse(
 }
 
 /** Prefer token site, then issue response, then selected employee's subCompId. */
-export function resolvePpeAcknowledgeSiteId(
-  issueResponse: Readonly<{
-    dataModel?: {
-      siteId?: number | string;
-      SiteId?: number | string;
-    } | null;
-  }>,
-  tokenSiteId: number,
-  employeeSubCompId: number | null,
-): number {
-  if (tokenSiteId > 0) return tokenSiteId;
-
-  const issueSiteId = toSiteIdFromIssueResponse(issueResponse);
-  if (issueSiteId !== null && issueSiteId > 0) return issueSiteId;
-
-  if (employeeSubCompId !== null && employeeSubCompId > 0) {
-    return employeeSubCompId;
-  }
-
-  return 0;
-}
-
 function toKpiCount(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return "0";
   return value.toLocaleString("en-US");

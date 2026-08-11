@@ -43,7 +43,7 @@ export const INJURY_LEVEL_OPTIONS: readonly InjuryLevelOption[] = [
  * Legacy ids (`osha`, `sia`, `sip`) map defensively so stale state can never
  * produce a value outside the union.
  */
-export function injuryLevelForSeverity(severityId: string): InjuryLevelId {
+function injuryLevelForSeverity(severityId: string): InjuryLevelId {
   switch (severityId) {
     case "first-aid":
       return "first-aid";

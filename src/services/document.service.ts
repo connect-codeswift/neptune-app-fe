@@ -4,7 +4,6 @@ import type {
   AddDocDepartmentRequestDto,
   ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
-  CreateDocumentVersionRequestDto,
   GetAllDocumentsRequestDto,
   UpdateDocumentRequestDto,
 } from "@/dtos/req/document-request.dto";
@@ -15,7 +14,6 @@ import type {
   DocumentVersionDto,
   GetAllDocumentsResultDto,
   GetDocumentAcknowledgementsResponseDto,
-  GetDocumentCategoryStatsResponseDto,
   GetDocumentDashboardKpisResponseDto,
 } from "@/dtos/res/document-response.dto";
 import http, { HttpError } from "@/lib/axios";
@@ -24,13 +22,11 @@ import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto.ts";
 const DOCUMENT_GET_ALL_PATH = "/Document/allDocuments";
 const DOCUMENT_BY_ID_PATH = "/Document";
 const DOCUMENT_CREATE_PATH = "/Document/document";
-const DOCUMENT_VERSION_CREATE_PATH = "/Document/document_version";
 const DOCUMENT_ADD_CATEGORY_PATH = "/Document/AddCategory";
 const DOCUMENT_ADD_DEPARTMENT_PATH = "/Document/AddDepartment";
 const DOCUMENT_CATEGORIES_PATH = "/Document/GetAllCategories";
 const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
 const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
-const DOCUMENT_CATEGORY_STATS_PATH = "/Document/category-stats";
 const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
 const DOCUMENT_APPROVAL_PATH = "/Document/DocApproval";
 
@@ -318,14 +314,6 @@ export async function getDocumentDashboardKpis() {
 }
 
 /** GET /api/Document/category-stats */
-export async function getDocumentCategoryStats() {
-  const { data } = await http.get<GetDocumentCategoryStatsResponseDto>(
-    DOCUMENT_CATEGORY_STATS_PATH,
-  );
-
-  return data;
-}
-
 /**
  * PUT /api/Document/Acknowledgement
  * Query param only: `docVersionId`. Backend resolves the user from the auth token.
@@ -582,18 +570,3 @@ export async function updateDocument(payload: UpdateDocumentRequestDto) {
  * POST /api/Document/document_version
  * JSON body — attaches a new PDF revision to an existing document.
  */
-export async function createDocumentVersion(
-  payload: CreateDocumentVersionRequestDto,
-) {
-  const { data } = await http.post<unknown>(DOCUMENT_VERSION_CREATE_PATH, {
-    id: payload.id,
-    documentId: payload.documentId,
-    pdfPath: payload.pdfPath,
-    fileName: payload.fileName,
-    uploadedBy: payload.uploadedBy,
-    ackUserIds: payload.ackUserIds,
-    approvalUserIds: payload.approvalUserIds,
-  });
-
-  return data;
-}

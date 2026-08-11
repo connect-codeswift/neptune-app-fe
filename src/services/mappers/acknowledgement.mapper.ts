@@ -76,7 +76,7 @@ function formatDate(value: string | null | undefined): string | null {
   return parsed.toISOString().slice(0, 10);
 }
 
-export function mapAcknowledgementRowDto(
+function mapAcknowledgementRowDto(
   row: DocumentAcknowledgementRowDto,
 ): AcknowledgmentRecord {
   const id = row.id ?? 0;

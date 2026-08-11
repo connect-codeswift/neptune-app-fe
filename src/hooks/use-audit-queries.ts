@@ -10,7 +10,7 @@ import {
 } from "@/services/audit.service";
 import { useAppSelector } from "@/store/hooks";
 
-export const auditQueryKeys = {
+const auditQueryKeys = {
   all: ["audit"] as const,
   summary: (userId: number | null) =>
     [...auditQueryKeys.all, "summary", userId] as const,

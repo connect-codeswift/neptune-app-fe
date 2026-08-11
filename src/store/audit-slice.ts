@@ -46,7 +46,7 @@ export function loadAuditResult(): AuditResponsesResultDto | null {
 }
 
 /** Persist (or clear) the submission result in localStorage. */
-export function saveAuditResult(value: AuditResponsesResultDto | null): void {
+function saveAuditResult(value: AuditResponsesResultDto | null): void {
   if (typeof window === "undefined") return;
   try {
     if (value) {
@@ -71,7 +71,7 @@ export function loadAuditAnswers(): AuditItemResponseRequestDto[] | null {
 }
 
 /** Persist (or clear) the submitted answers in localStorage. */
-export function saveAuditAnswers(
+function saveAuditAnswers(
   value: AuditItemResponseRequestDto[] | null,
 ): void {
   if (typeof window === "undefined") return;

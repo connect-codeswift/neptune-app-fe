@@ -99,7 +99,7 @@ export function toBehaviorCategorySuggestions(
     .map((category) => category.name);
 }
 
-export function toBehaviorCategoryId(
+function toBehaviorCategoryId(
   categoryName: string,
   categories: readonly BehaviorCategoryDto[],
 ): number | null {
@@ -172,7 +172,7 @@ export function toUpdateBbsObservationRequest(
 }
 
 /** API observation row → recent-sessions table row. */
-export function toBbsSession(dto: BbsObservationDto): BbsSession {
+function toBbsSession(dto: BbsObservationDto): BbsSession {
   return {
     id: `BBS-${String(dto.id)}`,
     type: dto.observe?.trim() || "Observation",

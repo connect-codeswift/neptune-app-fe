@@ -23,7 +23,7 @@ export function withAttachmentDisplayName(
   }
 }
 
-export function readAttachmentDisplayName(url: string): string | null {
+function readAttachmentDisplayName(url: string): string | null {
   try {
     const value = new URL(url).searchParams.get(DISPLAY_NAME_PARAM)?.trim();
     return value || null;

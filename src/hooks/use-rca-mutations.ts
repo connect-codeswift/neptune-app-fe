@@ -7,7 +7,6 @@ import {
   createRcaCategory,
   createRcaCorrectiveAction,
   createRcaWhys,
-  dropContributingFactor,
   dropRcaCorrectiveAction,
   dropRcaWhy,
   updateContributingFactor,
@@ -19,7 +18,6 @@ import {
   buildCreateRcaCategoryRequest,
   buildCreateRcaCorrectiveActionRequest,
   buildCreateRcaWhysRequest,
-  buildDropContributingFactorRequest,
   buildDropRcaCorrectiveActionRequest,
   buildDropRcaWhyRequest,
   buildUpdateContributingFactorRequest,
@@ -102,22 +100,6 @@ export function useUpdateContributingFactorMutation() {
       const payload = buildUpdateContributingFactorRequest(input);
       const dto = await updateContributingFactor(payload);
       return mapRcaContributingFactorDtoToView(dto);
-    },
-    onSuccess: async (_result, input) => {
-      await queryClient.invalidateQueries({
-        queryKey: rcaQueryKeys.byIncident(input.incidentId),
-      });
-    },
-  });
-}
-
-export function useDropContributingFactorMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: DropContributingFactorInput): Promise<void> => {
-      const payload = buildDropContributingFactorRequest();
-      await dropContributingFactor(input.contributingFactorId, payload);
     },
     onSuccess: async (_result, input) => {
       await queryClient.invalidateQueries({

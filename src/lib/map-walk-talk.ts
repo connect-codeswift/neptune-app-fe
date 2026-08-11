@@ -34,7 +34,7 @@ function asStringList(value: FormValues[string] | undefined): string[] {
 }
 
 /** Convert a date/time form value to an ISO-8601 string for the API. */
-export function toWalkTalkIsoDate(value: string): string {
+function toWalkTalkIsoDate(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return new Date().toISOString();
 
@@ -191,7 +191,7 @@ function toDetailFollowUp(dto: WalkTalkSessionFollowUpDto): WalkTalkFollowUp {
 }
 
 /** API session row → recent-sessions table row. */
-export function toWalkTalkSession(dto: WalkTalkSessionDto): WalkTalkSession {
+function toWalkTalkSession(dto: WalkTalkSessionDto): WalkTalkSession {
   const topics = Array.isArray(dto.topics)
     ? dto.topics.map((topic) => topic.trim()).filter(Boolean)
     : [];

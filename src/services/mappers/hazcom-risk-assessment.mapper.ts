@@ -58,7 +58,7 @@ function toAssessmentStatus(
   return isDraft ? "Draft" : "Pending";
 }
 
-export function mapRiskAssessmentDtoToHazcomAssessment(
+function mapRiskAssessmentDtoToHazcomAssessment(
   raw: unknown,
 ): HazcomRiskAssessment {
   const record = isRecord(raw) ? raw : {};

@@ -7,7 +7,7 @@ import {
 import type { ReplacePpeRequestDto } from "@/dtos/req/ppe-request.dto";
 
 /** value === label so the form stores the API's replaceReason text. */
-export const REPLACEMENT_REASON_OPTIONS: readonly SelectOption[] = [
+const REPLACEMENT_REASON_OPTIONS: readonly SelectOption[] = [
   { value: "Damage / Impact", label: "Damage / Impact" },
   { value: "Chemical Contamination", label: "Chemical Contamination" },
   { value: "Wear / End of Life", label: "Wear / End of Life" },

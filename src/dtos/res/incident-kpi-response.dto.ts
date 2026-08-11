@@ -33,7 +33,7 @@ export type GetIncidentListKpisResponseDto =
   ApiEnvelopeDto<IncidentListKpiDto | null>;
 
 /** Known KPI metric keys used across target save/list and card matching. */
-export const KPI_METRIC_KEYS = [
+const KPI_METRIC_KEYS = [
   "rir",
   "ltir",
   "mttc",

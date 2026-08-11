@@ -31,7 +31,7 @@ export const STATUS_FILTERS: readonly DocumentStatusFilter[] = [
   "Expiring",
 ];
 
-export const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
+const POLICY_DOCUMENTS: readonly PolicyDocument[] = [
   {
     id: "pol-001",
     category: "policies",

@@ -1,5 +1,4 @@
 import type {
-  SaveKpiTargetRequestDto,
   SaveSiteWorkHoursRequestDto,
 } from "@/dtos/req/incident-kpi-request.dto";
 import type {
@@ -10,7 +9,6 @@ import type {
   GetSiteWorkHoursResponseDto,
   IncidentDashboardKpisDto,
   KpiTargetDto,
-  SaveKpiTargetResponseDto,
   SaveSiteWorkHoursResponseDto,
   SiteWorkHoursDto,
 } from "@/dtos/res/incident-kpi-response.dto";
@@ -218,31 +216,6 @@ export async function getKpiTargets() {
 }
 
 /** PUT /api/Incident/kpi-targets */
-export async function saveKpiTarget(payload: SaveKpiTargetRequestDto) {
-  const metric = payload.metric.trim();
-  if (!metric) {
-    throw new Error("Metric is required.");
-  }
-
-  if (!Number.isFinite(payload.targetValue)) {
-    throw new Error("Target value must be a valid number.");
-  }
-
-  const { data } = await http.put<SaveKpiTargetResponseDto>(
-    INCIDENT_KPI_TARGETS_PATH,
-    {
-      metric,
-      targetValue: payload.targetValue,
-    },
-  );
-
-  if (!data.success) {
-    throw new Error(data.message || "Failed to save KPI target.");
-  }
-
-  return data;
-}
-
 /** GET /api/Incident/site-work-hours */
 export async function getSiteWorkHours() {
   const { data } = await http.get<GetSiteWorkHoursResponseDto>(

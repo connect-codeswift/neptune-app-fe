@@ -19,7 +19,7 @@ function repeat(count: number, render: (index: number) => React.ReactNode) {
 }
 
 /** Card title + optional subtitle, matching CardHeading. */
-export function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
+function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
   const { action = true } = props;
 
   return (
@@ -54,7 +54,7 @@ export function SkeletonKpiRow(props: Readonly<{ count?: number }>) {
 }
 
 /** Filter toolbar with n segmented-control groups. */
-export function SkeletonFilterBar(props: Readonly<{ groups?: number }>) {
+function SkeletonFilterBar(props: Readonly<{ groups?: number }>) {
   const { groups = 3 } = props;
 
   return (
@@ -131,7 +131,7 @@ export function SkeletonListRows(props: Readonly<{ rows?: number }>) {
 }
 
 /** Label / value pairs, for detail summary panels and read-only forms. */
-export function SkeletonFieldGrid(
+function SkeletonFieldGrid(
   props: Readonly<{ fields?: number; columns?: 1 | 2 | 3 }>,
 ) {
   const { fields = 6, columns = 2 } = props;
@@ -272,25 +272,6 @@ export function SkeletonSidePanel() {
 }
 
 /** Page heading strip: title, subtitle and header controls. */
-export function SkeletonPageHeader(props: Readonly<{ controls?: number }>) {
-  const { controls = 3 } = props;
-
-  return (
-    <header className="flex min-w-0 flex-col gap-3 px-3 py-4 sm:px-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4">
-      <Skeleton className="h-7 w-56" />
-      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
-        <Skeleton className="h-10 w-full rounded-lg sm:w-88" />
-        {repeat(controls, (index) => (
-          <Skeleton
-            key={`skeleton-control-${String(index)}`}
-            className="h-10 w-36 rounded-lg"
-          />
-        ))}
-      </div>
-    </header>
-  );
-}
-
 /** List screen: stat row, filters, table. */
 export function SkeletonListPage(
   props: Readonly<{

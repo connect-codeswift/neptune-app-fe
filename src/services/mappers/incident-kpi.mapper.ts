@@ -414,13 +414,3 @@ export function hasSufficientSiteWorkHours(
 }
 
 /** Finds the stored hours entry for a specific year/month, if present. */
-export function getSiteWorkHoursForMonth(
-  records: readonly SiteWorkHoursDto[] | null | undefined,
-  year: number,
-  month: number,
-): SiteWorkHoursDto | undefined {
-  return (records ?? []).find(
-    (record) => record.year === year && record.month === month,
-  );
-}
-

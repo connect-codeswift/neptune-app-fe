@@ -57,7 +57,7 @@ export type ReportStepOneErrors = Readonly<{
   classifications: Readonly<Record<string, string | null>>;
 }>;
 
-export function hasStepOneErrors(errors: ReportStepOneErrors): boolean {
+function hasStepOneErrors(errors: ReportStepOneErrors): boolean {
   if (
     errors.severity ||
     errors.affectedPerson ||
@@ -84,7 +84,7 @@ function isComplete(dateValue: string): boolean {
  * fillable. Incomplete values return no error: half-typed input is not yet a
  * mistake, and flagging it mid-keystroke just argues with the reporter.
  */
-export function validateTiming(
+function validateTiming(
   form: ReportIncidentFormState,
 ): ReportTimingErrors {
   const todayDate = today();
@@ -133,7 +133,7 @@ export function validateTiming(
  * Exported so the view can gate the left-hand stepper too — otherwise clicking
  * straight to Step 2 skips this check entirely.
  */
-export function getStepOneErrors(
+function getStepOneErrors(
   form: ReportIncidentFormState,
 ): ReportStepOneErrors {
   const timing = validateTiming(form);

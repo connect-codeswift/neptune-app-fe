@@ -60,7 +60,7 @@ function toSdsStatus(revisedOn: string): HazcomSdsStatus {
   return daysUntilDue <= DUE_SOON_DAYS ? "Due Soon" : "Compliant";
 }
 
-export function mapSdsDtoToHazcomSdsRecord(raw: unknown): HazcomSdsRecord {
+function mapSdsDtoToHazcomSdsRecord(raw: unknown): HazcomSdsRecord {
   const record = isRecord(raw) ? raw : {};
   const revisedOn = toIsoDate(
     readProp(record, "revisionDate", "RevisionDate", "revisedOn", "RevisedOn"),

@@ -7,7 +7,7 @@ import {
   getMyActions,
 } from "@/services/ehs-command-center.service";
 
-export const dashboardQueryKeys = {
+const dashboardQueryKeys = {
   mainKpis: ["dashboard", "main-kpis"] as const,
   incidentTrends: ["dashboard", "incident-trends"] as const,
   myActions: ["dashboard", "my-actions"] as const,

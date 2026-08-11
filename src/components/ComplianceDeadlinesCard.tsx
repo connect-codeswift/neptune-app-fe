@@ -37,34 +37,6 @@ export const COMPLIANCE_DEADLINE_ITEMS: readonly ComplianceDeadlinesItem[] = [
   },
 ];
 
-export const MY_ACTIONS_ITEMS: readonly ComplianceDeadlinesItem[] = [
-  {
-    title: "Replace frayed hydraulic press machine #4",
-    subtitle: "A-8421 · Plant A · Line 2 · Corrective Action",
-    badge: "3d",
-  },
-  {
-    title: "Install safety guards on grinder Station 3",
-    subtitle: "A-8390 · Plant A · Machine Shop · Corrective Action",
-    badge: "5d",
-  },
-  {
-    title: "Update chemical storage SOP and labels",
-    subtitle: "A-8355 · Plant B · Warehouse 1 · Documentation",
-    badge: "8d",
-  },
-  {
-    title: "Schedule forklift operator refresher training",
-    subtitle: "A-8312 · Plant A · Loading Dock · Training",
-    badge: "10d",
-  },
-  {
-    title: "Review confined space entry permit — Tank 7",
-    subtitle: "A-8298 · Plant C · Utilities · Permit Review",
-    badge: "13d",
-  },
-];
-
 export const RECENT_ACTIVITY_ITEMS: readonly ComplianceDeadlinesItem[] = [
   {
     emphasis: "Maria Lopez",
