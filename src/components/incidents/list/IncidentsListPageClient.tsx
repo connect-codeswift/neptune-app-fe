@@ -10,7 +10,7 @@ export function IncidentsListPageClient() {
       <IncidentListHeader />
       <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 sm:px-6">
         <IncidentViewTabs />
-        <IncidentListViewClient searchQuery="" />
+        <IncidentListViewClient />
       </div>
     </div>
   );
