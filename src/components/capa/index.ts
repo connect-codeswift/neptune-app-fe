@@ -7,3 +7,4 @@ export * from "./CapaPageClient";
 export * from "./CapaPageSkeleton";
 export * from "./create/CreateCapaContent";
 export * from "./mine/MyCapasContent";
+export * from "./detail/CapaDetailContent";

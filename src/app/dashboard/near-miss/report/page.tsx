@@ -5,7 +5,7 @@ import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMi
 export default function ReportNearMissPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader />
+      <DashboardHeader title="Add Report Near Miss" />
       <div className="mx-auto flex w-full flex-col gap-5 px-4">
         <ReportNearMissHeader />
         <ReportNearMissForm />

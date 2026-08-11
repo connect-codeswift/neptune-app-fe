@@ -39,6 +39,11 @@ export function CapaDashboardView() {
   const selected =
     filtered.find((item) => item.id === selectedId) ?? filtered[0] ?? null;
 
+  const openCapaDetail = (id: string) => {
+    setSelectedId(id);
+    router.push(`/dashboard/capa/${encodeURIComponent(id)}`);
+  };
+
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
       <CapaDashboardMetrics />
@@ -63,7 +68,7 @@ export function CapaDashboardView() {
         <CapaRegisterTable
           items={filtered}
           selectedId={selected?.id ?? null}
-          onSelect={setSelectedId}
+          onSelect={openCapaDetail}
         />
         {selected ? <CapaDetailPanel item={selected} /> : null}
       </div>

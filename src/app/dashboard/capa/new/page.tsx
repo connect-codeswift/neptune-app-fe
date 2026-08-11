@@ -1,3 +1,5 @@
+"use client";
+
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { CreateCapaContent } from "@/components/capa/create/CreateCapaContent";
 

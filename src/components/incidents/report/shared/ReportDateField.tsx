@@ -56,6 +56,10 @@ export type ReportDateFieldProps = Readonly<{
   error?: string | null;
   /** Report forms use the default styling; modals use `embedded` with a portaled calendar. */
   variant?: "report" | "embedded";
+  /** When true, omit the built-in label (parent already renders one). */
+  hideLabel?: boolean;
+  /** Extra classes merged onto the input control. */
+  inputClassName?: string;
 }>;
 
 const QUICK_PICK_LABELS: Record<ReportDateQuickPick, string> = {
@@ -78,6 +82,8 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     quickPicks,
     error = null,
     variant = "report",
+    hideLabel = false,
+    inputClassName = "",
   } = props;
 
   const isEmbedded = variant === "embedded";
@@ -187,7 +193,12 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     return true;
   });
 
-  const inputClass = isEmbedded ? EMBEDDED_INPUT_CLASS : FIELD_INPUT_CLASS;
+  const inputClass = [
+    isEmbedded ? EMBEDDED_INPUT_CLASS : FIELD_INPUT_CLASS,
+    inputClassName,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const calendarPopover = (
     <ReportCalendarPopover
@@ -309,13 +320,15 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
           .filter(Boolean)
           .join(" ")}
       >
-        <label
-          htmlFor={inputId}
-          className="block text-sm leading-[19.5px] text-ehs-gray"
-        >
-          {label}
-          {required ? <span className="text-ehs-red"> *</span> : null}
-        </label>
+        {hideLabel ? null : (
+          <label
+            htmlFor={inputId}
+            className="block text-sm leading-[19.5px] text-ehs-gray"
+          >
+            {label}
+            {required ? <span className="text-ehs-red"> *</span> : null}
+          </label>
+        )}
 
         <div ref={rootRef} className="relative min-w-0">
           {inputControl}

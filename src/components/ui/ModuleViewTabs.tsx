@@ -27,7 +27,7 @@ export function ModuleViewTabs(props: Readonly<ModuleViewTabsProps>) {
   return (
     <div
       className={[
-        "border-ehs-border inline-flex max-w-full shrink-0 gap-1 self-start overflow-x-auto rounded-xl border bg-white/60 p-[5px]",
+        "border-ehs-border inline-flex max-w-full shrink-0 gap-3 self-start overflow-x-auto rounded-xl border bg-white/60 p-2",
         className,
       ]
         .filter(Boolean)
@@ -46,13 +46,13 @@ export function ModuleViewTabs(props: Readonly<ModuleViewTabsProps>) {
             role="tab"
             aria-selected={isActive}
             className={[
-              "inline-flex w-fit items-center gap-[7px] rounded-[9px] px-4 py-[9px] text-sm font-bold transition-colors",
+              "inline-flex w-fit items-center gap-2 rounded-[9px] px-4 py-[9px] text-base font-bold transition-colors",
               isActive
                 ? "bg-ehs-normal-blue text-ehs-light-text shadow-[0px_4px_12px_-4px_var(--ehs-normal-blue)]"
                 : "text-ehs-gray hover:bg-white/70",
             ].join(" ")}
           >
-            <Icon icon={tab.icon} className="text-sm" aria-hidden="true" />
+            <Icon icon={tab.icon} className="text-lg" aria-hidden="true" />
             {tab.label}
           </Link>
         );

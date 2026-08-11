@@ -39,6 +39,8 @@ function FieldLabel(
     optionalHint?: string;
     optionalHintClassName?: string;
     htmlFor: string;
+    /** Larger section title used inside glass cards. */
+    section?: boolean;
   }>,
 ) {
   const {
@@ -48,12 +50,20 @@ function FieldLabel(
     optionalHint,
     optionalHintClassName,
     htmlFor,
+    section = false,
   } = props;
   const hint =
     optionalHint ?? (showOptional && !required ? "(optional)" : undefined);
 
   return (
-    <label htmlFor={htmlFor} className="text-slate-70 font-medium">
+    <label
+      htmlFor={htmlFor}
+      className={
+        section
+          ? "block text-lg leading-[27px] font-semibold text-[#0b1320]"
+          : "text-slate-70 block text-base leading-[19.5px] font-medium"
+      }
+    >
       {label}
       {required ? <span className="text-ehs-red"> *</span> : null}
       {hint ? (
@@ -103,9 +113,14 @@ function FieldShell(
     children,
   } = props;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div
+      className={[
+        "flex flex-col",
+        field.card ? "gap-3 sm:gap-4" : "gap-1.5",
+      ].join(" ")}
+    >
       {hideLabel ? null : (
-        <div className="mb-1 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <FieldLabel
             label={field.label}
             required={field.required}
@@ -113,6 +128,7 @@ function FieldShell(
             optionalHint={field.optionalHint}
             optionalHintClassName={field.optionalHintClassName}
             htmlFor={field.name}
+            section={field.card === true}
           />
           {trailing}
         </div>
@@ -583,7 +599,7 @@ function SegmentedTilesControl(
               onChange(option.value);
             }}
             className={[
-              "flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-[13px] font-bold transition-colors",
+              "flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-base font-bold transition-colors",
               isSelected
                 ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
                 : "border-slate-900/8 bg-white/40 text-[#566072]",
@@ -596,6 +612,95 @@ function SegmentedTilesControl(
                 isSelected ? "bg-ehs-normal-blue" : "bg-[#566072]",
               ].join(" ")}
             />
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Figma priority group — muted track with solid teal selected pill. */
+function SegmentedFillTilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className="flex w-full items-stretch gap-0.5 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[6px] py-2 text-[13px] leading-normal transition-colors",
+              isSelected
+                ? "bg-[#0891a6] font-semibold text-white"
+                : "font-medium text-[#566072] hover:bg-white/70",
+            ].join(" ")}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** CAPA effectiveness assessment — large equal cards (Figma 846:6092). */
+function AssessmentTilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+        const isPositive = option.tone === "positive";
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "flex h-[54px] cursor-pointer items-center justify-center rounded-2xl border px-3 text-center text-sm leading-5 font-medium transition-colors",
+              isSelected && isPositive
+                ? "border-[#10b981] bg-[rgba(123,241,168,0.12)] text-[#10b981]"
+                : isSelected
+                  ? "border-ehs-normal-blue bg-ehs-normal-blue/8 text-ehs-normal-blue"
+                  : "border-[rgba(15,23,42,0.1)] bg-transparent text-[#566072] hover:bg-white/50",
+            ].join(" ")}
+          >
             {option.label}
           </button>
         );
@@ -617,6 +722,22 @@ function TilesControl(
   if (field.variant === "segmented") {
     return (
       <SegmentedTilesControl field={field} value={value} onChange={onChange} />
+    );
+  }
+
+  if (field.variant === "segmented-fill") {
+    return (
+      <SegmentedFillTilesControl
+        field={field}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
+
+  if (field.variant === "assessment") {
+    return (
+      <AssessmentTilesControl field={field} value={value} onChange={onChange} />
     );
   }
 
@@ -682,7 +803,8 @@ function CheckboxGroupControl(
   }>,
 ) {
   const { field, value, onChange } = props;
-  const columns = checkboxColumnsClass[field.columns ?? 2];
+  const isRows = field.variant === "rows";
+  const columns = checkboxColumnsClass[field.columns ?? (isRows ? 1 : 2)];
 
   const toggle = (optionValue: string) => {
     onChange(
@@ -693,13 +815,21 @@ function CheckboxGroupControl(
   };
 
   return (
-    <div className={["grid grid-cols-1 gap-2", columns].join(" ")}>
+    <div
+      className={["grid grid-cols-1", isRows ? "gap-3" : "gap-2", columns].join(
+        " ",
+      )}
+    >
       {field.options.map((option) => {
         const checked = value.includes(option.value);
         return (
           <label
             key={option.value}
-            className="bg-ehs-light-bg/40 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-3 py-2"
+            className={
+              isRows
+                ? "flex h-11 cursor-pointer items-center gap-3 rounded-[10px] bg-[rgba(238,241,246,0.7)] p-3"
+                : "bg-ehs-light-bg/40 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-3 py-2"
+            }
           >
             <input
               type="checkbox"
@@ -712,15 +842,29 @@ function CheckboxGroupControl(
             <span
               aria-hidden="true"
               className={[
-                "flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                "flex shrink-0 items-center justify-center rounded border transition-colors",
+                isRows ? "size-[13px]" : "size-4",
                 checked
                   ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
-                  : "border-slate-900/20 bg-white/70",
+                  : isRows
+                    ? "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.62)]"
+                    : "border-slate-900/20 bg-white/70",
               ].join(" ")}
             >
-              {checked ? <Icon icon="mdi:check" className="size-3" /> : null}
+              {checked ? (
+                <Icon
+                  icon="mdi:check"
+                  className={isRows ? "size-4" : "size-3"}
+                />
+              ) : null}
             </span>
-            <span className="text-base font-medium text-slate-700">
+            <span
+              className={
+                isRows
+                  ? "text-base leading-5 font-medium text-[#2a3446]"
+                  : "text-base font-medium text-slate-700"
+              }
+            >
               {option.label}
             </span>
           </label>
@@ -796,10 +940,11 @@ function PersonControl(
   }
 
   return (
-    <FieldShell field={field} error={error} hideLabel showMessages>
+    <FieldShell field={field} error={error} showMessages>
       <ReportPersonSearchField
         label={field.label}
         required={field.required}
+        hideLabel
         value={displayName}
         selectedUserId={userId}
         onChange={(next) => {
@@ -813,6 +958,7 @@ function PersonControl(
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
+        inputClassName="p-3"
       />
     </FieldShell>
   );
@@ -911,7 +1057,12 @@ export function FieldRenderer(props: FieldRendererProps) {
       );
     case "photo":
       return (
-        <FieldShell field={field} error={error} showMessages={false}>
+        <FieldShell
+          field={field}
+          error={error}
+          showMessages={false}
+          hideLabel={field.hideLabel === true || field.label.trim() === ""}
+        >
           <PhotoUploadControl
             field={field}
             value={value as string[]}
