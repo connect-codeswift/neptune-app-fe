@@ -8,6 +8,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -29,7 +30,7 @@ export type IncidentListTableProps<
   selectedId: string | null;
   /** Row selection for generic tables (e.g. policy documents). */
   onSelect?: (id: string) => void;
-  /** Opens the preview panel for the selected incident. */
+  /** Opens the preview/details panel for the selected incident. */
   onViewMore?: (id: string) => void;
   /** Opens the full detail page (second click on a selected generic row). */
   onOpenDetail?: (id: string) => void;
@@ -96,43 +97,24 @@ function createIncidentColumns(
       size: expanded ? 480 : 240,
       minSize: 140,
       meta: { align: "left" as const },
-      cell: ({ row }) => {
-        const isRowSelected = selectedId === row.original.id;
-
-        return (
-          <div className="flex w-full min-w-0 flex-col gap-1">
-            <Text
-              as="p"
-              className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
-              title={row.original.title}
-            >
-              {row.original.title}
-            </Text>
-            <Text
-              as="p"
-              className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
-              title={row.original.description}
-            >
-              {row.original.description}
-            </Text>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onViewMore(row.original.id);
-              }}
-              className={[
-                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
-                isRowSelected
-                  ? "text-ehs-normal-blue"
-                  : "text-ehs-gray hover:text-ehs-normal-blue",
-              ].join(" ")}
-            >
-              View more
-            </button>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex w-full min-w-0 flex-col gap-1">
+          <Text
+            as="p"
+            className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+            title={row.original.title}
+          >
+            {row.original.title}
+          </Text>
+          <Text
+            as="p"
+            className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+            title={row.original.description}
+          >
+            {row.original.description}
+          </Text>
+        </div>
+      ),
     }),
     columnHelper.accessor("site", {
       header: "Site",
@@ -181,6 +163,42 @@ function createIncidentColumns(
           showDot
         />
       ),
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for incident ${row.original.id}`
+                : `View incident ${row.original.id}`
+            }
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
     }),
   ] as ColumnDef<IncidentRecord, unknown>[];
 }

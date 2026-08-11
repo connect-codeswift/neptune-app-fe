@@ -154,7 +154,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [incidents, appliedSearch, severityFilter, stateFilter, dateRange]);
 
-  // Preview panel opens only after explicit row selection (View more or row click).
+  // Preview panel toggles from the view / close icon in the table.
   const selectedListIncident =
     selectedId == null
       ? null
@@ -210,8 +210,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     selectedClosureQuery.data?.closureStatus,
   ]);
 
-  const handleOpenDetailPanel = useCallback((id: string) => {
-    setSelectedId(id);
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
   }, []);
 
   const handleCloseIncident = async () => {
@@ -399,7 +399,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 <IncidentListTable
                   incidents={filteredIncidents}
                   selectedId={selectedId}
-                  onViewMore={handleOpenDetailPanel}
+                  onViewMore={handleToggleDetailPanel}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />
