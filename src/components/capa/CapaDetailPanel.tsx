@@ -189,7 +189,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-[10px] p-0"
+          className="size-9 shrink-0 rounded-[10px] p-0"
           aria-label="Collaborators"
           onClick={() => toast.info("Collaborators coming soon")}
         >
@@ -202,7 +202,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-[10px] p-0"
+          className="size-9 shrink-0 rounded-[10px] p-0"
           aria-label="Open CAPA detail"
           onClick={() => {
             if (onOpenDetail) {
