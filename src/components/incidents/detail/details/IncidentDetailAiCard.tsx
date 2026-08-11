@@ -42,11 +42,11 @@ export function IncidentDetailAiCard(props: Readonly<IncidentDetailAiCardProps>)
     >
       <div className="flex items-center gap-1.5 text-ehs-dark-blue">
         <Icon icon="mdi:creation-outline" className="size-[13px]" aria-hidden="true" />
-        <span className="text-xs font-bold tracking-[1px] uppercase">
+        <span className="text7 tracking-[1px] uppercase">
           AI insight
         </span>
       </div>
-      <p className="text-sm leading-[18.6px] text-ehs-slate">{text}</p>
+      <p className="text4 leading-[18.6px] text-ehs-slate">{text}</p>
     </div>
   );
 }

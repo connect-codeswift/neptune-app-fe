@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
-import { CapaModalFieldLabel } from "@/components/incidents/shared/capa/CapaModalFieldLabel";
+import { CapaModalFieldLabel } from "./CapaModalFieldLabel";
 import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   IncidentModalCancelButton,

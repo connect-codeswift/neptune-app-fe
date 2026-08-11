@@ -24,13 +24,13 @@ export function IncidentClosureStepReview(
       <div>
         <Text
           as="h2"
-          className="text-ehs-dark-bg text-[15px] leading-normal font-bold"
+          className="text-ehs-dark-bg text5 leading-normal font-bold"
         >
           Digital Sign-off & Submission
         </Text>
         <Text
           as="p"
-          className="text-ehs-gray mt-2 text-[13px] leading-[20px] font-normal"
+          className="text-ehs-gray mt-2 text4 leading-[20px] font-normal"
         >
           Closing this incident creates a legal compliance record. Verification
           of security credentials and multi-factor authorization is requested to
@@ -43,10 +43,10 @@ export function IncidentClosureStepReview(
           signer name, role or timestamp would be indistinguishable from a real
           signature. Missing values read as "Not recorded". */}
       <div className="rounded-3.5 border-ehs-normal-blue/40 bg-ehs-light-blue/40 border p-4 shadow-xs">
-        <Text as="p" className="text-ehs-dark-bg text-[13px] font-bold">
+        <Text as="p" className="text-ehs-dark-bg text4 font-bold">
           {data.closedBy || "Not recorded"}
         </Text>
-        <Text as="p" className="text-ehs-gray mt-0.5 text-[13px] font-normal">
+        <Text as="p" className="text-ehs-gray mt-0.5 text4 font-normal">
           {[data.closedByRole, data.closureDate].filter(Boolean).join(" · ") ||
             "Role and date not recorded"}
         </Text>
@@ -70,7 +70,7 @@ export function IncidentClosureStepReview(
             <Icon icon="mdi:check" className="size-4 stroke-[3]" />
           ) : null}
         </div>
-        <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+        <Text as="span" className="text-ehs-dark-bg text4 font-bold">
           I confirm all corrective actions are complete and verified per EHS
           guidelines.
         </Text>

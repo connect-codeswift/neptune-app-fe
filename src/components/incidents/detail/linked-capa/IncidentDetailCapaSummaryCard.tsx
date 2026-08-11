@@ -37,10 +37,10 @@ export function IncidentDetailCapaSummaryCard(
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           CAPA summary
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           Counts reflect assignee status on each action
         </span>
       </div>
@@ -53,14 +53,14 @@ export function IncidentDetailCapaSummaryCard(
           >
             <span
               className={[
-                "text-2xl font-bold",
+                "text1",
                 item.emphasize ? "text-ehs-dark-bg" : "text-ehs-gray",
                 isLoading ? "opacity-40" : "",
               ].join(" ")}
             >
               {isLoading ? "—" : item.value}
             </span>
-            <span className="text-ehs-muted-text text-sm leading-normal">
+            <span className="text-ehs-muted-text text4 leading-normal">
               {item.label}
             </span>
           </div>

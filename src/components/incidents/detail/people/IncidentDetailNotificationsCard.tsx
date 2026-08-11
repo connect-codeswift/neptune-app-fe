@@ -27,13 +27,13 @@ export function IncidentDetailNotificationsCard(
   return (
     <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
       <div className="pb-3.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Notifications sent
         </Text>
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px] text-sm">
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px] text4">
           No notifications recorded for this incident.
         </div>
       ) : null}
@@ -51,14 +51,14 @@ export function IncidentDetailNotificationsCard(
             />
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-ehs-dark-bg text-sm leading-normal">
+            <span className="text-ehs-dark-bg text4 leading-normal">
               {notif.target}
             </span>
-            <span className="text-ehs-muted-text truncate text-sm leading-normal">
+            <span className="text-ehs-muted-text truncate text4 leading-normal">
               {notif.channel}
             </span>
           </div>
-          <span className="text-ehs-muted-text shrink-0 text-sm leading-normal">
+          <span className="text-ehs-muted-text shrink-0 text4 leading-normal">
             {notif.time}
           </span>
         </div>

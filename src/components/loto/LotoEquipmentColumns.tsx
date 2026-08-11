@@ -1,4 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoEquipmentItem,
@@ -15,7 +16,6 @@ const statusClassName: Record<LotoEquipmentStatus, string> = {
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
-  onEdit: (item: LotoEquipmentItem) => void;
   onLock: (item: LotoEquipmentItem) => void;
 }>;
 
@@ -102,50 +102,60 @@ export function buildLotoEquipmentColumns(
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
-      size: 100,
+      header: "",
+      size: 88,
       cell: ({ row }) => {
         const item = row.original;
-        const canLock = item.status !== "Locked Out";
+        const isLockedOut = item.status === "Locked Out";
 
         return (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center gap-0.5">
             <button
               type="button"
-              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
+              className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+              aria-label={`View ${item.name}`}
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onView(item);
               }}
             >
-              View
+              <Icon
+                icon="lets-icons:view"
+                className="size-5"
+                aria-hidden="true"
+              />
             </button>
             <button
               type="button"
-              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
+              disabled={isLockedOut}
+              className={[
+                "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
+                isLockedOut
+                  ? "cursor-default text-[#ef4444]"
+                  : "text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer",
+              ].join(" ")}
+              aria-label={
+                isLockedOut
+                  ? `${item.name} is locked out`
+                  : `Apply lockout to ${item.name}`
+              }
               onClick={(event) => {
                 event.stopPropagation();
-                actions.onEdit(item);
+                if (!isLockedOut) {
+                  actions.onLock(item);
+                }
               }}
             >
-              Edit
+              <Icon
+                icon="material-symbols:lock-outline"
+                className="size-5"
+                aria-hidden="true"
+              />
             </button>
-            {canLock ? (
-              <button
-                type="button"
-                className="text4 cursor-pointer font-semibold text-[#ef4444] hover:underline"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  actions.onLock(item);
-                }}
-              >
-                Lock
-              </button>
-            ) : null}
           </div>
         );
       },
-      meta: { align: "left" as const },
+      meta: { align: "center" as const },
     }),
   ];
 }

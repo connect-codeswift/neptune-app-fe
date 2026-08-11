@@ -50,17 +50,17 @@ export function IncidentDetailTimelineCard(
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Activity timeline
           </Text>
-          <span className="text-ehs-muted-text text-sm leading-normal">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {events.length} events · most recent last
           </span>
         </div>
         <button
           type="button"
           onClick={handleExport}
-          className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text5 backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
           <Icon
             icon="mdi:export-variant"
@@ -72,7 +72,7 @@ export function IncidentDetailTimelineCard(
       </div>
 
       {events.length === 0 ? (
-        <div className="text-ehs-muted-text py-10 text-center text-sm">
+        <div className="text-ehs-muted-text py-10 text-center text4">
           No activity recorded for this incident yet.
         </div>
       ) : (
@@ -94,25 +94,25 @@ export function IncidentDetailTimelineCard(
 
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px] pb-1.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                       {event.title}
                     </span>
-                    <span className="text-ehs-muted-text ml-auto text-sm leading-normal whitespace-nowrap">
+                    <span className="text-ehs-muted-text ml-auto text4 leading-normal whitespace-nowrap">
                       {event.time}
                     </span>
                   </div>
-                  <p className="text-ehs-gray text-sm leading-[18px]">
+                  <p className="text-ehs-gray text4 leading-[18px]">
                     {event.description}
                   </p>
                   <div className="flex items-center gap-1.5 pt-[3px]">
-                    <span className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-5 shrink-0 items-center justify-center rounded-md text-xs font-bold">
+                    <span className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-5 shrink-0 items-center justify-center rounded-md text7">
                       {event.actorInitials}
                     </span>
-                    <span className="text-ehs-gray text-sm leading-normal">
+                    <span className="text-ehs-gray text4 leading-normal">
                       {event.actorName}
                     </span>
                     {event.actorRole ? (
-                      <span className="text-ehs-muted-text text-sm leading-normal">
+                      <span className="text-ehs-muted-text text4 leading-normal">
                         · {event.actorRole}
                       </span>
                     ) : null}

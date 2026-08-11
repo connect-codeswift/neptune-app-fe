@@ -36,10 +36,10 @@ function FilesContent(
   return (
     <>
       <div className="flex flex-col gap-0.5 pt-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           All files
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           {attachments.length} items
         </span>
       </div>
@@ -63,7 +63,7 @@ function FilesContent(
                 <th
                   key={column.label || `action-${String(index)}`}
                   className={[
-                    "text-ehs-muted-text pt-[11px] pb-[11.5px] text-xs font-bold tracking-wide uppercase",
+                    "text-ehs-muted-text pt-[11px] pb-[11.5px] text6",
                     column.align === "right" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
@@ -77,7 +77,7 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-8 text-center text-sm"
+                  className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-8 text-center text4"
                 >
                   No files uploaded.
                 </td>
@@ -107,21 +107,21 @@ function FilesContent(
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="text-ehs-dark-bg max-w-[140px] truncate text-sm leading-normal">
+                      <span className="text-ehs-dark-bg max-w-[140px] truncate text4 leading-normal">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text-sm leading-normal">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal">
                     {item.description}
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text-sm leading-normal whitespace-nowrap">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
                     {item.sizeLabel}
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text-sm leading-normal whitespace-nowrap">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
                     {item.addedBy}
                   </td>
-                  <td className="text-ehs-muted-text py-3.5 text-right text-sm leading-normal whitespace-nowrap">
+                  <td className="text-ehs-muted-text py-3.5 text-right text4 leading-normal whitespace-nowrap">
                     {item.time}
                   </td>
                   {isEditing ? (

@@ -8,7 +8,7 @@ import {
   CapaHierarchySelector,
   type ControlLevel,
 } from "@/components/incidents/shared/capa/CapaHierarchySelector";
-import { CapaModalFieldLabel } from "@/components/incidents/shared/capa/CapaModalFieldLabel";
+import { CapaModalFieldLabel } from "./CapaModalFieldLabel";
 import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   AddTaskModal,

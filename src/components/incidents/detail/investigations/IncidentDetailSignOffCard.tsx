@@ -32,12 +32,12 @@ export function IncidentDetailSignOffCard(
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
-      <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+      <Text as="h3" className="text-ehs-dark-bg text3">
         Sign-off
       </Text>
 
       {signoffs.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text mt-[18px] text-sm">
+        <Text as="p" className="text-ehs-muted-text mt-[18px] text4">
           No sign-offs recorded for this investigation.
         </Text>
       ) : (
@@ -54,7 +54,7 @@ export function IncidentDetailSignOffCard(
             >
               <div
                 className={[
-                  "flex size-8 shrink-0 items-center justify-center rounded-[9.6px] text-[10.9px] font-bold",
+                  "flex size-8 shrink-0 items-center justify-center rounded-[9.6px] text8 font-bold",
                   index === 0
                     ? "bg-ehs-dark-blue-bg-light text-ehs-dark-blue"
                     : "text-ehs-gray bg-[rgba(255,255,255,0.82)]",
@@ -63,16 +63,16 @@ export function IncidentDetailSignOffCard(
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+                <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                   {person.name}
                 </span>
-                <span className="text-ehs-muted-text truncate text-sm leading-normal">
+                <span className="text-ehs-muted-text truncate text4 leading-normal">
                   {person.role.replace(/\s*-\s*/g, " · ")}
                 </span>
               </div>
               <span
                 className={[
-                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-xs leading-3.5 font-bold tracking-[0.2px]",
+                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text7 leading-3.5",
                   person.badgeTone === "green"
                     ? "bg-ehs-dark-bg/14"
                     : "bg-ehs-dark-bg/16",
@@ -101,14 +101,14 @@ export function IncidentDetailSignOffCard(
             ? undefined
             : "Approval requests are not available yet"
         }
-        className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active disabled:hover:bg-ehs-normal-blue mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+        className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active disabled:hover:bg-ehs-normal-blue mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-[15px] py-2.5 text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
       >
         <Icon icon="mdi:check" className="size-3.5" aria-hidden="true" />
         Request approval
       </button>
 
       {canRequestApproval ? null : (
-        <Text as="p" className="text-ehs-muted-text mt-1.5 text-center text-xs">
+        <Text as="p" className="text-ehs-muted-text mt-1.5 text-center text8">
           Approval requests are not available yet.
         </Text>
       )}
