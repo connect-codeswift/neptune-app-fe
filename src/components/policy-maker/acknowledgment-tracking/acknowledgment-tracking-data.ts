@@ -75,14 +75,42 @@ export function getAcknowledgmentMetrics(
     .sort()
     .pop();
 
+  // Counts for one document — no history and no prior period, so each card
+  // shows an icon badge rather than a delta.
   return [
-    { id: "acknowledged", value: String(acknowledged), label: "Acknowledged" },
-    { id: "pending", value: String(pending), label: "Pending" },
-    { id: "completion", value: `${String(rate)}%`, label: "Completion Rate" },
+    {
+      id: "acknowledged",
+      title: "Acknowledged",
+      value: String(acknowledged),
+      description: `of ${String(total)} assigned`,
+      icon: "mdi:check-decagram-outline",
+    },
+    {
+      id: "pending",
+      title: "Pending",
+      value: String(pending),
+      description: "Still awaiting sign-off",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:clock-outline",
+    },
+    {
+      id: "completion",
+      title: "Completion Rate",
+      value: String(rate),
+      unit: "%",
+      target: 100,
+      targetLabel: "Target 100%",
+      signalOwnedBy: "target",
+      icon: "mdi:percent-outline",
+    },
     {
       id: "last-activity",
+      title: "Last Activity",
       value: lastAcknowledgedDate ?? "—",
-      label: "Last Activity",
+      description: "Most recent acknowledgement",
+      icon: "mdi:calendar-clock",
     },
   ];
 }

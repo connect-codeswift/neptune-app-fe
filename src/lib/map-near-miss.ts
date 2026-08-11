@@ -1,6 +1,6 @@
 import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type {
   CreateNearMissResponseDto,
   NearMissKpiDto,
@@ -81,12 +81,6 @@ export function mapNearMissDtoToRecord(
   };
 }
 
-function formatTrendDelta(delta: number): string {
-  const value = Math.round(delta);
-  if (Object.is(value, -0) || value === 0) return "0";
-  return value > 0 ? `+${String(value)}` : String(value);
-}
-
 /** Finite number when present, otherwise undefined (so missing deltas stay hidden). */
 function asOptionalNumber(value: unknown): number | undefined {
   if (value === undefined || value === null || value === "") return undefined;
@@ -144,22 +138,13 @@ export function normalizeNearMissKpiDto(raw: unknown): NearMissKpiDto | null {
   };
 }
 
-function toTrendBadge(delta: number | null | undefined): Pick<
-  StatMetricCardProps,
-  "trendValue" | "trendTone"
-> {
-  const value = delta ?? 0;
-  return {
-    trendValue: formatTrendDelta(value),
-    // Sign-based: +N green, -N red; flat `0` uses the positive (green) pill.
-    trendTone: value >= 0 ? "positive" : "negative",
-  };
-}
-
-/** Builds the two near-miss KPI cards, including `+N` / `-N` / `0` trend badges. */
+/**
+ * Builds the two near-miss KPI cards. The endpoint returns a period delta but
+ * no series, so the cards pass `delta` straight through and draw no sparkline.
+ */
 export function mapNearMissKpiToMetrics(
   dto: NearMissKpiDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
   const totalDelta = dto?.totalNearMissDelta ?? dto?.totalNearMissChange;
   const convertedDelta =
     dto?.convertedToIncidentsDelta ?? dto?.convertedToIncidentsChange;
@@ -168,7 +153,11 @@ export function mapNearMissKpiToMetrics(
     {
       title: "Total near misses",
       value: dto?.totalNearMissCount ?? dto?.totalNearMisses ?? dto?.total ?? 0,
-      ...toTrendBadge(totalDelta),
+      // Reporting more near misses is the goal, not the problem.
+      isMorePositive: true,
+      delta: totalDelta,
+      description: "Reported this period",
+      icon: "mdi:alert-decagram-outline",
     },
     {
       title: "Converted to incidents",
@@ -177,7 +166,10 @@ export function mapNearMissKpiToMetrics(
         dto?.convertedIncidents ??
         dto?.converted ??
         0,
-      ...toTrendBadge(convertedDelta),
+      isMorePositive: false,
+      delta: convertedDelta,
+      description: "Near misses that became incidents",
+      icon: "mdi:swap-horizontal",
     },
   ];
 }

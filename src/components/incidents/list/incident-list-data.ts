@@ -1,4 +1,3 @@
-import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import type { DateRange } from "@/lib/date-range";
 import { isDateWithinRange } from "@/lib/date-range";
@@ -135,8 +134,7 @@ function daysBetween(start: Date, end: Date): number {
 }
 
 function formatTrend(delta: number, digits = 0): string {
-  const value =
-    digits > 0 ? Number(delta.toFixed(digits)) : Math.round(delta);
+  const value = digits > 0 ? Number(delta.toFixed(digits)) : Math.round(delta);
 
   if (Object.is(value, -0) || value === 0) {
     return "0";
@@ -159,7 +157,9 @@ function buildSparklineToward(
   for (let index = 0; index < points; index += 1) {
     const t = points === 1 ? 1 : index / (points - 1);
     const eased = t * t * (3 - 2 * t);
-    series.push(Number((startValue + (endValue - startValue) * eased).toFixed(2)));
+    series.push(
+      Number((startValue + (endValue - startValue) * eased).toFixed(2)),
+    );
   }
 
   series[points - 1] = Number(endValue.toFixed(2));

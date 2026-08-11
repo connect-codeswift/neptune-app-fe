@@ -1,3 +1,8 @@
+import type { MetricCardProps } from "@/components/ui/MetricCard";
+
+/** A KPI card in the incident list header, keyed by a stable id. */
+export type IncidentListKpiMetric = MetricCardProps & Readonly<{ id: string }>;
+
 export type IncidentSeverity =
   | "Lost Time"
   | "Near Miss"

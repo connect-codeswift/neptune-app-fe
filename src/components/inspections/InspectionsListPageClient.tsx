@@ -6,7 +6,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
-import { StatMetricCard } from "@/components/StatMetricCard";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { inspectionColumns } from "@/components/inspections/InspectionColumns";
 import { InspectionDetailPanel } from "@/components/inspections/InspectionDetailPanel";
 import {
@@ -101,11 +101,7 @@ export function InspectionsListPageClient() {
           <InspectionPageSkeleton />
         ) : (
           <>
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {metrics.map((metric) => (
-                <StatMetricCard key={metric.title} {...metric} />
-              ))}
-            </div>
+            <MetricCardsRow metrics={metrics} />
 
             {summaryQuery.isError ? (
               <p className="text-ehs-red text-sm">
@@ -120,7 +116,9 @@ export function InspectionsListPageClient() {
         ) : (
           <>
             {inspectionsQuery.isError ? (
-              <p className="text-ehs-red text-sm">Could not load inspections.</p>
+              <p className="text-ehs-red text-sm">
+                Could not load inspections.
+              </p>
             ) : null}
 
             <ModuleFilterBar

@@ -4,9 +4,9 @@ import type { ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import {
-  StatMetricCard,
-  type StatMetricCardProps,
-} from "@/components/StatMetricCard";
+  MetricCardsRow,
+  type MetricCardProps,
+} from "@/components/ui/MetricCard";
 import { Table, type TablePagination } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
@@ -16,7 +16,7 @@ export type UnifiedNearMissAndHazardListPageProps<TData> = Readonly<{
   title: string;
   isLoading: boolean;
   canViewInsights: boolean;
-  metrics: readonly StatMetricCardProps[];
+  metrics: readonly MetricCardProps[];
   statusOptions: readonly string[];
   selectedStatus: string;
   onStatusChange: (status: string) => void;
@@ -72,13 +72,7 @@ export function UnifiedNearMissAndHazardListPage<TData>(
           <UnifiedNearMissAndHazardListPageSkeleton />
         ) : (
           <>
-            {canViewInsights ? (
-              <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-                {metrics.map((metric) => (
-                  <StatMetricCard key={metric.title} {...metric} />
-                ))}
-              </div>
-            ) : null}
+            {canViewInsights ? <MetricCardsRow metrics={metrics} /> : null}
 
             {canViewInsights && insights ? (
               <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
@@ -109,7 +103,7 @@ export function UnifiedNearMissAndHazardListPage<TData>(
             />
 
             <div className="flex min-w-0 flex-col gap-2">
-                {listError ? (
+              {listError ? (
                 <p className="text4 text-ehs-red">{listError}</p>
               ) : null}
 

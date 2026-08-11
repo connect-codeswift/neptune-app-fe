@@ -18,7 +18,7 @@ import type {
   ObservationPhoto,
 } from "@/app/dashboard/bbs/bbs-data";
 import type { FormValues } from "@/components/form-builder";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 
 const OBSERVE_LABEL_BY_VALUE: Record<string, string> = {
   safe: "Safe",
@@ -189,33 +189,37 @@ export function toBbsSessions(
   return observations.map(toBbsSession);
 }
 
-/** Dashboard KPI payload → StatMetricCard props. */
+/** Dashboard KPI payload → MetricCard props. */
 export function toBbsMetricCards(
   kpi: BbsDashboardKpiDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
   const total = kpi?.totalBbsCount ?? 0;
   const safe = kpi?.safeBehaviourCount ?? 0;
   const atRisk = kpi?.atRiskCount ?? 0;
   const safePercent = total > 0 ? Math.round((safe / total) * 100) : 0;
 
   return [
+    // The KPI endpoint returns a 30-day snapshot with no prior period, so
+    // there is no delta to badge — each card falls back to its icon.
     {
       title: "Observations (30d)",
       value: total,
-      trendValue: "0",
-      trendTone: "positive",
+      description: "Logged in the last 30 days",
+      icon: "mdi:eye-outline",
     },
     {
-      title: "Safe behavior %",
-      value: `${String(safePercent)}%`,
-      trendValue: "0",
-      trendTone: "positive",
+      title: "Safe behavior rate",
+      value: String(safePercent),
+      unit: "%",
+      description: `${String(safe)} of ${String(total)} observations`,
+      icon: "mdi:shield-check-outline",
     },
     {
       title: "At risk",
       value: atRisk,
-      trendValue: "0",
-      trendTone: "positive",
+      description: "Behaviours flagged at risk",
+      isMorePositive: false,
+      icon: "mdi:alert-outline",
     },
   ];
 }
@@ -227,13 +231,11 @@ export function toBbsAtRiskBehaviors(
   const categories = payload?.categories ?? [];
 
   return [...categories]
-    .map(
-      (category): BehaviorCategory => ({
-        label: category.categoryName?.trim() || "-",
-        count: category.count ?? 0,
-        tone: "risk",
-      }),
-    )
+    .map((category): BehaviorCategory => ({
+      label: category.categoryName?.trim() || "-",
+      count: category.count ?? 0,
+      tone: "risk",
+    }))
     .sort((left, right) => right.count - left.count);
 }
 

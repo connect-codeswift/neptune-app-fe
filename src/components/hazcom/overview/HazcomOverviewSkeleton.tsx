@@ -1,3 +1,4 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { HazcomGlassCard } from "@/components/hazcom/shared";
 
@@ -15,19 +16,6 @@ const SDS_ROW_SKELETONS = [
   { key: "overdue", tone: "danger" },
   { key: "missing", tone: "danger" },
 ] as const;
-
-function HazcomOverviewStatCardSkeleton() {
-  return (
-    <HazcomGlassCard paddingClassName="p-5" className="min-w-0">
-      <div className="flex items-start justify-between gap-3">
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="size-4.5 rounded" />
-      </div>
-      <Skeleton className="mt-3 h-8 w-16" />
-      <Skeleton className="mt-3 h-3 w-20" />
-    </HazcomGlassCard>
-  );
-}
 
 function HazcomPanelHeaderSkeleton(props: Readonly<{ showLink?: boolean }>) {
   const { showLink = true } = props;
@@ -108,11 +96,7 @@ export function HazcomOverviewSkeleton(
       aria-busy="true"
       aria-label="Loading HazCom overview"
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {STAT_CARD_KEYS.map((key) => (
-          <HazcomOverviewStatCardSkeleton key={key} />
-        ))}
-      </div>
+      <MetricCardsRowSkeleton count={STAT_CARD_KEYS.length} />
 
       <div className="grid gap-4 xl:grid-cols-2">
         <HazcomGlassCard paddingClassName="p-5" className="min-w-0">

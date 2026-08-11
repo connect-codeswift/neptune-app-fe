@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailPanel } from "@/components/incidents/list/IncidentDetailPanel";
-import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
+import { MetricCard } from "@/components/ui/MetricCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
   SEVERITY_FILTERS,
@@ -296,9 +296,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               {kpiErrorMessage}
             </Text>
           ) : null}
-          <div className="grid min-w-0 grid-cols-1 gap-x-3.5 gap-y-3.5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="stagger-cards grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {kpiMetrics.map((metric) => (
-              <IncidentListKpiCard key={metric.id} {...metric} />
+              <MetricCard key={metric.id} {...metric} />
             ))}
           </div>
         </div>
