@@ -85,7 +85,7 @@ function createIncidentColumns(
       cell: (info) => (
         <Text
           as="span"
-          className="text-ehs-muted-text text-xs font-semibold whitespace-nowrap tabular-nums"
+          className="text7 text-ehs-muted-text whitespace-nowrap"
         >
           {info.getValue()}
         </Text>
@@ -101,14 +101,14 @@ function createIncidentColumns(
         <div className="flex w-full min-w-0 flex-col gap-1">
           <Text
             as="p"
-            className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+            className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
             title={row.original.title}
           >
             {row.original.title}
           </Text>
           <Text
             as="p"
-            className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
+            className="text4 text-ehs-muted-text line-clamp-1 first-letter:uppercase"
             title={row.original.description}
           >
             {row.original.description}
@@ -126,11 +126,11 @@ function createIncidentColumns(
 
         return (
           <div className="w-full min-w-0">
-            <Text as="p" className="text-ehs-gray text-sm font-normal">
+            <Text as="p" className="text4 text-ehs-gray">
               {sitePrimary}
             </Text>
             {siteSecondary ? (
-              <Text as="p" className="text-ehs-gray text-sm font-normal">
+              <Text as="p" className="text4 text-ehs-gray">
                 {siteSecondary}
               </Text>
             ) : null}
@@ -331,7 +331,7 @@ export function IncidentListTable<
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text text-xs font-bold tracking-wide uppercase",
+                        "text6 text-ehs-muted-text",
                         headerPadClass,
                         alignClass(align),
                       ].join(" ")}

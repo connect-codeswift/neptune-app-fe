@@ -36,44 +36,44 @@ import {
 
 const equipmentFieldClass = [
   "gap-4",
-  "[&_label]:text-[12px]",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:text-[#566072]",
+  "[&_label]:text-ehs-gray",
   "[&_input]:h-[38px]",
   "[&_input]:rounded-[10px]",
   "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text-[13px]",
+  "[&_input]:text4",
   "[&_select]:h-[38px]",
   "[&_select]:rounded-[10px]",
   "[&_select]:bg-[rgba(255,255,255,0.62)]",
-  "[&_select]:text-[13px]",
+  "[&_select]:text4",
   "[&_textarea]:rounded-[10px]",
   "[&_textarea]:bg-[rgba(255,255,255,0.62)]",
-  "[&_textarea]:text-[13px]",
+  "[&_textarea]:text4",
 ].join(" ");
 
 const stepFieldClass = [
   "gap-3",
-  "[&_label]:text-[11px]",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:text-[#8892a3]",
+  "[&_label]:text-ehs-muted-text",
   "[&_input]:h-[34px]",
   "[&_input]:rounded-[10px]",
   "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text-[12.5px]",
+  "[&_input]:text4",
   "[&_select]:h-[34px]",
   "[&_select]:rounded-[10px]",
   "[&_select]:bg-[rgba(255,255,255,0.62)]",
-  "[&_select]:text-[12.5px]",
+  "[&_select]:text4",
 ].join(" ");
 
 const sidebarFieldClass = [
   "gap-3",
-  "[&_label]:text-[13px]",
+  "[&_label]:text4",
   "[&_label]:font-bold",
   "[&_label]:text-ehs-darker",
-  "[&_p]:text-[11px]",
-  "[&_p]:text-[#8892a3]",
+  "[&_p]:text8",
+  "[&_p]:text-ehs-muted-text",
 ].join(" ");
 
 export type LotoProcedurePreview = Readonly<{
@@ -107,10 +107,10 @@ function SummaryRow(
 ) {
   return (
     <div className="flex items-start justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2">
-      <span className="text-sm text-[#8892a3]">{props.label}</span>
+      <span className="text4 text-[#8892a3]">{props.label}</span>
       <span
         className={[
-          "text-right text-sm font-semibold",
+          "text4 text-right font-semibold",
           props.valueClassName ?? "text-ehs-darker",
         ].join(" ")}
       >
@@ -158,9 +158,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="p-5 md:p-[22px]"
           className="min-w-0"
         >
-          <h2 className="text-ehs-darker mb-4 text-sm font-bold">
-            Equipment Information
-          </h2>
+          <h2 className="text3 text-ehs-darker mb-4">Equipment Information</h2>
           <FormBuilder
             formId={LOTO_EQUIPMENT_FORM_ID}
             schema={lotoEquipmentSchema}
@@ -189,19 +187,17 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           className="min-w-0"
         >
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 className="text-ehs-darker text-sm font-bold">
-              Isolation Steps
-            </h2>
+            <h2 className="text3 text-ehs-darker">Isolation Steps</h2>
             <button
               type="button"
               onClick={addStep}
-              className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 text-sm font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+              className="text4 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
             >
               <Icon icon="mdi:plus" className="size-3.5" />
               Add Step
             </button>
           </div>
-          <p className="mb-3 text-sm text-[#8892a3]">
+          <p className="text4 mb-3 text-[#8892a3]">
             Document each energy isolation point in the sequence they must be
             performed
           </p>
@@ -214,11 +210,11 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-[#2a3446]">
+                    <span className="text5 text-[#2a3446]">
                       Step {String(index + 1)}
                     </span>
                     {step.verified ? (
-                      <span className="rounded-[5px] bg-[rgba(16,185,129,0.1)] px-1.5 py-px text-[10px] font-bold text-[#10b981]">
+                      <span className="text8 rounded-[5px] bg-[rgba(16,185,129,0.1)] px-1.5 py-px font-bold text-[#10b981]">
                         Verified
                       </span>
                     ) : null}
@@ -273,9 +269,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="px-[18px] py-[18px]"
           className="min-w-0 bg-[rgba(255,255,255,0.82)]"
         >
-          <h2 className="text-ehs-darker mb-3 text-lg font-bold">
-            Procedure Summary
-          </h2>
+          <h2 className="text3 text-ehs-darker mb-3">Procedure Summary</h2>
           <div className="flex flex-col">
             <SummaryRow
               label="Equipment"

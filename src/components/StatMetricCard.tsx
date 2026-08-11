@@ -33,17 +33,14 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
     >
       <div className="flex min-h-[72px] flex-col">
         <div className="flex items-center justify-between gap-3">
-          <Text
-            as="p"
-            className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase"
-          >
+          <Text as="p" className="text6 text-ehs-muted-text">
             {title}
           </Text>
 
           {trendValue ? (
             <span
               className={[
-                "inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
+                "text8 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-bold tracking-wide",
                 trendToneClass[trendTone],
               ].join(" ")}
             >
@@ -53,10 +50,7 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
         </div>
 
         <div className="flex flex-1 items-center pt-2">
-          <Text
-            as="p"
-            className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
-          >
+          <Text as="p" className="text2 text-ehs-darker">
             {String(value)}
           </Text>
         </div>

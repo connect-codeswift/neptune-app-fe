@@ -109,8 +109,8 @@ export function UnifiedNearMissAndHazardListPage<TData>(
             />
 
             <div className="flex min-w-0 flex-col gap-2">
-              {listError ? (
-                <p className="text-ehs-red text-sm">{listError}</p>
+                {listError ? (
+                <p className="text4 text-ehs-red">{listError}</p>
               ) : null}
 
               <Table
@@ -119,6 +119,7 @@ export function UnifiedNearMissAndHazardListPage<TData>(
                 getRowId={table.getRowId}
                 containerClassName="min-w-0 shadow-sm"
                 pagination={table.pagination}
+                variant="incident"
               />
             </div>
           </>

@@ -48,15 +48,15 @@ export function LotoEquipmentDetailContent(
     return (
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker font-semibold">
             Equipment not found
           </Text>
-          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text mt-1">
             {`No equipment matches “${equipmentId}”.`}
           </Text>
           <Link
             href={LOTO_ROUTE}
-            className="text-ehs-normal-blue mt-3 inline-block text-sm hover:underline"
+            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
           >
             Back to LOTO
           </Link>

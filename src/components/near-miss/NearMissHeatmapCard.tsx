@@ -92,8 +92,8 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-4 flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg font-bold">Heatmap by area</h3>
-        <p className="text-ehs-muted-text text-sm">Reports last 30 days</p>
+        <h3 className="text3 text-ehs-dark-bg">Heatmap by area</h3>
+        <p className="text4 text-ehs-muted-text">Reports last 30 days</p>
       </header>
 
       {rows.length > 0 ? (
@@ -108,7 +108,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
           {columns.map((column) => (
             <span
               key={column.key}
-              className="text-ehs-muted-text truncate text-center text-sm"
+              className="text4 text-ehs-muted-text truncate text-center"
             >
               {column.label}
             </span>
@@ -117,7 +117,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
           {/* Data rows: location label + heat cells */}
           {rows.map((row) => (
             <Fragment key={row.key}>
-              <span className="text-ehs-muted-text flex items-center pr-2 text-sm whitespace-nowrap">
+              <span className="text4 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap">
                 {row.label}
               </span>
               {row.values.map((value, index) => (
@@ -125,7 +125,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
                   key={columns[index].key}
                   style={cellStyle(value, max)}
                   className={[
-                    "flex h-8 items-center justify-center rounded border border-slate-900/10 text-xs font-bold tabular-nums leading-none",
+                    "text7 flex h-8 items-center justify-center rounded border border-slate-900/10 font-bold leading-none",
                     value != null && value >= max * 0.75
                       ? "text-white"
                       : "text-slate-700",
@@ -140,7 +140,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
       ) : heatMapQuery.isPending ? (
         <SkeletonHeatmapGrid />
       ) : (
-        <p className="text-ehs-muted-text text-sm">
+        <p className="text4 text-ehs-muted-text">
           No near misses reported in this period.
         </p>
       )}

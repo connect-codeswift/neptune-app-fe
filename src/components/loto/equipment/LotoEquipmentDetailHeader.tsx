@@ -7,9 +7,9 @@ import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
-const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
+const crumbMuted = "text4 font-normal text-[#b3bbc8]";
 const crumbLink =
-  "text-[#8892a3] hover:text-ehs-gray text-xs font-normal transition-colors";
+  "text4 hover:text-ehs-gray font-normal text-[#8892a3] transition-colors";
 
 function Chevron() {
   return (
@@ -62,13 +62,10 @@ export function LotoEquipmentDetailHeader(
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
             <div className="flex min-w-0 flex-col gap-1">
-              <Text
-                as="h1"
-                className="text-ehs-darker text-base font-bold tracking-[-0.44px] md:text-[22px]"
-              >
+              <Text as="h1" className="text1 text-ehs-darker">
                 {detail.name}
               </Text>
-              <Text as="p" className="text-sm text-[#8892a3]">
+              <Text as="p" className="text4 text-[#8892a3]">
                 {`${detail.type} · ${detail.location}`}
               </Text>
             </div>
@@ -79,7 +76,7 @@ export function LotoEquipmentDetailHeader(
             variant={isLockedOut ? "primary" : "danger"}
             onClick={onApplyLockout}
             className={[
-              "gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold",
+              "text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold",
               isLockedOut
                 ? "shadow-[0px_4px_7px_rgba(8,145,166,0.4)]"
                 : "shadow-[0px_4px_7px_rgba(239,68,68,0.4)]",

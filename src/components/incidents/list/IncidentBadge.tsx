@@ -37,7 +37,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-bold tracking-wide whitespace-nowrap",
+        "text5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
