@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import type { UpcomingFilingItem } from "./regulatory-compliance-types";
 import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
@@ -19,13 +19,15 @@ export function RegulatoryComplianceUpcomingFilingsCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[17.51px]"
-      className={[complianceGlassCardClass, className].filter(Boolean).join(" ")}
+      className={[complianceGlassCardClass, className]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="flex flex-col">
         <div>
           <Text
             as="h3"
-            className="text-[14px] leading-none font-bold tracking-[-0.14px] text-[#0b1320]"
+            className="text-3.5 leading-none font-bold tracking-[-0.14px] text-[#0b1320]"
           >
             Upcoming filings
           </Text>
@@ -45,7 +47,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
                 className="flex h-[36.785px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-[10px]">
-                  <div className="h-[14px] w-10 animate-pulse rounded-[6px] bg-[#e2e8f0]" />
+                  <div className="h-3.5 w-10 animate-pulse rounded-[6px] bg-[#e2e8f0]" />
                   <div className="h-[17px] min-w-0 flex-1 animate-pulse rounded-[6px] bg-[#e2e8f0]" />
                 </div>
                 <div className="h-5 w-14 animate-pulse rounded-full bg-[#e2e8f0]" />

@@ -22,19 +22,14 @@ export function PpeMetricsSection() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-ehs-muted-text text-[11px] font-bold tracking-wide uppercase md:hidden">
-        Overview
-      </p>
-      <div className="grid grid-cols-2 gap-3 sm:gap-3.5">
-        {metrics.map((metric) => (
-          <StatMetricCard
-            key={metric.title}
-            title={metric.title}
-            value={metric.value}
-          />
-        ))}
-      </div>
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+      {metrics.map((metric) => (
+        <StatMetricCard
+          key={metric.title}
+          title={metric.title}
+          value={metric.value}
+        />
+      ))}
     </div>
   );
 }

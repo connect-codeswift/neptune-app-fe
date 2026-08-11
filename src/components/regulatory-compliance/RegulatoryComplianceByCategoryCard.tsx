@@ -1,6 +1,6 @@
 "use client";
 
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import type { ComplianceCategoryProgress } from "./regulatory-compliance-types";
 import { complianceGlassCardClass } from "./compliance-ui";
@@ -87,7 +87,7 @@ function CategoryProgressSkeleton() {
     <div className="relative h-[26.676px] w-full">
       <div className="flex h-[16.946px] items-center justify-between">
         <div className="h-[17px] w-[80px] animate-pulse rounded-[6px] bg-[#e2e8f6]" />
-        <div className="h-[14px] w-[36px] animate-pulse rounded-[6px] bg-[#e2e8f6]" />
+        <div className="h-3.5 w-[36px] animate-pulse rounded-[6px] bg-[#e2e8f6]" />
       </div>
       <div className={`${CATEGORY_TRACK_CLASS} animate-pulse`} />
     </div>
@@ -102,13 +102,15 @@ export function RegulatoryComplianceByCategoryCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[17.51px]"
-      className={[complianceGlassCardClass, className].filter(Boolean).join(" ")}
+      className={[complianceGlassCardClass, className]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div className="flex flex-col gap-[13.62px]">
+      <div className="flex flex-col gap-3.5">
         <div>
           <Text
             as="h3"
-            className="text-[14px] leading-none font-bold tracking-[-0.136px] text-[#0b1320]"
+            className="text-3.5 leading-none font-bold tracking-[-0.136px] text-[#0b1320]"
           >
             By Category
           </Text>

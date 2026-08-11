@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export type StatMetricTone = "positive" | "negative";
 
@@ -28,14 +28,14 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4"
+      paddingClassName="px-4 py-4"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="flex min-h-[72px] flex-col">
+        <div className="flex items-center justify-between gap-3">
           <Text
             as="p"
-            className="text-ehs-muted-text py-px text-xs font-bold tracking-wide uppercase"
+            className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase"
           >
             {title}
           </Text>
@@ -52,12 +52,14 @@ export function StatMetricCard(props: Readonly<StatMetricCardProps>) {
           ) : null}
         </div>
 
-        <Text
-          as="p"
-          className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
-        >
-          {String(value)}
-        </Text>
+        <div className="flex flex-1 items-center pt-2">
+          <Text
+            as="p"
+            className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
+          >
+            {String(value)}
+          </Text>
+        </div>
       </div>
     </IncidentGlassCard>
   );

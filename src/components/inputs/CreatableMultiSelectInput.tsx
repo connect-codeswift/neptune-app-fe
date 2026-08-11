@@ -221,12 +221,16 @@ export function CreatableMultiSelectInput(
                 options.map((option) => {
                   const selected = value.includes(option.value);
                   return (
-                    <li key={option.value} role="option" aria-selected={selected}>
+                    <li
+                      key={option.value}
+                      role="option"
+                      aria-selected={selected}
+                    >
                       <button
                         type="button"
                         onClick={() => toggleValue(option.value)}
                         className={[
-                          "flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-[14px] transition-colors",
+                          "text-3.5 flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left transition-colors",
                           selected
                             ? "bg-[rgba(8,145,166,0.12)] text-[#056e7e]"
                             : "text-[#0b1320] hover:bg-[rgba(15,23,42,0.04)]",
@@ -272,7 +276,7 @@ export function CreatableMultiSelectInput(
                         void submitCreate();
                       }
                     }}
-                    className="h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[14px] text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+                    className="text-3.5 h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
                   />
                   <div className="flex justify-end gap-2">
                     <button
@@ -334,10 +338,10 @@ export function CreatableMultiSelectInput(
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex w-full min-w-0 items-center gap-2 rounded-[10px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-1.5 outline-none transition-colors",
+          "flex w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-1.5 backdrop-blur-[5px] transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70",
           open
-            ? "border-[#0891a6] ring-2 ring-[#0891a6]/20"
-            : "focus-visible:border-[#0891a6] focus-visible:ring-2 focus-visible:ring-[#0891a6]/20",
+            ? "border-[#0891a6] ring-[3px] ring-[#0891a6]/15"
+            : "focus-visible:border-[#0891a6] focus-visible:ring-[3px] focus-visible:ring-[#0891a6]/15",
           selectedOptions.length > 0 ? "min-h-9" : "h-9 sm:h-[36px]",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,
@@ -347,7 +351,7 @@ export function CreatableMultiSelectInput(
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
           {selectedOptions.length === 0 ? (
-            <Text as="span" className="text-[14px] text-[#8892a3]">
+            <Text as="span" className="text-3.5 text-[#8892a3]">
               {placeholder}
             </Text>
           ) : (
@@ -367,7 +371,11 @@ export function CreatableMultiSelectInput(
                   }}
                   className="inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-[#8892a3] transition-colors hover:bg-[rgba(15,23,42,0.06)] hover:text-[#0b1320] disabled:cursor-not-allowed"
                 >
-                  <Icon icon="mdi:close" className="size-3" aria-hidden="true" />
+                  <Icon
+                    icon="mdi:close"
+                    className="size-3"
+                    aria-hidden="true"
+                  />
                 </button>
               </span>
             ))

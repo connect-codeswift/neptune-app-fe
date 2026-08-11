@@ -3,7 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
 
@@ -139,31 +139,45 @@ export function NearMissDetailPanel(props: Readonly<NearMissDetailPanelProps>) {
         </div>
       </div>
 
-      <div className="border-ehs-border flex min-w-0 flex-nowrap items-center gap-2 border-t px-4 py-4">
-        <Button
-          type="button"
-          variant="primary"
-          className="min-w-0 flex-1 justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold whitespace-nowrap"
-        >
-          <Icon
-            icon="mdi:check-circle-outline"
-            className="shrink-0 text-base"
-            aria-hidden="true"
-          />
-          <span className="truncate">Mark Investigated</span>
-        </Button>
-        <Button
-          type="button"
-          variant="tertiary"
-          className="min-w-0 flex-1 justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold whitespace-nowrap"
-        >
-          <Icon
-            icon="mdi:plus"
-            className="shrink-0 text-base"
-            aria-hidden="true"
-          />
-          <span className="truncate">Add CAPA</span>
-        </Button>
+      {/* Both actions are disabled: neither ever had an onClick, so they looked
+          operable and silently did nothing. "Mark Investigated" needs a
+          near-miss status mutation and "Add CAPA" needs the CAPA create flow
+          wired through to this panel. */}
+      <div className="border-ehs-border flex min-w-0 flex-col gap-2 border-t px-4 py-4">
+        <div className="flex min-w-0 flex-nowrap items-center gap-2">
+          <Button
+            type="button"
+            variant="primary"
+            disabled
+            title="Marking a near miss as investigated is not available yet"
+            className="min-w-0 flex-1 justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Icon
+              icon="mdi:check-circle-outline"
+              className="shrink-0 text-base"
+              aria-hidden="true"
+            />
+            <span className="truncate">Mark Investigated</span>
+          </Button>
+          <Button
+            type="button"
+            variant="tertiary"
+            disabled
+            title="Adding a CAPA from this panel is not available yet"
+            className="min-w-0 flex-1 justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Icon
+              icon="mdi:plus"
+              className="shrink-0 text-base"
+              aria-hidden="true"
+            />
+            <span className="truncate">Add CAPA</span>
+          </Button>
+        </div>
+        <Text as="p" className="text-ehs-muted-text text-center text-[11px]">
+          These actions aren&apos;t available yet. Open the near miss to close
+          or convert it.
+        </Text>
       </div>
     </IncidentGlassCard>
   );

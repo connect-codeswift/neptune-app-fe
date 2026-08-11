@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateBbsObservationMutation } from "@/hooks/use-bbs-mutations";
@@ -118,7 +118,7 @@ export function LogObservationContent() {
 
         <IncidentGlassCard
           paddingClassName="p-4 md:p-6"
-          className="w-full max-w-130 bg-white!"
+          className="w-full max-w-130"
           incidentGlassCardClassName="gap-4 md:gap-6"
         >
           {step === 1 ? (
@@ -157,7 +157,7 @@ export function LogObservationContent() {
               <Button
                 type="button"
                 variant="primary"
-                disabled={createObservation.isPending}
+                isLoading={createObservation.isPending}
                 onClick={handleSubmit}
                 className="h-11 flex-1 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >

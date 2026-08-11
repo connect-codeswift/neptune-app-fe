@@ -150,19 +150,19 @@ export function UploadDocumentDropzone(
         {isUploading ? (
           <Text
             as="p"
-            className="mt-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium text-[#2a3446] sm:mt-3 sm:text-[16px]"
+            className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:mt-3 sm:text-[16px]"
           >
             Uploading to Cloudinary…
           </Text>
         ) : file ? (
-          <p className="mt-2 line-clamp-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium break-all text-[#2a3446] sm:mt-3 sm:text-[16px]">
+          <p className="text-3.5 mt-2 line-clamp-2 max-w-full px-1 text-center leading-6 font-medium break-all text-[#2a3446] sm:mt-3 sm:text-[16px]">
             {file.name}
           </p>
         ) : (
           <>
             <Text
               as="p"
-              className="mt-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium text-[#2a3446] sm:hidden"
+              className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:hidden"
             >
               Tap to upload *
             </Text>

@@ -8,12 +8,12 @@ export type IncidentClosureStepReviewProps = Readonly<{
   data: IncidentClosureData;
   onChangeField: <K extends keyof IncidentClosureData>(
     field: K,
-    value: IncidentClosureData[K]
+    value: IncidentClosureData[K],
   ) => void;
 }>;
 
 export function IncidentClosureStepReview(
-  props: Readonly<IncidentClosureStepReviewProps>
+  props: Readonly<IncidentClosureStepReviewProps>,
 ) {
   const { data, onChangeField } = props;
 
@@ -24,22 +24,31 @@ export function IncidentClosureStepReview(
       <div>
         <Text
           as="h2"
-          className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
+          className="text-ehs-dark-bg text-[15px] leading-normal font-bold"
         >
           Digital Sign-off & Submission
         </Text>
-        <Text as="p" className="mt-2 text-[13px] font-normal leading-[20px] text-ehs-gray">
-          Closing this incident creates a legal compliance record. Verification of security credentials and multi-factor authorization is requested to finalize digital signatures.
+        <Text
+          as="p"
+          className="text-ehs-gray mt-2 text-[13px] leading-[20px] font-normal"
+        >
+          Closing this incident creates a legal compliance record. Verification
+          of security credentials and multi-factor authorization is requested to
+          finalize digital signatures.
         </Text>
       </div>
 
-      {/* Sign-off Green/Teal Box */}
-      <div className="rounded-[14px] border border-ehs-normal-blue/40 bg-ehs-light-blue/40 p-4 shadow-xs">
-        <Text as="p" className="text-[13px] font-bold text-ehs-dark-bg">
-          {data.closedBy || "Sarah Mitchell"}
+      {/* Sign-off Green/Teal Box. Never substitutes a placeholder identity:
+          the copy above calls this a legal compliance record, so an invented
+          signer name, role or timestamp would be indistinguishable from a real
+          signature. Missing values read as "Not recorded". */}
+      <div className="rounded-3.5 border-ehs-normal-blue/40 bg-ehs-light-blue/40 border p-4 shadow-xs">
+        <Text as="p" className="text-ehs-dark-bg text-[13px] font-bold">
+          {data.closedBy || "Not recorded"}
         </Text>
-        <Text as="p" className="mt-0.5 text-[13px] font-normal text-ehs-gray">
-          {`${data.closedByRole || "EHS Manager"} · ${data.closureDate || "24 Apr 2026, 15:04"}`}
+        <Text as="p" className="text-ehs-gray mt-0.5 text-[13px] font-normal">
+          {[data.closedByRole, data.closureDate].filter(Boolean).join(" · ") ||
+            "Role and date not recorded"}
         </Text>
       </div>
 
@@ -54,15 +63,16 @@ export function IncidentClosureStepReview(
             "flex size-5 shrink-0 items-center justify-center rounded transition-colors",
             isConfirmed
               ? "bg-ehs-normal-blue text-ehs-light-text"
-              : "border border-ehs-border bg-white",
+              : "border-ehs-border border bg-white",
           ].join(" ")}
         >
           {isConfirmed ? (
             <Icon icon="mdi:check" className="size-4 stroke-[3]" />
           ) : null}
         </div>
-        <Text as="span" className="text-[13px] font-bold text-ehs-dark-bg">
-          I confirm all corrective actions are complete and verified per EHS guidelines.
+        <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+          I confirm all corrective actions are complete and verified per EHS
+          guidelines.
         </Text>
       </button>
     </div>

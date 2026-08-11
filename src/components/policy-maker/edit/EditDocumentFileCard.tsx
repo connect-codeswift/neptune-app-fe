@@ -49,7 +49,7 @@ export function EditDocumentFileCard(
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="p"
-            className="truncate text-[14px] font-semibold text-[#0b1320]"
+            className="text-3.5 truncate font-semibold text-[#0b1320]"
           >
             {fileName}
           </Text>

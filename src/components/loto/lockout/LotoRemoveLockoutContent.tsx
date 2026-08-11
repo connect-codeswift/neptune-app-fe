@@ -2,11 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   getLotoRemoveLockoutContext,
   LOTO_REMOVE_SAFETY_RULES,
@@ -50,23 +49,24 @@ export function LotoRemoveLockoutContent(props: LotoRemoveLockoutContentProps) {
 
 function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
   const { context } = props;
-  const router = useRouter();
   const cancelHref = `${LOTO_ROUTE}?tab=active-lockouts`;
   const [energyRestored, setEnergyRestored] = useState(false);
   const [signedOff, setSignedOff] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canConfirm = energyRestored && signedOff;
 
   const handleConfirm = () => {
-    if (!canConfirm || isSubmitting) return;
+    if (!canConfirm) return;
 
-    setIsSubmitting(true);
-    window.setTimeout(() => {
-      toast.success(`Lockout removed for ${context.equipment.name}`);
-      setIsSubmitting(false);
-      router.push(cancelHref);
-    }, 350);
+    // Nothing is persisted: there is no LOTO service or mutation hook in the
+    // codebase at all. Removing a lockout is the step that tells other workers
+    // the equipment is live again, so imitating a request with a 350ms timer
+    // and then toasting "Lockout removed" was the most dangerous version of
+    // this to fake.
+    toast.error(
+      "Not available yet",
+      "Removing a lockout isn't connected to the backend, so nothing was saved.",
+    );
   };
 
   const summaryFields = [
@@ -176,7 +176,7 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
             <Button
               type="button"
               variant="primary"
-              disabled={!canConfirm || isSubmitting}
+              disabled={!canConfirm}
               onClick={handleConfirm}
               className="rounded-[10px] px-4 py-2.5 text-lg font-semibold shadow-[0px_6px_18px_rgba(8,145,166,0.45)] disabled:opacity-50"
             >

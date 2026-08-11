@@ -259,7 +259,7 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
     score: overall,
     auditor: dto.auditorName || "Unassigned",
     date:
-      (dto.scheduleDate || dto.startedAt || dto.scheduleDate || "").slice(
+      (dto.scheduleDate || dto.startedAt || dto.submittedAt || "").slice(
         0,
         10,
       ) || "—",

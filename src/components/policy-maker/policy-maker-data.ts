@@ -321,7 +321,7 @@ export function filterDocuments(
   statusFilter: DocumentStatusFilter,
 ): PolicyDocument[] {
   return documents.filter((doc) => {
-    if (doc.category !== categoryId) {
+    if (categoryId !== "all" && doc.category !== categoryId) {
       return false;
     }
     if (statusFilter === "All") {
@@ -337,7 +337,26 @@ export function filterDocuments(
   });
 }
 
+export function documentMatchesSearch(
+  document: PolicyDocument,
+  query: string,
+): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+
+  return [
+    document.title,
+    document.code,
+    document.owner,
+    document.ownerFullName,
+    document.site,
+  ].some((field) => field.toLowerCase().includes(needle));
+}
+
 export function categoryLabel(categoryId: string): string {
+  if (categoryId === "all") {
+    return "All documents";
+  }
   return (
     LIBRARY_CATEGORIES.find((item) => item.id === categoryId)?.label ??
     "Documents"

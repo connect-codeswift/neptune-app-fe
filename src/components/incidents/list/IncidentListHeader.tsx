@@ -9,9 +9,9 @@ export type IncidentListHeaderProps = Readonly<{
   title?: string;
   /** Primary CTA href (incidents report, document upload, etc.). */
   reportHref?: string;
-  /** Primary CTA label. Defaults to ΓÇ£Report incidentΓÇ¥. */
+  /** Primary CTA label. Defaults to “Report incident”. */
   actionLabel?: string;
-  /** Short label for small screens. Defaults to first word of actionLabel / ΓÇ£ReportΓÇ¥. */
+  /** Short label for small screens. Defaults to first word of actionLabel / “Report”. */
   actionLabelShort?: string;
   /** Hides the primary CTA button entirely (e.g. read-only register screens). */
   showAction?: boolean;

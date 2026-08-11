@@ -1,11 +1,11 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { PpeHistoryRecord } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeHistoryRecord>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ppeHistoryColumns: ColumnDef<PpeHistoryRecord, any>[] = [
+export const ppeHistoryColumns: TableColumns<PpeHistoryRecord> = [
   columnHelper.accessor("item", {
     header: "ITEM",
     size: 210,

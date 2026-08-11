@@ -14,7 +14,7 @@ export function BbsMetricsSection() {
   );
 
   return (
-    <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
       {metrics.map((metric) => (
         <StatMetricCard key={metric.title} {...metric} />
       ))}

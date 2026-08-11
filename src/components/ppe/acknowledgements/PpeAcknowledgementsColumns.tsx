@@ -1,6 +1,7 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
@@ -41,22 +42,24 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
     );
   }
 
+  // Disabled properly rather than via pointer-events-none, which left the
+  // button looking fully enabled while swallowing clicks — and still reachable
+  // by keyboard, where it did nothing at all. Acknowledging on someone's
+  // behalf has no endpoint yet.
   return (
     <Button
       type="button"
       variant="primary"
-      className="pointer-events-none rounded-lg px-3.5 py-1.5 text-lg font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)]"
+      disabled
+      title="Acknowledging PPE from this table is not available yet"
+      className="rounded-lg px-3.5 py-1.5 text-lg font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
     >
       Acknowledge
     </Button>
   );
 }
 
-export function buildPpeAcknowledgementsColumns(): ColumnDef<
-  PpeAcknowledgementEntry,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any
->[] {
+export function buildPpeAcknowledgementsColumns(): TableColumns<PpeAcknowledgementEntry> {
   return [
     columnHelper.display({
       id: "assignTo",

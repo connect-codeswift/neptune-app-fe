@@ -39,10 +39,7 @@ export type IncidentDetailCapaListCardProps = Readonly<{
     payload: CapaTaskFormPayload,
   ) => void | Promise<void>;
   isDeletingCapaTask?: boolean;
-  onDeleteCapaTask?: (
-    capa: CapaItem,
-    taskId: number,
-  ) => void | Promise<void>;
+  onDeleteCapaTask?: (capa: CapaItem, taskId: number) => void | Promise<void>;
   onVerifyCapa?: (
     capa: CapaItem,
     input: { effectiveness: CapaEffectiveness; notes: string },
@@ -125,7 +122,7 @@ export function IncidentDetailCapaListCard(
     <>
       <IncidentGlassCard
         paddingClassName="p-[23px]"
-        incidentGlassCardClassName="gap-[14px]"
+        incidentGlassCardClassName="gap-3.5"
         className={["bg-white/62", className].filter(Boolean).join(" ")}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -166,7 +163,9 @@ export function IncidentDetailCapaListCard(
             </div>
           ) : (
             capas.map((item) => {
-              const taskStatusLabel = formatCapaTaskStatusLabel(item.taskStatus);
+              const taskStatusLabel = formatCapaTaskStatusLabel(
+                item.taskStatus,
+              );
               const isCompleted = item.taskStatus === "Completed";
               const needsReview = capaNeedsManagerReview(item);
               const isVerified =
@@ -179,7 +178,7 @@ export function IncidentDetailCapaListCard(
                   className={[
                     "flex flex-col gap-[7px] rounded-[12px] border bg-[rgba(255,255,255,0.82)] p-[17px]",
                     needsReview
-                      ? "border-ehs-green/30 ring-1 ring-ehs-green/20"
+                      ? "border-ehs-green/30 ring-ehs-green/20 ring-1"
                       : "border-[rgba(15,23,42,0.08)]",
                   ].join(" ")}
                 >
@@ -191,7 +190,7 @@ export function IncidentDetailCapaListCard(
                       <span className="bg-ehs-gray size-1.5 rounded-[3px]" />
                       {item.controlCategory}
                     </span>
-                    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]">
+                    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-3.5 font-bold tracking-[0.2px]">
                       {item.actionType}
                     </span>
 
@@ -212,7 +211,7 @@ export function IncidentDetailCapaListCard(
                       ) : null}
                       <span
                         className={[
-                          "inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-[14px] font-bold tracking-[0.2px]",
+                          "inline-flex items-center rounded-full px-[9px] py-[3px] text-xs leading-3.5 font-bold tracking-[0.2px]",
                           isVerified
                             ? "bg-ehs-green/14 text-ehs-green"
                             : capaTaskStatusBadgeClass(item.taskStatus),
@@ -247,8 +246,8 @@ export function IncidentDetailCapaListCard(
                     {item.title}
                   </h4>
 
-                  <div className="flex flex-col gap-2 pt-[3px] sm:flex-row sm:items-center sm:gap-[14px]">
-                    <div className="flex shrink-0 flex-wrap items-center gap-x-[14px] gap-y-1">
+                  <div className="flex flex-col gap-2 pt-[3px] sm:flex-row sm:items-center sm:gap-3.5">
+                    <div className="flex shrink-0 flex-wrap items-center gap-x-3.5 gap-y-1">
                       <span className="text-ehs-gray inline-flex items-center gap-[5px] text-sm">
                         <Icon
                           icon="mdi:account-arrow-right-outline"

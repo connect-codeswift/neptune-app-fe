@@ -1,3 +1,5 @@
+export { ReportClassificationToggle } from "./ReportClassificationToggle";
+export type { ReportClassificationToggleProps, ClassificationToggleOption } from "./ReportClassificationToggle";
 export { ReportComingSoonStep } from "./ReportComingSoonStep";
 export type { ReportComingSoonStepProps } from "./ReportComingSoonStep";
 export { ReportDateField } from "./ReportDateField";

@@ -69,7 +69,7 @@ export function ReportIncidentStepFour(
           </div>
 
           {/* Section 1: Actions taken grid */}
-          <div className="flex flex-col gap-1.5 pt-[14px]">
+          <div className="flex flex-col gap-1.5 pt-3.5">
             <ReportFieldLabel
               label="Actions taken"
               trailing={
@@ -120,7 +120,7 @@ export function ReportIncidentStepFour(
           </div>
 
           {/* Section 2: Other actions or notes text area */}
-          <div className="pt-[14px]">
+          <div className="pt-3.5">
             <ReportTextareaField
               // Taller than it was: the draft controls reserve a strip along
               // the bottom, and at 86px they landed on the text.

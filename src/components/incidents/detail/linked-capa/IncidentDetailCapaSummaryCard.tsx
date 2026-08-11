@@ -33,7 +33,7 @@ export function IncidentDetailCapaSummaryCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-[19px]"
-      incidentGlassCardClassName="gap-[14px]"
+      incidentGlassCardClassName="gap-3.5"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-0.5">

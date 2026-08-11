@@ -2,12 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   getLotoApplyLockoutContext,
   type LotoApplyLockoutContext,
@@ -41,7 +40,6 @@ export type LotoApplyLockoutContentProps = Readonly<{
 
 export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
   const { equipmentId } = props;
-  const router = useRouter();
   const context = useMemo(
     () => getLotoApplyLockoutContext(equipmentId),
     [equipmentId],
@@ -70,11 +68,9 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
 
 function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
   const { context } = props;
-  const router = useRouter();
   const detailHref = lotoEquipmentDetailRoute(context.equipment.id);
   const schema = useMemo(() => buildApplyLockoutSchema(), []);
   const [confirmed, setConfirmed] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleValid = (values: FormValues) => {
     if (!confirmed) {
@@ -89,12 +85,14 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
       return;
     }
 
-    setIsSubmitting(true);
-    window.setTimeout(() => {
-      toast.success(`Lockout applied to ${context.equipment.name}`);
-      setIsSubmitting(false);
-      router.push(`${LOTO_ROUTE}?tab=active-lockouts`);
-    }, 350);
+    // Nothing is persisted: there is no LOTO service or mutation hook in the
+    // codebase at all. This previously waited 350ms to imitate a request, then
+    // toasted "Lockout applied" and navigated to the active-lockouts tab — so
+    // a lockout that was never recorded looked registered. Say so instead.
+    toast.error(
+      "Not available yet",
+      "Applying a lockout isn't connected to the backend, so nothing was saved.",
+    );
   };
 
   return (
@@ -153,8 +151,8 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               type="submit"
               form={LOTO_APPLY_FORM_ID}
               variant="danger"
-              disabled={isSubmitting || !confirmed}
-              className="gap-[7px] rounded-[10px] px-4 py-2.5 text-base! font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              disabled={!confirmed}
+              className="gap-[7px] rounded-[10px] px-4 py-2.5 text-[13px] font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
               Confirm Lockout Applied

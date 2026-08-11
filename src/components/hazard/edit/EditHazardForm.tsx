@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
@@ -61,7 +61,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className="mx-auto w-full max-w-3xl bg-white!"
+      className="w-full"
     >
       <FormBuilder
         schema={schema}

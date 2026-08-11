@@ -146,7 +146,7 @@ export function AccountSettingsProfileClient() {
       onSave={handleSave}
       onCancel={handleCancel}
     >
-      <div className="grid gap-[14px]">
+      <div className="grid gap-3.5">
         <GlassCard className="gap-0 overflow-hidden p-0">
           <div className="border-ehs-border/60 border-b px-5 py-4">
             <Text
@@ -208,7 +208,7 @@ export function AccountSettingsProfileClient() {
         </GlassCard> */}
       </div>
 
-      <div className="grid gap-[14px] lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="grid gap-3.5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <GlassCard>
           <CardHeading title="Personal Information" />
           <div className="mt-2 grid gap-4 sm:grid-cols-2">
@@ -266,8 +266,8 @@ export function AccountSettingsProfileClient() {
                 disabled
               />
               <Text as="p" className="text-ehs-muted-text mt-1 text-xs">
-                Managed by administrator. Switch your
-                active site from the header.
+                Managed by administrator. Switch your active site from the
+                header.
               </Text>
             </div>
 

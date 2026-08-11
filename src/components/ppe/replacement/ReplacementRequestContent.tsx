@@ -7,7 +7,7 @@ import {
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -261,7 +261,11 @@ export function ReplacementRequestContent() {
               </Text>
 
               <FormBuilder
-                key={`${selectedEmployeeValue}-${issueIdParam}-${String(itemOptions.length)}`}
+                // Remount only when the values FormBuilder captures on mount
+                // change. itemOptions was in this key too, so the form was
+                // wiped mid-typing when the items query resolved — unnecessary,
+                // since options reach the fields through `schema` on re-render.
+                key={`${selectedEmployeeValue}-${issueIdParam}`}
                 formId={REPLACEMENT_REQUEST_FORM_ID}
                 schema={schema}
                 initialValues={initialValues}
@@ -283,11 +287,8 @@ export function ReplacementRequestContent() {
                   type="submit"
                   form={REPLACEMENT_REQUEST_FORM_ID}
                   variant="primary"
-                  disabled={
-                    replaceRequest.isPending ||
-                    !issueIdParam ||
-                    itemOptions.length === 0
-                  }
+                  isLoading={replaceRequest.isPending}
+                  disabled={!issueIdParam || itemOptions.length === 0}
                   className="w-full rounded-[10px] px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
                 >
                   {replaceRequest.isPending

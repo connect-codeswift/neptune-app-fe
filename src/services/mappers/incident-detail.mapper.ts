@@ -1230,7 +1230,9 @@ export function mapIncidentDtoToDetailView(
     affectedInjuryLabel,
     bodyPart,
     treatment,
-    daysAway: 0,
+    // GetIncidentById carries no days-away field, so there is nothing to map.
+    // "—" rather than 0, which would read as a measured zero days away.
+    daysAway: "—",
     responders,
     witnesses: mappedWitnesses,
     attachments,

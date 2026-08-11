@@ -28,7 +28,7 @@ import type {
   HrcaMeta,
   HrcaRow,
 } from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import { HRCA_META } from "@/components/incidents/detail/investigations/hrca/hrca-data";
+import { EMPTY_HRCA_META } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
 export type { HrcaRow, HrcaWhyStep } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
@@ -51,7 +51,7 @@ export function IncidentDetailHrcaBoard(
     incidentId,
     queryEnabled = true,
     onClose,
-    meta = HRCA_META,
+    meta = EMPTY_HRCA_META,
     className = "",
   } = props;
 

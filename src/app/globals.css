@@ -3,6 +3,10 @@
 :root {
   --font-inter: var(--font-inter);
 
+  /* House easing for micro-interactions (popover-in, card motion). One
+     definition so the curves can't drift apart per animation. */
+  --ehs-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
   --ehs-light-bg: #f3f5f8;
   --ehs-dark-bg: #0b1320;
 
@@ -136,7 +140,7 @@ body {
 @utility animate-popover-in {
   animation-name: popover-in;
   animation-duration: 0.14s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: var(--ehs-ease-out);
   animation-fill-mode: both;
 }
 
@@ -292,4 +296,155 @@ body {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Card motion
+   ---------------------------------------------------------------------------
+   Dashboard cards swap from skeleton to content when their query resolves, so
+   without this they pop in abruptly. The travel is deliberately small (7px):
+   these sit on a frosted surface over a page gradient, and anything longer
+   reads as decoration on a page about incidents.
+
+   Every utility below carries its own prefers-reduced-motion guard, so a call
+   site cannot forget `motion-reduce:` and ship something that ignores the
+   setting.
+   --------------------------------------------------------------------------- */
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-card-rise {
+  animation-name: card-rise;
+  animation-duration: 0.18s;
+  animation-timing-function: var(--ehs-ease-out);
+  animation-fill-mode: both;
+
+  /* `both` holds the 0-opacity start frame through any animation-delay, which
+     is what lets stagger-cards below hold a card back without it flashing. */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Staggers the direct children of a card grid. The dashboard's rows contain
+   card components whose own root element is the GlassCard, so `> *` lands on
+   the animated element without threading a delay prop through six components. */
+@utility stagger-cards {
+  & > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  & > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  & > *:nth-child(4) {
+    animation-delay: 180ms;
+  }
+}
+
+/* Hover response for card surfaces: 1px is enough to feel alive without
+   implying the whole card is a button. The shadow is the GLASS_SURFACE stack
+   with the lift shadow deepened and the inset highlight left untouched. */
+@utility card-lift {
+  transition:
+    transform 0.18s var(--ehs-ease-out),
+    box-shadow 0.18s var(--ehs-ease-out);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 2px 0 rgb(15 23 42 / 0.05),
+      0 18px 40px -14px rgb(15 23 42 / 0.2),
+      inset 0 1px 0 1px rgb(255 255 255 / 0.9);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* Arc travelling around the Neptune monogram's ring while the app boots. The
+   glyph itself stays still — a spinning letterform reads as a novelty, a
+   moving arc reads as progress. Rotates about the viewBox centre, so it needs
+   transform-box/transform-origin rather than Tailwind's default. */
+@keyframes mark-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-mark-orbit {
+  transform-box: view-box;
+  transform-origin: center;
+  animation-name: mark-orbit;
+  /* Unhurried on purpose: the mark should be legible as the logo before the
+     arc has gone round once. Linear, because easing a continuous rotation
+     makes it stutter at the loop seam. */
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+  /* Still ring instead of a spinner; the status text carries the meaning. */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Loading sheen for placeholder blocks. Replaces a flat opacity pulse, which
+   blinks; a sweep reads as work in progress. Same gradient vocabulary as
+   ai-blade-sweep, without the skew — these are small rectangles. */
+@keyframes skeleton-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@utility skeleton-sweep {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.55),
+      transparent
+    );
+    animation: skeleton-sweep 1.35s ease-in-out infinite;
+  }
+
+  /* Falls back to a still placeholder rather than a pulse, so reduced-motion
+     users get no looping animation at all. */
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
 }

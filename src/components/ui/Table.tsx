@@ -8,7 +8,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 /**
  * Server-side pagination state. The rows in `data` are already the current
@@ -212,11 +212,9 @@ export function Table<TData>(props: TableProps<TData>) {
                         <td
                           key={cell.id}
                           className={[
-                            isCapa
-                              ? "px-4 py-3 align-middle text-sm font-normal"
-                              : isCompliance
-                                ? "px-[15.57px] py-[14px] align-middle text-sm font-normal"
-                                : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
+                            isCompliance
+                              ? "px-[15.57px] py-3.5 align-middle text-sm font-normal"
+                              : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
                             alignClass,
                           ].join(" ")}
                         >

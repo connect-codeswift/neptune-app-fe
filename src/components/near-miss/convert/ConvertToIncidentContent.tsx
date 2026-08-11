@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
@@ -88,13 +88,15 @@ export function ConvertToIncidentContent(
     return null;
   }
 
-  const handleSubmit = (values: FormValues) => {
-    const conversion = values as ConvertToIncidentValues;
-
+  const handleSubmit = () => {
     // There is no near-miss -> incident endpoint yet; POST /Incident/incident
-    // needs a field mapping that hasn't been decided.
-    console.log("Convert to incident:", { nearMissId, ...conversion });
-    toast.error("Conversion isn't connected to the backend yet.");
+    // needs a field mapping that hasn't been decided. The submit label says
+    // "Convert & Create Incident", so this states plainly that nothing was
+    // saved rather than logging the payload to the console and moving on.
+    toast.error(
+      "Not available yet",
+      "Converting a near miss to an incident isn't connected to the backend, so nothing was saved.",
+    );
   };
 
   return (

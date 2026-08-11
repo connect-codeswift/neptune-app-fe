@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { formatNearMissDisplayId } from "@/lib/map-near-miss";
 import { userNameFor } from "@/lib/map-user";
@@ -17,8 +18,7 @@ export type NearMissColumnHandlers = Readonly<{
  */
 export function makeNearMissColumns(
   handlers: NearMissColumnHandlers,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<NearMissRecord, any>[] {
+): TableColumns<NearMissRecord> {
   const { userNames } = handlers;
 
   return [

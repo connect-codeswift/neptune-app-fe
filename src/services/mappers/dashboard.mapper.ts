@@ -60,6 +60,29 @@ function toSparkline(
   return trend.map((value) => Number(value));
 }
 
+/**
+ * Decorative lead-in when the API only returns a snapshot (no history series).
+ * Matches the TRIR/LTIR card footer so all four KPIs share the same rhythm.
+ */
+function snapshotSparkline(
+  value: number | null | undefined,
+): readonly number[] | undefined {
+  if (value == null || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  const current = Math.max(0, value);
+  return [
+    current * 0.86,
+    current * 0.9,
+    current * 0.93,
+    current * 0.95,
+    current * 0.97,
+    current * 0.99,
+    current,
+  ];
+}
+
 function formatRate(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {
     return "—";
@@ -72,13 +95,6 @@ function formatPercent(value: number | null | undefined): string {
     return "—";
   }
   return String(Math.round(value));
-}
-
-function formatCount(value: number | null | undefined): string | number {
-  if (value == null || !Number.isFinite(value)) {
-    return "—";
-  }
-  return value;
 }
 
 function optionalTrend(
@@ -112,8 +128,7 @@ export function mapDashboardKpisToMetrics(
   const complianceTarget = dto.complianceTarget ?? FALLBACK_COMPLIANCE_TARGET;
   const capaTarget = dto.capaClosureTarget ?? FALLBACK_CAPA_CLOSURE_TARGET;
   const ratesAvailable =
-    dto.ratesAvailable ??
-    ((dto.workHoursYtd ?? 0) >= 5000);
+    dto.ratesAvailable ?? ((dto.workHoursYtd ?? 0) >= 5000);
 
   const trirTrend = trendForMaxTarget(
     ratesAvailable ? dto.trir : null,
@@ -141,7 +156,9 @@ export function mapDashboardKpisToMetrics(
       targetLabel: ratesAvailable
         ? `Target ≤ ${String(trirTarget)}`
         : "Add monthly work hours in Settings",
-      chartData: ratesAvailable ? toSparkline(dto.trirTrend) : undefined,
+      chartData: ratesAvailable
+        ? (toSparkline(dto.trirTrend) ?? snapshotSparkline(dto.trir))
+        : undefined,
     },
     {
       title: "Lost Time Injury Rate",
@@ -151,7 +168,10 @@ export function mapDashboardKpisToMetrics(
       targetLabel: ratesAvailable
         ? `Target ≤ ${String(ltirTarget)}`
         : "Add monthly work hours in Settings",
-      chartData: ratesAvailable ? toSparkline(dto.lostTimeInjuryRateTrend) : undefined,
+      chartData: ratesAvailable
+        ? (toSparkline(dto.lostTimeInjuryRateTrend) ??
+          snapshotSparkline(dto.lostTimeInjuryRate))
+        : undefined,
     },
     {
       title: "Safety Compliance",
@@ -159,12 +179,7 @@ export function mapDashboardKpisToMetrics(
       unit: "%",
       ...optionalTrend(complianceTrend),
       targetLabel: `Target ≥ ${String(complianceTarget)}%`,
-      counts: {
-        closedLabel: "Closed Compliances",
-        closedValue: formatCount(dto.compliantCount),
-        totalLabel: "Total Compliances",
-        totalValue: formatCount(dto.totalCompliance),
-      },
+      chartData: snapshotSparkline(dto.compliancePercentage),
     },
     {
       title: "Action Closure Rate",
@@ -172,12 +187,7 @@ export function mapDashboardKpisToMetrics(
       unit: "%",
       ...optionalTrend(capaTrend),
       targetLabel: `Target ≥ ${String(capaTarget)}%`,
-      counts: {
-        closedLabel: "Closed CAPAs",
-        closedValue: formatCount(dto.closedCapaCount),
-        totalLabel: "Total CAPAs",
-        totalValue: formatCount(dto.totalCapa),
-      },
+      chartData: snapshotSparkline(dto.capaClosurePercentage),
     },
   ];
 }

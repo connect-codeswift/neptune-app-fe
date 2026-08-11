@@ -31,7 +31,10 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
             type="button"
             disabled={isSubmitting}
             onClick={() => {
-              void onConfirm();
+              // onConfirm toasts its own failure and re-throws to keep this
+              // modal open; swallow it so it isn't an unhandled rejection.
+              // Promise.resolve because the prop may be sync or async.
+              void Promise.resolve(onConfirm()).catch(() => undefined);
             }}
             className={[
               "inline-flex h-[39.5px] min-w-[120px] flex-1 items-center justify-center rounded-xl px-5 text-sm leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",

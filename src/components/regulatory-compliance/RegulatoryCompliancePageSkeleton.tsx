@@ -62,7 +62,7 @@ function KpiCardSkeleton() {
 
 function TableHeaderSkeleton() {
   return (
-    <div className="flex items-start gap-[10px] bg-[rgba(15,23,42,0.02)] px-[14px] py-[14px]">
+    <div className="flex items-start gap-[10px] bg-[rgba(15,23,42,0.02)] px-3.5 py-3.5">
       <Bar className="h-2.5 w-[60px]" />
       <Bar className="h-2.5 w-[120px]" />
       <Bar className="h-2.5 w-[80px]" />
@@ -75,7 +75,7 @@ function TableHeaderSkeleton() {
 function TableRowSkeleton(props: Readonly<{ muted?: boolean }>) {
   const { muted = false } = props;
   return (
-    <div className="flex items-start gap-[10px] border-b border-[rgba(15,23,42,0.05)] px-[14px] py-[14px]">
+    <div className="flex items-start gap-[10px] border-b border-[rgba(15,23,42,0.05)] px-3.5 py-3.5">
       <Bar className="h-2.5 w-[50px]" opacity={muted ? 0.6 : 1} />
       <Bar className="h-2.5 w-[140px]" opacity={muted ? 0.8 : 1} />
       <Bar className="h-2.5 w-[70px]" opacity={muted ? 0.6 : 1} />
@@ -122,17 +122,17 @@ export function RegulatoryCompliancePageSkeleton() {
         </div>
 
         <div className="flex items-start gap-2">
-          <div className="flex items-start rounded-[10px] border border-white/90 bg-white/62 px-[14px] py-[8px]">
+          <div className="flex items-start rounded-[10px] border border-white/90 bg-white/62 px-3.5 py-[8px]">
             <Bar className="h-3 w-[110px]" />
           </div>
-          <div className="flex items-start rounded-[10px] bg-[#0891a6] px-[14px] py-[8px]">
+          <div className="flex items-start rounded-[10px] bg-[#0891a6] px-3.5 py-[8px]">
             <Bar className="h-3 w-[80px] bg-white/90" />
           </div>
         </div>
       </div>
 
       {/* StatsGrid — Figma 4818:19263, gap 14px */}
-      <div className="grid grid-cols-1 gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCardSkeleton />
         <KpiCardSkeleton />
         <KpiCardSkeleton />
@@ -159,7 +159,7 @@ export function RegulatoryCompliancePageSkeleton() {
       </GlassPanel>
 
       {/* InsightsPane — Figma 4818:19332 */}
-      <div className="flex min-w-0 flex-col gap-[14px]">
+      <div className="flex min-w-0 flex-col gap-3.5">
         {/* ProgressCard — Figma 4818:19333 */}
         <GlassPanel className="flex min-w-0 flex-col gap-[52px] p-[19px]">
           <Bar className="h-3 w-[140px]" />

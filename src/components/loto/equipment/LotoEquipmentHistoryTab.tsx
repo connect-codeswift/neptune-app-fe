@@ -1,19 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Table } from "@/components/ui/Table";
-import type { LotoHistoryRecord } from "@/app/dashboard/lockout-tagout/loto-data";
+import type {
+  LotoHistoryRecord,
+  LotoHistoryResult,
+} from "@/app/dashboard/lockout-tagout/loto-data";
 import { toast } from "@/lib/toast";
 
 const columnHelper = createColumnHelper<LotoHistoryRecord>();
 
-const resultClassName: Record<LotoHistoryRecord["result"], string> = {
+const resultClassName: Record<LotoHistoryResult, string> = {
   Completed: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
   Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
 };
 
-function buildColumns(): ColumnDef<LotoHistoryRecord, unknown>[] {
+function buildColumns(): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
       header: "LOG ID",
@@ -96,7 +100,7 @@ function buildColumns(): ColumnDef<LotoHistoryRecord, unknown>[] {
       header: "RESULT",
       size: 100,
       cell: (info) => {
-        const result = info.getValue();
+        const result = info.getValue() as LotoHistoryResult;
         return (
           <span
             className={[
@@ -110,7 +114,7 @@ function buildColumns(): ColumnDef<LotoHistoryRecord, unknown>[] {
       },
       meta: { align: "left" as const },
     }),
-  ] as ColumnDef<LotoHistoryRecord, unknown>[];
+  ];
 }
 
 export type LotoEquipmentHistoryTabProps = Readonly<{

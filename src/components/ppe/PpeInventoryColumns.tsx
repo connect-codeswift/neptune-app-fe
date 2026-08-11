@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeInventoryItem>();
@@ -21,30 +22,29 @@ const progressClassName: Record<"good" | "warn" | "danger", string> = {
   danger: "bg-[#ef4444]",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
+export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
   columnHelper.accessor("category", {
-    header: "CATEGORY",
+    header: "Category",
     size: 180,
     cell: (info) => (
-      <span className="text-ehs-darker text-base font-normal">
+      <span className="text-[12px] leading-normal text-[#0b1320]">
         {info.getValue()}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("onHand", {
-    header: "ON HAND",
+    header: "On hand",
     size: 120,
     cell: ({ row }) => (
-      <span className="text-ehs-darker text-base font-normal tabular-nums">
+      <span className="text-[12px] leading-normal tabular-nums text-[#566072]">
         {`${formatStock(row.original.onHand)} / ${formatStock(row.original.stockCapacity)}`}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("stockLevel", {
-    header: "STOCK LEVEL",
+    header: "Stock level",
     size: 180,
     cell: ({ row }) => {
       const { stockLevel } = row.original;
@@ -52,7 +52,7 @@ export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
 
       return (
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-[3px] bg-[#e5e7eb]">
+          <div className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-[3px] bg-[rgba(136,146,163,0.2)]">
             <div
               className={`h-full rounded-[3px] ${progressClassName[tone]}`}
               style={{ width: `${String(stockLevel)}%` }}
@@ -60,12 +60,12 @@ export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
           </div>
           <span
             className={[
-              "shrink-0 text-sm font-semibold tabular-nums",
+              "shrink-0 text-[12px] font-semibold tabular-nums",
               tone === "danger"
                 ? "text-[#ef4444]"
                 : tone === "warn"
                   ? "text-[#f59e0b]"
-                  : "text-ehs-darker",
+                  : "text-[#566072]",
             ].join(" ")}
           >
             {`${String(stockLevel)}%`}
@@ -76,20 +76,20 @@ export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("reorderDate", {
-    header: "REORDER",
+    header: "Reorder",
     size: 110,
     cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
+      <span className="text-[12px] leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("supplier", {
-    header: "SUPPLIER",
+    header: "Supplier",
     size: 140,
     cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
+      <span className="text-[12px] leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),

@@ -31,12 +31,19 @@ export type HrcaMeta = Readonly<{
   description: string;
 }>;
 
-export const HRCA_META: HrcaMeta = {
-  reportType: "Injury",
-  date: "Apr 1, 2026",
-  injury: "Facial laceration — forehead and nose (9 stitches)",
-  description:
-    "Employee was cutting coil banding on the Zee Line. The band did not fully cut, and when additional force was applied, the coil suddenly unwrapped and struck the employee in the forehead and nose.",
+/**
+ * Neutral fallback for the HRCA header when an incident carries no metadata.
+ *
+ * This replaced a fully written-out sample injury (a facial laceration with a
+ * narrative about coil banding on the Zee Line). As a default it rendered as
+ * this incident's own injury and description, which is not something a
+ * worksheet used for root-cause analysis should ever invent.
+ */
+export const EMPTY_HRCA_META: HrcaMeta = {
+  reportType: "—",
+  date: "—",
+  injury: "Not recorded",
+  description: "No description recorded for this incident.",
 };
 
 export const INITIAL_HRCA_ROWS: readonly HrcaRow[] = [

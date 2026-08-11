@@ -18,9 +18,7 @@ import {
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
 
-function ProfileDetailRow(
-  props: Readonly<{ label: string; value: string }>,
-) {
+function ProfileDetailRow(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
 
   return (
@@ -192,7 +190,7 @@ export function MyProfilePageClient() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <div className="flex flex-1 flex-col gap-[14px] px-4 pt-4 pb-8">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
         <BreadCrumbTab
           breadcrumbs={[
             { label: "Dashboard", href: "/dashboard" },
@@ -253,7 +251,7 @@ export function MyProfilePageClient() {
 
               <Link
                 href="/dashboard/my-profile/settings"
-                className="btn-sweep bg-ehs-normal-blue text-ehs-light-text inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-md shadow-ehs-normal-blue/60 transition-colors hover:bg-ehs-normal-blue-hover"
+                className="btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-md transition-colors"
               >
                 Settings
                 <Icon
@@ -266,11 +264,14 @@ export function MyProfilePageClient() {
           </GlassCard>
         )}
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="grid gap-3.5 lg:grid-cols-2">
           <GlassCard>
             <CardHeading title="Personal Information" />
             <div className="mt-1">
-              <InfoRow label="Employee ID" value={PLACEHOLDER_PERSONAL_INFO.employeeId} />
+              <InfoRow
+                label="Employee ID"
+                value={PLACEHOLDER_PERSONAL_INFO.employeeId}
+              />
               <InfoRow
                 label="Start Date"
                 value={PLACEHOLDER_PERSONAL_INFO.startDate}
@@ -296,7 +297,7 @@ export function MyProfilePageClient() {
 
           <GlassCard className="min-w-0">
             <CardHeading title="Certifications & Training" />
-            <div className="scrollbar-none mt-1 -mx-1 overflow-x-auto px-1">
+            <div className="-mx-1 mt-1 scrollbar-none overflow-x-auto px-1">
               <table className="w-full min-w-[520px] border-collapse text-left">
                 <thead>
                   <tr className="border-ehs-border/60 border-b">
@@ -339,14 +340,17 @@ export function MyProfilePageClient() {
           </GlassCard>
         </div>
 
-        <div className="grid gap-[14px] lg:grid-cols-2">
+        <div className="grid gap-3.5 lg:grid-cols-2">
           <PermissionsAccessCard
             role={user.role}
             permissionLabels={permissionLabels}
           />
 
           <GlassCard>
-            <CardHeading title="Recent Activity" subtitle="Your latest actions" />
+            <CardHeading
+              title="Recent Activity"
+              subtitle="Your latest actions"
+            />
             <div className="divide-ehs-border/60 mt-1 flex flex-col divide-y">
               {PLACEHOLDER_ACTIVITY.map((item) => (
                 <div

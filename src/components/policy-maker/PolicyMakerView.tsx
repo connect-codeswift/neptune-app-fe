@@ -3,66 +3,52 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { StatMetricCard } from "@/components/StatMetricCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { PolicyMakerDetailPanel } from "@/components/policy-maker/PolicyMakerDetailPanel";
 import { PolicyMakerDocumentTable } from "@/components/policy-maker/PolicyMakerDocumentTable";
-import { PolicyMakerLibraryNav } from "@/components/policy-maker/PolicyMakerLibraryNav";
 import {
   LIBRARY_CATEGORIES,
   STATUS_FILTERS,
   categoryLabel,
+  documentMatchesSearch,
   filterDocuments,
 } from "@/components/policy-maker/policy-maker-data";
 import type {
   DocumentStatusFilter,
-  LibraryCategory,
   LibraryCategoryId,
 } from "@/components/policy-maker/policy-maker-types";
 import type { StatMetricCardProps } from "@/components/StatMetricCard";
-import type {
-  DocumentCategoryStatDto,
-  DocumentDashboardKpisDto,
-} from "@/dtos/res/document-response.dto";
+import type { DocumentDashboardKpisDto } from "@/dtos/res/document-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_DOCUMENTS_PAGE_NUMBER,
   DEFAULT_DOCUMENTS_PAGE_SIZE,
-  useDocumentCategoryStatsQuery,
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
-import {
-  SkeletonListRows,
-  SkeletonSidePanel,
-  SkeletonTable,
-} from "@/components/ui/skeletons";
+import { SkeletonSidePanel, SkeletonTable } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { mapCategoryToLibraryId } from "@/services/mappers/document-list.mapper";
 
-/** Builds Library nav counts from GET /api/Document/category-stats (whole library, not just the current page). */
-function buildLibraryCategories(
-  stats: readonly DocumentCategoryStatDto[] | null,
-): readonly LibraryCategory[] {
-  const counts = new Map<LibraryCategoryId, number>();
-  for (const entry of stats ?? []) {
-    const id = mapCategoryToLibraryId(entry.category);
-    counts.set(id, (counts.get(id) ?? 0) + (entry.totalCount ?? 0));
-  }
+type CategoryFilter = "all" | LibraryCategoryId;
 
-  return LIBRARY_CATEGORIES.map((category) => ({
-    ...category,
-    count: counts.get(category.id) ?? 0,
-  }));
-}
+const CATEGORY_FILTER_OPTIONS = [
+  { value: "all", label: "All" },
+  ...LIBRARY_CATEGORIES.map((category) => ({
+    value: category.id,
+    label: category.label,
+  })),
+] as const;
 
-/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent ΓÇö normalize either. */
+/** `acknowledgementRate` could be a 0-1 fraction or an already-scaled percent — normalize either. */
 function formatAckRate(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) {
-    return "ΓÇö";
+    return "—";
   }
   const percent = value <= 1 ? value * 100 : value;
   return `${String(Math.round(percent))}%`;
@@ -106,14 +92,14 @@ function buildPolicyMakerMetrics(
 }
 
 /**
- * Document Library list view (Figma 5568:28979).
- * Loads documents from POST /api/Document/allDocuments.
- * First row click previews in the details panel; second click opens full detail.
+ * Document Library list view.
+ * Cards → filters → search → table + detail panel.
  */
 export function PolicyMakerView() {
   const router = useRouter();
-  const [categoryId, setCategoryId] = useState<LibraryCategoryId>("sops");
+  const [categoryId, setCategoryId] = useState<CategoryFilter>("all");
   const [statusFilter, setStatusFilter] = useState<DocumentStatusFilter>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState(DEFAULT_DOCUMENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_DOCUMENTS_PAGE_SIZE);
@@ -127,20 +113,8 @@ export function PolicyMakerView() {
     enabled: isClientReady && hasToken,
   });
   const kpisQuery = useDocumentDashboardKpisQuery(isClientReady && hasToken);
-  const categoryStatsQuery = useDocumentCategoryStatsQuery(
-    isClientReady && hasToken,
-  );
 
-  const allDocuments = documentsQuery.data?.records ?? [];
   const totalCount = documentsQuery.data?.totalCount ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const canGoPrevious = pageNumber > 1 && !documentsQuery.isFetching;
-  const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
-
-  const categories = useMemo(
-    () => buildLibraryCategories(categoryStatsQuery.data?.dataModel ?? null),
-    [categoryStatsQuery.data],
-  );
 
   const metrics = useMemo(
     () =>
@@ -148,14 +122,17 @@ export function PolicyMakerView() {
     [kpisQuery.data, totalCount],
   );
 
-  const documents = useMemo(
-    () => filterDocuments(allDocuments, categoryId, statusFilter),
-    [allDocuments, categoryId, statusFilter],
-  );
+  const documents = useMemo(() => {
+    const filtered = filterDocuments(
+      documentsQuery.data?.records ?? [],
+      categoryId,
+      statusFilter,
+    );
+    return filtered.filter((document) =>
+      documentMatchesSearch(document, searchQuery),
+    );
+  }, [documentsQuery.data?.records, categoryId, statusFilter, searchQuery]);
 
-  // Default to the first document, falling back to it whenever filtering drops
-  // the current selection. Derived during render rather than synced through an
-  // effect, so the detail pane never shows a document that just left the list.
   const selectedDocument =
     (selectedId == null
       ? undefined
@@ -163,15 +140,9 @@ export function PolicyMakerView() {
     documents[0] ??
     null;
 
-  const handleCategorySelect = (id: string) => {
-    setCategoryId(id as LibraryCategoryId);
-    setStatusFilter("All");
-    setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
-  };
-
-  const libraryCount =
-    categories.find((item) => item.id === categoryId)?.count ??
-    documents.length;
+  const resultLabel = `${String(documents.length)} ${
+    documents.length === 1 ? "document" : "documents"
+  }`;
 
   const showBootLoading = !isClientReady;
   const showQueryLoading =
@@ -188,15 +159,10 @@ export function PolicyMakerView() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <IncidentListHeader
-        title="Policy Maker"
-        actionLabel="Upload a Document"
-        actionLabelShort="Upload"
-        reportHref="/dashboard/policy-maker/upload"
-      />
+      <DashboardHeader title="Policy Maker" />
 
-      <div className="flex flex-1 flex-col gap-[13.62px] px-4 pb-8">
-        <div className="grid grid-cols-1 gap-[13.62px] sm:grid-cols-2 xl:grid-cols-4">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
           {metrics.map((metric) => (
             <StatMetricCard key={metric.title} {...metric} />
           ))}
@@ -204,7 +170,7 @@ export function PolicyMakerView() {
 
         {errorMessage ? (
           <IncidentGlassCard
-            className="min-h-[180px] text-center"
+            className="min-h-45 text-center"
             incidentGlassCardClassName="items-center justify-center gap-2"
           >
             <Icon
@@ -229,100 +195,86 @@ export function PolicyMakerView() {
               </Button>
             ) : null}
           </IncidentGlassCard>
-        ) : showBootLoading || showQueryLoading ? (
-          <div className="grid min-w-0 items-start gap-[13.62px] xl:grid-cols-[214px_minmax(0,1fr)_minmax(280px,311px)]">
-            <SkeletonListRows rows={6} />
-            <SkeletonTable rows={8} columns={4} />
-            <SkeletonSidePanel />
-          </div>
         ) : (
-          <div className="grid min-w-0 items-start gap-[13.62px] xl:grid-cols-[214px_minmax(0,1fr)_minmax(280px,311px)]">
-            <PolicyMakerLibraryNav
-              categories={categories}
-              selectedId={categoryId}
-              onSelect={handleCategorySelect}
-              onNewDocument={() =>
-                router.push("/dashboard/policy-maker/upload")
-              }
+          <>
+            <ModuleFilterBar
+              segments={[
+                {
+                  label: "Category",
+                  options: [...CATEGORY_FILTER_OPTIONS],
+                  value: categoryId,
+                  onChange: (value) => {
+                    setCategoryId(value as CategoryFilter);
+                    setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
+                  },
+                },
+                {
+                  label: "Status",
+                  options: STATUS_FILTERS,
+                  value: statusFilter,
+                  onChange: (value) => {
+                    setStatusFilter(value as DocumentStatusFilter);
+                    setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
+                  },
+                },
+              ]}
             />
 
-            <div className="flex min-w-0 flex-col gap-3">
-              <PolicyMakerDocumentTable
-                categoryLabel={categoryLabel(categoryId)}
-                documentCount={libraryCount}
-                documents={documents}
-                selectedId={selectedDocument?.id ?? null}
-                onSelect={setSelectedId}
-                statusFilter={statusFilter}
-                onStatusFilterChange={(value) => {
-                  setStatusFilter(value);
-                  setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
-                }}
-                statusOptions={STATUS_FILTERS}
-                onEditDocument={(document) =>
-                  router.push(
-                    `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
-                  )
-                }
-                onOpenDetail={(id) =>
-                  router.push(
-                    `/dashboard/policy-maker/${encodeURIComponent(id)}`,
-                  )
-                }
-              />
+            <ModuleSearchBar
+              value={searchQuery}
+              onChange={(value) => {
+                setSearchQuery(value);
+                setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
+              }}
+              placeholder="Search by title, code, owner..."
+              aria-label="Search documents"
+              resultLabel={resultLabel}
+            />
 
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <Text as="p" className="text-ehs-muted-text text-[12px]">
-                  {[
-                    `Page ${String(pageNumber)} of ${String(totalPages)}`,
-                    totalCount > 0 ? `${String(totalCount)} total` : null,
-                    documentsQuery.isFetching ? "LoadingΓÇª" : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" ┬╖ ")}
-                </Text>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="tertiary"
-                    disabled={!canGoPrevious}
-                    onClick={() =>
-                      setPageNumber((current) => Math.max(1, current - 1))
-                    }
-                    className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
-                  >
-                    <Icon
-                      icon="mdi:chevron-left"
-                      className="size-[14px]"
-                      aria-hidden="true"
-                    />
-                    Previous
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="tertiary"
-                    disabled={!canGoNext}
-                    onClick={() =>
-                      setPageNumber((current) =>
-                        Math.min(totalPages, current + 1),
-                      )
-                    }
-                    className="rounded-[10px] px-3 py-2 text-[13px] font-semibold disabled:opacity-40"
-                  >
-                    Next
-                    <Icon
-                      icon="mdi:chevron-right"
-                      className="size-[14px]"
-                      aria-hidden="true"
-                    />
-                  </Button>
+            {showBootLoading || showQueryLoading ? (
+              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
+                <SkeletonTable rows={8} columns={5} />
+                <div className="w-full xl:w-[311px]">
+                  <SkeletonSidePanel />
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
+                <PolicyMakerDocumentTable
+                  categoryLabel={categoryLabel(categoryId)}
+                  documentCount={documents.length}
+                  documents={documents}
+                  selectedId={selectedDocument?.id ?? null}
+                  onSelect={setSelectedId}
+                  onUploadDocument={() =>
+                    router.push("/dashboard/policy-maker/upload")
+                  }
+                  onEditDocument={(document) =>
+                    router.push(
+                      `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
+                    )
+                  }
+                  onOpenDetail={(id) =>
+                    router.push(
+                      `/dashboard/policy-maker/${encodeURIComponent(id)}`,
+                    )
+                  }
+                  pagination={{
+                    pageNumber,
+                    pageSize,
+                    totalRecords: totalCount,
+                    onPageChange: setPageNumber,
+                    isLoading: documentsQuery.isFetching,
+                  }}
+                />
 
-            <PolicyMakerDetailPanel document={selectedDocument} />
-          </div>
+                <PolicyMakerDetailPanel
+                  document={selectedDocument}
+                  className="w-full xl:w-[311px]"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

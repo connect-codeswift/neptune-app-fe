@@ -6,7 +6,7 @@ import {
   type FormSchema,
   type FormValues,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   createEmptyIsolationStep,
   hazardLevelClassName,
@@ -158,7 +158,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="p-5 md:p-[22px]"
           className="min-w-0"
         >
-          <h2 className="text-ehs-darker mb-4 text-lg font-bold">
+          <h2 className="text-ehs-darker mb-4 text-sm font-bold">
             Equipment Information
           </h2>
           <FormBuilder
@@ -188,8 +188,8 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="p-5 md:p-[22px]"
           className="min-w-0"
         >
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-ehs-darker text-lg font-bold">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h2 className="text-ehs-darker text-sm font-bold">
               Isolation Steps
             </h2>
             <button
@@ -210,7 +210,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className="rounded-[14px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
+                className="rounded-3.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">

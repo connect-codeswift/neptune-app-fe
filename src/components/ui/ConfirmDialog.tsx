@@ -91,7 +91,7 @@ export function ConfirmDialog(props: Readonly<ConfirmDialogProps>) {
             type="button"
             variant="danger"
             onClick={onConfirm}
-            disabled={isConfirming}
+            isLoading={isConfirming}
             className="rounded-lg px-4 py-2 text-sm font-semibold"
           >
             {isConfirming ? "Deleting..." : confirmLabel}

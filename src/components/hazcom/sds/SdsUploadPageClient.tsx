@@ -8,7 +8,7 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HazcomGlassCard,
-  HazcomModuleTabs,
+  HazcomFormLayout,
   HazcomPageHeader,
   HazcomPictogramChip,
   HazcomSelectField,
@@ -25,6 +25,11 @@ import {
   useHazardHCodesQuery,
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
+import {
+  CLOUDINARY_MAX_BYTES,
+  formatFileSize,
+  isPdfMimeType,
+} from "@/lib/cloudinary-constants";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
@@ -158,6 +163,22 @@ export function SdsUploadPageClient() {
       return;
     }
 
+    // Enforced here rather than on the input: `accept` only filters the file
+    // picker, so a drag-and-drop bypassed both constraints entirely and the
+    // "PDF up to 50 MB" the dropzone promises went unchecked.
+    if (!isPdfMimeType(file.type)) {
+      toast.error("Unsupported file", "Safety data sheets must be PDF files.");
+      return;
+    }
+
+    if (file.size > CLOUDINARY_MAX_BYTES) {
+      toast.error(
+        "File too large",
+        `${formatFileSize(file.size)} exceeds the ${formatFileSize(CLOUDINARY_MAX_BYTES)} limit.`,
+      );
+      return;
+    }
+
     setFileName(file.name);
     setIsUploading(true);
 
@@ -238,9 +259,7 @@ export function SdsUploadPageClient() {
   const isBusy = isUploading || createSds.isPending;
 
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pt-4 pb-8 sm:px-4">
-      <HazcomModuleTabs />
-
+    <HazcomFormLayout>
       <HazcomPageHeader
         breadcrumb={["Safety", "HazCom", "SDS Library", "Upload"]}
         title="Upload Safety Data Sheet"
@@ -248,9 +267,9 @@ export function SdsUploadPageClient() {
       />
 
       <HazcomGlassCard
-        paddingClassName="p-6"
+        paddingClassName="p-6 sm:p-8"
         hazcomGlassCardClassName="gap-6"
-        className="mx-auto w-full max-w-3xl"
+        className="w-full"
       >
         <SdsUploadDropzone
           fileName={fileName}
@@ -327,7 +346,9 @@ export function SdsUploadPageClient() {
                 maxLength={250}
               />
 
-              <div className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}>
+              <div
+                className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}
+              >
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                   <Text
                     as="span"
@@ -457,7 +478,8 @@ export function SdsUploadPageClient() {
             <Button
               type="button"
               variant="primary"
-              disabled={isBusy}
+              isLoading={createSds.isPending}
+              disabled={isUploading}
               onClick={() => save(false)}
             >
               <Icon
@@ -470,6 +492,6 @@ export function SdsUploadPageClient() {
           </div>
         </div>
       </HazcomGlassCard>
-    </div>
+    </HazcomFormLayout>
   );
 }

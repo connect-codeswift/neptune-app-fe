@@ -205,7 +205,7 @@ export function FormBuilder(props: FormBuilderProps) {
         <Button
           type="submit"
           variant={submitVariant}
-          disabled={isSubmitting}
+          isLoading={isSubmitting}
           className={[
             "rounded-[10px] px-5 py-2 text-sm font-semibold",
             submitVariant === "primary"

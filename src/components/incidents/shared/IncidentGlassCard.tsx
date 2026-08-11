@@ -7,8 +7,11 @@ export type IncidentGlassCardProps = Readonly<{
   incidentGlassCardClassName?: string;
 }>;
 
+// Aligned with GLASS_SURFACE's thinner pane (white/50, blur-xl) so the two
+// card systems read as one material now that AppShell paints ambient colour
+// behind every page. The 80%-white fill predated that ground and read opaque.
 const cardShellClass =
-  "relative flex flex-col rounded-[20px] border border-white/90 bg-white/80 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[14px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]";
+  "relative flex flex-col rounded-[20px] border border-white/70 bg-white/50 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-xl before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]";
 
 export function IncidentGlassCard(props: Readonly<IncidentGlassCardProps>) {
   const {
@@ -20,7 +23,19 @@ export function IncidentGlassCard(props: Readonly<IncidentGlassCardProps>) {
 
   return (
     <article
-      className={[cardShellClass, paddingClassName, className]
+      className={[
+        cardShellClass,
+        // Same entrance and hover response as GlassCard, so incidents, PPE,
+        // audits and the rest move like the dashboard rather than sitting
+        // still next to it. Both utilities self-disable under
+        // prefers-reduced-motion; `className` still wins, being appended last.
+        //
+        // NOTE: this shell duplicates GlassCard's surface rather than reusing
+        // GLASS_SURFACE — worth unifying, at which point this line goes away.
+        "animate-card-rise card-lift",
+        paddingClassName,
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >

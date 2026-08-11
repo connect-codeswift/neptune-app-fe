@@ -12,9 +12,7 @@ export type {
   IncidentListKpiMetric,
   IncidentListKpiTone,
 } from "./IncidentListKpiCard";
-export { IncidentFilterBar } from "./IncidentFilterBar";
 export { IncidentDetailPanel } from "./IncidentDetailPanel";
 export { IncidentBadge } from "./IncidentBadge";
-export { IncidentSegmentedControl } from "./IncidentSegmentedControl";
 export * from "./incident-list-types";
 export * from "./incident-list-data";

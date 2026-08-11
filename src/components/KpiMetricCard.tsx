@@ -21,9 +21,9 @@ export type KpiMetricCardProps = Readonly<{
   trendDirection: "up" | "down";
   /** Pill/sparkline color. */
   trendTone?: KpiMetricTone;
-  /** Static target text shown bottom-left. Ignored when `counts` is set. */
+  /** Static target text shown bottom-left. Ignored when `counts` is set and `targetLabel` is absent. */
   targetLabel?: string;
-  /** Closed/total counts shown bottom-left instead of `targetLabel` — no sparkline alongside these. */
+  /** Closed/total counts shown bottom-left when no `targetLabel` is provided. */
   counts?: KpiMetricCardCounts;
   /**
    * Sparkline points. Only the last point is real (today's API value) —
@@ -112,9 +112,6 @@ function CardFooter(
 ) {
   const { counts, targetLabel } = props;
 
-  if (counts) {
-    return <CountsFooter counts={counts} />;
-  }
   if (targetLabel) {
     return (
       <Text as="p" className="text-ehs-muted-text text-xs">
@@ -122,6 +119,11 @@ function CardFooter(
       </Text>
     );
   }
+
+  if (counts) {
+    return <CountsFooter counts={counts} />;
+  }
+
   return null;
 }
 
@@ -164,7 +166,9 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
     trendDirection === "up" ? "mdi:trending-up" : "mdi:trending-down";
 
   return (
-    <GlassCard className={["flex-1 justify-between", className].join(" ")}>
+    <GlassCard
+      className={["h-full justify-between gap-3", className].join(" ")}
+    >
       <div className="flex items-start justify-between gap-3">
         <Text
           as="p"
@@ -198,7 +202,7 @@ export function KpiMetricCard(props: Readonly<KpiMetricCardProps>) {
         </Text>
       </div>
 
-      <div className="flex items-end justify-between gap-3">
+      <div className="mt-auto flex min-h-[22px] items-end justify-between gap-3">
         <CardFooter counts={counts} targetLabel={targetLabel} />
         {chartData ? <MiniAreaChart data={chartData} tone={trendTone} /> : null}
       </div>
@@ -223,7 +227,7 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     unit: "LTIR",
     trendValue: "-0.2",
     trendDirection: "down",
-    trendTone: "negative",
+    trendTone: "positive",
     targetLabel: "Target ≤ 1.0",
     chartData: [1.2, 1.1, 1, 0.95, 0.9, 0.85, 0.8],
   },
@@ -234,12 +238,8 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     trendValue: "+3pp",
     trendDirection: "up",
     trendTone: "positive",
-    counts: {
-      closedLabel: "Closed Compliances",
-      closedValue: 200,
-      totalLabel: "Total Compliances",
-      totalValue: 493,
-    },
+    targetLabel: "Target ≥ 85%",
+    chartData: [68, 70, 72, 74, 75, 76, 78],
   },
   {
     title: "Action Closure Rate",
@@ -248,12 +248,8 @@ export const DEFAULT_KPI_METRICS: readonly KpiMetricCardProps[] = [
     trendValue: "+2pp",
     trendDirection: "up",
     trendTone: "positive",
-    counts: {
-      closedLabel: "Closed CAPAs",
-      closedValue: 414,
-      totalLabel: "Total CAPAs",
-      totalValue: 493,
-    },
+    targetLabel: "Target ≥ 80%",
+    chartData: [74, 76, 78, 80, 81, 82, 84],
   },
 ];
 
@@ -267,7 +263,10 @@ export function KpiMetricsRow(props: Readonly<KpiMetricsRowProps>) {
 
   return (
     <div
-      className={["grid gap-[14px] sm:grid-cols-2 xl:grid-cols-4", className]
+      className={[
+        "stagger-cards grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >

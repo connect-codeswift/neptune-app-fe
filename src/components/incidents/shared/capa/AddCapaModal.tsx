@@ -22,6 +22,7 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useCurrentSite } from "@/hooks/use-current-site";
@@ -254,7 +255,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Describe the corrective / preventive action..."
                   rows={3}
-                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2 sm:h-[108px] sm:text-sm"
+                  className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
                 />
                 <AiTextAssistant
                   module="incident"

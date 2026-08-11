@@ -54,7 +54,7 @@ export function IncidentDetailPeopleCard(
     affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
-    daysAway = 0,
+    daysAway = "—",
     responders = [],
     isEditing = false,
     onChangeAffectedName,
@@ -73,26 +73,21 @@ export function IncidentDetailPeopleCard(
 
   return (
     <div
-      className={["flex flex-col gap-[14px]", className]
-        .filter(Boolean)
-        .join(" ")}
+      className={["flex flex-col gap-3.5", className].filter(Boolean).join(" ")}
     >
       <IncidentGlassCard
         paddingClassName="p-[23px]"
-        incidentGlassCardClassName="gap-[14px]"
-        className={isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""}
+        incidentGlassCardClassName="gap-3.5"
+        className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
           Affected person
         </Text>
 
         {hasAffected ? (
           <>
-            <div className="flex items-center gap-[14px]">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-[14.4px] bg-ehs-dark-blue-bg-light text-base font-bold text-ehs-dark-blue">
+            <div className="flex items-center gap-3.5">
+              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-12 shrink-0 items-center justify-center rounded-[14.4px] text-base font-bold">
                 {affectedInitials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -112,7 +107,7 @@ export function IncidentDetailPeopleCard(
                       className={fieldInputClass}
                       aria-label="Affected person name"
                     />
-                    <span className="truncate text-sm leading-normal text-ehs-gray">
+                    <span className="text-ehs-gray truncate text-sm leading-normal">
                       {affectedRole}
                     </span>
                     <input
@@ -128,13 +123,13 @@ export function IncidentDetailPeopleCard(
                   </>
                 ) : (
                   <>
-                    <span className="text-base leading-normal font-bold text-ehs-dark-bg">
+                    <span className="text-ehs-dark-bg text-base leading-normal font-bold">
                       {affectedName}
                     </span>
-                    <span className="truncate text-sm leading-normal text-ehs-gray">
+                    <span className="text-ehs-gray truncate text-sm leading-normal">
                       {affectedRole}
                     </span>
-                    <span className="text-sm leading-normal text-ehs-muted-text">
+                    <span className="text-ehs-muted-text text-sm leading-normal">
                       {affectedEmpId}
                     </span>
                   </>
@@ -152,7 +147,7 @@ export function IncidentDetailPeopleCard(
                   aria-label="Injury level"
                 />
               ) : (
-                <span className="shrink-0 rounded-full bg-ehs-dark-bg/14 px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide text-ehs-gray">
+                <span className="bg-ehs-dark-bg/14 text-ehs-gray shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide">
                   {affectedInjuryLabel}
                 </span>
               )}
@@ -160,7 +155,7 @@ export function IncidentDetailPeopleCard(
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
+                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
                   Body part
                 </span>
                 {isEditing ? (
@@ -172,13 +167,13 @@ export function IncidentDetailPeopleCard(
                     aria-label="Body part"
                   />
                 ) : (
-                  <span className="text-base leading-normal text-ehs-dark-bg">
+                  <span className="text-ehs-dark-bg text-base leading-normal">
                     {bodyPart}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
+                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
                   Treatment
                 </span>
                 {isEditing ? (
@@ -192,23 +187,23 @@ export function IncidentDetailPeopleCard(
                     aria-label="Treatment"
                   />
                 ) : (
-                  <span className="text-base leading-normal text-ehs-dark-bg">
+                  <span className="text-ehs-dark-bg text-base leading-normal">
                     {treatment}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
+                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
                   Days away
                 </span>
-                <span className="text-base leading-normal text-ehs-dark-bg">
+                <span className="text-ehs-dark-bg text-base leading-normal">
                   {daysAway}
                 </span>
               </div>
             </div>
           </>
         ) : (
-          <div className="py-6 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text py-6 text-center text-sm">
             No affected person returned by the API.
           </div>
         )}
@@ -216,31 +211,32 @@ export function IncidentDetailPeopleCard(
 
       <IncidentGlassCard
         paddingClassName="p-[23px]"
-        className={isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""}
+        className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
-        <div className="pb-[14px]">
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+        <div className="pb-3.5">
+          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
             Responders & assignees
           </Text>
-          <span className="text-sm leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text text-sm leading-normal">
             {responders.length} people
           </span>
         </div>
 
         {responders.length === 0 ? (
-          <div className="border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm">
             No responders returned by the API.
           </div>
         ) : (
           responders.map((person, index) => (
             <div
-              key={`${person.role}-${person.name}-${String(index)}`}
+              // Index, not the person's fields: `name` is edited in place here,
+              // so keying on it remounted the row and dropped the caret on
+              // every keystroke. ResponderMember carries no stable id, and the
+              // list is not reordered or filtered while editing.
+              key={index}
               className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
             >
-              <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] bg-ehs-dark-blue-bg-light text-sm font-bold text-ehs-dark-blue">
+              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] text-sm font-bold">
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-px">
@@ -271,10 +267,10 @@ export function IncidentDetailPeopleCard(
                   </>
                 ) : (
                   <>
-                    <span className="text-sm leading-normal font-bold text-ehs-dark-bg">
+                    <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
                       {person.name}
                     </span>
-                    <span className="truncate text-sm leading-normal text-ehs-gray">
+                    <span className="text-ehs-gray truncate text-sm leading-normal">
                       {person.role}
                     </span>
                   </>
@@ -292,7 +288,7 @@ export function IncidentDetailPeopleCard(
                   aria-label="Employee ID or email"
                 />
               ) : (
-                <span className="shrink-0 text-sm leading-normal text-ehs-muted-text">
+                <span className="text-ehs-muted-text shrink-0 text-sm leading-normal">
                   {person.empId}
                 </span>
               )}

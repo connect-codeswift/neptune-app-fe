@@ -3,7 +3,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   PpeEmployeeProfileContent,
   PpeEmployeeProfileNotFound,

@@ -25,8 +25,6 @@ export async function createHazard(payload: SaveHazardRequestDto) {
     HAZARD_CREATE_PATH,
     payload,
   );
-  console.log("data", data);
-
   return data;
 }
 
@@ -62,8 +60,6 @@ export async function getTopHazardUsers() {
 export async function getHazardHeatMap() {
   const { data } =
     await http.get<GetHazardHeatMapResponseDto>(HAZARD_HEAT_MAP_PATH);
-  console.log("getHazardHeatMap", data);
-
   return data;
 }
 

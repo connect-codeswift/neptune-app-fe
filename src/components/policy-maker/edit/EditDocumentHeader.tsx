@@ -21,7 +21,7 @@ export function EditDocumentHeader(props: Readonly<EditDocumentHeaderProps>) {
   return (
     <div
       className={[
-        "relative flex w-full min-w-0 flex-col gap-1.5 rounded-[16px] border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-[22px] sm:pt-[14px] sm:pb-[14px]",
+        "relative flex w-full min-w-0 flex-col gap-1.5 rounded-[16px] border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-[22px] sm:pt-3.5 sm:pb-3.5",
         className,
       ]
         .filter(Boolean)

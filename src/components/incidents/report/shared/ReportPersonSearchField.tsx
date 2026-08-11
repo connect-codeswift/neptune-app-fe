@@ -11,9 +11,12 @@ import {
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportFieldLabel, ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_INPUT_LG_CLASS,
+} from "@/components/ui/field-styles";
 import { readUserGender, type SiteUserDto } from "@/dtos/res/user-response.dto";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import { useSiteUsersQuery } from "@/hooks/use-user-queries";
@@ -21,8 +24,7 @@ import { useSiteUsersQuery } from "@/hooks/use-user-queries";
 /** Long enough that a name typed at speed is one request, short enough to feel live. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-const EMBEDDED_INPUT_CLASS =
-  " w-full rounded-[10px] bg-white px-3.5 text-base text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
 
 type MenuPosition = Readonly<{
   top: number;
@@ -55,6 +57,7 @@ export type ReportPersonSearchFieldProps = Readonly<{
   /** Site whose roster is offered. `0` means the token carries no site claim. */
   siteId: number;
   siteName?: string | null;
+  error?: string | null;
   className?: string;
   /** Report forms use the default styling; modals use `embedded` with a portaled menu. */
   variant?: "report" | "embedded";
@@ -117,6 +120,7 @@ export function ReportPersonSearchField(
     onChange,
     siteId,
     siteName,
+    error = null,
     className = "",
     variant = "report",
     hideLabel = false,
@@ -446,6 +450,7 @@ export function ReportPersonSearchField(
             ? `${listboxId}-option-${String(activeIndex)}`
             : undefined
         }
+        aria-invalid={error ? true : undefined}
         value={value}
         placeholder={placeholder}
         onChange={(event) => {
@@ -540,6 +545,7 @@ export function ReportPersonSearchField(
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -554,6 +560,7 @@ export function ReportPersonSearchField(
       />
 
       {inputControl}
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }

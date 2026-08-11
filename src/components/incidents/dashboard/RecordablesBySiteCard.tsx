@@ -23,7 +23,7 @@ export function RecordablesBySiteCard(
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mb-[14px] flex shrink-0 flex-col gap-0.5">
+      <div className="mb-3.5 flex shrink-0 flex-col gap-0.5">
         <Text
           as="h3"
           className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"

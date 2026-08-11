@@ -1,33 +1,37 @@
+"use client";
+
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
 import {
-  HAZCOM_CHEMICALS,
   HazcomBadge,
   HazcomGlassCard,
   type HazcomBadgeTone,
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
-
-const RECENT_ADDITIONS_LIMIT = 4;
-
-/** Most recently added chemicals first, by `addedOn` descending. */
-const RECENT_CHEMICALS = [...HAZCOM_CHEMICALS]
-  .sort((a, b) => (a.addedOn < b.addedOn ? 1 : a.addedOn > b.addedOn ? -1 : 0))
-  .slice(0, RECENT_ADDITIONS_LIMIT);
+import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
 
 function signalWordTone(signalWord: HazcomSignalWord): HazcomBadgeTone {
   return signalWord === "Danger" ? "danger" : "warn";
 }
 
 export type HazcomRecentChemicalAdditionsCardProps = Readonly<{
+  overview: HazcomOverviewState;
   className?: string;
 }>;
 
+/**
+ * The newest inventory rows, from the real chemical endpoint.
+ *
+ * Previously the first four rows of a hard-coded sample — Hydrochloric Acid in
+ * "Lab 1 - Room 131" and friends — which named chemicals and storage locations
+ * that no site had entered.
+ */
 export function HazcomRecentChemicalAdditionsCard(
   props: Readonly<HazcomRecentChemicalAdditionsCardProps>,
 ) {
-  const { className = "" } = props;
+  const { overview, className = "" } = props;
+  const { recentChemicals } = overview;
 
   return (
     <HazcomGlassCard
@@ -47,38 +51,65 @@ export function HazcomRecentChemicalAdditionsCard(
         </Link>
       </div>
 
-      <div className="divide-ehs-border mt-4 flex flex-col divide-y">
-        {RECENT_CHEMICALS.map((chemical) => (
-          <div
-            key={chemical.id}
-            className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+      {recentChemicals.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
+          <Icon
+            icon="mdi:flask-empty-outline"
+            className="text-ehs-muted-text size-8"
+            aria-hidden="true"
+          />
+          <Text as="p" className="text-ehs-muted-text text-sm">
+            No chemicals on the inventory yet.
+          </Text>
+          <Link
+            href="/dashboard/hazcom/chemicals/new"
+            className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-xs font-semibold"
           >
-            <span className="bg-ehs-dark-bg/6 text-ehs-gray flex size-9 shrink-0 items-center justify-center rounded-lg">
-              <Icon
-                icon="mdi:flask-outline"
-                className="text-base"
-                aria-hidden="true"
+            Add the first chemical
+          </Link>
+        </div>
+      ) : (
+        <div className="divide-ehs-border mt-4 flex flex-col divide-y">
+          {recentChemicals.map((chemical) => (
+            <Link
+              key={chemical.id}
+              href={`/dashboard/hazcom/chemicals/${chemical.id}`}
+              className="hover:bg-ehs-light-bg/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors first:mt-1"
+            >
+              <span className="bg-ehs-dark-bg/6 text-ehs-gray flex size-9 shrink-0 items-center justify-center rounded-lg">
+                <Icon
+                  icon="mdi:flask-outline"
+                  className="text-base"
+                  aria-hidden="true"
+                />
+              </span>
+              <div className="min-w-0 flex-1">
+                <Text
+                  as="p"
+                  className="text-ehs-darker truncate text-sm font-semibold"
+                >
+                  {chemical.name}
+                </Text>
+                <Text as="p" className="text-ehs-muted-text truncate text-xs">
+                  {/* Either field can be blank on a real record, so the
+                      separator is only drawn when both sides are present. */}
+                  {[
+                    chemical.location,
+                    chemical.casNumber ? `CAS ${chemical.casNumber}` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Text>
+              </div>
+              <HazcomBadge
+                label={chemical.signalWord.toUpperCase()}
+                tone={signalWordTone(chemical.signalWord)}
+                className="shrink-0"
               />
-            </span>
-            <div className="min-w-0 flex-1">
-              <Text
-                as="p"
-                className="text-ehs-darker truncate text-sm font-semibold"
-              >
-                {chemical.name}
-              </Text>
-              <Text as="p" className="text-ehs-muted-text truncate text-xs">
-                {`${chemical.location} · CAS ${chemical.casNumber}`}
-              </Text>
-            </div>
-            <HazcomBadge
-              label={chemical.signalWord.toUpperCase()}
-              tone={signalWordTone(chemical.signalWord)}
-              className="shrink-0"
-            />
-          </div>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </HazcomGlassCard>
   );
 }

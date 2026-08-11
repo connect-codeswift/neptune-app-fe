@@ -1,64 +1,60 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
+import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
 
 const columnHelper = createColumnHelper<WalkTalkSession>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const walkTalkSessionColumns: ColumnDef<WalkTalkSession, any>[] = [
+export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
   columnHelper.accessor("id", {
     header: "ID",
     size: 110,
     cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
+      <span className="text-[10px] leading-normal font-bold text-[#8892a3]">
         {info.getValue()}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("type", {
-    header: "TYPE",
+    header: "Type",
     size: 160,
-    cell: (info) => (
-      <IncidentBadge
-        label={info.getValue()}
-        tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-base!"
-      />
-    ),
+    cell: (info) => <CompliancePill label={info.getValue()} />,
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("observer", {
-    header: "OBSERVER",
+    header: "Observer",
     size: 150,
     cell: (info) => (
-      <span className="text-ehs-darker/60 text-base font-normal">
+      <span className="text-[12px] leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("focusArea", {
-    header: "FOCUS AREA",
+    header: "Focus area",
     size: 200,
     cell: (info) => {
       const session = info.row.original;
       return (
         <div className="flex flex-col gap-0.5">
-          <span className="text-ehs-darker text-base font-normal">
+          <span className="text-[12px] leading-normal text-[#0b1320]">
             {info.getValue()}
           </span>
-          <span className="text-ehs-muted-text text-sm">{session.when}</span>
+          <span className="text-[10px] leading-normal text-[#8892a3]">
+            {session.when}
+          </span>
         </div>
       );
     },
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("site", {
-    header: "SITE",
+    header: "Site",
     size: 160,
     cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
+      <span className="text-[12px] leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),

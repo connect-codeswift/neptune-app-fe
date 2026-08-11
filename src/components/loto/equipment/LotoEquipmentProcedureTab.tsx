@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
 export type LotoEquipmentProcedureTabProps = Readonly<{
@@ -18,7 +18,7 @@ export function LotoEquipmentProcedureTab(
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <div className="flex gap-3 rounded-[14px] border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.06)] px-4 py-3.5">
+        <div className="rounded-3.5 flex gap-3 border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.06)] px-4 py-3.5">
           <Icon
             icon="mdi:shield-alert-outline"
             className="mt-0.5 size-4 shrink-0 text-[#ef4444]"

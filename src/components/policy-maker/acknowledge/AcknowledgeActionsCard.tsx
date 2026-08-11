@@ -57,7 +57,8 @@ export function AcknowledgeActionsCard(
             type="button"
             variant="primary"
             onClick={onApprove}
-            disabled={!canApprove || isSubmitting}
+            isLoading={isSubmitting}
+            disabled={!canApprove}
             className="h-[38px] w-full rounded-[9.73px] bg-[#0891a6] px-[14.6px] text-[12px] font-bold whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "I Approve"}

@@ -1,5 +1,5 @@
-﻿import { redirect } from "next/navigation";
+﻿import { NearMissListPageClient } from "@/components/near-miss/NearMissListPageClient";
 
 export default function NearMissPage() {
-  redirect("/dashboard/near-miss/list");
+  return <NearMissListPageClient />;
 }

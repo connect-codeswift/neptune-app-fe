@@ -13,11 +13,11 @@ import {
   HazcomSelectField,
   HazcomTextField,
   HazcomTextareaField,
-  hazcomFieldInputClass,
   type HazcomChemical,
   type HazcomPictogram,
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -383,7 +383,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="button"
               variant="primary"
               className="rounded-lg px-5 py-2 text-[13px]"
-              disabled={saveChemical.isPending}
+              isLoading={saveChemical.isPending}
               onClick={() => save(false)}
             >
               {saveChemical.isPending ? "Saving..." : primaryLabel}
@@ -416,7 +416,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
         </Text>
       </div>
       {/*
-        Both inputs carry `w-full` from `hazcomFieldInputClass`, so sizing is
+        Both inputs carry `w-full` from `FIELD_INPUT_CLASS`, so sizing is
         set via flex-basis — it beats `width` for flex items and avoids a
         `w-full` vs `w-24` conflict that collapsed the amount box to 0px.
       */}
@@ -428,7 +428,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onAmountChange(event.target.value)}
           placeholder="0"
           aria-label="Quantity amount"
-          className={`${hazcomFieldInputClass} min-w-0 grow basis-0`}
+          className={`${FIELD_INPUT_CLASS} min-w-0 grow basis-0`}
         />
         <input
           type="text"
@@ -436,7 +436,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onUnitChange(event.target.value)}
           placeholder="Unit"
           aria-label="Quantity unit"
-          className={`${hazcomFieldInputClass} shrink-0 grow-0 basis-24`}
+          className={`${FIELD_INPUT_CLASS} shrink-0 grow-0 basis-24`}
         />
       </div>
     </div>

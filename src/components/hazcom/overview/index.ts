@@ -22,4 +22,4 @@ export type { HazcomTrainingComplianceCardProps } from "./HazcomTrainingComplian
 export { HazcomUpcomingDeadlinesCard } from "./HazcomUpcomingDeadlinesCard";
 export type { HazcomUpcomingDeadlinesCardProps } from "./HazcomUpcomingDeadlinesCard";
 
-export * from "./hazcom-overview-panel-data";
+export { HazcomOverviewPageClient } from "./HazcomOverviewPageClient";

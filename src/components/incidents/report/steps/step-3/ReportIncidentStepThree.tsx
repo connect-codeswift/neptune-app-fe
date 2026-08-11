@@ -7,13 +7,10 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
-  INJURY_LEVEL_OPTIONS,
   markAiAssisted,
-  type InjuryLevelId,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportTextareaField } from "@/components/incidents/report/shared/ReportFormField";
-import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { ReportBodyPartField } from "@/components/incidents/report/steps/step-3/ReportBodyPartField";
 
 export type ReportIncidentStepThreeProps = Readonly<{
@@ -62,23 +59,10 @@ export function ReportIncidentStepThree(
             </Text>
           </div>
 
-          <ReportSeverityPicker
-            label="Injury level"
-            required
-            variant="tile"
-            value={form.injuryLevel}
-            onChange={(injuryLevel: InjuryLevelId) => onChange({ injuryLevel })}
-            options={INJURY_LEVEL_OPTIONS.map((option) => ({
-              id: option.id,
-              label: option.label,
-              description: option.description,
-            }))}
-            className="pt-[22px]"
-          />
-
           {/* Gender moved to Step 1, next to Affected person — it belongs with
               the person's details, not with the injury. */}
           <ReportBodyPartField
+            className="pt-[22px]"
             bodyParts={form.bodyParts ?? []}
             bodyPartSides={form.bodyPartSides ?? {}}
             bodySide={form.bodySide ?? "Left"}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 import { toast } from "@/lib/toast";
 
 export type IncidentDetailAddTimelineCardProps = Readonly<{
@@ -57,7 +58,7 @@ export function IncidentDetailAddTimelineCard(
         value={text}
         onChange={(event) => setText(event.target.value)}
         placeholder="Add a note or status update…"
-        className="min-h-[72px] w-full resize-none rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-[13px] py-4 text-sm leading-normal text-ehs-dark-bg outline-none backdrop-blur-[5px] transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+        className={FIELD_TEXTAREA_CLASS}
       />
 
       <div className="flex gap-2">

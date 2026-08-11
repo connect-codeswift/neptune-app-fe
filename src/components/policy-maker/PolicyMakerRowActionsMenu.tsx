@@ -108,7 +108,7 @@ export function PolicyMakerRowActionsMenu(
       >
         <Icon
           icon="mdi:dots-horizontal"
-          className="size-[13.62px]"
+          className="size-3.5"
           aria-hidden="true"
         />
       </button>
@@ -121,7 +121,7 @@ export function PolicyMakerRowActionsMenu(
               role="menu"
               aria-label={`Actions for ${documentTitle}`}
               style={{ top: position.top, left: position.left }}
-              className="fixed z-50 w-[208.4px] origin-top-right overflow-hidden rounded-[14px] border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.82)] p-[5.8px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[14px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']"
+              className="rounded-3.5 before:rounded-3.5 fixed z-50 w-[208.4px] origin-top-right overflow-hidden border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.82)] p-[5.8px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']"
               onClick={(event) => event.stopPropagation()}
             >
               <button

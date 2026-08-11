@@ -165,7 +165,7 @@ export function ComplianceDeadlinesCard(
         className={
           showDividers
             ? "divide-ehs-border/60 mt-[7px] flex flex-col divide-y"
-            : "mt-[7px] flex flex-col gap-[14px]"
+            : "mt-[7px] flex flex-col gap-3.5"
         }
       >
         {items.map((item) => (

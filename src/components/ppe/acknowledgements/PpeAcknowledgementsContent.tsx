@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
 import { usePpeIssuesAssignedToQuery } from "@/hooks/use-ppe-queries";
 import { PpeTableSkeleton } from "../PpeSkeletons";
@@ -144,7 +144,7 @@ export function PpeAcknowledgementsContent() {
             <Text as="p" className="text-ehs-darker text-base font-bold">
               Verification Guidelines
             </Text>
-            <Text as="p" className="text-s mt-0.5 text-[#566072]">
+            <Text as="p" className="mt-0.5 text-sm text-[#566072]">
               By acknowledging assigned PPE, you confirm you have received the
               items, verified their condition, and received training on their
               proper use.

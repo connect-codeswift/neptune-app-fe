@@ -6,6 +6,20 @@ import {
   incidentTypeLabel,
 } from "@/components/incidents/detail/closure/closure-classification-options";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
+import { GlassSelect } from "@/components/ui/GlassSelect";
+
+/**
+ * The "Select option" sentinel row renders as GlassSelect's placeholder rather
+ * than a pickable entry — value stays "Select option" until a real type is
+ * chosen, exactly as before.
+ */
+const INCIDENT_TYPE_SELECT_OPTIONS = INCIDENT_TYPE_OPTIONS.filter(
+  (option) => option.value !== "Select option",
+);
+
+/** Same frame the native selects' wrapper drew, now on GlassSelect's trigger. */
+const CLASSIFICATION_TRIGGER_CLASS =
+  "w-full rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-[9px] text-[13px] font-normal outline-none backdrop-blur-[5px]";
 
 export type IncidentClosureStepClassificationProps = Readonly<{
   data: IncidentClosureData;
@@ -140,36 +154,14 @@ export function IncidentClosureStepClassification(
             <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               Final Incident Type
             </label>
-            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
-              <select
-                value={selectedIncidentType}
-                onChange={(e) => handleIncidentTypeChange(e.target.value)}
-                className={[
-                  "w-full appearance-none bg-transparent pr-6 text-[13px] font-normal outline-none",
-                  selectedIncidentType === "Select option"
-                    ? "text-ehs-muted-text"
-                    : "text-ehs-dark-bg",
-                ].join(" ")}
-              >
-                {INCIDENT_TYPE_OPTIONS.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className={
-                      option.value === "Select option"
-                        ? "text-ehs-muted-text"
-                        : "text-ehs-dark-bg"
-                    }
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <Icon
-                icon="mdi:chevron-down"
-                className="pointer-events-none absolute right-3 text-sm text-ehs-gray"
-              />
-            </div>
+            <GlassSelect
+              options={INCIDENT_TYPE_SELECT_OPTIONS}
+              value={selectedIncidentType}
+              onChange={handleIncidentTypeChange}
+              placeholder="Select option"
+              aria-label="Final Incident Type"
+              triggerClassName={CLASSIFICATION_TRIGGER_CLASS}
+            />
             <span className="text-[11px] font-normal text-ehs-muted-text">
               Defaults from intake — verify before closing
             </span>
@@ -180,29 +172,13 @@ export function IncidentClosureStepClassification(
             <label className="text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               SIF Classification
             </label>
-            <div className="relative flex items-center justify-between rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white px-3 py-[9px]">
-              <select
-                value={selectedSifClassification}
-                onChange={(e) =>
-                  onChangeField("sifClassification", e.target.value)
-                }
-                className="w-full appearance-none bg-transparent pr-6 text-[13px] font-normal text-ehs-dark-bg outline-none"
-              >
-                {SIF_CLASSIFICATION_OPTIONS.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                    className="text-ehs-dark-bg"
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <Icon
-                icon="mdi:chevron-down"
-                className="pointer-events-none absolute right-3 text-sm text-ehs-gray"
-              />
-            </div>
+            <GlassSelect
+              options={SIF_CLASSIFICATION_OPTIONS}
+              value={selectedSifClassification}
+              onChange={(value) => onChangeField("sifClassification", value)}
+              aria-label="SIF Classification"
+              triggerClassName={CLASSIFICATION_TRIGGER_CLASS}
+            />
             <span className="text-[11px] font-normal text-ehs-muted-text">
               Independent of incident type — assess separately
             </span>
@@ -220,7 +196,7 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
                     lostTimeMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -273,7 +249,7 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white px-3 py-[9px]",
+                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
                     restrictedMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -388,7 +364,7 @@ export function IncidentClosureStepClassification(
               value={data.oshaOverrideReason ?? ""}
               onChange={(e) => onChangeField("oshaOverrideReason", e.target.value)}
               placeholder="Enter required reason for OSHA recordability override..."
-              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white px-3 py-1.5 text-[13px] font-normal text-ehs-dark-bg outline-none focus:border-ehs-yellow"
+              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white/55 px-3 py-1.5 text-[13px] font-normal text-ehs-dark-bg outline-none backdrop-blur-[5px] focus:border-ehs-yellow"
             />
             {overrideReasonMissing && (
               <span className="text-[11px] font-normal text-ehs-red">

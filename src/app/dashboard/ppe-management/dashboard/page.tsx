@@ -1,5 +1,5 @@
-import { PpeDashboardPageClient } from "@/components/ppe/PpeDashboardPageClient";
+import { redirect } from "next/navigation";
 
 export default function PpeDashboardPage() {
-  return <PpeDashboardPageClient />;
+  redirect("/dashboard/ppe-management/list");
 }
