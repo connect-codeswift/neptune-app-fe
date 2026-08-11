@@ -26,7 +26,7 @@ export type BreadCrumbTabProps = Readonly<{
   className?: string;
 }>;
 
-const actionButtonClass = "shrink-0 rounded-lg px-4 py-2 text-xs";
+const actionButtonClass = "text4 shrink-0 rounded-lg px-4 py-2";
 
 function BreadcrumbTrail(
   props: Readonly<{ items: readonly BreadCrumbItem[] }>,
@@ -50,7 +50,7 @@ function BreadcrumbTrail(
             {index > 0 ? (
               <Icon
                 icon="mdi:chevron-right"
-                className="text-ehs-muted-text text-sm"
+                className="text-ehs-muted-text size-3.5"
                 aria-hidden="true"
               />
             ) : null}
@@ -58,19 +58,20 @@ function BreadcrumbTrail(
             {item.href && !isLast ? (
               <Link
                 href={item.href}
-                className="text-ehs-muted-text hover:text-ehs-gray text-xs transition-colors"
+                className="text8 text-ehs-muted-text hover:text-ehs-gray transition-colors"
               >
                 {item.label}
               </Link>
             ) : (
-              <span
+              <Text
+                as="span"
                 className={[
-                  "text-xs",
+                  "text8",
                   isLast ? "text-ehs-gray" : "text-ehs-muted-text",
                 ].join(" ")}
               >
                 {item.label}
-              </span>
+              </Text>
             )}
           </span>
         );
@@ -95,15 +96,12 @@ export function BreadCrumbTab(props: Readonly<BreadCrumbTabProps>) {
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <BreadcrumbTrail items={breadcrumbs} />
 
-        <Text
-          as="h1"
-          className="text-ehs-darker text-2xl font-bold tracking-tight"
-        >
+        <Text as="h1" className="text1 text-ehs-darker">
           {title}
         </Text>
 
         {subtitle ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {subtitle}
           </Text>
         ) : null}
@@ -122,7 +120,7 @@ export function BreadCrumbTab(props: Readonly<BreadCrumbTabProps>) {
               {action.icon ? (
                 <Icon
                   icon={action.icon}
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
               ) : null}

@@ -170,10 +170,10 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text5 text-ehs-darker">
               Work hours required for Recordable Rate
             </Text>
-            <Text as="p" className="text-ehs-muted-text mt-1 text-sm leading-snug">
+            <Text as="p" className="text4 text-ehs-muted-text mt-1">
               RIR and LTIR stay at 0 until monthly hours are entered for this
               site. Add hours below to calculate rates per 200,000 hours worked.
             </Text>
@@ -183,26 +183,22 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <Text
-            as="h2"
-            className="text-ehs-darker text-base font-bold tracking-tight"
-          >
+          <Text as="h2" className="text3 text-ehs-darker">
             Site Work Hours
           </Text>
-          <Text
-            as="p"
-            className="text-ehs-muted-text mt-1 text-sm"
-          >{`${String(currentYear)} year-to-date: ${formatHoursTotal(ytdHours)} hrs`}</Text>
-          <Text
-            as="p"
-            className="text-ehs-muted-text mt-2 max-w-2xl text-xs leading-snug"
-          >{`Enter total employee hours worked each month (e.g. 16,000 for ~100 FTEs). Rates need at least ${MIN_WORK_HOURS_FOR_RATES.toLocaleString()} YTD hours before they display.`}</Text>
+          <Text as="p" className="text4 text-ehs-muted-text mt-1">
+            {`${String(currentYear)} year-to-date: ${formatHoursTotal(ytdHours)} hrs`}
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text mt-2 max-w-2xl">
+            {`Enter total employee hours worked each month (e.g. 16,000 for ~100 FTEs). Rates need at least ${MIN_WORK_HOURS_FOR_RATES.toLocaleString()} YTD hours before they display.`}
+          </Text>
         </div>
 
         {canEdit ? (
           <Button
             type="button"
             variant="primary"
+            className="text4"
             disabled={saveMutation.isPending}
             onClick={() => {
               void handleSave();
@@ -211,7 +207,7 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
             {saveMutation.isPending ? "Saving…" : "Save hours"}
           </Button>
         ) : (
-          <Text as="p" className="text-ehs-muted-text max-w-xs text-right text-xs">
+          <Text as="p" className="text8 text-ehs-muted-text max-w-xs text-right">
             Contact your EHS Manager to update hours.
           </Text>
         )}
@@ -224,6 +220,7 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
             <TextInput
               key={label}
               label={`${label} ${String(currentYear)}`}
+              labelClassName="text7 text-ehs-darker block"
               placeholder="0"
               type="number"
               min={0}
