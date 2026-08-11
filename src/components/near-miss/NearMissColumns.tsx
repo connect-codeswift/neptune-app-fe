@@ -1,4 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
 import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { formatNearMissDisplayId } from "@/lib/map-near-miss";
@@ -10,6 +11,7 @@ const columnHelper = createColumnHelper<NearMissRecord>();
 export type NearMissColumnHandlers = Readonly<{
   /** User id -> name, from /User/dropdown; ids stay raw until it loads. */
   userNames?: ReadonlyMap<string, string>;
+  onView: (record: NearMissRecord) => void;
 }>;
 
 /**
@@ -19,7 +21,7 @@ export type NearMissColumnHandlers = Readonly<{
 export function makeNearMissColumns(
   handlers: NearMissColumnHandlers,
 ): TableColumns<NearMissRecord> {
-  const { userNames } = handlers;
+  const { userNames, onView } = handlers;
 
   return [
     columnHelper.accessor("id", {
@@ -75,6 +77,24 @@ export function makeNearMissColumns(
         </span>
       ),
       meta: { align: "right" as const },
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+          aria-label={`View near miss ${formatNearMissDisplayId(row.original.id)}`}
+          onClick={() => {
+            onView(row.original);
+          }}
+        >
+          <Icon icon="lets-icons:view" className="size-5" aria-hidden="true" />
+        </button>
+      ),
+      meta: { align: "center" as const },
     }),
   ];
 }
