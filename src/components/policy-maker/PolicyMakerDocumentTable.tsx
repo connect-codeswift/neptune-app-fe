@@ -5,12 +5,8 @@ import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { Table, type TablePagination } from "@/components/ui/Table";
-import {
-  CompliancePill,
-  complianceGlassCardClass,
-} from "@/components/regulatory-compliance/compliance-ui";
-import { PolicyMakerRowActionsMenu } from "@/components/policy-maker/PolicyMakerRowActionsMenu";
+import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
+import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import {
   TABLE_HEADER_ACTION_CLASS,
   TABLE_HEADER_ACTION_ICON_CLASS,
@@ -22,25 +18,31 @@ export type PolicyMakerDocumentTableProps = Readonly<{
   documentCount: number;
   documents: readonly PolicyDocument[];
   selectedId: string | null;
-  onSelect: (id: string) => void;
-  onEditDocument?: (document: PolicyDocument) => void;
+  /** Toggle the right-side preview panel (same behavior as Incident List). */
+  onViewMore: (id: string) => void;
   onUploadDocument?: () => void;
-  /** Second click on selected row — opens full document detail. */
-  onOpenDetail?: (id: string) => void;
-  pagination?: TablePagination;
+  /** When true (detail panel closed), columns use the wider layout. */
+  expanded?: boolean;
   className?: string;
 }>;
 
 const columnHelper = createColumnHelper<PolicyDocument>();
 
 function createDocumentColumns(
-  onEditDocument?: (document: PolicyDocument) => void,
+  expanded: boolean,
+  options: Readonly<{
+    selectedId: string | null;
+    onViewMore: (id: string) => void;
+  }>,
 ): ColumnDef<PolicyDocument, unknown>[] {
+  const { selectedId, onViewMore } = options;
+
   return [
     columnHelper.display({
       id: "document",
       header: "Document",
-      size: 220,
+      size: expanded ? 320 : 220,
+      minSize: 160,
       meta: { align: "left" as const },
       cell: ({ row }) => {
         const doc = row.original;
@@ -54,13 +56,10 @@ function createDocumentColumns(
               />
             </div>
             <div className="flex min-w-0 flex-col">
-              <Text
-                as="p"
-                className="text-[12px] leading-normal text-[#0b1320]"
-              >
+              <Text as="p" className="text4 text-ehs-darker truncate">
                 {doc.title}
               </Text>
-              <Text as="p" className="text-[10px] text-[#8892a3]">
+              <Text as="p" className="text8 text-ehs-muted-text truncate">
                 {`${doc.code} · ${doc.site}`}
               </Text>
             </div>
@@ -70,57 +69,78 @@ function createDocumentColumns(
     }),
     columnHelper.accessor("version", {
       header: "Ver",
-      size: 54,
-      meta: { align: "left" as const },
+      size: expanded ? 72 : 54,
+      minSize: 48,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text-[10px] leading-normal font-bold text-[#8892a3]"
-        >
+        <Text as="span" className="text7 text-ehs-muted-text">
           {info.getValue()}
         </Text>
       ),
     }),
     columnHelper.accessor("owner", {
       header: "Owner",
-      size: 90,
-      meta: { align: "left" as const },
+      size: expanded ? 140 : 90,
+      minSize: 72,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text as="span" className="text-[12px] leading-normal text-[#566072]">
+        <Text as="span" className="text4 text-ehs-gray">
           {info.getValue()}
         </Text>
       ),
     }),
     columnHelper.accessor("status", {
       header: "Status",
-      size: 130,
-      meta: { align: "left" as const },
+      size: expanded ? 160 : 130,
+      minSize: 100,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => <CompliancePill label={info.getValue()} />,
     }),
     columnHelper.accessor("expires", {
       header: "Expires",
-      size: 100,
-      meta: { align: "left" as const },
+      size: expanded ? 130 : 100,
+      minSize: 84,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text-[12px] leading-normal whitespace-nowrap tabular-nums text-[#566072]"
-        >
+        <Text as="span" className="text4 text-ehs-gray whitespace-nowrap tabular-nums">
           {info.getValue()}
         </Text>
       ),
     }),
     columnHelper.display({
-      id: "actions",
+      id: "view",
       header: "",
-      size: 48,
-      meta: { align: "center" as const },
-      cell: ({ row }) => (
-        <PolicyMakerRowActionsMenu
-          documentTitle={row.original.title}
-          onEditDocument={() => onEditDocument?.(row.original)}
-        />
-      ),
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.title}`
+                : `View ${row.original.title}`
+            }
+            onClick={() => {
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
     }),
   ] as ColumnDef<PolicyDocument, unknown>[];
 }
@@ -133,47 +153,33 @@ export function PolicyMakerDocumentTable(
     documentCount,
     documents,
     selectedId,
-    onSelect,
-    onEditDocument,
+    onViewMore,
     onUploadDocument,
-    onOpenDetail,
-    pagination,
+    expanded = false,
     className = "",
   } = props;
 
   const columns = useMemo(
-    () => createDocumentColumns(onEditDocument),
-    [onEditDocument],
+    () => createDocumentColumns(expanded, { selectedId, onViewMore }),
+    [expanded, selectedId, onViewMore],
   );
 
   return (
-    <Table
-      variant="compliance"
+    <IncidentListTable
       data={documents}
       columns={columns}
-      getRowId={(row) => row.id}
-      selectedRowId={selectedId}
-      onRowClick={(row) => {
-        if (selectedId === row.id && onOpenDetail) {
-          onOpenDetail(row.id);
-          return;
-        }
-        onSelect(row.id);
-      }}
-      pagination={pagination}
-      containerClassName={[complianceGlassCardClass, className]
-        .filter(Boolean)
-        .join(" ")}
-      header={
-        <div className="flex h-[50.595px] items-center justify-between gap-3">
+      selectedId={selectedId}
+      onViewMore={onViewMore}
+      expanded={expanded}
+      compact
+      className={className}
+      toolbar={
+        <div className="border-ehs-border flex h-[50.595px] items-center justify-between gap-3 border-b px-4">
           <div className="flex min-w-0 items-baseline gap-2">
-            <Text
-              as="h2"
-              className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
-            >
+            <Text as="h2" className="text5 text-ehs-darker shrink-0">
               {categoryLabel}
             </Text>
-            <Text as="p" className="text-[10px] leading-none text-[#8892a3]">
+            <Text as="p" className="text8 text-ehs-muted-text">
               {`${String(documentCount)} documents`}
             </Text>
           </div>
