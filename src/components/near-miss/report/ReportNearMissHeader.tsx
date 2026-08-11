@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { Button } from "@/components/ui/Button";
 import { ReactNode } from "react";
 
 const crumbClass =

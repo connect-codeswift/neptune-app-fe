@@ -104,7 +104,7 @@ function PhotoRow(props: Readonly<{ photo: ObservationPhoto }>) {
   return (
     <li className="border-ehs-border flex items-center gap-3 rounded-xl border bg-white p-3">
       {photo.url ? (
-        // eslint-disable-next-line @next/next/no-img-element -- remote Cloudinary evidence URL
+         
         <img
           src={photo.url}
           alt={photo.name}

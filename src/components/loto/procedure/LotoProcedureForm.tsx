@@ -34,48 +34,6 @@ import {
   toVerificationFormValues,
 } from "./loto-procedure-form-schema";
 
-const equipmentFieldClass = [
-  "gap-4",
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:h-[38px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text4",
-  "[&_select]:h-[38px]",
-  "[&_select]:rounded-[10px]",
-  "[&_select]:bg-[rgba(255,255,255,0.62)]",
-  "[&_select]:text4",
-  "[&_textarea]:rounded-[10px]",
-  "[&_textarea]:bg-[rgba(255,255,255,0.62)]",
-  "[&_textarea]:text4",
-].join(" ");
-
-const stepFieldClass = [
-  "gap-3",
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-muted-text",
-  "[&_input]:h-[34px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text4",
-  "[&_select]:h-[34px]",
-  "[&_select]:rounded-[10px]",
-  "[&_select]:bg-[rgba(255,255,255,0.62)]",
-  "[&_select]:text4",
-].join(" ");
-
-const sidebarFieldClass = [
-  "gap-3",
-  "[&_label]:text4",
-  "[&_label]:font-bold",
-  "[&_label]:text-ehs-darker",
-  "[&_p]:text8",
-  "[&_p]:text-ehs-muted-text",
-].join(" ");
-
 export type LotoProcedurePreview = Readonly<{
   equipmentName: string;
   equipmentCode: string;

@@ -102,7 +102,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
           <IncidentModalPrimaryButton
             onClick={handleSave}
             label={`Link Selected (${selectedIds.length})`}
-            iconSrc="/icons/capa/plus.svg"
+            icon="mdi:plus"
           />
         </>
       }

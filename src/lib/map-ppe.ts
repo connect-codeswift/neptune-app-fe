@@ -529,25 +529,6 @@ export function toIssueIdFromResponse(
   return null;
 }
 
-/** Read siteId from POST /api/ppe/issue when the JWT has no site claim. */
-function toSiteIdFromIssueResponse(
-  response: Readonly<{
-    dataModel?: { siteId?: number | string; SiteId?: number | string } | null;
-  }>,
-): number | null {
-  const siteId = response.dataModel?.siteId ?? response.dataModel?.SiteId;
-
-  if (typeof siteId === "number" && Number.isFinite(siteId)) return siteId;
-
-  if (typeof siteId === "string") {
-    const parsed = Number(siteId);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-}
-
-/** Prefer token site, then issue response, then selected employee's subCompId. */
 function toKpiCount(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return "0";
   return value.toLocaleString("en-US");

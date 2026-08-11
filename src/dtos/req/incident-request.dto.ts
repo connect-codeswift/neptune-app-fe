@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 /**
@@ -7,20 +6,16 @@ import type { IncidentDto } from "@/dtos/res/incident-response.dto";
  *
  * Tenant scope comes from the JWT — do not send siteId or userId here.
  */
-const getAllIncidentsRequestSchema = z.object({
-  pageNumber: z.number().int().positive(),
-  pageSize: z.number().int().positive(),
+export type GetAllIncidentsRequestDto = {
+  pageNumber: number;
+  pageSize: number;
   /** Substring match on incident description / location. */
-  search: z.string().optional(),
+  search?: string;
   /** Severity label filter. */
-  severity: z.string().optional(),
+  severity?: string;
   /** Site name filter. */
-  site: z.string().optional(),
-});
-
-export type GetAllIncidentsRequestDto = z.infer<
-  typeof getAllIncidentsRequestSchema
->;
+  site?: string;
+};
 
 /** Request body for POST /api/Incident/incident. */
 export type CreateIncidentRequestDto = IncidentDto;
@@ -32,9 +27,7 @@ export type CreateIncidentRequestDto = IncidentDto;
 export type UpdateIncidentRequestDto = IncidentDto;
 
 /** Tenant context on drop / scoped mutations (`TenantUserContextDto`). */
-const tenantUserContextSchema = z.object({
-  siteId: z.number().int().nonnegative(),
-  userId: z.number().int().nonnegative(),
-});
-
-export type TenantUserContextDto = z.infer<typeof tenantUserContextSchema>;
+export type TenantUserContextDto = {
+  siteId: number;
+  userId: number;
+};

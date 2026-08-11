@@ -45,10 +45,6 @@ function fileNameFromUrl(url: string): string {
   }
 }
 
-function isImageUrl(url: string): boolean {
-  return /\.(jpe?g|png|gif|webp|bmp|svg)(\?|$)/i.test(url);
-}
-
 /** Dashed drop-zone that uploads to Cloudinary and lists the returned secure URLs. */
 export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const { field, value, error, onChange } = props;

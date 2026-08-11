@@ -26,11 +26,17 @@ export type ChemicalListTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  signalWord: "center",
+  status: "center",
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomChemical>();
 
@@ -40,7 +46,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Chemical Name",
     size: 220,
     minSize: 160,
-    meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex min-w-0 flex-col gap-0.5">
         <Text as="p" className="text-ehs-darker truncate text-[13px] font-bold">
@@ -56,7 +61,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "CAS #",
     size: 100,
     minSize: 90,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
         {info.getValue()}
@@ -67,7 +71,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Location",
     size: 150,
     minSize: 120,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray block truncate text-[13px]">
         {info.getValue()}
@@ -79,7 +82,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Quantity",
     size: 100,
     minSize: 90,
-    meta: { align: "left" },
     cell: ({ row }) => {
       const { amount, unit } = splitQuantity(row.original.quantity);
 
@@ -104,7 +106,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Hazard Class",
     size: 160,
     minSize: 120,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px]">
         {info.getValue()}
@@ -116,7 +117,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Pictograms",
     size: 120,
     minSize: 100,
-    meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         {row.original.pictograms.map((pictogram) => (
@@ -129,7 +129,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Signal",
     size: 90,
     minSize: 80,
-    meta: { align: "center" },
     cell: (info) => (
       <Text
         as="span"
@@ -146,7 +145,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "Status",
     size: 100,
     minSize: 90,
-    meta: { align: "center" },
     cell: (info) => (
       <Text
         as="span"
@@ -164,7 +162,6 @@ const columns: ColumnDef<HazcomChemical, unknown>[] = [
     header: "",
     size: 80,
     minSize: 72,
-    meta: { align: "right" },
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
@@ -236,7 +233,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="bg-ehs-light-bg/60">
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
@@ -279,7 +276,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                   className="hover:bg-ehs-light-bg/70 border-t border-[rgba(15,23,42,0.08)] transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

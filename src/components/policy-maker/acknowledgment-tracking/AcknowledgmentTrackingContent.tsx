@@ -52,7 +52,10 @@ export function AcknowledgmentTrackingContent(
     enabled: isClientReady && hasToken && document?.versionId != null,
   });
 
-  const records = acknowledgementsQuery.data?.records ?? [];
+  const records = useMemo(
+    () => acknowledgementsQuery.data?.records ?? [],
+    [acknowledgementsQuery.data?.records],
+  );
   const metrics = useMemo(
     () =>
       getAcknowledgmentMetrics(records, {

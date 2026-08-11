@@ -3,19 +3,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
-import type {
-  PpeIssuanceLogEntry,
-  PpeLogStatus,
-} from "@/app/dashboard/ppe-management/ppe-data";
+import type { PpeIssuanceLogEntry } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeIssuanceLogEntry>();
-
-const statusTone: Record<PpeLogStatus, "muted" | "neutral"> = {
-  Issued: "muted",
-  "Due Inspection": "muted",
-  Overdue: "muted",
-  Returned: "neutral",
-};
 
 export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> {
   return [

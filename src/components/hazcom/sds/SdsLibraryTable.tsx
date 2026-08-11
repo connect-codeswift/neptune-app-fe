@@ -23,12 +23,15 @@ export type SdsLibraryTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TData/TValue must be repeated to match the library's ColumnMeta signature for declaration merging
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomSdsRecord>();
 
@@ -41,7 +44,6 @@ const columns = [
   columnHelper.accessor("id", {
     header: "SDS ID",
     size: 100,
-    meta: { align: "left" },
     cell: (info) => (
       <Link
         href={`/dashboard/hazcom/sds/${info.getValue()}`}
@@ -55,7 +57,6 @@ const columns = [
     id: "chemical",
     header: "Chemical Name",
     size: 170,
-    meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
         <Text as="p" className="text-ehs-darker text-[13px] font-bold">
@@ -70,7 +71,6 @@ const columns = [
   columnHelper.accessor("manufacturer", {
     header: "Manufacturer",
     size: 140,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px]">
         {info.getValue()}
@@ -80,7 +80,6 @@ const columns = [
   columnHelper.accessor("casNumber", {
     header: "CAS #",
     size: 110,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
         {info.getValue()}
@@ -90,7 +89,6 @@ const columns = [
   columnHelper.accessor("hazardClass", {
     header: "Hazard Class",
     size: 150,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px]">
         {info.getValue()}
@@ -100,7 +98,6 @@ const columns = [
   columnHelper.accessor("signalWord", {
     header: "Signal",
     size: 90,
-    meta: { align: "left" },
     cell: (info) => (
       <Text
         as="span"
@@ -116,7 +113,6 @@ const columns = [
   columnHelper.accessor("pictograms", {
     header: "Pictograms",
     size: 150,
-    meta: { align: "left" },
     cell: (info) => (
       <div className="flex items-center gap-2">
         {info.getValue().map((pictogram) => (
@@ -128,7 +124,6 @@ const columns = [
   columnHelper.accessor("revisedOn", {
     header: "Revised",
     size: 100,
-    meta: { align: "left" },
     cell: (info) => (
       <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
         {info.getValue()}
@@ -138,7 +133,6 @@ const columns = [
   columnHelper.accessor("status", {
     header: "Status",
     size: 110,
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -151,7 +145,6 @@ const columns = [
     id: "actions",
     header: "",
     size: 90,
-    meta: { align: "right" },
     cell: ({ row }) => (
       <div className="flex items-center justify-end gap-1.5">
         <Link
@@ -227,7 +220,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
@@ -270,7 +263,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                   className="hover:bg-ehs-light-bg/70 border-t border-[rgba(15,23,42,0.08)] transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

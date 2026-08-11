@@ -112,7 +112,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
             }}
             disabled={!canSubmit}
             label={busy ? "Saving…" : copy.primaryLabel}
-            iconSrc=""
+            icon=""
           />
         </>
       }

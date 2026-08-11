@@ -5,6 +5,6 @@ export type ReportIncidentToolbarProps = Readonly<{
 }>;
 
 /** Placeholder — global header utilities removed; see `future/global-header-utilities.md`. */
-export function ReportIncidentToolbar(_props: Readonly<ReportIncidentToolbarProps>) {
+export function ReportIncidentToolbar() {
   return null;
 }

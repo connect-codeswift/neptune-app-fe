@@ -1,16 +1,13 @@
 import type {
-  AuditDetail,
   AuditRecord,
   AuditStatus,
 } from "@/app/dashboard/audits/audits-data";
 import type { AuditFinding } from "@/app/dashboard/audits/findings/audit-findings-data";
 import type { AuditReport } from "@/app/dashboard/audits/report/audit-report-data";
-import type { AuditItemResponseRequestDto } from "@/dtos/req/audit-request.dto";
 import type {
   AuditDetailDto,
   AuditDto,
   AuditFindingDto,
-  AuditResponsesResultDto,
 } from "@/dtos/res/audit-response.dto";
 import { formatRunStatus } from "@/lib/audit-inspection-status";
 

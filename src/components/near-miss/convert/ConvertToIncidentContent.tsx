@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
+import { FormBuilder } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -18,10 +18,7 @@ import {
 } from "@/lib/map-near-miss";
 import { toast } from "@/lib/toast";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
-import {
-  convertToIncidentSchema,
-  type ConvertToIncidentValues,
-} from "./convert-incident-schema";
+import { convertToIncidentSchema } from "./convert-incident-schema";
 
 const crumbClass =
   "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";

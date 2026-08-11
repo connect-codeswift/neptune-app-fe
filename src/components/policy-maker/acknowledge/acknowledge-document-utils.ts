@@ -1,5 +1,3 @@
-import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
-
 /** Format like Figma: "22 apr 2025". */
 export function formatPublishedLabel(isoDate: string): string {
   const date = new Date(`${isoDate}T00:00:00`);

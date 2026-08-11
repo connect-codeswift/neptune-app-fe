@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
-import { SelectInput } from "@/components/inputs/SelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
 import {
   AccountSettingsShell,
@@ -11,14 +10,10 @@ import {
 import {
   DEFAULT_EMERGENCY_CONTACT,
   DEFAULT_PROFILE_FORM,
-  DEPARTMENT_OPTIONS,
   NOTIFICATION_PREFERENCES,
-  RELATIONSHIP_OPTIONS,
-  REPORTS_TO_OPTIONS,
   splitDisplayName,
   type NotificationPreferenceKey,
 } from "@/components/profile/account-settings-data";
-import { PLACEHOLDER_PERSONAL_INFO } from "@/components/profile/my-profile-data";
 import { ToggleSwitch } from "@/components/profile/ToggleSwitch";
 import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";

@@ -71,7 +71,7 @@ export function EditIncidentDetailsModal(
             onClick={handleSave}
             disabled={!canSave}
             label="Save changes"
-            iconSrc=""
+            icon=""
           />
         </>
       }

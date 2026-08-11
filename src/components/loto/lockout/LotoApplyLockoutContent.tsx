@@ -23,17 +23,6 @@ import {
 import { LotoApplyLockoutHeader } from "./LotoApplyLockoutHeader";
 import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
 
-const fieldClass = [
-  "gap-3.5",
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:h-[42px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text4",
-].join(" ");
-
 export type LotoApplyLockoutContentProps = Readonly<{
   equipmentId: string;
 }>;

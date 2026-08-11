@@ -59,7 +59,10 @@ export function IncidentClosureStepRootCause(
   }));
 
   const selectedRootCauseCategoryIds = data.primaryRootCauseCategoryIds ?? [];
-  const selectedContributingFactors = data.contributingFactors ?? [];
+  const selectedContributingFactors = useMemo(
+    () => data.contributingFactors ?? [],
+    [data.contributingFactors],
+  );
 
   const contributingFactorOptions = useMemo(
     () => buildContributingFactorOptions(selectedContributingFactors),
