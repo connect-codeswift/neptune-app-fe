@@ -27,6 +27,18 @@ import {
 
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
 
+/** Typography-only overrides — do not set fixed input heights. */
+const hazardFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
+
 /** Ids are what the schema stores; the model needs the label it was shown. */
 function toLabel(options: readonly SelectOption[], value: string): string {
   const trimmed = value.trim();
@@ -96,7 +108,7 @@ export function ReportHazardForm() {
                     pending={pending}
                     // FormBuilder's textarea skin, not the incident wizard's.
                     fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text-base leading-6"
+                    fieldTextClassName="text4 leading-6"
                     onAccept={(text) => {
                       control.onChange(text);
                       dismiss();
@@ -149,6 +161,7 @@ export function ReportHazardForm() {
       <FormBuilder
         schema={schema}
         onChange={setValues}
+        className={hazardFormFieldClass}
         submitLabel={
           createHazard.isPending ? "Submitting..." : "Submit Hazard Report"
         }

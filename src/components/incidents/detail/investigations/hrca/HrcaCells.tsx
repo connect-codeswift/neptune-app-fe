@@ -48,7 +48,7 @@ export function HrcaCategoryCell(props: Readonly<{ category: string }>) {
         "bg-ehs-normal-blue/13 flex h-full items-center justify-center self-stretch rounded-[9px] border border-[rgba(15,23,42,0.08)] px-[11px] py-[9px]",
       ].join(" ")}
     >
-      <p className="text-ehs-dark-bg text-center text-xs leading-[14.4px] font-bold">
+      <p className="text-ehs-dark-bg text-center text8 leading-[14.4px] font-bold">
         {lines.map((line) => (
           <span key={line} className="block">
             {line}
@@ -80,14 +80,14 @@ export function HrcaContributingFactorCell(
       ].join(" ")}
     >
       <p
-        className="mb-[6px] text-[9px] leading-[13px] font-bold tracking-[0.72px] uppercase"
+        className="mb-[6px] text8 leading-[13px] font-bold tracking-[0.72px] uppercase"
         style={{ color: accent }}
       >
         Contributing factor
       </p>
       <p
         className={[
-          "text-[12.5px] leading-[18.13px] font-bold",
+          "text4 leading-[18.13px] font-bold",
           text.trim() ? "text-ehs-dark-bg" : "text-ehs-muted-text italic",
         ].join(" ")}
       >
@@ -139,14 +139,14 @@ export function HrcaWhyCell(
         >
           <div className="mb-[7px] flex w-full items-center gap-[7px]">
             <span
-              className="inline-flex size-[19px] shrink-0 items-center justify-center rounded-[9.5px] text-[10.5px] leading-[15.23px] font-bold text-white"
+              className="inline-flex size-[19px] shrink-0 items-center justify-center rounded-[9.5px] text8 leading-[15.23px] font-bold text-white"
               style={{ backgroundColor: accent }}
             >
               {String(why.num)}
             </span>
             {why.isRootCause ? (
               <span
-                className="inline-flex items-center gap-[3px] text-[9px] leading-[13px] font-bold tracking-[0.54px] uppercase"
+                className="inline-flex items-center gap-[3px] text8 leading-[13px] font-bold tracking-[0.54px] uppercase"
                 style={{ color: accent }}
               >
                 <Icon
@@ -159,7 +159,7 @@ export function HrcaWhyCell(
             ) : (
               <Text
                 as="span"
-                className="text-ehs-muted-text text-[9px] leading-[13px] font-bold tracking-[0.54px] uppercase"
+                className="text-ehs-muted-text text8 leading-[13px] font-bold tracking-[0.54px] uppercase"
               >
                 {`Why ${why.num}`}
               </Text>
@@ -188,7 +188,7 @@ export function HrcaWhyCell(
               />
             </span>
           </div>
-          <p className="text-ehs-slate text-[12.5px] leading-[18.13px] font-normal">
+          <p className="text-ehs-slate text4 leading-[18.13px] font-normal">
             {why.text}
           </p>
         </button>
@@ -221,7 +221,7 @@ export function HrcaWhyCell(
           </span>
           <Text
             as="span"
-            className="text-ehs-muted-text text-[13px] leading-[13px]"
+            className="text-ehs-muted-text text4 leading-[13px]"
           >
             Add why
           </Text>
@@ -241,7 +241,7 @@ export function HrcaWhyCell(
       >
         <Text
           as="span"
-          className="text-ehs-muted-text text-base leading-[15.95px]"
+          className="text-ehs-muted-text text4 leading-[15.95px]"
         >
           —
         </Text>
@@ -268,7 +268,7 @@ export function HrcaCorrectiveActionsCell(
         "min-h-[128px] border-[rgba(16,185,129,0.35)]",
       ].join(" ")}
     >
-      <p className="mb-[8px] text-[9px] leading-[13px] font-bold tracking-[0.72px] text-[#10b981] uppercase">
+      <p className="mb-[8px] text8 leading-[13px] font-bold tracking-[0.72px] text-[#10b981] uppercase">
         Corrective actions
       </p>
       <div className="flex w-full flex-1 flex-col gap-2">
@@ -287,7 +287,7 @@ export function HrcaCorrectiveActionsCell(
             <button
               type="button"
               onClick={() => onEdit(index, action.text)}
-              className="text-ehs-slate hover:text-ehs-dark-bg min-w-0 flex-1 text-left text-[12.5px] leading-[18.13px] font-normal"
+              className="text-ehs-slate hover:text-ehs-dark-bg min-w-0 flex-1 text-left text4 leading-[18.13px] font-normal"
             >
               {action.text}
             </button>
@@ -304,7 +304,7 @@ export function HrcaCorrectiveActionsCell(
         <button
           type="button"
           onClick={onAdd}
-          className="hover:text-ehs-dark-blue-active inline-flex items-center gap-1.5 self-start pt-0.5 text-[13px] leading-[13px] font-bold text-[#10b981] transition-colors"
+          className="hover:text-ehs-dark-blue-active inline-flex items-center gap-1.5 self-start pt-0.5 text4 leading-[13px] font-bold text-[#10b981] transition-colors"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add action

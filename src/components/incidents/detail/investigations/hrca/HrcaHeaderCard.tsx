@@ -20,13 +20,13 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
     <div className="flex flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-center text-[26px] leading-[26px] font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text-center text1 leading-[26px] font-bold tracking-[-0.52px]"
       >
         {String(value)}
       </Text>
       <Text
         as="p"
-        className="text-ehs-muted-text text-center text-[10px] leading-none font-bold tracking-[0.8px] uppercase"
+        className="text-ehs-muted-text text-center text8 leading-none font-bold tracking-[0.8px] uppercase"
       >
         {label}
       </Text>
@@ -62,13 +62,13 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
               <Text
                 as="p"
-                className="text-[11px] leading-none font-bold tracking-[1.76px] text-[#056e7e] uppercase"
+                className="text8 leading-none font-bold tracking-[1.76px] text-[#056e7e] uppercase"
               >
                 Horizontal Root Cause Analysis
               </Text>
               <Text
                 as="h2"
-                className="text-ehs-dark-bg text-lg leading-normal font-bold tracking-[-0.18px]"
+                className="text-ehs-dark-bg text3 leading-normal font-bold tracking-[-0.18px]"
               >
                 5 Whys across causal categories → root cause → corrective
                 actions
@@ -92,7 +92,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             labelLines={["Type of", "report"]}
             value={meta.reportType}
             showChevron
-            valueClassName="text-[13px] leading-[13px] font-normal"
+            valueClassName="text4 leading-[13px] font-normal"
           />
         </div>
         <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0 sm:border-r">
@@ -100,7 +100,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             icon="mdi:calendar-outline"
             label="Date"
             value={meta.date}
-            valueClassName="text-[12.3px] leading-[17.5px] font-bold"
+            valueClassName="text4 leading-[17.5px] font-bold"
           />
         </div>
         <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0">
@@ -108,7 +108,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             icon="mdi:heart-outline"
             label="Injury"
             value={meta.injury}
-            valueClassName="text-[12.5px] leading-[17.5px] font-bold"
+            valueClassName="text4 leading-[17.5px] font-bold"
           />
         </div>
       </div>
@@ -124,11 +124,11 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         <div className="min-w-0 flex-1">
           <Text
             as="p"
-            className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text8 leading-none font-bold tracking-[0.945px] uppercase"
           >
             Incident description
           </Text>
-          <p className="text-ehs-slate mt-[2px] text-[12.3px] leading-[19.38px] font-normal">
+          <p className="text-ehs-slate mt-[2px] text4 leading-[19.38px] font-normal">
             {meta.description}
           </p>
         </div>

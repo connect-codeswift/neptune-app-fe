@@ -457,7 +457,7 @@ export function IncidentDetailHrcaBoard(
           <button
             type="button"
             onClick={onClose}
-            className="text-ehs-gray hover:text-ehs-dark-bg inline-flex w-fit items-center gap-1.5 text-sm font-semibold transition-colors"
+            className="text-ehs-gray hover:text-ehs-dark-bg inline-flex w-fit items-center gap-1.5 text4 font-semibold transition-colors"
           >
             <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
             Back to investigation
@@ -471,7 +471,7 @@ export function IncidentDetailHrcaBoard(
           actions={totalActions}
         />
 
-        <div className="text-ehs-muted-text flex items-start gap-[11px] text-sm leading-[15px]">
+        <div className="text-ehs-muted-text flex items-start gap-[11px] text4 leading-[15px]">
           <Icon
             icon="mdi:information-outline"
             className="text-ehs-gray mt-px size-[13px] shrink-0"
@@ -486,24 +486,24 @@ export function IncidentDetailHrcaBoard(
         </div>
 
         {rcaQuery.isLoading ? (
-          <div className="text-ehs-muted-text rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text-sm backdrop-blur-[10px]">
+          <div className="text-ehs-muted-text rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-[10px]">
             Loading HRCA worksheet…
           </div>
         ) : errorMessage ? (
-          <div className="flex flex-col items-center gap-3 rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text-sm backdrop-blur-[10px]">
+          <div className="flex flex-col items-center gap-3 rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-[10px]">
             <p className="text-ehs-red">{errorMessage}</p>
             <button
               type="button"
               onClick={() => {
                 void rcaQuery.refetch();
               }}
-              className="text-ehs-normal-blue text-sm font-semibold hover:underline"
+              className="text-ehs-normal-blue text4 font-semibold hover:underline"
             >
               Retry
             </button>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-ehs-muted-text rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text-sm backdrop-blur-[10px]">
+          <div className="text-ehs-muted-text rounded-[20px] border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-[10px]">
             No HRCA lanes are configured. Seeded RCA categories (ids 1–5) are
             required to render the worksheet.
           </div>
@@ -511,7 +511,7 @@ export function IncidentDetailHrcaBoard(
           <HrcaTable rows={rows} handlers={handlers} />
         )}
 
-        <p className="text-ehs-muted-text text-sm leading-[17px] font-medium">
+        <p className="text-ehs-muted-text text4 leading-[17px] font-medium">
           Read each lane left → right: the contributing factor, then ask
           &quot;Why?&quot; until you reach the root cause (ringed). Edits persist on
           this device.

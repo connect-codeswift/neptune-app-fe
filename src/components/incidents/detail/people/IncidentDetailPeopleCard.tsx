@@ -80,14 +80,14 @@ export function IncidentDetailPeopleCard(
         incidentGlassCardClassName="gap-3.5"
         className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Affected person
         </Text>
 
         {hasAffected ? (
           <>
             <div className="flex items-center gap-3.5">
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-12 shrink-0 items-center justify-center rounded-[14.4px] text-base font-bold">
+              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-12 shrink-0 items-center justify-center rounded-[14.4px] text5">
                 {affectedInitials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -107,7 +107,7 @@ export function IncidentDetailPeopleCard(
                       className={fieldInputClass}
                       aria-label="Affected person name"
                     />
-                    <span className="text-ehs-gray truncate text-sm leading-normal">
+                    <span className="text-ehs-gray truncate text4 leading-normal">
                       {affectedRole}
                     </span>
                     <input
@@ -123,13 +123,13 @@ export function IncidentDetailPeopleCard(
                   </>
                 ) : (
                   <>
-                    <span className="text-ehs-dark-bg text-base leading-normal font-bold">
+                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                       {affectedName}
                     </span>
-                    <span className="text-ehs-gray truncate text-sm leading-normal">
+                    <span className="text-ehs-gray truncate text4 leading-normal">
                       {affectedRole}
                     </span>
-                    <span className="text-ehs-muted-text text-sm leading-normal">
+                    <span className="text-ehs-muted-text text4 leading-normal">
                       {affectedEmpId}
                     </span>
                   </>
@@ -147,7 +147,7 @@ export function IncidentDetailPeopleCard(
                   aria-label="Injury level"
                 />
               ) : (
-                <span className="bg-ehs-dark-bg/14 text-ehs-gray shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide">
+                <span className="bg-ehs-dark-bg/14 text-ehs-gray shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide">
                   {affectedInjuryLabel}
                 </span>
               )}
@@ -155,7 +155,7 @@ export function IncidentDetailPeopleCard(
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
+                <span className="text-ehs-muted-text text6">
                   Body part
                 </span>
                 {isEditing ? (
@@ -167,13 +167,13 @@ export function IncidentDetailPeopleCard(
                     aria-label="Body part"
                   />
                 ) : (
-                  <span className="text-ehs-dark-bg text-base leading-normal">
+                  <span className="text-ehs-dark-bg text4 leading-normal">
                     {bodyPart}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
+                <span className="text-ehs-muted-text text6">
                   Treatment
                 </span>
                 {isEditing ? (
@@ -187,23 +187,23 @@ export function IncidentDetailPeopleCard(
                     aria-label="Treatment"
                   />
                 ) : (
-                  <span className="text-ehs-dark-bg text-base leading-normal">
+                  <span className="text-ehs-dark-bg text4 leading-normal">
                     {treatment}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
-                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
+                <span className="text-ehs-muted-text text6">
                   Days away
                 </span>
-                <span className="text-ehs-dark-bg text-base leading-normal">
+                <span className="text-ehs-dark-bg text4 leading-normal">
                   {daysAway}
                 </span>
               </div>
             </div>
           </>
         ) : (
-          <div className="text-ehs-muted-text py-6 text-center text-sm">
+          <div className="text-ehs-muted-text py-6 text-center text4">
             No affected person returned by the API.
           </div>
         )}
@@ -214,16 +214,16 @@ export function IncidentDetailPeopleCard(
         className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
         <div className="pb-3.5">
-          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Responders & assignees
           </Text>
-          <span className="text-ehs-muted-text text-sm leading-normal">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {responders.length} people
           </span>
         </div>
 
         {responders.length === 0 ? (
-          <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm">
+          <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text4">
             No responders returned by the API.
           </div>
         ) : (
@@ -236,7 +236,7 @@ export function IncidentDetailPeopleCard(
               key={index}
               className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
             >
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] text-sm font-bold">
+              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] text5">
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-px">
@@ -261,16 +261,16 @@ export function IncidentDetailPeopleCard(
                           role: event.target.value,
                         })
                       }
-                      className={`${fieldInputClass} mt-1 text-sm`}
+                      className={`${fieldInputClass} mt-1 text4`}
                       aria-label="Role"
                     />
                   </>
                 ) : (
                   <>
-                    <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                       {person.name}
                     </span>
-                    <span className="text-ehs-gray truncate text-sm leading-normal">
+                    <span className="text-ehs-gray truncate text4 leading-normal">
                       {person.role}
                     </span>
                   </>
@@ -284,17 +284,17 @@ export function IncidentDetailPeopleCard(
                     onChangeResponder?.(index, { empId: event.target.value })
                   }
                   placeholder="ID / email"
-                  className={`${fieldInputClass} max-w-[140px] shrink-0 text-sm`}
+                  className={`${fieldInputClass} max-w-[140px] shrink-0 text4`}
                   aria-label="Employee ID or email"
                 />
               ) : (
-                <span className="text-ehs-muted-text shrink-0 text-sm leading-normal">
+                <span className="text-ehs-muted-text shrink-0 text4 leading-normal">
                   {person.empId}
                 </span>
               )}
               <span
                 className={[
-                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide",
+                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
                   responderBadgeClass(person.badgeTone),
                 ].join(" ")}
               >

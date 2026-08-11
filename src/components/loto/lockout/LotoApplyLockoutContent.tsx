@@ -28,10 +28,9 @@ const fieldClass = [
   "[&_label]:text8",
   "[&_label]:font-semibold",
   "[&_label]:text-ehs-gray",
-  "[&_input]:h-[42px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
   "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
 ].join(" ");
 
 export type LotoApplyLockoutContentProps = Readonly<{
@@ -112,7 +111,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
                 schema={schema}
                 initialValues={toApplyLockoutFormValues(context.operatorName)}
                 hideActions
-                // className={fieldClass}
+                className={fieldClass}
                 onSubmit={handleValid}
               />
             </div>

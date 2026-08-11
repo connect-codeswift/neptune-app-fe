@@ -127,10 +127,10 @@ export function IncidentDetailUploadCard(
       className={className}
     >
       <div className="flex flex-col gap-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Upload
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           Drag & drop or browse
         </span>
       </div>
@@ -164,7 +164,7 @@ export function IncidentDetailUploadCard(
               className="text-ehs-normal-blue size-8 animate-spin"
               aria-hidden="true"
             />
-            <span className="text-ehs-dark-bg text-sm font-bold">
+            <span className="text-ehs-dark-bg text5">
               Uploading...
             </span>
           </div>
@@ -173,13 +173,13 @@ export function IncidentDetailUploadCard(
             <div className="text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="text-ehs-dark-bg mt-2.5 text-sm font-bold">
+            <span className="text-ehs-dark-bg mt-2.5 text5">
               Drop files here
             </span>
-            <span className="text-ehs-muted-text mt-1 text-xs">
+            <span className="text-ehs-muted-text mt-1 text8">
               JPG, PNG, MP4, PDF up to 50 MB
             </span>
-            <span className="text-ehs-dark-blue mt-3.5 text-sm font-bold">
+            <span className="text-ehs-dark-blue mt-3.5 text5">
               Browse files
             </span>
           </>
