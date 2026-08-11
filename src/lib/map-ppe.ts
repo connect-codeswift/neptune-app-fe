@@ -36,9 +36,7 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
 }
 
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
-function toPpeSizeOptions(
-  availableSize?: string | null,
-): SelectOption[] {
+function toPpeSizeOptions(availableSize?: string | null): SelectOption[] {
   if (!availableSize?.trim()) return [];
 
   return availableSize
@@ -559,18 +557,23 @@ function toKpiCount(value: number | undefined): string {
 export function toPpeMetricsFromKpi(
   kpi: PpeKpiDto | null | undefined,
 ): PpeMetric[] {
+  // GET /api/ppe/kpi returns two counts and nothing else — no series, no
+  // prior period — so both cards show an icon badge rather than a delta.
   return [
     {
       title: "Active assignments",
       value: toKpiCount(kpi?.activeAssignments),
-      trendValue: "",
-      trendTone: "positive",
+      description: "PPE currently issued to workers",
+      icon: "mdi:account-hard-hat-outline",
     },
     {
       title: "Items low stock",
       value: toKpiCount(kpi?.lowStockItems),
-      trendValue: "",
-      trendTone: "negative",
+      description: "At or below the reorder point",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:package-variant-closed-remove",
     },
   ];
 }

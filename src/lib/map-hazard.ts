@@ -1,6 +1,6 @@
 import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type { HazardDto, HazardKpiDto } from "@/dtos/res/hazard-response.dto";
 import {
   HAZARD_TYPE_OPTIONS,
@@ -22,23 +22,6 @@ function asOptionalNumber(value: unknown): number | undefined {
   if (value === undefined || value === null || value === "") return undefined;
   const parsed = asNumber(value, Number.NaN);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function formatTrendDelta(delta: number): string {
-  const value = Math.round(delta);
-  if (Object.is(value, -0) || value === 0) return "0";
-  return value > 0 ? `+${String(value)}` : String(value);
-}
-
-function toTrendBadge(delta: number | null | undefined): Pick<
-  StatMetricCardProps,
-  "trendValue" | "trendTone"
-> {
-  const value = delta ?? 0;
-  return {
-    trendValue: formatTrendDelta(value),
-    trendTone: value >= 0 ? "positive" : "negative",
-  };
 }
 
 /**
@@ -89,25 +72,35 @@ export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {
   };
 }
 
-/** Builds the two hazard KPI cards, including `+N` / `-N` / `0` trend badges. */
+/**
+ * Builds the two hazard KPI cards. The endpoint returns a period delta but no
+ * series, so the cards pass `delta` straight through and draw no sparkline.
+ */
 export function mapHazardKpiToMetrics(
   dto: HazardKpiDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
   const totalDelta = dto?.totalHazardsDelta ?? dto?.totalHazardsChange;
   const convertedDelta =
-    dto?.hazardConvertedToIncidentDelta ??
-    dto?.hazardConvertedToIncidentChange;
+    dto?.hazardConvertedToIncidentDelta ?? dto?.hazardConvertedToIncidentChange;
 
   return [
     {
       title: "Total hazard reports",
       value: dto?.totalHazards ?? 0,
-      ...toTrendBadge(totalDelta),
+      // More hazards reported is a healthier reporting culture, not a worse
+      // site — the incidents they turn into are the metric that hurts.
+      isMorePositive: true,
+      delta: totalDelta,
+      description: "Reported this period",
+      icon: "mdi:alert-outline",
     },
     {
       title: "Converted to incidents",
       value: dto?.hazardConvertedToIncidentCount ?? 0,
-      ...toTrendBadge(convertedDelta),
+      isMorePositive: false,
+      delta: convertedDelta,
+      description: "Hazards that became incidents",
+      icon: "mdi:swap-horizontal",
     },
   ];
 }

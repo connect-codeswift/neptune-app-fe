@@ -1,19 +1,8 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card placeholder: label + trend dot, then a value bar. */
-function KpiCardSkeleton() {
-  return (
-    <IncidentGlassCard paddingClassName="p-4" className="min-w-0 gap-6">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-2 w-24" />
-        <Skeleton className="size-3.5 rounded-full" />
-      </div>
-      <Skeleton className="h-5 w-12" />
-    </IncidentGlassCard>
-  );
-}
-
 /** One placeholder row in the register: title/scope, site, inspector, meter… */
 function TableRowSkeleton() {
   return (
@@ -69,11 +58,7 @@ export function InspectionPageSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
       {/* KPI Metrics */}
-      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <KpiCardSkeleton key={index} />
-        ))}
-      </div>
+      <MetricCardsRowSkeleton />
 
       {/* Register + selected record breakdown */}
       <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { StatMetricCard } from "@/components/StatMetricCard";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
@@ -23,7 +23,7 @@ import type {
   DocumentStatusFilter,
   LibraryCategoryId,
 } from "@/components/policy-maker/policy-maker-types";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type { DocumentDashboardKpisDto } from "@/dtos/res/document-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
@@ -51,14 +51,23 @@ function formatAckRate(value: number | null | undefined): string {
     return "—";
   }
   const percent = value <= 1 ? value * 100 : value;
-  return `${String(Math.round(percent))}%`;
+  return String(Math.round(percent));
 }
 
-/** Builds the 4 stat cards from GET /api/Document/dashboard-kpis. */
+/**
+ * Builds the 4 stat cards from GET /api/Document/dashboard-kpis.
+ *
+ * The endpoint returns counts only, so these carry no delta. What used to sit
+ * in the badge as a word ("Needs action", "Clear") is a description, not a
+ * movement — it moved to the footer, and the badge fell back to its icon.
+ */
 function buildPolicyMakerMetrics(
   kpis: DocumentDashboardKpisDto | null,
   totalCount: number,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
+  const hasAckRate =
+    kpis?.acknowledgementRate != null &&
+    Number.isFinite(kpis.acknowledgementRate);
   const active = kpis?.activeDocs ?? 0;
   const pending = kpis?.pendingReview ?? 0;
   const expiring = kpis?.expiringIn30Days ?? 0;
@@ -67,26 +76,36 @@ function buildPolicyMakerMetrics(
     {
       title: "Active docs",
       value: active,
-      trendValue: `${String(totalCount)} total`,
-      trendTone: "positive",
+      description: `${String(totalCount)} total in the library`,
+      icon: "mdi:file-document-check-outline",
     },
     {
       title: "Pending review",
       value: pending,
-      trendValue: pending > 0 ? "Needs action" : "Clear",
-      trendTone: pending > 0 ? "negative" : "positive",
+      description: pending > 0 ? "Needs action" : "Clear",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:file-clock-outline",
     },
     {
       title: "Expiring (30d)",
       value: expiring,
-      trendValue: expiring > 0 ? "Watch" : "Clear",
-      trendTone: expiring > 0 ? "negative" : "positive",
+      description: expiring > 0 ? "Watch these dates" : "Clear",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:calendar-alert",
     },
     {
       title: "Acknowledgement rate",
       value: formatAckRate(kpis?.acknowledgementRate),
-      trendValue: kpis?.acknowledgementRate != null ? "Avg" : "N/A",
-      trendTone: "positive",
+      // No "%" beside an em dash — there is no figure for it to qualify.
+      unit: hasAckRate ? "%" : undefined,
+      description: hasAckRate
+        ? "Average across active docs"
+        : "Not available yet",
+      icon: "mdi:check-decagram-outline",
     },
   ];
 }
@@ -162,11 +181,7 @@ export function PolicyMakerView() {
       <DashboardHeader title="Policy Maker" />
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map((metric) => (
-            <StatMetricCard key={metric.title} {...metric} />
-          ))}
-        </div>
+        <MetricCardsRow metrics={metrics} />
 
         {errorMessage ? (
           <IncidentGlassCard

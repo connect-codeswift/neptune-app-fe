@@ -1,11 +1,16 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { KpiMetricsRowSkeleton } from "@/components/DashboardSkeletons";
-import { DEFAULT_KPI_METRICS, KpiMetricsRow } from "@/components/KpiMetricCard";
+import {
+  MetricCardsRow,
+  MetricCardsRowSkeleton,
+} from "@/components/ui/MetricCard";
 import { useMainDashboardKpisQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
-import { mapDashboardKpisToMetrics } from "@/services/mappers/dashboard.mapper";
+import {
+  DEFAULT_DASHBOARD_KPIS,
+  mapDashboardKpisToMetrics,
+} from "@/services/mappers/dashboard.mapper";
 
 /** No-op subscribe: the access token doesn't change during a page view. */
 const subscribeToNothing = () => () => {};
@@ -27,16 +32,16 @@ export function DashboardKpiMetrics() {
   const kpisQuery = useMainDashboardKpisQuery(hasToken === true);
 
   if (hasToken === null || (hasToken && kpisQuery.isLoading)) {
-    return <KpiMetricsRowSkeleton />;
+    return <MetricCardsRowSkeleton />;
   }
 
   const metrics = kpisQuery.data?.dataModel
     ? mapDashboardKpisToMetrics(kpisQuery.data.dataModel)
-    : DEFAULT_KPI_METRICS;
+    : DEFAULT_DASHBOARD_KPIS;
 
   return (
     <div className="flex flex-col gap-3">
-      <KpiMetricsRow metrics={metrics} />
+      <MetricCardsRow metrics={metrics} />
     </div>
   );
 }

@@ -1,19 +1,12 @@
+import type { MetricCardProps } from "@/components/ui/MetricCard";
+
 export type JurisdictionType = "All" | "Federal" | "State" | "Local";
 
 export type ComplianceStatusType =
-  | "All"
-  | "Compliant"
-  | "Due soon"
-  | "Action required"
-  | "Upcoming";
+  "All" | "Compliant" | "Due soon" | "Action required" | "Upcoming";
 
-export type ComplianceKpiItem = Readonly<{
-  id: string;
-  label: string;
-  count: number;
-  badgeValue: string;
-  badgeTone: "green" | "danger" | "coral";
-}>;
+/** A compliance KPI card, keyed by a stable id. */
+export type ComplianceKpiItem = MetricCardProps & Readonly<{ id: string }>;
 
 export type ComplianceObligationItem = Readonly<{
   id: string;
@@ -48,11 +41,7 @@ export type ComplianceObligationDetail = Readonly<{
   code: string;
   title: string;
   subtitle: string;
-  status:
-    | "Compliant"
-    | "Due soon"
-    | "Action required"
-    | "Upcoming";
+  status: "Compliant" | "Due soon" | "Action required" | "Upcoming";
   category: string;
   recurrence: string;
   regulatoryBody: string;

@@ -8,6 +8,8 @@
 
 import type { ReactNode } from "react";
 
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
+
 type BarProps = Readonly<{
   className?: string;
   opacity?: number;
@@ -44,19 +46,6 @@ function GlassPanel(props: GlassPanelProps) {
     >
       {children}
     </div>
-  );
-}
-
-function KpiCardSkeleton() {
-  return (
-    <GlassPanel className="flex min-w-0 flex-col gap-3 p-[19px]">
-      <div className="flex items-center justify-between">
-        <Bar className="h-2 w-[90px]" opacity={0.6} />
-        <Bar className="size-4 rounded-full" />
-      </div>
-      <Bar className="h-7 w-[60px]" />
-      <Bar className="h-2 w-[80px]" opacity={0.4} />
-    </GlassPanel>
   );
 }
 
@@ -132,12 +121,7 @@ export function RegulatoryCompliancePageSkeleton() {
       </div>
 
       {/* StatsGrid — Figma 4818:19263, gap 14px */}
-      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-      </div>
+      <MetricCardsRowSkeleton />
 
       {/* TablePane — Figma 4818:19289 */}
       <GlassPanel className="min-w-0 overflow-hidden p-px">

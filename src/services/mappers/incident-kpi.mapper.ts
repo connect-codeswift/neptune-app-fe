@@ -12,9 +12,7 @@ import type {
   HeroKpiMetric,
   TargetStatus,
 } from "@/components/incidents/dashboard/incident-kpis-data";
-import type {
-  IncidentListKpiMetric,
-} from "@/components/incidents/list/IncidentListKpiCard";
+import type { IncidentListKpiMetric } from "@/components/incidents/list/incident-list-types";
 
 const HEADER_KPI_DEFINITIONS = [
   {
@@ -142,12 +140,14 @@ function enrichKpiCard(
   return {
     ...card,
     target,
-    status:
-      card.status ?? computeKpiStatus(card.value, target, direction),
+    status: card.status ?? computeKpiStatus(card.value, target, direction),
   };
 }
 
-function formatMetricValue(value: number, format: ValueFormat = "decimal"): string {
+function formatMetricValue(
+  value: number,
+  format: ValueFormat = "decimal",
+): string {
   if (!Number.isFinite(value)) {
     return "—";
   }
@@ -158,53 +158,6 @@ function formatMetricValue(value: number, format: ValueFormat = "decimal"): stri
 
   const fixed = value.toFixed(1);
   return fixed.endsWith(".0") ? fixed.slice(0, -2) : fixed;
-}
-
-function formatTrendDelta(delta: number | null): string {
-  if (delta == null || !Number.isFinite(delta)) {
-    return "—";
-  }
-
-  const rounded = Number(delta.toFixed(1));
-  if (Object.is(rounded, -0) || rounded === 0) {
-    return "0";
-  }
-
-  return rounded > 0 ? `+${String(rounded)}` : String(rounded);
-}
-
-function resolveListTrend(
-  delta: number | null,
-  direction: MetricDirection,
-): Pick<
-  IncidentListKpiMetric,
-  "trendValue" | "trendDirection" | "trendTone"
-> {
-  const value = delta ?? 0;
-  const trendValue = formatTrendDelta(delta);
-  const trendDirection = value >= 0 ? "up" : "down";
-
-  if (value === 0) {
-    return {
-      trendValue,
-      trendDirection: "down",
-      trendTone: "positive",
-    };
-  }
-
-  if (direction === "lower-better") {
-    return {
-      trendValue,
-      trendDirection: value > 0 ? "up" : "down",
-      trendTone: value > 0 ? "negative" : "positive",
-    };
-  }
-
-  return {
-    trendValue,
-    trendDirection: value > 0 ? "up" : "down",
-    trendTone: value > 0 ? "positive" : "negative",
-  };
 }
 
 function buildListTargetLabel(
@@ -232,10 +185,7 @@ function mapApiStatus(status: IncidentKpiStatusDto): TargetStatus | null {
   return null;
 }
 
-function buildTargetLabel(
-  target: number | null,
-  unit: string,
-): string | null {
+function buildTargetLabel(target: number | null, unit: string): string | null {
   if (target == null || !Number.isFinite(target)) {
     return null;
   }
@@ -313,28 +263,38 @@ function mapKpiCardToListMetric(
   const rawValue = card?.value ?? 0;
   const target = card?.target ?? null;
   const unit = showRate ? card?.unit?.trim() || undefined : undefined;
-  const trend = resolveListTrend(
-    showRate ? (card?.trendDelta ?? null) : null,
-    definition.direction,
-  );
+  const series = showRate
+    ? toListChartData(card?.trend ?? [], definition.key)
+    : [];
+
+  // `trendDelta` is only a fallback: when the API sends a series, the card
+  // derives the delta from it so the badge and the sparkline agree.
+  const explicitDelta =
+    showRate && series.length < 2 ? (card?.trendDelta ?? undefined) : undefined;
+
+  const targetLabel = showRate
+    ? buildListTargetLabel(
+        target,
+        card?.unit ?? "",
+        definition.direction,
+        definition.valueFormat,
+      )
+    : "Add work hours in Settings";
 
   return {
     id: definition.id,
     title: definition.title,
-    value: showRate
-      ? formatMetricValue(rawValue, definition.valueFormat)
-      : "—",
+    value: showRate ? formatMetricValue(rawValue, definition.valueFormat) : "—",
     unit,
-    ...trend,
-    targetLabel: showRate
-      ? buildListTargetLabel(
-          target,
-          card?.unit ?? "",
-          definition.direction,
-          definition.valueFormat,
-        )
-      : "Add work hours in Settings",
-    chartData: showRate ? toListChartData(card?.trend ?? [], definition.key) : [],
+    trend: series.length >= 2 ? series : undefined,
+    delta: explicitDelta ?? undefined,
+    target: showRate && target != null ? target : undefined,
+    isMorePositive: definition.direction === "higher-better",
+    signalOwnedBy: "target",
+    icon: "mdi:chart-timeline-variant",
+    // "" when the metric has no configured target — the footer row then holds
+    // only the sparkline.
+    targetLabel: targetLabel ?? "",
   };
 }
 
