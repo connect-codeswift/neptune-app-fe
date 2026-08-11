@@ -25,7 +25,7 @@ function PpeGlassShell(
 }
 
 /** Page breadcrumb + title bar placeholder. */
-export function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
+function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
   const { actions = 2 } = props;
 
   return (

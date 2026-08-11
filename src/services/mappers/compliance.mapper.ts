@@ -18,8 +18,6 @@ import type {
 import type {
   AddComplianceRequestDto,
   GetAllCompliancesRequestDto,
-  MarkCompleteComplianceRequestDto,
-  UpdateComplianceRequestDto,
 } from "@/dtos/req/compliance-request.dto";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -71,7 +69,7 @@ const CANONICAL_COMPLIANCE_CATEGORIES = [
 ] as const;
 
 /** Normalizes one category-stat row (camelCase or PascalCase). */
-export function normalizeComplianceCategoryStatDto(
+function normalizeComplianceCategoryStatDto(
   raw: unknown,
 ): ComplianceCategoryStatDto | null {
   if (!isRecord(raw)) {
@@ -267,7 +265,7 @@ function readStringArray(
 }
 
 /** Normalizes one compliance row (camelCase or PascalCase). */
-export function coerceComplianceDto(
+function coerceComplianceDto(
   raw: Record<string, unknown>,
 ): ComplianceDto {
   return {
@@ -611,54 +609,6 @@ export function mapComplianceDtosToObligationItems(
   });
 }
 
-export type CompliancesListQueryData = GetAllCompliancesResultDto & {
-  records: readonly ComplianceObligationItem[];
-};
-
-/** Applies a successful PUT /Compliance/Update to cached register rows. */
-export function patchComplianceListQueryData(
-  current: CompliancesListQueryData | undefined,
-  update: Pick<
-    UpdateComplianceRequestDto,
-    "id" | "status" | "completedDate" | "nextDue" | "dueDate"
-  >,
-): CompliancesListQueryData | undefined {
-  if (!current) {
-    return current;
-  }
-
-  const nextStatus = normalizeObligationStatus(update.status);
-  const nextDueValue = update.nextDue ?? update.dueDate;
-  const formattedNextDue = nextDueValue
-    ? formatIsoDate(nextDueValue)
-    : undefined;
-
-  return {
-    ...current,
-    items: current.items.map((item) =>
-      item.id === update.id
-        ? {
-            ...item,
-            status: update.status,
-            completedDate: update.completedDate,
-            nextDue: update.nextDue ?? item.nextDue,
-            dueDate: update.dueDate ?? item.dueDate,
-          }
-        : item,
-    ),
-    records: current.records.map((item) =>
-      item.id === String(update.id)
-        ? {
-            ...item,
-            status: nextStatus,
-            nextDue: formattedNextDue ?? item.nextDue,
-            isHighlighted: nextStatus === "Action required",
-          }
-        : item,
-    ),
-  };
-}
-
 function filingBadge(
   dto: ComplianceUpcomingFilingDto,
 ): Pick<UpcomingFilingItem, "badgeLabel" | "badgeTone"> {
@@ -678,7 +628,7 @@ function filingBadge(
 }
 
 /** Normalizes one upcoming filing row. */
-export function normalizeComplianceUpcomingFilingDto(
+function normalizeComplianceUpcomingFilingDto(
   raw: unknown,
 ): ComplianceUpcomingFilingDto | null {
   if (!isRecord(raw)) {
@@ -781,7 +731,7 @@ function truncateCalendarTitle(value: string, maxLength = 22): string {
 }
 
 /** Normalizes one calendar event row. */
-export function normalizeComplianceCalendarEventDto(
+function normalizeComplianceCalendarEventDto(
   raw: unknown,
 ): ComplianceCalendarEventDto | null {
   if (!isRecord(raw)) {
@@ -895,7 +845,7 @@ export function getComplianceCalendarMonthRange(activeStartDate: Date): {
 }
 
 /** Converts an HTML date input value (YYYY-MM-DD) to ISO date-time. */
-export function dateInputToIsoDateTime(dateInput: string): string {
+function dateInputToIsoDateTime(dateInput: string): string {
   const [yearPart, monthPart, dayPart] = dateInput.split("-");
   const year = Number(yearPart);
   const month = Number(monthPart);
@@ -960,51 +910,7 @@ function toIsoDateTime(
 }
 
 /** Maps a ComplianceDto into PUT /api/Compliance/Update body. */
-export function buildUpdateComplianceRequest(
-  dto: ComplianceDto,
-  overrides: Partial<UpdateComplianceRequestDto> = {},
-): UpdateComplianceRequestDto {
-  const now = new Date().toISOString();
-  const dueDate = toIsoDateTime(dto.dueDate, now);
-  const nextDue = toIsoDateTime(dto.nextDue ?? dto.dueDate, dueDate);
-  const completedDate = toIsoDateTime(dto.completedDate, now);
-  const id = overrides.id ?? dto.id;
-
-  if (id == null || id <= 0) {
-    throw new Error("Compliance id is required to update an obligation.");
-  }
-
-  return {
-    id,
-    code: dto.code?.trim() ?? "",
-    title: dto.title?.trim() ?? "",
-    category: dto.category?.trim() ?? "",
-    jurisdiction: dto.jurisdiction?.trim() ?? "",
-    regulatoryBody: dto.regulatoryBody?.trim() ?? "",
-    dueDate,
-    nextDue,
-    recurrence: dto.recurrence?.trim() ?? "",
-    responsiblePersonId: dto.responsiblePersonId ?? 0,
-    responsiblePerson: dto.responsiblePerson?.trim() ?? "",
-    priority: dto.priority?.trim() ?? "",
-    status: dto.status?.trim() ?? "",
-    completedDate,
-    evidenceUrls: [...(dto.evidenceUrls ?? [])],
-    markComplete: dto.markComplete ?? false,
-    ...overrides,
-  };
-}
-
 /** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
-export function buildMarkCompleteComplianceRequest(
-  complianceId: number,
-): MarkCompleteComplianceRequestDto {
-  return {
-    id: complianceId,
-    markComplete: true,
-  };
-}
-
 /** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
 export function normalizeComplianceUpdateResult(
   data: unknown,
@@ -1041,7 +947,7 @@ export function normalizeComplianceUpdateResult(
 }
 
 /** Formats an ISO date for user-facing copy (e.g. "30 Apr 2026"). */
-export function formatComplianceLongDate(
+function formatComplianceLongDate(
   value: string | null | undefined,
 ): string {
   if (!value?.trim()) {

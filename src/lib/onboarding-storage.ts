@@ -6,7 +6,7 @@ import {
   type SiteInfo,
 } from "@/components/onboarding/constants";
 
-export const ONBOARDING_STORAGE_KEY = "neptune-onboarding";
+const ONBOARDING_STORAGE_KEY = "neptune-onboarding";
 
 export type OnboardingInvite = Readonly<{
   id: string;

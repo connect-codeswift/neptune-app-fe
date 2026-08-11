@@ -447,7 +447,7 @@ export async function createIncident(payload: CreateIncidentRequestDto) {
  * Body: `IncidentDto`
  * Header: `Authorization: Bearer <token>` (required by API security)
  */
-export async function updateIncidentById(
+async function updateIncidentById(
   params: Readonly<{
     id: number;
     userId: number;
@@ -540,10 +540,6 @@ export async function submitIncidentClosure(
 }
 
 /** @deprecated Prefer submitIncidentClosure — closes via POST /closure/submit. */
-export async function closeIncident(incidentId: number) {
-  return submitIncidentClosure(incidentId);
-}
-
 function coerceChecklistItemDto(
   value: unknown,
 ): ClosureChecklistItemDto | null {
@@ -577,7 +573,7 @@ function coerceLinkedCapaDto(value: unknown): ClosureLinkedCapaItemDto | null {
 /**
  * Coerces and normalizes response from GET /api/Incident/{incidentId}/closure
  */
-export function normalizeIncidentClosureDto(
+function normalizeIncidentClosureDto(
   data: unknown,
 ): IncidentClosureResponseDto | null {
   if (!isRecord(data)) {

@@ -43,7 +43,7 @@ export type HazardRecord = Readonly<{
   relatedCapas: readonly HazardCapa[];
 }>;
 
-export const HAZARD_RECORDS: readonly HazardRecord[] = [
+const HAZARD_RECORDS: readonly HazardRecord[] = [
   {
     id: "HZ-1141",
     title: "Exposed cable run · forklift aisle",

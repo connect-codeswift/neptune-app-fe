@@ -1,4 +1,4 @@
-export const OBSERVATION_STEPS = [1, 2, 3] as const;
+const OBSERVATION_STEPS = [1, 2, 3] as const;
 
 export type ObservationStepperProps = Readonly<{
   /** 1-based index of the step being shown. */

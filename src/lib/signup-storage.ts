@@ -1,4 +1,4 @@
-export const SIGNUP_STORAGE_KEY = "neptune-signup";
+const SIGNUP_STORAGE_KEY = "neptune-signup";
 
 /**
  * Held in sessionStorage, not localStorage.

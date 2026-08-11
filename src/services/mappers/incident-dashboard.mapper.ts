@@ -152,7 +152,7 @@ const INDICATOR_DEFINITIONS: readonly IndicatorDefinition[] = [
   },
 ];
 
-export const FEATURED_INDICATOR_IDS = [
+const FEATURED_INDICATOR_IDS = [
   "sia",
   "sip",
   "hazard-id",

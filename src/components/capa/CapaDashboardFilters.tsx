@@ -1,8 +1,8 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { CapaSegmentedControl } from "@/components/capa/CapaSegmentedControl";
 import { Button } from "@/components/ui/Button";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import {
   CAPA_DASHBOARD_STATUS_FILTERS,
   CAPA_DASHBOARD_TYPE_FILTERS,
@@ -33,48 +33,42 @@ export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
   } = props;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-white/80 bg-white/60 px-3.5 py-3 shadow-sm backdrop-blur-md sm:px-4">
-      <span className="text-ehs-muted-text text-sm font-bold tracking-wide uppercase">
-        Filter
-      </span>
-
-      <CapaSegmentedControl
-        label="Status"
-        options={CAPA_DASHBOARD_STATUS_FILTERS}
-        value={status}
-        onChange={onStatusChange}
-        className="min-w-fit flex-1"
+    <div className="flex flex-col gap-3">
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Status",
+            options: CAPA_DASHBOARD_STATUS_FILTERS,
+            value: status,
+            onChange: onStatusChange,
+          },
+          {
+            label: "Type",
+            options: CAPA_DASHBOARD_TYPE_FILTERS,
+            value: type,
+            onChange: onTypeChange,
+          },
+        ]}
+        action={{
+          label: "New CAPA",
+          onClick: onNewCapa,
+          icon: "mdi:plus",
+        }}
       />
 
-      <CapaSegmentedControl
-        label="Type"
-        options={CAPA_DASHBOARD_TYPE_FILTERS}
-        value={type}
-        onChange={onTypeChange}
-        className="min-w-fit flex-1"
-      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-ehs-muted-text text-sm tabular-nums">
+          {`${String(shownCount)} of ${String(totalCount)}`}
+        </span>
 
-      <span className="text-ehs-muted-text text-sm tabular-nums">
-        {`${String(shownCount)} of ${String(totalCount)}`}
-      </span>
-
-      <div className="ml-auto flex flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="secondary"
           onClick={onMyCapas}
           className="rounded-xl px-3.5 py-2 text-sm"
         >
+          <Icon icon="mdi:account-outline" className="size-3.5" aria-hidden />
           My CAPAs
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onNewCapa}
-          className="rounded-xl px-3.5 py-2 text-sm"
-        >
-          <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
-          New CAPA
         </Button>
       </div>
     </div>

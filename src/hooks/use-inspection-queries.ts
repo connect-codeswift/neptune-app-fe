@@ -8,7 +8,7 @@ import {
   getInspectionSummary,
 } from "@/services/inspection.service";
 
-export const inspectionQueryKeys = {
+const inspectionQueryKeys = {
   all: ["inspection"] as const,
   summary: (userId: number | null) =>
     [...inspectionQueryKeys.all, "summary", userId] as const,

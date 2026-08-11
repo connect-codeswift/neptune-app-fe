@@ -4,22 +4,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
-import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import {
   createCapa,
   createCapaTask,
   deleteCapaTask,
-  dropCapa,
   submitCapaVerification,
   updateCapa,
-  updateCapaTaskStatus,
 } from "@/services/capa.service";
 import {
   buildCreateCapaTaskRequest,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
-  buildUpdateCapaTaskStatusRequest,
   buildVerifiedCapaUpdateRequest,
 } from "@/services/mappers/capa.mapper";
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
@@ -45,14 +41,6 @@ export type UpdateCapaInput = Readonly<{
   owner: string;
   dueDate: string;
   priority: string;
-}>;
-
-export type UpdateCapaTaskStatusInput = Readonly<{
-  taskId: number;
-  capaId: number;
-  incidentId: number;
-  status: CapaTaskStatus;
-  userId?: number;
 }>;
 
 export type CreateCapaTaskInput = Readonly<{
@@ -210,36 +198,6 @@ export function useUpdateCapaMutation() {
   });
 }
 
-export function useUpdateCapaTaskStatusMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: UpdateCapaTaskStatusInput) => {
-      const auth = getAuthContext();
-      if (!auth) {
-        throw new Error("Sign in required to update CAPA task status.");
-      }
-
-      return updateCapaTaskStatus(
-        buildUpdateCapaTaskStatusRequest({
-          id: input.taskId,
-          status: input.status,
-          userId: input.userId,
-        }),
-      );
-    },
-    onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byIncident(variables.incidentId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.tasks(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
-    },
-  });
-}
-
 export type VerifyCapaInput = Readonly<{
   capa: CapaItem;
   incidentId: number;
@@ -278,26 +236,6 @@ export function useVerifyCapaMutation() {
         queryKey: capaQueryKeys.tasks(variables.capa.numericId),
       });
       await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
-    },
-  });
-}
-
-export function useDropCapaMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: { id: number; incidentId: number }) => {
-      const auth = getAuthContext();
-      if (!auth) {
-        throw new Error("Sign in required to drop a CAPA.");
-      }
-
-      return dropCapa(input.id);
-    },
-    onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byIncident(variables.incidentId),
-      });
     },
   });
 }

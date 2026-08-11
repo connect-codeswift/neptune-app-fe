@@ -64,11 +64,11 @@ function readLoginTokens(data: unknown): LoginResponseDto | null {
   };
 }
 
-export async function registerUser(payload: RegisterRequestDto) {
+async function registerUser(payload: RegisterRequestDto) {
   await http.post(AUTH_REGISTER_PATH, payload);
 }
 
-export async function loginUser(credentials: LoginRequestDto) {
+async function loginUser(credentials: LoginRequestDto) {
   const { data } = await http.post<unknown>(AUTH_LOGIN_PATH, credentials);
   const tokens = readLoginTokens(data);
 

@@ -17,7 +17,7 @@ function getDerivedRecordable(finalIncidentType: string): boolean {
 }
 
 /** Step 1 — Classification */
-export function validateClosureStepOne(
+function validateClosureStepOne(
   data: IncidentClosureData,
 ): string | null {
   const incidentType = data.finalIncidentType?.trim() || "Select option";
@@ -48,7 +48,7 @@ export function validateClosureStepOne(
 }
 
 /** Step 2 — Root cause */
-export function validateClosureStepTwo(
+function validateClosureStepTwo(
   data: IncidentClosureData,
 ): string | null {
   if ((data.primaryRootCauseCategoryIds ?? []).length === 0) {
@@ -63,7 +63,7 @@ export function validateClosureStepTwo(
 }
 
 /** Step 3 — Preventive measures */
-export function validateClosureStepThree(
+function validateClosureStepThree(
   data: IncidentClosureData,
 ): string | null {
   if (!data.actionsTaken?.trim()) {
@@ -74,7 +74,7 @@ export function validateClosureStepThree(
 }
 
 /** Step 4 — Sign-off */
-export function validateClosureStepFour(
+function validateClosureStepFour(
   data: IncidentClosureData,
 ): string | null {
   if (!data.isEhsConfirmed) {

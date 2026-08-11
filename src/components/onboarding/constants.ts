@@ -103,15 +103,6 @@ export const COMPANY_SIZE_OPTIONS = [
 
 export type CompanySize = (typeof COMPANY_SIZE_OPTIONS)[number]["value"] | "";
 
-export function getCompanySizeLabel(value: CompanySize) {
-  if (!value) {
-    return "Not set";
-  }
-
-  const option = COMPANY_SIZE_OPTIONS.find((item) => item.value === value);
-  return option?.label ?? "Not set";
-}
-
 export type SiteInfo = Readonly<{
   id: string;
   siteName: string;
@@ -142,7 +133,7 @@ export const emptySiteInfo = (id: string): SiteInfo => ({
 
 export const initialSites: SiteInfo[] = [emptySiteInfo("primary")];
 
-export const SITE_ORDINALS = [
+const SITE_ORDINALS = [
   "Primary",
   "Second",
   "Third",
