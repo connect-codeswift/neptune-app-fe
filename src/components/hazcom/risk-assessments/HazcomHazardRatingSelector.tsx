@@ -1,5 +1,7 @@
 "use client";
 
+import { HAZCOM_FIELD_LABEL_CLASS } from "@/components/hazcom/shared/HazcomFormField";
+
 const RATING_VALUES = [0, 1, 2, 3, 4] as const;
 const RATING_DESCRIPTORS = [
   "None",
@@ -26,7 +28,7 @@ export function HazcomHazardRatingSelector(
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <span className="text-[12px] font-bold text-[#2a3446]">{label}</span>
+      <span className={HAZCOM_FIELD_LABEL_CLASS}>{label}</span>
       <div className="flex gap-1.5">
         {RATING_VALUES.map((rating) => {
           const selected = rating === value;
@@ -38,7 +40,7 @@ export function HazcomHazardRatingSelector(
               aria-pressed={selected}
               onClick={() => onChange(rating)}
               className={[
-                "flex size-8 items-center justify-center rounded-lg text-[13px] font-bold transition-colors",
+                "text5 flex size-8 items-center justify-center rounded-lg transition-colors",
                 selected
                   ? "bg-ehs-normal-blue text-ehs-light-text"
                   : "bg-ehs-dark-bg/10 text-ehs-gray hover:bg-ehs-dark-bg/16",
@@ -49,7 +51,7 @@ export function HazcomHazardRatingSelector(
           );
         })}
       </div>
-      <span className="text-ehs-muted-text text-[10.5px]">
+      <span className="text8 text-ehs-muted-text">
         {`${value} – ${descriptor}`}
       </span>
     </div>

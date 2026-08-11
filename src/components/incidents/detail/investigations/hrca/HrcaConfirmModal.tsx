@@ -37,7 +37,7 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
               void Promise.resolve(onConfirm()).catch(() => undefined);
             }}
             className={[
-              "inline-flex h-[39.5px] min-w-[120px] flex-1 items-center justify-center rounded-xl px-5 text-sm leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
+              "inline-flex h-[39.5px] min-w-[120px] flex-1 items-center justify-center rounded-xl px-5 text4 leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
               isSubmitting
                 ? "cursor-not-allowed bg-ehs-red/50"
                 : "bg-ehs-red hover:bg-ehs-red/90",
@@ -48,7 +48,7 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
         </>
       }
     >
-      <Text as="p" className="text-sm leading-[19.5px] text-ehs-slate">
+      <Text as="p" className="text4 leading-[19.5px] text-ehs-slate">
         {state.message}
       </Text>
     </IncidentModalShell>

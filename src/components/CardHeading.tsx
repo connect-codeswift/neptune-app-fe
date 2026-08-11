@@ -32,17 +32,11 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
         .join(" ")}
     >
       <div className="flex min-w-0 flex-col gap-[2px]">
-        <Text
-          as="h2"
-          className="text-ehs-dark-bg text-3.5 leading-normal font-bold tracking-[-0.14px]"
-        >
+        <Text as="h2" className="text3 text-ehs-darker">
           {title}
         </Text>
         {subtitle ? (
-          <Text
-            as="p"
-            className="text-ehs-muted-text text-[11px] leading-normal"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text">
             {subtitle}
           </Text>
         ) : null}
@@ -52,7 +46,7 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
         (viewAllHref ? (
           <Link
             href={viewAllHref}
-            className="text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] px-2 py-[4.5px] text-[11.5px] transition-colors"
+            className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] px-2 py-[4.5px] transition-colors"
           >
             View all
             <Icon

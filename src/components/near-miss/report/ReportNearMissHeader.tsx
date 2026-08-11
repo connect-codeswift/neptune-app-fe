@@ -5,8 +5,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ReactNode } from "react";
 
-const crumbClass =
-  "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";
+const crumbMuted = "text4 font-normal text-ehs-gray";
+const crumbLink =
+  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
 
 export function ReportNearMissHeader(props: Readonly<{ action?: ReactNode }>) {
   const { action } = props;
@@ -21,13 +22,13 @@ export function ReportNearMissHeader(props: Readonly<{ action?: ReactNode }>) {
           aria-label="Breadcrumb"
           className="relative z-1 flex items-center gap-1"
         >
-          <span className="text-ehs-gray text-xs font-medium">Safety</span>
+          <span className={crumbMuted}>Safety</span>
           <Icon
             icon="mdi:chevron-right"
             className="text-ehs-muted-text size-4"
             aria-hidden="true"
           />
-          <Link href="/dashboard/near-miss" className={crumbClass}>
+          <Link href="/dashboard/near-miss" className={crumbLink}>
             Near-Miss
           </Link>
           <Icon
@@ -35,12 +36,9 @@ export function ReportNearMissHeader(props: Readonly<{ action?: ReactNode }>) {
             className="text-ehs-muted-text size-4"
             aria-hidden="true"
           />
-          <span className="text-ehs-gray text-xs font-medium">New Report</span>
+          <span className={crumbMuted}>New Report</span>
         </nav>
-        <Text
-          as="h1"
-          className="text-ehs-dark-bg relative z-1 text-2xl font-semibold tracking-[-0.2px]"
-        >
+        <Text as="h1" className="text1 text-ehs-darker relative z-1">
           Report Near-Miss
         </Text>
       </div>

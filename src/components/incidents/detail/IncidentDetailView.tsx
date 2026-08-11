@@ -281,17 +281,17 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               className="text-ehs-red size-8"
               aria-hidden="true"
             />
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text-ehs-darker text4 font-semibold">
               Couldn’t load incident
             </Text>
-            <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
+            <Text as="p" className="text-ehs-muted-text max-w-md text4">
               {errorMessage}
             </Text>
             {hasToken && canRetry ? (
               <button
                 type="button"
                 onClick={onRetry}
-                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-sm font-semibold"
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text4 font-semibold"
               >
                 <Icon
                   icon="mdi:refresh"
@@ -336,7 +336,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     >
                       <Text
                         as="h3"
-                        className="text-ehs-dark-bg text-lg font-semibold"
+                        className="text-ehs-dark-bg text3"
                       >
                         Response notes
                       </Text>
@@ -353,7 +353,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       ) : (
                         <Text
                           as="p"
-                          className="text-ehs-slate text-sm leading-[20.8px] whitespace-pre-wrap"
+                          className="text-ehs-slate text4 leading-[20.8px] whitespace-pre-wrap"
                         >
                           {responseNotes}
                         </Text>
@@ -479,11 +479,11 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     >
                       <Text
                         as="h3"
-                        className="text-ehs-dark-bg text-lg font-semibold"
+                        className="text-ehs-dark-bg text3"
                       >
                         Delete files
                       </Text>
-                      <span className="text-ehs-gray text-sm leading-normal">
+                      <span className="text-ehs-gray text4 leading-normal">
                         Remove photos or documents, then click Save. Uploads are
                         disabled while editing.
                       </span>
@@ -503,7 +503,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   meta={investigation.hrcaMeta}
                 />
               ) : showHrca ? (
-                <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text-sm">
+                <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text4">
                   Sign in and open a valid incident to load the HRCA worksheet.
                 </div>
               ) : (

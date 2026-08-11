@@ -23,16 +23,17 @@ function Chevron() {
 
 export type LotoEquipmentDetailHeaderProps = Readonly<{
   detail: LotoEquipmentDetail;
+  onEdit: () => void;
   onApplyLockout: () => void;
   /** When true, primary action is Remove Lockout instead of Apply. */
   isLockedOut?: boolean;
 }>;
 
-/** Breadcrumb + title + Apply/Remove Lockout — Figma 6888:50991. */
+/** Breadcrumb + title + Edit / Apply/Remove Lockout — Figma 6888:50991. */
 export function LotoEquipmentDetailHeader(
   props: LotoEquipmentDetailHeaderProps,
 ) {
-  const { detail, onApplyLockout, isLockedOut = false } = props;
+  const { detail, onEdit, onApplyLockout, isLockedOut = false } = props;
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
   const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
@@ -71,20 +72,31 @@ export function LotoEquipmentDetailHeader(
             </div>
           </div>
 
-          <Button
-            type="button"
-            variant={isLockedOut ? "primary" : "danger"}
-            onClick={onApplyLockout}
-            className={[
-              "text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold",
-              isLockedOut
-                ? "shadow-[0px_4px_7px_rgba(8,145,166,0.4)]"
-                : "shadow-[0px_4px_7px_rgba(239,68,68,0.4)]",
-            ].join(" ")}
-          >
-            <Icon icon={actionIcon} className="size-3.5 shrink-0" />
-            {actionLabel}
-          </Button>
+          <div className="flex shrink-0 flex-wrap items-center gap-2.5">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onEdit}
+              className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-medium"
+            >
+              <Icon icon="mdi:pencil-outline" className="size-3.5 shrink-0" />
+              Edit
+            </Button>
+            <Button
+              type="button"
+              variant={isLockedOut ? "primary" : "danger"}
+              onClick={onApplyLockout}
+              className={[
+                "text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold",
+                isLockedOut
+                  ? "shadow-[0px_4px_7px_rgba(8,145,166,0.4)]"
+                  : "shadow-[0px_4px_7px_rgba(239,68,68,0.4)]",
+              ].join(" ")}
+            >
+              <Icon icon={actionIcon} className="size-3.5 shrink-0" />
+              {actionLabel}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

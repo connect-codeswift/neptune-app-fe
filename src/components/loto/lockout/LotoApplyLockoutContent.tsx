@@ -23,6 +23,16 @@ import {
 import { LotoApplyLockoutHeader } from "./LotoApplyLockoutHeader";
 import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
 
+const fieldClass = [
+  "gap-3.5",
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+].join(" ");
+
 export type LotoApplyLockoutContentProps = Readonly<{
   equipmentId: string;
 }>;
@@ -101,7 +111,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
                 schema={schema}
                 initialValues={toApplyLockoutFormValues(context.operatorName)}
                 hideActions
-                // className={fieldClass}
+                className={fieldClass}
                 onSubmit={handleValid}
               />
             </div>

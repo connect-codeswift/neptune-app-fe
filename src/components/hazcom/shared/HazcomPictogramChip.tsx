@@ -56,7 +56,7 @@ export function HazcomPictogramChip(props: Readonly<HazcomPictogramChipProps>) {
   const icon = pictogramIcon[pictogram];
 
   const chipClassName = [
-    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors",
+    "text5 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-colors",
     selected
       ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
       : "border-ehs-border bg-white/60 text-ehs-gray",

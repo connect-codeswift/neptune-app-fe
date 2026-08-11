@@ -47,7 +47,7 @@ const columns = [
     cell: (info) => (
       <Link
         href={`/dashboard/hazcom/sds/${info.getValue()}`}
-        className="text-ehs-dark-blue text-[13px] font-bold hover:underline"
+        className="text7 text-ehs-dark-blue hover:underline"
       >
         {info.getValue()}
       </Link>
@@ -59,10 +59,10 @@ const columns = [
     size: 170,
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <Text as="p" className="text-ehs-darker text-[13px] font-bold">
+        <Text as="p" className="text4 text-ehs-darker font-semibold">
           {row.original.chemicalName}
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <Text as="p" className="text7 text-ehs-muted-text">
           {row.original.version}
         </Text>
       </div>
@@ -72,7 +72,7 @@ const columns = [
     header: "Manufacturer",
     size: 140,
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -81,7 +81,7 @@ const columns = [
     header: "CAS #",
     size: 110,
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
         {info.getValue()}
       </Text>
     ),
@@ -90,7 +90,7 @@ const columns = [
     header: "Hazard Class",
     size: 150,
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -102,7 +102,7 @@ const columns = [
       <Text
         as="span"
         className={[
-          "text-[13px] font-bold tracking-wide uppercase",
+          "text5 tracking-wide uppercase",
           signalWordClass[info.getValue()] ?? "text-ehs-gray",
         ].join(" ")}
       >
@@ -125,7 +125,7 @@ const columns = [
     header: "Revised",
     size: 100,
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
         {info.getValue()}
       </Text>
     ),
@@ -146,24 +146,24 @@ const columns = [
     header: "",
     size: 90,
     cell: ({ row }) => (
-      <div className="flex items-center justify-end gap-1.5">
+      <div className="flex items-center justify-end gap-0.5">
         <Link
           href={`/dashboard/hazcom/sds/${row.original.id}`}
           aria-label={`View ${row.original.chemicalName} SDS`}
           title="View SDS"
-          className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors"
         >
-          <Icon icon="mdi:eye-outline" className="size-4" aria-hidden="true" />
+          <Icon icon="lets-icons:view" className="size-5" aria-hidden="true" />
         </Link>
         <button
           type="button"
           aria-label={`Download ${row.original.chemicalName} SDS`}
           title="Download SDS"
-          className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
         >
           <Icon
-            icon="mdi:tray-arrow-down"
-            className="size-4"
+            icon="solar:download-linear"
+            className="size-4.5"
             aria-hidden="true"
           />
         </button>
@@ -227,7 +227,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text px-3 pt-[13px] pb-[13.5px] text-[10px] font-bold tracking-[0.8px] uppercase sm:px-4",
+                        "text6 text-ehs-muted-text px-3 pt-[13px] pb-[13.5px] sm:px-4",
                         alignClass(align),
                       ].join(" ")}
                     >
@@ -251,7 +251,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                   colSpan={Math.max(columns.length, 1)}
                   className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No SDS records match your search.
                   </Text>
                 </td>

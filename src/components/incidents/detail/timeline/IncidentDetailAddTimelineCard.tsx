@@ -49,7 +49,7 @@ export function IncidentDetailAddTimelineCard(
     >
       <Text
         as="h3"
-        className="text-ehs-dark-bg text-lg font-semibold"
+        className="text-ehs-dark-bg text3"
       >
         Add to timeline
       </Text>
@@ -65,7 +65,7 @@ export function IncidentDetailAddTimelineCard(
         <button
           type="button"
           onClick={handleAttachPhoto}
-          className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
+          className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text5 text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
         >
           <Icon icon="mdi:camera-outline" className="size-[13px]" aria-hidden="true" />
           Photo
@@ -74,7 +74,7 @@ export function IncidentDetailAddTimelineCard(
         <button
           type="button"
           onClick={handlePost}
-          className="relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
+          className="relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] pt-[10px] pb-[10.5px] text5 text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
         >
           <Icon icon="mdi:check" className="size-[13px]" aria-hidden="true" />
           Post

@@ -10,7 +10,7 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-[8px] bg-white text-sm">
+      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-[8px] bg-white text4">
         <Icon
           icon="mdi:loading"
           className="size-6 animate-spin text-ehs-normal-blue"
@@ -73,12 +73,12 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
 
         <div className="mt-2 flex w-full items-center justify-between px-3.5 py-1 text-ehs-light-text">
           <div className="flex min-w-0 flex-col pr-4">
-            <span className="truncate text-sm font-bold">{file.name}</span>
-            <span className="truncate text-xs text-ehs-light-text/70">
+            <span className="truncate text5">{file.name}</span>
+            <span className="truncate text8 text-ehs-light-text/70">
               {file.description}
             </span>
           </div>
-          <span className="shrink-0 rounded-full bg-white/14 px-3 py-0.5 text-xs font-bold text-ehs-light-text/90">
+          <span className="shrink-0 rounded-full bg-white/14 px-3 py-0.5 text7 text-ehs-light-text/90">
             {file.sizeLabel}
           </span>
         </div>

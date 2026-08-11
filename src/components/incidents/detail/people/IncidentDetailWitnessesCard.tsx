@@ -47,10 +47,10 @@ export function IncidentDetailWitnessesCard(
     >
       <div className="flex items-center justify-between pb-3.5">
         <div className="flex flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Witnesses
           </Text>
-          <span className="text-ehs-muted-text text-sm leading-normal">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {witnesses.length} logged
           </span>
         </div>
@@ -58,7 +58,7 @@ export function IncidentDetailWitnessesCard(
           <button
             type="button"
             onClick={onAddWitness}
-            className="text-ehs-dark-bg inline-flex items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[11px] py-[6.5px] text-sm font-bold shadow-sm backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg inline-flex items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[11px] py-[6.5px] text5 shadow-sm backdrop-blur-[6px] transition-colors hover:bg-white/80"
           >
             <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
             Add
@@ -67,7 +67,7 @@ export function IncidentDetailWitnessesCard(
       </div>
 
       {witnesses.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm">
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text4">
           {isEditing
             ? "No witnesses yet. Click Add to include one."
             : "No witnesses logged."}
@@ -78,7 +78,7 @@ export function IncidentDetailWitnessesCard(
             key={`${witness.name}-${String(index)}`}
             className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
           >
-            <div className="text-ehs-gray flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[rgba(255,255,255,0.82)] text-xs font-bold">
+            <div className="text-ehs-gray flex size-[30px] shrink-0 items-center justify-center rounded-[9px] bg-[rgba(255,255,255,0.82)] text7">
               {witness.initials}
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -101,16 +101,16 @@ export function IncidentDetailWitnessesCard(
                       onChangeWitness?.(index, { role: event.target.value })
                     }
                     placeholder="Role"
-                    className={`${fieldInputClass} text-sm`}
+                    className={`${fieldInputClass} text4`}
                     aria-label="Witness role"
                   />
                 </>
               ) : (
                 <>
-                  <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+                  <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                     {witness.name}
                   </span>
-                  <span className="text-ehs-muted-text truncate text-sm leading-normal">
+                  <span className="text-ehs-muted-text truncate text4 leading-normal">
                     {witness.role}
                   </span>
                 </>
@@ -128,7 +128,7 @@ export function IncidentDetailWitnessesCard(
             ) : (
               <span
                 className={[
-                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text-xs leading-3.5 font-bold tracking-[0.2px]",
+                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text7 leading-3.5",
                   witness.badgeTone === "green"
                     ? "bg-ehs-dark-bg/14"
                     : "bg-ehs-dark-bg/16",

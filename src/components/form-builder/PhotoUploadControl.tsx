@@ -206,10 +206,10 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
         <span className="flex flex-col items-center gap-1">
           <span
             className={[
-              "text-base leading-5 font-medium",
+              "text4 leading-5 font-medium",
               isFiles
                 ? "text-[#2a3446]"
-                : "text-ehs-gray text-base font-normal",
+                : "text4 text-ehs-gray font-normal",
             ].join(" ")}
           >
             {isUploading
@@ -220,7 +220,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   : "Attach Photo Evidence"))}
           </span>
           {field.helperText ? (
-            <span className="text-sm leading-4 text-[#8892a3]">
+            <span className="text8 leading-4 text-[#8892a3]">
               {field.helperText}
             </span>
           ) : null}
@@ -267,11 +267,11 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   />
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="truncate text-base leading-5 text-[#2a3446]">
+                  <p className="text4 truncate leading-5 text-[#2a3446]">
                     {name}
                   </p>
                   {subtitle ? (
-                    <p className="truncate text-sm leading-4 text-[#8892a3]">
+                    <p className="text8 truncate leading-4 text-[#8892a3]">
                       {subtitle}
                     </p>
                   ) : null}
@@ -326,7 +326,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                         className="text-ehs-normal-blue size-4"
                       />
                     </span>
-                    <span className="text-ehs-dark-bg min-w-0 flex-1 truncate text-base font-semibold">
+                    <span className="text4 text-ehs-darker min-w-0 flex-1 truncate font-semibold">
                       {fileName}
                     </span>
                   </>
@@ -352,7 +352,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
         </ul>
       ) : null}
 
-      {message ? <p className="text-ehs-red text-xs">{message}</p> : null}
+      {message ? <p className="text8 text-ehs-red">{message}</p> : null}
     </div>
   );
 }

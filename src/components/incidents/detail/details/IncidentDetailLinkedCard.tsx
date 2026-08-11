@@ -40,14 +40,14 @@ export function IncidentDetailLinkedCard(
   return (
     <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
       <div className="flex items-center justify-between pb-3.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Linked items
         </Text>
         <button
           type="button"
           onClick={onAddCapa}
           disabled={!onAddCapa || isLoading}
-          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-[10px] px-[11px] py-[6.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-[10px] px-[11px] py-[6.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add CAPA
@@ -57,7 +57,7 @@ export function IncidentDetailLinkedCard(
       {isLoading ? (
         <SkeletonListRows rows={2} />
       ) : linkedItems.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm">
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text4">
           No CAPAs linked to this incident yet.
         </div>
       ) : (
@@ -75,10 +75,10 @@ export function IncidentDetailLinkedCard(
               <Icon icon={item.icon} className="size-3.5" aria-hidden="true" />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+              <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                 {item.id}
               </span>
-              <span className="text-ehs-muted-text truncate text-sm leading-normal">
+              <span className="text-ehs-muted-text truncate text4 leading-normal">
                 {item.label}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function IncidentDetailLinkedCard(
           <button
             type="button"
             onClick={onViewAll}
-            className="text-ehs-gray hover:text-ehs-dark-bg mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text-sm font-bold transition-colors"
+            className="text-ehs-gray hover:text-ehs-dark-bg mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text5 transition-colors"
           >
             {hasMoreThanPreview
               ? `View all ${String(totalCount)} linked items`

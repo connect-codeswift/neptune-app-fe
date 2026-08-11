@@ -14,7 +14,10 @@ import {
   getLotoEquipmentDetail,
   type LotoEquipmentDetailTab,
 } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
-import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import {
+  LOTO_ROUTE,
+  lotoProcedureEditRoute,
+} from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { LotoEquipmentDetailHeader } from "./LotoEquipmentDetailHeader";
 import { LotoEquipmentDetailTabs } from "./LotoEquipmentDetailTabs";
 import { LotoEquipmentHistoryTab } from "./LotoEquipmentHistoryTab";
@@ -79,6 +82,9 @@ export function LotoEquipmentDetailContent(
       <LotoEquipmentDetailHeader
         detail={detail}
         isLockedOut={detail.status === "Locked Out"}
+        onEdit={() => {
+          router.push(lotoProcedureEditRoute(equipmentId));
+        }}
         onApplyLockout={() => {
           const active = getActiveLockoutForEquipment(equipmentId);
           if (detail.status === "Locked Out" && active) {

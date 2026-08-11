@@ -5,7 +5,7 @@ import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { HazardWorkflow } from "./HazardWorkflow";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
-const sectionHeadingClass = "text-ehs-dark-bg text-lg font-semibold";
+const sectionHeadingClass = "text3 text-ehs-darker";
 
 function DetailField(
   props: Readonly<{ label: string; children: React.ReactNode }>,
@@ -14,7 +14,7 @@ function DetailField(
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <Text as="p" className="text-ehs-muted-text text-sm font-normal">
+      <Text as="p" className="text6 text-ehs-muted-text">
         {label}
       </Text>
       {children}
@@ -24,7 +24,7 @@ function DetailField(
 
 function DetailValue(props: Readonly<{ value: string }>) {
   return (
-    <Text as="p" className="text-ehs-dark-bg">
+    <Text as="p" className="text4 text-ehs-darker">
       {props.value}
     </Text>
   );
@@ -43,7 +43,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
           <Text as="h3" className={sectionHeadingClass}>
             Description
           </Text>
-          <Text as="p" className="text-ehs-darker font-normal">
+          <Text as="p" className="text4 text-ehs-darker">
             {record.description}
           </Text>
         </IncidentGlassCard>
@@ -59,19 +59,12 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             <DetailField label="Category">
               <DetailValue value={record.category} />
             </DetailField>
-            {/* <DetailField label="Risk Rating">
-              <IncidentBadge
-                label={record.severity}
-                tone="neutral"
-                className="w-fit rounded-md px-2 py-0.5 text-sm! tracking-[0.11px]"
-              />
-            </DetailField> */}
             <DetailField label="Status">
               <IncidentBadge
                 label={record.status}
                 tone="muted"
                 showDot
-                className="w-fit px-2.5 py-0.5 text-sm! tracking-[0.11px]"
+                className="text5 w-fit px-2.5 py-0.5 tracking-[0.11px]"
               />
             </DetailField>
             <DetailField label="Date Reported">
@@ -99,7 +92,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             </Text>
             <Link
               href="/dashboard/capa"
-              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm font-normal transition-colors"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
               + Add
             </Link>
@@ -113,23 +106,23 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
                   href="/dashboard/capa"
                   className="flex flex-col gap-1.5 rounded-lg bg-[rgba(238,241,246,0.7)] p-2.5 transition-colors hover:bg-[rgba(238,241,246,0.95)]"
                 >
-                  <Text as="span" className="text-ehs-normal-blue text-sm">
+                  <Text as="span" className="text7 text-ehs-normal-blue">
                     {capa.id}
                   </Text>
-                  <Text as="span" className="text-ehs-darker text-sm">
+                  <Text as="span" className="text4 text-ehs-darker">
                     {capa.title}
                   </Text>
                   <IncidentBadge
                     label={capa.status}
                     tone="muted"
                     showDot
-                    className="w-fit px-2.5 py-0.5 text-sm! tracking-[0.11px]"
+                    className="text5 w-fit px-2.5 py-0.5 tracking-[0.11px]"
                   />
                 </Link>
               ))}
             </div>
           ) : (
-            <Text as="p" className="text-ehs-muted-text text-xs">
+            <Text as="p" className="text8 text-ehs-muted-text">
               No CAPAs linked to this hazard yet.
             </Text>
           )}

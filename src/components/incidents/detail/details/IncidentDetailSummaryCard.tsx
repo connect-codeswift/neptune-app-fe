@@ -31,7 +31,7 @@ export function IncidentDetailSummaryCard(
     >
       <Text
         as="h3"
-        className="text-ehs-dark-bg text-lg font-semibold"
+        className="text-ehs-dark-bg text3"
       >
         Summary
       </Text>
@@ -44,7 +44,7 @@ export function IncidentDetailSummaryCard(
           className={FIELD_TEXTAREA_CLASS}
         />
       ) : (
-        <p className="text-sm leading-[20.8px] whitespace-pre-wrap text-ehs-slate">
+        <p className="text4 leading-[20.8px] whitespace-pre-wrap text-ehs-slate">
           {summaryText.trim() || "No summary provided."}
         </p>
       )}

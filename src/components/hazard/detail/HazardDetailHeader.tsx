@@ -3,8 +3,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
-const crumbClass =
-  "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";
+const crumbMuted = "text4 font-normal text-ehs-gray";
+const crumbLink =
+  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
 
 export function HazardDetailHeader(
   props: Readonly<{
@@ -23,13 +24,13 @@ export function HazardDetailHeader(
         aria-label="Breadcrumb"
         className="relative z-1 flex items-center gap-1"
       >
-        <span className="text-ehs-gray text-xs font-medium">Safety</span>
+        <span className={crumbMuted}>Safety</span>
         <Icon
           icon="mdi:chevron-right"
           className="text-ehs-muted-text size-4"
           aria-hidden="true"
         />
-        <Link href="/dashboard/hazard" className={crumbClass}>
+        <Link href="/dashboard/hazard" className={crumbLink}>
           Hazard Reporting
         </Link>
         <Icon
@@ -37,18 +38,15 @@ export function HazardDetailHeader(
           className="text-ehs-muted-text size-4"
           aria-hidden="true"
         />
-        <span className="text-ehs-gray text-xs font-medium">{record.id}</span>
+        <span className={crumbMuted}>{record.id}</span>
       </nav>
 
       <div className="relative z-1 flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker">
             {record.id}
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {record.title}
           </Text>
         </div>
@@ -58,7 +56,7 @@ export function HazardDetailHeader(
           {canEdit ? (
             <Link
               href={editHref}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex shrink-0 items-center justify-center rounded-[10px] px-8 py-2 text-sm font-medium text-white transition-colors"
+              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex shrink-0 items-center justify-center rounded-[10px] px-8 py-2 font-medium text-white transition-colors"
             >
               Edit
             </Link>

@@ -72,7 +72,7 @@ function AvatarPreview(
     <div
       className={[
         frameClass,
-        "bg-ehs-normal-blue text-ehs-light-text flex items-center justify-center text-2xl font-semibold",
+        "bg-ehs-normal-blue text1 text-ehs-light-text flex items-center justify-center",
       ].join(" ")}
       aria-hidden="true"
     >
@@ -151,11 +151,7 @@ function AvatarCropModal(
         className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
       >
         <div className="border-ehs-border/60 border-b px-5 py-4">
-          <Text
-            as="h2"
-            id={titleId}
-            className="text-ehs-darker text-base font-bold tracking-tight"
-          >
+          <Text as="h2" id={titleId} className="text3 text-ehs-darker">
             Crop profile photo
           </Text>
         </div>
@@ -175,7 +171,7 @@ function AvatarCropModal(
         </div>
 
         <div className="border-ehs-border/60 flex flex-col gap-3 border-t px-5 py-4">
-          <label className="text-ehs-muted-text flex items-center gap-3 text-xs">
+          <label className="text8 text-ehs-muted-text flex items-center gap-3">
             <span className="shrink-0">Zoom</span>
             <input
               type="range"
@@ -194,7 +190,7 @@ function AvatarCropModal(
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="text-ehs-gray hover:text-ehs-darker rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+              className="text4 text-ehs-gray hover:text-ehs-darker rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -202,7 +198,7 @@ function AvatarCropModal(
               type="button"
               onClick={() => void handleSave()}
               disabled={isSaving || !croppedAreaPixels}
-              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-darker rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-ehs-normal-blue text4 text-ehs-light-text hover:bg-ehs-darker rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaving ? "Saving…" : "Save photo"}
             </button>
@@ -230,10 +226,12 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
     avatarQuery.data ??
     null;
 
-  const isBusy =
-    uploadMutation.isPending ||
-    removeMutation.isPending ||
-    avatarQuery.isLoading;
+  /**
+   * Only mutations disable the control. React Query's `isLoading` is idle on
+   * the server and true on the first client paint, which mismatched hydration
+   * (`disabled={null}` vs `disabled={true}` plus a loading overlay).
+   */
+  const isBusy = uploadMutation.isPending || removeMutation.isPending;
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
@@ -297,7 +295,7 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-5 px-5 py-5 sm:flex-row sm:items-center">
+      <div className="mt-1 flex flex-col gap-5 sm:flex-row sm:items-center">
         <button
           type="button"
           onClick={openFilePicker}
@@ -312,13 +310,13 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
             isBusy={isBusy}
           />
           <span className="bg-ehs-dark-bg/55 text-ehs-light-text absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 disabled:opacity-0">
-            <Icon icon="mdi:camera-outline" className="text-2xl" aria-hidden />
+            <Icon icon="mdi:camera-outline" className="size-6" aria-hidden />
           </span>
           {isBusy ? (
             <span className="border-ehs-normal-blue absolute inset-0 flex items-center justify-center rounded-full border-2 border-dashed bg-white/70">
               <Icon
                 icon="mdi:loading"
-                className="text-ehs-normal-blue animate-spin text-2xl"
+                className="text-ehs-normal-blue size-6 animate-spin"
                 aria-hidden
               />
             </span>
@@ -327,13 +325,10 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
 
         <div className="flex min-w-0 flex-1 flex-col gap-3 text-center sm:text-left">
           <div>
-            <Text
-              as="p"
-              className="text-ehs-darker text-sm font-semibold tracking-tight"
-            >
+            <Text as="p" className="text5 text-ehs-darker">
               {resolvedProfileUrl ? "Update your photo" : "Add a profile photo"}
             </Text>
-            <Text as="p" className="text-ehs-muted-text mt-1 text-xs leading-relaxed">
+            <Text as="p" className="text8 text-ehs-muted-text mt-1">
               Shown on your profile, sidebar, and anywhere your name appears in
               Neptune.
             </Text>
@@ -344,9 +339,9 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
               type="button"
               onClick={openFilePicker}
               disabled={isBusy}
-              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-darker inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-ehs-normal-blue text4 text-ehs-light-text hover:bg-ehs-darker inline-flex items-center gap-2 rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Icon icon="mdi:upload-outline" className="text-base" aria-hidden />
+              <Icon icon="mdi:upload-outline" className="size-4" aria-hidden />
               {resolvedProfileUrl ? "Change photo" : "Upload photo"}
             </button>
             {resolvedProfileUrl ? (
@@ -354,22 +349,26 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
                 type="button"
                 onClick={() => void handleRemove()}
                 disabled={isBusy}
-                className="border-ehs-border/60 text-ehs-gray hover:text-ehs-red hover:border-ehs-red/30 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="border-ehs-border/60 text4 text-ehs-gray hover:text-ehs-red hover:border-ehs-red/30 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Icon icon="mdi:trash-can-outline" className="text-base" aria-hidden />
+                <Icon
+                  icon="mdi:trash-can-outline"
+                  className="size-4"
+                  aria-hidden
+                />
                 Remove
               </button>
             ) : null}
           </div>
 
-          <div className="text-ehs-muted-text flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:justify-start">
+          <div className="text8 text-ehs-muted-text flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-start">
             <span className="inline-flex items-center gap-1">
-              <Icon icon="mdi:image-outline" className="text-sm" aria-hidden />
+              <Icon icon="mdi:image-outline" className="size-3.5" aria-hidden />
               JPG or PNG
             </span>
             <span aria-hidden="true">·</span>
             <span className="inline-flex items-center gap-1">
-              <Icon icon="mdi:crop-square" className="text-sm" aria-hidden />
+              <Icon icon="mdi:crop-square" className="size-3.5" aria-hidden />
               Square, min 200×200
             </span>
           </div>

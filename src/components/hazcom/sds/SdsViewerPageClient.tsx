@@ -71,17 +71,17 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               className="text-ehs-muted-text size-9"
               aria-hidden="true"
             />
-            <Text as="p" className="text-ehs-darker text-sm font-bold">
+            <Text as="p" className="text5 text-ehs-darker">
               SDS record not found
             </Text>
-            <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text max-w-md">
               {`No SDS record exists for ID "${sdsIdParam}". It may have been removed, or the link is incorrect.`}
             </Text>
             <Link href={SDS_LIBRARY_ROUTE}>
               <Button type="button" variant="secondary" className="mt-1">
                 <Icon
                   icon="mdi:arrow-left"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
                 Back to SDS Library
@@ -124,7 +124,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             >
               <Icon
                 icon="mdi:printer-outline"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Print
@@ -136,7 +136,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                 <Button type="button" variant="primary">
                   <Icon
                     icon="mdi:tray-arrow-down"
-                    className="text-base"
+                    className="size-4"
                     aria-hidden="true"
                   />
                   Download PDF
@@ -146,7 +146,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               <Button type="button" variant="primary" disabled>
                 <Icon
                   icon="mdi:tray-arrow-down"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
                 No PDF attached
@@ -177,10 +177,10 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               </div>
 
               <div className="flex flex-col gap-0.5">
-                <Text as="p" className="text-ehs-darker text-[15px] font-bold">
+                <Text as="p" className="text3 text-ehs-darker">
                   {record.chemicalName}
                 </Text>
-                <Text as="p" className="text-ehs-muted-text text-[12px]">
+                <Text as="p" className="text8 text-ehs-muted-text">
                   {[
                     record.casNumber ? `CAS ${record.casNumber}` : "",
                     record.manufacturer,
@@ -193,7 +193,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               <Text
                 as="span"
                 className={[
-                  "text-[13px] font-bold uppercase",
+                  "text5",
                   record.signalWord === "Danger"
                     ? "text-ehs-red"
                     : "text-ehs-yellow",
@@ -210,7 +210,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             </div>
 
             <div className="border-ehs-border border-t pt-5">
-              <Text as="h2" className="text-ehs-darker text-[17px] font-bold">
+              <Text as="h2" className="text3 text-ehs-darker">
                 {`${String(section.number)} - ${section.title}`}
               </Text>
 
@@ -223,7 +223,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               {showsStatements ? (
                 <div className="mt-3 flex flex-col gap-2.5">
                   {statements.length === 0 ? (
-                    <Text as="p" className="text-ehs-muted-text text-[13px]">
+                    <Text as="p" className="text4 text-ehs-muted-text">
                       No GHS statements recorded on this sheet.
                     </Text>
                   ) : (
@@ -241,10 +241,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                           }
                           className="mt-0.5 shrink-0"
                         />
-                        <Text
-                          as="p"
-                          className="text-ehs-gray text-[13px] leading-[21px]"
-                        >
+                        <Text as="p" className="text4 text-ehs-gray">
                           {statement.text || statement.code}
                         </Text>
                       </div>
@@ -267,10 +264,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                       className="text-ehs-yellow mt-px size-4 shrink-0"
                       aria-hidden="true"
                     />
-                    <Text
-                      as="p"
-                      className="text-ehs-gray text-[12px] leading-[18px]"
-                    >
+                    <Text as="p" className="text8 text-ehs-gray">
                       This section isn’t stored on the record — what follows
                       describes what the GHS standard requires here. Refer to
                       the attached PDF for this product’s own text.
@@ -281,7 +275,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                     <Text
                       key={`${String(section.number)}-${String(index)}`}
                       as="p"
-                      className="text-ehs-gray text-[13px] leading-[21px]"
+                      className="text4 text-ehs-gray"
                     >
                       {paragraph}
                     </Text>
@@ -304,7 +298,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Previous Section
@@ -322,7 +316,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
               Next Section
               <Icon
                 icon="mdi:chevron-right"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
             </Button>

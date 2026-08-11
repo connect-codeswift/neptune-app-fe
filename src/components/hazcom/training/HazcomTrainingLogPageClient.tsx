@@ -71,7 +71,7 @@ export function HazcomTrainingLogPageClient() {
         actions={
           <Link href="/dashboard/hazcom/training/new">
             <Button type="button" variant="primary">
-              <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+              <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
               Log Training Session
             </Button>
           </Link>

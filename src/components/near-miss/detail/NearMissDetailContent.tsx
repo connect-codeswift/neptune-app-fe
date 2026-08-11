@@ -118,7 +118,7 @@ export function NearMissDetailContent(
                   variant="primary"
                   disabled={isClosed || closeMutation.isPending}
                   onClick={handleClose}
-                  className="gap-2 rounded-[10px] px-4 py-2.5"
+                  className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon={
@@ -134,7 +134,7 @@ export function NearMissDetailContent(
                       .join(" ")}
                     aria-hidden="true"
                   />
-                  <span className="text-sm font-bold whitespace-nowrap">
+                  <span className="whitespace-nowrap">
                     {isClosed ? "Closed" : "Close Near Miss"}
                   </span>
                 </Button>
@@ -146,7 +146,7 @@ export function NearMissDetailContent(
                   variant="tertiary"
                   disabled={deleteMutation.isPending}
                   onClick={() => setIsConfirmingDelete(true)}
-                  className="gap-2 rounded-[10px] px-4 py-2.5"
+                  className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon={
@@ -162,9 +162,7 @@ export function NearMissDetailContent(
                       .join(" ")}
                     aria-hidden="true"
                   />
-                  <span className="text-sm font-bold whitespace-nowrap">
-                    Delete
-                  </span>
+                  <span className="whitespace-nowrap">Delete</span>
                 </Button>
               ) : null}
 
@@ -177,16 +175,14 @@ export function NearMissDetailContent(
                       `/dashboard/near-miss/${encodeURIComponent(nearMissId)}/convert`,
                     )
                   }
-                  className="gap-2 rounded-[10px] px-4 py-2.5"
+                  className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon="mdi:plus"
                     className="size-4 shrink-0"
                     aria-hidden="true"
                   />
-                  <span className="text-sm font-bold whitespace-nowrap">
-                    Convert to Incident
-                  </span>
+                  <span className="whitespace-nowrap">Convert to Incident</span>
                 </Button>
               ) : null}
             </div>
@@ -198,7 +194,7 @@ export function NearMissDetailContent(
         )}
 
         {detailQuery.isError && (
-          <Text as="p" className="text-ehs-red text-sm">
+          <Text as="p" className="text4 text-ehs-red">
             {getMutationErrorMessage(
               detailQuery.error,
               "Could not load this near miss.",
@@ -208,7 +204,7 @@ export function NearMissDetailContent(
 
         {/* Request succeeded but the record isn't there. */}
         {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {`No near miss found for id ${nearMissId}.`}
           </Text>
         )}
