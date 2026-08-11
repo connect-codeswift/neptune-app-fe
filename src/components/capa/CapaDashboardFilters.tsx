@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { IncidentSegmentedControl } from "@/components/incidents";
+import { CapaSegmentedControl } from "@/components/capa/CapaSegmentedControl";
 import { Button } from "@/components/ui/Button";
 import {
   CAPA_DASHBOARD_STATUS_FILTERS,
@@ -38,7 +38,7 @@ export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
         Filter
       </span>
 
-      <IncidentSegmentedControl
+      <CapaSegmentedControl
         label="Status"
         options={CAPA_DASHBOARD_STATUS_FILTERS}
         value={status}
@@ -46,7 +46,7 @@ export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
         className="min-w-fit flex-1"
       />
 
-      <IncidentSegmentedControl
+      <CapaSegmentedControl
         label="Type"
         options={CAPA_DASHBOARD_TYPE_FILTERS}
         value={type}

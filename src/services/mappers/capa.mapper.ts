@@ -482,10 +482,6 @@ function buildCapaMutationPayload(input: {
   return {
     id: input.id,
     title: buildCapaTitleFromDescription(description),
-    incidentId: input.incidentId,
-    userId: input.userId,
-    assignedId: input.assignedId,
-    rcaId: input.rcaId,
     capaType:
       input.type.trim().toLowerCase() === "preventive"
         ? "Preventive"
@@ -493,7 +489,11 @@ function buildCapaMutationPayload(input: {
     priority: normalizePriority(input.priority),
     controlLevel: toApiControlLevel(input.controlLevel),
     description,
-    dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
+    userId: input.userId,
+    incidentId: input.incidentId,
+    rcaId: input.rcaId ?? 0,
+    assignedId: input.assignedId ?? 0,
+    dueDate: input.dueDate.trim() ? input.dueDate.trim() : "",
     isDrop: input.isDrop,
   };
 }
@@ -514,10 +514,14 @@ export function buildCreateCapaRequest(input: {
     throw new Error("Sign in required to create a CAPA.");
   }
 
-  const assignedId = parseOptionalUserId(input.owner);
+  const assignedId = parseOptionalUserId(input.owner) ?? 0;
   const incidentId =
     typeof input.incidentId === "number" && Number.isFinite(input.incidentId)
       ? Math.max(0, Math.trunc(input.incidentId))
+      : 0;
+  const rcaId =
+    typeof input.rcaId === "number" && Number.isFinite(input.rcaId)
+      ? Math.max(0, Math.trunc(input.rcaId))
       : 0;
 
   return buildCapaMutationPayload({
@@ -525,7 +529,7 @@ export function buildCreateCapaRequest(input: {
     incidentId,
     userId,
     assignedId,
-    rcaId: input.rcaId ?? null,
+    rcaId,
     isDrop: false,
     controlLevel: input.controlLevel,
     description: input.description,

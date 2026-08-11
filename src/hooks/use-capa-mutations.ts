@@ -1,11 +1,10 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
-import type {
-  CapaTaskStatus,
-} from "@/dtos/req/capa-task-status-request.dto";
+import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import {
   createCapa,
@@ -17,7 +16,6 @@ import {
   updateCapaTaskStatus,
 } from "@/services/capa.service";
 import {
-  buildCreateCapaRequest,
   buildCreateCapaTaskRequest,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
@@ -26,22 +24,17 @@ import {
 } from "@/services/mappers/capa.mapper";
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
 
-export type CreateCapaInput = Readonly<{
-  /** Linked incident id; use `0` for standalone CAPA create. */
-  incidentId?: number;
-  rcaId?: number | null;
-  controlLevel: string;
-  description: string;
-  type: string;
+export type CreateCapaTaskDraftInput = Readonly<{
+  task: string;
   owner: string;
   dueDate: string;
-  priority: string;
-  tasks?: readonly Readonly<{
-    task: string;
-    owner: string;
-    dueDate: string;
-    priority?: string;
-  }>[];
+  priority?: string;
+}>;
+
+/** POST /api/CAPA/Capa body + optional checklist tasks created afterward. */
+export type CreateCapaInput = Readonly<{
+  payload: CreateCapaRequestDto;
+  tasks?: readonly CreateCapaTaskDraftInput[];
 }>;
 
 export type UpdateCapaInput = Readonly<{
@@ -152,8 +145,7 @@ export function useCreateCapaMutation() {
         throw new Error("Sign in required to create a CAPA.");
       }
 
-      const payload = buildCreateCapaRequest(input);
-      const capa = await createCapa(payload);
+      const capa = await createCapa(input.payload);
 
       if (capa?.id) {
         for (const task of input.tasks ?? []) {
@@ -177,9 +169,10 @@ export function useCreateCapaMutation() {
       return capa;
     },
     onSuccess: async (result, variables) => {
-      if (variables.incidentId && variables.incidentId > 0) {
+      const incidentId = variables.payload.incidentId ?? 0;
+      if (incidentId > 0) {
         await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+          queryKey: capaQueryKeys.byIncident(incidentId),
         });
       }
       if (result?.id) {

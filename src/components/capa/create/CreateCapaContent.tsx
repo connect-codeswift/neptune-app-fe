@@ -25,9 +25,22 @@ import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
+import {
+  buildCapaTitleFromDescription,
+  toApiControlLevel,
+} from "@/services/mappers/capa.mapper";
 
 const CAPA_ROUTE = "/dashboard/capa";
+
+function parseAssignedId(value: string): number {
+  const trimmed = value.trim();
+  if (!trimmed) return 0;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return Math.trunc(parsed);
+}
 
 function StepBadge(props: Readonly<{ step: string }>) {
   return (
@@ -74,22 +87,43 @@ export function CreateCapaContent() {
   const handleSubmit = async (values: FormValues) => {
     if (!controlLevel || isSubmitting) return;
 
-    const type = fieldString(values, "type") || "Corrective";
+    const auth = getAuthContext();
+    if (!auth) {
+      toast.error(
+        "Could not create CAPA",
+        "Sign in required to create a CAPA.",
+      );
+      return;
+    }
+
+    const description = fieldString(values, "description").trim();
+    const capaType =
+      fieldString(values, "type").trim().toLowerCase() === "preventive"
+        ? "Preventive"
+        : "Corrective";
     const priority = fieldString(values, "priority") || "Medium";
+    const assigned = fieldString(values, "assigned");
+    const dueDate = fieldString(values, "dueDate").trim();
 
     try {
       await createCapaMutation.mutateAsync({
-        incidentId: 0,
-        rcaId: null,
-        controlLevel,
-        description: fieldString(values, "description"),
-        type,
-        owner: fieldString(values, "assigned"),
-        dueDate: fieldString(values, "dueDate"),
-        priority,
+        payload: {
+          id: 0,
+          title: buildCapaTitleFromDescription(description),
+          capaType,
+          priority,
+          controlLevel: toApiControlLevel(controlLevel),
+          description,
+          userId: auth.userId,
+          incidentId: 0,
+          rcaId: 0,
+          assignedId: parseAssignedId(assigned),
+          dueDate,
+          isDrop: false,
+        },
         tasks: tasks.map((task) => ({
           task: task.name,
-          owner: fieldString(values, "assigned"),
+          owner: assigned,
           dueDate: task.dueDate,
           priority: task.priority,
         })),
@@ -99,8 +133,8 @@ export function CreateCapaContent() {
       toast.success(
         "CAPA created",
         taskCount > 0
-          ? `${controlLevel} · ${type} with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}`
-          : `${controlLevel} · ${type}`,
+          ? `${controlLevel} · ${capaType} with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}`
+          : `${controlLevel} · ${capaType}`,
       );
       router.push(CAPA_ROUTE);
     } catch (error) {

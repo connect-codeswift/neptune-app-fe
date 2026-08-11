@@ -41,7 +41,10 @@ import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
-import { EMPTY_LINKED_CAPA_VIEW } from "@/services/mappers/capa.mapper";
+import {
+  buildCreateCapaRequest,
+  EMPTY_LINKED_CAPA_VIEW,
+} from "@/services/mappers/capa.mapper";
 import {
   applyAttachmentsEditDraft,
   applyDetailEditDraft,
@@ -714,13 +717,15 @@ export function IncidentDetailContent(
         }
         try {
           await createCapaMutation.mutateAsync({
-            incidentId: detail.numericId,
-            controlLevel: payload.controlLevel,
-            description: payload.description,
-            type: payload.type,
-            owner: payload.owner,
-            dueDate: payload.dueDate,
-            priority: payload.priority,
+            payload: buildCreateCapaRequest({
+              incidentId: detail.numericId,
+              controlLevel: payload.controlLevel,
+              description: payload.description,
+              type: payload.type,
+              owner: payload.owner,
+              dueDate: payload.dueDate,
+              priority: payload.priority,
+            }),
             tasks: payload.tasks,
           });
           const taskCount = payload.tasks?.length ?? 0;
