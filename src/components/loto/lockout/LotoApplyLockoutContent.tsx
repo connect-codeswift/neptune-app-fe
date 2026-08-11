@@ -3,10 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import {
-  FormBuilder,
-  type FormValues,
-} from "@/components/form-builder";
+import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -108,16 +105,16 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
             paddingClassName="p-[22px]"
             className="min-w-0 rounded-[20px]"
           >
-            <h2 className="text-ehs-darker text-sm leading-[21px] font-bold">
+            <h2 className="text-ehs-darker text-lg leading-[21px] font-bold">
               Lockout Registration
             </h2>
-            <div className="mt-[18px]">
+            <div className="mt-4">
               <FormBuilder
                 formId={LOTO_APPLY_FORM_ID}
                 schema={schema}
                 initialValues={toApplyLockoutFormValues(context.operatorName)}
                 hideActions
-                className={fieldClass}
+                // className={fieldClass}
                 onSubmit={handleValid}
               />
             </div>
@@ -131,10 +128,10 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               className="mt-0.5 size-4 shrink-0 rounded-[2px] border border-[#767676] accent-[#ef4444]"
             />
             <span className="min-w-0">
-              <span className="block text-[13px] leading-[19.5px] font-bold text-[#ef4444]">
+              <span className="block text-sm leading-[19.5px] font-bold text-[#ef4444]">
                 Final Confirmation
               </span>
-              <span className="mt-1 block text-[12.5px] leading-[19.375px] font-medium text-[#566072]">
+              <span className="mt-1 block text-sm leading-[19.375px] font-medium text-[#566072]">
                 {`I have read, understood, and followed procedure `}
                 <span className="font-bold">{context.procedureId}</span>
                 {`. I confirm the machine cannot be started. I accept responsibility for this lockout.`}
@@ -145,7 +142,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 text-[13px] font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 text-base! font-medium text-[#2a3446] transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel

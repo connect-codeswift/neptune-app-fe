@@ -30,8 +30,13 @@ export type LotoProcedureHeaderProps = Readonly<{
 
 /** Breadcrumb + title + Cancel / primary action — Figma 6912:56200 / 6915:56769. */
 export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
-  const { mode, equipmentCode, onCancel, onSubmit, isSubmitting = false } =
-    props;
+  const {
+    mode,
+    equipmentCode,
+    onCancel,
+    onSubmit,
+    isSubmitting = false,
+  } = props;
 
   const isCreate = mode === "create";
   const title = isCreate
@@ -78,7 +83,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               </Text>
               <Text
                 as="p"
-                className="text-ehs-muted-text hidden text-[13px] leading-[19.5px] md:block"
+                className="text-ehs-muted-text hidden text-sm leading-[19.5px] md:block"
               >
                 {subtitle}
               </Text>
@@ -90,7 +95,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               type="button"
               variant="secondary"
               onClick={onCancel}
-              className="rounded-[10px] px-4 py-2.5 text-[13px] font-medium"
+              className="rounded-[10px] px-4 py-2.5 text-base! font-medium"
             >
               Cancel
             </Button>
@@ -99,7 +104,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               variant="primary"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="gap-2 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
+              className="gap-2 rounded-[10px] px-4 py-2.5 text-base! font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
             >
               <Icon icon={submitIcon} className="size-3.5 shrink-0" />
               {submitLabel}

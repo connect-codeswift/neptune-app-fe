@@ -115,13 +115,11 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5">
-      <DashboardHeader title="Hazard Reporting" />
+    <div className="flex min-h-screen flex-1 flex-col gap-2">
+      <DashboardHeader title="Hazard Reporting Detail" />
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
-        {detailQuery.isPending && (
-          <SkeletonDetailPage />
-        )}
+        {detailQuery.isPending && <SkeletonDetailPage />}
 
         {detailQuery.isError && (
           <Text as="p" className="text-ehs-red text-sm">
@@ -230,4 +228,3 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     </div>
   );
 }
-

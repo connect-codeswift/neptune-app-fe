@@ -3,21 +3,19 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import {
-  type LotoRemoveLockoutContext,
-} from "@/app/dashboard/lockout-tagout/loto-lockout-data";
+import { type LotoRemoveLockoutContext } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
-const crumbMuted = "text-[#b3bbc8] text-xs font-normal";
+const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
 const crumbLink =
-  "text-[#8892a3] hover:text-ehs-gray text-xs font-normal transition-colors";
+  "text-[#8892a3] hover:text-ehs-gray text-sm font-normal transition-colors";
 
 function Chevron() {
   return (
     <Icon
       icon="mdi:chevron-right"
-      className="size-[11px] shrink-0 text-[#b3bbc8]"
+      className="size-3.5 shrink-0 text-[#b3bbc8]"
       aria-hidden="true"
     />
   );
@@ -67,7 +65,7 @@ export function LotoRemoveLockoutHeader(props: LotoRemoveLockoutHeaderProps) {
             >
               Remove Lockout
             </Text>
-            <Text as="p" className="text-[13px] leading-[19.5px] text-[#8892a3]">
+            <Text as="p" className="text-sm leading-[19.5px] text-[#8892a3]">
               {context.equipment.name}
             </Text>
           </div>

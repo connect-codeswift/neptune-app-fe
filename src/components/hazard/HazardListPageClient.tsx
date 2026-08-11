@@ -107,7 +107,7 @@ export function HazardListPageClient() {
     (canViewInsights && hazardKpiQuery.isPending);
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
+    <div className="flex min-h-screen flex-1 flex-col gap-2">
       <DashboardHeader title="Hazard Reporting" />
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         {isLoading ? (

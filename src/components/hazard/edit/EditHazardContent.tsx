@@ -49,13 +49,11 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5">
-      <DashboardHeader />
+    <div className="flex flex-1 flex-col gap-2">
+      <DashboardHeader title="Edit Hazard Reporting" />
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
-        {detailQuery.isPending && (
-          <SkeletonFormPage fields={8} />
-        )}
+        {detailQuery.isPending && <SkeletonFormPage fields={8} />}
 
         {detailQuery.isError && (
           <Text as="p" className="text-ehs-red text-sm">

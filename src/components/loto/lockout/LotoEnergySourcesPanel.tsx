@@ -26,7 +26,7 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
   return (
     <div className="relative rounded-[20px] border border-white/90 bg-[rgba(255,255,255,0.82)] p-[18px] shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative z-1 flex flex-col gap-3.5">
-        <h2 className="text-ehs-darker text-[13px] leading-[19.5px] font-bold">
+        <h2 className="text-ehs-darker text-lg leading-[19.5px] font-bold">
           Energy Sources
         </h2>
         <ul className="flex flex-col gap-1.5">
@@ -37,20 +37,20 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
             >
               <Icon
                 icon={kindIcon[source.kind]}
-                className={`size-[13px] shrink-0 ${kindIconClass[source.kind]}`}
+                className={`size-5 shrink-0 ${kindIconClass[source.kind]}`}
                 aria-hidden="true"
               />
-              <div className="min-w-0 flex-1">
-                <p className="text-ehs-darker text-[12.5px] leading-[18.75px] font-semibold">
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <p className="text-ehs-darker text-sm leading-[18.75px] font-semibold">
                   {source.label}
                 </p>
-                <p className="text-[11px] leading-[16.5px] text-[#b3bbc8]">
+                <p className="text-sm leading-[16.5px] text-[#b3bbc8]">
                   {source.pointLabel}
                 </p>
               </div>
               <Icon
                 icon="mdi:information-outline"
-                className="size-3.5 shrink-0 text-[#b3bbc8]"
+                className="size-5 shrink-0 text-[#b3bbc8]"
                 aria-hidden="true"
               />
             </li>

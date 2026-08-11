@@ -27,7 +27,9 @@ import {
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
 
 export type CreateCapaInput = Readonly<{
-  incidentId: number;
+  /** Linked incident id; use `0` for standalone CAPA create. */
+  incidentId?: number;
+  rcaId?: number | null;
   controlLevel: string;
   description: string;
   type: string;
@@ -38,6 +40,7 @@ export type CreateCapaInput = Readonly<{
     task: string;
     owner: string;
     dueDate: string;
+    priority?: string;
   }>[];
 }>;
 
@@ -61,10 +64,12 @@ export type UpdateCapaTaskStatusInput = Readonly<{
 
 export type CreateCapaTaskInput = Readonly<{
   capaId: number;
-  incidentId: number;
+  /** Used for cache invalidation; optional for standalone CAPA detail. */
+  incidentId?: number;
   task: string;
   owner: string;
   dueDate: string;
+  priority?: string;
 }>;
 
 export type DeleteCapaTaskInput = Readonly<{
@@ -89,13 +94,16 @@ export function useCreateCapaTaskMutation() {
           task: input.task,
           owner: input.owner,
           dueDate: input.dueDate,
+          priority: input.priority,
         }),
       );
     },
     onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byIncident(variables.incidentId),
-      });
+      if (variables.incidentId && variables.incidentId > 0) {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+        });
+      }
       await queryClient.invalidateQueries({
         queryKey: capaQueryKeys.tasks(variables.capaId),
       });
@@ -160,6 +168,7 @@ export function useCreateCapaMutation() {
               task: trimmedTask,
               owner: task.owner,
               dueDate: task.dueDate,
+              priority: task.priority,
             }),
           );
         }
@@ -168,9 +177,11 @@ export function useCreateCapaMutation() {
       return capa;
     },
     onSuccess: async (result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byIncident(variables.incidentId),
-      });
+      if (variables.incidentId && variables.incidentId > 0) {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+        });
+      }
       if (result?.id) {
         await queryClient.invalidateQueries({
           queryKey: capaQueryKeys.tasks(result.id),

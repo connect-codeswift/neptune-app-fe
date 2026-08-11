@@ -61,6 +61,10 @@ export type ReportPersonSearchFieldProps = Readonly<{
   className?: string;
   /** Report forms use the default styling; modals use `embedded` with a portaled menu. */
   variant?: "report" | "embedded";
+  /** When true, omit the built-in label (e.g. FormBuilder already renders one). */
+  hideLabel?: boolean;
+  /** Extra classes merged onto the input control. */
+  inputClassName?: string;
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -119,6 +123,8 @@ export function ReportPersonSearchField(
     error = null,
     className = "",
     variant = "report",
+    hideLabel = false,
+    inputClassName = "",
   } = props;
 
   const isEmbedded = variant === "embedded";
@@ -460,9 +466,12 @@ export function ReportPersonSearchField(
         onKeyDown={onKeyDown}
         className={[
           inputClass,
-          "border border-slate-900/10 py-3.5",
+          "border border-slate-900/10",
+          inputClassName || "py-3.5",
           hasSelection ? "pr-16" : "pr-9",
-        ].join(" ")}
+        ]
+          .filter(Boolean)
+          .join(" ")}
       />
 
       <div className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1">
@@ -512,13 +521,15 @@ export function ReportPersonSearchField(
           .filter(Boolean)
           .join(" ")}
       >
-        <label
-          htmlFor={fieldId}
-          className="text-ehs-gray block text-base leading-[19.5px]"
-        >
-          {label}
-          {required ? <span className="text-ehs-red"> *</span> : null}
-        </label>
+        {hideLabel ? null : (
+          <label
+            htmlFor={fieldId}
+            className="text-slate-70 block text-base leading-[19.5px] font-medium"
+          >
+            {label}
+            {required ? <span className="text-ehs-red"> *</span> : null}
+          </label>
+        )}
 
         <div ref={rootRef} className="relative min-w-0">
           {inputControl}

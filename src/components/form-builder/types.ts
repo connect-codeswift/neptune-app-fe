@@ -36,6 +36,11 @@ type BaseField = Readonly<{
   /** Columns to occupy in the 12-column grid on `sm` screens and up.
    * Defaults to 12 (full width). Ignored below the `sm` breakpoint. */
   colSpan?: number;
+  /**
+   * Wrap the field in a glass card with a section-style label
+   * (e.g. CAPA verification checklist / notes).
+   */
+  card?: boolean;
 }>;
 
 export type TextFieldConfig = BaseField &
@@ -153,17 +158,35 @@ export type CheckboxGroupFieldConfig = BaseField &
     options: readonly SelectOption[];
     /** Number of columns for the option grid on `sm`+. Defaults to 2. */
     columns?: 1 | 2 | 3;
+    /**
+     * "grid" (default) = compact option grid.
+     * "rows" = full-width Figma checklist rows.
+     */
+    variant?: "grid" | "rows";
+    /** When true with `required`, every option must be selected. */
+    requireAll?: boolean;
   }>;
 
-/** Image upload field. Files go straight to Cloudinary and the field value is
- * the list of resulting secure URLs. */
+/** Image / file upload field. Files go straight to Cloudinary and the field
+ * value is the list of resulting secure URLs. */
 export type PhotoFieldConfig = BaseField &
   Readonly<{
     type: "photo";
     /** Headline shown inside the drop zone. */
     placeholder?: string;
-    /** Maximum number of images. Defaults to {@link CLOUDINARY_MAX_FILES}. */
+    /** Maximum number of files. Defaults to {@link CLOUDINARY_MAX_FILES}. */
     maxFiles?: number;
+    /**
+     * `image` (default) = photos only, thumbnail grid.
+     * `files` = images + PDF/DOC, Figma-style row list.
+     */
+    accept?: "image" | "files";
+    /** List presentation. Defaults to `grid` for images, `rows` for files. */
+    listVariant?: "grid" | "rows";
+    /** Hide the field label (e.g. tab already titles the section). */
+    hideLabel?: boolean;
+    /** Override the default Cloudinary byte limit for this field. */
+    maxBytes?: number;
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */
@@ -191,8 +214,10 @@ export type TilesFieldConfig = BaseField &
     /**
      * "cards" (default) = tall icon cards.
      * "segmented" = compact equal-width toggle buttons (dot + label).
+     * "segmented-fill" = Figma priority group: muted track, solid teal selected.
+     * "assessment" = large equal cards (CAPA effectiveness).
      */
-    variant?: "cards" | "segmented";
+    variant?: "cards" | "segmented" | "segmented-fill" | "assessment";
   }>;
 
 /** Boolean toggle stored as `"true"` / `"false"` string values. */
