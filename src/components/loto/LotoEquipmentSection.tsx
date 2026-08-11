@@ -101,6 +101,7 @@ export function LotoEquipmentSection() {
         columns={columns}
         getRowId={(row) => row.id}
         containerClassName="min-w-0"
+        variant="incident"
       />
     </div>
   );

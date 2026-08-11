@@ -26,8 +26,8 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-3 flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg font-bold">Recognition</h3>
-        <p className="text-ehs-muted-text text-sm">Top reporters this month</p>
+        <h3 className="text3 text-ehs-dark-bg">Recognition</h3>
+        <p className="text4 text-ehs-muted-text">Top reporters this month</p>
       </header>
 
       {reporters.length > 0 ? (
@@ -37,14 +37,14 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
               key={reporter.userId}
               className="flex items-center gap-2.5 border-t border-slate-900/10 py-4"
             >
-              <span className="bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold">
+              <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold">
                 {initialsOf(reporter.userName)}
               </span>
-              <span className="text-ehs-dark-bg min-w-0 flex-1 truncate text-sm font-bold">
+              <span className="text5 text-ehs-dark-bg min-w-0 flex-1 truncate">
                 {reporter.userName}
               </span>
-              <span className="text-ehs-dark-bg text-sm font-bold tabular-nums">
-                {reporter.nearMissCount}
+              <span className="text5 text-ehs-dark-bg tabular-nums">
+                {String(reporter.nearMissCount)}
               </span>
             </li>
           ))}
@@ -54,7 +54,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
           <SkeletonListRows rows={4} />
         </div>
       ) : (
-        <p className="text-ehs-muted-text border-t border-slate-900/10 py-2 text-sm">
+        <p className="text4 text-ehs-muted-text border-t border-slate-900/10 py-2">
           No reporters yet this month.
         </p>
       )}

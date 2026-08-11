@@ -49,9 +49,7 @@ function FilterSegment(props: ModuleFilterSegment) {
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <span className="text-ehs-muted-text shrink-0 text-xs font-bold tracking-wide uppercase">
-        {label}
-      </span>
+      <span className="text6 text-ehs-muted-text shrink-0">{label}</span>
 
       <div className="border-ehs-border flex flex-wrap items-center gap-1 rounded-lg border bg-white/60 p-1">
         {normalized.map((option) => {
@@ -64,7 +62,7 @@ function FilterSegment(props: ModuleFilterSegment) {
               disabled={disabled}
               onClick={() => onChange(option.value)}
               className={[
-                "cursor-pointer rounded-md font-medium px-2 py-1 text-xs whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                "text8 cursor-pointer rounded-md px-2 py-1 font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
                 isActive
                   ? "bg-ehs-dark-bg text-ehs-light-text"
                   : "text-ehs-gray hover:bg-black/5",
@@ -89,7 +87,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
       <div className="flex items-center gap-4">
-        <span className="text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white/60 p-2 text-xs font-bold">
+        <span className="text8 text-ehs-gray border-ehs-border inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white/60 p-2 font-bold">
           <Icon
             icon="mdi:filter-variant"
             className="size-4 shrink-0"

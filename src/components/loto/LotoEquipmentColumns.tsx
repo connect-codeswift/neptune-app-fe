@@ -24,71 +24,66 @@ export function buildLotoEquipmentColumns(
 ): TableColumns<LotoEquipmentItem> {
   return [
     columnHelper.accessor("name", {
-      header: "EQUIPMENT",
+      header: "Equipment",
       size: 180,
       cell: (info) => (
-        <span className="text-ehs-darker text-base leading-5 font-semibold">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("type", {
-      header: "TYPE",
+      header: "Type",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darker text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("location", {
-      header: "LOCATION",
+      header: "Location",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darker text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("energySources", {
-      header: "ENERGY SOURCES",
+      header: "Energy Sources",
       size: 220,
-      cell: (info) => {
-        const sources = info.getValue() as LotoEquipmentItem["energySources"];
-        return (
-          <div className="flex max-w-55 flex-wrap gap-1">
-            {info.getValue().map((source: string) => (
-              <span
-                key={source}
-                className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm text-[#566072]"
-              >
-                {source}
-              </span>
-            ))}
-          </div>
-        );
-      },
+      cell: (info) => (
+        <div className="flex max-w-55 flex-wrap gap-1">
+          {info.getValue().map((source: string) => (
+            <span
+              key={source}
+              className="text8 rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[#566072]"
+            >
+              {source}
+            </span>
+          ))}
+        </div>
+      ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("procedureId", {
-      header: "PROCEDURE",
+      header: "Procedure",
       size: 110,
       cell: (info) => (
-        <span className="font-mono text-sm font-bold text-[#566072]">
+        <span className="text7 text-ehs-muted-text font-mono">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 110,
       cell: (info) => {
         const status = info.getValue() as LotoEquipmentStatus;
         return (
           <span
             className={[
-              "inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold",
-              statusClassName[info.getValue() as LotoEquipmentStatus],
+              "text5 inline-flex rounded-full px-2.5 py-0.5",
+              statusClassName[status],
             ].join(" ")}
           >
             {status}
@@ -98,10 +93,10 @@ export function buildLotoEquipmentColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lastInspection", {
-      header: "LAST INSPECTION",
+      header: "Last Inspection",
       size: 120,
       cell: (info) => (
-        <span className="text-sm text-[#8892a3]">{info.getValue()}</span>
+        <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
@@ -117,7 +112,7 @@ export function buildLotoEquipmentColumns(
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
+              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onView(item);
@@ -127,7 +122,7 @@ export function buildLotoEquipmentColumns(
             </button>
             <button
               type="button"
-              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
+              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onEdit(item);
@@ -138,7 +133,7 @@ export function buildLotoEquipmentColumns(
             {canLock ? (
               <button
                 type="button"
-                className="cursor-pointer text-base font-semibold text-[#ef4444] hover:underline"
+                className="text4 cursor-pointer font-semibold text-[#ef4444] hover:underline"
                 onClick={(event) => {
                   event.stopPropagation();
                   actions.onLock(item);

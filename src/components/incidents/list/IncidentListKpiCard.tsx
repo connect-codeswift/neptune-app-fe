@@ -115,16 +115,13 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
     >
       <div className="flex h-full flex-col gap-2">
         <div className="flex w-full items-start justify-between gap-3">
-          <Text
-            as="p"
-            className="text-ehs-muted-text py-px text-xs font-bold tracking-wide uppercase"
-          >
+          <Text as="p" className="text6 text-ehs-muted-text py-px">
             {title}
           </Text>
           {SHOW_KPI_TREND_BADGES ? (
             <span
               className={[
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wide",
+                "text8 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 font-bold tracking-wide",
                 trendClass,
               ].join(" ")}
             >
@@ -139,14 +136,11 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
         </div>
 
         <div className="flex w-full items-baseline">
-          <Text
-            as="p"
-            className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
-          >
+          <Text as="p" className="text2 text-ehs-darker">
             {value}
           </Text>
           {unit ? (
-            <Text as="span" className="text-ehs-gray ml-1.5 text-sm">
+            <Text as="span" className="text4 text-ehs-gray ml-1.5">
               {unit}
             </Text>
           ) : null}
@@ -154,7 +148,7 @@ export function IncidentListKpiCard(props: Readonly<IncidentListKpiCardProps>) {
 
         <div className="mt-auto flex w-full items-end justify-between gap-3">
           {targetLabel ? (
-            <Text as="p" className="text-ehs-muted-text py-px text-xs">
+            <Text as="p" className="text8 text-ehs-muted-text py-px">
               {targetLabel}
             </Text>
           ) : (

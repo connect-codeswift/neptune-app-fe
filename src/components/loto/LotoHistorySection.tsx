@@ -24,8 +24,9 @@ export function LotoHistorySection() {
       columns={columns}
       getRowId={(row) => row.id}
       containerClassName="min-w-0"
+      variant="incident"
       header={
-        <p className="text-ehs-darker py-1 text-base font-bold">
+        <p className="text3 text-ehs-darker py-1">
           All Lockout Records ({String(LOTO_HISTORY.length)})
         </p>
       }

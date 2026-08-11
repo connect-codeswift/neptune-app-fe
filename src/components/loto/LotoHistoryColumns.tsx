@@ -17,20 +17,16 @@ export type LotoHistoryColumnActions = Readonly<{
 }>;
 
 export function buildLotoHistoryColumns(
-  actions: LotoHistoryColumnActions,
+  _actions: LotoHistoryColumnActions,
 ): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
-      header: "LOG ID",
+      header: "Log ID",
       size: 120,
       cell: (info) => (
         <button
           type="button"
-          className="cursor-pointer font-mono text-base font-bold text-[#0891a6] hover:underline"
-          // onClick={(event) => {
-          //   event.stopPropagation();
-          //   actions.onLogClick(info.row.original);
-          // }}
+          className="text7 text-ehs-normal-blue cursor-pointer font-mono hover:underline"
         >
           {info.getValue()}
         </button>
@@ -38,85 +34,81 @@ export function buildLotoHistoryColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("equipment", {
-      header: "EQUIPMENT",
+      header: "Equipment",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darker line-clamp-1 text-base font-medium">
+        <span className="text4 text-ehs-darker line-clamp-1">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("operator", {
-      header: "OPERATOR",
+      header: "Operator",
       size: 120,
       cell: (info) => (
-        <span className="text-base font-medium text-[#2a3446]">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lockNumber", {
-      header: "LOCK",
+      header: "Lock",
       size: 120,
       cell: (info) => (
-        <span className="font-mono text-base text-[#566072]">
-          {info.getValue()}
-        </span>
+        <span className="text7 text-ehs-gray font-mono">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("startAt", {
-      header: "START",
+      header: "Start",
       size: 120,
       cell: (info) => (
-        <span className="text-base whitespace-nowrap text-[#566072]">
+        <span className="text4 text-ehs-gray whitespace-nowrap">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("endAt", {
-      header: "END",
+      header: "End",
       size: 120,
       cell: (info) => (
-        <span className="text-base whitespace-nowrap text-[#8892a3]">
+        <span className="text4 text-ehs-muted-text whitespace-nowrap">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("purpose", {
-      header: "PURPOSE",
+      header: "Purpose",
       size: 120,
       cell: (info) => (
-        <span className="line-clamp-1 max-w-40 text-base text-[#2a3446]">
+        <span className="text4 text-ehs-gray line-clamp-1 max-w-40">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("duration", {
-      header: "DURATION",
+      header: "Duration",
       size: 90,
       cell: (info) => (
-        <span className="font-mono text-base text-[#8892a3]">
+        <span className="text7 text-ehs-muted-text font-mono">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("result", {
-      header: "RESULT",
+      header: "Result",
       size: 100,
       cell: (info) => {
         const result = info.getValue() as LotoHistoryResult;
         return (
           <span
             className={[
-              "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
-              resultClassName[info.getValue() as LotoHistoryResult],
+              "text5 inline-flex rounded-full px-2.5 py-0.5",
+              resultClassName[result],
             ].join(" ")}
           >
             {result}

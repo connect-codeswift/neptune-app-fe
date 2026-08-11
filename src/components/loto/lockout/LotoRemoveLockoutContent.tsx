@@ -30,12 +30,12 @@ export function LotoRemoveLockoutContent(props: LotoRemoveLockoutContentProps) {
     return (
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker font-semibold">
             Active lockout not found
           </Text>
           <Link
             href={`${LOTO_ROUTE}?tab=active-lockouts`}
-            className="text-ehs-normal-blue mt-3 inline-block text-sm hover:underline"
+            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
           >
             Back to Active Lockouts
           </Link>
@@ -90,7 +90,7 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
                   className="size-3.5 shrink-0 text-[#ef4444]"
                   aria-hidden="true"
                 />
-                <h2 className="text-lg leading-[19.5px] font-bold text-[#ef4444]">
+                <h2 className="text3 text-[#ef4444]">
                   Active Lockout Being Removed
                 </h2>
               </div>
@@ -100,10 +100,8 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
                     key={field.label}
                     className="rounded-[10px] px-3 pt-2.5 pb-2.5"
                   >
-                    <p className="text-sm font-semibold tracking-[0.6px] text-[#ef4444] uppercase">
-                      {field.label}
-                    </p>
-                    <p className="text-ehs-darker mt-[3px] text-sm leading-[19.5px] font-semibold">
+                    <p className="text6 text-[#ef4444]">{field.label}</p>
+                    <p className="text4 text-ehs-darker mt-[3px] font-semibold">
                       {field.value}
                     </p>
                   </div>
@@ -116,19 +114,17 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
             paddingClassName="p-5"
             className="min-w-0 rounded-[20px]"
           >
-            <h2 className="text-ehs-darker text-lg leading-[21px] font-bold">
-              Energy Restoration
-            </h2>
+            <h2 className="text3 text-ehs-darker">Energy Restoration</h2>
             <ul className="mt-3.5 flex flex-col gap-2">
               {context.energySources.map((source) => (
                 <li
                   key={source.id}
                   className="flex items-center justify-between gap-2.5 rounded-[10px] border border-[rgba(11,19,32,0.14)] px-3.5 py-2.5"
                 >
-                  <span className="text-ehs-darker text-sm leading-[19.5px] font-semibold">
+                  <span className="text4 text-ehs-darker font-semibold">
                     {source.label}
                   </span>
-                  <span className="text-sm leading-[16.5px] font-semibold text-[#10b981]">
+                  <span className="text4 font-semibold text-[#10b981]">
                     Restoring
                   </span>
                 </li>
@@ -141,7 +137,7 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
                 onChange={(event) => setEnergyRestored(event.target.checked)}
                 className="size-4 shrink-0 rounded-[2px] border border-[#566072] accent-[#0891a6]"
               />
-              <span className="text-sm leading-[19.5px] font-semibold text-[#2a3446]">
+              <span className="text4 font-semibold text-[#2a3446]">
                 Confirmed — all energy sources have been safely restored to
                 operational state
               </span>
@@ -156,10 +152,10 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
               className="relative z-1 mt-0.5 size-4 shrink-0 rounded-[2px] border border-[#566072] accent-[#10b981]"
             />
             <span className="relative z-1 min-w-0">
-              <span className="block text-sm leading-[19.5px] font-bold text-[#10b981]">
+              <span className="text5 block text-[#10b981]">
                 Sign-Off Confirmation
               </span>
-              <span className="mt-[3px] block text-sm leading-[19.375px] font-medium text-[#566072]">
+              <span className="text4 mt-[3px] block font-medium text-[#566072]">
                 {`I, ${context.signOffName}, confirm that the work is complete, all personnel are clear, all lockout devices have been removed, and the equipment is safe to return to service.`}
               </span>
             </span>
@@ -168,7 +164,7 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={cancelHref}
-              className="inline-flex items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-1.5 text-lg font-medium text-[#566072] transition-colors hover:bg-white"
+              className="text4 text-ehs-gray inline-flex items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-1.5 font-medium transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -178,7 +174,7 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
               variant="primary"
               disabled={!canConfirm}
               onClick={handleConfirm}
-              className="rounded-[10px] px-4 py-2.5 text-lg font-semibold shadow-[0px_6px_18px_rgba(8,145,166,0.45)] disabled:opacity-50"
+              className="text4 rounded-[10px] px-4 py-2.5 font-semibold shadow-[0px_6px_18px_rgba(8,145,166,0.45)] disabled:opacity-50"
             >
               Confirm Lockout Removed
             </Button>
@@ -187,12 +183,10 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
 
         <div className="relative h-fit rounded-[20px] border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.5)] px-[18px] pt-[18px] pb-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
           <div className="relative z-1">
-            <h2 className="text-lg leading-[19.5px] font-bold text-[#ef4444]">
-              Critical Safety Rules
-            </h2>
+            <h2 className="text3 text-[#ef4444]">Critical Safety Rules</h2>
             <ul className="mt-2.5 list-disc space-y-2 pl-4">
               {LOTO_REMOVE_SAFETY_RULES.map((rule) => (
-                <li key={rule} className="text-sm leading-5 text-[#566072]">
+                <li key={rule} className="text4 text-[#566072]">
                   {rule}
                 </li>
               ))}

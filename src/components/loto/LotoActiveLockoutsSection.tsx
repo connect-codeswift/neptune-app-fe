@@ -58,16 +58,12 @@ export function LotoActiveLockoutsSection() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h3 className="text-ehs-darker text-lg leading-[22.5px] font-bold">
-                  {item.equipmentName}
-                </h3>
-                <span className="inline-flex rounded-full px-2.5 py-0.5 text-sm font-bold text-[#ef4444]">
-                  LOCKED OUT
+                <h3 className="text3 text-ehs-darker">{item.equipmentName}</h3>
+                <span className="text5 inline-flex rounded-full px-2.5 py-0.5 text-[#ef4444]">
+                  Locked Out
                 </span>
               </div>
-              <p className="text-ehs-darker/70 mt-0.75 text-sm leading-[18.75px]">
-                {item.purpose}
-              </p>
+              <p className="text4 text-ehs-muted-text mt-0.75">{item.purpose}</p>
             </div>
 
             <button
@@ -75,7 +71,7 @@ export function LotoActiveLockoutsSection() {
               onClick={() => {
                 router.push(lotoRemoveLockoutRoute(item.id));
               }}
-              className="inline-flex h-[39px] shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-4 text-base font-medium text-[#2a3446] transition-colors"
+              className="text4 text-ehs-gray inline-flex h-[39px] shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
             >
               <Icon icon="mdi:lock-open-outline" className="size-3.5" />
               Remove Lockout
@@ -94,11 +90,9 @@ export function LotoActiveLockoutsSection() {
                     className="size-3.5 text-[#b3bbc8]"
                     aria-hidden="true"
                   />
-                  <span className="text-xs font-semibold tracking-[0.6px] text-[#b3bbc8] uppercase">
-                    {field.label}
-                  </span>
+                  <span className="text6 text-ehs-muted-text">{field.label}</span>
                 </div>
-                <p className="text-ehs-darker mt-1 text-sm leading-[19.5px] font-semibold">
+                <p className="text4 text-ehs-darker mt-1">
                   {field.getValue(item)}
                 </p>
               </div>

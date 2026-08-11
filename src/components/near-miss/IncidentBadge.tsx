@@ -38,7 +38,8 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
         // no backdrop-blur: these render dozens-per-table, each blur is its
         // own compositing layer, and at pill size the effect is invisible —
         // the translucent tint + hairline carry the material.
-        "inline-flex items-center gap-1.5 rounded-full border border-white/50 px-3 py-2 text-xs font-bold whitespace-nowrap",
+        // text5 matches Incident list badge type scale.
+        "text5 inline-flex items-center gap-1.5 rounded-full border border-white/50 px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]

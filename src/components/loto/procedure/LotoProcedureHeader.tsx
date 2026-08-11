@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 
-const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
+const crumbMuted = "text4 font-normal text-[#b3bbc8]";
 const crumbLink =
-  "text-ehs-muted-text hover:text-ehs-gray text-sm font-normal transition-colors";
+  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
 
 function Chevron() {
   return (
@@ -75,15 +75,12 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
             <div className="flex min-w-0 flex-col gap-1">
-              <Text
-                as="h1"
-                className="text-ehs-darker text-base font-bold tracking-[-0.44px] md:text-[22px]"
-              >
+              <Text as="h1" className="text1 text-ehs-darker">
                 {title}
               </Text>
               <Text
                 as="p"
-                className="text-ehs-muted-text hidden text-sm leading-[19.5px] md:block"
+                className="text4 text-ehs-muted-text hidden md:block"
               >
                 {subtitle}
               </Text>
@@ -95,7 +92,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               type="button"
               variant="secondary"
               onClick={onCancel}
-              className="rounded-[10px] px-4 py-2.5 text-base! font-medium"
+              className="text4 rounded-[10px] px-4 py-2.5 font-medium"
             >
               Cancel
             </Button>
@@ -104,7 +101,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               variant="primary"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="gap-2 rounded-[10px] px-4 py-2.5 text-base! font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
+              className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
             >
               <Icon icon={submitIcon} className="size-3.5 shrink-0" />
               {submitLabel}
