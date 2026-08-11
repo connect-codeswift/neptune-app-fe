@@ -49,6 +49,7 @@ export {
   HazcomSelectField,
   HazcomTextareaField,
   hazcomFieldInputClass,
+  HAZCOM_FIELD_LABEL_CLASS,
 } from "./HazcomFormField";
 export type {
   HazcomTextFieldProps,

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
+  HAZCOM_FIELD_LABEL_CLASS,
   HAZCOM_PICTOGRAMS,
   HazcomGlassCard,
   HazcomPictogramChip,
@@ -329,7 +330,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           />
 
           <div className="flex flex-col gap-2.5 sm:col-span-2">
-            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
               GHS Pictograms
             </Text>
             <div className="flex flex-wrap gap-2">
@@ -358,13 +359,9 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             <Button
               type="button"
               variant="tertiary"
-              className="rounded-lg px-4 py-2 text-[13px]"
+              className="text4 rounded-lg px-4 py-2"
             >
-              <Icon
-                icon="mdi:arrow-left"
-                className="text-base"
-                aria-hidden="true"
-              />
+              <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
               Cancel
             </Button>
           </Link>
@@ -373,7 +370,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             <Button
               type="button"
               variant="secondary"
-              className="rounded-lg px-4 py-2 text-[13px]"
+              className="text4 rounded-lg px-4 py-2"
               disabled={saveChemical.isPending}
               onClick={() => save(true)}
             >
@@ -382,7 +379,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             <Button
               type="button"
               variant="primary"
-              className="rounded-lg px-5 py-2 text-[13px]"
+              className="text4 rounded-lg px-5 py-2"
               isLoading={saveChemical.isPending}
               onClick={() => save(false)}
             >
@@ -408,10 +405,10 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex min-h-7 items-end gap-1.5">
-        <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+        <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
           Current Quantity
         </Text>
-        <Text as="span" className="text-ehs-red text-[12px]">
+        <Text as="span" className="text8 text-ehs-red">
           *
         </Text>
       </div>
@@ -455,7 +452,7 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+      <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
         GHS Signal Word
       </Text>
       <div className="flex gap-2">
@@ -470,7 +467,7 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
               aria-pressed={isSelected}
               onClick={() => onChange(word)}
               className={[
-                "h-9 flex-1 rounded-[10px] border text-[13px] font-bold tracking-wide uppercase transition-colors",
+                "text5 h-9 flex-1 rounded-[10px] border tracking-wide uppercase transition-colors",
                 isSelected
                   ? isDanger
                     ? "border-ehs-red text-ehs-red bg-ehs-red/5"

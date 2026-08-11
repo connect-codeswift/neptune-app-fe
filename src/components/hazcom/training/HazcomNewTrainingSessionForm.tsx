@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
+  HAZCOM_FIELD_LABEL_CLASS,
   HazcomGlassCard,
   HazcomTextareaField,
   HazcomTextField,
@@ -193,7 +194,7 @@ export function HazcomNewTrainingSessionForm(
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         {/* Names the section, not the page — the page header above already
             says what this form creates. */}
-        <Text as="h2" className="text-ehs-darker text-[15px] font-bold">
+        <Text as="h2" className="text3 text-ehs-darker">
           Session Details
         </Text>
 
@@ -239,7 +240,7 @@ export function HazcomNewTrainingSessionForm(
 
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-wrap items-end justify-between gap-2">
-            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
               Training Materials
             </Text>
             <Button
@@ -248,7 +249,7 @@ export function HazcomNewTrainingSessionForm(
               disabled={isUploadingMaterial}
               onClick={() => fileInputRef.current?.click()}
             >
-              <Icon icon="mdi:upload" className="text-base" aria-hidden="true" />
+              <Icon icon="mdi:upload" className="size-4" aria-hidden="true" />
               {isUploadingMaterial ? "Uploading…" : "Add file"}
             </Button>
           </div>
@@ -262,7 +263,7 @@ export function HazcomNewTrainingSessionForm(
             }}
           />
           {form.materials.length === 0 ? (
-            <Text as="p" className="text-ehs-muted-text text-[13px]">
+            <Text as="p" className="text4 text-ehs-muted-text">
               No materials attached yet.
             </Text>
           ) : (
@@ -274,7 +275,7 @@ export function HazcomNewTrainingSessionForm(
                 >
                   <Text
                     as="span"
-                    className="text-ehs-dark-bg min-w-0 truncate text-[13px] font-medium"
+                    className="text4 text-ehs-dark-bg min-w-0 truncate"
                   >
                     {material.fileName}
                   </Text>
@@ -284,7 +285,7 @@ export function HazcomNewTrainingSessionForm(
                     aria-label={`Remove ${material.fileName}`}
                     onClick={() => removeMaterial(index)}
                   >
-                    <Icon icon="mdi:close" className="text-base" />
+                    <Icon icon="mdi:close" className="size-4" />
                   </button>
                 </li>
               ))}
@@ -311,7 +312,7 @@ export function HazcomNewTrainingSessionForm(
             isLoading={createTrainingLog.isPending}
             disabled={isUploadingMaterial}
           >
-            <Icon icon="mdi:check" className="text-base" aria-hidden="true" />
+            <Icon icon="mdi:check" className="size-4" aria-hidden="true" />
             {createTrainingLog.isPending ? "Saving…" : "Save Session"}
           </Button>
         </div>

@@ -41,7 +41,7 @@ export function HazcomOverviewStatCard(
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="flex items-start justify-between gap-3">
-        <Text as="p" className="text-ehs-gray text-sm">
+        <Text as="p" className="text6 text-ehs-muted-text">
           {label}
         </Text>
         <Icon
@@ -53,15 +53,12 @@ export function HazcomOverviewStatCard(
 
       <Text
         as="p"
-        className={[
-          "mt-2 text-[32px] leading-none font-bold tabular-nums",
-          valueClassByTone[tone],
-        ].join(" ")}
+        className={["text2 mt-2", valueClassByTone[tone]].join(" ")}
       >
         {String(value)}
       </Text>
 
-      <Text as="p" className="text-ehs-muted-text mt-2 text-xs">
+      <Text as="p" className="text8 text-ehs-muted-text mt-2">
         {caption}
       </Text>
     </HazcomGlassCard>

@@ -42,9 +42,9 @@ export function HazcomLabelPreviewPanel(
       <div className="flex w-full flex-col items-center gap-6">
         <Text
           as="p"
-          className="text-ehs-gray text-xs font-bold tracking-[0.08em]"
+          className="text6 text-ehs-muted-text"
         >
-          {`LIVE PREVIEW — ${size.previewLabel} LABEL`}
+          {`Live Preview — ${size.previewLabel} Label`}
         </Text>
 
         <HazcomGhsLabelCard
