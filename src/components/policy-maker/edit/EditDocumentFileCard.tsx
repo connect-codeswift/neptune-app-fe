@@ -42,18 +42,18 @@ export function EditDocumentFileCard(
         <div className="flex shrink-0 items-start rounded-lg bg-[rgba(11,19,32,0.1)] p-2">
           <Icon
             icon="mdi:file-document-outline"
-            className="size-6 text-[#566072]"
+            className="text-ehs-gray size-6"
             aria-hidden="true"
           />
         </div>
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="p"
-            className="text-3.5 truncate font-semibold text-[#0b1320]"
+            className="text4 text-ehs-dark-bg truncate"
           >
             {fileName}
           </Text>
-          <Text as="p" className="text-xs text-[#8892a3]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {fileMeta}
           </Text>
         </div>
@@ -70,7 +70,7 @@ export function EditDocumentFileCard(
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-4 text-3.25 font-semibold whitespace-nowrap text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+        className="text4 text-ehs-normal-blue inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-4 whitespace-nowrap transition-colors hover:bg-[rgba(8,145,166,0.06)]"
       >
         Replace File
       </button>

@@ -46,16 +46,10 @@ function CategoryProgressRow(props: CategoryProgressRowProps) {
   return (
     <div className="relative h-[26.676px] w-full">
       <div className="flex h-[16.946px] items-center justify-between">
-        <Text
-          as="span"
-          className="text-xs leading-none font-bold text-[#0b1320]"
-        >
+        <Text as="span" className="text5 text-ehs-darker">
           {category.category}
         </Text>
-        <Text
-          as="span"
-          className="text-2.5 leading-none font-normal text-[#8892a3]"
-        >
+        <Text as="span" className="text8 text-ehs-muted-text">
           {`${category.current}/${category.total}`}
         </Text>
       </div>
@@ -108,16 +102,10 @@ export function RegulatoryComplianceByCategoryCard(
     >
       <div className="flex flex-col gap-3.5">
         <div>
-          <Text
-            as="h3"
-            className="text-3.5 leading-none font-bold tracking-[-0.136px] text-[#0b1320]"
-          >
+          <Text as="h3" className="text3 text-ehs-darker">
             By Category
           </Text>
-          <Text
-            as="p"
-            className="mt-0.5 text-2.5 leading-normal font-normal text-[#8892a3]"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
             Compliance posture
           </Text>
         </div>
@@ -131,7 +119,7 @@ export function RegulatoryComplianceByCategoryCard(
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <Text as="p" className="text-xs text-[#8892a3]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             No category stats available yet.
           </Text>
         ) : (

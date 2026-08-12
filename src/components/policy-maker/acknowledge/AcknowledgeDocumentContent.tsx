@@ -66,15 +66,15 @@ export function AcknowledgeDocumentContent(
   if (isClientReady && !hasToken) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
+        <Text as="p" className="text4 text-ehs-muted-text">
           Please sign in to acknowledge this document.
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Library
         </Link>
@@ -94,10 +94,10 @@ export function AcknowledgeDocumentContent(
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load document
           </Text>
-          <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
             {getMutationErrorMessage(
               documentQuery.error,
               "Failed to load this document.",
@@ -119,15 +119,15 @@ export function AcknowledgeDocumentContent(
   if (!document) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Document not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
+        <Text as="p" className="text4 text-ehs-muted-text">
           {`No document matches “${documentIdParam}”.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Library
         </Link>
@@ -138,18 +138,15 @@ export function AcknowledgeDocumentContent(
   if (!canAcknowledge) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Not assigned
         </Text>
-        <Text
-          as="p"
-          className="text-ehs-muted-text text-3.5 max-w-xs text-center"
-        >
+        <Text as="p" className="text4 text-ehs-muted-text max-w-xs text-center">
           You are not assigned to acknowledge this document.
         </Text>
         <Link
           href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Details
         </Link>

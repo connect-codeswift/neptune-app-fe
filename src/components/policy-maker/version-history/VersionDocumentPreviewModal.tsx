@@ -18,10 +18,10 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[70vh] w-full flex-col items-center justify-center gap-2 rounded-2 bg-white text-3.25 text-[#566072]">
+      <div className="text4 text-ehs-gray flex h-[70vh] w-full flex-col items-center justify-center gap-2 rounded-2 bg-white">
         <Icon
           icon="mdi:loading"
-          className="size-6 animate-spin text-[#0891a6]"
+          className="text-ehs-normal-blue size-6 animate-spin"
         />
         <span>Loading PDF viewer…</span>
       </div>
@@ -104,18 +104,18 @@ export function VersionDocumentPreviewModal(
               <Text
                 as="h2"
                 id={titleId}
-                className="font-mono text-base leading-6 font-bold text-[#0b1320]"
+                className="text3 text-ehs-dark-bg font-mono"
               >
                 {entry.version}
               </Text>
               {entry.isCurrent ? (
-                <span className="inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5 text-xs leading-4 text-[#566072]">
+                <span className="text8 text-ehs-gray inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5">
                   Current
                 </span>
               ) : (
                 <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
-                  <span className="size-1.5 shrink-0 rounded-0.75 bg-[#8892a3]" />
-                  <span className="text-2.75 font-semibold tracking-[0.11px] text-[#2a3446]">
+                  <span className="bg-ehs-muted-text size-1.5 shrink-0 rounded-0.75" />
+                  <span className="text5 text-ehs-slate">
                     {entry.status === "review" ? "In review" : "Superseded"}
                   </span>
                 </span>
@@ -123,7 +123,7 @@ export function VersionDocumentPreviewModal(
             </div>
             <Text
               as="p"
-              className="mt-0.5 truncate text-xs leading-4.5 text-[#8892a3]"
+              className="text8 text-ehs-muted-text mt-0.5 truncate"
             >
               {policyDocument.title}
             </Text>
@@ -134,7 +134,7 @@ export function VersionDocumentPreviewModal(
               type="button"
               variant="tertiary"
               onClick={onDownload}
-              className="h-9 rounded-2.5 border-[0.8px] border-[rgba(11,19,32,0.14)] px-3 text-3.25 font-medium text-[#0b1320] !shadow-none"
+              className="text4 text-ehs-dark-bg h-9 rounded-2.5 border-[0.8px] border-[rgba(11,19,32,0.14)] px-3 !shadow-none"
             >
               <Icon
                 icon="mdi:download-outline"
@@ -147,7 +147,7 @@ export function VersionDocumentPreviewModal(
               type="button"
               aria-label="Close preview"
               onClick={onClose}
-              className="absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white text-[#566072] transition-colors hover:bg-[#eef1f6] sm:static sm:size-9"
+              className="text-ehs-gray absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white transition-colors hover:bg-[#eef1f6] sm:static sm:size-9"
             >
               <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
             </button>
@@ -157,12 +157,12 @@ export function VersionDocumentPreviewModal(
         <div className="flex h-10.75 shrink-0 items-center gap-2 border-b border-[rgba(15,23,42,0.08)] px-3 sm:px-4">
           <Icon
             icon="mdi:file-pdf-box"
-            className="size-3.5 shrink-0 text-[#ef4444]"
+            className="text-ehs-red size-3.5 shrink-0"
             aria-hidden="true"
           />
           <Text
             as="span"
-            className="min-w-0 truncate text-xs font-bold text-[#0b1320]"
+            className="text5 text-ehs-dark-bg min-w-0 truncate"
           >
             {fileName}
           </Text>
@@ -175,13 +175,13 @@ export function VersionDocumentPreviewModal(
             <div className="flex h-[50vh] w-full max-w-135 flex-col items-center justify-center gap-2 rounded bg-white text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
               <Icon
                 icon="mdi:file-alert-outline"
-                className="size-8 text-[#8892a3]"
+                className="text-ehs-muted-text size-8"
                 aria-hidden="true"
               />
-              <Text as="p" className="text-3.25 font-semibold text-[#0b1320]">
+              <Text as="p" className="text4 text-ehs-dark-bg">
                 Preview unavailable
               </Text>
-              <Text as="p" className="max-w-80 text-xs text-[#8892a3]">
+              <Text as="p" className="text4 text-ehs-muted-text max-w-80">
                 This document has no file URL on record yet.
               </Text>
             </div>

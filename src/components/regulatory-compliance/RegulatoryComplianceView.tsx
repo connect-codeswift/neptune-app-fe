@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_COMPLIANCES_PAGE_NUMBER,
   DEFAULT_COMPLIANCES_PAGE_SIZE,
+  useComplianceByIdQuery,
   useComplianceCategoryStatsQuery,
   useComplianceDashboardKpisQuery,
   useComplianceUpcomingFilingsQuery,
   useCompliancesListQuery,
 } from "@/hooks/use-compliance-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { toUserNameLookup } from "@/lib/map-user";
 import {
   mapComplianceCategoryStatsToProgress,
   mapComplianceDashboardKpisToItems,
@@ -20,9 +24,9 @@ import type {
   ComplianceStatusType,
   JurisdictionType,
 } from "./regulatory-compliance-types";
-import { CompliancePageHeader } from "./CompliancePageHeader";
 import { RegulatoryComplianceKpiGrid } from "./RegulatoryComplianceKpiGrid";
 import { RegulatoryComplianceRegisterCard } from "./RegulatoryComplianceRegisterCard";
+import { RegulatoryComplianceDetailPanel } from "./RegulatoryComplianceDetailPanel";
 import { RegulatoryComplianceByCategoryCard } from "./RegulatoryComplianceByCategoryCard";
 import { RegulatoryComplianceUpcomingFilingsCard } from "./RegulatoryComplianceUpcomingFilingsCard";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
@@ -58,11 +62,18 @@ export function RegulatoryComplianceView() {
     useState<ComplianceStatusType>("All");
   const [pageNumber, setPageNumber] = useState(DEFAULT_COMPLIANCES_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_COMPLIANCES_PAGE_SIZE);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
   const hasToken = accessTokenState === true;
   const queryEnabled = isClientReady && hasToken;
+
+  const usersQuery = useUserDropdownQuery();
+  const responsibleNameById = useMemo(
+    () => toUserNameLookup(usersQuery.data?.dataModel ?? []),
+    [usersQuery.data?.dataModel],
+  );
 
   useEffect(() => {
     const trimmed = registerSearchQuery.trim();
@@ -105,6 +116,49 @@ export function RegulatoryComplianceView() {
 
   const obligationItems = listQuery.data?.records ?? [];
   const totalCount = listQuery.data?.totalCount ?? 0;
+
+  const selectedListItem =
+    selectedId == null
+      ? null
+      : (obligationItems.find((item) => item.id === selectedId) ?? null);
+
+  const selectedNumericId = useMemo(() => {
+    if (selectedListItem == null) {
+      return null;
+    }
+    const parsed = Number(selectedListItem.id);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }, [selectedListItem]);
+
+  const selectedDetailQuery = useComplianceByIdQuery({
+    id: selectedNumericId,
+    enabled: queryEnabled && selectedNumericId != null,
+    responsibleNameById,
+  });
+
+  useEffect(() => {
+    if (selectedId != null && selectedListItem == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedListItem]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedListItem != null;
+
+  const panelErrorMessage =
+    isPanelOpen && selectedDetailQuery.isError
+      ? getMutationErrorMessage(
+          selectedDetailQuery.error,
+          "Failed to load obligation details.",
+        )
+      : isPanelOpen &&
+          !selectedDetailQuery.isLoading &&
+          selectedDetailQuery.data == null
+        ? "Obligation details were not found."
+        : null;
 
   useEffect(() => {
     if (kpisQuery.isError) {
@@ -169,16 +223,26 @@ export function RegulatoryComplianceView() {
     !isClientReady || (hasToken && listQuery.isLoading && !listQuery.data);
 
   return (
-    <div className="bg-ehs-light-bg flex flex-1 flex-col px-4 pb-6">
-      <CompliancePageHeader />
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
+      <DashboardHeader title="Regulatory Compliance" />
 
-      <RegulatoryComplianceKpiGrid
-        items={kpiItems}
-        isLoading={showKpiLoading}
-        className="pt-4"
-      />
+      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+        <RegulatoryComplianceKpiGrid
+          items={kpiItems}
+          isLoading={showKpiLoading}
+        />
 
-      <div className="mt-4 flex flex-col gap-3.5">
+        <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">
+          <RegulatoryComplianceByCategoryCard
+            categories={categoryItems}
+            isLoading={showCategoryLoading}
+          />
+          <RegulatoryComplianceUpcomingFilingsCard
+            filings={upcomingFilingsQuery.data ?? []}
+            isLoading={showUpcomingLoading}
+          />
+        </div>
+
         <ModuleFilterBar
           segments={[
             {
@@ -188,6 +252,7 @@ export function RegulatoryComplianceView() {
               onChange: (value) => {
                 setSelectedJurisdiction(value as JurisdictionType);
                 setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
+                setSelectedId(null);
               },
             },
             {
@@ -197,6 +262,7 @@ export function RegulatoryComplianceView() {
               onChange: (value) => {
                 setSelectedStatus(value as ComplianceStatusType);
                 setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
+                setSelectedId(null);
               },
             },
           ]}
@@ -213,30 +279,43 @@ export function RegulatoryComplianceView() {
               : `${String(totalCount)} obligations`
           }
         />
-      </div>
 
-      <div className="mt-3.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <RegulatoryComplianceRegisterCard
-          items={obligationItems}
-          isLoading={showRegisterLoading}
-          pagination={{
-            pageNumber,
-            pageSize,
-            totalRecords: totalCount,
-            onPageChange: setPageNumber,
-            isLoading: listQuery.isFetching,
-          }}
-        />
+        <div
+          className={[
+            "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+            isPanelOpen
+              ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+              : "xl:grid-cols-1",
+          ].join(" ")}
+        >
+          <RegulatoryComplianceRegisterCard
+            items={obligationItems}
+            selectedId={selectedId}
+            onViewMore={handleToggleDetailPanel}
+            isLoading={showRegisterLoading}
+            pagination={{
+              pageNumber,
+              pageSize,
+              totalRecords: totalCount,
+              onPageChange: (nextPage) => {
+                setPageNumber(nextPage);
+                setSelectedId(null);
+              },
+              isLoading: listQuery.isFetching,
+            }}
+          />
 
-        <div className="flex flex-col gap-3.5">
-          <RegulatoryComplianceByCategoryCard
-            categories={categoryItems}
-            isLoading={showCategoryLoading}
-          />
-          <RegulatoryComplianceUpcomingFilingsCard
-            filings={upcomingFilingsQuery.data ?? []}
-            isLoading={showUpcomingLoading}
-          />
+          {isPanelOpen ? (
+            <RegulatoryComplianceDetailPanel
+              detail={selectedDetailQuery.data?.detail ?? null}
+              isLoading={selectedDetailQuery.isLoading}
+              errorMessage={panelErrorMessage}
+              onRetry={() => {
+                void selectedDetailQuery.refetch();
+              }}
+              className="min-w-0"
+            />
+          ) : null}
         </div>
       </div>
     </div>

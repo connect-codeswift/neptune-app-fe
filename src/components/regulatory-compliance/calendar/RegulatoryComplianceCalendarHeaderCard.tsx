@@ -2,53 +2,63 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 
 export type RegulatoryComplianceCalendarHeaderCardProps = Readonly<{
   className?: string;
 }>;
 
+const crumbMuted = "text8 text-ehs-gray";
+const crumbLink =
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
+
+/**
+ * Calendar page header — breadcrumbs, title, subtitle.
+ * Matches Compliance detail / PPE header typography (text1 / text8).
+ */
 export function RegulatoryComplianceCalendarHeaderCard(
   props: RegulatoryComplianceCalendarHeaderCardProps,
 ) {
   const { className = "" } = props;
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-3 px-6"
-      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5", className]
+    <div
+      className={[
+        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-ehs-gray flex items-center gap-1.5 text-3.25 font-light">
-          <Link
-            href="/dashboard/regulatory-compliance"
-            className="hover:text-ehs-dark-bg hover:underline"
-          >
-            Compliance
-          </Link>
-          <span>&gt;</span>
-          <Text as="span" className="text-ehs-gray font-semibold">
-            Calendar
-          </Text>
-        </div>
+      <nav
+        aria-label="Breadcrumb"
+        className="relative z-1 flex min-w-0 flex-wrap items-center gap-1"
+      >
+        <span className={crumbMuted}>Safety</span>
+        <Icon
+          icon="mdi:chevron-right"
+          className="size-3 shrink-0 text-[#8892a3]"
+          aria-hidden="true"
+        />
+        <Link href="/dashboard/regulatory-compliance" className={crumbLink}>
+          Regulatory Compliance
+        </Link>
+        <Icon
+          icon="mdi:chevron-right"
+          className="size-3 shrink-0 text-[#8892a3]"
+          aria-hidden="true"
+        />
+        <span className={crumbMuted}>Calendar</span>
+      </nav>
 
-        <div className="flex shrink-0 items-center gap-3">
-          <Link
-            href="/dashboard/regulatory-compliance"
-            className="border-ehs-border text-ehs-dark-bg hover:bg-ehs-light-bg inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-3.25 font-light shadow-xs transition-colors"
-          >
-            <Icon
-              icon="mdi:view-grid-outline"
-              className="text-base"
-              aria-hidden="true"
-            />
-            <span>Go Back</span>
-          </Link>
-        </div>
+      <div className="relative z-1 flex min-w-0 flex-col gap-0.5">
+        <Text as="h1" className="text1 text-ehs-darker">
+          Compliance Calendar
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          View upcoming obligations by month
+        </Text>
       </div>
-    </IncidentGlassCard>
+    </div>
   );
 }

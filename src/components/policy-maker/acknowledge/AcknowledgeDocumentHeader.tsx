@@ -11,8 +11,8 @@ export type AcknowledgeDocumentHeaderProps = Readonly<{
 }>;
 
 const crumbMuted =
-  "text-2.75 font-medium leading-[16.5px] text-[#8892a3] transition-colors hover:text-[#566072]";
-const crumbActive = "text-2.75 font-medium leading-[16.5px] text-[#566072]";
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
+const crumbActive = "text8 text-ehs-gray";
 
 /**
  * Acknowledge page hero (Figma 5568:25317).
@@ -64,13 +64,13 @@ export function AcknowledgeDocumentHeader(
       <div className="relative z-1 flex min-w-0 flex-col gap-0.5">
         <Text
           as="h1"
-          className="sm:text-5.5 text-lg leading-7 font-semibold tracking-[-0.2px] text-[#0b1320] sm:leading-7"
+          className="text1 text-ehs-darker"
         >
           Read & Acknowledge Document
         </Text>
         <Text
           as="p"
-          className="max-w-full truncate text-xs leading-4.5 text-[#8892a3]"
+          className="text8 text-ehs-muted-text max-w-full truncate"
         >
           {document.title}
         </Text>

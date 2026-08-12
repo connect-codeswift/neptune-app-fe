@@ -51,7 +51,7 @@ export function RegulatoryComplianceCalendarView() {
     (hasToken && calendarQuery.isLoading && calendarQuery.data == null);
 
   return (
-    <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       <RegulatoryComplianceCalendarHeaderCard />
 
       <RegulatoryComplianceCalendarGrid

@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -105,8 +104,7 @@ export function PolicyMakerDocumentDetailContent(
   if (showBootLoading || showQueryLoading) {
     return (
       <div className="flex min-h-screen flex-1 flex-col">
-        <DashboardHeader />
-        <div className="flex flex-1 flex-col gap-3.5 px-4 pb-4">
+        <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-4">
           <SkeletonDetailPage />
         </div>
       </div>
@@ -116,17 +114,16 @@ export function PolicyMakerDocumentDetailContent(
   if (isClientReady && !hasToken) {
     return (
       <div className="flex min-h-screen flex-1 flex-col">
-        <DashboardHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
-          <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+          <Text as="h1" className="text1 text-ehs-darker">
             Sign in required
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-3.5">
+          <Text as="p" className="text4 text-ehs-muted-text">
             Please sign in to load this document.
           </Text>
           <Link
             href="/dashboard/policy-maker"
-            className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+            className="text4 text-ehs-normal-blue hover:underline"
           >
             Back to Document Library
           </Link>
@@ -138,7 +135,6 @@ export function PolicyMakerDocumentDetailContent(
   if (documentQuery.isError) {
     return (
       <div className="flex min-h-screen flex-1 flex-col">
-        <DashboardHeader />
         <div className="flex flex-1 items-center justify-center px-4">
           <IncidentGlassCard
             className="min-h-55 text-center"
@@ -149,10 +145,10 @@ export function PolicyMakerDocumentDetailContent(
               className="text-ehs-red size-8"
               aria-hidden="true"
             />
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Could not load document
             </Text>
-            <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
               {getMutationErrorMessage(
                 documentQuery.error,
                 "Failed to load this document.",
@@ -175,17 +171,16 @@ export function PolicyMakerDocumentDetailContent(
   if (!document) {
     return (
       <div className="flex min-h-screen flex-1 flex-col">
-        <DashboardHeader />
         <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
-          <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+          <Text as="h1" className="text1 text-ehs-darker">
             Document not found
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-3.5">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {`No document matches “${documentIdParam}”.`}
           </Text>
           <Link
             href="/dashboard/policy-maker"
-            className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+            className="text4 text-ehs-normal-blue hover:underline"
           >
             Back to Document Library
           </Link>
