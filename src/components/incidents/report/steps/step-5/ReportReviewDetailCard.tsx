@@ -13,7 +13,7 @@ export type ReportReviewDetailCardProps = Readonly<{
   title: string;
   rows: readonly ReportReviewDetailRow[];
   error?: string | null;
-  /** Defaults to Figma Where & when (`p-[15px]`). Reporter uses `pt-[15px] px-[15px] pb-[29px]`. */
+  /** Defaults to Figma Where & when (`p-3.75`). Reporter uses `pt-3.75 px-3.75 pb-7.25`. */
   paddingClassName?: string;
   className?: string;
 }>;
@@ -25,16 +25,16 @@ export type ReportReviewDetailCardProps = Readonly<{
 export function ReportReviewDetailCard(
   props: Readonly<ReportReviewDetailCardProps>,
 ) {
-  const { title, rows, error = null, paddingClassName = "p-[15px]", className = "" } =
+  const { title, rows, error = null, paddingClassName = "p-3.75", className = "" } =
     props;
 
   return (
     <div
       className={[
-        "relative flex flex-col gap-[8px] rounded-[20px] border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px]",
+        "relative flex flex-col gap-2 rounded-5 border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5",
         paddingClassName,
         error ? "border-ehs-red/40" : "",
-        "before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']",
+        "before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']",
         className,
       ]
         .filter(Boolean)
@@ -50,7 +50,7 @@ export function ReportReviewDetailCard(
         </Text>
       </div>
 
-      <div className="relative z-[1] flex w-full flex-col gap-[6px]">
+      <div className="relative z-[1] flex w-full flex-col gap-1.5">
         {rows.map((row) => (
           <div
             key={row.label}

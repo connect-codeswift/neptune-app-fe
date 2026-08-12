@@ -10,7 +10,7 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-[8px] bg-white text4">
+      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-2 bg-white text4">
         <Icon
           icon="mdi:loading"
           className="size-6 animate-spin text-ehs-normal-blue"
@@ -41,7 +41,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
       <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
 
-      <div className="relative z-10 flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center rounded-[16px] border border-white/10 bg-black/30 p-2 shadow-2xl backdrop-blur-lg">
+      <div className="relative z-10 flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center rounded-4 border border-white/10 bg-black/30 p-2 shadow-2xl backdrop-blur-lg">
         <button
           type="button"
           onClick={onClose}
@@ -50,7 +50,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
           <Icon icon="mdi:close" className="size-5" />
         </button>
 
-        <div className="flex min-h-[240px] min-w-[280px] items-center justify-center overflow-hidden rounded-[10px] bg-ehs-dark-bg">
+        <div className="flex min-h-60 min-w-70 items-center justify-center overflow-hidden rounded-2.5 bg-ehs-dark-bg">
           {isImage ? (
             <img
               src={fileUrl}
@@ -64,7 +64,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
               src={fileUrl}
               controls
               autoPlay
-              className="max-h-[70vh] max-w-[80vw] rounded-[8px] object-contain"
+              className="max-h-[70vh] max-w-[80vw] rounded-2 object-contain"
             />
           ) : null}
 

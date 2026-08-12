@@ -95,7 +95,7 @@ function DayTasksPanel(
         <Text as="p" className="text-ehs-dark-bg text-xs font-bold">
           {state.heading}
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <Text as="p" className="text-ehs-muted-text text-2.75">
           {state.events.length === 1
             ? "1 obligation"
             : `${String(state.events.length)} obligations`}
@@ -120,7 +120,7 @@ function DayTasksPanel(
               />
               <Text
                 as="span"
-                className="text-ehs-dark-bg wrap-break-word text-left text-[12px] leading-snug font-medium"
+                className="text-ehs-dark-bg wrap-break-word text-left text-xs leading-snug font-medium"
               >
                 {event.title}
               </Text>
@@ -216,14 +216,14 @@ export function RegulatoryComplianceCalendarGrid(
               <IncidentBadge
                 label={truncateEventTitle(evt.title)}
                 tone={evt.chipTone === "pink" ? "danger" : "teal"}
-                className="block w-full truncate px-1.5 py-0 text-left text-[9px] leading-4 tracking-normal"
+                className="block w-full truncate px-1.5 py-0 text-left text-2.25 leading-4 tracking-normal"
               />
             </span>
           ))}
           {overflowCount > 0 ? (
             <Text
               as="span"
-              className="text-ehs-gray pt-0.5 pl-0.5 text-left text-[10px] font-semibold"
+              className="text-ehs-gray pt-0.5 pl-0.5 text-left text-2.5 font-semibold"
             >
               {`+${String(overflowCount)} more`}
             </Text>
@@ -249,17 +249,17 @@ export function RegulatoryComplianceCalendarGrid(
     <IncidentGlassCard
       paddingClassName="p-6"
       className={[
-        "relative bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]",
+        "relative bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       {isLoading ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[20px] bg-white/45 backdrop-blur-[1px]">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-5 bg-white/45 backdrop-blur-0.25">
           <Text
             as="span"
-            className="text-ehs-muted-text text-[13px] font-medium"
+            className="text-ehs-muted-text text-3.25 font-medium"
           >
             Loading calendar…
           </Text>

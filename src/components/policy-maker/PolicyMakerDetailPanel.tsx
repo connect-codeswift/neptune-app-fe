@@ -44,9 +44,8 @@ export function PolicyMakerDetailPanel(
   if (!document) {
     return (
       <IncidentGlassCard
-        className={["min-h-[240px] min-w-0", className]
-          .filter(Boolean)
-          .join(" ")}
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text4 text-ehs-muted-text">

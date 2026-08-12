@@ -45,7 +45,7 @@ export function CapaDashboardFooterCards() {
 
   return (
     <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
-      <IncidentGlassCard paddingClassName="p-[21px]" className="min-w-0">
+      <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <Text
@@ -102,7 +102,7 @@ export function CapaDashboardFooterCards() {
         )}
       </IncidentGlassCard>
 
-      <IncidentGlassCard paddingClassName="p-[21px]" className="min-w-0">
+      <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <Text

@@ -346,7 +346,7 @@ export function ReportPersonSearchField(
             try again in a moment.
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
+          <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
             {debouncedQuery.trim()
               ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
               : `No people are listed for ${siteName ?? "this site"} yet.`}
@@ -375,13 +375,13 @@ export function ReportPersonSearchField(
                   }}
                   onMouseEnter={() => moveHighlight(index)}
                   className={[
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-[8px] px-2.5 py-2 text-left transition-colors",
+                    "flex w-full cursor-pointer items-center gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors",
                     isActive
                       ? "bg-[rgba(8,145,166,0.1)]"
                       : "hover:bg-[rgba(15,23,42,0.04)]",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
+                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-2.75 font-bold">
                     {initialsFor(name)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -412,7 +412,7 @@ export function ReportPersonSearchField(
 
   const inlineMenu =
     open && !isEmbedded ? (
-      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
         {listbox}
       </div>
     ) : null;
@@ -427,7 +427,7 @@ export function ReportPersonSearchField(
               left: menuPosition.left,
               width: menuPosition.width,
             }}
-            className="animate-popover-in fixed z-[120] overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
           >
             {listbox}
           </div>,
@@ -479,7 +479,7 @@ export function ReportPersonSearchField(
           <>
             <span
               title="Matched to a user account at this site"
-              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-[18px] items-center justify-center rounded-full"
+              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-4.5 items-center justify-center rounded-full"
             >
               <Icon
                 icon="mdi:account-check"

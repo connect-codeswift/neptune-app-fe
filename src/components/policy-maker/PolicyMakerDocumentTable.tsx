@@ -5,8 +5,11 @@ import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
-import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
+import { Table, type TablePagination } from "@/components/ui/Table";
+import {
+  CompliancePill,
+  complianceGlassCardClass,
+} from "@/components/regulatory-compliance/compliance-ui";
 import {
   TABLE_HEADER_ACTION_CLASS,
   TABLE_HEADER_ACTION_ICON_CLASS,
@@ -23,6 +26,7 @@ export type PolicyMakerDocumentTableProps = Readonly<{
   onUploadDocument?: () => void;
   /** When true (detail panel closed), columns use the wider layout. */
   expanded?: boolean;
+  pagination?: TablePagination;
   className?: string;
 }>;
 
@@ -56,10 +60,10 @@ function createDocumentColumns(
               />
             </div>
             <div className="flex min-w-0 flex-col">
-              <Text as="p" className="text4 text-ehs-darker truncate">
+              <Text as="p" className="text-xs leading-normal text-[#0b1320]">
                 {doc.title}
               </Text>
-              <Text as="p" className="text8 text-ehs-muted-text truncate">
+              <Text as="p" className="text-2.5 text-[#8892a3]">
                 {`${doc.code} · ${doc.site}`}
               </Text>
             </div>
@@ -73,7 +77,10 @@ function createDocumentColumns(
       minSize: 48,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text as="span" className="text7 text-ehs-muted-text">
+        <Text
+          as="span"
+          className="text-2.5 leading-normal font-bold text-[#8892a3]"
+        >
           {info.getValue()}
         </Text>
       ),
@@ -84,7 +91,7 @@ function createDocumentColumns(
       minSize: 72,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text as="span" className="text4 text-ehs-gray">
+        <Text as="span" className="text-xs leading-normal text-[#566072]">
           {info.getValue()}
         </Text>
       ),
@@ -102,7 +109,10 @@ function createDocumentColumns(
       minSize: 84,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text as="span" className="text4 text-ehs-gray whitespace-nowrap tabular-nums">
+        <Text
+          as="span"
+          className="text-xs leading-normal whitespace-nowrap tabular-nums text-[#566072]"
+        >
           {info.getValue()}
         </Text>
       ),
@@ -125,7 +135,8 @@ function createDocumentColumns(
                 ? `Close details for ${row.original.title}`
                 : `View ${row.original.title}`
             }
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               onViewMore(row.original.id);
             }}
           >
@@ -156,6 +167,7 @@ export function PolicyMakerDocumentTable(
     onViewMore,
     onUploadDocument,
     expanded = false,
+    pagination,
     className = "",
   } = props;
 
@@ -165,21 +177,29 @@ export function PolicyMakerDocumentTable(
   );
 
   return (
-    <IncidentListTable
+    <Table
+      variant="compliance"
       data={documents}
       columns={columns}
-      selectedId={selectedId}
-      onViewMore={onViewMore}
-      expanded={expanded}
-      compact
-      className={className}
-      toolbar={
-        <div className="border-ehs-border flex h-[50.595px] items-center justify-between gap-3 border-b px-4">
+      getRowId={(row) => row.id}
+      selectedRowId={selectedId}
+      onRowClick={(row) => {
+        onViewMore(row.id);
+      }}
+      pagination={pagination}
+      containerClassName={[complianceGlassCardClass, className]
+        .filter(Boolean)
+        .join(" ")}
+      header={
+        <div className="flex h-[50.595px] items-center justify-between gap-3">
           <div className="flex min-w-0 items-baseline gap-2">
-            <Text as="h2" className="text5 text-ehs-darker shrink-0">
+            <Text
+              as="h2"
+              className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
+            >
               {categoryLabel}
             </Text>
-            <Text as="p" className="text8 text-ehs-muted-text">
+            <Text as="p" className="text-2.5 leading-none text-[#8892a3]">
               {`${String(documentCount)} documents`}
             </Text>
           </div>

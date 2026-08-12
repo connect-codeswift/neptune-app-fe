@@ -103,7 +103,7 @@ export function BbsPageSkeleton() {
         >
           <div className="border-ehs-border/45 flex items-center justify-between gap-4 border-b px-4 py-3">
             <Skeleton className="h-3 w-36" />
-            <Skeleton className="h-9 w-40 rounded-[10px]" />
+            <Skeleton className="h-9 w-40 rounded-2.5" />
           </div>
           <div className="border-ehs-border/45 flex items-center gap-4 border-b px-4 py-3">
             <Skeleton className="h-2.5 w-14" />

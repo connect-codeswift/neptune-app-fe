@@ -23,7 +23,7 @@ export function IncidentDetailResponseCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
+      paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
       className={className}
     >
@@ -46,7 +46,7 @@ export function IncidentDetailResponseCard(
             <div
               key={action.id}
               className={[
-                "flex h-[38px] items-center gap-[10px] rounded-lg border px-[13px] py-[11px]",
+                "flex h-9.5 items-center gap-2.5 rounded-lg border px-3.25 py-2.75",
                 action.completed
                   ? "border-ehs-green bg-ehs-green-bg-light"
                   : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
@@ -56,7 +56,7 @@ export function IncidentDetailResponseCard(
                 <div className="bg-ehs-green text-ehs-light-text flex size-4 shrink-0 items-center justify-center rounded">
                   <Icon
                     icon="mdi:check"
-                    className="size-[11px]"
+                    className="size-2.75"
                     aria-hidden="true"
                   />
                 </div>

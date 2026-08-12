@@ -279,7 +279,7 @@ export function ReplacementRequestContent() {
                   type="button"
                   variant="tertiary"
                   onClick={handleCancel}
-                  className="w-full rounded-[10px] px-4 py-2.5 text-base font-medium sm:w-auto"
+                  className="w-full rounded-2.5 px-4 py-2.5 text-base font-medium sm:w-auto"
                 >
                   Cancel
                 </Button>
@@ -289,7 +289,7 @@ export function ReplacementRequestContent() {
                   variant="primary"
                   isLoading={replaceRequest.isPending}
                   disabled={!issueIdParam || itemOptions.length === 0}
-                  className="w-full rounded-[10px] px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
+                  className="w-full rounded-2.5 px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
                 >
                   {replaceRequest.isPending
                     ? "Submitting..."

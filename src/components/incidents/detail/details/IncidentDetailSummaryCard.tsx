@@ -23,8 +23,8 @@ export function IncidentDetailSummaryCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[13px]"
+      paddingClassName="p-5.75"
+      incidentGlassCardClassName="gap-3.25"
       className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
         .filter(Boolean)
         .join(" ")}

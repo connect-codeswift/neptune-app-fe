@@ -41,7 +41,7 @@ export function IncidentDetailInfoCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
+      paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
       className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
@@ -51,7 +51,7 @@ export function IncidentDetailInfoCard(
         Incident details
       </Text>
 
-      <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4.5 gap-y-4.5 sm:grid-cols-2">
         {items.length === 0 ? (
           <div className="text-ehs-muted-text col-span-full py-6 text-center text4">
             No incident detail fields returned by the API.
@@ -62,7 +62,7 @@ export function IncidentDetailInfoCard(
             const canEdit = isEditing && kind !== "readonly";
 
             return (
-              <div key={item.key} className="flex flex-col gap-[3px]">
+              <div key={item.key} className="flex flex-col gap-0.75">
                 <span className="text-ehs-muted-text text6">
                   {item.label}
                 </span>

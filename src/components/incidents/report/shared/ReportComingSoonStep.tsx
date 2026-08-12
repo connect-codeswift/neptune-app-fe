@@ -24,10 +24,10 @@ export function ReportComingSoonStep(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[29px]"
+      paddingClassName="p-7.25"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
-      <div className="flex min-h-[420px] flex-col gap-7">
+      <div className="flex min-h-105 flex-col gap-7">
         <div>
           <Text
             as="p"
@@ -47,17 +47,17 @@ export function ReportComingSoonStep(
           </Text>
         </div>
 
-        <div className="mt-auto border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+        <div className="mt-auto border-t border-[rgba(15,23,42,0.08)] pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
               Back
@@ -68,12 +68,12 @@ export function ReportComingSoonStep(
                 type="button"
                 variant="primary"
                 onClick={onContinue}
-                className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+                className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
               >
                 Continue
                 <Icon
                   icon="mdi:chevron-right"
-                  className="size-[13px]"
+                  className="size-3.25"
                   aria-hidden="true"
                 />
               </Button>

@@ -41,7 +41,7 @@ export function LotoEquipmentProcedureTab(
             {detail.energySources.map((source, index) => (
               <div
                 key={source}
-                className="rounded-[12px] bg-[rgba(15,23,42,0.04)] px-4 py-3.5"
+                className="rounded-3 bg-[rgba(15,23,42,0.04)] px-4 py-3.5"
               >
                 <p className="text4 text-ehs-darker font-semibold">{source}</p>
                 <p className="text8 mt-0.5 text-[#8892a3]">
@@ -68,7 +68,7 @@ export function LotoEquipmentProcedureTab(
               return (
                 <li key={step.id} className="flex gap-3.5 px-2.5 py-3">
                   <div className="flex flex-col items-center">
-                    <span className="text5 flex size-[30px] shrink-0 items-center justify-center rounded-[15px] bg-[rgba(8,145,166,0.12)] text-[#0891a6]">
+                    <span className="text5 flex size-7.5 shrink-0 items-center justify-center rounded-3.75 bg-[rgba(8,145,166,0.12)] text-[#0891a6]">
                       {String(index + 1)}
                     </span>
                     {!isLast ? (
@@ -76,7 +76,7 @@ export function LotoEquipmentProcedureTab(
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1 pt-1">
-                    <span className="text6 inline-flex rounded-[5px] bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-[#8892a3]">
+                    <span className="text6 inline-flex rounded-1.25 bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-[#8892a3]">
                       {step.tag}
                     </span>
                     <p className="text4 mt-1.5 text-[#2a3446]">
@@ -100,7 +100,7 @@ export function LotoEquipmentProcedureTab(
         </IncidentGlassCard>
       </div>
 
-      <IncidentGlassCard paddingClassName="p-[18px]" className="min-w-0">
+      <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
         <h2 className="text3 text-ehs-darker mb-3">Procedure Info</h2>
         <dl className="flex flex-col">
           <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">

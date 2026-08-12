@@ -22,7 +22,7 @@ function SectionCardSkeleton(props: Readonly<{ rows: number }>) {
               {Array.from({ length: 4 }).map((_, answerIndex) => (
                 <Skeleton
                   key={answerIndex}
-                  className="h-7 w-16 rounded-[10px]"
+                  className="h-7 w-16 rounded-2.5"
                 />
               ))}
             </div>
@@ -62,7 +62,7 @@ export function AuditChecklistSkeleton() {
       <SectionCardSkeleton rows={2} />
 
       <div className="flex">
-        <Skeleton className="h-11 w-40 rounded-[10px]" />
+        <Skeleton className="h-11 w-40 rounded-2.5" />
       </div>
     </div>
   );

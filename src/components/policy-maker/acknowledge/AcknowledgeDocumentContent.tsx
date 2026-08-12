@@ -66,7 +66,7 @@ export function AcknowledgeDocumentContent(
   if (isClientReady && !hasToken) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
           Sign in required
         </Text>
         <Text as="p" className="text-ehs-muted-text text-3.5">
@@ -86,7 +86,7 @@ export function AcknowledgeDocumentContent(
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-4">
         <IncidentGlassCard
-          className="min-h-[220px] text-center"
+          className="min-h-55 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -119,7 +119,7 @@ export function AcknowledgeDocumentContent(
   if (!document) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
           Document not found
         </Text>
         <Text as="p" className="text-ehs-muted-text text-3.5">
@@ -138,7 +138,7 @@ export function AcknowledgeDocumentContent(
   if (!canAcknowledge) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
           Not assigned
         </Text>
         <Text

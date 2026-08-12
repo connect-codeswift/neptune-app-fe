@@ -45,7 +45,7 @@ function FilesContent(
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] border-collapse text-left">
+        <table className="w-full min-w-140 border-collapse text-left">
           <thead>
             <tr>
               {(
@@ -63,7 +63,7 @@ function FilesContent(
                 <th
                   key={column.label || `action-${String(index)}`}
                   className={[
-                    "text-ehs-muted-text pt-[11px] pb-[11.5px] text6",
+                    "text-ehs-muted-text pt-2.75 pb-[11.5px] text6",
                     column.align === "right" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
@@ -99,15 +99,15 @@ function FilesContent(
                   ].join(" ")}
                 >
                   <td className="py-3.5 pr-3">
-                    <div className="flex items-center gap-[10px]">
+                    <div className="flex items-center gap-2.5">
                       <div className="text-ehs-gray flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)]">
                         <Icon
                           icon={getFileIcon(item.kind)}
-                          className="size-[13px]"
+                          className="size-3.25"
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="text-ehs-dark-bg max-w-[140px] truncate text4 leading-normal">
+                      <span className="text-ehs-dark-bg max-w-35 truncate text4 leading-normal">
                         {item.name}
                       </span>
                     </div>
@@ -132,7 +132,7 @@ function FilesContent(
                           event.stopPropagation();
                           onDeleteFile?.(item);
                         }}
-                        className="text-ehs-muted-text hover:bg-ehs-red/10 hover:text-ehs-red inline-flex size-7 items-center justify-center rounded-[8px] transition-colors"
+                        className="text-ehs-muted-text hover:bg-ehs-red/10 hover:text-ehs-red inline-flex size-7 items-center justify-center rounded-2 transition-colors"
                         aria-label={`Delete ${item.name}`}
                       >
                         <Icon
@@ -188,7 +188,7 @@ export function IncidentDetailFilesTable(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
+      paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
       className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)

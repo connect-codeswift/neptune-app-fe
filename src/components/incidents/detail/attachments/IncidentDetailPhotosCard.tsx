@@ -57,9 +57,9 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text5 backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[10.5px] text5 backdrop-blur-1.5 transition-colors hover:bg-white/80"
           >
-            <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
+            <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
             Add file
           </button>
         ) : null}
@@ -70,7 +70,7 @@ function PhotosContent(
           No media files uploaded.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {displayItems.map((item, index) => {
             const isVideo = item.kind === "video";
             const isPdf = item.kind === "pdf";
@@ -85,7 +85,7 @@ function PhotosContent(
             return (
               <div
                 key={item.id}
-                className="relative aspect-[152/114] w-full overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.08)]"
+                className="relative aspect-[152/114] w-full overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.08)]"
                 style={{
                   backgroundImage: gradients[index % gradients.length],
                 }}
@@ -126,7 +126,7 @@ function PhotosContent(
 
                   {isVideo ? (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
-                      <div className="text-ehs-dark-bg flex size-9 items-center justify-center rounded-[18px] bg-[rgba(255,255,255,0.92)]">
+                      <div className="text-ehs-dark-bg flex size-9 items-center justify-center rounded-4.5 bg-[rgba(255,255,255,0.92)]">
                         <Icon
                           icon="mdi:play"
                           className="size-4"
@@ -136,7 +136,7 @@ function PhotosContent(
                     </div>
                   ) : null}
 
-                  <div className="absolute inset-x-2 bottom-[3px] z-20 flex items-start justify-between gap-1">
+                  <div className="absolute inset-x-2 bottom-0.75 z-20 flex items-start justify-between gap-1">
                     <span className="truncate text8 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.name.replace(/\.[^.]+$/, "")}
                     </span>
@@ -211,7 +211,7 @@ export function IncidentDetailPhotosCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
+      paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
       className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)

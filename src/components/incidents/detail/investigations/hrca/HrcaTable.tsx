@@ -42,8 +42,8 @@ const columnHelper = createColumnHelper<HrcaRow>();
 function WhyHeader(props: Readonly<{ step: number }>) {
   const { step } = props;
   return (
-    <div className="flex h-[35px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[11px] py-[9px]">
-      <span className="bg-ehs-slate inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] text8 font-bold tracking-[0.23px] text-[#f3f5f8]">
+    <div className="flex h-8.75 w-full items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2.75 py-2.25">
+      <span className="bg-ehs-slate inline-flex size-4.25 shrink-0 items-center justify-center rounded-[8.5px] text8 font-bold tracking-[0.23px] text-[#f3f5f8]">
         {String(step)}
       </span>
       <Text
@@ -76,7 +76,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("contributingFactor", {
         id: "contributingFactor",
         header: () => (
-          <div className="bg-ehs-normal-blue/13 my-[2px] flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] px-[11px] py-[9px]">
+          <div className="bg-ehs-normal-blue/13 my-0.5 flex h-7.75 w-full items-center justify-center rounded-2.25 border border-[rgba(15,23,42,0.08)] px-2.75 py-2.25">
             <Text
               as="span"
               className="text-center text8 leading-none font-bold tracking-[0.23px] text-[#056e7e]"
@@ -123,7 +123,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("correctiveActions", {
         id: "correctiveActions",
         header: () => (
-          <div className="my-[2px] flex h-[31px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-[11px] py-[9px]">
+          <div className="my-0.5 flex h-7.75 w-full items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-2.75 py-2.25">
             <Icon
               icon="mdi:check"
               className="size-3 text-[#10b981]"
@@ -163,7 +163,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
   return (
     <article
       className={[
-        "relative overflow-hidden rounded-[20px] border border-white/90 bg-white/62 p-[17px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]",
+        "relative overflow-hidden rounded-5 border border-white/90 bg-white/62 p-4.25 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]",
         className,
       ]
         .filter(Boolean)
@@ -171,13 +171,13 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
     >
       <div className="relative z-1 w-full overflow-x-auto overscroll-x-contain">
         <div
-          className="flex flex-col gap-[10px]"
+          className="flex flex-col gap-2.5"
           style={{ minWidth: `${String(HRCA_TABLE_MIN_WIDTH_PX)}px` }}
         >
           {table.getHeaderGroups().map((headerGroup) => (
             <div
               key={headerGroup.id}
-              className={[hrcaDesktopGridClass, "h-[35px] items-center"].join(
+              className={[hrcaDesktopGridClass, "h-8.75 items-center"].join(
                 " ",
               )}
             >

@@ -213,7 +213,7 @@ export default function AcceptInvitationRightPanel() {
     return (
       <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
         <ShadeBall
-          positionAsClassName="top-[-150px] right-[-150px]"
+          positionAsClassName="-top-37.5 -right-37.5"
           blur={80}
         />
         <div className="flex w-full max-w-sm flex-col gap-4">
@@ -238,9 +238,9 @@ export default function AcceptInvitationRightPanel() {
 
   return (
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+      <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
       <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
+        positionAsClassName="-bottom-37.5 -left-37.5"
         blur={80}
       />
 
@@ -355,7 +355,7 @@ export default function AcceptInvitationRightPanel() {
                 alt="QR code for setting up two-factor authentication"
                 width={220}
                 height={220}
-                className="h-[220px] w-[220px]"
+                className="h-55 w-55"
               />
             ) : (
               <p className="text-ehs-muted-text py-6 text-center text-xs">

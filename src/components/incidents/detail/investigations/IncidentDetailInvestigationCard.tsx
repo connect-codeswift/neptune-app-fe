@@ -65,9 +65,9 @@ export function IncidentDetailInvestigationCard(
     <div
       className={["flex flex-col gap-3.5", className].filter(Boolean).join(" ")}
     >
-      <IncidentGlassCard paddingClassName="p-[19px]">
+      <IncidentGlassCard paddingClassName="p-4.75">
         <div className="flex flex-wrap items-center gap-3.5">
-          <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-11 shrink-0 items-center justify-center rounded-[12px]">
+          <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-11 shrink-0 items-center justify-center rounded-3">
             <Icon
               icon="mdi:star-four-points"
               className="size-5"
@@ -89,12 +89,12 @@ export function IncidentDetailInvestigationCard(
 
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
               statusTone,
             ].join(" ")}
           >
             <span
-              className={["size-1.5 shrink-0 rounded-[3px]", statusDot].join(
+              className={["size-1.5 shrink-0 rounded-0.75", statusDot].join(
                 " ",
               )}
             />
@@ -104,11 +104,11 @@ export function IncidentDetailInvestigationCard(
           <button
             type="button"
             onClick={handleOpenHrca}
-            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex shrink-0 items-center gap-2 rounded-[10px] px-[15px] pt-[10px] pb-[10.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
+            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex shrink-0 items-center gap-2 rounded-2.5 px-3.75 pt-2.5 pb-[10.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
           >
             <Icon
               icon="mdi:open-in-new"
-              className="size-[13px]"
+              className="size-3.25"
               aria-hidden="true"
             />
             Open HRCA
@@ -117,7 +117,7 @@ export function IncidentDetailInvestigationCard(
       </IncidentGlassCard>
 
       <IncidentGlassCard
-        paddingClassName="p-[23px]"
+        paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
         className="bg-white/62"
       >
@@ -183,7 +183,7 @@ export function IncidentDetailInvestigationCard(
                   >
                     <div
                       className={[
-                        "flex flex-col gap-0.5 rounded-[10px] border px-[15px] py-[11px]",
+                        "flex flex-col gap-0.5 rounded-2.5 border px-3.75 py-2.75",
                         isRoot
                           ? "border-ehs-normal-blue bg-ehs-dark-blue-bg-light"
                           : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
@@ -225,7 +225,7 @@ export function IncidentDetailInvestigationCard(
 
       {contributingFactors.length > 0 ? (
         <IncidentGlassCard
-          paddingClassName="p-[23px]"
+          paddingClassName="p-5.75"
           incidentGlassCardClassName="gap-3.5"
           className="bg-white/62"
         >
@@ -233,15 +233,15 @@ export function IncidentDetailInvestigationCard(
             Contributing factors
           </Text>
 
-          <div className="flex flex-col gap-[10px]">
+          <div className="flex flex-col gap-2.5">
             {contributingFactors.map((factor) => (
               <div
                 key={`${factor.category}-${factor.text}`}
-                className="flex items-start gap-3 rounded-[10px] border border-l-[3px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-[13px] pr-[13px] pl-[15px]"
+                className="flex items-start gap-3 rounded-2.5 border border-l-0.75 border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-3.25 pr-3.25 pl-3.75"
                 style={{ borderLeftColor: factor.accent }}
               >
                 <span
-                  className="min-w-[86px] shrink-0 text7 tracking-[0.6px] uppercase"
+                  className="min-w-21.5 shrink-0 text7 tracking-[0.6px] uppercase"
                   style={{ color: factor.accent }}
                 >
                   {factor.category}

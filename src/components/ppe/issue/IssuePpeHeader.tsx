@@ -22,7 +22,7 @@ function Chevron() {
 /** Breadcrumb + title bar above the Issue PPE form. */
 export function IssuePpeHeader() {
   return (
-    <div className="relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-[22px]">
+    <div className="relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-5.5">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -46,13 +46,13 @@ export function IssuePpeHeader() {
           <div className="flex min-w-0 flex-col gap-1">
             <Text
               as="h1"
-              className="text-ehs-darker text-base font-semibold tracking-[-0.2px] md:text-[22px]"
+              className="text-ehs-darker text-base font-semibold tracking-[-0.2px] md:text-5.5"
             >
               Issue PPE
             </Text>
             <Text
               as="p"
-              className="text-ehs-muted-text hidden text-[13px] leading-[19.5px] md:block"
+              className="text-ehs-muted-text hidden text-3.25 leading-[19.5px] md:block"
             >
               Assign personal protective equipment to an employee
             </Text>

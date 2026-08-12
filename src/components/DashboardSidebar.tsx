@@ -175,12 +175,12 @@ function SidebarAccessWindow(
           </Text>
         </div>
 
-        <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+        <Text as="p" className="text-ehs-muted-text pl-5 text-2.75">
           {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
         </Text>
 
         {isUrgent ? (
-          <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+          <Text as="p" className="text-ehs-muted-text pl-5 text-2.75">
             Contact CodeSwift to extend
           </Text>
         ) : null}
@@ -268,7 +268,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             <div key={group.title} className="flex flex-col gap-1">
               <Text
                 as="p"
-                className="text-ehs-muted-text px-3 pb-1 text-[10px] font-semibold tracking-wider uppercase"
+                className="text-ehs-muted-text px-3 pb-1 text-2.5 font-semibold tracking-wider uppercase"
               >
                 {group.title}
               </Text>

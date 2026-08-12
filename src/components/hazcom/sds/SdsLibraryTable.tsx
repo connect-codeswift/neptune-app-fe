@@ -227,7 +227,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text6 text-ehs-muted-text px-3 pt-[13px] pb-[13.5px] sm:px-4",
+                        "text6 text-ehs-muted-text px-3 pt-3.25 pb-[13.5px] sm:px-4",
                         alignClass(align),
                       ].join(" ")}
                     >

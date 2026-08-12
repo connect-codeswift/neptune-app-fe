@@ -2,14 +2,14 @@
 export const HRCA_TABLE_MIN_WIDTH_PX = 1500;
 
 export const hrcaDesktopGridClass =
-  "grid grid-cols-[136px_minmax(0,1.2fr)_repeat(5,minmax(0,1fr))_minmax(0,1.35fr)] gap-[10px]";
+  "grid grid-cols-[136px_minmax(0,1.2fr)_repeat(5,minmax(0,1fr))_minmax(0,1.35fr)] gap-2.5";
 
 const hrcaCardBorderClass = "border border-[rgba(11,19,32,0.14)]";
 
 export const hrcaCellShellClass = [
-  "relative flex h-full w-full flex-col items-start rounded-[12px]",
+  "relative flex h-full w-full flex-col items-start rounded-3",
   hrcaCardBorderClass,
-  "bg-white pt-[13px] px-3.5 pb-3.5 text-left transition-[border-color,box-shadow]",
+  "bg-white pt-3.25 px-3.5 pb-3.5 text-left transition-[border-color,box-shadow]",
 ].join(" ");
 
-export const HRCA_ROW_MIN_HEIGHT_CLASS = "min-h-[167px]";
+export const HRCA_ROW_MIN_HEIGHT_CLASS = "min-h-41.75";

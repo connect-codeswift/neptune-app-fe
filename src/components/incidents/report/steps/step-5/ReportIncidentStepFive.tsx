@@ -192,7 +192,7 @@ export function ReportIncidentStepFive(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4 sm:p-[29px]"
+      paddingClassName="p-4 sm:p-7.25"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-7">
@@ -217,15 +217,15 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 1: Top nested summary card */}
-          <div className="flex flex-col gap-2.5 rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/42 p-4">
+          <div className="flex flex-col gap-2.5 rounded-3 border border-[rgba(15,23,42,0.08)] bg-white/42 p-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {severityBadge}
               </span>
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {typeBadge}
               </span>
-              <span className="text-ehs-gray rounded-[6px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {siteBadge}
               </span>
             </div>
@@ -277,7 +277,7 @@ export function ReportIncidentStepFive(
 
             <ReportReviewDetailCard
               title="Reporter"
-              paddingClassName="px-[15px] pt-[15px] pb-[29px]"
+              paddingClassName="px-3.75 pt-3.75 pb-7.25"
               rows={[
                 { label: "Reported by", value: reporterName },
                 { label: "Department", value: departmentLabel },
@@ -306,8 +306,8 @@ export function ReportIncidentStepFive(
           ) : null}
 
           {/* Section 3: Routing preview banner */}
-          <div className="border-ehs-border bg-ehs-light-bg flex items-start gap-3 rounded-[12px] border p-3.5">
-            <div className="text-ehs-normal-blue bg-ehs-normal-blue/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px]">
+          <div className="border-ehs-border bg-ehs-light-bg flex items-start gap-3 rounded-3 border p-3.5">
+            <div className="text-ehs-normal-blue bg-ehs-normal-blue/10 mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-1.5">
               <Icon icon="mdi:shield-check-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
@@ -322,8 +322,8 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 4: AI summary ready banner */}
-          <div className="from-ehs-light-blue to-ehs-light-blue-hover border-ehs-normal-blue/15 flex items-start gap-3 rounded-[12px] border bg-gradient-to-r p-3.5">
-            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[6px] bg-white shadow-sm">
+          <div className="from-ehs-light-blue to-ehs-light-blue-hover border-ehs-normal-blue/15 flex items-start gap-3 rounded-3 border bg-linear-to-r p-3.5">
+            <div className="text-ehs-normal-blue mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-1.5 bg-white shadow-sm">
               <Icon icon="mdi:creation-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
@@ -333,7 +333,7 @@ export function ReportIncidentStepFive(
               >
                 AI summary ready
               </Text>
-              <p className="text-ehs-slate text-xs leading-[15px]">
+              <p className="text-ehs-slate text-xs leading-3.75">
                 {form.description.trim() ||
                   "AI summary will be generated from your report after submit."}
               </p>
@@ -342,18 +342,18 @@ export function ReportIncidentStepFive(
         </div>
 
         {/* Form Bottom Toolbar Actions */}
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
               disabled={createIncidentMutation.isPending}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
               Back
@@ -369,14 +369,14 @@ export function ReportIncidentStepFive(
               variant="primary"
               onClick={() => void handleSubmit()}
               disabled={createIncidentMutation.isPending}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               {createIncidentMutation.isPending ? (
                 <>
                   Submitting…
                   <Icon
                     icon="mdi:loading"
-                    className="size-[13px] animate-spin"
+                    className="size-3.25 animate-spin"
                     aria-hidden="true"
                   />
                 </>
@@ -385,7 +385,7 @@ export function ReportIncidentStepFive(
                   Submit report
                   <Icon
                     icon="mdi:check"
-                    className="size-[13px]"
+                    className="size-3.25"
                     aria-hidden="true"
                   />
                 </>

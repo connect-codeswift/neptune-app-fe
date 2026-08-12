@@ -69,7 +69,7 @@ function buildColumns(): ColumnDef<CapaDashboardItem, unknown>[] {
 
         return (
           <span
-            className="text-ehs-darker block max-w-[200px] truncate text-sm whitespace-nowrap"
+            className="text-ehs-darker block max-w-50 truncate text-sm whitespace-nowrap"
             title={control}
           >
             {clipWords(control)}

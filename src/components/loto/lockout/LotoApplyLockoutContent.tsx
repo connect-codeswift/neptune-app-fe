@@ -101,8 +101,8 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
           <IncidentGlassCard
-            paddingClassName="p-[22px]"
-            className="min-w-0 rounded-[20px]"
+            paddingClassName="p-5.5"
+            className="rounded-5 min-w-0"
           >
             <h2 className="text3 text-ehs-darker">Lockout Registration</h2>
             <div className="mt-4">
@@ -117,12 +117,12 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
             </div>
           </IncidentGlassCard>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-[18px] py-4">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-4.5 py-4">
             <input
               type="checkbox"
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
-              className="mt-0.5 size-4 shrink-0 rounded-[2px] border border-[#767676] accent-[#ef4444]"
+              className="rounded-0.5 mt-0.5 size-4 shrink-0 border border-[#767676] accent-[#ef4444]"
             />
             <span className="min-w-0">
               <span className="text5 block text-[#ef4444]">
@@ -139,7 +139,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="text4 inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="text4 rounded-2.5 inline-flex h-9.75 items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -149,7 +149,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               form={LOTO_APPLY_FORM_ID}
               variant="danger"
               disabled={!confirmed}
-              className="text4 gap-[7px] rounded-[10px] px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
               Confirm Lockout Applied

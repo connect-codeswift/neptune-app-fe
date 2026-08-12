@@ -20,20 +20,20 @@ export function CapaPageSkeleton() {
         <MetricCardsRowSkeleton />
 
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
-          <Skeleton className="h-[296px] rounded-2xl" />
-          <Skeleton className="h-[296px] rounded-2xl" />
+          <Skeleton className="h-74 rounded-2xl" />
+          <Skeleton className="h-74 rounded-2xl" />
         </div>
 
-        <Skeleton className="h-[53px] rounded-2xl" />
+        <Skeleton className="h-13.25 rounded-2xl" />
 
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-          <Skeleton className="h-[420px] rounded-2xl" />
-          <Skeleton className="h-[520px] rounded-2xl" />
+          <Skeleton className="h-105 rounded-2xl" />
+          <Skeleton className="h-130 rounded-2xl" />
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
-          <Skeleton className="h-[280px] rounded-2xl" />
-          <Skeleton className="h-[280px] rounded-2xl" />
+          <Skeleton className="h-70 rounded-2xl" />
+          <Skeleton className="h-70 rounded-2xl" />
         </div>
       </div>
     </div>

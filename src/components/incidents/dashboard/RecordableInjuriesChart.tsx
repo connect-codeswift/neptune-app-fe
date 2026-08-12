@@ -80,7 +80,7 @@ function RecordablesLineChart(
         {series.length >= 2 ? (
           <span
             className={[
-              "inline-flex items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold",
+              "inline-flex items-center gap-1.5 rounded-full px-2.25 py-[2.5px] text-sm font-bold",
               trendImproving
                 ? "bg-ehs-green/14 text-ehs-green"
                 : "bg-ehs-red/14 text-ehs-red",
@@ -197,7 +197,7 @@ function RecordablesLineChart(
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
           <span
-            className="bg-ehs-normal-blue size-2 rounded-[2px]"
+            className="bg-ehs-normal-blue size-2 rounded-0.5"
             aria-hidden="true"
           />
           Recordables
@@ -205,7 +205,7 @@ function RecordablesLineChart(
         {target != null ? (
           <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
             <span
-              className="bg-ehs-green size-2 rounded-[2px]"
+              className="bg-ehs-green size-2 rounded-0.5"
               aria-hidden="true"
             />
             Monthly target
@@ -223,8 +223,8 @@ export function RecordableInjuriesChart(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      className={["min-h-[308px]", className].filter(Boolean).join(" ")}
+      paddingClassName="p-5.75"
+      className={["min-h-77", className].filter(Boolean).join(" ")}
     >
       <RecordablesLineChart chart={chart} />
     </IncidentGlassCard>

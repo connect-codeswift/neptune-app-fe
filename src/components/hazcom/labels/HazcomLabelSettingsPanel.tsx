@@ -121,7 +121,7 @@ export function HazcomLabelSettingsPanel(
                         aria-checked={isSelected}
                         onClick={() => onLabelSizeIdChange(size.id)}
                         className={[
-                          "h-9 rounded-[10px] border transition-colors",
+                          "h-9 rounded-2.5 border transition-colors",
                           isSelected
                             ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
                             : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
@@ -145,7 +145,7 @@ export function HazcomLabelSettingsPanel(
                       aria-checked={isSelected}
                       onClick={() => onLabelSizeIdChange(size.id)}
                       className={[
-                        "h-9 w-full rounded-[10px] border transition-colors",
+                        "h-9 w-full rounded-2.5 border transition-colors",
                         isSelected
                           ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
                           : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",

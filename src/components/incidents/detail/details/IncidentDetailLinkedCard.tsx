@@ -38,7 +38,7 @@ export function IncidentDetailLinkedCard(
   const hasMoreThanPreview = totalCount > linkedItems.length;
 
   return (
-    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+    <IncidentGlassCard paddingClassName="p-4.75" className={className}>
       <div className="flex items-center justify-between pb-3.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
           Linked items
@@ -47,7 +47,7 @@ export function IncidentDetailLinkedCard(
           type="button"
           onClick={onAddCapa}
           disabled={!onAddCapa || isLoading}
-          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-[10px] px-[11px] py-[6.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-2.5 px-2.75 py-[6.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add CAPA
@@ -67,11 +67,11 @@ export function IncidentDetailLinkedCard(
             type="button"
             onClick={onSelectItem}
             className={[
-              "flex w-full items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] text-left transition-colors hover:bg-white/30",
-              index === linkedItems.length - 1 ? "pb-3.5" : "pb-[10px]",
+              "flex w-full items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.75 text-left transition-colors hover:bg-white/30",
+              index === linkedItems.length - 1 ? "pb-3.5" : "pb-2.5",
             ].join(" ")}
           >
-            <div className="text-ehs-gray flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)]">
+            <div className="text-ehs-gray flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)]">
               <Icon icon={item.icon} className="size-3.5" aria-hidden="true" />
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
@@ -92,11 +92,11 @@ export function IncidentDetailLinkedCard(
       )}
 
       {!isLoading && onViewAll ? (
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-[9px]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] pt-2.25">
           <button
             type="button"
             onClick={onViewAll}
-            className="text-ehs-gray hover:text-ehs-dark-bg mx-auto flex items-center gap-2 rounded-[10px] px-2.5 py-[5.5px] text5 transition-colors"
+            className="text-ehs-gray hover:text-ehs-dark-bg mx-auto flex items-center gap-2 rounded-2.5 px-2.5 py-[5.5px] text5 transition-colors"
           >
             {hasMoreThanPreview
               ? `View all ${String(totalCount)} linked items`

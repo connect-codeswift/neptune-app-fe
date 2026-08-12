@@ -100,8 +100,8 @@ export function IncidentDetailHeader(
                     isLoading={isSaving}
                     className={
                       isEditing
-                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-[10px] px-4 py-2 text4 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
-                        : "text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text4 font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
+                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 px-4 py-2 text4 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
+                        : "text-ehs-slate rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text4 font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
                     }
                   >
                     {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}

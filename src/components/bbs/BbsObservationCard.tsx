@@ -29,13 +29,13 @@ export function BbsObservationCard(props: BbsObservationCardProps) {
       className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-xl border bg-white p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.05)] transition-colors hover:bg-slate-50/80"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-ehs-muted-text text-[11px] font-bold">
+        <span className="text-ehs-muted-text text-2.75 font-bold">
           {session.id}
         </span>
         <IncidentBadge
           label={safeLabel}
           tone={safeTone}
-          className="w-fit rounded-md px-2 py-1 text-[11px]!"
+          className="w-fit rounded-md px-2 py-1 text-2.75!"
         />
       </div>
 
@@ -51,7 +51,7 @@ export function BbsObservationCard(props: BbsObservationCardProps) {
       <div className="border-ehs-border border-t" />
 
       <div className="flex items-center justify-between gap-3">
-        <span className="text-ehs-muted-text flex min-w-0 items-center gap-1 text-[11px] font-medium">
+        <span className="text-ehs-muted-text flex min-w-0 items-center gap-1 text-2.75 font-medium">
           <Icon
             icon="mdi:account-outline"
             className="size-3 shrink-0"
@@ -62,7 +62,7 @@ export function BbsObservationCard(props: BbsObservationCardProps) {
         <IncidentBadge
           label={session.type}
           tone={observeTone(session.type)}
-          className="w-fit rounded-md px-2 py-0.5 text-[11px]!"
+          className="w-fit rounded-md px-2 py-0.5 text-2.75!"
         />
       </div>
     </button>

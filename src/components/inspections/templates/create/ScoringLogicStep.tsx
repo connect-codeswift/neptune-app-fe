@@ -297,7 +297,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 <div className="flex items-center justify-between gap-3">
                   <span
                     className={[
-                      "rounded-md px-2 py-0.5 text-[11px] font-bold tracking-wider uppercase",
+                      "rounded-md px-2 py-0.5 text-2.75 font-bold tracking-wider uppercase",
                       rule.active
                         ? "bg-ehs-normal-blue/15 text-ehs-dark-blue"
                         : "text-ehs-muted-text bg-slate-900/8",

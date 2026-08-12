@@ -113,7 +113,7 @@ export function HazcomRiskLevelOutput(
 
             return (
               <div key={row.field} className="flex items-center gap-3">
-                <span className="text8 text-ehs-gray w-[84px] shrink-0">
+                <span className="text8 text-ehs-gray w-21 shrink-0">
                   {row.label}
                 </span>
                 <div className="bg-ehs-dark-bg/8 h-1.5 flex-1 rounded-full">

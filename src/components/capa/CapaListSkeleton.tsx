@@ -9,7 +9,7 @@ const TABLE_COLUMNS = 8;
 
 function CapaKpiTileSkeleton() {
   return (
-    <GlassCard className="gap-[6px]">
+    <GlassCard className="gap-1.5">
       <div className="flex items-center justify-between gap-3">
         <Skeleton className="h-3 w-24" />
         <Skeleton className="size-7 rounded-full" />

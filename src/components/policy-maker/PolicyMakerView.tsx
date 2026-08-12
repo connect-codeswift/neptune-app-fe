@@ -187,10 +187,6 @@ export function PolicyMakerView() {
           )
         : null;
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize) || 1);
-  const canGoPrevious = pageNumber > 1 && !documentsQuery.isFetching;
-  const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
-
   return (
     <div className="flex min-h-screen flex-1 flex-col">
       <DashboardHeader title="Policy Maker" />
@@ -272,69 +268,25 @@ export function PolicyMakerView() {
                     : "xl:grid-cols-1",
                 ].join(" ")}
               >
-                <div className="flex min-w-0 flex-col gap-3">
-                  <PolicyMakerDocumentTable
-                    categoryLabel={categoryLabel(categoryId)}
-                    documentCount={documents.length}
-                    documents={documents}
-                    selectedId={selectedId}
-                    onViewMore={handleToggleDetailPanel}
-                    expanded={!isPanelOpen}
-                    onUploadDocument={() =>
-                      router.push("/dashboard/policy-maker/upload")
-                    }
-                    className="min-w-0"
-                  />
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
-                    <Text as="p" className="text4 text-ehs-muted-text">
-                      {[
-                        `Page ${String(pageNumber)} of ${String(totalPages)}`,
-                        totalCount > 0 ? `${String(totalCount)} total` : null,
-                        documentsQuery.isFetching ? "Loading…" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </Text>
-
-                    <div className="flex items-center gap-1.5">
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        aria-label="Previous page"
-                        disabled={!canGoPrevious}
-                        onClick={() =>
-                          setPageNumber((current) => Math.max(1, current - 1))
-                        }
-                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
-                      >
-                        <Icon
-                          icon="mdi:chevron-left"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        aria-label="Next page"
-                        disabled={!canGoNext}
-                        onClick={() =>
-                          setPageNumber((current) =>
-                            Math.min(totalPages, current + 1),
-                          )
-                        }
-                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
-                      >
-                        <Icon
-                          icon="mdi:chevron-right"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <PolicyMakerDocumentTable
+                  categoryLabel={categoryLabel(categoryId)}
+                  documentCount={documents.length}
+                  documents={documents}
+                  selectedId={selectedId}
+                  onViewMore={handleToggleDetailPanel}
+                  expanded={!isPanelOpen}
+                  onUploadDocument={() =>
+                    router.push("/dashboard/policy-maker/upload")
+                  }
+                  pagination={{
+                    pageNumber,
+                    pageSize,
+                    totalRecords: totalCount,
+                    onPageChange: setPageNumber,
+                    isLoading: documentsQuery.isFetching,
+                  }}
+                  className="min-w-0"
+                />
 
                 {isPanelOpen && selectedDocument ? (
                   <PolicyMakerDetailPanel

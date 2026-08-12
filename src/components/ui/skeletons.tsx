@@ -25,11 +25,11 @@ function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="flex flex-col gap-[2px]">
+      <div className="flex flex-col gap-0.5">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2.5 w-28" />
       </div>
-      {action ? <Skeleton className="h-6 w-16 rounded-[10px]" /> : null}
+      {action ? <Skeleton className="h-6 w-16 rounded-2.5" /> : null}
     </div>
   );
 }
@@ -107,11 +107,11 @@ export function SkeletonListRows(props: Readonly<{ rows?: number }>) {
           key={`skeleton-list-${String(index)}`}
           className="flex items-start justify-between gap-3"
         >
-          <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <Skeleton className="h-3.5 w-[70%]" />
             <Skeleton className="h-2.5 w-[45%]" />
           </div>
-          <Skeleton className="h-[22px] w-11 shrink-0 rounded-full" />
+          <Skeleton className="h-5.5 w-11 shrink-0 rounded-full" />
         </div>
       ))}
     </div>
@@ -135,7 +135,7 @@ function SkeletonFieldGrid(
       {repeat(fields, (index) => (
         <div
           key={`skeleton-field-${String(index)}`}
-          className="flex flex-col gap-[6px]"
+          className="flex flex-col gap-1.5"
         >
           <Skeleton className="h-2.5 w-24" />
           <Skeleton className="h-4 w-[70%]" />
@@ -292,7 +292,7 @@ export function SkeletonFormPage(props: Readonly<{ fields?: number }>) {
           {repeat(fields, (index) => (
             <div
               key={`skeleton-input-${String(index)}`}
-              className="flex flex-col gap-[6px]"
+              className="flex flex-col gap-1.5"
             >
               <Skeleton className="h-2.5 w-24" />
               <Skeleton className="h-10 w-full rounded-lg" />

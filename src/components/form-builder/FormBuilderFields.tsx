@@ -639,7 +639,7 @@ function SegmentedFillTilesControl(
     <div
       role="radiogroup"
       aria-label={field.label}
-      className="flex w-full items-stretch gap-0.5 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
+      className="flex w-full items-stretch gap-0.5 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
     >
       {field.options.map((option) => {
         const isSelected = value === option.value;
@@ -654,7 +654,7 @@ function SegmentedFillTilesControl(
               onChange(option.value);
             }}
             className={[
-              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[6px] py-2 leading-normal transition-colors",
+              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-1.5 py-2 leading-normal transition-colors",
               isSelected
                 ? "bg-[#0891a6] font-semibold text-white"
                 : "font-medium text-[#566072] hover:bg-white/70",
@@ -698,7 +698,7 @@ function AssessmentTilesControl(
               onChange(option.value);
             }}
             className={[
-              "text4 flex h-[54px] cursor-pointer items-center justify-center rounded-2xl border px-3 text-center leading-5 font-medium transition-colors",
+              "text4 flex h-13.5 cursor-pointer items-center justify-center rounded-2xl border px-3 text-center leading-5 font-medium transition-colors",
               isSelected && isPositive
                 ? "border-[#10b981] bg-[rgba(123,241,168,0.12)] text-[#10b981]"
                 : isSelected
@@ -835,10 +835,10 @@ function CheckboxGroupControl(
               // row-level selected state, so a group of these read as grey
               // bars and the only feedback was the 16px box. Now frosted like
               // every other control, and the whole row responds.
-              "text4 flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 py-2.5 transition-colors",
+              "text4 flex cursor-pointer items-center gap-2.5 rounded-2.5 border px-3 py-2.5 transition-colors",
               checked
                 ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
-                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-[5px] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
+                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
             ].join(" ")}
           >
             <input
@@ -853,7 +853,7 @@ function CheckboxGroupControl(
               aria-hidden="true"
               className={[
                 "flex shrink-0 items-center justify-center rounded border transition-colors",
-                isRows ? "size-[13px]" : "size-4",
+                isRows ? "size-3.25" : "size-4",
                 checked
                   ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
                   : isRows

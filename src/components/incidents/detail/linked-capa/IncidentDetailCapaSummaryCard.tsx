@@ -32,7 +32,7 @@ export function IncidentDetailCapaSummaryCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
+      paddingClassName="p-4.75"
       incidentGlassCardClassName="gap-3.5"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
@@ -49,7 +49,7 @@ export function IncidentDetailCapaSummaryCard(
         {stats.map((item) => (
           <div
             key={item.label}
-            className="flex flex-col gap-[5px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[15px]"
+            className="flex flex-col gap-1.25 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.75"
           >
             <span
               className={[

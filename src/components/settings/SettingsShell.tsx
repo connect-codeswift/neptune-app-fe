@@ -74,7 +74,7 @@ function SettingsSectionNav(
   return (
     <nav
       aria-label="Settings sections"
-      className="border-ehs-border inline-flex max-w-full shrink-0 flex-col gap-1 self-start overflow-x-auto rounded-xl border bg-white/60 p-[5px] sm:flex-row"
+      className="border-ehs-border inline-flex max-w-full shrink-0 flex-col gap-1 self-start overflow-x-auto rounded-xl border bg-white/60 p-1.25 sm:flex-row"
     >
       {SETTINGS_SECTIONS.map((section) => {
         const isActive =
@@ -87,7 +87,7 @@ function SettingsSectionNav(
             href={section.href}
             aria-current={isActive ? "page" : undefined}
             className={[
-              "inline-flex w-fit items-center rounded-[9px] px-4 py-[9px] transition-colors",
+              "inline-flex w-fit items-center rounded-2.25 px-4 py-2.25 transition-colors",
               isActive
                 ? "bg-ehs-normal-blue text5 text-ehs-light-text shadow-[0px_4px_12px_-4px_var(--ehs-normal-blue)]"
                 : "text4 text-ehs-gray hover:bg-white/70",
