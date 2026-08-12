@@ -4,10 +4,15 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
+  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
   className?: string;
 }>;
 
@@ -39,7 +44,64 @@ function versionBadgeClass(badge: "review" | "archived" | "current"): string {
 export function PolicyMakerDetailPanel(
   props: Readonly<PolicyMakerDetailPanelProps>,
 ) {
-  const { document, className = "" } = props;
+  const {
+    document,
+    isLoading = false,
+    errorMessage = null,
+    onRetry,
+    className = "",
+  } = props;
+
+  if (isLoading) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:loading"
+          className="text-ehs-normal-blue size-7 animate-spin"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Loading document details…
+        </Text>
+      </IncidentGlassCard>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:alert-circle-outline"
+          className="text-ehs-red size-8"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-darker">
+          Could not load details
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text text-center">
+          {errorMessage}
+        </Text>
+        {onRetry ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onRetry}
+            className="mt-1"
+          >
+            Retry
+          </Button>
+        ) : null}
+      </IncidentGlassCard>
+    );
+  }
 
   if (!document) {
     return (
