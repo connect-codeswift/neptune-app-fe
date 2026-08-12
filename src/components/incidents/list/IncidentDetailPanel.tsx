@@ -18,7 +18,10 @@ import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
-import { mapCapaItemsToIncidentCapas } from "@/services/mappers/capa.mapper";
+import {
+  buildCreateCapaRequest,
+  mapCapaItemsToIncidentCapas,
+} from "@/services/mappers/capa.mapper";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
@@ -84,13 +87,15 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const handleSubmitCapa = async (payload: CapaFormPayload) => {
     try {
       await createCapaMutation.mutateAsync({
-        incidentId: incident.numericId,
-        controlLevel: payload.controlLevel,
-        description: payload.description,
-        type: payload.type,
-        owner: payload.owner,
-        dueDate: payload.dueDate,
-        priority: payload.priority,
+        payload: buildCreateCapaRequest({
+          incidentId: incident.numericId,
+          controlLevel: payload.controlLevel,
+          description: payload.description,
+          type: payload.type,
+          owner: payload.owner,
+          dueDate: payload.dueDate,
+          priority: payload.priority,
+        }),
         tasks: payload.tasks,
       });
       const taskCount = payload.tasks?.length ?? 0;

@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailHeader } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailHeader";
@@ -17,6 +18,7 @@ import { toast } from "@/lib/toast";
 
 export type PolicyMakerDocumentDetailViewProps = Readonly<{
   document: PolicyDocument;
+  onEdit?: () => void;
   onVersionHistory?: () => void;
   onApproval?: () => void;
   onAcknowledgment?: () => void;
@@ -54,6 +56,7 @@ export function PolicyMakerDocumentDetailView(
 ) {
   const {
     document,
+    onEdit,
     onVersionHistory,
     onApproval,
     onAcknowledgment,
@@ -92,9 +95,12 @@ export function PolicyMakerDocumentDetailView(
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <DashboardHeader />
+
       <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
         <PolicyMakerDocumentDetailHeader
           document={document}
+          onEdit={onEdit}
           onVersionHistory={onVersionHistory}
           onApproval={onApproval}
           onAcknowledgment={onAcknowledgment}

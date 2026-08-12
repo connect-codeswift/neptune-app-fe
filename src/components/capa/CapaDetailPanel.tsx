@@ -9,13 +9,7 @@ import {
   CAPA_LIFECYCLE_STAGES,
   type CapaDashboardItem,
 } from "@/components/capa/capa-dashboard-data";
-
-const STATUS_PILL: Record<CapaDashboardItem["status"], string> = {
-  Planning: "bg-[rgba(8,145,166,0.12)] text-[#0891a6]",
-  "In progress": "bg-[rgba(59,130,246,0.12)] text-[#3b82f6]",
-  Overdue: "bg-[rgba(239,68,68,0.12)] text-[#ef4444]",
-  Verified: "bg-[rgba(16,185,129,0.12)] text-[#10b981]",
-};
+import { capaStatusPillClass } from "@/lib/capa-filters";
 
 const TYPE_PILL: Record<CapaDashboardItem["type"], string> = {
   Corrective: "bg-[#0891a6] text-white",
@@ -24,11 +18,13 @@ const TYPE_PILL: Record<CapaDashboardItem["type"], string> = {
 
 export type CapaDetailPanelProps = Readonly<{
   item: CapaDashboardItem;
+  /** Opens the full CAPA detail page (open-in-new control). */
+  onOpenDetail?: () => void;
 }>;
 
 /** Selected CAPA detail — Figma 7123:42184. */
 export function CapaDetailPanel(props: CapaDetailPanelProps) {
-  const { item } = props;
+  const { item, onOpenDetail } = props;
   const doneCount = item.tasks.filter((task) => task.done).length;
 
   return (
@@ -53,7 +49,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
             <span
               className={[
                 "inline-flex rounded-full px-2 py-0.5 text-sm font-semibold",
-                STATUS_PILL[item.status],
+                capaStatusPillClass(item.status),
               ].join(" ")}
             >
               {item.status}
@@ -98,7 +94,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <MetaField label="Owner" value={item.owner} />
         <MetaField label="Due" value={item.dueDate} />
         <MetaField label="Priority" value={item.priority} />
-        <MetaField label="Days left" value={item.daysLeft} />
+        <MetaField label="Days left" value={item.dueLabel} />
       </div>
 
       <div className="border-b border-[rgba(15,23,42,0.08)] px-5 py-4">
@@ -207,8 +203,14 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
           type="button"
           variant="tertiary"
           className="shrink-0 rounded-2.5 p-0"
-          aria-label="Open CAPA"
-          onClick={() => toast.info("Open CAPA coming soon")}
+          aria-label="Open CAPA detail"
+          onClick={() => {
+            if (onOpenDetail) {
+              onOpenDetail();
+              return;
+            }
+            toast.info("Open CAPA coming soon");
+          }}
         >
           <Icon icon="mdi:open-in-new" className="size-5" aria-hidden />
         </Button>

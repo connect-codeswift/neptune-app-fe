@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -32,7 +32,7 @@ import {
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
-import { SkeletonSidePanel, SkeletonTable } from "@/components/ui/skeletons";
+import { SkeletonTable } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 type CategoryFilter = "all" | LibraryCategoryId;
@@ -152,12 +152,23 @@ export function PolicyMakerView() {
     );
   }, [documentsQuery.data?.records, categoryId, statusFilter, searchQuery]);
 
+  // Preview panel toggles from the view / close icon — same as Incident List.
   const selectedDocument =
-    (selectedId == null
-      ? undefined
-      : documents.find((doc) => doc.id === selectedId)) ??
-    documents[0] ??
-    null;
+    selectedId == null
+      ? null
+      : (documents.find((doc) => doc.id === selectedId) ?? null);
+
+  useEffect(() => {
+    if (selectedId != null && selectedDocument == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedDocument]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedDocument != null;
 
   const resultLabel = `${String(documents.length)} ${
     documents.length === 1 ? "document" : "documents"
@@ -247,32 +258,25 @@ export function PolicyMakerView() {
             />
 
             {showBootLoading || showQueryLoading ? (
-              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
-                <SkeletonTable rows={8} columns={5} />
-                <div className="w-full xl:w-77.75">
-                  <SkeletonSidePanel />
-                </div>
-              </div>
+              <SkeletonTable rows={8} columns={5} />
             ) : (
-              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
+              <div
+                className={[
+                  "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+                  isPanelOpen
+                    ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                    : "xl:grid-cols-1",
+                ].join(" ")}
+              >
                 <PolicyMakerDocumentTable
                   categoryLabel={categoryLabel(categoryId)}
                   documentCount={documents.length}
                   documents={documents}
-                  selectedId={selectedDocument?.id ?? null}
-                  onSelect={setSelectedId}
+                  selectedId={selectedId}
+                  onViewMore={handleToggleDetailPanel}
+                  expanded={!isPanelOpen}
                   onUploadDocument={() =>
                     router.push("/dashboard/policy-maker/upload")
-                  }
-                  onEditDocument={(document) =>
-                    router.push(
-                      `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
-                    )
-                  }
-                  onOpenDetail={(id) =>
-                    router.push(
-                      `/dashboard/policy-maker/${encodeURIComponent(id)}`,
-                    )
                   }
                   pagination={{
                     pageNumber,
@@ -281,12 +285,15 @@ export function PolicyMakerView() {
                     onPageChange: setPageNumber,
                     isLoading: documentsQuery.isFetching,
                   }}
+                  className="min-w-0"
                 />
 
-                <PolicyMakerDetailPanel
-                  document={selectedDocument}
-                  className="w-full xl:w-77.75"
-                />
+                {isPanelOpen && selectedDocument ? (
+                  <PolicyMakerDetailPanel
+                    document={selectedDocument}
+                    className="min-w-0"
+                  />
+                ) : null}
               </div>
             )}
           </>

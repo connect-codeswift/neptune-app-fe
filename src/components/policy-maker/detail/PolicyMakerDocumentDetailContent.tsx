@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -103,80 +104,92 @@ export function PolicyMakerDocumentDetailContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 py-4">
-        <SkeletonDetailPage />
+      <div className="flex min-h-screen flex-1 flex-col">
+        <DashboardHeader />
+        <div className="flex flex-1 flex-col gap-3.5 px-4 pb-4">
+          <SkeletonDetailPage />
+        </div>
       </div>
     );
   }
 
   if (isClientReady && !hasToken) {
     return (
-      <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
-          Sign in required
-        </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
-          Please sign in to load this document.
-        </Text>
-        <Link
-          href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
-        >
-          Back to Document Library
-        </Link>
+      <div className="flex min-h-screen flex-1 flex-col">
+        <DashboardHeader />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
+          <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+            Sign in required
+          </Text>
+          <Text as="p" className="text-ehs-muted-text text-3.5">
+            Please sign in to load this document.
+          </Text>
+          <Link
+            href="/dashboard/policy-maker"
+            className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          >
+            Back to Document Library
+          </Link>
+        </div>
       </div>
     );
   }
 
   if (documentQuery.isError) {
     return (
-      <div className="flex min-h-screen flex-1 items-center justify-center px-4">
-        <IncidentGlassCard
-          className="min-h-55 text-center"
-          incidentGlassCardClassName="items-center justify-center gap-2"
-        >
-          <Icon
-            icon="mdi:alert-circle-outline"
-            className="text-ehs-red size-8"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
-            Could not load document
-          </Text>
-          <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
-            {getMutationErrorMessage(
-              documentQuery.error,
-              "Failed to load this document.",
-            )}
-          </Text>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => void documentQuery.refetch()}
-            className="mt-1"
+      <div className="flex min-h-screen flex-1 flex-col">
+        <DashboardHeader />
+        <div className="flex flex-1 items-center justify-center px-4">
+          <IncidentGlassCard
+            className="min-h-55 text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
           >
-            Try again
-          </Button>
-        </IncidentGlassCard>
+            <Icon
+              icon="mdi:alert-circle-outline"
+              className="text-ehs-red size-8"
+              aria-hidden="true"
+            />
+            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+              Could not load document
+            </Text>
+            <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+              {getMutationErrorMessage(
+                documentQuery.error,
+                "Failed to load this document.",
+              )}
+            </Text>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void documentQuery.refetch()}
+              className="mt-1"
+            >
+              Try again
+            </Button>
+          </IncidentGlassCard>
+        </div>
       </div>
     );
   }
 
   if (!document) {
     return (
-      <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
-          Document not found
-        </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
-          {`No document matches “${documentIdParam}”.`}
-        </Text>
-        <Link
-          href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
-        >
-          Back to Document Library
-        </Link>
+      <div className="flex min-h-screen flex-1 flex-col">
+        <DashboardHeader />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4">
+          <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
+            Document not found
+          </Text>
+          <Text as="p" className="text-ehs-muted-text text-3.5">
+            {`No document matches “${documentIdParam}”.`}
+          </Text>
+          <Link
+            href="/dashboard/policy-maker"
+            className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          >
+            Back to Document Library
+          </Link>
+        </div>
       </div>
     );
   }
@@ -184,6 +197,11 @@ export function PolicyMakerDocumentDetailContent(
   return (
     <PolicyMakerDocumentDetailView
       document={document}
+      onEdit={() =>
+        router.push(
+          `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
+        )
+      }
       onVersionHistory={() =>
         router.push(
           `/dashboard/policy-maker/${encodeURIComponent(document.id)}/versions`,

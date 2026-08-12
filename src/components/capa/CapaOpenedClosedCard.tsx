@@ -14,7 +14,9 @@ import {
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
-import { CAPA_OPENED_CLOSED_TREND } from "@/components/capa/capa-dashboard-data";
+import { useCapaOpenedVsClosedQuery } from "@/hooks/use-capa-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { mapCapaOpenedClosedToView } from "@/services/mappers/capa-opened-closed.mapper";
 
 const OPENED_COLOR = "#3b82f6";
 const CLOSED_COLOR = "#10b981";
@@ -53,9 +55,25 @@ function ChartTooltip(
   );
 }
 
-/** Opened vs closed trend — Figma 7123:42070. */
+function ChartSkeleton() {
+  return (
+    <div
+      className="bg-ehs-border/40 h-[180px] w-full animate-pulse rounded-lg"
+      aria-hidden
+    />
+  );
+}
+
+/** Opened vs closed trend — Figma 7123:42070. Loads GET /api/CAPA/opened-vs-closed. */
 export function CapaOpenedClosedCard() {
-  const points = CAPA_OPENED_CLOSED_TREND;
+  const hasToken = useHasAccessToken();
+  const { data, isPending, isError } = useCapaOpenedVsClosedQuery(
+    hasToken === true,
+  );
+
+  const view = data ?? mapCapaOpenedClosedToView(null);
+
+  const points = view.points;
   const yMax = useMemo(() => {
     const peak = points.reduce(
       (highest, point) => Math.max(highest, point.opened, point.closed),
@@ -63,6 +81,14 @@ export function CapaOpenedClosedCard() {
     );
     return Math.max(4, Math.ceil(peak / 2) * 2);
   }, [points]);
+
+  const showSkeleton =
+    hasToken === null || (hasToken === true && isPending && !data);
+
+  const subtitle =
+    isError && !data
+      ? "Unable to load trend"
+      : `Last ${String(view.weekCount)} weeks · ${String(view.totalOpened)} opened · ${String(view.totalClosed)} closed`;
 
   return (
     <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
@@ -75,63 +101,75 @@ export function CapaOpenedClosedCard() {
             Opened vs Closed
           </Text>
           <Text as="p" className="text-ehs-muted-text text-xs">
-            Last 8 weeks · trend converging
+            {showSkeleton ? "Loading…" : subtitle}
           </Text>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-2 text-sm font-semibold text-[#10b981]">
-          <Icon icon="mdi:trending-down" className="size-4" aria-hidden />
-          Closing faster
-        </span>
+        {!showSkeleton &&
+          (view.closingFaster ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-2 text-sm font-semibold text-[#10b981]">
+              <Icon icon="mdi:trending-down" className="size-4" aria-hidden />
+              Closing faster
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(59,130,246,0.12)] px-2.5 py-2 text-sm font-semibold text-[#3b82f6]">
+              <Icon icon="mdi:trending-up" className="size-4" aria-hidden />
+              Opening faster
+            </span>
+          ))}
       </div>
 
       <div className="h-45 w-full min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={[...points]}
-            margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
-          >
-            <CartesianGrid
-              stroke="rgba(15,23,42,0.06)"
-              vertical={false}
-              strokeDasharray="0"
-            />
-            <XAxis
-              dataKey="week"
-              tick={AXIS_TICK}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              domain={[0, yMax]}
-              ticks={[0, 2, 4, yMax > 5 ? 5 : yMax, yMax].filter(
-                (value, index, all) => all.indexOf(value) === index,
-              )}
-              tick={AXIS_TICK}
-              axisLine={false}
-              tickLine={false}
-              width={28}
-            />
-            <Tooltip content={<ChartTooltip />} />
-            <Area
-              type="monotone"
-              dataKey="opened"
-              stroke={OPENED_COLOR}
-              fill={OPENED_COLOR}
-              fillOpacity={0.12}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 3 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="closed"
-              stroke={CLOSED_COLOR}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 3 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+        {showSkeleton ? (
+          <ChartSkeleton />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={[...points]}
+              margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+            >
+              <CartesianGrid
+                stroke="rgba(15,23,42,0.06)"
+                vertical={false}
+                strokeDasharray="0"
+              />
+              <XAxis
+                dataKey="week"
+                tick={AXIS_TICK}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                domain={[0, yMax]}
+                ticks={[0, 2, 4, yMax > 5 ? 5 : yMax, yMax].filter(
+                  (value, index, all) => all.indexOf(value) === index,
+                )}
+                tick={AXIS_TICK}
+                axisLine={false}
+                tickLine={false}
+                width={28}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="opened"
+                stroke={OPENED_COLOR}
+                fill={OPENED_COLOR}
+                fillOpacity={0.12}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 3 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="closed"
+                stroke={CLOSED_COLOR}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 3 }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="mt-2 flex items-center gap-5">
