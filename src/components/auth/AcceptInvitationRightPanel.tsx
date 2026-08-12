@@ -30,15 +30,15 @@ function getFormString(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
-/** The link is built by the backend, so a missing or non-numeric id means a mangled URL. */
-function parseId(raw: string | null) {
-  if (raw === null || raw.trim() === "") {
-    return null;
-  }
-
-  const value = Number(raw);
-  return Number.isInteger(value) && value >= 0 ? value : null;
-}
+/**
+ * Deliberately the only message shown for a rejected token.
+ *
+ * Expired, already used and never-existed all come back from the API as the same error, so
+ * that the endpoint cannot be used to probe which invitations exist. Rendering the server's
+ * text verbatim would be harmless today and a disclosure the day that stops being true.
+ */
+const INVALID_TOKEN_MESSAGE =
+  "This invitation is no longer valid. It may have expired or already been used — ask your administrator for a new one.";
 
 type Step = "password" | "mfa";
 
@@ -46,10 +46,10 @@ export default function AcceptInvitationRightPanel() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const siteId = parseId(searchParams.get("siteId"));
-  const userId = parseId(searchParams.get("userId"));
-  const email = searchParams.get("email") ?? "";
-  const linkIsUsable = siteId !== null && userId !== null && email !== "";
+  // Single query param now. It replaced `?siteId=&userId=&email=`, where the id was a
+  // sequential integer — guessing one set that person's password.
+  const token = searchParams.get("token")?.trim() ?? "";
+  const linkIsUsable = token !== "";
 
   const [step, setStep] = useState<Step>("password");
   const [formError, setFormError] = useState("");
@@ -113,11 +113,9 @@ export default function AcceptInvitationRightPanel() {
     const contactNo = getFormString(formData, "contactNo").trim();
 
     const parsed = safeParseAcceptInvitationRequest({
+      token,
       fullName: getFormString(formData, "fullName"),
       contactNo: contactNo === "" ? undefined : contactNo,
-      siteId,
-      userId,
-      email,
       password,
     });
 
@@ -131,15 +129,26 @@ export default function AcceptInvitationRightPanel() {
 
     setFormError("");
 
+    let session: Awaited<
+      ReturnType<typeof acceptInvitationMutation.mutateAsync>
+    >;
+
     try {
-      await acceptInvitationMutation.mutateAsync(parsed.data);
-    } catch (error) {
-      setFormError(
-        getMutationErrorMessage(
-          error,
-          "Could not set up your account. The invitation may have already been used.",
-        ),
+      session = await acceptInvitationMutation.mutateAsync(parsed.data);
+    } catch {
+      setFormError(INVALID_TOKEN_MESSAGE);
+      return;
+    }
+
+    // The account exists and the password is set, but nothing identified it well enough to
+    // sign in with. Both MFA endpoints are [Authorize]d, so the offer has to be skipped
+    // rather than shown broken.
+    if (!session) {
+      toast.success(
+        "Account ready",
+        "Sign in with your new password to continue.",
       );
+      router.push("/login");
       return;
     }
 
@@ -250,10 +259,11 @@ export default function AcceptInvitationRightPanel() {
             <h2 className="text-ehs-darker text-2xl font-bold">
               Set Up Your Account
             </h2>
+            {/* No email to greet them with any more — it lives on the token's row now,
+                not in the URL, and the endpoint does not hand it back before submit. */}
             <p className="text-ehs-muted-text mt-1.5 text-sm">
-              You&apos;ve been invited to Neptune EHS as{" "}
-              <span className="font-semibold">{email}</span>. Choose a password
-              to finish.
+              You&apos;ve been invited to Neptune EHS. Choose a password to
+              finish setting up your account.
             </p>
           </div>
 

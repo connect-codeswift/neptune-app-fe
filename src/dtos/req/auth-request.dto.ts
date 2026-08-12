@@ -66,13 +66,17 @@ const resetPasswordRequestSchema = z.object({
  * Must stay {@link strongPasswordSchema}. `AcceptInvitationDto` on the backend rejects a
  * mismatch with a bare 400 carrying no usable message, so the two rules have to agree
  * exactly — this schema used to be stricter to mirror an older backend rule.
+ *
+ * `siteId`, `userId` and `email` are gone: the invite link used to carry them in the query
+ * string, where `userId` was a sequential integer and the email was known to whoever sent
+ * the invite — guessing an id set that person's password. All three now come from the
+ * token's own row. The token is single-use and expires after 7 days.
  */
 const acceptInvitationRequestSchema = z.object({
+  token: z.string().trim().min(1, "This invitation link is missing its token."),
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
   contactNo: z.string().trim().max(30).optional(),
-  siteId: z.number().int().nonnegative(),
-  userId: z.number().int().nonnegative(),
-  email: z.email("Enter a valid email address."),
+  profileUrl: z.string().trim().optional(),
   password: strongPasswordSchema,
 });
 
