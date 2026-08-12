@@ -49,7 +49,7 @@ function AttachmentTile(
   const showImage = !isPdf && Boolean(imageSrc);
 
   return (
-    <div className="relative size-[88px] shrink-0 overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[linear-gradient(135deg,#446580_0%,#223349_100%)]">
+    <div className="relative size-22 shrink-0 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[linear-gradient(135deg,#446580_0%,#223349_100%)]">
       {showImage ? (
         <Image
           src={imageSrc!}
@@ -108,7 +108,7 @@ function AttachmentTile(
         aria-label={`Remove ${file.name}`}
         onClick={onRemove}
         disabled={file.isUploading}
-        className="absolute top-1 right-1 inline-flex size-[18px] items-center justify-center rounded-[9px] bg-black/50 text-ehs-light-text transition hover:bg-black/70 disabled:opacity-50"
+        className="absolute top-1 right-1 inline-flex size-4.5 items-center justify-center rounded-2.25 bg-black/50 text-ehs-light-text transition hover:bg-black/70 disabled:opacity-50"
       >
         <Icon icon="mdi:close" className="size-2.5" aria-hidden="true" />
       </button>
@@ -244,7 +244,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
 
   return (
     <div
-      className={["flex flex-col gap-1.5 py-[18px]", className]
+      className={["flex flex-col gap-1.5 py-4.5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -286,7 +286,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
           type="button"
           onClick={openPicker}
           disabled={isUploading || photos.length >= CLOUDINARY_MAX_FILES}
-          className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 flex size-[88px] shrink-0 flex-col items-center justify-center gap-[5px] rounded-[10px] border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 flex size-22 shrink-0 flex-col items-center justify-center gap-1.25 rounded-2.5 border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon
             icon={isUploading ? "mdi:loading" : "mdi:plus"}

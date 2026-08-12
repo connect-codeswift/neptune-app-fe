@@ -42,7 +42,7 @@ export type EditDocumentFormProps = Readonly<{
 }>;
 
 const fieldLabelClass =
-  "block text-[12px] leading-normal font-semibold text-[#566072]";
+  "block text-xs leading-normal font-semibold text-[#566072]";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1.5";
 const controlClass = `${FIELD_INPUT_LG_CLASS} min-w-0`;
 
@@ -56,7 +56,7 @@ const REVIEW_CYCLE_OPTIONS = [
 
 /** Figma 5568:25826 — 800px card; grows like upload on larger breakpoints. */
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-[16px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-[800px] xl:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-200 xl:max-w-5xl";
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
@@ -386,7 +386,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           }}
         />
         {fileError ? (
-          <p className="-mt-3 text-[12px] text-[#ef4444]">{fileError}</p>
+          <p className="-mt-3 text-xs text-[#ef4444]">{fileError}</p>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 min-[560px]:gap-x-4 min-[560px]:gap-y-6">

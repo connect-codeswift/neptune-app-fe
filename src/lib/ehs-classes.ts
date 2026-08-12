@@ -12,10 +12,10 @@ export const ehsLabelClass = "text7 text-ehs-gray block";
  * glass card reads as a sticker on a window.
  */
 export const ehsInputClass =
-  "text4 text-ehs-darker w-full rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3.5 py-2.5 backdrop-blur-[5px] outline-none transition placeholder:text-ehs-muted-text hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 focus:border-ehs-normal-blue focus:ring-[3px] focus:ring-ehs-normal-blue/15 disabled:cursor-not-allowed disabled:opacity-60";
+  "text4 text-ehs-darker w-full rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3.5 py-2.5 backdrop-blur-1.25 outline-none transition placeholder:text-ehs-muted-text hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const ehsSelectClass =
-  "text4 text-ehs-darker w-full cursor-pointer rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3.5 py-2.5 backdrop-blur-[5px] outline-none transition hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 focus:border-ehs-normal-blue focus:ring-[3px] focus:ring-ehs-normal-blue/15 disabled:cursor-not-allowed disabled:opacity-60";
+  "text4 text-ehs-darker w-full cursor-pointer rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3.5 py-2.5 backdrop-blur-1.25 outline-none transition hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const ehsLinkClass =
   "text4 text-ehs-normal-blue transition-colors hover:text-ehs-normal-blue-hover";
@@ -37,10 +37,10 @@ export const ehsButtonPrimaryClass =
   "btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue),inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
 
 export const ehsButtonSecondaryClass =
-  "border border-white/60 bg-ehs-light-blue/75 text-ehs-darker shadow-sm backdrop-blur-[5px] hover:bg-ehs-light-blue active:bg-ehs-light-blue-active";
+  "border border-white/60 bg-ehs-light-blue/75 text-ehs-darker shadow-sm backdrop-blur-1.25 hover:bg-ehs-light-blue active:bg-ehs-light-blue-active";
 
 export const ehsButtonTertiaryClass =
-  "border border-[rgba(15,23,42,0.08)] bg-white/55 text-ehs-gray shadow-sm backdrop-blur-[5px] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75";
+  "border border-[rgba(15,23,42,0.08)] bg-white/55 text-ehs-gray shadow-sm backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75";
 
 export const ehsButtonDangerClass =
   "btn-sweep bg-ehs-red text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-red),inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] hover:bg-ehs-red/90 active:bg-ehs-red/80 focus-visible:ring-ehs-red/30";
@@ -55,7 +55,7 @@ export const ehsIconButtonSecondaryClass =
   "bg-ehs-light-blue text-ehs-darker shadow-sm hover:bg-ehs-light-blue-hover active:bg-ehs-light-blue-active";
 
 export const ehsIconButtonTertiaryClass =
-  "border border-[rgba(15,23,42,0.08)] bg-white/55 text-ehs-gray shadow-sm backdrop-blur-[5px] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75";
+  "border border-[rgba(15,23,42,0.08)] bg-white/55 text-ehs-gray shadow-sm backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75";
 
 export const ehsIconButtonGhostClass =
   "text-ehs-muted-text hover:bg-white/50 hover:text-ehs-gray";

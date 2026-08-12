@@ -18,7 +18,7 @@ export function IncidentDetailRoutingCard(
   const { members = [], className = "" } = props;
 
   return (
-    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+    <IncidentGlassCard paddingClassName="p-4.75" className={className}>
       <div className="pb-3.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
           Routing & assignment
@@ -34,9 +34,9 @@ export function IncidentDetailRoutingCard(
         {members.map((member) => (
           <div
             key={`${member.role}-${member.name}`}
-            className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
+            className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5"
           >
-            <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-[10px] text5">
+            <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-2.5 text5">
               {member.initials}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">

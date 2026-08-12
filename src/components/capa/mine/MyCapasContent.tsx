@@ -23,8 +23,8 @@ function MyCapasSectionCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[17px]"
-      className="min-h-[149px] min-w-0 rounded-2xl"
+      paddingClassName="p-4.25"
+      className="min-h-37.25 min-w-0 rounded-2xl"
     >
       <Text as="h3" className="mb-3 text-base font-medium text-[#566072]">
         {title}
@@ -64,7 +64,7 @@ function DefaultItem(props: Readonly<{ item: MyCapaCardItem }>) {
   const { item } = props;
 
   return (
-    <div className="rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/70 px-3 py-3">
+    <div className="rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/70 px-3 py-3">
       <Text as="p" className="text-xs leading-4 text-[#566072]">
         {item.code}
       </Text>
@@ -79,7 +79,7 @@ function OverdueItem(props: Readonly<{ item: MyCapaCardItem }>) {
   const { item } = props;
 
   return (
-    <div className="rounded-[10px] border border-[rgba(251,44,54,0.2)] bg-[rgba(239,68,68,0.1)] px-3 py-3">
+    <div className="rounded-2.5 border border-[rgba(251,44,54,0.2)] bg-[rgba(239,68,68,0.1)] px-3 py-3">
       <Text as="p" className="text-sm leading-4 text-[#ef4444]">
         {item.code}
       </Text>

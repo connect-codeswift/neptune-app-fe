@@ -260,7 +260,7 @@ export function MyProfilePageClient() {
           <GlassCard className="min-w-0">
             <CardHeading title="Certifications & Training" />
             <div className="-mx-1 mt-1 scrollbar-none overflow-x-auto px-1">
-              <table className="w-full min-w-[520px] border-collapse text-left">
+              <table className="w-full min-w-130 border-collapse text-left">
                 <thead>
                   <tr className="border-ehs-border/60 border-b">
                     {["Certification", "Issued", "Expires", "Status"].map(

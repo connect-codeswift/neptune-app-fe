@@ -249,7 +249,7 @@ export function PolicyMakerView() {
             {showBootLoading || showQueryLoading ? (
               <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
                 <SkeletonTable rows={8} columns={5} />
-                <div className="w-full xl:w-[311px]">
+                <div className="w-full xl:w-77.75">
                   <SkeletonSidePanel />
                 </div>
               </div>
@@ -285,7 +285,7 @@ export function PolicyMakerView() {
 
                 <PolicyMakerDetailPanel
                   document={selectedDocument}
-                  className="w-full xl:w-[311px]"
+                  className="w-full xl:w-77.75"
                 />
               </div>
             )}

@@ -75,14 +75,14 @@ function IssuanceLogMobileCard(
       className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-xl border bg-white p-3.5 text-left shadow-[0px_2px_4px_rgba(15,23,42,0.02)]"
     >
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-bold text-[#566072]">
+        <span className="rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-2.75 font-bold text-[#566072]">
           {entry.issueId}
         </span>
         <span className="text-ehs-darker min-w-0 flex-1 truncate text-sm font-bold">
           {entry.employee}
         </span>
         <span
-          className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold ${statusToneClass[entry.status]}`}
+          className={`shrink-0 rounded-md px-2 py-0.5 text-2.5 font-bold ${statusToneClass[entry.status]}`}
         >
           {statusLabel[entry.status]}
         </span>
@@ -250,7 +250,7 @@ export function PpeIssuanceLogContent(
                     setStatusFilter(chip.id);
                   }}
                   className={[
-                    "shrink-0 cursor-pointer rounded-[20px] px-3 py-1.5 text-[11px] whitespace-nowrap transition-colors",
+                    "shrink-0 cursor-pointer rounded-5 px-3 py-1.5 text-2.75 whitespace-nowrap transition-colors",
                     isActive
                       ? "bg-ehs-normal-blue font-bold text-white"
                       : "border-ehs-border text-ehs-muted-text border bg-white font-medium",

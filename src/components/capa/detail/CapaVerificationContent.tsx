@@ -17,7 +17,7 @@ export type CapaVerificationContentProps = Readonly<{
 }>;
 
 const glassCardClass =
-  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-[21px] pt-[21px] pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-5.25 pt-5.25 pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
 
 /** CAPA Verification page — Figma 846:6031. */
 export function CapaVerificationContent(props: CapaVerificationContentProps) {
@@ -74,7 +74,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
         <button
           type="submit"
           form={CAPA_VERIFICATION_FORM_ID}
-          className="cursor-pointer rounded-[10px] bg-[#10b981] px-5 py-2.5 text-sm leading-5 font-medium text-[#eceef2] shadow-[0px_6px_18px_-6px_#10b981] transition-colors hover:bg-[#0ea572]"
+          className="cursor-pointer rounded-2.5 bg-[#10b981] px-5 py-2.5 text-sm leading-5 font-medium text-[#eceef2] shadow-[0px_6px_18px_-6px_#10b981] transition-colors hover:bg-[#0ea572]"
         >
           Verify & Close CAPA
         </button>

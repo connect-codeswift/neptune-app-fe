@@ -51,7 +51,7 @@ const colSpanClass: Record<number, string> = {
 };
 
 const fieldCardClass =
-  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-[21px] pt-[21px] pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:col-span-12";
+  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-5.25 pt-5.25 pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:col-span-12";
 
 function isEmpty(value: FieldValue): boolean {
   return Array.isArray(value) ? value.length === 0 : value.trim() === "";
@@ -197,7 +197,7 @@ export function FormBuilder(props: FormBuilderProps) {
             type="button"
             variant="tertiary"
             onClick={onCancel}
-            className="text4 rounded-[10px] px-4 py-2 font-medium"
+            className="text4 rounded-2.5 px-4 py-2 font-medium"
           >
             {cancelLabel}
           </Button>
@@ -207,7 +207,7 @@ export function FormBuilder(props: FormBuilderProps) {
           variant={submitVariant}
           isLoading={isSubmitting}
           className={[
-            "text4 rounded-[10px] px-5 py-2 font-semibold",
+            "text4 rounded-2.5 px-5 py-2 font-semibold",
             submitVariant === "primary"
               ? "shadow-[0px_6px_18px_-6px_#0891a6]"
               : "",

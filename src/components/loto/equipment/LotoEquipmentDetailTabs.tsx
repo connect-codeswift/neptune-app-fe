@@ -35,7 +35,7 @@ export function LotoEquipmentDetailTabs(props: LotoEquipmentDetailTabsProps) {
               onTabChange(tab.id);
             }}
               className={[
-                "text4 inline-flex shrink-0 cursor-pointer items-center gap-1.5 border-b-[1.5px] px-[18px] pt-2.5 pb-[11px] whitespace-nowrap transition-colors",
+                "text4 inline-flex shrink-0 cursor-pointer items-center gap-1.5 border-b-[1.5px] px-4.5 pt-2.5 pb-2.75 whitespace-nowrap transition-colors",
                 isActive
                   ? "border-ehs-normal-blue text-ehs-normal-blue font-semibold"
                   : "border-transparent font-normal text-[#8892a3] hover:text-[#566072]",
@@ -45,7 +45,7 @@ export function LotoEquipmentDetailTabs(props: LotoEquipmentDetailTabsProps) {
               {showCount ? (
                 <span
                   className={[
-                    "text8 rounded-[10px] px-[7px] py-px font-semibold",
+                    "text8 rounded-2.5 px-1.75 py-px font-semibold",
                     isActive
                       ? "text-ehs-normal-blue bg-[rgba(8,145,166,0.12)]"
                       : "bg-[rgba(15,23,42,0.07)] text-[#b3bbc8]",

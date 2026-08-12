@@ -21,7 +21,7 @@ function AcknowledgementMobileCard(
     <div className="border-ehs-border flex w-full flex-col gap-3 rounded-xl border bg-white p-3.5 shadow-[0px_2px_4px_rgba(15,23,42,0.02)]">
       <div className="flex items-center gap-2">
         <span
-          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-[10px] font-bold text-white"
+          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-2.5 font-bold text-white"
           aria-hidden="true"
         >
           {entry.initials}
@@ -41,7 +41,7 @@ function AcknowledgementMobileCard(
 
       <div className="flex items-center justify-end border-t border-[rgba(11,19,32,0.08)] pt-3">
         {entry.acknowledged ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-1 text-[11px] font-bold text-[#10b981]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-1 text-2.75 font-bold text-[#10b981]">
             <Icon
               icon="mdi:check"
               className="size-2.5 shrink-0"

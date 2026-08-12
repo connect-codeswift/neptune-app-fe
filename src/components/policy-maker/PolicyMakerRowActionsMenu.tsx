@@ -121,7 +121,7 @@ export function PolicyMakerRowActionsMenu(
               role="menu"
               aria-label={`Actions for ${documentTitle}`}
               style={{ top: position.top, left: position.left }}
-              className="rounded-3.5 before:rounded-3.5 fixed z-50 w-[208.4px] origin-top-right overflow-hidden border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.82)] p-[5.8px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']"
+              className="rounded-3.5 before:rounded-3.5 fixed z-50 w-[208.4px] origin-top-right overflow-hidden border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.82)] p-[5.8px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']"
               onClick={(event) => event.stopPropagation()}
             >
               <button
@@ -131,11 +131,11 @@ export function PolicyMakerRowActionsMenu(
                   setOpen(false);
                   onEditDocument?.();
                 }}
-                className="relative z-1 flex h-[34.75px] w-full cursor-pointer items-center gap-[9px] rounded-[9px] px-[10px] py-[8px] text-left transition-colors hover:bg-[rgba(15,23,42,0.05)]"
+                className="relative z-1 flex h-[34.75px] w-full cursor-pointer items-center gap-2.25 rounded-2.25 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.05)]"
               >
                 <Icon
                   icon="mdi:pencil-outline"
-                  className="size-[13px] shrink-0 text-[#8892a3]"
+                  className="size-3.25 shrink-0 text-[#8892a3]"
                   aria-hidden="true"
                 />
                 <Text

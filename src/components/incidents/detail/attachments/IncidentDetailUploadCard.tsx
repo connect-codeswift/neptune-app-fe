@@ -122,7 +122,7 @@ export function IncidentDetailUploadCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
+      paddingClassName="p-4.75"
       incidentGlassCardClassName="gap-3.5"
       className={className}
     >
@@ -150,7 +150,7 @@ export function IncidentDetailUploadCard(
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={[
-          "relative flex min-h-[174px] cursor-pointer flex-col items-center justify-center rounded-[12px] border-2 border-dashed p-6 text-center transition-all",
+          "relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center rounded-3 border-2 border-dashed p-6 text-center transition-all",
           dragActive
             ? "border-ehs-normal-blue bg-[rgba(8,145,166,0.08)]"
             : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
@@ -170,7 +170,7 @@ export function IncidentDetailUploadCard(
           </div>
         ) : (
           <>
-            <div className="text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
+            <div className="text-ehs-dark-blue flex size-8.5 shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
             <span className="text-ehs-dark-bg mt-2.5 text5">

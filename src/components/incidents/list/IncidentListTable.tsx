@@ -290,15 +290,15 @@ export function IncidentListTable<
 
   const totalSize = table.getTotalSize();
   const cellPadClass = compact
-    ? "h-auto min-h-[64px] px-[15.57px] py-3"
+    ? "h-auto min-h-16 px-[15.57px] py-3"
     : expanded
-      ? "h-auto min-h-[88px] px-5 py-3"
-      : "h-auto min-h-[80px] px-3 py-3 sm:px-4";
+      ? "h-auto min-h-22 px-5 py-3"
+      : "h-auto min-h-20 px-3 py-3 sm:px-4";
   const headerPadClass = compact
     ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-xs"
     : expanded
       ? "px-5 pt-4 pb-4 text-xs"
-      : "px-3 pt-[13px] pb-[13.5px] text-xs sm:px-4";
+      : "px-3 pt-3.25 pb-[13.5px] text-xs sm:px-4";
 
   return (
     <IncidentGlassCard

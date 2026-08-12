@@ -16,7 +16,7 @@ import {
 
 function HeroKpiSkeleton() {
   return (
-    <IncidentGlassCard className="min-h-[180px]">
+    <IncidentGlassCard className="min-h-45">
       <div className="flex h-full flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">

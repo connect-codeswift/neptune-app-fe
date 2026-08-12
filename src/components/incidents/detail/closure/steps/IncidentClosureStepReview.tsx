@@ -30,7 +30,7 @@ export function IncidentClosureStepReview(
         </Text>
         <Text
           as="p"
-          className="text-ehs-gray mt-2 text4 leading-[20px] font-normal"
+          className="text-ehs-gray mt-2 text4 leading-5 font-normal"
         >
           Closing this incident creates a legal compliance record. Verification
           of security credentials and multi-factor authorization is requested to

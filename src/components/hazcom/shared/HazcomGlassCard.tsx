@@ -8,7 +8,7 @@ export type HazcomGlassCardProps = Readonly<{
 }>;
 
 const cardShellClass =
-  "relative flex flex-col rounded-[20px] border border-white/90 bg-white/80 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-3.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]";
+  "relative flex flex-col rounded-5 border border-white/90 bg-white/80 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-3.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:content-[''] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]";
 
 export function HazcomGlassCard(props: Readonly<HazcomGlassCardProps>) {
   const {

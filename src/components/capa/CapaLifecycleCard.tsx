@@ -44,7 +44,7 @@ function LifecycleDonut(
   }, []);
 
   return (
-    <div className="relative size-[140px] shrink-0">
+    <div className="relative size-35 shrink-0">
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="size-full -rotate-90"
@@ -70,13 +70,13 @@ function LifecycleDonut(
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <Text
           as="p"
-          className="text-ehs-dark-bg text-[28px] leading-none font-bold tabular-nums"
+          className="text-ehs-dark-bg text-7 leading-none font-bold tabular-nums"
         >
           {String(total)}
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text mt-1 text-[10px] font-bold tracking-[0.8px] uppercase"
+          className="text-ehs-muted-text mt-1 text-2.5 font-bold tracking-[0.8px] uppercase"
         >
           Total
         </Text>
@@ -93,7 +93,7 @@ export function CapaLifecycleCard() {
   );
 
   return (
-    <IncidentGlassCard paddingClassName="p-[21px]" className="min-w-0">
+    <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
       <div className="mb-5">
         <Text
           as="h3"
@@ -113,10 +113,10 @@ export function CapaLifecycleCard() {
           {CAPA_LIFECYCLE_SLICES.map((slice) => (
             <li
               key={slice.label}
-              className="flex items-center gap-2 text-[13px]"
+              className="flex items-center gap-2 text-3.25"
             >
               <span
-                className="size-2 shrink-0 rounded-[2px]"
+                className="size-2 shrink-0 rounded-0.5"
                 style={{ backgroundColor: slice.color }}
                 aria-hidden="true"
               />

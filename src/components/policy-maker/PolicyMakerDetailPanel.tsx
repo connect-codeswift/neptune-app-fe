@@ -14,10 +14,10 @@ function MetaRow(props: Readonly<{ label: string; value: string }>) {
 
   return (
     <div className="flex w-full items-start justify-between gap-3">
-      <Text as="span" className="shrink-0 text-[11px] text-[#8892a3]">
+      <Text as="span" className="shrink-0 text-2.75 text-[#8892a3]">
         {label}
       </Text>
-      <Text as="span" className="text-right text-[11px] text-[#0b1320]">
+      <Text as="span" className="text-right text-2.75 text-[#0b1320]">
         {value}
       </Text>
     </div>
@@ -43,7 +43,7 @@ export function PolicyMakerDetailPanel(
     return (
       <IncidentGlassCard
         paddingClassName="p-[18.49px]"
-        className={["min-h-[240px] min-w-0", className]
+        className={["min-h-60 min-w-0", className]
           .filter(Boolean)
           .join(" ")}
         incidentGlassCardClassName="items-center justify-center"
@@ -73,7 +73,7 @@ export function PolicyMakerDetailPanel(
         >
           {document.title}
         </Text>
-        <Text as="p" className="text-[10px] text-[#8892a3]">
+        <Text as="p" className="text-2.5 text-[#8892a3]">
           {`${document.code} · ${document.version} (${document.status.toLowerCase()})`}
         </Text>
       </div>
@@ -98,7 +98,7 @@ export function PolicyMakerDetailPanel(
       <div className="pt-[14.6px] pb-[0.97px]">
         <Text
           as="p"
-          className="text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase"
+          className="text-2.5 font-bold tracking-[0.82px] text-[#8892a3] uppercase"
         >
           Version history
         </Text>
@@ -112,19 +112,19 @@ export function PolicyMakerDetailPanel(
           >
             <Text
               as="span"
-              className="w-[27.24px] shrink-0 text-[10px] font-bold text-[#0b1320]"
+              className="w-[27.24px] shrink-0 text-2.5 font-bold text-[#0b1320]"
             >
               {entry.version}
             </Text>
             <Text
               as="span"
-              className="min-w-0 flex-1 text-[10px] text-[#566072]"
+              className="min-w-0 flex-1 text-2.5 text-[#566072]"
             >
               {`${entry.author} · ${entry.date}`}
             </Text>
             <span
               className={[
-                "inline-flex shrink-0 items-center rounded-full px-[8.76px] pt-[2.43px] pb-[2.81px] text-[10px] font-bold tracking-[0.21px]",
+                "inline-flex shrink-0 items-center rounded-full px-[8.76px] pt-[2.43px] pb-[2.81px] text-2.5 font-bold tracking-[0.21px]",
                 versionBadgeClass(entry.badge),
               ].join(" ")}
             >

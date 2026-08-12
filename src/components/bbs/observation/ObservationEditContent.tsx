@@ -221,7 +221,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8 md:gap-4">
       {/* Header — compact on mobile */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
+      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav
             aria-label="Breadcrumb"
@@ -248,7 +248,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             <Link
               href={detailRoute}
               aria-label="Back to observation"
-              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors md:hidden"
+              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
@@ -287,12 +287,12 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             "[&_input]:bg-white/80",
             "[&_input]:px-3",
             "[&_input]:py-0",
-            "[&_input]:text-[13px]",
+            "[&_input]:text-3.25",
             "[&_select]:h-10",
             "[&_select]:bg-white/80",
             "[&_select]:px-3",
             "[&_select]:py-0",
-            "[&_select]:text-[13px]",
+            "[&_select]:text-3.25",
           ].join(" ")}
         />
       </IncidentGlassCard>
@@ -325,7 +325,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             "[&_textarea]:bg-white/80",
             "[&_textarea]:px-3",
             "[&_textarea]:py-3",
-            "[&_textarea]:text-[13px]",
+            "[&_textarea]:text-3.25",
           ].join(" ")}
         />
       </IncidentGlassCard>
@@ -356,7 +356,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
           type="button"
           variant="tertiary"
           onClick={() => router.push(detailRoute)}
-          className="text-ehs-gray h-11 flex-1 rounded-xl border border-slate-900/8 bg-white/40 px-4 py-2.5 text-[13px] font-bold md:h-auto md:flex-none md:rounded-lg md:px-5"
+          className="text-ehs-gray h-11 flex-1 rounded-xl border border-slate-900/8 bg-white/40 px-4 py-2.5 text-3.25 font-bold md:h-auto md:flex-none md:rounded-lg md:px-5"
         >
           Cancel
         </Button>
@@ -366,7 +366,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
           variant="primary"
           isLoading={updateObservation.isPending}
           onClick={saveAll}
-          className="h-11 flex-1 rounded-xl px-4 py-2.5 text-[13px] font-bold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:rounded-lg md:px-6"
+          className="h-11 flex-1 rounded-xl px-4 py-2.5 text-3.25 font-bold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:rounded-lg md:px-6"
         >
           {updateObservation.isPending ? "Saving..." : "Save Changes"}
         </Button>

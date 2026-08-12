@@ -124,7 +124,7 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
         >
           <Icon
             icon="mdi:clock-outline"
-            className="size-[15px]"
+            className="size-3.75"
             aria-hidden="true"
           />
         </button>
@@ -143,11 +143,11 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
           <button
             type="button"
             onClick={() => onChange(nowHhMm())}
-            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg cursor-pointer rounded-full border border-[rgba(15,23,42,0.1)] px-2 py-px text-[11px] font-semibold transition-colors"
+            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg cursor-pointer rounded-full border border-[rgba(15,23,42,0.1)] px-2 py-px text-2.75 font-semibold transition-colors"
           >
             Now
           </button>
-          <Text as="span" className="text-ehs-muted-text text-[11px]">
+          <Text as="span" className="text-ehs-muted-text text-2.75">
             24h or 2:30 PM
           </Text>
         </div>

@@ -153,10 +153,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
   return (
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_363px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <IncidentGlassCard
-          paddingClassName="p-5 md:p-[22px]"
-          className="min-w-0"
-        >
+        <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <h2 className="text3 text-ehs-darker mb-4">Equipment Information</h2>
           <FormBuilder
             formId={LOTO_EQUIPMENT_FORM_ID}
@@ -181,10 +178,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           />
         </IncidentGlassCard>
 
-        <IncidentGlassCard
-          paddingClassName="p-5 md:p-[22px]"
-          className="min-w-0"
-        >
+        <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <div className="mb-2 flex items-center justify-between gap-3">
             <h2 className="text3 text-ehs-darker">Isolation Steps</h2>
             <button
@@ -213,7 +207,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                       Step {String(index + 1)}
                     </span>
                     {step.verified ? (
-                      <span className="text8 rounded-[5px] bg-[rgba(16,185,129,0.1)] px-1.5 py-px font-bold text-[#10b981]">
+                      <span className="text8 rounded-1.25 bg-[rgba(16,185,129,0.1)] px-1.5 py-px font-bold text-[#10b981]">
                         Verified
                       </span>
                     ) : null}
@@ -225,7 +219,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                     onClick={() => {
                       removeStep(step.id);
                     }}
-                    className="flex size-[26px] cursor-pointer items-center justify-center rounded-[7px] text-[#ef4444] transition-colors hover:bg-[rgba(239,68,68,0.08)] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-1.75 flex size-6.5 cursor-pointer items-center justify-center text-[#ef4444] transition-colors hover:bg-[rgba(239,68,68,0.08)] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Icon icon="mdi:trash-can-outline" className="size-3" />
                   </button>
@@ -246,10 +240,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           </div>
         </IncidentGlassCard>
 
-        <IncidentGlassCard
-          paddingClassName="p-5 md:p-[22px]"
-          className="min-w-0"
-        >
+        <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_VERIFICATION_FORM_ID}
             schema={lotoVerificationSchema}
@@ -265,7 +256,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
 
       <aside className="flex min-w-0 flex-col gap-3.5 xl:sticky xl:top-4">
         <IncidentGlassCard
-          paddingClassName="px-[18px] py-[18px]"
+          paddingClassName="px-4.5 py-4.5"
           className="min-w-0 bg-[rgba(255,255,255,0.82)]"
         >
           <h2 className="text3 text-ehs-darker mb-3">Procedure Summary</h2>
@@ -295,7 +286,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           </div>
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-[18px]" className="min-w-0">
+        <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_PPE_FORM_ID}
             schema={lotoPpeSchema}
@@ -313,7 +304,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           />
         </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-[18px]" className="min-w-0">
+        <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_PERSONNEL_FORM_ID}
             schema={lotoPersonnelSchema}

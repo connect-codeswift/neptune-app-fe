@@ -35,7 +35,7 @@ function buildColumns(): ColumnDef<CapaDashboardItem, unknown>[] {
             </span>
             <span
               className={[
-                "inline-flex size-[19px] items-center justify-center rounded-md text-xs font-bold",
+                "inline-flex size-4.75 items-center justify-center rounded-md text-xs font-bold",
                 TYPE_PILL[item.type],
               ].join(" ")}
               title={item.type}
@@ -54,7 +54,7 @@ function buildColumns(): ColumnDef<CapaDashboardItem, unknown>[] {
         const item = info.row.original;
 
         return (
-          <div className="max-w-[260px]">
+          <div className="max-w-65">
             <p className="text-ehs-darker text-sm leading-snug font-medium">
               {info.getValue()}
             </p>

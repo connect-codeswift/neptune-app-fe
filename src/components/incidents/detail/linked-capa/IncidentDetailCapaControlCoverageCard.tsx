@@ -36,7 +36,7 @@ export function IncidentDetailCapaControlCoverageCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
+      paddingClassName="p-4.75"
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
@@ -63,13 +63,13 @@ export function IncidentDetailCapaControlCoverageCard(
               className={[
                 "flex items-center gap-2.5",
                 isFirst
-                  ? "pt-[22px] pb-2"
+                  ? "pt-5.5 pb-2"
                   : isLast
-                    ? "pt-2 pb-[18px]"
+                    ? "pt-2 pb-4.5"
                     : "py-2",
               ].join(" ")}
             >
-              <span className="size-2.5 shrink-0 rounded-[3px] bg-ehs-gray" />
+              <span className="size-2.5 shrink-0 rounded-0.75 bg-ehs-gray" />
               <span className="min-w-0 flex-1 text4 leading-normal text-ehs-slate">
                 {ctrl.label}
               </span>
@@ -91,7 +91,7 @@ export function IncidentDetailCapaControlCoverageCard(
       </div>
 
       {!isLoading && noticeMessage ? (
-        <div className="rounded-[10px] border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-[13px] pt-[12px] pb-[13px] text8 leading-[16.5px] text-ehs-slate">
+        <div className="rounded-2.5 border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-3.25 pt-3 pb-3.25 text8 leading-[16.5px] text-ehs-slate">
           <span className="font-bold">{noticeLead}</span>{" "}
           {noticeRest}
         </div>

@@ -241,7 +241,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
                 close();
               }}
               onClose={close}
-              className="animate-popover-in w-full rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+              className="animate-popover-in w-full rounded-3 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
             />
           </div>,
           document.body,
@@ -279,7 +279,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
       >
         <Icon
           icon="mdi:calendar-outline"
-          className="size-[15px]"
+          className="size-3.75"
           aria-hidden="true"
         />
       </button>
@@ -302,7 +302,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
               aria-pressed={isActive}
               onClick={() => onChange(formatMmDdYyyy(date))}
               className={[
-                "cursor-pointer rounded-full px-2 py-px text-[11px] font-semibold transition-colors",
+                "cursor-pointer rounded-full px-2 py-px text-2.75 font-semibold transition-colors",
                 isActive
                   ? "bg-ehs-light-blue text-ehs-dark-blue"
                   : "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg border border-[rgba(15,23,42,0.1)]",

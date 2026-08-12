@@ -138,7 +138,7 @@ export function Table<TData>(props: TableProps<TData>) {
                         isCapa
                           ? "px-4 py-2.5 text-xs font-medium text-[#566072] uppercase select-none"
                           : isCompliance
-                            ? "px-[15.57px] py-3 text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
+                            ? "px-[15.57px] py-3 text-2.5 font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
                             : isIncident
                               ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
                               : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
@@ -286,7 +286,7 @@ function TablePaginationBar(
       <span
         className={
           isCompliance
-            ? "text-[12px] text-[#8892a3]"
+            ? "text-xs text-[#8892a3]"
             : "text-ehs-muted-text text-xs"
         }
       >

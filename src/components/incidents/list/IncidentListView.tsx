@@ -335,7 +335,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
 
       {errorMessage ? (
         <IncidentGlassCard
-          className="min-h-[180px] text-center"
+          className="min-h-45 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -380,7 +380,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         >
           {filteredIncidents.length === 0 ? (
             <IncidentGlassCard
-              className="min-h-[240px] text-center"
+              className="min-h-60 text-center"
               incidentGlassCardClassName="items-center justify-center gap-2"
             >
               <Icon

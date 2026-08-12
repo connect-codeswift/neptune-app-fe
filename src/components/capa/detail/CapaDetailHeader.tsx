@@ -17,7 +17,7 @@ function Chevron() {
   return (
     <Icon
       icon="mdi:chevron-right"
-      className="size-[11px] shrink-0 text-[#8892a3]"
+      className="size-2.75 shrink-0 text-[#8892a3]"
       aria-hidden
     />
   );
@@ -35,7 +35,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   const rcaHref = `${CAPA_ROUTE}/${encodeURIComponent(record.id)}/rca`;
 
   return (
-    <div className="relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-[22px] pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -55,7 +55,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
             <Link
               href={CAPA_ROUTE}
               aria-label="Back to CAPA Dashboard"
-              className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors hover:bg-slate-50 md:hidden"
+              className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors hover:bg-slate-50 md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
@@ -63,15 +63,15 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <Text
                   as="h1"
-                  className="text-[22px] leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
+                  className="text-5.5 leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
                 >
                   {record.code}
                 </Text>
-                <span className="inline-flex items-center rounded-md bg-[rgba(239,68,68,0.16)] px-2 py-0.5 text-[11px] font-semibold tracking-[0.11px] text-[#7f1d1d]">
+                <span className="inline-flex items-center rounded-md bg-[rgba(239,68,68,0.16)] px-2 py-0.5 text-2.75 font-semibold tracking-[0.11px] text-[#7f1d1d]">
                   {record.priority}
                 </span>
               </div>
-              <Text as="p" className="text-sm leading-[18px] text-[#8892a3]">
+              <Text as="p" className="text-sm leading-4.5 text-[#8892a3]">
                 {record.title}
               </Text>
             </div>
@@ -82,7 +82,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               type="button"
               variant="secondary"
               onClick={() => router.push(rcaHref)}
-              className="rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-6 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0]"
+              className="rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-6 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0]"
             >
               RCA
             </Button>
@@ -90,7 +90,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               type="button"
               variant="primary"
               onClick={() => router.push(verifyHref)}
-              className="relative rounded-[10px] bg-[#0891a6] px-3 py-0 font-medium text-white shadow-[0px_6px_18px_-6px_#0891a6] before:pointer-events-none before:absolute before:inset-0 before:rounded-[10px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078395]"
+              className="relative rounded-2.5 bg-[#0891a6] px-3 py-0 font-medium text-white shadow-[0px_6px_18px_-6px_#0891a6] before:pointer-events-none before:absolute before:inset-0 before:rounded-2.5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078395]"
             >
               Verify & Close
             </Button>

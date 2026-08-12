@@ -123,7 +123,7 @@ export function HazcomTrainingLogTable(
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="w-full min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[900px] border-collapse text-left">
+        <table className="w-full min-w-225 border-collapse text-left">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -134,7 +134,7 @@ export function HazcomTrainingLogTable(
                     <th
                       key={header.id}
                       className={[
-                        "text6 text-ehs-muted-text px-4 pt-[13px] pb-[13.5px]",
+                        "text6 text-ehs-muted-text px-4 pt-3.25 pb-[13.5px]",
                         align === "right" ? "text-right" : "text-left",
                       ].join(" ")}
                     >

@@ -233,7 +233,7 @@ export function IssuePpeContent() {
           <div className="flex flex-col gap-4">
             <Text
               as="h2"
-              className="text-ehs-darker text-[15px] font-bold md:text-xl"
+              className="text-ehs-darker text-3.75 font-bold md:text-xl"
             >
               Issuance Details
             </Text>
@@ -265,7 +265,7 @@ export function IssuePpeContent() {
             type="button"
             variant="tertiary"
             onClick={handleCancel}
-            className="w-full rounded-[10px] px-4 py-2.5 text-base! font-medium sm:w-auto"
+            className="w-full rounded-2.5 px-4 py-2.5 text-base! font-medium sm:w-auto"
           >
             Cancel
           </Button>
@@ -275,7 +275,7 @@ export function IssuePpeContent() {
             variant="primary"
             isLoading={issuePpe.isPending}
             disabled={isLoading}
-            className="w-full rounded-[10px] px-5 py-2.5 text-base! font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
+            className="w-full rounded-2.5 px-5 py-2.5 text-base! font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
           >
             {issuePpe.isPending ? "Confirming..." : "Confirm Issuance"}
           </Button>

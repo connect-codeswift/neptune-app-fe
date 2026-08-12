@@ -24,7 +24,7 @@ function ActivePpeRow(props: Readonly<{ item: PpeActiveItem }>) {
   const { item } = props;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-[18px] py-3.5 last:border-b-0">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-4.5 py-3.5 last:border-b-0">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Text as="p" className="text-ehs-darker text-base font-semibold">
           {item.name}
@@ -72,13 +72,13 @@ function ActivePpeMobileCard(props: Readonly<{ item: PpeActiveItem }>) {
       </div>
       <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
       <div className="flex flex-wrap gap-2">
-        <span className="bg-ehs-normal-blue rounded-md px-2 py-1 text-[11px] font-bold text-white">
+        <span className="bg-ehs-normal-blue rounded-md px-2 py-1 text-2.75 font-bold text-white">
           {item.status}
         </span>
         {item.canInspect ? (
           <button
             type="button"
-            className="border-ehs-normal-blue text-ehs-normal-blue cursor-pointer rounded-md border px-[7px] py-[3px] text-[11px] font-semibold"
+            className="border-ehs-normal-blue text-ehs-normal-blue cursor-pointer rounded-md border px-1.75 py-0.75 text-2.75 font-semibold"
             onClick={() => {
               toast.success(`Inspection started for ${item.name}`);
             }}
@@ -95,15 +95,15 @@ function HistoryMobileCard(props: Readonly<{ record: PpeHistoryRecord }>) {
   const { record } = props;
 
   return (
-    <div className="border-ehs-border flex flex-col gap-3 rounded-[10px] border bg-white p-3.5">
+    <div className="border-ehs-border flex flex-col gap-3 rounded-2.5 border bg-white p-3.5">
       <div className="flex items-center justify-between gap-3">
         <Text
           as="p"
-          className="text-ehs-darker min-w-0 flex-1 text-[13px] font-bold"
+          className="text-ehs-darker min-w-0 flex-1 text-3.25 font-bold"
         >
           {record.item}
         </Text>
-        <span className="bg-ehs-normal-blue shrink-0 rounded-md px-2 py-1 text-[11px] font-bold text-white">
+        <span className="bg-ehs-normal-blue shrink-0 rounded-md px-2 py-1 text-2.75 font-bold text-white">
           {record.status}
         </span>
       </div>
@@ -155,7 +155,7 @@ export function PpeEmployeeProfileContent(
           type="button"
           variant="tertiary"
           onClick={goReplacement}
-          className="w-full rounded-[10px] px-3 py-3 text-[13px] font-bold"
+          className="w-full rounded-2.5 px-3 py-3 text-3.25 font-bold"
         >
           Request Replacement
         </Button>
@@ -165,7 +165,7 @@ export function PpeEmployeeProfileContent(
           onClick={() => {
             router.push(ISSUE_ROUTE);
           }}
-          className="w-full rounded-[10px] px-3 py-3 text-[13px] font-bold"
+          className="w-full rounded-2.5 px-3 py-3 text-3.25 font-bold"
         >
           Issue PPE
         </Button>
@@ -190,7 +190,7 @@ export function PpeEmployeeProfileContent(
                 </Text>
                 <Text
                   as="p"
-                  className="text-ehs-muted-text text-[13px] font-medium md:text-base"
+                  className="text-ehs-muted-text text-3.25 font-medium md:text-base"
                 >
                   {`${profile.role}`}
                 </Text>
@@ -204,10 +204,10 @@ export function PpeEmployeeProfileContent(
             </div>
 
             <div className="flex shrink-0 flex-col items-end gap-1 md:gap-1.5">
-              <span className="text-ehs-muted-text text-[10px] font-bold md:text-base md:font-normal">
+              <span className="text-ehs-muted-text text-2.5 font-bold md:text-base md:font-normal">
                 Active Items
               </span>
-              <span className="text-ehs-darker text-[28px] font-extrabold tabular-nums md:text-2xl md:tracking-[-0.78px] md:text-[#566072]">
+              <span className="text-ehs-darker text-7 font-extrabold tabular-nums md:text-2xl md:tracking-[-0.78px] md:text-[#566072]">
                 {String(activeCount)}
               </span>
             </div>
@@ -308,7 +308,7 @@ export function PpeEmployeeProfileNotFound(
       <PpeEmployeeProfileHeader name="Not found" role="—" department="—" />
       <IncidentGlassCard
         paddingClassName="p-6"
-        className="mx-auto w-full max-w-[731px]"
+        className="mx-auto w-full max-w-182.75"
       >
         <Text as="p" className="text-ehs-darker text-sm font-semibold">
           Employee profile not found

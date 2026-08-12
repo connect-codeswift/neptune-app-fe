@@ -52,7 +52,7 @@ function CategoryBarChart() {
               x={x + barWidth / 2}
               y={y - 6}
               textAnchor="middle"
-              className="fill-ehs-darker text-[10px] font-semibold"
+              className="fill-ehs-darker text-2.5 font-semibold"
             >
               {category.value}
             </text>
@@ -68,7 +68,7 @@ function CategoryBarChart() {
               x={x + barWidth / 2}
               y={CHART.height - 10}
               textAnchor="middle"
-              className="fill-ehs-muted-text text-[9px]"
+              className="fill-ehs-muted-text text-2.25"
             >
               {category.label}
             </text>

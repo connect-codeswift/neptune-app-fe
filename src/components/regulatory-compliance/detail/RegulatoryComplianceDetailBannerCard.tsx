@@ -34,7 +34,7 @@ export function RegulatoryComplianceDetailBannerCard(
   return (
     <IncidentGlassCard
       paddingClassName="p-4 px-6"
-      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]", className]
+      className={["bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -43,7 +43,7 @@ export function RegulatoryComplianceDetailBannerCard(
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
-            className="text-ehs-gray flex items-center gap-1.5 text-[13px] font-light"
+            className="text-ehs-gray flex items-center gap-1.5 text-3.25 font-light"
           >
             <Link
               href="/dashboard/regulatory-compliance"
@@ -65,7 +65,7 @@ export function RegulatoryComplianceDetailBannerCard(
           <div className="flex flex-wrap items-center gap-3">
             <Text
               as="h1"
-              className="text-ehs-dark-bg text-[22px] leading-tight font-bold"
+              className="text-ehs-dark-bg text-5.5 leading-tight font-bold"
             >
               {toTitleCase(detail.title)}
             </Text>

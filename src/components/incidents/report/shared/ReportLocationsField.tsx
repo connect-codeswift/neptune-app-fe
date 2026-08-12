@@ -188,7 +188,7 @@ export function ReportLocationsField(
           {locations.map((entry) => (
             <span
               key={locationKey(entry)}
-              className="border-ehs-border bg-ehs-light-bg text-ehs-darker inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 text-[13px] font-medium"
+              className="border-ehs-border bg-ehs-light-bg text-ehs-darker inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 text-3.25 font-medium"
             >
               <Icon
                 icon="mdi:map-marker-outline"
@@ -225,7 +225,7 @@ export function ReportLocationsField(
             FIELD_INPUT_CLASS,
             "flex w-full items-center gap-2 pr-9 text-left",
             open
-              ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-[3px]"
+              ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-0.75"
               : "",
             locations.length > 0 ? "" : "text-ehs-muted-text",
           ]
@@ -250,7 +250,7 @@ export function ReportLocationsField(
         />
 
         {open ? (
-          <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
             <ul
               id={listboxId}
               role="listbox"
@@ -269,7 +269,7 @@ export function ReportLocationsField(
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => toggleLocation(option.label)}
                       className={[
-                        "flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-[13.5px] transition-colors",
+                        "flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left text-[13.5px] transition-colors",
                         selected
                           ? "text-ehs-dark-blue bg-[rgba(8,145,166,0.1)] font-semibold"
                           : "text-ehs-dark-bg hover:bg-[rgba(8,145,166,0.06)]",
@@ -339,7 +339,7 @@ export function ReportLocationsField(
                 <button
                   type="button"
                   onClick={() => setIsAdding(true)}
-                  className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex w-full cursor-pointer items-center gap-1 rounded-[8px] px-2 py-2 text-sm font-semibold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                  className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex w-full cursor-pointer items-center gap-1 rounded-2 px-2 py-2 text-sm font-semibold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
                 >
                   <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
                   Add custom location

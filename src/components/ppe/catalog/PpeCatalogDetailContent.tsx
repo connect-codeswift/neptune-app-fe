@@ -29,7 +29,7 @@ const statusTone: Record<PpeCatalogStatus, "muted" | "warn" | "danger"> = {
 function MetaTile(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
   return (
-    <div className="flex flex-col gap-1 rounded-[10px] bg-[rgba(15,23,42,0.04)] px-3 py-2.5">
+    <div className="flex flex-col gap-1 rounded-2.5 bg-[rgba(15,23,42,0.04)] px-3 py-2.5">
       <span className="text-sm font-semibold tracking-[0.6px] text-[#b3bbc8] uppercase">
         {label}
       </span>
@@ -42,7 +42,7 @@ function MetaPair(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className="text-ehs-muted-text text-[10px] font-bold uppercase">
+      <span className="text-ehs-muted-text text-2.5 font-bold uppercase">
         {label}
       </span>
       <span className="text-ehs-darker text-sm font-medium">{value}</span>
@@ -55,7 +55,7 @@ function InventoryStat(
 ) {
   const { value, label, muted } = props;
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-[rgba(11,19,32,0.05)] bg-[#f8fafc] p-3 md:items-center md:gap-0.5 md:rounded-[10px] md:border-0 md:bg-[rgba(15,23,42,0.04)] md:px-2.5 md:py-2.5">
+    <div className="flex flex-col gap-1 rounded-lg border border-[rgba(11,19,32,0.05)] bg-[#f8fafc] p-3 md:items-center md:gap-0.5 md:rounded-2.5 md:border-0 md:bg-[rgba(15,23,42,0.04)] md:px-2.5 md:py-2.5">
       <span
         className={[
           "text-2xl font-extrabold tabular-nums md:text-center md:text-lg",
@@ -97,24 +97,24 @@ function IssuanceMobileCard(
         <IncidentBadge
           label={record.status}
           tone="muted"
-          className="shrink-0 rounded-md px-2 py-1 text-[11px]! font-bold uppercase"
+          className="shrink-0 rounded-md px-2 py-1 text-2.75! font-bold uppercase"
         />
       </div>
       <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
       <div className="flex gap-8">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-bold text-[#8892a3] uppercase">
+          <span className="text-2.5 font-bold text-[#8892a3] uppercase">
             Quantity
           </span>
-          <span className="text-ehs-darker text-[13px] font-semibold tabular-nums">
+          <span className="text-ehs-darker text-3.25 font-semibold tabular-nums">
             {String(record.quantity)}
           </span>
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-bold text-[#8892a3] uppercase">
+          <span className="text-2.5 font-bold text-[#8892a3] uppercase">
             Size
           </span>
-          <span className="text-ehs-darker text-[13px] font-semibold">
+          <span className="text-ehs-darker text-3.25 font-semibold">
             {record.size}
           </span>
         </div>
@@ -141,13 +141,13 @@ export function PpeCatalogDetailContent(
 
   const inventoryCard = (
     <IncidentGlassCard
-      paddingClassName="p-4 md:p-[18px]"
+      paddingClassName="p-4 md:p-4.5"
       className="min-w-0 self-start"
     >
       <div className="flex flex-col gap-4 md:gap-3.5">
         <Text
           as="h3"
-          className="text-ehs-darker text-[15px] font-extrabold md:text-base md:font-bold"
+          className="text-ehs-darker text-3.75 font-extrabold md:text-base md:font-bold"
         >
           Inventory
         </Text>
@@ -183,9 +183,9 @@ export function PpeCatalogDetailContent(
             `${ISSUE_ROUTE}?ppeItemId=${encodeURIComponent(item.id)}`,
           );
         }}
-        className="flex w-full gap-2 rounded-xl px-4 py-3.5 text-[15px] font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.17)] md:hidden"
+        className="flex w-full gap-2 rounded-xl px-4 py-3.5 text-3.75 font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.17)] md:hidden"
       >
-        <Icon icon="mdi:plus" className="size-[18px] shrink-0" />
+        <Icon icon="mdi:plus" className="size-4.5 shrink-0" />
         Issue This Item
       </Button>
 
@@ -209,11 +209,11 @@ export function PpeCatalogDetailContent(
                 <IncidentBadge
                   label={item.status}
                   tone={statusTone[item.status]}
-                  className="shrink-0 rounded-md px-2 py-1 text-[11px]! font-bold uppercase md:rounded-full md:px-2.5 md:py-0.5 md:text-sm! md:font-semibold md:normal-case"
+                  className="shrink-0 rounded-md px-2 py-1 text-2.75! font-bold uppercase md:rounded-full md:px-2.5 md:py-0.5 md:text-sm! md:font-semibold md:normal-case"
                 />
               </div>
 
-              <p className="text-ehs-muted-text text-[13px] leading-normal md:rounded-xl md:bg-[rgba(15,23,42,0.03)] md:px-3.5 md:py-3.5 md:text-base md:leading-5.5 md:text-[#2a3446]">
+              <p className="text-ehs-muted-text text-3.25 leading-normal md:rounded-xl md:bg-[rgba(15,23,42,0.03)] md:px-3.5 md:py-3.5 md:text-base md:leading-5.5 md:text-[#2a3446]">
                 {item.description}
               </p>
 

@@ -139,7 +139,7 @@ function AvatarCropModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-ehs-dark-bg/45 p-4 backdrop-blur-[3px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ehs-dark-bg/45 p-4 backdrop-blur-0.75"
       onClick={isSaving ? undefined : onClose}
       role="presentation"
     >

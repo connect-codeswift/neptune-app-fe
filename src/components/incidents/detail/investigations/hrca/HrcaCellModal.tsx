@@ -101,7 +101,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
       title={copy.title}
       subtitle={state.category}
       onClose={onClose}
-      maxWidthClassName="max-w-[560px]"
+      maxWidthClassName="max-w-140"
       footerHint={copy.footerHint}
       footerActions={
         <>

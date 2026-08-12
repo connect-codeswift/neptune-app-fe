@@ -19,7 +19,7 @@ const INCIDENT_TYPE_SELECT_OPTIONS = INCIDENT_TYPE_OPTIONS.filter(
 
 /** Same frame the native selects' wrapper drew, now on GlassSelect's trigger. */
 const CLASSIFICATION_TRIGGER_CLASS =
-  "w-full rounded-[8px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-[9px] text4 font-normal outline-none backdrop-blur-[5px]";
+  "w-full rounded-2 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2.25 text4 font-normal outline-none backdrop-blur-1.25";
 
 export type IncidentClosureStepClassificationProps = Readonly<{
   data: IncidentClosureData;
@@ -123,7 +123,7 @@ export function IncidentClosureStepClassification(
   };
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-4.5">
       <Text
         as="h2"
         className="text5 leading-normal font-bold text-ehs-dark-bg"
@@ -133,7 +133,7 @@ export function IncidentClosureStepClassification(
 
       {/* Fatality Regulatory Warning Banner */}
       {isFatality && (
-        <div className="flex items-start gap-3 rounded-[10px] border border-ehs-red/30 bg-ehs-red/10 p-3 text-ehs-red">
+        <div className="flex items-start gap-3 rounded-2.5 border border-ehs-red/30 bg-ehs-red/10 p-3 text-ehs-red">
           <Icon icon="mdi:alert-circle" className="mt-0.5 size-5 shrink-0 text-ehs-red" />
           <div className="flex flex-col text4 font-normal leading-relaxed">
             <span className="font-bold text-ehs-red">
@@ -150,7 +150,7 @@ export function IncidentClosureStepClassification(
         {/* Row 1: Final Incident Type + SIF Classification */}
         <div className="flex flex-col gap-6 sm:flex-row">
           {/* Final Incident Type */}
-          <div className="flex flex-1 flex-col gap-[6px]">
+          <div className="flex flex-1 flex-col gap-1.5">
             <label className="text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               Final Incident Type
             </label>
@@ -168,7 +168,7 @@ export function IncidentClosureStepClassification(
           </div>
 
           {/* SIF Classification */}
-          <div className="flex flex-1 flex-col gap-[6px]">
+          <div className="flex flex-1 flex-col gap-1.5">
             <label className="text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
               SIF Classification
             </label>
@@ -190,13 +190,13 @@ export function IncidentClosureStepClassification(
           <div className="flex flex-col gap-6 sm:flex-row">
             {/* Days Away From Work */}
             {showDaysAway && (
-              <div className="flex flex-1 flex-col gap-[6px]">
+              <div className="flex flex-1 flex-col gap-1.5">
                 <label className="text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
                   Days Away from Work
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
+                    "flex items-center justify-between rounded-2 border bg-white/55 px-3 py-2.25 backdrop-blur-1.25",
                     lostTimeMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -214,14 +214,14 @@ export function IncidentClosureStepClassification(
                     }
                     className="w-full [appearance:textfield] appearance-none bg-transparent text4 font-semibold text-ehs-dark-bg outline-none"
                   />
-                  <div className="flex flex-col gap-[2px]">
+                  <div className="flex flex-col gap-0.5">
                     <button
                       type="button"
                       onClick={() => handleDaysAwayChange(1)}
                       className="leading-none text-ehs-gray hover:text-ehs-dark-bg"
                       aria-label="Increase days away"
                     >
-                      <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                      <Icon icon="mdi:chevron-up" className="size-2.5" />
                     </button>
                     <button
                       type="button"
@@ -229,7 +229,7 @@ export function IncidentClosureStepClassification(
                       className="leading-none text-ehs-gray hover:text-ehs-dark-bg"
                       aria-label="Decrease days away"
                     >
-                      <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                      <Icon icon="mdi:chevron-down" className="size-2.5" />
                     </button>
                   </div>
                 </div>
@@ -243,13 +243,13 @@ export function IncidentClosureStepClassification(
 
             {/* Days On Restricted Duty */}
             {showDaysRestricted && (
-              <div className="flex flex-1 flex-col gap-[6px]">
+              <div className="flex flex-1 flex-col gap-1.5">
                 <label className="text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
                   Days on Restricted Duty
                 </label>
                 <div
                   className={[
-                    "flex items-center justify-between rounded-[8px] border bg-white/55 px-3 py-[9px] backdrop-blur-[5px]",
+                    "flex items-center justify-between rounded-2 border bg-white/55 px-3 py-2.25 backdrop-blur-1.25",
                     restrictedMissingDays
                       ? "border-ehs-red"
                       : "border-[rgba(15,23,42,0.08)]",
@@ -267,14 +267,14 @@ export function IncidentClosureStepClassification(
                     }
                     className="w-full [appearance:textfield] appearance-none bg-transparent text4 font-semibold text-ehs-dark-bg outline-none"
                   />
-                  <div className="flex flex-col gap-[2px]">
+                  <div className="flex flex-col gap-0.5">
                     <button
                       type="button"
                       onClick={() => handleDaysRestrictedChange(1)}
                       className="leading-none text-ehs-gray hover:text-ehs-dark-bg"
                       aria-label="Increase restricted days"
                     >
-                      <Icon icon="mdi:chevron-up" className="size-[10px]" />
+                      <Icon icon="mdi:chevron-up" className="size-2.5" />
                     </button>
                     <button
                       type="button"
@@ -282,7 +282,7 @@ export function IncidentClosureStepClassification(
                       className="leading-none text-ehs-gray hover:text-ehs-dark-bg"
                       aria-label="Decrease restricted days"
                     >
-                      <Icon icon="mdi:chevron-down" className="size-[10px]" />
+                      <Icon icon="mdi:chevron-down" className="size-2.5" />
                     </button>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export function IncidentClosureStepClassification(
             Auto-set from Final Incident Type
           </span>
         ) : (
-          <div className="mt-2 flex flex-col gap-1 rounded-[10px] border border-ehs-yellow/40 bg-ehs-yellow/10 p-3">
+          <div className="mt-2 flex flex-col gap-1 rounded-2.5 border border-ehs-yellow/40 bg-ehs-yellow/10 p-3">
             <label className="text8 font-bold tracking-[0.5px] text-ehs-yellow uppercase">
               Why does this differ from the standard classification? *
             </label>
@@ -364,7 +364,7 @@ export function IncidentClosureStepClassification(
               value={data.oshaOverrideReason ?? ""}
               onChange={(e) => onChangeField("oshaOverrideReason", e.target.value)}
               placeholder="Enter required reason for OSHA recordability override..."
-              className="w-full rounded-[6px] border border-ehs-yellow/30 bg-white/55 px-3 py-1.5 text4 font-normal text-ehs-dark-bg outline-none backdrop-blur-[5px] focus:border-ehs-yellow"
+              className="w-full rounded-1.5 border border-ehs-yellow/30 bg-white/55 px-3 py-1.5 text4 font-normal text-ehs-dark-bg outline-none backdrop-blur-1.25 focus:border-ehs-yellow"
             />
             {overrideReasonMissing && (
               <span className="text8 font-normal text-ehs-red">

@@ -33,7 +33,7 @@ const columns = [
     cell: (info) => (
       <Text
         as="span"
-        className="text-[10px] leading-normal font-bold text-[#8892a3]"
+        className="text-2.5 leading-normal font-bold text-[#8892a3]"
       >
         {info.getValue()}
       </Text>
@@ -44,7 +44,7 @@ const columns = [
     size: 172,
     meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-[12px] leading-normal text-[#0b1320]">
+      <Text as="span" className="text-xs leading-normal text-[#0b1320]">
         {info.getValue()}
       </Text>
     ),
@@ -69,7 +69,7 @@ const columns = [
     cell: (info) => (
       <Text
         as="span"
-        className="text-[12px] leading-normal whitespace-nowrap tabular-nums text-[#566072]"
+        className="text-xs leading-normal whitespace-nowrap tabular-nums text-[#566072]"
       >
         {info.getValue()}
       </Text>
@@ -80,7 +80,7 @@ const columns = [
     size: 90,
     meta: { align: "right" },
     cell: (info) => (
-      <Text as="span" className="text-[10px] leading-normal text-[#056e7e]">
+      <Text as="span" className="text-2.5 leading-normal text-[#056e7e]">
         {info.getValue()}
       </Text>
     ),
@@ -117,7 +117,7 @@ export function RegulatoryComplianceRegisterCard(
         <div className="flex h-[50.595px] items-center justify-between gap-3">
           <Text
             as="h2"
-            className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
+            className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
           >
             Obligations
           </Text>

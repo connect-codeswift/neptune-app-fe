@@ -15,9 +15,9 @@ export function RecordablesBySiteCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="px-[23px] pt-[23px] pb-6"
+      paddingClassName="px-5.75 pt-5.75 pb-6"
       className={[
-        "flex h-[400px] max-h-[400px] min-h-[400px] flex-col overflow-hidden",
+        "flex h-100 max-h-100 min-h-100 flex-col overflow-hidden",
         className,
       ]
         .filter(Boolean)
@@ -45,7 +45,7 @@ export function RecordablesBySiteCard(
             const widthPercent = (item.count / maxCount) * 100;
 
             return (
-              <div key={item.site} className="flex flex-col gap-[5px]">
+              <div key={item.site} className="flex flex-col gap-1.25">
                 <div className="flex items-center justify-between gap-2">
                   <Text as="span" className="text-ehs-slate text-xs">
                     {item.site}

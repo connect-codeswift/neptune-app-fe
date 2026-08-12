@@ -15,9 +15,9 @@ export function IncidentClosureMetadataCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[22px]"
+      paddingClassName="p-5.5"
       incidentGlassCardClassName="gap-4"
-      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-[10px]"
+      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-2.5"
     >
       <div className="flex items-center justify-between">
         <Text

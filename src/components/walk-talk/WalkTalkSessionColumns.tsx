@@ -10,7 +10,7 @@ export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
     header: "ID",
     size: 110,
     cell: (info) => (
-      <span className="text-[10px] leading-normal font-bold text-[#8892a3]">
+      <span className="text-2.5 leading-normal font-bold text-[#8892a3]">
         {info.getValue()}
       </span>
     ),
@@ -26,7 +26,7 @@ export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
     header: "Observer",
     size: 150,
     cell: (info) => (
-      <span className="text-[12px] leading-normal text-[#566072]">
+      <span className="text-xs leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),
@@ -39,10 +39,10 @@ export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
       const session = info.row.original;
       return (
         <div className="flex flex-col gap-0.5">
-          <span className="text-[12px] leading-normal text-[#0b1320]">
+          <span className="text-xs leading-normal text-[#0b1320]">
             {info.getValue()}
           </span>
-          <span className="text-[10px] leading-normal text-[#8892a3]">
+          <span className="text-2.5 leading-normal text-[#8892a3]">
             {session.when}
           </span>
         </div>
@@ -54,7 +54,7 @@ export const walkTalkSessionColumns: TableColumns<WalkTalkSession> = [
     header: "Site",
     size: 160,
     cell: (info) => (
-      <span className="text-[12px] leading-normal text-[#566072]">
+      <span className="text-xs leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),

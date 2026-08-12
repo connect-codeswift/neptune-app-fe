@@ -90,7 +90,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
             type="button"
             variant="primary"
             onClick={onViewFindings}
-            className="shrink-0 rounded-[10px] px-4 py-2 text-sm font-medium"
+            className="shrink-0 rounded-2.5 px-4 py-2 text-sm font-medium"
           >
             View Findings
           </Button>

@@ -114,7 +114,7 @@ export function AcknowledgeDocumentForm(
   return (
     <div
       className={[
-        "flex w-full min-w-0 flex-col gap-[18px] lg:max-w-[463px] lg:shrink-0",
+        "flex w-full min-w-0 flex-col gap-4.5 lg:max-w-115.75 lg:shrink-0",
         className,
       ]
         .filter(Boolean)
@@ -128,7 +128,7 @@ export function AcknowledgeDocumentForm(
         />
       </div>
 
-      <div className="flex w-full min-w-0 flex-col gap-[18px]">
+      <div className="flex w-full min-w-0 flex-col gap-4.5">
         <AcknowledgeCommentsCard value={comments} onChange={setComments} />
         <AcknowledgeActionsCard
           canApprove={confirmed}

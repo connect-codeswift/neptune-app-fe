@@ -67,7 +67,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         <div
           className={[
             "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
-            compact ? "h-[6px]" : "h-1.5",
+            compact ? "h-1.5" : "h-1.5",
           ].join(" ")}
         >
           <div
@@ -117,7 +117,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       <div
         className={[
           "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
-          compact ? "h-[6px]" : "h-1.5",
+          compact ? "h-1.5" : "h-1.5",
         ].join(" ")}
       >
         <div
@@ -129,7 +129,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         />
         <div
           className={[
-            "bg-ehs-slate absolute top-[-2px] bottom-[-2px] w-[2px] rounded-[2px]",
+            "bg-ehs-slate absolute -top-0.5 -bottom-0.5 w-0.5 rounded-0.5",
           ].join(" ")}
           style={{ left: `${TARGET_MARKER_PCT}%` }}
           aria-hidden="true"
@@ -139,14 +139,14 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       <div className="flex items-start justify-between gap-2">
         <span
           className={[
-            "inline-flex items-center gap-[3px] font-bold",
+            "inline-flex items-center gap-0.75 font-bold",
             compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
             isOn ? "text-ehs-green" : "text-ehs-red",
           ].join(" ")}
         >
           <Icon
             icon={isOn ? "mdi:check-circle" : "mdi:trending-up"}
-            className={compact ? "size-[10px]" : "text-sm"}
+            className={compact ? "size-2.5" : "text-sm"}
             aria-hidden="true"
           />
           {isOn ? "On / under target" : "Off target"}

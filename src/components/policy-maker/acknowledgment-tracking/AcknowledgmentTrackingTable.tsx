@@ -22,7 +22,7 @@ function StatusCell(
   return (
     <span
       className={[
-        "text-[12px] leading-4",
+        "text-xs leading-4",
         isAcknowledged ? "text-[#10b981]" : "text-[#457b9d]",
       ].join(" ")}
     >
@@ -64,7 +64,7 @@ function createColumns(): ColumnDef<AcknowledgmentRecord, unknown>[] {
       size: 180,
       meta: { align: "left" as const },
       cell: ({ getValue }) => (
-        <Text as="span" className="text-[12px] leading-4 text-[#566072]">
+        <Text as="span" className="text-xs leading-4 text-[#566072]">
           {getValue() ?? "—"}
         </Text>
       ),
@@ -87,7 +87,7 @@ export function AcknowledgmentTrackingTable(
       columns={columns}
       getRowId={(row) => row.id}
       containerClassName={className}
-      className="min-w-[640px]"
+      className="min-w-160"
     />
   );
 }

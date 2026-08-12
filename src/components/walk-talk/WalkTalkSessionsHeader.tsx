@@ -20,7 +20,7 @@ export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
     <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
       <Text
         as="h2"
-        className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
+        className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
       >
         Recent sessions
       </Text>

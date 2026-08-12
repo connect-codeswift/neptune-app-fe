@@ -39,8 +39,8 @@ export function AcknowledgePdfDocument(
     setPage((current) => Math.min(pageCount || current, current + 1));
 
   return (
-    <div className="relative flex min-h-[420px] w-full min-w-0 flex-col overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] lg:min-h-[722px]">
-      <div className="flex h-[43px] shrink-0 items-center gap-2 border-b border-[rgba(15,23,42,0.08)] px-3 sm:px-4">
+    <div className="relative flex min-h-105 w-full min-w-0 flex-col overflow-hidden rounded-5 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 lg:min-h-180.5">
+      <div className="flex h-10.75 shrink-0 items-center gap-2 border-b border-[rgba(15,23,42,0.08)] px-3 sm:px-4">
         <Icon
           icon="mdi:file-pdf-box"
           className="size-3.5 shrink-0 text-[#ef4444]"
@@ -48,14 +48,14 @@ export function AcknowledgePdfDocument(
         />
         <Text
           as="span"
-          className="min-w-0 truncate text-[12px] font-bold text-[#0b1320]"
+          className="min-w-0 truncate text-xs font-bold text-[#0b1320]"
         >
           {fileName}
         </Text>
         {pageCount > 0 ? (
           <Text
             as="span"
-            className="hidden shrink-0 text-[10px] text-[#8892a3] sm:inline"
+            className="hidden shrink-0 text-2.5 text-[#8892a3] sm:inline"
           >
             {`· ${String(pageCount)} pages`}
           </Text>
@@ -69,7 +69,7 @@ export function AcknowledgePdfDocument(
             disabled
             aria-label="Search in document (not available yet)"
             title="Searching inside the document is not available yet"
-            className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] opacity-40 disabled:cursor-not-allowed"
           >
             <Icon icon="mdi:magnify" className="size-3" aria-hidden="true" />
           </button>
@@ -78,7 +78,7 @@ export function AcknowledgePdfDocument(
             aria-label="Previous page"
             onClick={goPrev}
             disabled={page <= 1}
-            className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
+            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
           >
             <Icon
               icon="mdi:chevron-left"
@@ -88,7 +88,7 @@ export function AcknowledgePdfDocument(
           </button>
           <Text
             as="span"
-            className="min-w-[40px] text-center text-[11px] text-[#566072]"
+            className="min-w-10 text-center text-2.75 text-[#566072]"
           >
             {pageCount > 0
               ? `${String(page)} / ${String(pageCount)}`
@@ -99,7 +99,7 @@ export function AcknowledgePdfDocument(
             aria-label="Next page"
             onClick={goNext}
             disabled={pageCount > 0 ? page >= pageCount : true}
-            className="inline-flex items-center rounded-[10px] border border-[rgba(15,23,42,0.14)] px-[9px] py-[5px] text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
+            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
           >
             <Icon
               icon="mdi:chevron-right"
@@ -112,22 +112,22 @@ export function AcknowledgePdfDocument(
 
       <div className="relative flex min-h-0 flex-1 flex-col items-center overflow-auto bg-[rgba(255,255,255,0.62)] px-4 pt-8 pb-10 sm:px-8 sm:pt-12 lg:px-12">
         {hasError ? (
-          <div className="flex h-full w-full max-w-[540px] flex-col items-center justify-center gap-2 rounded-[8px] bg-white px-6 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
+          <div className="flex h-full w-full max-w-135 flex-col items-center justify-center gap-2 rounded-2 bg-white px-6 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
             <Icon
               icon="mdi:file-alert-outline"
               className="size-8 text-[#8892a3]"
               aria-hidden="true"
             />
-            <Text as="p" className="text-[13px] font-semibold text-[#0b1320]">
+            <Text as="p" className="text-3.25 font-semibold text-[#0b1320]">
               Failed to load PDF
             </Text>
-            <Text as="p" className="max-w-[320px] text-[12px] text-[#8892a3]">
+            <Text as="p" className="max-w-80 text-xs text-[#8892a3]">
               Unsigned raw Cloudinary assets may require local download
               permissions.
             </Text>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[800px]">
+          <div className="mx-auto w-full max-w-200">
             <Document
               file={fileUrl}
               onLoadSuccess={({ numPages }) => {
@@ -136,7 +136,7 @@ export function AcknowledgePdfDocument(
               }}
               onLoadError={() => setHasError(true)}
               loading={
-                <div className="flex flex-col items-center justify-center gap-2 py-12 text-[13px] text-[#566072]">
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-3.25 text-[#566072]">
                   <Icon
                     icon="mdi:loading"
                     className="size-6 animate-spin text-[#0891a6]"
@@ -146,7 +146,7 @@ export function AcknowledgePdfDocument(
                 </div>
               }
               error={
-                <div className="flex flex-col items-center justify-center gap-2 rounded-[8px] bg-white px-6 py-12 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
+                <div className="flex flex-col items-center justify-center gap-2 rounded-2 bg-white px-6 py-12 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
                   <Icon
                     icon="mdi:file-alert-outline"
                     className="size-8 text-[#8892a3]"
@@ -154,13 +154,13 @@ export function AcknowledgePdfDocument(
                   />
                   <Text
                     as="p"
-                    className="text-[13px] font-semibold text-[#0b1320]"
+                    className="text-3.25 font-semibold text-[#0b1320]"
                   >
                     Failed to load PDF
                   </Text>
                   <Text
                     as="p"
-                    className="max-w-[320px] text-[12px] text-[#8892a3]"
+                    className="max-w-80 text-xs text-[#8892a3]"
                   >
                     Unsigned raw Cloudinary assets may require local download
                     permissions.
@@ -176,7 +176,7 @@ export function AcknowledgePdfDocument(
                   className="mx-auto mb-4 border border-gray-100 shadow-sm"
                   width={pageWidth}
                   loading={
-                    <div className="py-12 text-center text-[13px] text-[#566072]">
+                    <div className="py-12 text-center text-3.25 text-[#566072]">
                       <Icon
                         icon="mdi:loading"
                         className="mx-auto size-6 animate-spin text-[#0891a6]"

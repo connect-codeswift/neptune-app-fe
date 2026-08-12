@@ -76,7 +76,7 @@ export function IncidentDetailPeopleCard(
       className={["flex flex-col gap-3.5", className].filter(Boolean).join(" ")}
     >
       <IncidentGlassCard
-        paddingClassName="p-[23px]"
+        paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
         className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
@@ -143,18 +143,18 @@ export function IncidentDetailPeopleCard(
                     onChangeAffectedInjuryLabel?.(event.target.value)
                   }
                   placeholder="Injury"
-                  className={`${fieldInputClass} max-w-[140px] shrink-0`}
+                  className={`${fieldInputClass} max-w-35 shrink-0`}
                   aria-label="Injury level"
                 />
               ) : (
-                <span className="bg-ehs-dark-bg/14 text-ehs-gray shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide">
+                <span className="bg-ehs-dark-bg/14 text-ehs-gray shrink-0 rounded-full px-2.25 pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide">
                   {affectedInjuryLabel}
                 </span>
               )}
             </div>
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
-              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+              <div className="flex flex-col gap-0.75 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
                 <span className="text-ehs-muted-text text6">
                   Body part
                 </span>
@@ -172,7 +172,7 @@ export function IncidentDetailPeopleCard(
                   </span>
                 )}
               </div>
-              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+              <div className="flex flex-col gap-0.75 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
                 <span className="text-ehs-muted-text text6">
                   Treatment
                 </span>
@@ -192,7 +192,7 @@ export function IncidentDetailPeopleCard(
                   </span>
                 )}
               </div>
-              <div className="flex flex-col gap-[3px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[13px]">
+              <div className="flex flex-col gap-0.75 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
                 <span className="text-ehs-muted-text text6">
                   Days away
                 </span>
@@ -210,7 +210,7 @@ export function IncidentDetailPeopleCard(
       </IncidentGlassCard>
 
       <IncidentGlassCard
-        paddingClassName="p-[23px]"
+        paddingClassName="p-5.75"
         className={isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""}
       >
         <div className="pb-3.5">
@@ -234,9 +234,9 @@ export function IncidentDetailPeopleCard(
               // every keystroke. ResponderMember carries no stable id, and the
               // list is not reordered or filtered while editing.
               key={index}
-              className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-3"
+              className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3.25 pb-3"
             >
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-[34px] shrink-0 items-center justify-center rounded-[10.2px] text5">
+              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-8.5 shrink-0 items-center justify-center rounded-[10.2px] text5">
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-px">
@@ -284,7 +284,7 @@ export function IncidentDetailPeopleCard(
                     onChangeResponder?.(index, { empId: event.target.value })
                   }
                   placeholder="ID / email"
-                  className={`${fieldInputClass} max-w-[140px] shrink-0 text4`}
+                  className={`${fieldInputClass} max-w-35 shrink-0 text4`}
                   aria-label="Employee ID or email"
                 />
               ) : (
@@ -294,7 +294,7 @@ export function IncidentDetailPeopleCard(
               )}
               <span
                 className={[
-                  "shrink-0 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
+                  "shrink-0 rounded-full px-2.25 pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
                   responderBadgeClass(person.badgeTone),
                 ].join(" ")}
               >

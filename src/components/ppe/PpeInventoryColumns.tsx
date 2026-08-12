@@ -27,7 +27,7 @@ export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
     header: "Category",
     size: 180,
     cell: (info) => (
-      <span className="text-[12px] leading-normal text-[#0b1320]">
+      <span className="text-xs leading-normal text-[#0b1320]">
         {info.getValue()}
       </span>
     ),
@@ -37,7 +37,7 @@ export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
     header: "On hand",
     size: 120,
     cell: ({ row }) => (
-      <span className="text-[12px] leading-normal tabular-nums text-[#566072]">
+      <span className="text-xs leading-normal tabular-nums text-[#566072]">
         {`${formatStock(row.original.onHand)} / ${formatStock(row.original.stockCapacity)}`}
       </span>
     ),
@@ -52,15 +52,15 @@ export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
 
       return (
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-[3px] bg-[rgba(136,146,163,0.2)]">
+          <div className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-0.75 bg-[rgba(136,146,163,0.2)]">
             <div
-              className={`h-full rounded-[3px] ${progressClassName[tone]}`}
+              className={`h-full rounded-0.75 ${progressClassName[tone]}`}
               style={{ width: `${String(stockLevel)}%` }}
             />
           </div>
           <span
             className={[
-              "shrink-0 text-[12px] font-semibold tabular-nums",
+              "shrink-0 text-xs font-semibold tabular-nums",
               tone === "danger"
                 ? "text-[#ef4444]"
                 : tone === "warn"
@@ -79,7 +79,7 @@ export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
     header: "Reorder",
     size: 110,
     cell: (info) => (
-      <span className="text-[12px] leading-normal text-[#566072]">
+      <span className="text-xs leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),
@@ -89,7 +89,7 @@ export const ppeInventoryColumns: TableColumns<PpeInventoryItem> = [
     header: "Supplier",
     size: 140,
     cell: (info) => (
-      <span className="text-[12px] leading-normal text-[#566072]">
+      <span className="text-xs leading-normal text-[#566072]">
         {info.getValue()}
       </span>
     ),

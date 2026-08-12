@@ -14,7 +14,7 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
 
   return (
     <HazcomGlassCard
-      className={["min-h-[280px] text-center", className]
+      className={["min-h-70 text-center", className]
         .filter(Boolean)
         .join(" ")}
       hazcomGlassCardClassName="items-center justify-center gap-3"

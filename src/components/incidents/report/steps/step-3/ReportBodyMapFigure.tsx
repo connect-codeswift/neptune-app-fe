@@ -45,7 +45,7 @@ export function ReportBodyMapFigure(props: Readonly<ReportBodyMapFigureProps>) {
   return (
     <div
       className={[
-        "mx-auto flex w-full max-w-[260px] flex-col items-center gap-1 self-start rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:gap-1.5 sm:px-3 sm:pt-2.5",
+        "mx-auto flex w-full max-w-65 flex-col items-center gap-1 self-start rounded-3 border border-[rgba(15,23,42,0.08)] bg-white/82 px-1.5 pt-2 pb-3 sm:gap-1.5 sm:px-3 sm:pt-2.5",
         className,
       ]
         .filter(Boolean)

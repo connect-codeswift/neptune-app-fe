@@ -21,9 +21,9 @@ import {
 
 function ChartSkeleton() {
   return (
-    <IncidentGlassCard paddingClassName="p-[23px]" className="min-h-[308px]">
+    <IncidentGlassCard paddingClassName="p-5.75" className="min-h-77">
       <Skeleton className="mb-4 h-4 w-48" />
-      <Skeleton className="h-[188px] w-full" />
+      <Skeleton className="h-47 w-full" />
     </IncidentGlassCard>
   );
 }
@@ -31,8 +31,8 @@ function ChartSkeleton() {
 function SiteCardSkeleton() {
   return (
     <IncidentGlassCard
-      paddingClassName="px-[23px] pt-[23px] pb-6"
-      className="flex h-[326px] max-h-[326px] min-h-[326px] flex-col overflow-hidden"
+      paddingClassName="px-5.75 pt-5.75 pb-6"
+      className="flex h-81.5 max-h-81.5 min-h-81.5 flex-col overflow-hidden"
     >
       <Skeleton className="mb-4 h-4 w-40 shrink-0" />
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
@@ -46,7 +46,7 @@ function SiteCardSkeleton() {
 
 function IndicatorCardSkeleton() {
   return (
-    <IncidentGlassCard paddingClassName="p-[17px]" className="min-h-[132px]">
+    <IncidentGlassCard paddingClassName="p-4.25" className="min-h-33">
       <Skeleton className="mb-4 h-3 w-24" />
       <Skeleton className="mb-4 h-8 w-16" />
       <Skeleton className="h-6 w-full" />
@@ -104,11 +104,11 @@ export function IncidentKpisDashboardSections() {
             <IndicatorCardSkeleton key={index} />
           ))}
           <IncidentGlassCard
-            paddingClassName="p-[19px]"
-            className="min-h-[216px] sm:col-span-2"
+            paddingClassName="p-4.75"
+            className="min-h-54 sm:col-span-2"
           >
             <Skeleton className="mb-4 h-4 w-40" />
-            <Skeleton className="h-[132px] w-full" />
+            <Skeleton className="h-33 w-full" />
           </IncidentGlassCard>
         </div>
       </>

@@ -59,7 +59,7 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
 
   return (
     <HazcomGlassCard
-      className={["min-h-[180px] text-center", className]
+      className={["min-h-45 text-center", className]
         .filter(Boolean)
         .join(" ")}
       hazcomGlassCardClassName="items-center justify-center gap-2"

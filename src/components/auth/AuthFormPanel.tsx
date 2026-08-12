@@ -45,9 +45,9 @@ export function AuthFormPanel(props: Readonly<AuthFormPanelProps>) {
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
       {overlay}
 
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+      <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
       <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
+        positionAsClassName="-bottom-37.5 -left-37.5"
         blur={80}
       />
 
@@ -59,7 +59,7 @@ export function AuthFormPanel(props: Readonly<AuthFormPanelProps>) {
         <div className="absolute top-[58%] left-1/2 size-80 -translate-x-[8%] rounded-full bg-cyan-300/30 blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-[30rem] flex-col gap-6">
+      <div className="relative z-10 flex w-full max-w-120 flex-col gap-6">
         {/* The brand panel is hidden below lg, which left phones with no logo
             anywhere on the page — this is the mobile-only signature. */}
         <LogoIcon variant="dark" className="mx-auto h-5 w-auto lg:hidden" />

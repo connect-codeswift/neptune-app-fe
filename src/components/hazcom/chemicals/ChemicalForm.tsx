@@ -467,7 +467,7 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
               aria-pressed={isSelected}
               onClick={() => onChange(word)}
               className={[
-                "text5 h-9 flex-1 rounded-[10px] border tracking-wide uppercase transition-colors",
+                "text5 h-9 flex-1 rounded-2.5 border tracking-wide uppercase transition-colors",
                 isSelected
                   ? isDanger
                     ? "border-ehs-red text-ehs-red bg-ehs-red/5"

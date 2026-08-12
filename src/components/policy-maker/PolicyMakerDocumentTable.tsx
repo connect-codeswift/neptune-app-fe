@@ -56,11 +56,11 @@ function createDocumentColumns(
             <div className="flex min-w-0 flex-col">
               <Text
                 as="p"
-                className="text-[12px] leading-normal text-[#0b1320]"
+                className="text-xs leading-normal text-[#0b1320]"
               >
                 {doc.title}
               </Text>
-              <Text as="p" className="text-[10px] text-[#8892a3]">
+              <Text as="p" className="text-2.5 text-[#8892a3]">
                 {`${doc.code} · ${doc.site}`}
               </Text>
             </div>
@@ -75,7 +75,7 @@ function createDocumentColumns(
       cell: (info) => (
         <Text
           as="span"
-          className="text-[10px] leading-normal font-bold text-[#8892a3]"
+          className="text-2.5 leading-normal font-bold text-[#8892a3]"
         >
           {info.getValue()}
         </Text>
@@ -86,7 +86,7 @@ function createDocumentColumns(
       size: 90,
       meta: { align: "left" as const },
       cell: (info) => (
-        <Text as="span" className="text-[12px] leading-normal text-[#566072]">
+        <Text as="span" className="text-xs leading-normal text-[#566072]">
           {info.getValue()}
         </Text>
       ),
@@ -104,7 +104,7 @@ function createDocumentColumns(
       cell: (info) => (
         <Text
           as="span"
-          className="text-[12px] leading-normal whitespace-nowrap tabular-nums text-[#566072]"
+          className="text-xs leading-normal whitespace-nowrap tabular-nums text-[#566072]"
         >
           {info.getValue()}
         </Text>
@@ -169,11 +169,11 @@ export function PolicyMakerDocumentTable(
           <div className="flex min-w-0 items-baseline gap-2">
             <Text
               as="h2"
-              className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
+              className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
             >
               {categoryLabel}
             </Text>
-            <Text as="p" className="text-[10px] leading-none text-[#8892a3]">
+            <Text as="p" className="text-2.5 leading-none text-[#8892a3]">
               {`${String(documentCount)} documents`}
             </Text>
           </div>

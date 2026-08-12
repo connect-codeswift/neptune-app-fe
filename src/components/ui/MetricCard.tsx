@@ -244,7 +244,7 @@ function Sparkline(
   return (
     <svg
       viewBox={`0 0 ${String(SPARKLINE_WIDTH)} ${String(SPARKLINE_HEIGHT)}`}
-      className="h-[22px] w-[70px] shrink-0"
+      className="h-5.5 w-17.5 shrink-0"
       aria-hidden="true"
     >
       <path d={areaPath} className={fill} />
@@ -261,7 +261,7 @@ function Sparkline(
 }
 
 const badgeClass =
-  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] " +
+  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] " +
   "text-[10.5px] leading-[15.4px] font-bold tracking-[0.22px]";
 
 function MetricBadge(
@@ -278,7 +278,7 @@ function MetricBadge(
       <span className={[badgeClass, toneClasses[tone].badge].join(" ")}>
         <Icon
           icon={deltaIcon(delta)}
-          className="size-[11px]"
+          className="size-2.75"
           aria-hidden="true"
         />
         {formatDelta(delta)}
@@ -354,13 +354,13 @@ export function MetricCard(props: MetricCardProps) {
           {String(value)}
         </Text>
         {unit ? (
-          <Text as="span" className="text-ehs-gray text-[10px] uppercase font-semibold">
+          <Text as="span" className="text-ehs-gray text-2.5 uppercase font-semibold">
             {unit}
           </Text>
         ) : null}
       </div>
 
-      <div className="mt-auto flex min-h-[22px] items-end justify-between gap-3">
+      <div className="mt-auto flex min-h-5.5 items-end justify-between gap-3">
         {footerText ? (
           <Text as="p" className="text-ehs-muted-text min-w-0 text-xs">
             {footerText}
@@ -420,17 +420,17 @@ function MetricCardSkeleton() {
     <GlassCard className="flex-1 justify-between">
       <div className="flex items-start justify-between gap-3">
         <Skeleton className="mt-px h-3.5 w-28" />
-        <Skeleton className="h-[21px] w-14 rounded-full" />
+        <Skeleton className="h-5.25 w-14 rounded-full" />
       </div>
 
-      <div className="flex items-baseline gap-[10px]">
+      <div className="flex items-baseline gap-2.5">
         <Skeleton className="h-10 w-20" />
         <Skeleton className="h-3.5 w-8" />
       </div>
 
       <div className="flex items-end justify-between gap-3">
         <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-[22px] w-[70px] rounded-md" />
+        <Skeleton className="h-5.5 w-17.5 rounded-md" />
       </div>
     </GlassCard>
   );

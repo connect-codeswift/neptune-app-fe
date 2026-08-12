@@ -47,19 +47,19 @@ export function PpeInventoryCard(props: Readonly<PpeInventoryCardProps>) {
         </span>
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-[3px] bg-[#e5e7eb]">
+      <div className="h-1.5 w-full overflow-hidden rounded-0.75 bg-[#e5e7eb]">
         <div
-          className={`h-full rounded-[3px] transition-[width] ${progressClassName[tone]}`}
+          className={`h-full rounded-0.75 transition-[width] ${progressClassName[tone]}`}
           style={{ width: `${String(item.stockLevel)}%` }}
         />
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[11px] font-semibold">
+        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-2.75 font-semibold">
           <Icon icon="mdi:account-outline" className="size-2.5 shrink-0" />
           {item.supplier}
         </span>
-        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#8892a3]">
+        <span className="inline-flex items-center gap-1 text-2.75 font-medium text-[#8892a3]">
           <Icon icon="mdi:calendar-outline" className="size-2.5 shrink-0" />
           {item.reorderDate}
         </span>
