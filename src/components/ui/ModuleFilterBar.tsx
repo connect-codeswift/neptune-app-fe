@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Icon } from "@iconify/react";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -52,14 +53,47 @@ function toOptions(
 function FilterSegment(props: ModuleFilterSegment) {
   const { label, options, value, onChange, disabled = false } = props;
   const normalized = toOptions(options);
+  const selectId = useId();
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text6 text-ehs-muted-text shrink-0">
+    <div className="flex min-w-0 items-center gap-2">
+      <label
+        htmlFor={selectId}
+        className="text-ehs-muted-text shrink-0 text-xs font-bold tracking-wide uppercase sm:text-sm xl:pointer-events-none"
+      >
         {label}
-      </span>
+      </label>
 
-      <div className="border-ehs-border flex flex-wrap items-center gap-1 rounded-lg border bg-white/60 px-1 py-1">
+      <div className="relative min-w-0 flex-1 xl:hidden">
+        <select
+          id={selectId}
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          aria-label={label}
+          className={[
+            "border-ehs-border text-ehs-dark-bg min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border bg-white/60 py-1.5 pr-8 pl-2.5 text-sm font-medium outline-none",
+            "hover:bg-black/5 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+          ].join(" ")}
+        >
+          {normalized.map((option) => (
+            <option
+              key={option.value === "" ? `${label}-all` : option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <Icon
+          icon="mdi:chevron-down"
+          className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-2 size-4 -translate-y-1/2"
+          aria-hidden="true"
+        />
+      </div>
+
+      <div className="border-ehs-border hidden flex-wrap items-center gap-1 rounded-lg border bg-white/60 px-1 py-1 xl:flex">
         {normalized.map((option) => {
           const isActive = value === option.value;
 
@@ -86,8 +120,9 @@ function FilterSegment(props: ModuleFilterSegment) {
 }
 
 /**
- * Shared module filter strip — Filters chip + pill segments + optional CTAs.
- * Used by Near Miss, Hazard, Audits, Inspections, and BBS.
+ * Shared module filter strip — Filters chip + segments + optional CTAs.
+ * Below `xl`, segments render as select dropdowns; from `xl` up they use pills.
+ * Used by Near Miss, Hazard, Audits, Inspections, Incidents, and BBS.
  */
 export function ModuleFilterBar(props: ModuleFilterBarProps) {
   const { segments, action, secondaryAction, meta, className = "" } = props;
@@ -95,15 +130,6 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
 
   return (
     <div className={[shellClass, className].filter(Boolean).join(" ")}>
-      <span className="text5 text-ehs-gray border-ehs-border inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg border bg-white/60 px-2.5">
-        <Icon
-          icon="mdi:filter-variant"
-          className="size-4 shrink-0"
-          aria-hidden="true"
-        />
-        Filters
-      </span>
-
       {segments.map((segment) => (
         <FilterSegment key={segment.label} {...segment} />
       ))}

@@ -15,9 +15,9 @@ export function RecordablesBySiteCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="px-5.75 pt-5.75 pb-6"
+      paddingClassName="px-4 pt-4 pb-5 md:px-5.75 md:pt-5.75 md:pb-6"
       className={[
-        "flex h-100 max-h-100 min-h-100 flex-col overflow-hidden",
+        "flex max-h-72 flex-col overflow-hidden md:h-100 md:max-h-100",
         className,
       ]
         .filter(Boolean)
@@ -35,7 +35,7 @@ export function RecordablesBySiteCard(
         </Text>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-0.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-3">
         {sites.length === 0 ? (
           <Text as="p" className="text-ehs-muted-text text-sm">
             No recordables by site returned.

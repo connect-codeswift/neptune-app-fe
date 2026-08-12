@@ -107,101 +107,71 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Incident typography scale (Inter)
+   Incident typography scale
    ---------------------------------------------------------------------------
-   Named text1…text9 after the Incident list / panel roles so Near Miss,
-   Hazard, and other modules can share the same size + weight language.
-   Color stays at the call site (`text-ehs-*`) so tokens stay reusable.
+   text1 = largest … text9 = smallest.
+   Each step is responsive: base → md: → xl:.
+   Rem values always map to integer px at a 16px root.
+   Font family inherits from `body`. Color stays at the call site.
    --------------------------------------------------------------------------- */
+
+/*
+  Token   base              md                xl
+  ------  ----------------  ----------------  ----------------
+  text1   1.5rem (24px)     1.75rem (28px)    2rem (32px)
+  text2   1.25rem (20px)    1.5rem (24px)     1.75rem (28px)
+  text3   1.125rem (18px)   1.25rem (20px)    1.5rem (24px)
+  text4   1rem (16px)       1.125rem (18px)   1.25rem (20px)
+  text5   0.875rem (14px)   1rem (16px)       1.125rem (18px)
+  text6   0.75rem (12px)    0.875rem (14px)   1rem (16px)
+  text7   0.6875rem (11px)  0.75rem (12px)    0.875rem (14px)
+  text8   0.625rem (10px)   0.6875rem (11px)  0.75rem (12px)
+  text9   0.5rem (8px)      0.5625rem (9px)   0.625rem (10px)
+*/
 
 /* Page title — DashboardHeader */
 @utility text1 {
-  font-family: var(--font-inter);
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-
-  @media (width >= 40rem) {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
+  @apply text-[1.5rem] leading-7 font-bold tracking-tight md:text-[1.75rem] md:leading-8 xl:text-[2rem] xl:leading-9;
 }
 
 /* KPI / hero numeric value */
 @utility text2 {
-  font-family: var(--font-inter);
-  font-size: 1.875rem;
-  line-height: 1;
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  font-variant-numeric: tabular-nums;
+  @apply text-[1.25rem] leading-none font-normal tracking-tight tabular-nums md:text-[1.5rem] xl:text-[1.75rem];
 }
 
 /* Card / panel section title */
 @utility text3 {
-  font-family: var(--font-inter);
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  font-weight: 700;
+  @apply text-[1.125rem] leading-6 font-bold md:text-[1.25rem] md:leading-7 xl:text-[1.5rem] xl:leading-7;
 }
 
 /* Primary body / table row title */
 @utility text4 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  font-weight: 400;
+  @apply text-[1rem] leading-normal font-normal md:text-[1.125rem] xl:text-[1.25rem];
 }
 
 /* Emphasized body / status badge label */
 @utility text5 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
+  @apply text-[0.875rem] leading-5 font-bold tracking-wide md:text-[1rem] md:leading-6 xl:text-[1.125rem] xl:leading-6;
 }
 
 /* Eyebrow / KPI label / table column header */
 @utility text6 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
+  @apply text-[0.75rem] leading-4 font-bold tracking-wide uppercase md:text-[0.875rem] md:leading-5 xl:text-[1rem] xl:leading-5;
 }
 
 /* Dense ID / numeric meta */
 @utility text7 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  @apply text-[0.6875rem] leading-4 font-semibold tabular-nums md:text-[0.75rem] xl:text-[0.875rem] xl:leading-5;
 }
 
 /* Caption / helper under KPIs */
 @utility text8 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 400;
+  @apply text-[0.625rem] leading-4 font-normal md:text-[0.6875rem] xl:text-[0.75rem];
 }
 
 /* Meta field label (Reported, Summary, …) */
 @utility text9 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-}
-
-[data-sonner-toaster] {
-  font-family: var(--font-inter);
+  @apply text-[0.5rem] leading-3 font-semibold tracking-wide uppercase md:text-[0.5625rem] xl:text-[0.625rem] xl:leading-4;
 }
 
 [data-sonner-toast][data-type="success"] [data-icon] {

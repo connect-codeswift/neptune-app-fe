@@ -49,7 +49,7 @@ function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-8.5 w-24 shrink-0"
+      className="h-8.5 w-20 shrink-0"
       aria-hidden="true"
     >
       <path d={areaPath} className="fill-ehs-green/15" />
@@ -121,12 +121,12 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           <div className="flex items-baseline gap-1 pr-1.5">
             <Text
               as="p"
-              className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
+              className="text-ehs-darker text-2xl leading-none tracking-tight tabular-nums"
             >
               {metric.value}
             </Text>
             {metric.unit ? (
-              <Text as="span" className="text-ehs-muted-text text-sm">
+              <Text as="span" className="text-ehs-muted-text text-xs uppercase">
                 {metric.unit}
               </Text>
             ) : null}

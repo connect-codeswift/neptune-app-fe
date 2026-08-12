@@ -21,9 +21,9 @@ import {
 
 function ChartSkeleton() {
   return (
-    <IncidentGlassCard paddingClassName="p-5.75" className="min-h-77">
-      <Skeleton className="mb-4 h-4 w-48" />
-      <Skeleton className="h-47 w-full" />
+    <IncidentGlassCard paddingClassName="p-4 md:p-5.75">
+      <Skeleton className="mb-3 h-4 w-48 md:mb-4" />
+      <Skeleton className="aspect-[644/160] w-full" />
     </IncidentGlassCard>
   );
 }
@@ -31,8 +31,8 @@ function ChartSkeleton() {
 function SiteCardSkeleton() {
   return (
     <IncidentGlassCard
-      paddingClassName="px-5.75 pt-5.75 pb-6"
-      className="flex h-81.5 max-h-81.5 min-h-81.5 flex-col overflow-hidden"
+      paddingClassName="px-4 pt-4 pb-5 md:px-5.75 md:pt-5.75 md:pb-6"
+      className="flex max-h-72 flex-col overflow-hidden md:h-100 md:max-h-100"
     >
       <Skeleton className="mb-4 h-4 w-40 shrink-0" />
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">

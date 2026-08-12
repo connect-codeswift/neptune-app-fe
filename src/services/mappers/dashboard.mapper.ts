@@ -99,7 +99,7 @@ export function mapDashboardKpisToMetrics(
       target: ratesAvailable ? trirTarget : undefined,
       targetLabel: ratesAvailable
         ? `Target ≤ ${String(trirTarget)}`
-        : "Add monthly work hours in Settings",
+        : undefined,
       isMorePositive: false,
       signalOwnedBy: "target",
       icon: "mdi:chart-timeline-variant",
@@ -112,7 +112,7 @@ export function mapDashboardKpisToMetrics(
       target: ratesAvailable ? ltirTarget : undefined,
       targetLabel: ratesAvailable
         ? `Target ≤ ${String(ltirTarget)}`
-        : "Add monthly work hours in Settings",
+        : undefined,
       isMorePositive: false,
       signalOwnedBy: "target",
       icon: "mdi:chart-timeline-variant",

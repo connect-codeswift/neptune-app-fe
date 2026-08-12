@@ -20,7 +20,8 @@ import {
   WHAT_TREATMENT_GIVEN_OPTIONS,
 } from "@/components/incidents/report/shared/report-treatment";
 import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
-import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
+import type { PersonDto } from "@/dtos/res/incident-response.dto";
+import type { IncidentWritePayloadDto } from "@/dtos/req/incident-request.dto";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName, type AuthContext } from "@/lib/auth-context";
@@ -306,7 +307,7 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
 export function mapReportFormToIncidentDto(
   form: ReportIncidentFormState,
   auth: AuthContext | null,
-): IncidentDto {
+): IncidentWritePayloadDto {
   // Non–First Aid severities get First Aid field defaults from form state.
   const source = applySeverityFieldDefaults(form);
   const { site, location } = mapPlantAndIncidentLocations(
@@ -385,9 +386,11 @@ export function mapReportFormToIncidentDto(
     isOSHANotificationRequired: yes(source.oshaNotificationRequired),
     // `""`, not null — see EMPTY_NOT_NULL above.
     affectedPersonId: affectedPersonId || affectedName || "",
+    // reportedById only. userId/siteId are tenant context: the server stamps
+    // both from the JWT and ignores anything sent, so sending them is at best
+    // noise and at worst a stale value that looks authoritative in a payload
+    // log while being silently discarded.
     reportedById: auth?.userId ?? 0,
-    userId: auth?.userId ?? 0,
-    siteId: auth?.siteId ?? 0,
     injuredBodyPart: bodyPartLabels || "",
     injuryDescription: source.injuryDescription.trim() || "",
     incidentReporterEmail: source.reporterEmail.trim() || auth?.email || "",

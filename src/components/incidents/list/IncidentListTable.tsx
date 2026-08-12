@@ -17,6 +17,7 @@ import {
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import { IncidentListTableHeader } from "@/components/incidents/list/IncidentListTableHeader";
 
 export type IncidentListTableProps<
   TData extends { id: string } = IncidentRecord,
@@ -305,7 +306,7 @@ export function IncidentListTable<
       paddingClassName="p-0 overflow-hidden"
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      {toolbar}
+      {toolbar ?? (isIncidentTable ? <IncidentListTableHeader /> : null)}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table className="w-full table-fixed border-collapse text-left text-sm">
