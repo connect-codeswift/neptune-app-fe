@@ -32,6 +32,7 @@ import http, { HttpError } from "@/lib/axios";
 
 const RCA_CATEGORIES_PATH = "/Rca/Categories";
 const RCA_BY_INCIDENT_PATH = "/Rca/Incident";
+const CAPA_RCA_BY_ID_PATH = "/CAPA/Rca";
 const RCA_CONTRIBUTING_FACTOR_PATH = "/Rca/ContributingFactor";
 const RCA_WHYS_PATH = "/Rca/Whys";
 const RCA_WHY_PATH = "/Rca/Why";
@@ -266,18 +267,14 @@ function coerceRcaContributingFactor(
     ),
   );
 
-  if (
-    id == null ||
-    incidentId == null ||
-    rcaCategoryId == null
-  ) {
+  if (id == null || rcaCategoryId == null) {
     return null;
   }
 
   return {
     id,
     description,
-    incidentId,
+    incidentId: incidentId ?? 0,
     rcaCategoryId,
     rcaCategoryName,
     siteId: siteId ?? 0,
@@ -292,14 +289,33 @@ function normalizeRcaContributingFactorList(
 ): RcaContributingFactorDto[] {
   const list = readObjectList(data);
 
-  if (!list) {
+  if (list) {
+    return list
+      .filter((item): item is Record<string, unknown> => isRecord(item))
+      .map((item) => coerceRcaContributingFactor(item))
+      .filter((item): item is RcaContributingFactorDto => item != null);
+  }
+
+  if (!isRecord(data)) {
     return [];
   }
 
-  return list
-    .filter((item): item is Record<string, unknown> => isRecord(item))
-    .map((item) => coerceRcaContributingFactor(item))
-    .filter((item): item is RcaContributingFactorDto => item != null);
+  const nested = readProp(
+    data,
+    "contributingFactors",
+    "ContributingFactors",
+    "factors",
+    "Factors",
+  );
+  if (Array.isArray(nested)) {
+    return nested
+      .filter((item): item is Record<string, unknown> => isRecord(item))
+      .map((item) => coerceRcaContributingFactor(item))
+      .filter((item): item is RcaContributingFactorDto => item != null);
+  }
+
+  const single = coerceRcaContributingFactor(data);
+  return single ? [single] : [];
 }
 
 function parseRcaIncidentEnvelope(data: unknown): RcaIncidentEnvelopeDto {
@@ -626,6 +642,20 @@ export async function getRcaByIncidentId(
 ): Promise<RcaContributingFactorDto[]> {
   const { data } = await http.get<unknown>(
     `${RCA_BY_INCIDENT_PATH}/${String(incidentId)}`,
+  );
+  return parseRcaIncidentEnvelope(data).dataModel;
+}
+
+/** GET /api/CAPA/Rca/{rcaId} */
+export async function getCapaRcaById(
+  rcaId: number,
+): Promise<RcaContributingFactorDto[]> {
+  if (!Number.isFinite(rcaId) || rcaId <= 0) {
+    return [];
+  }
+
+  const { data } = await http.get<unknown>(
+    `${CAPA_RCA_BY_ID_PATH}/${encodeURIComponent(String(rcaId))}`,
   );
   return parseRcaIncidentEnvelope(data).dataModel;
 }

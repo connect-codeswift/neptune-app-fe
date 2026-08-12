@@ -5,10 +5,11 @@ import {
   type SiteUsersParams,
 } from "@/services/user.service";
 
-export function useUserDropdownQuery() {
+export function useUserDropdownQuery(enabled = true) {
   return useQuery({
     queryKey: ["user", "dropdown"] as const,
     queryFn: () => getUserDropdown(),
+    enabled,
   });
 }
 

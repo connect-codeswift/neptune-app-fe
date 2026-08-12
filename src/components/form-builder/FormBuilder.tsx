@@ -159,7 +159,7 @@ export function FormBuilder(props: FormBuilderProps) {
       onSubmit={handleSubmit}
       className={["flex flex-col gap-5", className].filter(Boolean).join(" ")}
     >
-      <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-12">
+      <div className="grid grid-cols-1 items-start gap-x-4 gap-y-5 sm:grid-cols-12">
         {schema.map((field) => (
           <div
             key={field.name}

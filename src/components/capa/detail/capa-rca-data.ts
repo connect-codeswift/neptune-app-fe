@@ -215,3 +215,62 @@ export function countRcaWhySteps(lanes: readonly CapaRcaLane[]): number {
 export function countRcaActions(lanes: readonly CapaRcaLane[]): number {
   return lanes.reduce((sum, lane) => sum + lane.actions.length, 0);
 }
+
+const LANE_STYLE_TEMPLATES = CAPA_RCA_WORKSHEET.lanes.map((lane) => ({
+  categoryClassName: lane.categoryClassName,
+  accent: lane.accent,
+  accentSoft: lane.accentSoft,
+  accentGlow: lane.accentGlow,
+}));
+
+/** Maps GET /api/CAPA/Rca/{rcaId} factors onto the horizontal worksheet lanes. */
+export function mapRcaFactorsToCapaLanes(
+  factors: readonly Readonly<{
+    id: number;
+    description: string;
+    rcaCategoryName: string;
+    whys: readonly Readonly<{
+      id: number;
+      description: string;
+      isRootCause: boolean;
+    }>[];
+    correctiveActions: readonly Readonly<{
+      id: number;
+      description: string;
+    }>[];
+  }>[],
+): CapaRcaLane[] {
+  if (factors.length === 0) {
+    return CAPA_RCA_WORKSHEET.lanes.map((lane) => ({
+      ...lane,
+      contributingFactor: "",
+      whys: [],
+      actions: [],
+    }));
+  }
+
+  return factors.map((factor, index) => {
+    const style =
+      LANE_STYLE_TEMPLATES[index % LANE_STYLE_TEMPLATES.length] ??
+      LANE_STYLE_TEMPLATES[0]!;
+
+    return {
+      id: String(factor.id),
+      category: factor.rcaCategoryName.trim() || `Category ${String(index + 1)}`,
+      categoryClassName: style.categoryClassName,
+      accent: style.accent,
+      accentSoft: style.accentSoft,
+      accentGlow: style.accentGlow,
+      contributingFactor: factor.description,
+      whys: factor.whys.map((why) => ({
+        id: String(why.id),
+        text: why.description,
+        isRootCause: why.isRootCause,
+      })),
+      actions: factor.correctiveActions.map((action) => ({
+        id: String(action.id),
+        text: action.description,
+      })),
+    };
+  });
+}

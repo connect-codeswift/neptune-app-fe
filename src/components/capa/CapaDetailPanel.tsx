@@ -1,20 +1,39 @@
 "use client";
 
+import { useMemo } from "react";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { toast } from "@/lib/toast";
 import {
   CAPA_LIFECYCLE_STAGES,
   type CapaDashboardItem,
+  type CapaDashboardTask,
 } from "@/components/capa/capa-dashboard-data";
+import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
+import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { capaStatusPillClass } from "@/lib/capa-filters";
+import { toast } from "@/lib/toast";
 
 const TYPE_PILL: Record<CapaDashboardItem["type"], string> = {
   Corrective: "bg-[#0891a6] text-white",
   Preventive: "bg-[rgba(15,23,42,0.06)] text-[#566072]",
 };
+
+function parseCapaId(id: string): number | null {
+  const parsed = Number.parseInt(id, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function mapTaskDtoToDashboardTask(task: CapaTaskDto): CapaDashboardTask {
+  const label = task.task.trim();
+  return {
+    id: String(task.id),
+    label: label.length > 0 ? label : "Untitled task",
+    done: task.status === "Completed",
+  };
+}
 
 export type CapaDetailPanelProps = Readonly<{
   item: CapaDashboardItem;
@@ -25,7 +44,22 @@ export type CapaDetailPanelProps = Readonly<{
 /** Selected CAPA detail — Figma 7123:42184. */
 export function CapaDetailPanel(props: CapaDetailPanelProps) {
   const { item, onOpenDetail } = props;
-  const doneCount = item.tasks.filter((task) => task.done).length;
+  const hasToken = useHasAccessToken();
+  const capaId = parseCapaId(item.id);
+
+  const tasksQuery = useCapaTasksQuery({
+    capaId,
+    enabled: hasToken === true && capaId != null,
+  });
+  const tasks = useMemo(
+    () => (tasksQuery.data ?? []).map(mapTaskDtoToDashboardTask),
+    [tasksQuery.data],
+  );
+  const doneCount = tasks.filter((task) => task.done).length;
+  const isTasksLoading =
+    hasToken === true &&
+    capaId != null &&
+    (tasksQuery.isLoading || (tasksQuery.isFetching && !tasksQuery.data));
 
   return (
     <IncidentGlassCard
@@ -136,13 +170,30 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         </div>
       </div>
 
-      {item.tasks.length > 0 ? (
-        <div className="border-b border-[rgba(15,23,42,0.08)] px-5 py-4">
-          <Text as="p" className="text-ehs-muted-text mb-2.5 text-sm">
-            {`Tasks · ${String(doneCount)} of ${String(item.tasks.length)} done`}
+      <div className="border-b border-[rgba(15,23,42,0.08)] px-5 py-4">
+        <Text as="p" className="text-ehs-muted-text mb-2.5 text-base">
+          {isTasksLoading
+            ? "Tasks"
+            : `Tasks · ${String(doneCount)} of ${String(tasks.length)} done`}
+        </Text>
+        {isTasksLoading ? (
+          <Text as="p" className="text-ehs-muted-text text-sm">
+            Loading tasks…
           </Text>
-          <ul className="flex flex-col">
-            {item.tasks.map((task) => (
+        ) : null}
+        {!isTasksLoading && tasksQuery.isError ? (
+          <Text as="p" className="text-sm text-[#ef4444]">
+            Could not load tasks.
+          </Text>
+        ) : null}
+        {!isTasksLoading && !tasksQuery.isError && tasks.length === 0 ? (
+          <Text as="p" className="text-ehs-muted-text text-sm">
+            No tasks yet.
+          </Text>
+        ) : null}
+        {!isTasksLoading && !tasksQuery.isError && tasks.length > 0 ? (
+          <ul className="flex flex-col gap-1.5">
+            {tasks.map((task) => (
               <li
                 key={task.id}
                 className="flex items-start gap-2.5 border-b border-[rgba(15,23,42,0.06)] py-2 last:border-b-0"
@@ -162,7 +213,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
                 </span>
                 <span
                   className={[
-                    "text-sm leading-snug",
+                    "text-base leading-snug",
                     task.done
                       ? "text-ehs-muted-text line-through"
                       : "text-ehs-darker",
@@ -173,8 +224,8 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
               </li>
             ))}
           </ul>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       <div className="flex items-center gap-2 border-t border-[rgba(15,23,42,0.08)] px-5 pt-3.5 pb-3">
         <Button

@@ -6,9 +6,7 @@ import type { KpiMetricCardProps } from "@/components/KpiMetricCard";
 export const CAPA_DASHBOARD_STATUS_FILTERS = [
   "All",
   "Open",
-  "In progress",
-  "Overdue",
-  "Verified",
+  "Closed",
 ] as const;
 
 export const CAPA_DASHBOARD_TYPE_FILTERS = [
@@ -44,7 +42,7 @@ export type CapaDashboardItem = Readonly<{
   control: string;
   owner: string;
   progress: number;
-  /** Backend status display label (Open / In progress / Overdue / Verified / —). */
+  /** Backend status display label (Open / In progress / Overdue / Verified / Closed / —). */
   status: string;
   dueDate: string;
   dueLabel: string;

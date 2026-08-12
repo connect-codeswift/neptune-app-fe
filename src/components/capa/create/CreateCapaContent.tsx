@@ -9,9 +9,9 @@ import {
   type ControlLevel,
 } from "@/components/incidents/shared/capa/CapaHierarchySelector";
 import {
-  CreateCapaAddTaskModal,
-  type CreateCapaTaskDraft,
-} from "@/components/capa/create/CreateCapaAddTaskModal";
+  CapaDetailAddTaskModal,
+  type CapaDetailAddTaskDraft,
+} from "@/components/capa/detail/CapaDetailAddTaskModal";
 import { CreateCapaHeader } from "@/components/capa/create/CreateCapaHeader";
 import {
   buildCreateCapaSchema,
@@ -24,7 +24,6 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
-import { useCurrentSite } from "@/hooks/use-current-site";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
 import {
@@ -33,6 +32,12 @@ import {
 } from "@/services/mappers/capa.mapper";
 
 const CAPA_ROUTE = "/dashboard/capa";
+
+export type CreateCapaTaskDraft = Readonly<
+  CapaDetailAddTaskDraft & {
+    id: string;
+  }
+>;
 
 function parseAssignedId(value: string): number {
   const trimmed = value.trim();
@@ -53,7 +58,6 @@ function StepBadge(props: Readonly<{ step: string }>) {
 /** Create CAPA page — Figma 7123:41554. */
 export function CreateCapaContent() {
   const router = useRouter();
-  const site = useCurrentSite();
   const createCapaMutation = useCreateCapaMutation();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
@@ -61,14 +65,7 @@ export function CreateCapaContent() {
   const [tasks, setTasks] = useState<CreateCapaTaskDraft[]>([]);
   const [addTaskOpen, setAddTaskOpen] = useState(false);
 
-  const schema = useMemo(
-    () =>
-      buildCreateCapaSchema({
-        siteId: site.id,
-        siteName: site.name,
-      }),
-    [site.id, site.name],
-  );
+  const schema = useMemo(() => buildCreateCapaSchema(), []);
 
   const initialValues = useMemo(
     () => createCreateCapaInitialValues(schema),
@@ -123,7 +120,7 @@ export function CreateCapaContent() {
         },
         tasks: tasks.map((task) => ({
           task: task.name,
-          owner: assigned,
+          owner: task.assigneeUserId || assigned,
           dueDate: task.dueDate,
           priority: task.priority,
         })),
@@ -147,6 +144,16 @@ export function CreateCapaContent() {
 
   const removeTask = (id: string) => {
     setTasks((current) => current.filter((task) => task.id !== id));
+  };
+
+  const handleAddTask = (draft: CapaDetailAddTaskDraft) => {
+    setTasks((current) => [
+      ...current,
+      {
+        id: `task-${String(Date.now())}`,
+        ...draft,
+      },
+    ]);
   };
 
   return (
@@ -185,7 +192,6 @@ export function CreateCapaContent() {
             </div>
 
             <FormBuilder
-              key={String(site.id)}
               formId={CREATE_CAPA_FORM_ID}
               schema={schema}
               initialValues={initialValues}
@@ -227,9 +233,17 @@ export function CreateCapaContent() {
                               : "",
                           ].join(" ")}
                         >
-                          <p className="min-w-0 flex-1 text-[13px] leading-[19.5px] text-[#475569]">
-                            {task.name}
-                          </p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[13px] leading-[19.5px] text-[#475569]">
+                              {task.name}
+                            </p>
+                            {task.assigneeName ? (
+                              <p className="mt-0.5 text-xs text-[#94a3b8]">
+                                {task.assigneeName}
+                                {task.dueDate ? ` · ${task.dueDate}` : ""}
+                              </p>
+                            ) : null}
+                          </div>
                           <div className="flex shrink-0 items-center gap-4">
                             <span className="rounded-full bg-[rgba(11,19,32,0.14)] px-2.5 py-1 text-xs font-bold tracking-wide text-[#566072] uppercase">
                               {task.priority}
@@ -287,9 +301,10 @@ export function CreateCapaContent() {
       </IncidentGlassCard>
 
       {addTaskOpen ? (
-        <CreateCapaAddTaskModal
+        <CapaDetailAddTaskModal
+          confirmLabel="Add Task"
           onClose={() => setAddTaskOpen(false)}
-          onAdd={(task) => setTasks((current) => [...current, task])}
+          onAssign={handleAddTask}
         />
       ) : null}
     </div>

@@ -4,6 +4,7 @@ import {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -17,14 +18,21 @@ import {
   FIELD_INPUT_CLASS,
   FIELD_INPUT_LG_CLASS,
 } from "@/components/ui/field-styles";
-import { readUserGender, type SiteUserDto } from "@/dtos/res/user-response.dto";
+import {
+  readUserGender,
+  type SiteUserDto,
+  type UserDropdownItemDto,
+} from "@/dtos/res/user-response.dto";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
-import { useSiteUsersQuery } from "@/hooks/use-user-queries";
+import {
+  useSiteUsersQuery,
+  useUserDropdownQuery,
+} from "@/hooks/use-user-queries";
 
 /** Long enough that a name typed at speed is one request, short enough to feel live. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
+const EMBEDDED_INPUT_CLASS = FIELD_INPUT_CLASS;
 
 type MenuPosition = Readonly<{
   top: number;
@@ -54,8 +62,14 @@ export type ReportPersonSearchFieldProps = Readonly<{
   /** `""` when the current text is free-typed rather than a picked person. */
   selectedUserId: string;
   onChange: (next: ReportPersonSelection) => void;
-  /** Site whose roster is offered. `0` means the token carries no site claim. */
-  siteId: number;
+  /**
+   * Where people are loaded from.
+   * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
+   * - `dropdown`: GET /User/dropdown, filtered client-side
+   */
+  usersSource?: "site" | "dropdown";
+  /** Site whose roster is offered when `usersSource` is `site`. `0` = no site claim. */
+  siteId?: number;
   siteName?: string | null;
   error?: string | null;
   className?: string;
@@ -92,13 +106,49 @@ function initialsFor(name: string): string {
   return `${parts[0]!.charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
 }
 
+function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
+  const rawId = item.id ?? item.userId ?? item.value;
+  const id = typeof rawId === "number" ? rawId : Number(rawId);
+  if (!Number.isFinite(id) || id <= 0) {
+    return null;
+  }
+
+  const fullName =
+    item.name?.trim() ||
+    item.fullName?.trim() ||
+    item.userName?.trim() ||
+    item.label?.trim() ||
+    null;
+
+  return {
+    id: Math.trunc(id),
+    fullName,
+    email: item.email?.trim() || null,
+  };
+}
+
+function filterUsersByQuery(
+  users: readonly SiteUserDto[],
+  query: string,
+): SiteUserDto[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) {
+    return [...users];
+  }
+
+  return users.filter((user) => {
+    const name = displayNameFor(user).toLowerCase();
+    const email = user.email?.trim().toLowerCase() ?? "";
+    return name.includes(needle) || email.includes(needle);
+  });
+}
+
 /**
  * Affected-person picker: a combobox over the people who belong to the current
- * site.
+ * site, or the org-wide `/User/dropdown` list when `usersSource` is `dropdown`.
  *
- * Search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`),
- * so the field works the same on a site with eight people and one with eight
- * hundred — the roster is never held client-side in full.
+ * Site search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`).
+ * Dropdown mode loads once and filters client-side.
  *
  * Free text is still accepted. The affected person is often a contractor,
  * agency worker or visitor with no account, and an incident involving one of
@@ -118,7 +168,8 @@ export function ReportPersonSearchField(
     value,
     selectedUserId,
     onChange,
-    siteId,
+    usersSource = "site",
+    siteId = 0,
     siteName,
     error = null,
     className = "",
@@ -127,6 +178,7 @@ export function ReportPersonSearchField(
     inputClassName = "",
   } = props;
 
+  const isDropdown = usersSource === "dropdown";
   const isEmbedded = variant === "embedded";
 
   const [open, setOpen] = useState(false);
@@ -164,17 +216,62 @@ export function ReportPersonSearchField(
   // Only fetch once the menu has been opened. Step 1 is the first screen of the
   // form and most of its fields are never touched — no reason to spend a
   // request on a roster nobody has asked to see yet.
-  const usersQuery = useSiteUsersQuery(
+  const siteUsersQuery = useSiteUsersQuery(
     siteId,
     { search: debouncedQuery },
-    open,
+    open && !isDropdown,
   );
-  const users = usersQuery.data ?? [];
+  const dropdownUsersQuery = useUserDropdownQuery(open && isDropdown);
+  const dropdownUsers = useMemo(() => {
+    if (!isDropdown) {
+      return [] as SiteUserDto[];
+    }
+
+    return (dropdownUsersQuery.data?.dataModel ?? [])
+      .map(toSiteUserFromDropdown)
+      .filter((user): user is SiteUserDto => user != null);
+  }, [isDropdown, dropdownUsersQuery.data?.dataModel]);
+
+  const users = useMemo(() => {
+    if (isDropdown) {
+      return filterUsersByQuery(dropdownUsers, debouncedQuery);
+    }
+
+    return siteUsersQuery.data ?? [];
+  }, [isDropdown, dropdownUsers, debouncedQuery, siteUsersQuery.data]);
+
+  const usersQuery = isDropdown
+    ? {
+        isLoading: dropdownUsersQuery.isLoading,
+        isError: dropdownUsersQuery.isError,
+        isFetching: dropdownUsersQuery.isFetching,
+        dataUpdatedAt: dropdownUsersQuery.dataUpdatedAt,
+      }
+    : {
+        isLoading: siteUsersQuery.isLoading,
+        isError: siteUsersQuery.isError,
+        isFetching: siteUsersQuery.isFetching,
+        dataUpdatedAt: siteUsersQuery.dataUpdatedAt,
+      };
 
   // The debounce means results lag the box by up to 300ms; say so rather than
   // letting a stale list look like the answer.
   const isSearching =
     open && (usersQuery.isFetching || debouncedQuery !== query);
+
+  const rosterLabel = isDropdown ? "People" : `People at ${siteName ?? "this site"}`;
+  const emptyNoQuery = isDropdown
+    ? "No people are listed yet."
+    : `No people are listed for ${siteName ?? "this site"} yet.`;
+  const emptyWithQuery = isDropdown
+    ? `No one matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
+    : `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`;
+  const loadErrorMessage = isDropdown
+    ? "Couldn't load people. Type the name instead, or try again in a moment."
+    : "Couldn't load people for this site. Type the name instead, or try again in a moment.";
+  const noSiteMessage =
+    "Your sign-in isn't linked to a site, so there's no roster to search. Type the person's name instead.";
+  const showNoSite = !isDropdown && siteId <= 0;
 
   useDismissOnOutsideClick(rootRef, open && !isEmbedded, () => setOpen(false));
 
@@ -314,7 +411,7 @@ export function ReportPersonSearchField(
 
   const listbox = (
     <>
-      {siteName ? (
+      {!isDropdown && siteName ? (
         <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-2 pb-1.5 text-sm font-semibold tracking-wider uppercase">
           People at {siteName}
         </p>
@@ -323,13 +420,12 @@ export function ReportPersonSearchField(
       <ul
         id={listboxId}
         role="listbox"
-        aria-label={`People at ${siteName ?? "this site"}`}
+        aria-label={rosterLabel}
         className="max-h-56 overflow-y-auto p-1"
       >
-        {siteId <= 0 ? (
+        {showNoSite ? (
           <li className="text-ehs-muted-text px-2.5 py-3 text-base">
-            Your sign-in isn&apos;t linked to a site, so there&apos;s no roster
-            to search. Type the person&apos;s name instead.
+            {noSiteMessage}
           </li>
         ) : usersQuery.isLoading ? (
           <li className="flex flex-col gap-1 p-1.5">
@@ -342,14 +438,11 @@ export function ReportPersonSearchField(
           </li>
         ) : usersQuery.isError ? (
           <li className="text-ehs-muted-text px-2.5 py-3 text-base">
-            Couldn&apos;t load people for this site. Type the name instead, or
-            try again in a moment.
+            {loadErrorMessage}
           </li>
         ) : users.length === 0 ? (
           <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
-            {debouncedQuery.trim()
-              ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
-              : `No people are listed for ${siteName ?? "this site"} yet.`}
+            {debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
           </li>
         ) : (
           users.map((user, index) => {
@@ -465,9 +558,8 @@ export function ReportPersonSearchField(
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         className={[
-          inputClass,
+          inputClassName || inputClass,
           "border border-slate-900/10",
-          inputClassName || "py-3.5",
           hasSelection ? "pr-16" : "pr-9",
         ]
           .filter(Boolean)
@@ -517,7 +609,7 @@ export function ReportPersonSearchField(
   if (isEmbedded) {
     return (
       <div
-        className={["flex min-w-0 flex-col gap-1.5", className]
+        className={["flex min-w-0 flex-col", hideLabel ? "" : "gap-1.5", className]
           .filter(Boolean)
           .join(" ")}
       >

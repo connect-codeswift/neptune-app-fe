@@ -1,6 +1,9 @@
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
+import type { CapaAttachmentRequestDto } from "@/dtos/req/capa-attachment-request.dto";
+import type { CapaCommentRequestDto } from "@/dtos/req/capa-comment-request.dto";
 import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
 import type { CapaAttachmentItemDto } from "@/dtos/res/capa-attachment-response.dto";
+import type { CapaCommentDto } from "@/dtos/res/capa-comment-response.dto";
 import type { GetCapaDashboardKpisResponseDto } from "@/dtos/res/capa-dashboard-kpis-response.dto";
 import type { GetCapaLifecycleResponseDto } from "@/dtos/res/capa-lifecycle-response.dto";
 import type { GetCapaOpenedClosedResponseDto } from "@/dtos/res/capa-opened-closed-response.dto";
@@ -30,6 +33,9 @@ const CAPA_TASK_DROP_PATH = "/CAPA/Task/Drop";
 const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
 const CAPA_VERIFICATION_PATH = "/CAPA/Verification";
 const CAPA_ATTACHMENTS_PATH = "/CAPA/Attachments";
+const CAPA_UPLOAD_ATTACHMENTS_PATH = "/CAPA/UploadCapaAttachments";
+const CAPA_COMMENTS_PATH = "/CAPA/Comments";
+const CAPA_COMMENT_PATH = "/CAPA/Comment";
 
 export type GetCapasRequest = Readonly<{
   pageNumber?: number;
@@ -120,6 +126,7 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
 
   const progressPercent =
     asNumber(readProp(raw, "progressPercent", "ProgressPercent")) ??
+    asNumber(readProp(raw, "progressPercentage", "ProgressPercentage")) ??
     asNumber(readProp(raw, "progress", "Progress"));
 
   return {
@@ -136,8 +143,12 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     dueDate: asString(readProp(raw, "dueDate", "DueDate")) ?? null,
     isDrop: asBoolean(readProp(raw, "isDrop", "IsDrop")) ?? false,
     status: asString(readProp(raw, "status", "Status")) ?? null,
+    daysLeft: asNumber(readProp(raw, "daysLeft", "DaysLeft")) ?? null,
     progressPercent: progressPercent ?? null,
     progress: asNumber(readProp(raw, "progress", "Progress")) ?? null,
+    progressPercentage:
+      asNumber(readProp(raw, "progressPercentage", "ProgressPercentage")) ??
+      null,
     assigneeName:
       asString(
         readProp(
@@ -426,6 +437,114 @@ function normalizeCapaTaskDto(data: unknown): CapaTaskDto | null {
   return normalizeCapaTaskList(data)[0] ?? null;
 }
 
+function coerceCapaCommentDto(
+  raw: Record<string, unknown>,
+): CapaCommentDto | null {
+  const capaId = asNumber(readProp(raw, "capaId", "CapaId"));
+  const userId = asNumber(readProp(raw, "userId", "UserId"));
+  const assignedId = asNumber(readProp(raw, "assignedId", "AssignedId"));
+  const description = asString(readProp(raw, "description", "Description"));
+
+  if (
+    capaId == null ||
+    userId == null ||
+    assignedId == null ||
+    !description?.trim()
+  ) {
+    return null;
+  }
+
+  return {
+    id: asNumber(readProp(raw, "id", "Id")) ?? null,
+    capaId,
+    userId,
+    assignedId,
+    description: description.trim(),
+    title: asString(readProp(raw, "title", "Title")) ?? null,
+    createdAt:
+      asString(
+        readProp(
+          raw,
+          "createdAt",
+          "CreatedAt",
+          "createdOn",
+          "CreatedOn",
+          "dateCreated",
+          "DateCreated",
+        ),
+      ) ?? null,
+    userName:
+      asString(
+        readProp(
+          raw,
+          "userName",
+          "UserName",
+          "authorName",
+          "AuthorName",
+          "createdByName",
+          "CreatedByName",
+        ),
+      ) ?? null,
+    assignedName:
+      asString(
+        readProp(
+          raw,
+          "assignedName",
+          "AssignedName",
+          "assigneeName",
+          "AssigneeName",
+        ),
+      ) ?? null,
+  };
+}
+
+function asCapaCommentArray(value: unknown): CapaCommentDto[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => isRecord(item))
+    .map((item) => coerceCapaCommentDto(item))
+    .filter((item): item is CapaCommentDto => item != null);
+}
+
+function normalizeCapaCommentList(data: unknown): CapaCommentDto[] {
+  const payload = unwrapPayload(data);
+
+  if (Array.isArray(payload)) {
+    return asCapaCommentArray(payload);
+  }
+
+  if (!isRecord(payload)) {
+    return [];
+  }
+
+  return asCapaCommentArray(
+    payload.data ??
+      payload.Data ??
+      payload.items ??
+      payload.Items ??
+      payload.comments ??
+      payload.Comments ??
+      payload.result ??
+      payload.Result,
+  );
+}
+
+function normalizeCapaCommentDto(data: unknown): CapaCommentDto | null {
+  const payload = unwrapPayload(data);
+
+  if (isRecord(payload)) {
+    const single = coerceCapaCommentDto(payload);
+    if (single) {
+      return single;
+    }
+  }
+
+  return normalizeCapaCommentList(data)[0] ?? null;
+}
+
 function coerceCapaAttachmentItem(
   raw: Record<string, unknown>,
 ): CapaAttachmentItemDto | null {
@@ -444,14 +563,37 @@ function coerceCapaAttachmentItem(
     ),
   );
 
-  if (!attachmentUrl?.trim() || !attachmentTitle?.trim()) {
+  if (!attachmentUrl?.trim()) {
     return null;
   }
 
+  const url = attachmentUrl.trim();
+  const title =
+    attachmentTitle?.trim() || url.split("/").pop()?.split("?")[0] || "File";
+
   return {
-    attachmentUrl: attachmentUrl.trim(),
-    attachmentTitle: attachmentTitle.trim(),
+    id: asNumber(readProp(raw, "id", "Id")) ?? null,
+    capaId: asNumber(readProp(raw, "capaId", "CapaId")) ?? null,
+    userId: asNumber(readProp(raw, "userId", "UserId")) ?? null,
+    attachmentUrl: url,
+    attachmentTitle: title,
     size: asString(readProp(raw, "size", "Size")) ?? null,
+    createdAt:
+      asString(
+        readProp(raw, "createdAt", "CreatedAt", "createdOn", "CreatedOn"),
+      ) ?? null,
+    userName:
+      asString(
+        readProp(
+          raw,
+          "userName",
+          "UserName",
+          "uploadedByName",
+          "UploadedByName",
+          "fullName",
+          "FullName",
+        ),
+      ) ?? null,
   };
 }
 
@@ -860,7 +1002,6 @@ export async function getCapaById(capaId: number) {
       },
     },
   );
-
   return normalizeCapaDto(data);
 }
 
@@ -883,8 +1024,68 @@ export async function getCapaTasksByCapaId(capaId: number) {
       },
     },
   );
-
   return normalizeCapaTaskList(data);
+}
+
+export type GetCapaCommentsRequest = Readonly<{
+  capaId: number;
+  userId?: number;
+  assignedId?: number;
+}>;
+
+/** GET /CAPA/Comments?capaId=&userId=&assignedId= */
+export async function getCapaComments(request: GetCapaCommentsRequest) {
+  const capaId = request.capaId;
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return [];
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA comments.");
+  }
+
+  const userId =
+    typeof request.userId === "number" &&
+    Number.isFinite(request.userId) &&
+    request.userId > 0
+      ? Math.trunc(request.userId)
+      : 0;
+  const assignedId =
+    typeof request.assignedId === "number" &&
+    Number.isFinite(request.assignedId) &&
+    request.assignedId > 0
+      ? Math.trunc(request.assignedId)
+      : 0;
+
+  const { data } = await http.get<unknown>(CAPA_COMMENTS_PATH, {
+    params: {
+      capaId: Math.trunc(capaId),
+      ...(userId > 0 ? { userId } : {}),
+      ...(assignedId > 0 ? { assignedId } : {}),
+    },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": false,
+    },
+  });
+  return normalizeCapaCommentList(data);
+}
+
+/** POST /CAPA/Comment */
+export async function createCapaComment(payload: CapaCommentRequestDto) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to post a CAPA comment.");
+  }
+
+  const { data } = await http.post<unknown>(CAPA_COMMENT_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaCommentDto(data);
 }
 
 /** POST /CAPA/Task */
@@ -949,8 +1150,45 @@ export async function getCapaAttachmentsByCapaId(capaId: number) {
       },
     },
   );
+  return normalizeCapaAttachmentList(data);
+}
+
+/** POST /CAPA/UploadCapaAttachments */
+export async function uploadCapaAttachments(payload: CapaAttachmentRequestDto) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to upload CAPA attachments.");
+  }
+
+  const { data } = await http.post<unknown>(
+    CAPA_UPLOAD_ATTACHMENTS_PATH,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
 
   return normalizeCapaAttachmentList(data);
+}
+
+/** Backend returns 400/404 when a CAPA has no verification yet. */
+function isNoVerificationFoundError(error: unknown): boolean {
+  if (!(error instanceof HttpError)) {
+    return false;
+  }
+
+  if (error.status !== 404 && error.status !== 400) {
+    return false;
+  }
+
+  const message = (
+    readApiEnvelopeMessage(error.data) ||
+    error.message ||
+    ""
+  ).toLowerCase();
+  return message.includes("no verification found");
 }
 
 /** GET /CAPA/Verification/{capaId} */
@@ -974,9 +1212,22 @@ export async function getCapaVerificationByCapaId(capaId: number) {
       },
     );
 
-    return normalizeCapaVerificationDto(data);
+    const verification = normalizeCapaVerificationDto(data);
+    if (verification) {
+      return verification;
+    }
+
+    const message = readApiEnvelopeMessage(data).toLowerCase();
+    if (message.includes("no verification found")) {
+      return null;
+    }
+
+    return null;
   } catch (error) {
-    if (error instanceof HttpError && error.status === 404) {
+    if (
+      isNoVerificationFoundError(error) ||
+      (error instanceof HttpError && error.status === 404)
+    ) {
       return null;
     }
     throw error;

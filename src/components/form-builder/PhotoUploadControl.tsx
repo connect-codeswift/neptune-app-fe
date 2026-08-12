@@ -49,6 +49,43 @@ function isImageUrl(url: string): boolean {
   return /\.(jpe?g|png|gif|webp|bmp|svg)(\?|$)/i.test(url);
 }
 
+/** Parse a photo row value: URL, `title|||subtitle`, or `title|||subtitle|||url`. */
+function parsePhotoRowEntry(
+  entry: string,
+  metaByUrl: Record<string, FileMeta>,
+): Readonly<{ name: string; subtitle: string | null }> {
+  const meta = metaByUrl[entry];
+  if (meta) {
+    return {
+      name: meta.name,
+      subtitle: `${meta.sizeLabel} · Uploaded just now`,
+    };
+  }
+
+  const parts = entry.split("|||");
+  if (parts.length >= 3) {
+    const url = parts[parts.length - 1]?.trim() ?? "";
+    if (/^https?:\/\//i.test(url)) {
+      const title = parts[0]?.trim() || fileNameFromUrl(url);
+      const subtitle = parts.slice(1, -1).join("|||").trim();
+      return { name: title, subtitle: subtitle || null };
+    }
+  }
+
+  if (parts.length === 2 && !/^https?:\/\//i.test(entry)) {
+    return {
+      name: parts[0]?.trim() || entry,
+      subtitle: parts[1]?.trim() || null,
+    };
+  }
+
+  if (/^https?:\/\//i.test(entry)) {
+    return { name: fileNameFromUrl(entry), subtitle: null };
+  }
+
+  return { name: entry, subtitle: null };
+}
+
 /** Dashed drop-zone that uploads to Cloudinary and lists the returned secure URLs. */
 export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const { field, value, error, onChange } = props;
@@ -246,17 +283,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
       {value.length > 0 && listVariant === "rows" ? (
         <ul className="flex flex-col gap-2">
           {value.map((entry, index) => {
-            const isUrl = /^https?:\/\//i.test(entry);
-            const meta = metaByUrl[entry];
-            const seedParts =
-              !isUrl && entry.includes("|||") ? entry.split("|||") : null;
-            const name =
-              meta?.name ??
-              seedParts?.[0] ??
-              (isUrl ? fileNameFromUrl(entry) : entry);
-            const subtitle = meta
-              ? `${meta.sizeLabel} · Uploaded just now`
-              : (seedParts?.[1] ?? (isUrl ? "Uploaded to Cloudinary" : null));
+            const { name, subtitle } = parsePhotoRowEntry(entry, metaByUrl);
 
             return (
               <li
