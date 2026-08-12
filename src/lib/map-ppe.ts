@@ -36,9 +36,7 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
 }
 
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
-function toPpeSizeOptions(
-  availableSize?: string | null,
-): SelectOption[] {
+function toPpeSizeOptions(availableSize?: string | null): SelectOption[] {
   if (!availableSize?.trim()) return [];
 
   return availableSize
@@ -531,25 +529,6 @@ export function toIssueIdFromResponse(
   return null;
 }
 
-/** Read siteId from POST /api/ppe/issue when the JWT has no site claim. */
-function toSiteIdFromIssueResponse(
-  response: Readonly<{
-    dataModel?: { siteId?: number | string; SiteId?: number | string } | null;
-  }>,
-): number | null {
-  const siteId = response.dataModel?.siteId ?? response.dataModel?.SiteId;
-
-  if (typeof siteId === "number" && Number.isFinite(siteId)) return siteId;
-
-  if (typeof siteId === "string") {
-    const parsed = Number(siteId);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-}
-
-/** Prefer token site, then issue response, then selected employee's subCompId. */
 function toKpiCount(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return "0";
   return value.toLocaleString("en-US");
@@ -559,18 +538,23 @@ function toKpiCount(value: number | undefined): string {
 export function toPpeMetricsFromKpi(
   kpi: PpeKpiDto | null | undefined,
 ): PpeMetric[] {
+  // GET /api/ppe/kpi returns two counts and nothing else — no series, no
+  // prior period — so both cards show an icon badge rather than a delta.
   return [
     {
       title: "Active assignments",
       value: toKpiCount(kpi?.activeAssignments),
-      trendValue: "",
-      trendTone: "positive",
+      description: "PPE currently issued to workers",
+      icon: "mdi:account-hard-hat-outline",
     },
     {
       title: "Items low stock",
       value: toKpiCount(kpi?.lowStockItems),
-      trendValue: "",
-      trendTone: "negative",
+      description: "At or below the reorder point",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:package-variant-closed-remove",
     },
   ];
 }

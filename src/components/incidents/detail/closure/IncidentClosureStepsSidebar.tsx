@@ -49,7 +49,7 @@ export function IncidentClosureStepsSidebar(
     >
       <Text
         as="h4"
-        className="text-[11px] font-bold tracking-[1.05px] text-ehs-muted-text uppercase"
+        className="text8 font-bold tracking-[1.05px] text-ehs-muted-text uppercase"
       >
         Steps
       </Text>
@@ -78,7 +78,7 @@ export function IncidentClosureStepsSidebar(
             >
               <div
                 className={[
-                  "mt-0.5 flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-[10px] transition-colors",
+                  "mt-0.5 flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text8 transition-colors",
                   isComplete
                     ? "bg-ehs-green font-bold text-ehs-light-text"
                     : isActive
@@ -100,7 +100,7 @@ export function IncidentClosureStepsSidebar(
                 <Text
                   as="span"
                   className={[
-                    "text-xs leading-normal",
+                    "text8 leading-normal",
                     isActive
                       ? "font-bold text-ehs-normal-blue"
                       : "font-medium text-ehs-dark-bg",
@@ -110,7 +110,7 @@ export function IncidentClosureStepsSidebar(
                 </Text>
                 <Text
                   as="span"
-                  className="text-[10px] font-normal leading-normal text-ehs-muted-text"
+                  className="text8 font-normal leading-normal text-ehs-muted-text"
                 >
                   {step.subtitle}
                 </Text>
@@ -122,10 +122,10 @@ export function IncidentClosureStepsSidebar(
 
       <div className="flex flex-col gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
         <div className="flex items-center justify-between">
-          <Text as="span" className="text-[10px] font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 font-normal text-ehs-muted-text">
             Progress
           </Text>
-          <Text as="span" className="text-[10px] font-bold text-ehs-gray">
+          <Text as="span" className="text8 font-bold text-ehs-gray">
             {`${String(currentStep)} / 4`}
           </Text>
         </div>

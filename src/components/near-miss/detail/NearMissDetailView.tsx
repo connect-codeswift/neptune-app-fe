@@ -8,7 +8,7 @@ import type {
 } from "@/app/dashboard/near-miss/near-miss-data";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 
-const sectionHeadingClass = "text-ehs-dark-bg text-lg font-semibold";
+const sectionHeadingClass = "text3 text-ehs-darker";
 
 const statusTone: Record<NearMissStatus, IncidentBadgeTone> = {
   Open: "neutral",
@@ -23,7 +23,7 @@ function DetailField(
 
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <Text as="p" className="text-ehs-muted-text text-sm font-normal">
+      <Text as="p" className="text6 text-ehs-muted-text">
         {label}
       </Text>
       {children}
@@ -33,7 +33,7 @@ function DetailField(
 
 function DetailValue(props: Readonly<{ value: string }>) {
   return (
-    <Text as="p" className="text-ehs-dark-bg font-normal">
+    <Text as="p" className="text4 text-ehs-darker">
       {props.value}
     </Text>
   );
@@ -52,7 +52,7 @@ export function NearMissDetailView(
           <Text as="h3" className={sectionHeadingClass}>
             Event Description
           </Text>
-          <Text as="p" className="font-normal">
+          <Text as="p" className="text4 text-ehs-darker">
             {record.description}
           </Text>
         </IncidentGlassCard>
@@ -66,14 +66,14 @@ export function NearMissDetailView(
               {record.contributingFactors.map((factor) => (
                 <span
                   key={factor}
-                  className="bg-ehs-dark-bg/12 inline-flex items-center rounded-full px-6 py-1 text-sm font-normal"
+                  className="text4 bg-ehs-dark-bg/12 text-ehs-darker inline-flex items-center rounded-full px-6 py-1"
                 >
                   {factor}
                 </span>
               ))}
             </div>
           ) : (
-            <Text as="p" className="text-ehs-muted-text text-xs">
+            <Text as="p" className="text8 text-ehs-muted-text">
               No contributing factors recorded.
             </Text>
           )}
@@ -85,7 +85,7 @@ export function NearMissDetailView(
           </Text>
           <div className="bg-ehs-dark-bg/12 border-ehs-dark-bg/12 rounded-lg border p-4">
             {/* Plain <p>: mixed weights, so `Text` (single string child) doesn't fit */}
-            <p className="text-ehs-dark-bg font-inter leading-5 font-normal">
+            <p className="text4 text-ehs-darker">
               If the near-miss had escalated, this could have resulted in a{" "}
               injury or incident. Immediate corrective action is required to
               prevent recurrence.
@@ -115,7 +115,7 @@ export function NearMissDetailView(
                 label={record.status}
                 tone={statusTone[record.status]}
                 showDot
-                className="text-ehs-dark-bg w-fit px-2.5 py-0.5 text-sm! font-normal!"
+                className="w-fit px-2.5 py-0.5"
               />
             </DetailField>
           </div>
@@ -128,7 +128,7 @@ export function NearMissDetailView(
             </Text>
             <Link
               href="/dashboard/capa"
-              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover font-normal transition-colors"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
               + Add
             </Link>
@@ -142,17 +142,17 @@ export function NearMissDetailView(
                   href="/dashboard/capa"
                   className="flex flex-col gap-0.5 rounded-lg bg-[rgba(238,241,246,0.7)] p-2.5 transition-colors hover:bg-[rgba(238,241,246,0.95)]"
                 >
-                  <Text as="span" className="text-ehs-normal-blue text-sm">
+                  <Text as="span" className="text7 text-ehs-normal-blue">
                     {capa.id}
                   </Text>
-                  <Text as="span" className="text-ehs-darker text-sm">
+                  <Text as="span" className="text4 text-ehs-darker">
                     {capa.title}
                   </Text>
                 </Link>
               ))}
             </div>
           ) : (
-            <Text as="p" className="text-ehs-muted-text text-xs">
+            <Text as="p" className="text8 text-ehs-muted-text">
               No CAPAs linked to this near miss yet.
             </Text>
           )}

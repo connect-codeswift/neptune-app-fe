@@ -5,6 +5,17 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    // Scoped to the files that actually call `useReactTable` — every violation
+    // of this rule in the repo is one of these. Left on everywhere else so a
+    // genuinely incompatible library still gets reported.
+    files: ["src/components/ui/Table.tsx", "src/components/**/*Table.tsx"],
+    rules: {
+      // TanStack Table's useReactTable returns unstable function identities —
+      // the React Compiler correctly skips memoizing those call sites.
+      "react-hooks/incompatible-library": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

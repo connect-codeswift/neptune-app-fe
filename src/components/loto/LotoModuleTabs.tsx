@@ -41,7 +41,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                 onTabChange(tab.id);
               }}
               className={[
-                "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 text-base whitespace-nowrap transition-colors",
+                "text4 inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 whitespace-nowrap transition-colors",
                 isActive
                   ? "border-ehs-normal-blue text-ehs-normal-blue font-semibold"
                   : "text-ehs-muted-text hover:text-ehs-gray border-transparent font-normal",
@@ -50,7 +50,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
               {tab.label}
               <span
                 className={[
-                  "rounded-lg px-2 py-px text-xs font-semibold",
+                  "text8 rounded-lg px-2 py-px font-semibold",
                   isActive
                     ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
                     : "bg-slate-900/5 text-slate-400",

@@ -56,11 +56,7 @@ function readString(
   return null;
 }
 
-const CATEGORY_PROGRESS_COLORS = [
-  "#3b82f6",
-  "#0891a6",
-  "#566072",
-] as const;
+const CATEGORY_PROGRESS_COLORS = ["#3b82f6", "#0891a6", "#566072"] as const;
 
 const CANONICAL_COMPLIANCE_CATEGORIES = [
   "Regulatory",
@@ -127,9 +123,7 @@ function normalizeComplianceCategoryStatDto(
 export function normalizeComplianceCategoryStatsList(
   raw: unknown,
 ): ComplianceCategoryStatDto[] {
-  const payload = isRecord(raw)
-    ? (raw.dataModel ?? raw.DataModel ?? raw)
-    : raw;
+  const payload = isRecord(raw) ? (raw.dataModel ?? raw.DataModel ?? raw) : raw;
 
   if (Array.isArray(payload)) {
     return payload
@@ -186,34 +180,40 @@ function asCount(value: number | null | undefined): number {
 export function mapComplianceDashboardKpisToItems(
   dto: ComplianceDashboardKpisDto | null | undefined,
 ): readonly ComplianceKpiItem[] {
+  // Counts only — the endpoint carries no history and no prior period, so
+  // every card falls back to its icon badge instead of a delta.
   return [
     {
       id: "obligations-tracked",
-      label: "OBLIGATIONS TRACKED",
-      count: asCount(dto?.obligationsTracked),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Obligations Tracked",
+      value: asCount(dto?.obligationsTracked),
+      description: "On the compliance register",
+      icon: "mdi:clipboard-list-outline",
     },
     {
       id: "compliant",
-      label: "COMPLIANT",
-      count: asCount(dto?.compliant),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Compliant",
+      value: asCount(dto?.compliant),
+      description: "Obligations currently met",
+      icon: "mdi:shield-check-outline",
     },
     {
       id: "due-in-60-days",
-      label: "DUE IN 60 DAYS",
-      count: asCount(dto?.dueIn60Days),
-      badgeValue: "",
-      badgeTone: "coral",
+      title: "Due In 60 Days",
+      value: asCount(dto?.dueIn60Days),
+      description: "Filings coming up",
+      isMorePositive: false,
+      icon: "mdi:calendar-clock",
     },
     {
       id: "action-required",
-      label: "ACTION REQUIRED",
-      count: asCount(dto?.actionRequired),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Action Required",
+      value: asCount(dto?.actionRequired),
+      description: "Needs attention now",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:alert-outline",
     },
   ];
 }
@@ -265,9 +265,7 @@ function readStringArray(
 }
 
 /** Normalizes one compliance row (camelCase or PascalCase). */
-function coerceComplianceDto(
-  raw: Record<string, unknown>,
-): ComplianceDto {
+function coerceComplianceDto(raw: Record<string, unknown>): ComplianceDto {
   return {
     id:
       readNumber(raw, "id", "Id", "complianceId", "ComplianceId") ?? undefined,
@@ -290,13 +288,8 @@ function coerceComplianceDto(
     priority: readString(raw, "priority", "Priority"),
     status: readString(raw, "status", "Status"),
     completedDate: readString(raw, "completedDate", "CompletedDate"),
-    completedBy:
-      readNumber(raw, "completedBy", "CompletedBy") ?? undefined,
-    completedByName: readString(
-      raw,
-      "completedByName",
-      "CompletedByName",
-    ),
+    completedBy: readNumber(raw, "completedBy", "CompletedBy") ?? undefined,
+    completedByName: readString(raw, "completedByName", "CompletedByName"),
     evidenceUrls: readStringArray(raw, "evidenceUrls", "EvidenceUrls"),
     markComplete:
       typeof raw.markComplete === "boolean"
@@ -893,22 +886,6 @@ export function buildAddComplianceRequest(
   };
 }
 
-function toIsoDateTime(
-  value: string | null | undefined,
-  fallback: string,
-): string {
-  if (!value?.trim()) {
-    return fallback;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return parsed.toISOString();
-}
-
 /** Maps a ComplianceDto into PUT /api/Compliance/Update body. */
 /** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
 /** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
@@ -929,15 +906,9 @@ export function normalizeComplianceUpdateResult(
 
   return {
     complianceId:
-      readNumber(
-        record,
-        "complianceId",
-        "ComplianceId",
-        "id",
-        "Id",
-      ) ?? undefined,
-    nextCycleId:
-      readNumber(record, "nextCycleId", "NextCycleId") ?? undefined,
+      readNumber(record, "complianceId", "ComplianceId", "id", "Id") ??
+      undefined,
+    nextCycleId: readNumber(record, "nextCycleId", "NextCycleId") ?? undefined,
     nextCycleDueDate: readString(
       record,
       "nextCycleDueDate",
@@ -947,9 +918,7 @@ export function normalizeComplianceUpdateResult(
 }
 
 /** Formats an ISO date for user-facing copy (e.g. "30 Apr 2026"). */
-function formatComplianceLongDate(
-  value: string | null | undefined,
-): string {
+function formatComplianceLongDate(value: string | null | undefined): string {
   if (!value?.trim()) {
     return "—";
   }
@@ -974,9 +943,7 @@ export function buildMarkCompleteSuccessMessage(
 ): { title: string; description: string } {
   const nextDue = result?.nextCycleDueDate?.trim();
   const hasNextCycle =
-    result?.nextCycleId != null &&
-    result.nextCycleId > 0 &&
-    Boolean(nextDue);
+    result?.nextCycleId != null && result.nextCycleId > 0 && Boolean(nextDue);
 
   if (hasNextCycle) {
     return {

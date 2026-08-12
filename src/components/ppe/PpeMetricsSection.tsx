@@ -1,6 +1,6 @@
 "use client";
 
-import { StatMetricCard } from "@/components/StatMetricCard";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { Text } from "@/components/Text";
 import { usePpeKpiQuery } from "@/hooks/use-ppe-queries";
 import { PpeMetricsSkeleton } from "./PpeSkeletons";
@@ -21,15 +21,5 @@ export function PpeMetricsSection() {
     );
   }
 
-  return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {metrics.map((metric) => (
-        <StatMetricCard
-          key={metric.title}
-          title={metric.title}
-          value={metric.value}
-        />
-      ))}
-    </div>
-  );
+  return <MetricCardsRow metrics={metrics} />;
 }

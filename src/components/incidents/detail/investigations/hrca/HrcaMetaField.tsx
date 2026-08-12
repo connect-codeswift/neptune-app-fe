@@ -21,7 +21,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
     value,
     labelLines,
     showChevron = false,
-    valueClassName = "text-sm leading-[17.5px] font-bold",
+    valueClassName = "text4 leading-[17.5px] font-bold",
     className = "",
   } = props;
 
@@ -39,7 +39,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
       </div>
       <div className="relative min-w-0 flex-1">
         {labelLines ? (
-          <p className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase">
+          <p className="text-ehs-muted-text text8 leading-none font-bold tracking-[0.945px] uppercase">
             {labelLines[0]}
             <br />
             {labelLines[1]}
@@ -47,7 +47,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
         ) : (
           <Text
             as="p"
-            className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text8 leading-none font-bold tracking-[0.945px] uppercase"
           >
             {label}
           </Text>

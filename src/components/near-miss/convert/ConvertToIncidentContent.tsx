@@ -18,13 +18,23 @@ import {
 } from "@/lib/map-near-miss";
 import { toast } from "@/lib/toast";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
-import {
-  convertToIncidentSchema,
-  type ConvertToIncidentValues,
-} from "./convert-incident-schema";
+import { convertToIncidentSchema } from "./convert-incident-schema";
 
-const crumbClass =
-  "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";
+const crumbMuted = "text4 font-normal text-ehs-gray";
+const crumbLink =
+  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
+
+/** Typography-only overrides — do not set fixed input heights. */
+const convertFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
 
 export type ConvertToIncidentContentProps = Readonly<{
   nearMissId: string;
@@ -41,16 +51,14 @@ function PrePopulatedPanel(props: Readonly<{ record: NearMissRecord }>) {
 
   return (
     <div className="rounded-2xl bg-[rgba(238,241,246,0.7)] p-4">
-      <Text as="p" className="text-ehs-dark-bg font-medium">
+      <Text as="p" className="text5 text-ehs-darker">
         Pre-populated from Near-Miss:
       </Text>
       <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
         {entries.map(([label, value]) => (
           <div key={label} className="flex min-w-0 items-center gap-1">
-            <dt className="text-ehs-dark-bg text-sm">{`${label}:`}</dt>
-            <dd className="text-ehs-dark-bg min-w-0 truncate text-sm">
-              {value}
-            </dd>
+            <dt className="text4 text-ehs-darker">{`${label}:`}</dt>
+            <dd className="text4 text-ehs-darker min-w-0 truncate">{value}</dd>
           </div>
         ))}
       </dl>
@@ -88,11 +96,12 @@ export function ConvertToIncidentContent(
     return null;
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (_values: FormValues) => {
     // There is no near-miss -> incident endpoint yet; POST /Incident/incident
     // needs a field mapping that hasn't been decided. The submit label says
     // "Convert & Create Incident", so this states plainly that nothing was
     // saved rather than logging the payload to the console and moving on.
+    void _values;
     toast.error(
       "Not available yet",
       "Converting a near miss to an incident isn't connected to the backend, so nothing was saved.",
@@ -110,13 +119,13 @@ export function ConvertToIncidentContent(
             aria-label="Breadcrumb"
             className="relative z-1 flex flex-wrap items-center gap-1"
           >
-            <span className="text-ehs-dark-bg text-xs font-medium">Safety</span>
+            <span className={crumbMuted}>Safety</span>
             <Icon
               icon="mdi:chevron-right"
               className="text-ehs-muted-text size-4"
               aria-hidden="true"
             />
-            <Link href="/dashboard/near-miss" className={crumbClass}>
+            <Link href="/dashboard/near-miss" className={crumbLink}>
               Near-Miss
             </Link>
             <Icon
@@ -124,7 +133,7 @@ export function ConvertToIncidentContent(
               className="text-ehs-muted-text size-4"
               aria-hidden="true"
             />
-            <Link href={detailRoute} className={crumbClass}>
+            <Link href={detailRoute} className={crumbLink}>
               {formatNearMissDisplayId(nearMissId)}
             </Link>
             <Icon
@@ -132,29 +141,22 @@ export function ConvertToIncidentContent(
               className="text-ehs-muted-text size-4"
               aria-hidden="true"
             />
-            <span className="text-ehs-dark-bg text-xs font-medium">
-              Convert
-            </span>
+            <span className={crumbMuted}>Convert</span>
           </nav>
 
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg relative z-1 text-[22px] font-semibold tracking-[-0.2px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker relative z-1">
             Convert to Full Incident
           </Text>
 
-          <Text as="p" className="text-ehs-dark-bg relative z-1 text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text relative z-1">
             {record?.title ?? ""}
           </Text>
         </div>
 
-        {detailQuery.isPending && (
-          <SkeletonFormPage fields={8} />
-        )}
+        {detailQuery.isPending && <SkeletonFormPage fields={8} />}
 
         {detailQuery.isError && (
-          <Text as="p" className="text-ehs-red text-sm">
+          <Text as="p" className="text4 text-ehs-red">
             {getMutationErrorMessage(
               detailQuery.error,
               "Could not load this near miss.",
@@ -163,7 +165,7 @@ export function ConvertToIncidentContent(
         )}
 
         {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {`No near miss found for id ${nearMissId}.`}
           </Text>
         )}
@@ -174,12 +176,13 @@ export function ConvertToIncidentContent(
             incidentGlassCardClassName="mx-auto w-full max-w-3xl gap-5"
             className="mx-auto w-full max-w-3xl gap-5"
           >
-            <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+            <Text as="h3" className="text3 text-ehs-darker">
               Additional Information Required
             </Text>
 
             <FormBuilder
               schema={convertToIncidentSchema}
+              className={convertFormFieldClass}
               submitLabel="Convert & Create Incident"
               cancelLabel="Cancel"
               submitVariant="danger"

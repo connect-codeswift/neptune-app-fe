@@ -7,14 +7,9 @@ import {
   useNearMissListQuery,
 } from "@/hooks/use-near-miss-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { DashboardHeader } from "@/components/DashboardHeader";
-import { StatMetricCard } from "@/components/StatMetricCard";
-import { Table } from "@/components/ui/Table";
-import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
-import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
+import { UnifiedNearMissAndHazardListPage } from "@/components/reporting/UnifiedNearMissAndHazardListPage";
 import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard";
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
-import { NearMissPageSkeleton } from "@/components/near-miss/NearMissPageSkeleton";
 import { makeNearMissColumns } from "@/components/near-miss/NearMissColumns";
 import {
   formatNearMissDisplayId,
@@ -28,12 +23,7 @@ import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
 
-const STATUS_OPTIONS = [
-  "All",
-  "Open",
-  "Investigating",
-  "Closed",
-] as const;
+const STATUS_OPTIONS = ["All", "Open", "Investigating", "Closed"] as const;
 
 export function NearMissListPageClient() {
   const router = useRouter();
@@ -92,8 +82,14 @@ export function NearMissListPageClient() {
   }, [records, searchQuery, selectedStatus, userNames]);
 
   const columns = useMemo(
-    () => makeNearMissColumns({ userNames }),
-    [userNames],
+    () =>
+      makeNearMissColumns({
+        userNames,
+        onView: (record) => {
+          router.push(`/dashboard/near-miss/${encodeURIComponent(record.id)}`);
+        },
+      }),
+    [router, userNames],
   );
 
   const metrics = useMemo(
@@ -109,93 +105,47 @@ export function NearMissListPageClient() {
     (canViewInsights && nearMissKpiQuery.isPending);
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader title="Near Miss Reporting" />
-      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
-        {isLoading ? (
-          <NearMissPageSkeleton />
-        ) : (
-          <>
-            {canViewInsights ? (
-              <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-                {metrics.map((metric) => (
-                  <StatMetricCard key={metric.title} {...metric} />
-                ))}
-              </div>
-            ) : null}
-
-            <ModuleFilterBar
-              segments={[
-                {
-                  label: "Status",
-                  options: STATUS_OPTIONS,
-                  value: selectedStatus,
-                  onChange: setSelectedStatus,
-                },
-              ]}
-              action={{
-                label: "Report Near Miss",
-                onClick: () => {
-                  router.push("/dashboard/near-miss/report");
-                },
-              }}
-            />
-
-            <ModuleSearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search by title, location, reporter..."
-              aria-label="Search near misses"
-            />
-
-            <div
-              className={[
-                "grid min-w-0 items-start gap-5",
-                canViewInsights ? "xl:grid-cols-[1fr_460px]" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <div className="flex min-w-0 flex-col gap-2">
-                {nearMissListQuery.isError ? (
-                  <p className="text-ehs-red text-sm">
-                    {getMutationErrorMessage(
-                      nearMissListQuery.error,
-                      "Could not load near misses.",
-                    )}
-                  </p>
-                ) : null}
-
-                <Table
-                  data={filteredRecords}
-                  columns={columns}
-                  onRowClick={(row) =>
-                    router.push(
-                      `/dashboard/near-miss/${encodeURIComponent(row.id)}`,
-                    )
-                  }
-                  getRowId={(row) => row.id}
-                  containerClassName="min-w-0 shadow-sm"
-                  pagination={{
-                    pageNumber: page?.pageNumber ?? pageNumber,
-                    pageSize: page?.pageSize ?? PAGE_SIZE,
-                    totalRecords: page?.totalRecords ?? 0,
-                    onPageChange: setPageNumber,
-                    isLoading: nearMissListQuery.isFetching,
-                  }}
-                />
-              </div>
-
-              {canViewInsights ? (
-                <div className="flex min-w-0 flex-col gap-5">
-                  <NearMissHeatmapCard />
-                  <NearMissRecognitionCard />
-                </div>
-              ) : null}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+    <UnifiedNearMissAndHazardListPage
+      title="Near Miss Reporting"
+      isLoading={isLoading}
+      canViewInsights={canViewInsights}
+      metrics={metrics}
+      statusOptions={STATUS_OPTIONS}
+      selectedStatus={selectedStatus}
+      onStatusChange={setSelectedStatus}
+      reportActionLabel="Report Near Miss"
+      onReportClick={() => {
+        router.push("/dashboard/near-miss/report");
+      }}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchAriaLabel="Search near misses"
+      listError={
+        nearMissListQuery.isError
+          ? getMutationErrorMessage(
+              nearMissListQuery.error,
+              "Could not load near misses.",
+            )
+          : null
+      }
+      table={{
+        data: filteredRecords,
+        columns,
+        getRowId: (row) => row.id,
+        pagination: {
+          pageNumber: page?.pageNumber ?? pageNumber,
+          pageSize: page?.pageSize ?? PAGE_SIZE,
+          totalRecords: page?.totalRecords ?? 0,
+          onPageChange: setPageNumber,
+          isLoading: nearMissListQuery.isFetching,
+        },
+      }}
+      insights={
+        <>
+          <NearMissHeatmapCard />
+          <NearMissRecognitionCard />
+        </>
+      }
+    />
   );
 }

@@ -176,7 +176,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={handleBackPrevious}
-                className="rounded-[10px] bg-white px-4.5 py-2.5 text-[13px] font-bold text-ehs-dark-bg shadow-xs transition-colors hover:bg-ehs-light-bg"
+                className="rounded-[10px] bg-white px-4.5 py-2.5 text4 font-bold text-ehs-dark-bg shadow-xs transition-colors hover:bg-ehs-light-bg"
               >
                 {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
               </button>
@@ -188,7 +188,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={() => onCancel?.()}
-                className="px-3.5 py-2.5 text-[13px] font-bold text-ehs-gray transition-colors hover:text-ehs-dark-bg"
+                className="px-3.5 py-2.5 text4 font-bold text-ehs-gray transition-colors hover:text-ehs-dark-bg"
               >
                 Cancel
               </button>
@@ -196,7 +196,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={onSaveAsDraft}
-                className="rounded-[10px] border border-ehs-normal-blue bg-white px-4 py-2.5 text-[13px] font-bold text-ehs-normal-blue transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                className="rounded-[10px] border border-ehs-normal-blue bg-white px-4 py-2.5 text4 font-bold text-ehs-normal-blue transition-colors hover:bg-[rgba(8,145,166,0.06)]"
               >
                 Save as Draft
               </button>
@@ -209,7 +209,7 @@ export function IncidentDetailClosureCard(
                   (currentStep === 4 && data.closureStatus === "Closed")
                 }
                 className={[
-                  "rounded-[10px] px-5 py-2.5 text-[13px] font-bold text-ehs-light-text transition-all",
+                  "rounded-[10px] px-5 py-2.5 text4 font-bold text-ehs-light-text transition-all",
                   data.closureStatus === "Closed" && currentStep === 4
                     ? "cursor-default bg-emerald-600"
                     : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active active:scale-[0.99]",

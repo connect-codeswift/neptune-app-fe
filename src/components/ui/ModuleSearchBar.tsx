@@ -60,7 +60,7 @@ export function ModuleSearchBar(props: ModuleSearchBarProps) {
       </div>
 
       {resultLabel ? (
-        <span className="text-ehs-muted-text shrink-0 text-sm">{resultLabel}</span>
+        <span className="text4 text-ehs-muted-text shrink-0">{resultLabel}</span>
       ) : null}
     </div>
   );

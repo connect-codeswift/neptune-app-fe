@@ -39,7 +39,10 @@ export function WalkTalkRecentSessionsSection(
     pageSize: DEFAULT_WALK_TALK_PAGE_SIZE,
   });
 
-  const sessions = sessionsQuery.data?.sessions ?? [];
+  const sessions = useMemo(
+    () => sessionsQuery.data?.sessions ?? [],
+    [sessionsQuery.data?.sessions],
+  );
   const totalRecords = sessionsQuery.data?.totalRecords ?? 0;
   const currentPageNumber = sessionsQuery.data?.pageNumber ?? pageNumber;
   const currentPageSize =

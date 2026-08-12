@@ -24,7 +24,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="block text4 leading-[19.5px] text-ehs-gray"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -112,7 +112,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
             }}
             disabled={!canSubmit}
             label={busy ? "Saving…" : copy.primaryLabel}
-            iconSrc=""
+            icon=""
           />
         </>
       }

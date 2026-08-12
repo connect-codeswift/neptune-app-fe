@@ -59,7 +59,10 @@ export function IncidentClosureStepRootCause(
   }));
 
   const selectedRootCauseCategoryIds = data.primaryRootCauseCategoryIds ?? [];
-  const selectedContributingFactors = data.contributingFactors ?? [];
+  const selectedContributingFactors = useMemo(
+    () => data.contributingFactors ?? [],
+    [data.contributingFactors],
+  );
 
   const contributingFactorOptions = useMemo(
     () => buildContributingFactorOptions(selectedContributingFactors),
@@ -99,14 +102,14 @@ export function IncidentClosureStepRootCause(
     <div className="flex flex-col gap-5">
       <Text
         as="h2"
-        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
+        className="text5 leading-normal font-bold text-ehs-dark-bg"
       >
         Root Cause Summary
       </Text>
 
       {/* Primary Root Cause */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           PRIMARY ROOT CAUSE
         </label>
         <CreatableMultiSelectInput
@@ -126,7 +129,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Contributing Factors */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           CONTRIBUTING FACTORS
         </label>
         <CreatableMultiSelectInput
@@ -142,7 +145,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Root Cause Description */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
         <textarea
@@ -153,7 +156,7 @@ export function IncidentClosureStepRootCause(
           placeholder="Describe the root cause details..."
           className={FIELD_TEXTAREA_CLASS}
         />
-        <span className="mt-1.5 self-end text-[11px] font-normal text-ehs-muted-text">
+        <span className="mt-1.5 self-end text8 font-normal text-ehs-muted-text">
           {`${String(data.rootCauseSummary.length)} / 1000 min`}
         </span>
       </div>

@@ -47,13 +47,13 @@ export function IncidentDetailInfoCard(
         .filter(Boolean)
         .join(" ")}
     >
-      <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+      <Text as="h3" className="text-ehs-dark-bg text3">
         Incident details
       </Text>
 
       <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="text-ehs-muted-text col-span-full py-6 text-center text-sm">
+          <div className="text-ehs-muted-text col-span-full py-6 text-center text4">
             No incident detail fields returned by the API.
           </div>
         ) : (
@@ -63,7 +63,7 @@ export function IncidentDetailInfoCard(
 
             return (
               <div key={item.key} className="flex flex-col gap-[3px]">
-                <span className="text-ehs-muted-text text-xs font-bold tracking-wide uppercase">
+                <span className="text-ehs-muted-text text6">
                   {item.label}
                 </span>
                 {canEdit && kind === "yesno" ? (
@@ -91,7 +91,7 @@ export function IncidentDetailInfoCard(
                   />
                 ) : null}
                 {!canEdit ? (
-                  <span className="text-ehs-dark-bg text-sm leading-normal">
+                  <span className="text-ehs-dark-bg text4 leading-normal">
                     {item.value}
                   </span>
                 ) : null}

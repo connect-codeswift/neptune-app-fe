@@ -86,11 +86,11 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
         aria-hidden="true"
       />
 
-      <Text as="p" className="text-ehs-darker text-3.5 font-bold">
+      <Text as="p" className="text5 text-ehs-darker">
         {fileName ? fileName : "Drop SDS PDF here or click to browse"}
       </Text>
 
-      <Text as="p" className="text-ehs-muted-text text-[12px]">
+      <Text as="p" className="text8 text-ehs-muted-text">
         {fileName
           ? "Selected — click to replace"
           : "Accepts PDF files up to 50 MB"}

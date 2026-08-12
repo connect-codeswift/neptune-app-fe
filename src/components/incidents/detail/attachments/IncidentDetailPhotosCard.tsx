@@ -44,10 +44,10 @@ function PhotosContent(
     <>
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Photos, video & files
           </Text>
-          <span className="text-ehs-muted-text text-sm leading-normal">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {isEditing
               ? "Remove files, then save"
               : `${String(attachments.length)} files attached`}
@@ -57,7 +57,7 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text5 backdrop-blur-[6px] transition-colors hover:bg-white/80"
           >
             <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
             Add file
@@ -66,7 +66,7 @@ function PhotosContent(
       </div>
 
       {displayItems.length === 0 ? (
-        <div className="text-ehs-muted-text py-8 text-center text-sm">
+        <div className="text-ehs-muted-text py-8 text-center text4">
           No media files uploaded.
         </div>
       ) : (
@@ -118,7 +118,7 @@ function PhotosContent(
                         className="text-ehs-light-text/90 size-8"
                         aria-hidden="true"
                       />
-                      <span className="text-ehs-light-text/80 text-xs font-bold tracking-wider uppercase">
+                      <span className="text-ehs-light-text/80 text7 tracking-wider uppercase">
                         {isPdf ? "PDF" : "FILE"}
                       </span>
                     </div>
@@ -137,10 +137,10 @@ function PhotosContent(
                   ) : null}
 
                   <div className="absolute inset-x-2 bottom-[3px] z-20 flex items-start justify-between gap-1">
-                    <span className="truncate text-xs leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="truncate text8 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.name.replace(/\.[^.]+$/, "")}
                     </span>
-                    <span className="shrink-0 text-xs leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="shrink-0 text8 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.sizeLabel}
                     </span>
                   </div>

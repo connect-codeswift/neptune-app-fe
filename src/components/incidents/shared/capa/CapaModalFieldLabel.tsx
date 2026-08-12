@@ -1,8 +1,12 @@
 "use client";
 
-export function CapaModalFieldLabel(
-  props: Readonly<{ children: string; required?: boolean; htmlFor?: string }>,
-) {
+export type CapaModalFieldLabelProps = Readonly<{
+  children: string;
+  required?: boolean;
+  htmlFor?: string;
+}>;
+
+export function CapaModalFieldLabel(props: CapaModalFieldLabelProps) {
   const { children, required = false, htmlFor } = props;
 
   return (

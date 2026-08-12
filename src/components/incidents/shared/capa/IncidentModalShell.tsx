@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Text } from "@/components/Text";
@@ -62,7 +63,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
   return createPortal(
     <div
       className={[
-        "fixed inset-0 flex items-center justify-center bg-ehs-dark-bg/45 p-3.5 backdrop-blur-[3px] sm:p-5",
+        "bg-ehs-dark-bg/45 fixed inset-0 flex items-center justify-center p-3.5 backdrop-blur-[3px] sm:p-5",
         overlayClassName,
       ].join(" ")}
       onClick={onClose}
@@ -75,21 +76,21 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
         className={[
-          "flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl bg-ehs-light-bg shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all",
+          "bg-ehs-light-bg flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)] transition-all",
           maxWidthClassName,
         ].join(" ")}
       >
-        <header className="relative shrink-0 border-b border-ehs-border px-4 py-4 sm:px-8 sm:pt-7 sm:pb-[17px]">
+        <header className="border-ehs-border relative shrink-0 border-b px-4 py-4 sm:px-8 sm:pt-7 sm:pb-[17px]">
           <Text
             as="h2"
             id={titleId}
-            className="pr-10 text-lg leading-7 font-normal text-ehs-dark-bg sm:text-xl"
+            className="text-ehs-dark-bg pr-10 text-lg leading-7 font-normal sm:text-xl"
           >
             {title}
           </Text>
           <Text
             as="p"
-            className="mt-0.5 truncate text-sm leading-5 font-normal text-ehs-gray sm:mt-1 sm:text-sm"
+            className="text-ehs-gray mt-0.5 truncate text-sm leading-5 font-normal sm:mt-1 sm:text-sm"
           >
             {subtitle}
           </Text>
@@ -100,12 +101,9 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
             onClick={onClose}
             className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg bg-white/40 transition-colors hover:bg-white/70 sm:top-7 sm:right-7"
           >
-            <img
-              src="/icons/capa/close.svg"
-              alt=""
-              width={16}
-              height={16}
-              className="size-4"
+            <Icon
+              icon="mdi:close"
+              className="size-4 text-slate-500"
               aria-hidden="true"
             />
           </button>
@@ -115,12 +113,12 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
           {children}
         </div>
 
-        <footer className="flex shrink-0 flex-col-reverse gap-3 border-t border-ehs-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
+        <footer className="border-ehs-border flex shrink-0 flex-col-reverse gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
           <div className="text-center sm:text-left">
             {typeof footerHint === "string" ? (
               <Text
                 as="p"
-                className="text-sm leading-[19.5px] text-ehs-muted-text sm:text-sm"
+                className="text-ehs-muted-text text-sm leading-[19.5px] sm:text-sm"
               >
                 {footerHint}
               </Text>
@@ -147,7 +145,7 @@ export function IncidentModalCancelButton(
     <button
       type="button"
       onClick={onClick}
-      className="flex-1 rounded-xl border border-ehs-border px-[20px] py-[9.5px] text-sm leading-[19.5px] text-ehs-slate transition-colors hover:bg-white/60 sm:flex-initial sm:px-[25px] sm:py-[11px]"
+      className="border-ehs-border text-ehs-slate flex-1 rounded-xl border px-[20px] py-[9.5px] text-sm leading-[19.5px] transition-colors hover:bg-white/60 sm:flex-initial sm:px-[25px] sm:py-[11px]"
     >
       {label}
     </button>
@@ -159,15 +157,11 @@ export function IncidentModalPrimaryButton(
     onClick: () => void;
     disabled?: boolean;
     label: string;
-    iconSrc?: string;
+    /** Iconify name; pass "" to render the button without an icon. */
+    icon?: string;
   }>,
 ) {
-  const {
-    onClick,
-    disabled = false,
-    label,
-    iconSrc = "/icons/capa/plus.svg",
-  } = props;
+  const { onClick, disabled = false, label, icon = "mdi:plus" } = props;
 
   return (
     <button
@@ -175,22 +169,13 @@ export function IncidentModalPrimaryButton(
       disabled={disabled}
       onClick={onClick}
       className={[
-        "inline-flex h-[39.5px] min-w-[134px] flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
+        "text-ehs-light-text inline-flex h-[39.5px] min-w-[134px] flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm leading-[19.5px] font-medium transition-colors sm:flex-initial",
         disabled
-          ? "cursor-not-allowed bg-ehs-light-blue"
+          ? "bg-ehs-light-blue cursor-not-allowed"
           : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active",
       ].join(" ")}
     >
-      {iconSrc ? (
-        <img
-          src={iconSrc}
-          alt=""
-          width={16}
-          height={16}
-          className="size-4"
-          aria-hidden="true"
-        />
-      ) : null}
+      {icon ? <Icon icon={icon} className="size-4" aria-hidden="true" /> : null}
       {label}
     </button>
   );

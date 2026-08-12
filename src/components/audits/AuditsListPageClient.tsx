@@ -28,7 +28,7 @@ import {
   type RegisterStatusFilter,
 } from "@/lib/audit-inspection-status";
 import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
-import { StatMetricCard } from "@/components/StatMetricCard";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { getCurrentUser } from "@/lib/current-user";
 
 const PAGE_SIZE = 10;
@@ -101,11 +101,7 @@ export function AuditsListPageClient() {
           <AuditPageSkeleton />
         ) : (
           <>
-            <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {metrics.map((metric) => (
-                <StatMetricCard key={metric.title} {...metric} />
-              ))}
-            </div>
+            <MetricCardsRow metrics={metrics} />
 
             {summaryQuery.isError ? (
               <p className="text-ehs-red text-sm">Could not load audit KPIs.</p>

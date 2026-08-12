@@ -28,10 +28,10 @@ export function IncidentDetailStorageCard(
       className={className}
     >
       <div className="flex flex-col gap-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Storage
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           Per incident
         </span>
       </div>
@@ -44,7 +44,7 @@ export function IncidentDetailStorageCard(
           />
         </div>
 
-        <div className="text-ehs-muted-text flex items-center justify-between text-sm font-semibold">
+        <div className="text-ehs-muted-text flex items-center justify-between text4 font-semibold">
           <span className="text-ehs-gray">
             {usedMB} MB of {maxMB} MB
           </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { HazcomOverviewStatCard } from "@/components/hazcom/overview/HazcomOverviewStatCard";
+import { MetricCard } from "@/components/ui/MetricCard";
 import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
 
 export type HazcomOverviewStatsRowProps = Readonly<{
@@ -32,22 +32,29 @@ export function HazcomOverviewStatsRow(
 
   return (
     <div
-      className={["my-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4", className]
+      className={[
+        "stagger-cards my-4 grid min-w-0 gap-3.5 sm:grid-cols-2 xl:grid-cols-4",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
-      <HazcomOverviewStatCard
-        label="Total Chemicals"
+      <MetricCard
+        title="Total Chemicals"
         value={overview.totalChemicals}
         icon="mdi:flask-outline"
-        caption="On the site inventory"
+        description="On the site inventory"
       />
-      <HazcomOverviewStatCard
-        label="Missing SDS"
+      <MetricCard
+        title="Missing SDS"
         value={sds.missing}
         icon="mdi:file-alert-outline"
-        tone={sds.missing > 0 ? "danger" : "neutral"}
-        caption={
+        // Zero is the only acceptable number here, so the target owns the
+        // colour: any missing sheet turns the badge red.
+        target={0}
+        isMorePositive={false}
+        signalOwnedBy="target"
+        description={
           overview.totalChemicals === 0
             ? // "Every chemical has a sheet" is vacuously true of an empty
               // inventory and reads like a clean bill of health.
@@ -57,17 +64,18 @@ export function HazcomOverviewStatsRow(
               : "Every chemical has a sheet"
         }
       />
-      <HazcomOverviewStatCard
-        label="SDS Expiring Soon"
+      <MetricCard
+        title="SDS Expiring Soon"
         value={sds.dueSoon}
         icon="mdi:clock-alert-outline"
-        caption={sampledCaption}
+        isMorePositive={false}
+        description={sampledCaption}
       />
-      <HazcomOverviewStatCard
-        label="Training Sessions"
+      <MetricCard
+        title="Training Sessions"
         value={overview.totalTrainingSessions}
         icon="mdi:account-school-outline"
-        caption="Logged to date"
+        description="Logged to date"
       />
     </div>
   );

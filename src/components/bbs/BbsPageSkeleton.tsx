@@ -1,23 +1,8 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card: label + trend pill, then value bar — matches Figma 4818:19714. */
-function KpiCardSkeleton() {
-  return (
-    <IncidentGlassCard
-      paddingClassName="p-5"
-      className="min-w-0"
-      incidentGlassCardClassName="gap-3"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <Skeleton className="h-2 w-25 rounded-md opacity-60" />
-        <Skeleton className="size-4 rounded-full" />
-      </div>
-      <Skeleton className="h-7 w-17.5 rounded-md" />
-    </IncidentGlassCard>
-  );
-}
-
 /** Engagement chart placeholder — title, chart block, axis ticks. */
 function EngagementCardSkeleton() {
   return (
@@ -94,11 +79,7 @@ export function BbsPageSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
       {/* KPI Metrics — 3 cards */}
-      <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-      </div>
+      <MetricCardsRowSkeleton count={3} />
 
       {/* Engagement + at-risk */}
       <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">

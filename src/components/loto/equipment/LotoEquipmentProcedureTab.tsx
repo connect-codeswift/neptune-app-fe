@@ -24,7 +24,7 @@ export function LotoEquipmentProcedureTab(
             className="mt-0.5 size-4 shrink-0 text-[#ef4444]"
             aria-hidden="true"
           />
-          <p className="text-sm leading-5 text-[#2a3446]">
+          <p className="text4 text-[#2a3446]">
             <span className="font-bold text-[#ef4444]">
               Authorized Personnel Only.
             </span>{" "}
@@ -34,7 +34,7 @@ export function LotoEquipmentProcedureTab(
         </div>
 
         <div>
-          <h2 className="text-ehs-darker mb-2.5 text-lg font-bold">
+          <h2 className="text3 text-ehs-darker mb-2.5">
             Energy Sources to Isolate
           </h2>
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -43,10 +43,8 @@ export function LotoEquipmentProcedureTab(
                 key={source}
                 className="rounded-[12px] bg-[rgba(15,23,42,0.04)] px-4 py-3.5"
               >
-                <p className="text-ehs-darker text-sm font-semibold">
-                  {source}
-                </p>
-                <p className="mt-0.5 text-xs text-[#8892a3]">
+                <p className="text4 text-ehs-darker font-semibold">{source}</p>
+                <p className="text8 mt-0.5 text-[#8892a3]">
                   {`Point ${String(index + 1)} of ${String(detail.energySources.length)}`}
                 </p>
               </div>
@@ -59,7 +57,7 @@ export function LotoEquipmentProcedureTab(
           className="min-w-0"
         >
           <div className="border-b border-[rgba(15,23,42,0.08)] px-5 py-3.5">
-            <h2 className="text-ehs-darker text-lg font-bold">
+            <h2 className="text3 text-ehs-darker">
               {`Procedure — ${String(stepCount)} Steps`}
             </h2>
           </div>
@@ -70,7 +68,7 @@ export function LotoEquipmentProcedureTab(
               return (
                 <li key={step.id} className="flex gap-3.5 px-2.5 py-3">
                   <div className="flex flex-col items-center">
-                    <span className="flex size-[30px] shrink-0 items-center justify-center rounded-[15px] bg-[rgba(8,145,166,0.12)] text-sm font-bold text-[#0891a6]">
+                    <span className="text5 flex size-[30px] shrink-0 items-center justify-center rounded-[15px] bg-[rgba(8,145,166,0.12)] text-[#0891a6]">
                       {String(index + 1)}
                     </span>
                     {!isLast ? (
@@ -78,14 +76,14 @@ export function LotoEquipmentProcedureTab(
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1 pt-1">
-                    <span className="inline-flex rounded-[5px] bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-xs font-bold tracking-[0.7px] text-[#8892a3] uppercase">
+                    <span className="text6 inline-flex rounded-[5px] bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-[#8892a3]">
                       {step.tag}
                     </span>
-                    <p className="mt-1.5 text-sm leading-[21.6px] text-[#2a3446]">
+                    <p className="text4 mt-1.5 text-[#2a3446]">
                       {step.description}
                     </p>
                     {step.critical ? (
-                      <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-[#ef4444]">
+                      <p className="text4 mt-2 flex items-center gap-1.5 font-semibold text-[#ef4444]">
                         <Icon
                           icon="mdi:shield-alert-outline"
                           className="size-3.5 shrink-0"
@@ -103,31 +101,29 @@ export function LotoEquipmentProcedureTab(
       </div>
 
       <IncidentGlassCard paddingClassName="p-[18px]" className="min-w-0">
-        <h2 className="text-ehs-darker mb-3 text-lg font-bold">
-          Procedure Info
-        </h2>
+        <h2 className="text3 text-ehs-darker mb-3">Procedure Info</h2>
         <dl className="flex flex-col">
           <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
-            <dt className="text-sm text-[#8892a3]">Procedure ID</dt>
-            <dd className="text-sm font-semibold text-[#0891a6]">
+            <dt className="text4 text-[#8892a3]">Procedure ID</dt>
+            <dd className="text4 font-semibold text-[#0891a6]">
               {detail.procedureId}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
-            <dt className="text-sm text-[#8892a3]">Energy Sources</dt>
-            <dd className="text-ehs-darker text-sm font-semibold">
+            <dt className="text4 text-[#8892a3]">Energy Sources</dt>
+            <dd className="text4 text-ehs-darker font-semibold">
               {`${String(detail.energySources.length)} sources`}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
-            <dt className="text-sm text-[#8892a3]">Total Steps</dt>
-            <dd className="text-ehs-darker text-sm font-semibold">
+            <dt className="text4 text-[#8892a3]">Total Steps</dt>
+            <dd className="text4 text-ehs-darker font-semibold">
               {`${String(stepCount)} steps`}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-3 py-2.5">
-            <dt className="text-sm text-[#8892a3]">Last Updated</dt>
-            <dd className="text-ehs-darker text-sm font-semibold">
+            <dt className="text4 text-[#8892a3]">Last Updated</dt>
+            <dd className="text4 text-ehs-darker font-semibold">
               {detail.procedureLastUpdated}
             </dd>
           </div>

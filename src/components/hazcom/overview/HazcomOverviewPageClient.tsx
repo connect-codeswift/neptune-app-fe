@@ -3,6 +3,7 @@
 import {
   HazcomErrorCard,
   HazcomModuleTabs,
+  HazcomPageHeader,
 } from "@/components/hazcom/shared";
 import { HazcomOverviewSkeleton } from "@/components/hazcom/overview/HazcomOverviewSkeleton";
 import { HazcomOverviewStatsRow } from "@/components/hazcom/overview/HazcomOverviewStatsRow";
@@ -21,21 +22,23 @@ export function HazcomOverviewPageClient() {
   const overview = useHazcomOverview();
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col px-4 pb-4">
+    <div className="flex min-h-screen flex-1 flex-col gap-5 px-4 pb-4">
       <HazcomModuleTabs />
 
+      <HazcomPageHeader
+        breadcrumb={["Safety", "HazCom", "Overview"]}
+        title="HazCom Overview"
+        subtitle="Chemical inventory health, SDS status, and compliance at a glance"
+      />
+
       {overview.isLoading ? (
-        <div className="mt-4">
-          <HazcomOverviewSkeleton />
-        </div>
+        <HazcomOverviewSkeleton />
       ) : overview.errorMessage ? (
-        <div className="mt-4">
-          <HazcomErrorCard
-            title="Couldn’t load the HazCom overview"
-            message={overview.errorMessage}
-            onRetry={overview.refetch}
-          />
-        </div>
+        <HazcomErrorCard
+          title="Couldn’t load the HazCom overview"
+          message={overview.errorMessage}
+          onRetry={overview.refetch}
+        />
       ) : (
         <>
           <HazcomOverviewStatsRow overview={overview} />

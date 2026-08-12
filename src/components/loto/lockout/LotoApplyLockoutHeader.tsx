@@ -7,9 +7,9 @@ import { type LotoApplyLockoutContext } from "@/app/dashboard/lockout-tagout/lot
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 
-const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
+const crumbMuted = "text4 font-normal text-[#b3bbc8]";
 const crumbLink =
-  "text-[#8892a3] hover:text-ehs-gray text-sm font-normal transition-colors";
+  "text4 hover:text-ehs-gray font-normal text-[#8892a3] transition-colors";
 
 function Chevron() {
   return (
@@ -59,13 +59,10 @@ export function LotoApplyLockoutHeader(props: LotoApplyLockoutHeaderProps) {
             <Icon icon="mdi:chevron-left" className="size-3.5" />
           </Link>
           <div className="flex min-w-0 flex-col gap-1">
-            <Text
-              as="h1"
-              className="text-ehs-darker text-base font-bold tracking-[-0.44px] md:text-[22px]"
-            >
+            <Text as="h1" className="text1 text-ehs-darker">
               Apply Lockout
             </Text>
-            <Text as="p" className="text-sm leading-[19.5px] text-[#8892a3]">
+            <Text as="p" className="text4 text-[#8892a3]">
               {context.equipment.name}
             </Text>
           </div>

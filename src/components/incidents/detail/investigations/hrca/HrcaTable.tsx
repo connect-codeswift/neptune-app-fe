@@ -43,12 +43,12 @@ function WhyHeader(props: Readonly<{ step: number }>) {
   const { step } = props;
   return (
     <div className="flex h-[35px] w-full items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-[11px] py-[9px]">
-      <span className="bg-ehs-slate inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] text-[10px] font-bold tracking-[0.23px] text-[#f3f5f8]">
+      <span className="bg-ehs-slate inline-flex size-[17px] shrink-0 items-center justify-center rounded-[8.5px] text8 font-bold tracking-[0.23px] text-[#f3f5f8]">
         {String(step)}
       </span>
       <Text
         as="span"
-        className="text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#566072]"
+        className="text8 leading-none font-bold tracking-[0.23px] text-[#566072]"
       >
         Why?
       </Text>
@@ -66,7 +66,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         header: () => (
           <Text
             as="span"
-            className="text-ehs-muted-text pl-1 text-[10.5px] leading-none font-bold tracking-[0.84px] uppercase"
+            className="text-ehs-muted-text pl-1 text8 leading-none font-bold tracking-[0.84px] uppercase"
           >
             Category
           </Text>
@@ -79,7 +79,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
           <div className="bg-ehs-normal-blue/13 my-[2px] flex h-[31px] w-full items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] px-[11px] py-[9px]">
             <Text
               as="span"
-              className="text-center text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#056e7e]"
+              className="text-center text8 leading-none font-bold tracking-[0.23px] text-[#056e7e]"
             >
               Contributing factor
             </Text>
@@ -131,7 +131,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
             />
             <Text
               as="span"
-              className="text-center text-[11.5px] leading-none font-bold tracking-[0.23px] text-[#10b981]"
+              className="text-center text8 leading-none font-bold tracking-[0.23px] text-[#10b981]"
             >
               Corrective actions
             </Text>

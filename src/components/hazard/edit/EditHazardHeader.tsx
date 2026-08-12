@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 
-const crumbClass =
-  "text-ehs-muted-text hover:text-ehs-gray text-xs font-medium transition-colors";
+const crumbMuted = "text4 font-normal text-ehs-gray";
+const crumbLink =
+  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
 
 function Chevron() {
   return (
@@ -26,30 +27,27 @@ export function EditHazardHeader(props: Readonly<{ hazardId: string }>) {
         aria-label="Breadcrumb"
         className="relative z-1 flex items-center gap-1"
       >
-        <span className="text-ehs-gray text-xs font-medium">Safety</span>
+        <span className={crumbMuted}>Safety</span>
         <Chevron />
-        <Link href="/dashboard/hazard" className={crumbClass}>
+        <Link href="/dashboard/hazard" className={crumbLink}>
           Hazards
         </Link>
         <Chevron />
         <Link
           href={`/dashboard/hazard/${encodeURIComponent(hazardId)}`}
-          className={crumbClass}
+          className={crumbLink}
         >
           {hazardId}
         </Link>
         <Chevron />
-        <span className="text-ehs-gray text-xs font-medium">Edit</span>
+        <span className={crumbMuted}>Edit</span>
       </nav>
 
       <div className="relative z-1 flex flex-col gap-0.5">
-        <Text
-          as="h1"
-          className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-        >
+        <Text as="h1" className="text1 text-ehs-darker">
           Edit Hazard
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-xs">
+        <Text as="p" className="text8 text-ehs-muted-text">
           {hazardId}
         </Text>
       </div>

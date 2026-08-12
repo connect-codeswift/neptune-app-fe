@@ -1,10 +1,7 @@
-import type { IncidentListKpiMetric } from "@/components/incidents/list/IncidentListKpiCard";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import type { DateRange } from "@/lib/date-range";
 import { isDateWithinRange } from "@/lib/date-range";
 import { startOfDay } from "@/components/incidents/report/shared/report-date-time";
-import type { IncidentDto } from "@/dtos/res/incident-response.dto";
-import { isIncidentClosed } from "@/services/mappers/incident-state";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
 export const SEVERITY_FILTERS = [
@@ -15,18 +12,6 @@ export const SEVERITY_FILTERS = [
   "SIA",
   "SIP",
 ] as const;
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const OPEN_TARGET = 10;
-const MTTC_TARGET_DAYS = 5;
-const RIR_TARGET = 2.5;
-const LTI_BEST_TARGET_DAYS = 112;
-/** Assumed annual exposure hours for RIR = (N × 200,000) / EH. */
-const ASSUMED_EXPOSURE_HOURS = 200_000;
-
-function isClosedIncident(incident: IncidentDto): boolean {
-  return isIncidentClosed(incident);
-}
 
 /**
  * Translates the "Severity" segmented filter into the `severity` token for the
@@ -129,53 +114,3 @@ function parseIncidentDate(value: string | null | undefined): Date | null {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
-
-function daysBetween(start: Date, end: Date): number {
-  return Math.max(0, (end.getTime() - start.getTime()) / MS_PER_DAY);
-}
-
-function formatTrend(delta: number, digits = 0): string {
-  const value =
-    digits > 0 ? Number(delta.toFixed(digits)) : Math.round(delta);
-
-  if (Object.is(value, -0) || value === 0) {
-    return "0";
-  }
-
-  return value > 0 ? `+${String(value)}` : String(value);
-}
-
-function buildSparklineToward(
-  endValue: number,
-  options: Readonly<{ points?: number; rising?: boolean }> = {},
-): number[] {
-  const points = options.points ?? 7;
-  const rising = options.rising ?? false;
-  const startValue = rising
-    ? Math.max(0, endValue * 0.45)
-    : Math.max(endValue * 1.35, endValue + 1);
-
-  const series: number[] = [];
-  for (let index = 0; index < points; index += 1) {
-    const t = points === 1 ? 1 : index / (points - 1);
-    const eased = t * t * (3 - 2 * t);
-    series.push(Number((startValue + (endValue - startValue) * eased).toFixed(2)));
-  }
-
-  series[points - 1] = Number(endValue.toFixed(2));
-  return series;
-}
-
-function isLostTimeIncident(incident: IncidentDto): boolean {
-  const severity = incident.severity?.trim().toLowerCase() ?? "";
-  return (
-    severity.includes("lost time") ||
-    severity === "lti" ||
-    severity.includes("lost-time")
-  );
-}
-
-/**
- * Builds the four Figma list KPI cards from the loaded incident page.
- * Metrics are derived from API incidents (no separate KPI endpoint yet).
- */

@@ -31,7 +31,7 @@ export function HazcomBadge(props: Readonly<HazcomBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-[11px] leading-[15.4px] font-bold tracking-[0.11px] whitespace-nowrap",
+        "text5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]

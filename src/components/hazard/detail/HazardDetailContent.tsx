@@ -122,7 +122,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
         {detailQuery.isPending && <SkeletonDetailPage />}
 
         {detailQuery.isError && (
-          <Text as="p" className="text-ehs-red text-sm">
+          <Text as="p" className="text4 text-ehs-red">
             {getMutationErrorMessage(
               detailQuery.error,
               "Could not load this hazard.",
@@ -133,12 +133,12 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
         {/* Request succeeded but the record isn't there. */}
         {!detailQuery.isPending && !detailQuery.isError && !record && (
           <div className="flex flex-col items-start gap-2">
-            <Text as="p" className="text-ehs-muted-text text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text">
               {`No hazard found for id ${hazardId}.`}
             </Text>
             <Link
               href={HAZARD_LIST_ROUTE}
-              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
               Back to hazard reporting
             </Link>
@@ -159,7 +159,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                       variant="primary"
                       disabled={isClosed || closeMutation.isPending}
                       onClick={handleClose}
-                      className="gap-2 rounded-[10px] px-4 py-2.5"
+                      className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold"
                     >
                       <Icon
                         icon={
@@ -175,7 +175,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                           .join(" ")}
                         aria-hidden="true"
                       />
-                      <span className="text-sm font-bold whitespace-nowrap">
+                      <span className="whitespace-nowrap">
                         {isClosed ? "Closed" : "Close Hazard"}
                       </span>
                     </Button>
@@ -186,7 +186,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                     variant="tertiary"
                     disabled={dropMutation.isPending}
                     onClick={() => setIsConfirmingDrop(true)}
-                    className="gap-2 rounded-[10px] px-4 py-2.5"
+                    className="text4 gap-2 rounded-[10px] px-4 py-2.5 font-semibold"
                   >
                     <Icon
                       icon={
@@ -202,9 +202,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                         .join(" ")}
                       aria-hidden="true"
                     />
-                    <span className="text-sm font-bold whitespace-nowrap">
-                      Drop Hazard
-                    </span>
+                    <span className="whitespace-nowrap">Drop Hazard</span>
                   </Button>
                 </div>
               }

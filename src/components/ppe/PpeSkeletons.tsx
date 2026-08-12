@@ -1,4 +1,5 @@
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 function repeat(count: number, render: (index: number) => React.ReactNode) {
@@ -62,18 +63,7 @@ function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
 
 /** Two KPI metric cards — matches PPE management overview. */
 export function PpeMetricsSkeleton() {
-  return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {repeat(2, (index) => (
-        <PpeGlassShell key={`ppe-kpi-${String(index)}`}>
-          <div className="flex flex-col gap-3">
-            <Skeleton className="h-3 w-24 sm:w-28" />
-            <Skeleton className="h-8 w-14 sm:h-9 sm:w-16" />
-          </div>
-        </PpeGlassShell>
-      ))}
-    </div>
-  );
+  return <MetricCardsRowSkeleton count={2} />;
 }
 
 /** Search bar placeholder. */

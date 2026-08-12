@@ -18,6 +18,18 @@ import {
 } from "./hazard-edit-schema";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
+/** Typography-only overrides — do not set fixed input heights. */
+const hazardFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
+
 export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   const { record } = props;
   const router = useRouter();
@@ -66,6 +78,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
       <FormBuilder
         schema={schema}
         initialValues={toHazardEditValues(record)}
+        className={hazardFormFieldClass}
         submitLabel={saveHazard.isPending ? "Saving..." : "Save Changes"}
         cancelLabel="Cancel"
         isSubmitting={saveHazard.isPending}

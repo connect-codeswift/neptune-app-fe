@@ -36,10 +36,10 @@ export function HazcomEmptyCard(props: Readonly<HazcomEmptyCardProps>) {
         className="text-ehs-muted-text size-10"
         aria-hidden="true"
       />
-      <Text as="p" className="text-ehs-darker text-base font-bold">
+      <Text as="p" className="text3 text-ehs-darker">
         {title}
       </Text>
-      <Text as="p" className="text-ehs-muted-text max-w-sm text-sm">
+      <Text as="p" className="text4 text-ehs-muted-text max-w-sm">
         {message}
       </Text>
       {action}

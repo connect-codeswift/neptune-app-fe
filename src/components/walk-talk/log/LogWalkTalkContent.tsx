@@ -62,12 +62,6 @@ function isFollowUpEmpty(action: FollowUpAction): boolean {
   );
 }
 
-function asStringList(value: FormValues[string] | undefined): string[] {
-  return Array.isArray(value)
-    ? value.filter((entry) => typeof entry === "string")
-    : [];
-}
-
 export function LogWalkTalkContent() {
   const router = useRouter();
   const createWalkTalk = useCreateWalkTalkMutation();

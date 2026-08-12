@@ -1,11 +1,11 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { StatMetricCard } from "@/components/StatMetricCard";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
@@ -23,7 +23,7 @@ import type {
   DocumentStatusFilter,
   LibraryCategoryId,
 } from "@/components/policy-maker/policy-maker-types";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type { DocumentDashboardKpisDto } from "@/dtos/res/document-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
@@ -32,7 +32,7 @@ import {
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
-import { SkeletonSidePanel, SkeletonTable } from "@/components/ui/skeletons";
+import { SkeletonTable } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 type CategoryFilter = "all" | LibraryCategoryId;
@@ -51,14 +51,23 @@ function formatAckRate(value: number | null | undefined): string {
     return "—";
   }
   const percent = value <= 1 ? value * 100 : value;
-  return `${String(Math.round(percent))}%`;
+  return String(Math.round(percent));
 }
 
-/** Builds the 4 stat cards from GET /api/Document/dashboard-kpis. */
+/**
+ * Builds the 4 stat cards from GET /api/Document/dashboard-kpis.
+ *
+ * The endpoint returns counts only, so these carry no delta. What used to sit
+ * in the badge as a word ("Needs action", "Clear") is a description, not a
+ * movement — it moved to the footer, and the badge fell back to its icon.
+ */
 function buildPolicyMakerMetrics(
   kpis: DocumentDashboardKpisDto | null,
   totalCount: number,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
+  const hasAckRate =
+    kpis?.acknowledgementRate != null &&
+    Number.isFinite(kpis.acknowledgementRate);
   const active = kpis?.activeDocs ?? 0;
   const pending = kpis?.pendingReview ?? 0;
   const expiring = kpis?.expiringIn30Days ?? 0;
@@ -67,26 +76,36 @@ function buildPolicyMakerMetrics(
     {
       title: "Active docs",
       value: active,
-      trendValue: `${String(totalCount)} total`,
-      trendTone: "positive",
+      description: `${String(totalCount)} total in the library`,
+      icon: "mdi:file-document-check-outline",
     },
     {
       title: "Pending review",
       value: pending,
-      trendValue: pending > 0 ? "Needs action" : "Clear",
-      trendTone: pending > 0 ? "negative" : "positive",
+      description: pending > 0 ? "Needs action" : "Clear",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:file-clock-outline",
     },
     {
       title: "Expiring (30d)",
       value: expiring,
-      trendValue: expiring > 0 ? "Watch" : "Clear",
-      trendTone: expiring > 0 ? "negative" : "positive",
+      description: expiring > 0 ? "Watch these dates" : "Clear",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:calendar-alert",
     },
     {
       title: "Acknowledgement rate",
       value: formatAckRate(kpis?.acknowledgementRate),
-      trendValue: kpis?.acknowledgementRate != null ? "Avg" : "N/A",
-      trendTone: "positive",
+      // No "%" beside an em dash — there is no figure for it to qualify.
+      unit: hasAckRate ? "%" : undefined,
+      description: hasAckRate
+        ? "Average across active docs"
+        : "Not available yet",
+      icon: "mdi:check-decagram-outline",
     },
   ];
 }
@@ -133,12 +152,23 @@ export function PolicyMakerView() {
     );
   }, [documentsQuery.data?.records, categoryId, statusFilter, searchQuery]);
 
+  // Preview panel toggles from the view / close icon — same as Incident List.
   const selectedDocument =
-    (selectedId == null
-      ? undefined
-      : documents.find((doc) => doc.id === selectedId)) ??
-    documents[0] ??
-    null;
+    selectedId == null
+      ? null
+      : (documents.find((doc) => doc.id === selectedId) ?? null);
+
+  useEffect(() => {
+    if (selectedId != null && selectedDocument == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedDocument]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedDocument != null;
 
   const resultLabel = `${String(documents.length)} ${
     documents.length === 1 ? "document" : "documents"
@@ -157,16 +187,16 @@ export function PolicyMakerView() {
           )
         : null;
 
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize) || 1);
+  const canGoPrevious = pageNumber > 1 && !documentsQuery.isFetching;
+  const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
+
   return (
     <div className="flex min-h-screen flex-1 flex-col">
       <DashboardHeader title="Policy Maker" />
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map((metric) => (
-            <StatMetricCard key={metric.title} {...metric} />
-          ))}
-        </div>
+        <MetricCardsRow metrics={metrics} />
 
         {errorMessage ? (
           <IncidentGlassCard
@@ -232,46 +262,86 @@ export function PolicyMakerView() {
             />
 
             {showBootLoading || showQueryLoading ? (
-              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
-                <SkeletonTable rows={8} columns={5} />
-                <div className="w-full xl:w-[311px]">
-                  <SkeletonSidePanel />
-                </div>
-              </div>
+              <SkeletonTable rows={8} columns={5} />
             ) : (
-              <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1fr)_auto]">
-                <PolicyMakerDocumentTable
-                  categoryLabel={categoryLabel(categoryId)}
-                  documentCount={documents.length}
-                  documents={documents}
-                  selectedId={selectedDocument?.id ?? null}
-                  onSelect={setSelectedId}
-                  onUploadDocument={() =>
-                    router.push("/dashboard/policy-maker/upload")
-                  }
-                  onEditDocument={(document) =>
-                    router.push(
-                      `/dashboard/policy-maker/${encodeURIComponent(document.id)}/edit`,
-                    )
-                  }
-                  onOpenDetail={(id) =>
-                    router.push(
-                      `/dashboard/policy-maker/${encodeURIComponent(id)}`,
-                    )
-                  }
-                  pagination={{
-                    pageNumber,
-                    pageSize,
-                    totalRecords: totalCount,
-                    onPageChange: setPageNumber,
-                    isLoading: documentsQuery.isFetching,
-                  }}
-                />
+              <div
+                className={[
+                  "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+                  isPanelOpen
+                    ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                    : "xl:grid-cols-1",
+                ].join(" ")}
+              >
+                <div className="flex min-w-0 flex-col gap-3">
+                  <PolicyMakerDocumentTable
+                    categoryLabel={categoryLabel(categoryId)}
+                    documentCount={documents.length}
+                    documents={documents}
+                    selectedId={selectedId}
+                    onViewMore={handleToggleDetailPanel}
+                    expanded={!isPanelOpen}
+                    onUploadDocument={() =>
+                      router.push("/dashboard/policy-maker/upload")
+                    }
+                    className="min-w-0"
+                  />
 
-                <PolicyMakerDetailPanel
-                  document={selectedDocument}
-                  className="w-full xl:w-[311px]"
-                />
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
+                    <Text as="p" className="text4 text-ehs-muted-text">
+                      {[
+                        `Page ${String(pageNumber)} of ${String(totalPages)}`,
+                        totalCount > 0 ? `${String(totalCount)} total` : null,
+                        documentsQuery.isFetching ? "Loading…" : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </Text>
+
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        aria-label="Previous page"
+                        disabled={!canGoPrevious}
+                        onClick={() =>
+                          setPageNumber((current) => Math.max(1, current - 1))
+                        }
+                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
+                      >
+                        <Icon
+                          icon="mdi:chevron-left"
+                          className="size-4"
+                          aria-hidden="true"
+                        />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        aria-label="Next page"
+                        disabled={!canGoNext}
+                        onClick={() =>
+                          setPageNumber((current) =>
+                            Math.min(totalPages, current + 1),
+                          )
+                        }
+                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
+                      >
+                        <Icon
+                          icon="mdi:chevron-right"
+                          className="size-4"
+                          aria-hidden="true"
+                        />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {isPanelOpen && selectedDocument ? (
+                  <PolicyMakerDetailPanel
+                    document={selectedDocument}
+                    className="min-w-0"
+                  />
+                ) : null}
               </div>
             )}
           </>

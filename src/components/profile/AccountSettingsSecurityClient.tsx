@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TextInput } from "@/components/inputs/TextInput";
 import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
+import { CardHeading } from "@/components/CardHeading";
 import {
   AccountSettingsShell,
   settingsLabelClass,
@@ -29,98 +30,77 @@ export function AccountSettingsSecurityClient() {
 
   return (
     <AccountSettingsShell activeTab="security" showActions={false}>
-      <GlassCard className="gap-5">
-        <div>
-          <Text
-            as="h2"
-            className="text-ehs-darker text-lg font-bold tracking-tight"
-          >
-            Security & Authentication
-          </Text>
-          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
-            Manage your password and two-factor authentication settings.
-          </Text>
-        </div>
+      <GlassCard>
+        <CardHeading
+          title="Change Password"
+          subtitle={
+            'Changing your password here isn\'t available yet. Use "Forgot password" on the sign-in page to reset it by email.'
+          }
+        />
 
-        <div className="border-ehs-border/70 rounded-2xl border bg-white/70 p-5">
-          <Text
-            as="h3"
-            className="text-ehs-darker text-base font-semibold"
-          >
-            Change Password
-          </Text>
-
-          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
-            Changing your password here isn&apos;t available yet. Use
-            &ldquo;Forgot password&rdquo; on the sign-in page to reset it by
-            email.
-          </Text>
-
-          <div className="mt-4 grid max-w-xl gap-4">
-            <TextInput
-              label="Current Password"
-              labelClassName={settingsLabelClass}
-              placeholder="Enter current password"
-              type="password"
-              value={currentPassword}
-              disabled={!canChangePassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-            />
-            <TextInput
-              label="New Password"
-              labelClassName={settingsLabelClass}
-              placeholder="Enter new password"
-              type="password"
-              value={newPassword}
-              disabled={!canChangePassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-            />
-            <TextInput
-              label="Confirm Password"
-              labelClassName={settingsLabelClass}
-              placeholder="Re-enter new password"
-              type="password"
-              value={confirmPassword}
-              disabled={!canChangePassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-            />
-          </div>
-
-          <Button
-            type="button"
-            variant="primary"
-            className="mt-5 rounded-lg px-4 py-2 text-sm"
+        <div className="mt-1 grid max-w-xl gap-4">
+          <TextInput
+            label="Current Password"
+            labelClassName={settingsLabelClass}
+            placeholder="Enter current password"
+            type="password"
+            value={currentPassword}
             disabled={!canChangePassword}
-          >
-            Update Password
-          </Button>
+            onChange={(event) => setCurrentPassword(event.target.value)}
+          />
+          <TextInput
+            label="New Password"
+            labelClassName={settingsLabelClass}
+            placeholder="Enter new password"
+            type="password"
+            value={newPassword}
+            disabled={!canChangePassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+          />
+          <TextInput
+            label="Confirm Password"
+            labelClassName={settingsLabelClass}
+            placeholder="Re-enter new password"
+            type="password"
+            value={confirmPassword}
+            disabled={!canChangePassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
         </div>
 
-        <div className="border-ehs-border/60 flex flex-wrap items-start justify-between gap-4 border-t pt-5">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <Text
-                as="h3"
-                className="text-ehs-darker text-base font-semibold"
-              >
-                Two-Factor Authentication (2FA)
+        <Button
+          type="button"
+          variant="primary"
+          className="text4 mt-1 w-fit rounded-lg px-4 py-2"
+          disabled={!canChangePassword}
+        >
+          Update Password
+        </Button>
+      </GlassCard>
+
+      <GlassCard>
+        <CardHeading
+          title="Two-Factor Authentication (2FA)"
+          subtitle="Requires a verification code during login to secure account access."
+        />
+
+        <div className="divide-ehs-border/50 mt-1 flex flex-col divide-y">
+          <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <Text as="p" className="text4 text-ehs-darker">
+                Enable two-factor authentication
               </Text>
               <IncidentBadge
                 label={twoFactorEnabled ? "ENABLED" : "DISABLED"}
                 tone={twoFactorEnabled ? "success" : "muted"}
-                className="text-[10px] font-bold tracking-wide uppercase"
               />
             </div>
-            <Text as="p" className="text-ehs-muted-text mt-1 max-w-xl text-sm">
-              Requires a verification code during login to secure account access.
-            </Text>
+            <ToggleSwitch
+              label="Two-factor authentication"
+              checked={twoFactorEnabled}
+              onChange={setTwoFactorEnabled}
+            />
           </div>
-
-          <ToggleSwitch
-            label="Two-factor authentication"
-            checked={twoFactorEnabled}
-            onChange={setTwoFactorEnabled}
-          />
         </div>
       </GlassCard>
     </AccountSettingsShell>

@@ -42,25 +42,19 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
   const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
 
-  const activeSiteId = selectedSiteId === undefined ? internalSiteId : selectedSiteId;
+  // Drop a stale uncontrolled selection when the site list no longer contains it
+  // (derived — avoid syncing via an effect).
+  const resolvedInternalSiteId =
+    internalSiteId != null && sites.some((site) => site.id === internalSiteId)
+      ? internalSiteId
+      : null;
+
+  const activeSiteId =
+    selectedSiteId === undefined ? resolvedInternalSiteId : selectedSiteId;
   const selectedSiteName =
     activeSiteId == null
       ? ALL_SITES
       : (sites.find((site) => site.id === activeSiteId)?.siteName ?? ALL_SITES);
-
-  useEffect(() => {
-    if (selectedSiteId !== undefined) {
-      return;
-    }
-
-    setInternalSiteId((current) => {
-      if (current != null && sites.some((site) => site.id === current)) {
-        return current;
-      }
-
-      return null;
-    });
-  }, [selectedSiteId, sites]);
 
   useEffect(() => {
     if (!open) {

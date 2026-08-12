@@ -91,7 +91,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
       onClose={onClose}
       maxWidthClassName="max-w-[720px]"
       footerHint={
-        <span className="text-ehs-gray text-sm font-medium">
+        <span className="text-ehs-gray text4 font-medium">
           {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
           selected
         </span>
@@ -102,7 +102,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
           <IncidentModalPrimaryButton
             onClick={handleSave}
             label={`Link Selected (${selectedIds.length})`}
-            iconSrc="/icons/capa/plus.svg"
+            icon="mdi:plus"
           />
         </>
       }
@@ -119,7 +119,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search CAPAs or action items by title or description..."
-            className="text-ehs-dark-bg placeholder:text-ehs-muted-text w-full bg-transparent text-sm font-normal outline-none"
+            className="text-ehs-dark-bg placeholder:text-ehs-muted-text w-full bg-transparent text4 font-normal outline-none"
           />
           {searchQuery && (
             <button
@@ -164,11 +164,11 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
 
                   <div className="flex min-w-0 flex-col">
                     <div className="flex items-center gap-2">
-                      <span className="text-ehs-dark-bg text-sm font-bold">
+                      <span className="text-ehs-dark-bg text5">
                         {item.title}
                       </span>
                     </div>
-                    <span className="text-ehs-gray truncate text-sm font-normal">
+                    <span className="text-ehs-gray truncate text4 font-normal">
                       {item.subtitle}
                     </span>
                   </div>
@@ -182,14 +182,14 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                         style={{ width: `${String(item.progressPercent)}%` }}
                       />
                     </div>
-                    <span className="text-ehs-gray text-sm font-semibold">
+                    <span className="text-ehs-gray text4 font-semibold">
                       {item.progressPercent}%
                     </span>
                   </div>
 
                   <span
                     className={[
-                      "rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap",
+                      "rounded-full px-2.5 py-0.5 text8 font-bold whitespace-nowrap",
                       capaBadgeStyle(item.status),
                     ].join(" ")}
                   >
@@ -206,7 +206,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                 icon="mdi:clipboard-text-off-outline"
                 className="text-ehs-muted-text size-8"
               />
-              <span className="text-ehs-gray mt-2 text-sm font-medium">
+              <span className="text-ehs-gray mt-2 text4 font-medium">
                 {allItems.length === 0
                   ? "No CAPAs are linked to this incident yet."
                   : "No CAPA or action items match your search."}
@@ -240,14 +240,14 @@ export function IncidentClosureStepPreventive(
     <div className="flex flex-col gap-6">
       <Text
         as="h2"
-        className="text-ehs-dark-bg text-[15px] leading-normal font-bold"
+        className="text-ehs-dark-bg text5 leading-normal font-bold"
       >
         Preventive Measures & CAPAs
       </Text>
 
       {/* Actions Taken */}
       <div className="flex flex-col">
-        <label className="text-ehs-muted-text mb-2 text-[11px] font-bold tracking-[0.5px] uppercase">
+        <label className="text-ehs-muted-text mb-2 text8 font-bold tracking-[0.5px] uppercase">
           ACTIONS TAKEN
         </label>
         <textarea
@@ -261,7 +261,7 @@ export function IncidentClosureStepPreventive(
 
       {/* Linked CAPAs */}
       <div className="flex flex-col">
-        <label className="text-ehs-muted-text mb-2.5 text-[11px] font-bold tracking-[0.5px] uppercase">
+        <label className="text-ehs-muted-text mb-2.5 text8 font-bold tracking-[0.5px] uppercase">
           LINKED CAPAS
         </label>
 
@@ -278,13 +278,13 @@ export function IncidentClosureStepPreventive(
                 <div className="flex flex-col gap-0.5">
                   <Text
                     as="span"
-                    className="text-ehs-dark-bg text-[13px] font-bold"
+                    className="text-ehs-dark-bg text4 font-bold"
                   >
                     {capa.title}
                   </Text>
                   <Text
                     as="span"
-                    className="text-ehs-muted-text text-[13px] font-normal"
+                    className="text-ehs-muted-text text4 font-normal"
                   >
                     {capa.subtitle}
                   </Text>
@@ -300,7 +300,7 @@ export function IncidentClosureStepPreventive(
                 </div>
                 <span
                   className={[
-                    "rounded-full px-2.5 py-0.5 text-[11px] font-bold whitespace-nowrap",
+                    "rounded-full px-2.5 py-0.5 text8 font-bold whitespace-nowrap",
                     capaBadgeStyle(capa.status),
                   ].join(" ")}
                 >
@@ -314,7 +314,7 @@ export function IncidentClosureStepPreventive(
         <button
           type="button"
           onClick={handleOpenModal}
-          className="text-ehs-normal-blue mt-3 flex items-center gap-1.5 text-[13px] font-bold transition-colors hover:underline"
+          className="text-ehs-normal-blue mt-3 flex items-center gap-1.5 text4 font-bold transition-colors hover:underline"
         >
           <Icon icon="mdi:plus" className="size-4" />
           <span>Link additional CAPA or Action Item</span>

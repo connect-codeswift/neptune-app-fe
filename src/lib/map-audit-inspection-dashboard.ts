@@ -3,7 +3,7 @@ import type {
   AuditItemBreakdown,
 } from "@/app/dashboard/audits/audits-data";
 import type { InspectionDetail } from "@/app/dashboard/inspections/inspections-data";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type {
   AuditInspectionDetailSummaryDto,
   AuditInspectionSummaryDto,
@@ -39,14 +39,12 @@ export function normalizeSummaryDto(
     auditsYtd: asNumber(readProp(raw, "auditsYtd", "AuditsYtd")) ?? undefined,
     inspectionsYtd:
       asNumber(readProp(raw, "inspectionsYtd", "InspectionsYtd")) ?? undefined,
-    openFindings:
-      asNumber(readProp(raw, "openFindings", "OpenFindings")) ?? 0,
+    openFindings: asNumber(readProp(raw, "openFindings", "OpenFindings")) ?? 0,
     onTimeClosureRate:
       asNumber(readProp(raw, "onTimeClosureRate", "OnTimeClosureRate")) ?? 0,
     avgFindingsPerAudit:
-      asNumber(
-        readProp(raw, "avgFindingsPerAudit", "AvgFindingsPerAudit"),
-      ) ?? undefined,
+      asNumber(readProp(raw, "avgFindingsPerAudit", "AvgFindingsPerAudit")) ??
+      undefined,
     avgFindingsPerInspection:
       asNumber(
         readProp(raw, "avgFindingsPerInspection", "AvgFindingsPerInspection"),
@@ -54,12 +52,11 @@ export function normalizeSummaryDto(
   };
 }
 
+/** Bare number — the "%" rides in the card's `unit` slot, not the value. */
 function formatRate(value: number): string {
-  const rounded =
-    Number.isInteger(value) || Math.abs(value - Math.round(value)) < 0.05
-      ? String(Math.round(value))
-      : value.toFixed(1);
-  return `${rounded}%`;
+  return Number.isInteger(value) || Math.abs(value - Math.round(value)) < 0.05
+    ? String(Math.round(value))
+    : value.toFixed(1);
 }
 
 function formatAverage(value: number): string {
@@ -68,11 +65,15 @@ function formatAverage(value: number): string {
     : value.toFixed(1);
 }
 
-/** Map summary KPIs onto the four dashboard metric cards. */
+/**
+ * Map summary KPIs onto the four dashboard metric cards. The summary endpoint
+ * is a snapshot — no series and no prior period — so every card carries an
+ * icon badge instead of a delta.
+ */
 export function mapSummaryToMetrics(
   dto: AuditInspectionSummaryDto | null | undefined,
   module: "audit" | "inspection",
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
   const ytd =
     module === "audit"
       ? (dto?.auditsYtd ?? dto?.total ?? 0)
@@ -87,19 +88,31 @@ export function mapSummaryToMetrics(
     {
       title: module === "audit" ? "Audits YTD" : "Inspections YTD",
       value: ytd,
+      description: "Completed year to date",
+      icon: "mdi:clipboard-check-outline",
     },
     {
       title: "Open findings",
       value: dto?.openFindings ?? 0,
+      description: "Awaiting closure",
+      isMorePositive: false,
+      icon: "mdi:file-alert-outline",
     },
     {
       title: "On-time closure",
       value: formatRate(dto?.onTimeClosureRate ?? 0),
+      unit: "%",
+      description: "Findings closed by their due date",
+      icon: "mdi:clock-check-outline",
     },
     {
       title:
         module === "audit" ? "Avg findings/audit" : "Avg findings/inspection",
       value: formatAverage(avgFindings),
+      description:
+        module === "audit" ? "Across all audits" : "Across all inspections",
+      isMorePositive: false,
+      icon: "mdi:chart-box-outline",
     },
   ];
 }
@@ -112,12 +125,13 @@ export function normalizeDetailSummaryDto(
 
   const topFindingsRaw = readProp(raw, "topFindings", "TopFindings");
   const topFindings = Array.isArray(topFindingsRaw)
-    ? topFindingsRaw.filter((entry): entry is string => typeof entry === "string")
+    ? topFindingsRaw.filter(
+        (entry): entry is string => typeof entry === "string",
+      )
     : [];
 
   return {
-    auditId:
-      asNumber(readProp(raw, "auditId", "AuditId")) ?? undefined,
+    auditId: asNumber(readProp(raw, "auditId", "AuditId")) ?? undefined,
     inspectionId:
       asNumber(readProp(raw, "inspectionId", "InspectionId")) ?? undefined,
     auditTitle:
@@ -125,15 +139,13 @@ export function normalizeDetailSummaryDto(
       undefined,
     inspectionTitle:
       (readProp(raw, "inspectionTitle", "InspectionTitle") as
-        | string
-        | undefined) ?? undefined,
+        string | undefined) ?? undefined,
     auditCode:
       (readProp(raw, "auditCode", "AuditCode") as string | undefined) ??
       undefined,
     inspectionCode:
       (readProp(raw, "inspectionCode", "InspectionCode") as
-        | string
-        | undefined) ?? undefined,
+        string | undefined) ?? undefined,
     progressPct: asNumber(readProp(raw, "progressPct", "ProgressPct")) ?? 0,
     totalItems: asNumber(readProp(raw, "totalItems", "TotalItems")) ?? 0,
     passCount: asNumber(readProp(raw, "passCount", "PassCount")) ?? 0,
