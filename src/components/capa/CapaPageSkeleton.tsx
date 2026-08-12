@@ -1,7 +1,8 @@
 ﻿import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-/** KPI tile ΓÇö Figma 4818:19425. */
+/** KPI tile — Figma 4818:19425. */
 function CapaKpiCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -22,7 +23,7 @@ function CapaKpiCardSkeleton() {
   );
 }
 
-/** Lifecycle donut card ΓÇö Figma 4818:19458. */
+/** Lifecycle donut card — Figma 4818:19458. */
 function LifecycleCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -47,7 +48,7 @@ function LifecycleCardSkeleton() {
   );
 }
 
-/** Opened vs closed chart card ΓÇö Figma 4818:19476. */
+/** Opened vs closed chart card — Figma 4818:19476. */
 function OpenedClosedCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -72,7 +73,7 @@ function OpenedClosedCardSkeleton() {
   );
 }
 
-/** Filter / status pills bar ΓÇö Figma 4818:19493. */
+/** Filter / status pills bar — Figma 4818:19493. */
 function FiltersBarSkeleton() {
   return (
     <div className="flex w-full flex-wrap items-center gap-4 rounded-[20px] border border-white/90 bg-white/60 p-3 shadow-sm backdrop-blur-md">
@@ -93,7 +94,7 @@ function FiltersBarSkeleton() {
   );
 }
 
-/** Workload-by-owner rows ΓÇö Figma 4818:19620. */
+/** Workload-by-owner rows — Figma 4818:19620. */
 function WorkloadCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -144,7 +145,7 @@ function PendingReviewsCardSkeleton() {
   );
 }
 
-/** Register row ΓÇö ID / Control / Priority / Progress. */
+/** Register row — ID / Control / Priority / Progress. */
 function RegisterRowSkeleton() {
   return (
     <div className="border-ehs-border/45 flex items-center gap-4 border-b px-5 py-4">
@@ -197,7 +198,10 @@ function DetailPanelSkeleton() {
         <Skeleton className="mb-3 h-3 w-14" />
         <div className="flex justify-between gap-1">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="flex flex-1 flex-col items-center gap-2">
+            <div
+              key={index}
+              className="flex flex-1 flex-col items-center gap-2"
+            >
               <Skeleton className="size-[26px] rounded-full" />
               <Skeleton className="h-2 w-10" />
             </div>
@@ -209,7 +213,7 @@ function DetailPanelSkeleton() {
 }
 
 /**
- * CAPA dashboard body skeleton ΓÇö Figma 4818:19414.
+ * CAPA dashboard body skeleton — Figma 4818:19414.
  * Mirrors live layout (KPIs, charts, footer cards, filters, register + panel).
  */
 export function CapaDashboardSkeleton() {
@@ -278,6 +282,26 @@ export function CapaPageSkeleton() {
 
       <div className="flex min-w-0 flex-1 flex-col px-4 pb-8">
         <CapaDashboardSkeleton />
+        <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-4 pb-8">
+          <MetricCardsRowSkeleton />
+
+          <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
+            <Skeleton className="h-[296px] rounded-2xl" />
+            <Skeleton className="h-[296px] rounded-2xl" />
+          </div>
+
+          <Skeleton className="h-[53px] rounded-2xl" />
+
+          <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+            <Skeleton className="h-[420px] rounded-2xl" />
+            <Skeleton className="h-[520px] rounded-2xl" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
+            <Skeleton className="h-[280px] rounded-2xl" />
+            <Skeleton className="h-[280px] rounded-2xl" />
+          </div>
+        </div>
       </div>
     </div>
   );
