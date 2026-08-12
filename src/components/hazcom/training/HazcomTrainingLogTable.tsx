@@ -21,72 +21,69 @@ export type HazcomTrainingLogTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomTrainingSession>();
 
 const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   columnHelper.accessor("id", {
     header: "ID",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-normal-blue text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-normal-blue">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("date", {
     header: "Date",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("trainer", {
     header: "Trainer",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px]">
+      <Text as="span" className="text4 text-ehs-dark-bg">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("topic", {
     header: "Topic",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-dark-bg">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("chemicals", {
     header: "Chemicals",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue().join(", ")}
       </Text>
     ),
   }),
   columnHelper.accessor("attendees", {
     header: "Attendees",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-dark-bg">
         {`${info.getValue()}`}
       </Text>
     ),
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -97,7 +94,6 @@ const columns: ColumnDef<HazcomTrainingSession, unknown>[] = [
   columnHelper.display({
     id: "actions",
     header: "",
-    meta: { align: "right" },
     cell: () => (
       <span
         aria-hidden="true"
@@ -132,13 +128,13 @@ export function HazcomTrainingLogTable(
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
                       key={header.id}
                       className={[
-                        "text-ehs-muted-text px-4 pt-[13px] pb-[13.5px] text-[10px] font-bold tracking-[0.8px] uppercase",
+                        "text6 text-ehs-muted-text px-4 pt-[13px] pb-[13.5px]",
                         align === "right" ? "text-right" : "text-left",
                       ].join(" ")}
                     >
@@ -162,7 +158,7 @@ export function HazcomTrainingLogTable(
                   colSpan={columns.length}
                   className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No training sessions logged yet.
                   </Text>
                 </td>
@@ -174,7 +170,7 @@ export function HazcomTrainingLogTable(
                   className="border-t border-[rgba(15,23,42,0.08)]"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

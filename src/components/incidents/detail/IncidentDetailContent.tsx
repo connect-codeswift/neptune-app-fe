@@ -36,7 +36,7 @@ import {
 } from "@/hooks/use-incident-queries";
 import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
+import { getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
@@ -196,10 +196,33 @@ export function IncidentDetailContent(
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
 
-  useEffect(() => {
-    if (!detail || editScope != null) {
-      return;
-    }
+  const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
+    null,
+  );
+  const [hydratedClosureKey, setHydratedClosureKey] = useState<string | null>(
+    null,
+  );
+  const [hydratedCapaKey, setHydratedCapaKey] = useState<string | null>(null);
+
+  const detailHydrateKey =
+    detail == null ? null : `${detail.displayId}:${detail.numericId}`;
+  const closureHydrateKey = detail
+    ? `closure:${detail.numericId}:${String(closureQuery.dataUpdatedAt)}:${closureQuery.data == null ? "0" : "1"}`
+    : null;
+  const capaHydrateKey =
+    capaQuery.data?.items && capaQuery.data.items.length > 0
+      ? `capa:${detail?.numericId ?? ""}:${String(capaQuery.dataUpdatedAt)}`
+      : null;
+
+  // Hydrate editable local state from loaded detail / closure / CAPA during
+  // render (React-recommended alternative to syncing via effects).
+  if (
+    detail &&
+    editScope == null &&
+    detailHydrateKey != null &&
+    detailHydrateKey !== hydratedDetailKey
+  ) {
+    setHydratedDetailKey(detailHydrateKey);
     setAttachments(detail.attachments);
     setWitnesses(detail.witnesses);
     setResponders(detail.responders);
@@ -216,9 +239,13 @@ export function IncidentDetailContent(
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
     setInfoItems(detail.infoItems);
-  }, [detail, editScope]);
+  }
 
-  useEffect(() => {
+  if (
+    closureHydrateKey != null &&
+    closureHydrateKey !== hydratedClosureKey
+  ) {
+    setHydratedClosureKey(closureHydrateKey);
     if (closureQuery.data) {
       setClosureData((prev) =>
         mapIncidentClosureDtoToData(closureQuery.data, prev),
@@ -240,28 +267,27 @@ export function IncidentDetailContent(
         ),
       }));
     }
-  }, [closureQuery.data, detail]);
+  }
 
-  useEffect(() => {
-    if (capaQuery.data?.items && capaQuery.data.items.length > 0) {
-      const mappedCapas = capaQuery.data.items.map((c) => ({
-        id: String(c.id),
-        title: c.code || `CAPA-${String(c.id).slice(-3)}`,
-        subtitle: c.title || c.controlCategory || "",
-        progressPercent:
-          typeof c.progressPercent === "number" ? c.progressPercent : 0,
-        status: (c.status === "Closed" || c.status === "Verified"
-          ? "Completed"
-          : c.status === "Planning"
-            ? "Planning"
-            : "In Progress") as "Completed" | "In Progress" | "Planning",
-      }));
-      setClosureData((prev) => ({
-        ...prev,
-        closureLinkedCapas: mappedCapas,
-      }));
-    }
-  }, [capaQuery.data]);
+  if (capaHydrateKey != null && capaHydrateKey !== hydratedCapaKey) {
+    setHydratedCapaKey(capaHydrateKey);
+    const mappedCapas = (capaQuery.data?.items ?? []).map((c) => ({
+      id: String(c.id),
+      title: c.code || `CAPA-${String(c.id).slice(-3)}`,
+      subtitle: c.title || c.controlCategory || "",
+      progressPercent:
+        typeof c.progressPercent === "number" ? c.progressPercent : 0,
+      status: (c.status === "Closed" || c.status === "Verified"
+        ? "Completed"
+        : c.status === "Planning"
+          ? "Planning"
+          : "In Progress") as "Completed" | "In Progress" | "Planning",
+    }));
+    setClosureData((prev) => ({
+      ...prev,
+      closureLinkedCapas: mappedCapas,
+    }));
+  }
 
   useEffect(() => {
     if (!detail) {
@@ -361,11 +387,9 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
-  useEffect(() => {
-    if (detail?.isClosed && activeTab === "closure") {
-      setActiveTab("details");
-    }
-  }, [activeTab, detail?.isClosed]);
+  if (detail?.isClosed && activeTab === "closure") {
+    setActiveTab("details");
+  }
 
   const handleTabChange = (tab: TabId) => {
     if (tab === "closure" && detail?.isClosed) {

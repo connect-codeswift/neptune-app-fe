@@ -94,6 +94,100 @@ body {
   min-height: 100vh;
 }
 
+/* ---------------------------------------------------------------------------
+   Incident typography scale (Inter)
+   ---------------------------------------------------------------------------
+   Named text1…text9 after the Incident list / panel roles so Near Miss,
+   Hazard, and other modules can share the same size + weight language.
+   Color stays at the call site (`text-ehs-*`) so tokens stay reusable.
+   --------------------------------------------------------------------------- */
+
+/* Page title — DashboardHeader */
+@utility text1 {
+  font-family: var(--font-inter);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+
+  @media (width >= 40rem) {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+/* KPI / hero numeric value */
+@utility text2 {
+  font-family: var(--font-inter);
+  font-size: 1.875rem;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Card / panel section title */
+@utility text3 {
+  font-family: var(--font-inter);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+/* Primary body / table row title */
+@utility text4 {
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Emphasized body / status badge label */
+@utility text5 {
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+/* Eyebrow / KPI label / table column header */
+@utility text6 {
+  font-family: var(--font-inter);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+/* Dense ID / numeric meta */
+@utility text7 {
+  font-family: var(--font-inter);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Caption / helper under KPIs */
+@utility text8 {
+  font-family: var(--font-inter);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 400;
+}
+
+/* Meta field label (Reported, Summary, …) */
+@utility text9 {
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
 [data-sonner-toaster] {
   font-family: var(--font-inter);
 }

@@ -1,7 +1,7 @@
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+﻿import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-/** KPI tile — Figma 4818:19425. */
+/** KPI tile ΓÇö Figma 4818:19425. */
 function CapaKpiCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -22,7 +22,7 @@ function CapaKpiCardSkeleton() {
   );
 }
 
-/** Lifecycle donut card — Figma 4818:19458. */
+/** Lifecycle donut card ΓÇö Figma 4818:19458. */
 function LifecycleCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -47,7 +47,7 @@ function LifecycleCardSkeleton() {
   );
 }
 
-/** Opened vs closed chart card — Figma 4818:19476. */
+/** Opened vs closed chart card ΓÇö Figma 4818:19476. */
 function OpenedClosedCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -72,7 +72,7 @@ function OpenedClosedCardSkeleton() {
   );
 }
 
-/** Filter / status pills bar — Figma 4818:19493. */
+/** Filter / status pills bar ΓÇö Figma 4818:19493. */
 function FiltersBarSkeleton() {
   return (
     <div className="flex w-full flex-wrap items-center gap-4 rounded-[20px] border border-white/90 bg-white/60 p-3 shadow-sm backdrop-blur-md">
@@ -93,7 +93,7 @@ function FiltersBarSkeleton() {
   );
 }
 
-/** Workload-by-owner rows — Figma 4818:19620. */
+/** Workload-by-owner rows ΓÇö Figma 4818:19620. */
 function WorkloadCardSkeleton() {
   return (
     <IncidentGlassCard
@@ -144,7 +144,7 @@ function PendingReviewsCardSkeleton() {
   );
 }
 
-/** Register row — ID / Control / Priority / Progress. */
+/** Register row ΓÇö ID / Control / Priority / Progress. */
 function RegisterRowSkeleton() {
   return (
     <div className="border-ehs-border/45 flex items-center gap-4 border-b px-5 py-4">
@@ -209,7 +209,7 @@ function DetailPanelSkeleton() {
 }
 
 /**
- * CAPA dashboard body skeleton — Figma 4818:19414.
+ * CAPA dashboard body skeleton ΓÇö Figma 4818:19414.
  * Mirrors live layout (KPIs, charts, footer cards, filters, register + panel).
  */
 export function CapaDashboardSkeleton() {

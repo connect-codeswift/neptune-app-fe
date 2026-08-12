@@ -157,7 +157,6 @@ export function useSessionBootstrap() {
     hasToken,
     moduleOnlyGating,
     session?.permissions,
-    sessionQuery.dataUpdatedAt,
   ]);
 
   const role = session?.role ?? currentUser.role;

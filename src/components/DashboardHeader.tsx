@@ -56,10 +56,7 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
         .join(" ")}
     >
       {title ? (
-        <Text
-          as="h1"
-          className="text-ehs-darker shrink-0 text-xl font-bold tracking-tight sm:text-2xl"
-        >
+        <Text as="h1" className="text1 text-ehs-darker shrink-0">
           {title}
         </Text>
       ) : null}

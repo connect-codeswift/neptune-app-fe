@@ -29,17 +29,6 @@ export type ReportIncidentStepFiveProps = Readonly<{
   className?: string;
 }>;
 
-function validateReportForm(form: ReportIncidentFormState): string | null {
-  const errors = getReportFormErrors(form);
-  return (
-    errors.description ??
-    errors.location ??
-    errors.incidentDate ??
-    errors.mechanismOfInjury ??
-    errors.natureOfInjury
-  );
-}
-
 type ReportFormErrors = Readonly<{
   description: string | null;
   location: string | null;

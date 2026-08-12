@@ -197,7 +197,7 @@ export function FormBuilder(props: FormBuilderProps) {
             type="button"
             variant="tertiary"
             onClick={onCancel}
-            className="rounded-[10px] px-4 py-2 text-sm font-medium"
+            className="text4 rounded-[10px] px-4 py-2 font-medium"
           >
             {cancelLabel}
           </Button>
@@ -207,7 +207,7 @@ export function FormBuilder(props: FormBuilderProps) {
           variant={submitVariant}
           isLoading={isSubmitting}
           className={[
-            "rounded-[10px] px-5 py-2 text-sm font-semibold",
+            "text4 rounded-[10px] px-5 py-2 font-semibold",
             submitVariant === "primary"
               ? "shadow-[0px_6px_18px_-6px_#0891a6]"
               : "",

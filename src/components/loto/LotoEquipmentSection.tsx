@@ -13,7 +13,6 @@ import {
 } from "@/app/dashboard/lockout-tagout/loto-data";
 import { lotoApplyLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
-import { lotoProcedureEditRoute } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
 
 function matchesSearch(item: LotoEquipmentItem, query: string): boolean {
@@ -61,9 +60,6 @@ export function LotoEquipmentSection() {
         onView: (item) => {
           router.push(lotoEquipmentDetailRoute(item.id));
         },
-        onEdit: (item) => {
-          router.push(lotoProcedureEditRoute(item.id));
-        },
         onLock: (item) => {
           router.push(lotoApplyLockoutRoute(item.id));
         },
@@ -101,6 +97,7 @@ export function LotoEquipmentSection() {
         columns={columns}
         getRowId={(row) => row.id}
         containerClassName="min-w-0"
+        variant="incident"
       />
     </div>
   );

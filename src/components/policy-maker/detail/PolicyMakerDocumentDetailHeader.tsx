@@ -8,6 +8,7 @@ import type { PolicyDocument } from "@/components/policy-maker/policy-maker-type
 
 export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
   document: PolicyDocument;
+  onEdit?: () => void;
   onVersionHistory?: () => void;
   onApproval?: () => void;
   onAcknowledgment?: () => void;
@@ -35,6 +36,7 @@ export function PolicyMakerDocumentDetailHeader(
 ) {
   const {
     document,
+    onEdit,
     onVersionHistory,
     onApproval,
     onAcknowledgment,
@@ -89,6 +91,19 @@ export function PolicyMakerDocumentDetailHeader(
         </div>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[480px]:grid-cols-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
+          <Button
+            type="button"
+            variant="tertiary"
+            onClick={onEdit}
+            className={`${actionBaseClass} border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+          >
+            <Icon
+              icon="mdi:pencil-outline"
+              className="size-4"
+              aria-hidden="true"
+            />
+            Edit
+          </Button>
           <Button
             type="button"
             variant="tertiary"

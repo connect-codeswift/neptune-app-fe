@@ -28,7 +28,7 @@ export function HazcomUnavailablePanel(
       paddingClassName="p-5"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
-      <Text as="h2" className="text-ehs-darker text-base font-bold">
+      <Text as="h2" className="text3 text-ehs-darker">
         {title}
       </Text>
 
@@ -38,7 +38,7 @@ export function HazcomUnavailablePanel(
           className="text-ehs-muted-text size-8"
           aria-hidden="true"
         />
-        <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+        <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
           {message}
         </Text>
       </div>

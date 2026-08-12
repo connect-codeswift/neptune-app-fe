@@ -92,15 +92,15 @@ export function HazcomSdsStatusOverviewCard(
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="flex items-center justify-between gap-3">
-        <Text as="h2" className="text-ehs-darker text-base font-bold">
+        <Text as="h2" className="text3 text-ehs-darker">
           SDS Status Overview
         </Text>
         <Link
           href="/dashboard/hazcom/sds"
-          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5 text-xs font-semibold"
+          className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5"
         >
           View SDS library
-          <Icon icon="mdi:arrow-right" className="text-sm" aria-hidden="true" />
+          <Icon icon="mdi:arrow-right" className="size-3.5" aria-hidden="true" />
         </Link>
       </div>
 
@@ -114,13 +114,13 @@ export function HazcomSdsStatusOverviewCard(
           return (
             <div key={row.id} className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-3">
-                <Text as="span" className="text-ehs-gray text-sm">
+                <Text as="span" className="text4 text-ehs-gray">
                   {row.label}
                 </Text>
                 <Text
                   as="span"
                   className={[
-                    "text-sm font-bold tabular-nums",
+                    "text5 tabular-nums",
                     valueClassByTone[row.tone],
                   ].join(" ")}
                 >
@@ -147,10 +147,10 @@ export function HazcomSdsStatusOverviewCard(
           className={[
             ehsButtonBaseClass,
             ehsButtonSecondaryClass,
-            "text-[13px]",
+            "text4",
           ].join(" ")}
         >
-          <Icon icon="mdi:upload" className="text-sm" aria-hidden="true" />
+          <Icon icon="mdi:upload" className="size-3.5" aria-hidden="true" />
           Upload SDS
         </Link>
         <Link
@@ -158,10 +158,10 @@ export function HazcomSdsStatusOverviewCard(
           className={[
             ehsButtonBaseClass,
             ehsButtonTertiaryClass,
-            "text-[13px]",
+            "text4",
           ].join(" ")}
         >
-          <Icon icon="mdi:chart-bar" className="text-sm" aria-hidden="true" />
+          <Icon icon="mdi:chart-bar" className="size-3.5" aria-hidden="true" />
           Reports
         </Link>
       </div>

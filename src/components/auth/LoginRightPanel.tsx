@@ -42,21 +42,16 @@ const LOADER_MIN_VISIBLE_MS = 800;
 
 export default function LoginRightPanel() {
   const router = useRouter();
-  const [formError, setFormError] = useState("");
+  // Read once on mount — `consumeAuthRedirectMessage` clears sessionStorage.
+  const [formError, setFormError] = useState(
+    () => consumeAuthRedirectMessage() ?? "",
+  );
   // Stays true from a successful sign-in until this panel unmounts, so the
   // loader covers the route change too. `loginMutation.isPending` alone goes
   // false the moment the request resolves, which is exactly when the blank
   // gap used to start.
   const [isEnteringApp, setIsEnteringApp] = useState(false);
   const loginMutation = useLoginMutation();
-
-  useEffect(() => {
-    const redirectMessage = consumeAuthRedirectMessage();
-
-    if (redirectMessage) {
-      setFormError(redirectMessage);
-    }
-  }, []);
 
   useEffect(() => {
     // /dashboard is reached by router.push, not a <Link>, so Next never

@@ -69,11 +69,6 @@ function hasStepTwoErrors(errors: ReportStepTwoErrors): boolean {
   return Boolean(errors.mechanismOfInjury || errors.natureOfInjury);
 }
 
-function validateStepTwo(form: ReportIncidentFormState): string | null {
-  const errors = getStepTwoErrors(form);
-  return errors.mechanismOfInjury ?? errors.natureOfInjury;
-}
-
 export type ReportIncidentStepTwoProps = Readonly<{
   form: ReportIncidentFormState;
   onChange: (next: Partial<ReportIncidentFormState>) => void;

@@ -90,7 +90,7 @@ export function useBehaviorCategoriesQuery() {
   });
 }
 
-/** Fetches GET /api/bbs/dashboard-kpi for the StatMetricCard row. */
+/** Fetches GET /api/bbs/dashboard-kpi for the MetricCard row. */
 export function useBbsDashboardKpiQuery() {
   return useQuery({
     queryKey: ["bbs", "dashboard-kpi"] as const,

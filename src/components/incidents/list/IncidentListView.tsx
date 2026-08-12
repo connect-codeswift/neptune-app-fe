@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailPanel } from "@/components/incidents/list/IncidentDetailPanel";
-import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
+import { MetricCard } from "@/components/ui/MetricCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
   SEVERITY_FILTERS,
@@ -73,6 +73,15 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const [pageNumber, setPageNumber] = useState(DEFAULT_INCIDENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_INCIDENTS_PAGE_SIZE);
   const [appliedSearch, setAppliedSearch] = useState("");
+  const dateRangeKey = `${String(dateRange?.start.getTime() ?? "")}:${String(dateRange?.end.getTime() ?? "")}`;
+  const [pageRangeKey, setPageRangeKey] = useState(dateRangeKey);
+
+  // Adjust page during render when the header date range changes (React-
+  // recommended alternative to syncing via an effect).
+  if (pageRangeKey !== dateRangeKey) {
+    setPageRangeKey(dateRangeKey);
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  }
 
   // Debounce search and rewind to page 1 once it settles — a stale page
   // number would otherwise strand the user on an out-of-range page.
@@ -91,10 +100,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       clearTimeout(timer);
     };
   }, [searchQuery, appliedSearch]);
-
-  useEffect(() => {
-    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
-  }, [dateRange?.start.getTime(), dateRange?.end.getTime()]);
 
   // Every filter change invalidates the current page offset.
   const handleStateFilterChange = (value: string) => {
@@ -119,7 +124,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const siteWorkHoursQuery = useSiteWorkHoursQuery(isClientReady && hasToken);
   const closeIncidentMutation = useCloseIncidentMutation();
 
-  const incidents = incidentsQuery.data?.records ?? [];
+  const incidents = useMemo(
+    () => incidentsQuery.data?.records ?? [],
+    [incidentsQuery.data?.records],
+  );
   const totalCount = incidentsQuery.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const canGoPrevious = pageNumber > 1 && !incidentsQuery.isFetching;
@@ -154,18 +162,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [incidents, appliedSearch, severityFilter, stateFilter, dateRange]);
 
-  // Preview panel opens only after explicit row selection (View more or row click).
+  // Preview panel toggles from the view / close icon in the table.
+  // If the selected id drops out of the filtered page, treat as unselected
+  // without an effect round-trip.
   const selectedListIncident =
     selectedId == null
       ? null
       : (filteredIncidents.find((incident) => incident.id === selectedId) ??
         null);
-
-  useEffect(() => {
-    if (selectedId != null && selectedListIncident == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedListIncident]);
 
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
@@ -189,9 +193,12 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       (selectedListIncident?.numericId ?? 0) > 0,
   });
 
+  const selectedDetailDto = selectedDetailQuery.data?.dto;
+  const selectedClosureStatus = selectedClosureQuery.data?.closureStatus;
+
   const selectedIncident = useMemo(() => {
-    if (selectedDetailQuery.data?.dto != null) {
-      return mapIncidentDtoToListRecord(selectedDetailQuery.data.dto);
+    if (selectedDetailDto != null) {
+      return mapIncidentDtoToListRecord(selectedDetailDto);
     }
 
     if (!selectedListIncident) {
@@ -199,19 +206,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     }
 
     const closureClosed =
-      selectedClosureQuery.data?.closureStatus?.trim().toLowerCase() ===
-      "closed";
+      selectedClosureStatus?.trim().toLowerCase() === "closed";
     return closureClosed
       ? withClosedState(selectedListIncident, true)
       : selectedListIncident;
-  }, [
-    selectedDetailQuery.data?.dto,
-    selectedListIncident,
-    selectedClosureQuery.data?.closureStatus,
-  ]);
+  }, [selectedDetailDto, selectedListIncident, selectedClosureStatus]);
 
-  const handleOpenDetailPanel = useCallback((id: string) => {
-    setSelectedId(id);
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
   }, []);
 
   const handleCloseIncident = async () => {
@@ -296,9 +298,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               {kpiErrorMessage}
             </Text>
           ) : null}
-          <div className="grid min-w-0 grid-cols-1 gap-x-3.5 gap-y-3.5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="stagger-cards grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {kpiMetrics.map((metric) => (
-              <IncidentListKpiCard key={metric.id} {...metric} />
+              <MetricCard key={metric.id} {...metric} />
             ))}
           </div>
         </div>
@@ -399,7 +401,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 <IncidentListTable
                   incidents={filteredIncidents}
                   selectedId={selectedId}
-                  onViewMore={handleOpenDetailPanel}
+                  onViewMore={handleToggleDetailPanel}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />

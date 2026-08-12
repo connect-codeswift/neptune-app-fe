@@ -1,3 +1,4 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -37,20 +38,7 @@ function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
 export function SkeletonKpiRow(props: Readonly<{ count?: number }>) {
   const { count = 4 } = props;
 
-  return (
-    <div className="grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-      {repeat(count, (index) => (
-        <GlassCard key={`skeleton-kpi-${String(index)}`} className="gap-3">
-          <div className="flex items-start justify-between gap-3">
-            <Skeleton className="mt-px h-3.5 w-28" />
-            <Skeleton className="h-[21px] w-14 rounded-full" />
-          </div>
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-3 w-24" />
-        </GlassCard>
-      ))}
-    </div>
-  );
+  return <MetricCardsRowSkeleton count={count} />;
 }
 
 /** Filter toolbar with n segmented-control groups. */

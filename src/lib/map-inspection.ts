@@ -1,7 +1,4 @@
-import type {
-  InspectionDetail,
-  InspectionRecord,
-} from "@/app/dashboard/inspections/inspections-data";
+import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-data";
 import type { InspectionFinding } from "@/app/dashboard/inspections/findings/inspection-findings-data";
 import type { InspectionChecklist } from "@/app/dashboard/inspections/checklist/inspection-checklist-data";
 import type { InspectionReport } from "@/app/dashboard/inspections/report/inspection-report-data";

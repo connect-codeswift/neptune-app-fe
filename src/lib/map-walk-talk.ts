@@ -1,6 +1,6 @@
 import type { FormValues } from "@/components/form-builder";
 import type { FollowUpAction } from "@/components/walk-talk/log/walk-talk-form-schema";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type {
   WalkTalkActionStatus,
   WalkTalkFinding,
@@ -212,22 +212,24 @@ export function toWalkTalkSessions(
   return sessions.map(toWalkTalkSession);
 }
 
-/** Dashboard counts payload → StatMetricCard props. */
+/** Dashboard counts payload → MetricCard props. */
 export function toWalkTalkMetricCards(
   counts: WalkTalkDashboardCountsDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
+  // Counts only — the endpoint carries no history or prior period, so both
+  // cards show an icon badge rather than a delta.
   return [
     {
       title: "Observations (30d)",
       value: counts?.totalObservationsCount ?? 0,
-      trendValue: "0",
-      trendTone: "positive",
+      description: "Logged in the last 30 days",
+      icon: "mdi:eye-outline",
     },
     {
       title: "Walk & Talks",
       value: counts?.totalWalkAndTalkCount ?? 0,
-      trendValue: "0",
-      trendTone: "positive",
+      description: "Sessions completed",
+      icon: "mdi:walk",
     },
   ];
 }
@@ -237,13 +239,11 @@ export function toWalkTalkTopFindings(
   payload: readonly WalkTalkTopFindingDto[] | null | undefined,
 ): readonly WalkTalkFinding[] {
   const findings = [...(payload ?? [])]
-    .map(
-      (finding): WalkTalkFinding => ({
-        label: finding.topic?.trim() || "—",
-        count: finding.count ?? 0,
-        tone: "muted",
-      }),
-    )
+    .map((finding): WalkTalkFinding => ({
+      label: finding.topic?.trim() || "—",
+      count: finding.count ?? 0,
+      tone: "muted",
+    }))
     .sort((left, right) => right.count - left.count);
 
   return findings.map((finding, index) => ({

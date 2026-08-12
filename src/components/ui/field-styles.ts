@@ -37,7 +37,7 @@ const FIELD_BASE = [
 ].join(" ");
 
 /** Single-line inputs and selects. */
-export const FIELD_INPUT_CLASS = ` p-3 text-base  ${FIELD_BASE}`;
+export const FIELD_INPUT_CLASS = ` p-3 text4  ${FIELD_BASE}`;
 
 /**
  * Selects: native chevron removed so we can draw our own, with room for it.
@@ -49,20 +49,20 @@ export const FIELD_SELECT_CLASS = `${FIELD_INPUT_CLASS} cursor-pointer appearanc
  * than an answer. Matters now that the classification questions start blank —
  * an unanswered field should look unanswered.
  */
-export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text text-base";
+export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text text4";
 
 /** Multi-line inputs — same skin, no fixed height. */
-export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text-sm leading-normal ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_CLASS = `min-h-[110px] resize-y px-[13px] py-[10.5px] text4 leading-normal ${FIELD_BASE}`;
 
 /**
  * Textarea with a reserved strip along the bottom for in-field controls such as
  * the AI assist button. Taller than the plain variant so the writing area still
  * shows three lines once the strip is taken out.
  */
-export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-[128px] resize-y px-[13px] pt-[10.5px] pb-10 text-[13px] leading-[19.5px] ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-[128px] resize-y px-[13px] pt-[10.5px] pb-10 text4 leading-[19.5px] ${FIELD_BASE}`;
 
 /**
  * Taller variant for the template/form builders, where a field is the primary
  * thing on the row rather than one cell in a dense grid.
  */
-export const FIELD_INPUT_LG_CLASS = `px-3 py-2.5 text-sm ${FIELD_BASE}`;
+export const FIELD_INPUT_LG_CLASS = `px-3 py-2.5 text4 ${FIELD_BASE}`;

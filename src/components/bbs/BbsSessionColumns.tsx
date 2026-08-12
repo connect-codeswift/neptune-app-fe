@@ -5,13 +5,6 @@ import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 
 const columnHelper = createColumnHelper<BbsSession>();
 
-function observeTone(type: string): "teal" | "warn" | "muted" {
-  const normalized = type.trim().toLowerCase();
-  if (normalized === "safe") return "teal";
-  if (normalized === "at-risk" || normalized === "at risk") return "warn";
-  return "muted";
-}
-
 export const bbsSessionColumns: TableColumns<BbsSession> = [
   columnHelper.accessor("id", {
     header: "ID",

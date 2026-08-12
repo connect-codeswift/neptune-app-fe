@@ -18,17 +18,22 @@ import {
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
 
-function ProfileDetailRow(props: Readonly<{ label: string; value: string }>) {
-  const { label, value } = props;
+/** Shared label/value row used by every profile detail card. */
+function InfoRow(
+  props: Readonly<{ label: string; value: string; valueClassName?: string }>,
+) {
+  const { label, value, valueClassName = "" } = props;
 
   return (
-    <div className="border-ehs-border/60 grid grid-cols-1 items-center gap-1 border-b py-4 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] sm:gap-6">
-      <Text as="span" className="text-ehs-muted-text text-sm">
+    <div className="border-ehs-border/50 flex flex-col gap-0.5 border-b py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <Text as="span" className="text8 text-ehs-muted-text">
         {label}
       </Text>
       <Text
         as="span"
-        className="text-ehs-darker text-sm font-bold sm:text-right"
+        className={["text4 text-ehs-darker sm:text-right", valueClassName]
+          .filter(Boolean)
+          .join(" ")}
       >
         {value}
       </Text>
@@ -49,43 +54,34 @@ function PermissionsAccessCard(
       : [...PLACEHOLDER_ASSIGNED_PERMISSIONS];
 
   return (
-    <GlassCard className="gap-0 overflow-hidden p-0">
-      <div className="border-ehs-border/60 border-b px-6 py-4">
-        <Text
-          as="h2"
-          className="text-ehs-darker text-base font-bold tracking-tight"
-        >
-          Permissions & Access
-        </Text>
-      </div>
+    <GlassCard>
+      <CardHeading title="Permissions & Access" />
 
-      <div className="px-6">
-        <ProfileDetailRow label="System Role" value={role} />
-        <ProfileDetailRow
+      <div className="mt-1">
+        <InfoRow label="System Role" value={role} />
+        <InfoRow
           label="Access Level"
           value="Level 3 (Full EHS Module Access)"
         />
 
-        <div className="border-ehs-border/60 border-b py-4">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+        <div className="border-ehs-border/50 border-b py-3">
+          <Text as="p" className="text8 text-ehs-muted-text">
             Assigned Permissions
           </Text>
           <div className="mt-3 flex flex-wrap gap-2">
             {displayedPermissions.map((permission) => (
               <span
                 key={permission}
-                className="bg-ehs-light-bg text-ehs-gray rounded-lg px-3 py-1.5 text-xs font-medium"
+                className="bg-ehs-light-bg text7 text-ehs-gray rounded-lg px-3 py-1.5"
               >
                 {permission}
               </span>
             ))}
           </div>
         </div>
-      </div>
 
-      <div className="border-ehs-border/60 border-t px-6">
-        <ProfileDetailRow label="Last Login" value="Today at 9:42 AM" />
-        <ProfileDetailRow
+        <InfoRow label="Last Login" value="Today at 9:42 AM" />
+        <InfoRow
           label="Account Created"
           value={PLACEHOLDER_PERSONAL_INFO.startDate}
         />
@@ -94,43 +90,18 @@ function PermissionsAccessCard(
   );
 }
 
-function InfoRow(
-  props: Readonly<{ label: string; value: string; valueClassName?: string }>,
-) {
-  const { label, value, valueClassName = "" } = props;
-
-  return (
-    <div className="border-ehs-border/50 flex flex-col gap-0.5 border-b py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-      <Text as="span" className="text-ehs-muted-text text-sm">
-        {label}
-      </Text>
-      <Text
-        as="span"
-        className={[
-          "text-ehs-darker text-sm font-medium sm:text-right",
-          valueClassName,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        {value}
-      </Text>
-    </div>
-  );
-}
-
 function ProfileMetaItem(
   props: Readonly<{ icon: string; children: string; href?: string }>,
 ) {
   const { icon, children, href } = props;
   const contentClass =
-    "text-ehs-gray inline-flex items-center gap-1.5 text-sm transition-colors";
+    "text4 text-ehs-gray inline-flex items-center gap-1.5 transition-colors";
 
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
       <Icon
         icon={icon}
-        className="text-ehs-muted-text shrink-0 text-base"
+        className="text-ehs-muted-text size-4 shrink-0"
         aria-hidden="true"
       />
       {href ? (
@@ -155,7 +126,6 @@ function CertificationStatusBadge(
     <IncidentBadge
       label={status}
       tone={status === "Valid" ? "success" : "danger"}
-      className="text-xs font-semibold"
     />
   );
 }
@@ -208,23 +178,15 @@ export function MyProfilePageClient() {
                 <AvatarPreview
                   profileUrl={user.profileUrl}
                   initials={user.initials}
-                  sizeClassName="size-16 text-xl"
+                  sizeClassName="size-16 text3"
                 />
 
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Text
-                      as="h2"
-                      className="text-ehs-darker text-xl font-bold tracking-tight"
-                    >
+                    <Text as="h2" className="text3 text-ehs-darker">
                       {user.displayName}
                     </Text>
-                    <IncidentBadge
-                      label="Active"
-                      tone="success"
-                      showDot
-                      className="text-xs font-semibold"
-                    />
+                    <IncidentBadge label="Active" tone="success" showDot />
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -251,12 +213,12 @@ export function MyProfilePageClient() {
 
               <Link
                 href="/dashboard/my-profile/settings"
-                className="btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-md transition-colors"
+                className="btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover text4 inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 shadow-md transition-colors"
               >
                 Settings
                 <Icon
                   icon="mdi:arrow-right"
-                  className="text-base"
+                  className="size-4"
                   aria-hidden="true"
                 />
               </Link>
@@ -306,7 +268,7 @@ export function MyProfilePageClient() {
                         <th
                           key={heading}
                           scope="col"
-                          className="text-ehs-muted-text pb-2 text-xs font-semibold tracking-wide uppercase"
+                          className="text6 text-ehs-muted-text pb-2"
                         >
                           {heading}
                         </th>
@@ -320,13 +282,13 @@ export function MyProfilePageClient() {
                       key={cert.name}
                       className="border-ehs-border/40 border-b last:border-0"
                     >
-                      <td className="text-ehs-darker py-3 pr-3 text-sm font-medium">
+                      <td className="text4 text-ehs-darker py-3 pr-3">
                         {cert.name}
                       </td>
-                      <td className="text-ehs-gray py-3 pr-3 text-sm">
+                      <td className="text4 text-ehs-gray py-3 pr-3">
                         {cert.issued}
                       </td>
-                      <td className="text-ehs-gray py-3 pr-3 text-sm">
+                      <td className="text4 text-ehs-gray py-3 pr-3">
                         {cert.expires}
                       </td>
                       <td className="py-3">
@@ -351,7 +313,7 @@ export function MyProfilePageClient() {
               title="Recent Activity"
               subtitle="Your latest actions"
             />
-            <div className="divide-ehs-border/60 mt-1 flex flex-col divide-y">
+            <div className="divide-ehs-border/50 mt-1 flex flex-col divide-y">
               {PLACEHOLDER_ACTIVITY.map((item) => (
                 <div
                   key={item.title}
@@ -360,18 +322,15 @@ export function MyProfilePageClient() {
                   <span className="bg-ehs-light-bg text-ehs-normal-blue flex size-8 shrink-0 items-center justify-center rounded-lg">
                     <Icon
                       icon={item.icon}
-                      className="text-lg"
+                      className="size-4.5"
                       aria-hidden="true"
                     />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <Text
-                      as="p"
-                      className="text-ehs-darker text-sm leading-snug font-medium"
-                    >
+                    <Text as="p" className="text4 text-ehs-darker">
                       {item.title}
                     </Text>
-                    <Text as="p" className="text-ehs-muted-text mt-0.5 text-xs">
+                    <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
                       {item.timeAgo}
                     </Text>
                   </div>

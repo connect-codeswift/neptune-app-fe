@@ -35,19 +35,19 @@ function OptionRow(
         aria-selected={selected}
         onClick={onSelect}
         className={[
-          "flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
+          "text4 flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
           selected ? "bg-ehs-light-bg/70" : "hover:bg-ehs-light-bg/50",
         ].join(" ")}
       >
         {option.code ? (
-          <span className="bg-ehs-light-bg text-ehs-gray shrink-0 rounded-md px-2 py-0.5 font-semibold">
+          <span className="text8 bg-ehs-light-bg text-ehs-gray shrink-0 rounded-md px-2 py-0.5 font-semibold">
             {option.code}
           </span>
         ) : null}
         <span
           className={[
             "min-w-0 flex-1",
-            selected ? "text-ehs-dark-bg font-semibold" : "text-ehs-dark-bg",
+            selected ? "text-ehs-darker font-semibold" : "text-ehs-darker",
           ].join(" ")}
         >
           {option.label}
@@ -115,7 +115,7 @@ function AddCustomForm(
         <button
           type="button"
           onClick={onCancel}
-          className="text-ehs-gray hover:text-ehs-dark-bg cursor-pointer px-2 py-1 font-medium transition-colors"
+          className="text4 text-ehs-gray hover:text-ehs-darker cursor-pointer px-2 py-1 font-medium transition-colors"
         >
           Cancel
         </button>
@@ -123,7 +123,7 @@ function AddCustomForm(
           type="button"
           onClick={submit}
           disabled={!canAdd}
-          className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-white transition-colors disabled:opacity-40"
+          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-white transition-colors disabled:opacity-40"
         >
           Add
         </button>
@@ -298,7 +298,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
             className="max-h-64 overflow-y-auto py-1"
           >
             {options.length === 0 ? (
-              <li className="text-ehs-muted-text px-3 py-2.5 text-sm">
+              <li className="text4 text-ehs-muted-text px-3 py-2.5">
                 {field.pagination?.isLoading ? "Loading…" : "No options"}
               </li>
             ) : (
@@ -322,11 +322,11 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                 type="button"
                 disabled={field.pagination.pageNumber <= 1}
                 onClick={() => field.pagination?.onPrev()}
-                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Prev
               </button>
-              <span className="text-ehs-gray text-xs tabular-nums">
+              <span className="text8 text-ehs-gray tabular-nums">
                 {field.pagination.isLoading
                   ? "Loading…"
                   : `Page ${String(field.pagination.pageNumber)} of ${String(field.pagination.totalPages)}`}
@@ -337,7 +337,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                   field.pagination.pageNumber >= field.pagination.totalPages
                 }
                 onClick={() => field.pagination?.onNext()}
-                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
@@ -359,7 +359,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
               <button
                 type="button"
                 onClick={() => setIsAdding(true)}
-                className="text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
+                className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
               >
                 <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 {field.addCustomLabel ?? "Add custom option"}

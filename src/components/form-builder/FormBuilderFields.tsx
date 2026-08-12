@@ -64,8 +64,8 @@ function FieldLabel(
       htmlFor={htmlFor}
       className={
         section
-          ? "block text-lg leading-[27px] font-semibold text-[#0b1320]"
-          : "text-slate-70 block text-base leading-[19.5px] font-medium"
+          ? "text3 text-ehs-darker block"
+          : "text8 text-ehs-gray block font-semibold"
       }
     >
       {label}
@@ -89,7 +89,7 @@ function CharacterCount(props: Readonly<{ value: string; maxLength: number }>) {
   const { value, maxLength } = props;
 
   return (
-    <span className="text-ehs-muted-text text-xs tabular-nums">
+    <span className="text8 text-ehs-muted-text tabular-nums">
       {`${String(value.length)}/${String(maxLength)}`}
     </span>
   );
@@ -139,9 +139,9 @@ function FieldShell(
       )}
       {children}
       {!showMessages ? null : error ? (
-        <p className="text-ehs-red text-xs">{error}</p>
+        <p className="text8 text-ehs-red">{error}</p>
       ) : field.helperText ? (
-        <p className="text-ehs-muted-text text-xs">{field.helperText}</p>
+        <p className="text8 text-ehs-muted-text">{field.helperText}</p>
       ) : null}
     </div>
   );
@@ -178,7 +178,7 @@ function TextControl(
       >
         <span>{value}</span>
         {field.note ? (
-          <span className="text-ehs-muted-text text-xs">{field.note}</span>
+          <span className="text8 text-ehs-muted-text">{field.note}</span>
         ) : null}
         {/* Keeps the value in the DOM for native form semantics. */}
         <input type="hidden" name={field.name} value={value} />
@@ -507,7 +507,7 @@ function ChipsControl(
               aria-pressed={isSelected}
               onClick={() => toggle(option.value)}
               className={[
-                "cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors",
+                "text4 cursor-pointer rounded-lg border px-3 py-1.5 transition-colors",
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue font-semibold"
                   : "text-ehs-gray border-slate-900/10 bg-white hover:bg-black/5",
@@ -538,7 +538,7 @@ function ChipsControl(
             type="button"
             onClick={addDraft}
             disabled={draft.trim() === ""}
-            className="bg-ehs-normal-blue/15 text-ehs-dark-blue hover:bg-ehs-normal-blue/25 shrink-0 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="text4 bg-ehs-normal-blue/15 text-ehs-dark-blue hover:bg-ehs-normal-blue/25 shrink-0 cursor-pointer rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Add
           </button>
@@ -604,7 +604,7 @@ function SegmentedTilesControl(
               onChange(option.value);
             }}
             className={[
-              "flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-base font-bold transition-colors",
+              "text4 flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 font-bold transition-colors",
               isSelected
                 ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
                 : "border-slate-900/8 bg-white/40 text-[#566072]",
@@ -654,7 +654,7 @@ function SegmentedFillTilesControl(
               onChange(option.value);
             }}
             className={[
-              "flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[6px] py-2 text-[13px] leading-normal transition-colors",
+              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[6px] py-2 leading-normal transition-colors",
               isSelected
                 ? "bg-[#0891a6] font-semibold text-white"
                 : "font-medium text-[#566072] hover:bg-white/70",
@@ -698,7 +698,7 @@ function AssessmentTilesControl(
               onChange(option.value);
             }}
             className={[
-              "flex h-[54px] cursor-pointer items-center justify-center rounded-2xl border px-3 text-center text-sm leading-5 font-medium transition-colors",
+              "text4 flex h-[54px] cursor-pointer items-center justify-center rounded-2xl border px-3 text-center leading-5 font-medium transition-colors",
               isSelected && isPositive
                 ? "border-[#10b981] bg-[rgba(123,241,168,0.12)] text-[#10b981]"
                 : isSelected
@@ -780,10 +780,10 @@ function TilesControl(
               />
             ) : null}
 
-            <span className="text-ehs-dark-bg font-bold">{option.label}</span>
+            <span className="text4 text-ehs-darker font-bold">{option.label}</span>
 
             {option.description ? (
-              <span className="text-ehs-muted-text text-sm">
+              <span className="text8 text-ehs-muted-text">
                 {option.description}
               </span>
             ) : null}
@@ -835,7 +835,7 @@ function CheckboxGroupControl(
               // row-level selected state, so a group of these read as grey
               // bars and the only feedback was the 16px box. Now frosted like
               // every other control, and the whole row responds.
-              "flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 py-2.5 text-sm transition-colors",
+              "text4 flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3 py-2.5 transition-colors",
               checked
                 ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
                 : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-[5px] hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
@@ -871,8 +871,8 @@ function CheckboxGroupControl(
             <span
               className={
                 isRows
-                  ? "text-base leading-5 font-medium text-[#2a3446]"
-                  : "text-base font-medium text-slate-700"
+                  ? "text4 text-ehs-darker font-medium"
+                  : "text4 text-ehs-gray font-medium"
               }
             >
               {option.label}
@@ -898,7 +898,7 @@ function SwitchControl(
     <div className="flex items-center justify-between gap-3">
       <label
         htmlFor={field.name}
-        className="text-sm font-semibold tracking-[0.24px] text-[#566072]"
+        className="text8 text-ehs-gray font-semibold tracking-[0.24px]"
       >
         {field.label}
         {field.required ? <span className="text-ehs-red"> *</span> : null}

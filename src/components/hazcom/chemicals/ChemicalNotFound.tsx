@@ -24,23 +24,19 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
         className="text-ehs-muted-text size-10"
         aria-hidden="true"
       />
-      <Text as="p" className="text-ehs-darker text-base font-bold">
+      <Text as="p" className="text3 text-ehs-darker">
         Chemical not found
       </Text>
-      <Text as="p" className="text-ehs-muted-text max-w-sm text-sm">
+      <Text as="p" className="text4 text-ehs-muted-text max-w-sm">
         {`No chemical record matches "${chemicalId}". It may have been removed from the inventory.`}
       </Text>
       <Link href="/dashboard/hazcom/chemicals">
         <Button
           type="button"
           variant="secondary"
-          className="mt-1 rounded-lg px-4 py-2 text-[13px]"
+          className="text4 mt-1 rounded-lg px-4 py-2"
         >
-          <Icon
-            icon="mdi:arrow-left"
-            className="text-base"
-            aria-hidden="true"
-          />
+          <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
           Back to Chemical Inventory
         </Button>
       </Link>

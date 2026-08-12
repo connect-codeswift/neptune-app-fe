@@ -87,36 +87,18 @@ export type ScoringLogicStepProps = Readonly<{
 export function ScoringLogicStep(props: ScoringLogicStepProps) {
   const {
     sections,
-    onSectionsChange,
     scoring,
     onScoringChange,
     rules,
     onRulesChange,
   } = props;
 
-  const items = sections.flatMap((section) =>
-    section.items.map((item) => ({ sectionId: section.id, item })),
-  );
+  const items = sections.flatMap((section) => section.items);
   const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);
   const hiddenWeightCount = items.length - shownWeights.length;
 
   const patchScoring = (patch: Partial<ScoringConfig>) => {
     onScoringChange({ ...scoring, ...patch });
-  };
-
-  const setItemWeight = (sectionId: string, itemId: string, weight: number) => {
-    onSectionsChange(
-      sections.map((section) =>
-        section.id === sectionId
-          ? {
-              ...section,
-              items: section.items.map((item) =>
-                item.id === itemId ? { ...item, scoreWeight: weight } : item,
-              ),
-            }
-          : section,
-      ),
-    );
   };
 
   const patchRule = (ruleId: string, patch: Partial<TemplateRule>) => {
@@ -240,7 +222,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
 
               {shownWeights.length > 0 ? (
                 <ul className="flex flex-col gap-2">
-                  {shownWeights.map(({ sectionId, item }) => (
+                  {shownWeights.map((item) => (
                     <li
                       key={item.id}
                       className="flex items-center justify-between gap-3 rounded-lg bg-white p-2"

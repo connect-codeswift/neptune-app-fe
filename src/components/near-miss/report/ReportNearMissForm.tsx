@@ -27,6 +27,18 @@ import {
 
 const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
 
+/** Typography-only overrides — do not set fixed input heights. */
+const nearMissFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
+
 /**
  * Ids are what the schema stores; labels are what the model has to read.
  * `"slip-trip-fall"` reaches it as a word to guess at, `"Slip / Trip / Fall"`
@@ -126,7 +138,7 @@ export function ReportNearMissForm() {
                     // incident wizard's — 16px text, 12px padding — and the
                     // ghost has to sit exactly on the caret.
                     fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text-base leading-6"
+                    fieldTextClassName="text4 leading-6"
                     onAccept={(text) => {
                       control.onChange(text);
                       dismiss();
@@ -173,6 +185,7 @@ export function ReportNearMissForm() {
       <FormBuilder
         schema={schema}
         onChange={setValues}
+        className={nearMissFormFieldClass}
         submitLabel={
           createNearMiss.isPending ? "Submitting..." : "Submit Near-Miss Report"
         }

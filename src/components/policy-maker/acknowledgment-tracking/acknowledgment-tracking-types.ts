@@ -1,3 +1,5 @@
+import type { MetricCardProps } from "@/components/ui/MetricCard";
+
 export type AcknowledgmentStatus = "Acknowledged" | "Pending";
 
 export type AcknowledgmentRecord = Readonly<{
@@ -8,8 +10,6 @@ export type AcknowledgmentRecord = Readonly<{
   acknowledgedDate: string | null;
 }>;
 
-export type AcknowledgmentTrackingMetric = Readonly<{
-  id: string;
-  value: string;
-  label: string;
-}>;
+/** A KPI card on the acknowledgment tracking header, keyed by a stable id. */
+export type AcknowledgmentTrackingMetric = MetricCardProps &
+  Readonly<{ id: string }>;

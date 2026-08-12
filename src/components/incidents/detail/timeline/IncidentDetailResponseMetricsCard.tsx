@@ -22,13 +22,13 @@ export function IncidentDetailResponseMetricsCard(
   return (
     <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
       <div className="pb-3.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Response metrics
         </Text>
       </div>
 
       {metrics.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px] text-sm">
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px] text4">
           No response metrics recorded for this incident.
         </div>
       ) : (
@@ -37,10 +37,10 @@ export function IncidentDetailResponseMetricsCard(
             key={metric.label}
             className="flex items-center justify-between border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
           >
-            <span className="text-ehs-gray text-sm leading-normal">
+            <span className="text-ehs-gray text4 leading-normal">
               {metric.label}
             </span>
-            <span className="text-ehs-dark-bg text-sm leading-normal font-bold">
+            <span className="text-ehs-dark-bg text4 leading-normal font-bold">
               {metric.value}
             </span>
           </div>

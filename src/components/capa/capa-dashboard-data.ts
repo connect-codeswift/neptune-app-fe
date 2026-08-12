@@ -1,4 +1,4 @@
-import type { KpiMetricCardProps } from "@/components/KpiMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 
 /** Figma CAPA Dashboard status filter — node 7123:41912.
  * Prefer `CAPA_STATUS_FILTER_OPTIONS` in `@/lib/capa-filters` for live API filters.
@@ -20,11 +20,7 @@ export type CapaDashboardStatus =
 export type CapaDashboardType = (typeof CAPA_DASHBOARD_TYPE_FILTERS)[number];
 
 export type CapaLifecycleStage =
-  | "Identified"
-  | "Root cause"
-  | "Action plan"
-  | "Implement"
-  | "Verify";
+  "Identified" | "Root cause" | "Action plan" | "Implement" | "Verify";
 
 export type CapaDashboardTask = Readonly<{
   id: string;
@@ -76,46 +72,43 @@ export type CapaPendingReview = Readonly<{
 }>;
 
 /** KPI tiles — Figma 7123:41940. */
-export const CAPA_DASHBOARD_KPIS: readonly KpiMetricCardProps[] = [
+export const CAPA_DASHBOARD_KPIS: readonly MetricCardProps[] = [
   {
     title: "Open CAPAs",
     value: "7",
-    unit: "",
-    trendValue: "-2",
-    trendDirection: "down",
-    trendTone: "positive",
+    target: 8,
     targetLabel: "Target ≤ 8",
-    chartData: [9, 8.5, 8.2, 8, 7.6, 7.2, 7],
+    isMorePositive: false,
+    signalOwnedBy: "target",
+    trend: [9, 8.5, 8.2, 8, 7.6, 7.2, 7],
   },
   {
     title: "Overdue",
     value: "1",
-    unit: "",
-    trendValue: "+1",
-    trendDirection: "up",
-    trendTone: "negative",
+    target: 0,
     targetLabel: "Target 0",
-    chartData: [0, 0, 0.2, 0.4, 0.5, 0.8, 1],
+    isMorePositive: false,
+    signalOwnedBy: "target",
+    trend: [0, 0, 0.2, 0.4, 0.5, 0.8, 1],
   },
   {
     title: "On-time Closure",
     value: "22",
     unit: "%",
-    trendValue: "+4pp",
-    trendDirection: "up",
-    trendTone: "positive",
+    target: 90,
     targetLabel: "Target ≥ 90%",
-    chartData: [14, 15, 16, 18, 19, 20, 22],
+    signalOwnedBy: "target",
+    trend: [14, 15, 16, 18, 19, 20, 22],
   },
   {
     title: "Avg Days to Close",
     value: "12.4",
     unit: "d",
-    trendValue: "-1.2",
-    trendDirection: "down",
-    trendTone: "positive",
+    target: 14,
     targetLabel: "Target ≤ 14d",
-    chartData: [15.2, 14.8, 14.2, 13.6, 13.1, 12.8, 12.4],
+    isMorePositive: false,
+    signalOwnedBy: "target",
+    trend: [15.2, 14.8, 14.2, 13.6, 13.1, 12.8, 12.4],
   },
 ];
 

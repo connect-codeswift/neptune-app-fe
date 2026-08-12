@@ -39,13 +39,13 @@ export function IncidentDetailInvestigationStatusCard(
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
-      <Text as="h3" className="text-ehs-dark-bg pb-3.5 text-lg font-semibold">
+      <Text as="h3" className="text-ehs-dark-bg pb-3.5 text3">
         Investigation status
       </Text>
 
       <div className="flex flex-col">
         {isLoading ? (
-          <p className="text-ehs-muted-text py-4 text-sm">
+          <p className="text-ehs-muted-text py-4 text4">
             Loading investigation progress…
           </p>
         ) : (
@@ -67,7 +67,7 @@ export function IncidentDetailInvestigationStatusCard(
               )}
               <span
                 className={[
-                  "text-sm leading-normal",
+                  "text4 leading-normal",
                   step.completed ? "text-ehs-dark-bg" : "text-ehs-gray",
                 ].join(" ")}
               >
@@ -86,7 +86,7 @@ export function IncidentDetailInvestigationStatusCard(
               style={{ width: `${String(percentage)}%` }}
             />
           </div>
-          <span className="text-ehs-muted-text text-sm leading-normal">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {completedCount} of {steps.length} complete
           </span>
         </div>

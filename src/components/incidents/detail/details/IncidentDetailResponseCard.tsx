@@ -28,16 +28,16 @@ export function IncidentDetailResponseCard(
       className={className}
     >
       <div className="flex flex-col gap-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Immediate response
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           Actions taken on-scene
         </span>
       </div>
 
       {actions.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text text-sm">
+        <Text as="p" className="text-ehs-muted-text text4">
           No on-scene actions recorded for this incident.
         </Text>
       ) : (
@@ -63,7 +63,7 @@ export function IncidentDetailResponseCard(
               ) : (
                 <div className="size-4 shrink-0 rounded border border-[rgba(15,23,42,0.14)] bg-transparent" />
               )}
-              <span className="text-ehs-dark-bg truncate text-sm leading-normal">
+              <span className="text-ehs-dark-bg truncate text4 leading-normal">
                 {action.label}
               </span>
             </div>

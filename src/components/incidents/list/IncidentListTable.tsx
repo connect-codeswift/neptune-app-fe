@@ -8,6 +8,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -29,7 +30,7 @@ export type IncidentListTableProps<
   selectedId: string | null;
   /** Row selection for generic tables (e.g. policy documents). */
   onSelect?: (id: string) => void;
-  /** Opens the preview panel for the selected incident. */
+  /** Opens the preview/details panel for the selected incident. */
   onViewMore?: (id: string) => void;
   /** Opens the full detail page (second click on a selected generic row). */
   onOpenDetail?: (id: string) => void;
@@ -42,13 +43,19 @@ export type IncidentListTableProps<
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-    /** Row vertical alignment; defaults to top for left-aligned columns. */
-    verticalAlign?: "top" | "middle";
-  }
-}
+/**
+ * Column presentation, keyed by column id. Kept out of each column's `meta`:
+ * `meta` is one interface shared by every table in the project, so `align` and
+ * `verticalAlign` declared there reach tables that never render them. Columns
+ * absent from these maps are left-aligned and top-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  severity: "center",
+  state: "center",
+  view: "center",
+};
+
+const MIDDLE_ALIGNED: ReadonlySet<string> = new Set(["id", "site", "view"]);
 
 const columnHelper = createColumnHelper<IncidentRecord>();
 
@@ -80,12 +87,8 @@ function createIncidentColumns(
       header: "ID",
       size: expanded ? 120 : 100,
       minSize: 84,
-      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text-ehs-muted-text text-xs font-semibold whitespace-nowrap tabular-nums"
-        >
+        <Text as="span" className="text7 text-ehs-muted-text whitespace-nowrap">
           {info.getValue()}
         </Text>
       ),
@@ -95,60 +98,39 @@ function createIncidentColumns(
       header: "Incident",
       size: expanded ? 480 : 240,
       minSize: 140,
-      meta: { align: "left" as const },
-      cell: ({ row }) => {
-        const isRowSelected = selectedId === row.original.id;
-
-        return (
-          <div className="flex w-full min-w-0 flex-col gap-1">
-            <Text
-              as="p"
-              className="text-ehs-dark-bg line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
-              title={row.original.title}
-            >
-              {row.original.title}
-            </Text>
-            <Text
-              as="p"
-              className="text-ehs-muted-text line-clamp-1 text-sm leading-normal font-normal first-letter:uppercase"
-              title={row.original.description}
-            >
-              {row.original.description}
-            </Text>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onViewMore(row.original.id);
-              }}
-              className={[
-                "mt-0.5 w-fit text-left text-xs font-bold transition-colors",
-                isRowSelected
-                  ? "text-ehs-normal-blue"
-                  : "text-ehs-gray hover:text-ehs-normal-blue",
-              ].join(" ")}
-            >
-              View more
-            </button>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex w-full min-w-0 flex-col gap-1">
+          <Text
+            as="p"
+            className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
+            title={row.original.title}
+          >
+            {row.original.title}
+          </Text>
+          <Text
+            as="p"
+            className="text4 text-ehs-muted-text line-clamp-1 first-letter:uppercase"
+            title={row.original.description}
+          >
+            {row.original.description}
+          </Text>
+        </div>
+      ),
     }),
     columnHelper.accessor("site", {
       header: "Site",
       size: expanded ? 170 : 110,
       minSize: 80,
-      meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => {
         const [sitePrimary, siteSecondary] = siteLines(info.getValue());
 
         return (
           <div className="w-full min-w-0">
-            <Text as="p" className="text-ehs-gray text-sm font-normal">
+            <Text as="p" className="text4 text-ehs-gray">
               {sitePrimary}
             </Text>
             {siteSecondary ? (
-              <Text as="p" className="text-ehs-gray text-sm font-normal">
+              <Text as="p" className="text4 text-ehs-gray">
                 {siteSecondary}
               </Text>
             ) : null}
@@ -160,7 +142,6 @@ function createIncidentColumns(
       header: "Severity",
       size: expanded ? 160 : 130,
       minSize: 110,
-      meta: { align: "center" as const },
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
@@ -173,7 +154,6 @@ function createIncidentColumns(
       header: "State",
       size: expanded ? 130 : 90,
       minSize: 80,
-      meta: { align: "center" as const },
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
@@ -181,6 +161,41 @@ function createIncidentColumns(
           showDot
         />
       ),
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for incident ${row.original.id}`
+                : `View incident ${row.original.id}`
+            }
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
     }),
   ] as ColumnDef<IncidentRecord, unknown>[];
 }
@@ -210,7 +225,8 @@ function cellFlexAlignClass(
   align: "left" | "center" | "right" | undefined,
   verticalAlign: "top" | "middle" | undefined,
 ) {
-  const isMiddle = verticalAlign === "middle" || (verticalAlign !== "top" && align !== "left");
+  const isMiddle =
+    verticalAlign === "middle" || (verticalAlign !== "top" && align !== "left");
 
   if (align === "center") {
     return isMiddle
@@ -306,14 +322,14 @@ export function IncidentListTable<
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text text-xs font-bold tracking-wide uppercase",
+                        "text6 text-ehs-muted-text",
                         headerPadClass,
                         alignClass(align),
                       ].join(" ")}
@@ -381,9 +397,10 @@ export function IncidentListTable<
                       .join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const align = cell.column.columnDef.meta?.align;
-                      const verticalAlign =
-                        cell.column.columnDef.meta?.verticalAlign;
+                      const align = COLUMN_ALIGN[cell.column.id] ?? "left";
+                      const verticalAlign = MIDDLE_ALIGNED.has(cell.column.id)
+                        ? "middle"
+                        : undefined;
 
                       return (
                         <td

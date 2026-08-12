@@ -13,7 +13,7 @@ export type HazcomPagerProps = Readonly<{
 }>;
 
 const pageButtonClass =
-  "border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 /**
  * Pager for the HazCom list endpoints, which all page the same way
@@ -45,7 +45,7 @@ export function HazcomPager(props: Readonly<HazcomPagerProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <Text as="span" className="text-ehs-muted-text text-xs">
+      <Text as="span" className="text8 text-ehs-muted-text">
         {`Page ${String(pageNumber)} of ${String(totalPages)}`}
       </Text>
 

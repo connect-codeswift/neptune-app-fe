@@ -14,3 +14,5 @@ export type {
 } from "./CapaHierarchySelector";
 export { CapaSegmentedToggle } from "./CapaSegmentedToggle";
 export type { CapaSegmentedToggleProps } from "./CapaSegmentedToggle";
+export { CapaModalFieldLabel } from "./CapaModalFieldLabel";
+export type { CapaModalFieldLabelProps } from "./CapaModalFieldLabel";

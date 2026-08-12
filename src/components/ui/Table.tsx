@@ -38,7 +38,7 @@ export type TableProps<TData> = {
   /** Toolbar rendered inside the card, above the table (title, filters, …). */
   header?: ReactNode;
   /** Visual variant for domain-specific table styling. */
-  variant?: "default" | "compliance" | "capa";
+  variant?: "default" | "compliance" | "capa" | "incident";
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -59,6 +59,7 @@ export function Table<TData>(props: TableProps<TData>) {
 
   const isCompliance = variant === "compliance";
   const isCapa = variant === "capa";
+  const isIncident = variant === "incident";
 
   const table = useReactTable({
     data: data as TData[],
@@ -138,7 +139,9 @@ export function Table<TData>(props: TableProps<TData>) {
                           ? "px-4 py-2.5 text-xs font-medium text-[#566072] uppercase select-none"
                           : isCompliance
                             ? "px-[15.57px] py-3 text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
-                            : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
+                            : isIncident
+                              ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
+                              : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
                         alignClass,
                       ].join(" ")}
                     >

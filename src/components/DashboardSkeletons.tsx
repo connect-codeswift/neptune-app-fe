@@ -1,4 +1,5 @@
 import { GlassCard } from "@/components/ui/GlassCard";
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
@@ -6,42 +7,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
  *
  * Each one mirrors the real component's layout rather than centring a spinner,
  * so the page holds its shape while data lands instead of collapsing and
- * snapping back. The KPI row is the one that mattered most: it used to render
- * a single full-width spinner card that became four cards on load.
+ * snapping back. The KPI row lives with `MetricCard` itself, so it can't drift
+ * from the card it stands in for.
  */
-
-function KpiMetricCardSkeleton() {
-  return (
-    <GlassCard className="flex-1 justify-between">
-      <div className="flex items-start justify-between gap-3">
-        <Skeleton className="mt-px h-3.5 w-28" />
-        <Skeleton className="h-[21px] w-14 rounded-full" />
-      </div>
-
-      <div className="flex items-baseline gap-[10px]">
-        <Skeleton className="h-10 w-20" />
-        <Skeleton className="h-3.5 w-8" />
-      </div>
-
-      <div className="flex items-end justify-between gap-3">
-        <Skeleton className="h-3 w-20" />
-        <Skeleton className="h-[22px] w-[70px] rounded-md" />
-      </div>
-    </GlassCard>
-  );
-}
-
-export function KpiMetricsRowSkeleton() {
-  // Staggered to match KpiMetricsRow, so the loading row and the real row
-  // settle in with the same rhythm rather than switching cadence.
-  return (
-    <div className="stagger-cards grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-      {Array.from({ length: 4 }, (_, index) => (
-        <KpiMetricCardSkeleton key={`kpi-skeleton-${String(index)}`} />
-      ))}
-    </div>
-  );
-}
 
 /** Body placeholder for the Incident Trends card — axis, plot, legend. */
 export function TrendChartSkeleton() {
@@ -185,7 +153,7 @@ export function DashboardPageSkeleton() {
       </header>
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <KpiMetricsRowSkeleton />
+        <MetricCardsRowSkeleton />
 
         <div className="grid gap-3.5 lg:grid-cols-13">
           <GlassCard className="lg:col-span-8">

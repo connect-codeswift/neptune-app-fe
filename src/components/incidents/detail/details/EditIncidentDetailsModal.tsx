@@ -28,7 +28,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="block text4 leading-[19.5px] text-ehs-gray"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -71,7 +71,7 @@ export function EditIncidentDetailsModal(
             onClick={handleSave}
             disabled={!canSave}
             label="Save changes"
-            iconSrc=""
+            icon=""
           />
         </>
       }

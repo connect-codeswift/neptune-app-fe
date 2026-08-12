@@ -43,11 +43,11 @@ export function IncidentDetailCapaControlCoverageCard(
       <div className="flex flex-col gap-0.5">
         <Text
           as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
+          className="text-ehs-dark-bg text3"
         >
           Control coverage
         </Text>
-        <span className="text-sm leading-normal text-ehs-muted-text">
+        <span className="text4 leading-normal text-ehs-muted-text">
           Across hierarchy of controls
         </span>
       </div>
@@ -70,12 +70,12 @@ export function IncidentDetailCapaControlCoverageCard(
               ].join(" ")}
             >
               <span className="size-2.5 shrink-0 rounded-[3px] bg-ehs-gray" />
-              <span className="min-w-0 flex-1 text-sm leading-normal text-ehs-slate">
+              <span className="min-w-0 flex-1 text4 leading-normal text-ehs-slate">
                 {ctrl.label}
               </span>
               <span
                 className={[
-                  "shrink-0 text-sm font-bold",
+                  "shrink-0 text5",
                   isLoading
                     ? "text-ehs-muted-text"
                     : ctrl.count > 0
@@ -91,7 +91,7 @@ export function IncidentDetailCapaControlCoverageCard(
       </div>
 
       {!isLoading && noticeMessage ? (
-        <div className="rounded-[10px] border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-[13px] pt-[12px] pb-[13px] text-xs leading-[16.5px] text-ehs-slate">
+        <div className="rounded-[10px] border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-[13px] pt-[12px] pb-[13px] text8 leading-[16.5px] text-ehs-slate">
           <span className="font-bold">{noticeLead}</span>{" "}
           {noticeRest}
         </div>

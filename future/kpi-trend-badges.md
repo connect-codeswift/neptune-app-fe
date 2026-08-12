@@ -1,68 +1,47 @@
-# KPI trend badges (removed — re-add later)
+# KPI trend badges (restored)
 
-**Status:** Hidden via `SHOW_KPI_TREND_BADGES = false` in `src/lib/kpi-display-flags.ts` (Aug 2026).
+**Status:** Live again since Aug 2026. `SHOW_KPI_TREND_BADGES` and
+`src/lib/kpi-display-flags.ts` are gone — the kill switch existed because
+badges could contradict the data behind them, and the shared card now makes
+that impossible by construction.
 
-## What was removed
+## Why the flag went away
 
-Green/red **period-over-period delta pills** with up/down arrow icons on KPI stat cards, for example:
+The badges were hidden in Aug 2026 because backend `trendDelta` values were
+not reliable, and some cards showed gap-to-target dressed up as a
+period-over-period trend. `src/components/ui/MetricCard.tsx` closes both holes:
 
-- `+12` / `-3` with `mdi:trending-up` / `mdi:trending-down`
-- Command-center cards showing gap-to-target as if it were a trend (`+3pp`, `-0.4`)
-- Compliance register KPI delta badges (`ComplianceDeltaBadge`)
+- **The delta comes from the sparkline series.** If a card draws a trend line,
+  its badge is `last − first` of that same series. Badge and line cannot
+  disagree, because there is only one number.
+- **An explicit `delta` is only read when there is no series.** That is the
+  path for endpoints that return a period delta and nothing else (hazard,
+  near miss).
+- **No delta, no delta badge.** Cards with neither series nor delta fall back
+  to an icon badge, so a snapshot endpoint can never imply movement.
 
-These implied “vs last period” or directional movement, but backend `trendDelta` / prior-period series are **not configured reliably** yet.
+Synthetic sparklines were deleted with the flag. `dashboard.mapper.ts` used to
+fabricate a seven-point ramp off the current value; under the rule above that
+would have manufactured a trend, so those cards now render without a line.
 
-## What was kept
+## Colour
 
-| UI | Reason |
-|----|--------|
-| **Target labels** (`Target ≤ 2.5`, etc.) | Static thresholds from KPI targets API |
-| **Mini sparklines** | Decorative; can be revisited separately |
-| **Hero KPI “On target / Off target”** (`HeroKpiCard`) | Status from API `status`, not period delta |
-| **Policy Maker stat pills** (`StatMetricCard` — “Needs action”, “Clear”) | Semantic labels, not up/down trends |
-| **Chart-level “Improving / Rising”** (`RecordableInjuriesChart`) | Separate from list KPI row badges |
+`signalOwnedBy` picks what drives red/green, and only colour:
 
-## Components gated by the flag
+| `signalOwnedBy`              | Green when                                                    |
+| ---------------------------- | ------------------------------------------------------------- |
+| `"isMorePositive"` (default) | the delta's sign matches `isMorePositive`                     |
+| `"target"`                   | the value meets `target`, with polarity from `isMorePositive` |
 
-| File | Control |
-|------|---------|
-| `src/components/incidents/list/IncidentListKpiCard.tsx` | Arrow + `trendValue` pill |
-| `src/components/KpiMetricCard.tsx` | Arrow + `trendValue` pill (EHS Command Center) |
-| `src/components/regulatory-compliance/compliance-ui.tsx` | `ComplianceDeltaBadge` |
+`"target"` falls back to `"isMorePositive"` when no numeric `target` is set. A
+delta of zero is neutral (grey), not green — nothing moved. The arrow always
+follows the sign of the delta regardless of colour, and the sparkline takes
+the badge's colour.
 
-## Data sources (when re-enabling)
+## Still open on the backend
 
-| Screen | API / mapper | Trend field |
-|--------|----------------|-------------|
-| Incident list KPIs | `GET /api/Incident/GetIncidentListKpis` | `trendDelta`, `trend[]` on each card |
-| Incident dashboard hero | `GET /api/Incident/GetHeaderKpi` | `trend[]`, `status` |
-| EHS Command Center | `GET /api/EHSCommandCenter/GetMainDashboardKpis` | No real history — mapper synthesizes gap-to-target as “trend” |
-| Regulatory compliance KPIs | Compliance summary mappers | `badgeValue` on `ComplianceKpiItem` |
-| Legacy client-only fallback | `buildIncidentListKpis()` in `incident-list-data.ts` | Computed from current page rows (deprecated path) |
-
-## Re-enable checklist
-
-1. Set `SHOW_KPI_TREND_BADGES = true` in `src/lib/kpi-display-flags.ts`.
-2. **Backend:** Ensure each KPI card returns a correct prior-period baseline and signed `trendDelta` (percent or absolute, documented per metric).
-3. **Command center:** Either add real time-series to `GetMainDashboardKpis` or keep showing target gap only (different copy — not “vs last period”).
-4. **Incident KPIs:** Confirm `lower-better` vs `higher-better` direction in `incident-kpi.mapper.ts` `resolveListTrend()` matches business rules.
-5. **Copy:** Standardize label suffix (e.g. “vs prior 30d”) once period length is fixed in the API.
-6. **Skeletons:** Restore rounded pill placeholders in `SkeletonKpiRow` / `KpiMetricCardSkeleton` if desired.
-
-## Reference — previous badge props
-
-```tsx
-// IncidentListKpiCard / KpiMetricCard
-{
-  trendValue: "+12",
-  trendDirection: "up",
-  trendTone: "negative", // depends on metric direction
-}
-```
-
-Toggle location:
-
-```ts
-// src/lib/kpi-display-flags.ts
-export const SHOW_KPI_TREND_BADGES = false;
-```
+1. Ship real series (`trend[]`) on the endpoints that only return snapshots:
+   `GetMainDashboardKpis` compliance/CAPA, BBS, Walk & Talk, PPE, audits,
+   inspections, compliance dashboard KPIs. Each is an icon badge until then.
+2. Document the period each `trendDelta` covers, then add the suffix to the
+   card copy (e.g. "vs prior 30d") in one place.

@@ -31,14 +31,14 @@ export function HazcomPageHeader(props: Readonly<HazcomPageHeaderProps>) {
                   {index > 0 ? (
                     <Icon
                       icon="mdi:chevron-right"
-                      className="text-ehs-muted-text text-sm"
+                      className="text-ehs-muted-text size-3.5"
                       aria-hidden="true"
                     />
                   ) : null}
                   <Text
                     as="span"
                     className={[
-                      "text-xs",
+                      "text8",
                       isLast ? "text-ehs-gray" : "text-ehs-muted-text",
                     ].join(" ")}
                   >
@@ -50,15 +50,12 @@ export function HazcomPageHeader(props: Readonly<HazcomPageHeaderProps>) {
           </nav>
         ) : null}
 
-        <Text
-          as="h1"
-          className="text-ehs-darker text-2xl font-bold tracking-tight"
-        >
+        <Text as="h1" className="text1 text-ehs-darker">
           {title}
         </Text>
 
         {subtitle ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             {subtitle}
           </Text>
         ) : null}

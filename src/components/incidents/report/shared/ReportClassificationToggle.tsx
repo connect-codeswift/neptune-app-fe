@@ -102,10 +102,11 @@ export function ReportClassificationToggle(
       <div
         role="group"
         aria-label={label}
-        aria-invalid={error ? true : undefined}
+        data-invalid={error ? "true" : undefined}
         className={[
           "relative grid h-10 rounded-[10px] border border-white/70 bg-white/45 p-1 shadow-[inset_0px_2px_4px_rgba(15,23,42,0.06)] backdrop-blur-md",
           optionCount === 3 ? "grid-cols-3" : "grid-cols-2",
+          error ? "border-ehs-red/50" : "",
         ].join(" ")}
       >
         {hasSelection ? (

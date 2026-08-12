@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
+  HAZCOM_FIELD_LABEL_CLASS,
   HazcomGlassCard,
   HazcomFormLayout,
   HazcomPageHeader,
@@ -278,13 +279,13 @@ export function SdsUploadPageClient() {
         />
 
         {isUploading ? (
-          <Text as="p" className="text-ehs-muted-text text-[12px]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             Uploading PDF…
           </Text>
         ) : null}
 
         <div className="flex flex-col gap-4">
-          <Text as="h2" className="text-ehs-darker text-[15px] font-bold">
+          <Text as="h2" className="text3 text-ehs-darker">
             GHS Metadata
           </Text>
 
@@ -352,13 +353,13 @@ export function SdsUploadPageClient() {
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                   <Text
                     as="span"
-                    className="text-[12px] font-bold text-[#2a3446]"
+                    className={HAZCOM_FIELD_LABEL_CLASS}
                   >
                     Signal Word
                   </Text>
                   <Text
                     as="span"
-                    className="text-ehs-muted-text ml-auto text-[10px]"
+                    className="text8 text-ehs-muted-text ml-auto"
                   >
                     From chemical
                   </Text>
@@ -372,7 +373,7 @@ export function SdsUploadPageClient() {
                         key={word}
                         aria-hidden={!selected}
                         className={[
-                          "flex h-9 flex-1 items-center justify-center rounded-[10px] border text-[13px] font-bold tracking-[0.4px] uppercase",
+                          "text5 flex h-9 flex-1 items-center justify-center rounded-[10px] border uppercase",
                           signalWordButtonClass(word, selected),
                         ].join(" ")}
                       >
@@ -405,20 +406,20 @@ export function SdsUploadPageClient() {
               <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                 <Text
                   as="span"
-                  className="text-[12px] font-bold text-[#2a3446]"
+                  className={HAZCOM_FIELD_LABEL_CLASS}
                 >
                   GHS Pictograms
                 </Text>
                 <Text
                   as="span"
-                  className="text-ehs-muted-text ml-auto text-[10px]"
+                  className="text8 text-ehs-muted-text ml-auto"
                 >
                   From chemical
                 </Text>
               </div>
               <div className="flex flex-wrap gap-2">
                 {selectedPictograms.length === 0 ? (
-                  <Text as="p" className="text-ehs-muted-text text-[13px]">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     This chemical has no pictograms recorded.
                   </Text>
                 ) : (
@@ -459,7 +460,7 @@ export function SdsUploadPageClient() {
             <Button type="button" variant="tertiary">
               <Icon
                 icon="mdi:arrow-left"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Cancel
@@ -484,7 +485,7 @@ export function SdsUploadPageClient() {
             >
               <Icon
                 icon="mdi:tray-arrow-up"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               {createSds.isPending ? "Saving…" : "Save SDS Record"}

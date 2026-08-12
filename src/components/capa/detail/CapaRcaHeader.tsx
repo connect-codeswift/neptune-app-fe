@@ -44,6 +44,9 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
               aria-hidden
             >
               {/* Figma 5472:19849 — outer 46×46, glyph 22×22 */}
+              {/* Bespoke glyph with no icon-set equivalent, and next/image
+                  does not optimise SVG — it is served verbatim either way. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/icons/capa/rca-horizontal.svg"
                 alt=""

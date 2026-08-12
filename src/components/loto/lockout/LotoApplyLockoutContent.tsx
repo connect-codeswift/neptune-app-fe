@@ -25,13 +25,12 @@ import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
 
 const fieldClass = [
   "gap-3.5",
-  "[&_label]:text-[12px]",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:text-[#566072]",
-  "[&_input]:h-[42px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text-[13.5px]",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
 ].join(" ");
 
 export type LotoApplyLockoutContentProps = Readonly<{
@@ -49,12 +48,12 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
     return (
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker font-semibold">
             Equipment not found
           </Text>
           <Link
             href={LOTO_ROUTE}
-            className="text-ehs-normal-blue mt-3 inline-block text-sm hover:underline"
+            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
           >
             Back to LOTO
           </Link>
@@ -105,16 +104,14 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
             paddingClassName="p-[22px]"
             className="min-w-0 rounded-[20px]"
           >
-            <h2 className="text-ehs-darker text-lg leading-[21px] font-bold">
-              Lockout Registration
-            </h2>
+            <h2 className="text3 text-ehs-darker">Lockout Registration</h2>
             <div className="mt-4">
               <FormBuilder
                 formId={LOTO_APPLY_FORM_ID}
                 schema={schema}
                 initialValues={toApplyLockoutFormValues(context.operatorName)}
                 hideActions
-                // className={fieldClass}
+                className={fieldClass}
                 onSubmit={handleValid}
               />
             </div>
@@ -128,10 +125,10 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               className="mt-0.5 size-4 shrink-0 rounded-[2px] border border-[#767676] accent-[#ef4444]"
             />
             <span className="min-w-0">
-              <span className="block text-sm leading-[19.5px] font-bold text-[#ef4444]">
+              <span className="text5 block text-[#ef4444]">
                 Final Confirmation
               </span>
-              <span className="mt-1 block text-sm leading-[19.375px] font-medium text-[#566072]">
+              <span className="text4 mt-1 block font-medium text-[#566072]">
                 {`I have read, understood, and followed procedure `}
                 <span className="font-bold">{context.procedureId}</span>
                 {`. I confirm the machine cannot be started. I accept responsibility for this lockout.`}
@@ -142,7 +139,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 text-base! font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="text4 inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -152,7 +149,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               form={LOTO_APPLY_FORM_ID}
               variant="danger"
               disabled={!confirmed}
-              className="gap-[7px] rounded-[10px] px-4 py-2.5 text-[13px] font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              className="text4 gap-[7px] rounded-[10px] px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
               Confirm Lockout Applied

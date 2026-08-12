@@ -1,3 +1,5 @@
+import type { MetricCardProps } from "@/components/ui/MetricCard";
+
 export type PpeSiteId = "plant-a" | "plant-b" | "whse-1" | "whse-2";
 
 export type PpeInventoryItem = Readonly<{
@@ -21,12 +23,7 @@ export type PpeInventoryItem = Readonly<{
   sites: readonly PpeSiteId[];
 }>;
 
-export type PpeMetric = Readonly<{
-  title: string;
-  value: string;
-  trendValue: string;
-  trendTone: "positive" | "negative";
-}>;
+export type PpeMetric = MetricCardProps;
 
 export type PpeCatalogStatus = "In Stock" | "Low Stock" | "Out of Stock";
 
@@ -91,11 +88,7 @@ export type PpeEmployeeProfile = Readonly<{
   history: readonly PpeHistoryRecord[];
 }>;
 
-export type PpeLogStatus =
-  | "Issued"
-  | "Due Inspection"
-  | "Overdue"
-  | "Returned";
+export type PpeLogStatus = "Issued" | "Due Inspection" | "Overdue" | "Returned";
 
 export type PpeIssuanceLogEntry = Readonly<{
   id: string;
