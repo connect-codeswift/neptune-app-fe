@@ -92,7 +92,7 @@ function AttachmentTile(
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-1.5 pt-4 pb-0.5">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-1.5 pt-4 pb-0.5">
         <div className="flex items-end justify-between gap-1">
           <span className="truncate text-xs text-ehs-light-text/90">
             {truncateName(file.name)}
