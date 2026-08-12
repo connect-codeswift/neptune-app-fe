@@ -7,7 +7,7 @@ import {
 
 export const CAPA_VERIFICATION_FORM_ID = "capa-verification-form";
 
-const CAPA_VERIFICATION_CHECKLIST = [
+export const CAPA_VERIFICATION_CHECKLIST = [
   {
     value: "evidence",
     label: "Evidence has been reviewed and is sufficient",

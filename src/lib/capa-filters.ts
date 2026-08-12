@@ -7,18 +7,14 @@ import type { ModuleFilterOption } from "@/components/ui/ModuleFilterBar";
 
 export const CAPA_API_STATUS = {
   open: "Open",
-  inProgress: "InProgress",
-  overdue: "Overdue",
-  verified: "Verified",
+  closed: "Closed",
 } as const;
 
-/** Status chips shown in the toolbar (backend Status query values). */
+/** Status chips — values match GET /api/CAPA `status` / Status query. */
 export const CAPA_STATUS_FILTER_OPTIONS: readonly ModuleFilterOption[] = [
   { value: "", label: "All" },
   { value: CAPA_API_STATUS.open, label: "Open" },
-  { value: CAPA_API_STATUS.inProgress, label: "In progress" },
-  { value: CAPA_API_STATUS.overdue, label: "Overdue" },
-  { value: CAPA_API_STATUS.verified, label: "Verified" },
+  { value: CAPA_API_STATUS.closed, label: "Closed" },
 ] as const;
 
 export const CAPA_TYPE_FILTER_OPTIONS: readonly ModuleFilterOption[] = [
@@ -34,13 +30,8 @@ export const CAPA_PRIORITY_FILTER_OPTIONS: readonly ModuleFilterOption[] = [
   { value: "Low", label: "Low" },
 ] as const;
 
-/** Display labels used in register / detail badges (never invent "Planning"). */
-export type CapaStatusDisplay =
-  | "Open"
-  | "In progress"
-  | "Overdue"
-  | "Verified"
-  | "—";
+/** Display labels used in register / detail badges (from API `status`). */
+export type CapaStatusDisplay = string;
 
 /** Map a toolbar filter value to the API query string (empty = omit / All). */
 export function toCapaListFilterParam(value: string): string {
@@ -48,62 +39,34 @@ export function toCapaListFilterParam(value: string): string {
 }
 
 /**
- * Format API `status` for UI. Does not invent Planning when status is missing.
- * Optional overdue-by-due-date only applies when the API did not send a terminal status.
+ * Format API `status` for UI. Prefer the backend value; normalize common
+ * Open / Closed spellings so pills and filters stay consistent.
  */
 export function formatCapaStatusDisplay(
   rawStatus: string | null | undefined,
-  options?: Readonly<{ overdueByDueDate?: boolean }>,
 ): CapaStatusDisplay {
   const raw = (rawStatus ?? "").trim();
-  const key = raw.toLowerCase().replace(/[\s_-]+/g, "");
+  if (!raw) {
+    return "—";
+  }
 
-  if (
-    key === "verified" ||
-    key === "complete" ||
-    key === "completed" ||
-    key === "closed"
-  ) {
-    return "Verified";
+  const key = raw.toLowerCase().replace(/[\s_-]+/g, "");
+  if (key === "closed" || key === "dropped") {
+    return "Closed";
   }
-  if (key === "overdue") {
-    return "Overdue";
-  }
-  if (
-    key === "inprogress" ||
-    key === "progress" ||
-    key === "active" ||
-    key === "inprocess"
-  ) {
-    return "In progress";
-  }
-  if (
-    key === "open" ||
-    key === "planning" ||
-    key === "planned" ||
-    key === "new"
-  ) {
+  if (key === "open") {
     return "Open";
   }
 
-  if (options?.overdueByDueDate) {
-    return "Overdue";
-  }
-
-  // No usable status from API — do not fabricate Planning.
-  return "—";
+  return raw;
 }
 
 export function capaStatusPillClass(status: string): string {
   switch (status) {
     case "Open":
       return "bg-[rgba(8,145,166,0.12)] text-[#0891a6]";
-    case "In progress":
-      return "bg-[rgba(59,130,246,0.12)] text-[#3b82f6]";
-    case "Overdue":
-      return "bg-[rgba(239,68,68,0.12)] text-[#ef4444]";
-    case "Verified":
-      return "bg-[rgba(16,185,129,0.12)] text-[#10b981]";
+    case "Closed":
+      return "bg-[rgba(15,23,42,0.08)] text-[#45556c]";
     default:
       return "bg-[rgba(15,23,42,0.06)] text-[#566072]";
   }

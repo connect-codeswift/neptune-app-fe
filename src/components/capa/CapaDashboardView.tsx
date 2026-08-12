@@ -8,6 +8,7 @@ import { CapaDashboardMetrics } from "@/components/capa/CapaDashboardMetrics";
 import { CapaDetailPanel } from "@/components/capa/CapaDetailPanel";
 import { CapaLifecycleCard } from "@/components/capa/CapaLifecycleCard";
 import { CapaOpenedClosedCard } from "@/components/capa/CapaOpenedClosedCard";
+import { CapaDashboardSkeleton } from "@/components/capa/CapaPageSkeleton";
 import { CapaRegisterTable } from "@/components/capa/CapaRegisterTable";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -45,15 +46,13 @@ export function CapaDashboardView() {
     priority: toCapaListFilterParam(priority),
     enabled: isClientReady && hasToken === true,
   });
-
   const items = useMemo(
     () => capasQuery.data?.items ?? [],
     [capasQuery.data?.items],
   );
   const totalCount = capasQuery.data?.totalCount ?? items.length;
   const pageSize = capasQuery.data?.pageSize ?? DEFAULT_CAPAS_PAGE_SIZE;
-  const currentPage =
-    capasQuery.data?.pageNumber ?? pageNumber;
+  const currentPage = capasQuery.data?.pageNumber ?? pageNumber;
 
   const selected =
     (selectedId != null
@@ -80,6 +79,10 @@ export function CapaDashboardView() {
   function resetToFirstPage() {
     setPageNumber(DEFAULT_CAPAS_PAGE_NUMBER);
     setSelectedId(null);
+  }
+
+  if (showBootLoading || showQueryLoading) {
+    return <CapaDashboardSkeleton />;
   }
 
   return (
@@ -120,22 +123,13 @@ export function CapaDashboardView() {
         </Text>
       ) : null}
 
-      {showBootLoading || showQueryLoading ? (
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading CAPAs…
-        </Text>
-      ) : null}
-
-      {!showBootLoading &&
-      !showQueryLoading &&
-      !errorMessage &&
-      items.length === 0 ? (
+      {!errorMessage && items.length === 0 ? (
         <Text as="p" className="text-ehs-muted-text text-sm">
           No CAPAs found.
         </Text>
       ) : null}
 
-      {!showBootLoading && !showQueryLoading && items.length > 0 ? (
+      {items.length > 0 ? (
         <div className="grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <CapaRegisterTable
             items={items}

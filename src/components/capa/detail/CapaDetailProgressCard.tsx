@@ -16,17 +16,21 @@ export type CapaDetailProgressCardProps = Readonly<{
 /** Workflow stepper + overall progress — Figma 1366:3125. */
 export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
   const { record } = props;
-  const current = record.workflowStep;
+  const totalSteps = CAPA_DETAIL_WORKFLOW_STEPS.length;
+  const isClosed = record.statusLabel.trim().toLowerCase() === "closed";
+  const current = Math.min(Math.max(record.workflowStep, 1), totalSteps);
+  const progress = Math.min(100, Math.max(0, record.progress));
 
   return (
     <IncidentGlassCard paddingClassName="p-5" className="min-w-0 rounded-2xl">
       <ol className="mb-5 flex w-full items-start">
         {CAPA_DETAIL_WORKFLOW_STEPS.map((label, index) => {
           const step = index + 1;
-          const isDone = step < current;
-          const isCurrent = step === current;
-          const isLast = index === CAPA_DETAIL_WORKFLOW_STEPS.length - 1;
-          const lineDone = step < current;
+          // Closed CAPAs tick every step, including the final "Closed" node.
+          const isDone = isClosed || step < current;
+          const isCurrent = !isClosed && step === current;
+          const isLast = index === totalSteps - 1;
+          const lineDone = isClosed || step < current;
 
           return (
             <Fragment key={label}>
@@ -87,14 +91,14 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
         <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
           <div
             className="bg-ehs-normal-blue h-full rounded-full"
-            style={{ width: `${String(record.progress)}%` }}
+            style={{ width: `${String(progress)}%` }}
           />
         </div>
         <Text
           as="span"
           className="shrink-0 text-sm font-semibold text-[#0b1320] tabular-nums"
         >
-          {`${String(record.progress)}%`}
+          {`${String(progress)}%`}
         </Text>
       </div>
     </IncidentGlassCard>

@@ -5,6 +5,7 @@ import { getAuthContext } from "@/lib/auth-context";
 import {
   getCapaAttachmentsByCapaId,
   getCapaById,
+  getCapaComments,
   getCapaDashboardKpis,
   getCapaLifecycle,
   getCapaOpenedVsClosed,
@@ -14,9 +15,11 @@ import {
   getCapaTasksByCapaId,
   getCapaVerificationByCapaId,
 } from "@/services/capa.service";
+import { getCapaRcaById } from "@/services/rca.service";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import {
   EMPTY_LINKED_CAPA_VIEW,
+  mapCapaApiToDetailRecord,
   mapCapaDtosToDashboardItems,
   mapCapaDtosToLinkedView,
 } from "@/services/mappers/capa.mapper";
@@ -43,6 +46,14 @@ export const capaQueryKeys = {
   byIncident: (incidentId: number) =>
     [...capaQueryKeys.all, "incident", incidentId] as const,
   tasks: (capaId: number) => [...capaQueryKeys.all, "tasks", capaId] as const,
+  comments: (params: { capaId: number; userId: number; assignedId: number }) =>
+    [...capaQueryKeys.all, "comments", params] as const,
+  attachments: (capaId: number) =>
+    [...capaQueryKeys.all, "attachments", capaId] as const,
+  verification: (capaId: number) =>
+    [...capaQueryKeys.all, "verification", capaId] as const,
+  rca: (rcaId: number) => [...capaQueryKeys.all, "rca", rcaId] as const,
+  byId: (capaId: number) => [...capaQueryKeys.all, "by-id", capaId] as const,
   review: (capaId: number) => [...capaQueryKeys.all, "review", capaId] as const,
 };
 
@@ -148,7 +159,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
         priority,
         ...(assignedId > 0 ? { assignedId } : {}),
       });
-      console.log(response);
       return {
         ...response,
         items: mapCapaDtosToDashboardItems(response.items, {
@@ -231,6 +241,124 @@ export function useCapaTasksQuery(options: UseCapaTasksQueryOptions) {
   });
 }
 
+export type UseCapaCommentsQueryOptions = Readonly<{
+  capaId: number | null;
+  userId?: number;
+  assignedId?: number;
+  enabled?: boolean;
+}>;
+
+/** Loads CAPA comments via GET /api/CAPA/Comments. */
+export function useCapaCommentsQuery(options: UseCapaCommentsQueryOptions) {
+  const capaId = options.capaId;
+  const userId =
+    typeof options.userId === "number" &&
+    Number.isFinite(options.userId) &&
+    options.userId > 0
+      ? Math.trunc(options.userId)
+      : 0;
+  const assignedId =
+    typeof options.assignedId === "number" &&
+    Number.isFinite(options.assignedId) &&
+    options.assignedId > 0
+      ? Math.trunc(options.assignedId)
+      : 0;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.comments({
+      capaId: capaId ?? 0,
+      userId,
+      assignedId,
+    }),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return [];
+      }
+
+      return getCapaComments({
+        capaId,
+        ...(userId > 0 ? { userId } : {}),
+        ...(assignedId > 0 ? { assignedId } : {}),
+      });
+    },
+  });
+}
+
+export type UseCapaAttachmentsQueryOptions = Readonly<{
+  capaId: number | null;
+  enabled?: boolean;
+}>;
+
+/** Loads CAPA attachments via GET /api/CAPA/Attachments/{capaId}. */
+export function useCapaAttachmentsQuery(
+  options: UseCapaAttachmentsQueryOptions,
+) {
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.attachments(capaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return [];
+      }
+
+      return getCapaAttachmentsByCapaId(capaId);
+    },
+  });
+}
+
+export type UseCapaVerificationQueryOptions = Readonly<{
+  capaId: number | null;
+  enabled?: boolean;
+}>;
+
+/** Loads CAPA verification via GET /api/CAPA/Verification/{capaId}. */
+export function useCapaVerificationQuery(
+  options: UseCapaVerificationQueryOptions,
+) {
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.verification(capaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return null;
+      }
+
+      return getCapaVerificationByCapaId(capaId);
+    },
+  });
+}
+
+export type UseCapaRcaQueryOptions = Readonly<{
+  rcaId: number | null;
+  enabled?: boolean;
+}>;
+
+/** Loads RCA worksheet data via GET /api/CAPA/Rca/{rcaId}. */
+export function useCapaRcaQuery(options: UseCapaRcaQueryOptions) {
+  const rcaId = options.rcaId;
+  const enabled = (options.enabled ?? false) && rcaId != null && rcaId > 0;
+
+  return useQuery({
+    queryKey: capaQueryKeys.rca(rcaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (rcaId == null || rcaId <= 0) {
+        return [];
+      }
+
+      return getCapaRcaById(rcaId);
+    },
+  });
+}
+
 export type UseCapaReviewQueryOptions = Readonly<{
   capaId: number | null;
   enabled?: boolean;
@@ -257,6 +385,41 @@ export function useCapaReviewQuery(options: UseCapaReviewQueryOptions) {
       ]);
 
       return { capa, tasks, attachments, verification };
+    },
+  });
+}
+
+export type UseCapaDetailQueryOptions = Readonly<{
+  capaId: number | null;
+  enabled?: boolean;
+}>;
+
+/**
+ * Loads GET /api/CAPA/Capa/{id} for the detail page.
+ */
+export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
+  const auth = enabled ? getAuthContext() : null;
+
+  return useQuery({
+    queryKey: capaQueryKeys.byId(capaId ?? 0),
+    enabled,
+    queryFn: async () => {
+      if (capaId == null || capaId <= 0) {
+        return null;
+      }
+
+      return getCapaById(capaId);
+    },
+    select: (capa) => {
+      if (!capa) {
+        return null;
+      }
+
+      return mapCapaApiToDetailRecord(capa, {
+        currentUserId: auth?.userId,
+      });
     },
   });
 }

@@ -237,8 +237,14 @@ export type PersonFieldConfig = BaseField &
     placeholder?: string;
     /** Hint opposite the label, e.g. "Search people at your site." */
     trailingHint?: string;
-    /** Site whose roster is searched. `0` disables search. */
-    siteId: number;
+    /**
+     * Where the picker loads people from.
+     * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
+     * - `dropdown`: GET /User/dropdown (client-filtered)
+     */
+    usersSource?: "site" | "dropdown";
+    /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
+    siteId?: number;
     siteName?: string | null;
     /** Form value key for the display name. Defaults to `${name}Name`. */
     displayNameField?: string;

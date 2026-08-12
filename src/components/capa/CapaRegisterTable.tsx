@@ -66,7 +66,6 @@ function buildColumns(): ColumnDef<CapaDashboardItem, unknown>[] {
       size: 200,
       cell: (info) => {
         const control = info.getValue();
-
         return (
           <span
             className="text-ehs-darker block max-w-50 truncate text-sm whitespace-nowrap"
