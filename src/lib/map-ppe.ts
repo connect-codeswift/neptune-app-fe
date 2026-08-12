@@ -7,6 +7,7 @@ import type {
   PpeEmployeeProfile,
   PpeHistoryRecord,
   PpeInventoryItem,
+  PpeIssuanceDetail,
   PpeIssuanceLogEntry,
   PpeIssuanceRecord,
   PpeLogStatus,
@@ -318,6 +319,12 @@ function toPpeIssuanceRecords(
     size: issue.size?.trim() || "—",
     issueDate: toIssueDateLabel(issue.createdAt),
     status: issue.status?.trim() || "—",
+    description:
+      issue.note?.trim() ||
+      [issue.assignedToRole?.trim(), issue.department?.trim()]
+        .filter(Boolean)
+        .join(" · ") ||
+      undefined,
   }));
 }
 
@@ -409,6 +416,32 @@ export function toPpeAcknowledgementEntries(
       siteId: toOptionalSiteId(issue.siteId),
     };
   });
+}
+
+/** Turn GET /api/ppe/issue/{id} into the catalog issuance detail modal model. */
+export function toPpeIssuanceDetailFromIssue(
+  issue: PpeIssueDto,
+): PpeIssuanceDetail | null {
+  if (issue.id === undefined || issue.id === null || String(issue.id) === "") {
+    return null;
+  }
+
+  return {
+    id: String(issue.id),
+    employee: issue.assignedToName?.trim() || "—",
+    role:
+      issue.assignedToRole?.trim() ||
+      issue.role?.trim() ||
+      issue.jobTitle?.trim() ||
+      "—",
+    item: issue.item?.trim() || issue.itemName?.trim() || "—",
+    quantity: issue.quantity ?? 0,
+    size: issue.size?.trim() || "—",
+    issueDate: toIssueDateLabel(issue.createdAt),
+    status: issue.status?.trim() || "—",
+    note: issue.note?.trim() || "",
+    employeeAcknowledged: Boolean(issue.employeeAck),
+  };
 }
 
 /** Turn GET /api/ppe/issue/{id} into the employee profile view model. */

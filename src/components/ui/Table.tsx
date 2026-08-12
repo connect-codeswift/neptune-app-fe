@@ -136,12 +136,12 @@ export function Table<TData>(props: TableProps<TData>) {
                       }}
                       className={[
                         isCapa
-                          ? "px-4 py-2.5 text-xs font-medium text-[#566072] uppercase select-none"
+                          ? "text6 text-ehs-gray px-4 py-2.5 select-none"
                           : isCompliance
-                            ? "px-[15.57px] py-3 text-2.5 font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
+                            ? "text6 text-ehs-muted-text px-[15.57px] py-3 select-none"
                             : isIncident
                               ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
-                              : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
+                              : "text6 text-ehs-muted-text px-4 py-3.5 select-none",
                         alignClass,
                       ].join(" ")}
                     >
@@ -162,7 +162,7 @@ export function Table<TData>(props: TableProps<TData>) {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="text-ehs-muted-text px-4 py-12 text-center text-sm"
+                  className="text4 text-ehs-muted-text px-4 py-12 text-center"
                 >
                   {isCapa
                     ? "No tasks yet."
@@ -216,8 +216,8 @@ export function Table<TData>(props: TableProps<TData>) {
                           key={cell.id}
                           className={[
                             isCompliance
-                              ? "px-[15.57px] py-3.5 align-middle text-sm font-normal"
-                              : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
+                              ? "px-[15.57px] py-3.5 align-middle"
+                              : "text-ehs-darker px-4 py-4 align-middle",
                             alignClass,
                           ].join(" ")}
                         >
@@ -244,7 +244,7 @@ export function Table<TData>(props: TableProps<TData>) {
 }
 
 const pageButtonClass =
-  "inline-flex cursor-pointer items-center gap-1 rounded-lg border border-ehs-border bg-ehs-light-text px-3 py-1.5 text-xs font-medium text-ehs-gray transition-colors hover:bg-ehs-light-bg disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 function TablePaginationBar(
   props: Readonly<
@@ -283,13 +283,7 @@ function TablePaginationBar(
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >
-      <span
-        className={
-          isCompliance
-            ? "text-xs text-[#8892a3]"
-            : "text-ehs-muted-text text-xs"
-        }
-      >
+      <span className="text8 text-ehs-muted-text">
         {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
       </span>
 
@@ -303,7 +297,7 @@ function TablePaginationBar(
           Previous
         </button>
 
-        <span className="text-ehs-muted-text px-1 text-xs tabular-nums">
+        <span className="text8 text-ehs-muted-text px-1 tabular-nums">
           {`Page ${currentPage} of ${pageCount}`}
         </span>
 

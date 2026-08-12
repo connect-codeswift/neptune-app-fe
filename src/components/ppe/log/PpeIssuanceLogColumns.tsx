@@ -13,56 +13,52 @@ export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> 
       header: "ID",
       size: 90,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base font-bold">
-          {info.getValue()}
-        </span>
+        <span className="text7 text-ehs-muted-text">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("employee", {
-      header: "EMPLOYEE",
-      size: 120,
+      header: "Employee",
+      size: 160,
       cell: (info) => (
-        <span className="text-ehs-darker text-base font-semibold">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("ppeItem", {
-      header: "PPE ITEM",
-      size: 120,
+      header: "PPE item",
+      size: 160,
       cell: (info) => (
-        <span className="text-base text-[#2a3446]">{info.getValue()}</span>
+        <span className="text4 text-ehs-slate">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("qtySize", {
-      header: "QTY / SIZE",
+      header: "Qty / size",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("issueDate", {
-      header: "DATE",
+      header: "Date",
       size: 110,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     // columnHelper.accessor("returnDate", {
-    //   header: "RETURN DATE",
+    //   header: "Return date",
     //   size: 120,
     //   cell: (info) => {
     //     const value = info.getValue();
     //     return (
     //       <span
     //         className={[
-    //           "text-sm",
-    //           value === "—" ? "text-[#b3bbc8]" : "text-ehs-muted-text",
+    //           "text4",
+    //           value === "—" ? "text-ehs-muted-text" : "text-ehs-muted-text",
     //         ].join(" ")}
     //       >
     //         {value}
@@ -72,22 +68,22 @@ export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> 
     //   meta: { align: "left" as const },
     // }),
     // columnHelper.accessor("condition", {
-    //   header: "CONDITION",
+    //   header: "Condition",
     //   size: 120,
     //   cell: (info) => (
-    //     <span className="text-ehs-muted-text text-sm">{info.getValue()}</span>
+    //     <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
     //   ),
     //   meta: { align: "left" as const },
     // }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 130,
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
           tone="muted"
           className={[
-            "w-fit rounded-full px-2.5 py-0.5 text-sm! font-semibold",
+            "w-fit",
             info.getValue() === "Returned"
               ? "bg-[rgba(15,23,42,0.08)] text-[#8892a3]"
               : "",
