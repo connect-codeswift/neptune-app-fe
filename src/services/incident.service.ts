@@ -171,7 +171,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     severity: asString(readProp(source, "severity", "Severity")) ?? null,
     site: asString(readProp(source, "site", "Site")) ?? null,
     location: asString(readProp(source, "location", "Location")) ?? null,
-    description: asString(readProp(source, "description", "Description")) ?? null,
+    description:
+      asString(readProp(source, "description", "Description")) ?? null,
     isDrop: asBoolean(readProp(source, "isDrop", "IsDrop")) ?? null,
     incidentAt: asString(readProp(source, "incidentAt", "IncidentAt")) ?? null,
     incidentReportedAt:
@@ -180,7 +181,9 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     isOSHARecordable: asBoolean(
       readProp(source, "isOSHARecordable", "IsOSHARecordable"),
     ),
-    isWorkRelated: asBoolean(readProp(source, "isWorkRelated", "IsWorkRelated")),
+    isWorkRelated: asBoolean(
+      readProp(source, "isWorkRelated", "IsWorkRelated"),
+    ),
     isDrugOrAlcoholRelated: asBoolean(
       readProp(source, "isDrugOrAlcoholRelated", "IsDrugOrAlcoholRelated"),
     ),
@@ -197,21 +200,32 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
       readProp(source, "isThirdPartyInvolved", "IsThirdPartyInvolved"),
     ),
     initialTreatment:
-      asString(readProp(source, "initialTreatment", "InitialTreatment")) ?? null,
+      asString(readProp(source, "initialTreatment", "InitialTreatment")) ??
+      null,
     isSecondaryTreatmentSought: asBoolean(
-      readProp(source, "isSecondaryTreatmentSought", "IsSecondaryTreatmentSought"),
+      readProp(
+        source,
+        "isSecondaryTreatmentSought",
+        "IsSecondaryTreatmentSought",
+      ),
     ),
     mechanismOfInjury:
-      asString(readProp(source, "mechanismOfInjury", "MechanismOfInjury")) ?? null,
+      asString(readProp(source, "mechanismOfInjury", "MechanismOfInjury")) ??
+      null,
     natureOfInjury:
       asString(readProp(source, "natureOfInjury", "NatureOfInjury")) ?? null,
     objectInvolved:
       asString(readProp(source, "objectInvolved", "ObjectInvolved")) ?? null,
     isOSHANotificationRequired: asBoolean(
-      readProp(source, "isOSHANotificationRequired", "IsOSHANotificationRequired"),
+      readProp(
+        source,
+        "isOSHANotificationRequired",
+        "IsOSHANotificationRequired",
+      ),
     ),
     affectedPersonId:
-      asString(readProp(source, "affectedPersonId", "AffectedPersonId")) ?? null,
+      asString(readProp(source, "affectedPersonId", "AffectedPersonId")) ??
+      null,
     reportedById: asNumber(readProp(source, "reportedById", "ReportedById")),
     userId: asNumber(readProp(source, "userId", "UserId")),
     siteId:
@@ -220,7 +234,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     injuredBodyPart:
       asString(readProp(source, "injuredBodyPart", "InjuredBodyPart")) ?? null,
     injuryDescription:
-      asString(readProp(source, "injuryDescription", "InjuryDescription")) ?? null,
+      asString(readProp(source, "injuryDescription", "InjuryDescription")) ??
+      null,
     incidentReporterEmail:
       asString(
         readProp(source, "incidentReporterEmail", "IncidentReporterEmail"),
@@ -236,10 +251,12 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
         readProp(source, "whatTreatmentWasGiven", "WhatTreatmentWasGiven"),
       ) ?? null,
     treatmentProvidedBy:
-      asString(readProp(source, "treatmentProvidedBy", "TreatmentProvidedBy")) ??
-      null,
+      asString(
+        readProp(source, "treatmentProvidedBy", "TreatmentProvidedBy"),
+      ) ?? null,
     treatmentLocation:
-      asString(readProp(source, "treatmentLocation", "TreatmentLocation")) ?? null,
+      asString(readProp(source, "treatmentLocation", "TreatmentLocation")) ??
+      null,
     isFitForFullDuty:
       typeof fitRaw === "boolean" || typeof fitRaw === "string"
         ? fitRaw
@@ -260,7 +277,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     ),
     images: asStringArray(readProp(source, "images", "Images")) ?? null,
     people,
-    actionTaken: asString(readProp(source, "actionTaken", "ActionTaken")) ?? null,
+    actionTaken:
+      asString(readProp(source, "actionTaken", "ActionTaken")) ?? null,
     otherNotes: asString(readProp(source, "otherNotes", "OtherNotes")) ?? null,
     feedback: asString(readProp(source, "feedback", "Feedback")) ?? null,
   };
@@ -730,14 +748,11 @@ export async function getIncidentClosure(
     throw new Error("Sign in required to load incident closure details.");
   }
 
-  const { data } = await http.get<unknown>(
-    incidentClosurePath(incidentId),
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  const { data } = await http.get<unknown>(incidentClosurePath(incidentId), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
     },
-  );
+  });
 
   return normalizeIncidentClosureDto(data);
 }

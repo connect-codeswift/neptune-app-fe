@@ -19,11 +19,8 @@ export const incidentQueryKeys = {
     search: string;
     severity: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
-  detail: (params: {
-    id: number;
-    userId: number;
-    siteId: number;
-  }) => [...incidentQueryKeys.all, "detail", "v7", params] as const,
+  detail: (params: { id: number; userId: number; siteId: number }) =>
+    [...incidentQueryKeys.all, "detail", "v7", params] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 
@@ -155,9 +152,12 @@ export type UseIncidentClosureQueryOptions = Readonly<{
  * Loads incident closure data via GET /api/Incident/{incidentId}/closure
  * header: `Authorization: Bearer <token>` (required)
  */
-export function useIncidentClosureQuery(options: UseIncidentClosureQueryOptions) {
+export function useIncidentClosureQuery(
+  options: UseIncidentClosureQueryOptions,
+) {
   const incidentId = options.incidentId;
-  const enabled = (options.enabled ?? false) && incidentId != null && incidentId > 0;
+  const enabled =
+    (options.enabled ?? false) && incidentId != null && incidentId > 0;
 
   return useQuery({
     queryKey: incidentQueryKeys.closure(incidentId ?? 0),
