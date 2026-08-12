@@ -6,9 +6,9 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { PPE_ROUTE } from "@/components/ppe/PpeBackLink";
 
-const crumbMuted = "text4 text-ehs-muted-text";
+const crumbMuted = "text8 text-ehs-muted-text";
 const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray transition-colors";
+  "text8 text-ehs-muted-text hover:text-ehs-gray transition-colors";
 
 function Chevron() {
   return (
@@ -50,7 +50,7 @@ export function PpeCatalogDetailHeader(
         <Text as="h1" className="text1 text-ehs-darker">
           {name}
         </Text>
-        <Text as="p" className="text4 text-ehs-muted-text">
+        <Text as="p" className="text8 text-ehs-muted-text">
           {protectionType}
         </Text>
       </div>

@@ -5,9 +5,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { PpeBackLink, PPE_ROUTE } from "@/components/ppe/PpeBackLink";
 
-const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
+const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
-  "text-ehs-muted-text hover:text-ehs-gray text-sm font-normal transition-colors";
+  "text8 text-ehs-muted-text hover:text-ehs-gray transition-colors";
 
 function Chevron() {
   return (
@@ -39,17 +39,11 @@ export function ReplacementRequestHeader() {
 
         <div className="flex items-center gap-2">
           <PpeBackLink />
-          <div className="flex min-w-0 flex-col gap-1">
-            <Text
-              as="h1"
-              className="text-ehs-darker text-base font-semibold tracking-[-0.2px] md:text-5.5"
-            >
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text as="h1" className="text1 text-ehs-darker">
               Replacement Request
             </Text>
-            <Text
-              as="p"
-              className="text-ehs-muted-text hidden text-base leading-[19.5px] md:block"
-            >
+            <Text as="p" className="text8 text-ehs-muted-text hidden md:block">
               Request replacement PPE — goes to EHS approval queue
             </Text>
           </div>

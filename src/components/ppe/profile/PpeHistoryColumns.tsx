@@ -7,58 +7,52 @@ const columnHelper = createColumnHelper<PpeHistoryRecord>();
 
 export const ppeHistoryColumns: TableColumns<PpeHistoryRecord> = [
   columnHelper.accessor("item", {
-    header: "ITEM",
+    header: "Item",
     size: 210,
     cell: (info) => (
-      <span className="text-base font-medium text-[#2a3446]">
-        {info.getValue()}
-      </span>
+      <span className="text4 text-ehs-darker">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("quantity", {
-    header: "QTY",
+    header: "Qty",
     size: 70,
     cell: (info) => (
-      <span className="text-ehs-muted-text text-base tabular-nums">
+      <span className="text4 text-ehs-muted-text tabular-nums">
         {String(info.getValue())}
       </span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("issueDate", {
-    header: "DATE",
+    header: "Date",
     size: 120,
     cell: (info) => (
-      <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+      <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("returnDate", {
-    header: "RETURNED",
+    header: "Returned",
     size: 130,
     cell: (info) => (
-      <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+      <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("condition", {
-    header: "CONDITION",
+    header: "Condition",
     size: 110,
     cell: (info) => (
-      <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+      <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
     ),
     meta: { align: "left" as const },
   }),
   columnHelper.accessor("status", {
-    header: "STATUS",
+    header: "Status",
     size: 100,
     cell: (info) => (
-      <IncidentBadge
-        label={info.getValue()}
-        tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-sm! font-semibold"
-      />
+      <IncidentBadge label={info.getValue()} tone="muted" className="w-fit" />
     ),
     meta: { align: "left" as const },
   }),

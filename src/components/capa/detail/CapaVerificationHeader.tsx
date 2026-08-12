@@ -31,7 +31,7 @@ export function CapaVerificationHeader(props: CapaVerificationHeaderProps) {
   const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(record.id)}`;
 
   return (
-    <div className="relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -54,7 +54,7 @@ export function CapaVerificationHeader(props: CapaVerificationHeaderProps) {
           <Link
             href={detailHref}
             aria-label="Back to CAPA detail"
-            className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors hover:bg-slate-50 md:hidden"
+            className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-white transition-colors hover:bg-slate-50 md:hidden"
           >
             <Icon icon="mdi:chevron-left" className="size-3.5" />
           </Link>

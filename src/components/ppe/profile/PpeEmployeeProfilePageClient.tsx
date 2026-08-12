@@ -27,10 +27,10 @@ export function PpeEmployeeProfilePageClient(
       {!isLoading && errorMessage ? (
         <div className="px-4 pb-8">
           <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Couldn&apos;t load this PPE profile
             </Text>
-            <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text mt-1">
               {errorMessage}
             </Text>
             <Button

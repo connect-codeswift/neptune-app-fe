@@ -6,9 +6,9 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PpeBackLink, PPE_ROUTE } from "@/components/ppe/PpeBackLink";
 
-const crumbMuted = "text-[#b3bbc8] text-sm font-normal";
+const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
-  "text-ehs-muted-text hover:text-ehs-gray text-sm font-normal transition-colors";
+  "text8 text-ehs-muted-text hover:text-ehs-gray transition-colors";
 
 function Chevron() {
   return (
@@ -54,24 +54,18 @@ export function PpeEmployeeProfileHeader(
           <span className={`${crumbMuted} truncate`}>{name}</span>
         </nav>
 
-        <p className="text-ehs-muted-text text-2.75 font-semibold md:hidden">
+        <p className="text8 text-ehs-muted-text md:hidden">
           {`PPE Management > Issuance Log > ${name}`}
         </p>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <PpeBackLink />
-            <div className="flex min-w-0 flex-col gap-1">
-              <Text
-                as="h1"
-                className="text-ehs-darker text-lg font-bold tracking-[-0.2px] md:text-5.5 md:font-semibold"
-              >
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Text as="h1" className="text1 text-ehs-darker">
                 {name}
               </Text>
-              <Text
-                as="p"
-                className="text-ehs-muted-text hidden text-base leading-[19.5px] md:block"
-              >
+              <Text as="p" className="text8 text-ehs-muted-text hidden md:block">
                 {`${role} — PPE Profile`}
               </Text>
             </div>
@@ -82,7 +76,7 @@ export function PpeEmployeeProfileHeader(
               type="button"
               variant="tertiary"
               onClick={onRequestReplacement}
-              className="gap-2 rounded-2.5 px-4 py-2 text-base font-medium"
+              className="text4 gap-2 rounded-2.5 px-4 py-2"
             >
               <Icon
                 icon="mdi:refresh"

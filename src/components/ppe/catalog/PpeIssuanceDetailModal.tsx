@@ -195,7 +195,7 @@ export function PpeIssuanceDetailModal(
             type="button"
             variant="tertiary"
             onClick={onClose}
-            className="text4 rounded-lg px-4 py-2 font-medium"
+            className="text4 rounded-lg px-4 py-2"
           >
             Close
           </Button>

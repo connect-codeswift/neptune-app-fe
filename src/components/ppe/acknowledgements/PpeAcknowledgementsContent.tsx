@@ -21,7 +21,7 @@ function AcknowledgementMobileCard(
     <div className="border-ehs-border flex w-full flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.02)]">
       <div className="flex items-center gap-2">
         <span
-          className="text8 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] font-bold text-white"
+          className="text8 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-white"
           aria-hidden="true"
         >
           {entry.initials}
@@ -54,7 +54,7 @@ function AcknowledgementMobileCard(
             variant="primary"
             disabled
             title="Acknowledging PPE from this list is not available yet"
-            className="text4 rounded-lg px-3.5 py-1.5 font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+            className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
           >
             Acknowledge
           </Button>
@@ -92,7 +92,7 @@ export function PpeAcknowledgementsContent() {
 
       {!isLoading && errorMessage ? (
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text5 text-ehs-darker tracking-normal">
+          <Text as="p" className="text4 text-ehs-darker">
             Couldn&apos;t load acknowledgements
           </Text>
           <Text as="p" className="text4 text-ehs-muted-text mt-1">

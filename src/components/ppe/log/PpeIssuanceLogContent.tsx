@@ -116,7 +116,7 @@ function IssuanceLogMobileCard(
           {entry.employee}
         </span>
         <span
-          className={`text8 shrink-0 rounded-md px-2 py-0.5 font-semibold ${statusToneClass[entry.status]}`}
+          className={`text8 shrink-0 rounded-md px-2 py-0.5 ${statusToneClass[entry.status]}`}
         >
           {statusLabel[entry.status]}
         </span>
@@ -142,7 +142,7 @@ function IssuanceLogMobileCard(
         </p>
         {entry.canReturn ? (
           <span
-            className="text4 text-ehs-muted-text font-semibold"
+            className="text4 text-ehs-muted-text"
             title="Recording returns is not available yet"
           >
             Return unavailable
@@ -216,7 +216,7 @@ export function PpeIssuanceLogContent(
 
       {!isLoading && errorMessage ? (
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text5 text-ehs-darker tracking-normal">
+          <Text as="p" className="text4 text-ehs-darker">
             Couldn&apos;t load the issuance log
           </Text>
           <Text as="p" className="text4 text-ehs-muted-text mt-1">
@@ -277,8 +277,8 @@ export function PpeIssuanceLogContent(
                   className={[
                     "text8 shrink-0 cursor-pointer rounded-5 px-3 py-1.5 whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-ehs-normal-blue font-semibold text-white"
-                      : "border-ehs-border text-ehs-muted-text border bg-white font-medium",
+                      ? "bg-ehs-normal-blue text-white"
+                      : "border-ehs-border text-ehs-muted-text border bg-white",
                   ].join(" ")}
                 >
                   {chip.label}

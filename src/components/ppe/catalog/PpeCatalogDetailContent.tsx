@@ -62,7 +62,7 @@ function InventoryStat(
       <Text
         as="span"
         className={[
-          "text3 tabular-nums",
+          "text2",
           muted
             ? "text-ehs-muted-text"
             : emphasize
@@ -116,7 +116,7 @@ function IssuanceMobileCard(
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text as="span" className="text5 text-ehs-darker">
+          <Text as="span" className="text4 text-ehs-darker">
             {record.employee}
           </Text>
           <Text as="span" className="text8 text-ehs-muted-text">
@@ -234,7 +234,7 @@ export function PpeCatalogDetailContent(
             aria-hidden="true"
           />
           <div className="min-w-0">
-            <Text as="p" className="text5 tracking-normal">
+            <Text as="p" className="text5">
               Stock is at or below the minimum level
             </Text>
             <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
@@ -410,7 +410,7 @@ export function PpeCatalogNotFound(props: Readonly<PpeCatalogNotFoundProps>) {
         className="min-w-0"
         incidentGlassCardClassName="items-start"
       >
-        <Text as="p" className="text5 text-ehs-darker tracking-normal">
+        <Text as="p" className="text4 text-ehs-darker">
           PPE item not found
         </Text>
         <Text as="p" className="text4 text-ehs-muted-text mt-1">
@@ -418,7 +418,7 @@ export function PpeCatalogNotFound(props: Readonly<PpeCatalogNotFoundProps>) {
         </Text>
         <Link
           href={PPE_ROUTE}
-          className="text5 text-ehs-normal-blue mt-4 inline-flex tracking-normal"
+          className="text4 text-ehs-normal-blue mt-4 inline-flex"
         >
           Back to PPE Management
         </Link>
