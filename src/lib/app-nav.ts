@@ -227,6 +227,36 @@ function matchesRole(role: string | null, expected: string): boolean {
   return role != null && normalize(role) === normalize(expected);
 }
 
+/**
+ * The `page:*` permission prefix an item belongs to, derived from its href.
+ *
+ * `/dashboard/incidents` -> `page:incidents`, which covers `page:incidents-list`,
+ * `page:incidents-dashboard`, `page:incidents-report` and the rest. Deriving it beats a
+ * per-item field: the seed in 20260807163258_UiPermissions was generated from these same
+ * routes, so a new page cannot drift out of sync with a list someone forgot to update.
+ */
+function pagePermissionPrefix(href: string): string {
+  const slug = href.replace(/^\/dashboard\/?/, "");
+  return slug ? `page:${slug}` : "page:dashboard";
+}
+
+/**
+ * Does the caller hold any page permission for this item?
+ *
+ * Prefix rather than exact match, because one sidebar entry fronts several pages — a role
+ * granted only `page:incidents-report` should still see Incidents in the nav and land
+ * somewhere it can read.
+ */
+function hasPagePermission(href: string, permissions: Set<string>): boolean {
+  const prefix = pagePermissionPrefix(href);
+  for (const permission of permissions) {
+    if (permission === prefix || permission.startsWith(`${prefix}-`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function passesModuleLicenseGate(
   item: AppNavItem,
   activatedModules: Set<string>,
@@ -259,7 +289,25 @@ function isNavItemVisible(
     return true;
   }
 
-  // Licensed modules from Org/me — skip permission checks entirely.
+  // The role gate, and the point of the whole thing: a licensed module still only appears
+  // for a role granted one of its page permissions — which is exactly what an admin ticks
+  // in the role editor's Pages tab.
+  //
+  // Applied only when the caller actually carries page claims. A token minted before these
+  // were granted, or a session bootstrapped from Org/me, carries none — and hiding every
+  // module because the claims are unreadable would lock people out of a working app. The
+  // API refuses anything they should not reach regardless.
+  const holdsAnyPagePermission = [...userPermissions].some((p) =>
+    p.startsWith("page:"),
+  );
+
+  // alwaysVisible items sit outside the page catalogue — Settings has no page: row of its
+  // own and is restricted by allowedRoles above instead, so the page gate must not hide it.
+  if (holdsAnyPagePermission && item.alwaysVisible !== true) {
+    return hasPagePermission(item.href, userPermissions);
+  }
+
+  // No page claims to go on — fall back to the licence being the only gate.
   if (moduleOnlyGating) {
     return true;
   }
