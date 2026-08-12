@@ -55,7 +55,7 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <Text as="span" className="text2 text-ehs-darker leading-none tabular-nums">
-          {total}
+          {String(total)}
         </Text>
         <Text as="span" className="text9 text-ehs-muted-text mt-1">
           Items
@@ -205,8 +205,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
           {title}
         </Text>
         <Text as="p" className="text8 text-ehs-muted-text mt-1">
-          {`${String(progress)}% complete`}
-          {record?.status ? ` · ${record.status}` : ""}
+          {`${String(progress)}% complete${record?.status ? ` · ${record.status}` : ""}`}
         </Text>
       </div>
 
@@ -226,7 +225,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
                   {segment.label}
                 </Text>
                 <Text as="span" className="text4 text-ehs-darker tabular-nums">
-                  {segment.value}
+                  {String(segment.value)}
                 </Text>
               </li>
             ))}
