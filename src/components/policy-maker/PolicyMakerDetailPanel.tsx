@@ -1,23 +1,30 @@
 "use client";
 
+import Link from "next/link";
+import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
+  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
   className?: string;
 }>;
 
-function MetaRow(props: Readonly<{ label: string; value: string }>) {
+function MetaField(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
 
   return (
-    <div className="flex w-full items-start justify-between gap-3">
-      <Text as="span" className="shrink-0 text-[11px] text-[#8892a3]">
+    <div className="flex min-w-0 flex-col gap-1">
+      <Text as="p" className="text9 text-ehs-muted-text">
         {label}
       </Text>
-      <Text as="span" className="text-right text-[11px] text-[#0b1320]">
+      <Text as="p" className="text4 text-ehs-darker">
         {value}
       </Text>
     </div>
@@ -37,18 +44,73 @@ function versionBadgeClass(badge: "review" | "archived" | "current"): string {
 export function PolicyMakerDetailPanel(
   props: Readonly<PolicyMakerDetailPanelProps>,
 ) {
-  const { document, className = "" } = props;
+  const {
+    document,
+    isLoading = false,
+    errorMessage = null,
+    onRetry,
+    className = "",
+  } = props;
+
+  if (isLoading) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:loading"
+          className="text-ehs-normal-blue size-7 animate-spin"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Loading document details…
+        </Text>
+      </IncidentGlassCard>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:alert-circle-outline"
+          className="text-ehs-red size-8"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-darker">
+          Could not load details
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text text-center">
+          {errorMessage}
+        </Text>
+        {onRetry ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onRetry}
+            className="mt-1"
+          >
+            Retry
+          </Button>
+        ) : null}
+      </IncidentGlassCard>
+    );
+  }
 
   if (!document) {
     return (
       <IncidentGlassCard
         paddingClassName="p-[18.49px]"
-        className={["min-h-[240px] min-w-0", className]
-          .filter(Boolean)
-          .join(" ")}
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
-        <Text as="p" className="text-center text-sm text-[#8892a3]">
+        <Text as="p" className="text4 text-ehs-muted-text">
           Select a document to view details.
         </Text>
       </IncidentGlassCard>
@@ -62,76 +124,85 @@ export function PolicyMakerDetailPanel(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[18.49px]"
-      incidentGlassCardClassName="gap-0"
-      className={["min-w-0 self-start", className].filter(Boolean).join(" ")}
+      paddingClassName="p-0 overflow-hidden"
+      className={["flex min-w-0 flex-col", className].filter(Boolean).join(" ")}
     >
-      <div className="flex flex-col gap-[1.95px]">
-        <Text
-          as="h3"
-          className="text-[14px] font-bold tracking-[-0.14px] text-[#0b1320]"
-        >
+      <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <Text as="span" className="text7 text-ehs-muted-text">
+            {document.code}
+          </Text>
+
+          <Link
+            href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+          >
+            Open details
+            <Icon
+              icon="mdi:arrow-right"
+              className="size-3.5"
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
+
+        <Text as="h2" className="text3 text-ehs-darker">
           {document.title}
         </Text>
-        <Text as="p" className="text-[10px] text-[#8892a3]">
-          {`${document.code} · ${document.version} (${document.status.toLowerCase()})`}
+        <Text as="p" className="text8 text-ehs-muted-text mt-2">
+          {`${document.version} · ${document.status}`}
         </Text>
       </div>
 
-      <div className="flex flex-col gap-[7.78px] pt-[13.62px] pb-[11.68px]">
-        <MetaRow label="Owner" value={document.ownerFullName} />
-        <MetaRow label="Site" value={document.site} />
-        <MetaRow label="Updated" value={document.updated} />
-        <MetaRow
+      <div className="border-ehs-border grid grid-cols-2 gap-x-4 gap-y-4 border-b px-5 py-3.5">
+        <MetaField label="Owner" value={document.ownerFullName} />
+        <MetaField label="Site" value={document.site} />
+        <MetaField label="Updated" value={document.updated} />
+        <MetaField
           label="Reviewers"
           value={`${String(document.reviewersDone)} of ${String(document.reviewersTotal)} done`}
         />
       </div>
 
-      <div className="h-[5.84px] w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]">
-        <div
-          className="h-full rounded-full bg-[#0891a6]"
-          style={{ width: `${String(reviewProgress)}%` }}
-        />
+      <div className="border-ehs-border border-b px-5 py-3.5">
+        <Text as="p" className="text9 text-ehs-muted-text mb-2">
+          Review progress
+        </Text>
+        <div className="bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            className="bg-ehs-normal-blue h-full rounded-full"
+            style={{ width: `${String(reviewProgress)}%` }}
+          />
+        </div>
       </div>
 
-      <div className="pt-[14.6px] pb-[0.97px]">
-        <Text
-          as="p"
-          className="text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase"
-        >
+      <div className="px-5 py-3.5">
+        <Text as="p" className="text9 text-ehs-muted-text mb-2">
           Version history
         </Text>
-      </div>
-
-      <div className="flex flex-col">
-        {document.versions.map((entry) => (
-          <div
-            key={`${entry.version}-${entry.date}`}
-            className="flex items-center gap-[9.73px] border-t border-[rgba(15,23,42,0.08)] pt-[6.81px] pb-[5.84px]"
-          >
-            <Text
-              as="span"
-              className="w-[27.24px] shrink-0 text-[10px] font-bold text-[#0b1320]"
+        <div className="flex flex-col">
+          {document.versions.map((entry) => (
+            <div
+              key={`${entry.version}-${entry.date}`}
+              className="border-ehs-border flex items-center gap-2.5 border-t py-2 first:border-t-0 first:pt-0"
             >
-              {entry.version}
-            </Text>
-            <Text
-              as="span"
-              className="min-w-0 flex-1 text-[10px] text-[#566072]"
-            >
-              {`${entry.author} · ${entry.date}`}
-            </Text>
-            <span
-              className={[
-                "inline-flex shrink-0 items-center rounded-full px-[8.76px] pt-[2.43px] pb-[2.81px] text-[10px] font-bold tracking-[0.21px]",
-                versionBadgeClass(entry.badge),
-              ].join(" ")}
-            >
-              {entry.badge}
-            </span>
-          </div>
-        ))}
+              <Text as="span" className="text7 text-ehs-darker w-7 shrink-0">
+                {entry.version}
+              </Text>
+              <Text as="span" className="text8 text-ehs-gray min-w-0 flex-1">
+                {`${entry.author} · ${entry.date}`}
+              </Text>
+              <span
+                className={[
+                  "text5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5",
+                  versionBadgeClass(entry.badge),
+                ].join(" ")}
+              >
+                {entry.badge}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </IncidentGlassCard>
   );

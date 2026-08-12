@@ -1,5 +1,5 @@
-﻿import { redirect } from "next/navigation";
+﻿import { HazardListPageClient } from "@/components/hazard/HazardListPageClient";
 
 export default function HazardPage() {
-  redirect("/dashboard/hazard/list");
+  return <HazardListPageClient />;
 }

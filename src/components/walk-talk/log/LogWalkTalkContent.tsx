@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
@@ -29,21 +29,21 @@ const NOTES_FORM_ID = "walk-talk-notes-form";
 const FOLLOW_UP_FORM_ID = "walk-talk-follow-up-form";
 const FORMS_TO_VALIDATE = 4;
 
+/** Match PPE / Policy Maker form typography (text1–text9 scale). */
 const fieldLabelClass = [
-  "[&_label]:text-sm",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:tracking-[0.24px]",
-  "[&_label]:text-[#566072]",
-  "[&_label]:uppercase",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
 ].join(" ");
 
 function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
   const { children } = props;
-  return (
-    <h2 className="text-ehs-dark-bg text-[13px] font-bold md:text-lg">
-      {children}
-    </h2>
-  );
+  return <h2 className="text3 text-ehs-darker">{children}</h2>;
 }
 
 function followUpFromValues(values: FormValues): FollowUpAction {
@@ -60,12 +60,6 @@ function isFollowUpEmpty(action: FollowUpAction): boolean {
     action.dueDate.trim() === "" &&
     action.action.trim() === ""
   );
-}
-
-function asStringList(value: FormValues[string] | undefined): string[] {
-  return Array.isArray(value)
-    ? value.filter((entry) => typeof entry === "string")
-    : [];
 }
 
 export function LogWalkTalkContent() {
@@ -173,15 +167,15 @@ export function LogWalkTalkContent() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       <LogWalkTalkHeader />
 
       <div className="mx-auto flex w-full max-w-183 flex-col gap-3.5">
         {/* Walk-and-Talk Details */}
         <IncidentGlassCard
-          paddingClassName="p-4 md:p-[22px]"
+          paddingClassName="p-4 md:p-5.5"
           className="relative z-10 min-w-0"
-          incidentGlassCardClassName="gap-4 md:gap-[18px]"
+          incidentGlassCardClassName="gap-4 md:gap-4.5"
         >
           <SectionTitle>Walk-and-Talk Details</SectionTitle>
           <FormBuilder
@@ -204,7 +198,7 @@ export function LogWalkTalkContent() {
 
         {/* Participants */}
         <IncidentGlassCard
-          paddingClassName="p-4 md:p-[22px]"
+          paddingClassName="p-4 md:p-5.5"
           className="min-w-0"
           incidentGlassCardClassName="gap-3"
         >
@@ -230,7 +224,7 @@ export function LogWalkTalkContent() {
 
         {/* Discussion Notes */}
         <IncidentGlassCard
-          paddingClassName="p-4 md:p-[22px]"
+          paddingClassName="p-4 md:p-5.5"
           className="min-w-0"
           incidentGlassCardClassName="gap-3"
         >
@@ -247,14 +241,14 @@ export function LogWalkTalkContent() {
               "[&_label]:hidden",
               "[&_textarea]:min-h-32",
               "[&_textarea]:bg-white/62",
-              "[&_textarea]:text-base",
+              "[&_textarea]:text4",
             ].join(" ")}
           />
         </IncidentGlassCard>
 
         {/* Follow-Up Actions */}
         <IncidentGlassCard
-          paddingClassName="p-4 md:p-[22px]"
+          paddingClassName="p-4 md:p-5.5"
           className="min-w-0"
           incidentGlassCardClassName="gap-3"
         >
@@ -263,7 +257,7 @@ export function LogWalkTalkContent() {
             <button
               type="button"
               onClick={addFollowUpAction}
-              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover shrink-0 cursor-pointer text-[13px] font-bold transition-colors md:rounded-lg md:bg-ehs-normal-blue/14 md:px-3 md:py-1.5 md:text-sm md:font-semibold md:hover:bg-ehs-normal-blue/20"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover shrink-0 cursor-pointer transition-colors md:rounded-lg md:bg-ehs-normal-blue/14 md:px-3 md:py-1.5 md:hover:bg-ehs-normal-blue/20"
             >
               + Add Action
             </button>
@@ -274,13 +268,13 @@ export function LogWalkTalkContent() {
               {savedActions.map((entry, index) => (
                 <li
                   key={`${entry.action}-${String(index)}`}
-                  className="border-ehs-border flex items-start justify-between gap-3 rounded-[10px] border bg-white/62 px-3.5 py-2.5"
+                  className="border-ehs-border flex items-start justify-between gap-3 rounded-2.5 border bg-white/62 px-3.5 py-2.5"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-ehs-dark-bg text-sm font-medium">
+                    <span className="text4 text-ehs-darker">
                       {entry.action || `Action ${String(index + 1)}`}
                     </span>
-                    <span className="text-ehs-muted-text text-xs">
+                    <span className="text8 text-ehs-muted-text">
                       {[
                         entry.assignedTo
                           ? userNameFor(assigneeLookup, entry.assignedTo)
@@ -338,7 +332,7 @@ export function LogWalkTalkContent() {
             type="button"
             variant="tertiary"
             onClick={() => router.push(WALK_TALK_ROUTE)}
-            className="h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-sm font-bold text-[#566072] md:h-auto md:flex-none md:rounded-[10px] md:border md:border-slate-900/14 md:bg-white/62 md:text-base md:font-medium md:text-[#2a3446]"
+            className="text4 h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-[#566072] md:h-auto md:flex-none md:rounded-2.5 md:border md:border-slate-900/14 md:bg-white/62 md:text-[#2a3446]"
           >
             Cancel
           </Button>
@@ -346,9 +340,9 @@ export function LogWalkTalkContent() {
           <Button
             type="button"
             variant="primary"
-            disabled={createWalkTalk.isPending}
+            isLoading={createWalkTalk.isPending}
             onClick={saveAll}
-            className="h-11 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:rounded-[10px] md:px-5 md:text-base md:font-semibold md:shadow-[0px_6px_18px_-6px_#0891a6]"
+            className="text4 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:rounded-2.5 md:px-5 md:shadow-[0px_6px_18px_-6px_#0891a6]"
           >
             {createWalkTalk.isPending
               ? "Submitting..."

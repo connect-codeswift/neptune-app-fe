@@ -14,9 +14,11 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const injuryMixCardShellClass =
-  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]";
+  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5";
 
-function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>) {
+function DonutChart(
+  props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>,
+) {
   const { items, total } = props;
   const mixTotal = items.reduce((sum, item) => sum + item.value, 0);
   const hasMixData = mixTotal > 0;
@@ -49,7 +51,7 @@ function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: nu
     : [];
 
   return (
-    <div className="relative size-[132px] shrink-0">
+    <div className="relative size-33 shrink-0">
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="size-full -rotate-90"
@@ -84,16 +86,16 @@ function DonutChart(props: Readonly<{ items: readonly InjuryMixItem[]; total: nu
         )}
       </svg>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-[2px]">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
         <Text
           as="p"
-          className="text-ehs-dark-bg pt-[2px] pb-[3px] text-[26px] leading-normal font-bold tracking-[-0.52px] tabular-nums"
+          className="text-ehs-dark-bg pt-0.5 pb-0.75 text-6.5 leading-normal font-bold tracking-[-0.52px] tabular-nums"
         >
           {new Intl.NumberFormat("en-US").format(total)}
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text py-px text-[10px] leading-normal font-normal tracking-[0.8px] uppercase"
+          className="text-ehs-muted-text py-px text-2.5 leading-normal font-normal tracking-[0.8px] uppercase"
         >
           RECORD.
         </Text>
@@ -107,13 +109,13 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
+      paddingClassName="p-4.75"
       className={[injuryMixCardShellClass, className].filter(Boolean).join(" ")}
     >
-      <div className="pb-[14px]">
+      <div className="pb-3.5">
         <Text
           as="h3"
-          className="text-ehs-dark-bg pb-[2px] pt-px text-[14px] leading-normal font-bold tracking-[-0.14px]"
+          className="text-ehs-dark-bg text-3.5 pt-px pb-0.5 leading-normal font-bold tracking-[-0.14px]"
         >
           Recordable injury mix
         </Text>
@@ -125,17 +127,17 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
         </Text>
       </div>
 
-      <div className="flex flex-wrap items-center gap-[22px]">
+      <div className="flex flex-col items-start gap-5.5 md:flex-row md:items-center">
         <DonutChart items={items} total={total} />
 
-        <div className="grid min-w-0 flex-1 grid-cols-1 gap-x-2 gap-y-2 sm:grid-cols-2">
+        <div className="grid w-full min-w-0 grid-cols-2 gap-x-2 gap-y-2 md:flex-1">
           {items.map((item) => (
             <div
               key={item.label}
-              className="flex h-[14px] min-w-0 items-center gap-2"
+              className="flex h-3.5 min-w-0 items-center gap-2"
             >
               <span
-                className="size-2 shrink-0 rounded-[2px]"
+                className="size-2 shrink-0 rounded-0.5"
                 style={{ backgroundColor: item.color }}
                 aria-hidden="true"
               />

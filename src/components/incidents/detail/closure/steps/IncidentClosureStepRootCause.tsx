@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Text } from "@/components/Text";
 import { CreatableMultiSelectInput } from "@/components/inputs/CreatableMultiSelectInput";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 import type { SelectOption } from "@/components/inputs/SelectInput";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 import { useRcaCategoriesQuery } from "@/hooks/use-rca-queries";
@@ -58,7 +59,10 @@ export function IncidentClosureStepRootCause(
   }));
 
   const selectedRootCauseCategoryIds = data.primaryRootCauseCategoryIds ?? [];
-  const selectedContributingFactors = data.contributingFactors ?? [];
+  const selectedContributingFactors = useMemo(
+    () => data.contributingFactors ?? [],
+    [data.contributingFactors],
+  );
 
   const contributingFactorOptions = useMemo(
     () => buildContributingFactorOptions(selectedContributingFactors),
@@ -98,14 +102,14 @@ export function IncidentClosureStepRootCause(
     <div className="flex flex-col gap-5">
       <Text
         as="h2"
-        className="text-[15px] leading-normal font-bold text-ehs-dark-bg"
+        className="text5 leading-normal font-bold text-ehs-dark-bg"
       >
         Root Cause Summary
       </Text>
 
       {/* Primary Root Cause */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           PRIMARY ROOT CAUSE
         </label>
         <CreatableMultiSelectInput
@@ -125,7 +129,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Contributing Factors */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           CONTRIBUTING FACTORS
         </label>
         <CreatableMultiSelectInput
@@ -141,7 +145,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Root Cause Description */}
       <div className="flex flex-col">
-        <label className="mb-2 text-[11px] font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
         <textarea
@@ -150,9 +154,9 @@ export function IncidentClosureStepRootCause(
           rows={4}
           maxLength={1000}
           placeholder="Describe the root cause details..."
-          className="w-full resize-y rounded-[14px] border border-ehs-border bg-white px-3.5 py-3 text-[13px] leading-[20px] font-normal text-ehs-dark-bg shadow-xs transition outline-none focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20"
+          className={FIELD_TEXTAREA_CLASS}
         />
-        <span className="mt-1.5 self-end text-[11px] font-normal text-ehs-muted-text">
+        <span className="mt-1.5 self-end text8 font-normal text-ehs-muted-text">
           {`${String(data.rootCauseSummary.length)} / 1000 min`}
         </span>
       </div>

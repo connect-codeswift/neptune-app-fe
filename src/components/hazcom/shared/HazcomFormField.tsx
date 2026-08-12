@@ -18,6 +18,12 @@ export const hazcomFieldInputClass = FIELD_INPUT_CLASS;
 
 const fieldInputClass = FIELD_INPUT_CLASS;
 
+/**
+ * Sentence-case form labels — `text7` carries the semibold weight so call sites
+ * don't need a `font-semibold` override on top of `text8`.
+ */
+export const HAZCOM_FIELD_LABEL_CLASS = "text7 text-ehs-darker";
+
 type HazcomFieldLabelProps = Readonly<{
   label: string;
   required?: boolean;
@@ -30,16 +36,16 @@ function HazcomFieldLabel(props: Readonly<HazcomFieldLabelProps>) {
 
   return (
     <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-      <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+      <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
         {label}
       </Text>
       {required ? (
-        <Text as="span" className="text-ehs-red text-[12px]">
+        <Text as="span" className="text8 text-ehs-red">
           *
         </Text>
       ) : null}
       {hint ? (
-        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-[10px]">
+        <span className="text8 text-ehs-muted-text inline-flex items-center gap-1">
           <Icon
             icon="mdi:information-outline"
             className="size-3"
@@ -85,7 +91,7 @@ export function HazcomTextField(props: Readonly<HazcomTextFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text8 text-ehs-muted-text">
               {trailingHint}
             </Text>
           ) : undefined
@@ -100,13 +106,13 @@ export function HazcomTextField(props: Readonly<HazcomTextFieldProps>) {
         {endIcon ? (
           <Icon
             icon={endIcon}
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[13px] -translate-y-1/2"
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-3.25 -translate-y-1/2"
             aria-hidden="true"
           />
         ) : null}
       </div>
       {helperText ? (
-        <Text as="p" className="text-ehs-muted-text text-[10px]">
+        <Text as="p" className="text8 text-ehs-muted-text">
           {helperText}
         </Text>
       ) : null}
@@ -150,7 +156,7 @@ export function HazcomSelectField(props: Readonly<HazcomSelectFieldProps>) {
         hint={hint}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text8 text-ehs-muted-text">
               {trailingHint}
             </Text>
           ) : undefined
@@ -209,7 +215,7 @@ export function HazcomTextareaField(props: Readonly<HazcomTextareaFieldProps>) {
         required={required}
         trailing={
           trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-[10px]">
+            <Text as="span" className="text8 text-ehs-muted-text">
               {trailingHint}
             </Text>
           ) : undefined

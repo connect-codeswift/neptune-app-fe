@@ -1,67 +1,131 @@
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
+import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
 
 const columnHelper = createColumnHelper<WalkTalkSession>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const walkTalkSessionColumns: ColumnDef<WalkTalkSession, any>[] = [
-  columnHelper.accessor("id", {
-    header: "ID",
-    size: 110,
-    cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("type", {
-    header: "TYPE",
-    size: 160,
-    cell: (info) => (
-      <IncidentBadge
-        label={info.getValue()}
-        tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-base!"
-      />
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("observer", {
-    header: "OBSERVER",
-    size: 150,
-    cell: (info) => (
-      <span className="text-ehs-darker/60 text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("focusArea", {
-    header: "FOCUS AREA",
-    size: 200,
-    cell: (info) => {
-      const session = info.row.original;
-      return (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-ehs-darker text-base font-normal">
-            {info.getValue()}
-          </span>
-          <span className="text-ehs-muted-text text-sm">{session.when}</span>
-        </div>
-      );
-    },
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("site", {
-    header: "SITE",
-    size: 160,
-    cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-];
+export type WalkTalkSessionColumnOptions = Readonly<{
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
+  /** Wider columns when the side detail panel is closed. */
+  expanded?: boolean;
+}>;
+
+export function createWalkTalkSessionColumns(
+  options: WalkTalkSessionColumnOptions,
+): ColumnDef<WalkTalkSession, unknown>[] {
+  const { selectedId, onViewMore, expanded = true } = options;
+
+  return [
+    columnHelper.display({
+      id: "session",
+      header: "Session",
+      size: expanded ? 260 : 200,
+      minSize: 160,
+      meta: { align: "left" as const },
+      cell: ({ row }) => {
+        const session = row.original;
+        return (
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text as="span" className="text4 text-ehs-darker">
+              {session.focusArea}
+            </Text>
+            <Text as="span" className="text8 text-ehs-muted-text">
+              {expanded
+                ? session.id
+                : `${session.id} · ${session.when}`}
+            </Text>
+          </div>
+        );
+      },
+    }),
+    columnHelper.accessor("type", {
+      header: "Type",
+      size: expanded ? 140 : 120,
+      minSize: 100,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => <CompliancePill label={info.getValue()} />,
+    }),
+    columnHelper.accessor("observer", {
+      header: "Observer",
+      size: expanded ? 150 : 110,
+      minSize: 90,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => (
+        <Text as="span" className="text4 text-ehs-gray">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    ...(expanded
+      ? [
+          columnHelper.accessor("when", {
+            header: "When",
+            size: 130,
+            minSize: 100,
+            meta: {
+              align: "left" as const,
+              verticalAlign: "middle" as const,
+            },
+            cell: (info) => (
+              <Text
+                as="span"
+                className="text4 text-ehs-gray whitespace-nowrap"
+              >
+                {info.getValue()}
+              </Text>
+            ),
+          }),
+        ]
+      : []),
+    columnHelper.accessor("site", {
+      header: "Site",
+      size: expanded ? 150 : 110,
+      minSize: 90,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => (
+        <Text as="span" className="text4 text-ehs-gray">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.id}`
+                : `View ${row.original.id}`
+            }
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+    }),
+  ] as ColumnDef<WalkTalkSession, unknown>[];
+}

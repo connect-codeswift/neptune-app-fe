@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HazcomErrorCard,
@@ -13,6 +12,7 @@ import {
   HazcomPager,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
   chemicalMatchesSearch,
   exportChemicalsToCsv,
@@ -26,9 +26,6 @@ import {
 export type ChemicalListViewProps = Readonly<{
   className?: string;
 }>;
-
-const searchInputClass =
-  "border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 h-10 w-full rounded-lg border bg-white py-2 pr-3.5 pl-9 text-[13px] shadow-sm outline-none transition focus:ring-2";
 
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;
@@ -58,6 +55,10 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
     [chemicals, searchQuery],
   );
 
+  const resultLabel = `${String(filteredChemicals.length)} ${
+    filteredChemicals.length === 1 ? "chemical" : "chemicals"
+  }`;
+
   return (
     <div
       className={["flex min-w-0 flex-col gap-5 px-3 lg:px-4", className]
@@ -77,11 +78,11 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               variant="tertiary"
               disabled={chemicals.length === 0}
               onClick={() => exportChemicalsToCsv(chemicals)}
-              className="rounded-lg px-4 py-2 text-[13px]"
+              className="text4 rounded-lg px-4 py-2"
             >
               <Icon
                 icon="mdi:download"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Export
@@ -90,13 +91,9 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
               <Button
                 type="button"
                 variant="primary"
-                className="rounded-lg px-4 py-2 text-[13px]"
+                className="text4 rounded-lg px-4 py-2"
               >
-                <Icon
-                  icon="mdi:plus"
-                  className="text-base"
-                  aria-hidden="true"
-                />
+                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 Add Chemical
               </Button>
             </Link>
@@ -104,28 +101,13 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="relative max-w-md min-w-0 flex-1">
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by name, CAS#, location..."
-            aria-label="Search chemicals"
-            className={searchInputClass}
-          />
-        </div>
-        <Text as="p" className="text-ehs-muted-text shrink-0 text-[13px]">
-          {`${String(totalRecords)} ${
-            totalRecords === 1 ? "chemical" : "chemicals"
-          }`}
-        </Text>
-      </div>
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by name, CAS#, location..."
+        aria-label="Search chemicals"
+        resultLabel={resultLabel}
+      />
 
       {errorMessage ? (
         <HazcomErrorCard

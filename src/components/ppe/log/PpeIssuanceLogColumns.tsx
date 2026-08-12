@@ -1,86 +1,64 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
-import type {
-  PpeIssuanceLogEntry,
-  PpeLogStatus,
-} from "@/app/dashboard/ppe-management/ppe-data";
+import type { PpeIssuanceLogEntry } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeIssuanceLogEntry>();
 
-const statusTone: Record<PpeLogStatus, "muted" | "neutral"> = {
-  Issued: "muted",
-  "Due Inspection": "muted",
-  Overdue: "muted",
-  Returned: "neutral",
-};
-
-export type PpeIssuanceLogColumnsOptions = Readonly<{
-  onReturn?: (entry: PpeIssuanceLogEntry) => void;
-}>;
-
-export function buildPpeIssuanceLogColumns(
-  options: PpeIssuanceLogColumnsOptions = {},
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<PpeIssuanceLogEntry, any>[] {
-  const { onReturn } = options;
-
+export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> {
   return [
     columnHelper.accessor("issueId", {
       header: "ID",
       size: 90,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base font-bold">
-          {info.getValue()}
-        </span>
+        <span className="text7 text-ehs-muted-text">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("employee", {
-      header: "EMPLOYEE",
-      size: 120,
+      header: "Employee",
+      size: 160,
       cell: (info) => (
-        <span className="text-ehs-darker text-base font-semibold">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("ppeItem", {
-      header: "PPE ITEM",
-      size: 120,
+      header: "PPE item",
+      size: 160,
       cell: (info) => (
-        <span className="text-base text-[#2a3446]">{info.getValue()}</span>
+        <span className="text4 text-ehs-slate">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("qtySize", {
-      header: "QTY / SIZE",
+      header: "Qty / size",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("issueDate", {
-      header: "DATE",
+      header: "Date",
       size: 110,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     // columnHelper.accessor("returnDate", {
-    //   header: "RETURN DATE",
+    //   header: "Return date",
     //   size: 120,
     //   cell: (info) => {
     //     const value = info.getValue();
     //     return (
     //       <span
     //         className={[
-    //           "text-sm",
-    //           value === "—" ? "text-[#b3bbc8]" : "text-ehs-muted-text",
+    //           "text4",
+    //           value === "—" ? "text-ehs-muted-text" : "text-ehs-muted-text",
     //         ].join(" ")}
     //       >
     //         {value}
@@ -90,22 +68,22 @@ export function buildPpeIssuanceLogColumns(
     //   meta: { align: "left" as const },
     // }),
     // columnHelper.accessor("condition", {
-    //   header: "CONDITION",
+    //   header: "Condition",
     //   size: 120,
     //   cell: (info) => (
-    //     <span className="text-ehs-muted-text text-sm">{info.getValue()}</span>
+    //     <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
     //   ),
     //   meta: { align: "left" as const },
     // }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 130,
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
           tone="muted"
           className={[
-            "w-fit rounded-full px-2.5 py-0.5 text-sm! font-semibold",
+            "w-fit",
             info.getValue() === "Returned"
               ? "bg-[rgba(15,23,42,0.08)] text-[#8892a3]"
               : "",
@@ -114,26 +92,9 @@ export function buildPpeIssuanceLogColumns(
       ),
       meta: { align: "left" as const },
     }),
-    // columnHelper.display({
-    //   id: "action",
-    //   header: "ACTION",
-    //   size: 90,
-    //   cell: ({ row }) => {
-    //     if (!row.original.canReturn) return null;
-    //     return (
-    //       <button
-    //         type="button"
-    //         className="cursor-pointer rounded-[7px] bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-sm font-medium text-[#566072] transition-colors hover:bg-[rgba(15,23,42,0.1)]"
-    //         onClick={(event) => {
-    //           event.stopPropagation();
-    //           onReturn?.(row.original);
-    //         }}
-    //       >
-    //         Return
-    //       </button>
-    //     );
-    //   },
-    //   meta: { align: "left" as const },
-    // }),
+    // An ACTION column with a per-row Return button belongs here, but
+    // recording a return has no endpoint yet (use-ppe-mutations covers issue
+    // and replacement only). Left out rather than wired to a fake success
+    // toast; add it back with the mutation when the endpoint lands.
   ];
 }

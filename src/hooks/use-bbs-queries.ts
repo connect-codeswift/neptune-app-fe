@@ -15,7 +15,7 @@ import {
 } from "@/services/bbs.service";
 
 export const DEFAULT_BBS_PAGE_NUMBER = 1;
-export const DEFAULT_BBS_PAGE_SIZE = 5;
+export const DEFAULT_BBS_PAGE_SIZE = 10;
 export const DEFAULT_BBS_GRAPH_WEEKS = 12;
 
 function toList<T>(payload: unknown): T[] {
@@ -90,7 +90,7 @@ export function useBehaviorCategoriesQuery() {
   });
 }
 
-/** Fetches GET /api/bbs/dashboard-kpi for the StatMetricCard row. */
+/** Fetches GET /api/bbs/dashboard-kpi for the MetricCard row. */
 export function useBbsDashboardKpiQuery() {
   return useQuery({
     queryKey: ["bbs", "dashboard-kpi"] as const,

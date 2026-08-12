@@ -25,9 +25,9 @@ function ActionButton(
       type="button"
       variant="primary"
       onClick={onClick}
-      className="shrink-0 rounded-xl px-4 py-2.5 text-sm"
+      className="text4 shrink-0 rounded-xl px-4 py-2.5"
     >
-      <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+      <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
       {label}
     </Button>
   );
@@ -48,24 +48,20 @@ export function DashboardHeader(props: Readonly<DashboardHeaderProps>) {
   return (
     <header
       className={[
-        "flex min-w-0 flex-col gap-3 px-3 py-4 sm:px-4",
-        "lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4",
+        "flex w-full min-w-0 flex-row flex-wrap items-center justify-between gap-3 px-3 py-4 sm:px-4",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       {title ? (
-        <Text
-          as="h1"
-          className="text-ehs-darker shrink-0 text-xl font-bold tracking-tight sm:text-2xl"
-        >
+        <Text as="h1" className="text1 text-ehs-darker shrink-0">
           {title}
         </Text>
       ) : null}
 
       {showRightControls ? (
-        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3">
           {showSiteSwitcher ? (
             <OrgSiteSwitcher onSiteChange={onSiteChange} />
           ) : null}

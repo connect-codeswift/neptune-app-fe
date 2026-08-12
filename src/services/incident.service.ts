@@ -1,9 +1,9 @@
 import type {
   CreateIncidentRequestDto,
   GetAllIncidentsRequestDto,
-  TenantUserContextDto,
   UpdateIncidentRequestDto,
 } from "@/dtos/req/incident-request.dto";
+import { getAuthContext } from "@/lib/auth-context";
 import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 import type {
   GetAllIncidentsResponseDto,
@@ -171,7 +171,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     severity: asString(readProp(source, "severity", "Severity")) ?? null,
     site: asString(readProp(source, "site", "Site")) ?? null,
     location: asString(readProp(source, "location", "Location")) ?? null,
-    description: asString(readProp(source, "description", "Description")) ?? null,
+    description:
+      asString(readProp(source, "description", "Description")) ?? null,
     isDrop: asBoolean(readProp(source, "isDrop", "IsDrop")) ?? null,
     incidentAt: asString(readProp(source, "incidentAt", "IncidentAt")) ?? null,
     incidentReportedAt:
@@ -180,7 +181,9 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     isOSHARecordable: asBoolean(
       readProp(source, "isOSHARecordable", "IsOSHARecordable"),
     ),
-    isWorkRelated: asBoolean(readProp(source, "isWorkRelated", "IsWorkRelated")),
+    isWorkRelated: asBoolean(
+      readProp(source, "isWorkRelated", "IsWorkRelated"),
+    ),
     isDrugOrAlcoholRelated: asBoolean(
       readProp(source, "isDrugOrAlcoholRelated", "IsDrugOrAlcoholRelated"),
     ),
@@ -197,21 +200,32 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
       readProp(source, "isThirdPartyInvolved", "IsThirdPartyInvolved"),
     ),
     initialTreatment:
-      asString(readProp(source, "initialTreatment", "InitialTreatment")) ?? null,
+      asString(readProp(source, "initialTreatment", "InitialTreatment")) ??
+      null,
     isSecondaryTreatmentSought: asBoolean(
-      readProp(source, "isSecondaryTreatmentSought", "IsSecondaryTreatmentSought"),
+      readProp(
+        source,
+        "isSecondaryTreatmentSought",
+        "IsSecondaryTreatmentSought",
+      ),
     ),
     mechanismOfInjury:
-      asString(readProp(source, "mechanismOfInjury", "MechanismOfInjury")) ?? null,
+      asString(readProp(source, "mechanismOfInjury", "MechanismOfInjury")) ??
+      null,
     natureOfInjury:
       asString(readProp(source, "natureOfInjury", "NatureOfInjury")) ?? null,
     objectInvolved:
       asString(readProp(source, "objectInvolved", "ObjectInvolved")) ?? null,
     isOSHANotificationRequired: asBoolean(
-      readProp(source, "isOSHANotificationRequired", "IsOSHANotificationRequired"),
+      readProp(
+        source,
+        "isOSHANotificationRequired",
+        "IsOSHANotificationRequired",
+      ),
     ),
     affectedPersonId:
-      asString(readProp(source, "affectedPersonId", "AffectedPersonId")) ?? null,
+      asString(readProp(source, "affectedPersonId", "AffectedPersonId")) ??
+      null,
     reportedById: asNumber(readProp(source, "reportedById", "ReportedById")),
     userId: asNumber(readProp(source, "userId", "UserId")),
     siteId:
@@ -220,7 +234,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     injuredBodyPart:
       asString(readProp(source, "injuredBodyPart", "InjuredBodyPart")) ?? null,
     injuryDescription:
-      asString(readProp(source, "injuryDescription", "InjuryDescription")) ?? null,
+      asString(readProp(source, "injuryDescription", "InjuryDescription")) ??
+      null,
     incidentReporterEmail:
       asString(
         readProp(source, "incidentReporterEmail", "IncidentReporterEmail"),
@@ -236,10 +251,12 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
         readProp(source, "whatTreatmentWasGiven", "WhatTreatmentWasGiven"),
       ) ?? null,
     treatmentProvidedBy:
-      asString(readProp(source, "treatmentProvidedBy", "TreatmentProvidedBy")) ??
-      null,
+      asString(
+        readProp(source, "treatmentProvidedBy", "TreatmentProvidedBy"),
+      ) ?? null,
     treatmentLocation:
-      asString(readProp(source, "treatmentLocation", "TreatmentLocation")) ?? null,
+      asString(readProp(source, "treatmentLocation", "TreatmentLocation")) ??
+      null,
     isFitForFullDuty:
       typeof fitRaw === "boolean" || typeof fitRaw === "string"
         ? fitRaw
@@ -260,7 +277,8 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     ),
     images: asStringArray(readProp(source, "images", "Images")) ?? null,
     people,
-    actionTaken: asString(readProp(source, "actionTaken", "ActionTaken")) ?? null,
+    actionTaken:
+      asString(readProp(source, "actionTaken", "ActionTaken")) ?? null,
     otherNotes: asString(readProp(source, "otherNotes", "OtherNotes")) ?? null,
     feedback: asString(readProp(source, "feedback", "Feedback")) ?? null,
   };
@@ -406,16 +424,15 @@ export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
 
 /**
  * GET /Incident/GetIncidentById
- * Query: `{ id, userId, siteId }`
+ * Query: `{ id }` — tenant scope is read from the JWT, not the query string.
  * Header: `Authorization: Bearer <token>` (required by API security)
+ *
+ * Requires Incident.View (was Incident.Update), so view-only users can open
+ * detail now.
+ *
+ * A missing or cross-tenant incident is a 404 here, not the old 400.
  */
-export async function getIncidentById(
-  params: Readonly<{
-    id: number;
-    userId: number;
-    siteId: number;
-  }>,
-) {
+export async function getIncidentById(params: Readonly<{ id: number }>) {
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Sign in required to load this incident.");
@@ -424,8 +441,6 @@ export async function getIncidentById(
   const { data } = await http.get<unknown>(INCIDENT_GET_BY_ID_PATH, {
     params: {
       id: params.id,
-      userId: params.userId,
-      siteId: params.siteId,
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -435,6 +450,12 @@ export async function getIncidentById(
   return normalizeIncidentDto(data);
 }
 
+/**
+ * POST /Incident/incident
+ *
+ * Returns `{ dataModel: { id } }` — the id is real now, where it used to be
+ * `""`. Only the id is populated; callers wanting the whole record re-fetch.
+ */
 export async function createIncident(payload: CreateIncidentRequestDto) {
   const { data } = await http.post<unknown>(INCIDENT_CREATE_PATH, payload);
   return (
@@ -443,16 +464,33 @@ export async function createIncident(payload: CreateIncidentRequestDto) {
 }
 
 /**
- * PUT /Incident/UpdateIncident/{id}
- * Body: `IncidentDto`
- * Header: `Authorization: Bearer <token>` (required by API security)
+ * Strips tenant context off a record on its way into a write payload.
+ *
+ * Needed because the spread that builds an update payload is not excess-
+ * property-checked — `Omit<IncidentDto, "siteId" | "userId">` catches a
+ * literal that names them, but not a `...existing` that carries them along
+ * from a GET, which still returns both for display.
  */
-export async function updateIncidentById(
-  params: Readonly<{
-    id: number;
-    userId: number;
-    siteId: number;
-  }>,
+function withoutTenantFields<T extends Partial<IncidentDto>>(
+  value: T,
+): Omit<T, "siteId" | "userId"> {
+  const next: Record<string, unknown> = { ...value };
+  delete next.siteId;
+  delete next.userId;
+  return next as Omit<T, "siteId" | "userId">;
+}
+
+/**
+ * PUT /Incident/UpdateIncident/{id}
+ * Body: incident fields minus tenant context — the server stamps siteId and
+ * userId from the JWT.
+ * Header: `Authorization: Bearer <token>` (required by API security)
+ *
+ * Responds with `{ dataModel: { id } }` only, so the merged body is what we
+ * hand back for the shape; callers needing the saved record re-fetch.
+ */
+async function updateIncidentById(
+  id: number,
   payload: UpdateIncidentRequestDto,
 ) {
   const accessToken = getAccessToken();
@@ -462,13 +500,11 @@ export async function updateIncidentById(
 
   const body: UpdateIncidentRequestDto = {
     ...payload,
-    id: params.id,
-    userId: params.userId,
-    siteId: params.siteId,
+    id,
   };
 
   const { data } = await http.put<unknown>(
-    `${INCIDENT_UPDATE_PATH}/${String(params.id)}`,
+    `${INCIDENT_UPDATE_PATH}/${String(id)}`,
     body,
     {
       headers: {
@@ -485,37 +521,26 @@ export async function updateIncidentById(
 
 /**
  * Loads the current incident, merges `patch`, then PUT /Incident/UpdateIncident/{id}.
+ *
+ * The read-back is what makes `siteId`/`userId` worth stripping explicitly:
+ * GET still *returns* them for display, so a naive spread of the existing
+ * record would put tenant fields straight back on the write.
  */
-export async function updateIncident(
-  id: number,
-  context: TenantUserContextDto,
-  patch: Partial<IncidentDto>,
-) {
-  const existing = await getIncidentById({
-    id,
-    userId: context.userId,
-    siteId: context.siteId,
-  });
+export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
+  const existing = await getIncidentById({ id });
 
   const payload: UpdateIncidentRequestDto = {
-    ...(existing ?? {}),
-    ...patch,
+    ...withoutTenantFields(existing ?? {}),
+    ...withoutTenantFields(patch),
     id,
-    userId: context.userId,
-    siteId: context.siteId,
+    // Last-resort fallback is the signed-in user, as before — it just comes
+    // from the JWT now instead of a threaded context argument.
     reportedById:
-      patch.reportedById ?? existing?.reportedById ?? context.userId,
+      patch.reportedById ?? existing?.reportedById ?? getAuthContext()?.userId,
     isDrop: false,
   };
 
-  return updateIncidentById(
-    {
-      id,
-      userId: context.userId,
-      siteId: context.siteId,
-    },
-    payload,
-  );
+  return updateIncidentById(id, payload);
 }
 
 export async function submitIncidentClosure(
@@ -540,10 +565,6 @@ export async function submitIncidentClosure(
 }
 
 /** @deprecated Prefer submitIncidentClosure — closes via POST /closure/submit. */
-export async function closeIncident(incidentId: number) {
-  return submitIncidentClosure(incidentId);
-}
-
 function coerceChecklistItemDto(
   value: unknown,
 ): ClosureChecklistItemDto | null {
@@ -577,7 +598,7 @@ function coerceLinkedCapaDto(value: unknown): ClosureLinkedCapaItemDto | null {
 /**
  * Coerces and normalizes response from GET /api/Incident/{incidentId}/closure
  */
-export function normalizeIncidentClosureDto(
+function normalizeIncidentClosureDto(
   data: unknown,
 ): IncidentClosureResponseDto | null {
   if (!isRecord(data)) {
@@ -734,14 +755,11 @@ export async function getIncidentClosure(
     throw new Error("Sign in required to load incident closure details.");
   }
 
-  const { data } = await http.get<unknown>(
-    incidentClosurePath(incidentId),
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  const { data } = await http.get<unknown>(incidentClosurePath(incidentId), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
     },
-  );
+  });
 
   return normalizeIncidentClosureDto(data);
 }

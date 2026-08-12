@@ -8,67 +8,68 @@ export type AddObligationHeaderCardProps = Readonly<{
   className?: string;
 }>;
 
-const pageHeaderShellClass =
-  "rounded-[16px] border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+const crumbMuted = "text8 text-ehs-gray";
+const crumbLink =
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
+/**
+ * Add Obligation page header — breadcrumbs, title, subtitle.
+ * Matches Compliance calendar / detail header typography (text1 / text8).
+ */
 export function AddObligationHeaderCard(
   props: Readonly<AddObligationHeaderCardProps>,
 ) {
   const { className = "" } = props;
 
   return (
-    <section
-      className={[pageHeaderShellClass, "relative overflow-hidden", className]
+    <div
+      className={[
+        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col px-[22px] pt-[14px] pb-[22px]">
-        <nav
-          aria-label="Breadcrumb"
-          className="flex h-[16.5px] items-center gap-[4px] text-[11px] leading-[16.5px] font-medium"
+      <nav
+        aria-label="Breadcrumb"
+        className="relative z-1 flex min-w-0 flex-wrap items-center gap-1"
+      >
+        <span className={crumbMuted}>Safety</span>
+        <Icon
+          icon="mdi:chevron-right"
+          className="size-3 shrink-0 text-[#8892a3]"
+          aria-hidden="true"
+        />
+        <Link href="/dashboard/regulatory-compliance" className={crumbLink}>
+          Regulatory Compliance
+        </Link>
+        <Icon
+          icon="mdi:chevron-right"
+          className="size-3 shrink-0 text-[#8892a3]"
+          aria-hidden="true"
+        />
+        <Link
+          href="/dashboard/regulatory-compliance/calendar"
+          className={crumbLink}
         >
-          <Link
-            href="/dashboard/regulatory-compliance"
-            className="text-[#566072] transition-colors hover:text-[#0b1320]"
-          >
-            Compliance
-          </Link>
-          <Icon
-            icon="mdi:chevron-right"
-            className="size-[11px] shrink-0 text-[#566072]"
-            aria-hidden
-          />
-          <Link
-            href="/dashboard/regulatory-compliance/calendar"
-            className="text-[#8892a3] transition-colors hover:text-[#566072]"
-          >
-            Calendar
-          </Link>
-          <Icon
-            icon="mdi:chevron-right"
-            className="size-[11px] shrink-0 text-[#566072]"
-            aria-hidden
-          />
-          <Text as="span" className="text-[#566072]">
-            New
-          </Text>
-        </nav>
+          Calendar
+        </Link>
+        <Icon
+          icon="mdi:chevron-right"
+          className="size-3 shrink-0 text-[#8892a3]"
+          aria-hidden="true"
+        />
+        <span className={crumbMuted}>New</span>
+      </nav>
 
-        <div className="mt-[6px]">
-          <Text
-            as="h1"
-            className="text-[22px] leading-[28px] font-semibold tracking-[-0.2px] text-[#0b1320]"
-          >
-            Add Compliance Obligation
-          </Text>
-          <Text
-            as="p"
-            className="mt-[2px] text-[12px] leading-[18px] font-normal text-[#8892a3]"
-          >
-            Add a new regulatory or safety compliance item
-          </Text>
-        </div>
+      <div className="relative z-1 flex min-w-0 flex-col gap-0.5">
+        <Text as="h1" className="text1 text-ehs-darker">
+          Add Compliance Obligation
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Add a new regulatory or safety compliance item
+        </Text>
       </div>
-    </section>
+    </div>
   );
 }

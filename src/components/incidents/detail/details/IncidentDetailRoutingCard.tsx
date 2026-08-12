@@ -18,42 +18,36 @@ export function IncidentDetailRoutingCard(
   const { members = [], className = "" } = props;
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-[19px]"
-      className={className}
-    >
-      <div className="pb-[14px]">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+    <IncidentGlassCard paddingClassName="p-4.75" className={className}>
+      <div className="pb-3.5">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Routing & assignment
         </Text>
       </div>
 
       <div className="flex flex-col">
         {members.length === 0 ? (
-          <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text-sm">
+          <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text4">
             No routing assignments returned by the API.
           </div>
         ) : null}
         {members.map((member) => (
           <div
             key={`${member.role}-${member.name}`}
-            className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[11px] pb-[10px]"
+            className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5"
           >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-ehs-dark-blue-bg-light text-sm font-bold text-ehs-dark-blue">
+            <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-2.5 text5">
               {member.initials}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-xs leading-normal font-bold tracking-wide text-ehs-muted-text uppercase">
+              <span className="text-ehs-muted-text text8 leading-normal font-bold tracking-wide uppercase">
                 {member.role}
               </span>
-              <span className="pt-px pb-0.5 text-sm leading-normal text-ehs-dark-bg">
+              <span className="text-ehs-dark-bg pt-px pb-0.5 text4 leading-normal">
                 {member.name}
               </span>
               {member.subtitle ? (
-                <span className="text-sm leading-normal text-ehs-muted-text">
+                <span className="text-ehs-muted-text text4 leading-normal">
                   {member.subtitle}
                 </span>
               ) : null}

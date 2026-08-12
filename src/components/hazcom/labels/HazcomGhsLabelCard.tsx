@@ -50,7 +50,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
     <div
       style={{ aspectRatio: `${size.widthIn} / ${size.heightIn}` }}
       className={[
-        "border-ehs-darker/80 mx-auto flex w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-lg border-2 bg-white p-5 shadow-sm",
+        "border-ehs-darker/80 mx-auto flex w-full max-w-105 flex-col gap-3 overflow-y-auto rounded-lg border-2 bg-white p-5 shadow-sm",
         className,
       ]
         .filter(Boolean)
@@ -60,17 +60,17 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="h3"
-            className="text-ehs-darker text-lg leading-tight font-bold"
+            className="text3 text-ehs-darker leading-tight"
           >
             {chemical.name}
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-xs">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {`CAS: ${chemical.casNumber} · ${chemical.hazardClass}`}
           </Text>
         </div>
         <span
           className={[
-            "shrink-0 rounded-md border-2 px-3 py-1 text-sm font-extrabold tracking-wide uppercase",
+            "text5 shrink-0 rounded-md border-2 px-3 py-1 tracking-wide uppercase",
             signalWordBorderClass[signalTone],
           ].join(" ")}
         >
@@ -98,8 +98,10 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       ) : null}
 
       {chemical.hazardStatements.length > 0 ? (
-        <p className="text-ehs-darker text-xs leading-relaxed">
-          <span className="font-bold">Hazard: </span>
+        <p className="text8 text-ehs-darker leading-relaxed">
+          <Text as="span" className="text7 text-ehs-darker">
+            {"Hazard: "}
+          </Text>
           {chemical.hazardStatements
             .map((statement) => `${statement.code} – ${statement.text}`)
             .join(" ")}
@@ -107,22 +109,24 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       ) : null}
 
       {chemical.precautionaryStatements.length > 0 ? (
-        <p className="text-ehs-darker text-xs leading-relaxed">
-          <span className="font-bold">Precaution: </span>
+        <p className="text8 text-ehs-darker leading-relaxed">
+          <Text as="span" className="text7 text-ehs-darker">
+            {"Precaution: "}
+          </Text>
           {chemical.precautionaryStatements
             .map((statement) => `${statement.code} – ${statement.text}`)
             .join(" ")}
         </p>
       ) : null}
 
-      <Text as="p" className="text-ehs-muted-text text-[11px]">
+      <Text as="p" className="text8 text-ehs-muted-text">
         {`Manufacturer: ${manufacturer} · Emergency: ${HAZCOM_LABEL_EMERGENCY_PHONE}`}
       </Text>
 
       <Text
         as="p"
         className={[
-          "text-[11px] italic",
+          "text8 italic",
           noteToShow ? "text-ehs-gray" : "text-ehs-muted-text/70",
         ].join(" ")}
       >
@@ -139,7 +143,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
               />
               <Text
                 as="span"
-                className="text-ehs-gray text-[11px] font-bold tracking-widest"
+                className="text7 text-ehs-gray tracking-widest"
               >
                 {chemical.id}
               </Text>
@@ -150,7 +154,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
             <div
               role="img"
               aria-label={`QR code placeholder for ${chemical.id}`}
-              className="grid size-16 shrink-0 grid-cols-5 grid-rows-5 gap-[1px] border border-[#0b1320] bg-white p-1"
+              className="grid size-16 shrink-0 grid-cols-5 grid-rows-5 gap-0.25 border border-[#0b1320] bg-white p-1"
             >
               {hazcomPseudoQrCells(chemical.id).map((filled, index) => {
                 const row = Math.floor(index / HAZCOM_QR_GRID_SIZE);

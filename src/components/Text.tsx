@@ -59,19 +59,13 @@ function getAriaAttributes(as: TextType, text: string): AriaAttributes {
 }
 
 export function Text(props: Readonly<TextProps>) {
-  const {
-    as,
-    family = "font-inter",
-    children,
-    className = "",
-    ...rest
-  } = props;
+  const { as, family, children, className = "", ...rest } = props;
   const ariaAttributes = getAriaAttributes(as, children);
   const classes = [family, className].filter(Boolean).join(" ");
 
   return React.createElement(
     as,
-    { className: classes, ...ariaAttributes, ...rest },
+    { className: classes || undefined, ...ariaAttributes, ...rest },
     children,
   );
 }

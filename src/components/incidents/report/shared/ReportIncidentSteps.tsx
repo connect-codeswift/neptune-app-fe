@@ -19,9 +19,9 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[14px]"
+      paddingClassName="p-3.5"
       className={[
-        "w-full md:sticky md:top-0 md:w-[220px] md:shrink-0",
+        "w-full md:sticky md:top-0 md:w-55 md:shrink-0",
         className,
       ]
         .filter(Boolean)
@@ -29,7 +29,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
     >
       <Text
         as="p"
-        className="text-ehs-muted-text px-2 pt-[5px] pb-[11px] text-xs font-bold tracking-[1.05px] uppercase"
+        className="text-ehs-muted-text px-2 pt-1.25 pb-2.75 text-xs font-bold tracking-[1.05px] uppercase"
       >
         Steps
       </Text>
@@ -45,13 +45,13 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
               type="button"
               onClick={() => onStepChange(step.id)}
               className={[
-                "flex w-full items-start gap-2.5 rounded-[10px] p-[10px] text-left transition-colors",
+                "flex w-full items-start gap-2.5 rounded-2.5 p-2.5 text-left transition-colors",
                 isActive ? "bg-ehs-normal-blue/18" : "hover:bg-ehs-light-bg/80",
               ].join(" ")}
             >
               <span
                 className={[
-                  "inline-flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-xs font-bold",
+                  "inline-flex size-5.5 shrink-0 items-center justify-center rounded-2.75 text-xs font-bold",
                   isComplete
                     ? "bg-ehs-green text-ehs-light-text"
                     : isActive
@@ -62,7 +62,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
                 {isComplete ? (
                   <Icon
                     icon="mdi:check"
-                    className="size-[11px]"
+                    className="size-2.75"
                     aria-hidden="true"
                   />
                 ) : (
@@ -93,7 +93,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
         })}
       </div>
 
-      <div className="mt-[18px] border-t border-[rgba(15,23,42,0.08)] px-2 pt-3">
+      <div className="mt-4.5 border-t border-[rgba(15,23,42,0.08)] px-2 pt-3">
         <div className="mb-1.5 flex items-center justify-between">
           <Text as="span" className="text-ehs-muted-text text-xs">
             Progress
@@ -102,7 +102,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
             {`${String(currentStep)} / 5`}
           </Text>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ehs-muted-text/20">
+        <div className="bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full transition-all"
             style={{ width: `${(currentStep / 5) * 100}%` }}

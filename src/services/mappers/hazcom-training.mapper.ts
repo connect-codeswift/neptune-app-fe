@@ -96,7 +96,7 @@ function toAttendeeCount(record: Record<string, unknown>): number {
   return asLeadingNumber(readProp(record, "attendees", "Attendees"));
 }
 
-export function mapTrainingLogDtoToHazcomSession(
+function mapTrainingLogDtoToHazcomSession(
   raw: unknown,
 ): HazcomTrainingSession {
   const record = isRecord(raw) ? raw : {};

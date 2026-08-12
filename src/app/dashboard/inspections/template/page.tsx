@@ -29,7 +29,6 @@ export default function InspectionTemplatesPage() {
     pageSize: PAGE_SIZE,
     status,
   });
-  console.log(templatesQuery.data);
 
   const page = templatesQuery.data?.dataModel;
   const templates = useMemo(
@@ -37,7 +36,7 @@ export default function InspectionTemplatesPage() {
     [page],
   );
 
-  /** Switching status re-queries from page 1 ΓÇö the old page may not exist. */
+  /** Switching status re-queries from page 1 — the old page may not exist. */
   const handleStatusChange = (next: TemplateStatusFilter) => {
     setStatus(next);
     setPageNumber(1);
@@ -48,10 +47,7 @@ export default function InspectionTemplatesPage() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        // actionLabel="Start Inspection"
-        // onActionClick={() => router.push(START_INSPECTION_ROUTE)}
-      />
+      <DashboardHeader title="Inspections" />
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         <InspectionTemplatesHeader

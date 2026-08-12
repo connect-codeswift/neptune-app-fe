@@ -25,11 +25,11 @@ export function AcknowledgeConfirmSection(
     >
       <Text
         as="h3"
-        className="text-[16px] leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
+        className="text3 text-ehs-dark-bg"
       >
         Please Confirm
       </Text>
-      <label className="flex max-w-[350px] cursor-pointer items-start gap-2">
+      <label className="flex max-w-87.5 cursor-pointer items-start gap-2">
         <span className="inline-flex size-6 shrink-0 items-center justify-center">
           <input
             type="checkbox"
@@ -43,15 +43,15 @@ export function AcknowledgeConfirmSection(
             }
             className={[
               "size-6",
-              checked ? "text-[#0891a6]" : "text-[#8892a3]",
+              checked ? "text-ehs-normal-blue" : "text-ehs-muted-text",
             ].join(" ")}
             aria-hidden="true"
           />
         </span>
-        <span className="text-[12px] leading-[18px] text-[#8892a3]">
+        <span className="text8 text-ehs-muted-text">
           I have read and understood this document. I agree to abide by the
           content and will follow the procedures as described{" "}
-          <span className="text-[#0b1320]">*</span>
+          <span className="text-ehs-dark-bg">*</span>
         </span>
       </label>
     </div>

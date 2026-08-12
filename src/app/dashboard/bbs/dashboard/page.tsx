@@ -1,5 +1,5 @@
-import { BbsDashboardPageClient } from "@/components/bbs/BbsDashboardPageClient";
+import { redirect } from "next/navigation";
 
 export default function BbsDashboardPage() {
-  return <BbsDashboardPageClient />;
+  redirect("/dashboard/bbs");
 }

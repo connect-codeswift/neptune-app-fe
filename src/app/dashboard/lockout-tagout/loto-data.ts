@@ -1,20 +1,13 @@
-export type LotoTabId =
-  | "equipment"
-  | "active-lockouts"
-  | "history"
-  | "personnel";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 
-export type LotoEquipmentStatus =
-  | "Operational"
-  | "Locked Out"
-  | "Maintenance";
+export type LotoTabId =
+  "equipment" | "active-lockouts" | "history" | "personnel";
+
+export type LotoEquipmentStatus = "Operational" | "Locked Out" | "Maintenance";
 
 export type LotoStatusFilter = "all" | LotoEquipmentStatus;
 
-export type LotoMetric = Readonly<{
-  value: string;
-  label: string;
-}>;
+export type LotoMetric = MetricCardProps;
 
 export type LotoEquipmentItem = Readonly<{
   id: string;
@@ -35,10 +28,30 @@ export const LOTO_TABS = [
 ] as const;
 
 export const LOTO_METRICS: readonly LotoMetric[] = [
-  { value: "5", label: "Equipment on File" },
-  { value: "2", label: "Active Lockouts" },
-  { value: "7", label: "Authorized Personnel" },
-  { value: "10", label: "Total Lockouts" },
+  {
+    title: "Equipment on File",
+    value: "5",
+    description: "Registered for lockout",
+    icon: "mdi:cog-outline",
+  },
+  {
+    title: "Active Lockouts",
+    value: "2",
+    description: "Currently locked out",
+    icon: "mdi:lock-outline",
+  },
+  {
+    title: "Authorized Personnel",
+    value: "7",
+    description: "Trained and certified",
+    icon: "mdi:account-check-outline",
+  },
+  {
+    title: "Total Lockouts",
+    value: "10",
+    description: "Logged to date",
+    icon: "mdi:counter",
+  },
 ];
 
 export const LOTO_STATUS_FILTERS = [

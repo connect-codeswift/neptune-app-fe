@@ -17,6 +17,7 @@ export type ReportSeverityPickerProps<T extends string = SeverityId> =
     label?: string;
     required?: boolean;
     trailingHint?: string;
+    error?: string | null;
     variant?: "chip" | "tile";
     className?: string;
   }>;
@@ -38,6 +39,7 @@ export function ReportSeverityPicker<T extends string = SeverityId>(
     label = "Severity",
     required = true,
     trailingHint,
+    error,
     variant = "chip",
     className = "",
   } = props;
@@ -58,6 +60,7 @@ export function ReportSeverityPicker<T extends string = SeverityId>(
       label={label}
       required={required}
       trailingHint={resolvedHint}
+      error={error}
       options={resolvedOptions}
       value={value}
       onChange={onChange}

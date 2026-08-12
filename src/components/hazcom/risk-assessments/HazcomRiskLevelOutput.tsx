@@ -62,24 +62,23 @@ export function HazcomRiskLevelOutput(
       <HazcomGlassCard paddingClassName="p-5" className="w-full">
         <Text
           as="p"
-          className="text-ehs-muted-text text-center text-[10.5px] font-bold tracking-[1.4px] uppercase"
+          className="text6 text-ehs-muted-text text-center"
         >
           Risk Level Output
         </Text>
 
         <Text
           as="p"
-          className={[
-            "mt-1 text-center text-[40px] leading-none font-extrabold",
-            LEVEL_TEXT_CLASS[tone],
-          ].join(" ")}
+          className={["text2 mt-1 text-center", LEVEL_TEXT_CLASS[tone]].join(
+            " ",
+          )}
         >
           {level}
         </Text>
 
         <Text
           as="p"
-          className="text-ehs-muted-text mt-1 text-center text-[12px]"
+          className="text8 text-ehs-muted-text mt-1 text-center"
         >
           {`Score: ${score} / ${MAX_SCORE}`}
         </Text>
@@ -94,7 +93,7 @@ export function HazcomRiskLevelOutput(
           />
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-[10.5px] font-bold">
+        <div className="text7 mt-2 flex items-center justify-between">
           <span className="text-ehs-green">Low</span>
           <span className="text-ehs-yellow">Medium</span>
           <span className="text-ehs-red">High</span>
@@ -103,7 +102,7 @@ export function HazcomRiskLevelOutput(
       </HazcomGlassCard>
 
       <HazcomGlassCard paddingClassName="p-5" className="w-full">
-        <Text as="h3" className="text-ehs-darker text-[13px] font-bold">
+        <Text as="h3" className="text3 text-ehs-darker">
           Rating Breakdown
         </Text>
 
@@ -114,7 +113,7 @@ export function HazcomRiskLevelOutput(
 
             return (
               <div key={row.field} className="flex items-center gap-3">
-                <span className="text-ehs-gray w-[84px] shrink-0 text-[12px]">
+                <span className="text8 text-ehs-gray w-21 shrink-0">
                   {row.label}
                 </span>
                 <div className="bg-ehs-dark-bg/8 h-1.5 flex-1 rounded-full">
@@ -125,7 +124,7 @@ export function HazcomRiskLevelOutput(
                 </div>
                 <span
                   className={[
-                    "w-3 shrink-0 text-right text-[12px] font-bold",
+                    "text7 w-3 shrink-0 text-right",
                     row.field === "health"
                       ? "text-ehs-red"
                       : "text-ehs-dark-bg",
@@ -140,12 +139,12 @@ export function HazcomRiskLevelOutput(
       </HazcomGlassCard>
 
       <HazcomGlassCard paddingClassName="p-5" className="w-full">
-        <Text as="h3" className="text-ehs-darker text-[13px] font-bold">
+        <Text as="h3" className="text3 text-ehs-darker">
           {`Selected PPE (${ppe.length})`}
         </Text>
 
         {ppe.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text mt-2 text-[12px] italic">
+          <Text as="p" className="text8 text-ehs-muted-text mt-2 italic">
             None selected
           </Text>
         ) : (
@@ -153,7 +152,7 @@ export function HazcomRiskLevelOutput(
             {ppe.map((item) => (
               <li
                 key={item}
-                className="text-ehs-gray flex items-center gap-1.5 text-[12px]"
+                className="text8 text-ehs-gray flex items-center gap-1.5"
               >
                 <Icon
                   icon="mdi:circle-outline"

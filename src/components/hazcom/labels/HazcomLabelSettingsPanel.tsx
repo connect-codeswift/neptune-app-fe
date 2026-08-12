@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import {
+  HAZCOM_FIELD_LABEL_CLASS,
   HazcomGlassCard,
   HazcomSelectField,
   HazcomTextareaField,
@@ -50,7 +51,7 @@ function HazcomExtraCheckbox(props: Readonly<HazcomExtraCheckboxProps>) {
         onChange={(event) => onChange(event.target.checked)}
         className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 size-4 shrink-0 rounded focus:ring-2"
       />
-      <label htmlFor={id} className="text-ehs-gray cursor-pointer text-[13px]">
+      <label htmlFor={id} className="text4 text-ehs-gray cursor-pointer">
         {label}
       </label>
     </div>
@@ -84,7 +85,7 @@ export function HazcomLabelSettingsPanel(
     >
       <HazcomGlassCard paddingClassName="p-5">
         <div className="flex flex-col gap-5">
-          <Text as="h2" className="text-ehs-darker text-base font-bold">
+          <Text as="h2" className="text3 text-ehs-darker">
             Label Settings
           </Text>
 
@@ -99,7 +100,7 @@ export function HazcomLabelSettingsPanel(
           />
 
           <div className="flex flex-col gap-1.5">
-            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
               Label Size
             </Text>
             <div
@@ -120,10 +121,10 @@ export function HazcomLabelSettingsPanel(
                         aria-checked={isSelected}
                         onClick={() => onLabelSizeIdChange(size.id)}
                         className={[
-                          "h-9 rounded-[10px] border text-[13px] font-bold transition-colors",
+                          "h-9 rounded-2.5 border transition-colors",
                           isSelected
-                            ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
-                            : "border-ehs-border text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
+                            ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
+                            : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
                         ].join(" ")}
                       >
                         {size.label}
@@ -144,10 +145,10 @@ export function HazcomLabelSettingsPanel(
                       aria-checked={isSelected}
                       onClick={() => onLabelSizeIdChange(size.id)}
                       className={[
-                        "h-9 w-full rounded-[10px] border text-[13px] font-bold transition-colors",
+                        "h-9 w-full rounded-2.5 border transition-colors",
                         isSelected
-                          ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
-                          : "border-ehs-border text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
+                          ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
+                          : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
                       ].join(" ")}
                     >
                       {size.label}
@@ -159,7 +160,7 @@ export function HazcomLabelSettingsPanel(
           </div>
 
           <div className="flex flex-col gap-2.5">
-            <Text as="span" className="text-[12px] font-bold text-[#2a3446]">
+            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
               Extras
             </Text>
             <HazcomExtraCheckbox

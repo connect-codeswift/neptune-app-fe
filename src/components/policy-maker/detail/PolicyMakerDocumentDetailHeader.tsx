@@ -8,6 +8,7 @@ import type { PolicyDocument } from "@/components/policy-maker/policy-maker-type
 
 export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
   document: PolicyDocument;
+  onEdit?: () => void;
   onVersionHistory?: () => void;
   onApproval?: () => void;
   onAcknowledgment?: () => void;
@@ -21,11 +22,11 @@ export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
 }>;
 
 const crumbMuted =
-  "text-[11px] font-medium leading-[16.5px] text-[#8892a3] transition-colors hover:text-[#566072]";
-const crumbActive = "text-[11px] font-medium leading-[16.5px] text-[#566072]";
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
+const crumbActive = "text8 text-ehs-gray";
 
 const actionBaseClass =
-  "h-9 w-full rounded-[10px] px-3 text-[13px] font-medium sm:h-[38px] sm:w-auto sm:px-[12px] sm:text-[14px]";
+  "text4 h-9 w-full rounded-2.5 px-3 sm:h-9.5 sm:w-auto sm:px-3";
 
 /**
  * Document detail hero — breadcrumbs, title, actions (Figma 5568:24575).
@@ -35,6 +36,7 @@ export function PolicyMakerDocumentDetailHeader(
 ) {
   const {
     document,
+    onEdit,
     onVersionHistory,
     onApproval,
     onAcknowledgment,
@@ -48,7 +50,7 @@ export function PolicyMakerDocumentDetailHeader(
   return (
     <div
       className={[
-        "relative flex flex-col gap-1.5 rounded-[16px] border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-[22px] sm:pt-[14px] sm:pb-[14px]",
+        "rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex flex-col gap-1.5 border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
         className,
       ]
         .filter(Boolean)
@@ -61,7 +63,7 @@ export function PolicyMakerDocumentDetailHeader(
         <span className={crumbActive}>Compliance</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-[11px] shrink-0 text-[#8892a3]"
+          className="size-2.75 shrink-0 text-[#8892a3]"
           aria-hidden="true"
         />
         <Link href="/dashboard/policy-maker" className={crumbMuted}>
@@ -69,7 +71,7 @@ export function PolicyMakerDocumentDetailHeader(
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-[11px] shrink-0 text-[#8892a3]"
+          className="size-2.75 shrink-0 text-[#8892a3]"
           aria-hidden="true"
         />
         <span className={`${crumbActive} truncate`}>{document.code}</span>
@@ -77,18 +79,28 @@ export function PolicyMakerDocumentDetailHeader(
 
       <div className="relative z-1 flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h1"
-            className="text-[18px] leading-7 font-semibold tracking-[-0.2px] break-words text-[#0b1320] sm:text-[22px] sm:leading-[28px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker break-words">
             {document.title}
           </Text>
-          <Text as="p" className="text-[12px] leading-[18px] text-[#8892a3]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {`${document.documentKind} · ${document.version}`}
           </Text>
         </div>
 
         <div className="grid w-full min-w-0 grid-cols-1 gap-2 min-[480px]:grid-cols-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end">
+          <Button
+            type="button"
+            variant="tertiary"
+            onClick={onEdit}
+            className={`${actionBaseClass} border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+          >
+            <Icon
+              icon="mdi:pencil-outline"
+              className="size-4"
+              aria-hidden="true"
+            />
+            Edit
+          </Button>
           <Button
             type="button"
             variant="tertiary"

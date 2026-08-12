@@ -6,17 +6,6 @@ export type EngagementPoint = Readonly<{
   atRisk: number;
 }>;
 
-export const ENGAGEMENT_SERIES: readonly EngagementPoint[] = [
-  { label: "W1", safe: 8, atRisk: 3 },
-  { label: "W2", safe: 9, atRisk: 4 },
-  { label: "W3", safe: 10, atRisk: 5 },
-  { label: "W4", safe: 11, atRisk: 4 },
-  { label: "W5", safe: 12, atRisk: 6 },
-  { label: "W6", safe: 11, atRisk: 7 },
-  { label: "W7", safe: 13, atRisk: 6 },
-  { label: "W8", safe: 14, atRisk: 9 },
-];
-
 /** One attachment listed under Photo Evidence. */
 export type ObservationPhoto = Readonly<{
   name: string;
@@ -89,11 +78,14 @@ export type BehaviorCategory = Readonly<{
 export type BbsSession = Readonly<{
   /** Reference shown in the first column, e.g. "BBS-441". */
   id: string;
+  /** Display label, e.g. "Safe" or "At-Risk". */
   type: string;
   observer: string;
   location: string;
-  /** Behaviours summary, e.g. "14 of 15 safe". */
+  /** Behavior category name. */
   behaviors: string;
+  /** Relative / short datetime for the table, e.g. "Apr 22 · 2:30 PM". */
+  when: string;
   /** Share of behaviours observed as safe, 0-100. */
   safePercent: number;
 }>;
@@ -101,26 +93,20 @@ export type BbsSession = Readonly<{
 export const RECENT_SESSIONS: readonly BbsSession[] = [
   {
     id: "BBS-441",
-    type: "BBS observation",
+    type: "Safe",
     observer: "Sarah Mitchell",
-    location: "PPE compliance",
-    behaviors: "14 of 15 safe",
-    safePercent: 92,
+    location: "Plant A - Assembly",
+    behaviors: "PPE Usage",
+    when: "Apr 22 · 2:30 PM",
+    safePercent: 100,
   },
   {
     id: "BBS-440",
-    type: "BBS observation",
+    type: "At-Risk",
     observer: "Mike Reyes",
-    location: "Lifting technique",
-    behaviors: "8 of 11 safe",
-    safePercent: 76,
+    location: "Plant B - Warehouse",
+    behaviors: "Lifting Technique",
+    when: "Apr 21 · 10:05 AM",
+    safePercent: 0,
   },
-];
-
-export const AT_RISK_BEHAVIORS: readonly BehaviorCategory[] = [
-  { label: "PPE not worn correctly", count: 12, tone: "risk" },
-  { label: "Improper lifting", count: 9, tone: "risk" },
-  { label: "Pedestrian / FPV", count: 6, tone: "risk" },
-  { label: "Housekeeping", count: 5, tone: "risk" },
-  { label: "Eye / Face protection", count: 3, tone: "info" },
 ];

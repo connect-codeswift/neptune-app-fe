@@ -24,52 +24,46 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
   return (
     <article
       className={[
-        "relative w-full min-w-0 overflow-hidden rounded-[16px] border-[0.8px] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']",
+        "relative w-full min-w-0 overflow-hidden rounded-4 border-[0.8px] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']",
         borderClass,
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-[14px] pt-4 pb-4 sm:px-[16.8px] sm:pt-[16.8px] sm:pb-[16.8px]">
+      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-3.5 pt-4 pb-4 sm:px-[16.8px] sm:pt-[16.8px] sm:pb-[16.8px]">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <Text
               as="span"
-              className="font-mono text-[15px] leading-6 font-bold text-[#0b1320] sm:text-[16px]"
+              className="text3 text-ehs-dark-bg font-mono"
             >
               {entry.version}
             </Text>
 
             {entry.status === "published" || entry.isCurrent ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(0,201,80,0.12)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-[3px] bg-[#00c950]" />
-                <span className="text-[11px] leading-[16.5px] font-semibold tracking-[0.11px] text-[#15803d]">
-                  Published
-                </span>
+                <span className="size-1.5 shrink-0 rounded-0.75 bg-[#00c950]" />
+                <span className="text5 text-[#15803d]">Published</span>
               </span>
             ) : null}
 
             {entry.status === "superseded" ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-[3px] bg-[#8892a3]" />
-                <span className="text-[11px] leading-[16.5px] font-semibold tracking-[0.11px] text-[#2a3446]">
-                  Superseded
-                </span>
+                <span className="size-1.5 shrink-0 rounded-0.75 bg-[#8892a3]" />
+                <span className="text5 text-ehs-slate">Superseded</span>
               </span>
             ) : null}
 
             {entry.status === "review" ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.14)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-[3px] bg-[#f59e0b]" />
-                <span className="text-[11px] leading-[16.5px] font-semibold tracking-[0.11px] text-[#2a3446]">
-                  In review
-                </span>
+                <span className="bg-ehs-yellow size-1.5 shrink-0 rounded-0.75" />
+                <span className="text5 text-ehs-slate">In review</span>
               </span>
             ) : null}
 
             {entry.isCurrent ? (
-              <span className="inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5 text-[12px] leading-4 text-[#566072]">
+              <span className="text8 text-ehs-gray inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5">
                 Current
               </span>
             ) : null}
@@ -80,7 +74,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
               type="button"
               aria-label={`Download ${entry.version}`}
               onClick={onDownload}
-              className="inline-flex size-4 cursor-pointer items-center justify-center text-[#8892a3] transition-colors hover:text-[#566072]"
+              className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-4 cursor-pointer items-center justify-center transition-colors"
             >
               <Icon
                 icon="mdi:download-outline"
@@ -92,7 +86,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
               type="button"
               aria-label={`View ${entry.version}`}
               onClick={onView}
-              className="inline-flex size-4 cursor-pointer items-center justify-center text-[#8892a3] transition-colors hover:text-[#566072]"
+              className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-4 cursor-pointer items-center justify-center transition-colors"
             >
               <Icon
                 icon="mdi:eye-outline"
@@ -103,12 +97,12 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
           </div>
         </div>
 
-        <Text as="p" className="text-[12px] leading-4 text-[#2a3446]">
+        <Text as="p" className="text4 text-ehs-slate">
           {entry.changeLog}
         </Text>
 
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="inline-flex items-center gap-1 text-[12px] leading-4 text-[#8892a3]">
+          <span className="text8 text-ehs-muted-text inline-flex items-center gap-1">
             <Icon
               icon="mdi:clock-outline"
               className="size-3 shrink-0"
@@ -116,7 +110,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
             />
             {entry.publishedAt}
           </span>
-          <Text as="span" className="text-[12px] leading-4 text-[#8892a3]">
+          <Text as="span" className="text8 text-ehs-muted-text">
             {entry.authorFullName}
           </Text>
         </div>

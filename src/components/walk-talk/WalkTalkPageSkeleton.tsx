@@ -1,23 +1,8 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /** KPI card: label + trend pill, then value bar — matches Figma 4818:20719. */
-function KpiCardSkeleton() {
-  return (
-    <IncidentGlassCard
-      paddingClassName="p-4"
-      className="min-w-0"
-      incidentGlassCardClassName="gap-2"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <Skeleton className="h-2 w-30 rounded-md opacity-60" />
-        <Skeleton className="h-3.5 w-6 rounded-md opacity-40" />
-      </div>
-      <Skeleton className="h-5 w-20 rounded-md" />
-    </IncidentGlassCard>
-  );
-}
-
 /** Trends chart placeholder — title, chart block, legend. */
 function TrendsCardSkeleton() {
   return (
@@ -103,10 +88,7 @@ export function WalkTalkPageSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* KPI Metrics — 2 cards */}
-      <div className="grid gap-3.5 sm:grid-cols-2">
-        <KpiCardSkeleton />
-        <KpiCardSkeleton />
-      </div>
+      <MetricCardsRowSkeleton count={2} />
 
       {/* Trends + top findings — stacked on mobile, side-by-side from lg */}
       <div className="grid min-w-0 gap-3.5 lg:grid-cols-2">

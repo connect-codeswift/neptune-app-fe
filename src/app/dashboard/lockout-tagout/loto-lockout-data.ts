@@ -29,7 +29,7 @@ export type LotoRemoveLockoutContext = Readonly<{
   signOffName: string;
 }>;
 
-export const LOTO_CURRENT_OPERATOR = "Sarah Mitchell";
+const LOTO_CURRENT_OPERATOR = "Sarah Mitchell";
 
 export const LOTO_REMOVE_SAFETY_RULES = [
   "ONLY the person who applied the lock may remove it",
@@ -63,7 +63,7 @@ function energyKind(label: string): LotoEnergySourceView["kind"] {
   return "other";
 }
 
-export function toEnergySourceViews(
+function toEnergySourceViews(
   sources: readonly string[],
 ): readonly LotoEnergySourceView[] {
   return sources.map((label, index) => ({
@@ -89,7 +89,7 @@ export function getLotoApplyLockoutContext(
   };
 }
 
-export function getActiveLockoutById(
+function getActiveLockoutById(
   lockoutId: string,
 ): LotoActiveLockout | undefined {
   return LOTO_ACTIVE_LOCKOUTS.find((item) => item.id === lockoutId);

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Document, Page, pdfjs } from "react-pdf";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+import { Document, Page } from "react-pdf";
+// Side-effect import: configures the pdf.js worker before <Document> renders.
+import "@/lib/pdf-worker";
 
 export type FilePreviewPdfProps = Readonly<{
   fileUrl: string;
@@ -20,12 +20,12 @@ export function FilePreviewPdf(props: Readonly<FilePreviewPdfProps>) {
       : 600;
 
   return (
-    <div className="h-[70vh] w-[80vw] overflow-y-auto rounded-[8px] bg-white p-4">
+    <div className="h-[70vh] w-[80vw] overflow-y-auto rounded-2 bg-white p-4">
       <Document
         file={fileUrl}
         onLoadSuccess={({ numPages: loadedPages }) => setNumPages(loadedPages)}
         loading={
-          <div className="text-ehs-gray flex flex-col items-center justify-center gap-2 py-12 text-sm">
+          <div className="text-ehs-gray flex flex-col items-center justify-center gap-2 py-12 text4">
             <Icon
               icon="mdi:loading"
               className="size-6 animate-spin text-ehs-normal-blue"
@@ -34,7 +34,7 @@ export function FilePreviewPdf(props: Readonly<FilePreviewPdfProps>) {
           </div>
         }
         error={
-          <div className="text-ehs-red py-12 text-center text-sm">
+          <div className="text-ehs-red py-12 text-center text4">
             Failed to load PDF. Unsigned raw Cloudinary assets may require local
             download permissions.
           </div>

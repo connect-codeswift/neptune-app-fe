@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { Table } from "@/components/ui/Table";
 import type {
@@ -24,26 +24,22 @@ function ActivePpeRow(props: Readonly<{ item: PpeActiveItem }>) {
   const { item } = props;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-[18px] py-3.5 last:border-b-0">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-4.5 py-3.5 last:border-b-0">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <Text as="p" className="text-ehs-darker text-base font-semibold">
+        <Text as="p" className="text4 text-ehs-darker">
           {item.name}
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-base">
+        <Text as="p" className="text4 text-ehs-muted-text">
           {item.summary}
         </Text>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <IncidentBadge
-          label={item.status}
-          tone="muted"
-          className="rounded-full px-2.5 py-0.5 text-sm! font-semibold"
-        />
+        <IncidentBadge label={item.status} tone="muted" className="w-fit" />
         {item.canInspect ? (
           <button
             type="button"
-            className="cursor-pointer rounded-lg bg-[rgba(11,19,32,0.14)] px-2.5 py-1 text-sm font-semibold text-[#566072] transition-colors hover:bg-[rgba(11,19,32,0.2)]"
+            className="text8 text-ehs-gray cursor-pointer rounded-lg bg-[rgba(11,19,32,0.14)] px-2.5 py-1 transition-colors hover:bg-[rgba(11,19,32,0.2)]"
             onClick={(event) => {
               event.stopPropagation();
               toast.success(`Inspection started for ${item.name}`);
@@ -62,23 +58,19 @@ function ActivePpeMobileCard(props: Readonly<{ item: PpeActiveItem }>) {
 
   return (
     <div className="border-ehs-border flex flex-col gap-3 rounded-xl border bg-white p-3.5">
-      <Text as="p" className="text-ehs-darker text-sm font-bold">
+      <Text as="p" className="text4 text-ehs-darker">
         {item.name}
       </Text>
-      <div className="flex flex-col gap-1">
-        <Text as="p" className="text-ehs-muted-text text-xs font-medium">
-          {item.summary}
-        </Text>
-      </div>
+      <Text as="p" className="text8 text-ehs-muted-text">
+        {item.summary}
+      </Text>
       <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
       <div className="flex flex-wrap gap-2">
-        <span className="bg-ehs-normal-blue rounded-md px-2 py-1 text-[11px] font-bold text-white">
-          {item.status}
-        </span>
+        <IncidentBadge label={item.status} tone="muted" className="w-fit" />
         {item.canInspect ? (
           <button
             type="button"
-            className="border-ehs-normal-blue text-ehs-normal-blue cursor-pointer rounded-md border px-[7px] py-[3px] text-[11px] font-semibold"
+            className="border-ehs-normal-blue text-ehs-normal-blue text8 cursor-pointer rounded-md border px-1.75 py-0.75"
             onClick={() => {
               toast.success(`Inspection started for ${item.name}`);
             }}
@@ -95,20 +87,19 @@ function HistoryMobileCard(props: Readonly<{ record: PpeHistoryRecord }>) {
   const { record } = props;
 
   return (
-    <div className="border-ehs-border flex flex-col gap-3 rounded-[10px] border bg-white p-3.5">
+    <div className="border-ehs-border rounded-2.5 flex flex-col gap-3 border bg-white p-3.5">
       <div className="flex items-center justify-between gap-3">
-        <Text
-          as="p"
-          className="text-ehs-darker min-w-0 flex-1 text-[13px] font-bold"
-        >
+        <Text as="p" className="text4 text-ehs-darker min-w-0 flex-1">
           {record.item}
         </Text>
-        <span className="bg-ehs-normal-blue shrink-0 rounded-md px-2 py-1 text-[11px] font-bold text-white">
-          {record.status}
-        </span>
+        <IncidentBadge
+          label={record.status}
+          tone="muted"
+          className="w-fit shrink-0"
+        />
       </div>
       <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
-      <div className="text-ehs-muted-text flex flex-col gap-1 text-xs font-medium">
+      <div className="text8 text-ehs-muted-text flex flex-col gap-1">
         <p>{`Qty: ${String(record.quantity)} · Issue Date: ${record.issueDate}`}</p>
         <p>{`Condition: ${record.condition} · Status: ${record.status}`}</p>
       </div>
@@ -135,9 +126,7 @@ export function PpeEmployeeProfileContent(
       params.set("issueId", issueId.trim());
     }
     const query = params.toString();
-    router.push(
-      query ? `${REPLACEMENT_ROUTE}?${query}` : REPLACEMENT_ROUTE,
-    );
+    router.push(query ? `${REPLACEMENT_ROUTE}?${query}` : REPLACEMENT_ROUTE);
   };
 
   return (
@@ -157,7 +146,7 @@ export function PpeEmployeeProfileContent(
           type="button"
           variant="tertiary"
           onClick={goReplacement}
-          className="w-full rounded-[10px] px-3 py-3 text-[13px] font-bold"
+          className="text4 rounded-2.5 w-full px-3 py-3"
         >
           Request Replacement
         </Button>
@@ -167,7 +156,7 @@ export function PpeEmployeeProfileContent(
           onClick={() => {
             router.push(ISSUE_ROUTE);
           }}
-          className="w-full rounded-[10px] px-3 py-3 text-[13px] font-bold"
+          className="text4 rounded-2.5 w-full px-3 py-3"
         >
           Issue PPE
         </Button>
@@ -178,38 +167,27 @@ export function PpeEmployeeProfileContent(
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3 md:gap-4">
               <div
-                className="bg-ehs-normal-blue flex size-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white md:size-13 md:rounded-[14px] md:bg-[#566072] md:text-lg md:font-extrabold"
+                className="bg-ehs-normal-blue text4 md:rounded-3.5 flex size-12 shrink-0 items-center justify-center rounded-full text-white md:size-13 md:bg-[#566072]"
                 aria-hidden="true"
               >
                 {profile.initials}
               </div>
               <div className="flex min-w-0 flex-col gap-0.5">
-                <Text
-                  as="p"
-                  className="text-ehs-darker text-base font-normal md:text-lg md:font-extrabold"
-                >
+                <Text as="p" className="text3 text-ehs-darker">
                   {profile.name}
                 </Text>
-                <Text
-                  as="p"
-                  className="text-ehs-muted-text text-[13px] font-medium md:text-base"
-                >
-                  {`${profile.role}`}
+                <Text as="p" className="text4 text-ehs-muted-text">
+                  {profile.role}
                 </Text>
-                <Text
-                  as="p"
-                  className="text-ehs-muted-text text-xs font-semibold md:text-sm md:font-normal md:text-[#b3bbc8]"
-                >
+                <Text as="p" className="text8 text-ehs-muted-text">
                   {`ID: ${profile.employeeCode}`}
                 </Text>
               </div>
             </div>
 
             <div className="flex shrink-0 flex-col items-end gap-1 md:gap-1.5">
-              <span className="text-ehs-muted-text text-[10px] font-bold md:text-base md:font-normal">
-                Active Items
-              </span>
-              <span className="text-ehs-darker text-[28px] font-extrabold tabular-nums md:text-2xl md:tracking-[-0.78px] md:text-[#566072]">
+              <span className="text8 text-ehs-muted-text">Active Items</span>
+              <span className="text2 text-ehs-darker tabular-nums">
                 {String(activeCount)}
               </span>
             </div>
@@ -218,11 +196,11 @@ export function PpeEmployeeProfileContent(
 
         {/* Mobile — active PPE cards */}
         <div className="flex flex-col gap-2.5 md:hidden">
-          <p className="text-ehs-muted-text text-xs font-bold uppercase">
+          <p className="text6 text-ehs-muted-text">
             {`Active PPE (${String(activeCount)})`}
           </p>
           {activeCount === 0 ? (
-            <p className="text-ehs-muted-text text-sm">
+            <p className="text4 text-ehs-muted-text">
               No active PPE for this employee.
             </p>
           ) : (
@@ -242,12 +220,12 @@ export function PpeEmployeeProfileContent(
           className="hidden min-w-0 md:block"
         >
           <div className="border-b border-[rgba(15,23,42,0.08)] px-4.5 py-3.5">
-            <Text as="h3" className="text-ehs-darker text-base font-bold">
+            <Text as="h3" className="text3 text-ehs-darker">
               {`Active PPE (${String(activeCount)})`}
             </Text>
           </div>
           {activeCount === 0 ? (
-            <p className="text-ehs-muted-text px-4.5 py-8 text-center text-sm">
+            <p className="text4 text-ehs-muted-text px-4.5 py-8 text-center">
               No active PPE for this employee.
             </p>
           ) : (
@@ -261,11 +239,9 @@ export function PpeEmployeeProfileContent(
 
         {/* Mobile — history cards */}
         <div className="flex flex-col gap-2.5 md:hidden">
-          <p className="text-ehs-muted-text text-xs font-bold uppercase">
-            Full Issuance History
-          </p>
+          <p className="text6 text-ehs-muted-text">Full Issuance History</p>
           {profile.history.length === 0 ? (
-            <p className="text-ehs-muted-text text-sm">No history yet.</p>
+            <p className="text4 text-ehs-muted-text">No history yet.</p>
           ) : (
             <ul className="flex flex-col gap-3">
               {profile.history.map((record) => (
@@ -284,8 +260,9 @@ export function PpeEmployeeProfileContent(
             columns={ppeHistoryColumns}
             getRowId={(row) => row.id}
             containerClassName="min-w-0"
+            variant="compliance"
             header={
-              <Text as="h3" className="text-ehs-darker text-base font-bold">
+              <Text as="h3" className="text3 text-ehs-darker">
                 Full Issuance History
               </Text>
             }
@@ -310,17 +287,17 @@ export function PpeEmployeeProfileNotFound(
       <PpeEmployeeProfileHeader name="Not found" role="—" department="—" />
       <IncidentGlassCard
         paddingClassName="p-6"
-        className="mx-auto w-full max-w-[731px]"
+        className="mx-auto w-full max-w-182.75"
       >
-        <Text as="p" className="text-ehs-darker text-sm font-semibold">
+        <Text as="p" className="text4 text-ehs-darker">
           Employee profile not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+        <Text as="p" className="text4 text-ehs-muted-text mt-1">
           {`No PPE profile matches “${employeeId}”.`}
         </Text>
         <Link
           href={PPE_ROUTE}
-          className="text-ehs-normal-blue mt-4 inline-flex text-sm font-semibold"
+          className="text4 text-ehs-normal-blue mt-4 inline-flex"
         >
           Back to PPE Management
         </Link>

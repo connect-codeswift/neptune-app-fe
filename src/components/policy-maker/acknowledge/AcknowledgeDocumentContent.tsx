@@ -57,24 +57,24 @@ export function AcknowledgeDocumentContent(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="flex min-h-screen flex-1 flex-col gap-[14px] px-4 py-4">
-          <SkeletonDetailPage />
-        </div>
+      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 py-4">
+        <SkeletonDetailPage />
+      </div>
     );
   }
 
   if (isClientReady && !hasToken) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text4 text-ehs-muted-text">
           Please sign in to acknowledge this document.
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Library
         </Link>
@@ -86,7 +86,7 @@ export function AcknowledgeDocumentContent(
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center px-4">
         <IncidentGlassCard
-          className="min-h-[220px] text-center"
+          className="min-h-55 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -94,10 +94,10 @@ export function AcknowledgeDocumentContent(
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load document
           </Text>
-          <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
             {getMutationErrorMessage(
               documentQuery.error,
               "Failed to load this document.",
@@ -119,15 +119,15 @@ export function AcknowledgeDocumentContent(
   if (!document) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Document not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text4 text-ehs-muted-text">
           {`No document matches “${documentIdParam}”.`}
         </Text>
         <Link
           href="/dashboard/policy-maker"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Library
         </Link>
@@ -138,18 +138,15 @@ export function AcknowledgeDocumentContent(
   if (!canAcknowledge) {
     return (
       <div className="flex min-h-screen flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text1 text-ehs-dark-bg">
           Not assigned
         </Text>
-        <Text
-          as="p"
-          className="text-ehs-muted-text max-w-xs text-center text-[14px]"
-        >
+        <Text as="p" className="text4 text-ehs-muted-text max-w-xs text-center">
           You are not assigned to acknowledge this document.
         </Text>
         <Link
           href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Document Details
         </Link>

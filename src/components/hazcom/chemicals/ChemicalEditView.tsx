@@ -2,8 +2,8 @@
 
 import {
   HazcomErrorCard,
+  HazcomFormLayout,
   HazcomLoadingCard,
-  HazcomModuleTabs,
   HazcomPageHeader,
 } from "@/components/hazcom/shared";
 import { ChemicalForm } from "@/components/hazcom/chemicals/ChemicalForm";
@@ -23,13 +23,7 @@ export function ChemicalEditView(props: Readonly<ChemicalEditViewProps>) {
     useChemicalDetailQuery(chemicalIdParam);
 
   return (
-    <div
-      className={["flex min-w-0 flex-col gap-5", className]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <HazcomModuleTabs />
-
+    <HazcomFormLayout className={className}>
       <HazcomPageHeader
         breadcrumb={BREADCRUMB}
         title={chemical ? `Edit Chemical — ${chemical.name}` : "Edit Chemical"}
@@ -64,6 +58,6 @@ export function ChemicalEditView(props: Readonly<ChemicalEditViewProps>) {
       {chemical ? (
         <ChemicalForm key={chemical.id} mode="edit" chemical={chemical} />
       ) : null}
-    </div>
+    </HazcomFormLayout>
   );
 }

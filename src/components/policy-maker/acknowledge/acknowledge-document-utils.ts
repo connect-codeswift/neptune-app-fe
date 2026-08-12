@@ -1,5 +1,3 @@
-import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
-
 /** Format like Figma: "22 apr 2025". */
 export function formatPublishedLabel(isoDate: string): string {
   const date = new Date(`${isoDate}T00:00:00`);
@@ -20,15 +18,4 @@ export function versionLabel(version: string): string {
     return `Version ${trimmed.slice(1)}`;
   }
   return `Version ${trimmed}`;
-}
-
-export function acknowledgePdfFileName(document: PolicyDocument): string {
-  const code = document.id.toUpperCase();
-  const slug = document.title
-    .split(/[-–—]/)[0]
-    .trim()
-    .replace(/[^a-zA-Z0-9]+/g, "")
-    .slice(0, 24);
-  const version = document.version.replace(/^v/i, "");
-  return `${code}_${slug || "Document"}_v${version}.pdf`;
 }

@@ -18,8 +18,6 @@ import type {
 import type {
   AddComplianceRequestDto,
   GetAllCompliancesRequestDto,
-  MarkCompleteComplianceRequestDto,
-  UpdateComplianceRequestDto,
 } from "@/dtos/req/compliance-request.dto";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -58,11 +56,7 @@ function readString(
   return null;
 }
 
-const CATEGORY_PROGRESS_COLORS = [
-  "#3b82f6",
-  "#0891a6",
-  "#566072",
-] as const;
+const CATEGORY_PROGRESS_COLORS = ["#3b82f6", "#0891a6", "#566072"] as const;
 
 const CANONICAL_COMPLIANCE_CATEGORIES = [
   "Regulatory",
@@ -71,7 +65,7 @@ const CANONICAL_COMPLIANCE_CATEGORIES = [
 ] as const;
 
 /** Normalizes one category-stat row (camelCase or PascalCase). */
-export function normalizeComplianceCategoryStatDto(
+function normalizeComplianceCategoryStatDto(
   raw: unknown,
 ): ComplianceCategoryStatDto | null {
   if (!isRecord(raw)) {
@@ -129,9 +123,7 @@ export function normalizeComplianceCategoryStatDto(
 export function normalizeComplianceCategoryStatsList(
   raw: unknown,
 ): ComplianceCategoryStatDto[] {
-  const payload = isRecord(raw)
-    ? (raw.dataModel ?? raw.DataModel ?? raw)
-    : raw;
+  const payload = isRecord(raw) ? (raw.dataModel ?? raw.DataModel ?? raw) : raw;
 
   if (Array.isArray(payload)) {
     return payload
@@ -188,34 +180,40 @@ function asCount(value: number | null | undefined): number {
 export function mapComplianceDashboardKpisToItems(
   dto: ComplianceDashboardKpisDto | null | undefined,
 ): readonly ComplianceKpiItem[] {
+  // Counts only — the endpoint carries no history and no prior period, so
+  // every card falls back to its icon badge instead of a delta.
   return [
     {
       id: "obligations-tracked",
-      label: "OBLIGATIONS TRACKED",
-      count: asCount(dto?.obligationsTracked),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Obligations Tracked",
+      value: asCount(dto?.obligationsTracked),
+      description: "On the compliance register",
+      icon: "mdi:clipboard-list-outline",
     },
     {
       id: "compliant",
-      label: "COMPLIANT",
-      count: asCount(dto?.compliant),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Compliant",
+      value: asCount(dto?.compliant),
+      description: "Obligations currently met",
+      icon: "mdi:shield-check-outline",
     },
     {
       id: "due-in-60-days",
-      label: "DUE IN 60 DAYS",
-      count: asCount(dto?.dueIn60Days),
-      badgeValue: "",
-      badgeTone: "coral",
+      title: "Due In 60 Days",
+      value: asCount(dto?.dueIn60Days),
+      description: "Filings coming up",
+      isMorePositive: false,
+      icon: "mdi:calendar-clock",
     },
     {
       id: "action-required",
-      label: "ACTION REQUIRED",
-      count: asCount(dto?.actionRequired),
-      badgeValue: "",
-      badgeTone: "green",
+      title: "Action Required",
+      value: asCount(dto?.actionRequired),
+      description: "Needs attention now",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:alert-outline",
     },
   ];
 }
@@ -267,9 +265,7 @@ function readStringArray(
 }
 
 /** Normalizes one compliance row (camelCase or PascalCase). */
-export function coerceComplianceDto(
-  raw: Record<string, unknown>,
-): ComplianceDto {
+function coerceComplianceDto(raw: Record<string, unknown>): ComplianceDto {
   return {
     id:
       readNumber(raw, "id", "Id", "complianceId", "ComplianceId") ?? undefined,
@@ -292,13 +288,8 @@ export function coerceComplianceDto(
     priority: readString(raw, "priority", "Priority"),
     status: readString(raw, "status", "Status"),
     completedDate: readString(raw, "completedDate", "CompletedDate"),
-    completedBy:
-      readNumber(raw, "completedBy", "CompletedBy") ?? undefined,
-    completedByName: readString(
-      raw,
-      "completedByName",
-      "CompletedByName",
-    ),
+    completedBy: readNumber(raw, "completedBy", "CompletedBy") ?? undefined,
+    completedByName: readString(raw, "completedByName", "CompletedByName"),
     evidenceUrls: readStringArray(raw, "evidenceUrls", "EvidenceUrls"),
     markComplete:
       typeof raw.markComplete === "boolean"
@@ -611,54 +602,6 @@ export function mapComplianceDtosToObligationItems(
   });
 }
 
-export type CompliancesListQueryData = GetAllCompliancesResultDto & {
-  records: readonly ComplianceObligationItem[];
-};
-
-/** Applies a successful PUT /Compliance/Update to cached register rows. */
-export function patchComplianceListQueryData(
-  current: CompliancesListQueryData | undefined,
-  update: Pick<
-    UpdateComplianceRequestDto,
-    "id" | "status" | "completedDate" | "nextDue" | "dueDate"
-  >,
-): CompliancesListQueryData | undefined {
-  if (!current) {
-    return current;
-  }
-
-  const nextStatus = normalizeObligationStatus(update.status);
-  const nextDueValue = update.nextDue ?? update.dueDate;
-  const formattedNextDue = nextDueValue
-    ? formatIsoDate(nextDueValue)
-    : undefined;
-
-  return {
-    ...current,
-    items: current.items.map((item) =>
-      item.id === update.id
-        ? {
-            ...item,
-            status: update.status,
-            completedDate: update.completedDate,
-            nextDue: update.nextDue ?? item.nextDue,
-            dueDate: update.dueDate ?? item.dueDate,
-          }
-        : item,
-    ),
-    records: current.records.map((item) =>
-      item.id === String(update.id)
-        ? {
-            ...item,
-            status: nextStatus,
-            nextDue: formattedNextDue ?? item.nextDue,
-            isHighlighted: nextStatus === "Action required",
-          }
-        : item,
-    ),
-  };
-}
-
 function filingBadge(
   dto: ComplianceUpcomingFilingDto,
 ): Pick<UpcomingFilingItem, "badgeLabel" | "badgeTone"> {
@@ -678,7 +621,7 @@ function filingBadge(
 }
 
 /** Normalizes one upcoming filing row. */
-export function normalizeComplianceUpcomingFilingDto(
+function normalizeComplianceUpcomingFilingDto(
   raw: unknown,
 ): ComplianceUpcomingFilingDto | null {
   if (!isRecord(raw)) {
@@ -781,7 +724,7 @@ function truncateCalendarTitle(value: string, maxLength = 22): string {
 }
 
 /** Normalizes one calendar event row. */
-export function normalizeComplianceCalendarEventDto(
+function normalizeComplianceCalendarEventDto(
   raw: unknown,
 ): ComplianceCalendarEventDto | null {
   if (!isRecord(raw)) {
@@ -895,7 +838,7 @@ export function getComplianceCalendarMonthRange(activeStartDate: Date): {
 }
 
 /** Converts an HTML date input value (YYYY-MM-DD) to ISO date-time. */
-export function dateInputToIsoDateTime(dateInput: string): string {
+function dateInputToIsoDateTime(dateInput: string): string {
   const [yearPart, monthPart, dayPart] = dateInput.split("-");
   const year = Number(yearPart);
   const month = Number(monthPart);
@@ -943,68 +886,8 @@ export function buildAddComplianceRequest(
   };
 }
 
-function toIsoDateTime(
-  value: string | null | undefined,
-  fallback: string,
-): string {
-  if (!value?.trim()) {
-    return fallback;
-  }
-
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return parsed.toISOString();
-}
-
 /** Maps a ComplianceDto into PUT /api/Compliance/Update body. */
-export function buildUpdateComplianceRequest(
-  dto: ComplianceDto,
-  overrides: Partial<UpdateComplianceRequestDto> = {},
-): UpdateComplianceRequestDto {
-  const now = new Date().toISOString();
-  const dueDate = toIsoDateTime(dto.dueDate, now);
-  const nextDue = toIsoDateTime(dto.nextDue ?? dto.dueDate, dueDate);
-  const completedDate = toIsoDateTime(dto.completedDate, now);
-  const id = overrides.id ?? dto.id;
-
-  if (id == null || id <= 0) {
-    throw new Error("Compliance id is required to update an obligation.");
-  }
-
-  return {
-    id,
-    code: dto.code?.trim() ?? "",
-    title: dto.title?.trim() ?? "",
-    category: dto.category?.trim() ?? "",
-    jurisdiction: dto.jurisdiction?.trim() ?? "",
-    regulatoryBody: dto.regulatoryBody?.trim() ?? "",
-    dueDate,
-    nextDue,
-    recurrence: dto.recurrence?.trim() ?? "",
-    responsiblePersonId: dto.responsiblePersonId ?? 0,
-    responsiblePerson: dto.responsiblePerson?.trim() ?? "",
-    priority: dto.priority?.trim() ?? "",
-    status: dto.status?.trim() ?? "",
-    completedDate,
-    evidenceUrls: [...(dto.evidenceUrls ?? [])],
-    markComplete: dto.markComplete ?? false,
-    ...overrides,
-  };
-}
-
 /** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
-export function buildMarkCompleteComplianceRequest(
-  complianceId: number,
-): MarkCompleteComplianceRequestDto {
-  return {
-    id: complianceId,
-    markComplete: true,
-  };
-}
-
 /** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
 export function normalizeComplianceUpdateResult(
   data: unknown,
@@ -1023,15 +906,9 @@ export function normalizeComplianceUpdateResult(
 
   return {
     complianceId:
-      readNumber(
-        record,
-        "complianceId",
-        "ComplianceId",
-        "id",
-        "Id",
-      ) ?? undefined,
-    nextCycleId:
-      readNumber(record, "nextCycleId", "NextCycleId") ?? undefined,
+      readNumber(record, "complianceId", "ComplianceId", "id", "Id") ??
+      undefined,
+    nextCycleId: readNumber(record, "nextCycleId", "NextCycleId") ?? undefined,
     nextCycleDueDate: readString(
       record,
       "nextCycleDueDate",
@@ -1041,9 +918,7 @@ export function normalizeComplianceUpdateResult(
 }
 
 /** Formats an ISO date for user-facing copy (e.g. "30 Apr 2026"). */
-export function formatComplianceLongDate(
-  value: string | null | undefined,
-): string {
+function formatComplianceLongDate(value: string | null | undefined): string {
   if (!value?.trim()) {
     return "—";
   }
@@ -1068,9 +943,7 @@ export function buildMarkCompleteSuccessMessage(
 ): { title: string; description: string } {
   const nextDue = result?.nextCycleDueDate?.trim();
   const hasNextCycle =
-    result?.nextCycleId != null &&
-    result.nextCycleId > 0 &&
-    Boolean(nextDue);
+    result?.nextCycleId != null && result.nextCycleId > 0 && Boolean(nextDue);
 
   if (hasNextCycle) {
     return {

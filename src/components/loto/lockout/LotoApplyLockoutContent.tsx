@@ -2,15 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import {
-  FormBuilder,
-  type FormValues,
-} from "@/components/form-builder";
+import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   getLotoApplyLockoutContext,
   type LotoApplyLockoutContext,
@@ -29,13 +25,12 @@ import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
 
 const fieldClass = [
   "gap-3.5",
-  "[&_label]:text-[12px]",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:text-[#566072]",
-  "[&_input]:h-[42px]",
-  "[&_input]:rounded-[10px]",
-  "[&_input]:bg-[rgba(255,255,255,0.62)]",
-  "[&_input]:text-[13.5px]",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
 ].join(" ");
 
 export type LotoApplyLockoutContentProps = Readonly<{
@@ -44,7 +39,6 @@ export type LotoApplyLockoutContentProps = Readonly<{
 
 export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
   const { equipmentId } = props;
-  const router = useRouter();
   const context = useMemo(
     () => getLotoApplyLockoutContext(equipmentId),
     [equipmentId],
@@ -54,12 +48,12 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
     return (
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker font-semibold">
             Equipment not found
           </Text>
           <Link
             href={LOTO_ROUTE}
-            className="text-ehs-normal-blue mt-3 inline-block text-sm hover:underline"
+            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
           >
             Back to LOTO
           </Link>
@@ -73,11 +67,9 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
 
 function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
   const { context } = props;
-  const router = useRouter();
   const detailHref = lotoEquipmentDetailRoute(context.equipment.id);
   const schema = useMemo(() => buildApplyLockoutSchema(), []);
   const [confirmed, setConfirmed] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleValid = (values: FormValues) => {
     if (!confirmed) {
@@ -92,12 +84,14 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
       return;
     }
 
-    setIsSubmitting(true);
-    window.setTimeout(() => {
-      toast.success(`Lockout applied to ${context.equipment.name}`);
-      setIsSubmitting(false);
-      router.push(`${LOTO_ROUTE}?tab=active-lockouts`);
-    }, 350);
+    // Nothing is persisted: there is no LOTO service or mutation hook in the
+    // codebase at all. This previously waited 350ms to imitate a request, then
+    // toasted "Lockout applied" and navigated to the active-lockouts tab — so
+    // a lockout that was never recorded looked registered. Say so instead.
+    toast.error(
+      "Not available yet",
+      "Applying a lockout isn't connected to the backend, so nothing was saved.",
+    );
   };
 
   return (
@@ -107,13 +101,11 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
           <IncidentGlassCard
-            paddingClassName="p-[22px]"
-            className="min-w-0 rounded-[20px]"
+            paddingClassName="p-5.5"
+            className="rounded-5 min-w-0"
           >
-            <h2 className="text-ehs-darker text-sm leading-[21px] font-bold">
-              Lockout Registration
-            </h2>
-            <div className="mt-[18px]">
+            <h2 className="text3 text-ehs-darker">Lockout Registration</h2>
+            <div className="mt-4">
               <FormBuilder
                 formId={LOTO_APPLY_FORM_ID}
                 schema={schema}
@@ -125,18 +117,18 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
             </div>
           </IncidentGlassCard>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-[18px] py-4">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-4.5 py-4">
             <input
               type="checkbox"
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
-              className="mt-0.5 size-4 shrink-0 rounded-[2px] border border-[#767676] accent-[#ef4444]"
+              className="rounded-0.5 mt-0.5 size-4 shrink-0 border border-[#767676] accent-[#ef4444]"
             />
             <span className="min-w-0">
-              <span className="block text-[13px] leading-[19.5px] font-bold text-[#ef4444]">
+              <span className="text5 block text-[#ef4444]">
                 Final Confirmation
               </span>
-              <span className="mt-1 block text-[12.5px] leading-[19.375px] font-medium text-[#566072]">
+              <span className="text4 mt-1 block font-medium text-[#566072]">
                 {`I have read, understood, and followed procedure `}
                 <span className="font-bold">{context.procedureId}</span>
                 {`. I confirm the machine cannot be started. I accept responsibility for this lockout.`}
@@ -147,7 +139,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="inline-flex h-[39px] items-center gap-[7px] rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 text-[13px] font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="text4 rounded-2.5 inline-flex h-9.75 items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -156,8 +148,8 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               type="submit"
               form={LOTO_APPLY_FORM_ID}
               variant="danger"
-              disabled={isSubmitting || !confirmed}
-              className="gap-[7px] rounded-[10px] px-4 py-2.5 text-[13px] font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              disabled={!confirmed}
+              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
               Confirm Lockout Applied

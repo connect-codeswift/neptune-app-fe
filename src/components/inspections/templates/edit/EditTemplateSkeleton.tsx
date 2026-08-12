@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
@@ -43,7 +43,7 @@ export function EditTemplateSkeleton() {
               <Skeleton className="h-11 w-full rounded-lg" />
             </div>
           ))}
-          <Skeleton className="h-28 w-full rounded-[10px]" />
+          <Skeleton className="h-28 w-full rounded-2.5" />
         </IncidentGlassCard>
 
         <IncidentGlassCard

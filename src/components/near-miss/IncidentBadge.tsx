@@ -34,7 +34,12 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold whitespace-nowrap",
+        // White hairline gives the frosted read on glass cards. Deliberately
+        // no backdrop-blur: these render dozens-per-table, each blur is its
+        // own compositing layer, and at pill size the effect is invisible —
+        // the translucent tint + hairline carry the material.
+        // text5 matches Incident list badge type scale.
+        "text5 inline-flex items-center gap-1.5 rounded-full border border-white/50 px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
@@ -44,7 +49,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
       {showDot ? (
         <span
           className={[
-            "size-1.5 shrink-0 rounded-[3px]",
+            "size-1.5 shrink-0 rounded-0.75",
             dotClassName[tone],
           ].join(" ")}
           aria-hidden="true"

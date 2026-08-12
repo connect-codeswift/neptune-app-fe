@@ -1,4 +1,4 @@
-import { HazcomModuleTabs, HazcomPageHeader } from "@/components/hazcom/shared";
+import { HazcomFormLayout, HazcomPageHeader } from "@/components/hazcom/shared";
 import { ChemicalForm } from "@/components/hazcom/chemicals/ChemicalForm";
 
 export type ChemicalAddViewProps = Readonly<{
@@ -9,13 +9,7 @@ export function ChemicalAddView(props: Readonly<ChemicalAddViewProps>) {
   const { className = "" } = props;
 
   return (
-    <div
-      className={["flex min-w-0 flex-col gap-5", className]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <HazcomModuleTabs />
-
+    <HazcomFormLayout className={className}>
       <HazcomPageHeader
         breadcrumb={["Safety", "HazCom", "Chemical Inventory", "Add"]}
         title="Add Chemical"
@@ -23,6 +17,6 @@ export function ChemicalAddView(props: Readonly<ChemicalAddViewProps>) {
       />
 
       <ChemicalForm mode="add" />
-    </div>
+    </HazcomFormLayout>
   );
 }

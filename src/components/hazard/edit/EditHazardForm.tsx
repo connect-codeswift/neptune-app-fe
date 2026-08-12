@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
@@ -17,6 +17,18 @@ import {
   type HazardEditValues,
 } from "./hazard-edit-schema";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
+
+/** Typography-only overrides — do not set fixed input heights. */
+const hazardFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
 
 export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   const { record } = props;
@@ -61,11 +73,12 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className="mx-auto w-full max-w-3xl bg-white!"
+      className="w-full"
     >
       <FormBuilder
         schema={schema}
         initialValues={toHazardEditValues(record)}
+        className={hazardFormFieldClass}
         submitLabel={saveHazard.isPending ? "Saving..." : "Save Changes"}
         cancelLabel="Cancel"
         isSubmitting={saveHazard.isPending}

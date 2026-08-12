@@ -1,7 +1,4 @@
-import type {
-  InspectionDetail,
-  InspectionRecord,
-} from "@/app/dashboard/inspections/inspections-data";
+import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-data";
 import type { InspectionFinding } from "@/app/dashboard/inspections/findings/inspection-findings-data";
 import type { InspectionChecklist } from "@/app/dashboard/inspections/checklist/inspection-checklist-data";
 import type { InspectionReport } from "@/app/dashboard/inspections/report/inspection-report-data";
@@ -33,7 +30,7 @@ const SHORT_MONTHS = [
  * The date parts are read straight off the string rather than via `Date`, so
  * the day can't shift a timezone either way. Unrecognised input passes through.
  */
-export function formatInspectionDate(value: string): string {
+function formatInspectionDate(value: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   if (!match) return value;
 
@@ -96,31 +93,6 @@ export function mapFindingDtoToFinding(
 }
 
 /** Map an API inspection detail onto the detail panel's donut shape. */
-export function mapInspectionDetailDtoToDetail(
-  dto: InspectionDetailDto,
-): InspectionDetail {
-  const sections = dto.snapshot?.sections ?? [];
-  const items = sections.flatMap((section) => section.items ?? []);
-  const total = items.length;
-
-  // No per-response scoring is available yet, so the breakdown is derived from
-  // the snapshot: critical items form the critical slice, the rest are pending.
-  const critical = items.filter((item) => item.isCritical).length;
-  const pending = Math.max(0, total - critical);
-
-  // Progress is the share of answered items; a scheduled run has no responses.
-  const answered = dto.responses?.length ?? 0;
-  const progress = total > 0 ? Math.round((answered / total) * 100) : 0;
-
-  return {
-    id: String(dto.id),
-    title: dto.inspectionTitle || "Untitled inspection",
-    progress,
-    items: { pass: 0, action: 0, critical, pending },
-    topFindings: [],
-  };
-}
-
 /**
  * Turn GET /api/Inspection/{id} into a runnable checklist: the template
  * snapshot carries the sections and their items.

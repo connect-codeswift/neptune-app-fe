@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@iconify/react";
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -22,15 +23,15 @@ import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
 
-const fieldLabelClass = "text-[12px] leading-4 font-medium text-[#566072]";
+const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
 const fieldShellClass =
-  "!min-w-0 !rounded-[10px] !border-[0.8px] !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-[11.2px] !py-2 !text-[14px] !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
+  "text4 !min-w-0 !rounded-2.5 !border !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-3 !py-2 !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
 const textFieldClass = [
   fieldShellClass,
   "!text-[#0b1320] placeholder:!text-[#8892a3]",
 ].join(" ");
-const selectFieldClass = [fieldShellClass, "!h-[36px]"].join(" ");
+const selectFieldClass = [fieldShellClass, "!h-9"].join(" ");
 const dateFieldClass = [
   fieldShellClass,
   "!h-[37.6px] !w-full appearance-none pr-10",
@@ -48,12 +49,9 @@ const titleFieldClass = [
 ].join(" ");
 
 const formCardClass =
-  "relative w-full rounded-[16px] border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-[24px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+  "relative w-full rounded-4 border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-6 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
 
 /** Figma EHSS-Web node 3326:20854 — stash:data-date */
-const COMPLIANCE_DUE_DATE_CALENDAR_ICON =
-  "/icons/compliance/stash-data-date.svg";
-
 function openDatePicker(input: HTMLInputElement | null) {
   if (!input || input.disabled) {
     return;
@@ -293,7 +291,7 @@ export function AddObligationForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="relative w-full max-w-[744px] min-w-0"
+      className="relative w-full max-w-186 min-w-0"
     >
       <div className={formCardClass}>
         <div className="relative z-1 flex w-full min-w-0 flex-col gap-4">
@@ -360,11 +358,10 @@ export function AddObligationForm() {
                   aria-label="Open calendar"
                   className="absolute top-1/2 right-2 size-6 -translate-y-1/2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <img
-                    src={COMPLIANCE_DUE_DATE_CALENDAR_ICON}
-                    alt=""
+                  <Icon
+                    icon="stash:data-date"
+                    className="text-ehs-gray size-6"
                     aria-hidden="true"
-                    className="size-6"
                   />
                 </button>
               </div>
@@ -429,7 +426,7 @@ export function AddObligationForm() {
               disabled={busy}
               labelClassName={fieldLabelClass}
               wrapperClassName={fieldWrapperClass}
-              className={[textFieldClass, "!h-[36px]"].join(" ")}
+              className={[textFieldClass, "!h-9"].join(" ")}
             />
           </div>
 
@@ -443,19 +440,19 @@ export function AddObligationForm() {
             }}
           />
 
-          <div className="flex flex-col-reverse items-stretch gap-4 pt-1 sm:flex-row sm:items-center sm:justify-end sm:gap-[27px]">
+          <div className="flex flex-col-reverse items-stretch gap-4 pt-1 sm:flex-row sm:items-center sm:justify-end sm:gap-6.75">
             <button
               type="button"
               onClick={handleCancel}
               disabled={busy}
-              className="cursor-pointer text-center text-[14px] leading-5 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 cursor-pointer text-center text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy || !pdfSecureUrl}
-              className="inline-flex h-9 min-w-[197px] cursor-pointer items-center justify-center rounded-[10px] bg-[#0891a6] px-4 text-[14px] leading-5 font-medium text-white shadow-[inset_0px_0.972px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_5.834px_8.751px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center rounded-2.5 bg-[#0891a6] px-4 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

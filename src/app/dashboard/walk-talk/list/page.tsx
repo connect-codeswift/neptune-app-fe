@@ -1,5 +1,5 @@
-import { WalkTalkListPageClient } from "@/components/walk-talk/WalkTalkListPageClient";
+import { redirect } from "next/navigation";
 
 export default function WalkTalkListPage() {
-  return <WalkTalkListPageClient />;
+  redirect("/dashboard/walk-talk");
 }

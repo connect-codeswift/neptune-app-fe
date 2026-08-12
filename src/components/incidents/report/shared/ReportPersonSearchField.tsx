@@ -4,6 +4,7 @@ import {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -11,18 +12,27 @@ import {
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportFieldLabel, ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
-import { readUserGender, type SiteUserDto } from "@/dtos/res/user-response.dto";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_INPUT_LG_CLASS,
+} from "@/components/ui/field-styles";
+import {
+  readUserGender,
+  type SiteUserDto,
+  type UserDropdownItemDto,
+} from "@/dtos/res/user-response.dto";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
-import { useSiteUsersQuery } from "@/hooks/use-user-queries";
+import {
+  useSiteUsersQuery,
+  useUserDropdownQuery,
+} from "@/hooks/use-user-queries";
 
 /** Long enough that a name typed at speed is one request, short enough to feel live. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-const EMBEDDED_INPUT_CLASS =
-  " w-full rounded-[10px] bg-white px-3.5 text-base text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+const EMBEDDED_INPUT_CLASS = FIELD_INPUT_CLASS;
 
 type MenuPosition = Readonly<{
   top: number;
@@ -52,12 +62,23 @@ export type ReportPersonSearchFieldProps = Readonly<{
   /** `""` when the current text is free-typed rather than a picked person. */
   selectedUserId: string;
   onChange: (next: ReportPersonSelection) => void;
-  /** Site whose roster is offered. `0` means the token carries no site claim. */
-  siteId: number;
+  /**
+   * Where people are loaded from.
+   * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
+   * - `dropdown`: GET /User/dropdown, filtered client-side
+   */
+  usersSource?: "site" | "dropdown";
+  /** Site whose roster is offered when `usersSource` is `site`. `0` = no site claim. */
+  siteId?: number;
   siteName?: string | null;
+  error?: string | null;
   className?: string;
   /** Report forms use the default styling; modals use `embedded` with a portaled menu. */
   variant?: "report" | "embedded";
+  /** When true, omit the built-in label (e.g. FormBuilder already renders one). */
+  hideLabel?: boolean;
+  /** Extra classes merged onto the input control. */
+  inputClassName?: string;
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -85,13 +106,49 @@ function initialsFor(name: string): string {
   return `${parts[0]!.charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
 }
 
+function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
+  const rawId = item.id ?? item.userId ?? item.value;
+  const id = typeof rawId === "number" ? rawId : Number(rawId);
+  if (!Number.isFinite(id) || id <= 0) {
+    return null;
+  }
+
+  const fullName =
+    item.name?.trim() ||
+    item.fullName?.trim() ||
+    item.userName?.trim() ||
+    item.label?.trim() ||
+    null;
+
+  return {
+    id: Math.trunc(id),
+    fullName,
+    email: item.email?.trim() || null,
+  };
+}
+
+function filterUsersByQuery(
+  users: readonly SiteUserDto[],
+  query: string,
+): SiteUserDto[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) {
+    return [...users];
+  }
+
+  return users.filter((user) => {
+    const name = displayNameFor(user).toLowerCase();
+    const email = user.email?.trim().toLowerCase() ?? "";
+    return name.includes(needle) || email.includes(needle);
+  });
+}
+
 /**
  * Affected-person picker: a combobox over the people who belong to the current
- * site.
+ * site, or the org-wide `/User/dropdown` list when `usersSource` is `dropdown`.
  *
- * Search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`),
- * so the field works the same on a site with eight people and one with eight
- * hundred — the roster is never held client-side in full.
+ * Site search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`).
+ * Dropdown mode loads once and filters client-side.
  *
  * Free text is still accepted. The affected person is often a contractor,
  * agency worker or visitor with no account, and an incident involving one of
@@ -111,12 +168,17 @@ export function ReportPersonSearchField(
     value,
     selectedUserId,
     onChange,
-    siteId,
+    usersSource = "site",
+    siteId = 0,
     siteName,
+    error = null,
     className = "",
     variant = "report",
+    hideLabel = false,
+    inputClassName = "",
   } = props;
 
+  const isDropdown = usersSource === "dropdown";
   const isEmbedded = variant === "embedded";
 
   const [open, setOpen] = useState(false);
@@ -154,17 +216,62 @@ export function ReportPersonSearchField(
   // Only fetch once the menu has been opened. Step 1 is the first screen of the
   // form and most of its fields are never touched — no reason to spend a
   // request on a roster nobody has asked to see yet.
-  const usersQuery = useSiteUsersQuery(
+  const siteUsersQuery = useSiteUsersQuery(
     siteId,
     { search: debouncedQuery },
-    open,
+    open && !isDropdown,
   );
-  const users = usersQuery.data ?? [];
+  const dropdownUsersQuery = useUserDropdownQuery(open && isDropdown);
+  const dropdownUsers = useMemo(() => {
+    if (!isDropdown) {
+      return [] as SiteUserDto[];
+    }
+
+    return (dropdownUsersQuery.data?.dataModel ?? [])
+      .map(toSiteUserFromDropdown)
+      .filter((user): user is SiteUserDto => user != null);
+  }, [isDropdown, dropdownUsersQuery.data?.dataModel]);
+
+  const users = useMemo(() => {
+    if (isDropdown) {
+      return filterUsersByQuery(dropdownUsers, debouncedQuery);
+    }
+
+    return siteUsersQuery.data ?? [];
+  }, [isDropdown, dropdownUsers, debouncedQuery, siteUsersQuery.data]);
+
+  const usersQuery = isDropdown
+    ? {
+        isLoading: dropdownUsersQuery.isLoading,
+        isError: dropdownUsersQuery.isError,
+        isFetching: dropdownUsersQuery.isFetching,
+        dataUpdatedAt: dropdownUsersQuery.dataUpdatedAt,
+      }
+    : {
+        isLoading: siteUsersQuery.isLoading,
+        isError: siteUsersQuery.isError,
+        isFetching: siteUsersQuery.isFetching,
+        dataUpdatedAt: siteUsersQuery.dataUpdatedAt,
+      };
 
   // The debounce means results lag the box by up to 300ms; say so rather than
   // letting a stale list look like the answer.
   const isSearching =
     open && (usersQuery.isFetching || debouncedQuery !== query);
+
+  const rosterLabel = isDropdown ? "People" : `People at ${siteName ?? "this site"}`;
+  const emptyNoQuery = isDropdown
+    ? "No people are listed yet."
+    : `No people are listed for ${siteName ?? "this site"} yet.`;
+  const emptyWithQuery = isDropdown
+    ? `No one matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
+    : `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`;
+  const loadErrorMessage = isDropdown
+    ? "Couldn't load people. Type the name instead, or try again in a moment."
+    : "Couldn't load people for this site. Type the name instead, or try again in a moment.";
+  const noSiteMessage =
+    "Your sign-in isn't linked to a site, so there's no roster to search. Type the person's name instead.";
+  const showNoSite = !isDropdown && siteId <= 0;
 
   useDismissOnOutsideClick(rootRef, open && !isEmbedded, () => setOpen(false));
 
@@ -304,7 +411,7 @@ export function ReportPersonSearchField(
 
   const listbox = (
     <>
-      {siteName ? (
+      {!isDropdown && siteName ? (
         <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-2 pb-1.5 text-sm font-semibold tracking-wider uppercase">
           People at {siteName}
         </p>
@@ -313,13 +420,12 @@ export function ReportPersonSearchField(
       <ul
         id={listboxId}
         role="listbox"
-        aria-label={`People at ${siteName ?? "this site"}`}
+        aria-label={rosterLabel}
         className="max-h-56 overflow-y-auto p-1"
       >
-        {siteId <= 0 ? (
+        {showNoSite ? (
           <li className="text-ehs-muted-text px-2.5 py-3 text-base">
-            Your sign-in isn&apos;t linked to a site, so there&apos;s no roster
-            to search. Type the person&apos;s name instead.
+            {noSiteMessage}
           </li>
         ) : usersQuery.isLoading ? (
           <li className="flex flex-col gap-1 p-1.5">
@@ -332,14 +438,11 @@ export function ReportPersonSearchField(
           </li>
         ) : usersQuery.isError ? (
           <li className="text-ehs-muted-text px-2.5 py-3 text-base">
-            Couldn&apos;t load people for this site. Type the name instead, or
-            try again in a moment.
+            {loadErrorMessage}
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
-            {debouncedQuery.trim()
-              ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
-              : `No people are listed for ${siteName ?? "this site"} yet.`}
+          <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
+            {debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
           </li>
         ) : (
           users.map((user, index) => {
@@ -365,13 +468,13 @@ export function ReportPersonSearchField(
                   }}
                   onMouseEnter={() => moveHighlight(index)}
                   className={[
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-[8px] px-2.5 py-2 text-left transition-colors",
+                    "flex w-full cursor-pointer items-center gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors",
                     isActive
                       ? "bg-[rgba(8,145,166,0.1)]"
                       : "hover:bg-[rgba(15,23,42,0.04)]",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
+                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-2.75 font-bold">
                     {initialsFor(name)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -402,7 +505,7 @@ export function ReportPersonSearchField(
 
   const inlineMenu =
     open && !isEmbedded ? (
-      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
         {listbox}
       </div>
     ) : null;
@@ -417,7 +520,7 @@ export function ReportPersonSearchField(
               left: menuPosition.left,
               width: menuPosition.width,
             }}
-            className="animate-popover-in fixed z-[120] overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
           >
             {listbox}
           </div>,
@@ -440,6 +543,7 @@ export function ReportPersonSearchField(
             ? `${listboxId}-option-${String(activeIndex)}`
             : undefined
         }
+        aria-invalid={error ? true : undefined}
         value={value}
         placeholder={placeholder}
         onChange={(event) => {
@@ -454,10 +558,12 @@ export function ReportPersonSearchField(
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         className={[
-          inputClass,
-          "border border-slate-900/10 py-3.5",
+          inputClassName || inputClass,
+          "border border-slate-900/10",
           hasSelection ? "pr-16" : "pr-9",
-        ].join(" ")}
+        ]
+          .filter(Boolean)
+          .join(" ")}
       />
 
       <div className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1">
@@ -465,7 +571,7 @@ export function ReportPersonSearchField(
           <>
             <span
               title="Matched to a user account at this site"
-              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-[18px] items-center justify-center rounded-full"
+              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-4.5 items-center justify-center rounded-full"
             >
               <Icon
                 icon="mdi:account-check"
@@ -503,17 +609,19 @@ export function ReportPersonSearchField(
   if (isEmbedded) {
     return (
       <div
-        className={["flex min-w-0 flex-col gap-1.5", className]
+        className={["flex min-w-0 flex-col", hideLabel ? "" : "gap-1.5", className]
           .filter(Boolean)
           .join(" ")}
       >
-        <label
-          htmlFor={fieldId}
-          className="text-ehs-gray block text-base leading-[19.5px]"
-        >
-          {label}
-          {required ? <span className="text-ehs-red"> *</span> : null}
-        </label>
+        {hideLabel ? null : (
+          <label
+            htmlFor={fieldId}
+            className="text-slate-70 block text-base leading-[19.5px] font-medium"
+          >
+            {label}
+            {required ? <span className="text-ehs-red"> *</span> : null}
+          </label>
+        )}
 
         <div ref={rootRef} className="relative min-w-0">
           {inputControl}
@@ -529,6 +637,7 @@ export function ReportPersonSearchField(
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -543,6 +652,7 @@ export function ReportPersonSearchField(
       />
 
       {inputControl}
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }

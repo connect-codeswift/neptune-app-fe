@@ -8,7 +8,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 /**
  * Server-side pagination state. The rows in `data` are already the current
@@ -38,7 +38,7 @@ export type TableProps<TData> = {
   /** Toolbar rendered inside the card, above the table (title, filters, …). */
   header?: ReactNode;
   /** Visual variant for domain-specific table styling. */
-  variant?: "default" | "compliance";
+  variant?: "default" | "compliance" | "capa" | "incident";
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -58,6 +58,8 @@ export function Table<TData>(props: TableProps<TData>) {
   } = props;
 
   const isCompliance = variant === "compliance";
+  const isCapa = variant === "capa";
+  const isIncident = variant === "incident";
 
   const table = useReactTable({
     data: data as TData[],
@@ -80,9 +82,13 @@ export function Table<TData>(props: TableProps<TData>) {
       {header ? (
         <div
           className={[
-            "border-b border-[rgba(15,23,42,0.08)]",
-            isCompliance ? "px-[15.57px] py-0" : "px-4 py-2.5",
-          ].join(" ")}
+            isCapa
+              ? "border-b border-white/90 px-4 py-4"
+              : "border-b border-[rgba(15,23,42,0.08)]",
+            isCompliance ? "px-[15.57px] py-0" : isCapa ? "" : "px-4 py-2.5",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {header}
         </div>
@@ -99,9 +105,11 @@ export function Table<TData>(props: TableProps<TData>) {
               <tr
                 key={headerGroup.id}
                 className={
-                  isCompliance
-                    ? "border-b border-[rgba(15,23,42,0.08)]"
-                    : "border-ehs-border/40 border-b"
+                  isCapa
+                    ? "border-b border-white/90 bg-[rgba(11,19,32,0.14)]"
+                    : isCompliance
+                      ? "border-b border-[rgba(15,23,42,0.08)]"
+                      : "border-ehs-border/40 border-b"
                 }
               >
                 {headerGroup.headers.map((header) => {
@@ -127,9 +135,13 @@ export function Table<TData>(props: TableProps<TData>) {
                             : undefined,
                       }}
                       className={[
-                        isCompliance
-                          ? "px-[15.57px] py-3 text-[10px] font-bold tracking-[0.82px] text-[#8892a3] uppercase select-none"
-                          : "text-ehs-muted-text px-4 py-3.5 text-sm font-bold tracking-wider uppercase select-none",
+                        isCapa
+                          ? "text6 text-ehs-gray px-4 py-2.5 select-none"
+                          : isCompliance
+                            ? "text6 text-ehs-muted-text px-[15.57px] py-3 select-none"
+                            : isIncident
+                              ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
+                              : "text6 text-ehs-muted-text px-4 py-3.5 select-none",
                         alignClass,
                       ].join(" ")}
                     >
@@ -150,9 +162,11 @@ export function Table<TData>(props: TableProps<TData>) {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="text-ehs-muted-text px-4 py-12 text-center text-sm"
+                  className="text4 text-ehs-muted-text px-4 py-12 text-center"
                 >
-                  No records found matching your filters.
+                  {isCapa
+                    ? "No tasks yet."
+                    : "No records found matching your filters."}
                 </td>
               </tr>
             ) : (
@@ -165,17 +179,21 @@ export function Table<TData>(props: TableProps<TData>) {
                     key={row.id}
                     onClick={() => onRowClick?.(row.original)}
                     className={[
-                      isCompliance
-                        ? "border-t border-[rgba(15,23,42,0.08)] transition-colors"
-                        : "border-ehs-border/45 border-b last:border-b-0",
+                      isCapa
+                        ? "border-b border-[rgba(15,23,42,0.07)] last:border-b-0"
+                        : isCompliance
+                          ? "border-t border-[rgba(15,23,42,0.08)] transition-colors"
+                          : "border-ehs-border/45 border-b last:border-b-0",
                       onRowClick ? "cursor-pointer" : "",
-                      isCompliance
-                        ? isSelected
-                          ? "bg-[rgba(8,145,166,0.18)]"
-                          : "hover:bg-[rgba(8,145,166,0.08)]"
-                        : isSelected
-                          ? "bg-ehs-normal-blue/18"
-                          : "hover:bg-ehs-normal-blue/18",
+                      isCapa
+                        ? "hover:bg-[rgba(15,23,42,0.03)]"
+                        : isCompliance
+                          ? isSelected
+                            ? "bg-[rgba(8,145,166,0.18)]"
+                            : "hover:bg-[rgba(8,145,166,0.08)]"
+                          : isSelected
+                            ? "bg-ehs-normal-blue/18"
+                            : "hover:bg-ehs-normal-blue/18",
                       rowClassName,
                     ]
                       .filter(Boolean)
@@ -198,8 +216,8 @@ export function Table<TData>(props: TableProps<TData>) {
                           key={cell.id}
                           className={[
                             isCompliance
-                              ? "px-[15.57px] py-[14px] align-middle text-sm font-normal"
-                              : "text-ehs-darker px-4 py-4 align-middle text-sm font-normal",
+                              ? "px-[15.57px] py-3.5 align-middle"
+                              : "text-ehs-darker px-4 py-4 align-middle",
                             alignClass,
                           ].join(" ")}
                         >
@@ -226,13 +244,21 @@ export function Table<TData>(props: TableProps<TData>) {
 }
 
 const pageButtonClass =
-  "inline-flex cursor-pointer items-center gap-1 rounded-lg border border-ehs-border bg-ehs-light-text px-3 py-1.5 text-xs font-medium text-ehs-gray transition-colors hover:bg-ehs-light-bg disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 function TablePaginationBar(
-  props: Readonly<TablePagination & { variant?: "default" | "compliance" }>,
+  props: Readonly<
+    TablePagination & { variant?: "default" | "compliance" | "capa" | "incident" }
+  >,
 ) {
-  const { pageNumber, pageSize, totalRecords, onPageChange, isLoading, variant = "default" } =
-    props;
+  const {
+    pageNumber,
+    pageSize,
+    totalRecords,
+    onPageChange,
+    isLoading,
+    variant = "default",
+  } = props;
   const isCompliance = variant === "compliance";
 
   // The API is 1-based; guard against a 0/negative page size so the maths
@@ -257,13 +283,7 @@ function TablePaginationBar(
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >
-      <span
-        className={
-          isCompliance
-            ? "text-[12px] text-[#8892a3]"
-            : "text-ehs-muted-text text-xs"
-        }
-      >
+      <span className="text8 text-ehs-muted-text">
         {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
       </span>
 
@@ -277,7 +297,7 @@ function TablePaginationBar(
           Previous
         </button>
 
-        <span className="text-ehs-muted-text px-1 text-xs tabular-nums">
+        <span className="text8 text-ehs-muted-text px-1 tabular-nums">
           {`Page ${currentPage} of ${pageCount}`}
         </span>
 

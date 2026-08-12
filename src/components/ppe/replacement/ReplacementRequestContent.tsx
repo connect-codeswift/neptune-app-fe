@@ -7,7 +7,7 @@ import {
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -32,11 +32,16 @@ import {
 
 const PPE_ROUTE = "/dashboard/ppe-management";
 
+/** Match Issue PPE / Near Miss form typography (text1–text9 scale). */
 const fieldLabelClass = [
-  "[&_label]:text-base",
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:tracking-[0.24px]",
-  "[&_label]:text-[#566072]",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
 ].join(" ");
 
 export function ReplacementRequestContent() {
@@ -231,10 +236,10 @@ export function ReplacementRequestContent() {
       <div className="mx-auto flex w-full max-w-145 flex-col gap-3.5">
         {loadError ? (
           <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Couldn&apos;t load the replacement form
             </Text>
-            <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text mt-1">
               {loadError}
             </Text>
             <Button
@@ -253,15 +258,16 @@ export function ReplacementRequestContent() {
         ) : (
           <IncidentGlassCard paddingClassName="p-4 md:p-6" className="min-w-0">
             <div className="flex flex-col gap-5">
-              <Text
-                as="h2"
-                className="text-ehs-darker text-base font-bold md:text-xl"
-              >
+              <Text as="h2" className="text3 text-ehs-darker">
                 Request Details
               </Text>
 
               <FormBuilder
-                key={`${selectedEmployeeValue}-${issueIdParam}-${String(itemOptions.length)}`}
+                // Remount only when the values FormBuilder captures on mount
+                // change. itemOptions was in this key too, so the form was
+                // wiped mid-typing when the items query resolved — unnecessary,
+                // since options reach the fields through `schema` on re-render.
+                key={`${selectedEmployeeValue}-${issueIdParam}`}
                 formId={REPLACEMENT_REQUEST_FORM_ID}
                 schema={schema}
                 initialValues={initialValues}
@@ -275,7 +281,7 @@ export function ReplacementRequestContent() {
                   type="button"
                   variant="tertiary"
                   onClick={handleCancel}
-                  className="w-full rounded-[10px] px-4 py-2.5 text-base font-medium sm:w-auto"
+                  className="text4 rounded-2.5 w-full px-4 py-2.5 sm:w-auto"
                 >
                   Cancel
                 </Button>
@@ -283,12 +289,9 @@ export function ReplacementRequestContent() {
                   type="submit"
                   form={REPLACEMENT_REQUEST_FORM_ID}
                   variant="primary"
-                  disabled={
-                    replaceRequest.isPending ||
-                    !issueIdParam ||
-                    itemOptions.length === 0
-                  }
-                  className="w-full rounded-[10px] px-5 py-2.5 text-base font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
+                  isLoading={replaceRequest.isPending}
+                  disabled={!issueIdParam || itemOptions.length === 0}
+                  className="text4 rounded-2.5 w-full px-5 py-2.5 shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
                 >
                   {replaceRequest.isPending
                     ? "Submitting..."

@@ -1,7 +1,6 @@
 export * from "./acknowledgment-tracking-types";
 export * from "./acknowledgment-tracking-data";
 export * from "./AcknowledgmentTrackingHeader";
-export * from "./AcknowledgmentMetricCard";
 export * from "./AcknowledgmentTrackingMetrics";
 export * from "./AcknowledgmentTrackingTable";
 export * from "./AcknowledgmentTrackingView";

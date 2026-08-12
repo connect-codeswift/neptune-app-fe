@@ -25,7 +25,7 @@ const columnClass =
 
 function optionClass(isSelected: boolean): string {
   return [
-    "cursor-pointer rounded-[7px] px-2 py-1.5 text-center text-[13px] transition-colors",
+    "cursor-pointer rounded-1.75 px-2 py-1.5 text-center text-3.25 transition-colors",
     isSelected
       ? "bg-ehs-normal-blue font-bold text-white"
       : "text-ehs-dark-bg hover:bg-ehs-light-bg",
@@ -73,7 +73,7 @@ export function ReportTimePopover(props: Readonly<ReportTimePopoverProps>) {
       role="dialog"
       aria-label="Choose a time"
       onKeyDown={onKeyDown}
-      className="animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-[232px] -translate-x-1/2 rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+      className="animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-58 -translate-x-1/2 rounded-3 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
     >
       <div className="flex divide-x divide-[rgba(15,23,42,0.08)]">
         <div className={columnClass} role="listbox" aria-label="Hour">
@@ -141,14 +141,14 @@ export function ReportTimePopover(props: Readonly<ReportTimePopoverProps>) {
         <button
           type="button"
           onClick={() => onSelect(nowHhMm())}
-          className="text-ehs-dark-blue hover:bg-ehs-light-bg cursor-pointer rounded-md px-2 py-1 text-[12px] font-semibold transition-colors"
+          className="text-ehs-dark-blue hover:bg-ehs-light-bg cursor-pointer rounded-md px-2 py-1 text-xs font-semibold transition-colors"
         >
           Now
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="text-ehs-gray hover:text-ehs-dark-bg cursor-pointer rounded-md px-2 py-1 text-[12px] font-semibold transition-colors"
+          className="text-ehs-gray hover:text-ehs-dark-bg cursor-pointer rounded-md px-2 py-1 text-xs font-semibold transition-colors"
         >
           Done
         </button>

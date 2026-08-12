@@ -3,11 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
   HazcomErrorCard,
-  HazcomGlassCard,
   HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
@@ -46,6 +45,10 @@ export function SdsLibraryPageClient() {
     );
   }, [items, searchQuery]);
 
+  const resultLabel = `${String(filteredRecords.length)} ${
+    filteredRecords.length === 1 ? "SDS record" : "SDS records"
+  }`;
+
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pb-8 sm:px-4">
       <HazcomModuleTabs />
@@ -59,7 +62,7 @@ export function SdsLibraryPageClient() {
             <Button type="button" variant="primary">
               <Icon
                 icon="mdi:tray-arrow-up"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Upload SDS
@@ -68,29 +71,13 @@ export function SdsLibraryPageClient() {
         }
       />
 
-      <HazcomGlassCard paddingClassName="px-4 py-3">
-        <div className="flex items-center gap-3">
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text shrink-0 text-base"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by name, manufacturer, CAS#…"
-            aria-label="Search SDS records"
-            className="text-ehs-darker placeholder:text-ehs-muted-text min-w-0 flex-1 border-none bg-transparent text-[13px] outline-none"
-          />
-          <Text
-            as="span"
-            className="text-ehs-muted-text shrink-0 text-[12px] whitespace-nowrap"
-          >
-            {`${String(totalRecords)} SDS record${totalRecords === 1 ? "" : "s"}`}
-          </Text>
-        </div>
-      </HazcomGlassCard>
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by name, manufacturer, CAS#..."
+        aria-label="Search SDS records"
+        resultLabel={resultLabel}
+      />
 
       {errorMessage ? (
         <HazcomErrorCard

@@ -22,45 +22,45 @@ export type HazcomRiskAssessmentsTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomRiskAssessment>();
 
 const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
   columnHelper.accessor("id", {
     header: "ID",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-normal-blue text-[13px] font-bold">
+      <Text as="span" className="text5 text-ehs-normal-blue">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("chemical", {
     header: "Chemical",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px] font-bold">
+      <Text as="span" className="text4 text-ehs-dark-bg font-semibold">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("exposureScenario", {
     header: "Exposure Scenario",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("riskLevel", {
     header: "Risk Level",
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -70,7 +70,6 @@ const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -80,18 +79,16 @@ const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
   }),
   columnHelper.accessor("reviewer", {
     header: "Reviewer",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-dark-bg text-[13px]">
+      <Text as="span" className="text4 text-ehs-dark-bg">
         {info.getValue()}
       </Text>
     ),
   }),
   columnHelper.accessor("date", {
     header: "Date",
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -99,7 +96,6 @@ const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
   columnHelper.display({
     id: "actions",
     header: "",
-    meta: { align: "right" },
     cell: () => (
       <div className="flex items-center justify-end gap-2">
         <span
@@ -141,18 +137,18 @@ export function HazcomRiskAssessmentsTable(
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       <div className="w-full min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[960px] border-collapse text-left">
+        <table className="w-full min-w-240 border-collapse text-left">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
                       key={header.id}
                       className={[
-                        "text-ehs-muted-text px-4 pt-[13px] pb-[13.5px] text-[10px] font-bold tracking-[0.8px] uppercase",
+                        "text6 text-ehs-muted-text px-4 pt-3.25 pb-[13.5px]",
                         align === "right" ? "text-right" : "text-left",
                       ].join(" ")}
                     >
@@ -176,7 +172,7 @@ export function HazcomRiskAssessmentsTable(
                   colSpan={columns.length}
                   className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No risk assessments match your search.
                   </Text>
                 </td>
@@ -188,7 +184,7 @@ export function HazcomRiskAssessmentsTable(
                   className="border-t border-[rgba(15,23,42,0.08)]"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

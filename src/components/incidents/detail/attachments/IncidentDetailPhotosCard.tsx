@@ -44,13 +44,10 @@ function PhotosContent(
     <>
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Photos, video & files
           </Text>
-          <span className="text-sm leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text text4 leading-normal">
             {isEditing
               ? "Remove files, then save"
               : `${String(attachments.length)} files attached`}
@@ -60,20 +57,20 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] border border-white/90 bg-[rgba(255,255,255,0.62)] px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-dark-bg backdrop-blur-[6px] transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[10.5px] text5 backdrop-blur-1.5 transition-colors hover:bg-white/80"
           >
-            <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
+            <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
             Add file
           </button>
         ) : null}
       </div>
 
       {displayItems.length === 0 ? (
-        <div className="py-8 text-center text-sm text-ehs-muted-text">
+        <div className="text-ehs-muted-text py-8 text-center text4">
           No media files uploaded.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-[10px] sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {displayItems.map((item, index) => {
             const isVideo = item.kind === "video";
             const isPdf = item.kind === "pdf";
@@ -88,7 +85,7 @@ function PhotosContent(
             return (
               <div
                 key={item.id}
-                className="relative aspect-[152/114] w-full overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.08)]"
+                className="relative aspect-[152/114] w-full overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.08)]"
                 style={{
                   backgroundImage: gradients[index % gradients.length],
                 }}
@@ -114,12 +111,14 @@ function PhotosContent(
                     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-[rgba(11,19,32,0.45)]">
                       <Icon
                         icon={
-                          isPdf ? "mdi:file-pdf-box" : "mdi:file-document-outline"
+                          isPdf
+                            ? "mdi:file-pdf-box"
+                            : "mdi:file-document-outline"
                         }
-                        className="size-8 text-ehs-light-text/90"
+                        className="text-ehs-light-text/90 size-8"
                         aria-hidden="true"
                       />
-                      <span className="text-xs font-bold tracking-wider text-ehs-light-text/80 uppercase">
+                      <span className="text-ehs-light-text/80 text7 tracking-wider uppercase">
                         {isPdf ? "PDF" : "FILE"}
                       </span>
                     </div>
@@ -127,7 +126,7 @@ function PhotosContent(
 
                   {isVideo ? (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
-                      <div className="flex size-9 items-center justify-center rounded-[18px] bg-[rgba(255,255,255,0.92)] text-ehs-dark-bg">
+                      <div className="text-ehs-dark-bg flex size-9 items-center justify-center rounded-4.5 bg-[rgba(255,255,255,0.92)]">
                         <Icon
                           icon="mdi:play"
                           className="size-4"
@@ -137,11 +136,11 @@ function PhotosContent(
                     </div>
                   ) : null}
 
-                  <div className="absolute inset-x-2 bottom-[3px] z-20 flex items-start justify-between gap-1">
-                    <span className="truncate text-xs leading-normal text-[rgba(255,255,255,0.9)]">
+                  <div className="absolute inset-x-2 bottom-0.75 z-20 flex items-start justify-between gap-1">
+                    <span className="truncate text8 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.name.replace(/\.[^.]+$/, "")}
                     </span>
-                    <span className="shrink-0 text-xs leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="shrink-0 text8 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.sizeLabel}
                     </span>
                   </div>
@@ -154,7 +153,7 @@ function PhotosContent(
                       event.stopPropagation();
                       onDeleteFile?.(item);
                     }}
-                    className="absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full bg-ehs-dark-bg/72 text-ehs-light-text shadow-sm transition-colors hover:bg-ehs-red"
+                    className="bg-ehs-dark-bg/72 text-ehs-light-text hover:bg-ehs-red absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full shadow-sm transition-colors"
                     aria-label={`Delete ${item.name}`}
                   >
                     <Icon
@@ -201,7 +200,7 @@ export function IncidentDetailPhotosCard(
   if (embedded) {
     return (
       <div
-        className={["flex flex-col gap-[14px]", className]
+        className={["flex flex-col gap-3.5", className]
           .filter(Boolean)
           .join(" ")}
       >
@@ -212,9 +211,9 @@ export function IncidentDetailPhotosCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
+      paddingClassName="p-5.75"
+      incidentGlassCardClassName="gap-3.5"
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
         .join(" ")}
     >

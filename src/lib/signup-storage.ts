@@ -1,4 +1,19 @@
-export const SIGNUP_STORAGE_KEY = "neptune-signup";
+const SIGNUP_STORAGE_KEY = "neptune-signup";
+
+/**
+ * Held in sessionStorage, not localStorage.
+ *
+ * Registration only happens at the end of the onboarding wizard, so the
+ * credentials entered on /signup have to survive the navigation to
+ * /onboarding and a refresh part-way through it — which rules out keeping
+ * them in memory alone. sessionStorage is the narrowest store that still
+ * does that: scoped to the one tab, never written to disk, and gone when the
+ * tab closes, where localStorage kept the password readable indefinitely.
+ *
+ * It is still readable by script on this origin, so callers clear it as soon
+ * as registration succeeds. Removing client-side password storage entirely
+ * would mean registering at signup and onboarding afterwards.
+ */
 
 export type SignupPersistedState = Readonly<{
   fullName: string;
@@ -65,7 +80,7 @@ export function loadSignupState(): SignupPersistedState | null {
   }
 
   try {
-    const raw = globalThis.localStorage.getItem(SIGNUP_STORAGE_KEY);
+    const raw = globalThis.sessionStorage.getItem(SIGNUP_STORAGE_KEY);
     if (!raw) {
       return null;
     }
@@ -81,7 +96,7 @@ export function saveSignupState(state: SignupPersistedState) {
     return;
   }
 
-  globalThis.localStorage.setItem(SIGNUP_STORAGE_KEY, JSON.stringify(state));
+  globalThis.sessionStorage.setItem(SIGNUP_STORAGE_KEY, JSON.stringify(state));
 }
 
 export function clearSignupState() {
@@ -89,5 +104,5 @@ export function clearSignupState() {
     return;
   }
 
-  globalThis.localStorage.removeItem(SIGNUP_STORAGE_KEY);
+  globalThis.sessionStorage.removeItem(SIGNUP_STORAGE_KEY);
 }

@@ -8,7 +8,7 @@ import {
   type FormValues,
   type SelectOption,
 } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateInspectionMutation } from "@/hooks/use-inspection-mutations";
 import {
@@ -68,7 +68,11 @@ export function StartInspectionForm() {
       ];
     }
 
-    return (templatesQuery.data?.dataModel.data ?? []).map((template) => ({
+    // `?.` on dataModel too: the envelope types it nullable, and the optional
+    // chain stopped one level short, so a null dataModel threw
+    // "Cannot read properties of null (reading 'data')" and took the page down
+    // rather than falling back to the empty list this `?? []` intends.
+    return (templatesQuery.data?.dataModel?.data ?? []).map((template) => ({
       value: String(template.id),
       label: template.templateName || "Untitled template",
     }));
@@ -148,7 +152,7 @@ export function StartInspectionForm() {
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className="mx-auto w-full max-w-3xl bg-white!"
+      className="w-full"
     >
       <FormBuilder
         // Remount once when preselection flips in post-hydration, so the

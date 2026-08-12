@@ -3,52 +3,6 @@ import type {
   AcknowledgmentTrackingMetric,
 } from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-types";
 
-/** Mock rows matching Figma 5568:25528 (+ 4th ack to match 67% / 4 of 6). */
-export const ACKNOWLEDGMENT_RECORDS: readonly AcknowledgmentRecord[] = [
-  {
-    id: "ack-james",
-    name: "James Carter",
-    department: "Production",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-15",
-  },
-  {
-    id: "ack-maria",
-    name: "Maria Lopez",
-    department: "Production",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-16",
-  },
-  {
-    id: "ack-tom",
-    name: "Tom Bradley",
-    department: "Maintenance",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-14",
-  },
-  {
-    id: "ack-sarah",
-    name: "Sarah Mitchell",
-    department: "EHS",
-    status: "Acknowledged",
-    acknowledgedDate: "2025-01-16",
-  },
-  {
-    id: "ack-anna",
-    name: "Anna Wang",
-    department: "Production",
-    status: "Pending",
-    acknowledgedDate: null,
-  },
-  {
-    id: "ack-carlos",
-    name: "Carlos Ruiz",
-    department: "Production",
-    status: "Pending",
-    acknowledgedDate: null,
-  },
-];
-
 export function getAcknowledgmentMetrics(
   records: readonly AcknowledgmentRecord[],
   apiCounts?: Readonly<{
@@ -75,20 +29,42 @@ export function getAcknowledgmentMetrics(
     .sort()
     .pop();
 
+  // Counts for one document — no history and no prior period, so each card
+  // shows an icon badge rather than a delta.
   return [
-    { id: "acknowledged", value: String(acknowledged), label: "Acknowledged" },
-    { id: "pending", value: String(pending), label: "Pending" },
-    { id: "completion", value: `${String(rate)}%`, label: "Completion Rate" },
+    {
+      id: "acknowledged",
+      title: "Acknowledged",
+      value: String(acknowledged),
+      description: `of ${String(total)} assigned`,
+      icon: "mdi:check-decagram-outline",
+    },
+    {
+      id: "pending",
+      title: "Pending",
+      value: String(pending),
+      description: "Still awaiting sign-off",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:clock-outline",
+    },
+    {
+      id: "completion",
+      title: "Completion Rate",
+      value: String(rate),
+      unit: "%",
+      target: 100,
+      targetLabel: "Target 100%",
+      signalOwnedBy: "target",
+      icon: "mdi:percent-outline",
+    },
     {
       id: "last-activity",
+      title: "Last Activity",
       value: lastAcknowledgedDate ?? "—",
-      label: "Last Activity",
+      description: "Most recent acknowledgement",
+      icon: "mdi:calendar-clock",
     },
   ];
-}
-
-export function getAcknowledgmentRecordsForDocument(
-  _documentId: string,
-): readonly AcknowledgmentRecord[] {
-  return ACKNOWLEDGMENT_RECORDS;
 }

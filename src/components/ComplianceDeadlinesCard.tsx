@@ -37,34 +37,6 @@ export const COMPLIANCE_DEADLINE_ITEMS: readonly ComplianceDeadlinesItem[] = [
   },
 ];
 
-export const MY_ACTIONS_ITEMS: readonly ComplianceDeadlinesItem[] = [
-  {
-    title: "Replace frayed hydraulic press machine #4",
-    subtitle: "A-8421 · Plant A · Line 2 · Corrective Action",
-    badge: "3d",
-  },
-  {
-    title: "Install safety guards on grinder Station 3",
-    subtitle: "A-8390 · Plant A · Machine Shop · Corrective Action",
-    badge: "5d",
-  },
-  {
-    title: "Update chemical storage SOP and labels",
-    subtitle: "A-8355 · Plant B · Warehouse 1 · Documentation",
-    badge: "8d",
-  },
-  {
-    title: "Schedule forklift operator refresher training",
-    subtitle: "A-8312 · Plant A · Loading Dock · Training",
-    badge: "10d",
-  },
-  {
-    title: "Review confined space entry permit — Tank 7",
-    subtitle: "A-8298 · Plant C · Utilities · Permit Review",
-    badge: "13d",
-  },
-];
-
 export const RECENT_ACTIVITY_ITEMS: readonly ComplianceDeadlinesItem[] = [
   {
     emphasis: "Maria Lopez",
@@ -110,24 +82,29 @@ export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-ehs-slate text-[12px] leading-snug">
-          {emphasis ? (
-            <>
-              <span className="text-ehs-dark-bg font-semibold">{emphasis}</span>{" "}
-              {title}
-            </>
-          ) : (
-            <span className="text-ehs-dark-bg font-medium">{title}</span>
-          )}
-        </p>
-        <Text as="p" className="text-ehs-muted-text mt-[2px] text-[11px]">
+        {emphasis ? (
+          <p className="text4 text-ehs-slate leading-snug">
+            <Text as="span" className="text5 text-ehs-darker">
+              {emphasis}
+            </Text>
+            {` ${title}`}
+          </p>
+        ) : (
+          <Text as="p" className="text4 text-ehs-darker leading-snug">
+            {title}
+          </Text>
+        )}
+        <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
           {subtitle}
         </Text>
       </div>
 
-      <span className="border-ehs-border/70 bg-ehs-light-bg/70 text-ehs-gray shrink-0 rounded-full border px-2.5 py-[3px] text-[11px] font-semibold">
+      <Text
+        as="span"
+        className="border-ehs-border/70 bg-ehs-light-bg/70 text7 text-ehs-gray shrink-0 rounded-full border px-2.5 py-0.75"
+      >
         {badge}
-      </span>
+      </Text>
     </div>
   );
 }
@@ -164,8 +141,8 @@ export function ComplianceDeadlinesCard(
       <div
         className={
           showDividers
-            ? "divide-ehs-border/60 mt-[7px] flex flex-col divide-y"
-            : "mt-[7px] flex flex-col gap-[14px]"
+            ? "divide-ehs-border/60 mt-1.75 flex flex-col divide-y"
+            : "mt-1.75 flex flex-col gap-3.5"
         }
       >
         {items.map((item) => (

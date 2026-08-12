@@ -63,11 +63,11 @@ export function IncidentDetailInvestigationCard(
 
   return (
     <div
-      className={["flex flex-col gap-[14px]", className].filter(Boolean).join(" ")}
+      className={["flex flex-col gap-3.5", className].filter(Boolean).join(" ")}
     >
-      <IncidentGlassCard paddingClassName="p-[19px]">
-        <div className="flex flex-wrap items-center gap-[14px]">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-[12px] bg-ehs-dark-blue-bg-light text-ehs-dark-blue">
+      <IncidentGlassCard paddingClassName="p-4.75">
+        <div className="flex flex-wrap items-center gap-3.5">
+          <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-11 shrink-0 items-center justify-center rounded-3">
             <Icon
               icon="mdi:star-four-points"
               className="size-5"
@@ -78,23 +78,23 @@ export function IncidentDetailInvestigationCard(
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <Text
               as="h3"
-              className="text-sm leading-normal font-bold text-ehs-dark-bg"
+              className="text-ehs-dark-bg text4 leading-normal font-bold"
             >
               5-Why root cause analysis
             </Text>
-            <span className="text-sm leading-normal text-ehs-gray">
+            <span className="text-ehs-gray text4 leading-normal">
               {methodLine}
             </span>
           </div>
 
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] pt-[2.5px] pb-[2.89px] text-sm leading-normal font-bold tracking-wide",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
               statusTone,
             ].join(" ")}
           >
             <span
-              className={["size-1.5 shrink-0 rounded-[3px]", statusDot].join(
+              className={["size-1.5 shrink-0 rounded-0.75", statusDot].join(
                 " ",
               )}
             />
@@ -104,11 +104,11 @@ export function IncidentDetailInvestigationCard(
           <button
             type="button"
             onClick={handleOpenHrca}
-            className="inline-flex shrink-0 items-center gap-2 rounded-[10px] bg-ehs-normal-blue px-[15px] pt-[10px] pb-[10.5px] text-sm font-bold text-ehs-light-text shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors hover:bg-ehs-normal-blue-active"
+            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex shrink-0 items-center gap-2 rounded-2.5 px-3.75 pt-2.5 pb-[10.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
           >
             <Icon
               icon="mdi:open-in-new"
-              className="size-[13px]"
+              className="size-3.25"
               aria-hidden="true"
             />
             Open HRCA
@@ -117,28 +117,25 @@ export function IncidentDetailInvestigationCard(
       </IncidentGlassCard>
 
       <IncidentGlassCard
-        paddingClassName="p-[23px]"
-        incidentGlassCardClassName="gap-[14px]"
+        paddingClassName="p-5.75"
+        incidentGlassCardClassName="gap-3.5"
         className="bg-white/62"
       >
         <div className="flex flex-col gap-0.5">
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Why-chain
           </Text>
-          <span className="text-xs leading-normal text-ehs-muted-text">
+          <span className="text-ehs-muted-text text8 leading-normal">
             Drill from event to root cause
           </span>
         </div>
 
         {isLoading ? (
-          <div className="py-8 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text py-8 text-center text4">
             Loading RCA analysis…
           </div>
         ) : errorMessage ? (
-          <div className="flex flex-col items-center gap-3 py-8 text-center text-sm">
+          <div className="flex flex-col items-center gap-3 py-8 text-center text4">
             <p className="text-ehs-red">{errorMessage}</p>
             {onRetry ? (
               <button
@@ -151,7 +148,7 @@ export function IncidentDetailInvestigationCard(
             ) : null}
           </div>
         ) : whyChain.length === 0 ? (
-          <div className="py-8 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text py-8 text-center text4">
             No RCA recorded yet. Open HRCA to document contributing factors,
             whys, and corrective actions.
           </div>
@@ -166,23 +163,27 @@ export function IncidentDetailInvestigationCard(
                   <div className="flex flex-col items-center self-stretch">
                     <div
                       className={[
-                        "flex size-7 shrink-0 items-center justify-center rounded-[14px] text-sm font-bold",
+                        "rounded-3.5 flex size-7 shrink-0 items-center justify-center text5",
                         isRoot
                           ? "bg-ehs-normal-blue text-ehs-light-text"
-                          : "border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)] text-ehs-gray",
+                          : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)]",
                       ].join(" ")}
                     >
                       {item.step}
                     </div>
                     {!isLast ? (
-                      <div className="min-h-[14px] w-0.5 flex-1 bg-[rgba(15,23,42,0.08)]" />
+                      <div className="min-h-3.5 w-0.5 flex-1 bg-[rgba(15,23,42,0.08)]" />
                     ) : null}
                   </div>
 
-                  <div className={isLast ? "min-w-0 flex-1" : "min-w-0 flex-1 pb-3"}>
+                  <div
+                    className={
+                      isLast ? "min-w-0 flex-1" : "min-w-0 flex-1 pb-3"
+                    }
+                  >
                     <div
                       className={[
-                        "flex flex-col gap-0.5 rounded-[10px] border px-[15px] py-[11px]",
+                        "flex flex-col gap-0.5 rounded-2.5 border px-3.75 py-2.75",
                         isRoot
                           ? "border-ehs-normal-blue bg-ehs-dark-blue-bg-light"
                           : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
@@ -190,7 +191,7 @@ export function IncidentDetailInvestigationCard(
                     >
                       <span
                         className={[
-                          "inline-flex items-center gap-1 text-[9.5px] font-bold tracking-[0.76px] uppercase",
+                          "inline-flex items-center gap-1 text8 font-bold tracking-[0.76px] uppercase",
                           isRoot ? "text-ehs-dark-blue" : "text-ehs-muted-text",
                         ].join(" ")}
                       >
@@ -205,10 +206,10 @@ export function IncidentDetailInvestigationCard(
                       </span>
                       <p
                         className={[
-                          "text-sm leading-[18.85px]",
+                          "text4 leading-[18.85px]",
                           isRoot
-                            ? "font-bold text-ehs-dark-bg"
-                            : "font-normal text-ehs-dark-bg",
+                            ? "text-ehs-dark-bg font-bold"
+                            : "text-ehs-dark-bg font-normal",
                         ].join(" ")}
                       >
                         {item.text}
@@ -224,31 +225,28 @@ export function IncidentDetailInvestigationCard(
 
       {contributingFactors.length > 0 ? (
         <IncidentGlassCard
-          paddingClassName="p-[23px]"
-          incidentGlassCardClassName="gap-[14px]"
+          paddingClassName="p-5.75"
+          incidentGlassCardClassName="gap-3.5"
           className="bg-white/62"
         >
-          <Text
-            as="h3"
-            className="text-ehs-dark-bg text-lg font-semibold"
-          >
+          <Text as="h3" className="text-ehs-dark-bg text3">
             Contributing factors
           </Text>
 
-          <div className="flex flex-col gap-[10px]">
+          <div className="flex flex-col gap-2.5">
             {contributingFactors.map((factor) => (
               <div
                 key={`${factor.category}-${factor.text}`}
-                className="flex items-start gap-3 rounded-[10px] border border-[rgba(15,23,42,0.08)] border-l-[3px] bg-[rgba(255,255,255,0.62)] py-[13px] pr-[13px] pl-[15px]"
+                className="flex items-start gap-3 rounded-2.5 border border-l-0.75 border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-3.25 pr-3.25 pl-3.75"
                 style={{ borderLeftColor: factor.accent }}
               >
                 <span
-                  className="min-w-[86px] shrink-0 text-xs font-bold tracking-[0.6px] uppercase"
+                  className="min-w-21.5 shrink-0 text7 tracking-[0.6px] uppercase"
                   style={{ color: factor.accent }}
                 >
                   {factor.category}
                 </span>
-                <span className="text-sm leading-[18.13px] text-ehs-slate">
+                <span className="text-ehs-slate text4 leading-[18.13px]">
                   {factor.text}
                 </span>
               </div>

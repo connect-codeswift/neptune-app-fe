@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export const TEMPLATE_WIZARD_STEPS = [
   "Basic Info",

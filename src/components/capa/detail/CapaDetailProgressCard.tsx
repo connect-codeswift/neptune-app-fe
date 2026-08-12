@@ -1,0 +1,106 @@
+"use client";
+
+import { Fragment } from "react";
+import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents";
+import { Text } from "@/components/Text";
+import {
+  CAPA_DETAIL_WORKFLOW_STEPS,
+  type CapaDetailRecord,
+} from "@/components/capa/detail/capa-detail-data";
+
+export type CapaDetailProgressCardProps = Readonly<{
+  record: CapaDetailRecord;
+}>;
+
+/** Workflow stepper + overall progress — Figma 1366:3125. */
+export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
+  const { record } = props;
+  const totalSteps = CAPA_DETAIL_WORKFLOW_STEPS.length;
+  const isClosed = record.statusLabel.trim().toLowerCase() === "closed";
+  const current = Math.min(Math.max(record.workflowStep, 1), totalSteps);
+  const progress = Math.min(100, Math.max(0, record.progress));
+
+  return (
+    <IncidentGlassCard paddingClassName="p-5" className="min-w-0 rounded-2xl">
+      <ol className="mb-5 flex w-full items-start">
+        {CAPA_DETAIL_WORKFLOW_STEPS.map((label, index) => {
+          const step = index + 1;
+          // Closed CAPAs tick every step, including the final "Closed" node.
+          const isDone = isClosed || step < current;
+          const isCurrent = !isClosed && step === current;
+          const isLast = index === totalSteps - 1;
+          const lineDone = isClosed || step < current;
+
+          return (
+            <Fragment key={label}>
+              <li className="flex shrink-0 flex-col items-center gap-2">
+                <span
+                  className={[
+                    "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
+                    isDone
+                      ? "bg-[#00c950] text-[#f6f6f6]"
+                      : isCurrent
+                        ? "bg-ehs-normal-blue text-[#f6f6f6]"
+                        : "border border-[rgba(15,23,42,0.12)] bg-[#eef1f6] text-[#8892a3]",
+                  ].join(" ")}
+                >
+                  {isDone ? (
+                    <Icon icon="mdi:check" className="size-4" aria-hidden />
+                  ) : (
+                    String(step)
+                  )}
+                </span>
+                <Text
+                  as="span"
+                  className={[
+                    "text-center text-sm leading-tight font-medium",
+                    isDone
+                      ? "text-[#10b981]"
+                      : isCurrent
+                        ? "text-[#0891a6]"
+                        : "text-[#8892a3]",
+                  ].join(" ")}
+                >
+                  {label}
+                </Text>
+              </li>
+
+              {isLast ? null : (
+                <li
+                  className="mt-4 flex min-w-0 flex-1 items-center self-start px-2"
+                  aria-hidden
+                >
+                  <div
+                    className={[
+                      "h-0.5 w-full",
+                      lineDone ? "bg-[#00c950]" : "bg-[#eef1f6]",
+                    ].join(" ")}
+                  />
+                </li>
+              )}
+            </Fragment>
+          );
+        })}
+      </ol>
+
+      <div className="flex items-center gap-3">
+        <Text as="span" className="shrink-0 text-base text-[#566072]">
+          Overall
+        </Text>
+        <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+          <div
+            className="bg-ehs-normal-blue h-full rounded-full"
+            style={{ width: `${String(progress)}%` }}
+          />
+        </div>
+        <Text
+          as="span"
+          className="shrink-0 text-sm font-semibold text-[#0b1320] tabular-nums"
+        >
+          {`${String(progress)}%`}
+        </Text>
+      </div>
+    </IncidentGlassCard>
+  );
+}

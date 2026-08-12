@@ -177,17 +177,17 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
         // pointer-events-auto so clicks land here rather than in the field
         // being rewritten underneath.
         <div
-          className="pointer-events-auto absolute inset-0 z-10 overflow-hidden rounded-[10px] bg-white/35 backdrop-blur-[1px]"
+          className="pointer-events-auto absolute inset-0 z-10 overflow-hidden rounded-2.5 bg-white/35 backdrop-blur-0.25"
           aria-hidden="true"
         >
           <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.9)_42%,rgba(8,145,166,0.4)_58%,transparent_100%)] motion-reduce:animate-none" />
-          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 absolute inset-0 rounded-[10px] ring-1 ring-inset motion-reduce:animate-none" />
+          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 absolute inset-0 rounded-2.5 ring-1 ring-inset motion-reduce:animate-none" />
         </div>
       ) : null}
 
       {justApplied ? (
         <div
-          className="animate-ai-result-flash ring-ehs-normal-blue/50 pointer-events-none absolute inset-0 z-10 rounded-[10px] ring-2 ring-inset"
+          className="animate-ai-result-flash ring-ehs-normal-blue/50 pointer-events-none absolute inset-0 z-10 rounded-2.5 ring-2 ring-inset"
           aria-hidden="true"
         />
       ) : null}
@@ -236,7 +236,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
                   "transition-[transform,box-shadow] duration-150 ease-out",
                   "hover:-translate-y-px hover:shadow-[0px_6px_16px_-3px_rgba(8,145,166,0.8)]",
                   "active:translate-y-0 active:scale-95",
-                  "focus-visible:ring-ehs-normal-blue/30 focus-visible:ring-[3px] focus-visible:outline-none",
+                  "focus-visible:ring-ehs-normal-blue/30 focus-visible:ring-0.75 focus-visible:outline-none",
                   "disabled:cursor-not-allowed disabled:hover:translate-y-0",
                   disabled || (isBusy && !isRunning) ? "opacity-60" : "",
                 ]
@@ -246,7 +246,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
                 <Icon
                   icon={isRunning ? "mdi:loading" : copy.icon}
                   className={[
-                    "size-[15px] shrink-0 transition-transform duration-200",
+                    "size-3.75 shrink-0 transition-transform duration-200",
                     isRunning
                       ? "animate-spin motion-reduce:animate-none"
                       : "group-hover:scale-110 group-hover:-rotate-12",
@@ -258,7 +258,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
               {!isBusy ? (
                 <span
                   role="tooltip"
-                  className="bg-ehs-dark-bg pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 text-[10px] font-semibold whitespace-nowrap text-white opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
+                  className="bg-ehs-dark-bg pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 text-2.5 font-semibold whitespace-nowrap text-white opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
                 >
                   {copy.label}
                 </span>
@@ -271,11 +271,11 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
           <button
             type="button"
             onClick={undo}
-            className="text-ehs-gray hover:text-ehs-darker inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-900/10 bg-white/85 px-2.5 py-1 text-[11px] font-semibold shadow-sm backdrop-blur-[4px] transition-colors hover:bg-white"
+            className="text-ehs-gray hover:text-ehs-darker inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-900/10 bg-white/85 px-2.5 py-1 text-2.75 font-semibold shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           >
             <Icon
               icon="mdi:undo-variant"
-              className="size-[13px] shrink-0"
+              className="size-3.25 shrink-0"
               aria-hidden="true"
             />
             Undo

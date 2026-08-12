@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { CreatableSelectInput } from "@/components/inputs/CreatableSelectInput";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
@@ -40,11 +41,9 @@ export type EditDocumentFormProps = Readonly<{
   document: PolicyDocument;
 }>;
 
-const fieldLabelClass =
-  "block text-[12px] leading-normal font-semibold text-[#566072]";
+const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1.5";
-const controlClass =
-  "!h-auto !min-w-0 !rounded-lg !border !border-[rgba(11,19,32,0.1)] !bg-white !px-3 !py-2.5 !text-[14px] !leading-normal !text-[#0b1320] !shadow-none focus:!border-[#0891a6] focus:!ring-[#0891a6]/20";
+const controlClass = `${FIELD_INPUT_LG_CLASS} min-w-0`;
 
 /** API expects years as a number string (e.g. `"1"` for 1 Year) — matches Upload. */
 const REVIEW_CYCLE_OPTIONS = [
@@ -56,7 +55,7 @@ const REVIEW_CYCLE_OPTIONS = [
 
 /** Figma 5568:25826 — 800px card; grows like upload on larger breakpoints. */
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-[16px] border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-[800px] xl:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-200 xl:max-w-5xl";
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
@@ -386,7 +385,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           }}
         />
         {fileError ? (
-          <p className="-mt-3 text-[12px] text-[#ef4444]">{fileError}</p>
+          <p className="text8 text-ehs-red -mt-3">{fileError}</p>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 min-[560px]:gap-x-4 min-[560px]:gap-y-6">
@@ -402,11 +401,11 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
                 readOnly
                 disabled={busy}
                 aria-readonly="true"
-                className={`${controlClass} !cursor-not-allowed !bg-[#eef1f6] !pr-9 !text-[#566072] italic`}
+                className={`${controlClass} text-ehs-gray !cursor-not-allowed !bg-[#eef1f6] !pr-9 italic`}
               />
               <Icon
                 icon="mdi:lock-outline"
-                className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#8892a3]"
+                className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
                 aria-hidden="true"
               />
             </div>
@@ -465,7 +464,6 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             disabled={busy}
             labelClassName={fieldLabelClass}
             wrapperClassName={fieldWrapperClass}
-            className={controlClass}
           />
           <MultiSelectInput
             label={
@@ -502,6 +500,12 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           />
         </div>
 
+        {/* Disabled because there is nowhere to send it: neither
+            UpdateDocumentRequestDto nor CreateDocumentVersionRequestDto has a
+            notes field (only the separate approval endpoint takes `comments`).
+            Previously this was captured and dropped on submit, silently losing
+            the change rationale on a document-control screen where that
+            rationale is the point. */}
         <div className={fieldWrapperClass}>
           <label htmlFor={versionNotesId} className={fieldLabelClass}>
             Version Notes
@@ -510,11 +514,18 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             id={versionNotesId}
             value={versionNotes}
             onChange={(event) => setVersionNotes(event.target.value)}
-            placeholder="Describe what changed in this version…"
+            placeholder="Not available yet — version notes aren't saved with the document."
             rows={3}
-            disabled={busy}
-            className={`${controlClass} !h-auto resize-none`}
+            disabled
+            aria-describedby={`${versionNotesId}-hint`}
+            className={`${controlClass} resize-none`}
           />
+          <p
+            id={`${versionNotesId}-hint`}
+            className="text8 text-ehs-muted-text mt-1"
+          >
+            Version notes can&apos;t be saved yet.
+          </p>
         </div>
 
         <div className="flex flex-col-reverse items-stretch gap-3 pt-2.5 sm:flex-row sm:items-center sm:justify-end">
@@ -523,15 +534,16 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="tertiary"
             onClick={handleCancel}
             disabled={busy}
-            className="h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 text-[14px] font-semibold text-[#566072] shadow-none hover:bg-[#eef1f6] sm:w-auto"
+            className="text4 text-ehs-gray h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 shadow-none hover:bg-[#eef1f6] sm:w-auto"
           >
             Cancel
           </Button>
           <Button
             type="submit"
             variant="primary"
+            isLoading={isSubmitting}
             disabled={busy || lookupsLoading}
-            className="h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 text-[14px] font-semibold whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
+            className="text4 h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "Save Changes"}
           </Button>

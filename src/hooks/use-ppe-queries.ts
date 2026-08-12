@@ -4,6 +4,7 @@ import type {
   PpeAcknowledgementEntry,
   PpeCatalogDetail,
   PpeEmployeeProfile,
+  PpeIssuanceDetail,
   PpeIssuanceLogEntry,
   PpeMetric,
 } from "@/app/dashboard/ppe-management/ppe-data";
@@ -19,6 +20,7 @@ import {
   toPpeAcknowledgementEntries,
   toPpeCatalogDetail,
   toPpeEmployeeProfileFromIssue,
+  toPpeIssuanceDetailFromIssue,
   toPpeIssuanceLogEntries,
   toPpeMetricsFromKpi,
 } from "@/lib/map-ppe";
@@ -196,6 +198,73 @@ export type PpeIssueProfileState = Readonly<{
   isNotFound: boolean;
   refetch: () => void;
 }>;
+
+export type PpeIssueDetailState = Readonly<{
+  detail: PpeIssuanceDetail | null;
+  isLoading: boolean;
+  errorMessage: string | null;
+  isNotFound: boolean;
+}>;
+
+/**
+ * Loads one PPE issue via GET /api/ppe/issue/{id} for the catalog
+ * issuance detail modal. Pass an empty string while closed to disable.
+ */
+export function usePpeIssueDetailQuery(
+  issueIdParam: string,
+): PpeIssueDetailState {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+  const issueId = toNumericId(issueIdParam);
+
+  const query = useQuery({
+    queryKey: ["ppe", "issue-detail", issueId ?? -1] as const,
+    enabled: hasToken && issueId !== null,
+    queryFn: async () => {
+      const response = await getPpeIssueById(issueId as number);
+      const row = readDataModel(response as Record<string, unknown>);
+      if (row === null || row === undefined) return null;
+      if (typeof row !== "object" || Array.isArray(row)) return null;
+
+      return toPpeIssuanceDetailFromIssue(row as PpeIssueDto);
+    },
+  });
+
+  if (issueId === null) {
+    return {
+      detail: null,
+      isLoading: false,
+      errorMessage: null,
+      isNotFound: false,
+    };
+  }
+
+  if (isClientReady && !hasToken) {
+    return {
+      detail: null,
+      isLoading: false,
+      errorMessage: "Please sign in to load this issuance.",
+      isNotFound: false,
+    };
+  }
+
+  const isNotFound =
+    query.data === null ||
+    (isApiError(query.error) && query.error.status === 404);
+
+  return {
+    detail: query.data ?? null,
+    isLoading: !isClientReady || query.isLoading || query.isFetching,
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(
+            query.error,
+            "Failed to load this PPE issuance.",
+          )
+        : null,
+    isNotFound,
+  };
+}
 
 /** Loads PPE issues via GET /api/ppe/issue/by-status for the issuance log. */
 export function usePpeIssuesByStatusQuery(status?: string) {

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
@@ -23,13 +22,18 @@ import type {
   TimeFieldConfig,
 } from "./types";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_TEXTAREA_CLASS,
+  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
+} from "@/components/ui/field-styles";
 
-const inputClass =
-  "p-3 w-full rounded-lg border border-slate-900/10 bg-white text-base! text-ehs-dark-bg outline-none transition placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-2 focus:ring-ehs-normal-blue/20";
+const inputClass = FIELD_INPUT_CLASS;
 
+// `!` so the red border reliably beats the base hairline (same-property
+// utilities resolve by stylesheet order, not class order).
 const errorRingClass =
-  "border-ehs-red/60 focus:border-ehs-red focus:ring-ehs-red/20";
+  "border-ehs-red/60! focus:border-ehs-red! focus:ring-ehs-red/20!";
 
 function FieldLabel(
   props: Readonly<{
@@ -39,6 +43,8 @@ function FieldLabel(
     optionalHint?: string;
     optionalHintClassName?: string;
     htmlFor: string;
+    /** Larger section title used inside glass cards. */
+    section?: boolean;
   }>,
 ) {
   const {
@@ -48,12 +54,20 @@ function FieldLabel(
     optionalHint,
     optionalHintClassName,
     htmlFor,
+    section = false,
   } = props;
   const hint =
     optionalHint ?? (showOptional && !required ? "(optional)" : undefined);
 
   return (
-    <label htmlFor={htmlFor} className="text-slate-70 font-medium">
+    <label
+      htmlFor={htmlFor}
+      className={
+        section
+          ? "text3 text-ehs-darker block"
+          : "text8 text-ehs-gray block font-semibold"
+      }
+    >
       {label}
       {required ? <span className="text-ehs-red"> *</span> : null}
       {hint ? (
@@ -75,7 +89,7 @@ function CharacterCount(props: Readonly<{ value: string; maxLength: number }>) {
   const { value, maxLength } = props;
 
   return (
-    <span className="text-ehs-muted-text text-xs tabular-nums">
+    <span className="text8 text-ehs-muted-text tabular-nums">
       {`${String(value.length)}/${String(maxLength)}`}
     </span>
   );
@@ -103,9 +117,14 @@ function FieldShell(
     children,
   } = props;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div
+      className={[
+        "flex flex-col",
+        field.card ? "gap-3 sm:gap-4" : "gap-1.5",
+      ].join(" ")}
+    >
       {hideLabel ? null : (
-        <div className="mb-1 flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <FieldLabel
             label={field.label}
             required={field.required}
@@ -113,15 +132,16 @@ function FieldShell(
             optionalHint={field.optionalHint}
             optionalHintClassName={field.optionalHintClassName}
             htmlFor={field.name}
+            section={field.card === true}
           />
           {trailing}
         </div>
       )}
       {children}
       {!showMessages ? null : error ? (
-        <p className="text-ehs-red text-xs">{error}</p>
+        <p className="text8 text-ehs-red">{error}</p>
       ) : field.helperText ? (
-        <p className="text-ehs-muted-text text-xs">{field.helperText}</p>
+        <p className="text8 text-ehs-muted-text">{field.helperText}</p>
       ) : null}
     </div>
   );
@@ -158,7 +178,7 @@ function TextControl(
       >
         <span>{value}</span>
         {field.note ? (
-          <span className="text-ehs-muted-text text-xs">{field.note}</span>
+          <span className="text8 text-ehs-muted-text">{field.note}</span>
         ) : null}
         {/* Keeps the value in the DOM for native form semantics. */}
         <input type="hidden" name={field.name} value={value} />
@@ -415,10 +435,11 @@ function TextareaControl(
       placeholder={field.placeholder}
       onChange={(event) => onChange(event.target.value)}
       className={[
-        "text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full resize-y rounded-[10px] border border-slate-900/10 bg-white px-3 py-2.5 text-base! leading-6 transition outline-none focus:ring-2",
-        // The strip along the bottom the controls sit in, so typed text never
-        // runs underneath them. Mirrors FIELD_TEXTAREA_WITH_CONTROLS_CLASS.
-        hasAssistant ? "min-h-[150px] pb-10" : "",
+        // The controls variant reserves a strip along the bottom, so typed
+        // text never runs underneath the in-field controls.
+        hasAssistant
+          ? FIELD_TEXTAREA_WITH_CONTROLS_CLASS
+          : FIELD_TEXTAREA_CLASS,
         error ? errorRingClass : "",
       ]
         .filter(Boolean)
@@ -486,7 +507,7 @@ function ChipsControl(
               aria-pressed={isSelected}
               onClick={() => toggle(option.value)}
               className={[
-                "cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors",
+                "text4 cursor-pointer rounded-lg border px-3 py-1.5 transition-colors",
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue font-semibold"
                   : "text-ehs-gray border-slate-900/10 bg-white hover:bg-black/5",
@@ -517,7 +538,7 @@ function ChipsControl(
             type="button"
             onClick={addDraft}
             disabled={draft.trim() === ""}
-            className="bg-ehs-normal-blue/15 text-ehs-dark-blue hover:bg-ehs-normal-blue/25 shrink-0 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="text4 bg-ehs-normal-blue/15 text-ehs-dark-blue hover:bg-ehs-normal-blue/25 shrink-0 cursor-pointer rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Add
           </button>
@@ -583,7 +604,7 @@ function SegmentedTilesControl(
               onChange(option.value);
             }}
             className={[
-              "flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 text-[13px] font-bold transition-colors",
+              "text4 flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 font-bold transition-colors",
               isSelected
                 ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
                 : "border-slate-900/8 bg-white/40 text-[#566072]",
@@ -596,6 +617,95 @@ function SegmentedTilesControl(
                 isSelected ? "bg-ehs-normal-blue" : "bg-[#566072]",
               ].join(" ")}
             />
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Figma priority group — muted track with solid teal selected pill. */
+function SegmentedFillTilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className="flex w-full items-stretch gap-0.5 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-1.5 py-2 leading-normal transition-colors",
+              isSelected
+                ? "bg-[#0891a6] font-semibold text-white"
+                : "font-medium text-[#566072] hover:bg-white/70",
+            ].join(" ")}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** CAPA effectiveness assessment — large equal cards (Figma 846:6092). */
+function AssessmentTilesControl(
+  props: Readonly<{
+    field: TilesFieldConfig;
+    value: string;
+    onChange: (v: string) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      className="grid grid-cols-1 gap-3 sm:grid-cols-3"
+    >
+      {field.options.map((option) => {
+        const isSelected = value === option.value;
+        const isPositive = option.tone === "positive";
+
+        return (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            onClick={() => {
+              onChange(option.value);
+            }}
+            className={[
+              "text4 flex h-13.5 cursor-pointer items-center justify-center rounded-2xl border px-3 text-center leading-5 font-medium transition-colors",
+              isSelected && isPositive
+                ? "border-[#10b981] bg-[rgba(123,241,168,0.12)] text-[#10b981]"
+                : isSelected
+                  ? "border-ehs-normal-blue bg-ehs-normal-blue/8 text-ehs-normal-blue"
+                  : "border-[rgba(15,23,42,0.1)] bg-transparent text-[#566072] hover:bg-white/50",
+            ].join(" ")}
+          >
             {option.label}
           </button>
         );
@@ -617,6 +727,22 @@ function TilesControl(
   if (field.variant === "segmented") {
     return (
       <SegmentedTilesControl field={field} value={value} onChange={onChange} />
+    );
+  }
+
+  if (field.variant === "segmented-fill") {
+    return (
+      <SegmentedFillTilesControl
+        field={field}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
+
+  if (field.variant === "assessment") {
+    return (
+      <AssessmentTilesControl field={field} value={value} onChange={onChange} />
     );
   }
 
@@ -654,10 +780,10 @@ function TilesControl(
               />
             ) : null}
 
-            <span className="text-ehs-dark-bg font-bold">{option.label}</span>
+            <span className="text4 text-ehs-darker font-bold">{option.label}</span>
 
             {option.description ? (
-              <span className="text-ehs-muted-text text-sm">
+              <span className="text8 text-ehs-muted-text">
                 {option.description}
               </span>
             ) : null}
@@ -682,7 +808,8 @@ function CheckboxGroupControl(
   }>,
 ) {
   const { field, value, onChange } = props;
-  const columns = checkboxColumnsClass[field.columns ?? 2];
+  const isRows = field.variant === "rows";
+  const columns = checkboxColumnsClass[field.columns ?? (isRows ? 1 : 2)];
 
   const toggle = (optionValue: string) => {
     onChange(
@@ -693,13 +820,26 @@ function CheckboxGroupControl(
   };
 
   return (
-    <div className={["grid grid-cols-1 gap-2", columns].join(" ")}>
+    <div
+      className={["grid grid-cols-1", isRows ? "gap-3" : "gap-2", columns].join(
+        " ",
+      )}
+    >
       {field.options.map((option) => {
         const checked = value.includes(option.value);
         return (
           <label
             key={option.value}
-            className="bg-ehs-light-bg/40 flex cursor-pointer items-center gap-2.5 rounded-[10px] px-3 py-2"
+            className={[
+              // Was a flat bg-ehs-light-bg/40 slab with no border and no
+              // row-level selected state, so a group of these read as grey
+              // bars and the only feedback was the 16px box. Now frosted like
+              // every other control, and the whole row responds.
+              "text4 flex cursor-pointer items-center gap-2.5 rounded-2.5 border px-3 py-2.5 transition-colors",
+              checked
+                ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
+                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
+            ].join(" ")}
           >
             <input
               type="checkbox"
@@ -712,15 +852,29 @@ function CheckboxGroupControl(
             <span
               aria-hidden="true"
               className={[
-                "flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                "flex shrink-0 items-center justify-center rounded border transition-colors",
+                isRows ? "size-3.25" : "size-4",
                 checked
                   ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
-                  : "border-slate-900/20 bg-white/70",
+                  : isRows
+                    ? "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.62)]"
+                    : "border-slate-900/20 bg-white/70",
               ].join(" ")}
             >
-              {checked ? <Icon icon="mdi:check" className="size-3" /> : null}
+              {checked ? (
+                <Icon
+                  icon="mdi:check"
+                  className={isRows ? "size-4" : "size-3"}
+                />
+              ) : null}
             </span>
-            <span className="text-base font-medium text-slate-700">
+            <span
+              className={
+                isRows
+                  ? "text4 text-ehs-darker font-medium"
+                  : "text4 text-ehs-gray font-medium"
+              }
+            >
               {option.label}
             </span>
           </label>
@@ -744,7 +898,7 @@ function SwitchControl(
     <div className="flex items-center justify-between gap-3">
       <label
         htmlFor={field.name}
-        className="text-sm font-semibold tracking-[0.24px] text-[#566072]"
+        className="text8 text-ehs-gray font-semibold tracking-[0.24px]"
       >
         {field.label}
         {field.required ? <span className="text-ehs-red"> *</span> : null}
@@ -796,10 +950,11 @@ function PersonControl(
   }
 
   return (
-    <FieldShell field={field} error={error} hideLabel showMessages>
+    <FieldShell field={field} error={error} showMessages>
       <ReportPersonSearchField
         label={field.label}
         required={field.required}
+        hideLabel
         value={displayName}
         selectedUserId={userId}
         onChange={(next) => {
@@ -808,7 +963,8 @@ function PersonControl(
             [nameKey]: next.name,
           });
         }}
-        siteId={field.siteId}
+        usersSource={field.usersSource ?? "site"}
+        siteId={field.siteId ?? 0}
         siteName={field.siteName}
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
@@ -911,7 +1067,12 @@ export function FieldRenderer(props: FieldRendererProps) {
       );
     case "photo":
       return (
-        <FieldShell field={field} error={error} showMessages={false}>
+        <FieldShell
+          field={field}
+          error={error}
+          showMessages={false}
+          hideLabel={field.hideLabel === true || field.label.trim() === ""}
+        >
           <PhotoUploadControl
             field={field}
             value={value as string[]}

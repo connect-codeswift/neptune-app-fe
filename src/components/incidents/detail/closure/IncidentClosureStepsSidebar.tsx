@@ -45,11 +45,11 @@ export function IncidentClosureStepsSidebar(
     <IncidentGlassCard
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-6"
-      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-[10px]"
+      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-2.5"
     >
       <Text
         as="h4"
-        className="text-[11px] font-bold tracking-[1.05px] text-ehs-muted-text uppercase"
+        className="text8 font-bold tracking-[1.05px] text-ehs-muted-text uppercase"
       >
         Steps
       </Text>
@@ -68,7 +68,7 @@ export function IncidentClosureStepsSidebar(
               disabled={isLocked}
               aria-disabled={isLocked}
               className={[
-                "flex items-start gap-[10px] rounded-[10px] p-[10px] text-left transition-all duration-200",
+                "flex items-start gap-2.5 rounded-2.5 p-2.5 text-left transition-all duration-200",
                 isActive
                   ? "bg-ehs-dark-blue-bg-light border border-[rgba(8,145,166,0.1)]"
                   : isLocked
@@ -78,7 +78,7 @@ export function IncidentClosureStepsSidebar(
             >
               <div
                 className={[
-                  "mt-0.5 flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text-[10px] transition-colors",
+                  "mt-0.5 flex size-5.5 shrink-0 items-center justify-center rounded-2.75 text8 transition-colors",
                   isComplete
                     ? "bg-ehs-green font-bold text-ehs-light-text"
                     : isActive
@@ -89,18 +89,18 @@ export function IncidentClosureStepsSidebar(
                 {isComplete ? (
                   <Icon
                     icon="mdi:check"
-                    className="size-[11px]"
+                    className="size-2.75"
                     aria-hidden="true"
                   />
                 ) : (
                   step.id
                 )}
               </div>
-              <div className="flex min-w-0 flex-col gap-[2px]">
+              <div className="flex min-w-0 flex-col gap-0.5">
                 <Text
                   as="span"
                   className={[
-                    "text-xs leading-normal",
+                    "text8 leading-normal",
                     isActive
                       ? "font-bold text-ehs-normal-blue"
                       : "font-medium text-ehs-dark-bg",
@@ -110,7 +110,7 @@ export function IncidentClosureStepsSidebar(
                 </Text>
                 <Text
                   as="span"
-                  className="text-[10px] font-normal leading-normal text-ehs-muted-text"
+                  className="text8 font-normal leading-normal text-ehs-muted-text"
                 >
                   {step.subtitle}
                 </Text>
@@ -122,16 +122,16 @@ export function IncidentClosureStepsSidebar(
 
       <div className="flex flex-col gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
         <div className="flex items-center justify-between">
-          <Text as="span" className="text-[10px] font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 font-normal text-ehs-muted-text">
             Progress
           </Text>
-          <Text as="span" className="text-[10px] font-bold text-ehs-gray">
+          <Text as="span" className="text8 font-bold text-ehs-gray">
             {`${String(currentStep)} / 4`}
           </Text>
         </div>
-        <div className="h-[6px] w-full overflow-hidden rounded-[999px] bg-ehs-muted-text/20">
+        <div className="h-1.5 w-full overflow-hidden rounded-249.75 bg-ehs-muted-text/20">
           <div
-            className="h-full rounded-[999px] bg-ehs-normal-blue transition-all duration-300"
+            className="h-full rounded-249.75 bg-ehs-normal-blue transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

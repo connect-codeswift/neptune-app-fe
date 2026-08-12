@@ -52,7 +52,7 @@ export default function AuditFindingsPage() {
 
       <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <AuditFindingsHeader
-          auditId={audit ? `A-${String(audit.id)}` : "ΓÇö"}
+          auditId={audit ? `A-${String(audit.id)}` : "—"}
           subtitle={audit?.templateName ?? audit?.templateName ?? ""}
           onGenerateReport={handleGenerateReport}
         />

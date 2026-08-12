@@ -11,10 +11,13 @@ import {
   INJURY_LEVEL_OPTIONS,
   NON_FIRST_AID_FIELD_DEFAULTS,
   SEVERITY_OPTIONS,
+  severityOptionFor,
+  isSeverityPicked,
   type ReportIncidentFormState,
   type ReportStepId,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
+import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
 import { ReportIncidentAside } from "@/components/incidents/report/shared/ReportIncidentAside";
 import { ReportIncidentPageHeader } from "@/components/incidents/report/shared/ReportIncidentPageHeader";
@@ -27,7 +30,6 @@ import {
   ReportIncidentStepTwo,
   validateStepOne,
 } from "@/components/incidents/report/steps";
-import { toast } from "@/lib/toast";
 import { logAiAssistFailure } from "@/services/ai-text.service";
 
 function renderStepForm(
@@ -36,6 +38,7 @@ function renderStepForm(
   updateForm: (next: Partial<ReportIncidentFormState>) => void,
   handleBack: () => void,
   handleContinue: () => void,
+  showStepFieldErrors: Partial<Record<ReportStepId, boolean>>,
 ) {
   const sharedProps = {
     form,
@@ -46,9 +49,19 @@ function renderStepForm(
 
   switch (currentStep) {
     case 1:
-      return <ReportIncidentStepOne {...sharedProps} />;
+      return (
+        <ReportIncidentStepOne
+          {...sharedProps}
+          showFieldErrors={showStepFieldErrors[1] ?? false}
+        />
+      );
     case 2:
-      return <ReportIncidentStepTwo {...sharedProps} />;
+      return (
+        <ReportIncidentStepTwo
+          {...sharedProps}
+          showFieldErrors={showStepFieldErrors[2] ?? false}
+        />
+      );
     case 3:
       return <ReportIncidentStepThree {...sharedProps} />;
     case 4:
@@ -66,6 +79,9 @@ export function ReportIncidentView() {
   const [form, setForm] = useState<ReportIncidentFormState>(
     createInitialReportFormState,
   );
+  const [showStepFieldErrors, setShowStepFieldErrors] = useState<
+    Partial<Record<ReportStepId, boolean>>
+  >({});
   const draftAssist = useDraftAssistMutation();
 
   // Fast Refresh can keep older form state that predates step-2 fields.
@@ -76,11 +92,15 @@ export function ReportIncidentView() {
     photos: form.photos ?? formDefaults.photos,
     bodyParts: form.bodyParts ?? formDefaults.bodyParts,
     bodyPartSides: form.bodyPartSides ?? formDefaults.bodyPartSides,
+    incidentLocations: form.incidentLocations ?? formDefaults.incidentLocations,
+    customIncidentLocations:
+      form.customIncidentLocations ?? formDefaults.customIncidentLocations,
   });
 
-  const severityOption =
-    SEVERITY_OPTIONS.find((option) => option.id === normalizedForm.severity) ??
-    SEVERITY_OPTIONS[1];
+  const severityOption = isSeverityPicked(normalizedForm.severity)
+    ? severityOptionFor(normalizedForm.severity)
+    : undefined;
+  const livePreviewBadge = severityOption?.previewBadge ?? "—";
 
   const updateForm = (next: Partial<ReportIncidentFormState>) => {
     setForm((prev) => {
@@ -93,9 +113,10 @@ export function ReportIncidentView() {
       // Severity changed: First Aid → collect fields; other severities → defaults.
       // Also keep form.title in sync so Live preview / review use Severity as title.
       if (next.severity !== undefined && next.severity !== prev.severity) {
-        const severityTitle =
-          SEVERITY_OPTIONS.find((option) => option.id === next.severity)
-            ?.label ?? merged.title;
+        const severityTitle = isSeverityPicked(next.severity)
+          ? (SEVERITY_OPTIONS.find((option) => option.id === next.severity)
+              ?.label ?? merged.title)
+          : merged.title;
 
         if (next.severity === "first-aid") {
           return {
@@ -123,9 +144,8 @@ export function ReportIncidentView() {
    */
   const goToStep = (step: ReportStepId) => {
     if (step > currentStep && currentStep === 1) {
-      const validationError = validateStepOne(form);
-      if (validationError) {
-        toast.error("Missing required fields", validationError);
+      if (validateStepOne(normalizedForm)) {
+        setShowStepFieldErrors((current) => ({ ...current, 1: true }));
         return;
       }
     }
@@ -136,6 +156,7 @@ export function ReportIncidentView() {
       requestDrafts(normalizedForm);
     }
 
+    setShowStepFieldErrors((current) => ({ ...current, [currentStep]: false }));
     setCurrentStep(step);
   };
 
@@ -285,6 +306,10 @@ export function ReportIncidentView() {
     }
 
     if (currentStep < 5) {
+      setShowStepFieldErrors((current) => ({
+        ...current,
+        [currentStep]: false,
+      }));
       setCurrentStep((currentStep + 1) as ReportStepId);
     }
   };
@@ -316,12 +341,20 @@ export function ReportIncidentView() {
             updateForm,
             handleBack,
             handleContinue,
+            showStepFieldErrors,
           )}
 
           <ReportIncidentAside
-            severityBadge={severityOption.previewBadge}
-            location={normalizedForm.location}
-            title={normalizedForm.title.trim() || severityOption.label}
+            severityBadge={livePreviewBadge}
+            location={[normalizedForm.location, formatIncidentLocationsLabel(normalizedForm.incidentLocations ?? [])]
+              .filter(Boolean)
+              .join(" · ")}
+            title={
+              normalizedForm.title.trim() ||
+              (isSeverityPicked(normalizedForm.severity)
+                ? (severityOption?.label ?? "Incident report")
+                : "Incident report")
+            }
             description={normalizedForm.description}
             currentStep={currentStep}
             className="col-span-1 md:col-span-2 xl:col-span-1"

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import { Button } from "@/components/ui/Button";
 import {
+  HazcomEmptyCard,
   HazcomErrorCard,
   HazcomLoadingCard,
   HazcomModuleTabs,
@@ -20,6 +24,8 @@ import { useChemicalsListQuery } from "@/hooks/use-hazcom-queries";
  * param, so a large page stands in for one.
  */
 const CHEMICAL_PICKER_PAGE_SIZE = 100;
+
+const CHEMICAL_ADD_ROUTE = "/dashboard/hazcom/chemicals/new";
 
 export function HazcomLabelGeneratorView() {
   const [chemicalId, setChemicalId] = useState("");
@@ -47,13 +53,16 @@ export function HazcomLabelGeneratorView() {
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 sm:px-4">
+      {/* Tabs first, then the header — this view had them the other way round
+          and was the only HazCom page where the module navigation sat below the
+          page title, so the tab row jumped position when you arrived here. */}
+      <HazcomModuleTabs />
+
       <HazcomPageHeader
         breadcrumb={["Safety", "HazCom", "Label Generator"]}
         title="GHS Label Generator"
         subtitle="Generate compliant GHS container labels — pull data from SDS, preview, and print"
       />
-
-      <HazcomModuleTabs />
 
       {errorMessage ? (
         <HazcomErrorCard
@@ -67,10 +76,29 @@ export function HazcomLabelGeneratorView() {
         <HazcomLoadingCard message="Loading chemicals…" />
       ) : null}
 
+      {/* An empty inventory is a normal state, not a load failure — this used
+          the error card, so a fresh site was greeted by a red alert glyph. */}
       {!errorMessage && !isLoading && !selectedChemical ? (
-        <HazcomErrorCard
+        <HazcomEmptyCard
+          icon="mdi:label-off-outline"
           title="No chemicals to label"
-          message="Add a chemical to the inventory before generating a GHS label."
+          message="A GHS label is generated from a chemical record, so add one to the inventory first."
+          action={
+            <Link href={CHEMICAL_ADD_ROUTE}>
+              <Button
+                type="button"
+                variant="primary"
+                className="text4 mt-1 rounded-lg px-4 py-2"
+              >
+                <Icon
+                  icon="mdi:plus"
+                  className="size-4"
+                  aria-hidden="true"
+                />
+                Add Chemical
+              </Button>
+            </Link>
+          }
         />
       ) : null}
 

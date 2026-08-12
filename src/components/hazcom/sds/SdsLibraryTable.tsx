@@ -23,12 +23,15 @@ export type SdsLibraryTableProps = Readonly<{
   className?: string;
 }>;
 
-declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TData/TValue must be repeated to match the library's ColumnMeta signature for declaration merging
-  interface ColumnMeta<TData, TValue> {
-    align?: "left" | "center" | "right";
-  }
-}
+/**
+ * Column alignment, keyed by column id — presentation, so it lives with the
+ * renderers that read it rather than in each column's `meta`. `meta` is one
+ * interface shared by every table in the project, so putting `align` there
+ * hands it to tables that have no use for it. Anything absent is left-aligned.
+ */
+const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
+  actions: "right",
+};
 
 const columnHelper = createColumnHelper<HazcomSdsRecord>();
 
@@ -41,11 +44,10 @@ const columns = [
   columnHelper.accessor("id", {
     header: "SDS ID",
     size: 100,
-    meta: { align: "left" },
     cell: (info) => (
       <Link
         href={`/dashboard/hazcom/sds/${info.getValue()}`}
-        className="text-ehs-dark-blue text-[13px] font-bold hover:underline"
+        className="text7 text-ehs-dark-blue hover:underline"
       >
         {info.getValue()}
       </Link>
@@ -55,13 +57,12 @@ const columns = [
     id: "chemical",
     header: "Chemical Name",
     size: 170,
-    meta: { align: "left" },
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <Text as="p" className="text-ehs-darker text-[13px] font-bold">
+        <Text as="p" className="text4 text-ehs-darker font-semibold">
           {row.original.chemicalName}
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[11px]">
+        <Text as="p" className="text7 text-ehs-muted-text">
           {row.original.version}
         </Text>
       </div>
@@ -70,9 +71,8 @@ const columns = [
   columnHelper.accessor("manufacturer", {
     header: "Manufacturer",
     size: 140,
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -80,9 +80,8 @@ const columns = [
   columnHelper.accessor("casNumber", {
     header: "CAS #",
     size: 110,
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
         {info.getValue()}
       </Text>
     ),
@@ -90,9 +89,8 @@ const columns = [
   columnHelper.accessor("hazardClass", {
     header: "Hazard Class",
     size: 150,
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px]">
+      <Text as="span" className="text4 text-ehs-gray">
         {info.getValue()}
       </Text>
     ),
@@ -100,12 +98,11 @@ const columns = [
   columnHelper.accessor("signalWord", {
     header: "Signal",
     size: 90,
-    meta: { align: "left" },
     cell: (info) => (
       <Text
         as="span"
         className={[
-          "text-[13px] font-bold tracking-wide uppercase",
+          "text5 tracking-wide uppercase",
           signalWordClass[info.getValue()] ?? "text-ehs-gray",
         ].join(" ")}
       >
@@ -116,7 +113,6 @@ const columns = [
   columnHelper.accessor("pictograms", {
     header: "Pictograms",
     size: 150,
-    meta: { align: "left" },
     cell: (info) => (
       <div className="flex items-center gap-2">
         {info.getValue().map((pictogram) => (
@@ -128,9 +124,8 @@ const columns = [
   columnHelper.accessor("revisedOn", {
     header: "Revised",
     size: 100,
-    meta: { align: "left" },
     cell: (info) => (
-      <Text as="span" className="text-ehs-gray text-[13px] tabular-nums">
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
         {info.getValue()}
       </Text>
     ),
@@ -138,7 +133,6 @@ const columns = [
   columnHelper.accessor("status", {
     header: "Status",
     size: 110,
-    meta: { align: "left" },
     cell: (info) => (
       <HazcomBadge
         label={info.getValue()}
@@ -151,26 +145,25 @@ const columns = [
     id: "actions",
     header: "",
     size: 90,
-    meta: { align: "right" },
     cell: ({ row }) => (
-      <div className="flex items-center justify-end gap-1.5">
+      <div className="flex items-center justify-end gap-0.5">
         <Link
           href={`/dashboard/hazcom/sds/${row.original.id}`}
           aria-label={`View ${row.original.chemicalName} SDS`}
           title="View SDS"
-          className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors"
         >
-          <Icon icon="mdi:eye-outline" className="size-4" aria-hidden="true" />
+          <Icon icon="lets-icons:view" className="size-5" aria-hidden="true" />
         </Link>
         <button
           type="button"
           aria-label={`Download ${row.original.chemicalName} SDS`}
           title="Download SDS"
-          className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex size-8 shrink-0 items-center justify-center rounded-lg border bg-white transition-colors"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
         >
           <Icon
-            icon="mdi:tray-arrow-down"
-            className="size-4"
+            icon="solar:download-linear"
+            className="size-4.5"
             aria-hidden="true"
           />
         </button>
@@ -227,14 +220,14 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const align = header.column.columnDef.meta?.align;
+                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
 
                   return (
                     <th
                       key={header.id}
                       style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
-                        "text-ehs-muted-text px-3 pt-[13px] pb-[13.5px] text-[10px] font-bold tracking-[0.8px] uppercase sm:px-4",
+                        "text6 text-ehs-muted-text px-3 pt-3.25 pb-[13.5px] sm:px-4",
                         alignClass(align),
                       ].join(" ")}
                     >
@@ -258,7 +251,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                   colSpan={Math.max(columns.length, 1)}
                   className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No SDS records match your search.
                   </Text>
                 </td>
@@ -270,7 +263,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                   className="hover:bg-ehs-light-bg/70 border-t border-[rgba(15,23,42,0.08)] transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const align = cell.column.columnDef.meta?.align;
+                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
 
                     return (
                       <td

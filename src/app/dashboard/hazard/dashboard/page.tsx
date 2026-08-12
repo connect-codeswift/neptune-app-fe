@@ -1,5 +1,5 @@
-import { HazardDashboardPageClient } from "@/components/hazard/HazardDashboardPageClient";
+import { redirect } from "next/navigation";
 
 export default function HazardDashboardPage() {
-  return <HazardDashboardPageClient />;
+  redirect("/dashboard/hazard");
 }

@@ -50,6 +50,9 @@ const colSpanClass: Record<number, string> = {
   12: "sm:col-span-12",
 };
 
+const fieldCardClass =
+  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-5.25 pt-5.25 pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:col-span-12";
+
 function isEmpty(value: FieldValue): boolean {
   return Array.isArray(value) ? value.length === 0 : value.trim() === "";
 }
@@ -58,7 +61,28 @@ function isEmpty(value: FieldValue): boolean {
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
-    if (field.required && isEmpty(values[field.name])) {
+    if (!field.required) continue;
+
+    if (field.type === "person") {
+      const nameKey = field.displayNameField ?? `${field.name}Name`;
+      const userId = values[field.name];
+      const displayName = values[nameKey];
+      if (isEmpty(userId) && isEmpty(displayName ?? "")) {
+        errors[field.name] = `${field.label} is required`;
+      }
+      continue;
+    }
+
+    if (field.type === "checkbox-group" && field.requireAll) {
+      const selected = values[field.name];
+      const selectedCount = Array.isArray(selected) ? selected.length : 0;
+      if (selectedCount < field.options.length) {
+        errors[field.name] = `Complete all ${field.label.toLowerCase()} items`;
+      }
+      continue;
+    }
+
+    if (isEmpty(values[field.name])) {
       errors[field.name] = `${field.label} is required`;
     }
   }
@@ -135,22 +159,27 @@ export function FormBuilder(props: FormBuilderProps) {
       onSubmit={handleSubmit}
       className={["flex flex-col gap-5", className].filter(Boolean).join(" ")}
     >
-      <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-12">
+      <div className="grid grid-cols-1 items-start gap-x-4 gap-y-5 sm:grid-cols-12">
         {schema.map((field) => (
           <div
             key={field.name}
-            className={["", colSpanClass[field.colSpan ?? 12]]
+            className={[
+              field.card ? fieldCardClass : "",
+              field.card ? "" : colSpanClass[field.colSpan ?? 12],
+            ]
               .filter(Boolean)
               .join(" ")}
           >
-            <FieldRenderer
-              field={field}
-              value={values[field.name]}
-              values={values}
-              error={errors[field.name]}
-              onChange={(value) => setValue(field.name, value)}
-              onPatchValues={patchValues}
-            />
+            <div className={field.card ? "relative z-1" : undefined}>
+              <FieldRenderer
+                field={field}
+                value={values[field.name]}
+                values={values}
+                error={errors[field.name]}
+                onChange={(value) => setValue(field.name, value)}
+                onPatchValues={patchValues}
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -168,7 +197,7 @@ export function FormBuilder(props: FormBuilderProps) {
             type="button"
             variant="tertiary"
             onClick={onCancel}
-            className="rounded-[10px] px-4 py-2 text-sm font-medium"
+            className="text4 rounded-2.5 px-4 py-2 font-medium"
           >
             {cancelLabel}
           </Button>
@@ -176,9 +205,9 @@ export function FormBuilder(props: FormBuilderProps) {
         <Button
           type="submit"
           variant={submitVariant}
-          disabled={isSubmitting}
+          isLoading={isSubmitting}
           className={[
-            "rounded-[10px] px-5 py-2 text-sm font-semibold",
+            "text4 rounded-2.5 px-5 py-2 font-semibold",
             submitVariant === "primary"
               ? "shadow-[0px_6px_18px_-6px_#0891a6]"
               : "",

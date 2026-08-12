@@ -44,7 +44,7 @@ export function ReportIncidentStepFour(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4 sm:p-[29px]"
+      paddingClassName="p-4 sm:p-7.25"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-7">
@@ -69,7 +69,7 @@ export function ReportIncidentStepFour(
           </div>
 
           {/* Section 1: Actions taken grid */}
-          <div className="flex flex-col gap-1.5 pt-[14px]">
+          <div className="flex flex-col gap-1.5 pt-3.5">
             <ReportFieldLabel
               label="Actions taken"
               trailing={
@@ -87,7 +87,7 @@ export function ReportIncidentStepFour(
                     type="button"
                     onClick={() => toggleAction(action.id)}
                     className={[
-                      "flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-left transition-all duration-200",
+                      "flex min-h-13 cursor-pointer items-center gap-3 rounded-2.5 border px-4 py-3 text-left transition-all duration-200",
                       isChecked
                         ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_rgba(8,145,166,0.06)]"
                         : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
@@ -95,7 +95,7 @@ export function ReportIncidentStepFour(
                   >
                     <div
                       className={[
-                        "flex size-5 shrink-0 items-center justify-center rounded-[4px] border transition-colors",
+                        "flex size-5 shrink-0 items-center justify-center rounded-1 border transition-colors",
                         isChecked
                           ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
                           : "border-[rgba(15,23,42,0.18)] bg-white",
@@ -120,11 +120,11 @@ export function ReportIncidentStepFour(
           </div>
 
           {/* Section 2: Other actions or notes text area */}
-          <div className="pt-[14px]">
+          <div className="pt-3.5">
             <ReportTextareaField
               // Taller than it was: the draft controls reserve a strip along
               // the bottom, and at 86px they landed on the text.
-              className="[&_textarea]:min-h-[150px]"
+              className="[&_textarea]:min-h-37.5"
               label="Other actions or notes"
               trailingHint="Anything else responders should know?"
               value={form.actionNotes}
@@ -173,17 +173,17 @@ export function ReportIncidentStepFour(
         </div>
 
         {/* Form Bottom Toolbar Actions */}
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
               Back
@@ -198,12 +198,12 @@ export function ReportIncidentStepFour(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon
                 icon="mdi:chevron-right"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
             </Button>

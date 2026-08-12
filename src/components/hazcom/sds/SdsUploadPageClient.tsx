@@ -7,8 +7,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
+  HAZCOM_FIELD_LABEL_CLASS,
   HazcomGlassCard,
-  HazcomModuleTabs,
+  HazcomFormLayout,
   HazcomPageHeader,
   HazcomPictogramChip,
   HazcomSelectField,
@@ -25,6 +26,11 @@ import {
   useHazardHCodesQuery,
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
+import {
+  CLOUDINARY_MAX_BYTES,
+  formatFileSize,
+  isPdfMimeType,
+} from "@/lib/cloudinary-constants";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
@@ -158,6 +164,22 @@ export function SdsUploadPageClient() {
       return;
     }
 
+    // Enforced here rather than on the input: `accept` only filters the file
+    // picker, so a drag-and-drop bypassed both constraints entirely and the
+    // "PDF up to 50 MB" the dropzone promises went unchecked.
+    if (!isPdfMimeType(file.type)) {
+      toast.error("Unsupported file", "Safety data sheets must be PDF files.");
+      return;
+    }
+
+    if (file.size > CLOUDINARY_MAX_BYTES) {
+      toast.error(
+        "File too large",
+        `${formatFileSize(file.size)} exceeds the ${formatFileSize(CLOUDINARY_MAX_BYTES)} limit.`,
+      );
+      return;
+    }
+
     setFileName(file.name);
     setIsUploading(true);
 
@@ -238,9 +260,7 @@ export function SdsUploadPageClient() {
   const isBusy = isUploading || createSds.isPending;
 
   return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col gap-4 px-3 pt-4 pb-8 sm:px-4">
-      <HazcomModuleTabs />
-
+    <HazcomFormLayout>
       <HazcomPageHeader
         breadcrumb={["Safety", "HazCom", "SDS Library", "Upload"]}
         title="Upload Safety Data Sheet"
@@ -248,9 +268,9 @@ export function SdsUploadPageClient() {
       />
 
       <HazcomGlassCard
-        paddingClassName="p-6"
+        paddingClassName="p-6 sm:p-8"
         hazcomGlassCardClassName="gap-6"
-        className="mx-auto w-full max-w-3xl"
+        className="w-full"
       >
         <SdsUploadDropzone
           fileName={fileName}
@@ -259,13 +279,13 @@ export function SdsUploadPageClient() {
         />
 
         {isUploading ? (
-          <Text as="p" className="text-ehs-muted-text text-[12px]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             Uploading PDF…
           </Text>
         ) : null}
 
         <div className="flex flex-col gap-4">
-          <Text as="h2" className="text-ehs-darker text-[15px] font-bold">
+          <Text as="h2" className="text3 text-ehs-darker">
             GHS Metadata
           </Text>
 
@@ -327,17 +347,19 @@ export function SdsUploadPageClient() {
                 maxLength={250}
               />
 
-              <div className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}>
+              <div
+                className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}
+              >
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                   <Text
                     as="span"
-                    className="text-[12px] font-bold text-[#2a3446]"
+                    className={HAZCOM_FIELD_LABEL_CLASS}
                   >
                     Signal Word
                   </Text>
                   <Text
                     as="span"
-                    className="text-ehs-muted-text ml-auto text-[10px]"
+                    className="text8 text-ehs-muted-text ml-auto"
                   >
                     From chemical
                   </Text>
@@ -351,7 +373,7 @@ export function SdsUploadPageClient() {
                         key={word}
                         aria-hidden={!selected}
                         className={[
-                          "flex h-9 flex-1 items-center justify-center rounded-[10px] border text-[13px] font-bold tracking-[0.4px] uppercase",
+                          "text5 flex h-9 flex-1 items-center justify-center rounded-2.5 border uppercase",
                           signalWordButtonClass(word, selected),
                         ].join(" ")}
                       >
@@ -384,20 +406,20 @@ export function SdsUploadPageClient() {
               <div className="flex min-h-7 flex-wrap items-end gap-1.5">
                 <Text
                   as="span"
-                  className="text-[12px] font-bold text-[#2a3446]"
+                  className={HAZCOM_FIELD_LABEL_CLASS}
                 >
                   GHS Pictograms
                 </Text>
                 <Text
                   as="span"
-                  className="text-ehs-muted-text ml-auto text-[10px]"
+                  className="text8 text-ehs-muted-text ml-auto"
                 >
                   From chemical
                 </Text>
               </div>
               <div className="flex flex-wrap gap-2">
                 {selectedPictograms.length === 0 ? (
-                  <Text as="p" className="text-ehs-muted-text text-[13px]">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     This chemical has no pictograms recorded.
                   </Text>
                 ) : (
@@ -438,7 +460,7 @@ export function SdsUploadPageClient() {
             <Button type="button" variant="tertiary">
               <Icon
                 icon="mdi:arrow-left"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Cancel
@@ -457,12 +479,13 @@ export function SdsUploadPageClient() {
             <Button
               type="button"
               variant="primary"
-              disabled={isBusy}
+              isLoading={createSds.isPending}
+              disabled={isUploading}
               onClick={() => save(false)}
             >
               <Icon
                 icon="mdi:tray-arrow-up"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               {createSds.isPending ? "Saving…" : "Save SDS Record"}
@@ -470,6 +493,6 @@ export function SdsUploadPageClient() {
           </div>
         </div>
       </HazcomGlassCard>
-    </div>
+    </HazcomFormLayout>
   );
 }

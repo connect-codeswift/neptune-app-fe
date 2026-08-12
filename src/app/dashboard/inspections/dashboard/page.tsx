@@ -1,5 +1,5 @@
-import { InspectionsDashboardPageClient } from "@/components/inspections/InspectionsDashboardPageClient";
+import { redirect } from "next/navigation";
 
 export default function InspectionsDashboardPage() {
-  return <InspectionsDashboardPageClient />;
+  redirect("/dashboard/inspections/list");
 }

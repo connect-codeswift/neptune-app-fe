@@ -5,7 +5,7 @@ import type {
 } from "@/components/form-builder";
 
 /** Topic suggestions offered from the + button beside Focus Area. */
-export const TOPIC_SUGGESTIONS: readonly string[] = [
+const TOPIC_SUGGESTIONS: readonly string[] = [
   "PPE Compliance",
   "Housekeeping",
   "Emergency Routes",
@@ -22,7 +22,7 @@ export const LOCATION_OPTIONS: readonly SelectOption[] = [
 ];
 
 /** Assignees offered for follow-up actions (fallback when the API is empty). */
-export const ASSIGNEE_OPTIONS: readonly SelectOption[] = [
+const ASSIGNEE_OPTIONS: readonly SelectOption[] = [
   { value: "Alicia Chen", label: "Alicia Chen" },
   { value: "Priya Mehra", label: "Priya Mehra" },
   { value: "Sarah Mitchell", label: "Sarah Mitchell" },
@@ -122,9 +122,6 @@ export function buildWalkTalkFollowUpSchema(
     },
   ];
 }
-
-/** @deprecated Prefer {@link buildWalkTalkFollowUpSchema}. */
-export const walkTalkFollowUpSchema: FormSchema = buildWalkTalkFollowUpSchema();
 
 export type FollowUpAction = Readonly<{
   assignedTo: string;

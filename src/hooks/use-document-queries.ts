@@ -7,7 +7,6 @@ import {
   getAllDocuments,
   getDocumentAcknowledgements,
   getDocumentById,
-  getDocumentCategoryStats,
   getDocumentDashboardKpis,
   getDocumentVersions,
 } from "@/services/document.service";
@@ -30,7 +29,6 @@ export const documentQueryKeys = {
   categories: ["documents", "categories"] as const,
   departments: ["documents", "departments"] as const,
   dashboardKpis: ["documents", "dashboard-kpis"] as const,
-  categoryStats: ["documents", "category-stats"] as const,
 };
 
 export const DEFAULT_DOCUMENTS_PAGE_NUMBER = 1;
@@ -187,10 +185,3 @@ export function useDocumentDashboardKpisQuery(enabled = true) {
 }
 
 /** GET /api/Document/category-stats */
-export function useDocumentCategoryStatsQuery(enabled = true) {
-  return useQuery({
-    queryKey: documentQueryKeys.categoryStats,
-    queryFn: () => getDocumentCategoryStats(),
-    enabled,
-  });
-}

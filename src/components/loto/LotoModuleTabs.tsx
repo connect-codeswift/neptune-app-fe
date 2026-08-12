@@ -6,6 +6,10 @@ import {
   LOTO_TABS,
   type LotoTabId,
 } from "@/app/dashboard/lockout-tagout/loto-data";
+import {
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
 
 export type LotoModuleTabsProps = Readonly<{
   activeTab: LotoTabId;
@@ -37,7 +41,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                 onTabChange(tab.id);
               }}
               className={[
-                "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 text-base whitespace-nowrap transition-colors",
+                "text4 inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 whitespace-nowrap transition-colors",
                 isActive
                   ? "border-ehs-normal-blue text-ehs-normal-blue font-semibold"
                   : "text-ehs-muted-text hover:text-ehs-gray border-transparent font-normal",
@@ -46,7 +50,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
               {tab.label}
               <span
                 className={[
-                  "rounded-lg px-2 py-px text-xs font-semibold",
+                  "text8 rounded-lg px-2 py-px font-semibold",
                   isActive
                     ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
                     : "bg-slate-900/5 text-slate-400",
@@ -64,9 +68,13 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
           type="button"
           variant="primary"
           onClick={onCreateProcedure}
-          className="shrink-0 gap-2 rounded-lg px-4 py-2 text-base! font-semibold shadow-sm"
+          className={TABLE_HEADER_ACTION_CLASS}
         >
-          <Icon icon="mdi:file-document-outline" className="size-4 shrink-0" />
+          <Icon
+            icon="mdi:file-document-outline"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
           Create Procedure
         </Button>
       ) : null}

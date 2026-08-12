@@ -1,120 +1,150 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Table, type TablePagination } from "@/components/ui/Table";
 import { Text } from "@/components/Text";
-import type {
-  ComplianceObligationItem,
-  ComplianceStatusType,
-  JurisdictionType,
-} from "./regulatory-compliance-types";
+import type { ComplianceObligationItem } from "./regulatory-compliance-types";
+import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
 import {
-  CompliancePill,
-  ComplianceSegmentedFilter,
-  complianceGlassCardClass,
-} from "./compliance-ui";
+  TABLE_HEADER_ACTION_CLASS,
+  TABLE_HEADER_ACTION_ICON_CLASS,
+} from "@/components/ui/table-header-action";
+
+const CALENDAR_HREF = "/dashboard/regulatory-compliance/calendar";
+const ADD_OBLIGATION_HREF = "/dashboard/regulatory-compliance/calendar/new";
 
 export type RegulatoryComplianceRegisterCardProps = Readonly<{
   items: readonly ComplianceObligationItem[];
-  selectedJurisdiction: JurisdictionType;
-  selectedStatus: ComplianceStatusType;
-  onJurisdictionChange: (value: JurisdictionType) => void;
-  onStatusChange: (value: ComplianceStatusType) => void;
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
   pagination?: TablePagination;
   isLoading?: boolean;
   className?: string;
 }>;
 
-const JURISDICTION_OPTIONS: readonly JurisdictionType[] = [
-  "All",
-  "Federal",
-  "State",
-  "Local",
-];
-
-const STATUS_OPTIONS: readonly ComplianceStatusType[] = [
-  "All",
-  "Compliant",
-  "Due soon",
-  "Action required",
-  "Upcoming",
-];
-
 const columnHelper = createColumnHelper<ComplianceObligationItem>();
 
-const columns = [
-  columnHelper.accessor("code", {
-    header: "Code",
-    size: 116,
-    meta: { align: "left" },
-    cell: (info) => (
-      <Text
-        as="span"
-        className="text-[10px] leading-normal font-bold text-[#8892a3]"
-      >
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("obligation", {
-    header: "Obligation",
-    size: 172,
-    meta: { align: "left" },
-    cell: (info) => (
-      <Text as="span" className="text-[12px] leading-normal text-[#0b1320]">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("jurisdiction", {
-    header: "Jurisdiction",
-    size: 113,
-    meta: { align: "center" },
-    cell: (info) => <CompliancePill label={info.getValue()} />,
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    size: 131,
-    meta: { align: "center" },
-    cell: (info) => <CompliancePill label={info.getValue()} />,
-  }),
-  columnHelper.accessor("nextDue", {
-    header: "Nextdue",
-    size: 81,
-    meta: { align: "center" },
-    cell: (info) => (
-      <Text as="span" className="text-[12px] leading-normal text-[#566072]">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("evidenceText", {
-    header: "Evidence",
-    size: 90,
-    meta: { align: "right" },
-    cell: (info) => (
-      <Text as="span" className="text-[10px] leading-normal text-[#056e7e]">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-] as ColumnDef<ComplianceObligationItem, unknown>[];
+function createObligationColumns(
+  options: Readonly<{
+    selectedId: string | null;
+    onViewMore: (id: string) => void;
+  }>,
+): ColumnDef<ComplianceObligationItem, unknown>[] {
+  const { selectedId, onViewMore } = options;
+
+  return [
+    columnHelper.accessor("code", {
+      header: "Code",
+      size: 116,
+      meta: { align: "left" },
+      cell: (info) => (
+        <Text as="span" className="text7 text-ehs-muted-text">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("obligation", {
+      header: "Obligation",
+      size: 172,
+      meta: { align: "left" },
+      cell: (info) => (
+        <Text as="span" className="text4 text-ehs-darker">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("jurisdiction", {
+      header: "Jurisdiction",
+      size: 113,
+      meta: { align: "center" },
+      cell: (info) => <CompliancePill label={info.getValue()} />,
+    }),
+    columnHelper.accessor("status", {
+      header: "Status",
+      size: 131,
+      meta: { align: "center" },
+      cell: (info) => <CompliancePill label={info.getValue()} />,
+    }),
+    columnHelper.accessor("nextDue", {
+      header: "Next due",
+      size: 112,
+      meta: { align: "center" },
+      cell: (info) => (
+        <Text
+          as="span"
+          className="text4 text-ehs-gray whitespace-nowrap tabular-nums"
+        >
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("evidenceText", {
+      header: "Evidence",
+      size: 90,
+      meta: { align: "right" },
+      cell: (info) => (
+        <Text as="span" className="text4 text-[#056e7e]">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.obligation}`
+                : `View ${row.original.obligation}`
+            }
+            onClick={() => {
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+    }),
+  ] as ColumnDef<ComplianceObligationItem, unknown>[];
+}
 
 export function RegulatoryComplianceRegisterCard(
   props: RegulatoryComplianceRegisterCardProps,
 ) {
   const {
     items,
-    selectedJurisdiction,
-    selectedStatus,
-    onJurisdictionChange,
-    onStatusChange,
+    selectedId,
+    onViewMore,
     pagination,
     isLoading = false,
     className = "",
   } = props;
-  const router = useRouter();
+
+  const columns = useMemo(
+    () => createObligationColumns({ selectedId, onViewMore }),
+    [selectedId, onViewMore],
+  );
 
   return (
     <Table
@@ -122,10 +152,8 @@ export function RegulatoryComplianceRegisterCard(
       data={items}
       columns={columns}
       getRowId={(row) => row.id}
-      onRowClick={(row) =>
-        router.push(`/dashboard/regulatory-compliance/${row.id}`)
-      }
-      containerClassName={[complianceGlassCardClass, className]
+      selectedRowId={selectedId}
+      containerClassName={[complianceGlassCardClass, "min-w-0", className]
         .filter(Boolean)
         .join(" ")}
       pagination={
@@ -137,26 +165,39 @@ export function RegulatoryComplianceRegisterCard(
           : undefined
       }
       header={
-        <div className="flex h-[50.595px] items-center">
-          <Text
-            as="h2"
-            className="shrink-0 text-[12px] leading-none font-bold text-[#0b1320]"
-          >
-            Register
+        <div className="flex h-12.5 items-center justify-between gap-3">
+          <Text as="h2" className="text3 text-ehs-darker shrink-0">
+            Obligations
           </Text>
 
-          <div className="ml-auto flex items-center gap-[10px]">
-            <ComplianceSegmentedFilter
-              options={JURISDICTION_OPTIONS}
-              value={selectedJurisdiction}
-              onChange={(value) => onJurisdictionChange(value)}
-            />
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href={CALENDAR_HREF}
+              aria-label="Open calendar view"
+              title="Calendar view"
+              className="text-ehs-normal-blue hover:bg-ehs-normal-blue/10 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            >
+              <Icon
+                icon="mdi:calendar-month-outline"
+                className="size-4.5"
+                aria-hidden
+              />
+            </Link>
 
-            <ComplianceSegmentedFilter
-              options={STATUS_OPTIONS}
-              value={selectedStatus}
-              onChange={(value) => onStatusChange(value)}
-            />
+            <Link
+              href={ADD_OBLIGATION_HREF}
+              className={[
+                "bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex items-center transition-colors",
+                TABLE_HEADER_ACTION_CLASS,
+              ].join(" ")}
+            >
+              <Icon
+                icon="mdi:plus"
+                className={TABLE_HEADER_ACTION_ICON_CLASS}
+                aria-hidden
+              />
+              <span>Add Obligation</span>
+            </Link>
           </div>
         </div>
       }

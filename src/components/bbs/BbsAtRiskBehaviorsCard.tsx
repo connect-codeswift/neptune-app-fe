@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { useBbsAtRiskCategoriesQuery } from "@/hooks/use-bbs-queries";
 import { toBbsAtRiskBehaviors } from "@/lib/map-bbs";
 import type {

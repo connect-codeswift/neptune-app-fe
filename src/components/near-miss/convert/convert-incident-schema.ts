@@ -8,7 +8,7 @@ export const INCIDENT_TYPE_OPTIONS: readonly SelectOption[] = [
 ];
 
 /** Mirrors the app's existing severity vocabulary (see NearMissSeverity). */
-export const INCIDENT_SEVERITY_OPTIONS: readonly SelectOption[] = [
+const INCIDENT_SEVERITY_OPTIONS: readonly SelectOption[] = [
   { value: "Low", label: "Low" },
   { value: "Medium", label: "Medium" },
   { value: "High", label: "High" },

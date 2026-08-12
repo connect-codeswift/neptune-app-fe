@@ -49,16 +49,14 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5">
-      <DashboardHeader />
+    <div className="flex flex-1 flex-col gap-2">
+      <DashboardHeader title="Edit Hazard Reporting" />
 
       <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
-        {detailQuery.isPending && (
-          <SkeletonFormPage fields={8} />
-        )}
+        {detailQuery.isPending && <SkeletonFormPage fields={8} />}
 
         {detailQuery.isError && (
-          <Text as="p" className="text-ehs-red text-sm">
+          <Text as="p" className="text4 text-ehs-red">
             {getMutationErrorMessage(
               detailQuery.error,
               "Could not load this hazard.",
@@ -68,12 +66,12 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
 
         {!detailQuery.isPending && !detailQuery.isError && !record && (
           <div className="flex flex-col items-start gap-2">
-            <Text as="p" className="text-ehs-muted-text text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text">
               {`No hazard found for id ${hazardId}.`}
             </Text>
             <Link
               href={HAZARD_LIST_ROUTE}
-              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
               Back to hazard reporting
             </Link>

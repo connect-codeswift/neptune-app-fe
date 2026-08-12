@@ -7,6 +7,7 @@ import type {
   PpeEmployeeProfile,
   PpeHistoryRecord,
   PpeInventoryItem,
+  PpeIssuanceDetail,
   PpeIssuanceLogEntry,
   PpeIssuanceRecord,
   PpeLogStatus,
@@ -35,37 +36,8 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
   });
 }
 
-/**
- * Turn GET /api/ppe/issue/assigned-to rows into replacement dropdown options.
- * value = issuance id (not catalogue ppeId); label = item name.
- */
-export function toAssignedPpeIssueOptions(
-  issues: readonly PpeIssueDto[] | null | undefined,
-): SelectOption[] {
-  if (!issues?.length) return [];
-
-  return issues.flatMap((issue) => {
-    if (
-      issue.id === undefined ||
-      issue.id === null ||
-      String(issue.id) === ""
-    ) {
-      return [];
-    }
-
-    return [
-      {
-        value: String(issue.id),
-        label: toIssueItemName(issue),
-      },
-    ];
-  });
-}
-
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
-export function toPpeSizeOptions(
-  availableSize?: string | null,
-): SelectOption[] {
+function toPpeSizeOptions(availableSize?: string | null): SelectOption[] {
   if (!availableSize?.trim()) return [];
 
   return availableSize
@@ -334,7 +306,7 @@ function toHistoryFromIssue(
 }
 
 /** Map API `issues` into catalog issuance rows. */
-export function toPpeIssuanceRecords(
+function toPpeIssuanceRecords(
   issues: readonly PpeIssueDto[] | null | undefined,
 ): PpeIssuanceRecord[] {
   if (!issues?.length) return [];
@@ -347,6 +319,12 @@ export function toPpeIssuanceRecords(
     size: issue.size?.trim() || "—",
     issueDate: toIssueDateLabel(issue.createdAt),
     status: issue.status?.trim() || "—",
+    description:
+      issue.note?.trim() ||
+      [issue.assignedToRole?.trim(), issue.department?.trim()]
+        .filter(Boolean)
+        .join(" · ") ||
+      undefined,
   }));
 }
 
@@ -438,6 +416,32 @@ export function toPpeAcknowledgementEntries(
       siteId: toOptionalSiteId(issue.siteId),
     };
   });
+}
+
+/** Turn GET /api/ppe/issue/{id} into the catalog issuance detail modal model. */
+export function toPpeIssuanceDetailFromIssue(
+  issue: PpeIssueDto,
+): PpeIssuanceDetail | null {
+  if (issue.id === undefined || issue.id === null || String(issue.id) === "") {
+    return null;
+  }
+
+  return {
+    id: String(issue.id),
+    employee: issue.assignedToName?.trim() || "—",
+    role:
+      issue.assignedToRole?.trim() ||
+      issue.role?.trim() ||
+      issue.jobTitle?.trim() ||
+      "—",
+    item: issue.item?.trim() || issue.itemName?.trim() || "—",
+    quantity: issue.quantity ?? 0,
+    size: issue.size?.trim() || "—",
+    issueDate: toIssueDateLabel(issue.createdAt),
+    status: issue.status?.trim() || "—",
+    note: issue.note?.trim() || "",
+    employeeAcknowledged: Boolean(issue.employeeAck),
+  };
 }
 
 /** Turn GET /api/ppe/issue/{id} into the employee profile view model. */
@@ -558,47 +562,6 @@ export function toIssueIdFromResponse(
   return null;
 }
 
-/** Read siteId from POST /api/ppe/issue when the JWT has no site claim. */
-export function toSiteIdFromIssueResponse(
-  response: Readonly<{
-    dataModel?: { siteId?: number | string; SiteId?: number | string } | null;
-  }>,
-): number | null {
-  const siteId = response.dataModel?.siteId ?? response.dataModel?.SiteId;
-
-  if (typeof siteId === "number" && Number.isFinite(siteId)) return siteId;
-
-  if (typeof siteId === "string") {
-    const parsed = Number(siteId);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
-}
-
-/** Prefer token site, then issue response, then selected employee's subCompId. */
-export function resolvePpeAcknowledgeSiteId(
-  issueResponse: Readonly<{
-    dataModel?: {
-      siteId?: number | string;
-      SiteId?: number | string;
-    } | null;
-  }>,
-  tokenSiteId: number,
-  employeeSubCompId: number | null,
-): number {
-  if (tokenSiteId > 0) return tokenSiteId;
-
-  const issueSiteId = toSiteIdFromIssueResponse(issueResponse);
-  if (issueSiteId !== null && issueSiteId > 0) return issueSiteId;
-
-  if (employeeSubCompId !== null && employeeSubCompId > 0) {
-    return employeeSubCompId;
-  }
-
-  return 0;
-}
-
 function toKpiCount(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return "0";
   return value.toLocaleString("en-US");
@@ -608,18 +571,23 @@ function toKpiCount(value: number | undefined): string {
 export function toPpeMetricsFromKpi(
   kpi: PpeKpiDto | null | undefined,
 ): PpeMetric[] {
+  // GET /api/ppe/kpi returns two counts and nothing else — no series, no
+  // prior period — so both cards show an icon badge rather than a delta.
   return [
     {
       title: "Active assignments",
       value: toKpiCount(kpi?.activeAssignments),
-      trendValue: "",
-      trendTone: "positive",
+      description: "PPE currently issued to workers",
+      icon: "mdi:account-hard-hat-outline",
     },
     {
       title: "Items low stock",
       value: toKpiCount(kpi?.lowStockItems),
-      trendValue: "",
-      trendTone: "negative",
+      description: "At or below the reorder point",
+      isMorePositive: false,
+      target: 0,
+      signalOwnedBy: "target",
+      icon: "mdi:package-variant-closed-remove",
     },
   ];
 }

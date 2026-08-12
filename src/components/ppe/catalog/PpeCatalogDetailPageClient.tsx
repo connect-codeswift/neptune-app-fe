@@ -8,7 +8,7 @@ import {
   PpeCatalogNotFound,
 } from "@/components/ppe/catalog/PpeCatalogDetailContent";
 import { PpeCatalogDetailSkeleton } from "@/components/ppe/PpeSkeletons";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { usePpeItemDetailQuery } from "@/hooks/use-ppe-queries";
 
 export type PpeCatalogDetailPageProps = Readonly<{
@@ -24,17 +24,17 @@ export function PpeCatalogDetailPageClient(
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader />
+      <DashboardHeader title="PPE Catalog" showSiteSwitcher={false} />
 
       {isLoading ? <PpeCatalogDetailSkeleton /> : null}
 
       {!isLoading && errorMessage ? (
         <div className="px-4 pb-8">
           <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Couldn&apos;t load this PPE item
             </Text>
-            <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text mt-1">
               {errorMessage}
             </Text>
             <Button

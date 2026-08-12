@@ -22,7 +22,7 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
       title={state.title}
       subtitle={state.category}
       onClose={onClose}
-      maxWidthClassName="max-w-[480px]"
+      maxWidthClassName="max-w-120"
       footerHint="This cannot be undone."
       footerActions={
         <>
@@ -31,10 +31,13 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
             type="button"
             disabled={isSubmitting}
             onClick={() => {
-              void onConfirm();
+              // onConfirm toasts its own failure and re-throws to keep this
+              // modal open; swallow it so it isn't an unhandled rejection.
+              // Promise.resolve because the prop may be sync or async.
+              void Promise.resolve(onConfirm()).catch(() => undefined);
             }}
             className={[
-              "inline-flex h-[39.5px] min-w-[120px] flex-1 items-center justify-center rounded-xl px-5 text-sm leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
+              "inline-flex h-[39.5px] min-w-30 flex-1 items-center justify-center rounded-xl px-5 text4 leading-[19.5px] font-medium text-ehs-light-text transition-colors sm:flex-initial",
               isSubmitting
                 ? "cursor-not-allowed bg-ehs-red/50"
                 : "bg-ehs-red hover:bg-ehs-red/90",
@@ -45,7 +48,7 @@ export function HrcaConfirmModal(props: Readonly<HrcaConfirmModalProps>) {
         </>
       }
     >
-      <Text as="p" className="text-sm leading-[19.5px] text-ehs-slate">
+      <Text as="p" className="text4 leading-[19.5px] text-ehs-slate">
         {state.message}
       </Text>
     </IncidentModalShell>

@@ -2,7 +2,6 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { EditTemplateContent } from "@/components/inspections/templates/edit/EditTemplateContent";
 
 /** Reads the id from `?templateid=`, so it needs a Suspense boundary. */
@@ -15,9 +14,7 @@ function EditInspectionTemplate() {
 
 export default function EditInspectionTemplatePage() {
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader />
-
+    <div className="flex min-h-screen flex-1 flex-col">
       <Suspense fallback={null}>
         <EditInspectionTemplate />
       </Suspense>

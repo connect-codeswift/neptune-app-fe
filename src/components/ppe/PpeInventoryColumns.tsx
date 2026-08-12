@@ -1,4 +1,6 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeInventoryItem>();
@@ -7,92 +9,86 @@ function formatStock(value: number): string {
   return value.toLocaleString("en-US");
 }
 
-function stockLevelTone(
-  item: PpeInventoryItem,
-): "good" | "warn" | "danger" {
-  if (item.attention || item.stockLevel < 50) return "danger";
-  if (item.stockLevel < 75) return "warn";
-  return "good";
-}
+export type PpeInventoryColumnHandlers = Readonly<{
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
+}>;
 
-const progressClassName: Record<"good" | "warn" | "danger", string> = {
-  good: "bg-[#10b981]",
-  warn: "bg-[#f59e0b]",
-  danger: "bg-[#ef4444]",
-};
+/** Inventory table columns — eye icon toggles the right-side detail panel. */
+export function makePpeInventoryColumns(
+  handlers: PpeInventoryColumnHandlers,
+): TableColumns<PpeInventoryItem> {
+  const { selectedId, onViewMore } = handlers;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const ppeInventoryColumns: ColumnDef<PpeInventoryItem, any>[] = [
-  columnHelper.accessor("category", {
-    header: "CATEGORY",
-    size: 180,
-    cell: (info) => (
-      <span className="text-ehs-darker text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("onHand", {
-    header: "ON HAND",
-    size: 120,
-    cell: ({ row }) => (
-      <span className="text-ehs-darker text-base font-normal tabular-nums">
-        {`${formatStock(row.original.onHand)} / ${formatStock(row.original.stockCapacity)}`}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("stockLevel", {
-    header: "STOCK LEVEL",
-    size: 180,
-    cell: ({ row }) => {
-      const { stockLevel } = row.original;
-      const tone = stockLevelTone(row.original);
+  return [
+    columnHelper.accessor("category", {
+      header: "Category",
+      size: 180,
+      cell: (info) => (
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
+      ),
+      meta: { align: "left" as const },
+    }),
+    columnHelper.accessor("onHand", {
+      header: "On hand",
+      size: 120,
+      cell: ({ row }) => (
+        <span className="text4 text-ehs-gray tabular-nums">
+          {`${formatStock(row.original.onHand)} / ${formatStock(row.original.stockCapacity)}`}
+        </span>
+      ),
+      meta: { align: "left" as const },
+    }),
+    columnHelper.accessor("reorderDate", {
+      header: "Reorder",
+      size: 110,
+      cell: (info) => (
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
+      ),
+      meta: { align: "left" as const },
+    }),
+    columnHelper.accessor("supplier", {
+      header: "Supplier",
+      size: 140,
+      cell: (info) => (
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
+      ),
+      meta: { align: "left" as const },
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
 
-      return (
-        <div className="flex min-w-0 items-center gap-2.5">
-          <div className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-[3px] bg-[#e5e7eb]">
-            <div
-              className={`h-full rounded-[3px] ${progressClassName[tone]}`}
-              style={{ width: `${String(stockLevel)}%` }}
-            />
-          </div>
-          <span
-            className={[
-              "shrink-0 text-sm font-semibold tabular-nums",
-              tone === "danger"
-                ? "text-[#ef4444]"
-                : tone === "warn"
-                  ? "text-[#f59e0b]"
-                  : "text-ehs-darker",
-            ].join(" ")}
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.category}`
+                : `View ${row.original.category}`
+            }
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
           >
-            {`${String(stockLevel)}%`}
-          </span>
-        </div>
-      );
-    },
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("reorderDate", {
-    header: "REORDER",
-    size: 110,
-    cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("supplier", {
-    header: "SUPPLIER",
-    size: 140,
-    cell: (info) => (
-      <span className="text-ehs-darker/80 text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-];
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+      meta: { align: "center" as const },
+    }),
+  ];
+}

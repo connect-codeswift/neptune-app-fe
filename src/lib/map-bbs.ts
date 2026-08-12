@@ -18,7 +18,7 @@ import type {
   ObservationPhoto,
 } from "@/app/dashboard/bbs/bbs-data";
 import type { FormValues } from "@/components/form-builder";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 
 const OBSERVE_LABEL_BY_VALUE: Record<string, string> = {
   safe: "Safe",
@@ -48,6 +48,30 @@ function formatObservationTime(iso: string): string {
 
 function toObservationType(observe: string): ObservationDetail["type"] {
   return observe.trim().toLowerCase() === "safe" ? "Safe" : "At-Risk";
+}
+
+/** Short relative/table datetime, e.g. "Apr 22 · 2:30 PM". */
+function formatSessionWhen(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const day = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return `${day} · ${time}`;
+}
+
+function toSessionTypeLabel(observe: string): string {
+  const normalized = observe.trim().toLowerCase();
+  if (normalized === "safe") return "Safe";
+  if (normalized === "at-risk" || normalized === "at risk") return "At-Risk";
+  return observe.trim() || "Observation";
 }
 
 function toObservationPhoto(photoUrl: string): ObservationPhoto | null {
@@ -99,7 +123,7 @@ export function toBehaviorCategorySuggestions(
     .map((category) => category.name);
 }
 
-export function toBehaviorCategoryId(
+function toBehaviorCategoryId(
   categoryName: string,
   categories: readonly BehaviorCategoryDto[],
 ): number | null {
@@ -172,14 +196,17 @@ export function toUpdateBbsObservationRequest(
 }
 
 /** API observation row → recent-sessions table row. */
-export function toBbsSession(dto: BbsObservationDto): BbsSession {
+function toBbsSession(dto: BbsObservationDto): BbsSession {
+  const type = toSessionTypeLabel(dto.observe ?? "");
+
   return {
     id: `BBS-${String(dto.id)}`,
-    type: dto.observe?.trim() || "Observation",
+    type,
     observer: dto.userName?.trim() || "—",
     location: dto.location?.trim() || "—",
     behaviors: dto.categoryName?.trim() || "—",
-    safePercent: dto.observe?.trim().toLowerCase() === "safe" ? 100 : 0,
+    when: formatSessionWhen(dto.createdAt),
+    safePercent: type === "Safe" ? 100 : 0,
   };
 }
 
@@ -189,27 +216,37 @@ export function toBbsSessions(
   return observations.map(toBbsSession);
 }
 
-/** Dashboard KPI payload → StatMetricCard props. */
+/** Dashboard KPI payload → MetricCard props. */
 export function toBbsMetricCards(
   kpi: BbsDashboardKpiDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
   const total = kpi?.totalBbsCount ?? 0;
   const safe = kpi?.safeBehaviourCount ?? 0;
   const atRisk = kpi?.atRiskCount ?? 0;
   const safePercent = total > 0 ? Math.round((safe / total) * 100) : 0;
 
   return [
+    // The KPI endpoint returns a 30-day snapshot with no prior period, so
+    // there is no delta to badge — each card falls back to its icon.
     {
       title: "Observations (30d)",
       value: total,
+      description: "Logged in the last 30 days",
+      icon: "mdi:eye-outline",
     },
     {
-      title: "Safe behavior %",
-      value: `${String(safePercent)}%`,
+      title: "Safe behavior rate",
+      value: String(safePercent),
+      unit: "%",
+      description: `${String(safe)} of ${String(total)} observations`,
+      icon: "mdi:shield-check-outline",
     },
     {
       title: "At risk",
       value: atRisk,
+      description: "Behaviours flagged at risk",
+      isMorePositive: false,
+      icon: "mdi:alert-outline",
     },
   ];
 }
@@ -221,13 +258,11 @@ export function toBbsAtRiskBehaviors(
   const categories = payload?.categories ?? [];
 
   return [...categories]
-    .map(
-      (category): BehaviorCategory => ({
-        label: category.categoryName?.trim() || "-",
-        count: category.count ?? 0,
-        tone: "risk",
-      }),
-    )
+    .map((category): BehaviorCategory => ({
+      label: category.categoryName?.trim() || "-",
+      count: category.count ?? 0,
+      tone: "risk",
+    }))
     .sort((left, right) => right.count - left.count);
 }
 

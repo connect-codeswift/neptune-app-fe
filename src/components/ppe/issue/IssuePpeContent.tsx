@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
-import { Button } from "@/components/ui/Button";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useIssuePpeMutation } from "@/hooks/use-ppe-mutations";
@@ -18,7 +17,6 @@ import {
 } from "@/lib/map-ppe";
 import { acknowledgePpe } from "@/services/ppe.service";
 import { toast } from "@/lib/toast";
-import { IssuePpeHeader } from "./IssuePpeHeader";
 import { PpeFormPageSkeleton } from "../PpeSkeletons";
 import {
   buildIssuePpeSchema,
@@ -32,11 +30,16 @@ import {
 const PPE_ROUTE = "/dashboard/ppe-management";
 const ISSUANCE_LOG_ROUTE = "/dashboard/ppe-management/issuance-log";
 
-const fieldLabelClass = [
-  "[&_label]:text-base",
+/** Match Near Miss / Hazard report form typography (text1–text9 scale). */
+const issuePpeFormFieldClass = [
+  "[&_label]:text8",
   "[&_label]:font-semibold",
-  "[&_label]:tracking-[0.24px]",
-  "[&_label]:text-[#566072]",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
 ].join(" ");
 
 export function IssuePpeContent() {
@@ -221,65 +224,35 @@ export function IssuePpeContent() {
   const isLoading = ppeItemsQuery.isPending;
 
   if ((isLoading && !ppeItemsQuery.data) || !roleReady) {
-    return <PpeFormPageSkeleton fields={6} />;
+    return <PpeFormPageSkeleton fields={6} includeHeader={false} />;
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4">
-      <IssuePpeHeader />
+    <IncidentGlassCard paddingClassName="p-6 sm:p-8" className="w-full">
+      {ppeItemsQuery.isError ? (
+        <Text as="p" className="text8 text-ehs-red mb-4">
+          {getMutationErrorMessage(
+            ppeItemsQuery.error,
+            "Could not load PPE items.",
+          )}
+        </Text>
+      ) : null}
 
-      <div className="mx-auto flex w-full max-w-182.75 flex-col gap-3.5">
-        <IncidentGlassCard paddingClassName="p-4 md:p-6" className="min-w-0">
-          <div className="flex flex-col gap-4">
-            <Text
-              as="h2"
-              className="text-ehs-darker text-[15px] font-bold md:text-xl"
-            >
-              Issuance Details
-            </Text>
-
-            {ppeItemsQuery.isError ? (
-              <Text as="p" className="text-ehs-red text-sm">
-                {getMutationErrorMessage(
-                  ppeItemsQuery.error,
-                  "Could not load PPE items.",
-                )}
-              </Text>
-            ) : null}
-
-            <FormBuilder
-              key={`${selectedPpeItemId}-${String(isElevated)}-${employeeUserId}`}
-              formId={ISSUE_PPE_FORM_ID}
-              schema={schema}
-              initialValues={initialValues}
-              onChange={handleFormChange}
-              onSubmit={handleSubmit}
-              hideActions
-              className={fieldLabelClass}
-            />
-          </div>
-        </IncidentGlassCard>
-
-        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={handleCancel}
-            className="w-full rounded-[10px] px-4 py-2.5 text-base! font-medium sm:w-auto"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            form={ISSUE_PPE_FORM_ID}
-            variant="primary"
-            disabled={isLoading || issuePpe.isPending}
-            className="w-full rounded-[10px] px-5 py-2.5 text-base! font-semibold shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
-          >
-            {issuePpe.isPending ? "Confirming..." : "Confirm Issuance"}
-          </Button>
-        </div>
-      </div>
-    </div>
+      <FormBuilder
+        key={`${selectedPpeItemId}-${String(isElevated)}-${employeeUserId}`}
+        formId={ISSUE_PPE_FORM_ID}
+        schema={schema}
+        initialValues={initialValues}
+        onChange={handleFormChange}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        submitLabel={
+          issuePpe.isPending ? "Confirming..." : "Confirm Issuance"
+        }
+        cancelLabel="Cancel"
+        isSubmitting={issuePpe.isPending}
+        className={issuePpeFormFieldClass}
+      />
+    </IncidentGlassCard>
   );
 }

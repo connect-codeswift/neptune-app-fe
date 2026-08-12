@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import type { SelectFieldConfig, SelectOption } from "./types";
 
 export type SelectWithCustomControlProps = Readonly<{
@@ -34,19 +35,19 @@ function OptionRow(
         aria-selected={selected}
         onClick={onSelect}
         className={[
-          "flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
+          "text4 flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
           selected ? "bg-ehs-light-bg/70" : "hover:bg-ehs-light-bg/50",
         ].join(" ")}
       >
         {option.code ? (
-          <span className="bg-ehs-light-bg text-ehs-gray shrink-0 rounded-md px-2 py-0.5 font-semibold">
+          <span className="text8 bg-ehs-light-bg text-ehs-gray shrink-0 rounded-md px-2 py-0.5 font-semibold">
             {option.code}
           </span>
         ) : null}
         <span
           className={[
             "min-w-0 flex-1",
-            selected ? "text-ehs-dark-bg font-semibold" : "text-ehs-dark-bg",
+            selected ? "text-ehs-darker font-semibold" : "text-ehs-darker",
           ].join(" ")}
         >
           {option.label}
@@ -107,14 +108,14 @@ function AddCustomForm(
               submit();
             }
           }}
-          className="border-ehs-normal-blue/40 focus:border-ehs-normal-blue min-w-0 flex-1 rounded-lg border bg-white px-2.5 py-1.5 outline-none"
+          className={`${FIELD_INPUT_LG_CLASS} min-w-0 flex-1`}
         />
       </div>
       <div className="flex justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="text-ehs-gray hover:text-ehs-dark-bg cursor-pointer px-2 py-1 font-medium transition-colors"
+          className="text4 text-ehs-gray hover:text-ehs-darker cursor-pointer px-2 py-1 font-medium transition-colors"
         >
           Cancel
         </button>
@@ -122,7 +123,7 @@ function AddCustomForm(
           type="button"
           onClick={submit}
           disabled={!canAdd}
-          className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-white transition-colors disabled:opacity-40"
+          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-white transition-colors disabled:opacity-40"
         >
           Add
         </button>
@@ -157,7 +158,10 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
     setIsAdding(false);
   };
 
-  // Close on outside click and on Escape while the popover is open.
+  // Close on outside click; keyboard on the list: Escape closes, arrows move
+  // through the option buttons, Home/End jump. Native selects give arrow
+  // traversal for free, so the custom listbox has to match it before it can
+  // stand in for one.
   useEffect(() => {
     if (!isOpen) return;
 
@@ -165,7 +169,37 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
       if (!containerRef.current?.contains(event.target as Node)) close();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        return;
+      }
+      const rows = [
+        ...(listRef.current?.querySelectorAll<HTMLButtonElement>(
+          '[role="option"]',
+        ) ?? []),
+      ];
+      if (rows.length === 0) return;
+      event.preventDefault();
+
+      const activeIndex = rows.findIndex(
+        (row) => row === document.activeElement,
+      );
+      const nextIndex =
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? rows.length - 1
+            : event.key === "ArrowDown"
+              ? Math.min(rows.length - 1, activeIndex + 1)
+              : // ArrowUp from the trigger (activeIndex -1) lands on the last row.
+                activeIndex === -1
+                ? rows.length - 1
+                : Math.max(0, activeIndex - 1);
+      rows[nextIndex]?.focus();
     };
 
     document.addEventListener("mousedown", onPointerDown);
@@ -250,7 +284,12 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
       </button>
 
       {isOpen ? (
-        <div className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-slate-900/10 bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+        // Near-opaque (96%) on purpose. At 85% the content underneath read
+        // straight through the menu — checkbox labels behind it were legible
+        // through the option rows. A floating menu has to win against
+        // whatever it covers, so the blur and hairline carry the material
+        // here and the fill stays high.
+        <div className="animate-popover-in absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-white/70 bg-white/96 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}
@@ -259,7 +298,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
             className="max-h-64 overflow-y-auto py-1"
           >
             {options.length === 0 ? (
-              <li className="text-ehs-muted-text px-3 py-2.5 text-sm">
+              <li className="text4 text-ehs-muted-text px-3 py-2.5">
                 {field.pagination?.isLoading ? "Loading…" : "No options"}
               </li>
             ) : (
@@ -283,11 +322,11 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                 type="button"
                 disabled={field.pagination.pageNumber <= 1}
                 onClick={() => field.pagination?.onPrev()}
-                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Prev
               </button>
-              <span className="text-ehs-gray text-xs tabular-nums">
+              <span className="text8 text-ehs-gray tabular-nums">
                 {field.pagination.isLoading
                   ? "Loading…"
                   : `Page ${String(field.pagination.pageNumber)} of ${String(field.pagination.totalPages)}`}
@@ -298,7 +337,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                   field.pagination.pageNumber >= field.pagination.totalPages
                 }
                 onClick={() => field.pagination?.onNext()}
-                className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
@@ -320,7 +359,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
               <button
                 type="button"
                 onClick={() => setIsAdding(true)}
-                className="text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
+                className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
               >
                 <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 {field.addCustomLabel ?? "Add custom option"}

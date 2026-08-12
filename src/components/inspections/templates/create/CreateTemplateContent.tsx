@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import {
@@ -199,7 +199,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         { templateId, payload },
         {
           onSuccess: (response) => {
-            console.log(response);
             if (publish) {
               // The update returns the saved template — publish it by id.
               publishSavedTemplate(
@@ -304,35 +303,32 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       {/* Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
-        <div className="flex min-w-0 flex-col gap-1.5">
+      <div className="backdrop-blur-2.5 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+        <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1">
             <Link
               href={TEMPLATES_ROUTE}
-              className="text-ehs-gray hover:text-ehs-dark-bg text-sm font-medium transition-colors"
+              className="text8 text-ehs-muted-text transition-colors hover:text-ehs-gray"
             >
               Templates
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
+              className="size-3 shrink-0 text-[#8892a3]"
               aria-hidden="true"
             />
-            <span className="text-ehs-muted-text text-sm font-medium">
+            <Text as="span" className="text8 text-ehs-gray">
               {isEdit ? "Edit Template" : "Create Template"}
-            </span>
+            </Text>
           </nav>
 
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker">
             {isEdit ? "Edit Inspection Template" : "Create Inspection Template"}
           </Text>
 
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             5-step wizard — build, configure, and publish your template
           </Text>
         </div>
@@ -428,7 +424,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => router.push(TEMPLATES_ROUTE)}
-            className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg cursor-pointer rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             Cancel
           </button>
@@ -436,7 +432,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => setStep(step - 1)}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -468,7 +464,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               type={step === 1 ? "submit" : "button"}
               form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
               onClick={step === 1 ? undefined : handleNext}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-2.5 px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
             >
               <Icon
                 icon="mdi:arrow-right"
