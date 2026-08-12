@@ -303,35 +303,32 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       {/* Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
-        <div className="flex min-w-0 flex-col gap-1.5">
+      <div className="backdrop-blur-2.5 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+        <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1">
             <Link
               href={TEMPLATES_ROUTE}
-              className="text-ehs-gray hover:text-ehs-dark-bg text-sm font-medium transition-colors"
+              className="text8 text-ehs-muted-text transition-colors hover:text-ehs-gray"
             >
               Templates
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
+              className="size-3 shrink-0 text-[#8892a3]"
               aria-hidden="true"
             />
-            <span className="text-ehs-muted-text text-sm font-medium">
+            <Text as="span" className="text8 text-ehs-gray">
               {isEdit ? "Edit Template" : "Create Template"}
-            </span>
+            </Text>
           </nav>
 
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker">
             {isEdit ? "Edit Inspection Template" : "Create Inspection Template"}
           </Text>
 
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             5-step wizard — build, configure, and publish your template
           </Text>
         </div>

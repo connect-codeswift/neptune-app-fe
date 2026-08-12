@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { MetricCardsRow } from "@/components/ui/MetricCard";
-import { inspectionColumns } from "@/components/inspections/InspectionColumns";
+import { SkeletonTable } from "@/components/ui/skeletons";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
+import { createInspectionColumns } from "@/components/inspections/InspectionColumns";
 import { InspectionDetailPanel } from "@/components/inspections/InspectionDetailPanel";
-import {
-  InspectionDetailPanelSkeleton,
-  InspectionPageSkeleton,
-} from "@/components/inspections/InspectionPageSkeleton";
+import { InspectionPageSkeleton } from "@/components/inspections/InspectionPageSkeleton";
 import {
   useInspectionDetailSummaryQuery,
   useInspectionsQuery,
@@ -82,7 +85,16 @@ export function InspectionsListPageClient() {
     });
   }, [records, searchQuery]);
 
-  const detailSummaryQuery = useInspectionDetailSummaryQuery(selectedId);
+  const selectedRecord =
+    selectedId == null
+      ? null
+      : (filteredRecords.find((record) => record.id === selectedId) ??
+        records.find((record) => record.id === selectedId) ??
+        null);
+
+  const detailSummaryQuery = useInspectionDetailSummaryQuery(
+    selectedRecord?.id ?? null,
+  );
   const detail = useMemo(() => {
     const dto = detailSummaryQuery.data?.dataModel;
     return dto ? mapInspectionDetailSummaryToDetail(dto) : null;
@@ -92,6 +104,39 @@ export function InspectionsListPageClient() {
     () => mapSummaryToMetrics(summaryQuery.data?.dataModel, "inspection"),
     [summaryQuery.data],
   );
+
+  useEffect(() => {
+    if (selectedId != null && selectedRecord == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedRecord]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedRecord != null;
+
+  const columns = useMemo(
+    () =>
+      createInspectionColumns({
+        selectedId,
+        onViewMore: handleToggleDetailPanel,
+        expanded: !isPanelOpen,
+      }),
+    [selectedId, handleToggleDetailPanel, isPanelOpen],
+  );
+
+  const resultLabel = `${String(filteredRecords.length)} ${
+    filteredRecords.length === 1 ? "inspection" : "inspections"
+  }`;
+
+  const panelErrorMessage =
+    isPanelOpen && detailSummaryQuery.isError
+      ? detailSummaryErrorMessage(detailSummaryQuery.error)
+      : null;
+
+  const showListLoading = inspectionsQuery.isPending && !inspectionsQuery.data;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -104,90 +149,116 @@ export function InspectionsListPageClient() {
             <MetricCardsRow metrics={metrics} />
 
             {summaryQuery.isError ? (
-              <p className="text-ehs-red text-sm">
+              <Text as="p" className="text4 text-ehs-red">
                 Could not load inspection KPIs.
-              </p>
+              </Text>
             ) : null}
           </>
         )}
 
-        {inspectionsQuery.isPending && !inspectionsQuery.data ? (
-          <InspectionPageSkeleton />
-        ) : (
-          <>
-            {inspectionsQuery.isError ? (
-              <p className="text-ehs-red text-sm">
-                Could not load inspections.
-              </p>
-            ) : null}
+        <ModuleFilterBar
+          segments={[
+            {
+              label: "Status",
+              options: REGISTER_STATUS_FILTERS,
+              value: selectedStatus,
+              onChange: (value) => {
+                setSelectedStatus(value as RegisterStatusFilter);
+                setPageNumber(1);
+                setSelectedId(null);
+              },
+            },
+          ]}
+          action={{
+            label: "Templates",
+            icon: "mdi:file-document-outline",
+            onClick: () => {
+              router.push("/dashboard/inspections/template");
+            },
+          }}
+        />
 
-            <ModuleFilterBar
-              segments={[
-                {
-                  label: "Status",
-                  options: REGISTER_STATUS_FILTERS,
-                  value: selectedStatus,
-                  onChange: (value) => {
-                    setSelectedStatus(value as RegisterStatusFilter);
-                    setPageNumber(1);
-                  },
+        <ModuleSearchBar
+          value={searchQuery}
+          onChange={(value) => {
+            setSearchQuery(value);
+            setSelectedId(null);
+          }}
+          placeholder="Search by title, site, inspector..."
+          aria-label="Search inspections"
+          resultLabel={resultLabel}
+        />
+
+        {inspectionsQuery.isError ? (
+          <IncidentGlassCard
+            className="min-h-45 text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
+            <Icon
+              icon="mdi:alert-circle-outline"
+              className="text-ehs-red size-8"
+              aria-hidden="true"
+            />
+            <Text as="p" className="text4 text-ehs-darker">
+              Could not load inspections
+            </Text>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void inspectionsQuery.refetch()}
+              className="mt-1"
+            >
+              Retry
+            </Button>
+          </IncidentGlassCard>
+        ) : null}
+
+        {showListLoading ? <SkeletonTable rows={8} columns={6} /> : null}
+
+        {!showListLoading && !inspectionsQuery.isError ? (
+          <div
+            className={[
+              "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+              isPanelOpen
+                ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                : "xl:grid-cols-1",
+            ].join(" ")}
+          >
+            <Table
+              variant="compliance"
+              data={filteredRecords}
+              columns={columns}
+              selectedRowId={selectedId}
+              getRowId={(row) => row.id}
+              containerClassName={[complianceGlassCardClass, "min-w-0"].join(
+                " ",
+              )}
+              pagination={{
+                pageNumber,
+                pageSize: PAGE_SIZE,
+                totalRecords: page?.totalRecords ?? 0,
+                onPageChange: (nextPage) => {
+                  setPageNumber(nextPage);
+                  setSelectedId(null);
                 },
-              ]}
-              action={{
-                label: "Templates",
-                icon: "mdi:file-document-outline",
-                onClick: () => {
-                  router.push("/dashboard/inspections/template");
-                },
+                isLoading: inspectionsQuery.isFetching,
               }}
             />
 
-            <ModuleSearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search by title, site, inspector..."
-              aria-label="Search inspections"
-            />
-
-            <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-              <Table
-                data={filteredRecords}
-                columns={inspectionColumns}
-                selectedRowId={selectedId}
-                onRowClick={(row) => setSelectedId(row.id)}
-                getRowId={(row) => row.id}
-                containerClassName="min-w-0"
-                pagination={{
-                  pageNumber,
-                  pageSize: PAGE_SIZE,
-                  totalRecords: page?.totalRecords ?? 0,
-                  onPageChange: setPageNumber,
-                  isLoading: inspectionsQuery.isFetching,
+            {isPanelOpen ? (
+              <InspectionDetailPanel
+                record={selectedRecord}
+                detail={detail}
+                isLoading={detailSummaryQuery.isLoading}
+                errorMessage={panelErrorMessage}
+                onRetry={() => {
+                  void detailSummaryQuery.refetch();
                 }}
+                className="min-w-0 xl:sticky xl:top-4"
               />
-
-              {selectedId !== null ? (
-                detailSummaryQuery.isPending ? (
-                  <InspectionDetailPanelSkeleton />
-                ) : detailSummaryQuery.isError ? (
-                  <p className="text-ehs-red text-sm">
-                    {detailSummaryErrorMessage(detailSummaryQuery.error)}
-                  </p>
-                ) : detail ? (
-                  <InspectionDetailPanel
-                    detail={detail}
-                    className="min-w-0"
-                    onViewFindings={() =>
-                      router.push(
-                        `/dashboard/inspections/findings/${encodeURIComponent(selectedId)}`,
-                      )
-                    }
-                  />
-                ) : null
-              ) : null}
-            </div>
-          </>
-        )}
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -34,14 +34,14 @@ function ChartTooltip(
 
   return (
     <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
-      <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
+      <p className="text5 text-ehs-darker">{String(label)}</p>
       <div className="mt-1 flex items-center gap-2">
         <span
           className="size-2 shrink-0 rounded-full"
           style={{ backgroundColor: sessionsColor }}
           aria-hidden="true"
         />
-        <span className="text-ehs-gray text-xs">
+        <span className="text8 text-ehs-gray">
           {`Sessions ${String(valueOf("sessions"))}`}
         </span>
       </div>

@@ -1,17 +1,21 @@
 ﻿"use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
+import { Icon } from "@iconify/react";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { InspectionFindingCard } from "@/components/inspections/findings/InspectionFindingCard";
 import { InspectionFindingsHeader } from "@/components/inspections/findings/InspectionFindingsHeader";
+import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
+import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import {
   useInspectionDetailQuery,
   useInspectionFindingsQuery,
 } from "@/hooks/use-inspection-queries";
 import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
 import { mapFindingDtoToFinding } from "@/lib/map-inspection";
-import { SkeletonTable } from "@/components/ui/skeletons";
 
 export default function InspectionFindingsPage() {
   const router = useRouter();
@@ -49,30 +53,64 @@ export default function InspectionFindingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader />
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      <InspectionFindingsHeader
+        inspectionId={displayId}
+        subtitle={subtitle}
+        onGenerateReport={handleGenerateReport}
+      />
 
-      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <InspectionFindingsHeader
-          inspectionId={displayId}
-          subtitle={subtitle}
-          onGenerateReport={handleGenerateReport}
-        />
-
+      <div className="mx-auto flex w-full max-w-200 flex-col gap-3.5">
         {isPending ? (
-          <SkeletonTable rows={8} columns={5} />
+          <SkeletonDetailPage />
         ) : findingsQuery.isError ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-red text-sm">
+          <IncidentGlassCard
+            className="min-h-55 text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
+            <Icon
+              icon="mdi:alert-circle-outline"
+              className="text-ehs-red size-8"
+              aria-hidden="true"
+            />
+            <Text as="p" className="text4 text-ehs-darker">
+              Could not load findings
+            </Text>
+            <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
               {detailSummaryErrorMessage(findingsQuery.error)}
-            </p>
-          </div>
+            </Text>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void findingsQuery.refetch()}
+              className="mt-1"
+            >
+              Try again
+            </Button>
+          </IncidentGlassCard>
         ) : findings.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text">
-              No findings raised on this inspection.
-            </p>
-          </div>
+          <IncidentGlassCard
+            className="min-h-45 text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
+            <Icon
+              icon="mdi:clipboard-check-outline"
+              className="text-ehs-muted-text size-8"
+              aria-hidden="true"
+            />
+            <Text as="p" className="text4 text-ehs-darker">
+              No findings raised
+            </Text>
+            <Text as="p" className="text8 text-ehs-muted-text">
+              No findings were raised on this inspection.
+            </Text>
+            <Link
+              href="/dashboard/inspections"
+              className="text4 text-ehs-normal-blue hover:underline"
+            >
+              Back to Inspections
+            </Link>
+          </IncidentGlassCard>
         ) : (
           findings.map((finding) => (
             <InspectionFindingCard key={finding.id} finding={finding} />

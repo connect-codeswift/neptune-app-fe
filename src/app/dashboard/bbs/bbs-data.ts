@@ -78,11 +78,14 @@ export type BehaviorCategory = Readonly<{
 export type BbsSession = Readonly<{
   /** Reference shown in the first column, e.g. "BBS-441". */
   id: string;
+  /** Display label, e.g. "Safe" or "At-Risk". */
   type: string;
   observer: string;
   location: string;
-  /** Behaviours summary, e.g. "14 of 15 safe". */
+  /** Behavior category name. */
   behaviors: string;
+  /** Relative / short datetime for the table, e.g. "Apr 22 · 2:30 PM". */
+  when: string;
   /** Share of behaviours observed as safe, 0-100. */
   safePercent: number;
 }>;
@@ -90,18 +93,20 @@ export type BbsSession = Readonly<{
 export const RECENT_SESSIONS: readonly BbsSession[] = [
   {
     id: "BBS-441",
-    type: "BBS observation",
+    type: "Safe",
     observer: "Sarah Mitchell",
-    location: "PPE compliance",
-    behaviors: "14 of 15 safe",
-    safePercent: 92,
+    location: "Plant A - Assembly",
+    behaviors: "PPE Usage",
+    when: "Apr 22 · 2:30 PM",
+    safePercent: 100,
   },
   {
     id: "BBS-440",
-    type: "BBS observation",
+    type: "At-Risk",
     observer: "Mike Reyes",
-    location: "Lifting technique",
-    behaviors: "8 of 11 safe",
-    safePercent: 76,
+    location: "Plant B - Warehouse",
+    behaviors: "Lifting Technique",
+    when: "Apr 21 · 10:05 AM",
+    safePercent: 0,
   },
 ];
