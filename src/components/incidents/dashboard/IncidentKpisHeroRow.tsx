@@ -74,7 +74,7 @@ export function IncidentKpisHeroRow() {
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         <HeroKpiSkeleton />
         <HeroKpiSkeleton />
         <HeroKpiSkeleton />
@@ -90,7 +90,7 @@ export function IncidentKpisHeroRow() {
         </Text>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {heroMetrics.map((metric) => (
           <HeroKpiCard key={metric.id} metric={metric} />
         ))}

@@ -127,10 +127,10 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
         </Text>
       </div>
 
-      <div className="flex flex-wrap items-center gap-5.5">
+      <div className="flex flex-col items-start gap-5.5 md:flex-row md:items-center">
         <DonutChart items={items} total={total} />
 
-        <div className="grid min-w-0 flex-1 grid-cols-1 gap-x-2 gap-y-2 sm:grid-cols-2">
+        <div className="grid w-full min-w-0 grid-cols-2 gap-x-2 gap-y-2 md:flex-1">
           {items.map((item) => (
             <div
               key={item.label}
