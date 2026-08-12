@@ -3,17 +3,19 @@ import { GlassCard } from "@/components/ui/GlassCard";
 
 type HazardCategory = Readonly<{
   label: string;
+  /** Dense axis label when `label` is too wide for the bar slot. */
+  tick: string;
   value: number;
   barColor: string;
 }>;
 
 const HAZARD_CATEGORIES: readonly HazardCategory[] = [
-  { label: "Electrical", value: 28, barColor: "#067485" },
-  { label: "Chemical", value: 22, barColor: "#078395" },
-  { label: "Mechanical", value: 19, barColor: "#0891a6" },
-  { label: "Ergonomic", value: 14, barColor: "#3aa8b8" },
-  { label: "Fall hazard", value: 12, barColor: "#6cc0cc" },
-  { label: "Other", value: 8, barColor: "#9ed7df" },
+  { label: "Electrical", tick: "Electr.", value: 28, barColor: "#067485" },
+  { label: "Chemical", tick: "Chem.", value: 22, barColor: "#078395" },
+  { label: "Mechanical", tick: "Mech.", value: 19, barColor: "#0891a6" },
+  { label: "Ergonomic", tick: "Ergo.", value: 14, barColor: "#3aa8b8" },
+  { label: "Fall hazard", tick: "Fall", value: 12, barColor: "#6cc0cc" },
+  { label: "Other", tick: "Other", value: 8, barColor: "#9ed7df" },
 ];
 
 const CHART = {
@@ -21,9 +23,13 @@ const CHART = {
   height: 200,
   padLeft: 8,
   padRight: 8,
-  padTop: 24,
-  padBottom: 36,
+  padTop: 22,
+  padBottom: 28,
 } as const;
+
+/** ViewBox units ≈ text8 / text7 on the rendered card (CSS rem classes don't scale with SVG). */
+const TICK_SIZE = 9;
+const VALUE_SIZE = 10;
 
 function CategoryBarChart() {
   const maxValue = Math.max(...HAZARD_CATEGORIES.map((item) => item.value));
@@ -48,11 +54,14 @@ function CategoryBarChart() {
 
         return (
           <g key={category.label}>
+            <title>{`${category.label}: ${String(category.value)}`}</title>
             <text
               x={x + barWidth / 2}
               y={y - 6}
               textAnchor="middle"
-              className="fill-ehs-darker text-2.5 font-semibold"
+              className="fill-ehs-darker"
+              fontSize={VALUE_SIZE}
+              fontWeight={600}
             >
               {category.value}
             </text>
@@ -66,11 +75,12 @@ function CategoryBarChart() {
             />
             <text
               x={x + barWidth / 2}
-              y={CHART.height - 10}
+              y={CHART.height - 8}
               textAnchor="middle"
-              className="fill-ehs-muted-text text-2.25"
+              className="fill-ehs-muted-text"
+              fontSize={TICK_SIZE}
             >
-              {category.label}
+              {category.tick}
             </text>
           </g>
         );

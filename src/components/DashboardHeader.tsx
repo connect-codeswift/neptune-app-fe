@@ -27,7 +27,7 @@ function ActionButton(
       onClick={onClick}
       className="text4 shrink-0 rounded-xl px-4 py-2.5"
     >
-      <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+      <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
       {label}
     </Button>
   );

@@ -1,29 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import type {
   WalkTalkActionStatus,
   WalkTalkFollowUp,
   WalkTalkParticipant,
   WalkTalkSessionDetail,
 } from "@/app/dashboard/walk-talk/walk-talk-data";
-
-const WALK_TALK_ROUTE = "/dashboard/walk-talk";
-
-const crumbClass =
-  "text-ehs-muted-text hover:text-ehs-gray text-sm font-medium transition-colors";
-
-function Chevron() {
-  return (
-    <Icon
-      icon="mdi:chevron-right"
-      className="text-ehs-muted-text size-4"
-      aria-hidden="true"
-    />
-  );
-}
+import { WalkTalkDetailBannerCard } from "./WalkTalkDetailBannerCard";
 
 function initialsOf(name: string): string {
   return name
@@ -34,55 +20,38 @@ function initialsOf(name: string): string {
     .join("");
 }
 
-/** Desktop: label above value. */
-function Field(props: Readonly<{ label: string; children: React.ReactNode }>) {
-  const { label, children } = props;
+function displayValue(value: string): string {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : "—";
+}
+
+function DetailField(props: Readonly<{ label: string; value: string }>) {
+  const { label, value } = props;
+  const shown = displayValue(value);
+  const isEmpty = shown === "—";
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <span className="text-sm font-semibold tracking-[0.24px] text-[#566072] uppercase">
+      <Text as="span" className="text6 text-ehs-muted-text">
         {label}
-      </span>
-      <div className="text-ehs-dark-bg font-medium">{children}</div>
+      </Text>
+      <Text
+        as="span"
+        className={
+          isEmpty ? "text4 text-ehs-muted-text" : "text4 text-ehs-darker"
+        }
+      >
+        {shown}
+      </Text>
     </div>
   );
 }
 
-/** Mobile: label left / value right — matches Figma 6415:35096. */
-function InfoRow(
-  props: Readonly<{
-    label: string;
-    value: string;
-    showDivider?: boolean;
-  }>,
-) {
-  const { label, value, showDivider = true } = props;
-
+function SectionTitle(props: Readonly<{ children: string }>) {
   return (
-    <div
-      className={[
-        "flex items-center justify-between gap-3 py-2",
-        showDivider ? "border-ehs-border border-b" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <span className="w-30 shrink-0 text-3.25 font-medium text-[#566072]">
-        {label}
-      </span>
-      <span className="text-ehs-dark-bg min-w-0 truncate text-right text-3.25 font-semibold">
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
-  const { children } = props;
-  return (
-    <h2 className="text-ehs-dark-bg text-base font-bold tracking-[-0.14px] md:text-lg">
-      {children}
-    </h2>
+    <Text as="h3" className="text8 text-ehs-muted-text mb-3 font-semibold">
+      {props.children}
+    </Text>
   );
 }
 
@@ -97,25 +66,25 @@ function ParticipantRow(
   return (
     <li
       className={[
-        "flex items-center gap-3 py-2 md:py-0",
-        showDivider ? "border-ehs-border border-b md:border-b-0" : "",
+        "flex items-center gap-3 py-2",
+        showDivider ? "border-ehs-border border-b" : "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <span
-        className="bg-ehs-normal-blue/14 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-full text-2.75 font-bold md:size-9 md:text-sm"
+        className="bg-ehs-normal-blue/14 text-ehs-dark-blue text7 flex size-8 shrink-0 items-center justify-center rounded-full"
         aria-hidden="true"
       >
         {initialsOf(participant.name)}
       </span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg text-3.25 font-bold md:text-base">
+        <Text as="span" className="text4 text-ehs-darker">
           {participant.name}
-        </span>
-        <span className="text-ehs-muted-text text-2.75 md:text-base">
+        </Text>
+        <Text as="span" className="text8 text-ehs-muted-text">
           {participant.role}
-        </span>
+        </Text>
       </div>
     </li>
   );
@@ -129,120 +98,105 @@ const statusClass: Record<WalkTalkActionStatus, string> = {
 
 function StatusBadge(props: Readonly<{ status: WalkTalkActionStatus }>) {
   const { status } = props;
-  const showChevron = status === "In Progress";
   const label =
-    status === "Closed" ? "Done" : status === "In Progress" ? "State" : status;
+    status === "Closed" ? "Done" : status === "In Progress" ? "In Progress" : status;
 
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-2.5 font-bold uppercase md:rounded-full md:px-2.5 md:py-1 md:text-sm",
+        "text5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5",
         statusClass[status],
       ].join(" ")}
     >
       {label}
-      {showChevron ? (
-        <Icon
-          icon="mdi:chevron-down"
-          className="size-3.5 shrink-0 md:size-4"
-          aria-hidden="true"
-        />
-      ) : null}
     </span>
   );
 }
 
-/** Mobile follow-up cards — matches Figma 6415:35142. */
-function FollowUpCards(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
+function FollowUpList(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
   const { rows } = props;
 
   if (rows.length === 0) {
     return (
-      <p className="text-ehs-muted-text text-sm">No follow-up actions recorded.</p>
+      <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+        <Icon
+          icon="mdi:check-circle-outline"
+          className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          No follow-up actions recorded.
+        </Text>
+      </div>
     );
   }
 
   return (
-    <ul className="flex flex-col">
-      {rows.map((row, index) => (
-        <li
-          key={`${row.action}-${row.assignedTo}`}
-          className={[
-            "flex flex-col gap-2.5 py-2.5",
-            index < rows.length - 1 ? "border-ehs-border border-b" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-        >
-          <p className="text-ehs-dark-bg text-3.25 font-semibold">
-            {row.action}
-          </p>
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-ehs-muted-text flex min-w-0 items-center gap-2 text-2.75 font-medium">
-              <span className="truncate">{row.assignedTo}</span>
-              <span
-                className="bg-ehs-muted-text size-1 shrink-0 rounded-full"
-                aria-hidden="true"
-              />
-              <span className="text-[#8892a3] shrink-0">{row.dueDate}</span>
+    <>
+      <ul className="flex flex-col sm:hidden">
+        {rows.map((row, index) => (
+          <li
+            key={`${row.action}-${row.assignedTo}`}
+            className={[
+              "flex flex-col gap-2.5 py-2.5",
+              index < rows.length - 1 ? "border-ehs-border border-b" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <Text as="p" className="text4 text-ehs-darker">
+              {row.action}
+            </Text>
+            <div className="flex items-center justify-between gap-3">
+              <div className="text8 text-ehs-muted-text flex min-w-0 items-center gap-2">
+                <span className="truncate">{row.assignedTo}</span>
+                <span
+                  className="bg-ehs-muted-text size-1 shrink-0 rounded-full"
+                  aria-hidden="true"
+                />
+                <span className="shrink-0">{row.dueDate}</span>
+              </div>
+              <StatusBadge status={row.status} />
             </div>
-            <StatusBadge status={row.status} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
+          </li>
+        ))}
+      </ul>
 
-function FollowUpTable(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
-  const { rows } = props;
-
-  if (rows.length === 0) {
-    return (
-      <p className="text-ehs-muted-text px-5 pb-5 text-sm">
-        No follow-up actions recorded.
-      </p>
-    );
-  }
-
-  return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full min-w-160 border-collapse text-left">
-        <thead>
-          <tr className="bg-[rgba(11,19,32,0.06)]">
-            {["Action", "Assigned To", "Due Date", "Status"].map((heading) => (
-              <th
-                key={heading}
-                className="px-5 py-3 text-sm font-bold tracking-[0.8px] text-[#8892a3] uppercase"
-              >
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr
-              key={`${row.action}-${row.assignedTo}`}
-              className="border-ehs-border border-b last:border-b-0"
-            >
-              <td className="text-ehs-dark-bg px-5 py-4 text-base">
-                {row.action}
-              </td>
-              <td className="w-50 px-5 py-4 text-base text-[#566072]">
-                {row.assignedTo}
-              </td>
-              <td className="w-35 px-5 py-4 text-base text-[#566072]">
-                {row.dueDate}
-              </td>
-              <td className="w-25 px-5 py-4">
-                <StatusBadge status={row.status} />
-              </td>
+      <div className="border-ehs-border hidden overflow-hidden rounded-xl border sm:block">
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="bg-[rgba(11,19,32,0.06)]">
+              {["Action", "Assigned To", "Due Date", "Status"].map((heading) => (
+                <th key={heading} className="text6 text-ehs-muted-text px-4 py-3">
+                  {heading}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={`${row.action}-${row.assignedTo}`}
+                className="border-ehs-border border-b last:border-b-0"
+              >
+                <td className="text4 text-ehs-darker px-4 py-3.5">
+                  {row.action}
+                </td>
+                <td className="text4 text-ehs-gray px-4 py-3.5">
+                  {row.assignedTo}
+                </td>
+                <td className="text4 text-ehs-gray whitespace-nowrap px-4 py-3.5">
+                  {row.dueDate}
+                </td>
+                <td className="px-4 py-3.5">
+                  <StatusBadge status={row.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
@@ -253,158 +207,91 @@ export type WalkTalkDetailContentProps = Readonly<{
 export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
   const { detail } = props;
 
-  const infoFields = [
-    { label: "Observer", value: detail.observer },
-    { label: "Date", value: detail.date },
-    { label: "Time", value: detail.time },
-    { label: "Location", value: detail.location },
-    { label: "Topic / Focus Area", value: detail.topic },
-    { label: "Site", value: detail.site },
-  ] as const;
-
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-      {/* Header — compact on mobile */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
-        <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
-          <nav
-            aria-label="Breadcrumb"
-            className="hidden items-center gap-1 overflow-x-auto md:flex"
-          >
-            <span className="text-ehs-muted-text text-sm font-medium">
-              Safety
-            </span>
-            <Chevron />
-            <Link href={WALK_TALK_ROUTE} className={crumbClass}>
-              Pro-Active Safety
-            </Link>
-            <Chevron />
-            <span className="text-ehs-muted-text text-sm font-medium">
-              Walk-and-Talks
-            </span>
-          </nav>
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      <WalkTalkDetailBannerCard detail={detail} />
 
-          <div className="flex items-center gap-2 md:block">
-            <Link
-              href={WALK_TALK_ROUTE}
-              aria-label="Back to Walk & Talk"
-              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors md:hidden"
-            >
-              <Icon icon="mdi:chevron-left" className="size-3.5" />
-            </Link>
-            <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-5.5 md:font-semibold">
-              <span className="md:hidden">Walk-and-Talk Detail</span>
-              <span className="hidden md:inline">Walk-and-Talks</span>
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      {/* Stack until lg; participants below on mobile (Figma order). */}
-      <div className="grid min-w-0 items-start gap-3.5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-3.5">
-          <IncidentGlassCard
-            paddingClassName="p-4 md:p-5"
-            className="min-w-0"
-            incidentGlassCardClassName="gap-3"
-          >
-            <SectionTitle>Session Information</SectionTitle>
-
-            {/* Mobile rows */}
-            <div className="flex flex-col md:hidden">
-              {infoFields.map((field, index) => (
-                <InfoRow
-                  key={field.label}
-                  label={field.label}
-                  value={field.value}
-                  showDivider={index < infoFields.length - 1}
-                />
-              ))}
-            </div>
-
-            {/* Desktop grid */}
-            <div className="hidden gap-3 sm:gap-x-6 md:grid md:grid-cols-2">
-              {infoFields.map((field) => (
-                <Field key={field.label} label={field.label}>
-                  {field.value}
-                </Field>
-              ))}
-            </div>
-          </IncidentGlassCard>
-
-          {/* Participants — mobile order before notes (Figma) */}
-          <IncidentGlassCard
-            paddingClassName="p-4 md:p-5"
-            className="min-w-0 lg:hidden"
-            incidentGlassCardClassName="gap-3"
-          >
-            <SectionTitle>Participants</SectionTitle>
-            {detail.participants.length === 0 ? (
-              <p className="text-ehs-muted-text text-sm">
-                No participants listed.
-              </p>
-            ) : (
-              <ul className="flex flex-col">
-                {detail.participants.map((participant, index) => (
-                  <ParticipantRow
-                    key={participant.name}
-                    participant={participant}
-                    showDivider={index < detail.participants.length - 1}
-                  />
-                ))}
-              </ul>
-            )}
-          </IncidentGlassCard>
-
-          <IncidentGlassCard
-            paddingClassName="p-4 md:p-5"
-            className="min-w-0"
-            incidentGlassCardClassName="gap-3"
-          >
-            <SectionTitle>Discussion Notes</SectionTitle>
-            <p className="text-3.25 leading-5 text-[#0b1320] md:text-base md:leading-5.5 md:text-[#566072]">
-              {detail.notes}
-            </p>
-          </IncidentGlassCard>
-
-          <IncidentGlassCard
-            paddingClassName="p-4 md:p-0"
-            className="min-w-0 overflow-hidden"
-            incidentGlassCardClassName="gap-3 md:gap-0"
-          >
-            <div className="md:px-5 md:pt-5 md:pb-2">
-              <SectionTitle>Follow-Up Actions</SectionTitle>
-            </div>
-            <div className="md:hidden">
-              <FollowUpCards rows={detail.followUps} />
-            </div>
-            <div className="hidden md:block">
-              <FollowUpTable rows={detail.followUps} />
-            </div>
-          </IncidentGlassCard>
-        </div>
-
-        {/* Desktop participants rail */}
+      <div className="mx-auto flex w-full max-w-200 justify-center">
         <IncidentGlassCard
-          paddingClassName="p-5"
-          className="hidden min-w-0 lg:block"
-          incidentGlassCardClassName="gap-4"
+          paddingClassName="p-0 overflow-hidden"
+          className="w-full bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
         >
-          <SectionTitle>Participants</SectionTitle>
-          {detail.participants.length === 0 ? (
-            <p className="text-ehs-muted-text text-sm">
-              No participants listed.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-4">
-              {detail.participants.map((participant) => (
-                <ParticipantRow
-                  key={participant.name}
-                  participant={participant}
-                />
-              ))}
-            </ul>
-          )}
+          <div className="border-ehs-border border-b px-5 py-4 sm:px-6">
+            <Text as="h2" className="text3 text-ehs-darker">
+              Session Details
+            </Text>
+          </div>
+
+          <div className="flex flex-col gap-5 px-5 py-5 sm:gap-6 sm:px-6 sm:py-6">
+            <section>
+              <SectionTitle>Overview</SectionTitle>
+              <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
+                <DetailField label="Observer" value={detail.observer} />
+                <DetailField label="Site" value={detail.site} />
+                <DetailField label="Location" value={detail.location} />
+                <DetailField label="Topic / Focus Area" value={detail.topic} />
+                <DetailField label="Date" value={detail.date} />
+                <DetailField label="Time" value={detail.time} />
+              </div>
+            </section>
+
+            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+
+            <section>
+              <SectionTitle>Discussion Notes</SectionTitle>
+              {detail.notes.trim() ? (
+                <Text as="p" className="text4 text-ehs-darker">
+                  {detail.notes}
+                </Text>
+              ) : (
+                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                  <Icon
+                    icon="mdi:note-outline"
+                    className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <Text as="p" className="text4 text-ehs-muted-text">
+                    No discussion notes recorded for this session.
+                  </Text>
+                </div>
+              )}
+            </section>
+
+            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+
+            <section>
+              <SectionTitle>Participants</SectionTitle>
+              {detail.participants.length === 0 ? (
+                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                  <Icon
+                    icon="mdi:account-outline"
+                    className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <Text as="p" className="text4 text-ehs-muted-text">
+                    No participants listed.
+                  </Text>
+                </div>
+              ) : (
+                <ul className="flex flex-col">
+                  {detail.participants.map((participant, index) => (
+                    <ParticipantRow
+                      key={participant.name}
+                      participant={participant}
+                      showDivider={index < detail.participants.length - 1}
+                    />
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+
+            <section>
+              <SectionTitle>Follow-Up Actions</SectionTitle>
+              <FollowUpList rows={detail.followUps} />
+            </section>
+          </div>
         </IncidentGlassCard>
       </div>
     </div>

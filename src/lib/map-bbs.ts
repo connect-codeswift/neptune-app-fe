@@ -50,6 +50,30 @@ function toObservationType(observe: string): ObservationDetail["type"] {
   return observe.trim().toLowerCase() === "safe" ? "Safe" : "At-Risk";
 }
 
+/** Short relative/table datetime, e.g. "Apr 22 · 2:30 PM". */
+function formatSessionWhen(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const day = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return `${day} · ${time}`;
+}
+
+function toSessionTypeLabel(observe: string): string {
+  const normalized = observe.trim().toLowerCase();
+  if (normalized === "safe") return "Safe";
+  if (normalized === "at-risk" || normalized === "at risk") return "At-Risk";
+  return observe.trim() || "Observation";
+}
+
 function toObservationPhoto(photoUrl: string): ObservationPhoto | null {
   const url = photoUrl.trim();
   if (!url) return null;
@@ -173,13 +197,16 @@ export function toUpdateBbsObservationRequest(
 
 /** API observation row → recent-sessions table row. */
 function toBbsSession(dto: BbsObservationDto): BbsSession {
+  const type = toSessionTypeLabel(dto.observe ?? "");
+
   return {
     id: `BBS-${String(dto.id)}`,
-    type: dto.observe?.trim() || "Observation",
+    type,
     observer: dto.userName?.trim() || "—",
     location: dto.location?.trim() || "—",
     behaviors: dto.categoryName?.trim() || "—",
-    safePercent: dto.observe?.trim().toLowerCase() === "safe" ? 100 : 0,
+    when: formatSessionWhen(dto.createdAt),
+    safePercent: type === "Safe" ? 100 : 0,
   };
 }
 

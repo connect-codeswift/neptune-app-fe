@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { TrendChartSkeleton } from "@/components/DashboardSkeletons";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import {
   DEFAULT_WALK_TALK_GRAPH_WEEKS,
   useWalkTalkGraphQuery,
@@ -42,7 +43,9 @@ function LegendItem(props: Readonly<{ color: string; label: string }>) {
         style={{ backgroundColor: color }}
         aria-hidden="true"
       />
-      <span className="text-ehs-gray text-sm">{label}</span>
+      <Text as="span" className="text8 text-ehs-gray">
+        {label}
+      </Text>
     </div>
   );
 }
@@ -86,12 +89,12 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
     >
       <header className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          <h3 className="text-ehs-dark-bg text-lg font-bold">
-            Walk &amp; Talk Trends
-          </h3>
-          <p className="text-ehs-muted-text text-sm">
+          <Text as="h3" className="text3 text-ehs-darker">
+            Walk & Talk Trends
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text">
             {`Sessions logged · ${String(displayWeeks)} weeks`}
-          </p>
+          </Text>
         </div>
         {/* No onClick was ever attached, so this read as an available filter
             and did nothing. Disabled until there is something to filter by. */}
@@ -112,7 +115,9 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
 
       <div className="min-h-40 min-w-0 flex-1 sm:min-h-52">
         {graphQuery.isPending && points.length === 0 ? (
-          <p className="text-ehs-muted-text text-sm">Loading…</p>
+          <Text as="p" className="text8 text-ehs-muted-text">
+            Loading…
+          </Text>
         ) : (
           <WalkTalkTrendsChart
             points={points}

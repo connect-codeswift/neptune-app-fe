@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -8,16 +9,26 @@ import {
 } from "@/components/ui/table-header-action";
 
 export type BbsSessionsHeaderProps = Readonly<{
+  sessionCount?: number;
   onLogObservation?: () => void;
 }>;
 
-/** Card header for the sessions table: title + the primary action. */
+/** Card header for the sessions table: title + count + primary action. */
 export function BbsSessionsHeader(props: BbsSessionsHeaderProps) {
-  const { onLogObservation } = props;
+  const { sessionCount, onLogObservation } = props;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h3 className="text-ehs-dark-bg shrink-0 font-bold">Recent sessions</h3>
+    <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
+      <div className="flex min-w-0 items-baseline gap-2">
+        <Text as="h2" className="text3 text-ehs-darker shrink-0">
+          Recent sessions
+        </Text>
+        {sessionCount != null ? (
+          <Text as="p" className="text8 text-ehs-muted-text">
+            {`${String(sessionCount)} ${sessionCount === 1 ? "session" : "sessions"}`}
+          </Text>
+        ) : null}
+      </div>
 
       <Button
         type="button"
