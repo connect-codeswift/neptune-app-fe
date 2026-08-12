@@ -12,6 +12,14 @@ export type AppNavItem = Readonly<{
   requiredPermissions: readonly string[];
   /** Shown even when org module list is the only gate (e.g. home dashboard). */
   alwaysVisible?: boolean;
+  /**
+   * When set, only these roles see the item. Checked before every other rule — including
+   * the admin bypass and module-only gating — so nothing can widen it.
+   *
+   * Hiding a nav item is not access control. The route still has to refuse anyone who
+   * types the URL, and the API refuses them regardless of either.
+   */
+  allowedRoles?: readonly string[];
 }>;
 
 export type AppNavGroup = Readonly<{
@@ -201,10 +209,23 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         icon: "mdi:cog-outline",
         alwaysVisible: true,
         requiredPermissions: [],
+        // Company-wide configuration — the owner's screen, not a per-user one.
+        allowedRoles: ["Ehs_Director"],
       },
     ],
   },
 ];
+
+/**
+ * Role names arrive in the JWT exactly as they sit in the database (`Ehs_Director`), but
+ * have been seen spaced or cased differently in older tokens, so compare loosely rather
+ * than let a stray space silently hide someone's screen.
+ */
+function matchesRole(role: string | null, expected: string): boolean {
+  const normalize = (value: string) =>
+    value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return role != null && normalize(role) === normalize(expected);
+}
 
 function passesModuleLicenseGate(
   item: AppNavItem,
@@ -225,6 +246,12 @@ function isNavItemVisible(
   moduleOnlyGating: boolean,
 ): boolean {
   if (!passesModuleLicenseGate(item, activatedModules)) {
+    return false;
+  }
+
+  // First, and deliberately ahead of both bypasses below: an allowedRoles list is a
+  // restriction, and a restriction that any later rule can widen is not one.
+  if (item.allowedRoles && !item.allowedRoles.some((r) => matchesRole(role, r))) {
     return false;
   }
 
