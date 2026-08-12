@@ -1,9 +1,9 @@
 import type {
   CreateIncidentRequestDto,
   GetAllIncidentsRequestDto,
-  TenantUserContextDto,
   UpdateIncidentRequestDto,
 } from "@/dtos/req/incident-request.dto";
+import { getAuthContext } from "@/lib/auth-context";
 import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 import type {
   GetAllIncidentsResponseDto,
@@ -424,16 +424,15 @@ export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
 
 /**
  * GET /Incident/GetIncidentById
- * Query: `{ id, userId, siteId }`
+ * Query: `{ id }` — tenant scope is read from the JWT, not the query string.
  * Header: `Authorization: Bearer <token>` (required by API security)
+ *
+ * Requires Incident.View (was Incident.Update), so view-only users can open
+ * detail now.
+ *
+ * A missing or cross-tenant incident is a 404 here, not the old 400.
  */
-export async function getIncidentById(
-  params: Readonly<{
-    id: number;
-    userId: number;
-    siteId: number;
-  }>,
-) {
+export async function getIncidentById(params: Readonly<{ id: number }>) {
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Sign in required to load this incident.");
@@ -442,8 +441,6 @@ export async function getIncidentById(
   const { data } = await http.get<unknown>(INCIDENT_GET_BY_ID_PATH, {
     params: {
       id: params.id,
-      userId: params.userId,
-      siteId: params.siteId,
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -453,6 +450,12 @@ export async function getIncidentById(
   return normalizeIncidentDto(data);
 }
 
+/**
+ * POST /Incident/incident
+ *
+ * Returns `{ dataModel: { id } }` — the id is real now, where it used to be
+ * `""`. Only the id is populated; callers wanting the whole record re-fetch.
+ */
 export async function createIncident(payload: CreateIncidentRequestDto) {
   const { data } = await http.post<unknown>(INCIDENT_CREATE_PATH, payload);
   return (
@@ -461,16 +464,33 @@ export async function createIncident(payload: CreateIncidentRequestDto) {
 }
 
 /**
+ * Strips tenant context off a record on its way into a write payload.
+ *
+ * Needed because the spread that builds an update payload is not excess-
+ * property-checked — `Omit<IncidentDto, "siteId" | "userId">` catches a
+ * literal that names them, but not a `...existing` that carries them along
+ * from a GET, which still returns both for display.
+ */
+function withoutTenantFields<T extends Partial<IncidentDto>>(
+  value: T,
+): Omit<T, "siteId" | "userId"> {
+  const next: Record<string, unknown> = { ...value };
+  delete next.siteId;
+  delete next.userId;
+  return next as Omit<T, "siteId" | "userId">;
+}
+
+/**
  * PUT /Incident/UpdateIncident/{id}
- * Body: `IncidentDto`
+ * Body: incident fields minus tenant context — the server stamps siteId and
+ * userId from the JWT.
  * Header: `Authorization: Bearer <token>` (required by API security)
+ *
+ * Responds with `{ dataModel: { id } }` only, so the merged body is what we
+ * hand back for the shape; callers needing the saved record re-fetch.
  */
 async function updateIncidentById(
-  params: Readonly<{
-    id: number;
-    userId: number;
-    siteId: number;
-  }>,
+  id: number,
   payload: UpdateIncidentRequestDto,
 ) {
   const accessToken = getAccessToken();
@@ -480,13 +500,11 @@ async function updateIncidentById(
 
   const body: UpdateIncidentRequestDto = {
     ...payload,
-    id: params.id,
-    userId: params.userId,
-    siteId: params.siteId,
+    id,
   };
 
   const { data } = await http.put<unknown>(
-    `${INCIDENT_UPDATE_PATH}/${String(params.id)}`,
+    `${INCIDENT_UPDATE_PATH}/${String(id)}`,
     body,
     {
       headers: {
@@ -503,37 +521,26 @@ async function updateIncidentById(
 
 /**
  * Loads the current incident, merges `patch`, then PUT /Incident/UpdateIncident/{id}.
+ *
+ * The read-back is what makes `siteId`/`userId` worth stripping explicitly:
+ * GET still *returns* them for display, so a naive spread of the existing
+ * record would put tenant fields straight back on the write.
  */
-export async function updateIncident(
-  id: number,
-  context: TenantUserContextDto,
-  patch: Partial<IncidentDto>,
-) {
-  const existing = await getIncidentById({
-    id,
-    userId: context.userId,
-    siteId: context.siteId,
-  });
+export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
+  const existing = await getIncidentById({ id });
 
   const payload: UpdateIncidentRequestDto = {
-    ...(existing ?? {}),
-    ...patch,
+    ...withoutTenantFields(existing ?? {}),
+    ...withoutTenantFields(patch),
     id,
-    userId: context.userId,
-    siteId: context.siteId,
+    // Last-resort fallback is the signed-in user, as before — it just comes
+    // from the JWT now instead of a threaded context argument.
     reportedById:
-      patch.reportedById ?? existing?.reportedById ?? context.userId,
+      patch.reportedById ?? existing?.reportedById ?? getAuthContext()?.userId,
     isDrop: false,
   };
 
-  return updateIncidentById(
-    {
-      id,
-      userId: context.userId,
-      siteId: context.siteId,
-    },
-    payload,
-  );
+  return updateIncidentById(id, payload);
 }
 
 export async function submitIncidentClosure(
