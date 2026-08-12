@@ -963,12 +963,12 @@ function PersonControl(
             [nameKey]: next.name,
           });
         }}
-        siteId={field.siteId}
+        usersSource={field.usersSource ?? "site"}
+        siteId={field.siteId ?? 0}
         siteName={field.siteName}
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
-        inputClassName="p-3"
       />
     </FieldShell>
   );

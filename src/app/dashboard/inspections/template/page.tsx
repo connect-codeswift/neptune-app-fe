@@ -47,10 +47,7 @@ export default function InspectionTemplatesPage() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader
-        // actionLabel="Start Inspection"
-        // onActionClick={() => router.push(START_INSPECTION_ROUTE)}
-      />
+      <DashboardHeader title="Inspections" />
 
       <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         <InspectionTemplatesHeader

@@ -34,11 +34,11 @@ export function AcknowledgeActionsCard(
         <div className="flex max-w-78.5 flex-col gap-2">
           <Text
             as="h3"
-            className="text-base leading-7 font-semibold tracking-[-0.2px] whitespace-pre-wrap text-[#0b1320]"
+            className="text3 text-ehs-dark-bg whitespace-pre-wrap"
           >
             Your Acknowledgement will be Recorded
           </Text>
-          <Text as="p" className="text-xs leading-4.5 text-[#8892a3]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             This section will be logged in the audit trail
           </Text>
         </div>
@@ -49,7 +49,7 @@ export function AcknowledgeActionsCard(
             variant="tertiary"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="h-9.5 w-full rounded-[9.73px] border-[0.973px] border-[rgba(11,19,32,0.12)] bg-transparent px-3.75 text-xs font-bold text-[#566072] shadow-none hover:bg-white/60 sm:w-auto sm:min-w-16.5"
+            className="text4 text-ehs-gray h-9.5 w-full rounded-[9.73px] border-[0.973px] border-[rgba(11,19,32,0.12)] bg-transparent px-3.75 shadow-none hover:bg-white/60 sm:w-auto sm:min-w-16.5"
           >
             Cancel
           </Button>
@@ -59,7 +59,7 @@ export function AcknowledgeActionsCard(
             onClick={onApprove}
             isLoading={isSubmitting}
             disabled={!canApprove}
-            className="h-9.5 w-full rounded-[9.73px] bg-[#0891a6] px-[14.6px] text-xs font-bold whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] disabled:opacity-50 sm:w-auto"
+            className="text4 h-9.5 w-full rounded-[9.73px] bg-[#0891a6] px-[14.6px] whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "I Approve"}
           </Button>

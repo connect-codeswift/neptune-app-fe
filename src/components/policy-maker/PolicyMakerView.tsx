@@ -230,10 +230,10 @@ export function PolicyMakerView() {
               className="text-ehs-red size-8"
               aria-hidden="true"
             />
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Could not load documents
             </Text>
-            <Text as="p" className="text-ehs-muted-text text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text">
               {errorMessage}
             </Text>
             {hasToken ? (

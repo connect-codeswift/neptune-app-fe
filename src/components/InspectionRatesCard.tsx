@@ -32,12 +32,14 @@ function InspectionRateRow(props: Readonly<InspectionRate>) {
   return (
     <div className="flex flex-col gap-1.25">
       <div className="flex items-start justify-between gap-3">
-        <Text as="span" className="text-ehs-slate min-w-0 truncate text-xs">
+        <Text as="span" className="text4 text-ehs-slate min-w-0 truncate">
           {label}
         </Text>
-        <p className="text-ehs-gray shrink-0 text-2.75 tabular-nums">
+        <p className="text7 text-ehs-gray shrink-0">
           {`${String(current)}%`}
-          <span className="text-ehs-muted-text">{` / ${String(target)}%`}</span>
+          <Text as="span" className="text8 text-ehs-muted-text">
+            {` / ${String(target)}%`}
+          </Text>
         </p>
       </div>
 

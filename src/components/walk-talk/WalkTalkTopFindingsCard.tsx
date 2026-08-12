@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { useWalkTalkTopFindingsQuery } from "@/hooks/use-walk-talk-queries";
 import { toWalkTalkTopFindings } from "@/lib/map-walk-talk";
 import type {
@@ -24,12 +25,15 @@ function FindingRow(
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-ehs-dark-bg min-w-0 truncate text-base">
+        <Text as="span" className="text4 text-ehs-darker min-w-0 truncate">
           {finding.label}
-        </span>
-        <span className="text-ehs-muted-text shrink-0 text-sm font-bold tabular-nums">
-          {finding.count}
-        </span>
+        </Text>
+        <Text
+          as="span"
+          className="text7 text-ehs-muted-text shrink-0"
+        >
+          {String(finding.count)}
+        </Text>
       </div>
 
       <span
@@ -73,14 +77,22 @@ export function WalkTalkTopFindingsCard(props: WalkTalkTopFindingsCardProps) {
       incidentGlassCardClassName="gap-4"
     >
       <header className="flex flex-col gap-0.5">
-        <h3 className="text-ehs-dark-bg text-lg font-bold">Top Findings</h3>
-        <p className="text-ehs-muted-text text-sm">Top categories observed</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Top Findings
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Top categories observed
+        </Text>
       </header>
 
       {findingsQuery.isPending ? (
-        <p className="text-ehs-muted-text text-sm">Loading…</p>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Loading…
+        </Text>
       ) : findings.length === 0 ? (
-        <p className="text-ehs-muted-text text-sm">No findings recorded.</p>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          No findings recorded.
+        </Text>
       ) : (
         <ul className="flex flex-col gap-3.5">
           {findings.map((finding) => (

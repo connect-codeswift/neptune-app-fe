@@ -33,18 +33,15 @@ export function AcknowledgeDocumentInfoCard(
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[rgba(11,19,32,0.14)] px-3">
           <Icon
             icon="mdi:file-document-outline"
-            className="size-6 text-[#566072]"
+            className="text-ehs-gray size-6"
             aria-hidden="true"
           />
         </div>
         <div className="flex min-w-0 flex-col gap-1.25">
-          <Text
-            as="h2"
-            className="text-base leading-7 font-semibold tracking-[-0.2px] text-[#0b1320] sm:text-xl"
-          >
+          <Text as="h2" className="text3 text-ehs-darker">
             Read & Acknowledge Document
           </Text>
-          <div className="flex min-w-0 flex-wrap items-center gap-x-4.5 gap-y-1 text-xs leading-4.5 text-[#8892a3]">
+          <div className="text8 text-ehs-muted-text flex min-w-0 flex-wrap items-center gap-x-4.5 gap-y-1">
             <span>{versionLabel(document.version)}</span>
             <span>{`Published on ${published}`}</span>
             <span>{document.fileSize}</span>

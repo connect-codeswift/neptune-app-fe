@@ -82,24 +82,29 @@ export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-ehs-slate text-xs leading-snug">
-          {emphasis ? (
-            <>
-              <span className="text-ehs-dark-bg font-semibold">{emphasis}</span>{" "}
-              {title}
-            </>
-          ) : (
-            <span className="text-ehs-dark-bg font-medium">{title}</span>
-          )}
-        </p>
-        <Text as="p" className="text-ehs-muted-text mt-0.5 text-2.75">
+        {emphasis ? (
+          <p className="text4 text-ehs-slate leading-snug">
+            <Text as="span" className="text5 text-ehs-darker">
+              {emphasis}
+            </Text>
+            {` ${title}`}
+          </p>
+        ) : (
+          <Text as="p" className="text4 text-ehs-darker leading-snug">
+            {title}
+          </Text>
+        )}
+        <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
           {subtitle}
         </Text>
       </div>
 
-      <span className="border-ehs-border/70 bg-ehs-light-bg/70 text-ehs-gray shrink-0 rounded-full border px-2.5 py-0.75 text-2.75 font-semibold">
+      <Text
+        as="span"
+        className="border-ehs-border/70 bg-ehs-light-bg/70 text7 text-ehs-gray shrink-0 rounded-full border px-2.5 py-0.75"
+      >
         {badge}
-      </span>
+      </Text>
     </div>
   );
 }

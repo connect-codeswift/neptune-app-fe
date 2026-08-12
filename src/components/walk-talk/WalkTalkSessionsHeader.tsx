@@ -9,21 +9,26 @@ import {
 } from "@/components/ui/table-header-action";
 
 export type WalkTalkSessionsHeaderProps = Readonly<{
+  sessionCount?: number;
   onStartWalkTalk?: () => void;
 }>;
 
-/** Card header for the sessions table: title + the primary action. */
+/** Card header for the sessions table: title + count + primary action. */
 export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
-  const { onStartWalkTalk } = props;
+  const { sessionCount, onStartWalkTalk } = props;
 
   return (
-    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
-      <Text
-        as="h2"
-        className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
-      >
-        Recent sessions
-      </Text>
+    <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
+      <div className="flex min-w-0 items-baseline gap-2">
+        <Text as="h2" className="text3 text-ehs-darker shrink-0">
+          Recent sessions
+        </Text>
+        {sessionCount != null ? (
+          <Text as="p" className="text8 text-ehs-muted-text">
+            {`${String(sessionCount)} ${sessionCount === 1 ? "session" : "sessions"}`}
+          </Text>
+        ) : null}
+      </div>
 
       <Button
         type="button"
@@ -37,7 +42,7 @@ export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
           aria-hidden="true"
         />
         <span className="sm:hidden">Log Session</span>
-        <span className="hidden sm:inline">Log Walk-and-Talk</span>
+        <span className="hidden sm:inline">Log Walk & Talk</span>
       </Button>
     </div>
   );

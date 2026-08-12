@@ -1,6 +1,14 @@
+"use client";
+
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
-import type { InspectionDetail } from "@/app/dashboard/inspections/inspections-data";
+import type {
+  InspectionDetail,
+  InspectionRecord,
+} from "@/app/dashboard/inspections/inspections-data";
 
 type Segment = Readonly<{ label: string; value: number; color: string }>;
 
@@ -46,101 +54,243 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-ehs-dark-bg text-3xl leading-none tabular-nums">
-          {total}
-        </span>
-        <span className="text-ehs-muted-text mt-1 text-xs font-bold tracking-wider uppercase">
+        <Text as="span" className="text2 text-ehs-darker leading-none tabular-nums">
+          {String(total)}
+        </Text>
+        <Text as="span" className="text9 text-ehs-muted-text mt-1">
           Items
-        </span>
+        </Text>
       </div>
     </div>
   );
 }
 
 export type InspectionDetailPanelProps = Readonly<{
-  detail: InspectionDetail;
+  /** List-row fields when the panel opens before detail summary loads. */
+  record?: InspectionRecord | null;
+  detail?: InspectionDetail | null;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
   className?: string;
-  onViewFindings?: () => void;
 }>;
 
 export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
-  const { detail, className = "", onViewFindings } = props;
+  const {
+    record = null,
+    detail = null,
+    isLoading = false,
+    errorMessage = null,
+    onRetry,
+    className = "",
+  } = props;
 
-  const segments: readonly Segment[] = [
-    { label: "Pass", value: detail.items.pass, color: "var(--ehs-green)" },
-    { label: "Action", value: detail.items.action, color: "var(--ehs-yellow)" },
-    { label: "Critical", value: detail.items.critical, color: "var(--ehs-red)" },
-    { label: "Pending", value: detail.items.pending, color: "var(--ehs-muted-text)" },
-  ];
+  if (!record && !detail) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-4.5"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center"
+      >
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Select an inspection to view details.
+        </Text>
+      </IncidentGlassCard>
+    );
+  }
 
-  const displayCode = detail.code ?? `I-${detail.id}`;
+  if (isLoading && !detail) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-4.5"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:loading"
+          className="text-ehs-normal-blue size-7 animate-spin"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Loading inspection details…
+        </Text>
+      </IncidentGlassCard>
+    );
+  }
 
-  return (
-    <IncidentGlassCard className={className} incidentGlassCardClassName="gap-4">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <h3 className="text-ehs-dark-bg text-xl font-bold">{detail.title}</h3>
-          <p className="text-ehs-muted-text">
-            {`${displayCode} · ${String(detail.progress)}% complete`}
-          </p>
-        </div>
-
-        {onViewFindings ? (
+  if (errorMessage && !detail) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-4.5"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:alert-circle-outline"
+          className="text-ehs-red size-8"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-darker">
+          Could not load details
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text text-center">
+          {errorMessage}
+        </Text>
+        {onRetry ? (
           <Button
             type="button"
-            variant="primary"
-            onClick={onViewFindings}
-            className="shrink-0 rounded-2.5 px-4 py-2 text-sm font-medium"
+            variant="secondary"
+            onClick={onRetry}
+            className="mt-1"
           >
-            View Findings
+            Retry
           </Button>
         ) : null}
-      </header>
+      </IncidentGlassCard>
+    );
+  }
 
-      <div className="flex items-center gap-5">
-        <ItemsDonut segments={segments} />
+  const id = detail?.id ?? record?.id ?? "";
+  const title = detail?.title ?? record?.title ?? "Inspection";
+  const displayCode = detail?.code ?? (id ? `I-${id}` : "—");
+  const progress = detail?.progress ?? record?.progress ?? 0;
+  const findingsHref = `/dashboard/inspections/findings/${encodeURIComponent(id)}`;
 
-        <ul className="flex min-w-0 flex-1 flex-col gap-3">
-          {segments.map((segment) => (
-            <li key={segment.label} className="flex items-center gap-2">
-              <span
-                className="size-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: segment.color }}
-                aria-hidden="true"
-              />
-              <span className="text-ehs-darker min-w-0 flex-1 truncate text-sm">
-                {segment.label}
-              </span>
-              <span className="text-ehs-dark-bg text-sm font-bold tabular-nums">
-                {segment.value}
-              </span>
-            </li>
-          ))}
-        </ul>
+  const segments: readonly Segment[] = detail
+    ? [
+        { label: "Pass", value: detail.items.pass, color: "var(--ehs-green)" },
+        {
+          label: "Action",
+          value: detail.items.action,
+          color: "var(--ehs-yellow)",
+        },
+        {
+          label: "Critical",
+          value: detail.items.critical,
+          color: "var(--ehs-red)",
+        },
+        {
+          label: "Pending",
+          value: detail.items.pending,
+          color: "var(--ehs-muted-text)",
+        },
+      ]
+    : [];
+
+  return (
+    <IncidentGlassCard
+      paddingClassName="p-0 overflow-hidden"
+      className={["flex min-w-0 flex-col", className].filter(Boolean).join(" ")}
+    >
+      <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <Text as="span" className="text7 text-ehs-muted-text">
+            {displayCode}
+          </Text>
+
+          <Link
+            href={findingsHref}
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+          >
+            Open details
+            <Icon
+              icon="mdi:arrow-right"
+              className="size-3.5"
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
+
+        <Text as="h2" className="text3 text-ehs-darker">
+          {title}
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text mt-1">
+          {`${String(progress)}% complete${record?.status ? ` · ${record.status}` : ""}`}
+        </Text>
       </div>
 
-      {detail.topFindings.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <h4 className="text-ehs-muted-text text-xs font-bold tracking-wider uppercase">
-            Top findings
-          </h4>
+      {detail && segments.length > 0 ? (
+        <div className="border-ehs-border flex items-center gap-5 border-b px-5 py-4">
+          <ItemsDonut segments={segments} />
 
+          <ul className="flex min-w-0 flex-1 flex-col gap-3">
+            {segments.map((segment) => (
+              <li key={segment.label} className="flex items-center gap-2">
+                <span
+                  className="size-2.5 shrink-0 rounded-sm"
+                  style={{ backgroundColor: segment.color }}
+                  aria-hidden="true"
+                />
+                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1 truncate">
+                  {segment.label}
+                </Text>
+                <Text as="span" className="text4 text-ehs-darker tabular-nums">
+                  {String(segment.value)}
+                </Text>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {detail && detail.topFindings.length > 0 ? (
+        <div className="px-5 py-3.5">
+          <Text as="p" className="text9 text-ehs-muted-text mb-2">
+            Top findings
+          </Text>
           <ul className="flex flex-col">
             {detail.topFindings.map((finding) => (
               <li
                 key={finding}
-                className="flex items-center gap-2.5 border-t border-slate-900/10 py-2.5"
+                className="border-ehs-border flex items-center gap-2.5 border-t py-2.5 first:border-t-0 first:pt-0"
               >
                 <span
                   className="bg-ehs-muted-text size-1.5 shrink-0 rounded-full"
                   aria-hidden="true"
                 />
-                <span className="text-ehs-darker min-w-0 flex-1 text-sm">
+                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1">
                   {finding}
-                </span>
+                </Text>
               </li>
             ))}
           </ul>
+        </div>
+      ) : null}
+
+      {record && !detail ? (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-4 px-5 py-3.5">
+          <div className="flex min-w-0 flex-col gap-1">
+            <Text as="p" className="text9 text-ehs-muted-text">
+              Site
+            </Text>
+            <Text as="p" className="text4 text-ehs-darker">
+              {record.site}
+            </Text>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <Text as="p" className="text9 text-ehs-muted-text">
+              Inspector
+            </Text>
+            <Text as="p" className="text4 text-ehs-darker">
+              {record.inspector}
+            </Text>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <Text as="p" className="text9 text-ehs-muted-text">
+              Due
+            </Text>
+            <Text as="p" className="text4 text-ehs-darker">
+              {record.dueDate}
+            </Text>
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <Text as="p" className="text9 text-ehs-muted-text">
+              Findings
+            </Text>
+            <Text as="p" className="text4 text-ehs-darker">
+              {record.findings ?? "—"}
+            </Text>
+          </div>
         </div>
       ) : null}
     </IncidentGlassCard>

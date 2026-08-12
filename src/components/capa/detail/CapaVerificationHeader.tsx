@@ -28,7 +28,7 @@ export type CapaVerificationHeaderProps = Readonly<{
 /** CAPA Verification page header — Figma 846:6033. */
 export function CapaVerificationHeader(props: CapaVerificationHeaderProps) {
   const { record } = props;
-  const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(record.id)}`;
+  const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}`;
 
   return (
     <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
@@ -65,8 +65,8 @@ export function CapaVerificationHeader(props: CapaVerificationHeaderProps) {
             >
               CAPA Verification
             </Text>
-            <Text as="p" className="text-sm leading-4.5 text-[#8892a3]">
-              {record.title}
+            <Text as="p" className="text-base leading-4.5 text-[#8892a3]">
+              {record.controlLevel}
             </Text>
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Table, type TablePagination } from "@/components/ui/Table";
@@ -18,6 +18,8 @@ const ADD_OBLIGATION_HREF = "/dashboard/regulatory-compliance/calendar/new";
 
 export type RegulatoryComplianceRegisterCardProps = Readonly<{
   items: readonly ComplianceObligationItem[];
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
   pagination?: TablePagination;
   isLoading?: boolean;
   className?: string;
@@ -25,73 +27,124 @@ export type RegulatoryComplianceRegisterCardProps = Readonly<{
 
 const columnHelper = createColumnHelper<ComplianceObligationItem>();
 
-const columns = [
-  columnHelper.accessor("code", {
-    header: "Code",
-    size: 116,
-    meta: { align: "left" },
-    cell: (info) => (
-      <Text
-        as="span"
-        className="text-2.5 leading-normal font-bold text-[#8892a3]"
-      >
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("obligation", {
-    header: "Obligation",
-    size: 172,
-    meta: { align: "left" },
-    cell: (info) => (
-      <Text as="span" className="text-xs leading-normal text-[#0b1320]">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("jurisdiction", {
-    header: "Jurisdiction",
-    size: 113,
-    meta: { align: "center" },
-    cell: (info) => <CompliancePill label={info.getValue()} />,
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    size: 131,
-    meta: { align: "center" },
-    cell: (info) => <CompliancePill label={info.getValue()} />,
-  }),
-  columnHelper.accessor("nextDue", {
-    header: "Next due",
-    // 81px forced ISO dates to wrap mid-value ("2026-09-\n05").
-    size: 112,
-    meta: { align: "center" },
-    cell: (info) => (
-      <Text
-        as="span"
-        className="text-xs leading-normal whitespace-nowrap tabular-nums text-[#566072]"
-      >
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("evidenceText", {
-    header: "Evidence",
-    size: 90,
-    meta: { align: "right" },
-    cell: (info) => (
-      <Text as="span" className="text-2.5 leading-normal text-[#056e7e]">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-] as ColumnDef<ComplianceObligationItem, unknown>[];
+function createObligationColumns(
+  options: Readonly<{
+    selectedId: string | null;
+    onViewMore: (id: string) => void;
+  }>,
+): ColumnDef<ComplianceObligationItem, unknown>[] {
+  const { selectedId, onViewMore } = options;
+
+  return [
+    columnHelper.accessor("code", {
+      header: "Code",
+      size: 116,
+      meta: { align: "left" },
+      cell: (info) => (
+        <Text as="span" className="text7 text-ehs-muted-text">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("obligation", {
+      header: "Obligation",
+      size: 172,
+      meta: { align: "left" },
+      cell: (info) => (
+        <Text as="span" className="text4 text-ehs-darker">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("jurisdiction", {
+      header: "Jurisdiction",
+      size: 113,
+      meta: { align: "center" },
+      cell: (info) => <CompliancePill label={info.getValue()} />,
+    }),
+    columnHelper.accessor("status", {
+      header: "Status",
+      size: 131,
+      meta: { align: "center" },
+      cell: (info) => <CompliancePill label={info.getValue()} />,
+    }),
+    columnHelper.accessor("nextDue", {
+      header: "Next due",
+      size: 112,
+      meta: { align: "center" },
+      cell: (info) => (
+        <Text
+          as="span"
+          className="text4 text-ehs-gray whitespace-nowrap tabular-nums"
+        >
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("evidenceText", {
+      header: "Evidence",
+      size: 90,
+      meta: { align: "right" },
+      cell: (info) => (
+        <Text as="span" className="text4 text-[#056e7e]">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.obligation}`
+                : `View ${row.original.obligation}`
+            }
+            onClick={() => {
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+    }),
+  ] as ColumnDef<ComplianceObligationItem, unknown>[];
+}
 
 export function RegulatoryComplianceRegisterCard(
   props: RegulatoryComplianceRegisterCardProps,
 ) {
-  const { items, pagination, isLoading = false, className = "" } = props;
-  const router = useRouter();
+  const {
+    items,
+    selectedId,
+    onViewMore,
+    pagination,
+    isLoading = false,
+    className = "",
+  } = props;
+
+  const columns = useMemo(
+    () => createObligationColumns({ selectedId, onViewMore }),
+    [selectedId, onViewMore],
+  );
 
   return (
     <Table
@@ -99,10 +152,8 @@ export function RegulatoryComplianceRegisterCard(
       data={items}
       columns={columns}
       getRowId={(row) => row.id}
-      onRowClick={(row) =>
-        router.push(`/dashboard/regulatory-compliance/${row.id}`)
-      }
-      containerClassName={[complianceGlassCardClass, className]
+      selectedRowId={selectedId}
+      containerClassName={[complianceGlassCardClass, "min-w-0", className]
         .filter(Boolean)
         .join(" ")}
       pagination={
@@ -114,11 +165,8 @@ export function RegulatoryComplianceRegisterCard(
           : undefined
       }
       header={
-        <div className="flex h-[50.595px] items-center justify-between gap-3">
-          <Text
-            as="h2"
-            className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
-          >
+        <div className="flex h-12.5 items-center justify-between gap-3">
+          <Text as="h2" className="text3 text-ehs-darker shrink-0">
             Obligations
           </Text>
 

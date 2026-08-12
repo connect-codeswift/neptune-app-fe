@@ -36,7 +36,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <Text
               as="span"
-              className="font-mono text-3.75 leading-6 font-bold text-[#0b1320] sm:text-base"
+              className="text3 text-ehs-dark-bg font-mono"
             >
               {entry.version}
             </Text>
@@ -44,32 +44,26 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
             {entry.status === "published" || entry.isCurrent ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(0,201,80,0.12)] pr-2.5 pl-2">
                 <span className="size-1.5 shrink-0 rounded-0.75 bg-[#00c950]" />
-                <span className="text-2.75 leading-[16.5px] font-semibold tracking-[0.11px] text-[#15803d]">
-                  Published
-                </span>
+                <span className="text5 text-[#15803d]">Published</span>
               </span>
             ) : null}
 
             {entry.status === "superseded" ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
                 <span className="size-1.5 shrink-0 rounded-0.75 bg-[#8892a3]" />
-                <span className="text-2.75 leading-[16.5px] font-semibold tracking-[0.11px] text-[#2a3446]">
-                  Superseded
-                </span>
+                <span className="text5 text-ehs-slate">Superseded</span>
               </span>
             ) : null}
 
             {entry.status === "review" ? (
               <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.14)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-0.75 bg-[#f59e0b]" />
-                <span className="text-2.75 leading-[16.5px] font-semibold tracking-[0.11px] text-[#2a3446]">
-                  In review
-                </span>
+                <span className="bg-ehs-yellow size-1.5 shrink-0 rounded-0.75" />
+                <span className="text5 text-ehs-slate">In review</span>
               </span>
             ) : null}
 
             {entry.isCurrent ? (
-              <span className="inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5 text-xs leading-4 text-[#566072]">
+              <span className="text8 text-ehs-gray inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5">
                 Current
               </span>
             ) : null}
@@ -80,7 +74,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
               type="button"
               aria-label={`Download ${entry.version}`}
               onClick={onDownload}
-              className="inline-flex size-4 cursor-pointer items-center justify-center text-[#8892a3] transition-colors hover:text-[#566072]"
+              className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-4 cursor-pointer items-center justify-center transition-colors"
             >
               <Icon
                 icon="mdi:download-outline"
@@ -92,7 +86,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
               type="button"
               aria-label={`View ${entry.version}`}
               onClick={onView}
-              className="inline-flex size-4 cursor-pointer items-center justify-center text-[#8892a3] transition-colors hover:text-[#566072]"
+              className="text-ehs-muted-text hover:text-ehs-gray inline-flex size-4 cursor-pointer items-center justify-center transition-colors"
             >
               <Icon
                 icon="mdi:eye-outline"
@@ -103,12 +97,12 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
           </div>
         </div>
 
-        <Text as="p" className="text-xs leading-4 text-[#2a3446]">
+        <Text as="p" className="text4 text-ehs-slate">
           {entry.changeLog}
         </Text>
 
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="inline-flex items-center gap-1 text-xs leading-4 text-[#8892a3]">
+          <span className="text8 text-ehs-muted-text inline-flex items-center gap-1">
             <Icon
               icon="mdi:clock-outline"
               className="size-3 shrink-0"
@@ -116,7 +110,7 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
             />
             {entry.publishedAt}
           </span>
-          <Text as="span" className="text-xs leading-4 text-[#8892a3]">
+          <Text as="span" className="text8 text-ehs-muted-text">
             {entry.authorFullName}
           </Text>
         </div>

@@ -135,7 +135,7 @@ export function PolicyMakerDetailPanel(
 
           <Link
             href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text8 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 font-bold transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon
@@ -194,7 +194,7 @@ export function PolicyMakerDetailPanel(
               </Text>
               <span
                 className={[
-                  "text8 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-bold tracking-[0.21px]",
+                  "text5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5",
                   versionBadgeClass(entry.badge),
                 ].join(" ")}
               >

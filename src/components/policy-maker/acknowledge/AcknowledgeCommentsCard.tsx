@@ -27,7 +27,7 @@ export function AcknowledgeCommentsCard(
     >
       <Text
         as="h3"
-        className="text-base leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
+        className="text3 text-ehs-dark-bg"
       >
         Additional Comments (Optional)
       </Text>
@@ -37,7 +37,7 @@ export function AcknowledgeCommentsCard(
           onChange={(event) => onChange(event.target.value)}
           placeholder="Add any comments here ..."
           rows={8}
-          className="relative z-1 min-h-49.75 w-full resize-y bg-transparent px-4 py-4.25 text-xs leading-4.5 text-[#0b1320] outline-none placeholder:text-[#8892a3] sm:px-4"
+          className="text4 text-ehs-dark-bg placeholder:text-ehs-muted-text relative z-1 min-h-49.75 w-full resize-y bg-transparent px-4 py-4.25 outline-none sm:px-4"
         />
       </div>
     </div>

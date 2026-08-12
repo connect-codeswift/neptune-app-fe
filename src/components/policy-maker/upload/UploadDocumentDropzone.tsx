@@ -140,8 +140,8 @@ export function UploadDocumentDropzone(
         <Icon
           icon={isUploading ? "mdi:loading" : "mdi:cloud-upload-outline"}
           className={[
-            "size-10 text-[#8892a3] sm:size-12",
-            isUploading ? "animate-spin text-[#0891a6]" : "",
+            "text-ehs-muted-text size-10 sm:size-12",
+            isUploading ? "text-ehs-normal-blue animate-spin" : "",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -150,25 +150,25 @@ export function UploadDocumentDropzone(
         {isUploading ? (
           <Text
             as="p"
-            className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:mt-3 sm:text-base"
+            className="text4 text-ehs-slate mt-2 max-w-full px-1 text-center sm:mt-3"
           >
             Uploading to Cloudinary…
           </Text>
         ) : file ? (
-          <p className="text-3.5 mt-2 line-clamp-2 max-w-full px-1 text-center leading-6 font-medium break-all text-[#2a3446] sm:mt-3 sm:text-base">
+          <p className="text4 text-ehs-slate mt-2 line-clamp-2 max-w-full px-1 text-center break-all sm:mt-3">
             {file.name}
           </p>
         ) : (
           <>
             <Text
               as="p"
-              className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:hidden"
+              className="text4 text-ehs-slate mt-2 max-w-full px-1 text-center sm:hidden"
             >
               Tap to upload *
             </Text>
             <Text
               as="p"
-              className="mt-3 hidden max-w-full px-1 text-center text-base leading-6 font-medium text-[#2a3446] sm:block"
+              className="text4 text-ehs-slate mt-3 hidden max-w-full px-1 text-center sm:block"
             >
               Drag & drop or click to upload *
             </Text>
@@ -176,7 +176,7 @@ export function UploadDocumentDropzone(
         )}
         <Text
           as="p"
-          className="mt-1 text-center text-xs leading-4 text-[#8892a3]"
+          className="text8 text-ehs-muted-text mt-1 text-center"
         >
           {file && sizeLabel
             ? `${sizeLabel} · PDF${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
@@ -185,7 +185,7 @@ export function UploadDocumentDropzone(
         {file && !isUploading ? (
           <button
             type="button"
-            className="relative z-1 mt-3 text-xs font-medium text-[#0891a6] hover:underline"
+            className="text8 text-ehs-normal-blue relative z-1 mt-3 font-semibold hover:underline"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -197,7 +197,7 @@ export function UploadDocumentDropzone(
         ) : null}
       </label>
       {message ? (
-        <Text as="p" className="mt-2 text-xs text-[#ef4444]">
+        <Text as="p" className="text8 text-ehs-red mt-2">
           {message}
         </Text>
       ) : null}

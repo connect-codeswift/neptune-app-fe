@@ -5,6 +5,7 @@ export { RegulatoryCompliancePageSkeleton } from "./RegulatoryCompliancePageSkel
 
 export { RegulatoryComplianceKpiGrid } from "./RegulatoryComplianceKpiGrid";
 export { RegulatoryComplianceRegisterCard } from "./RegulatoryComplianceRegisterCard";
+export { RegulatoryComplianceDetailPanel } from "./RegulatoryComplianceDetailPanel";
 export { RegulatoryComplianceByCategoryCard } from "./RegulatoryComplianceByCategoryCard";
 export { RegulatoryComplianceUpcomingFilingsCard } from "./RegulatoryComplianceUpcomingFilingsCard";
 

@@ -25,16 +25,10 @@ export function RegulatoryComplianceUpcomingFilingsCard(
     >
       <div className="flex flex-col">
         <div>
-          <Text
-            as="h3"
-            className="text-3.5 leading-none font-bold tracking-[-0.14px] text-[#0b1320]"
-          >
+          <Text as="h3" className="text3 text-ehs-darker">
             Upcoming filings
           </Text>
-          <Text
-            as="p"
-            className="mt-0.5 text-2.5 leading-normal font-normal text-[#8892a3]"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
             Next 90 days
           </Text>
         </div>
@@ -55,10 +49,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             ))}
           </div>
         ) : filings.length === 0 ? (
-          <Text
-            as="p"
-            className="mt-4.5 pt-4.5 text-xs text-[#8892a3]"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text mt-4.5 pt-4.5">
             No upcoming filings in the next 90 days.
           </Text>
         ) : (
@@ -71,13 +62,13 @@ export function RegulatoryComplianceUpcomingFilingsCard(
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Text
                     as="span"
-                    className="w-17 shrink-0 text-2.5 leading-normal font-normal text-[#8892a3]"
+                    className="text8 text-ehs-muted-text w-17 shrink-0"
                   >
                     {item.date}
                   </Text>
                   <Text
                     as="span"
-                    className="truncate text-xs leading-normal font-normal text-[#0b1320]"
+                    className="text4 text-ehs-darker truncate"
                   >
                     {item.title}
                   </Text>

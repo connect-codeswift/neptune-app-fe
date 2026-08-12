@@ -6,6 +6,12 @@ import {
   type CapaDetailRecord,
   type CapaDetailTabId,
 } from "@/components/capa/detail/capa-detail-data";
+import {
+  useCapaAttachmentsQuery,
+  useCapaCommentsQuery,
+  useCapaTasksQuery,
+} from "@/hooks/use-capa-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 export type CapaDetailTabsProps = Readonly<{
   activeTab: CapaDetailTabId;
@@ -16,6 +22,25 @@ export type CapaDetailTabsProps = Readonly<{
 /** Details / Tasks / Comments / Attachments tabs — Figma 1368:3179. */
 export function CapaDetailTabs(props: CapaDetailTabsProps) {
   const { activeTab, record, onTabChange } = props;
+  const hasToken = useHasAccessToken();
+  const tasksQuery = useCapaTasksQuery({
+    capaId: record.numericId > 0 ? record.numericId : null,
+    enabled: hasToken === true && record.numericId > 0,
+  });
+  const commentsQuery = useCapaCommentsQuery({
+    capaId: record.numericId > 0 ? record.numericId : null,
+    userId: record.userId,
+    assignedId: record.assignedId,
+    enabled: hasToken === true && record.numericId > 0,
+  });
+  const attachmentsQuery = useCapaAttachmentsQuery({
+    capaId: record.numericId > 0 ? record.numericId : null,
+    enabled: hasToken === true && record.numericId > 0,
+  });
+  const taskCount = tasksQuery.data?.length ?? record.tasks.length;
+  const commentCount = commentsQuery.data?.length ?? record.comments.length;
+  const attachmentCount =
+    attachmentsQuery.data?.length ?? record.attachments.length;
 
   return (
     <div
@@ -27,11 +52,11 @@ export function CapaDetailTabs(props: CapaDetailTabsProps) {
         const isActive = tab.id === activeTab;
         const count =
           tab.countKey === "tasks"
-            ? record.tasks.length
+            ? taskCount
             : tab.countKey === "comments"
-              ? record.comments.length
+              ? commentCount
               : tab.countKey === "attachments"
-                ? record.attachments.length
+                ? attachmentCount
                 : null;
 
         return (

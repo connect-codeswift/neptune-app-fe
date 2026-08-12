@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useEffect,
   useId,
@@ -14,20 +15,27 @@ import {
   CAPA_RCA_WORKSHEET,
   countRcaActions,
   countRcaWhySteps,
+  mapRcaFactorsToCapaLanes,
   type CapaRcaAction,
   type CapaRcaLane,
   type CapaRcaWhyStep,
   type CapaRcaWorksheet,
 } from "@/components/capa/detail/capa-rca-data";
-import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
 import { Text } from "@/components/Text";
+import {
+  useCapaDetailQuery,
+  useCapaRcaQuery,
+} from "@/hooks/use-capa-queries";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
 
 export type CapaRcaContentProps = Readonly<{
-  record: CapaDetailRecord;
+  /** Route param — numeric CAPA id. */
+  capaId: string;
 }>;
 
 const WHY_SLOTS = 5;
+const CAPA_ROUTE = "/dashboard/capa";
 
 const glassCardClass =
   "relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
@@ -50,6 +58,11 @@ type EditableLane = {
 type EditTarget =
   | { kind: "factor"; laneId: string }
   | { kind: "why"; laneId: string; whyId: string };
+
+function parseRouteCapaId(capaId: string): number | null {
+  const parsed = Number.parseInt(decodeURIComponent(capaId).trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
 
 function cloneLanes(lanes: readonly CapaRcaLane[]): EditableLane[] {
   return lanes.map((lane) => ({
@@ -76,20 +89,70 @@ function newWhyId(): string {
   return `why-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Horizontal RCA worksheet — Figma 5472:19820. */
+/** Horizontal RCA worksheet — Figma 5472:19820. GET /api/CAPA/Rca/{rcaId}. */
 export function CapaRcaContent(props: CapaRcaContentProps) {
-  const { record } = props;
-  const [lanes, setLanes] = useState(() =>
+  const { capaId: capaIdParam } = props;
+  const numericId = parseRouteCapaId(capaIdParam);
+  const hasToken = useHasAccessToken();
+  const [lanes, setLanes] = useState<EditableLane[]>(() =>
     cloneLanes(CAPA_RCA_WORKSHEET.lanes),
   );
+  const [lanesHydrated, setLanesHydrated] = useState(false);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+
+  const detailQuery = useCapaDetailQuery({
+    capaId: numericId,
+    enabled: hasToken === true && numericId != null,
+  });
+  const record = detailQuery.data;
+  const rcaId = record?.rcaId ?? null;
+
+  const rcaQuery = useCapaRcaQuery({
+    rcaId,
+    enabled: hasToken === true && rcaId != null && rcaId > 0,
+  });
+
+  useEffect(() => {
+    if (!rcaQuery.isSuccess || lanesHydrated) {
+      return;
+    }
+
+    setLanes(cloneLanes(mapRcaFactorsToCapaLanes(rcaQuery.data ?? [])));
+    setLanesHydrated(true);
+  }, [lanesHydrated, rcaQuery.data, rcaQuery.isSuccess]);
+
+  useEffect(() => {
+    if (
+      detailQuery.isSuccess &&
+      record != null &&
+      (record.rcaId == null || record.rcaId <= 0)
+    ) {
+      toast.error("RCA is null", "No RCA is linked to this CAPA.");
+    }
+  }, [detailQuery.isSuccess, record]);
 
   const worksheet: CapaRcaWorksheet = {
     ...CAPA_RCA_WORKSHEET,
+    description: record?.problemStatement || CAPA_RCA_WORKSHEET.description,
     lanes,
   };
   const whySteps = countRcaWhySteps(lanes);
   const actions = countRcaActions(lanes);
+  const detailHref =
+    numericId != null
+      ? `${CAPA_ROUTE}/${encodeURIComponent(String(numericId))}`
+      : CAPA_ROUTE;
+
+  const isBootstrapping =
+    hasToken === null ||
+    (hasToken === true &&
+      numericId != null &&
+      ((detailQuery.isLoading && detailQuery.data === undefined) ||
+        (rcaId != null &&
+          rcaId > 0 &&
+          rcaQuery.isLoading &&
+          rcaQuery.data === undefined &&
+          !rcaQuery.isFetched)));
 
   function updateFactor(laneId: string, value: string) {
     setLanes((prev) =>
@@ -146,6 +209,96 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
       current.whyId === whyId
         ? null
         : current,
+    );
+  }
+
+  if (numericId == null) {
+    return (
+      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          That CAPA could not be found.
+        </Text>
+        <Link
+          href={CAPA_ROUTE}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to CAPA
+        </Link>
+      </div>
+    );
+  }
+
+  if (hasToken === false) {
+    return (
+      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          Sign in to view this RCA.
+        </Text>
+        <Link
+          href={detailHref}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to CAPA
+        </Link>
+      </div>
+    );
+  }
+
+  if (isBootstrapping || record == null) {
+    return (
+      <div className="flex min-w-0 flex-col gap-3 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          Loading RCA…
+        </Text>
+      </div>
+    );
+  }
+
+  if (detailQuery.isError) {
+    return (
+      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          That CAPA could not be found.
+        </Text>
+        <Link
+          href={CAPA_ROUTE}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to CAPA
+        </Link>
+      </div>
+    );
+  }
+
+  if (rcaId == null || rcaId <= 0) {
+    return (
+      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          RCA is null — no RCA is linked to this CAPA.
+        </Text>
+        <Link
+          href={detailHref}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to CAPA
+        </Link>
+      </div>
+    );
+  }
+
+  if (rcaQuery.isError) {
+    return (
+      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
+        <Text as="p" className="text-ehs-muted-text text-sm">
+          Could not load RCA data.
+        </Text>
+        <Link
+          href={detailHref}
+          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+        >
+          Back to CAPA
+        </Link>
+      </div>
     );
   }
 

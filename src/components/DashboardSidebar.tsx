@@ -75,9 +75,9 @@ function SidebarNavLink(
       className={[
         // py-2.5 on touch so the row clears a comfortable tap target; the
         // desktop rail is pointed at with a cursor and can stay compact.
-        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors lg:py-2",
+        "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
         active
-          ? "bg-ehs-light-blue text-ehs-darker font-medium"
+          ? "bg-ehs-light-blue text-ehs-darker"
           : // Darker on the mobile sheet: there it sits over a blurred,
             // arbitrarily-coloured page instead of the desktop rail's calm
             // ground, and ehs-gray washed out against it. ehs-slate is the
@@ -88,7 +88,7 @@ function SidebarNavLink(
       <Icon
         icon={item.icon}
         className={[
-          "shrink-0 text-lg",
+          "size-4.5 shrink-0",
           active ? "text-ehs-normal-blue" : "text-ehs-muted-text",
         ].join(" ")}
         aria-hidden="true"
@@ -96,7 +96,7 @@ function SidebarNavLink(
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text-ehs-muted-text shrink-0 text-xs font-medium tabular-nums">
+        <span className="text7 text-ehs-muted-text shrink-0">
           {item.badge}
         </span>
       )}
@@ -186,17 +186,17 @@ function SidebarAccessWindow(
             className={`size-3.5 shrink-0 ${tone.icon}`}
             aria-hidden="true"
           />
-          <Text as="span" className={`text-xs font-bold ${tone.title}`}>
+          <Text as="span" className={`text5 ${tone.title}`}>
             {formatAccessWindowRemaining(days)}
           </Text>
         </div>
 
-        <Text as="p" className="text-ehs-muted-text text-2.75 pl-5">
+        <Text as="p" className="text8 text-ehs-muted-text pl-5">
           {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
         </Text>
 
         {isUrgent ? (
-          <Text as="p" className="text-ehs-muted-text text-2.75 pl-5">
+          <Text as="p" className="text8 text-ehs-muted-text pl-5">
             Contact CodeSwift to extend
           </Text>
         ) : null}
@@ -229,17 +229,17 @@ function SidebarUserFooter(
         </div>
       ) : (
         <div
-          className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+          className="bg-ehs-normal-blue text-ehs-light-text text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           {initials}
         </div>
       )}
       <div className="min-w-0">
-        <Text as="p" className="text-ehs-darker truncate text-sm font-semibold">
+        <Text as="p" className="text4 text-ehs-darker truncate">
           {displayName}
         </Text>
-        <Text as="p" className="text-ehs-muted-text truncate text-xs">
+        <Text as="p" className="text8 text-ehs-muted-text truncate">
           {email ?? ""}
         </Text>
       </div>
@@ -289,7 +289,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               aria-label="Close navigation menu"
               className="text-ehs-muted-text hover:text-ehs-darker hover:bg-ehs-light-bg absolute -right-1 inline-flex size-9 items-center justify-center rounded-lg transition-colors lg:hidden"
             >
-              <Icon icon="mdi:close" className="text-xl" aria-hidden="true" />
+              <Icon icon="mdi:close" className="size-5" aria-hidden="true" />
             </button>
           ) : null}
         </div>
@@ -318,7 +318,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               <div key={group.title} className="flex flex-col gap-1">
                 <Text
                   as="p"
-                  className="text-ehs-muted-text text-2.5 px-3 pb-1 font-semibold tracking-wider uppercase"
+                  className="text6 text-ehs-muted-text px-3 pb-1"
                 >
                   {group.title}
                 </Text>
@@ -382,7 +382,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             <Icon
               icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}
               className={[
-                "text-lg",
+                "size-4.5",
                 isLoggingOut ? "animate-spin motion-reduce:animate-none" : "",
               ]
                 .filter(Boolean)

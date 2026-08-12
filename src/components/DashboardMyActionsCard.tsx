@@ -54,7 +54,7 @@ export function DashboardMyActionsCard(
         <ListCardSkeleton />
       ) : showSignInPrompt ? (
         <div className="flex min-h-35 items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             Please sign in to load your actions.
           </Text>
         </div>
@@ -65,10 +65,10 @@ export function DashboardMyActionsCard(
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load your actions
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {getMutationErrorMessage(
               actionsQuery.error,
               "Failed to load your actions.",
@@ -85,7 +85,7 @@ export function DashboardMyActionsCard(
         </div>
       ) : showEmpty ? (
         <div className="flex min-h-35 items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text">
             No actions assigned to you right now.
           </Text>
         </div>
