@@ -51,8 +51,8 @@ function createDocumentColumns(
       cell: ({ row }) => {
         const doc = row.original;
         return (
-          <div className="flex items-center gap-[9.73px]">
-            <div className="flex size-[29.19px] shrink-0 items-center justify-center rounded-[3.89px] border-[0.97px] border-[rgba(15,23,42,0.08)] bg-gradient-to-b from-[rgba(255,255,255,0.82)] to-[rgba(255,255,255,0.62)]">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-linear-to-b from-[rgba(255,255,255,0.82)] to-[rgba(255,255,255,0.62)]">
               <Icon
                 icon="mdi:file-document-outline"
                 className="size-3.5 text-[#566072]"
@@ -191,7 +191,7 @@ export function PolicyMakerDocumentTable(
         .filter(Boolean)
         .join(" ")}
       header={
-        <div className="flex h-[50.595px] items-center justify-between gap-3">
+        <div className="flex h-12.5 items-center justify-between gap-3">
           <div className="flex min-w-0 items-baseline gap-2">
             <Text
               as="h2"

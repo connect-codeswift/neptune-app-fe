@@ -58,7 +58,7 @@ function ChartTooltip(
 function ChartSkeleton() {
   return (
     <div
-      className="bg-ehs-border/40 h-[180px] w-full animate-pulse rounded-lg"
+      className="bg-ehs-border/40 h-45 w-full animate-pulse rounded-lg"
       aria-hidden
     />
   );

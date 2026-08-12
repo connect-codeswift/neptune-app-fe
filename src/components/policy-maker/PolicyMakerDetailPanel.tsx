@@ -65,7 +65,7 @@ export function PolicyMakerDetailPanel(
       paddingClassName="p-0 overflow-hidden"
       className={["flex min-w-0 flex-col", className].filter(Boolean).join(" ")}
     >
-      <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
+      <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
             {document.code}
