@@ -15,7 +15,7 @@ export function PpeMetricsSection() {
 
   if (errorMessage) {
     return (
-      <Text as="p" className="text-ehs-muted-text text-sm">
+      <Text as="p" className="text4 text-ehs-muted-text">
         {errorMessage}
       </Text>
     );

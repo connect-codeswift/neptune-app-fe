@@ -29,6 +29,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_DOCUMENTS_PAGE_NUMBER,
   DEFAULT_DOCUMENTS_PAGE_SIZE,
+  useDocumentByIdQuery,
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
@@ -152,23 +153,48 @@ export function PolicyMakerView() {
     );
   }, [documentsQuery.data?.records, categoryId, statusFilter, searchQuery]);
 
-  // Preview panel toggles from the view / close icon — same as Incident List.
-  const selectedDocument =
+  // Selection stays tied to the list row; panel body loads from GetDocumentById.
+  const selectedListDocument =
     selectedId == null
       ? null
       : (documents.find((doc) => doc.id === selectedId) ?? null);
 
+  const selectedNumericId = useMemo(() => {
+    if (selectedListDocument == null) {
+      return null;
+    }
+    const parsed = Number(selectedListDocument.id);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }, [selectedListDocument]);
+
+  const selectedDetailQuery = useDocumentByIdQuery({
+    id: selectedNumericId,
+    enabled: isClientReady && hasToken && selectedNumericId != null,
+  });
+
   useEffect(() => {
-    if (selectedId != null && selectedDocument == null) {
+    if (selectedId != null && selectedListDocument == null) {
       setSelectedId(null);
     }
-  }, [selectedId, selectedDocument]);
+  }, [selectedId, selectedListDocument]);
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
   }, []);
 
-  const isPanelOpen = selectedDocument != null;
+  const isPanelOpen = selectedListDocument != null;
+
+  const panelErrorMessage =
+    isPanelOpen && selectedDetailQuery.isError
+      ? getMutationErrorMessage(
+          selectedDetailQuery.error,
+          "Failed to load document details.",
+        )
+      : isPanelOpen &&
+          !selectedDetailQuery.isLoading &&
+          selectedDetailQuery.data == null
+        ? "Document details were not found."
+        : null;
 
   const resultLabel = `${String(documents.length)} ${
     documents.length === 1 ? "document" : "documents"
@@ -288,9 +314,14 @@ export function PolicyMakerView() {
                   className="min-w-0"
                 />
 
-                {isPanelOpen && selectedDocument ? (
+                {isPanelOpen ? (
                   <PolicyMakerDetailPanel
-                    document={selectedDocument}
+                    document={selectedDetailQuery.data ?? null}
+                    isLoading={selectedDetailQuery.isLoading}
+                    errorMessage={panelErrorMessage}
+                    onRetry={() => {
+                      void selectedDetailQuery.refetch();
+                    }}
                     className="min-w-0"
                   />
                 ) : null}

@@ -104,7 +104,7 @@ function FilterSegment(props: ModuleFilterSegment) {
               disabled={disabled}
               onClick={() => onChange(option.value)}
               className={[
-                "cursor-pointer rounded-md px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                "text4 cursor-pointer rounded-md px-2 py-1 font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
                 isActive
                   ? "bg-ehs-dark-bg text-ehs-light-text"
                   : "text-ehs-gray hover:bg-black/5",
@@ -137,7 +137,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
       {hasActions ? (
         <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
           {meta ? (
-            <span className="text-ehs-muted-text shrink-0 text-sm tabular-nums">
+            <span className="text4 text-ehs-muted-text shrink-0 tabular-nums">
               {meta}
             </span>
           ) : null}
