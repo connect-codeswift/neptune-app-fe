@@ -145,10 +145,10 @@ export function useSessionBootstrap() {
       return new Set<string>();
     }
 
-    if (moduleOnlyGating) {
-      return new Set<string>();
-    }
-
+    // Previously returned an empty set here, which threw away every permission claim
+    // whenever the company had licensed modules — so ticking a page for a role in the admin
+    // portal changed nothing in the app. Those claims are what make the Pages tab mean
+    // something.
     return mergePermissionSets(
       getCurrentUserPermissions(),
       session?.permissions ?? [],
