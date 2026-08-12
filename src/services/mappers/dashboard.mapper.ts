@@ -77,6 +77,38 @@ function formatPercent(value: number | null | undefined): string {
   return String(Math.round(value));
 }
 
+function mapRateMetricCard(options: {
+  title: string;
+  ratesAvailable: boolean;
+  value: number;
+  target: number;
+  trend: readonly number[] | null | undefined;
+}): MetricCardProps {
+  const { title, ratesAvailable, value, target, trend } = options;
+
+  if (ratesAvailable) {
+    return {
+      title,
+      value: formatRate(value),
+      unit: "per 200k hrs",
+      target,
+      targetLabel: `Target ≤ ${String(target)}`,
+      isMorePositive: false,
+      signalOwnedBy: "target",
+      icon: "mdi:chart-timeline-variant",
+      trend: toSparkline(trend),
+    };
+  }
+
+  return {
+    title,
+    value: "—",
+    isMorePositive: false,
+    signalOwnedBy: "target",
+    icon: "mdi:chart-timeline-variant",
+  };
+}
+
 /** Builds the 4 KPI cards from GET /api/EHSCommandCenter/GetMainDashboardKpis. */
 export function mapDashboardKpisToMetrics(
   dto: DashboardKpisDto | null | undefined,
@@ -92,34 +124,20 @@ export function mapDashboardKpisToMetrics(
   const ratesAvailable = dto.ratesAvailable ?? (dto.workHoursYtd ?? 0) >= 5000;
 
   return [
-    {
+    mapRateMetricCard({
       title: "Total Recordable Rate",
-      value: ratesAvailable ? formatRate(dto.trir) : "—",
-      unit: ratesAvailable ? "per 200k hrs" : undefined,
-      target: ratesAvailable ? trirTarget : undefined,
-      targetLabel: ratesAvailable
-        ? `Target ≤ ${String(trirTarget)}`
-        : undefined,
-      isMorePositive: false,
-      signalOwnedBy: "target",
-      icon: "mdi:chart-timeline-variant",
-      trend: ratesAvailable ? toSparkline(dto.trirTrend) : undefined,
-    },
-    {
+      ratesAvailable,
+      value: dto.trir ?? 0,
+      target: trirTarget,
+      trend: dto.trirTrend,
+    }),
+    mapRateMetricCard({
       title: "Lost Time Injury Rate",
-      value: ratesAvailable ? formatRate(dto.lostTimeInjuryRate) : "—",
-      unit: ratesAvailable ? "per 200k hrs" : undefined,
-      target: ratesAvailable ? ltirTarget : undefined,
-      targetLabel: ratesAvailable
-        ? `Target ≤ ${String(ltirTarget)}`
-        : undefined,
-      isMorePositive: false,
-      signalOwnedBy: "target",
-      icon: "mdi:chart-timeline-variant",
-      trend: ratesAvailable
-        ? toSparkline(dto.lostTimeInjuryRateTrend)
-        : undefined,
-    },
+      ratesAvailable,
+      value: dto.lostTimeInjuryRate ?? 0,
+      target: ltirTarget,
+      trend: dto.lostTimeInjuryRateTrend,
+    }),
     {
       title: "Safety Compliance",
       value: formatPercent(dto.compliancePercentage),

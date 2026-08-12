@@ -248,7 +248,7 @@ const pageButtonClass =
 
 function TablePaginationBar(
   props: Readonly<
-    TablePagination & { variant?: "default" | "compliance" | "capa" }
+    TablePagination & { variant?: "default" | "compliance" | "capa" | "incident" }
   >,
 ) {
   const {
