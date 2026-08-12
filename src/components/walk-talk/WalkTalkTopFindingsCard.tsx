@@ -32,7 +32,7 @@ function FindingRow(
           as="span"
           className="text7 text-ehs-muted-text shrink-0"
         >
-          {finding.count}
+          {String(finding.count)}
         </Text>
       </div>
 

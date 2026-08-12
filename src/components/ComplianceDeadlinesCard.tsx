@@ -82,18 +82,18 @@ export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <Text as="p" className="text4 text-ehs-slate leading-snug">
-          {emphasis ? (
-            <>
-              <Text as="span" className="text5 text-ehs-darker">
-                {emphasis}
-              </Text>{" "}
-              {title}
-            </>
-          ) : (
-            <Text as="span" className="text4 text-ehs-darker">{title}</Text>
-          )}
-        </Text>
+        {emphasis ? (
+          <p className="text4 text-ehs-slate leading-snug">
+            <Text as="span" className="text5 text-ehs-darker">
+              {emphasis}
+            </Text>
+            {` ${title}`}
+          </p>
+        ) : (
+          <Text as="p" className="text4 text-ehs-darker leading-snug">
+            {title}
+          </Text>
+        )}
         <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
           {subtitle}
         </Text>

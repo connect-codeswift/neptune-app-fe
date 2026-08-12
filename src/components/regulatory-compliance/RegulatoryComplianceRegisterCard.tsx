@@ -126,7 +126,7 @@ function createObligationColumns(
         );
       },
     }),
-  ];
+  ] as ColumnDef<ComplianceObligationItem, unknown>[];
 }
 
 export function RegulatoryComplianceRegisterCard(
