@@ -16,7 +16,7 @@ export function CompliancePill(props: CompliancePillProps) {
       className={[
         // Hairline for the frosted read; no backdrop-blur on per-row chips
         // (see IncidentBadge for the rationale).
-        "inline-flex h-[20.244px] items-center rounded-full border border-white/50 bg-[rgba(11,19,32,0.14)] px-2.25 text-2.5 leading-3.75 font-bold tracking-[0.21px] whitespace-nowrap text-[#566072]",
+        "text7 text-ehs-gray inline-flex h-5 items-center rounded-full border border-white/50 bg-[rgba(11,19,32,0.14)] px-2.25 whitespace-nowrap",
         className,
       ]
         .filter(Boolean)

@@ -22,11 +22,11 @@ export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
 }>;
 
 const crumbMuted =
-  "text-2.75 font-medium leading-[16.5px] text-[#8892a3] transition-colors hover:text-[#566072]";
-const crumbActive = "text-2.75 font-medium leading-[16.5px] text-[#566072]";
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
+const crumbActive = "text8 text-ehs-gray";
 
 const actionBaseClass =
-  "h-9 w-full rounded-2.5 px-3 text-3.25 font-medium sm:h-9.5 sm:w-auto sm:px-3 sm:text-3.5";
+  "text4 h-9 w-full rounded-2.5 px-3 sm:h-9.5 sm:w-auto sm:px-3";
 
 /**
  * Document detail hero — breadcrumbs, title, actions (Figma 5568:24575).
@@ -79,13 +79,10 @@ export function PolicyMakerDocumentDetailHeader(
 
       <div className="relative z-1 flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h1"
-            className="sm:text-5.5 text-lg leading-7 font-semibold tracking-[-0.2px] break-words text-[#0b1320] sm:leading-7"
-          >
+          <Text as="h1" className="text1 text-ehs-darker break-words">
             {document.title}
           </Text>
-          <Text as="p" className="text-xs leading-4.5 text-[#8892a3]">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {`${document.documentKind} · ${document.version}`}
           </Text>
         </div>

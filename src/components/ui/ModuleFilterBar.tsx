@@ -59,7 +59,7 @@ function FilterSegment(props: ModuleFilterSegment) {
     <div className="flex min-w-0 items-center gap-2">
       <label
         htmlFor={selectId}
-        className="text-ehs-muted-text shrink-0 text-xs font-bold tracking-wide uppercase sm:text-sm xl:pointer-events-none"
+        className="text6 text-ehs-muted-text shrink-0 xl:pointer-events-none"
       >
         {label}
       </label>
@@ -72,7 +72,7 @@ function FilterSegment(props: ModuleFilterSegment) {
           onChange={(event) => onChange(event.target.value)}
           aria-label={label}
           className={[
-            "border-ehs-border text-ehs-dark-bg min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border bg-white/60 py-1.5 pr-8 pl-2.5 text-sm font-medium outline-none",
+            "border-ehs-border text4 text-ehs-dark-bg min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border bg-white/60 py-1.5 pr-8 pl-2.5 outline-none",
             "hover:bg-black/5 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15",
             "disabled:cursor-not-allowed disabled:opacity-50",
           ].join(" ")}

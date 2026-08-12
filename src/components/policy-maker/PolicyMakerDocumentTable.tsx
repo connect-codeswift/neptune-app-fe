@@ -55,15 +55,15 @@ function createDocumentColumns(
             <div className="flex size-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-linear-to-b from-[rgba(255,255,255,0.82)] to-[rgba(255,255,255,0.62)]">
               <Icon
                 icon="mdi:file-document-outline"
-                className="size-3.5 text-[#566072]"
+                className="text-ehs-gray size-3.5"
                 aria-hidden="true"
               />
             </div>
             <div className="flex min-w-0 flex-col">
-              <Text as="p" className="text-xs leading-normal text-[#0b1320]">
+              <Text as="p" className="text4 text-ehs-darker">
                 {doc.title}
               </Text>
-              <Text as="p" className="text-2.5 text-[#8892a3]">
+              <Text as="p" className="text8 text-ehs-muted-text">
                 {`${doc.code} · ${doc.site}`}
               </Text>
             </div>
@@ -77,10 +77,7 @@ function createDocumentColumns(
       minSize: 48,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text-2.5 leading-normal font-bold text-[#8892a3]"
-        >
+        <Text as="span" className="text7 text-ehs-muted-text">
           {info.getValue()}
         </Text>
       ),
@@ -91,7 +88,7 @@ function createDocumentColumns(
       minSize: 72,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text as="span" className="text-xs leading-normal text-[#566072]">
+        <Text as="span" className="text4 text-ehs-gray">
           {info.getValue()}
         </Text>
       ),
@@ -109,10 +106,7 @@ function createDocumentColumns(
       minSize: 84,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
-        <Text
-          as="span"
-          className="text-xs leading-normal whitespace-nowrap tabular-nums text-[#566072]"
-        >
+        <Text as="span" className="text4 text-ehs-gray whitespace-nowrap">
           {info.getValue()}
         </Text>
       ),
@@ -183,9 +177,6 @@ export function PolicyMakerDocumentTable(
       columns={columns}
       getRowId={(row) => row.id}
       selectedRowId={selectedId}
-      onRowClick={(row) => {
-        onViewMore(row.id);
-      }}
       pagination={pagination}
       containerClassName={[complianceGlassCardClass, className]
         .filter(Boolean)
@@ -193,13 +184,10 @@ export function PolicyMakerDocumentTable(
       header={
         <div className="flex h-12.5 items-center justify-between gap-3">
           <div className="flex min-w-0 items-baseline gap-2">
-            <Text
-              as="h2"
-              className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
-            >
+            <Text as="h2" className="text3 text-ehs-darker shrink-0">
               {categoryLabel}
             </Text>
-            <Text as="p" className="text-2.5 leading-none text-[#8892a3]">
+            <Text as="p" className="text8 text-ehs-muted-text">
               {`${String(documentCount)} documents`}
             </Text>
           </div>

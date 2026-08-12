@@ -5,11 +5,11 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
-import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { CompliancePill } from "./compliance-ui";
+import type { ComplianceObligationDetail } from "./regulatory-compliance-types";
 
-export type PolicyMakerDetailPanelProps = Readonly<{
-  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
-  document: PolicyDocument | null;
+export type RegulatoryComplianceDetailPanelProps = Readonly<{
+  detail: ComplianceObligationDetail | null;
   isLoading?: boolean;
   errorMessage?: string | null;
   onRetry?: () => void;
@@ -21,7 +21,7 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <Text as="p" className="text9 text-ehs-muted-text">
+      <Text as="p" className="text6 text-ehs-muted-text">
         {label}
       </Text>
       <Text as="p" className="text4 text-ehs-darker">
@@ -31,21 +31,11 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
   );
 }
 
-function versionBadgeClass(badge: "review" | "archived" | "current"): string {
-  if (badge === "review") {
-    return "bg-[rgba(59,130,246,0.14)] text-[#3b82f6]";
-  }
-  if (badge === "current") {
-    return "bg-[rgba(8,145,166,0.14)] text-[#056e7e]";
-  }
-  return "bg-[rgba(86,96,114,0.14)] text-[#566072]";
-}
-
-export function PolicyMakerDetailPanel(
-  props: Readonly<PolicyMakerDetailPanelProps>,
+export function RegulatoryComplianceDetailPanel(
+  props: Readonly<RegulatoryComplianceDetailPanelProps>,
 ) {
   const {
-    document,
+    detail,
     isLoading = false,
     errorMessage = null,
     onRetry,
@@ -55,7 +45,7 @@ export function PolicyMakerDetailPanel(
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-4.5"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -65,7 +55,7 @@ export function PolicyMakerDetailPanel(
           aria-hidden="true"
         />
         <Text as="p" className="text4 text-ehs-muted-text">
-          Loading document details…
+          Loading obligation details…
         </Text>
       </IncidentGlassCard>
     );
@@ -74,7 +64,7 @@ export function PolicyMakerDetailPanel(
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-4.5"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -103,24 +93,19 @@ export function PolicyMakerDetailPanel(
     );
   }
 
-  if (!document) {
+  if (!detail) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-4.5"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text4 text-ehs-muted-text">
-          Select a document to view details.
+          Select an obligation to view details.
         </Text>
       </IncidentGlassCard>
     );
   }
-
-  const reviewProgress =
-    document.reviewersTotal === 0
-      ? 0
-      : Math.round((document.reviewersDone / document.reviewersTotal) * 100);
 
   return (
     <IncidentGlassCard
@@ -130,11 +115,11 @@ export function PolicyMakerDetailPanel(
       <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {document.code}
+            {detail.code}
           </Text>
 
           <Link
-            href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
+            href={`/dashboard/regulatory-compliance/${encodeURIComponent(detail.id)}`}
             className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
           >
             Open details
@@ -147,62 +132,23 @@ export function PolicyMakerDetailPanel(
         </div>
 
         <Text as="h2" className="text3 text-ehs-darker">
-          {document.title}
+          {detail.title}
         </Text>
-        <Text as="p" className="text8 text-ehs-muted-text mt-2">
-          {`${document.version} · ${document.status}`}
-        </Text>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <CompliancePill label={detail.status} />
+          <Text as="p" className="text8 text-ehs-muted-text">
+            {detail.category}
+          </Text>
+        </div>
       </div>
 
       <div className="border-ehs-border grid grid-cols-2 gap-x-4 gap-y-4 border-b px-5 py-3.5">
-        <MetaField label="Owner" value={document.ownerFullName} />
-        <MetaField label="Site" value={document.site} />
-        <MetaField label="Updated" value={document.updated} />
-        <MetaField
-          label="Reviewers"
-          value={`${String(document.reviewersDone)} of ${String(document.reviewersTotal)} done`}
-        />
-      </div>
-
-      <div className="border-ehs-border border-b px-5 py-3.5">
-        <Text as="p" className="text9 text-ehs-muted-text mb-2">
-          Review progress
-        </Text>
-        <div className="bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden rounded-full">
-          <div
-            className="bg-ehs-normal-blue h-full rounded-full"
-            style={{ width: `${String(reviewProgress)}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="px-5 py-3.5">
-        <Text as="p" className="text9 text-ehs-muted-text mb-2">
-          Version history
-        </Text>
-        <div className="flex flex-col">
-          {document.versions.map((entry) => (
-            <div
-              key={`${entry.version}-${entry.date}`}
-              className="border-ehs-border flex items-center gap-2.5 border-t py-2 first:border-t-0 first:pt-0"
-            >
-              <Text as="span" className="text7 text-ehs-darker w-7 shrink-0">
-                {entry.version}
-              </Text>
-              <Text as="span" className="text8 text-ehs-gray min-w-0 flex-1">
-                {`${entry.author} · ${entry.date}`}
-              </Text>
-              <span
-                className={[
-                  "text5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5",
-                  versionBadgeClass(entry.badge),
-                ].join(" ")}
-              >
-                {entry.badge}
-              </span>
-            </div>
-          ))}
-        </div>
+        <MetaField label="Due date" value={detail.dueDate} />
+        <MetaField label="Recurrence" value={detail.recurrence} />
+        <MetaField label="Responsible" value={detail.responsible} />
+        <MetaField label="Priority" value={detail.priority} />
+        <MetaField label="Regulatory body" value={detail.regulatoryBody} />
+        <MetaField label="Completed" value={detail.completedDate} />
       </div>
     </IncidentGlassCard>
   );

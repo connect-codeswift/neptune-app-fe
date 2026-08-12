@@ -43,19 +43,19 @@ export function AcknowledgePdfDocument(
       <div className="flex h-10.75 shrink-0 items-center gap-2 border-b border-[rgba(15,23,42,0.08)] px-3 sm:px-4">
         <Icon
           icon="mdi:file-pdf-box"
-          className="size-3.5 shrink-0 text-[#ef4444]"
+          className="text-ehs-red size-3.5 shrink-0"
           aria-hidden="true"
         />
         <Text
           as="span"
-          className="min-w-0 truncate text-xs font-bold text-[#0b1320]"
+          className="text5 text-ehs-dark-bg min-w-0 truncate"
         >
           {fileName}
         </Text>
         {pageCount > 0 ? (
           <Text
             as="span"
-            className="hidden shrink-0 text-2.5 text-[#8892a3] sm:inline"
+            className="text8 text-ehs-muted-text hidden shrink-0 sm:inline"
           >
             {`· ${String(pageCount)} pages`}
           </Text>
@@ -69,7 +69,7 @@ export function AcknowledgePdfDocument(
             disabled
             aria-label="Search in document (not available yet)"
             title="Searching inside the document is not available yet"
-            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] opacity-40 disabled:cursor-not-allowed"
+            className="text-ehs-gray inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 opacity-40 disabled:cursor-not-allowed"
           >
             <Icon icon="mdi:magnify" className="size-3" aria-hidden="true" />
           </button>
@@ -78,7 +78,7 @@ export function AcknowledgePdfDocument(
             aria-label="Previous page"
             onClick={goPrev}
             disabled={page <= 1}
-            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
+            className="text-ehs-gray inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 transition-colors hover:bg-white/70 disabled:opacity-40"
           >
             <Icon
               icon="mdi:chevron-left"
@@ -88,7 +88,7 @@ export function AcknowledgePdfDocument(
           </button>
           <Text
             as="span"
-            className="min-w-10 text-center text-2.75 text-[#566072]"
+            className="text7 text-ehs-gray min-w-10 text-center"
           >
             {pageCount > 0
               ? `${String(page)} / ${String(pageCount)}`
@@ -99,7 +99,7 @@ export function AcknowledgePdfDocument(
             aria-label="Next page"
             onClick={goNext}
             disabled={pageCount > 0 ? page >= pageCount : true}
-            className="inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 text-[#566072] transition-colors hover:bg-white/70 disabled:opacity-40"
+            className="text-ehs-gray inline-flex items-center rounded-2.5 border border-[rgba(15,23,42,0.14)] px-2.25 py-1.25 transition-colors hover:bg-white/70 disabled:opacity-40"
           >
             <Icon
               icon="mdi:chevron-right"
@@ -115,13 +115,13 @@ export function AcknowledgePdfDocument(
           <div className="flex h-full w-full max-w-135 flex-col items-center justify-center gap-2 rounded-2 bg-white px-6 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
             <Icon
               icon="mdi:file-alert-outline"
-              className="size-8 text-[#8892a3]"
+              className="text-ehs-muted-text size-8"
               aria-hidden="true"
             />
-            <Text as="p" className="text-3.25 font-semibold text-[#0b1320]">
+            <Text as="p" className="text4 text-ehs-dark-bg">
               Failed to load PDF
             </Text>
-            <Text as="p" className="max-w-80 text-xs text-[#8892a3]">
+            <Text as="p" className="text4 text-ehs-muted-text max-w-80">
               Unsigned raw Cloudinary assets may require local download
               permissions.
             </Text>
@@ -136,10 +136,10 @@ export function AcknowledgePdfDocument(
               }}
               onLoadError={() => setHasError(true)}
               loading={
-                <div className="flex flex-col items-center justify-center gap-2 py-12 text-3.25 text-[#566072]">
+                <div className="text4 text-ehs-gray flex flex-col items-center justify-center gap-2 py-12">
                   <Icon
                     icon="mdi:loading"
-                    className="size-6 animate-spin text-[#0891a6]"
+                    className="text-ehs-normal-blue size-6 animate-spin"
                     aria-hidden="true"
                   />
                   <span>Loading PDF document…</span>
@@ -149,19 +149,13 @@ export function AcknowledgePdfDocument(
                 <div className="flex flex-col items-center justify-center gap-2 rounded-2 bg-white px-6 py-12 text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
                   <Icon
                     icon="mdi:file-alert-outline"
-                    className="size-8 text-[#8892a3]"
+                    className="text-ehs-muted-text size-8"
                     aria-hidden="true"
                   />
-                  <Text
-                    as="p"
-                    className="text-3.25 font-semibold text-[#0b1320]"
-                  >
+                  <Text as="p" className="text4 text-ehs-dark-bg">
                     Failed to load PDF
                   </Text>
-                  <Text
-                    as="p"
-                    className="max-w-80 text-xs text-[#8892a3]"
-                  >
+                  <Text as="p" className="text4 text-ehs-muted-text max-w-80">
                     Unsigned raw Cloudinary assets may require local download
                     permissions.
                   </Text>
@@ -176,10 +170,10 @@ export function AcknowledgePdfDocument(
                   className="mx-auto mb-4 border border-gray-100 shadow-sm"
                   width={pageWidth}
                   loading={
-                    <div className="py-12 text-center text-3.25 text-[#566072]">
+                    <div className="text4 text-ehs-gray py-12 text-center">
                       <Icon
                         icon="mdi:loading"
-                        className="mx-auto size-6 animate-spin text-[#0891a6]"
+                        className="text-ehs-normal-blue mx-auto size-6 animate-spin"
                         aria-hidden="true"
                       />
                       <span className="mt-2 block">Loading page…</span>

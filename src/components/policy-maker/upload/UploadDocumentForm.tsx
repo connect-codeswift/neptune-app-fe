@@ -33,8 +33,7 @@ import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 
-const fieldLabelClass =
-  "block text-xs leading-4 font-medium text-[#566072]";
+const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
 
 /** API expects years as a number string (e.g. `"1"` for 1 Year). */
@@ -469,7 +468,7 @@ export function UploadDocumentForm() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="text-3.5 h-9 w-full rounded-2.5 border border-[rgba(11,19,32,0.14)] px-4 font-medium text-[#0b1320] shadow-none sm:w-auto"
+              className="text4 text-ehs-dark-bg h-9 w-full rounded-2.5 border border-[rgba(11,19,32,0.14)] px-4 shadow-none sm:w-auto"
             >
               Cancel
             </Button>
@@ -478,7 +477,7 @@ export function UploadDocumentForm() {
               variant="primary"
               isLoading={isSubmitting}
               disabled={busy || !pdfSecureUrl || lookupsLoading}
-              className="text-3.5 h-9.5 w-full rounded-2.5 bg-[#0891a6] px-4 font-medium whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-52"
+              className="text4 h-9.5 w-full rounded-2.5 bg-[#0891a6] px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-52"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

@@ -92,10 +92,10 @@ function DayTasksPanel(
       style={{ top: state.top, left: state.left }}
     >
       <div className="border-ehs-border shrink-0 border-b px-3 py-2.5">
-        <Text as="p" className="text-ehs-dark-bg text-xs font-bold">
+        <Text as="p" className="text3 text-ehs-darker">
           {state.heading}
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-2.75">
+        <Text as="p" className="text8 text-ehs-muted-text">
           {state.events.length === 1
             ? "1 obligation"
             : `${String(state.events.length)} obligations`}
@@ -120,7 +120,7 @@ function DayTasksPanel(
               />
               <Text
                 as="span"
-                className="text-ehs-dark-bg wrap-break-word text-left text-xs leading-snug font-medium"
+                className="text4 text-ehs-darker wrap-break-word text-left"
               >
                 {event.title}
               </Text>
@@ -216,14 +216,14 @@ export function RegulatoryComplianceCalendarGrid(
               <IncidentBadge
                 label={truncateEventTitle(evt.title)}
                 tone={evt.chipTone === "pink" ? "danger" : "teal"}
-                className="block w-full truncate px-1.5 py-0 text-left text-2.25 leading-4 tracking-normal"
+                className="text8 block w-full truncate px-1.5 py-0 text-left tracking-normal"
               />
             </span>
           ))}
           {overflowCount > 0 ? (
             <Text
               as="span"
-              className="text-ehs-gray pt-0.5 pl-0.5 text-left text-2.5 font-semibold"
+              className="text7 text-ehs-gray pt-0.5 pl-0.5 text-left"
             >
               {`+${String(overflowCount)} more`}
             </Text>
@@ -257,10 +257,7 @@ export function RegulatoryComplianceCalendarGrid(
     >
       {isLoading ? (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-5 bg-white/45 backdrop-blur-0.25">
-          <Text
-            as="span"
-            className="text-ehs-muted-text text-3.25 font-medium"
-          >
+          <Text as="span" className="text8 text-ehs-muted-text">
             Loading calendar…
           </Text>
         </div>
@@ -292,7 +289,10 @@ export function RegulatoryComplianceCalendarGrid(
           min-width: 36px;
           height: 36px;
           background: transparent;
-          font-size: 1rem;
+          /* text4 */
+          font-size: 0.875rem;
+          font-weight: 400;
+          line-height: normal;
           color: var(--ehs-gray);
           border-radius: 0.5rem;
           transition: background-color 0.2s;
@@ -309,17 +309,22 @@ export function RegulatoryComplianceCalendarGrid(
           color: var(--ehs-dark-bg) !important;
         }
         .custom-react-calendar .react-calendar__navigation__label {
+          /* text3 */
           font-weight: 700 !important;
-          font-size: 1rem !important;
+          font-size: 1.125rem !important;
+          line-height: 1.75rem !important;
           color: var(--ehs-dark-bg) !important;
           pointer-events: none;
         }
         .custom-react-calendar .react-calendar__month-view__weekdays {
           text-align: center;
+          /* text6 */
           font-size: 0.75rem;
-          font-weight: 500;
+          font-weight: 700;
+          line-height: 1rem;
+          letter-spacing: 0.025em;
           color: var(--ehs-muted-text);
-          text-transform: none;
+          text-transform: uppercase;
           margin-bottom: 0.5rem;
         }
         .custom-react-calendar
@@ -344,8 +349,10 @@ export function RegulatoryComplianceCalendarGrid(
           flex-direction: column !important;
           align-items: flex-start !important;
           justify-content: flex-start !important;
+          /* text8 */
           font-size: 0.75rem !important;
-          font-weight: 500 !important;
+          font-weight: 400 !important;
+          line-height: 1rem !important;
           color: var(--ehs-gray) !important;
           transition: all 0.2s ease;
           overflow: hidden;

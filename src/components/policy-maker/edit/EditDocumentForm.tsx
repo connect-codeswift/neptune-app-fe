@@ -41,8 +41,7 @@ export type EditDocumentFormProps = Readonly<{
   document: PolicyDocument;
 }>;
 
-const fieldLabelClass =
-  "block text-xs leading-normal font-semibold text-[#566072]";
+const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1.5";
 const controlClass = `${FIELD_INPUT_LG_CLASS} min-w-0`;
 
@@ -386,7 +385,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           }}
         />
         {fileError ? (
-          <p className="-mt-3 text-xs text-[#ef4444]">{fileError}</p>
+          <p className="text8 text-ehs-red -mt-3">{fileError}</p>
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 min-[560px]:gap-x-4 min-[560px]:gap-y-6">
@@ -402,11 +401,11 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
                 readOnly
                 disabled={busy}
                 aria-readonly="true"
-                className={`${controlClass} !cursor-not-allowed !bg-[#eef1f6] !pr-9 !text-[#566072] italic`}
+                className={`${controlClass} text-ehs-gray !cursor-not-allowed !bg-[#eef1f6] !pr-9 italic`}
               />
               <Icon
                 icon="mdi:lock-outline"
-                className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-[#8892a3]"
+                className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2"
                 aria-hidden="true"
               />
             </div>
@@ -523,7 +522,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
           />
           <p
             id={`${versionNotesId}-hint`}
-            className="text-ehs-muted-text mt-1 text-xs"
+            className="text8 text-ehs-muted-text mt-1"
           >
             Version notes can&apos;t be saved yet.
           </p>
@@ -535,7 +534,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="tertiary"
             onClick={handleCancel}
             disabled={busy}
-            className="text-3.5 h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 font-semibold text-[#566072] shadow-none hover:bg-[#eef1f6] sm:w-auto"
+            className="text4 text-ehs-gray h-auto w-full rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-5 py-2.5 shadow-none hover:bg-[#eef1f6] sm:w-auto"
           >
             Cancel
           </Button>
@@ -544,7 +543,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="primary"
             isLoading={isSubmitting}
             disabled={busy || lookupsLoading}
-            className="text-3.5 h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 font-semibold whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
+            className="text4 h-auto w-full rounded-lg bg-[#0891a6] px-6 py-2.5 whitespace-nowrap shadow-none hover:bg-[#078196] sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "Save Changes"}
           </Button>
