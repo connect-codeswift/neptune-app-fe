@@ -164,7 +164,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
 
           <Link
             href={`${CATALOG_ROUTE}/${encodeURIComponent(item.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 tracking-normal transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text4 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

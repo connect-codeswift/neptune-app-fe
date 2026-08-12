@@ -50,7 +50,7 @@ export function PolicyMakerDocumentDetailHeader(
   return (
     <div
       className={[
-        "relative flex flex-col gap-1.5 rounded-4 border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
+        "rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex flex-col gap-1.5 border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
         className,
       ]
         .filter(Boolean)
@@ -81,7 +81,7 @@ export function PolicyMakerDocumentDetailHeader(
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="h1"
-            className="text-lg leading-7 font-semibold tracking-[-0.2px] break-words text-[#0b1320] sm:text-5.5 sm:leading-7"
+            className="sm:text-5.5 text-lg leading-7 font-semibold tracking-[-0.2px] break-words text-[#0b1320] sm:leading-7"
           >
             {document.title}
           </Text>

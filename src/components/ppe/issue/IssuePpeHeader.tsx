@@ -5,9 +5,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { PPE_ROUTE } from "@/components/ppe/PpeBackLink";
 
-const crumbMuted = "text4 font-normal text-ehs-gray";
+const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
+  "text8 text-ehs-muted-text hover:text-ehs-gray transition-colors";
 
 /** Breadcrumb + title bar above the Issue PPE form. */
 export function IssuePpeHeader() {

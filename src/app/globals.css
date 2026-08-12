@@ -109,69 +109,69 @@ body {
 /* ---------------------------------------------------------------------------
    Incident typography scale
    ---------------------------------------------------------------------------
-   text1 = largest … text9 = smallest.
-   Each step is responsive: base → md: → xl:.
-   Rem values always map to integer px at a 16px root.
-   Font family inherits from `body`. Color stays at the call site.
+   text1 = page title … text9 = meta label.
+   Sizes match the original Incident list / panel roles (not the inflated
+   responsive bump). Font family inherits from `body`. Color stays at the
+   call site.
    --------------------------------------------------------------------------- */
 
 /*
-  Token   base              md                xl
-  ------  ----------------  ----------------  ----------------
-  text1   1.5rem (24px)     1.75rem (28px)    2rem (32px)
-  text2   1.25rem (20px)    1.5rem (24px)     1.75rem (28px)
-  text3   1.125rem (18px)   1.25rem (20px)    1.5rem (24px)
-  text4   1rem (16px)       1.125rem (18px)   1.25rem (20px)
-  text5   0.875rem (14px)   1rem (16px)       1.125rem (18px)
-  text6   0.75rem (12px)    0.875rem (14px)   1rem (16px)
-  text7   0.6875rem (11px)  0.75rem (12px)    0.875rem (14px)
-  text8   0.625rem (10px)   0.6875rem (11px)  0.75rem (12px)
-  text9   0.5rem (8px)      0.5625rem (9px)   0.625rem (10px)
+  Token   size              weight
+  ------  ----------------  --------
+  text1   1.25rem → 1.5rem  bold     (page title; sm+)
+  text2   1.875rem (30px)   normal   (KPI value)
+  text3   1.125rem (18px)   bold     (card / section title)
+  text4   0.875rem (14px)   normal   (body / table row)
+  text5   0.875rem (14px)   bold     (badge / emphasis)
+  text6   0.75rem (12px)    bold     (eyebrow / column header, uppercase)
+  text7   0.75rem (12px)    semibold (dense ID / numeric meta)
+  text8   0.75rem (12px)    normal   (caption / helper)
+  text9   0.875rem (14px)   semibold (meta field label, uppercase)
 */
 
 /* Page title — DashboardHeader */
 @utility text1 {
-  @apply text-[1.5rem] leading-7 font-bold tracking-tight md:text-[1.75rem] md:leading-8 xl:text-[2rem] xl:leading-9;
+  @apply text-[1.25rem] leading-7 font-bold tracking-tight sm:text-[1.5rem] sm:leading-8;
 }
 
 /* KPI / hero numeric value */
 @utility text2 {
-  @apply text-[1.25rem] leading-none font-normal tracking-tight tabular-nums md:text-[1.5rem] xl:text-[1.75rem];
+  @apply text-[1.875rem] leading-none font-normal tracking-tight tabular-nums;
 }
 
 /* Card / panel section title */
 @utility text3 {
-  @apply text-[1.125rem] leading-6 font-bold md:text-[1.25rem] md:leading-7 xl:text-[1.5rem] xl:leading-7;
+  @apply text-[1.125rem] leading-7 font-bold;
 }
 
 /* Primary body / table row title */
 @utility text4 {
-  @apply text-[1rem] leading-normal font-normal md:text-[1.125rem] xl:text-[1.25rem];
+  @apply text-[0.875rem] leading-normal font-normal;
 }
 
 /* Emphasized body / status badge label */
 @utility text5 {
-  @apply text-[0.875rem] leading-5 font-bold tracking-wide md:text-[1rem] md:leading-6 xl:text-[1.125rem] xl:leading-6;
+  @apply text-[0.875rem] leading-5 font-bold tracking-wide;
 }
 
 /* Eyebrow / KPI label / table column header */
 @utility text6 {
-  @apply text-[0.75rem] leading-4 font-bold tracking-wide uppercase md:text-[0.875rem] md:leading-5 xl:text-[1rem] xl:leading-5;
+  @apply text-[0.75rem] leading-4 font-bold tracking-wide uppercase;
 }
 
 /* Dense ID / numeric meta */
 @utility text7 {
-  @apply text-[0.6875rem] leading-4 font-semibold tabular-nums md:text-[0.75rem] xl:text-[0.875rem] xl:leading-5;
+  @apply text-[0.75rem] leading-4 font-semibold tabular-nums;
 }
 
 /* Caption / helper under KPIs */
 @utility text8 {
-  @apply text-[0.625rem] leading-4 font-normal md:text-[0.6875rem] xl:text-[0.75rem];
+  @apply text-[0.75rem] leading-4 font-normal;
 }
 
 /* Meta field label (Reported, Summary, …) */
 @utility text9 {
-  @apply text-[0.5rem] leading-3 font-semibold tracking-wide uppercase md:text-[0.5625rem] xl:text-[0.625rem] xl:leading-4;
+  @apply text-[0.875rem] leading-5 font-semibold tracking-wide uppercase;
 }
 
 [data-sonner-toast][data-type="success"] [data-icon] {
