@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
@@ -9,10 +9,14 @@ import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
+import {
+  usePpeItemDetailQuery,
+  usePpeItemsQuery,
+} from "@/hooks/use-ppe-queries";
 import { toPpeInventoryItems } from "@/lib/map-ppe";
+import { PpeDetailPanel } from "./PpeDetailPanel";
 import { PpeInventoryCard } from "./PpeInventoryCard";
-import { ppeInventoryColumns } from "./PpeInventoryColumns";
+import { makePpeInventoryColumns } from "./PpeInventoryColumns";
 import { PpeInventoryHeader } from "./PpeInventoryToolbar";
 import {
   PpeInventoryCardsSkeleton,
@@ -21,7 +25,6 @@ import {
 } from "./PpeSkeletons";
 
 const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
-const CATALOG_ROUTE = "/dashboard/ppe-management/catalog";
 
 type PpeCategoryFilter = "all" | string;
 
@@ -77,6 +80,7 @@ export function PpeInventorySection() {
   const ppeItemsQuery = usePpeItemsQuery();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<PpeCategoryFilter>("all");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const inventory = useMemo(
     () => toPpeInventoryItems(ppeItemsQuery.data ?? []),
@@ -96,13 +100,46 @@ export function PpeInventorySection() {
     [inventory, query, category],
   );
 
+  const selectedListItem =
+    selectedId == null
+      ? null
+      : (filtered.find((item) => item.id === selectedId) ?? null);
+
+  const detailQuery = usePpeItemDetailQuery(selectedListItem?.id ?? "");
+
+  useEffect(() => {
+    if (selectedId != null && selectedListItem == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedListItem]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedListItem != null;
+
+  const panelErrorMessage =
+    isPanelOpen && detailQuery.errorMessage
+      ? detailQuery.errorMessage
+      : isPanelOpen &&
+          !detailQuery.isLoading &&
+          (detailQuery.isNotFound || detailQuery.item == null)
+        ? "Item details were not found."
+        : null;
+
   const resultLabel = `${String(filtered.length)} ${
     filtered.length === 1 ? "item" : "items"
   }`;
 
-  const openCatalog = (id: string) => {
-    router.push(`${CATALOG_ROUTE}/${encodeURIComponent(id)}`);
-  };
+  const columns = useMemo(
+    () =>
+      makePpeInventoryColumns({
+        selectedId,
+        onViewMore: handleToggleDetailPanel,
+      }),
+    [selectedId, handleToggleDetailPanel],
+  );
 
   const header = (
     <PpeInventoryHeader
@@ -135,7 +172,7 @@ export function PpeInventorySection() {
       ) : null}
 
       {ppeItemsQuery.isError ? (
-        <Text as="p" className="text-ehs-red text-sm">
+        <Text as="p" className="text4 text-ehs-red">
           {getMutationErrorMessage(
             ppeItemsQuery.error,
             "Could not load PPE inventory.",
@@ -153,43 +190,62 @@ export function PpeInventorySection() {
             resultLabel={resultLabel}
           />
 
-          {/* Mobile — progress cards */}
-          <div className="flex flex-col gap-3 md:hidden">
-            {header}
-            {filtered.length === 0 ? (
-              <p className="text-ehs-muted-text text-sm">No items found.</p>
-            ) : (
-              <ul className="flex flex-col gap-3">
-                {filtered.map((item) => (
-                  <li key={item.id}>
-                    <PpeInventoryCard
-                      item={item}
-                      onClick={() => {
-                        openCatalog(item.id);
-                      }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <div
+            className={[
+              "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+              isPanelOpen
+                ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                : "xl:grid-cols-1",
+            ].join(" ")}
+          >
+            <div className="min-w-0">
+              {/* Mobile — progress cards */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {header}
+                {filtered.length === 0 ? (
+                  <p className="text4 text-ehs-muted-text">No items found.</p>
+                ) : (
+                  <ul className="flex flex-col gap-3">
+                    {filtered.map((item) => (
+                      <li key={item.id}>
+                        <PpeInventoryCard
+                          item={item}
+                          onClick={() => {
+                            handleToggleDetailPanel(item.id);
+                          }}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-          {/* Desktop — table */}
-          <div className="hidden min-w-0 overflow-x-auto md:block">
-            <Table
-              variant="compliance"
-              data={filtered}
-              columns={ppeInventoryColumns}
-              getRowId={(row) => row.id}
-              getRowClassName={(row) =>
-                row.attention ? "bg-[rgba(239,68,68,0.06)]" : undefined
-              }
-              onRowClick={(row) => {
-                openCatalog(row.id);
-              }}
-              containerClassName={complianceGlassCardClass}
-              header={header}
-            />
+              {/* Desktop — table */}
+              <div className="hidden min-w-0 overflow-x-auto md:block">
+                <Table
+                  variant="compliance"
+                  data={filtered}
+                  columns={columns}
+                  getRowId={(row) => row.id}
+                  selectedRowId={selectedId}
+                  getRowClassName={(row) =>
+                    row.attention ? "bg-[rgba(239,68,68,0.06)]" : undefined
+                  }
+                  containerClassName={complianceGlassCardClass}
+                  header={header}
+                />
+              </div>
+            </div>
+
+            {isPanelOpen ? (
+              <PpeDetailPanel
+                item={detailQuery.item}
+                isLoading={detailQuery.isLoading}
+                errorMessage={panelErrorMessage}
+                onRetry={detailQuery.refetch}
+                className="min-w-0"
+              />
+            ) : null}
           </div>
         </>
       ) : null}

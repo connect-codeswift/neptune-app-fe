@@ -35,6 +35,22 @@ export type PpeIssuanceRecord = Readonly<{
   size: string;
   issueDate: string;
   status: string;
+  /** Issue note / description — shown in the row-click details modal. */
+  description?: string;
+}>;
+
+/** Detail view for one issuance from GET /api/ppe/issue/{id}. */
+export type PpeIssuanceDetail = Readonly<{
+  id: string;
+  employee: string;
+  role: string;
+  item: string;
+  quantity: number;
+  size: string;
+  issueDate: string;
+  status: string;
+  note: string;
+  employeeAcknowledged: boolean;
 }>;
 
 export type PpeCatalogDetail = Readonly<{

@@ -41,7 +41,7 @@ function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
         </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
-            <Skeleton className="size-8 shrink-0 rounded-2.5 md:hidden" />
+            <Skeleton className="rounded-2.5 size-8 shrink-0 md:hidden" />
             <div className="flex min-w-0 flex-col gap-1.5">
               <Skeleton className="h-6 w-44 max-w-full md:h-7 md:w-56" />
               <Skeleton className="hidden h-3 w-64 max-w-full md:block" />
@@ -51,7 +51,7 @@ function PpePageHeaderSkeleton(props: Readonly<{ actions?: number }>) {
             {repeat(actions, (index) => (
               <Skeleton
                 key={`ppe-header-action-${String(index)}`}
-                className="h-10 flex-1 rounded-2.5 sm:w-28 sm:flex-none"
+                className="rounded-2.5 h-10 flex-1 sm:w-28 sm:flex-none"
               />
             ))}
           </div>
@@ -85,9 +85,9 @@ export function PpeInventoryCardsSkeleton(props: Readonly<{ rows?: number }>) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Skeleton className="h-9 w-28 rounded-xl" />
         <div className="flex flex-wrap gap-2">
-          <Skeleton className="h-9 w-24 rounded-2.5" />
-          <Skeleton className="h-9 w-40 rounded-2.5" />
-          <Skeleton className="h-9 w-28 rounded-2.5" />
+          <Skeleton className="rounded-2.5 h-9 w-24" />
+          <Skeleton className="rounded-2.5 h-9 w-40" />
+          <Skeleton className="rounded-2.5 h-9 w-28" />
         </div>
       </div>
       <ul className="flex flex-col gap-3">
@@ -128,7 +128,7 @@ export function PpeTableSkeleton(
       <div className="border-b border-[rgba(15,23,42,0.08)] px-4 py-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Skeleton className="h-9 w-40 rounded-xl" />
-          <Skeleton className="h-9 w-28 rounded-2.5" />
+          <Skeleton className="rounded-2.5 h-9 w-28" />
         </div>
       </div>
       <div className="border-b border-[rgba(15,23,42,0.06)] px-4 py-3">
@@ -201,7 +201,7 @@ export function PpeCatalogDetailSkeleton() {
                 {repeat(6, (index) => (
                   <div
                     key={`ppe-meta-${String(index)}`}
-                    className="flex flex-col gap-1.5 rounded-2.5 bg-[rgba(15,23,42,0.04)] px-3 py-2.5"
+                    className="rounded-2.5 flex flex-col gap-1.5 bg-[rgba(15,23,42,0.04)] px-3 py-2.5"
                   >
                     <Skeleton className="h-2.5 w-16" />
                     <Skeleton className="h-3.5 w-20" />
@@ -264,7 +264,7 @@ export function PpeCatalogDetailSkeleton() {
                 {repeat(4, (index) => (
                   <div
                     key={`ppe-side-stat-${String(index)}`}
-                    className="flex flex-col items-center gap-1 rounded-2.5 bg-[rgba(15,23,42,0.04)] px-2.5 py-2.5"
+                    className="rounded-2.5 flex flex-col items-center gap-1 bg-[rgba(15,23,42,0.04)] px-2.5 py-2.5"
                   >
                     <Skeleton className="h-5 w-10" />
                     <Skeleton className="h-3 w-14" />
@@ -289,8 +289,8 @@ export function PpeEmployeeProfileSkeleton() {
     >
       <PpePageHeaderSkeleton actions={2} />
       <div className="grid grid-cols-2 gap-3 md:hidden">
-        <Skeleton className="h-11 rounded-2.5" />
-        <Skeleton className="h-11 rounded-2.5" />
+        <Skeleton className="rounded-2.5 h-11" />
+        <Skeleton className="rounded-2.5 h-11" />
       </div>
       <div className="flex w-full max-w-182.75 flex-col gap-3.5">
         <PpeGlassShell>
@@ -351,7 +351,7 @@ export function PpeEmployeeProfileSkeleton() {
           {repeat(2, (index) => (
             <div
               key={`ppe-hist-card-${String(index)}`}
-              className="border-ehs-border flex flex-col gap-3 rounded-2.5 border bg-white p-3.5"
+              className="border-ehs-border rounded-2.5 flex flex-col gap-3 border bg-white p-3.5"
             >
               <div className="flex justify-between gap-3">
                 <Skeleton className="h-3.5 w-[50%]" />
@@ -382,7 +382,7 @@ export function PpeIssuanceLogSkeleton() {
         {repeat(3, (index) => (
           <Skeleton
             key={`ppe-chip-${String(index)}`}
-            className="h-8 w-20 shrink-0 rounded-5"
+            className="rounded-5 h-8 w-20 shrink-0"
           />
         ))}
       </div>
@@ -412,8 +412,41 @@ export function PpeIssuanceLogSkeleton() {
 }
 
 /** Issue / replacement form page skeleton. */
-export function PpeFormPageSkeleton(props: Readonly<{ fields?: number }>) {
-  const { fields = 6 } = props;
+/** Form placeholder. Set `includeHeader` when the route does not render chrome. */
+export function PpeFormPageSkeleton(
+  props: Readonly<{ fields?: number; includeHeader?: boolean }>,
+) {
+  const { fields = 6, includeHeader = true } = props;
+
+  const formCard = (
+    <PpeGlassShell paddingClassName="p-6 sm:p-8">
+      <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
+          {repeat(fields, (index) => (
+            <div
+              key={`ppe-field-${String(index)}`}
+              className="flex flex-col gap-1.5"
+            >
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="rounded-2.5 h-11 w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+          <Skeleton className="rounded-2.5 h-10 w-24" />
+          <Skeleton className="rounded-2.5 h-10 w-40" />
+        </div>
+      </div>
+    </PpeGlassShell>
+  );
+
+  if (!includeHeader) {
+    return (
+      <div className="w-full" aria-busy="true" aria-label="Loading form">
+        {formCard}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -421,27 +454,8 @@ export function PpeFormPageSkeleton(props: Readonly<{ fields?: number }>) {
       aria-busy="true"
       aria-label="Loading form"
     >
-      <PpePageHeaderSkeleton actions={2} />
-      <PpeGlassShell paddingClassName="p-4 md:p-6">
-        <div className="flex flex-col gap-5">
-          <Skeleton className="h-4 w-40" />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {repeat(fields, (index) => (
-              <div
-                key={`ppe-field-${String(index)}`}
-                className="flex flex-col gap-2"
-              >
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-11 w-full rounded-2.5" />
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2.5 pt-2">
-            <Skeleton className="h-10 w-24 rounded-2.5" />
-            <Skeleton className="h-10 w-36 rounded-2.5" />
-          </div>
-        </div>
-      </PpeGlassShell>
+      <PpePageHeaderSkeleton actions={0} />
+      {formCard}
     </div>
   );
 }
