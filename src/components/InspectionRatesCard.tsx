@@ -30,19 +30,21 @@ function InspectionRateRow(props: Readonly<InspectionRate>) {
   const tick = clampPercent(target);
 
   return (
-    <div className="flex flex-col gap-[5px]">
+    <div className="flex flex-col gap-1.25">
       <div className="flex items-start justify-between gap-3">
-        <Text as="span" className="text-ehs-slate min-w-0 truncate text-[12px]">
+        <Text as="span" className="text4 text-ehs-slate min-w-0 truncate">
           {label}
         </Text>
-        <p className="text-ehs-gray shrink-0 text-[11px] tabular-nums">
+        <Text as="p" className="text7 text-ehs-gray shrink-0">
           {`${String(current)}%`}
-          <span className="text-ehs-muted-text">{` / ${String(target)}%`}</span>
-        </p>
+          <Text as="span" className="text8 text-ehs-muted-text">
+            {` / ${String(target)}%`}
+          </Text>
+        </Text>
       </div>
 
       <div
-        className="relative h-[6px] w-full rounded-full bg-[rgba(136,146,163,0.18)]"
+        className="relative h-1.5 w-full rounded-full bg-[rgba(136,146,163,0.18)]"
         role="progressbar"
         aria-label={label}
         aria-valuenow={current}
@@ -56,7 +58,7 @@ function InspectionRateRow(props: Readonly<InspectionRate>) {
         {/* Target tick. Pulled fully inside the track so a 100% target stays
             visible at the right edge instead of rendering off the end. */}
         <span
-          className="bg-ehs-gray absolute -top-[2px] -bottom-[2px] w-[2px] -translate-x-full rounded-full opacity-50"
+          className="bg-ehs-gray absolute -top-0.5 -bottom-0.5 w-0.5 -translate-x-full rounded-full opacity-50"
           style={{ left: `${String(tick)}%` }}
           aria-hidden="true"
         />
@@ -93,7 +95,7 @@ export function InspectionRatesCard(props: Readonly<InspectionRatesCardProps>) {
         viewAllHref={viewAllHref}
       />
 
-      <div className="mt-[7px] flex flex-col gap-3">
+      <div className="mt-1.75 flex flex-col gap-3">
         {rates.map((rate) => (
           <InspectionRateRow key={rate.label} {...rate} />
         ))}

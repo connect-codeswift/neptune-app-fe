@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import {
@@ -36,12 +37,29 @@ function DetailRow(props: Readonly<{ label: string; value: string }>) {
 
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-ehs-muted-text text-xs font-medium uppercase tracking-wide">
+      <span className="text-ehs-muted-text text-xs font-medium tracking-wide uppercase">
         {label}
       </span>
       <span className="text-ehs-dark-bg text-sm leading-normal">{value}</span>
     </div>
   );
+}
+
+/**
+ * Whether `next/image`'s optimizer can be pointed at this URL.
+ *
+ * `next.config.ts` lists only `res.cloudinary.com` under `images.remotePatterns`,
+ * and attachment URLs arrive from the API rather than being constructed here.
+ * An unlisted host makes the optimizer throw "Invalid src prop" — a 500, not a
+ * broken image — so anything else falls back to `unoptimized`, which skips the
+ * host check entirely.
+ */
+function isOptimizableImageUrl(url: string): boolean {
+  try {
+    return new URL(url).hostname === "res.cloudinary.com";
+  } catch {
+    return false;
+  }
 }
 
 function attachmentKind(url: string): "image" | "pdf" | "file" {
@@ -128,7 +146,7 @@ export function CapaCompletionReviewModal(
         }
         subtitle={`${incidentId} · ${incidentTitle} · ${capa.code}`}
         onClose={onClose}
-        maxWidthClassName="max-w-[760px]"
+        maxWidthClassName="max-w-190"
         footerHint={
           isAlreadyVerified
             ? "This CAPA has been verified and closed."
@@ -179,10 +197,7 @@ export function CapaCompletionReviewModal(
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DetailRow label="Assigned to" value={capa.assignee} />
                 <DetailRow label="Due date" value={capa.dueDate} />
-                <DetailRow
-                  label="Control level"
-                  value={capa.controlCategory}
-                />
+                <DetailRow label="Control level" value={capa.controlCategory} />
                 <DetailRow label="Type" value={capa.actionType} />
                 <DetailRow
                   label="Assignee status"
@@ -308,7 +323,7 @@ export function CapaCompletionReviewModal(
                 </div>
               </section>
             ) : existingVerification ? (
-              <section className="rounded-xl border border-ehs-green/20 bg-ehs-green/5 p-4">
+              <section className="border-ehs-green/20 bg-ehs-green/5 rounded-xl border p-4">
                 <DetailRow
                   label="Verified as"
                   value={existingVerification.effectiveness}
@@ -328,7 +343,7 @@ export function CapaCompletionReviewModal(
       </IncidentModalShell>
 
       {previewUrl ? (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
           <div
             className="absolute inset-0"
             onClick={() => setPreviewUrl(null)}
@@ -344,11 +359,18 @@ export function CapaCompletionReviewModal(
               <Icon icon="mdi:close" className="size-5" />
             </button>
             {attachmentKind(previewUrl) === "image" ? (
-              <img
-                src={previewUrl}
-                alt="Attachment preview"
-                className="max-h-[80vh] max-w-[85vw] object-contain"
-              />
+              // `fill` needs a parent with a definite size, so the preview is a
+              // fixed viewport-sized box with the image contained inside it.
+              <div className="relative h-[80vh] w-[85vw]">
+                <Image
+                  src={previewUrl}
+                  alt="Attachment preview"
+                  fill
+                  sizes="85vw"
+                  unoptimized={!isOptimizableImageUrl(previewUrl)}
+                  className="object-contain"
+                />
+              </div>
             ) : attachmentKind(previewUrl) === "pdf" ? (
               <iframe
                 src={previewUrl}

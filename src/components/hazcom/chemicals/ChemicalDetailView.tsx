@@ -208,7 +208,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
             >
               Storage &amp; Handling Notes
             </Text>
-            <div className="border-ehs-border rounded-[10px] border bg-white/60 p-3.5">
+            <div className="border-ehs-border rounded-2.5 border bg-white/60 p-3.5">
               <Text
                 as="p"
                 className={

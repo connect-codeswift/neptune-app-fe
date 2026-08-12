@@ -130,7 +130,7 @@ export function RegulatoryComplianceDetailView(
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
         <SkeletonDetailPage />
       </div>
     );
@@ -139,15 +139,15 @@ export function RegulatoryComplianceDetailView(
   if (isClientReady && !hasToken) {
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text1 text-ehs-darker">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
+        <Text as="p" className="text4 text-ehs-muted-text">
           Please sign in to load this compliance obligation.
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Compliance Register
         </Link>
@@ -159,7 +159,7 @@ export function RegulatoryComplianceDetailView(
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 items-center justify-center px-4">
         <IncidentGlassCard
-          className="min-h-[220px] text-center"
+          className="min-h-55 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -167,10 +167,10 @@ export function RegulatoryComplianceDetailView(
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load compliance obligation
           </Text>
-          <Text as="p" className="text-ehs-muted-text max-w-xs text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text max-w-xs">
             {getMutationErrorMessage(
               detailQuery.error,
               "Failed to load this obligation.",
@@ -192,15 +192,15 @@ export function RegulatoryComplianceDetailView(
   if (numericId == null || !detail) {
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text1 text-ehs-darker">
           Obligation not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-3.5">
+        <Text as="p" className="text4 text-ehs-muted-text">
           {`No compliance obligation matches “${id}”.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
+          className="text4 text-ehs-normal-blue hover:underline"
         >
           Back to Compliance Register
         </Link>
@@ -209,16 +209,18 @@ export function RegulatoryComplianceDetailView(
   }
 
   return (
-    <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
-      <RegulatoryComplianceDetailBannerCard
-        detail={detail}
-        onMarkAsComplete={handleMarkAsComplete}
-        onDelete={() => setIsConfirmingDelete(true)}
-        isMarkingComplete={markCompleteMutation.isPending}
-        isDeleting={deleteComplianceMutation.isPending}
-      />
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      <RegulatoryComplianceDetailBannerCard detail={detail} />
 
-      <RegulatoryComplianceObligationDetailsCard detail={detail} />
+      <div className="mx-auto flex w-full max-w-175 justify-center">
+        <RegulatoryComplianceObligationDetailsCard
+          detail={detail}
+          onMarkAsComplete={handleMarkAsComplete}
+          onDelete={() => setIsConfirmingDelete(true)}
+          isMarkingComplete={markCompleteMutation.isPending}
+          isDeleting={deleteComplianceMutation.isPending}
+        />
+      </div>
 
       <ConfirmDialog
         open={isConfirmingDelete}

@@ -415,7 +415,7 @@ export function ReportIncidentStepOne(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[29px]"
+      paddingClassName="p-7.25"
       incidentGlassCardClassName="gap-7"
       className={["min-w-0 flex-1 bg-[rgba(255,255,255,0.82)]", className]
         .filter(Boolean)
@@ -447,7 +447,7 @@ export function ReportIncidentStepOne(
           className="pt-3"
         />
 
-        <div className="flex flex-col pt-[18px]">
+        <div className="flex flex-col pt-4.5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
             <ReportSelectField
               label="Gender"
@@ -527,7 +527,7 @@ export function ReportIncidentStepOne(
               // or future.
               quickPicks={["today", "yesterday"]}
               error={fieldErrors?.incidentDate ?? timing.incidentDate}
-              className="pb-[6px] sm:pb-[18px]"
+              className="pb-1.5 sm:pb-4.5"
             />
             <ReportTimeField
               label="Time of Incident"
@@ -536,7 +536,7 @@ export function ReportIncidentStepOne(
               onChange={(incidentTime) => onChange({ incidentTime })}
               showNow
               error={fieldErrors?.incidentTime ?? timing.incidentTime}
-              className="pb-[6px] sm:pb-[18px]"
+              className="pb-1.5 sm:pb-4.5"
             />
             <ReportDateField
               label="Report Date"
@@ -548,7 +548,7 @@ export function ReportIncidentStepOne(
               minDate={minReportDate}
               quickPicks={["today"]}
               error={fieldErrors?.reportDate ?? timing.reportDate}
-              className="pb-[6px] sm:pb-[18px]"
+              className="pb-1.5 sm:pb-4.5"
             />
           </div>
         </div>
@@ -592,17 +592,17 @@ export function ReportIncidentStepOne(
         </div>
       </div>
 
-      <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+      <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
         <div className="flex flex-wrap items-center gap-2.5">
           <Button
             type="button"
             variant="tertiary"
             onClick={onBack}
-            className="text-ehs-slate rounded-[10px] border border-[rgba(15,23,42,0.14)] bg-transparent px-[15px] pt-2.5 pb-[10.5px] text-sm font-bold opacity-40 transition hover:opacity-70"
+            className="text-ehs-slate rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-transparent px-3.75 pt-2.5 pb-[10.5px] text-sm font-bold opacity-40 transition hover:opacity-70"
           >
             <Icon
               icon="mdi:chevron-left"
-              className="size-[13px]"
+              className="size-3.25"
               aria-hidden="true"
             />
             Back
@@ -616,12 +616,12 @@ export function ReportIncidentStepOne(
             type="button"
             variant="primary"
             onClick={handleContinue}
-            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-[10px] px-[15px] pt-2.5 pb-[10.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition"
+            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 px-3.75 pt-2.5 pb-[10.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition"
           >
             Continue
             <Icon
               icon="mdi:chevron-right"
-              className="size-[13px]"
+              className="size-3.25"
               aria-hidden="true"
             />
           </Button>

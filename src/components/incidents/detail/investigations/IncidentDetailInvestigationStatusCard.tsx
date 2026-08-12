@@ -35,7 +35,7 @@ export function IncidentDetailInvestigationStatusCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[18px]"
+      paddingClassName="p-4.5"
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
@@ -52,18 +52,18 @@ export function IncidentDetailInvestigationStatusCard(
           steps.map((step) => (
             <div
               key={step.label}
-              className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-[9px]"
+              className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25"
             >
               {step.completed ? (
-                <div className="bg-ehs-green text-ehs-light-text flex size-[18px] shrink-0 items-center justify-center rounded-[9px]">
+                <div className="bg-ehs-green text-ehs-light-text flex size-4.5 shrink-0 items-center justify-center rounded-2.25">
                   <Icon
                     icon="mdi:check"
-                    className="size-[11px]"
+                    className="size-2.75"
                     aria-hidden="true"
                   />
                 </div>
               ) : (
-                <div className="size-[18px] shrink-0 rounded-[9px] border border-[rgba(15,23,42,0.14)] bg-transparent" />
+                <div className="size-4.5 shrink-0 rounded-2.25 border border-[rgba(15,23,42,0.14)] bg-transparent" />
               )}
               <span
                 className={[

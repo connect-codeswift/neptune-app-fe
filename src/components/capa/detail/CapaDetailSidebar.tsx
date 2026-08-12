@@ -26,7 +26,7 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[21px]"
+      paddingClassName="p-5.25"
       className="min-w-0 rounded-2xl"
     >
       <Text as="h3" className="mb-4 text-base font-semibold text-[#0b1320]">
@@ -47,8 +47,8 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
         </MetaRow>
 
         <MetaRow label="Status">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.12)] px-2.5 py-0.5 text-base font-semibold tracking-[0.11px] text-[#92400e]">
-            <span className="size-1.5 rounded-[3px] bg-[#f59e0b]" aria-hidden />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.12)] px-2.5 py-0.5 text-sm font-semibold tracking-[0.11px] text-[#92400e]">
+            <span className="size-1.5 rounded-0.75 bg-[#f59e0b]" aria-hidden />
             {record.statusLabel}
           </span>
         </MetaRow>

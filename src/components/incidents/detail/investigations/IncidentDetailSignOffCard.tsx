@@ -28,7 +28,7 @@ export function IncidentDetailSignOffCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[18px]"
+      paddingClassName="p-4.5"
       incidentGlassCardClassName="gap-0"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
@@ -37,11 +37,11 @@ export function IncidentDetailSignOffCard(
       </Text>
 
       {signoffs.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text mt-[18px] text4">
+        <Text as="p" className="text-ehs-muted-text mt-4.5 text4">
           No sign-offs recorded for this investigation.
         </Text>
       ) : (
-        <div className="mt-[18px] flex flex-col">
+        <div className="mt-4.5 flex flex-col">
           {signoffs.map((person, index) => (
             <div
               key={`${person.name}-${String(index)}`}
@@ -49,7 +49,7 @@ export function IncidentDetailSignOffCard(
                 "flex items-center gap-2.5",
                 index === 0
                   ? "pb-3"
-                  : "border-t border-[rgba(15,23,42,0.08)] pt-[13px] pb-1",
+                  : "border-t border-[rgba(15,23,42,0.08)] pt-3.25 pb-1",
               ].join(" ")}
             >
               <div
@@ -72,7 +72,7 @@ export function IncidentDetailSignOffCard(
               </div>
               <span
                 className={[
-                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[3px] text7 leading-3.5",
+                  "text-ehs-gray inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-0.75 text7 leading-3.5",
                   person.badgeTone === "green"
                     ? "bg-ehs-dark-bg/14"
                     : "bg-ehs-dark-bg/16",
@@ -101,7 +101,7 @@ export function IncidentDetailSignOffCard(
             ? undefined
             : "Approval requests are not available yet"
         }
-        className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active disabled:hover:bg-ehs-normal-blue mt-4 inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-[15px] py-2.5 text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+        className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active disabled:hover:bg-ehs-normal-blue mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2.5 px-3.75 py-2.5 text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
       >
         <Icon icon="mdi:check" className="size-3.5" aria-hidden="true" />
         Request approval

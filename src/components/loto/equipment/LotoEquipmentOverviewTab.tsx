@@ -61,7 +61,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             {detail.energySources.map((source, index) => (
               <div
                 key={source}
-                className="rounded-[12px] border border-black/10 px-4 py-3.5"
+                className="rounded-3 border border-black/10 px-4 py-3.5"
               >
                 <p className="text4 text-ehs-darker font-semibold">{source}</p>
                 <p className="text8 mt-0.5 text-[#8892a3]">
@@ -87,7 +87,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             {detail.authorizedPersonnel.map((person) => (
               <div
                 key={person.id}
-                className="inline-flex items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5"
+                className="inline-flex items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5"
               >
                 <span className="text7 flex size-7 items-center justify-center rounded-lg bg-[rgba(8,145,166,0.12)] font-bold text-[#0891a6]">
                   {person.initials}
@@ -101,7 +101,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
         </IncidentGlassCard>
       </div>
 
-      <IncidentGlassCard paddingClassName="p-[18px]" className="min-w-0">
+      <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text3 text-ehs-darker">Recent Lockouts</h2>
           <button

@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { AcknowledgmentTrackingHeader } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingHeader";
 import { AcknowledgmentTrackingMetrics } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingMetrics";
 import { AcknowledgmentTrackingTable } from "@/components/policy-maker/acknowledgment-tracking/AcknowledgmentTrackingTable";
@@ -26,9 +25,7 @@ export function AcknowledgmentTrackingView(
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <DashboardHeader />
-
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
+      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pt-4 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
         <AcknowledgmentTrackingHeader document={document} />
         <AcknowledgmentTrackingMetrics metrics={metrics} />
         <AcknowledgmentTrackingTable records={records} />

@@ -25,59 +25,50 @@ export function RegulatoryComplianceUpcomingFilingsCard(
     >
       <div className="flex flex-col">
         <div>
-          <Text
-            as="h3"
-            className="text-3.5 leading-none font-bold tracking-[-0.14px] text-[#0b1320]"
-          >
+          <Text as="h3" className="text3 text-ehs-darker">
             Upcoming filings
           </Text>
-          <Text
-            as="p"
-            className="mt-[2px] text-[10px] leading-normal font-normal text-[#8892a3]"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
             Next 90 days
           </Text>
         </div>
 
         {isLoading ? (
-          <div className="mt-[18px] flex flex-col">
+          <div className="mt-4.5 flex flex-col">
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`filing-skeleton-${String(index)}`}
                 className="flex h-[36.785px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
               >
-                <div className="flex min-w-0 flex-1 items-center gap-[10px]">
-                  <div className="h-3.5 w-10 animate-pulse rounded-[6px] bg-[#e2e8f0]" />
-                  <div className="h-[17px] min-w-0 flex-1 animate-pulse rounded-[6px] bg-[#e2e8f0]" />
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <div className="h-3.5 w-10 animate-pulse rounded-1.5 bg-[#e2e8f0]" />
+                  <div className="h-4.25 min-w-0 flex-1 animate-pulse rounded-1.5 bg-[#e2e8f0]" />
                 </div>
                 <div className="h-5 w-14 animate-pulse rounded-full bg-[#e2e8f0]" />
               </div>
             ))}
           </div>
         ) : filings.length === 0 ? (
-          <Text
-            as="p"
-            className="mt-[18px] pt-[18px] text-[12px] text-[#8892a3]"
-          >
+          <Text as="p" className="text8 text-ehs-muted-text mt-4.5 pt-4.5">
             No upcoming filings in the next 90 days.
           </Text>
         ) : (
-          <div className="mt-[18px] flex flex-col">
+          <div className="mt-4.5 flex flex-col">
             {filings.map((item) => (
               <div
                 key={item.id}
                 className="flex h-[36.785px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
               >
-                <div className="flex min-w-0 flex-1 items-center gap-[10px]">
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Text
                     as="span"
-                    className="w-[68px] shrink-0 text-[10px] leading-normal font-normal text-[#8892a3]"
+                    className="text8 text-ehs-muted-text w-17 shrink-0"
                   >
                     {item.date}
                   </Text>
                   <Text
                     as="span"
-                    className="truncate text-[12px] leading-normal font-normal text-[#0b1320]"
+                    className="text4 text-ehs-darker truncate"
                   >
                     {item.title}
                   </Text>

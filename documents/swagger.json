@@ -1019,6 +1019,35 @@
         }
       }
     },
+    "/api/Auth/me/profile": {
+      "put": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Auth/avatar/upload": {
       "post": {
         "tags": ["Auth"],
@@ -1686,6 +1715,27 @@
         }
       }
     },
+    "/api/CAPA/Capa/{id}/detail": {
+      "get": {
+        "tags": ["CAPA"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/CAPA/Incident/{incidentId}": {
       "get": {
         "tags": ["CAPA"],
@@ -1728,9 +1778,63 @@
         }
       }
     },
-    "/api/CAPA/GetAll": {
+    "/api/CAPA": {
       "get": {
         "tags": ["CAPA"],
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "CapaType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Priority",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "AssignedId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -1844,12 +1948,61 @@
         }
       }
     },
+    "/api/CAPA/Capa/{id}/status": {
+      "patch": {
+        "tags": ["CAPA"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/CAPA/Tasks/{capaId}": {
       "get": {
         "tags": ["CAPA"],
         "parameters": [
           {
             "name": "capaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CAPA/Task/Drop/{id}": {
+      "patch": {
+        "tags": ["CAPA"],
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -2023,6 +2176,46 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CAPA/dashboard-kpis": {
+      "get": {
+        "tags": ["CAPA"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CAPA/workload-by-owner": {
+      "get": {
+        "tags": ["CAPA"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CAPA/lifecycle": {
+      "get": {
+        "tags": ["CAPA"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CAPA/opened-vs-closed": {
+      "get": {
+        "tags": ["CAPA"],
         "responses": {
           "200": {
             "description": "Success"
@@ -5801,43 +5994,6 @@
         }
       }
     },
-    "/api/Incident/kpi-targets": {
-      "get": {
-        "tags": ["Incident"],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
-      "put": {
-        "tags": ["Incident"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IncidentKpiTargetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IncidentKpiTargetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/IncidentKpiTargetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/Incident/incident": {
       "post": {
         "tags": ["Incident"],
@@ -6034,22 +6190,6 @@
               "type": "integer",
               "format": "int32"
             }
-          },
-          {
-            "name": "siteId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
           }
         ],
         "responses": {
@@ -6073,25 +6213,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantUserContextDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantUserContextDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TenantUserContextDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Success"
@@ -6968,6 +7089,389 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/InspectionTemplateActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/KpiTarget": {
+      "get": {
+        "tags": ["KpiTarget"],
+        "parameters": [
+          {
+            "name": "module",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": ["KpiTarget"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiTargetDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiTargetDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/KpiTargetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/KpiTarget/{id}": {
+      "delete": {
+        "tags": ["KpiTarget"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/dashboard-kpis": {
+      "get": {
+        "tags": ["Loto"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/GetAllEquipment": {
+      "post": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentGridFilterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentGridFilterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentGridFilterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/equipment/{id}": {
+      "get": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/equipment": {
+      "post": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoEquipmentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/equipment/{id}/drop": {
+      "put": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/GetAllLockouts": {
+      "post": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockoutGridFilterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockoutGridFilterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LockoutGridFilterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/active-lockouts": {
+      "get": {
+        "tags": ["Loto"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/equipment/{id}/history": {
+      "get": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/lockouts": {
+      "post": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLockoutDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLockoutDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLockoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/lockouts/{id}/remove": {
+      "post": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveLockoutDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveLockoutDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveLockoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/personnel": {
+      "get": {
+        "tags": ["Loto"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/personnel/certification": {
+      "put": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoCertificationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoCertificationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoCertificationDto"
               }
             }
           }
@@ -9431,7 +9935,7 @@
           },
           "password": {
             "minLength": 1,
-            "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$",
             "type": "string"
           }
         },
@@ -10322,6 +10826,33 @@
         },
         "additionalProperties": false
       },
+      "ApplyLockoutDto": {
+        "required": ["lockNumber", "lotoEquipmentId", "purpose"],
+        "type": "object",
+        "properties": {
+          "lotoEquipmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lockNumber": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "purpose": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expectedCompletionAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "confirmationAccepted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "AssignPermissionsToRoleDto": {
         "type": "object",
         "properties": {
@@ -10583,7 +11114,7 @@
         "additionalProperties": false
       },
       "CapaTaskDto": {
-        "required": ["capaId", "task", "userId"],
+        "required": ["capaId", "priority", "task", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -10596,6 +11127,11 @@
           },
           "task": {
             "minLength": 1,
+            "type": "string"
+          },
+          "priority": {
+            "minLength": 1,
+            "pattern": "^(Low|Medium|High)$",
             "type": "string"
           },
           "ownerId": {
@@ -12168,7 +12704,6 @@
         "additionalProperties": false
       },
       "IncidentDto": {
-        "required": ["siteId", "userId"],
         "type": "object",
         "properties": {
           "id": {
@@ -12371,22 +12906,6 @@
         },
         "additionalProperties": false
       },
-      "IncidentKpiTargetDto": {
-        "required": ["metric"],
-        "type": "object",
-        "properties": {
-          "metric": {
-            "maxLength": 60,
-            "minLength": 1,
-            "type": "string"
-          },
-          "targetValue": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "additionalProperties": false
-      },
       "InspectionDto": {
         "type": "object",
         "properties": {
@@ -12552,6 +13071,48 @@
         },
         "additionalProperties": false
       },
+      "KpiTargetDto": {
+        "required": ["metric", "module"],
+        "type": "object",
+        "properties": {
+          "module": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "metric": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "targetValue": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LockoutGridFilterDto": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "search": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "pattern": "^(All|Active|Completed)$",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginDto": {
         "required": ["email", "password"],
         "type": "object",
@@ -12564,6 +13125,132 @@
           "password": {
             "minLength": 1,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LotoCertificationDto": {
+        "required": ["userId"],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "certifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LotoEquipmentDto": {
+        "required": ["equipmentCode", "name"],
+        "type": "object",
+        "properties": {
+          "equipmentCode": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "hazardLevel": {
+            "pattern": "^(Low|Medium|High)$",
+            "type": "string",
+            "nullable": true
+          },
+          "isOutOfService": {
+            "type": "boolean"
+          },
+          "lastInspectionAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "additionalNotes": {
+            "type": "string",
+            "nullable": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LotoProcedureStepDto"
+            },
+            "nullable": true
+          },
+          "authorizedUserIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LotoEquipmentGridFilterDto": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "search": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "pattern": "^(All|Operational|Locked Out|Maintenance)$",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LotoProcedureStepDto": {
+        "required": ["description"],
+        "type": "object",
+        "properties": {
+          "description": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isolationPoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "energyType": {
+            "type": "string",
+            "nullable": true
+          },
+          "lockTagPosition": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -12890,6 +13577,18 @@
             "nullable": true
           },
           "isRootCause": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RemoveLockoutDto": {
+        "type": "object",
+        "properties": {
+          "energyRestoredConfirmed": {
+            "type": "boolean"
+          },
+          "signedOff": {
             "type": "boolean"
           }
         },
@@ -13473,6 +14172,11 @@
             "type": "string",
             "nullable": true
           },
+          "jobTitle": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
           "roleId": {
             "type": "integer",
             "format": "int32"
@@ -13602,6 +14306,11 @@
             "nullable": true
           },
           "contactNo": {
+            "type": "string",
+            "nullable": true
+          },
+          "jobTitle": {
+            "maxLength": 100,
             "type": "string",
             "nullable": true
           },
@@ -14333,6 +15042,27 @@
             "minLength": 1,
             "type": "string",
             "format": "uri"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserProfileDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "contactNo": {
+            "pattern": "^\\+?[1-9]\\d{7,14}$",
+            "type": "string",
+            "nullable": true
+          },
+          "jobTitle": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

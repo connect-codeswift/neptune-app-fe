@@ -49,7 +49,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
       {showDot ? (
         <span
           className={[
-            "size-1.5 shrink-0 rounded-[3px]",
+            "size-1.5 shrink-0 rounded-0.75",
             dotClassName[tone],
           ].join(" ")}
           aria-hidden="true"

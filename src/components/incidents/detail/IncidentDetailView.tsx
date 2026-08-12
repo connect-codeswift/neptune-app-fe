@@ -273,7 +273,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
 
         {errorMessage ? (
           <IncidentGlassCard
-            className="mt-[18px] min-h-[180px] text-center"
+            className="mt-4.5 min-h-45 text-center"
             incidentGlassCardClassName="items-center justify-center gap-2"
           >
             <Icon
@@ -305,13 +305,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
         ) : null}
 
         {showLoading && !errorMessage ? (
-          <SkeletonDetailPage className="mt-[18px]" />
+          <SkeletonDetailPage className="mt-4.5" />
         ) : null}
 
         {detail && !errorMessage && !showLoading ? (
           <>
             {activeTab === "details" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailSummaryCard
                     summaryText={summaryText}
@@ -328,8 +328,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   />
                   {responseNotes || isEditingDetails ? (
                     <IncidentGlassCard
-                      paddingClassName="p-[23px]"
-                      incidentGlassCardClassName="gap-[13px]"
+                      paddingClassName="p-5.75"
+                      incidentGlassCardClassName="gap-3.25"
                       className={
                         isEditingDetails ? "ring-ehs-normal-blue/25 ring-1" : ""
                       }
@@ -385,7 +385,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "timeline" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailTimelineCard events={timelineEvents} />
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailResponseMetricsCard
@@ -399,7 +399,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "people" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailPeopleCard
                   affectedName={
                     isEditingPeople ? affectedName : detail.affectedName
@@ -442,9 +442,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             )}
 
             {activeTab === "attachments" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentGlassCard
-                  paddingClassName="p-[23px]"
+                  paddingClassName="p-5.75"
                   incidentGlassCardClassName="gap-3.5"
                   className={
                     isEditingAttachments ? "ring-ehs-normal-blue/25 ring-1" : ""
@@ -474,7 +474,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     />
                   ) : (
                     <IncidentGlassCard
-                      paddingClassName="p-[19px]"
+                      paddingClassName="p-4.75"
                       incidentGlassCardClassName="gap-2"
                     >
                       <Text
@@ -503,11 +503,11 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   meta={investigation.hrcaMeta}
                 />
               ) : showHrca ? (
-                <div className="text-ehs-muted-text rounded-[12px] border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text4">
+                <div className="text-ehs-muted-text rounded-3 border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text4">
                   Sign in and open a valid incident to load the HRCA worksheet.
                 </div>
               ) : (
-                <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+                <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                   <IncidentDetailInvestigationCard
                     whyChain={rcaInvestigationPreview?.whyChain ?? []}
                     contributingFactors={
@@ -538,7 +538,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               ))}
 
             {activeTab === "linked-capa" && (
-              <div className="mt-[18px] grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+              <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailCapaListCard
                   incidentId={displayId}
                   incidentTitle={detail.title}

@@ -10,11 +10,11 @@ export type RecordableInjuriesChartProps = Readonly<{
 
 const CHART = {
   width: 644,
-  height: 188,
+  height: 160,
   padLeft: 28,
   padRight: 12,
-  padTop: 12,
-  padBottom: 28,
+  padTop: 10,
+  padBottom: 24,
 } as const;
 
 function buildYTicks(yMax: number): readonly number[] {
@@ -64,8 +64,8 @@ function RecordablesLineChart(
 
   return (
     <>
-      <div className="mb-3.5 flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
+      <div className="mb-3 flex items-start justify-between gap-3 md:mb-3.5">
+        <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="h3"
             className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"
@@ -80,7 +80,7 @@ function RecordablesLineChart(
         {series.length >= 2 ? (
           <span
             className={[
-              "inline-flex items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] text-sm font-bold",
               trendImproving
                 ? "bg-ehs-green/14 text-ehs-green"
                 : "bg-ehs-red/14 text-ehs-red",
@@ -179,14 +179,20 @@ function RecordablesLineChart(
 
         {months.map((month, index) => {
           const point = getPoint(0, index, count, yMax);
+          const showOnMobile = index % 2 === 0 || index === months.length - 1;
 
           return (
             <text
               key={`${month}-${index}`}
               x={point.x}
-              y={CHART.height - 8}
+              y={CHART.height - 6}
               textAnchor="middle"
-              className="fill-ehs-muted-text text-xs"
+              className={[
+                "fill-ehs-muted-text text-xs",
+                showOnMobile ? "" : "hidden md:inline",
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               {month}
             </text>
@@ -194,18 +200,15 @@ function RecordablesLineChart(
         })}
       </svg>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <div className="mt-3 hidden flex-wrap items-center gap-x-4 gap-y-1 md:flex">
         <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
-          <span
-            className="bg-ehs-normal-blue size-2 rounded-[2px]"
-            aria-hidden="true"
-          />
+          <span className="bg-ehs-red size-2 rounded-0.5" aria-hidden="true" />
           Recordables
         </span>
         {target != null ? (
           <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
             <span
-              className="bg-ehs-green size-2 rounded-[2px]"
+              className="bg-ehs-green size-2 rounded-0.5"
               aria-hidden="true"
             />
             Monthly target
@@ -223,8 +226,8 @@ export function RecordableInjuriesChart(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      className={["min-h-[308px]", className].filter(Boolean).join(" ")}
+      paddingClassName="p-4 md:p-5.75"
+      className={className}
     >
       <RecordablesLineChart chart={chart} />
     </IncidentGlassCard>

@@ -147,7 +147,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
               >
                 <span
                   className={[
-                    "flex size-[26px] items-center justify-center rounded-full text-sm font-bold",
+                    "flex size-6.5 items-center justify-center rounded-full text-sm font-bold",
                     complete
                       ? "bg-[#0891a6] text-white"
                       : current
@@ -231,7 +231,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <Button
           type="button"
           variant="primary"
-          className="min-w-0 flex-1 gap-2 rounded-[10px] px-4 py-2.5 text-sm font-bold"
+          className="min-w-0 flex-1 gap-2 rounded-2.5 px-4 py-2.5 text-sm font-bold"
           onClick={() => toast.info("Update progress coming soon")}
         >
           <Icon icon="mdi:check" className="size-3.5 shrink-0" aria-hidden />
@@ -240,7 +240,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-[10px] p-0"
+          className="shrink-0 rounded-2.5 p-0"
           aria-label="Collaborators"
           onClick={() => toast.info("Collaborators coming soon")}
         >
@@ -253,7 +253,7 @@ export function CapaDetailPanel(props: CapaDetailPanelProps) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-[10px] p-0"
+          className="shrink-0 rounded-2.5 p-0"
           aria-label="Open CAPA detail"
           onClick={() => {
             if (onOpenDetail) {

@@ -82,24 +82,29 @@ export function ListItemRow(props: Readonly<ComplianceDeadlinesItem>) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-ehs-slate text-[12px] leading-snug">
+        <Text as="p" className="text4 text-ehs-slate leading-snug">
           {emphasis ? (
             <>
-              <span className="text-ehs-dark-bg font-semibold">{emphasis}</span>{" "}
+              <Text as="span" className="text5 text-ehs-darker">
+                {emphasis}
+              </Text>{" "}
               {title}
             </>
           ) : (
-            <span className="text-ehs-dark-bg font-medium">{title}</span>
+            <Text as="span" className="text4 text-ehs-darker">{title}</Text>
           )}
-        </p>
-        <Text as="p" className="text-ehs-muted-text mt-[2px] text-[11px]">
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
           {subtitle}
         </Text>
       </div>
 
-      <span className="border-ehs-border/70 bg-ehs-light-bg/70 text-ehs-gray shrink-0 rounded-full border px-2.5 py-[3px] text-[11px] font-semibold">
+      <Text
+        as="span"
+        className="border-ehs-border/70 bg-ehs-light-bg/70 text7 text-ehs-gray shrink-0 rounded-full border px-2.5 py-0.75"
+      >
         {badge}
-      </span>
+      </Text>
     </div>
   );
 }
@@ -136,8 +141,8 @@ export function ComplianceDeadlinesCard(
       <div
         className={
           showDividers
-            ? "divide-ehs-border/60 mt-[7px] flex flex-col divide-y"
-            : "mt-[7px] flex flex-col gap-3.5"
+            ? "divide-ehs-border/60 mt-1.75 flex flex-col divide-y"
+            : "mt-1.75 flex flex-col gap-3.5"
         }
       >
         {items.map((item) => (

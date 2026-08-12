@@ -14,8 +14,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 /** Body placeholder for the Incident Trends card — axis, plot, legend. */
 export function TrendChartSkeleton() {
   return (
-    <div className="flex min-h-[220px] w-full flex-col gap-3">
-      <div className="flex min-h-[190px] flex-1 gap-3">
+    <div className="flex min-h-55 w-full flex-col gap-3">
+      <div className="flex min-h-47.5 flex-1 gap-3">
         <div className="flex w-6 shrink-0 flex-col justify-between py-1">
           {Array.from({ length: 5 }, (_, index) => (
             <Skeleton
@@ -47,7 +47,7 @@ export function TrendChartSkeleton() {
             key={`trend-legend-${String(index)}`}
             className="flex items-center gap-1.5"
           >
-            <Skeleton className="size-[6px] rounded-full" />
+            <Skeleton className="size-1.5 rounded-full" />
             <Skeleton className="h-2.5 w-16" />
           </div>
         ))}
@@ -61,17 +61,17 @@ export function ListCardSkeleton(props: Readonly<{ rows?: number }>) {
   const { rows = 5 } = props;
 
   return (
-    <div className="mt-[7px] flex flex-col gap-3.5">
+    <div className="mt-1.75 flex flex-col gap-3.5">
       {Array.from({ length: rows }, (_, index) => (
         <div
           key={`list-skeleton-${String(index)}`}
           className="flex items-start justify-between gap-3"
         >
-          <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <Skeleton className="h-3.5 w-[70%]" />
             <Skeleton className="h-2.5 w-[45%]" />
           </div>
-          <Skeleton className="h-[22px] w-11 shrink-0 rounded-full" />
+          <Skeleton className="h-5.5 w-11 shrink-0 rounded-full" />
         </div>
       ))}
     </div>
@@ -82,11 +82,11 @@ export function ListCardSkeleton(props: Readonly<{ rows?: number }>) {
 function CardHeadingSkeleton() {
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="flex flex-col gap-[2px]">
+      <div className="flex flex-col gap-0.5">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2.5 w-28" />
       </div>
-      <Skeleton className="h-6 w-16 rounded-[10px]" />
+      <Skeleton className="h-6 w-16 rounded-2.5" />
     </div>
   );
 }
@@ -97,7 +97,7 @@ function BarChartCardSkeleton() {
   return (
     <GlassCard>
       <CardHeadingSkeleton />
-      <div className="flex min-h-[200px] flex-1 items-end justify-between gap-3 pt-4">
+      <div className="flex min-h-50 flex-1 items-end justify-between gap-3 pt-4">
         {heights.map((height, index) => (
           <div
             key={`bar-skeleton-${String(index)}`}
@@ -117,17 +117,17 @@ function ProgressCardSkeleton() {
   return (
     <GlassCard>
       <CardHeadingSkeleton />
-      <div className="mt-[7px] flex flex-col gap-3">
+      <div className="mt-1.75 flex flex-col gap-3">
         {Array.from({ length: 7 }, (_, index) => (
           <div
             key={`progress-skeleton-${String(index)}`}
-            className="flex flex-col gap-[5px]"
+            className="flex flex-col gap-1.25"
           >
             <div className="flex items-center justify-between gap-3">
               <Skeleton className="h-3 w-40" />
               <Skeleton className="h-3 w-16" />
             </div>
-            <Skeleton className="h-[6px] w-full rounded-full" />
+            <Skeleton className="h-1.5 w-full rounded-full" />
           </div>
         ))}
       </div>

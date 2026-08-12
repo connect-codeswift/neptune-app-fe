@@ -51,7 +51,7 @@ export function LotoActiveLockoutsSection() {
         <article
           key={item.id}
           className={[
-            "rounded-[20px] border bg-[rgba(255,255,255,0.62)] px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]",
+            "rounded-5 border bg-[rgba(255,255,255,0.62)] px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]",
             accentBorderClass[item.accent],
           ].join(" ")}
         >
@@ -71,7 +71,7 @@ export function LotoActiveLockoutsSection() {
               onClick={() => {
                 router.push(lotoRemoveLockoutRoute(item.id));
               }}
-              className="text4 text-ehs-gray inline-flex h-[39px] shrink-0 cursor-pointer items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
+              className="text4 text-ehs-gray inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
             >
               <Icon icon="mdi:lock-open-outline" className="size-3.5" />
               Remove Lockout
@@ -82,9 +82,9 @@ export function LotoActiveLockoutsSection() {
             {META_FIELDS.map((field) => (
               <div
                 key={field.key}
-                className="rounded-[10px] px-3 pt-2.5 pb-2.5"
+                className="rounded-2.5 px-3 pt-2.5 pb-2.5"
               >
-                <div className="flex items-center gap-[5px]">
+                <div className="flex items-center gap-1.25">
                   <Icon
                     icon={field.icon}
                     className="size-3.5 text-[#b3bbc8]"

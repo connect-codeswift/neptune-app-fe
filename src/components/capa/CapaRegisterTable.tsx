@@ -68,7 +68,7 @@ function buildColumns(): ColumnDef<CapaDashboardItem, unknown>[] {
         const control = info.getValue();
         return (
           <span
-            className="text-ehs-darker block max-w-[200px] truncate text-base whitespace-nowrap"
+            className="text-ehs-darker block max-w-50 truncate text-sm whitespace-nowrap"
             title={control}
           >
             {clipWords(control)}

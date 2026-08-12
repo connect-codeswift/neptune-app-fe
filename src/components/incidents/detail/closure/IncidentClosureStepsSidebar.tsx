@@ -45,7 +45,7 @@ export function IncidentClosureStepsSidebar(
     <IncidentGlassCard
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-6"
-      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-[10px]"
+      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-2.5"
     >
       <Text
         as="h4"
@@ -68,7 +68,7 @@ export function IncidentClosureStepsSidebar(
               disabled={isLocked}
               aria-disabled={isLocked}
               className={[
-                "flex items-start gap-[10px] rounded-[10px] p-[10px] text-left transition-all duration-200",
+                "flex items-start gap-2.5 rounded-2.5 p-2.5 text-left transition-all duration-200",
                 isActive
                   ? "bg-ehs-dark-blue-bg-light border border-[rgba(8,145,166,0.1)]"
                   : isLocked
@@ -78,7 +78,7 @@ export function IncidentClosureStepsSidebar(
             >
               <div
                 className={[
-                  "mt-0.5 flex size-[22px] shrink-0 items-center justify-center rounded-[11px] text8 transition-colors",
+                  "mt-0.5 flex size-5.5 shrink-0 items-center justify-center rounded-2.75 text8 transition-colors",
                   isComplete
                     ? "bg-ehs-green font-bold text-ehs-light-text"
                     : isActive
@@ -89,14 +89,14 @@ export function IncidentClosureStepsSidebar(
                 {isComplete ? (
                   <Icon
                     icon="mdi:check"
-                    className="size-[11px]"
+                    className="size-2.75"
                     aria-hidden="true"
                   />
                 ) : (
                   step.id
                 )}
               </div>
-              <div className="flex min-w-0 flex-col gap-[2px]">
+              <div className="flex min-w-0 flex-col gap-0.5">
                 <Text
                   as="span"
                   className={[
@@ -129,9 +129,9 @@ export function IncidentClosureStepsSidebar(
             {`${String(currentStep)} / 4`}
           </Text>
         </div>
-        <div className="h-[6px] w-full overflow-hidden rounded-[999px] bg-ehs-muted-text/20">
+        <div className="h-1.5 w-full overflow-hidden rounded-249.75 bg-ehs-muted-text/20">
           <div
-            className="h-full rounded-[999px] bg-ehs-normal-blue transition-all duration-300"
+            className="h-full rounded-249.75 bg-ehs-normal-blue transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

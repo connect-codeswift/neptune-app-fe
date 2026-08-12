@@ -16,7 +16,7 @@ import {
 
 function HeroKpiSkeleton() {
   return (
-    <IncidentGlassCard className="min-h-[180px]">
+    <IncidentGlassCard className="min-h-45">
       <div className="flex h-full flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
@@ -74,7 +74,7 @@ export function IncidentKpisHeroRow() {
 
   if (showBootLoading || showQueryLoading) {
     return (
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         <HeroKpiSkeleton />
         <HeroKpiSkeleton />
         <HeroKpiSkeleton />
@@ -90,7 +90,7 @@ export function IncidentKpisHeroRow() {
         </Text>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {heroMetrics.map((metric) => (
           <HeroKpiCard key={metric.id} metric={metric} />
         ))}

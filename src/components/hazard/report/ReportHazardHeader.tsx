@@ -13,7 +13,7 @@ export function ReportHazardHeader(props: Readonly<{ action?: ReactNode }>) {
   const { action } = props;
 
   return (
-    <div className="relative flex items-center justify-between rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="backdrop-blur-2.5 relative flex items-center justify-between rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative flex flex-col justify-center gap-1.5">
         <nav
           aria-label="Breadcrumb"

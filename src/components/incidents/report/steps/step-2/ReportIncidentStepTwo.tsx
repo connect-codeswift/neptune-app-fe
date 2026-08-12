@@ -195,7 +195,7 @@ export function ReportIncidentStepTwo(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[29px]"
+      paddingClassName="p-7.25"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
       <div ref={formRef} className="flex flex-col gap-7">
@@ -219,9 +219,9 @@ export function ReportIncidentStepTwo(
             </Text>
           </div>
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-4.5 sm:grid-cols-2">
             {!isFirstAid ? (
-              <div className="pb-[18px]">
+              <div className="pb-4.5">
                 <ReportSelectWithAdd
                   label="Initial Treatment"
                   required
@@ -239,7 +239,7 @@ export function ReportIncidentStepTwo(
             ) : null}
             <div
               className={[
-                "pb-[18px]",
+                "pb-4.5",
                 isFirstAid ? "sm:col-span-2" : "",
               ]
                 .filter(Boolean)
@@ -257,7 +257,7 @@ export function ReportIncidentStepTwo(
                 options={[...YES_NO_OPTIONS]}
               />
             </div>
-            <div className="pb-[18px]">
+            <div className="pb-4.5">
               <ReportSelectWithAdd
                 label="Mechanism of Injury"
                 required
@@ -275,7 +275,7 @@ export function ReportIncidentStepTwo(
                 error={fieldErrors?.mechanismOfInjury ?? null}
               />
             </div>
-            <div className="pb-[18px]">
+            <div className="pb-4.5">
               <ReportSelectWithAdd
                 label="Nature of Injury"
                 required
@@ -294,8 +294,8 @@ export function ReportIncidentStepTwo(
           </div>
 
           {isFirstAid ? (
-            <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-[18px] sm:grid-cols-2">
-              <div className="pb-[18px]">
+            <div className="grid grid-cols-1 gap-x-4 gap-y-0 pt-4.5 sm:grid-cols-2">
+              <div className="pb-4.5">
                 <ReportSelectField
                   label="What treatment was given?"
                   required
@@ -306,7 +306,7 @@ export function ReportIncidentStepTwo(
                   options={[...WHAT_TREATMENT_GIVEN_OPTIONS]}
                 />
               </div>
-              <div className="pb-[18px]">
+              <div className="pb-4.5">
                 <ReportSelectField
                   label="Treatment provided by?"
                   required
@@ -317,7 +317,7 @@ export function ReportIncidentStepTwo(
                   options={[...TREATMENT_PROVIDER_OPTIONS]}
                 />
               </div>
-              <div className="pb-[18px]">
+              <div className="pb-4.5">
                 <ReportSelectField
                   label="Treatment location?"
                   required
@@ -326,7 +326,7 @@ export function ReportIncidentStepTwo(
                   options={[...TREATMENT_LOCATION_OPTIONS]}
                 />
               </div>
-              <div className="pb-[18px]">
+              <div className="pb-4.5">
                 <ReportSelectField
                   label="Is employee able to return to full duty?"
                   required
@@ -337,7 +337,7 @@ export function ReportIncidentStepTwo(
               </div>
               <div
                 className={[
-                  "pb-[18px]",
+                  "pb-4.5",
                   isCaseClosedNoFurther ? "sm:col-span-2" : "",
                 ]
                   .filter(Boolean)
@@ -359,7 +359,7 @@ export function ReportIncidentStepTwo(
                 />
               </div>
               {!isCaseClosedNoFurther ? (
-                <div className="pb-[18px]">
+                <div className="pb-4.5">
                   <ReportSelectField
                     label="Was further medical attention recommended"
                     value={form.furtherMedicalRecommended}
@@ -375,7 +375,7 @@ export function ReportIncidentStepTwo(
             </div>
           ) : null}
 
-          <div className="grid grid-cols-1 gap-x-4 py-[18px] sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 py-4.5 sm:grid-cols-2">
             <div className={isFirstAid ? "sm:col-span-2" : ""}>
               <ReportTextField
                 label="Object Involved"
@@ -409,7 +409,7 @@ export function ReportIncidentStepTwo(
           <ReportTextareaField
             // Taller than the default so a typical drafted narrative fits
             // without being clipped by the control strip along the bottom.
-            className="pt-[18px] [&_textarea]:min-h-[164px]"
+            className="pt-4.5 [&_textarea]:min-h-41"
             label="Describe incident in detail"
             required
             trailingHint="Events before, during & after."
@@ -492,7 +492,7 @@ export function ReportIncidentStepTwo(
           />
 
           <ReportWitnessesField
-            className="pt-[18px]"
+            className="pt-4.5"
             label="Witnesses"
             trailingHint="Search people at your site, or press Enter to add a name."
             value={form.witnesses}
@@ -503,7 +503,7 @@ export function ReportIncidentStepTwo(
 
           {isFirstAid ? (
             <ReportSelectField
-              className="pt-[18px]"
+              className="pt-4.5"
               label="Emergency Service Called?"
               value={form.classifications.emergency ?? ""}
               onChange={(answer) =>
@@ -519,17 +519,17 @@ export function ReportIncidentStepTwo(
           ) : null}
         </div>
 
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="text-ehs-slate rounded-[10px] border-[rgba(15,23,42,0.14)] px-[15px] py-2.5 text-sm font-bold"
+              className="text-ehs-slate rounded-2.5 border-[rgba(15,23,42,0.14)] px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
               Back
@@ -544,12 +544,12 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="primary"
               onClick={handleContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon
                 icon="mdi:chevron-right"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
             </Button>

@@ -63,7 +63,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
 
         {!isLoading && !errorMessage ? (
           <HazcomGlassCard
-            className="min-h-[280px] text-center"
+            className="min-h-70 text-center"
             hazcomGlassCardClassName="items-center justify-center gap-2"
           >
             <Icon
@@ -165,7 +165,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
 
         <HazcomGlassCard
           paddingClassName="p-6"
-          className="min-h-[520px]"
+          className="min-h-130"
           hazcomGlassCardClassName="justify-between gap-6"
         >
           <div className="flex flex-col gap-6">
@@ -258,7 +258,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
                     steps — the worst possible moment to be reading a
                     placeholder. The attached PDF is the authoritative sheet.
                   */}
-                  <div className="border-ehs-yellow/40 bg-ehs-yellow/8 flex items-start gap-2 rounded-[10px] border px-3 py-2.5">
+                  <div className="border-ehs-yellow/40 bg-ehs-yellow/8 flex items-start gap-2 rounded-2.5 border px-3 py-2.5">
                     <Icon
                       icon="mdi:information-outline"
                       className="text-ehs-yellow mt-px size-4 shrink-0"

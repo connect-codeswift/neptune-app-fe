@@ -22,7 +22,7 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
   const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}`;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative z-1 flex flex-col">
         <div
           className="flex flex-wrap items-start justify-between gap-4 px-6 py-5"
@@ -35,12 +35,12 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
             <Link
               href={detailHref}
               aria-label="Back to CAPA detail"
-              className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors hover:bg-slate-50 md:hidden"
+              className="border-ehs-border text-ehs-dark-bg flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors hover:bg-slate-50 md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
             <span
-              className="inline-flex size-11.5 shrink-0 items-center justify-center rounded-[13px] bg-[#0891a6] shadow-[0px_8px_22px_-8px_#0891a6]"
+              className="inline-flex size-11.5 shrink-0 items-center justify-center rounded-3.25 bg-[#0891a6] shadow-[0px_8px_22px_-8px_#0891a6]"
               aria-hidden
             >
               {/* Figma 5472:19849 — outer 46×46, glyph 22×22 */}
@@ -64,7 +64,7 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
               </Text>
               <Text
                 as="h1"
-                className="text-[22px] leading-7 font-bold tracking-[-0.3px] text-[#0b1320]"
+                className="text-5.5 leading-7 font-bold tracking-[-0.3px] text-[#0b1320]"
               >
                 5 Whys across causal categories → root cause → corrective
                 actions

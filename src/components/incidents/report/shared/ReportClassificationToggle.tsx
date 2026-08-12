@@ -104,7 +104,7 @@ export function ReportClassificationToggle(
         aria-label={label}
         data-invalid={error ? "true" : undefined}
         className={[
-          "relative grid h-10 rounded-[10px] border border-white/70 bg-white/45 p-1 shadow-[inset_0px_2px_4px_rgba(15,23,42,0.06)] backdrop-blur-md",
+          "relative grid h-10 rounded-2.5 border border-white/70 bg-white/45 p-1 shadow-[inset_0px_2px_4px_rgba(15,23,42,0.06)] backdrop-blur-md",
           optionCount === 3 ? "grid-cols-3" : "grid-cols-2",
           error ? "border-ehs-red/50" : "",
         ].join(" ")}
@@ -113,7 +113,7 @@ export function ReportClassificationToggle(
           <span
             aria-hidden="true"
             className={[
-              "pointer-events-none absolute top-1 bottom-1 rounded-[7px] transition-all duration-200",
+              "pointer-events-none absolute top-1 bottom-1 rounded-1.75 transition-all duration-200",
               selectedSiaStyle
                 ? selectedSiaStyle.pane
                 : isPrimarySelected
@@ -143,7 +143,7 @@ export function ReportClassificationToggle(
               aria-label={option.label}
               onClick={() => onChange(option.value as ClassificationValue)}
               className={[
-                "relative z-10 rounded-[7px] text-sm font-bold transition-colors duration-200",
+                "relative z-10 rounded-1.75 text-sm font-bold transition-colors duration-200",
                 "outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/45 focus-visible:ring-offset-2",
                 active
                   ? optionStyle

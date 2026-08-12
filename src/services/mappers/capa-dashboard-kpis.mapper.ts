@@ -1,7 +1,4 @@
-import type {
-  KpiMetricCardProps,
-  KpiMetricTone,
-} from "@/components/KpiMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import { CAPA_DASHBOARD_KPIS } from "@/components/capa/capa-dashboard-data";
 import type {
   CapaDashboardKpiCardDto,
@@ -9,7 +6,6 @@ import type {
   CapaDashboardKpisDto,
   CapaDashboardKpiStatusDto,
 } from "@/dtos/res/capa-dashboard-kpis-response.dto";
-import { SHOW_KPI_TREND_BADGES } from "@/lib/kpi-display-flags";
 
 type MetricPreference = "lower-better" | "higher-better";
 
@@ -59,9 +55,7 @@ function asNumberArray(value: unknown): number[] {
     .filter((entry): entry is number => entry != null);
 }
 
-function normalizeChange(
-  raw: unknown,
-): CapaDashboardKpiChangeDto | null {
+function normalizeChange(raw: unknown): CapaDashboardKpiChangeDto | null {
   if (!isRecord(raw)) {
     return null;
   }
@@ -152,53 +146,13 @@ function formatValue(
   return String(Math.round(value));
 }
 
-function resolveDirection(
-  change: CapaDashboardKpiChangeDto | null | undefined,
-  trendDelta: number | null | undefined,
-): "up" | "down" {
-  if (change?.direction === "up" || change?.direction === "down") {
-    return change.direction;
+function toSparkline(
+  trend: readonly number[] | null | undefined,
+): readonly number[] | undefined {
+  if (!trend || trend.length < 2) {
+    return undefined;
   }
-  if (trendDelta != null && Number.isFinite(trendDelta)) {
-    return trendDelta >= 0 ? "up" : "down";
-  }
-  return "down";
-}
-
-function resolveTrendTone(
-  direction: "up" | "down",
-  preference: MetricPreference,
-): KpiMetricTone {
-  if (preference === "higher-better") {
-    return direction === "up" ? "positive" : "negative";
-  }
-  return direction === "down" ? "positive" : "negative";
-}
-
-function resolveTrendValue(
-  change: CapaDashboardKpiChangeDto | null | undefined,
-  trendDelta: number | null | undefined,
-): string {
-  if (!SHOW_KPI_TREND_BADGES) {
-    return "";
-  }
-
-  const label = change?.label?.trim();
-  if (label) {
-    return label;
-  }
-
-  if (trendDelta == null || !Number.isFinite(trendDelta)) {
-    return "—";
-  }
-
-  if (trendDelta === 0) {
-    return "0";
-  }
-
-  return trendDelta > 0
-    ? `+${String(trendDelta)}`
-    : String(trendDelta);
+  return trend.map((entry) => Number(entry));
 }
 
 function buildTargetLabel(
@@ -225,40 +179,53 @@ function mapCard(
     preference: MetricPreference;
     valueStyle: "int" | "oneDecimal";
     targetUnitSuffix: string;
-    fallback: KpiMetricCardProps;
+    fallback: MetricCardProps;
   }>,
-): KpiMetricCardProps {
+): MetricCardProps {
   if (!card || card.value == null || !Number.isFinite(card.value)) {
     return options.fallback;
   }
 
-  const direction = resolveDirection(card.change, card.trendDelta);
-  const trendTone = resolveTrendTone(direction, options.preference);
-  const chartData =
-    card.trend && card.trend.length >= 2 ? card.trend : options.fallback.chartData;
+  const targetLabel =
+    buildTargetLabel(
+      card.target,
+      options.preference,
+      options.targetUnitSuffix,
+    ) ??
+    options.fallback.targetLabel ??
+    "";
 
-  return {
+  const unit = displayUnit(card.unit) || options.fallback.unit || "";
+  const trend = toSparkline(card.trend) ?? options.fallback.trend;
+
+  const metric: MetricCardProps = {
     title: options.title,
     value: formatValue(card.value, options.valueStyle),
-    unit: displayUnit(card.unit) || options.fallback.unit,
-    trendValue: resolveTrendValue(card.change, card.trendDelta),
-    trendDirection: direction,
-    trendTone,
-    targetLabel:
-      buildTargetLabel(card.target, options.preference, options.targetUnitSuffix) ??
-      options.fallback.targetLabel,
-    chartData,
+    unit,
+    target: card.target ?? options.fallback.target,
+    targetLabel,
+    isMorePositive: options.preference === "higher-better",
+    signalOwnedBy: "target",
+    trend,
   };
+
+  return metric;
 }
 
 /** Maps GET /api/CAPA/dashboard-kpis into the four CAPA dashboard KPI cards. */
 export function mapCapaDashboardKpisToMetrics(
   dto: CapaDashboardKpisDto | null | undefined,
-): readonly KpiMetricCardProps[] {
+): readonly MetricCardProps[] {
   const [openFallback, overdueFallback, onTimeFallback, avgDaysFallback] =
     CAPA_DASHBOARD_KPIS;
 
-  if (!dto || !openFallback || !overdueFallback || !onTimeFallback || !avgDaysFallback) {
+  if (
+    !dto ||
+    !openFallback ||
+    !overdueFallback ||
+    !onTimeFallback ||
+    !avgDaysFallback
+  ) {
     return CAPA_DASHBOARD_KPIS;
   }
 

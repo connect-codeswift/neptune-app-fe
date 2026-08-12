@@ -49,7 +49,7 @@ function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="h-[34px] w-24 shrink-0"
+      className="h-8.5 w-20 shrink-0"
       aria-hidden="true"
     >
       <path d={areaPath} className="fill-ehs-green/15" />
@@ -80,7 +80,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
 
   return (
     <IncidentGlassCard
-      className={["min-h-[180px]", className].filter(Boolean).join(" ")}
+      className={["min-h-45", className].filter(Boolean).join(" ")}
     >
       <div className="flex h-full flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
@@ -99,7 +99,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           {status ? (
             <span
               className={[
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-[9px] py-[2.5px] text-sm font-bold tracking-[0.11px]",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] text-sm font-bold tracking-[0.11px]",
                 status === "on"
                   ? "bg-ehs-green/14 text-ehs-green"
                   : "bg-ehs-red/14 text-ehs-red",
@@ -107,7 +107,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
             >
               <span
                 className={[
-                  "size-1.5 rounded-[3px]",
+                  "size-1.5 rounded-0.75",
                   status === "on" ? "bg-ehs-green" : "bg-ehs-red",
                 ].join(" ")}
                 aria-hidden="true"
@@ -121,12 +121,12 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           <div className="flex items-baseline gap-1 pr-1.5">
             <Text
               as="p"
-              className="text-ehs-darker text-3xl leading-none tracking-tight tabular-nums"
+              className="text-ehs-darker text-2xl leading-none tracking-tight tabular-nums"
             >
               {metric.value}
             </Text>
             {metric.unit ? (
-              <Text as="span" className="text-ehs-muted-text text-sm">
+              <Text as="span" className="text-ehs-muted-text text-xs uppercase">
                 {metric.unit}
               </Text>
             ) : null}

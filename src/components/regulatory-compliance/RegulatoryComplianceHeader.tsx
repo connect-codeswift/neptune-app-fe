@@ -36,21 +36,18 @@ export function RegulatoryComplianceHeader(
   return (
     <header
       className={[
-        "flex flex-col gap-4 px-[18px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between",
+        "flex flex-col gap-4 px-4.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <div className="flex flex-col gap-2">
-        <Text
-          as="h1"
-          className="text-ehs-darker text-2xl font-bold tracking-tight"
-        >
+        <Text as="h1" className="text1 text-ehs-darker">
           {title}
         </Text>
         {subtitle ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {subtitle}
           </Text>
         ) : null}
@@ -61,9 +58,9 @@ export function RegulatoryComplianceHeader(
           type="button"
           variant="tertiary"
           onClick={onSecondaryAction}
-          className="text-ehs-gray rounded-[10px] border-white/90 bg-white/62 px-3.5 py-[8px] text-[13px] font-semibold shadow-sm backdrop-blur-[10px] hover:bg-white"
+          className="text4 text-ehs-gray rounded-2.5 border-white/90 bg-white/62 px-3.5 py-2 shadow-sm backdrop-blur-2.5 hover:bg-white"
         >
-          <Icon icon="mdi:tune" className="text-base" aria-hidden="true" />
+          <Icon icon="mdi:tune" className="size-4" aria-hidden="true" />
           {secondaryActionLabel}
         </Button>
 
@@ -71,9 +68,9 @@ export function RegulatoryComplianceHeader(
           type="button"
           variant="primary"
           onClick={onPrimaryAction}
-          className="rounded-[10px] bg-[#0891a6] px-3.5 py-[8px] text-[13px] font-semibold shadow-md shadow-[#0891a6]/40"
+          className="text4 rounded-2.5 bg-[#0891a6] px-3.5 py-2 shadow-md shadow-[#0891a6]/40"
         >
-          <Icon icon="mdi:plus" className="text-base" aria-hidden="true" />
+          <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
           {primaryActionLabel}
         </Button>
       </div>

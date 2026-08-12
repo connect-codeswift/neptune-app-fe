@@ -106,7 +106,7 @@ export function HazcomTextField(props: Readonly<HazcomTextFieldProps>) {
         {endIcon ? (
           <Icon
             icon={endIcon}
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[13px] -translate-y-1/2"
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-3.25 -translate-y-1/2"
             aria-hidden="true"
           />
         ) : null}

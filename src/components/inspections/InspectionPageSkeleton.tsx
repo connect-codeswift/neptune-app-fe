@@ -29,7 +29,7 @@ export function InspectionDetailPanelSkeleton() {
           <Skeleton className="h-4 w-44" />
           <Skeleton className="h-2.5 w-28" />
         </div>
-        <Skeleton className="h-8 w-28 rounded-[10px]" />
+        <Skeleton className="h-8 w-28 rounded-2.5" />
       </div>
 
       <div className="flex items-center gap-5">

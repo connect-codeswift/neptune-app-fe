@@ -38,10 +38,10 @@ const WHY_SLOTS = 5;
 const CAPA_ROUTE = "/dashboard/capa";
 
 const glassCardClass =
-  "relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
 
 const cellTextareaClass =
-  "min-h-16 w-full resize-none bg-transparent text-sm leading-[18px] text-[#2a3446] outline-none placeholder:text-[#8892a3]";
+  "min-h-16 w-full resize-none bg-transparent text-sm leading-4.5 text-[#2a3446] outline-none placeholder:text-[#8892a3]";
 
 type EditableLane = {
   id: string;
@@ -355,13 +355,13 @@ function WorksheetHeader() {
       >
         Category
       </Text>
-      <div className="rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(8,145,166,0.13)] px-3 py-2 text-center text-sm font-bold tracking-[0.23px] text-[#056e7e]">
+      <div className="rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(8,145,166,0.13)] px-3 py-2 text-center text-sm font-bold tracking-[0.23px] text-[#056e7e]">
         Contributing factor
       </div>
       {Array.from({ length: WHY_SLOTS }, (_, index) => (
         <div
           key={`why-h-${String(index + 1)}`}
-          className="flex items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-white/62 px-2 py-2 text-sm font-bold tracking-[0.23px] text-[#566072]"
+          className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2 py-2 text-sm font-bold tracking-[0.23px] text-[#566072]"
         >
           <span className="inline-flex size-5 items-center justify-center rounded-[8.5px] bg-[#2a3446] text-xs font-bold tracking-[0.23px] text-[#f3f5f8]">
             {String(index + 1)}
@@ -369,7 +369,7 @@ function WorksheetHeader() {
           Why?
         </div>
       ))}
-      <div className="flex items-center justify-center gap-1.5 rounded-[9px] border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-3 py-2 text-sm font-bold tracking-[0.23px] text-[#10b981]">
+      <div className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-3 py-2 text-sm font-bold tracking-[0.23px] text-[#10b981]">
         <Icon
           icon="mdi:clipboard-check-outline"
           className="size-3 text-[#10b981]"
@@ -410,7 +410,7 @@ function WorksheetLane(
     <div className="grid grid-cols-[136px_minmax(180px,1.15fr)_repeat(5,minmax(180px,1fr))_minmax(200px,1.25fr)] gap-2.5">
       <div
         className={[
-          "flex min-h-35 items-center justify-center rounded-[9px] border border-[rgba(15,23,42,0.08)] px-3 text-center text-sm font-bold text-[#0b1320]",
+          "flex min-h-35 items-center justify-center rounded-2.25 border border-[rgba(15,23,42,0.08)] px-3 text-center text-sm font-bold text-[#0b1320]",
           lane.categoryClassName,
         ].join(" ")}
       >
@@ -454,7 +454,7 @@ function WorksheetLane(
             onDone={() => onEdit(null)}
           />
         ) : (
-          <p className="text-sm leading-[18px] font-bold text-[#0b1320]">
+          <p className="text-sm leading-4.5 font-bold text-[#0b1320]">
             {lane.contributingFactor || (
               <span className="font-normal text-[#8892a3]">Click to edit…</span>
             )}
@@ -608,7 +608,7 @@ function WhyCell(
     >
       <div className="flex items-center gap-1.5">
         <span
-          className="inline-flex size-[19px] items-center justify-center rounded-[9.5px] text-[10.5px] font-bold text-white"
+          className="inline-flex size-4.75 items-center justify-center rounded-[9.5px] text-[10.5px] font-bold text-white"
           style={{ backgroundColor: accent }}
         >
           {String(step)}
@@ -646,7 +646,7 @@ function WhyCell(
           onDone={onDone}
         />
       ) : (
-        <p className="text-sm leading-[18px] text-[#2a3446]">
+        <p className="text-sm leading-4.5 text-[#2a3446]">
           {text || <span className="text-[#8892a3]">Click to edit…</span>}
         </p>
       )}
@@ -669,7 +669,7 @@ function AddWhyCell(
       className="flex min-h-35 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[rgba(15,23,42,0.14)] bg-transparent text-[#8892a3] transition-colors"
     >
       <span
-        className="inline-flex size-7 items-center justify-center rounded-[13px]"
+        className="inline-flex size-7 items-center justify-center rounded-3.25"
         style={{ backgroundColor: accentSoft, color: accent }}
       >
         <Icon icon="mdi:plus" className="size-4" aria-hidden />
@@ -706,7 +706,7 @@ function ActionsCell(
       <div className="flex flex-col gap-2">
         {actions.map((action) => (
           <div key={action.id} className="flex items-start gap-2">
-            <span className="mt-0.5 inline-flex size-[17px] shrink-0 items-center justify-center rounded-[5px] text-[#10b981]">
+            <span className="mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center rounded-1.25 text-[#10b981]">
               <Icon icon="mdi:check" className="size-4" aria-hidden />
             </span>
             <p className="min-w-0 flex-1 text-sm leading-[17.4px] text-[#2a3446]">

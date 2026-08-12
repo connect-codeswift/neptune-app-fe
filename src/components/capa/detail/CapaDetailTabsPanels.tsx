@@ -131,7 +131,7 @@ function SectionBlock(
       <div
         className={[
           "text-base leading-[22.75px] text-[#2a3446]",
-          props.muted ? "rounded-[10px] bg-[#f6f6f6] px-3 py-3" : "px-3 py-3",
+          props.muted ? "rounded-2.5 bg-[#f6f6f6] px-3 py-3" : "px-3 py-3",
         ].join(" ")}
       >
         {props.children}
@@ -147,7 +147,7 @@ export function CapaDetailDetailsTab(
   const { record } = props;
 
   return (
-    <div className="flex flex-col gap-5 px-[21px] pt-[21px] pb-5">
+    <div className="flex flex-col gap-5 px-5.25 pt-5.25 pb-5">
       <SectionBlock title="Problem Statement" muted>
         {record.problemStatement}
       </SectionBlock>
@@ -370,7 +370,7 @@ export function CapaDetailCommentsTab(
   }
 
   return (
-    <div className="flex flex-col gap-4 px-[21px] pt-[21px] pb-5">
+    <div className="flex flex-col gap-4 px-5.25 pt-5.25 pb-5">
       {isLoading ? (
         <Text as="p" className="py-6 text-center text-sm text-[#8892a3]">
           Loading comments…
@@ -409,7 +409,7 @@ export function CapaDetailCommentsTab(
             rows={2}
             placeholder="Add a comment or progress update…"
             disabled={createCommentMutation.isPending}
-            className="min-h-[57px] w-full resize-none rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-4 text-base leading-5 text-[#0b1320] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20 disabled:opacity-60"
+            className="min-h-14.25 w-full resize-none rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-4 text-base leading-5 text-[#0b1320] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20 disabled:opacity-60"
           />
           <div className="flex justify-end">
             <Button
@@ -419,7 +419,7 @@ export function CapaDetailCommentsTab(
               onClick={() => {
                 void handlePostComment();
               }}
-              className="rounded-[10px] px-3.5 text-sm font-medium shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-2.5 px-3.5 text-sm font-medium shadow-[0px_6px_18px_-6px_#0891a6]"
             >
               {createCommentMutation.isPending ? "Posting…" : "Post Comment"}
             </Button>
@@ -548,7 +548,7 @@ export function CapaDetailAttachmentsTab(
   }
 
   return (
-    <div className="px-[21px] pt-[21px] pb-5">
+    <div className="px-5.25 pt-5.25 pb-5">
       <FormBuilder
         key={`${record.id}-${String(attachmentsQuery.dataUpdatedAt)}-${String(userNames.size)}`}
         formId={CAPA_ATTACHMENTS_FORM_ID}

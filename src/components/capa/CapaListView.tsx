@@ -40,7 +40,7 @@ function CapaBadge(props: Readonly<{ label: string; tone: string }>) {
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap",
+        "inline-flex items-center rounded-full px-2 py-0.5 text-2.75 font-semibold whitespace-nowrap",
         tone,
       ].join(" ")}
     >
@@ -55,7 +55,7 @@ function CapaKpiTile(
   const { label, value, icon, tone } = props;
 
   return (
-    <GlassCard className="gap-[6px]">
+    <GlassCard className="gap-1.5">
       <div className="flex items-center justify-between gap-3">
         <Text
           as="p"
@@ -74,7 +74,7 @@ function CapaKpiTile(
       </div>
       <Text
         as="p"
-        className="text-ehs-dark-bg text-[32px] leading-[36px] tracking-[-1px] tabular-nums"
+        className="text-ehs-dark-bg text-8 leading-9 tracking-[-1px] tabular-nums"
       >
         {String(value)}
       </Text>
@@ -262,7 +262,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
 
   if (showSignInPrompt) {
     return (
-      <GlassCard className="min-h-[240px] items-center justify-center">
+      <GlassCard className="min-h-60 items-center justify-center">
         <Text as="p" className="text-ehs-muted-text text-sm">
           Please sign in to load CAPAs.
         </Text>
@@ -272,7 +272,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
 
   if (showError) {
     return (
-      <GlassCard className="min-h-[240px] items-center justify-center gap-2 text-center">
+      <GlassCard className="min-h-60 items-center justify-center gap-2 text-center">
         <Icon
           icon="mdi:alert-circle-outline"
           className="text-ehs-red size-8"
@@ -361,7 +361,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
       />
 
       {filteredRows.length === 0 ? (
-        <GlassCard className="min-h-[240px] items-center justify-center gap-2 text-center">
+        <GlassCard className="min-h-60 items-center justify-center gap-2 text-center">
           <Icon
             icon="mdi:clipboard-text-off-outline"
             className="text-ehs-muted-text size-8"

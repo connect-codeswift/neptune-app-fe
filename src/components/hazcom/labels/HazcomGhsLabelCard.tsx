@@ -50,7 +50,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
     <div
       style={{ aspectRatio: `${size.widthIn} / ${size.heightIn}` }}
       className={[
-        "border-ehs-darker/80 mx-auto flex w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-lg border-2 bg-white p-5 shadow-sm",
+        "border-ehs-darker/80 mx-auto flex w-full max-w-105 flex-col gap-3 overflow-y-auto rounded-lg border-2 bg-white p-5 shadow-sm",
         className,
       ]
         .filter(Boolean)
@@ -100,7 +100,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       {chemical.hazardStatements.length > 0 ? (
         <p className="text8 text-ehs-darker leading-relaxed">
           <Text as="span" className="text7 text-ehs-darker">
-            Hazard:{" "}
+            {"Hazard: "}
           </Text>
           {chemical.hazardStatements
             .map((statement) => `${statement.code} – ${statement.text}`)
@@ -111,7 +111,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       {chemical.precautionaryStatements.length > 0 ? (
         <p className="text8 text-ehs-darker leading-relaxed">
           <Text as="span" className="text7 text-ehs-darker">
-            Precaution:{" "}
+            {"Precaution: "}
           </Text>
           {chemical.precautionaryStatements
             .map((statement) => `${statement.code} – ${statement.text}`)
@@ -154,7 +154,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
             <div
               role="img"
               aria-label={`QR code placeholder for ${chemical.id}`}
-              className="grid size-16 shrink-0 grid-cols-5 grid-rows-5 gap-[1px] border border-[#0b1320] bg-white p-1"
+              className="grid size-16 shrink-0 grid-cols-5 grid-rows-5 gap-0.25 border border-[#0b1320] bg-white p-1"
             >
               {hazcomPseudoQrCells(chemical.id).map((filled, index) => {
                 const row = Math.floor(index / HAZCOM_QR_GRID_SIZE);

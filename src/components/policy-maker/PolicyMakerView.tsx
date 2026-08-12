@@ -29,6 +29,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_DOCUMENTS_PAGE_NUMBER,
   DEFAULT_DOCUMENTS_PAGE_SIZE,
+  useDocumentByIdQuery,
   useDocumentDashboardKpisQuery,
   useDocumentsListQuery,
 } from "@/hooks/use-document-queries";
@@ -152,23 +153,48 @@ export function PolicyMakerView() {
     );
   }, [documentsQuery.data?.records, categoryId, statusFilter, searchQuery]);
 
-  // Preview panel toggles from the view / close icon — same as Incident List.
-  const selectedDocument =
+  // Selection stays tied to the list row; panel body loads from GetDocumentById.
+  const selectedListDocument =
     selectedId == null
       ? null
       : (documents.find((doc) => doc.id === selectedId) ?? null);
 
+  const selectedNumericId = useMemo(() => {
+    if (selectedListDocument == null) {
+      return null;
+    }
+    const parsed = Number(selectedListDocument.id);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }, [selectedListDocument]);
+
+  const selectedDetailQuery = useDocumentByIdQuery({
+    id: selectedNumericId,
+    enabled: isClientReady && hasToken && selectedNumericId != null,
+  });
+
   useEffect(() => {
-    if (selectedId != null && selectedDocument == null) {
+    if (selectedId != null && selectedListDocument == null) {
       setSelectedId(null);
     }
-  }, [selectedId, selectedDocument]);
+  }, [selectedId, selectedListDocument]);
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
   }, []);
 
-  const isPanelOpen = selectedDocument != null;
+  const isPanelOpen = selectedListDocument != null;
+
+  const panelErrorMessage =
+    isPanelOpen && selectedDetailQuery.isError
+      ? getMutationErrorMessage(
+          selectedDetailQuery.error,
+          "Failed to load document details.",
+        )
+      : isPanelOpen &&
+          !selectedDetailQuery.isLoading &&
+          selectedDetailQuery.data == null
+        ? "Document details were not found."
+        : null;
 
   const resultLabel = `${String(documents.length)} ${
     documents.length === 1 ? "document" : "documents"
@@ -187,10 +213,6 @@ export function PolicyMakerView() {
           )
         : null;
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize) || 1);
-  const canGoPrevious = pageNumber > 1 && !documentsQuery.isFetching;
-  const canGoNext = pageNumber < totalPages && !documentsQuery.isFetching;
-
   return (
     <div className="flex min-h-screen flex-1 flex-col">
       <DashboardHeader title="Policy Maker" />
@@ -208,10 +230,10 @@ export function PolicyMakerView() {
               className="text-ehs-red size-8"
               aria-hidden="true"
             />
-            <Text as="p" className="text-ehs-darker text-sm font-semibold">
+            <Text as="p" className="text4 text-ehs-darker">
               Could not load documents
             </Text>
-            <Text as="p" className="text-ehs-muted-text text-sm">
+            <Text as="p" className="text4 text-ehs-muted-text">
               {errorMessage}
             </Text>
             {hasToken ? (
@@ -272,73 +294,34 @@ export function PolicyMakerView() {
                     : "xl:grid-cols-1",
                 ].join(" ")}
               >
-                <div className="flex min-w-0 flex-col gap-3">
-                  <PolicyMakerDocumentTable
-                    categoryLabel={categoryLabel(categoryId)}
-                    documentCount={documents.length}
-                    documents={documents}
-                    selectedId={selectedId}
-                    onViewMore={handleToggleDetailPanel}
-                    expanded={!isPanelOpen}
-                    onUploadDocument={() =>
-                      router.push("/dashboard/policy-maker/upload")
-                    }
-                    className="min-w-0"
-                  />
+                <PolicyMakerDocumentTable
+                  categoryLabel={categoryLabel(categoryId)}
+                  documentCount={documents.length}
+                  documents={documents}
+                  selectedId={selectedId}
+                  onViewMore={handleToggleDetailPanel}
+                  expanded={!isPanelOpen}
+                  onUploadDocument={() =>
+                    router.push("/dashboard/policy-maker/upload")
+                  }
+                  pagination={{
+                    pageNumber,
+                    pageSize,
+                    totalRecords: totalCount,
+                    onPageChange: setPageNumber,
+                    isLoading: documentsQuery.isFetching,
+                  }}
+                  className="min-w-0"
+                />
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
-                    <Text as="p" className="text4 text-ehs-muted-text">
-                      {[
-                        `Page ${String(pageNumber)} of ${String(totalPages)}`,
-                        totalCount > 0 ? `${String(totalCount)} total` : null,
-                        documentsQuery.isFetching ? "Loading…" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </Text>
-
-                    <div className="flex items-center gap-1.5">
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        aria-label="Previous page"
-                        disabled={!canGoPrevious}
-                        onClick={() =>
-                          setPageNumber((current) => Math.max(1, current - 1))
-                        }
-                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
-                      >
-                        <Icon
-                          icon="mdi:chevron-left"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        aria-label="Next page"
-                        disabled={!canGoNext}
-                        onClick={() =>
-                          setPageNumber((current) =>
-                            Math.min(totalPages, current + 1),
-                          )
-                        }
-                        className="text4 rounded-lg px-2.5 py-1.5 font-semibold disabled:opacity-40"
-                      >
-                        <Icon
-                          icon="mdi:chevron-right"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {isPanelOpen && selectedDocument ? (
+                {isPanelOpen ? (
                   <PolicyMakerDetailPanel
-                    document={selectedDocument}
+                    document={selectedDetailQuery.data ?? null}
+                    isLoading={selectedDetailQuery.isLoading}
+                    errorMessage={panelErrorMessage}
+                    onRetry={() => {
+                      void selectedDetailQuery.refetch();
+                    }}
                     className="min-w-0"
                   />
                 ) : null}

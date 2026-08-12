@@ -26,7 +26,7 @@ export function HazcomEmptyCard(props: Readonly<HazcomEmptyCardProps>) {
 
   return (
     <HazcomGlassCard
-      className={["min-h-[220px] text-center", className]
+      className={["min-h-55 text-center", className]
         .filter(Boolean)
         .join(" ")}
       hazcomGlassCardClassName="items-center justify-center gap-3"

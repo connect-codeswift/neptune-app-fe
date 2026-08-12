@@ -146,7 +146,7 @@ export function ReportOptionCards<T extends string>(
                 key={option.id}
                 {...shared}
                 className={[
-                  "flex min-h-[57px] cursor-pointer flex-col items-start gap-0.5 rounded-[10px] border p-[13px] text-left transition-all duration-200",
+                  "flex min-h-14.25 cursor-pointer flex-col items-start gap-0.5 rounded-2.5 border p-3.25 text-left transition-all duration-200",
                   FOCUS_RING,
                   isSelected
                     ? "border-ehs-normal-blue bg-ehs-normal-blue/18 shadow-[0_0_0_1px_rgba(8,145,166,0.12)]"

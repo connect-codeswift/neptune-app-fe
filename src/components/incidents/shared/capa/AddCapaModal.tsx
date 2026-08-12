@@ -207,8 +207,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
       }
     >
       <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-8 lg:gap-12">
-          <section className="w-full shrink-0 md:w-[320px] lg:w-[380px]">
-            <div className="mb-4 flex flex-col gap-[5px] sm:mb-6">
+          <section className="w-full shrink-0 md:w-80 lg:w-95">
+            <div className="mb-4 flex flex-col gap-1.25 sm:mb-6">
             <div className="flex items-center gap-2.5">
               <StepBadge step="1" />
               <Text
@@ -243,7 +243,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
             </Text>
           </div>
 
-          <div className="flex flex-col gap-[18px]">
+          <div className="flex flex-col gap-4.5">
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor={descriptionFieldId} required>
                 Action description

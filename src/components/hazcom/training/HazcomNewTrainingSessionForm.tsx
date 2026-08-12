@@ -271,7 +271,7 @@ export function HazcomNewTrainingSessionForm(
               {form.materials.map((material, index) => (
                 <li
                   key={`${material.fileUrl}-${String(index)}`}
-                  className="border-ehs-border flex items-center justify-between gap-3 rounded-[10px] border bg-white/60 px-3 py-2"
+                  className="border-ehs-border flex items-center justify-between gap-3 rounded-2.5 border bg-white/60 px-3 py-2"
                 >
                   <Text
                     as="span"

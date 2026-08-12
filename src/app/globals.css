@@ -87,6 +87,18 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /*
+   * Numeric radius tokens used across the app (GlassCard, tables, inputs).
+   * Tailwind’s defaults stop at --radius-4xl named sizes; bare numbers like
+   * rounded-5 / rounded-2.5 only work when these --radius-* vars exist.
+   * Without them, border-radius is invalid and corners render square.
+   * Values match the pre-refactor arbitrary sizes (20px / 10px / 12px).
+   */
+  --radius-2\.5: 0.625rem;
+  --radius-3: 0.75rem;
+  --radius-4: 1rem;
+  --radius-5: 1.25rem;
 }
 
 body {
@@ -95,101 +107,71 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Incident typography scale (Inter)
+   Incident typography scale
    ---------------------------------------------------------------------------
-   Named text1…text9 after the Incident list / panel roles so Near Miss,
-   Hazard, and other modules can share the same size + weight language.
-   Color stays at the call site (`text-ehs-*`) so tokens stay reusable.
+   text1 = page title … text9 = meta label.
+   Sizes match the original Incident list / panel roles (not the inflated
+   responsive bump). Font family inherits from `body`. Color stays at the
+   call site.
    --------------------------------------------------------------------------- */
+
+/*
+  Token   size              weight
+  ------  ----------------  --------
+  text1   1.25rem → 1.5rem  bold     (page title; sm+)
+  text2   1.875rem (30px)   normal   (KPI value)
+  text3   1.125rem (18px)   bold     (card / section title)
+  text4   0.875rem (14px)   normal   (body / table row)
+  text5   0.875rem (14px)   bold     (badge / emphasis)
+  text6   0.75rem (12px)    bold     (eyebrow / column header, uppercase)
+  text7   0.75rem (12px)    semibold (dense ID / numeric meta)
+  text8   0.75rem (12px)    normal   (caption / helper)
+  text9   0.875rem (14px)   semibold (meta field label, uppercase)
+*/
 
 /* Page title — DashboardHeader */
 @utility text1 {
-  font-family: var(--font-inter);
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-
-  @media (width >= 40rem) {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
+  @apply text-[1.25rem] leading-7 font-bold tracking-tight sm:text-[1.5rem] sm:leading-8;
 }
 
 /* KPI / hero numeric value */
 @utility text2 {
-  font-family: var(--font-inter);
-  font-size: 1.875rem;
-  line-height: 1;
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  font-variant-numeric: tabular-nums;
+  @apply text-[1.875rem] leading-none font-normal tracking-tight tabular-nums;
 }
 
 /* Card / panel section title */
 @utility text3 {
-  font-family: var(--font-inter);
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  font-weight: 700;
+  @apply text-[1.125rem] leading-7 font-bold;
 }
 
 /* Primary body / table row title */
 @utility text4 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  font-weight: 400;
+  @apply text-[0.875rem] leading-normal font-normal;
 }
 
 /* Emphasized body / status badge label */
 @utility text5 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
+  @apply text-[0.875rem] leading-5 font-bold tracking-wide;
 }
 
 /* Eyebrow / KPI label / table column header */
 @utility text6 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
+  @apply text-[0.75rem] leading-4 font-bold tracking-wide uppercase;
 }
 
 /* Dense ID / numeric meta */
 @utility text7 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  @apply text-[0.75rem] leading-4 font-semibold tabular-nums;
 }
 
 /* Caption / helper under KPIs */
 @utility text8 {
-  font-family: var(--font-inter);
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 400;
+  @apply text-[0.75rem] leading-4 font-normal;
 }
 
 /* Meta field label (Reported, Summary, …) */
 @utility text9 {
-  font-family: var(--font-inter);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
-}
-
-[data-sonner-toaster] {
-  font-family: var(--font-inter);
+  @apply text-[0.875rem] leading-5 font-semibold tracking-wide uppercase;
 }
 
 [data-sonner-toast][data-type="success"] [data-icon] {

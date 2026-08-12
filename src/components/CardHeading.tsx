@@ -31,7 +31,7 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex min-w-0 flex-col gap-[2px]">
+      <div className="flex min-w-0 flex-col gap-0.5">
         <Text as="h2" className="text3 text-ehs-darker">
           {title}
         </Text>
@@ -46,7 +46,7 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
         (viewAllHref ? (
           <Link
             href={viewAllHref}
-            className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-[10px] px-2 py-[4.5px] transition-colors"
+            className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 px-2 py-[4.5px] transition-colors"
           >
             View all
             <Icon

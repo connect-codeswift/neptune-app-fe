@@ -87,7 +87,7 @@ export function CapaDetailAddTaskModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4 backdrop-blur-0.5"
       onClick={() => {
         if (!busy) onClose();
       }}
@@ -98,7 +98,7 @@ export function CapaDetailAddTaskModal(
         aria-modal="true"
         aria-labelledby="capa-detail-add-task-title"
         onClick={(event) => event.stopPropagation()}
-        className="flex w-full max-w-[560px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]"
+        className="flex w-full max-w-140 flex-col overflow-hidden rounded-2xl bg-white shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]"
       >
         <header className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] px-6 pt-5 pb-4">
           <Text
@@ -136,7 +136,7 @@ export function CapaDetailAddTaskModal(
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="cursor-pointer rounded-[10px] border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-2.5 border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
@@ -144,7 +144,7 @@ export function CapaDetailAddTaskModal(
             type="submit"
             form={CAPA_ADD_TASK_FORM_ID}
             disabled={busy}
-            className="cursor-pointer rounded-[10px] bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-2.5 bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Saving…" : confirmLabel}
           </button>

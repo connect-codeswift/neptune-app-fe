@@ -373,7 +373,7 @@ export function SdsUploadPageClient() {
                         key={word}
                         aria-hidden={!selected}
                         className={[
-                          "text5 flex h-9 flex-1 items-center justify-center rounded-[10px] border uppercase",
+                          "text5 flex h-9 flex-1 items-center justify-center rounded-2.5 border uppercase",
                           signalWordButtonClass(word, selected),
                         ].join(" ")}
                       >

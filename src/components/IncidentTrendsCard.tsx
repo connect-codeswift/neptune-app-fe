@@ -49,6 +49,9 @@ const CHART_LAYOUT = {
   padBottom: 32,
 } as const;
 
+/** ViewBox units ≈ text8 caption (CSS rem classes don't scale with SVG). */
+const AXIS_TICK_SIZE = 9;
+
 /** Rounds up to a "nice" axis max (1/2/5 × 10^n) so ticks land on clean numbers. */
 function computeYAxis(maxValue: number): {
   yMax: number;
@@ -153,9 +156,10 @@ function TrendChart(
             />
             <text
               x={CHART_LAYOUT.padLeft - 8}
-              y={y + 4}
+              y={y + 3}
               textAnchor="end"
-              className="fill-ehs-muted-text text-[10px]"
+              className="fill-ehs-muted-text"
+              fontSize={AXIS_TICK_SIZE}
             >
               {tick}
             </text>
@@ -173,7 +177,8 @@ function TrendChart(
             x={x}
             y={CHART_LAYOUT.height - 10}
             textAnchor="middle"
-            className="fill-ehs-muted-text text-[10px]"
+            className="fill-ehs-muted-text"
+            fontSize={AXIS_TICK_SIZE}
           >
             {week}
           </text>
@@ -224,7 +229,7 @@ function FilterToggle(
   const { value, onChange } = props;
 
   return (
-    <div className="inline-flex gap-[4px] rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-[4px]">
+    <div className="inline-flex gap-1 rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-1">
       {FILTERS.map((option) => (
         <button
           key={option}
@@ -232,7 +237,7 @@ function FilterToggle(
           onClick={() => onChange(option)}
           aria-pressed={value === option}
           className={[
-            "cursor-pointer rounded-full px-[12px] py-[5px] text-[11px] font-bold whitespace-nowrap capitalize transition-colors",
+            "text8 cursor-pointer rounded-full px-2.5 py-1 whitespace-nowrap capitalize transition-colors",
             value === option
               ? "bg-ehs-dark-bg text-ehs-light-bg"
               : "text-ehs-gray hover:bg-ehs-light-bg",
@@ -314,22 +319,22 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
       {showLoading ? (
         <TrendChartSkeleton />
       ) : showSignInPrompt ? (
-        <div className="flex min-h-[220px] items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+        <div className="flex min-h-55 items-center justify-center">
+          <Text as="p" className="text4 text-ehs-muted-text">
             Please sign in to load incident trends.
           </Text>
         </div>
       ) : showError ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
+        <div className="flex min-h-55 flex-col items-center justify-center gap-2 text-center">
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load incident trends
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {getMutationErrorMessage(
               trendsQuery.error,
               "Failed to load incident trends.",
@@ -345,8 +350,8 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
           </Button>
         </div>
       ) : showEmpty ? (
-        <div className="flex min-h-[220px] items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+        <div className="flex min-h-55 items-center justify-center">
+          <Text as="p" className="text4 text-ehs-muted-text">
             No trend data for this period.
           </Text>
         </div>
@@ -364,11 +369,11 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
             {visibleSeries.map((series) => (
               <div key={series.key} className="flex items-center gap-1.5">
                 <span
-                  className="size-[6px] shrink-0 rounded-full"
+                  className="size-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: series.color }}
                   aria-hidden="true"
                 />
-                <Text as="span" className="text-ehs-gray text-[11px]">
+                <Text as="span" className="text8 text-ehs-gray">
                   {series.label}
                 </Text>
               </div>

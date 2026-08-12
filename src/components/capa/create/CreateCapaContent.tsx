@@ -165,8 +165,8 @@ export function CreateCapaContent() {
         className="min-w-0"
       >
         <div className="flex flex-col gap-8 px-6 pt-8 pb-6 md:flex-row md:items-start md:gap-12 md:px-8 md:pt-8">
-          <section className="w-full shrink-0 md:w-[340px] lg:w-[392px]">
-            <div className="mb-6 flex flex-col gap-[5px]">
+          <section className="w-full shrink-0 md:w-85 lg:w-98">
+            <div className="mb-6 flex flex-col gap-1.25">
               <div className="flex items-center gap-2.5">
                 <StepBadge step="1" />
                 <Text as="h3" className="text-base leading-6 text-[#1e293b]">
@@ -210,7 +210,7 @@ export function CreateCapaContent() {
                     <button
                       type="button"
                       onClick={() => setAddTaskOpen(true)}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 text-[13px] font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 text-3.25 font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
                     >
                       <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
                       Add Task
@@ -218,11 +218,11 @@ export function CreateCapaContent() {
                   </div>
 
                   {tasks.length === 0 ? (
-                    <div className="rounded-[10px] border border-dashed border-[#e2e8f0] bg-white/70 px-4 py-5 text-center text-sm text-[#94a3b8]">
+                    <div className="rounded-2.5 border border-dashed border-[#e2e8f0] bg-white/70 px-4 py-5 text-center text-sm text-[#94a3b8]">
                       No tasks yet. Add checklist items for the assignee.
                     </div>
                   ) : (
-                    <ul className="overflow-hidden rounded-[10px] border border-[#e2e8f0]">
+                    <ul className="overflow-hidden rounded-2.5 border border-[#e2e8f0]">
                       {tasks.map((task, index) => (
                         <li
                           key={task.id}
@@ -234,7 +234,7 @@ export function CreateCapaContent() {
                           ].join(" ")}
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="text-[13px] leading-[19.5px] text-[#475569]">
+                            <p className="text-3.25 leading-[19.5px] text-[#475569]">
                               {task.name}
                             </p>
                             {task.assigneeName ? (

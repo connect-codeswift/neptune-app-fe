@@ -244,9 +244,7 @@ function mapKpiCardToHeroMetric(
     unit,
     target,
     current: showRate ? value : 0,
-    targetLabel: showRate
-      ? buildTargetLabel(target, card?.unit ?? "")
-      : "Add work hours in Settings",
+    targetLabel: showRate ? buildTargetLabel(target, card?.unit ?? "") : null,
     direction: "lower-better",
     chartData: showRate ? toChartData(card?.trend ?? [], definition.key) : [],
     status: showRate ? mapApiStatus(card?.status ?? null) : null,
@@ -279,7 +277,7 @@ function mapKpiCardToListMetric(
         definition.direction,
         definition.valueFormat,
       )
-    : "Add work hours in Settings";
+    : "";
 
   return {
     id: definition.id,

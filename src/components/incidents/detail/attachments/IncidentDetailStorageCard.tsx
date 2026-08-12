@@ -23,7 +23,7 @@ export function IncidentDetailStorageCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
+      paddingClassName="p-4.75"
       incidentGlassCardClassName="gap-3.5"
       className={className}
     >

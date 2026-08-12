@@ -17,6 +17,7 @@ import {
   stateTone,
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
+import { IncidentListTableHeader } from "@/components/incidents/list/IncidentListTableHeader";
 
 export type IncidentListTableProps<
   TData extends { id: string } = IncidentRecord,
@@ -290,22 +291,22 @@ export function IncidentListTable<
 
   const totalSize = table.getTotalSize();
   const cellPadClass = compact
-    ? "h-auto min-h-[64px] px-[15.57px] py-3"
+    ? "h-auto min-h-16 px-[15.57px] py-3"
     : expanded
-      ? "h-auto min-h-[88px] px-5 py-3"
-      : "h-auto min-h-[80px] px-3 py-3 sm:px-4";
+      ? "h-auto min-h-22 px-5 py-3"
+      : "h-auto min-h-20 px-3 py-3 sm:px-4";
   const headerPadClass = compact
     ? "px-[15.57px] pt-[10.7px] pb-[11.19px] text-xs"
     : expanded
       ? "px-5 pt-4 pb-4 text-xs"
-      : "px-3 pt-[13px] pb-[13.5px] text-xs sm:px-4";
+      : "px-3 pt-3.25 pb-[13.5px] text-xs sm:px-4";
 
   return (
     <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      {toolbar}
+      {toolbar ?? (isIncidentTable ? <IncidentListTableHeader /> : null)}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table className="w-full table-fixed border-collapse text-left text-sm">

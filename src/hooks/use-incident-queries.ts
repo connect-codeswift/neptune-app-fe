@@ -19,10 +19,36 @@ export const incidentQueryKeys = {
     search: string;
     severity: string;
   }) => [...incidentQueryKeys.all, "list", params] as const,
-  detail: (params: { id: number; userId: number; siteId: number }) =>
-    [...incidentQueryKeys.all, "detail", "v7", params] as const,
+  // v8: tenant ids left the key along with the request params. They were only
+  // ever there because they were sent — the JWT decides scope now, and a
+  // token swap replaces the cache wholesale.
+  detail: (id: number) => [...incidentQueryKeys.all, "detail", "v8", id] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
+
+/**
+ * Terminal statuses on the incident endpoints, none of which a second attempt
+ * changes: 404 the record is gone or belongs to another tenant, 400 the token
+ * carries no site claim, 403 the token's claims are stale until re-login.
+ */
+function shouldRetryIncidentRequest(
+  failureCount: number,
+  error: unknown,
+): boolean {
+  const status =
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof error.status === "number"
+      ? error.status
+      : undefined;
+
+  if (status === 400 || status === 403 || status === 404) {
+    return false;
+  }
+
+  return failureCount < 1;
+}
 
 /**
  * Backend paging notes (from staging API behavior):
@@ -92,41 +118,36 @@ export type UseIncidentByIdQueryOptions = Readonly<{
 
 /**
  * Loads a single incident via GET /api/Incident/GetIncidentById
- * query: `{ id, userId, siteId }`
+ * query: `{ id }` — tenant scope comes from the JWT
  * header: `Authorization: Bearer <token>` (required)
+ *
+ * Requires Incident.View, not Incident.Update — view-only users can open
+ * detail.
  */
 export function useIncidentByIdQuery(options: UseIncidentByIdQueryOptions) {
   const id = options.id;
   const enabled = (options.enabled ?? false) && id != null && id > 0;
   const alwaysFresh = options.alwaysFresh ?? false;
 
-  const auth = enabled ? getAuthContext() : null;
-  const userId = auth?.userId ?? 0;
-  const siteId = auth?.siteId ?? 0;
-
   return useQuery({
-    queryKey: incidentQueryKeys.detail({
-      id: id ?? 0,
-      userId,
-      siteId,
-    }),
+    queryKey: incidentQueryKeys.detail(id ?? 0),
     enabled,
     staleTime: alwaysFresh ? 0 : undefined,
     refetchOnMount: alwaysFresh ? "always" : undefined,
+    // A dropped incident, another tenant's id, or a missing site claim are all
+    // settled answers — retrying just fires a second request for the same
+    // "not found". 404 is new here; it used to arrive as a 400.
+    retry: shouldRetryIncidentRequest,
     queryFn: async () => {
       if (id == null || id <= 0) {
         return null;
       }
 
-      if (!auth) {
+      if (!getAuthContext()) {
         throw new Error("Sign in required to load this incident.");
       }
 
-      const dto = await getIncidentById({
-        id,
-        userId: auth.userId,
-        siteId: auth.siteId,
-      });
+      const dto = await getIncidentById({ id });
 
       if (!dto) {
         return null;
@@ -162,6 +183,7 @@ export function useIncidentClosureQuery(
   return useQuery({
     queryKey: incidentQueryKeys.closure(incidentId ?? 0),
     enabled,
+    retry: shouldRetryIncidentRequest,
     queryFn: async () => {
       if (incidentId == null || incidentId <= 0) {
         return null;

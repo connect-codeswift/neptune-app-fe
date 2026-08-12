@@ -20,7 +20,7 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
     <div className="flex flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-center text1 leading-[26px] font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text-center text1 leading-6.5 font-bold tracking-[-0.52px]"
       >
         {String(value)}
       </Text>
@@ -51,15 +51,15 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <div className="bg-ehs-normal-blue relative flex size-[46px] shrink-0 items-center justify-center rounded-[13px] shadow-[0px_8px_22px_-8px_#0891a6]">
+            <div className="bg-ehs-normal-blue relative flex size-11.5 shrink-0 items-center justify-center rounded-3.25 shadow-[0px_8px_22px_-8px_#0891a6]">
               <Icon
                 icon="mdi:lightning-bolt"
-                className="text-ehs-light-text size-[22px]"
+                className="text-ehs-light-text size-5.5"
                 aria-hidden="true"
               />
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <Text
                 as="p"
                 className="text8 leading-none font-bold tracking-[1.76px] text-[#056e7e] uppercase"
@@ -76,7 +76,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-start gap-[22px] lg:justify-end">
+          <div className="flex shrink-0 items-start gap-5.5 lg:justify-end">
             <StatBlock value={categories} label="Categories" />
             <StatBlock value={whySteps} label="Why steps" />
             <StatBlock value={actions} label="Actions" />
@@ -92,7 +92,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             labelLines={["Type of", "report"]}
             value={meta.reportType}
             showChevron
-            valueClassName="text4 leading-[13px] font-normal"
+            valueClassName="text4 leading-3.25 font-normal"
           />
         </div>
         <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0 sm:border-r">
@@ -113,11 +113,11 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-[15px] pb-3.5">
-        <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-white/62">
+      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-3.75 pb-3.5">
+        <div className="flex size-7.5 shrink-0 items-center justify-center rounded-2 bg-white/62">
           <Icon
             icon="mdi:file-document-outline"
-            className="text-ehs-gray size-[15px]"
+            className="text-ehs-gray size-3.75"
             aria-hidden="true"
           />
         </div>
@@ -128,7 +128,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
           >
             Incident description
           </Text>
-          <p className="text-ehs-slate mt-[2px] text4 leading-[19.38px] font-normal">
+          <p className="text-ehs-slate mt-0.5 text4 leading-[19.38px] font-normal">
             {meta.description}
           </p>
         </div>

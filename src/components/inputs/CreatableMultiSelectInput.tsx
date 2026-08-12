@@ -205,7 +205,7 @@ export function CreatableMultiSelectInput(
               left: position.left,
               width: position.width,
             }}
-            className="fixed z-[120] overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
+            className="fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
           >
             <ul
               id={listboxId}
@@ -214,7 +214,7 @@ export function CreatableMultiSelectInput(
               className="max-h-52 overflow-y-auto p-1"
             >
               {options.length === 0 ? (
-                <li className="px-2.5 py-2 text-[13px] text-[#8892a3]">
+                <li className="px-2.5 py-2 text-3.25 text-[#8892a3]">
                   No options yet
                 </li>
               ) : (
@@ -230,7 +230,7 @@ export function CreatableMultiSelectInput(
                         type="button"
                         onClick={() => toggleValue(option.value)}
                         className={[
-                          "text-3.5 flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left transition-colors",
+                          "text-3.5 flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left transition-colors",
                           selected
                             ? "bg-[rgba(8,145,166,0.12)] text-[#056e7e]"
                             : "text-[#0b1320] hover:bg-[rgba(15,23,42,0.04)]",
@@ -276,7 +276,7 @@ export function CreatableMultiSelectInput(
                         void submitCreate();
                       }
                     }}
-                    className="text-3.5 h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+                    className="text-3.5 h-9 w-full min-w-0 rounded-2 border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
                   />
                   <div className="flex justify-end gap-2">
                     <button
@@ -286,7 +286,7 @@ export function CreatableMultiSelectInput(
                         setIsAdding(false);
                         setNewLabel("");
                       }}
-                      className="cursor-pointer px-2 py-1 text-[13px] font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:opacity-50"
+                      className="cursor-pointer px-2 py-1 text-3.25 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:opacity-50"
                     >
                       Cancel
                     </button>
@@ -296,7 +296,7 @@ export function CreatableMultiSelectInput(
                       onClick={() => {
                         void submitCreate();
                       }}
-                      className="cursor-pointer rounded-lg bg-[#0891a6] px-3 py-1 text-[13px] font-semibold text-white transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="cursor-pointer rounded-lg bg-[#0891a6] px-3 py-1 text-3.25 font-semibold text-white transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {isCreating ? "Adding…" : "Add"}
                     </button>
@@ -307,7 +307,7 @@ export function CreatableMultiSelectInput(
                   type="button"
                   disabled={disabled || isCreating}
                   onClick={() => setIsAdding(true)}
-                  className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left text-[13px] font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left text-3.25 font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                   {createLabel}
@@ -338,11 +338,11 @@ export function CreatableMultiSelectInput(
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex w-full min-w-0 items-center gap-2 rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-1.5 backdrop-blur-[5px] transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70",
+          "flex w-full min-w-0 items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-1.5 backdrop-blur-1.25 transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70",
           open
-            ? "border-[#0891a6] ring-[3px] ring-[#0891a6]/15"
-            : "focus-visible:border-[#0891a6] focus-visible:ring-[3px] focus-visible:ring-[#0891a6]/15",
-          selectedOptions.length > 0 ? "min-h-9" : "h-9 sm:h-[36px]",
+            ? "border-[#0891a6] ring-0.75 ring-[#0891a6]/15"
+            : "focus-visible:border-[#0891a6] focus-visible:ring-0.75 focus-visible:ring-[#0891a6]/15",
+          selectedOptions.length > 0 ? "min-h-9" : "h-9 sm:h-9",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,
         ]
@@ -358,7 +358,7 @@ export function CreatableMultiSelectInput(
             selectedOptions.map((option) => (
               <span
                 key={option.value}
-                className="inline-flex max-w-full items-center gap-1 rounded-md bg-white/90 py-0.5 pr-0.5 pl-1.5 text-[12px] leading-4 font-medium text-[#0b1320] ring-1 ring-[rgba(15,23,42,0.1)]"
+                className="inline-flex max-w-full items-center gap-1 rounded-md bg-white/90 py-0.5 pr-0.5 pl-1.5 text-xs leading-4 font-medium text-[#0b1320] ring-1 ring-[rgba(15,23,42,0.1)]"
               >
                 <span className="truncate">{option.label}</span>
                 <button

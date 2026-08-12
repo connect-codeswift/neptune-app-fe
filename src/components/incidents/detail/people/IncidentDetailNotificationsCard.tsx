@@ -25,7 +25,7 @@ export function IncidentDetailNotificationsCard(
   const { notifications = [], className = "" } = props;
 
   return (
-    <IncidentGlassCard paddingClassName="p-[19px]" className={className}>
+    <IncidentGlassCard paddingClassName="p-4.75" className={className}>
       <div className="pb-3.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
           Notifications sent
@@ -33,7 +33,7 @@ export function IncidentDetailNotificationsCard(
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px] text4">
+        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25 text4">
           No notifications recorded for this incident.
         </div>
       ) : null}
@@ -41,12 +41,12 @@ export function IncidentDetailNotificationsCard(
       {notifications.map((notif, index) => (
         <div
           key={`${notif.target}-${notif.time}-${String(index)}`}
-          className="flex items-center gap-[10px] border-t border-[rgba(15,23,42,0.08)] pt-[10px] pb-[9px]"
+          className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25"
         >
           <div className="text-ehs-gray flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)]">
             <Icon
               icon={notif.icon}
-              className="size-[13px]"
+              className="size-3.25"
               aria-hidden="true"
             />
           </div>

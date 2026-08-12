@@ -1,24 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { Button } from "@/components/ui/Button";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { Table } from "@/components/ui/Table";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import type {
   PpeCatalogDetail,
   PpeCatalogStatus,
   PpeIssuanceRecord,
 } from "@/app/dashboard/ppe-management/ppe-data";
 import { PpeCatalogDetailHeader } from "./PpeCatalogDetailHeader";
-import { ppeIssuanceColumns } from "./PpeIssuanceColumns";
+import { makePpeIssuanceColumns } from "./PpeIssuanceColumns";
+import { PpeIssuanceDetailModal } from "./PpeIssuanceDetailModal";
 
 const PPE_ROUTE = "/dashboard/ppe-management";
-const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
-const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 
 const statusTone: Record<PpeCatalogStatus, "muted" | "warn" | "danger"> = {
   "In Stock": "muted",
@@ -26,100 +25,151 @@ const statusTone: Record<PpeCatalogStatus, "muted" | "warn" | "danger"> = {
   "Out of Stock": "danger",
 };
 
-function MetaTile(props: Readonly<{ label: string; value: string }>) {
+function MetaField(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
-  return (
-    <div className="flex flex-col gap-1 rounded-[10px] bg-[rgba(15,23,42,0.04)] px-3 py-2.5">
-      <span className="text-sm font-semibold tracking-[0.6px] text-[#b3bbc8] uppercase">
-        {label}
-      </span>
-      <span className="text-ehs-darker text-base font-semibold">{value}</span>
-    </div>
-  );
-}
 
-function MetaPair(props: Readonly<{ label: string; value: string }>) {
-  const { label, value } = props;
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className="text-ehs-muted-text text-[10px] font-bold uppercase">
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <Text as="p" className="text9 text-ehs-muted-text">
         {label}
-      </span>
-      <span className="text-ehs-darker text-sm font-medium">{value}</span>
+      </Text>
+      <Text as="p" className="text4 text-ehs-darker truncate" title={value}>
+        {value}
+      </Text>
     </div>
   );
 }
 
 function InventoryStat(
-  props: Readonly<{ value: number; label: string; muted?: boolean }>,
+  props: Readonly<{
+    value: number;
+    label: string;
+    muted?: boolean;
+    emphasize?: boolean;
+  }>,
 ) {
-  const { value, label, muted } = props;
+  const { value, label, muted, emphasize } = props;
+
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-[rgba(11,19,32,0.05)] bg-[#f8fafc] p-3 md:items-center md:gap-0.5 md:rounded-[10px] md:border-0 md:bg-[rgba(15,23,42,0.04)] md:px-2.5 md:py-2.5">
-      <span
+    <div
+      className={[
+        "flex flex-col gap-0.5 rounded-2.5 px-2.5 py-2",
+        emphasize
+          ? "bg-ehs-yellow/15 ring-ehs-yellow/30 ring-1"
+          : "bg-[rgba(15,23,42,0.04)]",
+      ].join(" ")}
+    >
+      <Text
+        as="span"
         className={[
-          "text-2xl font-extrabold tabular-nums md:text-center md:text-lg",
-          muted ? "text-ehs-muted-text" : "text-ehs-darker",
+          "text2",
+          muted
+            ? "text-ehs-muted-text"
+            : emphasize
+              ? "text-ehs-yellow"
+              : "text-ehs-darker",
         ].join(" ")}
       >
         {value.toLocaleString("en-US")}
-      </span>
-      <span className="text-ehs-muted-text text-base font-semibold md:text-center md:font-normal">
+      </Text>
+      <Text as="span" className="text8 text-ehs-muted-text">
         {label}
-      </span>
+      </Text>
     </div>
   );
 }
 
+function stockLevelPercent(item: PpeCatalogDetail): number {
+  const capacity = item.inStock + item.currentlyIssued;
+  if (capacity <= 0) {
+    return 0;
+  }
+  return Math.round((item.inStock / capacity) * 100);
+}
+
+function stockTone(percent: number): "good" | "warn" | "danger" {
+  if (percent < 50) return "danger";
+  if (percent < 75) return "warn";
+  return "good";
+}
+
+const progressClassName: Record<"good" | "warn" | "danger", string> = {
+  good: "bg-ehs-green",
+  warn: "bg-ehs-yellow",
+  danger: "bg-ehs-red",
+};
+
 function IssuanceMobileCard(
   props: Readonly<{
     record: PpeIssuanceRecord;
-    onClick: () => void;
+    onOpen: (record: PpeIssuanceRecord) => void;
   }>,
 ) {
-  const { record, onClick } = props;
+  const { record, onOpen } = props;
+  const description = record.description?.trim();
 
   return (
     <button
       type="button"
-      onClick={onClick}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-white p-4 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
+      onClick={() => onOpen(record)}
+      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)] transition-colors hover:bg-white"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-ehs-darker text-sm font-bold">
+          <Text as="span" className="text4 text-ehs-darker">
             {record.employee}
-          </span>
-          <span className="text-xs font-medium text-[#8892a3]">
+          </Text>
+          <Text as="span" className="text8 text-ehs-muted-text">
             {`Issued: ${record.issueDate}`}
-          </span>
+          </Text>
         </div>
         <IncidentBadge
           label={record.status}
           tone="muted"
-          className="shrink-0 rounded-md px-2 py-1 text-[11px]! font-bold uppercase"
+          className="shrink-0"
         />
       </div>
+      {description ? (
+        <Text as="p" className="text4 text-ehs-slate line-clamp-2">
+          {description}
+        </Text>
+      ) : null}
       <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
       <div className="flex gap-8">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-bold text-[#8892a3] uppercase">
+          <Text as="span" className="text9 text-ehs-muted-text">
             Quantity
-          </span>
-          <span className="text-ehs-darker text-[13px] font-semibold tabular-nums">
+          </Text>
+          <Text as="span" className="text4 text-ehs-darker tabular-nums">
             {String(record.quantity)}
-          </span>
+          </Text>
         </div>
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-bold text-[#8892a3] uppercase">
+          <Text as="span" className="text9 text-ehs-muted-text">
             Size
-          </span>
-          <span className="text-ehs-darker text-[13px] font-semibold">
+          </Text>
+          <Text as="span" className="text4 text-ehs-darker">
             {record.size}
-          </span>
+          </Text>
         </div>
       </div>
     </button>
+  );
+}
+
+function CatalogIssuanceTableHeader(
+  props: Readonly<{
+    count: number;
+  }>,
+) {
+  const { count } = props;
+
+  return (
+    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+      <Text as="h2" className="text3 text-ehs-darker shrink-0">
+        {`Currently issued (${String(count)})`}
+      </Text>
+    </div>
   );
 }
 
@@ -127,184 +177,220 @@ export type PpeCatalogDetailContentProps = Readonly<{
   item: PpeCatalogDetail;
 }>;
 
+/**
+ * Catalog detail — Hazard-dashboard layout:
+ * two equal insight cards on top, full-width issuance table below.
+ */
 export function PpeCatalogDetailContent(
   props: Readonly<PpeCatalogDetailContentProps>,
 ) {
   const { item } = props;
-  const router = useRouter();
+  const [selectedIssuance, setSelectedIssuance] =
+    useState<PpeIssuanceRecord | null>(null);
   const issuedCount = item.issuances.length;
+  const stockPercent = stockLevelPercent(item);
+  const tone = stockTone(stockPercent);
+  const belowMin = item.inStock <= item.minLevel;
 
-  const openProfile = (issueId: string) => {
-    if (!issueId.trim()) return;
-    router.push(`${PROFILE_ROUTE}/${encodeURIComponent(issueId)}`);
-  };
+  const openIssuance = useCallback((record: PpeIssuanceRecord) => {
+    setSelectedIssuance(record);
+  }, []);
 
-  const inventoryCard = (
-    <IncidentGlassCard
-      paddingClassName="p-4 md:p-[18px]"
-      className="min-w-0 self-start"
-    >
-      <div className="flex flex-col gap-4 md:gap-3.5">
-        <Text
-          as="h3"
-          className="text-ehs-darker text-[15px] font-extrabold md:text-base md:font-bold"
-        >
-          Inventory
-        </Text>
-        <div className="grid grid-cols-2 gap-3 md:gap-2.5">
-          <InventoryStat value={item.inStock} label="In Stock" />
-          <InventoryStat value={item.minLevel} label="Min Level" />
-          <InventoryStat
-            value={item.currentlyIssued}
-            label="Currently Issued"
-          />
-          <InventoryStat
-            value={item.onOrder}
-            label="On Order"
-            muted={item.onOrder === 0}
-          />
-        </div>
-      </div>
-    </IncidentGlassCard>
+  const closeIssuance = useCallback(() => {
+    setSelectedIssuance(null);
+  }, []);
+
+  const toggleIssuance = useCallback((record: PpeIssuanceRecord) => {
+    setSelectedIssuance((current) =>
+      current?.id === record.id ? null : record,
+    );
+  }, []);
+
+  const issuanceColumns = useMemo(
+    () =>
+      makePpeIssuanceColumns({
+        selectedId: selectedIssuance?.id ?? null,
+        onView: toggleIssuance,
+      }),
+    [selectedIssuance?.id, toggleIssuance],
+  );
+
+  const issuanceTableHeader = (
+    <CatalogIssuanceTableHeader count={issuedCount} />
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <PpeCatalogDetailHeader
         name={item.name}
         protectionType={item.protectionType}
       />
 
-      <Button
-        type="button"
-        variant="primary"
-        onClick={() => {
-          router.push(
-            `${ISSUE_ROUTE}?ppeItemId=${encodeURIComponent(item.id)}`,
-          );
-        }}
-        className="flex w-full gap-2 rounded-xl px-4 py-3.5 text-[15px] font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.17)] md:hidden"
-      >
-        <Icon icon="mdi:plus" className="size-[18px] shrink-0" />
-        Issue This Item
-      </Button>
-
-      <div className="grid min-w-0 gap-3.5 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-3.5">
-          <IncidentGlassCard paddingClassName="p-4 md:p-4" className="min-w-0">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-col gap-1">
-                  <Text
-                    as="h2"
-                    className="text-ehs-darker text-base font-extrabold md:text-lg"
-                  >
-                    {item.name}
-                  </Text>
-                  <p className="text-ehs-muted-text text-xs font-semibold md:text-sm md:font-normal">
-                    <span className="md:hidden">{`SKU · ${item.standard}`}</span>
-                    <span className="hidden md:inline">{`${item.standard} · ${item.supplier}`}</span>
-                  </p>
-                </div>
-                <IncidentBadge
-                  label={item.status}
-                  tone={statusTone[item.status]}
-                  className="shrink-0 rounded-md px-2 py-1 text-[11px]! font-bold uppercase md:rounded-full md:px-2.5 md:py-0.5 md:text-sm! md:font-semibold md:normal-case"
-                />
-              </div>
-
-              <p className="text-ehs-muted-text text-[13px] leading-normal md:rounded-xl md:bg-[rgba(15,23,42,0.03)] md:px-3.5 md:py-3.5 md:text-base md:leading-5.5 md:text-[#2a3446]">
-                {item.description}
-              </p>
-
-              {/* Mobile — 2-col pairs */}
-              <div className="flex flex-col gap-3 md:hidden">
-                <div className="flex gap-4">
-                  <MetaPair label="Category" value={item.category} />
-                  <MetaPair label="Supplier" value={item.supplier} />
-                </div>
-                <div className="flex gap-4">
-                  <MetaPair label="Unit Cost" value={item.unitCost} />
-                  <MetaPair label="Replace After" value={item.replaceAfter} />
-                </div>
-                <div className="flex gap-4">
-                  <MetaPair
-                    label="Inspection Interval"
-                    value={item.inspectionInterval}
-                  />
-                  <MetaPair
-                    label="Available Sizes"
-                    value={item.availableSizes}
-                  />
-                </div>
-              </div>
-
-              {/* Desktop — tiles */}
-              <div className="hidden grid-cols-1 gap-2.5 sm:grid-cols-3 md:grid">
-                <MetaTile label="Category" value={item.category} />
-                <MetaTile label="Supplier" value={item.supplier} />
-                <MetaTile label="Unit Cost" value={item.unitCost} />
-                <MetaTile label="Replace After" value={item.replaceAfter} />
-                <MetaTile
-                  label="Inspection Interval"
-                  value={item.inspectionInterval}
-                />
-                <MetaTile label="Available Sizes" value={item.availableSizes} />
-              </div>
-            </div>
-          </IncidentGlassCard>
-
-          <div className="lg:hidden">{inventoryCard}</div>
-
-          {/* Mobile — issuance cards */}
-          <div className="flex flex-col gap-2 md:hidden">
-            <Text
-              as="h3"
-              className="text-ehs-muted-text text-sm font-extrabold"
-            >
-              {`Currently Issued (${String(issuedCount)})`}
+      {belowMin || item.status === "Low Stock" ? (
+        <div className="bg-ehs-yellow/12 text-ehs-darker flex items-start gap-2.5 rounded-xl px-3.5 py-2.5">
+          <Icon
+            icon="mdi:alert-outline"
+            className="text-ehs-yellow mt-0.5 size-4.5 shrink-0"
+            aria-hidden="true"
+          />
+          <div className="min-w-0">
+            <Text as="p" className="text5">
+              Stock is at or below the minimum level
             </Text>
-            {issuedCount === 0 ? (
-              <p className="text-ehs-muted-text text-sm">
-                No active issuances.
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-3">
-                {item.issuances.map((record) => (
-                  <li key={record.id}>
-                    <IssuanceMobileCard
-                      record={record}
-                      onClick={() => {
-                        openProfile(record.id);
-                      }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Desktop — issuance table */}
-          <div className="hidden min-w-0 md:block">
-            <Table
-              data={item.issuances}
-              columns={ppeIssuanceColumns}
-              getRowId={(row) => row.id}
-              onRowClick={(row) => {
-                openProfile(row.id);
-              }}
-              containerClassName="min-w-0"
-              header={
-                <Text as="h3" className="text-ehs-darker text-base font-bold">
-                  {`Currently Issued (${String(issuedCount)})`}
-                </Text>
-              }
-            />
+            <Text as="p" className="text8 text-ehs-muted-text mt-0.5">
+              {`${item.inStock.toLocaleString("en-US")} on hand · minimum ${item.minLevel.toLocaleString("en-US")}`}
+            </Text>
           </div>
         </div>
+      ) : null}
 
-        <div className="hidden lg:block">{inventoryCard}</div>
+      {/* Upper cards — equal height, compact insight strip */}
+      <div className="grid min-w-0 items-stretch gap-3.5 lg:grid-cols-2">
+        <IncidentGlassCard
+          paddingClassName="p-3.5"
+          className="min-w-0"
+          incidentGlassCardClassName="h-full"
+        >
+          <header className="mb-2.5 flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Text as="h3" className="text3 text-ehs-dark-bg">
+                Item details
+              </Text>
+              <Text as="p" className="text4 text-ehs-muted-text truncate">
+                {item.standard}
+              </Text>
+            </div>
+            <IncidentBadge
+              label={item.status}
+              tone={statusTone[item.status]}
+              className="shrink-0"
+            />
+          </header>
+
+          {item.description.trim() &&
+          item.description !== "No description provided." ? (
+            <Text as="p" className="text4 text-ehs-slate mb-2.5 line-clamp-3">
+              {item.description}
+            </Text>
+          ) : null}
+
+          <div className="mt-auto grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-3">
+            <MetaField label="Category" value={item.category} />
+            <MetaField label="Supplier" value={item.supplier} />
+            <MetaField label="Unit cost" value={item.unitCost} />
+            <MetaField label="Replace after" value={item.replaceAfter} />
+            <MetaField
+              label="Inspection"
+              value={item.inspectionInterval}
+            />
+            <MetaField label="Sizes" value={item.availableSizes} />
+          </div>
+        </IncidentGlassCard>
+
+        <IncidentGlassCard
+          paddingClassName="p-3.5"
+          className="min-w-0"
+          incidentGlassCardClassName="h-full"
+        >
+          <header className="mb-2.5 flex flex-col gap-0.5">
+            <Text as="h3" className="text3 text-ehs-dark-bg">
+              Inventory
+            </Text>
+            <Text as="p" className="text4 text-ehs-muted-text">
+              Current stock position
+            </Text>
+          </header>
+
+          <div className="mb-2.5">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <Text as="p" className="text9 text-ehs-muted-text">
+                Stock level
+              </Text>
+              <Text
+                as="span"
+                className={[
+                  "text7",
+                  tone === "danger"
+                    ? "text-ehs-red"
+                    : tone === "warn"
+                      ? "text-ehs-yellow"
+                      : "text-ehs-gray",
+                ].join(" ")}
+              >
+                {`${String(stockPercent)}%`}
+              </Text>
+            </div>
+            <div className="bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden rounded-full">
+              <div
+                className={`h-full rounded-full ${progressClassName[tone]}`}
+                style={{ width: `${String(stockPercent)}%` }}
+              />
+            </div>
+            <Text as="p" className="text8 text-ehs-muted-text mt-1.5">
+              {`${item.inStock.toLocaleString("en-US")} on hand · ${item.currentlyIssued.toLocaleString("en-US")} issued`}
+            </Text>
+          </div>
+
+          <div className="mt-auto grid grid-cols-2 gap-2">
+            <InventoryStat
+              value={item.inStock}
+              label="In stock"
+              emphasize={belowMin}
+            />
+            <InventoryStat value={item.minLevel} label="Min level" />
+            <InventoryStat
+              value={item.currentlyIssued}
+              label="Currently issued"
+            />
+            <InventoryStat
+              value={item.onOrder}
+              label="On order"
+              muted={item.onOrder === 0}
+            />
+          </div>
+        </IncidentGlassCard>
       </div>
+
+      {/* Full-width issuance list — same table chrome as PPE inventory */}
+      <div className="flex w-full min-w-0 flex-col gap-2">
+        <div className="flex flex-col gap-3 md:hidden">
+          {issuanceTableHeader}
+          {issuedCount === 0 ? (
+            <p className="text4 text-ehs-muted-text">
+              No active issuances for this item yet.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {item.issuances.map((record) => (
+                <li key={record.id}>
+                  <IssuanceMobileCard
+                    record={record}
+                    onOpen={openIssuance}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="hidden w-full min-w-0 overflow-x-auto md:block">
+          <Table
+            variant="compliance"
+            data={item.issuances}
+            columns={issuanceColumns}
+            getRowId={(row) => row.id}
+            selectedRowId={selectedIssuance?.id ?? null}
+            containerClassName={complianceGlassCardClass}
+            header={issuanceTableHeader}
+          />
+        </div>
+      </div>
+
+      <PpeIssuanceDetailModal
+        open={selectedIssuance !== null}
+        issueId={selectedIssuance?.id ?? null}
+        onClose={closeIssuance}
+      />
     </div>
   );
 }
@@ -319,16 +405,20 @@ export function PpeCatalogNotFound(props: Readonly<PpeCatalogNotFoundProps>) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <PpeCatalogDetailHeader name="Not found" protectionType="Catalog" />
-      <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-        <Text as="p" className="text-ehs-darker text-sm font-semibold">
+      <IncidentGlassCard
+        paddingClassName="p-6"
+        className="min-w-0"
+        incidentGlassCardClassName="items-start"
+      >
+        <Text as="p" className="text4 text-ehs-darker">
           PPE item not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+        <Text as="p" className="text4 text-ehs-muted-text mt-1">
           {`No catalog entry matches “${itemId}”.`}
         </Text>
         <Link
           href={PPE_ROUTE}
-          className="text-ehs-normal-blue mt-4 inline-flex text-sm font-semibold"
+          className="text4 text-ehs-normal-blue mt-4 inline-flex"
         >
           Back to PPE Management
         </Link>

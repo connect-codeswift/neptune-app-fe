@@ -89,7 +89,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
       title="Link CAPAs & Action Items"
       subtitle="Select corrective and preventive action items to attach to this incident closure."
       onClose={onClose}
-      maxWidthClassName="max-w-[720px]"
+      maxWidthClassName="max-w-180"
       footerHint={
         <span className="text-ehs-gray text4 font-medium">
           {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
@@ -134,7 +134,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
         </div>
 
         {/* List of CAPAs */}
-        <div className="flex max-h-[380px] flex-col gap-2.5 overflow-y-auto pr-1">
+        <div className="flex max-h-95 flex-col gap-2.5 overflow-y-auto pr-1">
           {filteredItems.map((item) => {
             const isSelected = selectedIds.includes(item.id);
             return (
@@ -176,7 +176,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
 
                 <div className="ml-3 flex shrink-0 items-center gap-3">
                   <div className="hidden items-center gap-2 sm:flex">
-                    <div className="bg-ehs-border h-[6px] w-16 overflow-hidden rounded-full">
+                    <div className="bg-ehs-border h-1.5 w-16 overflow-hidden rounded-full">
                       <div
                         className="bg-ehs-normal-blue h-full rounded-full"
                         style={{ width: `${String(item.progressPercent)}%` }}
@@ -292,7 +292,7 @@ export function IncidentClosureStepPreventive(
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="bg-ehs-border h-[6px] w-24 overflow-hidden rounded-full">
+                <div className="bg-ehs-border h-1.5 w-24 overflow-hidden rounded-full">
                   <div
                     className="bg-ehs-normal-blue h-full rounded-full transition-all duration-300"
                     style={{ width: `${String(capa.progressPercent)}%` }}

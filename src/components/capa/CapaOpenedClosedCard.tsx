@@ -58,7 +58,7 @@ function ChartTooltip(
 function ChartSkeleton() {
   return (
     <div
-      className="bg-ehs-border/40 h-[180px] w-full animate-pulse rounded-lg"
+      className="bg-ehs-border/40 h-45 w-full animate-pulse rounded-lg"
       aria-hidden
     />
   );
@@ -91,7 +91,7 @@ export function CapaOpenedClosedCard() {
       : `Last ${String(view.weekCount)} weeks · ${String(view.totalOpened)} opened · ${String(view.totalClosed)} closed`;
 
   return (
-    <IncidentGlassCard paddingClassName="p-[21px]" className="min-w-0">
+    <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <Text
@@ -118,7 +118,7 @@ export function CapaOpenedClosedCard() {
           ))}
       </div>
 
-      <div className="h-[180px] w-full min-w-0">
+      <div className="h-45 w-full min-w-0">
         {showSkeleton ? (
           <ChartSkeleton />
         ) : (
@@ -175,7 +175,7 @@ export function CapaOpenedClosedCard() {
       <div className="mt-2 flex items-center gap-5">
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-[2px]"
+            className="size-2 rounded-0.5"
             style={{ backgroundColor: OPENED_COLOR }}
             aria-hidden
           />
@@ -183,7 +183,7 @@ export function CapaOpenedClosedCard() {
         </div>
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-[2px]"
+            className="size-2 rounded-0.5"
             style={{ backgroundColor: CLOSED_COLOR }}
             aria-hidden
           />

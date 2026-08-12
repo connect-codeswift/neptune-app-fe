@@ -70,17 +70,20 @@ export function getCurrentUserPermissions(): Set<string> {
   return getPermissionsFromToken(getAccessToken());
 }
 
-/** Admin roles bypass permission checks in the UI (backend does the same). */
+/**
+ * The company owner bypasses permission checks in the UI, as it does on the backend —
+ * Ehs_Director holds every permission except the admin portal's, so a UI check against it
+ * can only ever agree.
+ *
+ * The four names this used to match — Admin, System Admin, Primary_Admin, Primary Admin —
+ * were all removed when the seven roles became five, so this had been returning false for
+ * every real user. Anyone holding one was migrated to Ehs_Director.
+ */
 export function isAdminRole(role: string | null | undefined): boolean {
   if (!role?.trim()) {
     return false;
   }
 
-  const normalized = role.trim().toLowerCase().replace(/\s+/g, " ");
-  return (
-    normalized === "admin" ||
-    normalized === "system admin" ||
-    normalized === "primary_admin" ||
-    normalized === "primary admin"
-  );
+  const normalized = role.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return normalized === "ehsdirector";
 }

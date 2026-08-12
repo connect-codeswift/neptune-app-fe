@@ -28,7 +28,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
     children,
     footerHint,
     footerActions,
-    maxWidthClassName = "max-w-[928px]",
+    maxWidthClassName = "max-w-232",
     overlayClassName = "z-[100]",
   } = props;
 
@@ -63,7 +63,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
   return createPortal(
     <div
       className={[
-        "bg-ehs-dark-bg/45 fixed inset-0 flex items-center justify-center p-3.5 backdrop-blur-[3px] sm:p-5",
+        "bg-ehs-dark-bg/45 fixed inset-0 flex items-center justify-center p-3.5 backdrop-blur-0.75 sm:p-5",
         overlayClassName,
       ].join(" ")}
       onClick={onClose}
@@ -80,7 +80,7 @@ export function IncidentModalShell(props: Readonly<IncidentModalShellProps>) {
           maxWidthClassName,
         ].join(" ")}
       >
-        <header className="border-ehs-border relative shrink-0 border-b px-4 py-4 sm:px-8 sm:pt-7 sm:pb-[17px]">
+        <header className="border-ehs-border relative shrink-0 border-b px-4 py-4 sm:px-8 sm:pt-7 sm:pb-4.25">
           <Text
             as="h2"
             id={titleId}
@@ -145,7 +145,7 @@ export function IncidentModalCancelButton(
     <button
       type="button"
       onClick={onClick}
-      className="border-ehs-border text-ehs-slate flex-1 rounded-xl border px-[20px] py-[9.5px] text-sm leading-[19.5px] transition-colors hover:bg-white/60 sm:flex-initial sm:px-[25px] sm:py-[11px]"
+      className="border-ehs-border text-ehs-slate flex-1 rounded-xl border px-5 py-[9.5px] text-sm leading-[19.5px] transition-colors hover:bg-white/60 sm:flex-initial sm:px-6.25 sm:py-2.75"
     >
       {label}
     </button>
@@ -169,7 +169,7 @@ export function IncidentModalPrimaryButton(
       disabled={disabled}
       onClick={onClick}
       className={[
-        "text-ehs-light-text inline-flex h-[39.5px] min-w-[134px] flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm leading-[19.5px] font-medium transition-colors sm:flex-initial",
+        "text-ehs-light-text inline-flex h-[39.5px] min-w-33.5 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm leading-[19.5px] font-medium transition-colors sm:flex-initial",
         disabled
           ? "bg-ehs-light-blue cursor-not-allowed"
           : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active",

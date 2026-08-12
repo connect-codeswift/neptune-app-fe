@@ -53,22 +53,22 @@ export function DashboardMyActionsCard(
       {showLoading ? (
         <ListCardSkeleton />
       ) : showSignInPrompt ? (
-        <div className="flex min-h-[140px] items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+        <div className="flex min-h-35 items-center justify-center">
+          <Text as="p" className="text4 text-ehs-muted-text">
             Please sign in to load your actions.
           </Text>
         </div>
       ) : showError ? (
-        <div className="flex min-h-[140px] flex-col items-center justify-center gap-2 text-center">
+        <div className="flex min-h-35 flex-col items-center justify-center gap-2 text-center">
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
             aria-hidden="true"
           />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Could not load your actions
           </Text>
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             {getMutationErrorMessage(
               actionsQuery.error,
               "Failed to load your actions.",
@@ -84,13 +84,13 @@ export function DashboardMyActionsCard(
           </Button>
         </div>
       ) : showEmpty ? (
-        <div className="flex min-h-[140px] items-center justify-center">
-          <Text as="p" className="text-ehs-muted-text text-sm">
+        <div className="flex min-h-35 items-center justify-center">
+          <Text as="p" className="text4 text-ehs-muted-text">
             No actions assigned to you right now.
           </Text>
         </div>
       ) : (
-        <div className="mt-[7px] flex flex-col gap-3.5">
+        <div className="mt-1.75 flex flex-col gap-3.5">
           {items.map((item) => (
             <ListItemRow key={`${item.title}-${item.subtitle}`} {...item} />
           ))}

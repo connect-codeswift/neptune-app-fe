@@ -147,7 +147,7 @@ export function LogObservationContent() {
                   // From review, "Edit" goes back to the start of the form.
                   setStep(step === LAST_STEP ? 1 : step - 1);
                 }}
-                className="text-ehs-dark-bg h-11 flex-1 cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 md:h-auto md:flex-none md:px-5 md:text-base"
+                className="text-ehs-dark-bg h-11 flex-1 cursor-pointer rounded-2.5 border border-slate-900/12 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {step === LAST_STEP ? "Edit" : "Back"}
               </button>
@@ -159,7 +159,7 @@ export function LogObservationContent() {
                 variant="primary"
                 isLoading={createObservation.isPending}
                 onClick={handleSubmit}
-                className="h-11 flex-1 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
+                className="h-11 flex-1 rounded-2.5 px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {createObservation.isPending
                   ? "Submitting..."
@@ -171,7 +171,7 @@ export function LogObservationContent() {
                 type="submit"
                 form={formId}
                 variant="primary"
-                className="h-11 flex-1 gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
+                className="h-11 flex-1 gap-2 rounded-2.5 px-4 py-2.5 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:px-5 md:text-base"
               >
                 {step === 2 ? "Review" : "Continue"}
                 <Icon

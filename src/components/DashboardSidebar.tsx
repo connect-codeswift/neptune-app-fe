@@ -19,6 +19,11 @@ import {
 
 export type SidebarProps = Readonly<{
   className?: string;
+  /**
+   * Dismisses the mobile drawer. Absent on the desktop rail, which is always
+   * on screen and has nothing to close.
+   */
+  onClose?: () => void;
 }>;
 
 function isActivePath(pathname: string, href: string) {
@@ -55,24 +60,35 @@ function SidebarNavLinkPending() {
 }
 
 function SidebarNavLink(
-  props: Readonly<{ item: AppNavItem; active: boolean }>,
+  props: Readonly<{
+    item: AppNavItem;
+    active: boolean;
+    onNavigate?: () => void;
+  }>,
 ) {
-  const { item, active } = props;
+  const { item, active, onNavigate } = props;
 
   return (
     <Link
       href={item.href}
+      onClick={onNavigate}
       className={[
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+        // py-2.5 on touch so the row clears a comfortable tap target; the
+        // desktop rail is pointed at with a cursor and can stay compact.
+        "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
         active
-          ? "bg-ehs-light-blue text-ehs-darker font-medium"
-          : "text-ehs-gray hover:bg-white/35",
+          ? "bg-ehs-light-blue text-ehs-darker"
+          : // Darker on the mobile sheet: there it sits over a blurred,
+            // arbitrarily-coloured page instead of the desktop rail's calm
+            // ground, and ehs-gray washed out against it. ehs-slate is the
+            // designed one-step-darker companion, so this stays on palette.
+            "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-white/35",
       ].join(" ")}
     >
       <Icon
         icon={item.icon}
         className={[
-          "shrink-0 text-lg",
+          "size-4.5 shrink-0",
           active ? "text-ehs-normal-blue" : "text-ehs-muted-text",
         ].join(" ")}
         aria-hidden="true"
@@ -80,7 +96,7 @@ function SidebarNavLink(
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text-ehs-muted-text shrink-0 text-xs font-medium tabular-nums">
+        <span className="text7 text-ehs-muted-text shrink-0">
           {item.badge}
         </span>
       )}
@@ -159,7 +175,7 @@ function SidebarAccessWindow(
         };
 
   return (
-    <div className="px-4 pb-1">
+    <div className="shrink-0 px-4 pt-1 pb-1">
       <div
         role="status"
         className={`flex flex-col gap-0.5 rounded-xl border px-3 py-2.5 ${tone.box}`}
@@ -170,17 +186,17 @@ function SidebarAccessWindow(
             className={`size-3.5 shrink-0 ${tone.icon}`}
             aria-hidden="true"
           />
-          <Text as="span" className={`text-xs font-bold ${tone.title}`}>
+          <Text as="span" className={`text5 ${tone.title}`}>
             {formatAccessWindowRemaining(days)}
           </Text>
         </div>
 
-        <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+        <Text as="p" className="text8 text-ehs-muted-text pl-5">
           {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
         </Text>
 
         {isUrgent ? (
-          <Text as="p" className="text-ehs-muted-text pl-5 text-[11px]">
+          <Text as="p" className="text8 text-ehs-muted-text pl-5">
             Contact CodeSwift to extend
           </Text>
         ) : null}
@@ -213,17 +229,17 @@ function SidebarUserFooter(
         </div>
       ) : (
         <div
-          className="bg-ehs-normal-blue text-ehs-light-text flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold"
+          className="bg-ehs-normal-blue text-ehs-light-text text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           {initials}
         </div>
       )}
       <div className="min-w-0">
-        <Text as="p" className="text-ehs-darker truncate text-sm font-semibold">
+        <Text as="p" className="text4 text-ehs-darker truncate">
           {displayName}
         </Text>
-        <Text as="p" className="text-ehs-muted-text truncate text-xs">
+        <Text as="p" className="text8 text-ehs-muted-text truncate">
           {email ?? ""}
         </Text>
       </div>
@@ -232,7 +248,7 @@ function SidebarUserFooter(
 }
 
 export function DashboardSidebar(props: Readonly<SidebarProps>) {
-  const { className = "" } = props;
+  const { className = "", onClose } = props;
   const pathname = usePathname();
   const { navGroups, isLoading, isUserReady, user, accessWindow } =
     useSessionBootstrap();
@@ -242,64 +258,105 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
   return (
     <aside
       className={[
-        // Real glass, not bg-[#FFFFFF] — a solid fill made the blur that was
-        // already here a no-op. Same recipe as the auth card: thin white pane,
-        // heavy blur, hairline border, inset top highlight for the frosted
-        // edge. The colour it refracts comes from AppShell's blobs behind it.
-        "relative my-4 ml-4 flex h-[calc(100vh-2rem)] w-64 shrink-0 flex-col overflow-hidden rounded-3xl border border-white/60 bg-white/45 backdrop-blur-2xl",
+        // Glass from lg up, solid below it. The recipe — thin white pane,
+        // heavy blur, hairline border, inset top highlight — only reads as
+        // frosted when there is something worth refracting behind it, which
+        // on the desktop rail is AppShell's blobs. The mobile sheet floats
+        // over whatever page you happened to be on, so the same 45% white
+        // just picked up that page's colour and made the nav muddy.
+        //
+        // Fills its container rather than sizing itself: the inset and the
+        // viewport height live on AppShell's drawer wrapper, so the panel is
+        // the same component whether it's the desktop rail or the mobile
+        // sheet. min-h-0 lets the nav below actually scroll instead of
+        // pushing the footer off the bottom.
+        "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border",
+        "border-ehs-border bg-white lg:border-white/60 lg:bg-white/45 lg:backdrop-blur-2xl",
         "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col items-center px-5 pt-5">
-        <Logo />
+      <div className="shrink-0 px-5 pt-5">
+        <div className="relative flex items-center justify-between">
+          <Logo />
+          {onClose ? (
+            <button
+              type="button"
+              data-sidebar-close=""
+              onClick={onClose}
+              aria-label="Close navigation menu"
+              className="text-ehs-muted-text hover:text-ehs-darker hover:bg-ehs-light-bg absolute -right-1 inline-flex size-9 items-center justify-center rounded-lg transition-colors lg:hidden"
+            >
+              <Icon icon="mdi:close" className="size-5" aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
         {/* White hairline rather than the app border token — on glass a grey
-            rule reads as a smudge. */}
-        <div className="mt-4 w-full border-t border-white/60" aria-hidden="true" />
+            rule reads as a smudge. On the solid sheet it is the inverse: a
+            white rule on white is no rule at all. */}
+        <div
+          className="border-ehs-border mt-4 w-full border-t lg:border-white/60"
+          aria-hidden="true"
+        />
       </div>
 
-      <nav className="flex flex-1 scrollbar-none flex-col gap-6 overflow-y-auto px-4 py-5">
-        {isLoading ? (
-          <SidebarNavSkeleton />
-        ) : (
-          navGroups.map((group) => (
-            <div key={group.title} className="flex flex-col gap-1">
-              <Text
-                as="p"
-                className="text-ehs-muted-text px-3 pb-1 text-[10px] font-semibold tracking-wider uppercase"
-              >
-                {group.title}
-              </Text>
-              <div className="flex flex-col gap-0.5">
-                {group.items.map((item) => (
-                  <SidebarNavLink
-                    key={`${group.title}-${item.label}-${item.href}`}
-                    item={item}
-                    active={isActivePath(pathname, item.href)}
-                  />
-                ))}
+      {/* The nav is the only part that scrolls, and its scrollbar is hidden,
+          so a short viewport used to cut a group off mid-list with no hint
+          there was more — a heading stranded above the trial card. The fade
+          is that hint. */}
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <nav
+          aria-label="Main"
+          className="flex min-h-0 flex-1 scrollbar-none flex-col gap-6 overflow-y-auto overscroll-contain px-4 py-5"
+        >
+          {isLoading ? (
+            <SidebarNavSkeleton />
+          ) : (
+            navGroups.map((group) => (
+              <div key={group.title} className="flex flex-col gap-1">
+                <Text
+                  as="p"
+                  className="text6 text-ehs-muted-text px-3 pb-1"
+                >
+                  {group.title}
+                </Text>
+                <div className="flex flex-col gap-0.5">
+                  {group.items.map((item) => (
+                    <SidebarNavLink
+                      key={`${group.title}-${item.label}-${item.href}`}
+                      item={item}
+                      active={isActivePath(pathname, item.href)}
+                      onNavigate={onClose}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </nav>
+            ))
+          )}
+        </nav>
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-linear-to-t from-white to-transparent lg:from-white/70"
+          aria-hidden="true"
+        />
+      </div>
 
       {accessWindow ? (
         <SidebarAccessWindow accessWindow={accessWindow} />
       ) : null}
 
-      <div className="border-t border-white/40 px-4 py-4">
+      <div className="border-ehs-border shrink-0 border-t px-4 py-4 lg:border-white/40">
         <div className="flex items-center gap-1">
           {isUserReady ? (
             <Link
               href="/dashboard/my-profile"
+              onClick={onClose}
               className={[
                 "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
                 profileActive
                   ? "bg-ehs-light-blue text-ehs-darker"
-                  : "hover:bg-white/35",
+                  : "hover:bg-ehs-light-bg lg:hover:bg-white/35",
               ].join(" ")}
               aria-current={profileActive ? "page" : undefined}
             >
@@ -320,12 +377,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             disabled={isLoggingOut || !isUserReady}
             aria-label={isLoggingOut ? "Signing out" : "Log out"}
             title={isLoggingOut ? "Signing out…" : "Log out"}
-            className="text-ehs-muted-text hover:bg-white/50 hover:text-ehs-red inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 lg:hover:bg-white/50"
           >
             <Icon
               icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}
               className={[
-                "text-lg",
+                "size-4.5",
                 isLoggingOut ? "animate-spin motion-reduce:animate-none" : "",
               ]
                 .filter(Boolean)

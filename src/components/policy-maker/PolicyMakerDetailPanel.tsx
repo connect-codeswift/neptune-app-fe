@@ -4,10 +4,15 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
+  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
+  isLoading?: boolean;
+  errorMessage?: string | null;
+  onRetry?: () => void;
   className?: string;
 }>;
 
@@ -39,14 +44,70 @@ function versionBadgeClass(badge: "review" | "archived" | "current"): string {
 export function PolicyMakerDetailPanel(
   props: Readonly<PolicyMakerDetailPanelProps>,
 ) {
-  const { document, className = "" } = props;
+  const {
+    document,
+    isLoading = false,
+    errorMessage = null,
+    onRetry,
+    className = "",
+  } = props;
+
+  if (isLoading) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:loading"
+          className="text-ehs-normal-blue size-7 animate-spin"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-muted-text">
+          Loading document details…
+        </Text>
+      </IncidentGlassCard>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <IncidentGlassCard
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
+        incidentGlassCardClassName="items-center justify-center gap-2"
+      >
+        <Icon
+          icon="mdi:alert-circle-outline"
+          className="text-ehs-red size-8"
+          aria-hidden="true"
+        />
+        <Text as="p" className="text4 text-ehs-darker">
+          Could not load details
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text text-center">
+          {errorMessage}
+        </Text>
+        {onRetry ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onRetry}
+            className="mt-1"
+          >
+            Retry
+          </Button>
+        ) : null}
+      </IncidentGlassCard>
+    );
+  }
 
   if (!document) {
     return (
       <IncidentGlassCard
-        className={["min-h-[240px] min-w-0", className]
-          .filter(Boolean)
-          .join(" ")}
+        paddingClassName="p-[18.49px]"
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text4 text-ehs-muted-text">
@@ -66,7 +127,7 @@ export function PolicyMakerDetailPanel(
       paddingClassName="p-0 overflow-hidden"
       className={["flex min-w-0 flex-col", className].filter(Boolean).join(" ")}
     >
-      <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
+      <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
             {document.code}
@@ -74,7 +135,7 @@ export function PolicyMakerDetailPanel(
 
           <Link
             href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text8 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 font-bold transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon
@@ -133,7 +194,7 @@ export function PolicyMakerDetailPanel(
               </Text>
               <span
                 className={[
-                  "text8 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-bold tracking-[0.21px]",
+                  "text5 inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5",
                   versionBadgeClass(entry.badge),
                 ].join(" ")}
               >

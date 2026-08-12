@@ -42,8 +42,8 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
     pending = false,
     onAccept,
     onDismiss,
-    fieldPaddingClassName = "px-[13px] pt-[10.5px]",
-    fieldTextClassName = "text-[13px] leading-[19.5px]",
+    fieldPaddingClassName = "px-3.25 pt-[10.5px]",
+    fieldTextClassName = "text-3.25 leading-[19.5px]",
   } = props;
 
   if (pending) {
