@@ -1,17 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Area,
-  CartesianGrid,
-  ComposedChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import dynamic from "next/dynamic";
+import { TrendChartSkeleton } from "@/components/DashboardSkeletons";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   DEFAULT_WALK_TALK_GRAPH_WEEKS,
   useWalkTalkGraphQuery,
@@ -19,44 +12,25 @@ import {
 import { toWalkTalkTrendPoints } from "@/lib/map-walk-talk";
 import type { WalkTalkTrendPoint } from "@/app/dashboard/walk-talk/walk-talk-data";
 
+/**
+ * Recharts is ~325 KB of this route's client JS. Loading the chart on demand
+ * keeps it out of the initial bundle; the card's shell renders immediately.
+ * Nothing may be statically imported from the chart module, or the library is
+ * pulled straight back into this route's chunk.
+ */
+const WalkTalkTrendsChart = dynamic(
+  () => import("./WalkTalkTrendsChart").then((m) => m.WalkTalkTrendsChart),
+  {
+    ssr: false,
+    // A chart-shaped skeleton, not a line of text: this is a page-load wait,
+    // and holding the chart's footprint stops the card collapsing and
+    // reflowing when the deferred chunk lands.
+    loading: () => <TrendChartSkeleton />,
+  },
+);
+
+/** Owned here so the legend below and the chart cannot drift apart. */
 const SESSIONS_COLOR = "#0891a6";
-
-const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
-
-type TooltipEntry = Readonly<{
-  dataKey?: string | number;
-  value?: number | string;
-}>;
-
-function ChartTooltip(
-  props: Readonly<{
-    active?: boolean;
-    payload?: readonly TooltipEntry[];
-    label?: string | number;
-  }>,
-) {
-  const { active, payload, label } = props;
-  if (!active || !payload || payload.length === 0) return null;
-
-  const valueOf = (key: string) =>
-    payload.find((entry) => entry.dataKey === key)?.value ?? 0;
-
-  return (
-    <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
-      <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
-      <div className="mt-1 flex items-center gap-2">
-        <span
-          className="size-2 shrink-0 rounded-full"
-          style={{ backgroundColor: SESSIONS_COLOR }}
-          aria-hidden="true"
-        />
-        <span className="text-ehs-gray text-xs">
-          {`Sessions ${String(valueOf("sessions"))}`}
-        </span>
-      </div>
-    </div>
-  );
-}
 
 function LegendItem(props: Readonly<{ color: string; label: string }>) {
   const { color, label } = props;
@@ -96,7 +70,6 @@ export type WalkTalkTrendsCardProps = Readonly<{
 export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
   const { className = "", weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS } = props;
   const graphQuery = useWalkTalkGraphQuery(weeks);
-  console.log(graphQuery.data);
   const points = useMemo(
     () => toWalkTalkTrendPoints(graphQuery.data?.dataModel),
     [graphQuery.data?.dataModel],
@@ -120,10 +93,14 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
             {`Sessions logged · ${String(displayWeeks)} weeks`}
           </p>
         </div>
+        {/* No onClick was ever attached, so this read as an available filter
+            and did nothing. Disabled until there is something to filter by. */}
         <button
           type="button"
-          aria-label="Filter trends"
-          className="text-ehs-muted-text hover:text-ehs-gray shrink-0 cursor-pointer rounded-lg p-1 transition-colors"
+          disabled
+          aria-label="Filter trends (not available yet)"
+          title="Filtering trends is not available yet"
+          className="text-ehs-muted-text shrink-0 rounded-lg p-1 opacity-40 disabled:cursor-not-allowed"
         >
           <Icon
             icon="mdi:filter-outline"
@@ -137,53 +114,11 @@ export function WalkTalkTrendsCard(props: WalkTalkTrendsCardProps) {
         {graphQuery.isPending && points.length === 0 ? (
           <p className="text-ehs-muted-text text-sm">Loading…</p>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart
-              data={[...points]}
-              margin={{ top: 8, right: 4, bottom: 0, left: -24 }}
-            >
-              <CartesianGrid stroke="#e5e7eb" vertical={false} syncWithTicks />
-
-              <XAxis
-                dataKey="label"
-                tick={AXIS_TICK}
-                tickLine={false}
-                axisLine={{ stroke: "#e5e7eb" }}
-                tickMargin={10}
-                interval={0}
-              />
-              <YAxis
-                domain={yScale.domain}
-                ticks={yScale.ticks}
-                tick={AXIS_TICK}
-                tickLine={false}
-                axisLine={false}
-                width={40}
-              />
-
-              <Tooltip
-                content={<ChartTooltip />}
-                cursor={{ stroke: "#8892a3", strokeDasharray: "3 3" }}
-              />
-
-              <Area
-                type="linear"
-                dataKey="sessions"
-                stroke={SESSIONS_COLOR}
-                strokeWidth={2}
-                fill={SESSIONS_COLOR}
-                fillOpacity={0.08}
-                dot={{
-                  r: 4,
-                  fill: "#ffffff",
-                  stroke: SESSIONS_COLOR,
-                  strokeWidth: 2,
-                }}
-                activeDot={{ r: 5 }}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <WalkTalkTrendsChart
+            points={points}
+            yScale={yScale}
+            sessionsColor={SESSIONS_COLOR}
+          />
         )}
       </div>
 

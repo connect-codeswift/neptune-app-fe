@@ -9,7 +9,7 @@ export type AddObligationHeaderCardProps = Readonly<{
 }>;
 
 const pageHeaderShellClass =
-  "rounded-[16px] border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+  "rounded-4 border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
 
 export function AddObligationHeaderCard(
   props: Readonly<AddObligationHeaderCardProps>,
@@ -22,10 +22,10 @@ export function AddObligationHeaderCard(
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex flex-col px-[22px] pt-[14px] pb-[22px]">
+      <div className="flex flex-col px-5.5 pt-3.5 pb-5.5">
         <nav
           aria-label="Breadcrumb"
-          className="flex h-[16.5px] items-center gap-[4px] text-[11px] leading-[16.5px] font-medium"
+          className="flex h-[16.5px] items-center gap-1 text-2.75 leading-[16.5px] font-medium"
         >
           <Link
             href="/dashboard/regulatory-compliance"
@@ -35,7 +35,7 @@ export function AddObligationHeaderCard(
           </Link>
           <Icon
             icon="mdi:chevron-right"
-            className="size-[11px] shrink-0 text-[#566072]"
+            className="size-2.75 shrink-0 text-[#566072]"
             aria-hidden
           />
           <Link
@@ -46,7 +46,7 @@ export function AddObligationHeaderCard(
           </Link>
           <Icon
             icon="mdi:chevron-right"
-            className="size-[11px] shrink-0 text-[#566072]"
+            className="size-2.75 shrink-0 text-[#566072]"
             aria-hidden
           />
           <Text as="span" className="text-[#566072]">
@@ -54,16 +54,16 @@ export function AddObligationHeaderCard(
           </Text>
         </nav>
 
-        <div className="mt-[6px]">
+        <div className="mt-1.5">
           <Text
             as="h1"
-            className="text-[22px] leading-[28px] font-semibold tracking-[-0.2px] text-[#0b1320]"
+            className="text-5.5 leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
           >
             Add Compliance Obligation
           </Text>
           <Text
             as="p"
-            className="mt-[2px] text-[12px] leading-[18px] font-normal text-[#8892a3]"
+            className="mt-0.5 text-xs leading-4.5 font-normal text-[#8892a3]"
           >
             Add a new regulatory or safety compliance item
           </Text>

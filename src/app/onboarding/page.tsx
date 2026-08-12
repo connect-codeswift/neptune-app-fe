@@ -116,6 +116,11 @@ export default function OrganizationSetupPage() {
         signup,
         onboarding,
       });
+      // Drop the stored password as soon as it has been used, rather than
+      // leaving it readable for as long as the success modal stays open. The
+      // signup guard above only runs on mount, so this cannot bounce the user
+      // back to /signup.
+      clearSignupState();
       setAllowLeave(true);
       setShowCompleteModal(true);
     } catch {
@@ -133,22 +138,22 @@ export default function OrganizationSetupPage() {
   return (
     <main className="bg-ehs-light-bg relative flex min-h-screen w-full flex-col overflow-hidden">
       <ShadeBall
-        positionAsClassName="top-[-150px] left-[-150px]"
+        positionAsClassName="-top-37.5 -left-37.5"
         size={400}
         blur={80}
       />
       <ShadeBall
-        positionAsClassName="top-[-150px] right-[-150px]"
+        positionAsClassName="-top-37.5 -right-37.5"
         size={400}
         blur={80}
       />
       <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
+        positionAsClassName="-bottom-37.5 -left-37.5"
         size={400}
         blur={80}
       />
       <ShadeBall
-        positionAsClassName="bottom-[-150px] right-[-150px]"
+        positionAsClassName="-bottom-37.5 -right-37.5"
         size={400}
         blur={80}
       />

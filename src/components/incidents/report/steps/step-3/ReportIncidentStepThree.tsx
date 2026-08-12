@@ -7,13 +7,10 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
-  INJURY_LEVEL_OPTIONS,
   markAiAssisted,
-  type InjuryLevelId,
   type ReportIncidentFormState,
 } from "@/components/incidents/report/shared/report-incident-data";
 import { ReportTextareaField } from "@/components/incidents/report/shared/ReportFormField";
-import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { ReportBodyPartField } from "@/components/incidents/report/steps/step-3/ReportBodyPartField";
 
 export type ReportIncidentStepThreeProps = Readonly<{
@@ -38,7 +35,7 @@ export function ReportIncidentStepThree(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-4 sm:p-[29px]"
+      paddingClassName="p-4 sm:p-7.25"
       className={["min-w-0 flex-1", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-7">
@@ -62,23 +59,10 @@ export function ReportIncidentStepThree(
             </Text>
           </div>
 
-          <ReportSeverityPicker
-            label="Injury level"
-            required
-            variant="tile"
-            value={form.injuryLevel}
-            onChange={(injuryLevel: InjuryLevelId) => onChange({ injuryLevel })}
-            options={INJURY_LEVEL_OPTIONS.map((option) => ({
-              id: option.id,
-              label: option.label,
-              description: option.description,
-            }))}
-            className="pt-[22px]"
-          />
-
           {/* Gender moved to Step 1, next to Affected person — it belongs with
               the person's details, not with the injury. */}
           <ReportBodyPartField
+            className="pt-5.5"
             bodyParts={form.bodyParts ?? []}
             bodyPartSides={form.bodyPartSides ?? {}}
             bodySide={form.bodySide ?? "Left"}
@@ -97,13 +81,13 @@ export function ReportIncidentStepThree(
             }
           />
 
-          <div className="pt-[18px]">
+          <div className="pt-4.5">
             {/* Only ever taller than the default, never shorter: the controls
                 reserve a strip along the bottom, so squeezing the box puts the
                 buttons on top of the text — and a drafted injury description
                 needs the room to be readable before it is accepted. */}
             <ReportTextareaField
-              className="[&_textarea]:min-h-[150px]"
+              className="[&_textarea]:min-h-37.5"
               label="Injury description"
               value={form.injuryDescription}
               onChange={(event) => {
@@ -171,17 +155,17 @@ export function ReportIncidentStepThree(
           </div>
         </div>
 
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-[21px]">
+        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
               Back
@@ -196,12 +180,12 @@ export function ReportIncidentStepThree(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-[10px] px-[15px] py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
             >
               Continue
               <Icon
                 icon="mdi:chevron-right"
-                className="size-[13px]"
+                className="size-3.25"
                 aria-hidden="true"
               />
             </Button>

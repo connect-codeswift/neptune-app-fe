@@ -25,12 +25,25 @@ import { RegulatoryComplianceKpiGrid } from "./RegulatoryComplianceKpiGrid";
 import { RegulatoryComplianceRegisterCard } from "./RegulatoryComplianceRegisterCard";
 import { RegulatoryComplianceByCategoryCard } from "./RegulatoryComplianceByCategoryCard";
 import { RegulatoryComplianceUpcomingFilingsCard } from "./RegulatoryComplianceUpcomingFilingsCard";
-import {
-  ComplianceViewToggle,
-  ComplianceRegisterSearchBar,
-} from "./compliance-ui";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 
 const SEARCH_DEBOUNCE_MS = 300;
+
+const JURISDICTION_OPTIONS: readonly JurisdictionType[] = [
+  "All",
+  "Federal",
+  "State",
+  "Local",
+];
+
+const STATUS_OPTIONS: readonly ComplianceStatusType[] = [
+  "All",
+  "Compliant",
+  "Due soon",
+  "Action required",
+  "Upcoming",
+];
 
 function toApiStatusFilter(status: ComplianceStatusType): string {
   return status === "All" ? "" : status;
@@ -165,31 +178,46 @@ export function RegulatoryComplianceView() {
         className="pt-4"
       />
 
-      <div className="mt-2">
-        <ComplianceViewToggle activeView="list" />
-      </div>
+      <div className="mt-4 flex flex-col gap-3.5">
+        <ModuleFilterBar
+          segments={[
+            {
+              label: "Jurisdiction",
+              options: JURISDICTION_OPTIONS,
+              value: selectedJurisdiction,
+              onChange: (value) => {
+                setSelectedJurisdiction(value as JurisdictionType);
+                setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
+              },
+            },
+            {
+              label: "Status",
+              options: STATUS_OPTIONS,
+              value: selectedStatus,
+              onChange: (value) => {
+                setSelectedStatus(value as ComplianceStatusType);
+                setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
+              },
+            },
+          ]}
+        />
 
-      <div className="mt-[14px]">
-        <ComplianceRegisterSearchBar
-          searchQuery={registerSearchQuery}
-          onSearchChange={setRegisterSearchQuery}
-          totalCount={totalCount}
+        <ModuleSearchBar
+          value={registerSearchQuery}
+          onChange={setRegisterSearchQuery}
+          placeholder="Search obligations, code, jurisdiction..."
+          aria-label="Search compliance register"
+          resultLabel={
+            totalCount === 1
+              ? "1 obligation"
+              : `${String(totalCount)} obligations`
+          }
         />
       </div>
 
-      <div className="mt-[14px] grid grid-cols-1 items-start gap-[13.62px] xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="mt-3.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <RegulatoryComplianceRegisterCard
           items={obligationItems}
-          selectedJurisdiction={selectedJurisdiction}
-          selectedStatus={selectedStatus}
-          onJurisdictionChange={(value) => {
-            setSelectedJurisdiction(value);
-            setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
-          }}
-          onStatusChange={(value) => {
-            setSelectedStatus(value);
-            setPageNumber(DEFAULT_COMPLIANCES_PAGE_NUMBER);
-          }}
           isLoading={showRegisterLoading}
           pagination={{
             pageNumber,
@@ -200,7 +228,7 @@ export function RegulatoryComplianceView() {
           }}
         />
 
-        <div className="flex flex-col gap-[13.62px]">
+        <div className="flex flex-col gap-3.5">
           <RegulatoryComplianceByCategoryCard
             categories={categoryItems}
             isLoading={showCategoryLoading}

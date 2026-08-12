@@ -12,7 +12,7 @@ export default async function EditLotoProcedurePage(
 
   return (
     <div className="flex flex-1 flex-col gap-3.5">
-      <DashboardHeader />
+      <DashboardHeader title="Edit LOTO Procedure" />
       <LotoProcedurePageContent mode="edit" equipmentId={id} />
     </div>
   );

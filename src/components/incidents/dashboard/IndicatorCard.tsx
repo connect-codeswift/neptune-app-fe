@@ -9,7 +9,7 @@ export type IndicatorCardProps = Readonly<{
 }>;
 
 const indicatorCardShellClass =
-  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]";
+  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5";
 
 export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
   const { metric, className = "" } = props;
@@ -23,23 +23,23 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
     <IncidentGlassCard
       paddingClassName={
         isFootnoteOnly
-          ? "px-[17px] pt-[17px] pb-[27px]"
-          : "p-[17px]"
+          ? "px-4.25 pt-4.25 pb-6.75"
+          : "p-4.25"
       }
       className={[indicatorCardShellClass, className].filter(Boolean).join(" ")}
     >
       <div className="flex h-full flex-col gap-2">
         <div
           className={[
-            "flex min-h-[30px] w-full items-start",
-            metric.titleDot ? "gap-[6px]" : "",
+            "flex min-h-7.5 w-full items-start",
+            metric.titleDot ? "gap-1.5" : "",
           ]
             .filter(Boolean)
             .join(" ")}
         >
           {metric.titleDot ? (
             <span
-              className="mt-[5px] size-[7px] shrink-0 rounded-[3.5px]"
+              className="mt-1.25 size-1.75 shrink-0 rounded-[3.5px]"
               style={{ backgroundColor: metric.titleDot }}
               aria-hidden="true"
             />
@@ -48,7 +48,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
           <div className="min-w-0 pb-[15.35px]">
             <Text
               as="p"
-              className="text-ehs-gray text-[11px] leading-[14.3px] font-bold tracking-[0.11px]"
+              className="text-ehs-gray text-2.75 leading-[14.3px] font-bold tracking-[0.11px]"
             >
               {titlePrimary}
             </Text>
@@ -65,7 +65,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
 
         <Text
           as="p"
-          className="text-ehs-dark-bg text-[30px] leading-[30px] font-normal tracking-[-0.75px] tabular-nums"
+          className="text-ehs-dark-bg text-3xl leading-7.5 font-normal tracking-[-0.75px] tabular-nums"
         >
           {metric.value}
         </Text>

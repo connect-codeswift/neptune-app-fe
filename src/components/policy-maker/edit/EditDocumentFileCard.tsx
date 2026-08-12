@@ -32,7 +32,7 @@ export function EditDocumentFileCard(
   return (
     <div
       className={[
-        "flex w-full min-w-0 flex-col gap-3 rounded-[12px] border-[1.5px] border-dashed border-[rgba(15,23,42,0.1)] bg-[rgba(238,241,246,0.45)] p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
+        "flex w-full min-w-0 flex-col gap-3 rounded-3 border-[1.5px] border-dashed border-[rgba(15,23,42,0.1)] bg-[rgba(238,241,246,0.45)] p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
         className,
       ]
         .filter(Boolean)
@@ -49,11 +49,11 @@ export function EditDocumentFileCard(
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text
             as="p"
-            className="truncate text-[14px] font-semibold text-[#0b1320]"
+            className="text-3.5 truncate font-semibold text-[#0b1320]"
           >
             {fileName}
           </Text>
-          <Text as="p" className="text-[12px] text-[#8892a3]">
+          <Text as="p" className="text-xs text-[#8892a3]">
             {fileMeta}
           </Text>
         </div>
@@ -70,7 +70,7 @@ export function EditDocumentFileCard(
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-4 text-[13px] font-semibold whitespace-nowrap text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+        className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[rgba(11,19,32,0.1)] bg-white px-4 text-3.25 font-semibold whitespace-nowrap text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)]"
       >
         Replace File
       </button>

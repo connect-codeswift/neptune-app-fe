@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { useWalkTalkTopFindingsQuery } from "@/hooks/use-walk-talk-queries";
 import { toWalkTalkTopFindings } from "@/lib/map-walk-talk";
 import type {

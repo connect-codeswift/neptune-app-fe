@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoPersonnel,
   LotoPersonnelStatus,
@@ -18,22 +19,19 @@ export type LotoPersonnelColumnActions = Readonly<{
 
 export function buildLotoPersonnelColumns(
   actions: LotoPersonnelColumnActions,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoPersonnel, any>[] {
+): TableColumns<LotoPersonnel> {
   return [
     columnHelper.accessor("name", {
-      header: "NAME",
+      header: "Name",
       size: 120,
       cell: (info) => {
         const item = info.row.original;
         return (
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-[rgba(8,145,166,0.12)] text-[11px] font-bold text-[#0891a6]">
+            <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-2.25 font-bold">
               {item.initials}
             </span>
-            <span className="text-ehs-darker text-base leading-5 font-semibold">
-              {item.name}
-            </span>
+            <span className="text4 text-ehs-darker">{item.name}</span>
           </div>
         );
       },
@@ -41,12 +39,12 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.display({
       id: "role",
-      header: "ROLE & DEPARTMENT",
+      header: "Role & Department",
       size: 120,
       cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="text-base text-[#2a3446]">{row.original.role}</span>
-          <span className="text-sm text-[#b3bbc8]">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="text4 text-ehs-darker">{row.original.role}</span>
+          <span className="text4 text-ehs-muted-text">
             {row.original.department}
           </span>
         </div>
@@ -54,23 +52,23 @@ export function buildLotoPersonnelColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("certifiedOn", {
-      header: "CERTIFIED",
+      header: "Certified",
       size: 120,
       cell: (info) => (
-        <span className="text-base text-[#566072]">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("expiresOn", {
-      header: "EXPIRES",
+      header: "Expires",
       size: 120,
       cell: (info) => {
         const expired = info.row.original.status === "Expired";
         return (
           <span
             className={[
-              "text-base font-semibold",
-              expired ? "text-[#ef4444]" : "text-[#2a3446]",
+              "text4",
+              expired ? "font-semibold text-[#ef4444]" : "text-ehs-gray",
             ].join(" ")}
           >
             {info.getValue()}
@@ -80,14 +78,14 @@ export function buildLotoPersonnelColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("equipmentIds", {
-      header: "EQUIPMENT",
+      header: "Equipment",
       size: 120,
       cell: (info) => (
         <div className="flex max-w-70 flex-wrap gap-1">
           {info.getValue().map((equipmentId: string) => (
             <span
               key={equipmentId}
-              className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm font-medium text-[#566072]"
+              className="text8 text-ehs-gray rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5"
             >
               {equipmentId}
             </span>
@@ -97,12 +95,12 @@ export function buildLotoPersonnelColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 120,
       cell: (info) => (
         <span
           className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-base font-semibold",
+            "text5 inline-flex rounded-full px-2.5 py-0.5",
             statusClassName[info.getValue() as LotoPersonnelStatus],
           ].join(" ")}
         >
@@ -113,7 +111,7 @@ export function buildLotoPersonnelColumns(
     }),
     columnHelper.display({
       id: "actions",
-      header: "actions",
+      header: "Actions",
       size: 120,
       cell: ({ row }) => {
         const item = row.original;
@@ -124,7 +122,7 @@ export function buildLotoPersonnelColumns(
             {isExpired ? (
               <button
                 type="button"
-                className="cursor-pointer text-base font-semibold text-[#ef4444] hover:underline"
+                className="text4 cursor-pointer font-semibold text-[#ef4444] hover:underline"
                 onClick={(event) => {
                   event.stopPropagation();
                   actions.onRenew(item);
@@ -135,7 +133,7 @@ export function buildLotoPersonnelColumns(
             ) : null}
             <button
               type="button"
-              className="cursor-pointer text-base font-semibold text-[#566072] hover:underline"
+              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onEdit(item);

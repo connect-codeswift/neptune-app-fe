@@ -10,7 +10,7 @@ import type { SessionSiteDto } from "@/dtos/res/session-response.dto";
  * The trigger shows the company; the menu lists that company's sites so the
  * user can narrow the dashboard to one of them (or back to "All sites").
  */
-export const ALL_SITES = "All sites";
+const ALL_SITES = "All sites";
 
 export type SiteSwitcherSite = Pick<SessionSiteDto, "id" | "siteName">;
 
@@ -42,25 +42,19 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
   const menuRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
 
-  const activeSiteId = selectedSiteId === undefined ? internalSiteId : selectedSiteId;
+  // Drop a stale uncontrolled selection when the site list no longer contains it
+  // (derived — avoid syncing via an effect).
+  const resolvedInternalSiteId =
+    internalSiteId != null && sites.some((site) => site.id === internalSiteId)
+      ? internalSiteId
+      : null;
+
+  const activeSiteId =
+    selectedSiteId === undefined ? resolvedInternalSiteId : selectedSiteId;
   const selectedSiteName =
     activeSiteId == null
       ? ALL_SITES
       : (sites.find((site) => site.id === activeSiteId)?.siteName ?? ALL_SITES);
-
-  useEffect(() => {
-    if (selectedSiteId !== undefined) {
-      return;
-    }
-
-    setInternalSiteId((current) => {
-      if (current != null && sites.some((site) => site.id === current)) {
-        return current;
-      }
-
-      return null;
-    });
-  }, [selectedSiteId, sites]);
 
   useEffect(() => {
     if (!open) {
@@ -112,11 +106,11 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
           className="text-ehs-gray size-3.5 shrink-0"
           aria-hidden="true"
         />
-        <span className="max-w-[12rem] truncate whitespace-nowrap">
+        <span className="max-w-48 truncate whitespace-nowrap">
           {company}
         </span>
         {selectedSiteName === ALL_SITES ? null : (
-          <span className="bg-ehs-light-blue text-ehs-dark-blue max-w-[8rem] truncate rounded-full px-2 py-px text-[10px] font-semibold">
+          <span className="bg-ehs-light-blue text-ehs-dark-blue max-w-32 truncate rounded-full px-2 py-px text-2.5 font-semibold">
             {selectedSiteName}
           </span>
         )}
@@ -137,7 +131,7 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
           aria-label={`Sites for ${company}`}
           className="animate-popover-in absolute right-0 z-30 mt-1.5 w-60 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
         >
-          <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-1.5 pb-2 text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-1.5 pb-2 text-2.5 font-semibold tracking-wider uppercase">
             {company}
           </p>
 

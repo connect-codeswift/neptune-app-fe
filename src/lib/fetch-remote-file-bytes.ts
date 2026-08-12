@@ -52,17 +52,6 @@ export async function fetchRemoteFileMeta(
   return { bytes, lastModified };
 }
 
-/**
- * Best-effort remote byte size for a public file URL (e.g. Cloudinary).
- * Uses HEAD `Content-Length`, then a Range GET `Content-Range` fallback.
- */
-export async function fetchRemoteFileBytes(
-  url: string,
-): Promise<number | null> {
-  const meta = await fetchRemoteFileMeta(url);
-  return meta.bytes;
-}
-
 function parsePositiveInt(value: string | null): number | null {
   if (!value?.trim()) {
     return null;

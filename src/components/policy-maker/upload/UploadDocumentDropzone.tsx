@@ -114,7 +114,7 @@ export function UploadDocumentDropzone(
         onDrop={onDrop}
         aria-disabled={isUploading || undefined}
         className={[
-          "flex min-h-[140px] w-full flex-col items-center justify-center rounded-[16px] border-[1.6px] border-dashed px-4 py-6 transition-colors sm:min-h-[171px] sm:px-8 sm:py-8 lg:min-h-[200px] lg:py-10",
+          "flex min-h-35 w-full flex-col items-center justify-center rounded-4 border-[1.6px] border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
           isUploading
             ? "cursor-wait border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
             : "cursor-pointer",
@@ -150,25 +150,25 @@ export function UploadDocumentDropzone(
         {isUploading ? (
           <Text
             as="p"
-            className="mt-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium text-[#2a3446] sm:mt-3 sm:text-[16px]"
+            className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:mt-3 sm:text-base"
           >
             Uploading to Cloudinary…
           </Text>
         ) : file ? (
-          <p className="mt-2 line-clamp-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium break-all text-[#2a3446] sm:mt-3 sm:text-[16px]">
+          <p className="text-3.5 mt-2 line-clamp-2 max-w-full px-1 text-center leading-6 font-medium break-all text-[#2a3446] sm:mt-3 sm:text-base">
             {file.name}
           </p>
         ) : (
           <>
             <Text
               as="p"
-              className="mt-2 max-w-full px-1 text-center text-[14px] leading-6 font-medium text-[#2a3446] sm:hidden"
+              className="text-3.5 mt-2 max-w-full px-1 text-center leading-6 font-medium text-[#2a3446] sm:hidden"
             >
               Tap to upload *
             </Text>
             <Text
               as="p"
-              className="mt-3 hidden max-w-full px-1 text-center text-[16px] leading-6 font-medium text-[#2a3446] sm:block"
+              className="mt-3 hidden max-w-full px-1 text-center text-base leading-6 font-medium text-[#2a3446] sm:block"
             >
               Drag & drop or click to upload *
             </Text>
@@ -176,7 +176,7 @@ export function UploadDocumentDropzone(
         )}
         <Text
           as="p"
-          className="mt-1 text-center text-[12px] leading-4 text-[#8892a3]"
+          className="mt-1 text-center text-xs leading-4 text-[#8892a3]"
         >
           {file && sizeLabel
             ? `${sizeLabel} · PDF${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
@@ -185,7 +185,7 @@ export function UploadDocumentDropzone(
         {file && !isUploading ? (
           <button
             type="button"
-            className="relative z-1 mt-3 text-[12px] font-medium text-[#0891a6] hover:underline"
+            className="relative z-1 mt-3 text-xs font-medium text-[#0891a6] hover:underline"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -197,7 +197,7 @@ export function UploadDocumentDropzone(
         ) : null}
       </label>
       {message ? (
-        <Text as="p" className="mt-2 text-[12px] text-[#ef4444]">
+        <Text as="p" className="mt-2 text-xs text-[#ef4444]">
           {message}
         </Text>
       ) : null}

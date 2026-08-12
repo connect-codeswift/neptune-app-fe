@@ -37,7 +37,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-bold tracking-wide whitespace-nowrap",
+        "text5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
@@ -47,7 +47,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
       {showDot ? (
         <span
           className={[
-            "size-1.5 shrink-0 rounded-[3px]",
+            "size-1.5 shrink-0 rounded-0.75",
             dotClassName[tone],
           ].join(" ")}
           aria-hidden="true"

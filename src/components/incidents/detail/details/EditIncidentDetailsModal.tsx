@@ -6,6 +6,7 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 
 export type EditIncidentDetailsPayload = Readonly<{
   summary: string;
@@ -27,7 +28,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="block text4 leading-[19.5px] text-ehs-gray"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -70,7 +71,7 @@ export function EditIncidentDetailsModal(
             onClick={handleSave}
             disabled={!canSave}
             label="Save changes"
-            iconSrc=""
+            icon=""
           />
         </>
       }
@@ -85,7 +86,7 @@ export function EditIncidentDetailsModal(
           onChange={(event) => setDraftSummary(event.target.value)}
           placeholder="Describe what happened…"
           rows={6}
-          className="min-h-[160px] w-full resize-none rounded-xl bg-white px-3.5 py-3 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25 sm:text-sm"
+          className={FIELD_TEXTAREA_CLASS}
         />
       </section>
     </IncidentModalShell>

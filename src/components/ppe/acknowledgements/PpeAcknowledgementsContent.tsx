@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
 import { usePpeIssuesAssignedToQuery } from "@/hooks/use-ppe-queries";
 import { PpeTableSkeleton } from "../PpeSkeletons";
@@ -18,42 +18,43 @@ function AcknowledgementMobileCard(
   const { entry } = props;
 
   return (
-    <div className="border-ehs-border flex w-full flex-col gap-3 rounded-xl border bg-white p-3.5 shadow-[0px_2px_4px_rgba(15,23,42,0.02)]">
+    <div className="border-ehs-border flex w-full flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.02)]">
       <div className="flex items-center gap-2">
         <span
-          className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-[10px] font-bold text-white"
+          className="text8 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-white"
           aria-hidden="true"
         >
           {entry.initials}
         </span>
-        <span className="text-ehs-darker min-w-0 flex-1 truncate text-sm font-semibold">
+        <span className="text4 text-ehs-darker min-w-0 flex-1 truncate">
           {entry.assignToName}
         </span>
       </div>
 
       <div className="flex flex-col gap-1">
-        <p className="text-ehs-darker text-sm font-semibold">{entry.item}</p>
-        <p className="text-ehs-muted-text text-xs">
-          {`Qty: ${entry.quantity} · Size: ${entry.size}`}
+        <p className="text4 text-ehs-slate">{entry.item}</p>
+        <p className="text4 text-ehs-muted-text">
+          {`Qty: ${String(entry.quantity)} · Size: ${entry.size}`}
         </p>
-        <p className="truncate text-xs text-[#8892a3]">{entry.note}</p>
+        {entry.note.trim() ? (
+          <p className="text4 text-ehs-muted-text truncate">{entry.note}</p>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-end border-t border-[rgba(11,19,32,0.08)] pt-3">
         {entry.acknowledged ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-1 text-[11px] font-bold text-[#10b981]">
-            <Icon
-              icon="mdi:check"
-              className="size-2.5 shrink-0"
-              aria-hidden="true"
-            />
-            Acknowledged
-          </span>
+          <IncidentBadge
+            label="Acknowledged"
+            tone="muted"
+            className="w-fit bg-[rgba(16,185,129,0.12)] text-[#10b981]"
+          />
         ) : (
           <Button
             type="button"
             variant="primary"
-            className="pointer-events-none rounded-lg px-3.5 py-1.5 text-xs font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)]"
+            disabled
+            title="Acknowledging PPE from this list is not available yet"
+            className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
           >
             Acknowledge
           </Button>
@@ -81,7 +82,7 @@ export function PpeAcknowledgementsContent() {
           <ul className="flex flex-col gap-3 md:hidden">
             {Array.from({ length: 4 }, (_, index) => (
               <li key={`ack-skel-${String(index)}`}>
-                <div className="border-ehs-border h-32 rounded-xl border bg-white/60" />
+                <div className="border-ehs-border h-32 rounded-2xl border bg-white/60" />
               </li>
             ))}
           </ul>
@@ -91,10 +92,10 @@ export function PpeAcknowledgementsContent() {
 
       {!isLoading && errorMessage ? (
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Couldn&apos;t load acknowledgements
           </Text>
-          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text mt-1">
             {errorMessage}
           </Text>
           <Button
@@ -114,7 +115,7 @@ export function PpeAcknowledgementsContent() {
             {entries.length === 0 ? (
               <li>
                 <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                  <Text as="p" className="text4 text-ehs-muted-text">
                     No PPE items assigned to you right now.
                   </Text>
                 </IncidentGlassCard>
@@ -130,6 +131,7 @@ export function PpeAcknowledgementsContent() {
 
           <div className="hidden min-w-0 overflow-x-auto md:block">
             <Table
+              variant="incident"
               data={entries}
               columns={columns}
               getRowId={(row) => row.id}
@@ -141,10 +143,10 @@ export function PpeAcknowledgementsContent() {
             paddingClassName="p-5"
             className="min-w-0 bg-white/48"
           >
-            <Text as="p" className="text-ehs-darker text-base font-bold">
+            <Text as="p" className="text3 text-ehs-darker">
               Verification Guidelines
             </Text>
-            <Text as="p" className="text-s mt-0.5 text-[#566072]">
+            <Text as="p" className="text4 text-ehs-gray mt-0.5">
               By acknowledging assigned PPE, you confirm you have received the
               items, verified their condition, and received training on their
               proper use.

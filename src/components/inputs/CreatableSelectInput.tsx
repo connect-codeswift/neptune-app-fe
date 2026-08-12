@@ -45,7 +45,9 @@ type MenuPosition = Readonly<{
  * Single-select dropdown with an inline “add new option” footer.
  * Menu is portaled so parent overflow cannot clip it.
  */
-export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>) {
+export function CreatableSelectInput(
+  props: Readonly<CreatableSelectInputProps>,
+) {
   const {
     label,
     placeholder,
@@ -188,7 +190,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
               left: position.left,
               width: position.width,
             }}
-            className="fixed z-[120] overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
+            className="fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
           >
             <ul
               id={listboxId}
@@ -196,7 +198,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
               className="max-h-52 overflow-y-auto p-1"
             >
               {options.length === 0 ? (
-                <li className="px-2.5 py-2 text-[13px] text-[#8892a3]">
+                <li className="px-2.5 py-2 text-3.25 text-[#8892a3]">
                   No options yet
                 </li>
               ) : (
@@ -215,7 +217,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                           close();
                         }}
                         className={[
-                          "flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-[14px] transition-colors",
+                          "text-3.5 flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left transition-colors",
                           isSelected
                             ? "bg-[rgba(8,145,166,0.12)] text-[#056e7e]"
                             : "text-[#0b1320] hover:bg-[rgba(15,23,42,0.04)]",
@@ -255,7 +257,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                         void submitCreate();
                       }
                     }}
-                    className="h-9 w-full min-w-0 rounded-[8px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[14px] text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
+                    className="text-3.5 h-9 w-full min-w-0 rounded-2 border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-2.5 text-[#0b1320] outline-none focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20"
                   />
                   <div className="flex justify-end gap-2">
                     <button
@@ -265,19 +267,17 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                         setIsAdding(false);
                         setNewLabel("");
                       }}
-                      className="cursor-pointer px-2 py-1 text-[13px] font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:opacity-50"
+                      className="cursor-pointer px-2 py-1 text-3.25 font-medium text-[#566072] transition-colors hover:text-[#0b1320] disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
-                      disabled={
-                        isCreating || disabled || !newLabel.trim()
-                      }
+                      disabled={isCreating || disabled || !newLabel.trim()}
                       onClick={() => {
                         void submitCreate();
                       }}
-                      className="cursor-pointer rounded-lg bg-[#0891a6] px-3 py-1 text-[13px] font-semibold text-white transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="cursor-pointer rounded-lg bg-[#0891a6] px-3 py-1 text-3.25 font-semibold text-white transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {isCreating ? "Adding…" : "Add"}
                     </button>
@@ -288,7 +288,7 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
                   type="button"
                   disabled={disabled || isCreating}
                   onClick={() => setIsAdding(true)}
-                  className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left text-[13px] font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full cursor-pointer items-center gap-2 px-3 py-2.5 text-left text-3.25 font-semibold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.06)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                   {createLabel}
@@ -320,10 +320,10 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "flex h-9 w-full min-w-0 items-center gap-2 rounded-[10px] border-[0.8px] border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-2 text-left outline-none transition-colors sm:h-[36px]",
+          "flex h-9 w-full min-w-0 items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2 text-left backdrop-blur-1.25 transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70 sm:h-9",
           open
-            ? "border-[#0891a6] ring-2 ring-[#0891a6]/20"
-            : "focus-visible:border-[#0891a6] focus-visible:ring-2 focus-visible:ring-[#0891a6]/20",
+            ? "border-[#0891a6] ring-0.75 ring-[#0891a6]/15"
+            : "focus-visible:border-[#0891a6] focus-visible:ring-0.75 focus-visible:ring-[#0891a6]/15",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,
         ]
@@ -332,11 +332,11 @@ export function CreatableSelectInput(props: Readonly<CreatableSelectInputProps>)
       >
         <span className="min-w-0 flex-1 truncate">
           {selected ? (
-            <Text as="span" className="text-[14px] text-[#0b1320]">
+            <Text as="span" className="text-3.5 text-[#0b1320]">
               {selected.label}
             </Text>
           ) : (
-            <Text as="span" className="text-[14px] text-[#8892a3]">
+            <Text as="span" className="text-3.5 text-[#8892a3]">
               {placeholder}
             </Text>
           )}

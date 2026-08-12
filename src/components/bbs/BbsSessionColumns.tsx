@@ -1,18 +1,11 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 
 const columnHelper = createColumnHelper<BbsSession>();
 
-function observeTone(type: string): "teal" | "warn" | "muted" {
-  const normalized = type.trim().toLowerCase();
-  if (normalized === "safe") return "teal";
-  if (normalized === "at-risk" || normalized === "at risk") return "warn";
-  return "muted";
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const bbsSessionColumns: ColumnDef<BbsSession, any>[] = [
+export const bbsSessionColumns: TableColumns<BbsSession> = [
   columnHelper.accessor("id", {
     header: "ID",
     size: 110,

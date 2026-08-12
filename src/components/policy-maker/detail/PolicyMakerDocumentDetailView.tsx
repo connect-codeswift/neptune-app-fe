@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { PolicyMakerDocumentDetailHeader } from "@/components/policy-maker/detail/PolicyMakerDocumentDetailHeader";
@@ -17,6 +18,7 @@ import { toast } from "@/lib/toast";
 
 export type PolicyMakerDocumentDetailViewProps = Readonly<{
   document: PolicyDocument;
+  onEdit?: () => void;
   onVersionHistory?: () => void;
   onApproval?: () => void;
   onAcknowledgment?: () => void;
@@ -31,13 +33,13 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
 
 /** Glass card shell matching Figma 5568:24604 (16px radius, 0.8 border, soft shadow). */
 const detailCardClass =
-  "relative overflow-hidden rounded-[16px] border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[16px] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-4 border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
 
 function DetailField(props: Readonly<{ label: string; children: ReactNode }>) {
   const { label, children } = props;
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <Text as="p" className="text-[12px] leading-4 text-[#8892a3]">
+      <Text as="p" className="text-xs leading-4 text-[#8892a3]">
         {label}
       </Text>
       <div className="min-w-0">{children}</div>
@@ -47,13 +49,14 @@ function DetailField(props: Readonly<{ label: string; children: ReactNode }>) {
 
 /**
  * Document Detail View (Figma 5568:24538 / 53. Document Detail View).
- * AppShell owns the sidebar ΓÇö this renders MainWorkspace content only.
+ * AppShell owns the sidebar — this renders MainWorkspace content only.
  */
 export function PolicyMakerDocumentDetailView(
   props: Readonly<PolicyMakerDocumentDetailViewProps>,
 ) {
   const {
     document,
+    onEdit,
     onVersionHistory,
     onApproval,
     onAcknowledgment,
@@ -92,9 +95,12 @@ export function PolicyMakerDocumentDetailView(
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-[14px] sm:px-4 sm:pb-8">
+      <DashboardHeader />
+
+      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
         <PolicyMakerDocumentDetailHeader
           document={document}
+          onEdit={onEdit}
           onVersionHistory={onVersionHistory}
           onApproval={onApproval}
           onAcknowledgment={onAcknowledgment}
@@ -104,7 +110,7 @@ export function PolicyMakerDocumentDetailView(
           isApproving={isApproving}
         />
 
-        {/* Preview + Details | Acknowledgment ΓÇö fluid grid (Figma 5568:24604) */}
+        {/* Preview + Details | Acknowledgment — fluid grid (Figma 5568:24604) */}
         <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,2.0fr)_minmax(240px,1fr)] lg:items-center lg:gap-7">
           <div className="flex min-w-0 flex-col gap-5">
             {/* File preview */}
@@ -121,13 +127,13 @@ export function PolicyMakerDocumentDetailView(
                   <div className="flex min-w-0 flex-col">
                     <Text
                       as="p"
-                      className="truncate text-[15px] leading-6 font-semibold text-[#0b1320] sm:text-[16px]"
+                      className="truncate text-3.75 leading-6 font-semibold text-[#0b1320] sm:text-base"
                     >
                       {document.title}
                     </Text>
                     <Text
                       as="p"
-                      className="truncate text-[13px] leading-5 text-[#566072] sm:text-[14px]"
+                      className="sm:text-3.5 truncate text-3.25 leading-5 text-[#566072]"
                     >
                       {documentFileName(document)}
                     </Text>
@@ -136,7 +142,7 @@ export function PolicyMakerDocumentDetailView(
                 <button
                   type="button"
                   onClick={() => setIsPreviewOpen(true)}
-                  className="relative inline-flex h-[38px] w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-[#0891a6] px-4 text-[14px] leading-5 font-medium whitespace-nowrap text-white shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] transition-colors before:pointer-events-none before:absolute before:inset-0 before:rounded-[9.73px] before:shadow-[inset_0px_0.973px_0px_0.973px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078196]"
+                  className="text-3.5 relative inline-flex h-9.5 w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-2.5 bg-[#0891a6] px-4 leading-5 font-medium whitespace-nowrap text-white shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] transition-colors before:pointer-events-none before:absolute before:inset-0 before:rounded-[9.73px] before:shadow-[inset_0px_0.973px_0px_0.973px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078196]"
                 >
                   <Icon
                     icon="mdi:eye-outline"
@@ -156,30 +162,30 @@ export function PolicyMakerDocumentDetailView(
             >
               <Text
                 as="h2"
-                className="relative z-1 text-[16px] leading-7 font-semibold text-[#0b1320] sm:text-[18px] sm:leading-[27px]"
+                className="relative z-1 text-base leading-7 font-semibold text-[#0b1320] sm:text-lg sm:leading-6.75"
               >
                 Document Details
               </Text>
               <div className="relative z-1 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2">
                 <DetailField label="Category">
-                  <Text as="p" className="text-[14px] leading-5 text-[#0b1320]">
+                  <Text as="p" className="text-3.5 leading-5 text-[#0b1320]">
                     {document.documentKind}
                   </Text>
                 </DetailField>
                 <DetailField label="Version">
-                  <Text as="p" className="text-[14px] leading-5 text-[#0b1320]">
+                  <Text as="p" className="text-3.5 leading-5 text-[#0b1320]">
                     {document.version}
                   </Text>
                 </DetailField>
                 <DetailField label="Status">
-                  <span className="inline-flex h-[21.7px] items-center gap-[5px] rounded-full bg-[rgba(11,19,32,0.14)] px-2.5">
+                  <span className="inline-flex h-[21.7px] items-center gap-1.25 rounded-full bg-[rgba(11,19,32,0.14)] px-2.5">
                     <span
-                      className="size-1.5 shrink-0 rounded-[3px] bg-[#566072]"
+                      className="size-1.5 shrink-0 rounded-0.75 bg-[#566072]"
                       aria-hidden="true"
                     />
                     <Text
                       as="span"
-                      className="text-[11px] leading-[15.7px] font-semibold tracking-[0.11px] text-[#566072]"
+                      className="text-2.75 leading-[15.7px] font-semibold tracking-[0.11px] text-[#566072]"
                     >
                       {displayStatus}
                     </Text>
@@ -188,18 +194,18 @@ export function PolicyMakerDocumentDetailView(
                 <DetailField label="Owner">
                   <Text
                     as="p"
-                    className="truncate text-[14px] leading-5 text-[#0b1320]"
+                    className="text-3.5 truncate leading-5 text-[#0b1320]"
                   >
                     {document.ownerFullName}
                   </Text>
                 </DetailField>
                 <DetailField label="Department">
-                  <Text as="p" className="text-[14px] leading-5 text-[#0b1320]">
+                  <Text as="p" className="text-3.5 leading-5 text-[#0b1320]">
                     {document.department}
                   </Text>
                 </DetailField>
                 <DetailField label="Review Date">
-                  <Text as="p" className="text-[14px] leading-5 text-[#0b1320]">
+                  <Text as="p" className="text-3.5 leading-5 text-[#0b1320]">
                     {document.reviewDate}
                   </Text>
                 </DetailField>
@@ -213,20 +219,20 @@ export function PolicyMakerDocumentDetailView(
               <div className="relative z-1 flex flex-col gap-3 p-4 sm:gap-0 sm:px-5 sm:pt-5 sm:pb-5">
                 <Text
                   as="h2"
-                  className="text-[16px] leading-7 font-semibold text-[#0b1320] sm:text-[18px] sm:leading-[27px]"
+                  className="text-base leading-7 font-semibold text-[#0b1320] sm:text-lg sm:leading-6.75"
                 >
                   Acknowledgment Status
                 </Text>
                 <div className="flex flex-col items-stretch sm:mt-3">
                   <Text
                     as="p"
-                    className="text-center text-[26px] leading-9 font-bold text-[#0b1320] sm:text-[30px]"
+                    className="text-center text-6.5 leading-9 font-bold text-[#0b1320] sm:text-3xl"
                   >
                     {`${String(ackPercent)}%`}
                   </Text>
                   <Text
                     as="p"
-                    className="text-center text-[12px] leading-4 text-[#566072]"
+                    className="text-center text-xs leading-4 text-[#566072]"
                   >
                     {`${String(document.acknowledged)} of ${String(document.acknowledgmentTotal)} acknowledged`}
                   </Text>
@@ -249,7 +255,7 @@ export function PolicyMakerDocumentDetailView(
                     type="button"
                     variant="tertiary"
                     onClick={onApprovals}
-                    className="h-9 w-[183px] max-w-full rounded-[8px] border border-[rgba(11,19,32,0.14)] px-2 text-[14px] leading-5 font-normal text-[#0b1320] shadow-none hover:bg-white/80"
+                    className="text-3.5 h-9 w-45.75 max-w-full rounded-2 border border-[rgba(11,19,32,0.14)] px-2 leading-5 font-normal text-[#0b1320] shadow-none hover:bg-white/80"
                   >
                     Approvals
                   </Button>

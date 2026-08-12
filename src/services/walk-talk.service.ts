@@ -6,7 +6,6 @@ import type {
   CreateWalkTalkResponseDto,
   GetWalkTalkDashboardCountsResponseDto,
   GetWalkTalkGraphResponseDto,
-  GetWalkTalkParticipantsResponseDto,
   GetWalkTalkSessionByIdResponseDto,
   GetWalkTalkSessionsResponseDto,
   GetWalkTalkTopFindingsResponseDto,
@@ -14,19 +13,9 @@ import type {
 import http from "@/lib/axios";
 
 const WALK_TALK_PATH = "/walkandtalk";
-const PARTICIPANTS_PATH = `${WALK_TALK_PATH}/participants`;
 const DASHBOARD_COUNTS_PATH = `${WALK_TALK_PATH}/dashboard-counts`;
 const TOP_FINDINGS_PATH = `${WALK_TALK_PATH}/top-findings`;
 const GRAPH_PATH = `${WALK_TALK_PATH}/graph`;
-
-/** Fetches walk-and-talk participants from GET /api/walkandtalk/participants. */
-export async function getWalkTalkParticipants() {
-  const { data } = await http.get<GetWalkTalkParticipantsResponseDto>(
-    PARTICIPANTS_PATH,
-  );
-
-  return data;
-}
 
 /** Fetches dashboard counts from GET /api/walkandtalk/dashboard-counts. */
 export async function getWalkTalkDashboardCounts() {

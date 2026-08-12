@@ -32,15 +32,15 @@ export function IncidentDetailCapaSummaryCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[19px]"
-      incidentGlassCardClassName="gap-[14px]"
+      paddingClassName="p-4.75"
+      incidentGlassCardClassName="gap-3.5"
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-0.5">
-        <Text as="h3" className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text-ehs-dark-bg text3">
           CAPA summary
         </Text>
-        <span className="text-ehs-muted-text text-sm leading-normal">
+        <span className="text-ehs-muted-text text4 leading-normal">
           Counts reflect assignee status on each action
         </span>
       </div>
@@ -49,18 +49,18 @@ export function IncidentDetailCapaSummaryCard(
         {stats.map((item) => (
           <div
             key={item.label}
-            className="flex flex-col gap-[5px] rounded-[10px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-[15px]"
+            className="flex flex-col gap-1.25 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.75"
           >
             <span
               className={[
-                "text-2xl font-bold",
+                "text1",
                 item.emphasize ? "text-ehs-dark-bg" : "text-ehs-gray",
                 isLoading ? "opacity-40" : "",
               ].join(" ")}
             >
               {isLoading ? "—" : item.value}
             </span>
-            <span className="text-ehs-muted-text text-sm leading-normal">
+            <span className="text-ehs-muted-text text4 leading-normal">
               {item.label}
             </span>
           </div>

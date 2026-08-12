@@ -1,5 +1,6 @@
 import { formatAge } from "@/lib/format-age";
 import type { SelectOption } from "@/components/form-builder";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type { HazardDto, HazardKpiDto } from "@/dtos/res/hazard-response.dto";
 import {
   HAZARD_TYPE_OPTIONS,
@@ -16,15 +17,23 @@ import {
   readProp,
 } from "@/services/mappers/record-readers";
 
+/** Finite number when present, otherwise undefined. */
+function asOptionalNumber(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = asNumber(value, Number.NaN);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 /**
  * Normalizes GET /api/Hazard/HazardKpiCount payload (camelCase or PascalCase).
  */
-export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {  if (!isRecord(raw)) {
+export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {
+  if (!isRecord(raw)) {
     return null;
   }
 
-  const totalHazards =
-    asNumber(
+  return {
+    totalHazards: asNumber(
       readProp(
         raw,
         "totalHazards",
@@ -32,10 +41,17 @@ export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {  if (
         "totalHazardCount",
         "TotalHazardCount",
       ),
-    ) ?? 0;
-
-  const hazardConvertedToIncidentCount =
-    asNumber(
+    ),
+    totalHazardsDelta: asOptionalNumber(
+      readProp(
+        raw,
+        "totalHazardsDelta",
+        "TotalHazardsDelta",
+        "totalHazardsChange",
+        "TotalHazardsChange",
+      ),
+    ),
+    hazardConvertedToIncidentCount: asNumber(
       readProp(
         raw,
         "hazardConvertedToIncidentCount",
@@ -43,23 +59,48 @@ export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {  if (
         "convertedToIncidents",
         "ConvertedToIncidents",
       ),
-    ) ?? 0;
-
-  return { totalHazards, hazardConvertedToIncidentCount };
+    ),
+    hazardConvertedToIncidentDelta: asOptionalNumber(
+      readProp(
+        raw,
+        "hazardConvertedToIncidentDelta",
+        "HazardConvertedToIncidentDelta",
+        "hazardConvertedToIncidentChange",
+        "HazardConvertedToIncidentChange",
+      ),
+    ),
+  };
 }
 
-/** Builds the two hazard dashboard KPI cards from the API payload. */
+/**
+ * Builds the two hazard KPI cards. The endpoint returns a period delta but no
+ * series, so the cards pass `delta` straight through and draw no sparkline.
+ */
 export function mapHazardKpiToMetrics(
   dto: HazardKpiDto | null | undefined,
-): readonly { title: string; value: number }[] {
+): readonly MetricCardProps[] {
+  const totalDelta = dto?.totalHazardsDelta ?? dto?.totalHazardsChange;
+  const convertedDelta =
+    dto?.hazardConvertedToIncidentDelta ?? dto?.hazardConvertedToIncidentChange;
+
   return [
     {
-      title: "Total hazards reports",
+      title: "Total hazard reports",
       value: dto?.totalHazards ?? 0,
+      // More hazards reported is a healthier reporting culture, not a worse
+      // site — the incidents they turn into are the metric that hurts.
+      isMorePositive: true,
+      delta: totalDelta,
+      description: "Reported this period",
+      icon: "mdi:alert-outline",
     },
     {
       title: "Converted to incidents",
       value: dto?.hazardConvertedToIncidentCount ?? 0,
+      isMorePositive: false,
+      delta: convertedDelta,
+      description: "Hazards that became incidents",
+      icon: "mdi:swap-horizontal",
     },
   ];
 }

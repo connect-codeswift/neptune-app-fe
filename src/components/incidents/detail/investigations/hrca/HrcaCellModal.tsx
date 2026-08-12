@@ -6,6 +6,7 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
+import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
 import type { HrcaCellModalState } from "@/components/incidents/detail/investigations/hrca/hrca-modal-types";
 
 export type HrcaCellModalProps = Readonly<{
@@ -23,7 +24,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text-sm leading-[19.5px] text-ehs-gray"
+      className="block text4 leading-[19.5px] text-ehs-gray"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -100,7 +101,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
       title={copy.title}
       subtitle={state.category}
       onClose={onClose}
-      maxWidthClassName="max-w-[560px]"
+      maxWidthClassName="max-w-140"
       footerHint={copy.footerHint}
       footerActions={
         <>
@@ -111,7 +112,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
             }}
             disabled={!canSubmit}
             label={busy ? "Saving…" : copy.primaryLabel}
-            iconSrc=""
+            icon=""
           />
         </>
       }
@@ -127,7 +128,7 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
           placeholder={copy.placeholder}
           rows={5}
           autoFocus
-          className="min-h-[120px] w-full resize-y rounded-xl bg-white px-3.5 py-3 text-sm leading-5 text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25"
+          className={FIELD_TEXTAREA_CLASS}
         />
       </section>
     </IncidentModalShell>

@@ -59,7 +59,7 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
 
   return (
     <HazcomGlassCard
-      className={["min-h-[180px] text-center", className]
+      className={["min-h-45 text-center", className]
         .filter(Boolean)
         .join(" ")}
       hazcomGlassCardClassName="items-center justify-center gap-2"
@@ -69,17 +69,17 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
         className="text-ehs-red size-8"
         aria-hidden="true"
       />
-      <Text as="p" className="text-ehs-darker text-sm font-semibold">
+      <Text as="p" className="text4 text-ehs-darker font-semibold">
         {title}
       </Text>
-      <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
+      <Text as="p" className="text4 text-ehs-muted-text max-w-md">
         {message}
       </Text>
       {onRetry ? (
         <button
           type="button"
           onClick={onRetry}
-          className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 text-xs font-medium transition-colors"
+          className="text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 font-medium transition-colors"
         >
           <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
           Retry

@@ -1,6 +1,6 @@
 import type { FormValues } from "@/components/form-builder";
 import type { FollowUpAction } from "@/components/walk-talk/log/walk-talk-form-schema";
-import type { StatMetricCardProps } from "@/components/StatMetricCard";
+import type { MetricCardProps } from "@/components/ui/MetricCard";
 import type {
   WalkTalkActionStatus,
   WalkTalkFinding,
@@ -34,7 +34,7 @@ function asStringList(value: FormValues[string] | undefined): string[] {
 }
 
 /** Convert a date/time form value to an ISO-8601 string for the API. */
-export function toWalkTalkIsoDate(value: string): string {
+function toWalkTalkIsoDate(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return new Date().toISOString();
 
@@ -191,7 +191,7 @@ function toDetailFollowUp(dto: WalkTalkSessionFollowUpDto): WalkTalkFollowUp {
 }
 
 /** API session row → recent-sessions table row. */
-export function toWalkTalkSession(dto: WalkTalkSessionDto): WalkTalkSession {
+function toWalkTalkSession(dto: WalkTalkSessionDto): WalkTalkSession {
   const topics = Array.isArray(dto.topics)
     ? dto.topics.map((topic) => topic.trim()).filter(Boolean)
     : [];
@@ -212,18 +212,24 @@ export function toWalkTalkSessions(
   return sessions.map(toWalkTalkSession);
 }
 
-/** Dashboard counts payload → StatMetricCard props. */
+/** Dashboard counts payload → MetricCard props. */
 export function toWalkTalkMetricCards(
   counts: WalkTalkDashboardCountsDto | null | undefined,
-): readonly StatMetricCardProps[] {
+): readonly MetricCardProps[] {
+  // Counts only — the endpoint carries no history or prior period, so both
+  // cards show an icon badge rather than a delta.
   return [
     {
       title: "Observations (30d)",
       value: counts?.totalObservationsCount ?? 0,
+      description: "Logged in the last 30 days",
+      icon: "mdi:eye-outline",
     },
     {
       title: "Walk & Talks",
       value: counts?.totalWalkAndTalkCount ?? 0,
+      description: "Sessions completed",
+      icon: "mdi:walk",
     },
   ];
 }
@@ -233,13 +239,11 @@ export function toWalkTalkTopFindings(
   payload: readonly WalkTalkTopFindingDto[] | null | undefined,
 ): readonly WalkTalkFinding[] {
   const findings = [...(payload ?? [])]
-    .map(
-      (finding): WalkTalkFinding => ({
-        label: finding.topic?.trim() || "—",
-        count: finding.count ?? 0,
-        tone: "muted",
-      }),
-    )
+    .map((finding): WalkTalkFinding => ({
+      label: finding.topic?.trim() || "—",
+      count: finding.count ?? 0,
+      tone: "muted",
+    }))
     .sort((left, right) => right.count - left.count);
 
   return findings.map((finding, index) => ({

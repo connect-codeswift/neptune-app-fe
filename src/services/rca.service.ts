@@ -6,7 +6,6 @@ import type {
 } from "@/dtos/req/rca-corrective-action-request.dto";
 import type {
   CreateContributingFactorRequestDto,
-  DropContributingFactorRequestDto,
   UpdateContributingFactorRequestDto,
 } from "@/dtos/req/rca-contributing-factor-request.dto";
 import type {
@@ -654,17 +653,6 @@ export async function updateContributingFactor(
 }
 
 /** PATCH /api/Rca/ContributingFactor/Drop/{id} */
-export async function dropContributingFactor(
-  id: number,
-  payload: DropContributingFactorRequestDto,
-): Promise<void> {
-  const { data } = await http.patch<unknown>(
-    `${RCA_CONTRIBUTING_FACTOR_PATH}/Drop/${encodeURIComponent(String(id))}`,
-    payload,
-  );
-  parseRcaActionEnvelope(data);
-}
-
 /** POST /api/Rca/Whys */
 export async function createRcaWhys(
   payload: CreateRcaWhysRequestDto,

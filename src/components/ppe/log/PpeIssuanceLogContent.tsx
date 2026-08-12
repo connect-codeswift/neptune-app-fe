@@ -6,7 +6,13 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
+import {
+  TABLE_HEADER_ACTION_ICON_CLASS,
+  TABLE_HEADER_SECONDARY_ACTION_CLASS,
+} from "@/components/ui/table-header-action";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import type {
   PpeIssuanceLogEntry,
   PpeLogStatus,
@@ -18,7 +24,6 @@ import { PpeIssuanceLogHeader } from "./PpeIssuanceLogHeader";
 import { exportIssuanceLogToCsv } from "./export-issuance-log-csv";
 import { PpeIssuanceLogSkeleton } from "../PpeSkeletons";
 
-const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
 const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 
 type LogStatusFilter = "all" | "active" | "returned";
@@ -59,71 +64,88 @@ function matchesStatusFilter(
   return entry.status !== "Returned";
 }
 
+function IssuanceLogTableHeader(
+  props: Readonly<{
+    onExportCsv: () => void;
+  }>,
+) {
+  const { onExportCsv } = props;
+
+  return (
+    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+      <Text as="h2" className="text3 text-ehs-darker shrink-0">
+        Issuance log
+      </Text>
+
+      <Button
+        type="button"
+        variant="tertiary"
+        onClick={onExportCsv}
+        className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+      >
+        <Icon
+          icon="mdi:download"
+          className={TABLE_HEADER_ACTION_ICON_CLASS}
+          aria-hidden="true"
+        />
+        Export CSV
+      </Button>
+    </div>
+  );
+}
+
 function IssuanceLogMobileCard(
   props: Readonly<{
     entry: PpeIssuanceLogEntry;
     onOpen: () => void;
-    onReturn: () => void;
   }>,
 ) {
-  const { entry, onOpen, onReturn } = props;
+  const { entry, onOpen } = props;
 
   return (
     <button
       type="button"
       onClick={onOpen}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-xl border bg-white p-3.5 text-left shadow-[0px_2px_4px_rgba(15,23,42,0.02)]"
+      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
     >
       <div className="flex items-center gap-2">
-        <span className="rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[11px] font-bold text-[#566072]">
+        <span className="text7 text-ehs-gray rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5">
           {entry.issueId}
         </span>
-        <span className="text-ehs-darker min-w-0 flex-1 truncate text-sm font-bold">
+        <span className="text4 text-ehs-darker min-w-0 flex-1 truncate">
           {entry.employee}
         </span>
         <span
-          className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold ${statusToneClass[entry.status]}`}
+          className={`text8 shrink-0 rounded-md px-2 py-0.5 ${statusToneClass[entry.status]}`}
         >
           {statusLabel[entry.status]}
         </span>
       </div>
 
       <div className="flex flex-col gap-1">
-        <p className="text-ehs-darker text-sm font-bold">{entry.ppeItem}</p>
-        <p className="text-ehs-muted-text text-xs font-medium">
+        <p className="text4 text-ehs-slate">{entry.ppeItem}</p>
+        <p className="text4 text-ehs-muted-text">
           {`Qty: ${entry.qtySize.replace(" × ", " · Size: ")}`}
         </p>
-        <p className="text-ehs-muted-text inline-flex items-center gap-1 text-xs font-medium">
+        <p className="text4 text-ehs-muted-text inline-flex items-center gap-1">
           <Icon icon="mdi:calendar-outline" className="size-3 shrink-0" />
           {`Issued: ${entry.issueDate}`}
         </p>
       </div>
 
       <div className="flex items-center justify-between gap-2 border-t border-[rgba(11,19,32,0.08)] pt-3">
-        <p className="text-ehs-muted-text text-xs">
+        <p className="text4 text-ehs-muted-text">
           Condition:{" "}
-          <span className="rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5 font-semibold text-[#566072]">
+          <span className="text7 text-ehs-gray rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5">
             {entry.condition}
           </span>
         </p>
         {entry.canReturn ? (
           <span
-            role="button"
-            tabIndex={0}
-            onClick={(event) => {
-              event.stopPropagation();
-              onReturn();
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                event.stopPropagation();
-                onReturn();
-              }
-            }}
-            className="text-ehs-normal-blue cursor-pointer text-sm font-semibold"
+            className="text4 text-ehs-muted-text"
+            title="Recording returns is not available yet"
           >
-            Return
+            Return unavailable
           </span>
         ) : null}
       </div>
@@ -155,15 +177,7 @@ export function PpeIssuanceLogContent(
     [entries, query, statusFilter],
   );
 
-  const columns = useMemo(
-    () =>
-      buildPpeIssuanceLogColumns({
-        onReturn: (entry) => {
-          toast.success(`Return recorded for ${entry.issueId}`);
-        },
-      }),
-    [],
-  );
+  const columns = useMemo(() => buildPpeIssuanceLogColumns(), []);
 
   const resultLabel = `${String(filtered.length)} ${
     filtered.length === 1 ? "issuance" : "issuances"
@@ -175,6 +189,19 @@ export function PpeIssuanceLogContent(
     { id: "returned", label: "Returned" },
   ];
 
+  const handleExportCsv = () => {
+    if (filtered.length === 0) {
+      toast.error("No issuances to export");
+      return;
+    }
+    exportIssuanceLogToCsv(filtered);
+    toast.success("CSV downloaded");
+  };
+
+  const tableHeader = (
+    <IssuanceLogTableHeader onExportCsv={handleExportCsv} />
+  );
+
   return (
     <div
       className={
@@ -183,29 +210,16 @@ export function PpeIssuanceLogContent(
           : "flex flex-1 flex-col gap-3.5 px-3 pb-8 sm:px-4"
       }
     >
-      <PpeIssuanceLogHeader
-        embedded={embedded}
-        onExportCsv={() => {
-          if (filtered.length === 0) {
-            toast.error("No issuances to export");
-            return;
-          }
-          exportIssuanceLogToCsv(filtered);
-          toast.success("CSV downloaded");
-        }}
-        onIssuePpe={() => {
-          router.push(ISSUE_ROUTE);
-        }}
-      />
+      <PpeIssuanceLogHeader embedded={embedded} />
 
       {isLoading ? <PpeIssuanceLogSkeleton /> : null}
 
       {!isLoading && errorMessage ? (
         <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
+          <Text as="p" className="text4 text-ehs-darker">
             Couldn&apos;t load the issuance log
           </Text>
-          <Text as="p" className="text-ehs-muted-text mt-1 text-sm">
+          <Text as="p" className="text4 text-ehs-muted-text mt-1">
             {errorMessage}
           </Text>
           <Button
@@ -236,10 +250,10 @@ export function PpeIssuanceLogContent(
                 }}
                 placeholder="Search by name, item, issue ID..."
                 aria-label="Search issuance log"
-                className="border-ehs-border text-ehs-darker placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border bg-white py-2.5 pr-3 pl-9 shadow-sm transition outline-none focus:ring-2"
+                className={`${FIELD_INPUT_LG_CLASS} pl-9`}
               />
             </div>
-            <span className="text-ehs-muted-text hidden shrink-0 text-base md:inline">
+            <span className="text8 text-ehs-muted-text hidden shrink-0 md:inline">
               {resultLabel}
             </span>
           </div>
@@ -261,10 +275,10 @@ export function PpeIssuanceLogContent(
                     setStatusFilter(chip.id);
                   }}
                   className={[
-                    "shrink-0 cursor-pointer rounded-[20px] px-3 py-1.5 text-[11px] whitespace-nowrap transition-colors",
+                    "text8 shrink-0 cursor-pointer rounded-5 px-3 py-1.5 whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-ehs-normal-blue font-bold text-white"
-                      : "border-ehs-border text-ehs-muted-text border bg-white font-medium",
+                      ? "bg-ehs-normal-blue text-white"
+                      : "border-ehs-border text-ehs-muted-text border bg-white",
                   ].join(" ")}
                 >
                   {chip.label}
@@ -273,11 +287,13 @@ export function PpeIssuanceLogContent(
             })}
           </div>
 
-          {filtered.length === 0 ? (
-            <p className="text-ehs-muted-text text-sm">No issuances found.</p>
-          ) : (
-            <>
-              <ul className="flex flex-col gap-3 md:hidden">
+          {/* Mobile — same toolbar as the table header */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {tableHeader}
+            {filtered.length === 0 ? (
+              <p className="text4 text-ehs-muted-text">No issuances found.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
                 {filtered.map((entry) => (
                   <li key={entry.id}>
                     <IssuanceLogMobileCard
@@ -285,25 +301,25 @@ export function PpeIssuanceLogContent(
                       onOpen={() => {
                         openProfile(entry);
                       }}
-                      onReturn={() => {
-                        toast.success(`Return recorded for ${entry.issueId}`);
-                      }}
                     />
                   </li>
                 ))}
               </ul>
+            )}
+          </div>
 
-              <div className="hidden min-w-0 overflow-x-auto md:block">
-                <Table
-                  data={filtered}
-                  columns={columns}
-                  getRowId={(row) => row.id}
-                  onRowClick={openProfile}
-                  containerClassName="min-w-0"
-                />
-              </div>
-            </>
-          )}
+          {/* Desktop — inventory / catalog compliance table chrome */}
+          <div className="hidden min-w-0 overflow-x-auto md:block">
+            <Table
+              variant="compliance"
+              data={filtered}
+              columns={columns}
+              getRowId={(row) => row.id}
+              onRowClick={openProfile}
+              containerClassName={complianceGlassCardClass}
+              header={tableHeader}
+            />
+          </div>
         </>
       ) : null}
     </div>

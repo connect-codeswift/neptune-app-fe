@@ -37,13 +37,13 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
   return (
     <aside
       className={[
-        "flex w-full flex-col gap-3.5 xl:sticky xl:top-0 xl:w-[320px] xl:shrink-0",
+        "flex w-full flex-col gap-3.5 xl:sticky xl:top-0 xl:w-80 xl:shrink-0",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <IncidentGlassCard paddingClassName="p-[17px]" className="gap-0">
+      <IncidentGlassCard paddingClassName="p-4.25" className="gap-0">
         <Text
           as="p"
           className="text-ehs-muted-text text-xs font-bold tracking-[1.05px] uppercase"
@@ -58,8 +58,8 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
           >
             INC-DRAFT
           </Text>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ehs-dark-bg/14 px-[9px] py-[2.5px]">
-            <span className="bg-ehs-gray size-1.5 rounded-[3px]" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ehs-dark-bg/14 px-2.25 py-[2.5px]">
+            <span className="bg-ehs-gray size-1.5 rounded-0.75" />
             <Text
               as="span"
               className="text-ehs-gray text-xs font-bold tracking-wide"
@@ -71,7 +71,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
 
         <p
           className={[
-            "mt-1 min-h-[38px] pt-0.5 pb-5 text-sm leading-[18px]",
+            "mt-1 min-h-9.5 pt-0.5 pb-5 text-sm leading-4.5",
             hasTitle
               ? "text-ehs-dark-bg font-bold not-italic"
               : "text-ehs-muted-text italic",
@@ -83,7 +83,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         <Text
           as="p"
           className={[
-            "pb-[7px] text-sm leading-normal",
+            "pb-1.75 text-sm leading-normal",
             hasLocation
               ? "text-ehs-muted-text not-italic"
               : "text-ehs-muted-text italic",
@@ -96,7 +96,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
 
         <p
           className={[
-            "max-h-[70px] overflow-hidden pt-1.5 text-sm leading-[17px]",
+            "max-h-17.5 overflow-hidden pt-1.5 text-sm leading-4.25",
             hasDescription
               ? "text-ehs-gray not-italic"
               : "text-ehs-muted-text italic",
@@ -106,7 +106,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         </p>
       </IncidentGlassCard>
 
-      <IncidentGlassCard paddingClassName="p-[17px]">
+      <IncidentGlassCard paddingClassName="p-4.25">
         <Text
           as="p"
           className="text-ehs-muted-text mb-2.5 text-xs font-bold tracking-[1.05px] uppercase"
@@ -133,11 +133,11 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         </div>
       </IncidentGlassCard>
 
-      <div className="relative flex flex-col gap-[7px] rounded-[20px] border border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light p-[17px] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-[20px] before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']">
+      <div className="relative flex flex-col gap-1.75 rounded-5 border border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light p-4.25 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']">
         <div className="relative z-[1] flex items-center gap-1.5">
           <Icon
             icon="mdi:lightbulb-on-outline"
-            className="text-ehs-dark-blue size-[13px] shrink-0"
+            className="text-ehs-dark-blue size-3.25 shrink-0"
             aria-hidden="true"
           />
           <Text

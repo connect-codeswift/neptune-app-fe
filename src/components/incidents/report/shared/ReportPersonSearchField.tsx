@@ -11,9 +11,12 @@ import {
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
+import { ReportFieldLabel, ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_INPUT_LG_CLASS,
+} from "@/components/ui/field-styles";
 import { readUserGender, type SiteUserDto } from "@/dtos/res/user-response.dto";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import { useSiteUsersQuery } from "@/hooks/use-user-queries";
@@ -21,8 +24,7 @@ import { useSiteUsersQuery } from "@/hooks/use-user-queries";
 /** Long enough that a name typed at speed is one request, short enough to feel live. */
 const SEARCH_DEBOUNCE_MS = 300;
 
-const EMBEDDED_INPUT_CLASS =
-  " w-full rounded-[10px] bg-white px-3.5 text-base text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
 
 type MenuPosition = Readonly<{
   top: number;
@@ -55,9 +57,14 @@ export type ReportPersonSearchFieldProps = Readonly<{
   /** Site whose roster is offered. `0` means the token carries no site claim. */
   siteId: number;
   siteName?: string | null;
+  error?: string | null;
   className?: string;
   /** Report forms use the default styling; modals use `embedded` with a portaled menu. */
   variant?: "report" | "embedded";
+  /** When true, omit the built-in label (e.g. FormBuilder already renders one). */
+  hideLabel?: boolean;
+  /** Extra classes merged onto the input control. */
+  inputClassName?: string;
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -113,8 +120,11 @@ export function ReportPersonSearchField(
     onChange,
     siteId,
     siteName,
+    error = null,
     className = "",
     variant = "report",
+    hideLabel = false,
+    inputClassName = "",
   } = props;
 
   const isEmbedded = variant === "embedded";
@@ -336,7 +346,7 @@ export function ReportPersonSearchField(
             try again in a moment.
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-[13px]">
+          <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
             {debouncedQuery.trim()
               ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Your typed name is kept as-is.`
               : `No people are listed for ${siteName ?? "this site"} yet.`}
@@ -365,13 +375,13 @@ export function ReportPersonSearchField(
                   }}
                   onMouseEnter={() => moveHighlight(index)}
                   className={[
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-[8px] px-2.5 py-2 text-left transition-colors",
+                    "flex w-full cursor-pointer items-center gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors",
                     isActive
                       ? "bg-[rgba(8,145,166,0.1)]"
                       : "hover:bg-[rgba(15,23,42,0.04)]",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold">
+                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-2.75 font-bold">
                     {initialsFor(name)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -402,7 +412,7 @@ export function ReportPersonSearchField(
 
   const inlineMenu =
     open && !isEmbedded ? (
-      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
         {listbox}
       </div>
     ) : null;
@@ -417,7 +427,7 @@ export function ReportPersonSearchField(
               left: menuPosition.left,
               width: menuPosition.width,
             }}
-            className="animate-popover-in fixed z-[120] overflow-hidden rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
           >
             {listbox}
           </div>,
@@ -440,6 +450,7 @@ export function ReportPersonSearchField(
             ? `${listboxId}-option-${String(activeIndex)}`
             : undefined
         }
+        aria-invalid={error ? true : undefined}
         value={value}
         placeholder={placeholder}
         onChange={(event) => {
@@ -455,9 +466,12 @@ export function ReportPersonSearchField(
         onKeyDown={onKeyDown}
         className={[
           inputClass,
-          "border border-slate-900/10 py-3.5",
+          "border border-slate-900/10",
+          inputClassName || "py-3.5",
           hasSelection ? "pr-16" : "pr-9",
-        ].join(" ")}
+        ]
+          .filter(Boolean)
+          .join(" ")}
       />
 
       <div className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center gap-1">
@@ -465,7 +479,7 @@ export function ReportPersonSearchField(
           <>
             <span
               title="Matched to a user account at this site"
-              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-[18px] items-center justify-center rounded-full"
+              className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-4.5 items-center justify-center rounded-full"
             >
               <Icon
                 icon="mdi:account-check"
@@ -507,13 +521,15 @@ export function ReportPersonSearchField(
           .filter(Boolean)
           .join(" ")}
       >
-        <label
-          htmlFor={fieldId}
-          className="text-ehs-gray block text-base leading-[19.5px]"
-        >
-          {label}
-          {required ? <span className="text-ehs-red"> *</span> : null}
-        </label>
+        {hideLabel ? null : (
+          <label
+            htmlFor={fieldId}
+            className="text-slate-70 block text-base leading-[19.5px] font-medium"
+          >
+            {label}
+            {required ? <span className="text-ehs-red"> *</span> : null}
+          </label>
+        )}
 
         <div ref={rootRef} className="relative min-w-0">
           {inputControl}
@@ -529,6 +545,7 @@ export function ReportPersonSearchField(
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -543,6 +560,7 @@ export function ReportPersonSearchField(
       />
 
       {inputControl}
+      {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
 }

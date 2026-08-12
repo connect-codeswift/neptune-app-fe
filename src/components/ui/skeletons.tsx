@@ -1,3 +1,4 @@
+import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -19,16 +20,16 @@ function repeat(count: number, render: (index: number) => React.ReactNode) {
 }
 
 /** Card title + optional subtitle, matching CardHeading. */
-export function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
+function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
   const { action = true } = props;
 
   return (
     <div className="flex items-center justify-between gap-3">
-      <div className="flex flex-col gap-[2px]">
+      <div className="flex flex-col gap-0.5">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2.5 w-28" />
       </div>
-      {action ? <Skeleton className="h-6 w-16 rounded-[10px]" /> : null}
+      {action ? <Skeleton className="h-6 w-16 rounded-2.5" /> : null}
     </div>
   );
 }
@@ -37,24 +38,11 @@ export function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
 export function SkeletonKpiRow(props: Readonly<{ count?: number }>) {
   const { count = 4 } = props;
 
-  return (
-    <div className="grid min-w-0 grid-cols-1 gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-      {repeat(count, (index) => (
-        <GlassCard key={`skeleton-kpi-${String(index)}`} className="gap-3">
-          <div className="flex items-start justify-between gap-3">
-            <Skeleton className="mt-px h-3.5 w-28" />
-            <Skeleton className="h-[21px] w-14 rounded-full" />
-          </div>
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-3 w-24" />
-        </GlassCard>
-      ))}
-    </div>
-  );
+  return <MetricCardsRowSkeleton count={count} />;
 }
 
 /** Filter toolbar with n segmented-control groups. */
-export function SkeletonFilterBar(props: Readonly<{ groups?: number }>) {
+function SkeletonFilterBar(props: Readonly<{ groups?: number }>) {
   const { groups = 3 } = props;
 
   return (
@@ -113,17 +101,17 @@ export function SkeletonListRows(props: Readonly<{ rows?: number }>) {
   const { rows = 5 } = props;
 
   return (
-    <div className="flex flex-col gap-[14px]">
+    <div className="flex flex-col gap-3.5">
       {repeat(rows, (index) => (
         <div
           key={`skeleton-list-${String(index)}`}
           className="flex items-start justify-between gap-3"
         >
-          <div className="flex min-w-0 flex-1 flex-col gap-[6px]">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <Skeleton className="h-3.5 w-[70%]" />
             <Skeleton className="h-2.5 w-[45%]" />
           </div>
-          <Skeleton className="h-[22px] w-11 shrink-0 rounded-full" />
+          <Skeleton className="h-5.5 w-11 shrink-0 rounded-full" />
         </div>
       ))}
     </div>
@@ -131,7 +119,7 @@ export function SkeletonListRows(props: Readonly<{ rows?: number }>) {
 }
 
 /** Label / value pairs, for detail summary panels and read-only forms. */
-export function SkeletonFieldGrid(
+function SkeletonFieldGrid(
   props: Readonly<{ fields?: number; columns?: 1 | 2 | 3 }>,
 ) {
   const { fields = 6, columns = 2 } = props;
@@ -147,7 +135,7 @@ export function SkeletonFieldGrid(
       {repeat(fields, (index) => (
         <div
           key={`skeleton-field-${String(index)}`}
-          className="flex flex-col gap-[6px]"
+          className="flex flex-col gap-1.5"
         >
           <Skeleton className="h-2.5 w-24" />
           <Skeleton className="h-4 w-[70%]" />
@@ -166,7 +154,7 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
 
   return (
     <div
-      className={["flex min-w-0 flex-col gap-[14px]", className]
+      className={["flex min-w-0 flex-col gap-3.5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -183,8 +171,8 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
         </div>
       </GlassCard>
 
-      <div className="grid min-w-0 items-start gap-[14px] xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-[14px]">
+      <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3.5">
           <GlassCard>
             <SkeletonCardHeading action={false} />
             <div className="mt-2">
@@ -201,7 +189,7 @@ export function SkeletonDetailPage(props: Readonly<{ className?: string }>) {
           </GlassCard>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-[14px]">
+        <div className="flex min-w-0 flex-col gap-3.5">
           <GlassCard>
             <SkeletonCardHeading />
             <div className="mt-2">
@@ -272,25 +260,6 @@ export function SkeletonSidePanel() {
 }
 
 /** Page heading strip: title, subtitle and header controls. */
-export function SkeletonPageHeader(props: Readonly<{ controls?: number }>) {
-  const { controls = 3 } = props;
-
-  return (
-    <header className="flex min-w-0 flex-col gap-3 px-3 py-4 sm:px-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-4">
-      <Skeleton className="h-7 w-56" />
-      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
-        <Skeleton className="h-10 w-full rounded-lg sm:w-88" />
-        {repeat(controls, (index) => (
-          <Skeleton
-            key={`skeleton-control-${String(index)}`}
-            className="h-10 w-36 rounded-lg"
-          />
-        ))}
-      </div>
-    </header>
-  );
-}
-
 /** List screen: stat row, filters, table. */
 export function SkeletonListPage(
   props: Readonly<{
@@ -316,14 +285,14 @@ export function SkeletonFormPage(props: Readonly<{ fields?: number }>) {
   const { fields = 8 } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-[14px]">
+    <div className="flex min-w-0 flex-col gap-3.5">
       <GlassCard className="gap-4">
         <SkeletonCardHeading action={false} />
         <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
           {repeat(fields, (index) => (
             <div
               key={`skeleton-input-${String(index)}`}
-              className="flex flex-col gap-[6px]"
+              className="flex flex-col gap-1.5"
             >
               <Skeleton className="h-2.5 w-24" />
               <Skeleton className="h-10 w-full rounded-lg" />

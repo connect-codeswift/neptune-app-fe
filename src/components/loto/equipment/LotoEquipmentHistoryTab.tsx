@@ -1,29 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Table } from "@/components/ui/Table";
-import type { LotoHistoryRecord } from "@/app/dashboard/lockout-tagout/loto-data";
+import type {
+  LotoHistoryRecord,
+  LotoHistoryResult,
+} from "@/app/dashboard/lockout-tagout/loto-data";
 import { toast } from "@/lib/toast";
 
 const columnHelper = createColumnHelper<LotoHistoryRecord>();
 
-const resultClassName: Record<LotoHistoryRecord["result"], string> = {
+const resultClassName: Record<LotoHistoryResult, string> = {
   Completed: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
   Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
 };
 
-function buildColumns(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoHistoryRecord, any>[] {
+function buildColumns(): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
-      header: "LOG ID",
-      size: 110,
+      header: "Log ID",
+      size: 120,
       cell: (info) => (
         <button
           type="button"
-          className="cursor-pointer font-mono text-xs font-bold text-[#0891a6] hover:underline"
+          className="text7 text-ehs-normal-blue cursor-pointer font-mono hover:underline"
           onClick={(event) => {
             event.stopPropagation();
             toast.info(`Open ${info.getValue()}`);
@@ -35,77 +37,75 @@ function buildColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("operator", {
-      header: "OPERATOR",
+      header: "Operator",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darker text-[12.5px] font-medium">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lockNumber", {
-      header: "LOCK #",
-      size: 80,
+      header: "Lock #",
+      size: 120,
       cell: (info) => (
-        <span className="font-mono text-xs text-[#566072]">
-          {info.getValue()}
-        </span>
+        <span className="text7 text-ehs-gray font-mono">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("startAt", {
-      header: "START",
-      size: 130,
+      header: "Start",
+      size: 120,
       cell: (info) => (
-        <span className="text-xs whitespace-nowrap text-[#566072]">
+        <span className="text4 text-ehs-gray whitespace-nowrap">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("endAt", {
-      header: "END",
-      size: 130,
+      header: "End",
+      size: 120,
       cell: (info) => (
-        <span className="text-xs whitespace-nowrap text-[#8892a3]">
+        <span className="text4 text-ehs-muted-text whitespace-nowrap">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("purpose", {
-      header: "PURPOSE",
-      size: 180,
+      header: "Purpose",
+      size: 120,
       cell: (info) => (
-        <span className="line-clamp-1 max-w-45 text-[12.5px] text-[#2a3446]">
+        <span className="text4 text-ehs-gray line-clamp-1 max-w-45">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("duration", {
-      header: "DURATION",
+      header: "Duration",
       size: 90,
       cell: (info) => (
-        <span className="font-mono text-xs text-[#8892a3]">{info.getValue()}</span>
+        <span className="text7 text-ehs-muted-text font-mono">
+          {info.getValue()}
+        </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("result", {
-      header: "RESULT",
+      header: "Result",
       size: 100,
       cell: (info) => {
-        const result = info.getValue() as LotoHistoryRecord["result"];
+        const result = info.getValue() as LotoHistoryResult;
         return (
-        <span
-          className={[
-            "inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-            resultClassName[result],
-          ].join(" ")}
-        >
-          {result}
-        </span>
+          <span
+            className={[
+              "text5 inline-flex rounded-full px-2.5 py-0.5",
+              resultClassName[result],
+            ].join(" ")}
+          >
+            {result}
+          </span>
         );
       },
       meta: { align: "left" as const },
@@ -128,8 +128,9 @@ export function LotoEquipmentHistoryTab(props: LotoEquipmentHistoryTabProps) {
       columns={columns}
       getRowId={(row) => row.id}
       containerClassName="min-w-0"
+      variant="incident"
       header={
-        <p className="text-ehs-darker py-1 text-sm font-bold">
+        <p className="text3 text-ehs-darker py-1">
           Lockout History — {String(history.length)} records
         </p>
       }

@@ -48,24 +48,6 @@ export async function updateAuditTemplate(
   return data;
 }
 
-export type PublishAuditTemplatePayload = Readonly<{
-  userId: number;
-  siteId: number;
-}>;
-
-export async function publishAuditTemplate(
-  templateId: string,
-  payload: PublishAuditTemplatePayload,
-) {
-  const { data } = await http.post<CreateAuditTemplateResponseDto>(
-    `${AUDIT_TEMPLATE_PATH}/${encodeURIComponent(templateId)}/publish`,
-    payload,
-  );
-  console.log("Publish audit template response", data);
-
-  return data;
-}
-
 export async function getAllAuditTemplates(
   params: Readonly<{
     pageNumber: number;

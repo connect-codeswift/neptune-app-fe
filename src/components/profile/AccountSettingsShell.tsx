@@ -17,27 +17,30 @@ export type AccountSettingsShellProps = Readonly<{
   showActions?: boolean;
 }>;
 
-const settingsLabelClass =
-  "text-ehs-muted-text text-[10px] font-semibold tracking-wider uppercase";
+/** Sentence-case form labels for account settings fields. */
+const settingsLabelClass = "text7 text-ehs-darker block";
 
 function AccountSettingsTabs(
   props: Readonly<{ activeTab: AccountSettingsTab }>,
 ) {
   const { activeTab } = props;
 
-  const tabs: readonly { id: AccountSettingsTab; label: string; href: string }[] =
-    [
-      {
-        id: "profile",
-        label: "Profile",
-        href: "/dashboard/my-profile/settings",
-      },
-      {
-        id: "security",
-        label: "Security",
-        href: "/dashboard/my-profile/security",
-      },
-    ];
+  const tabs: readonly {
+    id: AccountSettingsTab;
+    label: string;
+    href: string;
+  }[] = [
+    {
+      id: "profile",
+      label: "Profile",
+      href: "/dashboard/my-profile/settings",
+    },
+    {
+      id: "security",
+      label: "Security",
+      href: "/dashboard/my-profile/security",
+    },
+  ];
 
   return (
     <div className="inline-flex items-center gap-2">
@@ -49,10 +52,10 @@ function AccountSettingsTabs(
             key={tab.id}
             href={tab.href}
             className={[
-              "rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
+              "rounded-lg px-4 py-2 transition-colors",
               isActive
-                ? "bg-ehs-light-blue text-ehs-normal-blue"
-                : "text-ehs-darker hover:text-ehs-gray",
+                ? "bg-ehs-light-blue text5 text-ehs-normal-blue"
+                : "text4 text-ehs-darker hover:text-ehs-gray",
             ].join(" ")}
             aria-current={isActive ? "page" : undefined}
           >
@@ -81,7 +84,7 @@ function BreadcrumbTrail() {
             {index > 0 ? (
               <Icon
                 icon="mdi:chevron-right"
-                className="text-ehs-muted-text text-sm"
+                className="text-ehs-muted-text size-3.5"
                 aria-hidden="true"
               />
             ) : null}
@@ -89,19 +92,20 @@ function BreadcrumbTrail() {
             {item.href && !isLast ? (
               <Link
                 href={item.href}
-                className="text-ehs-muted-text hover:text-ehs-gray text-xs transition-colors"
+                className="text8 text-ehs-muted-text hover:text-ehs-gray transition-colors"
               >
                 {item.label}
               </Link>
             ) : (
-              <span
+              <Text
+                as="span"
                 className={[
-                  "text-xs font-medium",
+                  "text8",
                   isLast ? "text-ehs-normal-blue" : "text-ehs-muted-text",
                 ].join(" ")}
               >
                 {item.label}
-              </span>
+              </Text>
             )}
           </span>
         );
@@ -110,7 +114,9 @@ function BreadcrumbTrail() {
   );
 }
 
-export function AccountSettingsShell(props: Readonly<AccountSettingsShellProps>) {
+export function AccountSettingsShell(
+  props: Readonly<AccountSettingsShellProps>,
+) {
   const {
     activeTab,
     children,
@@ -131,15 +137,12 @@ export function AccountSettingsShell(props: Readonly<AccountSettingsShellProps>)
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <div className="flex flex-1 flex-col gap-[14px] px-4 pt-4 pb-8">
+      <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
         <header className="flex flex-col gap-3">
           <BreadcrumbTrail />
 
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <Text
-              as="h1"
-              className="text-ehs-darker text-[28px] leading-tight font-bold tracking-tight"
-            >
+            <Text as="h1" className="text1 text-ehs-darker">
               Account Settings
             </Text>
 
@@ -148,14 +151,14 @@ export function AccountSettingsShell(props: Readonly<AccountSettingsShellProps>)
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="text-ehs-darker hover:text-ehs-gray cursor-pointer bg-transparent px-1 py-2 text-sm font-semibold transition-colors"
+                  className="text4 text-ehs-darker hover:text-ehs-gray cursor-pointer bg-transparent px-1 py-2 transition-colors"
                 >
                   Cancel
                 </button>
                 <Button
                   type="button"
                   variant="primary"
-                  className="rounded-lg px-5 py-2.5 text-sm"
+                  className="text4 rounded-lg px-5 py-2.5"
                   onClick={onSave}
                 >
                   Save Changes

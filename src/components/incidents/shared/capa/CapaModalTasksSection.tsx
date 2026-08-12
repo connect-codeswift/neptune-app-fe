@@ -16,7 +16,11 @@ type CapaModalTasksSectionProps = Readonly<{
   busy?: boolean;
   onOpenAddTask: () => void;
   onRemoveStagedTask?: (localId: string) => void;
-  onDeleteSavedTask?: (taskId: number) => void;
+  /**
+   * Async in practice (AddCapaModal passes a mutation). Typed as such so the
+   * returned promise can't be dropped silently the way a bare `void` allows.
+   */
+  onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   capaPriority?: string;
 }>;
 
@@ -24,7 +28,7 @@ function PriorityBadge(props: Readonly<{ priority?: string }>) {
   const label = (props.priority ?? "Medium").toUpperCase();
 
   return (
-    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-[0.2px] uppercase">
+    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex shrink-0 rounded-full px-2.5 py-1 text-2.5 font-bold tracking-[0.2px] uppercase">
       {label}
     </span>
   );
@@ -91,9 +95,9 @@ export function CapaModalTasksSection(
           type="button"
           onClick={onOpenAddTask}
           disabled={busy}
-          className="bg-ehs-normal-blue/10 text-ehs-normal-blue hover:bg-ehs-normal-blue/15 inline-flex shrink-0 items-center gap-1.5 rounded-[10px] px-3 py-[7.5px] text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-normal-blue/10 text-ehs-normal-blue hover:bg-ehs-normal-blue/15 inline-flex shrink-0 items-center gap-1.5 rounded-2.5 px-3 py-[7.5px] text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <Icon icon="mdi:plus" className="size-[13px]" aria-hidden="true" />
+          <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
           Add Task
         </button>
       </div>
@@ -108,7 +112,14 @@ export function CapaModalTasksSection(
                   priority={capaPriority}
                   onRemove={
                     onDeleteSavedTask
-                      ? () => onDeleteSavedTask(taskItem.id)
+                      ? () => {
+                          // The delete handler toasts its own failure and
+                          // re-throws; swallow it here so a failed delete
+                          // isn't an unhandled rejection.
+                          void Promise.resolve(
+                            onDeleteSavedTask(taskItem.id),
+                          ).catch(() => undefined);
+                        }
                       : undefined
                   }
                 />

@@ -10,16 +10,22 @@ import type {
 } from "@/dtos/res/incident-closure-response.dto";
 import type { SaveIncidentClosureDto } from "@/dtos/req/incident-closure-request.dto";
 
-function parseStepNumber(raw: number | null | undefined): 1 | 2 | 3 | 4 {
+/**
+ * Returns null rather than a default for an unrecognised value, so callers can
+ * distinguish "the DTO didn't say" from "the DTO said step 1" and preserve
+ * their own fallback — which is the contract mapIncidentClosureDtoToData
+ * documents.
+ */
+function parseStepNumber(raw: number | null | undefined): 1 | 2 | 3 | 4 | null {
   if (raw === 1 || raw === 2 || raw === 3 || raw === 4) {
     return raw;
   }
-  return 1;
+  return null;
 }
 
 function parseClosureStatus(
   raw: string | null | undefined,
-): IncidentClosureData["closureStatus"] {
+): IncidentClosureData["closureStatus"] | null {
   if (
     raw === "Pending Checklist" ||
     raw === "Ready for Closure" ||
@@ -28,7 +34,7 @@ function parseClosureStatus(
   ) {
     return raw;
   }
-  return "Pending Checklist";
+  return null;
 }
 
 function parseSifClassification(raw: string | null | undefined): string {

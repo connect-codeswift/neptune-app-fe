@@ -18,6 +18,7 @@ export type ReportSelectWithAddProps = Readonly<{
   /** Wording for the toggle, e.g. "Add more treatments". */
   addLabel: string;
   addPlaceholder?: string;
+  error?: string | null;
   className?: string;
 }>;
 
@@ -42,12 +43,13 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
     onAddCustomOption,
     addLabel,
     addPlaceholder = "Type a new option…",
+    error = null,
     className = "",
   } = props;
 
   const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
 
@@ -60,7 +62,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
     const trimmed = draft.trim();
 
     if (!trimmed) {
-      setError("Enter a name for the new option.");
+      setAddError("Enter a name for the new option.");
       inputRef.current?.focus();
       return;
     }
@@ -72,7 +74,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
     );
 
     if (alreadyExists) {
-      setError("That option already exists.");
+      setAddError("That option already exists.");
       inputRef.current?.focus();
       return;
     }
@@ -81,13 +83,13 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
     // Select what was just added — that's why the reporter added it.
     onChange(trimmed);
     setDraft("");
-    setError(null);
+    setAddError(null);
     setIsAdding(false);
   }
 
   function cancel() {
     setDraft("");
-    setError(null);
+    setAddError(null);
     setIsAdding(false);
   }
 
@@ -100,6 +102,7 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
         value={value}
         onChange={onChange}
         options={mergedOptions}
+        error={error}
       />
 
       {isAdding ? (
@@ -113,10 +116,10 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
               value={draft}
               placeholder={addPlaceholder}
               aria-label={`New ${label.toLowerCase()} option`}
-              aria-invalid={error !== null}
+              aria-invalid={addError !== null}
               onChange={(event) => {
                 setDraft(event.target.value);
-                setError(null);
+                setAddError(null);
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
@@ -146,9 +149,9 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
               <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
             </button>
           </div>
-          {error ? (
+          {addError ? (
             <p className="text-ehs-red text-xs" role="alert">
-              {error}
+              {addError}
             </p>
           ) : null}
         </div>

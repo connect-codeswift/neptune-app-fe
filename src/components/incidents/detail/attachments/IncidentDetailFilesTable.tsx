@@ -36,19 +36,16 @@ function FilesContent(
   return (
     <>
       <div className="flex flex-col gap-0.5 pt-0.5">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text-lg font-semibold"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text3">
           All files
         </Text>
-        <span className="text-sm leading-normal text-ehs-muted-text">
+        <span className="text-ehs-muted-text text4 leading-normal">
           {attachments.length} items
         </span>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] border-collapse text-left">
+        <table className="w-full min-w-140 border-collapse text-left">
           <thead>
             <tr>
               {(
@@ -66,7 +63,7 @@ function FilesContent(
                 <th
                   key={column.label || `action-${String(index)}`}
                   className={[
-                    "pt-[11px] pb-[11.5px] text-xs font-bold tracking-wide text-ehs-muted-text uppercase",
+                    "text-ehs-muted-text pt-2.75 pb-[11.5px] text6",
                     column.align === "right" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
@@ -80,7 +77,7 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="border-t border-[rgba(15,23,42,0.08)] py-8 text-center text-sm text-ehs-muted-text"
+                  className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-8 text-center text4"
                 >
                   No files uploaded.
                 </td>
@@ -101,41 +98,41 @@ function FilesContent(
                       : "cursor-pointer hover:bg-[rgba(15,23,42,0.02)]",
                   ].join(" ")}
                 >
-                  <td className="py-[14px] pr-3">
-                    <div className="flex items-center gap-[10px]">
-                      <div className="flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)] text-ehs-gray">
+                  <td className="py-3.5 pr-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="text-ehs-gray flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)]">
                         <Icon
                           icon={getFileIcon(item.kind)}
-                          className="size-[13px]"
+                          className="size-3.25"
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="max-w-[140px] truncate text-sm leading-normal text-ehs-dark-bg">
+                      <span className="text-ehs-dark-bg max-w-35 truncate text4 leading-normal">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="py-[14px] pr-3 text-sm leading-normal text-ehs-gray">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal">
                     {item.description}
                   </td>
-                  <td className="py-[14px] pr-3 text-sm leading-normal whitespace-nowrap text-ehs-gray">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
                     {item.sizeLabel}
                   </td>
-                  <td className="py-[14px] pr-3 text-sm leading-normal whitespace-nowrap text-ehs-gray">
+                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
                     {item.addedBy}
                   </td>
-                  <td className="py-[14px] text-right text-sm leading-normal whitespace-nowrap text-ehs-muted-text">
+                  <td className="text-ehs-muted-text py-3.5 text-right text4 leading-normal whitespace-nowrap">
                     {item.time}
                   </td>
                   {isEditing ? (
-                    <td className="py-[14px] pl-2 text-right">
+                    <td className="py-3.5 pl-2 text-right">
                       <button
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
                           onDeleteFile?.(item);
                         }}
-                        className="inline-flex size-7 items-center justify-center rounded-[8px] text-ehs-muted-text transition-colors hover:bg-ehs-red/10 hover:text-ehs-red"
+                        className="text-ehs-muted-text hover:bg-ehs-red/10 hover:text-ehs-red inline-flex size-7 items-center justify-center rounded-2 transition-colors"
                         aria-label={`Delete ${item.name}`}
                       >
                         <Icon
@@ -180,7 +177,7 @@ export function IncidentDetailFilesTable(
   if (embedded) {
     return (
       <div
-        className={["flex flex-col gap-[14px]", className]
+        className={["flex flex-col gap-3.5", className]
           .filter(Boolean)
           .join(" ")}
       >
@@ -191,9 +188,9 @@ export function IncidentDetailFilesTable(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
+      paddingClassName="p-5.75"
+      incidentGlassCardClassName="gap-3.5"
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
         .join(" ")}
     >

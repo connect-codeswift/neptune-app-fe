@@ -11,7 +11,7 @@ import {
   type SelectOption,
 } from "@/components/form-builder";
 import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateNearMissMutation } from "@/hooks/use-near-miss-mutations";
@@ -26,6 +26,18 @@ import {
 } from "./near-miss-report-schema";
 
 const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
+
+/** Typography-only overrides — do not set fixed input heights. */
+const nearMissFormFieldClass = [
+  "[&_label]:text8",
+  "[&_label]:font-semibold",
+  "[&_label]:text-ehs-gray",
+  "[&_input]:text4",
+  "[&_select]:text4",
+  "[&_textarea]:text4",
+  "[&_button]:text4",
+  "[&_p]:text8",
+].join(" ");
 
 /**
  * Ids are what the schema stores; labels are what the model has to read.
@@ -126,7 +138,7 @@ export function ReportNearMissForm() {
                     // incident wizard's — 16px text, 12px padding — and the
                     // ghost has to sit exactly on the caret.
                     fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text-base leading-6"
+                    fieldTextClassName="text4 leading-6"
                     onAccept={(text) => {
                       control.onChange(text);
                       dismiss();
@@ -164,12 +176,16 @@ export function ReportNearMissForm() {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-6"
-      className="mx-auto w-full max-w-4xl bg-white!"
+      paddingClassName="p-6 sm:p-8"
+      // No `bg-white!`: that override forced the card opaque, so this was the
+      // one solid slab on an otherwise frosted page. Width comes from the
+      // page container now, so the card and the header above it line up.
+      className="w-full"
     >
       <FormBuilder
         schema={schema}
         onChange={setValues}
+        className={nearMissFormFieldClass}
         submitLabel={
           createNearMiss.isPending ? "Submitting..." : "Submit Near-Miss Report"
         }

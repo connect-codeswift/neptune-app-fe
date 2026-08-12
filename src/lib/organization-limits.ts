@@ -54,7 +54,3 @@ export function formatOrganizationLimitsBannerMessage(
 
   return `Your organization is approaching its user seat limit (${limits.seatsUsed}/${limits.maxSeats}). Contact CodeSwift if you need more seats.`;
 }
-
-export function isSeatLimitErrorMessage(message: string): boolean {
-  return message.toLowerCase().includes("seat limit");
-}

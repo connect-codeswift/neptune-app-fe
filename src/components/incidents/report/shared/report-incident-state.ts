@@ -1,6 +1,7 @@
 import type { SeverityId } from "./report-severity";
 import type { ReportPhotoFile } from "./report-attachments";
 import type { InjuryLevelId } from "./report-injury-level";
+import { injuryLevelForReport } from "./report-injury-level";
 import type {
   BodyPartId,
   BodyPartSideMap,
@@ -8,8 +9,8 @@ import type {
 } from "./report-body-parts";
 import {
   CLASSIFICATION_FIELDS,
-  oshaRecordableForSeverity,
   type ClassificationValue,
+  normalizeClassifications,
 } from "./report-classification";
 import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
 import {
@@ -23,7 +24,7 @@ export type CustomOptionField =
   | "mechanismOfInjury"
   | "natureOfInjury";
 
-export const EMPTY_CUSTOM_OPTIONS: Readonly<
+const EMPTY_CUSTOM_OPTIONS: Readonly<
   Record<CustomOptionField, readonly string[]>
 > = {
   initialTreatment: [],
@@ -65,7 +66,8 @@ export function markAiAssisted(
 }
 
 export type ReportIncidentFormState = Readonly<{
-  severity: SeverityId;
+  /** `""` until the reporter picks one — no default severity. */
+  severity: SeverityId | "";
   affectedPerson: string;
   /**
    * Backend user id of the affected person, when they were picked from the
@@ -73,7 +75,12 @@ export type ReportIncidentFormState = Readonly<{
    * visitors have no account, and those incidents still have to be filable.
    */
   affectedPersonId: string;
+  /** Auto-assigned plant / site name. */
   location: string;
+  /** Specific areas within the plant — e.g. Line 2, Press #4. */
+  incidentLocations: readonly string[];
+  /** Reporter-added locations kept in the dropdown for this report. */
+  customIncidentLocations: readonly string[];
   reportedBy: string;
   reporterEmail: string;
   incidentDate: string;
@@ -189,30 +196,23 @@ export const EMPTY_FIRST_AID_FIELDS = {
 /** Empty form — no demo/mock incident content. */
 export function createInitialReportFormState(): ReportIncidentFormState {
   return {
-    severity: "first-aid",
+    severity: "",
     affectedPerson: "",
     affectedPersonId: "",
     location: "",
+    incidentLocations: [],
+    customIncidentLocations: [],
     reportedBy: "",
     reporterEmail: "",
     incidentDate: "",
     incidentTime: "",
     reportDate: "",
-    // Every question starts unanswered except "OSHA Recordable?", which is
-    // derived from the severity above rather than asked — so it is seeded to
-    // match the default severity instead of sitting blank.
     classifications: Object.fromEntries(
-      CLASSIFICATION_FIELDS.map((field) => [
-        field.id,
-        field.id === "osha"
-          ? oshaRecordableForSeverity("first-aid")
-          : field.defaultValue,
-      ]),
+      CLASSIFICATION_FIELDS.map((field) => [field.id, field.defaultValue]),
     ) as Record<string, ClassificationValue>,
     description: "",
     descriptionDraft: EMPTY_DESCRIPTION_DRAFT,
-    // Mirrors default severity so Live preview title is populated from the start.
-    title: "First Aid",
+    title: "",
     initialTreatment: "",
     secondaryTreatment: "No",
     mechanismOfInjury: "",
@@ -256,12 +256,20 @@ export function createInitialReportFormState(): ReportIncidentFormState {
 export function applySeverityFieldDefaults(
   form: ReportIncidentFormState,
 ): ReportIncidentFormState {
+  const injuryLevel = injuryLevelForReport(form.severity, form.natureOfInjury);
+  const classifications = normalizeClassifications(
+    form.classifications,
+    form.severity,
+  );
+
   if (form.severity === "first-aid") {
-    return form;
+    return { ...form, classifications, injuryLevel };
   }
 
   return {
     ...form,
+    classifications,
+    injuryLevel,
     whatTreatmentWasGiven:
       form.whatTreatmentWasGiven.trim() ||
       NON_FIRST_AID_FIELD_DEFAULTS.whatTreatmentWasGiven,

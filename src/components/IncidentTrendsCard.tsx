@@ -155,7 +155,7 @@ function TrendChart(
               x={CHART_LAYOUT.padLeft - 8}
               y={y + 4}
               textAnchor="end"
-              className="fill-ehs-muted-text text-[10px]"
+              className="fill-ehs-muted-text text-2.5"
             >
               {tick}
             </text>
@@ -173,7 +173,7 @@ function TrendChart(
             x={x}
             y={CHART_LAYOUT.height - 10}
             textAnchor="middle"
-            className="fill-ehs-muted-text text-[10px]"
+            className="fill-ehs-muted-text text-2.5"
           >
             {week}
           </text>
@@ -224,7 +224,7 @@ function FilterToggle(
   const { value, onChange } = props;
 
   return (
-    <div className="inline-flex gap-[4px] rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-[4px]">
+    <div className="inline-flex gap-1 rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-1">
       {FILTERS.map((option) => (
         <button
           key={option}
@@ -232,7 +232,7 @@ function FilterToggle(
           onClick={() => onChange(option)}
           aria-pressed={value === option}
           className={[
-            "cursor-pointer rounded-full px-[12px] py-[5px] text-[11px] font-bold whitespace-nowrap capitalize transition-colors",
+            "cursor-pointer rounded-full px-3 py-1.25 text-2.75 font-bold whitespace-nowrap capitalize transition-colors",
             value === option
               ? "bg-ehs-dark-bg text-ehs-light-bg"
               : "text-ehs-gray hover:bg-ehs-light-bg",
@@ -314,13 +314,13 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
       {showLoading ? (
         <TrendChartSkeleton />
       ) : showSignInPrompt ? (
-        <div className="flex min-h-[220px] items-center justify-center">
+        <div className="flex min-h-55 items-center justify-center">
           <Text as="p" className="text-ehs-muted-text text-sm">
             Please sign in to load incident trends.
           </Text>
         </div>
       ) : showError ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-center">
+        <div className="flex min-h-55 flex-col items-center justify-center gap-2 text-center">
           <Icon
             icon="mdi:alert-circle-outline"
             className="text-ehs-red size-8"
@@ -345,7 +345,7 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
           </Button>
         </div>
       ) : showEmpty ? (
-        <div className="flex min-h-[220px] items-center justify-center">
+        <div className="flex min-h-55 items-center justify-center">
           <Text as="p" className="text-ehs-muted-text text-sm">
             No trend data for this period.
           </Text>
@@ -364,11 +364,11 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
             {visibleSeries.map((series) => (
               <div key={series.key} className="flex items-center gap-1.5">
                 <span
-                  className="size-[6px] shrink-0 rounded-full"
+                  className="size-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: series.color }}
                   aria-hidden="true"
                 />
-                <Text as="span" className="text-ehs-gray text-[11px]">
+                <Text as="span" className="text-ehs-gray text-2.75">
                   {series.label}
                 </Text>
               </div>

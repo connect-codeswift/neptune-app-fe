@@ -1,8 +1,9 @@
 "use client";
 
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { Icon } from "@iconify/react";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { Button } from "@/components/ui/Button";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { PpeAcknowledgementEntry } from "@/app/dashboard/ppe-management/ppe-data";
 
 const columnHelper = createColumnHelper<PpeAcknowledgementEntry>();
@@ -13,14 +14,12 @@ function AssignToCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#566072] text-xs font-bold text-white"
+        className="text8 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#566072] text-white"
         aria-hidden="true"
       >
         {entry.initials}
       </span>
-      <span className="text-ehs-darker text-base font-semibold">
-        {entry.assignToName}
-      </span>
+      <span className="text4 text-ehs-darker">{entry.assignToName}</span>
     </div>
   );
 }
@@ -30,48 +29,46 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
 
   if (entry.acknowledged) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-1 text-base font-bold text-[#10b981]">
-        <Icon
-          icon="mdi:check"
-          className="size-2.5 shrink-0"
-          aria-hidden="true"
-        />
-        Acknowledged
-      </span>
+      <IncidentBadge
+        label="Acknowledged"
+        tone="muted"
+        className="w-fit bg-[rgba(16,185,129,0.12)] text-[#10b981]"
+      />
     );
   }
 
+  // Disabled properly rather than via pointer-events-none, which left the
+  // button looking fully enabled while swallowing clicks — and still reachable
+  // by keyboard, where it did nothing at all. Acknowledging on someone's
+  // behalf has no endpoint yet.
   return (
     <Button
       type="button"
       variant="primary"
-      className="pointer-events-none rounded-lg px-3.5 py-1.5 text-lg font-bold shadow-[0px_4px_6px_rgba(8,145,166,0.25)]"
+      disabled
+      title="Acknowledging PPE from this table is not available yet"
+      className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
     >
       Acknowledge
     </Button>
   );
 }
 
-export function buildPpeAcknowledgementsColumns(): ColumnDef<
-  PpeAcknowledgementEntry,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any
->[] {
+/** Matches inventory / catalog issuance table typography (`text4` body cells). */
+export function buildPpeAcknowledgementsColumns(): TableColumns<PpeAcknowledgementEntry> {
   return [
     columnHelper.display({
       id: "assignTo",
-      header: "Assign To",
-      size: 120,
+      header: "Assign to",
+      size: 180,
       cell: (info) => <AssignToCell entry={info.row.original} />,
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("item", {
       header: "Item",
-      size: 120,
+      size: 160,
       cell: (info) => (
-        <span className="text-ehs-darker/80 text-base font-semibold">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-slate">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
@@ -79,21 +76,23 @@ export function buildPpeAcknowledgementsColumns(): ColumnDef<
       header: "Quantity",
       size: 100,
       cell: (info) => (
-        <span className="text-base text-[#566072]">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray tabular-nums">
+          {String(info.getValue())}
+        </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("size", {
       header: "Size",
-      size: 120,
+      size: 100,
       cell: (info) => (
-        <span className="text-base text-[#566072]">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("note", {
       header: "Note",
-      size: 120,
+      size: 180,
       cell: (info) => {
         const note = info.getValue().trim();
         const words = note.split(/\s+/).filter(Boolean);
@@ -101,8 +100,8 @@ export function buildPpeAcknowledgementsColumns(): ColumnDef<
           words.length > 4 ? `${words.slice(0, 4).join(" ")}...` : note;
 
         return (
-          <span className="block text-base text-[#8892a3]" title={note}>
-            {preview}
+          <span className="text4 text-ehs-muted-text block" title={note}>
+            {preview || "—"}
           </span>
         );
       },
@@ -111,7 +110,7 @@ export function buildPpeAcknowledgementsColumns(): ColumnDef<
     columnHelper.display({
       id: "action",
       header: "Action",
-      size: 120,
+      size: 140,
       cell: (info) => (
         <div className="flex justify-end">
           <ActionCell entry={info.row.original} />

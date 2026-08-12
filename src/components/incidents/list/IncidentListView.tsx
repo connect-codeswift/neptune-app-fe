@@ -5,21 +5,28 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { IncidentDetailPanel } from "@/components/incidents/list/IncidentDetailPanel";
-import { IncidentFilterBar } from "@/components/incidents/list/IncidentFilterBar";
-import { IncidentListKpiCard } from "@/components/incidents/list/IncidentListKpiCard";
+import { MetricCard } from "@/components/ui/MetricCard";
 import { IncidentListTable } from "@/components/incidents/list/IncidentListTable";
 import {
+  SEVERITY_FILTERS,
+  STATE_FILTERS,
   incidentMatchesDateRange,
   incidentMatchesSearch,
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
 import { IncidentGlassCard } from "@/components/incidents/shared";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useCloseIncidentMutation } from "@/hooks/use-incident-mutations";
-import { useIncidentListKpisQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
+import {
+  useIncidentListKpisQuery,
+  useKpiTargetsQuery,
+  useSiteWorkHoursQuery,
+} from "@/hooks/use-incident-kpi-queries";
 import {
   DEFAULT_INCIDENTS_PAGE_NUMBER,
   DEFAULT_INCIDENTS_PAGE_SIZE,
@@ -38,12 +45,11 @@ import {
 } from "@/services/mappers/incident-kpi.mapper";
 
 export type IncidentListViewProps = Readonly<{
-  searchQuery?: string;
   dateRange?: DateRange;
   className?: string;
 }>;
 
-/** `searchQuery` is typed live, so settle it before hitting the paged endpoint. */
+/** Search is typed live — settle before hitting the paged endpoint. */
 const SEARCH_DEBOUNCE_MS = 300;
 
 function withClosedState(
@@ -56,19 +62,29 @@ function withClosedState(
 }
 
 export function IncidentListView(props: Readonly<IncidentListViewProps>) {
-  const { searchQuery = "", dateRange, className = "" } = props;
+  const { dateRange, className = "" } = props;
   const [stateFilter, setStateFilter] = useState("All");
   const [severityFilter, setSeverityFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
   const hasToken = accessTokenState === true;
   const [pageNumber, setPageNumber] = useState(DEFAULT_INCIDENTS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_INCIDENTS_PAGE_SIZE);
-  const [appliedSearch, setAppliedSearch] = useState(searchQuery.trim());
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const dateRangeKey = `${String(dateRange?.start.getTime() ?? "")}:${String(dateRange?.end.getTime() ?? "")}`;
+  const [pageRangeKey, setPageRangeKey] = useState(dateRangeKey);
 
-  // Debounce the header search box, and rewind to page 1 once it settles —
-  // a stale page number would otherwise strand the user on an out-of-range page.
+  // Adjust page during render when the header date range changes (React-
+  // recommended alternative to syncing via an effect).
+  if (pageRangeKey !== dateRangeKey) {
+    setPageRangeKey(dateRangeKey);
+    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
+  }
+
+  // Debounce search and rewind to page 1 once it settles — a stale page
+  // number would otherwise strand the user on an out-of-range page.
   useEffect(() => {
     const trimmed = searchQuery.trim();
     if (trimmed === appliedSearch) {
@@ -84,10 +100,6 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       clearTimeout(timer);
     };
   }, [searchQuery, appliedSearch]);
-
-  useEffect(() => {
-    setPageNumber(DEFAULT_INCIDENTS_PAGE_NUMBER);
-  }, [dateRange?.start.getTime(), dateRange?.end.getTime()]);
 
   // Every filter change invalidates the current page offset.
   const handleStateFilterChange = (value: string) => {
@@ -112,7 +124,10 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   const siteWorkHoursQuery = useSiteWorkHoursQuery(isClientReady && hasToken);
   const closeIncidentMutation = useCloseIncidentMutation();
 
-  const incidents = incidentsQuery.data?.records ?? [];
+  const incidents = useMemo(
+    () => incidentsQuery.data?.records ?? [],
+    [incidentsQuery.data?.records],
+  );
   const totalCount = incidentsQuery.data?.totalCount ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const canGoPrevious = pageNumber > 1 && !incidentsQuery.isFetching;
@@ -147,18 +162,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     });
   }, [incidents, appliedSearch, severityFilter, stateFilter, dateRange]);
 
-  // Preview panel opens only after explicit row selection (View more or row click).
+  // Preview panel toggles from the view / close icon in the table.
+  // If the selected id drops out of the filtered page, treat as unselected
+  // without an effect round-trip.
   const selectedListIncident =
     selectedId == null
       ? null
       : (filteredIncidents.find((incident) => incident.id === selectedId) ??
         null);
-
-  useEffect(() => {
-    if (selectedId != null && selectedListIncident == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedListIncident]);
 
   // Sidebar details come from GetIncidentById — not the list-row payload alone.
   const selectedDetailQuery = useIncidentByIdQuery({
@@ -182,9 +193,12 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       (selectedListIncident?.numericId ?? 0) > 0,
   });
 
+  const selectedDetailDto = selectedDetailQuery.data?.dto;
+  const selectedClosureStatus = selectedClosureQuery.data?.closureStatus;
+
   const selectedIncident = useMemo(() => {
-    if (selectedDetailQuery.data?.dto != null) {
-      return mapIncidentDtoToListRecord(selectedDetailQuery.data.dto);
+    if (selectedDetailDto != null) {
+      return mapIncidentDtoToListRecord(selectedDetailDto);
     }
 
     if (!selectedListIncident) {
@@ -192,19 +206,14 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     }
 
     const closureClosed =
-      selectedClosureQuery.data?.closureStatus?.trim().toLowerCase() ===
-      "closed";
+      selectedClosureStatus?.trim().toLowerCase() === "closed";
     return closureClosed
       ? withClosedState(selectedListIncident, true)
       : selectedListIncident;
-  }, [
-    selectedDetailQuery.data?.dto,
-    selectedListIncident,
-    selectedClosureQuery.data?.closureStatus,
-  ]);
+  }, [selectedDetailDto, selectedListIncident, selectedClosureStatus]);
 
-  const handleOpenDetailPanel = useCallback((id: string) => {
-    setSelectedId(id);
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
   }, []);
 
   const handleCloseIncident = async () => {
@@ -251,7 +260,8 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   );
 
   const showBootLoading = !isClientReady;
-  const showKpiLoading = showBootLoading || (hasToken && listKpisQuery.isLoading);
+  const showKpiLoading =
+    showBootLoading || (hasToken && listKpisQuery.isLoading);
   const showQueryLoading =
     isClientReady && hasToken && incidentsQuery.isLoading;
   const kpiErrorMessage =
@@ -288,24 +298,44 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
               {kpiErrorMessage}
             </Text>
           ) : null}
-          <div className="grid min-w-0 grid-cols-1 gap-x-[14px] gap-y-[14px] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="stagger-cards grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {kpiMetrics.map((metric) => (
-              <IncidentListKpiCard key={metric.id} {...metric} />
+              <MetricCard key={metric.id} {...metric} />
             ))}
           </div>
         </div>
       )}
 
-      <IncidentFilterBar
-        state={stateFilter}
-        severity={severityFilter}
-        onStateChange={handleStateFilterChange}
-        onSeverityChange={handleSeverityFilterChange}
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "State",
+            options: STATE_FILTERS,
+            value: stateFilter,
+            onChange: handleStateFilterChange,
+          },
+          {
+            label: "Severity",
+            options: SEVERITY_FILTERS,
+            value: severityFilter,
+            onChange: handleSeverityFilterChange,
+          },
+        ]}
+      />
+
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search by ID, title, site..."
+        aria-label="Search incidents"
+        resultLabel={`${String(filteredIncidents.length)} ${
+          filteredIncidents.length === 1 ? "incident" : "incidents"
+        }`}
       />
 
       {errorMessage ? (
         <IncidentGlassCard
-          className="min-h-[180px] text-center"
+          className="min-h-45 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -342,7 +372,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
       isClientReady ? (
         <div
           className={[
-            "grid min-w-0 items-start gap-x-[14px] gap-y-5",
+            "grid min-w-0 items-start gap-x-3.5 gap-y-5",
             isPanelOpen
               ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
               : "xl:grid-cols-1",
@@ -350,7 +380,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
         >
           {filteredIncidents.length === 0 ? (
             <IncidentGlassCard
-              className="min-h-[240px] text-center"
+              className="min-h-60 text-center"
               incidentGlassCardClassName="items-center justify-center gap-2"
             >
               <Icon
@@ -371,7 +401,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                 <IncidentListTable
                   incidents={filteredIncidents}
                   selectedId={selectedId}
-                  onViewMore={handleOpenDetailPanel}
+                  onViewMore={handleToggleDetailPanel}
                   expanded={!isPanelOpen}
                   className="min-w-0"
                 />

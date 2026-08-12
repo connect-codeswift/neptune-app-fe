@@ -1,4 +1,4 @@
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { InspectionReport } from "@/app/dashboard/inspections/report/inspection-report-data";
 
 /** Scores at or above the template's pass mark are green, the rest red. */

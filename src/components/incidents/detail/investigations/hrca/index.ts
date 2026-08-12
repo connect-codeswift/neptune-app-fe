@@ -16,7 +16,7 @@ export {
   HrcaWhyCell,
 } from "./HrcaCells";
 export {
-  HRCA_META,
+  EMPTY_HRCA_META,
   INITIAL_HRCA_ROWS,
   markRootCauses,
   type HrcaCorrectiveAction,

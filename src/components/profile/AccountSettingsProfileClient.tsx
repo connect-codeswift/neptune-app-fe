@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
-import { SelectInput } from "@/components/inputs/SelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
 import {
   AccountSettingsShell,
@@ -11,14 +10,10 @@ import {
 import {
   DEFAULT_EMERGENCY_CONTACT,
   DEFAULT_PROFILE_FORM,
-  DEPARTMENT_OPTIONS,
   NOTIFICATION_PREFERENCES,
-  RELATIONSHIP_OPTIONS,
-  REPORTS_TO_OPTIONS,
   splitDisplayName,
   type NotificationPreferenceKey,
 } from "@/components/profile/account-settings-data";
-import { PLACEHOLDER_PERSONAL_INFO } from "@/components/profile/my-profile-data";
 import { ToggleSwitch } from "@/components/profile/ToggleSwitch";
 import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";
@@ -146,72 +141,19 @@ export function AccountSettingsProfileClient() {
       onSave={handleSave}
       onCancel={handleCancel}
     >
-      <div className="grid gap-[14px]">
-        <GlassCard className="gap-0 overflow-hidden p-0">
-          <div className="border-ehs-border/60 border-b px-5 py-4">
-            <Text
-              as="h2"
-              className="text-ehs-darker text-base font-bold tracking-tight"
-            >
-              Profile Photo
-            </Text>
-          </div>
+      <GlassCard>
+        <CardHeading title="Profile Photo" />
+        <ProfileAvatarUpload
+          userId={currentUser.userId}
+          initials={user.initials}
+          profileUrl={user.profileUrl}
+        />
+      </GlassCard>
 
-          <ProfileAvatarUpload
-            userId={currentUser.userId}
-            initials={user.initials}
-            profileUrl={user.profileUrl}
-          />
-        </GlassCard>
-
-        {/* <GlassCard>
-          <CardHeading title="Emergency Contact" />
-          <div className="mt-2 grid gap-4 sm:grid-cols-2">
-            <TextInput
-              label="Contact Name"
-              labelClassName={settingsLabelClass}
-              placeholder="Enter contact name"
-              value={form.emergencyName}
-              onChange={(event) =>
-                updateField("emergencyName", event.target.value)
-              }
-            />
-            <SelectInput
-              label="Relationship"
-              labelClassName={settingsLabelClass}
-              placeholder="Select relationship"
-              options={RELATIONSHIP_OPTIONS}
-              value={form.emergencyRelationship}
-              onChange={(event) =>
-                updateField("emergencyRelationship", event.target.value)
-              }
-            />
-            <TextInput
-              label="Phone"
-              labelClassName={settingsLabelClass}
-              placeholder="Enter phone number"
-              value={form.emergencyPhone}
-              onChange={(event) =>
-                updateField("emergencyPhone", event.target.value)
-              }
-            />
-            <TextInput
-              label="Alt Phone"
-              labelClassName={settingsLabelClass}
-              placeholder="Enter alternate phone"
-              value={form.emergencyAltPhone}
-              onChange={(event) =>
-                updateField("emergencyAltPhone", event.target.value)
-              }
-            />
-          </div>
-        </GlassCard> */}
-      </div>
-
-      <div className="grid gap-[14px] lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="grid gap-3.5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <GlassCard>
           <CardHeading title="Personal Information" />
-          <div className="mt-2 grid gap-4 sm:grid-cols-2">
+          <div className="mt-1 grid gap-4 sm:grid-cols-2">
             <TextInput
               label="First Name"
               labelClassName={settingsLabelClass}
@@ -235,7 +177,7 @@ export function AccountSettingsProfileClient() {
                 value={user.email ?? ""}
                 disabled
               />
-              <Text as="p" className="text-ehs-muted-text mt-1 text-xs">
+              <Text as="p" className="text8 text-ehs-muted-text mt-1">
                 Contact admin to change email
               </Text>
             </div>
@@ -265,9 +207,9 @@ export function AccountSettingsProfileClient() {
                 onChange={() => undefined}
                 disabled
               />
-              <Text as="p" className="text-ehs-muted-text mt-1 text-xs">
-                Managed by administrator. Switch your
-                active site from the header.
+              <Text as="p" className="text8 text-ehs-muted-text mt-1">
+                Managed by administrator. Switch your active site from the
+                header.
               </Text>
             </div>
 
@@ -285,13 +227,13 @@ export function AccountSettingsProfileClient() {
 
         <GlassCard>
           <CardHeading title="Notification Preferences" />
-          <div className="divide-ehs-border/60 mt-2 flex flex-col divide-y">
+          <div className="divide-ehs-border/50 mt-1 flex flex-col divide-y">
             {NOTIFICATION_PREFERENCES.map((preference) => (
               <div
                 key={preference.key}
                 className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
               >
-                <Text as="p" className="text-ehs-darker text-sm leading-snug">
+                <Text as="p" className="text4 text-ehs-darker">
                   {preference.label}
                 </Text>
                 <ToggleSwitch

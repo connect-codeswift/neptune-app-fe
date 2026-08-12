@@ -8,7 +8,7 @@ export default function StartInspectionPage() {
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader />
 
-      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
+      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 px-4 pb-8">
         <StartInspectionHeader />
         {/* StartInspectionForm reads useSearchParams, which needs a boundary. */}
         <Suspense fallback={null}>

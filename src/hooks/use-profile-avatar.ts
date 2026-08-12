@@ -7,7 +7,7 @@ import {
 } from "@/services/profile.service";
 import { getUserById } from "@/services/user.service";
 
-export const profileQueryKeys = {
+const profileQueryKeys = {
   all: ["profile"] as const,
   avatar: (userId: number) => ["profile", "avatar", userId] as const,
 };

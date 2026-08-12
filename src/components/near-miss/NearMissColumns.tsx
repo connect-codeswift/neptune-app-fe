@@ -1,4 +1,6 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { formatNearMissDisplayId } from "@/lib/map-near-miss";
 import { userNameFor } from "@/lib/map-user";
@@ -9,6 +11,7 @@ const columnHelper = createColumnHelper<NearMissRecord>();
 export type NearMissColumnHandlers = Readonly<{
   /** User id -> name, from /User/dropdown; ids stay raw until it loads. */
   userNames?: ReadonlyMap<string, string>;
+  onView: (record: NearMissRecord) => void;
 }>;
 
 /**
@@ -17,29 +20,28 @@ export type NearMissColumnHandlers = Readonly<{
  */
 export function makeNearMissColumns(
   handlers: NearMissColumnHandlers,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<NearMissRecord, any>[] {
-  const { userNames } = handlers;
+): TableColumns<NearMissRecord> {
+  const { userNames, onView } = handlers;
 
   return [
     columnHelper.accessor("id", {
       header: "ID",
       size: 90,
       cell: (info) => (
-        <span className="text-ehs-muted-text text-xs font-semibold tabular-nums">
+        <span className="text7 text-ehs-muted-text whitespace-nowrap">
           {formatNearMissDisplayId(info.getValue())}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("title", {
-      header: "NEAR MISS",
+      header: "Near Miss",
       cell: ({ row }) => (
         <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-ehs-dark-bg font-normal">
+          <span className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase">
             {`${row.original.title} · ${row.original.hazardType}`}
           </span>
-          <span className="text-ehs-muted-text text-sm">
+          <span className="text4 text-ehs-muted-text line-clamp-1 first-letter:uppercase">
             {`Near miss · ${userNameFor(userNames, row.original.reporterId ?? "")}`}
           </span>
         </div>
@@ -47,34 +49,50 @@ export function makeNearMissColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("location", {
-      header: "SITE",
+      header: "Site",
       size: 160,
       cell: (info) => (
-        <span className="text-ehs-gray font-normal">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 130,
       cell: (info) => (
         <IncidentBadge
           label={info.getValue()}
           tone="muted"
-          className="w-fit rounded-full px-2 py-0.5 text-sm! tracking-[0.11px]"
+          className="w-fit"
         />
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("age", {
-      header: "AGE",
+      header: "Age",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-gray font-normal tabular-nums">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-gray tabular-nums">{info.getValue()}</span>
       ),
       meta: { align: "right" as const },
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+          aria-label={`View near miss ${formatNearMissDisplayId(row.original.id)}`}
+          onClick={() => {
+            onView(row.original);
+          }}
+        >
+          <Icon icon="lets-icons:view" className="size-5" aria-hidden="true" />
+        </button>
+      ),
+      meta: { align: "center" as const },
     }),
   ];
 }

@@ -15,15 +15,15 @@ export function RecordablesBySiteCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="px-[23px] pt-[23px] pb-6"
+      paddingClassName="px-4 pt-4 pb-5 md:px-5.75 md:pt-5.75 md:pb-6"
       className={[
-        "flex h-[400px] max-h-[400px] min-h-[400px] flex-col overflow-hidden",
+        "flex max-h-72 flex-col overflow-hidden md:h-100 md:max-h-100",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mb-[14px] flex shrink-0 flex-col gap-0.5">
+      <div className="mb-3.5 flex shrink-0 flex-col gap-0.5">
         <Text
           as="h3"
           className="text-ehs-darker text-sm font-bold tracking-[-0.14px]"
@@ -35,7 +35,7 @@ export function RecordablesBySiteCard(
         </Text>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-0.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-3">
         {sites.length === 0 ? (
           <Text as="p" className="text-ehs-muted-text text-sm">
             No recordables by site returned.
@@ -45,7 +45,7 @@ export function RecordablesBySiteCard(
             const widthPercent = (item.count / maxCount) * 100;
 
             return (
-              <div key={item.site} className="flex flex-col gap-[5px]">
+              <div key={item.site} className="flex flex-col gap-1.25">
                 <div className="flex items-center justify-between gap-2">
                   <Text as="span" className="text-ehs-slate text-xs">
                     {item.site}

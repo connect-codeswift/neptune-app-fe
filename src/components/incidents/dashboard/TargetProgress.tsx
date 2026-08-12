@@ -28,22 +28,19 @@ export function resolveTargetStatus(
   return current <= target ? "on" : "off";
 }
 
-function getFillPercent(
-  current: number,
-  target: number,
-  direction: TargetDirection,
-) {
+/**
+ * Fill is deliberately direction-agnostic: the marker sits at
+ * TARGET_MARKER_PCT and represents the target value, so scaling by
+ * `current / target` puts the fill head exactly on the marker when the two
+ * are equal, whichever direction is better. Direction changes only the
+ * pass/fail reading, which `resolveTargetStatus` owns.
+ */
+function getFillPercent(current: number, target: number) {
   if (target === 0) {
     return current === 0 ? 8 : 100;
   }
 
-  const ratio = current / target;
-
-  if (direction === "higher-better") {
-    return Math.min(100, Math.max(6, ratio * TARGET_MARKER_PCT));
-  }
-
-  return Math.min(100, Math.max(6, ratio * TARGET_MARKER_PCT));
+  return Math.min(100, Math.max(6, (current / target) * TARGET_MARKER_PCT));
 }
 
 export function TargetProgress(props: Readonly<TargetProgressProps>) {
@@ -70,7 +67,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         <div
           className={[
             "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
-            compact ? "h-[6px]" : "h-1.5",
+            compact ? "h-1.5" : "h-1.5",
           ].join(" ")}
         >
           <div
@@ -104,7 +101,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
   }
 
   const status = resolveTargetStatus(current, target, direction);
-  const fillPercent = getFillPercent(current, target, direction);
+  const fillPercent = getFillPercent(current, target);
   const isOn = status === "on";
 
   return (
@@ -120,7 +117,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       <div
         className={[
           "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
-          compact ? "h-[6px]" : "h-1.5",
+          compact ? "h-1.5" : "h-1.5",
         ].join(" ")}
       >
         <div
@@ -132,7 +129,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         />
         <div
           className={[
-            "bg-ehs-slate absolute top-[-2px] bottom-[-2px] w-[2px] rounded-[2px]",
+            "bg-ehs-slate absolute -top-0.5 -bottom-0.5 w-0.5 rounded-0.5",
           ].join(" ")}
           style={{ left: `${TARGET_MARKER_PCT}%` }}
           aria-hidden="true"
@@ -142,14 +139,14 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       <div className="flex items-start justify-between gap-2">
         <span
           className={[
-            "inline-flex items-center gap-[3px] font-bold",
+            "inline-flex items-center gap-0.75 font-bold",
             compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
             isOn ? "text-ehs-green" : "text-ehs-red",
           ].join(" ")}
         >
           <Icon
             icon={isOn ? "mdi:check-circle" : "mdi:trending-up"}
-            className={compact ? "size-[10px]" : "text-sm"}
+            className={compact ? "size-2.5" : "text-sm"}
             aria-hidden="true"
           />
           {isOn ? "On / under target" : "Off target"}

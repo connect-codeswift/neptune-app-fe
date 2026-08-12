@@ -180,7 +180,7 @@ export function HazcomRiskAssessmentForm(
         </div>
 
         <div className="flex flex-col gap-3">
-          <Text as="p" className="text-ehs-darker text-[13px] font-bold">
+          <Text as="p" className="text3 text-ehs-darker">
             Hazard Ratings (0-4)
           </Text>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -208,7 +208,7 @@ export function HazcomRiskAssessmentForm(
         </div>
 
         <div className="flex flex-col gap-3">
-          <Text as="p" className="text-ehs-darker text-[13px] font-bold">
+          <Text as="p" className="text3 text-ehs-darker">
             Recommended PPE
           </Text>
           <div className="flex flex-wrap gap-2">
@@ -222,10 +222,10 @@ export function HazcomRiskAssessmentForm(
                   aria-pressed={selected}
                   onClick={() => togglePpe(option)}
                   className={[
-                    "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors",
+                    "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 transition-colors",
                     selected
-                      ? "border-ehs-normal-blue text-ehs-dark-blue bg-white"
-                      : "border-ehs-border text-ehs-gray hover:border-ehs-normal-blue/50 bg-white/60",
+                      ? "border-ehs-normal-blue text7 text-ehs-dark-blue bg-white"
+                      : "border-ehs-border text8 text-ehs-gray hover:border-ehs-normal-blue/50 bg-white/60",
                   ].join(" ")}
                 >
                   {selected ? (
@@ -254,7 +254,7 @@ export function HazcomRiskAssessmentForm(
             <Button type="button" variant="tertiary">
               <Icon
                 icon="mdi:arrow-left"
-                className="text-base"
+                className="size-4"
                 aria-hidden="true"
               />
               Cancel
@@ -273,7 +273,7 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="submit"
               variant="primary"
-              disabled={createAssessment.isPending}
+              isLoading={createAssessment.isPending}
             >
               {createAssessment.isPending ? "Saving…" : "Submit for Review"}
             </Button>

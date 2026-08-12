@@ -55,7 +55,7 @@ export function ConfirmDialog(props: Readonly<ConfirmDialogProps>) {
         aria-label="Close"
         tabIndex={-1}
         onClick={onCancel}
-        className="absolute inset-0 cursor-default bg-slate-900/40 backdrop-blur-[2px]"
+        className="absolute inset-0 cursor-default bg-slate-900/40 backdrop-blur-0.5"
       />
 
       <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
@@ -91,7 +91,7 @@ export function ConfirmDialog(props: Readonly<ConfirmDialogProps>) {
             type="button"
             variant="danger"
             onClick={onConfirm}
-            disabled={isConfirming}
+            isLoading={isConfirming}
             className="rounded-lg px-4 py-2 text-sm font-semibold"
           >
             {isConfirming ? "Deleting..." : confirmLabel}

@@ -18,7 +18,7 @@ function addPermissionValue(
 }
 
 /** Collect every `Permission` claim from a decoded JWT payload. */
-export function getPermissionsFromClaims(
+function getPermissionsFromClaims(
   payload: Record<string, unknown> | null,
 ): Set<string> {
   const permissions = new Set<string>();
@@ -39,7 +39,7 @@ export function getPermissionsFromClaims(
 }
 
 /** Read permission claims from the stored access token. */
-export function getPermissionsFromToken(token?: string | null): Set<string> {
+function getPermissionsFromToken(token?: string | null): Set<string> {
   if (token) {
     try {
       const segment = token.split(".")[1];

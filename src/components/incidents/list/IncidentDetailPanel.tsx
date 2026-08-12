@@ -18,7 +18,10 @@ import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { useCapasByIncidentQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
-import { mapCapaItemsToIncidentCapas } from "@/services/mappers/capa.mapper";
+import {
+  buildCreateCapaRequest,
+  mapCapaItemsToIncidentCapas,
+} from "@/services/mappers/capa.mapper";
 
 export type IncidentDetailPanelProps = Readonly<{
   incident: IncidentRecord | null;
@@ -69,7 +72,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   if (!incident) {
     return (
       <IncidentGlassCard
-        className={["min-h-[240px] min-w-0", className]
+        className={["min-h-60 min-w-0", className]
           .filter(Boolean)
           .join(" ")}
         incidentGlassCardClassName="items-center justify-center"
@@ -84,13 +87,15 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   const handleSubmitCapa = async (payload: CapaFormPayload) => {
     try {
       await createCapaMutation.mutateAsync({
-        incidentId: incident.numericId,
-        controlLevel: payload.controlLevel,
-        description: payload.description,
-        type: payload.type,
-        owner: payload.owner,
-        dueDate: payload.dueDate,
-        priority: payload.priority,
+        payload: buildCreateCapaRequest({
+          incidentId: incident.numericId,
+          controlLevel: payload.controlLevel,
+          description: payload.description,
+          type: payload.type,
+          owner: payload.owner,
+          dueDate: payload.dueDate,
+          priority: payload.priority,
+        }),
         tasks: payload.tasks,
       });
       const taskCount = payload.tasks?.length ?? 0;
@@ -114,7 +119,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
       paddingClassName="p-0 overflow-hidden"
       className={["flex min-w-0 flex-col", className].filter(Boolean).join(" ")}
     >
-      <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
+      <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <Text
@@ -168,7 +173,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text mt-2 text-sm leading-[13px]"
+          className="text-ehs-muted-text mt-2 text-sm leading-3.25"
         >
           {incident.site}
         </Text>
@@ -188,7 +193,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         >
           Summary
         </Text>
-        <Text as="p" className="text-ehs-gray text-sm leading-[18px]">
+        <Text as="p" className="text-ehs-gray text-sm leading-4.5">
           {incident.summary}
         </Text>
       </div>
@@ -244,7 +249,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
                   <IncidentBadge label={capa.status} tone="muted" />
                   <IncidentBadge label={capa.priority} tone="neutral" />
                 </div>
-                <Text as="p" className="text-ehs-darker text-sm leading-[17px]">
+                <Text as="p" className="text-ehs-darker text-sm leading-4.25">
                   {capa.description}
                 </Text>
                 <div className="text-ehs-muted-text mt-2 flex flex-wrap items-center gap-3 text-sm">

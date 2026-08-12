@@ -147,7 +147,7 @@ function formatFileSize(value: string | number | null | undefined): string {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function mapCategoryToLibraryId(
+function mapCategoryToLibraryId(
   raw: string | null | undefined,
 ): LibraryCategoryId {
   const normalized = (raw ?? "").trim().toLowerCase();
@@ -173,7 +173,7 @@ export function mapCategoryToLibraryId(
   return "sops";
 }
 
-export function mapDocumentStatus(
+function mapDocumentStatus(
   raw: string | null | undefined,
 ): DocumentStatus {
   const normalized = (raw ?? "").trim().toLowerCase();

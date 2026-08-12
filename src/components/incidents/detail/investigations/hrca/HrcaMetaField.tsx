@@ -21,25 +21,25 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
     value,
     labelLines,
     showChevron = false,
-    valueClassName = "text-sm leading-[17.5px] font-bold",
+    valueClassName = "text4 leading-[17.5px] font-bold",
     className = "",
   } = props;
 
   return (
     <div
       className={[
-        "flex min-h-[65px] items-center gap-[11px] py-3 pl-5 pr-[21px]",
+        "flex min-h-16.25 items-center gap-2.75 py-3 pl-5 pr-5.25",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-white/62">
-        <Icon icon={icon} className="text-ehs-gray size-[15px]" aria-hidden="true" />
+      <div className="flex size-7.5 shrink-0 items-center justify-center rounded-2 bg-white/62">
+        <Icon icon={icon} className="text-ehs-gray size-3.75" aria-hidden="true" />
       </div>
       <div className="relative min-w-0 flex-1">
         {labelLines ? (
-          <p className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase">
+          <p className="text-ehs-muted-text text8 leading-none font-bold tracking-[0.945px] uppercase">
             {labelLines[0]}
             <br />
             {labelLines[1]}
@@ -47,12 +47,12 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
         ) : (
           <Text
             as="p"
-            className="text-ehs-muted-text text-[10.5px] leading-none font-bold tracking-[0.945px] uppercase"
+            className="text-ehs-muted-text text8 leading-none font-bold tracking-[0.945px] uppercase"
           >
             {label}
           </Text>
         )}
-        <div className="relative mt-[2px] flex min-h-[18px] items-center pr-[18px]">
+        <div className="relative mt-0.5 flex min-h-4.5 items-center pr-4.5">
           <Text
             as="p"
             className={["text-ehs-dark-bg truncate", valueClassName].join(" ")}
@@ -62,7 +62,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
           {showChevron ? (
             <Icon
               icon="mdi:chevron-down"
-              className="text-ehs-muted-text absolute top-1/2 right-0 size-[13px] -translate-y-1/2"
+              className="text-ehs-muted-text absolute top-1/2 right-0 size-3.25 -translate-y-1/2"
               aria-hidden="true"
             />
           ) : null}

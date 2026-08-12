@@ -69,7 +69,7 @@ export function ReportFieldError(props: Readonly<ReportFieldErrorProps>) {
   const { id, children } = props;
 
   return (
-    <p id={id} className="text-ehs-red flex items-start gap-1 text-[11px]">
+    <p id={id} className="text-ehs-red flex items-start gap-1 text-2.75">
       <Icon
         icon="mdi:alert-circle-outline"
         className="mt-px size-3 shrink-0"
@@ -127,7 +127,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
         {endIcon ? (
           <Icon
             icon={endIcon}
-            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-[13px] -translate-y-1/2"
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 right-3 size-3.25 -translate-y-1/2"
             aria-hidden="true"
           />
         ) : null}
@@ -157,6 +157,7 @@ export type ReportSelectFieldProps = Readonly<{
   trailing?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
+  error?: string | null;
   className?: string;
   id?: string;
 }>;
@@ -186,6 +187,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
     trailing,
     placeholder = "Select…",
     disabled = false,
+    error = null,
     className = "",
     id,
   } = props;
@@ -193,6 +195,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const listboxId = `${fieldId}-listbox`;
+  const errorId = `${fieldId}-error`;
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -274,6 +277,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}
@@ -299,6 +303,8 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           aria-expanded={open}
           aria-controls={open ? listboxId : undefined}
           aria-required={required || undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           disabled={disabled}
           onClick={() => (open ? close() : openMenu())}
           onKeyDown={onKeyDown}
@@ -307,7 +313,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
             "flex items-center gap-2 pr-9 text-left",
             disabled ? "" : "cursor-pointer",
             open
-              ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-[3px]"
+              ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-0.75"
               : "",
             selected ? "" : "text-ehs-muted-text",
           ]
@@ -333,7 +339,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
             id={listboxId}
             role="listbox"
             aria-label={label}
-            className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 max-h-56 overflow-y-auto rounded-[10px] border border-[rgba(15,23,42,0.1)] bg-white p-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 max-h-56 overflow-y-auto rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white p-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -352,7 +358,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
                     }}
                     onMouseEnter={() => setActiveIndex(index)}
                     className={[
-                      "flex w-full cursor-pointer items-center gap-2 rounded-[8px] px-2.5 py-2 text-left text-[13.5px] transition-colors",
+                      "flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left text-[13.5px] transition-colors",
                       isSelected
                         ? "text-ehs-dark-blue font-semibold"
                         : "text-ehs-dark-bg",
@@ -378,6 +384,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           </ul>
         ) : null}
       </div>
+      {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );
 }

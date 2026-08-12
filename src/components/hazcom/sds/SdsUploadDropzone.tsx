@@ -61,7 +61,7 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
         }
       }}
       className={[
-        "flex min-h-[190px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
+        "flex min-h-47.5 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
         dragActive
           ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light"
           : "border-ehs-border bg-white/50 hover:bg-white/80",
@@ -86,11 +86,11 @@ export function SdsUploadDropzone(props: Readonly<SdsUploadDropzoneProps>) {
         aria-hidden="true"
       />
 
-      <Text as="p" className="text-ehs-darker text-[14px] font-bold">
+      <Text as="p" className="text5 text-ehs-darker">
         {fileName ? fileName : "Drop SDS PDF here or click to browse"}
       </Text>
 
-      <Text as="p" className="text-ehs-muted-text text-[12px]">
+      <Text as="p" className="text8 text-ehs-muted-text">
         {fileName
           ? "Selected — click to replace"
           : "Accepts PDF files up to 50 MB"}

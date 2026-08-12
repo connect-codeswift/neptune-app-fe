@@ -1,4 +1,6 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
+import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoEquipmentItem,
   LotoEquipmentStatus,
@@ -14,81 +16,74 @@ const statusClassName: Record<LotoEquipmentStatus, string> = {
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
-  onEdit: (item: LotoEquipmentItem) => void;
   onLock: (item: LotoEquipmentItem) => void;
 }>;
 
 export function buildLotoEquipmentColumns(
   actions: LotoEquipmentColumnActions,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): ColumnDef<LotoEquipmentItem, any>[] {
+): TableColumns<LotoEquipmentItem> {
   return [
     columnHelper.accessor("name", {
-      header: "EQUIPMENT",
-      size: 200,
+      header: "Equipment",
+      size: 180,
       cell: (info) => (
-        <span className="text-ehs-darker text-base leading-5 font-semibold">
-          {info.getValue()}
-        </span>
+        <span className="text4 text-ehs-darker">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("type", {
-      header: "TYPE",
+      header: "Type",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darket/10 text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("location", {
-      header: "LOCATION",
+      header: "Location",
       size: 120,
       cell: (info) => (
-        <span className="text-ehs-darket/10 text-base">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("energySources", {
-      header: "ENERGY SOURCES",
+      header: "Energy Sources",
       size: 220,
-      cell: (info) => {
-        const sources = info.getValue() as LotoEquipmentItem["energySources"];
-        return (
-          <div className="flex max-w-55 flex-wrap gap-1">
-            {info.getValue().map((source: string) => (
-              <span
-                key={source}
-                className="rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-sm text-[#566072]"
-              >
-                {source}
-              </span>
-            ))}
-          </div>
-        );
-      },
+      cell: (info) => (
+        <div className="flex max-w-55 flex-wrap gap-1">
+          {info.getValue().map((source: string) => (
+            <span
+              key={source}
+              className="text8 rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[#566072]"
+            >
+              {source}
+            </span>
+          ))}
+        </div>
+      ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("procedureId", {
-      header: "PROCEDURE",
+      header: "Procedure",
       size: 110,
       cell: (info) => (
-        <span className="font-mono text-sm font-bold text-[#566072]">
+        <span className="text7 text-ehs-muted-text font-mono">
           {info.getValue()}
         </span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
-      header: "STATUS",
+      header: "Status",
       size: 110,
       cell: (info) => {
         const status = info.getValue() as LotoEquipmentStatus;
         return (
           <span
             className={[
-              "inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold",
-              statusClassName[info.getValue() as LotoEquipmentStatus],
+              "text5 inline-flex rounded-full px-2.5 py-0.5",
+              statusClassName[status],
             ].join(" ")}
           >
             {status}
@@ -98,59 +93,69 @@ export function buildLotoEquipmentColumns(
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lastInspection", {
-      header: "LAST INSPECTION",
+      header: "Last Inspection",
       size: 120,
       cell: (info) => (
-        <span className="text-sm text-[#8892a3]">{info.getValue()}</span>
+        <span className="text4 text-ehs-muted-text">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.display({
       id: "actions",
       header: "",
-      size: 100,
+      size: 88,
       cell: ({ row }) => {
         const item = row.original;
-        const canLock = item.status !== "Locked Out";
+        const isLockedOut = item.status === "Locked Out";
 
         return (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center gap-0.5">
             <button
               type="button"
-              className="cursor-pointer text-sm font-semibold text-[#566072] hover:underline"
+              className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+              aria-label={`View ${item.name}`}
               onClick={(event) => {
                 event.stopPropagation();
                 actions.onView(item);
               }}
             >
-              View
+              <Icon
+                icon="lets-icons:view"
+                className="size-5"
+                aria-hidden="true"
+              />
             </button>
             <button
               type="button"
-              className="cursor-pointer text-sm font-semibold text-[#566072] hover:underline"
+              disabled={isLockedOut}
+              className={[
+                "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
+                isLockedOut
+                  ? "cursor-default text-[#ef4444]"
+                  : "text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer",
+              ].join(" ")}
+              aria-label={
+                isLockedOut
+                  ? `${item.name} is locked out`
+                  : `Apply lockout to ${item.name}`
+              }
               onClick={(event) => {
                 event.stopPropagation();
-                actions.onEdit(item);
+                if (!isLockedOut) {
+                  actions.onLock(item);
+                }
               }}
             >
-              Edit
+              <Icon
+                icon="material-symbols:lock-outline"
+                className="size-5"
+                aria-hidden="true"
+              />
             </button>
-            {canLock ? (
-              <button
-                type="button"
-                className="cursor-pointer text-sm font-semibold text-[#ef4444] hover:underline"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  actions.onLock(item);
-                }}
-              >
-                Lock
-              </button>
-            ) : null}
           </div>
         );
       },
-      meta: { align: "left" as const },
+      meta: { align: "center" as const },
     }),
   ];
 }

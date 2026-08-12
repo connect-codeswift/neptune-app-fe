@@ -70,7 +70,7 @@ const AI_REQUEST_TIMEOUT_MS = 45_000;
  * ("The request was canceled due to the configured HttpClient.Timeout…").
  * Surfacing that verbatim is how internals leak into a safety form.
  */
-export class AiAssistError extends Error {
+class AiAssistError extends Error {
   readonly status?: number;
 
   constructor(status?: number) {

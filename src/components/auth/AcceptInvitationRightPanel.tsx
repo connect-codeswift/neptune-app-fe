@@ -30,15 +30,15 @@ function getFormString(formData: FormData, name: string) {
   return typeof value === "string" ? value : "";
 }
 
-/** The link is built by the backend, so a missing or non-numeric id means a mangled URL. */
-function parseId(raw: string | null) {
-  if (raw === null || raw.trim() === "") {
-    return null;
-  }
-
-  const value = Number(raw);
-  return Number.isInteger(value) && value >= 0 ? value : null;
-}
+/**
+ * Deliberately the only message shown for a rejected token.
+ *
+ * Expired, already used and never-existed all come back from the API as the same error, so
+ * that the endpoint cannot be used to probe which invitations exist. Rendering the server's
+ * text verbatim would be harmless today and a disclosure the day that stops being true.
+ */
+const INVALID_TOKEN_MESSAGE =
+  "This invitation is no longer valid. It may have expired or already been used — ask your administrator for a new one.";
 
 type Step = "password" | "mfa";
 
@@ -46,10 +46,10 @@ export default function AcceptInvitationRightPanel() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const siteId = parseId(searchParams.get("siteId"));
-  const userId = parseId(searchParams.get("userId"));
-  const email = searchParams.get("email") ?? "";
-  const linkIsUsable = siteId !== null && userId !== null && email !== "";
+  // Single query param now. It replaced `?siteId=&userId=&email=`, where the id was a
+  // sequential integer — guessing one set that person's password.
+  const token = searchParams.get("token")?.trim() ?? "";
+  const linkIsUsable = token !== "";
 
   const [step, setStep] = useState<Step>("password");
   const [formError, setFormError] = useState("");
@@ -70,7 +70,10 @@ export default function AcceptInvitationRightPanel() {
 
     let cancelled = false;
 
-    QRCode.toDataURL(setupMfaMutation.data.otpAuthUri, { margin: 1, width: 220 })
+    QRCode.toDataURL(setupMfaMutation.data.otpAuthUri, {
+      margin: 1,
+      width: 220,
+    })
       .then((url) => {
         if (!cancelled) {
           setQrDataUrl(url);
@@ -110,11 +113,9 @@ export default function AcceptInvitationRightPanel() {
     const contactNo = getFormString(formData, "contactNo").trim();
 
     const parsed = safeParseAcceptInvitationRequest({
+      token,
       fullName: getFormString(formData, "fullName"),
       contactNo: contactNo === "" ? undefined : contactNo,
-      siteId,
-      userId,
-      email,
       password,
     });
 
@@ -128,15 +129,26 @@ export default function AcceptInvitationRightPanel() {
 
     setFormError("");
 
+    let session: Awaited<
+      ReturnType<typeof acceptInvitationMutation.mutateAsync>
+    >;
+
     try {
-      await acceptInvitationMutation.mutateAsync(parsed.data);
-    } catch (error) {
-      setFormError(
-        getMutationErrorMessage(
-          error,
-          "Could not set up your account. The invitation may have already been used.",
-        ),
+      session = await acceptInvitationMutation.mutateAsync(parsed.data);
+    } catch {
+      setFormError(INVALID_TOKEN_MESSAGE);
+      return;
+    }
+
+    // The account exists and the password is set, but nothing identified it well enough to
+    // sign in with. Both MFA endpoints are [Authorize]d, so the offer has to be skipped
+    // rather than shown broken.
+    if (!session) {
+      toast.success(
+        "Account ready",
+        "Sign in with your new password to continue.",
       );
+      router.push("/login");
       return;
     }
 
@@ -209,7 +221,10 @@ export default function AcceptInvitationRightPanel() {
   if (!linkIsUsable) {
     return (
       <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
-        <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+        <ShadeBall
+          positionAsClassName="-top-37.5 -right-37.5"
+          blur={80}
+        />
         <div className="flex w-full max-w-sm flex-col gap-4">
           <h2 className="text-ehs-darker text-2xl font-bold">
             This invitation link is incomplete
@@ -232,9 +247,9 @@ export default function AcceptInvitationRightPanel() {
 
   return (
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+      <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
       <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
+        positionAsClassName="-bottom-37.5 -left-37.5"
         blur={80}
       />
 
@@ -244,10 +259,11 @@ export default function AcceptInvitationRightPanel() {
             <h2 className="text-ehs-darker text-2xl font-bold">
               Set Up Your Account
             </h2>
+            {/* No email to greet them with any more — it lives on the token's row now,
+                not in the URL, and the endpoint does not hand it back before submit. */}
             <p className="text-ehs-muted-text mt-1.5 text-sm">
-              You&apos;ve been invited to Neptune EHS as{" "}
-              <span className="font-semibold">{email}</span>. Choose a password
-              to finish.
+              You&apos;ve been invited to Neptune EHS. Choose a password to
+              finish setting up your account.
             </p>
           </div>
 
@@ -341,13 +357,15 @@ export default function AcceptInvitationRightPanel() {
 
           <div className="border-ehs-border flex flex-col items-center gap-3 rounded-xl border bg-white p-4">
             {qrDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- data: URI generated in the browser, nothing for the image optimizer to fetch
+              /* `qrDataUrl` is a client-generated data: URI — nothing for
+                 next/image to fetch or optimise. */
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={qrDataUrl}
                 alt="QR code for setting up two-factor authentication"
                 width={220}
                 height={220}
-                className="h-[220px] w-[220px]"
+                className="h-55 w-55"
               />
             ) : (
               <p className="text-ehs-muted-text py-6 text-center text-xs">
@@ -388,7 +406,7 @@ export default function AcceptInvitationRightPanel() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={enableMfaMutation.isPending}
+              isLoading={enableMfaMutation.isPending}
             >
               {enableMfaMutation.isPending
                 ? "Verifying..."
@@ -400,9 +418,8 @@ export default function AcceptInvitationRightPanel() {
               variant="tertiary"
               className="w-full"
               onClick={handleSkipMfa}
-              disabled={
-                enableMfaMutation.isPending || dismissMfaPromptMutation.isPending
-              }
+              isLoading={dismissMfaPromptMutation.isPending}
+              disabled={enableMfaMutation.isPending}
             >
               Skip For Now
             </Button>

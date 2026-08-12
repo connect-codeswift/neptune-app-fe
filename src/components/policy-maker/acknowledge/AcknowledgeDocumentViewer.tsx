@@ -14,8 +14,8 @@ const AcknowledgePdfDocument = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="relative flex min-h-[420px] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] lg:min-h-[722px]">
-        <div className="flex flex-col items-center justify-center gap-2 text-[13px] text-[#566072]">
+      <div className="relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-5 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 lg:min-h-180.5">
+        <div className="flex flex-col items-center justify-center gap-2 text-3.25 text-[#566072]">
           <Icon
             icon="mdi:loading"
             className="size-6 animate-spin text-[#0891a6]"
@@ -49,7 +49,7 @@ export function AcknowledgeDocumentViewer(
     return (
       <div
         className={[
-          "relative flex min-h-[420px] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-6 text-center shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-[10px] lg:min-h-[722px]",
+          "relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-5 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] px-6 text-center shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 lg:min-h-180.5",
           className,
         ]
           .filter(Boolean)
@@ -60,10 +60,10 @@ export function AcknowledgeDocumentViewer(
           className="size-8 text-[#8892a3]"
           aria-hidden="true"
         />
-        <Text as="p" className="mt-2 text-[13px] font-semibold text-[#0b1320]">
+        <Text as="p" className="mt-2 text-3.25 font-semibold text-[#0b1320]">
           Preview unavailable
         </Text>
-        <Text as="p" className="max-w-[320px] text-[12px] text-[#8892a3]">
+        <Text as="p" className="max-w-80 text-xs text-[#8892a3]">
           This document has no file URL on record yet.
         </Text>
       </div>

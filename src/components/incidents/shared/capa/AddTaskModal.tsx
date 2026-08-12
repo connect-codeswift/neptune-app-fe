@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import { Icon } from "@iconify/react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
-import { CapaModalFieldLabel } from "@/components/incidents/shared/capa/CapaModalFieldLabel";
+import { CapaModalFieldLabel } from "./CapaModalFieldLabel";
 import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   IncidentModalCancelButton,
@@ -13,6 +13,7 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import { useCurrentSite } from "@/hooks/use-current-site";
 
 export type CapaTaskFormPayload = Readonly<{
@@ -84,7 +85,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
       title="Add Task"
       subtitle={`${incidentId} · ${incidentTitle} · ${capaCode}`}
       onClose={onClose}
-      maxWidthClassName="max-w-[560px]"
+      maxWidthClassName="max-w-140"
       overlayClassName="z-[110]"
       footerHint="Assign a clear action the assignee can complete and track."
       footerActions={
@@ -100,7 +101,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
         </>
       }
     >
-      <div className="flex flex-col gap-[18px]">
+      <div className="flex flex-col gap-4.5">
         <div className="flex items-start gap-3 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-4">
           <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
             <Icon
@@ -137,7 +138,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
               onChange={(event) => setTask(event.target.value)}
               placeholder="Describe what the assignee needs to do…"
               rows={4}
-              className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[108px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2"
+              className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
             />
             <AiTextAssistant module="incident" value={task} onApply={setTask} />
           </div>

@@ -4,8 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { IncidentListHeader } from "@/components/incidents/list/IncidentListHeader";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -140,15 +139,15 @@ export function RegulatoryComplianceDetailView(
   if (isClientReady && !hasToken) {
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
           Sign in required
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
+        <Text as="p" className="text-ehs-muted-text text-3.5">
           Please sign in to load this compliance obligation.
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Compliance Register
         </Link>
@@ -160,7 +159,7 @@ export function RegulatoryComplianceDetailView(
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 items-center justify-center px-4">
         <IncidentGlassCard
-          className="min-h-[220px] text-center"
+          className="min-h-55 text-center"
           incidentGlassCardClassName="items-center justify-center gap-2"
         >
           <Icon
@@ -193,15 +192,15 @@ export function RegulatoryComplianceDetailView(
   if (numericId == null || !detail) {
     return (
       <div className="bg-ehs-light-bg flex min-h-[50vh] flex-1 flex-col items-center justify-center gap-3 px-4">
-        <Text as="h1" className="text-ehs-dark-bg text-[22px] font-semibold">
+        <Text as="h1" className="text-ehs-dark-bg text-5.5 font-semibold">
           Obligation not found
         </Text>
-        <Text as="p" className="text-ehs-muted-text text-[14px]">
-          {`No compliance obligation matches ΓÇ£${id}ΓÇ¥.`}
+        <Text as="p" className="text-ehs-muted-text text-3.5">
+          {`No compliance obligation matches “${id}”.`}
         </Text>
         <Link
           href="/dashboard/regulatory-compliance"
-          className="text-ehs-normal-blue text-[14px] font-medium hover:underline"
+          className="text-ehs-normal-blue text-3.5 font-medium hover:underline"
         >
           Back to Compliance Register
         </Link>
@@ -211,14 +210,6 @@ export function RegulatoryComplianceDetailView(
 
   return (
     <div className="bg-ehs-light-bg flex flex-1 flex-col gap-4 px-4">
-      <IncidentListHeader
-        title=""
-        reportHref="/dashboard/regulatory-compliance"
-        actionLabel="Back to Register"
-        actionLabelShort="Back"
-        className="px-0 py-0"
-      />
-
       <RegulatoryComplianceDetailBannerCard
         detail={detail}
         onMarkAsComplete={handleMarkAsComplete}

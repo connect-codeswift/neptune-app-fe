@@ -20,12 +20,6 @@ export const SETTINGS_SECTIONS: readonly SettingsSection[] = [
 
 export const DEFAULT_SETTINGS_HREF = SETTINGS_SECTIONS[0]!.href;
 
-export function getSettingsSectionById(
-  id: string,
-): SettingsSection | undefined {
-  return SETTINGS_SECTIONS.find((section) => section.id === id);
-}
-
 export function isSettingsSectionActive(
   pathname: string,
   href: string,

@@ -21,7 +21,7 @@ function Chevron() {
 /** Breadcrumb + title bar above the log form. */
 export function LogWalkTalkHeader() {
   return (
-    <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
+    <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -44,11 +44,11 @@ export function LogWalkTalkHeader() {
           <Link
             href={WALK_TALK_ROUTE}
             aria-label="Back to Walk & Talk"
-            className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors md:hidden"
+            className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors md:hidden"
           >
             <Icon icon="mdi:chevron-left" className="size-3.5" />
           </Link>
-          <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-[22px] md:font-semibold">
+          <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-5.5 md:font-semibold">
             <span className="md:hidden">Log Walk-and-Talk</span>
             <span className="hidden md:inline">Walk-and-Talks</span>
           </h1>

@@ -36,7 +36,7 @@ export default function AuditTemplatesPage() {
     [page],
   );
 
-  /** Switching status re-queries from page 1 ΓÇö the old page may not exist. */
+  /** Switching status re-queries from page 1 — the old page may not exist. */
   const handleStatusChange = (next: TemplateStatusFilter) => {
     setStatus(next);
     setPageNumber(1);

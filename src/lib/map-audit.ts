@@ -1,16 +1,13 @@
 import type {
-  AuditDetail,
   AuditRecord,
   AuditStatus,
 } from "@/app/dashboard/audits/audits-data";
 import type { AuditFinding } from "@/app/dashboard/audits/findings/audit-findings-data";
 import type { AuditReport } from "@/app/dashboard/audits/report/audit-report-data";
-import type { AuditItemResponseRequestDto } from "@/dtos/req/audit-request.dto";
 import type {
   AuditDetailDto,
   AuditDto,
   AuditFindingDto,
-  AuditResponsesResultDto,
 } from "@/dtos/res/audit-response.dto";
 import { formatRunStatus } from "@/lib/audit-inspection-status";
 
@@ -46,7 +43,7 @@ const SHORT_MONTHS = [
  * The date parts are read straight off the string rather than via `Date`, so
  * the day can't shift a timezone either way. Unrecognised input passes through.
  */
-export function formatAuditDate(value: string): string {
+function formatAuditDate(value: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   if (!match) return value;
 
@@ -103,92 +100,6 @@ export type ReportSection = Readonly<{
   title: string;
   items: readonly Readonly<{ id: string }>[];
 }>;
-
-/**
- * Build the report from the three sources behind it: the audit (who/when), the
- * template's sections (per-section scores) and the submission result (status).
- *
- * Section scores are computed from the submitted answers because the result
- * only reports a `runningScore` for the audit as a whole.
- */
-export function buildAuditReport(
-  input: Readonly<{
-    audit: AuditDto | null;
-    result: AuditResponsesResultDto;
-    answers: readonly AuditItemResponseRequestDto[];
-    sections: readonly ReportSection[];
-    /** The template's own pass mark; defaults only when it isn't loaded yet. */
-    passThreshold?: number;
-  }>,
-): AuditReport {
-  const { audit, result, answers, sections, passThreshold = 0 } = input;
-
-  const answerByItemId = new Map(
-    answers.map((answer) => [answer.templateItemId, answer]),
-  );
-
-  /** "Yes" over everything scorable; N/A items don't count either way. */
-  const scoreOf = (itemIds: readonly string[]): number | null => {
-    const scorable = itemIds
-      .map((id) => answerByItemId.get(Number(id)))
-      .filter((answer) => answer !== undefined)
-      .filter((answer) => !answer.isNA);
-    if (scorable.length === 0) return null;
-
-    const passed = scorable.filter(
-      (answer) => answer.valueText.toLowerCase() === "yes",
-    ).length;
-    return Math.round((passed / scorable.length) * 100);
-  };
-
-  const sectionScores = sections.flatMap((section) => {
-    const score = scoreOf(section.items.map((item) => item.id));
-    return score === null
-      ? []
-      : [{ section: stripSectionPrefix(section.title), score }];
-  });
-
-  const overall =
-    result.runningScore ??
-    scoreOf(sections.flatMap((section) => section.items.map((i) => i.id))) ??
-    0;
-
-  const itemCount = sections.reduce(
-    (sum, section) => sum + section.items.length,
-    0,
-  );
-  const failed = answers.filter(
-    (answer) => !answer.isNA && answer.valueText.toLowerCase() === "no",
-  ).length;
-
-  const summary = [
-    `${audit?.auditTitle || "This audit"} covered ${String(itemCount)} items across ${String(sections.length)} sections.`,
-    `It scored ${String(overall)}%, ${overall >= passThreshold ? "meeting" : "below"} the ${String(passThreshold)}% pass threshold.`,
-    failed > 0
-      ? `${String(failed)} item${failed === 1 ? "" : "s"} did not pass and may need corrective action.`
-      : "No items failed.",
-    result.hasCriticalFailure
-      ? "A critical item failed — this requires immediate attention."
-      : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return {
-    auditId: `A-${String(result.id)}`,
-    title: audit?.auditTitle || "Audit report",
-    scope: [audit?.templateName, formatLocation(audit?.location ?? "")]
-      .filter(Boolean)
-      .join(" · "),
-    score: overall,
-    auditor: audit?.auditorName || "Unassigned",
-    date: (audit?.submittedAt || audit?.scheduleDate || "").slice(0, 10) || "—",
-    status: result.status || audit?.status || "—",
-    passThreshold,
-    executiveSummary: summary,
-    sectionScores,
-  };
-}
 
 /**
  * Build the report straight from GET /api/Audit/{id}, which carries everything
@@ -259,7 +170,7 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
     score: overall,
     auditor: dto.auditorName || "Unassigned",
     date:
-      (dto.scheduleDate || dto.startedAt || dto.scheduleDate || "").slice(
+      (dto.scheduleDate || dto.startedAt || dto.submittedAt || "").slice(
         0,
         10,
       ) || "—",
@@ -271,25 +182,3 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
 }
 
 /** Map an API audit detail onto the detail panel's donut shape. */
-export function mapAuditDetailDtoToDetail(dto: AuditDetailDto): AuditDetail {
-  const sections = dto.snapshot?.sections ?? [];
-  const items = sections.flatMap((section) => section.items ?? []);
-  const total = items.length;
-
-  // No per-response scoring is available yet, so the breakdown is derived from
-  // the snapshot: critical items form the critical slice, the rest are pending.
-  const critical = items.filter((item) => item.isCritical).length;
-  const pending = Math.max(0, total - critical);
-
-  // Progress is the share of answered items; a scheduled audit has no responses.
-  const answered = dto.responses?.length ?? 0;
-  const progress = total > 0 ? Math.round((answered / total) * 100) : 0;
-
-  return {
-    id: String(dto.id),
-    title: dto.auditTitle || "Untitled audit",
-    progress,
-    items: { pass: 0, action: 0, critical, pending },
-    topFindings: [],
-  };
-}

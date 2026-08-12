@@ -7,7 +7,7 @@ export function maskMmDdYyyy(raw: string): string {
 }
 
 /** `MM/DD/YYYY` → `YYYY-MM-DD` for native `<input type="date">`. */
-export function mmDdYyyyToIsoDate(value: string): string {
+function mmDdYyyyToIsoDate(value: string): string {
   const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
   if (!match) return "";
   const [, mm, dd, yyyy] = match;
@@ -27,13 +27,6 @@ export function mmDdYyyyToIsoDate(value: string): string {
 }
 
 /** `YYYY-MM-DD` → `MM/DD/YYYY`. */
-export function isoDateToMmDdYyyy(value: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
-  if (!match) return "";
-  const [, yyyy, mm, dd] = match;
-  return `${mm}/${dd}/${yyyy}`;
-}
-
 /** Today in the `MM/DD/YYYY` shape the date fields use, in local time. */
 export function todayMmDdYyyy(): string {
   const now = new Date();

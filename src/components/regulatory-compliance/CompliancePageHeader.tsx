@@ -18,7 +18,7 @@ export function CompliancePageHeader(props: CompliancePageHeaderProps) {
   return (
     <header
       className={[
-        "flex min-h-[70px] flex-wrap items-center justify-between gap-3",
+        "flex min-h-17.5 flex-wrap items-center justify-between gap-3",
         className,
       ]
         .filter(Boolean)
@@ -26,9 +26,9 @@ export function CompliancePageHeader(props: CompliancePageHeaderProps) {
     >
       <Text
         as="h1"
-        className="text-[26px] leading-none font-bold tracking-[-0.51px] text-[#0b1320]"
+        className="text-6.5 leading-none font-bold tracking-[-0.51px] text-[#0b1320]"
       >
-        Regularity Compliance
+        Regulatory Compliance
       </Text>
     </header>
   );

@@ -5,19 +5,20 @@ import { useRouter } from "next/navigation";
 import { useState, type SubmitEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { AuthFooterLink } from "@/components/auth/AuthFooterLink";
+import { AuthFormPanel } from "@/components/auth/AuthFormPanel";
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons";
 import { ScrollLink } from "@/components/ScrollLink";
 import { EmailInput } from "@/components/inputs/EmailInput";
 import { Password } from "@/components/inputs/Password";
 import { TextInput } from "@/components/inputs/TextInput";
 import { safeParseSignupForm } from "@/dtos/req/auth-request.dto";
-import { ehsLinkClass } from "@/lib/ehs-classes";
 import { isStrongPassword } from "@/lib/password-strength";
 import {
   getSignupFormInitialValues,
   saveSignupState,
   type SignupFormInitialValues,
 } from "@/lib/signup-storage";
-import { ShadeBall } from "@/components/ShadeBall";
 
 function getFormString(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -70,165 +71,132 @@ export default function SignupRightPanel() {
   };
 
   return (
-    <div className="bg-ehs-light-bg relative flex h-full items-center justify-center p-8">
-      <ShadeBall
-        positionAsClassName="bottom-[-150px] left-[-150px]"
-        blur={120}
-      />
-      <ShadeBall positionAsClassName="top-[-150px] right-[-150px]" blur={80} />
+    <AuthFormPanel
+      title="Create your account."
+      subtitle="Start your Neptune workspace in minutes."
+      footer={
+        <AuthFooterLink
+          prompt="Already have an account?"
+          href="/login"
+          linkLabel="Sign in"
+        />
+      }
+    >
+      <AuthProviderButtons />
 
-      <div className="flex w-full max-w-sm flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-ehs-darker text-2xl font-bold lg:text-4xl">
-            Create Your Account.
-          </h2>
-          <p className="text-ehs-muted-text text-xs lg:text-sm">
-            Start Your Neptune Workspace in Minutes.
+      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+        <TextInput
+          id="name"
+          name="name"
+          label="Full name"
+          type="text"
+          autoComplete="name"
+          placeholder="Your full name"
+          value={formValues.fullName}
+          onChange={(event) =>
+            setFormValues((current) => ({
+              ...current,
+              fullName: event.target.value,
+            }))
+          }
+          required
+        />
+
+        <EmailInput
+          id="email"
+          name="email"
+          label="Email address"
+          placeholder="you@company.com"
+          value={formValues.email}
+          onChange={(event) =>
+            setFormValues((current) => ({
+              ...current,
+              email: event.target.value,
+            }))
+          }
+          required
+        />
+
+        <Password
+          id="password"
+          name="password"
+          label="Password"
+          autoComplete="new-password"
+          placeholder="Create a strong password"
+          showStrengthMeter
+          value={formValues.password}
+          onChange={(event) =>
+            setFormValues((current) => ({
+              ...current,
+              password: event.target.value,
+            }))
+          }
+          required
+        />
+
+        <Password
+          id="confirm-password"
+          name="confirmPassword"
+          label="Confirm password"
+          autoComplete="new-password"
+          placeholder="Re-enter your password"
+          value={formValues.confirmPassword}
+          onChange={(event) => {
+            setFormError("");
+            setFormValues((current) => ({
+              ...current,
+              confirmPassword: event.target.value,
+            }));
+          }}
+          required
+        />
+
+        <div className="mt-1 flex items-start gap-2">
+          <input
+            id="accept-terms"
+            type="checkbox"
+            name="acceptTerms"
+            checked={formValues.acceptTerms}
+            onChange={(event) =>
+              setFormValues((current) => ({
+                ...current,
+                acceptTerms: event.target.checked,
+              }))
+            }
+            required
+            className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 mt-0.5 size-4 shrink-0 rounded focus:ring-2"
+          />
+          <p className="text-ehs-muted-text text-xs leading-relaxed">
+            <label htmlFor="accept-terms" className="cursor-pointer">
+              I agree to Neptune&apos;s{" "}
+            </label>
+            <ScrollLink href="/terms-and-conditions" className="font-semibold">
+              Terms &amp; Conditions
+            </ScrollLink>{" "}
+            and{" "}
+            <ScrollLink href="/privacy" className="font-semibold">
+              Privacy Policy
+            </ScrollLink>
+            .
           </p>
         </div>
 
+        {formError ? (
+          <Text as="p" className="text-ehs-red text-xs" role="alert">
+            {formError}
+          </Text>
+        ) : null}
+
         <Button
-          onClick={() => router.push("/onboarding")}
-          type="button"
-          variant="tertiary"
-          className="w-full font-medium"
+          type="submit"
+          variant="primary"
+          className="w-full"
+          disabled={!canCreateAccount}
         >
-          <Icon icon="flat-color-icons:google" className="text-sm" />
-          Continue With Google
+          Create account
+          <Icon icon="mdi:arrow-right" className="text-lg" />
         </Button>
-
-        <div className="flex items-center gap-2">
-          <hr className="border-ehs-border flex-1" />
-          <span className="text-ehs-muted-text text-xs">
-            or Sign Up With Email
-          </span>
-          <hr className="border-ehs-border flex-1" />
-        </div>
-
-        <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          <TextInput
-            id="name"
-            name="name"
-            label="Full Name"
-            type="text"
-            autoComplete="name"
-            placeholder="Enter Your Full Name"
-            value={formValues.fullName}
-            onChange={(event) =>
-              setFormValues((current) => ({
-                ...current,
-                fullName: event.target.value,
-              }))
-            }
-            required
-          />
-
-          <EmailInput
-            id="email"
-            name="email"
-            label="Email Address"
-            placeholder="Enter Your Email Address"
-            value={formValues.email}
-            onChange={(event) =>
-              setFormValues((current) => ({
-                ...current,
-                email: event.target.value,
-              }))
-            }
-            required
-          />
-
-          <Password
-            id="password"
-            name="password"
-            label="Password"
-            autoComplete="new-password"
-            placeholder="Create A Strong Password"
-            showStrengthMeter
-            value={formValues.password}
-            onChange={(event) =>
-              setFormValues((current) => ({
-                ...current,
-                password: event.target.value,
-              }))
-            }
-            required
-          />
-
-          <Password
-            id="confirm-password"
-            name="confirmPassword"
-            label="Confirm Password"
-            autoComplete="new-password"
-            placeholder="Confirm Your Password"
-            value={formValues.confirmPassword}
-            onChange={(event) => {
-              setFormError("");
-              setFormValues((current) => ({
-                ...current,
-                confirmPassword: event.target.value,
-              }));
-            }}
-            required
-          />
-
-          <div className="flex items-start gap-2">
-            <input
-              id="accept-terms"
-              type="checkbox"
-              name="acceptTerms"
-              checked={formValues.acceptTerms}
-              onChange={(event) =>
-                setFormValues((current) => ({
-                  ...current,
-                  acceptTerms: event.target.checked,
-                }))
-              }
-              required
-              className="border-ehs-border text-ehs-normal-blue focus:ring-ehs-normal-blue/20 mt-0.5 size-4 shrink-0 rounded focus:ring-2"
-            />
-            <p className="text-ehs-muted-text text-xs leading-relaxed">
-              <label htmlFor="accept-terms" className="cursor-pointer">
-                I agree with the Neptune&apos;s{" "}
-              </label>
-              <ScrollLink
-                href="/terms-and-conditions"
-                className="font-semibold"
-              >
-                Terms & Conditions
-              </ScrollLink>{" "}
-              and{" "}
-              <ScrollLink href="/privacy" className="font-semibold">
-                Privacy Policy
-              </ScrollLink>
-              .
-            </p>
-          </div>
-
-          {formError ? (
-            <Text as="p" className="text-ehs-red text-xs" role="alert">
-              {formError}
-            </Text>
-          ) : null}
-
-          <Button
-            type="submit"
-            variant="primary"
-            className="w-full"
-            disabled={!canCreateAccount}
-          >
-            Create account
-            <Icon icon="mdi:arrow-right" className="text-lg" />
-          </Button>
-        </form>
-
-        <p className="text-ehs-muted-text text-center text-sm">
-          Already Have an Account?{" "}
-          <ScrollLink href="/login" className={`${ehsLinkClass} font-semibold`}>
-            Sign In
-          </ScrollLink>
-        </p>
-      </div>
-    </div>
+      </form>
+    </AuthFormPanel>
   );
 }

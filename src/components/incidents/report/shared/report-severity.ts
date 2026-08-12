@@ -1,4 +1,19 @@
-export type SeverityId = "first-aid" | "osha" | "lost-time" | "sia" | "sip";
+/**
+ * OSHA 1904.7 / ANSI Z16.2 outcome classes. The reporter picks the outcome
+ * once, on step 1; everything recordable about it (OSHA recordable, DART) is
+ * derived from this pick — see report-classification.ts — and confirmed by EHS
+ * after investigation.
+ *
+ * `""` is the unanswered state: severity has no default, because the intake
+ * report is the reporter's best guess and a pre-selected answer would read as
+ * a deliberate one on a regulated record.
+ */
+export type SeverityId =
+  | "first-aid"
+  | "medical-treatment"
+  | "restricted-duty"
+  | "lost-time"
+  | "fatality";
 
 export type SeverityOption = Readonly<{
   id: SeverityId;
@@ -16,27 +31,39 @@ export const SEVERITY_OPTIONS: readonly SeverityOption[] = [
     previewBadge: "Low",
   },
   {
-    id: "osha",
-    label: "OSHA Recordable",
-    lines: ["OSHA Recordable"],
+    id: "medical-treatment",
+    label: "Medical Treatment",
+    lines: ["Medical Treatment"],
     previewBadge: "Medium",
   },
   {
-    id: "lost-time",
-    label: "OSHA Lost Time",
-    lines: ["OSHA Lost Time"],
+    id: "restricted-duty",
+    label: "Restricted Duty",
+    lines: ["Restricted Duty"],
     previewBadge: "High",
   },
   {
-    id: "sia",
-    label: "SIA",
-    lines: ["SIA"],
-    previewBadge: "Critical",
+    id: "lost-time",
+    label: "Lost Time",
+    lines: ["Lost Time"],
+    previewBadge: "High",
   },
   {
-    id: "sip",
-    label: "SIP",
-    lines: ["SIP"],
+    id: "fatality",
+    label: "Fatality",
+    lines: ["Fatality"],
     previewBadge: "Critical",
   },
 ];
+
+export function severityOptionFor(
+  severityId: string,
+): SeverityOption | undefined {
+  return SEVERITY_OPTIONS.find((option) => option.id === severityId);
+}
+
+export function isSeverityPicked(
+  severity: SeverityId | "",
+): severity is SeverityId {
+  return severity !== "";
+}

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import {
@@ -199,7 +199,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         { templateId, payload },
         {
           onSuccess: (response) => {
-            console.log(response);
             if (publish) {
               // The update returns the saved template — publish it by id.
               publishSavedTemplate(
@@ -428,7 +427,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => router.push(TEMPLATES_ROUTE)}
-            className="text-ehs-dark-bg cursor-pointer rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg cursor-pointer rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             Cancel
           </button>
@@ -436,7 +435,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => setStep(step - 1)}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -468,7 +467,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               type={step === 1 ? "submit" : "button"}
               form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
               onClick={step === 1 ? undefined : handleNext}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-[10px] px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-2.5 px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
             >
               <Icon
                 icon="mdi:arrow-right"

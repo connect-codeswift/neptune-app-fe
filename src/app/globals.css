@@ -3,6 +3,10 @@
 :root {
   --font-inter: var(--font-inter);
 
+  /* House easing for micro-interactions (popover-in, card motion). One
+     definition so the curves can't drift apart per animation. */
+  --ehs-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
   --ehs-light-bg: #f3f5f8;
   --ehs-dark-bg: #0b1320;
 
@@ -83,6 +87,18 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /*
+   * Numeric radius tokens used across the app (GlassCard, tables, inputs).
+   * Tailwind’s defaults stop at --radius-4xl named sizes; bare numbers like
+   * rounded-5 / rounded-2.5 only work when these --radius-* vars exist.
+   * Without them, border-radius is invalid and corners render square.
+   * Values match the pre-refactor arbitrary sizes (20px / 10px / 12px).
+   */
+  --radius-2\.5: 0.625rem;
+  --radius-3: 0.75rem;
+  --radius-4: 1rem;
+  --radius-5: 1.25rem;
 }
 
 body {
@@ -90,8 +106,72 @@ body {
   min-height: 100vh;
 }
 
-[data-sonner-toaster] {
-  font-family: var(--font-inter);
+/* ---------------------------------------------------------------------------
+   Incident typography scale
+   ---------------------------------------------------------------------------
+   text1 = page title … text9 = meta label.
+   Sizes match the original Incident list / panel roles (not the inflated
+   responsive bump). Font family inherits from `body`. Color stays at the
+   call site.
+   --------------------------------------------------------------------------- */
+
+/*
+  Token   size              weight
+  ------  ----------------  --------
+  text1   1.25rem → 1.5rem  bold     (page title; sm+)
+  text2   1.875rem (30px)   normal   (KPI value)
+  text3   1.125rem (18px)   bold     (card / section title)
+  text4   0.875rem (14px)   normal   (body / table row)
+  text5   0.875rem (14px)   bold     (badge / emphasis)
+  text6   0.75rem (12px)    bold     (eyebrow / column header, uppercase)
+  text7   0.75rem (12px)    semibold (dense ID / numeric meta)
+  text8   0.75rem (12px)    normal   (caption / helper)
+  text9   0.875rem (14px)   semibold (meta field label, uppercase)
+*/
+
+/* Page title — DashboardHeader */
+@utility text1 {
+  @apply text-[1.25rem] leading-7 font-bold tracking-tight sm:text-[1.5rem] sm:leading-8;
+}
+
+/* KPI / hero numeric value */
+@utility text2 {
+  @apply text-[1.875rem] leading-none font-normal tracking-tight tabular-nums;
+}
+
+/* Card / panel section title */
+@utility text3 {
+  @apply text-[1.125rem] leading-7 font-bold;
+}
+
+/* Primary body / table row title */
+@utility text4 {
+  @apply text-[0.875rem] leading-normal font-normal;
+}
+
+/* Emphasized body / status badge label */
+@utility text5 {
+  @apply text-[0.875rem] leading-5 font-bold tracking-wide;
+}
+
+/* Eyebrow / KPI label / table column header */
+@utility text6 {
+  @apply text-[0.75rem] leading-4 font-bold tracking-wide uppercase;
+}
+
+/* Dense ID / numeric meta */
+@utility text7 {
+  @apply text-[0.75rem] leading-4 font-semibold tabular-nums;
+}
+
+/* Caption / helper under KPIs */
+@utility text8 {
+  @apply text-[0.75rem] leading-4 font-normal;
+}
+
+/* Meta field label (Reported, Summary, …) */
+@utility text9 {
+  @apply text-[0.875rem] leading-5 font-semibold tracking-wide uppercase;
 }
 
 [data-sonner-toast][data-type="success"] [data-icon] {
@@ -136,7 +216,7 @@ body {
 @utility animate-popover-in {
   animation-name: popover-in;
   animation-duration: 0.14s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: var(--ehs-ease-out);
   animation-fill-mode: both;
 }
 
@@ -292,4 +372,155 @@ body {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
+}
+
+/* ---------------------------------------------------------------------------
+   Card motion
+   ---------------------------------------------------------------------------
+   Dashboard cards swap from skeleton to content when their query resolves, so
+   without this they pop in abruptly. The travel is deliberately small (7px):
+   these sit on a frosted surface over a page gradient, and anything longer
+   reads as decoration on a page about incidents.
+
+   Every utility below carries its own prefers-reduced-motion guard, so a call
+   site cannot forget `motion-reduce:` and ship something that ignores the
+   setting.
+   --------------------------------------------------------------------------- */
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-card-rise {
+  animation-name: card-rise;
+  animation-duration: 0.18s;
+  animation-timing-function: var(--ehs-ease-out);
+  animation-fill-mode: both;
+
+  /* `both` holds the 0-opacity start frame through any animation-delay, which
+     is what lets stagger-cards below hold a card back without it flashing. */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Staggers the direct children of a card grid. The dashboard's rows contain
+   card components whose own root element is the GlassCard, so `> *` lands on
+   the animated element without threading a delay prop through six components. */
+@utility stagger-cards {
+  & > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  & > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  & > *:nth-child(4) {
+    animation-delay: 180ms;
+  }
+}
+
+/* Hover response for card surfaces: 1px is enough to feel alive without
+   implying the whole card is a button. The shadow is the GLASS_SURFACE stack
+   with the lift shadow deepened and the inset highlight left untouched. */
+@utility card-lift {
+  transition:
+    transform 0.18s var(--ehs-ease-out),
+    box-shadow 0.18s var(--ehs-ease-out);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 2px 0 rgb(15 23 42 / 0.05),
+      0 18px 40px -14px rgb(15 23 42 / 0.2),
+      inset 0 1px 0 1px rgb(255 255 255 / 0.9);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* Arc travelling around the Neptune monogram's ring while the app boots. The
+   glyph itself stays still — a spinning letterform reads as a novelty, a
+   moving arc reads as progress. Rotates about the viewBox centre, so it needs
+   transform-box/transform-origin rather than Tailwind's default. */
+@keyframes mark-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-mark-orbit {
+  transform-box: view-box;
+  transform-origin: center;
+  animation-name: mark-orbit;
+  /* Unhurried on purpose: the mark should be legible as the logo before the
+     arc has gone round once. Linear, because easing a continuous rotation
+     makes it stutter at the loop seam. */
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+  /* Still ring instead of a spinner; the status text carries the meaning. */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Loading sheen for placeholder blocks. Replaces a flat opacity pulse, which
+   blinks; a sweep reads as work in progress. Same gradient vocabulary as
+   ai-blade-sweep, without the skew — these are small rectangles. */
+@keyframes skeleton-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@utility skeleton-sweep {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.55),
+      transparent
+    );
+    animation: skeleton-sweep 1.35s ease-in-out infinite;
+  }
+
+  /* Falls back to a still placeholder rather than a pulse, so reduced-motion
+     users get no looping animation at all. */
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
 }

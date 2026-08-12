@@ -1,4 +1,5 @@
-import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { TableColumns } from "@/components/ui/table-columns";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-data";
 
@@ -31,8 +32,7 @@ function ProgressMeter(props: Readonly<{ value: number }>) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const inspectionColumns: ColumnDef<InspectionRecord, any>[] = [
+export const inspectionColumns: TableColumns<InspectionRecord> = [
   columnHelper.accessor("title", {
     header: "INSPECTION",
     cell: ({ row }) => (

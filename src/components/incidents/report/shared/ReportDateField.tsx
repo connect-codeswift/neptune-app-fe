@@ -16,7 +16,10 @@ import {
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportCalendarPopover } from "@/components/incidents/report/shared/ReportCalendarPopover";
-import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import {
+  FIELD_INPUT_CLASS,
+  FIELD_INPUT_LG_CLASS,
+} from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   addDays,
@@ -27,8 +30,7 @@ import {
   today,
 } from "@/components/incidents/report/shared/report-date-time";
 
-const EMBEDDED_INPUT_CLASS =
-  "h-10 w-full rounded-[10px] bg-white px-3.5 text-sm text-ehs-dark-bg shadow-[0px_1px_2px_0px_rgba(15,23,42,0.06)] outline-none placeholder:text-ehs-muted-text focus:ring-2 focus:ring-ehs-normal-blue/25";
+const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
 
 type MenuPosition = Readonly<{
   top: number;
@@ -56,6 +58,10 @@ export type ReportDateFieldProps = Readonly<{
   error?: string | null;
   /** Report forms use the default styling; modals use `embedded` with a portaled calendar. */
   variant?: "report" | "embedded";
+  /** When true, omit the built-in label (parent already renders one). */
+  hideLabel?: boolean;
+  /** Extra classes merged onto the input control. */
+  inputClassName?: string;
 }>;
 
 const QUICK_PICK_LABELS: Record<ReportDateQuickPick, string> = {
@@ -78,6 +84,8 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     quickPicks,
     error = null,
     variant = "report",
+    hideLabel = false,
+    inputClassName = "",
   } = props;
 
   const isEmbedded = variant === "embedded";
@@ -187,7 +195,12 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     return true;
   });
 
-  const inputClass = isEmbedded ? EMBEDDED_INPUT_CLASS : FIELD_INPUT_CLASS;
+  const inputClass = [
+    isEmbedded ? EMBEDDED_INPUT_CLASS : FIELD_INPUT_CLASS,
+    inputClassName,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const calendarPopover = (
     <ReportCalendarPopover
@@ -228,7 +241,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
                 close();
               }}
               onClose={close}
-              className="animate-popover-in w-full rounded-[12px] border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+              className="animate-popover-in w-full rounded-3 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
             />
           </div>,
           document.body,
@@ -266,7 +279,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
       >
         <Icon
           icon="mdi:calendar-outline"
-          className="size-[15px]"
+          className="size-3.75"
           aria-hidden="true"
         />
       </button>
@@ -289,7 +302,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
               aria-pressed={isActive}
               onClick={() => onChange(formatMmDdYyyy(date))}
               className={[
-                "cursor-pointer rounded-full px-2 py-px text-[11px] font-semibold transition-colors",
+                "cursor-pointer rounded-full px-2 py-px text-2.75 font-semibold transition-colors",
                 isActive
                   ? "bg-ehs-light-blue text-ehs-dark-blue"
                   : "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg border border-[rgba(15,23,42,0.1)]",
@@ -309,13 +322,15 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
           .filter(Boolean)
           .join(" ")}
       >
-        <label
-          htmlFor={inputId}
-          className="block text-sm leading-[19.5px] text-ehs-gray"
-        >
-          {label}
-          {required ? <span className="text-ehs-red"> *</span> : null}
-        </label>
+        {hideLabel ? null : (
+          <label
+            htmlFor={inputId}
+            className="block text-sm leading-[19.5px] text-ehs-gray"
+          >
+            {label}
+            {required ? <span className="text-ehs-red"> *</span> : null}
+          </label>
+        )}
 
         <div ref={rootRef} className="relative min-w-0">
           {inputControl}
@@ -334,6 +349,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
       className={["relative flex flex-col gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
+      data-field-error={error ? "true" : undefined}
     >
       <ReportFieldLabel
         label={label}

@@ -1,5 +1,5 @@
 import { Text } from "@/components/Text";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   HAZARD_WORKFLOW_STAGES,
   type HazardStage,
@@ -13,7 +13,7 @@ export function HazardWorkflow(props: Readonly<{ stage: HazardStage }>) {
 
   return (
     <IncidentGlassCard incidentGlassCardClassName="gap-4">
-      <Text as="h3" className="text-ehs-gray font-medium">
+      <Text as="h3" className="text3 text-ehs-gray">
         Hazard Workflow
       </Text>
 
@@ -31,7 +31,7 @@ export function HazardWorkflow(props: Readonly<{ stage: HazardStage }>) {
                 <span
                   aria-hidden="true"
                   className={[
-                    "flex size-7 items-center justify-center rounded-full text-sm font-bold",
+                    "text7 flex size-7 items-center justify-center rounded-full",
                     isDone
                       ? "bg-ehs-green text-white"
                       : isCurrent
@@ -44,7 +44,7 @@ export function HazardWorkflow(props: Readonly<{ stage: HazardStage }>) {
                 <Text
                   as="span"
                   className={[
-                    "text-sm whitespace-nowrap",
+                    "text8 whitespace-nowrap",
                     isDone
                       ? "text-ehs-green"
                       : isCurrent

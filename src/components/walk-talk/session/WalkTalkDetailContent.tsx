@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { IncidentGlassCard } from "@/components/incidents";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type {
   WalkTalkActionStatus,
   WalkTalkFollowUp,
@@ -67,10 +67,10 @@ function InfoRow(
         .filter(Boolean)
         .join(" ")}
     >
-      <span className="w-30 shrink-0 text-[13px] font-medium text-[#566072]">
+      <span className="w-30 shrink-0 text-3.25 font-medium text-[#566072]">
         {label}
       </span>
-      <span className="text-ehs-dark-bg min-w-0 truncate text-right text-[13px] font-semibold">
+      <span className="text-ehs-dark-bg min-w-0 truncate text-right text-3.25 font-semibold">
         {value}
       </span>
     </div>
@@ -104,16 +104,16 @@ function ParticipantRow(
         .join(" ")}
     >
       <span
-        className="bg-ehs-normal-blue/14 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold md:size-9 md:text-sm"
+        className="bg-ehs-normal-blue/14 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-full text-2.75 font-bold md:size-9 md:text-sm"
         aria-hidden="true"
       >
         {initialsOf(participant.name)}
       </span>
       <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg text-[13px] font-bold md:text-base">
+        <span className="text-ehs-dark-bg text-3.25 font-bold md:text-base">
           {participant.name}
         </span>
-        <span className="text-ehs-muted-text text-[11px] md:text-base">
+        <span className="text-ehs-muted-text text-2.75 md:text-base">
           {participant.role}
         </span>
       </div>
@@ -136,7 +136,7 @@ function StatusBadge(props: Readonly<{ status: WalkTalkActionStatus }>) {
   return (
     <span
       className={[
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase md:rounded-full md:px-2.5 md:py-1 md:text-sm",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-2.5 font-bold uppercase md:rounded-full md:px-2.5 md:py-1 md:text-sm",
         statusClass[status],
       ].join(" ")}
     >
@@ -174,11 +174,11 @@ function FollowUpCards(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
             .filter(Boolean)
             .join(" ")}
         >
-          <p className="text-ehs-dark-bg text-[13px] font-semibold">
+          <p className="text-ehs-dark-bg text-3.25 font-semibold">
             {row.action}
           </p>
           <div className="flex items-center justify-between gap-3">
-            <div className="text-ehs-muted-text flex min-w-0 items-center gap-2 text-[11px] font-medium">
+            <div className="text-ehs-muted-text flex min-w-0 items-center gap-2 text-2.75 font-medium">
               <span className="truncate">{row.assignedTo}</span>
               <span
                 className="bg-ehs-muted-text size-1 shrink-0 rounded-full"
@@ -265,7 +265,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* Header — compact on mobile */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-[10px] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
+      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav
             aria-label="Breadcrumb"
@@ -288,11 +288,11 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
             <Link
               href={WALK_TALK_ROUTE}
               aria-label="Back to Walk & Talk"
-              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-[10px] border bg-white transition-colors md:hidden"
+              className="border-ehs-border text-ehs-dark-bg hover:bg-slate-50 flex size-8 shrink-0 items-center justify-center rounded-2.5 border bg-white transition-colors md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
-            <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-[22px] md:font-semibold">
+            <h1 className="text-ehs-dark-bg text-base font-bold tracking-[-0.2px] md:text-5.5 md:font-semibold">
               <span className="md:hidden">Walk-and-Talk Detail</span>
               <span className="hidden md:inline">Walk-and-Talks</span>
             </h1>
@@ -362,7 +362,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
             incidentGlassCardClassName="gap-3"
           >
             <SectionTitle>Discussion Notes</SectionTitle>
-            <p className="text-[13px] leading-5 text-[#0b1320] md:text-base md:leading-5.5 md:text-[#566072]">
+            <p className="text-3.25 leading-5 text-[#0b1320] md:text-base md:leading-5.5 md:text-[#566072]">
               {detail.notes}
             </p>
           </IncidentGlassCard>

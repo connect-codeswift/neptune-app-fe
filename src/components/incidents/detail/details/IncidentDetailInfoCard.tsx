@@ -6,7 +6,18 @@ import type {
   IncidentDetailInfoItemKind,
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+
+/**
+ * "" ("Select…") is a real, pickable entry — the native select allowed
+ * clearing back to unset, so the replacement must too.
+ */
+const YES_NO_OPTIONS = [
+  { value: "", label: "Select…" },
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+] as const;
 
 export type { IncidentDetailInfoItem, IncidentDetailInfoItemKind };
 
@@ -26,31 +37,23 @@ function editableDisplayValue(value: string): string {
 export function IncidentDetailInfoCard(
   props: Readonly<IncidentDetailInfoCardProps>,
 ) {
-  const {
-    items = [],
-    isEditing = false,
-    onChangeItem,
-    className = "",
-  } = props;
+  const { items = [], isEditing = false, onChangeItem, className = "" } = props;
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[23px]"
-      incidentGlassCardClassName="gap-[14px]"
-      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
+      paddingClassName="p-5.75"
+      incidentGlassCardClassName="gap-3.5"
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
         .join(" ")}
     >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg text-lg font-semibold"
-      >
+      <Text as="h3" className="text-ehs-dark-bg text3">
         Incident details
       </Text>
 
-      <div className="grid grid-cols-1 gap-x-[18px] gap-y-[18px] sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-4.5 gap-y-4.5 sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="col-span-full py-6 text-center text-sm text-ehs-muted-text">
+          <div className="text-ehs-muted-text col-span-full py-6 text-center text4">
             No incident detail fields returned by the API.
           </div>
         ) : (
@@ -59,27 +62,22 @@ export function IncidentDetailInfoCard(
             const canEdit = isEditing && kind !== "readonly";
 
             return (
-              <div key={item.key} className="flex flex-col gap-[3px]">
-                <span className="text-xs font-bold tracking-wide text-ehs-muted-text uppercase">
+              <div key={item.key} className="flex flex-col gap-0.75">
+                <span className="text-ehs-muted-text text6">
                   {item.label}
                 </span>
                 {canEdit && kind === "yesno" ? (
-                  <select
+                  <GlassSelect
+                    options={YES_NO_OPTIONS}
                     value={
                       item.value === "Yes" || item.value === "No"
                         ? item.value
                         : ""
                     }
-                    onChange={(event) =>
-                      onChangeItem?.(item.key, event.target.value)
-                    }
-                    className={fieldInputClass}
+                    onChange={(value) => onChangeItem?.(item.key, value)}
                     aria-label={item.label}
-                  >
-                    <option value="">Select…</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
+                    triggerClassName={fieldInputClass}
+                  />
                 ) : null}
                 {canEdit && kind === "text" ? (
                   <input
@@ -93,7 +91,7 @@ export function IncidentDetailInfoCard(
                   />
                 ) : null}
                 {!canEdit ? (
-                  <span className="text-sm leading-normal text-ehs-dark-bg">
+                  <span className="text-ehs-dark-bg text4 leading-normal">
                     {item.value}
                   </span>
                 ) : null}

@@ -8,7 +8,7 @@ import {
   CapaHierarchySelector,
   type ControlLevel,
 } from "@/components/incidents/shared/capa/CapaHierarchySelector";
-import { CapaModalFieldLabel } from "@/components/incidents/shared/capa/CapaModalFieldLabel";
+import { CapaModalFieldLabel } from "./CapaModalFieldLabel";
 import { CapaSegmentedToggle } from "@/components/incidents/shared/capa/CapaSegmentedToggle";
 import {
   AddTaskModal,
@@ -22,6 +22,7 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useCurrentSite } from "@/hooks/use-current-site";
@@ -206,8 +207,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
       }
     >
       <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-8 lg:gap-12">
-          <section className="w-full shrink-0 md:w-[320px] lg:w-[380px]">
-            <div className="mb-4 flex flex-col gap-[5px] sm:mb-6">
+          <section className="w-full shrink-0 md:w-80 lg:w-95">
+            <div className="mb-4 flex flex-col gap-1.25 sm:mb-6">
             <div className="flex items-center gap-2.5">
               <StepBadge step="1" />
               <Text
@@ -242,7 +243,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
             </Text>
           </div>
 
-          <div className="flex flex-col gap-[18px]">
+          <div className="flex flex-col gap-4.5">
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor={descriptionFieldId} required>
                 Action description
@@ -254,7 +255,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                   onChange={(event) => setDescription(event.target.value)}
                   placeholder="Describe the corrective / preventive action..."
                   rows={3}
-                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/25 h-[100px] w-full resize-none rounded-xl bg-white px-3.5 pt-3 pb-10 text-sm leading-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline-none focus:ring-2 sm:h-[108px] sm:text-sm"
+                  className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
                 />
                 <AiTextAssistant
                   module="incident"

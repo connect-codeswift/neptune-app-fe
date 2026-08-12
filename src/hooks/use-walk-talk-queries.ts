@@ -4,7 +4,6 @@ import { toWalkTalkSessions } from "@/lib/map-walk-talk";
 import {
   getWalkTalkDashboardCounts,
   getWalkTalkGraph,
-  getWalkTalkParticipants,
   getWalkTalkSessionById,
   getWalkTalkSessions,
   getWalkTalkTopFindings,
@@ -65,15 +64,7 @@ function toSessionsPage(payload: unknown): {
   };
 }
 
-/** Fetches GET /api/walkandtalk/participants for the log form. */
-export function useWalkTalkParticipantsQuery() {
-  return useQuery({
-    queryKey: ["walkandtalk", "participants"] as const,
-    queryFn: () => getWalkTalkParticipants(),
-  });
-}
-
-/** Fetches GET /api/walkandtalk/dashboard-counts for StatMetricCards. */
+/** Fetches GET /api/walkandtalk/dashboard-counts for MetricCards. */
 export function useWalkTalkDashboardCountsQuery() {
   return useQuery({
     queryKey: ["walkandtalk", "dashboard-counts"] as const,
@@ -90,9 +81,7 @@ export function useWalkTalkTopFindingsQuery() {
 }
 
 /** Fetches GET /api/walkandtalk/graph for the trends card. */
-export function useWalkTalkGraphQuery(
-  weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS,
-) {
+export function useWalkTalkGraphQuery(weeks = DEFAULT_WALK_TALK_GRAPH_WEEKS) {
   return useQuery({
     queryKey: ["walkandtalk", "graph", weeks] as const,
     queryFn: () => getWalkTalkGraph(weeks),

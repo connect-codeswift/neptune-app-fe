@@ -43,19 +43,12 @@ export function useCloseIncidentMutation() {
       return submitIncidentClosure(incidentId);
     },
     onSuccess: async (_result, incidentId) => {
-      const auth = getAuthContext();
       await queryClient.invalidateQueries({
         queryKey: incidentQueryKeys.closure(incidentId),
       });
-      if (auth) {
-        await queryClient.invalidateQueries({
-          queryKey: incidentQueryKeys.detail({
-            id: incidentId,
-            userId: auth.userId,
-            siteId: auth.siteId,
-          }),
-        });
-      }
+      await queryClient.invalidateQueries({
+        queryKey: incidentQueryKeys.detail(incidentId),
+      });
       await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });
     },
   });
@@ -70,19 +63,11 @@ export function useUpdateIncidentMutation() {
       incidentId: number;
       patch: Partial<IncidentDto>;
     }) => {
-      const auth = getAuthContext();
-      if (!auth) {
+      if (!getAuthContext()) {
         throw new Error("Sign in required to update an incident.");
       }
 
-      return updateIncident(
-        input.incidentId,
-        {
-          userId: auth.userId,
-          siteId: auth.siteId,
-        },
-        input.patch,
-      );
+      return updateIncident(input.incidentId, input.patch);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: incidentQueryKeys.all });

@@ -1,7 +1,6 @@
 import type {
   AddComplianceRequestDto,
   GetAllCompliancesRequestDto,
-  UpdateComplianceRequestDto,
 } from "@/dtos/req/compliance-request.dto";
 import type {
   AddComplianceResponseDto,
@@ -186,35 +185,6 @@ export async function markComplianceComplete(
     {
       id,
       markComplete: true,
-    },
-  );
-
-  return data;
-}
-
-/** PUT /api/Compliance/Update */
-export async function updateCompliance(
-  payload: UpdateComplianceRequestDto,
-): Promise<UpdateComplianceResponseDto> {
-  const { data } = await http.put<UpdateComplianceResponseDto>(
-    COMPLIANCE_UPDATE_PATH,
-    {
-      id: payload.id,
-      code: payload.code.trim(),
-      title: payload.title.trim(),
-      category: payload.category.trim(),
-      jurisdiction: payload.jurisdiction.trim(),
-      regulatoryBody: payload.regulatoryBody.trim(),
-      dueDate: payload.dueDate,
-      nextDue: payload.nextDue,
-      recurrence: payload.recurrence.trim(),
-      responsiblePersonId: payload.responsiblePersonId,
-      responsiblePerson: payload.responsiblePerson.trim(),
-      priority: payload.priority.trim(),
-      status: payload.status.trim(),
-      completedDate: payload.completedDate,
-      evidenceUrls: payload.evidenceUrls,
-      markComplete: payload.markComplete,
     },
   );
 
