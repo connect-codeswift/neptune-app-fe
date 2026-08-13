@@ -35,8 +35,6 @@ const HEADER_KPI_DEFINITIONS = [
   },
 ] as const;
 
-type HeaderKpiKey = (typeof HEADER_KPI_DEFINITIONS)[number]["key"];
-
 const LIST_KPI_DEFINITIONS = [
   {
     key: "openIncidents",
@@ -71,6 +69,29 @@ const LIST_KPI_DEFINITIONS = [
 type ListKpiKey = (typeof LIST_KPI_DEFINITIONS)[number]["key"];
 type MetricDirection = "lower-better" | "higher-better";
 type ValueFormat = "integer" | "decimal";
+
+/**
+ * Whether YTD hours are known and large enough for OSHA rates.
+ * `"loading"` must not be treated as `"unavailable"` — that flashes `—`
+ * on every page load, even for a site with hours already entered.
+ */
+export type SiteWorkHoursAvailability =
+  | "loading"
+  | "error"
+  | "insufficient"
+  | "available";
+
+/** Caption on a rate card when `/site-work-hours` failed. */
+export const RATE_HOURS_CHECK_FAILED_LABEL = "Couldn't check work hours";
+
+/**
+ * Hours gate for RIR / LTIR. `"unavailable"` and `"check-failed"` both
+ * hide the numeric rate; only `"check-failed"` gets an error caption.
+ */
+export type IncidentRateHoursGate =
+  | "available"
+  | "unavailable"
+  | "check-failed";
 
 /** Backend swagger has shown `mttr` — normalize to `mttc`. */
 const KPI_METRIC_ALIASES: Partial<Record<string, KpiMetricKey>> = {
@@ -137,18 +158,23 @@ function enrichKpiCard(
     return card;
   }
 
+  let status = card.status;
+  if (status == null && card.value != null) {
+    status = computeKpiStatus(card.value, target, direction);
+  }
+
   return {
     ...card,
     target,
-    status: card.status ?? computeKpiStatus(card.value, target, direction),
+    status,
   };
 }
 
 function formatMetricValue(
-  value: number,
+  value: number | null,
   format: ValueFormat = "decimal",
 ): string {
-  if (!Number.isFinite(value)) {
+  if (value == null || !Number.isFinite(value)) {
     return "—";
   }
 
@@ -193,82 +219,112 @@ function buildTargetLabel(target: number | null, unit: string): string | null {
   return `Target ${formatMetricValue(target)} · ${unit}`;
 }
 
-/**
- * MTTC weeks with zero closures should not read as "0 days average".
- * Keep the sparkline when at least two non-zero points exist; otherwise
- * fall back to the raw trend so the card still renders a flat line.
- */
-function toMttcChartData(trend: readonly number[]): readonly number[] {
-  const nonZeroPoints = trend.filter((value) => value > 0);
-  return nonZeroPoints.length >= 2 ? nonZeroPoints : trend;
-}
-
-function toChartData(
-  trend: readonly number[],
-  metricKey: HeaderKpiKey,
-): readonly number[] {
-  if (metricKey !== "mttc") {
-    return trend;
-  }
-
-  return toMttcChartData(trend);
-}
-
-function toListChartData(
-  trend: readonly number[],
-  metricKey: ListKpiKey,
-): readonly number[] {
-  if (metricKey === "mttc") {
-    return toMttcChartData(trend);
-  }
-
-  return trend;
+/** Drop null weeks — a null point is "no data", never a plotted zero. */
+function toNumericTrend(
+  trend: readonly (number | null)[] | undefined,
+): number[] {
+  return (trend ?? []).filter((point): point is number => point != null);
 }
 
 function mapKpiCardToHeroMetric(
   definition: (typeof HEADER_KPI_DEFINITIONS)[number],
   card: IncidentKpiCardDto | undefined,
-  ratesAvailable: boolean,
+  rateHoursGate: IncidentRateHoursGate,
 ): HeroKpiMetric {
   const isRateMetric = definition.key === "rir" || definition.key === "ltir";
-  const showRate = !isRateMetric || ratesAvailable;
-  const value = card?.value ?? 0;
+  const showRate = !isRateMetric || rateHoursGate === "available";
+  const rawValue = card?.value ?? null;
   const target = card?.target ?? null;
   const unit = showRate ? card?.unit?.trim() || undefined : undefined;
+
+  let footerNote: string | undefined;
+  if (isRateMetric && rateHoursGate === "check-failed") {
+    footerNote = RATE_HOURS_CHECK_FAILED_LABEL;
+  } else if (isRateMetric && rateHoursGate === "unavailable") {
+    footerNote = "";
+  }
 
   return {
     id: definition.id,
     title: definition.title,
     subtitle: definition.subtitle,
-    value: showRate ? formatMetricValue(value) : "—",
+    value: showRate ? formatMetricValue(rawValue) : "—",
     unit,
-    target,
-    current: showRate ? value : 0,
-    targetLabel: showRate ? buildTargetLabel(target, card?.unit ?? "") : null,
+    target: showRate && rawValue != null ? target : null,
+    current: showRate && rawValue != null ? rawValue : 0,
+    targetLabel:
+      showRate && rawValue != null
+        ? buildTargetLabel(target, card?.unit ?? "")
+        : null,
     direction: "lower-better",
-    chartData: showRate ? toChartData(card?.trend ?? [], definition.key) : [],
+    chartData: showRate ? toNumericTrend(card?.trend) : [],
     status: showRate ? mapApiStatus(card?.status ?? null) : null,
+    footerNote,
   };
+}
+
+/**
+ * Days-without-LTI ticks +7 every quiet week; that badge tells the user
+ * nothing. Only surface it the week the streak resets (a negative delta).
+ * `null` (not `undefined`) is authoritative "no badge" so MetricCard will
+ * not fall back to first-to-last of the sparkline.
+ */
+function listCardDelta(
+  showRate: boolean,
+  metricKey: ListKpiKey,
+  trendDelta: number | null | undefined,
+): number | null | undefined {
+  if (!showRate) {
+    return undefined;
+  }
+
+  if (
+    metricKey === "daysWithoutLti" &&
+    (trendDelta == null || trendDelta >= 0)
+  ) {
+    return null;
+  }
+
+  return trendDelta ?? null;
 }
 
 function mapKpiCardToListMetric(
   definition: (typeof LIST_KPI_DEFINITIONS)[number],
   card: IncidentKpiCardDto | undefined,
-  ratesAvailable: boolean,
+  rateHoursGate: IncidentRateHoursGate,
 ): IncidentListKpiMetric {
   const isRateMetric = definition.key === "rir";
-  const showRate = !isRateMetric || ratesAvailable;
-  const rawValue = card?.value ?? 0;
+  const showRate = !isRateMetric || rateHoursGate === "available";
+  const rawValue = card?.value ?? null;
   const target = card?.target ?? null;
-  const unit = showRate ? card?.unit?.trim() || undefined : undefined;
-  const series = showRate
-    ? toListChartData(card?.trend ?? [], definition.key)
-    : [];
+  const hasNoLtiRecorded =
+    definition.key === "daysWithoutLti" && rawValue == null;
+  const unit =
+    showRate && !hasNoLtiRecorded
+      ? card?.unit?.trim() || undefined
+      : undefined;
+  const series = showRate ? toNumericTrend(card?.trend) : [];
 
-  // `trendDelta` is only a fallback: when the API sends a series, the card
-  // derives the delta from it so the badge and the sparkline agree.
-  const explicitDelta =
-    showRate && series.length < 2 ? (card?.trendDelta ?? undefined) : undefined;
+  // The backend computes this week-over-week. Never derive it from the series
+  // here: daysWithoutLti resets on every LTI, so first-to-last reports an
+  // improvement for a window in which someone was injured.
+  // See FEGuides/IncidentKpiMigration.md.
+  const explicitDelta = listCardDelta(
+    showRate,
+    definition.key,
+    card?.trendDelta,
+  );
+  const deltaWeeks =
+    showRate && explicitDelta != null
+      ? (card?.trendDeltaWeeks ?? undefined)
+      : undefined;
+
+  let displayValue = "—";
+  if (hasNoLtiRecorded) {
+    displayValue = "No LTI recorded";
+  } else if (showRate) {
+    displayValue = formatMetricValue(rawValue, definition.valueFormat);
+  }
 
   const targetLabel = showRate
     ? buildListTargetLabel(
@@ -279,17 +335,32 @@ function mapKpiCardToListMetric(
       )
     : "";
 
-  return {
+  const rateHoursFailed =
+    isRateMetric && rateHoursGate === "check-failed";
+
+  const metric = {
     id: definition.id,
     title: definition.title,
-    value: showRate ? formatMetricValue(rawValue, definition.valueFormat) : "—",
+    value: displayValue,
     unit,
     trend: series.length >= 2 ? series : undefined,
-    delta: explicitDelta ?? undefined,
+    delta: explicitDelta,
+    deltaWeeks,
     target: showRate && target != null ? target : undefined,
     isMorePositive: definition.direction === "higher-better",
-    signalOwnedBy: "target",
+    signalOwnedBy: "target" as const,
     icon: "mdi:chart-timeline-variant",
+  };
+
+  if (rateHoursFailed) {
+    return {
+      ...metric,
+      description: RATE_HOURS_CHECK_FAILED_LABEL,
+    };
+  }
+
+  return {
+    ...metric,
     // "" when the metric has no configured target — the footer row then holds
     // only the sparkline.
     targetLabel: targetLabel ?? "",
@@ -300,7 +371,7 @@ function mapKpiCardToListMetric(
 export function mapHeaderKpisToHeroMetrics(
   dto: HeaderKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,
-  ratesAvailable = true,
+  rateHoursGate: IncidentRateHoursGate = "available",
 ): readonly HeroKpiMetric[] {
   if (!dto) {
     return [];
@@ -315,7 +386,7 @@ export function mapHeaderKpisToHeroMetrics(
         targetsLookup,
         "lower-better",
       ),
-      ratesAvailable,
+      rateHoursGate,
     ),
   );
 }
@@ -324,7 +395,7 @@ export function mapHeaderKpisToHeroMetrics(
 export function mapIncidentListKpisToMetrics(
   dto: IncidentListKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,
-  ratesAvailable = true,
+  rateHoursGate: IncidentRateHoursGate = "available",
 ): readonly IncidentListKpiMetric[] {
   if (!dto) {
     return [];
@@ -339,7 +410,7 @@ export function mapIncidentListKpisToMetrics(
         targetsLookup,
         definition.direction,
       ),
-      ratesAvailable,
+      rateHoursGate,
     ),
   );
 }
@@ -371,4 +442,39 @@ export function hasSufficientSiteWorkHours(
   return sumSiteWorkHoursForYear(records, year) >= MIN_WORK_HOURS_FOR_RATES;
 }
 
-/** Finds the stored hours entry for a specific year/month, if present. */
+/**
+ * Distinguishes "hours request in flight" from "no hours entered" from
+ * "the hours request failed". Passing `undefined` records into
+ * `hasSufficientSiteWorkHours` used to collapse the first two into `false`.
+ */
+export function resolveSiteWorkHoursAvailability(args: {
+  isLoading: boolean;
+  isError: boolean;
+  records: readonly SiteWorkHoursDto[] | null | undefined;
+}): SiteWorkHoursAvailability {
+  if (args.isLoading) {
+    return "loading";
+  }
+
+  if (args.isError && args.records == null) {
+    return "error";
+  }
+
+  return hasSufficientSiteWorkHours(args.records)
+    ? "available"
+    : "insufficient";
+}
+
+export function toIncidentRateHoursGate(
+  availability: SiteWorkHoursAvailability,
+): IncidentRateHoursGate {
+  if (availability === "available") {
+    return "available";
+  }
+
+  if (availability === "error") {
+    return "check-failed";
+  }
+
+  return "unavailable";
+}

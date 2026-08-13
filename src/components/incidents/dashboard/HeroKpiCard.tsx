@@ -11,6 +11,31 @@ export type HeroKpiCardProps = Readonly<{
   className?: string;
 }>;
 
+function HeroKpiFooter(props: Readonly<{ metric: HeroKpiMetric }>) {
+  const { metric } = props;
+
+  if (metric.footerNote != null) {
+    if (!metric.footerNote) {
+      return null;
+    }
+
+    return (
+      <Text as="p" className="text-ehs-muted-text text-xs leading-4">
+        {metric.footerNote}
+      </Text>
+    );
+  }
+
+  return (
+    <TargetProgress
+      current={metric.current}
+      target={metric.target}
+      targetLabel={metric.targetLabel}
+      direction={metric.direction}
+    />
+  );
+}
+
 function MiniSparkline(props: Readonly<{ data: readonly number[] }>) {
   const { data } = props;
   const width = 96;
@@ -135,12 +160,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
         </div>
 
         <div className="mt-auto">
-          <TargetProgress
-            current={metric.current}
-            target={metric.target}
-            targetLabel={metric.targetLabel}
-            direction={metric.direction}
-          />
+          <HeroKpiFooter metric={metric} />
         </div>
       </div>
     </IncidentGlassCard>
