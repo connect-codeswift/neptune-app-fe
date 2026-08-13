@@ -2,7 +2,6 @@
 
 import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditReportHeader } from "@/components/audits/report/AuditReportHeader";
 import { AuditReportSkeleton } from "@/components/audits/report/AuditReportSkeleton";
 import { AuditReportView } from "@/components/audits/report/AuditReportView";
@@ -45,7 +44,7 @@ function AuditReport() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       <AuditReportHeader
         auditId={report?.auditId ?? "—"}
         subtitle={report?.title ?? ""}
@@ -76,9 +75,7 @@ function AuditReport() {
 
 export default function AuditReportPage() {
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader />
-
+    <div className="flex min-h-screen flex-1 flex-col">
       <Suspense fallback={null}>
         <AuditReport />
       </Suspense>

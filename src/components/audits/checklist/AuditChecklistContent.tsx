@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { useSaveAuditResponsesMutation } from "@/hooks/use-audit-mutations";
 import { useAuditForTemplate } from "@/hooks/use-audit-queries";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";
@@ -52,7 +53,7 @@ function AnswerToggle(
             aria-checked={isSelected}
             onClick={() => onChange(answer)}
             className={[
-              "w-16 cursor-pointer rounded-2.5 px-2 py-1 text-sm font-medium transition-colors",
+              "text8 w-16 cursor-pointer rounded-2.5 px-2 py-1 transition-colors",
               isSelected
                 ? "bg-ehs-green text-white"
                 : "text-ehs-gray border border-[rgba(15,23,42,0.1)] bg-white hover:bg-black/5",
@@ -81,9 +82,9 @@ function SectionCard(
       className="min-w-0"
     >
       <header className="border-b border-white/90 bg-[rgba(238,241,246,0.7)] px-5 py-3">
-        <h3 className="text-ehs-dark-bg text-lg font-semibold">
+        <Text as="h3" className="text3 text-ehs-darker">
           {section.title}
-        </h3>
+        </Text>
       </header>
 
       <ul className="flex flex-col">
@@ -92,9 +93,9 @@ function SectionCard(
             key={item.id}
             className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-900/10 px-5 py-4 last:border-b-0"
           >
-            <span className="text-ehs-darker min-w-0 flex-1">
+            <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1">
               {item.question}
-            </span>
+            </Text>
 
             <AnswerToggle
               itemId={item.id}
@@ -221,7 +222,9 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   if (detailQuery.isError || !checklist) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 pb-8">
-        <p className="text-ehs-red text-sm">Could not load this checklist.</p>
+        <Text as="p" className="text4 text-ehs-red">
+          Could not load this checklist.
+        </Text>
       </div>
     );
   }
@@ -242,16 +245,16 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
       {/* Score summary */}
       <IncidentGlassCard paddingClassName="px-5 py-4" className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="text-ehs-gray">
+          <p className="text4 text-ehs-gray">
             Score:{" "}
-            <span className="text-ehs-dark-bg text-lg font-bold tabular-nums">
+            <span className="text5 text-ehs-darker tabular-nums">
               {`${String(score)}%`}
             </span>
           </p>
 
-          <p className="text-ehs-gray">
+          <p className="text4 text-ehs-gray">
             Items:{" "}
-            <span className="text-ehs-dark-bg tabular-nums">
+            <span className="text5 text-ehs-darker tabular-nums">
               {`${String(answered.length)}/${String(items.length)} answered`}
             </span>
           </p>
@@ -284,7 +287,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           type="button"
           onClick={handleSubmit}
           disabled={saveResponses.isPending}
-          className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-2.5 px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="text4 bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-2.5 px-5 py-2.5 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saveResponses.isPending ? "Submitting…" : "Submit Audit"}
         </button>

@@ -38,7 +38,7 @@ export function EditTemplateContent(props: Readonly<{ templateId: string }>) {
   if (detailQuery.isError) {
     return (
       <div className="flex flex-col items-start gap-2 px-4">
-        <Text as="p" className="text-ehs-red text-sm">
+        <Text as="p" className="text4 text-ehs-red">
           {getMutationErrorMessage(
             detailQuery.error,
             "Could not load this template.",
@@ -46,7 +46,7 @@ export function EditTemplateContent(props: Readonly<{ templateId: string }>) {
         </Text>
         <Link
           href={TEMPLATES_ROUTE}
-          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
+          className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
         >
           Back to templates
         </Link>
