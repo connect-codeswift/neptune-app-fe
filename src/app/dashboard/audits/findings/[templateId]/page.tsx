@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditFindingCard } from "@/components/audits/findings/AuditFindingCard";
 import { AuditFindingsHeader } from "@/components/audits/findings/AuditFindingsHeader";
 import {
@@ -47,16 +46,14 @@ export default function AuditFindingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader />
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      <AuditFindingsHeader
+        auditId={audit ? `A-${String(audit.id)}` : "—"}
+        subtitle={audit?.templateName ?? audit?.templateName ?? ""}
+        onGenerateReport={handleGenerateReport}
+      />
 
-      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <AuditFindingsHeader
-          auditId={audit ? `A-${String(audit.id)}` : "—"}
-          subtitle={audit?.templateName ?? audit?.templateName ?? ""}
-          onGenerateReport={handleGenerateReport}
-        />
-
+      <div className="mx-auto flex w-full max-w-200 flex-col gap-3.5">
         {isPending ? (
           <SkeletonTable rows={8} columns={5} />
         ) : findingsQuery.isError ? (

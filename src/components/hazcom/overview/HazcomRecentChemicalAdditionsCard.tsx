@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Text } from "@/components/Text";
 import {
   HazcomBadge,
-  HazcomGlassCard,
   type HazcomBadgeTone,
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
 
 function signalWordTone(signalWord: HazcomSignalWord): HazcomBadgeTone {
@@ -34,7 +34,7 @@ export function HazcomRecentChemicalAdditionsCard(
   const { recentChemicals } = overview;
 
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       paddingClassName="p-5"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
@@ -44,10 +44,10 @@ export function HazcomRecentChemicalAdditionsCard(
         </Text>
         <Link
           href="/dashboard/hazcom/chemicals"
-          className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5"
+          className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex items-center gap-2 rounded-2.5 px-2 py-1 transition-colors"
         >
           View all
-          <Icon icon="mdi:arrow-right" className="size-3.5" aria-hidden="true" />
+          <Icon icon="mdi:arrow-right" className="size-3 shrink-0" aria-hidden="true" />
         </Link>
       </div>
 
@@ -110,6 +110,6 @@ export function HazcomRecentChemicalAdditionsCard(
           ))}
         </div>
       )}
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard } from "@/components/hazcom/shared/HazcomGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export type HazcomUnavailablePanelProps = Readonly<{
   title: string;
@@ -24,7 +24,7 @@ export function HazcomUnavailablePanel(
   const { title, message, className = "" } = props;
 
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       paddingClassName="p-5"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
@@ -42,6 +42,6 @@ export function HazcomUnavailablePanel(
           {message}
         </Text>
       </div>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

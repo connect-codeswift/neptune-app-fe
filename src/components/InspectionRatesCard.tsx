@@ -35,12 +35,12 @@ function InspectionRateRow(props: Readonly<InspectionRate>) {
         <Text as="span" className="text4 text-ehs-slate min-w-0 truncate">
           {label}
         </Text>
-        <Text as="p" className="text7 text-ehs-gray shrink-0">
+        <p className="text7 text-ehs-gray shrink-0">
           {`${String(current)}%`}
           <Text as="span" className="text8 text-ehs-muted-text">
             {` / ${String(target)}%`}
           </Text>
-        </Text>
+        </p>
       </div>
 
       <div

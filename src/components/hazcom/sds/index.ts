@@ -3,8 +3,8 @@ export { SdsLibraryPageClient } from "./SdsLibraryPageClient";
 export { SdsLibraryTable } from "./SdsLibraryTable";
 export type { SdsLibraryTableProps } from "./SdsLibraryTable";
 
-export { SdsUploadDropzone } from "./SdsUploadDropzone";
-export type { SdsUploadDropzoneProps } from "./SdsUploadDropzone";
+export { SdsDetailHeader } from "./SdsDetailHeader";
+export type { SdsDetailHeaderProps } from "./SdsDetailHeader";
 
 export { SdsUploadPageClient } from "./SdsUploadPageClient";
 

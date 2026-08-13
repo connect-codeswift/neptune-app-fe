@@ -46,10 +46,10 @@ export function HazcomModuleTabs(props: Readonly<HazcomModuleTabsProps>) {
             role="tab"
             aria-selected={isActive}
             className={[
-              "text4 border-b-2 py-2.5 font-semibold transition-all",
+              "border-b-2 py-2.5 transition-all",
               isActive
-                ? "border-ehs-normal-blue text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:text-ehs-gray border-transparent",
+                ? "text5 border-ehs-normal-blue text-ehs-normal-blue"
+                : "text4 text-ehs-muted-text hover:text-ehs-gray border-transparent",
             ].join(" ")}
           >
             {tab.label}
