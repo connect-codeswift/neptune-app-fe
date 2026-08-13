@@ -1,25 +1,64 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
-  HAZCOM_FIELD_LABEL_CLASS,
-  HazcomGlassCard,
-  HazcomTextareaField,
-  HazcomTextField,
-} from "@/components/hazcom/shared";
+  ReportTextField,
+  ReportTextareaField,
+} from "@/components/incidents/report/shared/ReportFormField";
+import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { parseMmDdYyyy } from "@/components/incidents/report/shared/report-date-time";
+import { UploadDocumentDropzone } from "@/components/policy-maker/upload/UploadDocumentDropzone";
 import type {
   TrainingLogRequestDto,
   TrainingMaterialRequestDto,
 } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
+import { getAuthContext } from "@/lib/auth-context";
+import {
+  CLOUDINARY_MAX_BYTES,
+  formatFileSize,
+} from "@/lib/cloudinary-constants";
 import { toast } from "@/lib/toast";
 import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+
+const TRAINING_MATERIAL_ACCEPT =
+  ".pdf,.ppt,.pptx,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+const TRAINING_MATERIAL_EXTENSIONS = new Set([
+  "pdf",
+  "ppt",
+  "pptx",
+  "doc",
+  "docx",
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "gif",
+]);
+
+function validateTrainingMaterial(file: File): string | null {
+  const extension = file.name.toLowerCase().split(".").pop() ?? "";
+  const allowed =
+    file.type.startsWith("image/") ||
+    file.type === "application/pdf" ||
+    TRAINING_MATERIAL_EXTENSIONS.has(extension);
+
+  if (!allowed) {
+    return "Use PDF, PPT, DOC, or an image file.";
+  }
+  if (file.size > CLOUDINARY_MAX_BYTES) {
+    return "File must be 50MB or smaller.";
+  }
+  return null;
+}
 
 type TrainingMaterialDraft = Readonly<{
   fileUrl: string;
@@ -30,6 +69,7 @@ type TrainingMaterialDraft = Readonly<{
 type NewTrainingSessionFormState = Readonly<{
   date: string;
   trainer: string;
+  trainerId: string;
   topic: string;
   chemicals: string;
   attendees: string;
@@ -40,6 +80,7 @@ type NewTrainingSessionFormState = Readonly<{
 const INITIAL_FORM_STATE: NewTrainingSessionFormState = {
   date: "",
   trainer: "",
+  trainerId: "",
   topic: "",
   chemicals: "",
   attendees: "",
@@ -49,17 +90,23 @@ const INITIAL_FORM_STATE: NewTrainingSessionFormState = {
 
 const TRAINING_LOG_ROUTE = "/dashboard/hazcom/training";
 
+const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
+
+const glassCardClass =
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-5xl";
+
 /**
- * `sessionDate` is a date-time on the wire while the field collects a plain
- * date, so the day is sent as UTC midnight.
+ * Session date is collected as `MM/DD/YYYY` (incident date field) and sent as
+ * UTC midnight on the wire.
  */
-function toSessionDate(date: string): string {
-  const parsed = new Date(date);
-  return Number.isNaN(parsed.getTime()) ? date : parsed.toISOString();
+function toSessionDate(date: string): string | null {
+  const parsed = parseMmDdYyyy(date);
+  return parsed ? parsed.toISOString() : null;
 }
 
 function toTrainingLogRequest(
   form: NewTrainingSessionFormState,
+  sessionDate: string,
 ): TrainingLogRequestDto {
   const materials: TrainingMaterialRequestDto[] = form.materials.map(
     (material) => ({
@@ -70,7 +117,7 @@ function toTrainingLogRequest(
   );
 
   return {
-    sessionDate: toSessionDate(form.date),
+    sessionDate,
     trainer: form.trainer.trim(),
     // The API has no "topic" column; `trainerTitle` is the only free-text
     // field this can land in.
@@ -96,10 +143,16 @@ export function HazcomNewTrainingSessionForm(
   const { className = "" } = props;
   const router = useRouter();
   const createTrainingLog = useCreateTrainingLogMutation();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] =
     useState<NewTrainingSessionFormState>(INITIAL_FORM_STATE);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isUploadingMaterial, setIsUploadingMaterial] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const auth = useMemo(() => getAuthContext(), []);
+  const siteId = auth?.siteId ?? 0;
+  const siteName = auth?.siteName ?? null;
+  const usersSource = siteId > 0 ? "site" : "dropdown";
 
   const updateField = <K extends keyof NewTrainingSessionFormState>(
     field: K,
@@ -115,38 +168,43 @@ export function HazcomNewTrainingSessionForm(
     }));
   };
 
-  const handleMaterialUpload = async (file: File | undefined) => {
+  const handleMaterialFileChange = (file: File | null) => {
+    setPendingFile(file);
+    setUploadError(null);
+
     if (!file) {
       return;
     }
 
     setIsUploadingMaterial(true);
-    try {
-      const uploaded = await uploadFileToCloudinary(file);
-      setForm((prev) => ({
-        ...prev,
-        materials: [
-          ...prev.materials,
-          {
-            fileUrl: uploaded.secureUrl,
-            fileName: file.name.trim() || uploaded.name,
-            fileType: uploaded.mimeType || uploaded.format || null,
-          },
-        ],
-      }));
-      toast.success("Training material uploaded");
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Could not upload the training material.",
-      );
-    } finally {
-      setIsUploadingMaterial(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+    void (async () => {
+      try {
+        const uploaded = await uploadFileToCloudinary(file);
+        setForm((prev) => ({
+          ...prev,
+          materials: [
+            ...prev.materials,
+            {
+              fileUrl: uploaded.secureUrl,
+              fileName: file.name.trim() || uploaded.name,
+              fileType: uploaded.mimeType || uploaded.format || null,
+            },
+          ],
+        }));
+        toast.success("Training material uploaded");
+        setPendingFile(null);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Could not upload the training material.";
+        setUploadError(message);
+        toast.error(message);
+        setPendingFile(null);
+      } finally {
+        setIsUploadingMaterial(false);
       }
-    }
+    })();
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -157,20 +215,24 @@ export function HazcomNewTrainingSessionForm(
       return;
     }
 
-    // The two fields the API requires; both are asterisked in the form.
+    const sessionDate = toSessionDate(form.date);
     const missing =
-      form.date.trim() === ""
+      sessionDate == null
         ? "Session Date"
         : form.trainer.trim() === ""
           ? "Trainer"
           : null;
 
     if (missing !== null) {
-      toast.error(`${missing} is required`);
+      toast.error(
+        missing === "Session Date"
+          ? "Session Date is required"
+          : "Trainer is required",
+      );
       return;
     }
 
-    createTrainingLog.mutate(toTrainingLogRequest(form), {
+    createTrainingLog.mutate(toTrainingLogRequest(form, sessionDate), {
       onSuccess: () => {
         toast.success("Training session logged");
         router.push(TRAINING_LOG_ROUTE);
@@ -186,103 +248,53 @@ export function HazcomNewTrainingSessionForm(
     });
   };
 
+  const busy = createTrainingLog.isPending || isUploadingMaterial;
+
   return (
-    <HazcomGlassCard
-      paddingClassName="p-6"
-      className={["w-full min-w-0", className].filter(Boolean).join(" ")}
+    <form
+      onSubmit={handleSubmit}
+      className={[glassCardClass, className].filter(Boolean).join(" ")}
+      noValidate
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* Names the section, not the page — the page header above already
-            says what this form creates. */}
-        <Text as="h2" className="text3 text-ehs-darker">
-          Session Details
-        </Text>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <HazcomTextField
-            label="Session Date"
-            required
-            type="date"
-            value={form.date}
-            onChange={(event) => updateField("date", event.target.value)}
+      <div className="relative z-1 flex min-w-0 flex-col gap-4 p-3.5 sm:gap-5 sm:px-6 sm:pt-6 sm:pb-6 lg:gap-6 lg:px-8 lg:pt-8 lg:pb-8">
+        <div className="flex flex-col gap-1.5">
+          <Text as="label" className={fieldLabelClass}>
+            Training Materials
+          </Text>
+          <UploadDocumentDropzone
+            file={pendingFile}
+            isUploading={isUploadingMaterial}
+            error={uploadError}
+            accept={TRAINING_MATERIAL_ACCEPT}
+            emptyHint={`PDF, PPT, DOC, or image — Max ${formatFileSize(CLOUDINARY_MAX_BYTES)}`}
+            validateFile={validateTrainingMaterial}
+            onFileChange={handleMaterialFileChange}
           />
-          <HazcomTextField
-            label="Trainer"
-            required
-            placeholder="e.g. Sarah Mitchell"
-            value={form.trainer}
-            onChange={(event) => updateField("trainer", event.target.value)}
-          />
-          <HazcomTextField
-            label="Topic / Training Title"
-            placeholder="e.g. GHS Right-to-Know"
-            value={form.topic}
-            onChange={(event) => updateField("topic", event.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <HazcomTextField
-            label="Chemicals Covered"
-            placeholder="e.g. HCI, Acetone, NaOH"
-            value={form.chemicals}
-            onChange={(event) => updateField("chemicals", event.target.value)}
-          />
-          <HazcomTextField
-            label="Attendees (count)"
-            type="number"
-            min={0}
-            placeholder="0"
-            value={form.attendees}
-            onChange={(event) => updateField("attendees", event.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2.5">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
-              Training Materials
-            </Text>
-            <Button
-              type="button"
-              variant="tertiary"
-              disabled={isUploadingMaterial}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Icon icon="mdi:upload" className="size-4" aria-hidden="true" />
-              {isUploadingMaterial ? "Uploading…" : "Add file"}
-            </Button>
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.ppt,.pptx,.doc,.docx,image/*"
-            className="hidden"
-            onChange={(event) => {
-              void handleMaterialUpload(event.target.files?.[0]);
-            }}
-          />
-          {form.materials.length === 0 ? (
-            <Text as="p" className="text4 text-ehs-muted-text">
-              No materials attached yet.
-            </Text>
-          ) : (
-            <ul className="flex flex-col gap-2">
+          {form.materials.length > 0 ? (
+            <ul className="mt-1 flex flex-col gap-2">
               {form.materials.map((material, index) => (
                 <li
                   key={`${material.fileUrl}-${String(index)}`}
                   className="border-ehs-border flex items-center justify-between gap-3 rounded-2.5 border bg-white/60 px-3 py-2"
                 >
-                  <Text
-                    as="span"
-                    className="text4 text-ehs-dark-bg min-w-0 truncate"
-                  >
-                    {material.fileName}
-                  </Text>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Icon
+                      icon="mdi:file-document-outline"
+                      className="text-ehs-muted-text size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text
+                      as="span"
+                      className="text4 text-ehs-darker min-w-0 truncate"
+                    >
+                      {material.fileName}
+                    </Text>
+                  </div>
                   <button
                     type="button"
                     className="text-ehs-muted-text hover:text-ehs-red shrink-0"
                     aria-label={`Remove ${material.fileName}`}
+                    disabled={busy}
                     onClick={() => removeMaterial(index)}
                   >
                     <Icon icon="mdi:close" className="size-4" />
@@ -290,19 +302,95 @@ export function HazcomNewTrainingSessionForm(
                 </li>
               ))}
             </ul>
-          )}
+          ) : null}
         </div>
 
-        <HazcomTextareaField
-          label="Notes"
-          placeholder="Additional notes..."
-          value={form.notes}
-          onChange={(event) => updateField("notes", event.target.value)}
-        />
+        <div className="flex w-full min-w-0 flex-col gap-4 sm:gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 gap-3.5 min-[800px]:grid-cols-2 sm:gap-4 lg:gap-x-6 lg:gap-y-5">
+            <ReportDateField
+              variant="embedded"
+              label="Session Date"
+              required
+              value={form.date}
+              onChange={(value) => updateField("date", value)}
+              placeholder="MM/DD/YYYY"
+              className="min-w-0"
+            />
 
-        <div className="mt-2 flex items-center justify-end gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+            <ReportPersonSearchField
+              variant="embedded"
+              label="Trainer"
+              required
+              value={form.trainer}
+              selectedUserId={form.trainerId}
+              onChange={({ name, userId }) => {
+                setForm((prev) => ({
+                  ...prev,
+                  trainer: name,
+                  trainerId: userId,
+                }));
+              }}
+              usersSource={usersSource}
+              siteId={siteId}
+              siteName={siteName}
+              placeholder="Start typing a name…"
+              trailingHint="Search people at your site."
+              className="min-w-0"
+            />
+
+            <ReportTextField
+              label="Topic / Training Title"
+              placeholder="e.g. GHS Right-to-Know"
+              value={form.topic}
+              onChange={(event) => updateField("topic", event.target.value)}
+              disabled={busy}
+              className="min-w-0"
+            />
+
+            <ReportTextField
+              label="Attendees (count)"
+              type="number"
+              min={0}
+              placeholder="0"
+              value={form.attendees}
+              onChange={(event) =>
+                updateField("attendees", event.target.value)
+              }
+              disabled={busy}
+              className="min-w-0"
+            />
+
+            <ReportTextField
+              label="Chemicals Covered"
+              placeholder="e.g. HCl, Acetone, NaOH"
+              value={form.chemicals}
+              onChange={(event) =>
+                updateField("chemicals", event.target.value)
+              }
+              disabled={busy}
+              className="min-w-0 min-[800px]:col-span-2"
+            />
+
+            <ReportTextareaField
+              label="Notes"
+              rows={4}
+              placeholder="Additional notes..."
+              value={form.notes}
+              disabled={busy}
+              onChange={(event) => updateField("notes", event.target.value)}
+              className="min-w-0 min-[800px]:col-span-2"
+            />
+          </div>
+        </div>
+
+        <div className="border-ehs-border flex flex-wrap items-center justify-end gap-2 border-t pt-4 sm:gap-3 sm:pt-5">
           <Link href={TRAINING_LOG_ROUTE}>
-            <Button type="button" variant="tertiary">
+            <Button
+              type="button"
+              variant="tertiary"
+              disabled={createTrainingLog.isPending}
+              className="text4 h-9 rounded-2.5 px-3 sm:h-9.5 sm:px-4"
+            >
               Cancel
             </Button>
           </Link>
@@ -310,13 +398,14 @@ export function HazcomNewTrainingSessionForm(
             type="submit"
             variant="primary"
             isLoading={createTrainingLog.isPending}
-            disabled={isUploadingMaterial}
+            disabled={busy}
+            className="text4 h-9 rounded-2.5 px-3 sm:h-9.5 sm:px-4"
           >
             <Icon icon="mdi:check" className="size-4" aria-hidden="true" />
             {createTrainingLog.isPending ? "Saving…" : "Save Session"}
           </Button>
         </div>
-      </form>
-    </HazcomGlassCard>
+      </div>
+    </form>
   );
 }

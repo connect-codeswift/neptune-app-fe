@@ -1,10 +1,8 @@
 "use client";
 
 import { Text } from "@/components/Text";
-import {
-  HazcomGlassCard,
-  type HazcomSdsSection,
-} from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import type { HazcomSdsSection } from "@/components/hazcom/shared";
 
 export type SdsViewerSectionNavProps = Readonly<{
   sections: readonly HazcomSdsSection[];
@@ -17,11 +15,13 @@ export function SdsViewerSectionNav(props: Readonly<SdsViewerSectionNavProps>) {
   const { sections, activeSection, onSelectSection, className = "" } = props;
 
   return (
-    <HazcomGlassCard paddingClassName="p-3" className={className}>
-      <Text
-        as="p"
-        className="text6 text-ehs-muted-text px-2 pt-1 pb-2"
-      >
+    <IncidentGlassCard
+      paddingClassName="p-3"
+      className={["min-w-0 xl:sticky xl:top-4", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Text as="p" className="text6 text-ehs-muted-text px-2 pt-1 pb-2">
         16 GHS Sections
       </Text>
 
@@ -42,11 +42,11 @@ export function SdsViewerSectionNav(props: Readonly<SdsViewerSectionNavProps>) {
                   : "text4 text-ehs-gray hover:bg-ehs-light-bg",
               ].join(" ")}
             >
-              {`${section.number} – ${section.title}`}
+              {`${String(section.number)} – ${section.title}`}
             </button>
           );
         })}
       </nav>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }
