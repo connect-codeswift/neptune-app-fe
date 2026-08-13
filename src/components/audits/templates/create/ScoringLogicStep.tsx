@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
@@ -18,8 +19,7 @@ import {
   type TemplateSection,
 } from "./template-builder-data";
 
-const labelClass =
-  "text-ehs-muted-text text-xs font-bold tracking-wider uppercase";
+const labelClass = "text6 text-ehs-muted-text";
 
 /** Same frame as GlassSelect's default trigger, minus the chevron. */
 const inputClass = FIELD_INPUT_LG_CLASS;
@@ -115,11 +115,11 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
         incidentGlassCardClassName="gap-5"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-ehs-dark-bg text-lg font-bold">
+          <Text as="h2" className="text3 text-ehs-dark-bg">
             Scoring Configuration
-          </h2>
+          </Text>
           <span className="flex items-center gap-2">
-            <span className="text-ehs-gray">Enable Scoring</span>
+            <span className="text4 text-ehs-gray">Enable Scoring</span>
             <Switch
               checked={scoring.enabled}
               label="Enable scoring"
@@ -146,14 +146,14 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 // The emphasized pill look. GlassSelect's value span carries
                 // its own color and the trigger its own text-left, so the
                 // pill's blue centered label is re-asserted on the span.
-                triggerClassName="border-ehs-normal-blue bg-ehs-normal-blue/15 text-ehs-dark-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border px-3 py-2.5 text-center text-sm font-bold transition outline-none focus:ring-2 [&>span]:text-center [&>span]:text-ehs-dark-blue"
+                triggerClassName="border-ehs-normal-blue bg-ehs-normal-blue/15 text5 text-ehs-dark-blue focus:ring-ehs-normal-blue/20 w-full rounded-xl border px-3 py-2.5 text-center transition outline-none focus:ring-2 [&>span]:text-center [&>span]:text-ehs-dark-blue"
               />
             </div>
 
             <div className="flex flex-col gap-2.5">
               <div className="flex items-center justify-between">
                 <span className={labelClass}>Pass Threshold</span>
-                <span className="text-ehs-dark-blue text-sm font-bold tabular-nums">
+                <span className="text7 text-ehs-dark-blue">
                   {`${String(scoring.passThreshold)}%`}
                 </span>
               </div>
@@ -182,7 +182,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 />
               </div>
 
-              <div className="mt-2 grid grid-cols-3 gap-2 text-center text-sm font-semibold">
+              <div className="text5 mt-2 grid grid-cols-3 gap-2 text-center">
                 <span className="text-ehs-green bg-ehs-dark-bg/6 rounded-lg py-2">
                   ≥80% Pass
                 </span>
@@ -195,16 +195,14 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
               </div>
             </div>
 
-            <p className="text-ehs-normal-blue bg-ehs-dark-bg/6 rounded-lg px-4 py-3 text-sm">
+            <p className="text4 text-ehs-normal-blue bg-ehs-dark-bg/6 rounded-lg px-4 py-3">
               (Total Scored ÷ Total Possible) × 100
             </p>
 
             <div className="flex items-center justify-between gap-3 border-t border-slate-900/10 pt-4">
               <span className="flex flex-col">
-                <span className="text-ehs-dark-bg font-bold">
-                  Score Visibility
-                </span>
-                <span className="text-ehs-muted-text text-sm">
+                <span className="text5 text-ehs-dark-bg">Score Visibility</span>
+                <span className="text4 text-ehs-muted-text">
                   Show score to user while completing form
                 </span>
               </span>
@@ -227,23 +225,23 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                       key={item.id}
                       className="flex items-center justify-between gap-3 rounded-lg bg-white p-2"
                     >
-                      <span className="text-ehs-gray min-w-0 flex-1 truncate">
+                      <span className="text4 text-ehs-gray min-w-0 flex-1 truncate">
                         {itemDisplayName(item)}
                       </span>
-                      <span className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-16 shrink-0 rounded-lg border border-slate-900/10 bg-white px-3 py-1.5 text-center text-sm tabular-nums outline-none focus:ring-2">
+                      <span className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 text7 w-16 shrink-0 rounded-lg border border-slate-900/10 bg-white px-3 py-1.5 text-center outline-none focus:ring-2">
                         {item.scoreWeight}
                       </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-ehs-muted-text text-sm">
+                <p className="text4 text-ehs-muted-text">
                   No items yet — add them in Step 2.
                 </p>
               )}
 
               {hiddenWeightCount > 0 ? (
-                <p className="text-ehs-muted-text text-xs">
+                <p className="text8 text-ehs-muted-text">
                   {`+${String(hiddenWeightCount)} more (edit in Step 2)`}
                 </p>
               ) : null}
@@ -256,7 +254,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
               className="text-ehs-muted-text/30 size-8"
               aria-hidden="true"
             />
-            <p className="text-ehs-gray/50">
+            <p className="text4 text-ehs-gray/50">
               Scoring disabled — items will be pass/fail only.
             </p>
           </div>
@@ -269,20 +267,20 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
         incidentGlassCardClassName="gap-4"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-ehs-dark-bg text-lg font-bold">
+          <Text as="h2" className="text3 text-ehs-dark-bg">
             Conditional Logic
-          </h2>
+          </Text>
           <button
             type="button"
             onClick={() => onRulesChange([...rules, createRule()])}
-            className="bg-ehs-normal-blue/12 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors"
+            className="bg-ehs-normal-blue/12 text4 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors"
           >
             <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
             Add Rule
           </button>
         </div>
 
-        <p className="text-ehs-muted-text text-sm">
+        <p className="text4 text-ehs-muted-text">
           Define IF/THEN rules to show or hide sections, mark items required, or
           jump to sections based on responses.
         </p>
@@ -297,7 +295,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 <div className="flex items-center justify-between gap-3">
                   <span
                     className={[
-                      "rounded-md px-2 py-0.5 text-2.75 font-bold tracking-wider uppercase",
+                      "text6 rounded-md px-2 py-0.5",
                       rule.active
                         ? "bg-ehs-normal-blue/15 text-ehs-dark-blue"
                         : "text-ehs-muted-text bg-slate-900/8",
@@ -338,7 +336,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="bg-ehs-blue/15 text-ehs-blue shrink-0 rounded-md px-2 py-1 text-xs font-bold">
+                  <span className="bg-ehs-blue/15 text6 text-ehs-blue shrink-0 rounded-md px-2 py-1">
                     IF
                   </span>
                   <TextInput
@@ -368,7 +366,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="bg-ehs-green/15 text-ehs-green shrink-0 rounded-md px-2 py-1 text-xs font-bold">
+                  <span className="bg-ehs-green/15 text6 text-ehs-green shrink-0 rounded-md px-2 py-1">
                     THEN
                   </span>
                   <Select
@@ -394,7 +392,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-ehs-muted-text rounded-xl border border-dashed border-slate-900/15 px-4 py-6 text-center text-sm">
+          <p className="text4 text-ehs-muted-text rounded-xl border border-dashed border-slate-900/15 px-4 py-6 text-center">
             No rules yet. Add one to define conditional behaviour.
           </p>
         )}

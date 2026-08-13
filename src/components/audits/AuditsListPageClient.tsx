@@ -1,17 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
-import { auditColumns } from "@/components/audits/AuditColumns";
+import { MetricCardsRow } from "@/components/ui/MetricCard";
+import { SkeletonTable } from "@/components/ui/skeletons";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
+import { createAuditColumns } from "@/components/audits/AuditColumns";
 import { AuditDetailPanel } from "@/components/audits/AuditDetailPanel";
-import {
-  AuditDetailPanelSkeleton,
-  AuditPageSkeleton,
-} from "@/components/audits/AuditPageSkeleton";
+import { AuditPageSkeleton } from "@/components/audits/AuditPageSkeleton";
+import { AuditsRegisterHeader } from "@/components/audits/AuditsRegisterHeader";
 import {
   useAuditDetailSummaryQuery,
   useAuditsQuery,
@@ -28,7 +33,6 @@ import {
   type RegisterStatusFilter,
 } from "@/lib/audit-inspection-status";
 import { detailSummaryErrorMessage } from "@/lib/audit-inspection-errors";
-import { MetricCardsRow } from "@/components/ui/MetricCard";
 import { getCurrentUser } from "@/lib/current-user";
 
 const PAGE_SIZE = 10;
@@ -82,7 +86,16 @@ export function AuditsListPageClient() {
     });
   }, [records, searchQuery]);
 
-  const detailSummaryQuery = useAuditDetailSummaryQuery(selectedId);
+  const selectedRecord =
+    selectedId == null
+      ? null
+      : (filteredRecords.find((record) => record.id === selectedId) ??
+        records.find((record) => record.id === selectedId) ??
+        null);
+
+  const detailSummaryQuery = useAuditDetailSummaryQuery(
+    selectedRecord?.id ?? null,
+  );
   const detail = useMemo(() => {
     const dto = detailSummaryQuery.data?.dataModel;
     return dto ? mapAuditDetailSummaryToDetail(dto) : null;
@@ -92,6 +105,39 @@ export function AuditsListPageClient() {
     () => mapSummaryToMetrics(summaryQuery.data?.dataModel, "audit"),
     [summaryQuery.data],
   );
+
+  useEffect(() => {
+    if (selectedId != null && selectedRecord == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedRecord]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedRecord != null;
+
+  const columns = useMemo(
+    () =>
+      createAuditColumns({
+        selectedId,
+        onViewMore: handleToggleDetailPanel,
+        expanded: !isPanelOpen,
+      }),
+    [selectedId, handleToggleDetailPanel, isPanelOpen],
+  );
+
+  const resultLabel = `${String(filteredRecords.length)} ${
+    filteredRecords.length === 1 ? "audit" : "audits"
+  }`;
+
+  const panelErrorMessage =
+    isPanelOpen && detailSummaryQuery.isError
+      ? detailSummaryErrorMessage(detailSummaryQuery.error)
+      : null;
+
+  const showListLoading = auditsQuery.isPending && !auditsQuery.data;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
@@ -104,86 +150,120 @@ export function AuditsListPageClient() {
             <MetricCardsRow metrics={metrics} />
 
             {summaryQuery.isError ? (
-              <p className="text-ehs-red text-sm">Could not load audit KPIs.</p>
+              <Text as="p" className="text4 text-ehs-red">
+                Could not load audit KPIs.
+              </Text>
             ) : null}
           </>
         )}
 
-        {auditsQuery.isPending && !auditsQuery.data ? (
-          <AuditPageSkeleton />
-        ) : (
-          <>
-            {auditsQuery.isError ? (
-              <p className="text-ehs-red text-sm">Could not load audits.</p>
-            ) : null}
+        <ModuleFilterBar
+          segments={[
+            {
+              label: "Status",
+              options: REGISTER_STATUS_FILTERS,
+              value: selectedStatus,
+              onChange: (value) => {
+                setSelectedStatus(value as RegisterStatusFilter);
+                setPageNumber(1);
+                setSelectedId(null);
+              },
+            },
+          ]}
+        />
 
-            <ModuleFilterBar
-              segments={[
-                {
-                  label: "Status",
-                  options: REGISTER_STATUS_FILTERS,
-                  value: selectedStatus,
-                  onChange: (value) => {
-                    setSelectedStatus(value as RegisterStatusFilter);
-                    setPageNumber(1);
-                  },
+        <ModuleSearchBar
+          value={searchQuery}
+          onChange={(value) => {
+            setSearchQuery(value);
+            setSelectedId(null);
+          }}
+          placeholder="Search by title, site, auditor..."
+          aria-label="Search audits"
+          resultLabel={resultLabel}
+        />
+
+        {auditsQuery.isError ? (
+          <IncidentGlassCard
+            className="min-h-45 text-center"
+            incidentGlassCardClassName="items-center justify-center gap-2"
+          >
+            <Icon
+              icon="mdi:alert-circle-outline"
+              className="text-ehs-red size-8"
+              aria-hidden="true"
+            />
+            <Text as="p" className="text4 text-ehs-darker">
+              Could not load audits
+            </Text>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void auditsQuery.refetch()}
+              className="mt-1"
+            >
+              Retry
+            </Button>
+          </IncidentGlassCard>
+        ) : null}
+
+        {showListLoading ? <SkeletonTable rows={8} columns={6} /> : null}
+
+        {!showListLoading && !auditsQuery.isError ? (
+          <div
+            className={[
+              "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+              isPanelOpen
+                ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                : "xl:grid-cols-1",
+            ].join(" ")}
+          >
+            <Table
+              variant="compliance"
+              data={filteredRecords}
+              columns={columns}
+              selectedRowId={selectedId}
+              getRowId={(row) => row.id}
+              containerClassName={[complianceGlassCardClass, "min-w-0"].join(
+                " ",
+              )}
+              header={
+                <AuditsRegisterHeader
+                  auditCount={page?.totalRecords ?? 0}
+                  onTemplates={() => {
+                    router.push("/dashboard/audits/template");
+                  }}
+                  onStartAudit={() => {
+                    router.push("/dashboard/audits/start");
+                  }}
+                />
+              }
+              pagination={{
+                pageNumber,
+                pageSize: PAGE_SIZE,
+                totalRecords: page?.totalRecords ?? 0,
+                onPageChange: (nextPage) => {
+                  setPageNumber(nextPage);
+                  setSelectedId(null);
                 },
-              ]}
-              action={{
-                label: "Templates",
-                icon: "mdi:file-document-outline",
-                onClick: () => {
-                  router.push("/dashboard/audits/template");
-                },
+                isLoading: auditsQuery.isFetching,
               }}
             />
 
-            <ModuleSearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search by title, site, auditor..."
-              aria-label="Search audits"
-            />
-
-            <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-              <Table
-                data={filteredRecords}
-                columns={auditColumns}
-                selectedRowId={selectedId}
-                onRowClick={(row) => setSelectedId(row.id)}
-                getRowId={(row) => row.id}
-                containerClassName="min-w-0"
-                pagination={{
-                  pageNumber,
-                  pageSize: PAGE_SIZE,
-                  totalRecords: page?.totalRecords ?? 0,
-                  onPageChange: setPageNumber,
-                  isLoading: auditsQuery.isFetching,
+            {isPanelOpen ? (
+              <AuditDetailPanel
+                record={selectedRecord}
+                detail={detail}
+                isLoading={detailSummaryQuery.isLoading}
+                errorMessage={panelErrorMessage}
+                onRetry={() => {
+                  void detailSummaryQuery.refetch();
                 }}
+                className="min-w-0 xl:sticky xl:top-4"
               />
-
-              {selectedId !== null ? (
-                detailSummaryQuery.isPending ? (
-                  <AuditDetailPanelSkeleton />
-                ) : detailSummaryQuery.isError ? (
-                  <p className="text-ehs-red text-sm">
-                    {detailSummaryErrorMessage(detailSummaryQuery.error)}
-                  </p>
-                ) : detail ? (
-                  <AuditDetailPanel
-                    detail={detail}
-                    className="min-w-0"
-                    onViewFindings={() =>
-                      router.push(
-                        `/dashboard/audits/findings/${encodeURIComponent(selectedId)}`,
-                      )
-                    }
-                  />
-                ) : null
-              ) : null}
-            </div>
-          </>
-        )}
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );
