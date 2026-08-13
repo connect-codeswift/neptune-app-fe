@@ -47,16 +47,26 @@ export type CapaDetailRecord = Readonly<{
   id: string;
   /** Numeric API id for CAPA mutations. */
   numericId: number;
+  /** Linked RCA id from CAPA; `null` when none. */
+  rcaId: number | null;
   /** Linked incident id when known; `0` for standalone. */
   incidentId: number;
+  /** CAPA creator user id (GET /CAPA/Comments `userId`). */
+  userId: number;
+  /** CAPA assignee user id (GET /CAPA/Comments `assignedId`). */
+  assignedId: number;
   code: string;
   title: string;
   priority: CapaDetailPriority;
   typeLabel: string;
   statusLabel: string;
+  /** Hierarchy of controls level from the API. */
+  controlLevel: string;
   owner: string;
   verifier: string;
   dueDate: string;
+  /** Formatted remaining / overdue label from API `daysLeft`. */
+  daysLeftLabel: string;
   source: string;
   module: string;
   /** 1-based current workflow step. */
@@ -176,17 +186,22 @@ const FIGMA_DETAIL: Omit<
   CapaDetailRecord,
   | "id"
   | "numericId"
+  | "rcaId"
   | "incidentId"
+  | "userId"
+  | "assignedId"
   | "code"
   | "title"
   | "owner"
   | "dueDate"
+  | "daysLeftLabel"
   | "progress"
   | "source"
 > = {
   priority: "Critical",
   typeLabel: "Corrective Action",
   statusLabel: "In Progress",
+  controlLevel: "Engineering Controls",
   verifier: "Sarah Mitchell",
   module: "Incident",
   workflowStep: 3,
@@ -220,18 +235,23 @@ function statusFromDashboard(status: CapaDashboardItem["status"]): string {
 
 function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
   const isPrimary = item.id === "capa-0421";
-  const numericId = parseCapaNumericId(item.code) || parseCapaNumericId(item.id);
+  const numericId =
+    parseCapaNumericId(item.code) || parseCapaNumericId(item.id);
 
   if (isPrimary) {
     return {
       ...FIGMA_DETAIL,
       id: item.id,
       numericId,
+      rcaId: null,
       incidentId: 0,
+      userId: 0,
+      assignedId: 0,
       code: item.code,
       title: item.title,
       owner: item.owner,
       dueDate: item.dueDate,
+      daysLeftLabel: item.dueLabel,
       progress: item.progress,
       source:
         item.source.replace(/^From\s+/i, "").split(" · ")[0] ?? item.source,
@@ -241,15 +261,20 @@ function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
   return {
     id: item.id,
     numericId,
+    rcaId: null,
     incidentId: 0,
+    userId: 0,
+    assignedId: 0,
     code: item.code,
     title: item.title,
     priority: priorityFromDashboard(item.priority),
     typeLabel: `${item.type} Action`,
     statusLabel: statusFromDashboard(item.status),
+    controlLevel: item.control,
     owner: item.owner,
     verifier: "Sarah Mitchell",
     dueDate: item.dueDate,
+    daysLeftLabel: item.dueLabel,
     source: item.source.replace(/^From\s+/i, "").split(" · ")[0] ?? item.source,
     module: "Incident",
     workflowStep: Math.min(Math.max(item.lifecycleStep, 1), 6),

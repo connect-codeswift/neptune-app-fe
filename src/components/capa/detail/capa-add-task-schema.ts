@@ -1,39 +1,21 @@
 import {
   createInitialValues,
-  type FieldConfig,
   type FormSchema,
   type FormValues,
 } from "@/components/form-builder";
 
 export const CAPA_ADD_TASK_FORM_ID = "capa-add-task-form";
 
-export type CapaAddTaskFormOptions = Readonly<{
-  siteId: number;
-  siteName?: string | null;
-}>;
-
-/** FormBuilder schema for CAPA detail Add Task modal — Figma 5491:23536. */
-export function buildCapaAddTaskSchema(
-  options: CapaAddTaskFormOptions,
-): FormSchema {
-  const fields: FieldConfig[] = [
+/** FormBuilder schema for CAPA Add Task modal — Figma 5491:23536. */
+export function buildCapaAddTaskSchema(): FormSchema {
+  return [
     {
       type: "text",
       name: "name",
       label: "Task Name",
       required: true,
       colSpan: 12,
-      placeholder:
-        "Perform post-installation inspection of structural acrylic shield",
-    },
-    {
-      type: "textarea",
-      name: "description",
-      label: "Description",
-      colSpan: 12,
-      rows: 4,
-      placeholder:
-        "Detail the measurements, testing conditions, and confirm safety trigger limit compliance...",
+      placeholder: "Describe the task action...",
     },
     {
       type: "person",
@@ -41,8 +23,7 @@ export function buildCapaAddTaskSchema(
       label: "Assigned To",
       required: true,
       colSpan: 6,
-      siteId: options.siteId,
-      siteName: options.siteName,
+      usersSource: "dropdown",
       displayNameField: "assignedName",
       placeholder: "Select assignee",
     },
@@ -67,15 +48,12 @@ export function buildCapaAddTaskSchema(
       ],
     },
   ];
-
-  return fields;
 }
 
 export function createCapaAddTaskInitialValues(schema: FormSchema): FormValues {
   return {
     ...createInitialValues(schema),
     name: "",
-    description: "",
     assigned: "",
     assignedName: "",
     dueDate: "",

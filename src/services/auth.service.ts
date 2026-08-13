@@ -81,6 +81,15 @@ async function loginUser(credentials: LoginRequestDto) {
   return tokens;
 }
 
+/** Stores a token pair and its access window as the live session. */
+function persistSession(tokens: LoginResponseDto) {
+  setAccessToken(tokens.accessToken);
+  setRefreshToken(tokens.refreshToken);
+  setCachedAccessWindow(readAccessWindowFromAuthPayload(tokens));
+
+  return tokens;
+}
+
 export async function authenticateUser(credentials: LoginRequestDto) {
   const tokens = await loginUser(credentials);
 
@@ -93,13 +102,7 @@ export async function authenticateUser(credentials: LoginRequestDto) {
     );
   }
 
-  setAccessToken(tokens.accessToken);
-  setRefreshToken(tokens.refreshToken);
-
-  const accessWindow = readAccessWindowFromAuthPayload(tokens);
-  setCachedAccessWindow(accessWindow);
-
-  return tokens;
+  return persistSession(tokens);
 }
 
 export async function completeRegistration(
@@ -124,20 +127,50 @@ export async function forgotPassword(payload: ForgotPasswordRequestDto) {
   await http.post(AUTH_FORGOT_PASSWORD_PATH, payload);
 }
 
+/** The invited address, when the endpoint echoes it back. */
+function readAcceptedEmail(data: unknown): string | null {
+  const payload = unwrapAuthPayload(data);
+  const email = payload?.email ?? payload?.Email;
+
+  return typeof email === "string" && email.trim() !== "" ? email.trim() : null;
+}
+
 /**
  * Finishes an invitation: sets the password on the pending user row and flips IsInvited off.
  *
- * The endpoint issues no session of its own, so we log in immediately afterwards with the
- * password just chosen. That token is what the optional MFA step needs — /Auth/mfa/setup and
- * /Auth/mfa/enable are both [Authorize]d, so without it there is nothing to attach the
+ * Returns the session it managed to establish, or `null` if it could not — the caller decides
+ * between offering 2FA and sending the user to sign in.
+ *
+ * Getting a session here is what makes the optional MFA step possible at all: /Auth/mfa/setup
+ * and /Auth/mfa/enable are both [Authorize]d, so with no token there is nothing to attach an
  * authenticator to and the invitee would have to sign in a second time to add 2FA.
+ *
+ * It used to be simple — log in with `payload.email` and the password just chosen. The token
+ * refactor took `email` out of the request, and the endpoint is documented only as returning
+ * 200, so there is no longer a guaranteed way to name the account we just set up. Hence the
+ * three-way probe: a token pair in the response is used directly, an echoed email is logged in
+ * with, and neither means the account is fine but unauthenticated. Collapse this back to one
+ * path once the response shape is pinned down.
  */
 export async function acceptInvitation(payload: AcceptInvitationRequestDto) {
-  await http.post<ApiEnvelopeDto<string>>(USER_ACCEPT_INVITATION_PATH, payload);
+  const { data } = await http.post<ApiEnvelopeDto<unknown>>(
+    USER_ACCEPT_INVITATION_PATH,
+    payload,
+  );
 
-  // A freshly accepted user always has MfaEnabled false, so login returns tokens
-  // outright rather than an MFA challenge.
-  return authenticateUser({ email: payload.email, password: payload.password });
+  const issuedTokens = readLoginTokens(data);
+  if (issuedTokens) {
+    return persistSession(issuedTokens);
+  }
+
+  const email = readAcceptedEmail(data);
+  if (email) {
+    // A freshly accepted user always has MfaEnabled false, so login returns tokens
+    // outright rather than an MFA challenge.
+    return authenticateUser({ email, password: payload.password });
+  }
+
+  return null;
 }
 
 export async function setupMfa() {

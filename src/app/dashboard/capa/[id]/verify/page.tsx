@@ -1,7 +1,5 @@
-import { notFound } from "next/navigation";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { CapaVerificationContent } from "@/components/capa/detail/CapaVerificationContent";
-import { getCapaDetailById } from "@/components/capa/detail/capa-detail-data";
 
 /** CAPA Verification — Figma 846:6031. */
 export default async function CapaVerificationPage({
@@ -10,16 +8,11 @@ export default async function CapaVerificationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const record = getCapaDetailById(decodeURIComponent(id));
-
-  if (!record) {
-    notFound();
-  }
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <DashboardHeader title="CAPA Verification" showSiteSwitcher />
-      <CapaVerificationContent record={record} />
+      <CapaVerificationContent capaId={id} />
     </div>
   );
 }

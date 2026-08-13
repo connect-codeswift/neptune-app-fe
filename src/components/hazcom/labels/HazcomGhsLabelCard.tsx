@@ -100,7 +100,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       {chemical.hazardStatements.length > 0 ? (
         <p className="text8 text-ehs-darker leading-relaxed">
           <Text as="span" className="text7 text-ehs-darker">
-            Hazard:{" "}
+            {"Hazard: "}
           </Text>
           {chemical.hazardStatements
             .map((statement) => `${statement.code} – ${statement.text}`)
@@ -111,7 +111,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
       {chemical.precautionaryStatements.length > 0 ? (
         <p className="text8 text-ehs-darker leading-relaxed">
           <Text as="span" className="text7 text-ehs-darker">
-            Precaution:{" "}
+            {"Precaution: "}
           </Text>
           {chemical.precautionaryStatements
             .map((statement) => `${statement.code} – ${statement.text}`)

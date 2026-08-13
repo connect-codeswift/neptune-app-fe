@@ -11,11 +11,9 @@ import {
 } from "@/components/capa/detail/capa-add-task-schema";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
-import { useCurrentSite } from "@/hooks/use-current-site";
 
 export type CapaDetailAddTaskDraft = Readonly<{
   name: string;
-  description: string;
   assigneeName: string;
   assigneeUserId: string;
   dueDate: string;
@@ -25,6 +23,8 @@ export type CapaDetailAddTaskDraft = Readonly<{
 export type CapaDetailAddTaskModalProps = Readonly<{
   onClose: () => void;
   isSubmitting?: boolean;
+  /** Primary button label. Defaults to "Assign Task". */
+  confirmLabel?: string;
   onAssign?: (task: CapaDetailAddTaskDraft) => void | Promise<void>;
 }>;
 
@@ -32,19 +32,16 @@ export type CapaDetailAddTaskModalProps = Readonly<{
 export function CapaDetailAddTaskModal(
   props: Readonly<CapaDetailAddTaskModalProps>,
 ) {
-  const { onClose, onAssign, isSubmitting = false } = props;
-  const site = useCurrentSite();
+  const {
+    onClose,
+    onAssign,
+    isSubmitting = false,
+    confirmLabel = "Assign Task",
+  } = props;
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
   const busy = isSubmitting || isLocalSubmitting;
 
-  const schema = useMemo(
-    () =>
-      buildCapaAddTaskSchema({
-        siteId: site.id,
-        siteName: site.name,
-      }),
-    [site.id, site.name],
-  );
+  const schema = useMemo(() => buildCapaAddTaskSchema(), []);
 
   const initialValues = useMemo(
     () => createCapaAddTaskInitialValues(schema),
@@ -73,7 +70,6 @@ export function CapaDetailAddTaskModal(
     try {
       await onAssign?.({
         name: fieldString(values, "name").trim(),
-        description: fieldString(values, "description").trim(),
         assigneeName: fieldString(values, "assignedName").trim(),
         assigneeUserId: fieldString(values, "assigned").trim(),
         dueDate: fieldString(values, "dueDate"),
@@ -150,7 +146,7 @@ export function CapaDetailAddTaskModal(
             disabled={busy}
             className="cursor-pointer rounded-2.5 bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {busy ? "Assigning…" : "Assign Task"}
+            {busy ? "Saving…" : confirmLabel}
           </button>
         </footer>
       </div>

@@ -35,13 +35,13 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
 
       <div className="flex flex-col gap-3">
         <MetaRow label="Type">
-          <Text as="span" className="text-sm text-[#0b1320]">
+          <Text as="span" className="text-base text-[#0b1320]">
             {record.typeLabel}
           </Text>
         </MetaRow>
 
         <MetaRow label="Priority">
-          <span className="inline-flex items-center rounded-md bg-[rgba(239,68,68,0.16)] px-2 py-0.5 text-sm font-semibold tracking-[0.11px] text-[#7f1d1d]">
+          <span className="inline-flex items-center rounded-md bg-[rgba(239,68,68,0.16)] px-2 py-0.5 text-base font-semibold tracking-[0.11px] text-[#7f1d1d]">
             {record.priority}
           </span>
         </MetaRow>
@@ -54,31 +54,45 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
         </MetaRow>
 
         <MetaRow label="Owner">
-          <Text as="span" className="text-sm text-[#0b1320]">
+          <Text as="span" className="text-base text-[#0b1320]">
             {record.owner}
           </Text>
         </MetaRow>
 
         <MetaRow label="Verifier">
-          <Text as="span" className="text-sm text-[#0b1320]">
+          <Text as="span" className="text-base text-[#0b1320]">
             {record.verifier}
           </Text>
         </MetaRow>
 
         <MetaRow label="Due Date">
-          <Text as="span" className="text-sm text-[#0b1320] tabular-nums">
+          <Text as="span" className="text-base text-[#0b1320] tabular-nums">
             {record.dueDate}
           </Text>
         </MetaRow>
 
+        <MetaRow label="Days left">
+          <Text
+            as="span"
+            className={[
+              "text-base tabular-nums",
+              record.daysLeftLabel === "Overdue"
+                ? "font-semibold text-[#b91c1c]"
+                : "text-[#0b1320]",
+            ].join(" ")}
+          >
+            {record.daysLeftLabel}
+          </Text>
+        </MetaRow>
+
         <MetaRow label="Source">
-          <Text as="span" className="text-sm text-[#0891a6]">
+          <Text as="span" className="text-base text-[#0891a6]">
             {record.source}
           </Text>
         </MetaRow>
 
         <MetaRow label="Module">
-          <Text as="span" className="text-sm text-[#0b1320]">
+          <Text as="span" className="text-base text-[#0b1320]">
             {record.module}
           </Text>
         </MetaRow>

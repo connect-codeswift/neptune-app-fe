@@ -7,16 +7,19 @@ import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto
 import { getAuthContext } from "@/lib/auth-context";
 import {
   createCapa,
+  createCapaComment,
   createCapaTask,
   deleteCapaTask,
   submitCapaVerification,
   updateCapa,
+  uploadCapaAttachments,
 } from "@/services/capa.service";
 import {
   buildCreateCapaTaskRequest,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
   buildVerifiedCapaUpdateRequest,
+  formAttachmentValuesToDtos,
 } from "@/services/mappers/capa.mapper";
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
 
@@ -53,11 +56,107 @@ export type CreateCapaTaskInput = Readonly<{
   priority?: string;
 }>;
 
+export type CreateCapaCommentInput = Readonly<{
+  capaId: number;
+  assignedId: number;
+  description: string;
+  title?: string;
+}>;
+
+export type UploadCapaAttachmentsInput = Readonly<{
+  capaId: number;
+  /** FormBuilder `attachments` photo field value (Cloudinary URLs). */
+  attachments: unknown;
+}>;
+
 export type DeleteCapaTaskInput = Readonly<{
   taskId: number;
   capaId: number;
   incidentId: number;
 }>;
+
+export function useUploadCapaAttachmentsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UploadCapaAttachmentsInput) => {
+      const auth = getAuthContext();
+      if (!auth || auth.userId <= 0) {
+        throw new Error("Sign in required to upload CAPA attachments.");
+      }
+
+      if (!Number.isFinite(input.capaId) || input.capaId <= 0) {
+        throw new Error("CAPA id is required to upload attachments.");
+      }
+
+      const attachments = formAttachmentValuesToDtos(input.attachments);
+      if (attachments.length === 0) {
+        throw new Error("Add at least one uploaded file before saving.");
+      }
+
+      return uploadCapaAttachments({
+        capaId: Math.trunc(input.capaId),
+        userId: auth.userId,
+        attachments,
+      });
+    },
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.attachments(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+    },
+  });
+}
+
+export function useCreateCapaCommentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateCapaCommentInput) => {
+      const auth = getAuthContext();
+      if (!auth || auth.userId <= 0) {
+        throw new Error("Sign in required to post a CAPA comment.");
+      }
+
+      const description = input.description.trim();
+      if (!description) {
+        throw new Error("Comment text is required.");
+      }
+
+      if (!Number.isFinite(input.capaId) || input.capaId <= 0) {
+        throw new Error("CAPA id is required to post a comment.");
+      }
+
+      const assignedId =
+        Number.isFinite(input.assignedId) && input.assignedId > 0
+          ? Math.trunc(input.assignedId)
+          : auth.userId;
+
+      // POST /api/CAPA/Comment — body matches OpenAPI CapaCommentDto.
+      return createCapaComment({
+        capaId: Math.trunc(input.capaId),
+        title: input.title?.trim() || "Comment",
+        description,
+        userId: auth.userId,
+        assignedId,
+      });
+    },
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: [...capaQueryKeys.all, "comments"],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+    },
+  });
+}
 
 export function useCreateCapaTaskMutation() {
   const queryClient = useQueryClient();
@@ -205,6 +304,43 @@ export type VerifyCapaInput = Readonly<{
   effectiveness: CapaEffectiveness;
   notes?: string;
 }>;
+
+export type SubmitCapaVerificationInput = Readonly<{
+  capaId: number;
+  effectiveness: CapaEffectiveness;
+  notes?: string;
+  checklist?: readonly { item: string; isChecked: boolean }[];
+}>;
+
+/** POST /api/CAPA/Verification — used by the CAPA detail verify page. */
+export function useSubmitCapaVerificationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: SubmitCapaVerificationInput) => {
+      return submitCapaVerification(
+        buildCapaVerificationRequest({
+          capaId: input.capaId,
+          effectiveness: input.effectiveness,
+          notes: input.notes,
+          checklist: input.checklist,
+        }),
+      );
+    },
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.verification(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
 
 export function useVerifyCapaMutation() {
   const queryClient = useQueryClient();

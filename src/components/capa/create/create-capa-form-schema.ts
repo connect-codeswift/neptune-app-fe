@@ -1,22 +1,14 @@
 import {
   createInitialValues,
-  type FieldConfig,
   type FormSchema,
   type FormValues,
 } from "@/components/form-builder";
 
 export const CREATE_CAPA_FORM_ID = "create-capa-form";
 
-export type CreateCapaFormOptions = Readonly<{
-  siteId: number;
-  siteName?: string | null;
-}>;
-
 /** FormBuilder schema for Create CAPA step 2 — Figma 7123:41554. */
-export function buildCreateCapaSchema(
-  options: CreateCapaFormOptions,
-): FormSchema {
-  const fields: FieldConfig[] = [
+export function buildCreateCapaSchema(): FormSchema {
+  return [
     {
       type: "textarea",
       name: "description",
@@ -43,8 +35,7 @@ export function buildCreateCapaSchema(
       name: "assigned",
       label: "Assigned",
       colSpan: 6,
-      siteId: options.siteId,
-      siteName: options.siteName,
+      usersSource: "dropdown",
       displayNameField: "assignedName",
       placeholder: "e.g. M. Torres",
     },
@@ -69,8 +60,6 @@ export function buildCreateCapaSchema(
       ],
     },
   ];
-
-  return fields;
 }
 
 export function createCreateCapaInitialValues(schema: FormSchema): FormValues {

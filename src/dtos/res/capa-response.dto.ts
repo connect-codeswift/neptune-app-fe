@@ -17,8 +17,11 @@ export type CapaDto = {
   isDrop?: boolean;
   /** Undocumented / future fields */
   status?: string | null;
+  /** Remaining days until due; negative when overdue (list API). */
+  daysLeft?: number | null;
   progressPercent?: number | null;
   progress?: number | null;
+  progressPercentage?: number | null;
   assigneeName?: string | null;
   ownerName?: string | null;
   code?: string | null;

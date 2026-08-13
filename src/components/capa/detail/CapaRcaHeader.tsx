@@ -19,7 +19,7 @@ export type CapaRcaHeaderProps = Readonly<{
 /** Horizontal RCA hero — Figma 5472:19846 (title + meta + description). */
 export function CapaRcaHeader(props: CapaRcaHeaderProps) {
   const { record, worksheet, categories, whySteps, actions } = props;
-  const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(record.id)}`;
+  const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}`;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
