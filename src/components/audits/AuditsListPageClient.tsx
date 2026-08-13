@@ -175,7 +175,7 @@ export function AuditsListPageClient() {
                     className="min-w-0"
                     onViewFindings={() =>
                       router.push(
-                        `/dashboard/audits/findings/${encodeURIComponent(selectedId)}`,
+                        `/dashboard/audits/report?auditid=${encodeURIComponent(selectedId)}`,
                       )
                     }
                   />

@@ -8,6 +8,7 @@ import {
   CAPA_VERIFICATION_SCHEMA,
 } from "@/components/capa/detail/capa-verification-schema";
 import { CapaVerificationHeader } from "@/components/capa/detail/CapaVerificationHeader";
+import { CapaVerificationSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -152,13 +153,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
   }
 
   if (isBootstrapping) {
-    return (
-      <div className="flex min-w-0 flex-col gap-3 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading verification…
-        </Text>
-      </div>
-    );
+    return <CapaVerificationSkeleton />;
   }
 
   if (detailQuery.isError || !record) {
@@ -188,7 +183,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
       {showNoVerificationBanner ? (
         <div
           role="status"
-          className="rounded-[10px] border border-[rgba(245,158,11,0.35)] bg-[rgba(245,158,11,0.12)] px-4 py-3"
+          className="rounded-2.5 border border-[rgba(245,158,11,0.35)] bg-[rgba(245,158,11,0.12)] px-4 py-3"
         >
           <Text as="p" className="text-sm leading-5 font-medium text-[#92400e]">
             {NO_VERIFICATION_MESSAGE}

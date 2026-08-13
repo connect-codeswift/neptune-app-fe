@@ -89,13 +89,13 @@ function LifecycleDonut(
 
 function LifecycleCardSkeleton() {
   return (
-    <IncidentGlassCard paddingClassName="p-[21px]" className="min-w-0">
+    <IncidentGlassCard paddingClassName="p-5.25" className="min-w-0">
       <div className="mb-5">
         <div className="bg-ehs-border/40 h-5 w-24 animate-pulse rounded" />
         <div className="bg-ehs-border/30 mt-2 h-3 w-16 animate-pulse rounded" />
       </div>
       <div className="flex flex-wrap items-center gap-5">
-        <div className="bg-ehs-border/30 size-[140px] animate-pulse rounded-full" />
+        <div className="bg-ehs-border/30 size-35 animate-pulse rounded-full" />
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           {Array.from({ length: 4 }, (_, index) => (
             <div

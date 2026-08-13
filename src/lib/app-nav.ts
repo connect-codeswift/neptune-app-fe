@@ -193,8 +193,8 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
     items: [
       {
         label: "Industrial Hygiene",
-        href: "/dashboard/health-emissions",
-        icon: "mdi:leaf",
+        href: "/dashboard/industrial-hygiene",
+        icon: "mdi:flask-outline",
         moduleCode: "INDUSTRIAL_HYGIENE",
         requiredPermissions: ["View Claims", "View Medical Records"],
       },
