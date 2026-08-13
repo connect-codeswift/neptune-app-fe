@@ -19,6 +19,10 @@ export function SiteWorkHoursMissingBanner() {
     return null;
   }
 
+  if (workHoursQuery.isError) {
+    return null;
+  }
+
   if (hasSufficientSiteWorkHours(workHoursQuery.data?.dataModel)) {
     return null;
   }

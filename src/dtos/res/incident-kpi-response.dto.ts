@@ -4,12 +4,16 @@ export type IncidentKpiStatusDto = "OnTarget" | "OffTarget" | null;
 
 /** One KPI card returned by header/list KPI endpoints. */
 export type IncidentKpiCardDto = {
-  value: number;
+  /** Null means "not measurable yet", never zero. */
+  value: number | null;
   unit: string;
   target: number | null;
   status: IncidentKpiStatusDto;
-  trend: number[];
+  /** Oldest → newest, one point per week. A null point is a week with no data. */
+  trend: (number | null)[];
   trendDelta: number | null;
+  /** How many weeks apart the two points behind `trendDelta` sit. 1 = week-over-week. */
+  trendDeltaWeeks: number | null;
 };
 
 /** dataModel shape for GET /api/Incident/GetHeaderKpi. */
