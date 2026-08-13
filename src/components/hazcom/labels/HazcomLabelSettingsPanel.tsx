@@ -3,9 +3,9 @@
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   HAZCOM_FIELD_LABEL_CLASS,
-  HazcomGlassCard,
   HazcomSelectField,
   HazcomTextareaField,
   type HazcomChemical,
@@ -83,7 +83,7 @@ export function HazcomLabelSettingsPanel(
         .filter(Boolean)
         .join(" ")}
     >
-      <HazcomGlassCard paddingClassName="p-5">
+      <IncidentGlassCard paddingClassName="p-5">
         <div className="flex flex-col gap-5">
           <Text as="h2" className="text3 text-ehs-darker">
             Label Settings
@@ -184,7 +184,7 @@ export function HazcomLabelSettingsPanel(
             placeholder="Something for internal use only got it?"
           />
         </div>
-      </HazcomGlassCard>
+      </IncidentGlassCard>
 
       <Button
         type="button"

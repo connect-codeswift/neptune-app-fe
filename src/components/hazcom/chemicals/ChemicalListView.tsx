@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Icon } from "@iconify/react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Text } from "@/components/Text";
 import {
+  HazcomDetailPanel,
   HazcomErrorCard,
   HazcomLoadingCard,
   HazcomModuleTabs,
   HazcomPageHeader,
   HazcomPager,
+  HazcomRegisterHeader,
 } from "@/components/hazcom/shared";
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
@@ -32,6 +32,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(DEFAULT_CHEMICALS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_CHEMICALS_PAGE_SIZE);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const {
     items: chemicals,
@@ -55,13 +56,76 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
     [chemicals, searchQuery],
   );
 
+  const selectedChemical = useMemo(
+    () =>
+      selectedId == null
+        ? null
+        : (filteredChemicals.find((chemical) => chemical.id === selectedId) ??
+          chemicals.find((chemical) => chemical.id === selectedId) ??
+          null),
+    [selectedId, filteredChemicals, chemicals],
+  );
+
+  useEffect(() => {
+    if (selectedId != null && selectedChemical == null) {
+      setSelectedId(null);
+    }
+  }, [selectedId, selectedChemical]);
+
+  const handleToggleDetailPanel = useCallback((id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  }, []);
+
+  const isPanelOpen = selectedChemical != null;
+
   const resultLabel = `${String(filteredChemicals.length)} ${
     filteredChemicals.length === 1 ? "chemical" : "chemicals"
   }`;
 
+  const handleSearchChange = (next: string) => {
+    setSearchQuery(next);
+    setSelectedId(null);
+  };
+
+  const chemicalMetaFields = selectedChemical
+    ? [
+        {
+          label: "Dispose location",
+          value: selectedChemical.disposeLocation ?? "Not recorded",
+        },
+        {
+          label: "Added",
+          value: selectedChemical.addedOn || "—",
+        },
+        {
+          label: "SDS file",
+          value: selectedChemical.sdsFileName ?? "Not linked",
+        },
+        {
+          label: "Hazard codes",
+          value:
+            selectedChemical.hazardStatements
+              .slice(0, 2)
+              .map((statement) => statement.code)
+              .join(", ") || "—",
+        },
+        {
+          label: "Precaution codes",
+          value:
+            selectedChemical.precautionaryStatements
+              .slice(0, 2)
+              .map((statement) => statement.code)
+              .join(", ") || "—",
+        },
+      ]
+    : [];
+
   return (
     <div
-      className={["flex min-w-0 flex-col gap-5 px-3 lg:px-4", className]
+      className={[
+        "flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8",
+        className,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
@@ -71,39 +135,11 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         breadcrumb={["Safety", "HazCom", "Chemical Inventory"]}
         title="Chemical Inventory"
         subtitle="All hazardous chemicals on-site — quantities, locations, and SDS links"
-        actions={
-          <>
-            <Button
-              type="button"
-              variant="tertiary"
-              disabled={chemicals.length === 0}
-              onClick={() => exportChemicalsToCsv(chemicals)}
-              className="text4 rounded-lg px-4 py-2"
-            >
-              <Icon
-                icon="mdi:download"
-                className="size-4"
-                aria-hidden="true"
-              />
-              Export
-            </Button>
-            <Link href="/dashboard/hazcom/chemicals/new">
-              <Button
-                type="button"
-                variant="primary"
-                className="text4 rounded-lg px-4 py-2"
-              >
-                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
-                Add Chemical
-              </Button>
-            </Link>
-          </>
-        }
       />
 
       <ModuleSearchBar
         value={searchQuery}
-        onChange={setSearchQuery}
+        onChange={handleSearchChange}
         placeholder="Search by name, CAS#, location..."
         aria-label="Search chemicals"
         resultLabel={resultLabel}
@@ -123,13 +159,79 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
 
       {!errorMessage && !isLoading ? (
         <>
-          <ChemicalListTable chemicals={filteredChemicals} />
+          <div
+            className={[
+              "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+              isPanelOpen
+                ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+                : "xl:grid-cols-1",
+            ].join(" ")}
+          >
+            <ChemicalListTable
+              chemicals={filteredChemicals}
+              selectedId={selectedId}
+              onViewMore={handleToggleDetailPanel}
+              header={
+                <HazcomRegisterHeader
+                  title="Inventory"
+                  count={totalRecords}
+                  countNoun="chemical"
+                  primaryHref="/dashboard/hazcom/chemicals/new"
+                  primaryLabel="Add Chemical"
+                  primaryShortLabel="Add"
+                  secondaryAction={{
+                    label: "Export",
+                    icon: "mdi:download",
+                    disabled: chemicals.length === 0,
+                    onClick: () => exportChemicalsToCsv(chemicals),
+                  }}
+                />
+              }
+            />
+
+            {isPanelOpen && selectedChemical ? (
+              <HazcomDetailPanel
+                item={{
+                  id: selectedChemical.id,
+                  title: selectedChemical.name,
+                  subtitle: selectedChemical.sdsRecordId
+                    ? `SDS ${selectedChemical.sdsRecordId}`
+                    : "No SDS record linked",
+                }}
+                emptyMessage="Select a chemical to view details."
+                detailsHref={`/dashboard/hazcom/chemicals/${encodeURIComponent(selectedChemical.id)}`}
+                metaFields={chemicalMetaFields}
+                className="min-w-0 xl:sticky xl:top-4"
+              >
+                <div className="px-5 py-3.5">
+                  <Text as="p" className="text9 text-ehs-muted-text mb-2">
+                    Storage &amp; handling
+                  </Text>
+                  <Text
+                    as="p"
+                    className={[
+                      "text4 line-clamp-4",
+                      selectedChemical.storageNotes
+                        ? "text-ehs-darker"
+                        : "text-ehs-muted-text",
+                    ].join(" ")}
+                  >
+                    {selectedChemical.storageNotes || "No notes recorded."}
+                  </Text>
+                </div>
+              </HazcomDetailPanel>
+            ) : null}
+          </div>
+
           <HazcomPager
             pageNumber={pageNumber}
             pageSize={pageSize}
             totalRecords={totalRecords}
             isFetching={isFetching}
-            onPageChange={setPageNumber}
+            onPageChange={(nextPage) => {
+              setPageNumber(nextPage);
+              setSelectedId(null);
+            }}
           />
         </>
       ) : null}

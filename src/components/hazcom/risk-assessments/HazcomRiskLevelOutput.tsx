@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  HazcomGlassCard,
   hazcomRiskLevel,
   hazcomRiskScore,
   riskLevelTone,
@@ -59,28 +59,22 @@ export function HazcomRiskLevelOutput(
         .filter(Boolean)
         .join(" ")}
     >
-      <HazcomGlassCard paddingClassName="p-5" className="w-full">
-        <Text
-          as="p"
-          className="text6 text-ehs-muted-text text-center"
-        >
+      <IncidentGlassCard paddingClassName="p-4.5 sm:p-5" className="w-full">
+        <Text as="p" className="text8 text-ehs-muted-text text-center">
           Risk Level Output
         </Text>
 
         <Text
           as="p"
-          className={["text2 mt-1 text-center", LEVEL_TEXT_CLASS[tone]].join(
+          className={["text2 mt-1.5 text-center", LEVEL_TEXT_CLASS[tone]].join(
             " ",
           )}
         >
           {level}
         </Text>
 
-        <Text
-          as="p"
-          className="text8 text-ehs-muted-text mt-1 text-center"
-        >
-          {`Score: ${score} / ${MAX_SCORE}`}
+        <Text as="p" className="text8 text-ehs-muted-text mt-1 text-center">
+          {`Score: ${String(score)} / ${String(MAX_SCORE)}`}
         </Text>
 
         <div className="bg-ehs-dark-bg/10 mt-4 h-1.5 w-full rounded-full">
@@ -89,19 +83,19 @@ export function HazcomRiskLevelOutput(
               "h-1.5 rounded-full transition-all",
               LEVEL_BAR_CLASS[tone],
             ].join(" ")}
-            style={{ width: `${scoreFillPercent}%` }}
+            style={{ width: `${String(scoreFillPercent)}%` }}
           />
         </div>
 
-        <div className="text7 mt-2 flex items-center justify-between">
+        <div className="text8 mt-2.5 flex items-center justify-between">
           <span className="text-ehs-green">Low</span>
           <span className="text-ehs-yellow">Medium</span>
           <span className="text-ehs-red">High</span>
           <span className="text-ehs-red">Critical</span>
         </div>
-      </HazcomGlassCard>
+      </IncidentGlassCard>
 
-      <HazcomGlassCard paddingClassName="p-5" className="w-full">
+      <IncidentGlassCard paddingClassName="p-4.5 sm:p-5" className="w-full">
         <Text as="h3" className="text3 text-ehs-darker">
           Rating Breakdown
         </Text>
@@ -113,50 +107,50 @@ export function HazcomRiskLevelOutput(
 
             return (
               <div key={row.field} className="flex items-center gap-3">
-                <span className="text8 text-ehs-gray w-21 shrink-0">
+                <span className="text8 text-ehs-muted-text w-21 shrink-0">
                   {row.label}
                 </span>
                 <div className="bg-ehs-dark-bg/8 h-1.5 flex-1 rounded-full">
                   <div
                     className="bg-ehs-dark-bg/25 h-1.5 rounded-full"
-                    style={{ width: `${fillPercent}%` }}
+                    style={{ width: `${String(fillPercent)}%` }}
                   />
                 </div>
                 <span
                   className={[
-                    "text7 w-3 shrink-0 text-right",
+                    "text7 w-3 shrink-0 text-right tabular-nums",
                     row.field === "health"
                       ? "text-ehs-red"
-                      : "text-ehs-dark-bg",
+                      : "text-ehs-darker",
                   ].join(" ")}
                 >
-                  {value}
+                  {String(value)}
                 </span>
               </div>
             );
           })}
         </div>
-      </HazcomGlassCard>
+      </IncidentGlassCard>
 
-      <HazcomGlassCard paddingClassName="p-5" className="w-full">
+      <IncidentGlassCard paddingClassName="p-4.5 sm:p-5" className="w-full">
         <Text as="h3" className="text3 text-ehs-darker">
-          {`Selected PPE (${ppe.length})`}
+          {`Selected PPE (${String(ppe.length)})`}
         </Text>
 
         {ppe.length === 0 ? (
-          <Text as="p" className="text8 text-ehs-muted-text mt-2 italic">
+          <Text as="p" className="text8 text-ehs-muted-text mt-2">
             None selected
           </Text>
         ) : (
-          <ul className="mt-2 flex flex-col gap-1.5">
+          <ul className="mt-2.5 flex flex-col gap-1.5">
             {ppe.map((item) => (
               <li
                 key={item}
-                className="text8 text-ehs-gray flex items-center gap-1.5"
+                className="text8 text-ehs-darker flex items-center gap-1.5"
               >
                 <Icon
                   icon="mdi:circle-outline"
-                  className="text-ehs-normal-blue size-2.5"
+                  className="text-ehs-normal-blue size-2.5 shrink-0"
                   aria-hidden="true"
                 />
                 {item}
@@ -164,7 +158,7 @@ export function HazcomRiskLevelOutput(
             ))}
           </ul>
         )}
-      </HazcomGlassCard>
+      </IncidentGlassCard>
     </div>
   );
 }

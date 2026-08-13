@@ -1,5 +1,11 @@
-export { HazcomGlassCard } from "./HazcomGlassCard";
-export type { HazcomGlassCardProps } from "./HazcomGlassCard";
+export { HazcomRegisterHeader } from "./HazcomRegisterHeader";
+export type { HazcomRegisterHeaderProps } from "./HazcomRegisterHeader";
+
+export { HazcomDetailPanel } from "./HazcomDetailPanel";
+export type {
+  HazcomDetailPanelProps,
+  HazcomDetailPanelMetaField,
+} from "./HazcomDetailPanel";
 
 export {
   HazcomBadge,
@@ -15,7 +21,10 @@ export { HazcomModuleTabs, HAZCOM_TABS } from "./HazcomModuleTabs";
 export type { HazcomModuleTabsProps } from "./HazcomModuleTabs";
 
 export { HazcomPageHeader } from "./HazcomPageHeader";
-export type { HazcomPageHeaderProps } from "./HazcomPageHeader";
+export type {
+  HazcomBreadcrumbItem,
+  HazcomPageHeaderProps,
+} from "./HazcomPageHeader";
 
 export { HazcomFormLayout } from "./HazcomFormLayout";
 export type { HazcomFormLayoutProps } from "./HazcomFormLayout";
