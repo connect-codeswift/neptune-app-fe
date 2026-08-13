@@ -95,7 +95,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   }
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -137,7 +137,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:shrink-0">
             <Button
               type="button"
               variant="secondary"
@@ -146,7 +146,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               onClick={() => {
                 void handleOpenRca();
               }}
-              className="rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-6 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0]"
+              className="rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-4 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0] sm:px-6"
             >
               RCA
             </Button>

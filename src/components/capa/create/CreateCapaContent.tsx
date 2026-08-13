@@ -164,7 +164,7 @@ export function CreateCapaContent() {
         paddingClassName="p-0 overflow-hidden"
         className="min-w-0"
       >
-        <div className="flex flex-col gap-8 px-6 pt-8 pb-6 md:flex-row md:items-start md:gap-12 md:px-8 md:pt-8">
+        <div className="flex flex-col gap-8 px-4 pt-6 pb-6 sm:px-6 md:flex-row md:items-start md:gap-12 md:px-8 md:pt-8">
           <section className="w-full shrink-0 md:w-85 lg:w-98">
             <div className="mb-6 flex flex-col gap-1.25">
               <div className="flex items-center gap-2.5">
@@ -270,19 +270,19 @@ export function CreateCapaContent() {
           </section>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#cfd6d9] px-6 py-5 md:px-8">
+        <div className="flex flex-col gap-3 border-t border-[#cfd6d9] px-4 py-5 sm:px-6 md:flex-row md:flex-wrap md:items-center md:justify-between md:px-8">
           <p className="text-sm leading-[19.5px] text-[#94a3b8]">
             {controlLevel
               ? `${controlLevel} selected`
               : "Select a control level to continue"}
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-wrap items-center gap-3 md:w-auto">
             <Button
               type="button"
               variant="tertiary"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="rounded-xl border border-[#cbd5e1] px-6 py-2.5 text-sm text-[#334155]"
+              className="rounded-xl border border-[#cbd5e1] px-6 py-2.5 text-sm text-[#334155] max-md:flex-1"
             >
               Cancel
             </Button>
@@ -291,7 +291,7 @@ export function CreateCapaContent() {
               form={CREATE_CAPA_FORM_ID}
               variant="primary"
               disabled={!canSubmit}
-              className="rounded-xl px-5 py-2.5 text-sm disabled:bg-[#7bc1c5] disabled:opacity-100"
+              className="rounded-xl px-5 py-2.5 text-sm disabled:bg-[#7bc1c5] disabled:opacity-100 max-md:flex-1"
             >
               <Icon icon="mdi:plus" className="size-4" aria-hidden />
               {isSubmitting ? "Adding…" : "Add CAPA"}

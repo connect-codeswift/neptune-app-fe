@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -93,9 +93,10 @@ export function AuditsListPageClient() {
         records.find((record) => record.id === selectedId) ??
         null);
 
-  const detailSummaryQuery = useAuditDetailSummaryQuery(
-    selectedRecord?.id ?? null,
-  );
+  /** Drop stale selection when the row left the current page/filter. */
+  const activeSelectedId = selectedRecord?.id ?? null;
+
+  const detailSummaryQuery = useAuditDetailSummaryQuery(activeSelectedId);
   const detail = useMemo(() => {
     const dto = detailSummaryQuery.data?.dataModel;
     return dto ? mapAuditDetailSummaryToDetail(dto) : null;
@@ -106,12 +107,6 @@ export function AuditsListPageClient() {
     [summaryQuery.data],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedRecord == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedRecord]);
-
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
   }, []);
@@ -121,11 +116,11 @@ export function AuditsListPageClient() {
   const columns = useMemo(
     () =>
       createAuditColumns({
-        selectedId,
+        selectedId: activeSelectedId,
         onViewMore: handleToggleDetailPanel,
         expanded: !isPanelOpen,
       }),
-    [selectedId, handleToggleDetailPanel, isPanelOpen],
+    [activeSelectedId, handleToggleDetailPanel, isPanelOpen],
   );
 
   const resultLabel = `${String(filteredRecords.length)} ${
@@ -222,7 +217,7 @@ export function AuditsListPageClient() {
               variant="compliance"
               data={filteredRecords}
               columns={columns}
-              selectedRowId={selectedId}
+              selectedRowId={activeSelectedId}
               getRowId={(row) => row.id}
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",
