@@ -8,6 +8,7 @@ import {
   CAPA_ADD_TASK_FORM_ID,
   createCapaAddTaskInitialValues,
   fieldString,
+  type CapaAddTaskInitialDraft,
 } from "@/components/capa/detail/capa-add-task-schema";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
@@ -25,6 +26,8 @@ export type CapaDetailAddTaskModalProps = Readonly<{
   isSubmitting?: boolean;
   /** Primary button label. Defaults to "Assign Task". */
   confirmLabel?: string;
+  title?: string;
+  initialDraft?: CapaAddTaskInitialDraft;
   onAssign?: (task: CapaDetailAddTaskDraft) => void | Promise<void>;
 }>;
 
@@ -37,15 +40,15 @@ export function CapaDetailAddTaskModal(
     onAssign,
     isSubmitting = false,
     confirmLabel = "Assign Task",
+    title = "Add New Task",
+    initialDraft,
   } = props;
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
   const busy = isSubmitting || isLocalSubmitting;
 
   const schema = useMemo(() => buildCapaAddTaskSchema(), []);
-
-  const initialValues = useMemo(
-    () => createCapaAddTaskInitialValues(schema),
-    [schema],
+  const [initialValues] = useState(() =>
+    createCapaAddTaskInitialValues(schema, initialDraft),
   );
 
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CapaDetailAddTaskModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4 backdrop-blur-0.5"
+      className="backdrop-blur-0.5 fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4"
       onClick={() => {
         if (!busy) onClose();
       }}
@@ -106,7 +109,7 @@ export function CapaDetailAddTaskModal(
             id="capa-detail-add-task-title"
             className="text-lg leading-normal font-semibold text-[#0b1320]"
           >
-            Add New Task
+            {title}
           </Text>
           <button
             type="button"
@@ -136,7 +139,7 @@ export function CapaDetailAddTaskModal(
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="cursor-pointer rounded-2.5 border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2.5 cursor-pointer border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
@@ -144,7 +147,7 @@ export function CapaDetailAddTaskModal(
             type="submit"
             form={CAPA_ADD_TASK_FORM_ID}
             disabled={busy}
-            className="cursor-pointer rounded-2.5 bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2.5 cursor-pointer bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Saving…" : confirmLabel}
           </button>

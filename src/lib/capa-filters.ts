@@ -90,6 +90,27 @@ export function formatCapaStatusDisplay(
   return raw;
 }
 
+function capaStatusKey(status: string | null | undefined): string {
+  return (status ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+}
+
+/** Closed / Complete CAPAs cannot be reopened or updated. */
+export function isCapaStatusClosed(status: string | null | undefined): boolean {
+  const key = capaStatusKey(status);
+  return key === "closed" || key === "complete" || key === "dropped";
+}
+
+/** Verified (shown as Pending) — the reopen target. */
+export function isCapaStatusPending(
+  status: string | null | undefined,
+): boolean {
+  const key = capaStatusKey(status);
+  return key === "verified" || key === "pending";
+}
+
 export function capaStatusPillClass(status: string): string {
   switch (status) {
     case "Open":

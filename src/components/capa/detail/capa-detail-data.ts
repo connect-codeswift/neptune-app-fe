@@ -25,7 +25,10 @@ export type CapaDetailTask = Readonly<{
   id: string;
   label: string;
   owner: string;
+  ownerId?: number | null;
   dueDate: string;
+  dueDateIso?: string;
+  priority?: string;
   status: CapaDetailTaskStatus;
 }>;
 
