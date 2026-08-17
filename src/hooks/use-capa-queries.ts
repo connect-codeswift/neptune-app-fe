@@ -38,10 +38,10 @@ export const capaQueryKeys = {
     pageNumber: number;
     pageSize: number;
     search: string;
+    scope: string;
     status: string;
     capaType: string;
     priority: string;
-    assignedId: number;
   }) => [...capaQueryKeys.all, "list", params] as const,
   byIncident: (incidentId: number) =>
     [...capaQueryKeys.all, "incident", incidentId] as const,
@@ -107,33 +107,28 @@ export type UseCapasListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
+  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
-  assignedId?: number;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
 }>;
 
 /**
  * Loads CAPAs via GET /api/CAPA
- * query: PageNumber=1, PageSize=10, Search="", Status="", CapaType="",
- * Priority="", AssignedId omitted when unset
+ * query: PageNumber=1, PageSize=10, Search="", Scope="", Status="",
+ * CapaType="", Priority="" — empty = All = omit
  */
 export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
   const pageNumber = options.pageNumber ?? DEFAULT_CAPAS_PAGE_NUMBER;
   const pageSize = options.pageSize ?? DEFAULT_CAPAS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
+  const scope = options.scope?.trim() ?? "";
   const status = options.status?.trim() ?? "";
   const capaType = options.capaType?.trim() ?? "";
   const priority = options.priority?.trim() ?? "";
-  const assignedId =
-    typeof options.assignedId === "number" &&
-    Number.isFinite(options.assignedId) &&
-    options.assignedId > 0
-      ? Math.trunc(options.assignedId)
-      : 0;
 
   const auth = enabled ? getAuthContext() : null;
 
@@ -142,10 +137,10 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
       pageNumber,
       pageSize,
       search,
+      scope,
       status,
       capaType,
       priority,
-      assignedId,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -154,10 +149,10 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
         pageNumber,
         pageSize,
         search,
+        scope,
         status,
         capaType,
         priority,
-        ...(assignedId > 0 ? { assignedId } : {}),
       });
       return {
         ...response,

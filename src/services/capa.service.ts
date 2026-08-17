@@ -41,10 +41,10 @@ export type GetCapasRequest = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
+  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
-  assignedId?: number;
 }>;
 
 export type GetCapasResponse = Readonly<{
@@ -161,9 +161,13 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
           "Assignee",
         ),
       ) ?? null,
+    assignedName:
+      asString(readProp(raw, "assignedName", "AssignedName")) ?? null,
     ownerName:
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
+    sourceInfo:
+      asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
@@ -871,8 +875,8 @@ export async function getCapaWorkloadByOwner(): Promise<GetCapaWorkloadByOwnerRe
 /**
  * GET /CAPA
  * Query: PageNumber (default 1), PageSize (default 10),
- * Search?, Status?, CapaType?, Priority?, AssignedId?
- * Header: Authorization Bearer (required)
+ * Search?, Scope?, Status?, CapaType?, Priority?
+ * All / empty = omit the param. Header: Authorization Bearer (required)
  */
 export async function getCapas(
   request: GetCapasRequest = {},
@@ -885,25 +889,20 @@ export async function getCapas(
   const pageNumber = request.pageNumber ?? 1;
   const pageSize = request.pageSize ?? 10;
   const search = request.search?.trim() ?? "";
+  const scope = request.scope?.trim() ?? "";
   const status = request.status?.trim() ?? "";
   const capaType = request.capaType?.trim() ?? "";
   const priority = request.priority?.trim() ?? "";
-  const assignedId =
-    typeof request.assignedId === "number" &&
-    Number.isFinite(request.assignedId) &&
-    request.assignedId > 0
-      ? Math.trunc(request.assignedId)
-      : 0;
 
   const { data } = await http.get<unknown>(CAPA_LIST_PATH, {
     params: {
       PageNumber: pageNumber,
       PageSize: pageSize,
       ...(search ? { Search: search } : {}),
+      ...(scope ? { Scope: scope } : {}),
       ...(status ? { Status: status } : {}),
       ...(capaType ? { CapaType: capaType } : {}),
       ...(priority ? { Priority: priority } : {}),
-      ...(assignedId > 0 ? { AssignedId: assignedId } : {}),
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
