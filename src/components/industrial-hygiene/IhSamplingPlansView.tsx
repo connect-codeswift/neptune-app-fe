@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
 import { IhSearchToolbar } from "@/components/industrial-hygiene/IhSearchToolbar";
+import { IH_BASE_PATH } from "@/components/industrial-hygiene/ih-dashboard-data";
 import {
   IH_PLAN_LIST,
   ihPlanPercent,
@@ -108,14 +110,16 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
         </div>
 
         <div className="flex shrink-0 flex-wrap gap-1.5">
-          <Button
-            type="button"
-            variant="tertiary"
-            className="rounded-lg px-3 py-2 text-base font-semibold text-[#2a3446]"
-          >
-            <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
-            View
-          </Button>
+          <Link href={`${IH_BASE_PATH}/sampling-plans/${plan.id}`}>
+            <Button
+              type="button"
+              variant="tertiary"
+              className="rounded-lg px-3 py-2 text-base font-semibold text-[#2a3446]"
+            >
+              <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
+              View
+            </Button>
+          </Link>
           <Button
             type="button"
             variant="secondary"
@@ -158,14 +162,16 @@ export function IhSamplingPlansView() {
           title="Sampling Plans"
           subtitle="Plan and schedule future monitoring campaigns for all hazard agents"
           actions={
-            <Button
-              type="button"
-              variant="primary"
-              className="rounded-lg px-3.5 py-2 text-base! font-semibold"
-            >
-              <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
-              Create Plan
-            </Button>
+            <Link href={`${IH_BASE_PATH}/sampling-plans/new`}>
+              <Button
+                type="button"
+                variant="primary"
+                className="rounded-lg px-3.5 py-2 text-base! font-semibold"
+              >
+                <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
+                Create Plan
+              </Button>
+            </Link>
           }
         />
 

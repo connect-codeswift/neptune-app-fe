@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
 import { IhSearchToolbar } from "@/components/industrial-hygiene/IhSearchToolbar";
+import { IH_ADD_AGENT_PATH, ihEditAgentPath } from "@/components/industrial-hygiene/ih-add-agent-data";
 import {
   IH_AGENT_ROWS,
   type IhAgentRow,
@@ -136,14 +138,14 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
   {
     id: "actions",
     header: "",
-    cell: () => (
-      <button
-        type="button"
-        aria-label="Edit agent"
+    cell: ({ row }) => (
+      <Link
+        href={ihEditAgentPath(row.original.id)}
+        aria-label={`Edit ${row.original.name}`}
         className="inline-flex size-7 items-center justify-center rounded-md bg-[rgba(86,96,114,0.14)] text-[#566072] transition-colors hover:bg-[rgba(86,96,114,0.22)]"
       >
         <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
-      </button>
+      </Link>
     ),
   },
 ];
@@ -175,14 +177,16 @@ export function IhAgentLibraryView() {
           title="Hazard Agent Library"
           subtitle="Master list of all monitored chemical, physical, and biological agents with OEL values"
           actions={
-            <Button
-              type="button"
-              variant="primary"
-              className="rounded-lg px-3.5 py-2 text-base! font-semibold"
-            >
-              <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
-              Add Agent
-            </Button>
+            <Link href={IH_ADD_AGENT_PATH}>
+              <Button
+                type="button"
+                variant="primary"
+                className="rounded-lg px-3.5 py-2 text-base! font-semibold"
+              >
+                <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
+                Add Agent
+              </Button>
+            </Link>
           }
         />
 

@@ -1111,6 +1111,12 @@ export function FieldRenderer(props: FieldRendererProps) {
           />
         </FieldShell>
       );
+    case "heading":
+      return (
+        <div className="border-b border-[rgba(15,23,42,0.08)] pt-1 pb-2.5">
+          <p className="text-sm font-bold text-[#0b1320]">{field.label}</p>
+        </div>
+      );
     case "person": {
       const nameKey = personDisplayNameKey(field);
       const displayName = String(values[nameKey] ?? "");

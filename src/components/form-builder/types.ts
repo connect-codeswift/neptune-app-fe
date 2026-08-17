@@ -226,6 +226,12 @@ export type SwitchFieldConfig = BaseField &
     type: "switch";
   }>;
 
+/** Non-input section title spanning the form grid (no stored value). */
+export type HeadingFieldConfig = BaseField &
+  Readonly<{
+    type: "heading";
+  }>;
+
 /**
  * Site roster person picker (search + avatar list).
  * Field value is the selected user id. Display name is kept in
@@ -263,6 +269,7 @@ export type FieldConfig =
   | PhotoFieldConfig
   | TilesFieldConfig
   | SwitchFieldConfig
+  | HeadingFieldConfig
   | PersonFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
@@ -271,6 +278,8 @@ export type FormSchema = readonly FieldConfig[];
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
   for (const field of schema) {
+    if (field.type === "heading") continue;
+
     const isMultiValue =
       field.type === "checkbox-group" ||
       field.type === "photo" ||
