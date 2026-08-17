@@ -25,7 +25,7 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
     <div className="relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
       <div className="relative z-1 flex flex-col">
         <div
-          className="flex flex-wrap items-start justify-between gap-4 px-6 py-5"
+          className="flex flex-wrap items-start justify-between gap-4 px-4 py-5 sm:px-6"
           style={{
             backgroundImage:
               "linear-gradient(120.95deg, rgba(8, 145, 166, 0.22) 0%, rgba(8, 145, 166, 0) 60%)",
@@ -72,14 +72,14 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-6">
+          <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto sm:shrink-0 sm:gap-6">
             <Stat value={String(categories)} label="Categories" />
             <Stat value={String(whySteps)} label="Why steps" />
             <Stat value={String(actions)} label="Actions" />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 border-t border-[rgba(15,23,42,0.08)] md:grid-cols-[200px_200px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 border-t border-[rgba(15,23,42,0.08)] sm:grid-cols-2 md:grid-cols-[minmax(0,200px)_minmax(0,200px)_minmax(0,1fr)]">
           <MetaCell
             icon="mdi:file-document-outline"
             label="Type of report"
@@ -98,7 +98,7 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
           />
         </div>
 
-        <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 py-4">
+        <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-4 py-4 sm:px-6">
           <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg">
             <Icon icon="mdi:text-box-outline" className="size-5" aria-hidden />
           </span>

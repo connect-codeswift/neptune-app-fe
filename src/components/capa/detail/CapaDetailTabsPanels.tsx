@@ -200,7 +200,7 @@ export function CapaDetailTasksTab(
 
   if (isLoading) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
+      <div className="px-5.25 pt-5.25 pb-5">
         <Text as="p" className="text-sm text-[#8892a3]">
           Loading tasks…
         </Text>
@@ -210,7 +210,7 @@ export function CapaDetailTasksTab(
 
   if (tasksQuery.isError) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
+      <div className="px-5.25 pt-5.25 pb-5">
         <Text as="p" className="text-sm text-[#ef4444]">
           {getMutationErrorMessage(tasksQuery.error, "Could not load tasks.")}
         </Text>
@@ -221,7 +221,7 @@ export function CapaDetailTasksTab(
   return (
     <>
       {tasks.length === 0 ? (
-        <div className="px-[21px] pt-[21px] pb-5">
+        <div className="px-5.25 pt-5.25 pb-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <Text as="p" className="text-base leading-5 text-[#566072]">
               0 of 0 tasks completed
@@ -526,7 +526,7 @@ export function CapaDetailAttachmentsTab(
 
   if (isLoading) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
+      <div className="px-5.25 pt-5.25 pb-5">
         <Text as="p" className="text-sm text-[#8892a3]">
           Loading attachments…
         </Text>
@@ -536,7 +536,7 @@ export function CapaDetailAttachmentsTab(
 
   if (attachmentsQuery.isError) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
+      <div className="px-5.25 pt-5.25 pb-5">
         <Text as="p" className="text-sm text-[#ef4444]">
           {getMutationErrorMessage(
             attachmentsQuery.error,

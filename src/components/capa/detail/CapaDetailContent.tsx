@@ -13,6 +13,7 @@ import {
   CapaDetailTasksTab,
 } from "@/components/capa/detail/CapaDetailTabsPanels";
 import type { CapaDetailTabId } from "@/components/capa/detail/capa-detail-data";
+import { CapaDetailSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCapaDetailQuery } from "@/hooks/use-capa-queries";
@@ -84,13 +85,7 @@ export function CapaDetailContent(props: CapaDetailContentProps) {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex min-w-0 flex-col gap-3.5 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading CAPA…
-        </Text>
-      </div>
-    );
+    return <CapaDetailSkeleton />;
   }
 
   if (detailQuery.isError) {

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard } from "@/components/hazcom/shared/HazcomGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   SkeletonDetailPage,
   SkeletonFormPage,
@@ -58,18 +58,18 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
   const { title, message, onRetry, className = "" } = props;
 
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       className={["min-h-45 text-center", className]
         .filter(Boolean)
         .join(" ")}
-      hazcomGlassCardClassName="items-center justify-center gap-2"
+      incidentGlassCardClassName="items-center justify-center gap-2"
     >
       <Icon
         icon="mdi:alert-circle-outline"
         className="text-ehs-red size-8"
         aria-hidden="true"
       />
-      <Text as="p" className="text4 text-ehs-darker font-semibold">
+      <Text as="p" className="text5 text-ehs-darker">
         {title}
       </Text>
       <Text as="p" className="text4 text-ehs-muted-text max-w-md">
@@ -85,6 +85,6 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
           Retry
         </button>
       ) : null}
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

@@ -29,7 +29,7 @@ function TemplateCardSkeleton() {
 export function AuditTemplatesSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 9 }).map((_, index) => (
         <TemplateCardSkeleton key={index} />
       ))}
     </div>

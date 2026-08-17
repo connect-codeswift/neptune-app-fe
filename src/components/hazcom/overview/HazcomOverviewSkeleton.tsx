@@ -1,6 +1,6 @@
 import { MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { HazcomGlassCard } from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 const STAT_CARD_KEYS = [
   "total-chemicals",
@@ -99,16 +99,16 @@ export function HazcomOverviewSkeleton(
       <MetricCardsRowSkeleton count={STAT_CARD_KEYS.length} />
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <HazcomGlassCard paddingClassName="p-5" className="min-w-0">
+        <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
           <HazcomPanelHeaderSkeleton />
           <div className="divide-ehs-border mt-4 flex flex-col divide-y">
             {CHEMICAL_ROW_KEYS.map((key) => (
               <HazcomChemicalRowSkeleton key={key} />
             ))}
           </div>
-        </HazcomGlassCard>
+        </IncidentGlassCard>
 
-        <HazcomGlassCard paddingClassName="p-5" className="min-w-0">
+        <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
           <HazcomPanelHeaderSkeleton />
           <div className="mt-4 flex flex-col gap-3">
             {SDS_ROW_SKELETONS.map((row) => (
@@ -119,7 +119,7 @@ export function HazcomOverviewSkeleton(
             <Skeleton className="h-9 rounded-lg" />
             <Skeleton className="h-9 rounded-lg" />
           </div>
-        </HazcomGlassCard>
+        </IncidentGlassCard>
       </div>
     </div>
   );
