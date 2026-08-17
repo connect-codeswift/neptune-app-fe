@@ -28,12 +28,13 @@ export function LotoStatusIcon(props: LotoStatusIconProps) {
   const config = statusIcon[status];
 
   return (
-    <Icon
-      icon={config.icon}
-      className={[className, config.className].join(" ")}
-      aria-label={status}
-      role="img"
-      title={status}
-    />
+    <span title={status}>
+      <Icon
+        icon={config.icon}
+        className={[className, config.className].join(" ")}
+        aria-label={status}
+        role="img"
+      />
+    </span>
   );
 }

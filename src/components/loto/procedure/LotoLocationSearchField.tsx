@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import type { LotoLocationSelection } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
@@ -32,6 +32,7 @@ export function LotoLocationSearchField(
 
   const rootRef = useRef<HTMLDivElement>(null);
   const hasToken = useHasAccessToken();
+  const listboxId = useId();
 
   useEffect(() => {
     const timer = globalThis.setTimeout(() => {
@@ -69,6 +70,7 @@ export function LotoLocationSearchField(
           role="combobox"
           autoComplete="off"
           aria-expanded={open}
+          aria-controls={open ? listboxId : undefined}
           aria-invalid={error ? true : undefined}
           value={open ? query : (value?.name ?? "")}
           placeholder="Search locations..."
@@ -118,6 +120,7 @@ export function LotoLocationSearchField(
       {open ? (
         <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
           <ul
+            id={listboxId}
             role="listbox"
             aria-label="Locations"
             className="max-h-56 overflow-y-auto p-1"

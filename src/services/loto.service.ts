@@ -77,14 +77,6 @@ function asNullableString(value: unknown): string | null {
   return text === "" ? null : text;
 }
 
-function asNumberOrNull(value: unknown): number | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  const parsed = asNumber(value, Number.NaN);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 function normalizeEquipmentStatus(value: unknown): LotoEquipmentStatusDto {
   const status = asString(value);
   if (status === "Locked Out" || status === "Maintenance") {
