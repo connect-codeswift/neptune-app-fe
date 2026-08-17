@@ -15,7 +15,7 @@ import {
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
-import { IncidentGlassCard } from "@/components/incidents/shared";
+import { IncidentGlassCard, SiteWorkHoursMissingBanner } from "@/components/incidents/shared";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";
@@ -41,7 +41,8 @@ import type { IncidentRecord } from "@/components/incidents/list/incident-list-t
 import {
   mapIncidentListKpisToMetrics,
   mapKpiTargetsToLookup,
-  hasSufficientSiteWorkHours,
+  resolveSiteWorkHoursAvailability,
+  toIncidentRateHoursGate,
 } from "@/services/mappers/incident-kpi.mapper";
 
 export type IncidentListViewProps = Readonly<{
@@ -245,23 +246,28 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
     [kpiTargetsQuery.data?.dataModel],
   );
 
-  const ratesAvailable = hasSufficientSiteWorkHours(
-    siteWorkHoursQuery.data?.dataModel,
-  );
+  const workHoursAvailability = resolveSiteWorkHoursAvailability({
+    isLoading: siteWorkHoursQuery.isLoading,
+    isError: siteWorkHoursQuery.isError,
+    records: siteWorkHoursQuery.data?.dataModel,
+  });
+  const rateHoursGate = toIncidentRateHoursGate(workHoursAvailability);
 
   const kpiMetrics = useMemo(
     () =>
       mapIncidentListKpisToMetrics(
         listKpisQuery.data?.dataModel,
         targetsLookup,
-        ratesAvailable,
+        rateHoursGate,
       ),
-    [listKpisQuery.data?.dataModel, targetsLookup, ratesAvailable],
+    [listKpisQuery.data?.dataModel, targetsLookup, rateHoursGate],
   );
 
   const showBootLoading = !isClientReady;
   const showKpiLoading =
-    showBootLoading || (hasToken && listKpisQuery.isLoading);
+    showBootLoading ||
+    (hasToken &&
+      (listKpisQuery.isLoading || workHoursAvailability === "loading"));
   const showQueryLoading =
     isClientReady && hasToken && incidentsQuery.isLoading;
   const kpiErrorMessage =
@@ -297,6 +303,9 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
             <Text as="p" className="text-ehs-red text-sm">
               {kpiErrorMessage}
             </Text>
+          ) : null}
+          {workHoursAvailability === "insufficient" ? (
+            <SiteWorkHoursMissingBanner />
           ) : null}
           <div className="stagger-cards grid min-w-0 grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
             {kpiMetrics.map((metric) => (
