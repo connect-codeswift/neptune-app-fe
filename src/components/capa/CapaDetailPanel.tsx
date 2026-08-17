@@ -13,19 +13,20 @@ import {
   type CapaDashboardTask,
 } from "@/components/capa/capa-dashboard-data";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useUpdateCapaTaskStatusMutation } from "@/hooks/use-capa-mutations";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
 
 function statusTone(status: string): IncidentBadgeTone {
-  const normalized = status.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalized = status
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "overdue") return "danger";
   if (normalized === "pending" || normalized === "verified") return "warn";
-  if (
-    normalized === "inprogress" ||
-    normalized === "open"
-  )
-    return "teal";
+  if (normalized === "inprogress" || normalized === "open") return "teal";
   return "muted";
 }
 
@@ -55,6 +56,10 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
   const { item, onOpenDetail, className = "" } = props;
   const hasToken = useHasAccessToken();
   const capaId = parseCapaId(item.id);
+  const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
+  const pendingTaskId = updateTaskStatusMutation.isPending
+    ? (updateTaskStatusMutation.variables?.taskId ?? null)
+    : null;
 
   const tasksQuery = useCapaTasksQuery({
     capaId,
@@ -69,6 +74,30 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
     hasToken === true &&
     capaId != null &&
     (tasksQuery.isLoading || (tasksQuery.isFetching && !tasksQuery.data));
+
+  async function handleToggleTask(task: CapaDashboardTask) {
+    const taskId = parseCapaId(task.id);
+    if (taskId == null || capaId == null) {
+      toast.error(
+        "Could not update task status",
+        "This task is missing a server id. Refresh and try again.",
+      );
+      return;
+    }
+
+    try {
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        capaId,
+        status: task.done ? "NotStarted" : "Completed",
+      });
+    } catch (error) {
+      toast.error(
+        "Could not update task status",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  }
 
   return (
     <IncidentGlassCard
@@ -164,7 +193,10 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
                     String(index + 1)
                   )}
                 </span>
-                <Text as="span" className="text8 text-ehs-muted-text text-center">
+                <Text
+                  as="span"
+                  className="text8 text-ehs-muted-text text-center"
+                >
                   {stage}
                 </Text>
               </div>
@@ -201,19 +233,30 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
                 key={task.id}
                 className="border-ehs-border/60 flex items-start gap-2.5 border-b py-2 last:border-b-0"
               >
-                <span
+                <button
+                  type="button"
+                  aria-label={
+                    task.done
+                      ? `Mark ${task.label} as not started`
+                      : `Mark ${task.label} as completed`
+                  }
+                  aria-pressed={task.done}
+                  disabled={pendingTaskId != null}
+                  onClick={() => {
+                    void handleToggleTask(task);
+                  }}
                   className={[
                     "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded",
                     task.done
                       ? "bg-ehs-normal-blue text-white"
                       : "border-ehs-border border",
+                    "disabled:cursor-not-allowed disabled:opacity-60",
                   ].join(" ")}
-                  aria-hidden
                 >
                   {task.done ? (
                     <Icon icon="mdi:check" className="size-2.5" />
                   ) : null}
-                </span>
+                </button>
                 <Text
                   as="span"
                   className={[
@@ -235,8 +278,14 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
         <Button
           type="button"
           variant="primary"
-          className="text5 min-w-0 flex-1 gap-2 rounded-2.5 px-4 py-2.5"
-          onClick={() => toast.info("Update progress coming soon")}
+          className="text5 rounded-2.5 min-w-0 flex-1 gap-2 px-4 py-2.5"
+          onClick={() => {
+            if (onOpenDetail) {
+              onOpenDetail();
+              return;
+            }
+            toast.info("Open this CAPA to update progress.");
+          }}
         >
           <Icon icon="mdi:check" className="size-3.5 shrink-0" aria-hidden />
           Update progress
@@ -244,7 +293,7 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-2.5 p-0"
+          className="rounded-2.5 shrink-0 p-0"
           aria-label="Collaborators"
           onClick={() => toast.info("Collaborators coming soon")}
         >
@@ -257,7 +306,7 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
         <Button
           type="button"
           variant="tertiary"
-          className="shrink-0 rounded-2.5 p-0"
+          className="rounded-2.5 shrink-0 p-0"
           aria-label="Open CAPA detail"
           onClick={() => {
             if (onOpenDetail) {

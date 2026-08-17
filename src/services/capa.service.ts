@@ -10,7 +10,9 @@ import type { GetCapaOpenedClosedResponseDto } from "@/dtos/res/capa-opened-clos
 import type { GetCapaWorkloadByOwnerResponseDto } from "@/dtos/res/capa-workload-by-owner-response.dto";
 import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
+import type { CapaStatusRequestDto } from "@/dtos/req/capa-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
+import type { CapaTaskStatusRequestDto } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import http, { getAccessToken, HttpError } from "@/lib/axios";
@@ -29,7 +31,9 @@ const CAPA_OPENED_CLOSED_PATH = "/CAPA/opened-vs-closed";
 const CAPA_WORKLOAD_BY_OWNER_PATH = "/CAPA/workload-by-owner";
 const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
 const CAPA_TASK_PATH = "/CAPA/Task";
+const CAPA_TASK_STATUS_PATH = "/CAPA/Task/Status";
 const CAPA_TASK_DROP_PATH = "/CAPA/Task/Drop";
+const CAPA_DROP_PATH = "/CAPA/Drop";
 const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
 const CAPA_VERIFICATION_PATH = "/CAPA/Verification";
 const CAPA_ATTACHMENTS_PATH = "/CAPA/Attachments";
@@ -166,8 +170,7 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
     ownerName:
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
-    sourceInfo:
-      asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
+    sourceInfo: asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
@@ -392,6 +395,7 @@ function coerceCapaTaskDto(raw: Record<string, unknown>): CapaTaskDto | null {
     ownerName: asString(readProp(raw, "ownerName", "OwnerName")) ?? null,
     dueDate: normalizeCapaTaskDueDate(dueDateRaw),
     status,
+    priority: asString(readProp(raw, "priority", "Priority")) ?? null,
     createdAt: asString(readProp(raw, "createdAt", "CreatedAt")) ?? null,
   };
 }
@@ -1104,6 +1108,45 @@ export async function createCapaTask(payload: CapaTaskRequestDto) {
 }
 
 /** PUT /CAPA/Task */
+export async function updateCapaTask(payload: CapaTaskRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA task.");
+  }
+
+  const { data } = await http.put<unknown>(CAPA_TASK_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaTaskDto(data);
+}
+
+/** PATCH /CAPA/Task/Status */
+export async function updateCapaTaskStatus(payload: CapaTaskStatusRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update status.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA task status.");
+  }
+
+  const { data } = await http.patch<unknown>(CAPA_TASK_STATUS_PATH, payload, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return normalizeCapaTaskDto(data);
+}
+
 /** PATCH /CAPA/Task/Drop/{id} — soft-drop a linked task. */
 export async function deleteCapaTask(taskId: number) {
   if (!Number.isFinite(taskId) || taskId <= 0) {
@@ -1128,8 +1171,57 @@ export async function deleteCapaTask(taskId: number) {
   return data;
 }
 
-/** PATCH /CAPA/Task/Status */
-/** PATCH /CAPA/Drop/{id} — soft-drop a CAPA */
+/** PATCH /CAPA/Drop/{id} — soft-drop a CAPA. */
+export async function dropCapa(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    throw new Error("CAPA id is required to drop.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to drop a CAPA.");
+  }
+
+  const { data } = await http.patch<unknown>(
+    `${CAPA_DROP_PATH}/${encodeURIComponent(String(capaId))}`,
+    null,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return data;
+}
+
+/** PATCH /CAPA/Capa/{id}/status — reopen. Only `{ status: "Open" }` is accepted. */
+export async function reopenCapa(
+  capaId: number,
+  payload: CapaStatusRequestDto = { status: "Open" },
+) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    throw new Error("CAPA id is required to reopen.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to reopen a CAPA.");
+  }
+
+  const { data } = await http.patch<unknown>(
+    `${CAPA_BY_ID_PATH}/${encodeURIComponent(String(capaId))}/status`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaDto(data);
+}
+
 /** GET /CAPA/Attachments/{capaId} */
 export async function getCapaAttachmentsByCapaId(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {

@@ -19,6 +19,8 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaCommentMutation,
   useCreateCapaTaskMutation,
+  useUpdateCapaTaskMutation,
+  useUpdateCapaTaskStatusMutation,
   useUploadCapaAttachmentsMutation,
 } from "@/hooks/use-capa-mutations";
 import {
@@ -34,6 +36,7 @@ import {
   capaAttachmentToFormValue,
   mapCapaCommentDtoToDetailComment,
   mapCapaTaskDtoToDetailTask,
+  toCapaTaskStatusFromDetail,
 } from "@/services/mappers/capa.mapper";
 import { Icon } from "@iconify/react";
 import { useMemo, useState, type ReactNode } from "react";
@@ -45,9 +48,29 @@ const TASK_STATUS_CLASS: Record<CapaDetailTaskStatus, string> = {
   "Not Started": "bg-[rgba(238,241,246,0.6)] text-[#566072]",
 };
 
+const TASK_STATUS_OPTIONS: readonly CapaDetailTaskStatus[] = [
+  "Not Started",
+  "In Progress",
+  "Completed",
+];
+
+function parseTaskId(id: string): number | null {
+  const parsed = Number.parseInt(id, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 const taskColumnHelper = createColumnHelper<CapaDetailTask>();
 
-function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
+function buildTaskColumns(
+  options: Readonly<{
+    pendingTaskId: number | null;
+    onStatusChange: (
+      task: CapaDetailTask,
+      status: CapaDetailTaskStatus,
+    ) => void;
+    onEdit: (task: CapaDetailTask) => void;
+  }>,
+): ColumnDef<CapaDetailTask, unknown>[] {
   return [
     taskColumnHelper.accessor("label", {
       header: "Task",
@@ -77,7 +100,7 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
     }),
     taskColumnHelper.accessor("owner", {
       header: "Owner",
-      size: 200,
+      size: 160,
       cell: (info) => (
         <span className="text-base leading-4 text-[#566072]">
           {info.getValue()}
@@ -97,18 +120,57 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
     }),
     taskColumnHelper.accessor("status", {
       header: "Status",
-      size: 110,
-      cell: (info) => (
-        <span
-          className={[
-            "inline-flex rounded px-2 py-0.5 text-base leading-4 font-medium",
-            TASK_STATUS_CLASS[info.getValue()],
-          ].join(" ")}
-        >
-          {info.getValue()}
-        </span>
-      ),
+      size: 140,
+      cell: (info) => {
+        const task = info.row.original;
+        const taskId = parseTaskId(task.id);
+        const isPending = taskId != null && options.pendingTaskId === taskId;
+
+        return (
+          <select
+            aria-label={`Status for ${task.label}`}
+            value={task.status}
+            disabled={isPending || options.pendingTaskId != null}
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => {
+              const next = event.target.value as CapaDetailTaskStatus;
+              if (next === task.status) return;
+              options.onStatusChange(task, next);
+            }}
+            className={[
+              "rounded px-2 py-0.5 text-base leading-4 font-medium outline-none",
+              TASK_STATUS_CLASS[task.status],
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            ].join(" ")}
+          >
+            {TASK_STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        );
+      },
       meta: { align: "left" as const },
+    }),
+    taskColumnHelper.display({
+      id: "edit",
+      header: "",
+      size: 44,
+      cell: (info) => (
+        <button
+          type="button"
+          aria-label={`Edit ${info.row.original.label}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            options.onEdit(info.row.original);
+          }}
+          className="inline-flex size-7 items-center justify-center rounded-lg text-[#566072] transition-colors hover:bg-[rgba(8,145,166,0.08)] hover:text-[#0891a6]"
+        >
+          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
+        </button>
+      ),
+      meta: { align: "right" as const },
     }),
   ] as ColumnDef<CapaDetailTask, unknown>[];
 }
@@ -170,10 +232,15 @@ export function CapaDetailTasksTab(
   props: Readonly<{ record: CapaDetailRecord }>,
 ) {
   const { record } = props;
-  const columns = useMemo(() => buildTaskColumns(), []);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<CapaDetailTask | null>(null);
   const createCapaTaskMutation = useCreateCapaTaskMutation();
+  const updateCapaTaskMutation = useUpdateCapaTaskMutation();
+  const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
   const hasToken = useHasAccessToken();
+  const pendingTaskId = updateTaskStatusMutation.isPending
+    ? (updateTaskStatusMutation.variables?.taskId ?? null)
+    : null;
 
   const tasksQuery = useCapaTasksQuery({
     capaId: record.numericId > 0 ? record.numericId : null,
@@ -190,6 +257,43 @@ export function CapaDetailTasksTab(
       ),
     [tasksQuery.data, record.owner, record.dueDate],
   );
+
+  async function handleStatusChange(
+    task: CapaDetailTask,
+    status: CapaDetailTaskStatus,
+  ) {
+    const taskId = parseTaskId(task.id);
+    if (!taskId || record.numericId <= 0) {
+      toast.error(
+        "Could not update task status",
+        "This task is missing a server id. Refresh and try again.",
+      );
+      return;
+    }
+
+    try {
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        capaId: record.numericId,
+        incidentId: record.incidentId,
+        status: toCapaTaskStatusFromDetail(status),
+      });
+      toast.success("Task status updated");
+    } catch (error) {
+      toast.error(
+        "Could not update task status",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  }
+
+  const columns = buildTaskColumns({
+    pendingTaskId,
+    onStatusChange: (task, status) => {
+      void handleStatusChange(task, status);
+    },
+    onEdit: setEditingTask,
+  });
 
   const doneCount = tasks.filter((task) => task.status === "Completed").length;
   const isLoading =
@@ -294,6 +398,54 @@ export function CapaDetailTasksTab(
             } catch (error) {
               toast.error(
                 "Could not add task",
+                getMutationErrorMessage(error, "Please try again."),
+              );
+              throw error;
+            }
+          }}
+        />
+      ) : null}
+
+      {editingTask ? (
+        <CapaDetailAddTaskModal
+          title="Edit Task"
+          confirmLabel="Save Task"
+          initialDraft={{
+            name: editingTask.label,
+            assigneeName: editingTask.owner === "—" ? "" : editingTask.owner,
+            assigneeUserId:
+              editingTask.ownerId != null && editingTask.ownerId > 0
+                ? String(editingTask.ownerId)
+                : "",
+            dueDate: editingTask.dueDateIso || editingTask.dueDate,
+            priority: editingTask.priority || "Medium",
+          }}
+          isSubmitting={updateCapaTaskMutation.isPending}
+          onClose={() => setEditingTask(null)}
+          onAssign={async (draft) => {
+            const taskId = parseTaskId(editingTask.id);
+            if (!taskId || record.numericId <= 0) {
+              toast.error(
+                "Could not update task",
+                "This task is missing a server id. Refresh and try again.",
+              );
+              throw new Error("Missing CAPA task id");
+            }
+
+            try {
+              await updateCapaTaskMutation.mutateAsync({
+                taskId,
+                capaId: record.numericId,
+                incidentId: record.incidentId,
+                task: draft.name,
+                owner: draft.assigneeUserId,
+                dueDate: draft.dueDate,
+                priority: draft.priority,
+              });
+              toast.success("Task updated");
+            } catch (error) {
+              toast.error(
+                "Could not update task",
                 getMutationErrorMessage(error, "Please try again."),
               );
               throw error;
@@ -409,7 +561,7 @@ export function CapaDetailCommentsTab(
             rows={2}
             placeholder="Add a comment or progress update…"
             disabled={createCommentMutation.isPending}
-            className="min-h-14.25 w-full resize-none rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-4 text-base leading-5 text-[#0b1320] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20 disabled:opacity-60"
+            className="rounded-2.5 min-h-14.25 w-full resize-none border border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-4 text-base leading-5 text-[#0b1320] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20 disabled:opacity-60"
           />
           <div className="flex justify-end">
             <Button

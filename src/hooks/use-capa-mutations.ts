@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
+import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import {
@@ -10,14 +11,20 @@ import {
   createCapaComment,
   createCapaTask,
   deleteCapaTask,
+  dropCapa,
+  reopenCapa,
   submitCapaVerification,
   updateCapa,
+  updateCapaTask,
+  updateCapaTaskStatus,
   uploadCapaAttachments,
 } from "@/services/capa.service";
 import {
   buildCreateCapaTaskRequest,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
+  buildUpdateCapaTaskRequest,
+  buildUpdateCapaTaskStatusRequest,
   buildVerifiedCapaUpdateRequest,
   formAttachmentValuesToDtos,
 } from "@/services/mappers/capa.mapper";
@@ -73,6 +80,31 @@ export type DeleteCapaTaskInput = Readonly<{
   taskId: number;
   capaId: number;
   incidentId: number;
+}>;
+
+export type UpdateCapaTaskStatusInput = Readonly<{
+  taskId: number;
+  capaId: number;
+  incidentId?: number;
+  status: CapaTaskStatus;
+}>;
+
+export type UpdateCapaTaskInput = Readonly<{
+  taskId: number;
+  capaId: number;
+  incidentId?: number;
+  task: string;
+  owner: string;
+  dueDate: string;
+  priority?: string;
+}>;
+
+export type DropCapaInput = Readonly<{
+  capaId: number;
+}>;
+
+export type ReopenCapaInput = Readonly<{
+  capaId: number;
 }>;
 
 export function useUploadCapaAttachmentsMutation() {
@@ -216,6 +248,129 @@ export function useDeleteCapaTaskMutation() {
       });
       await queryClient.invalidateQueries({
         queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
+export function useUpdateCapaTaskStatusMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpdateCapaTaskStatusInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to update a CAPA task status.");
+      }
+
+      return updateCapaTaskStatus(
+        buildUpdateCapaTaskStatusRequest({
+          taskId: input.taskId,
+          status: input.status,
+        }),
+      );
+    },
+    onSuccess: async (_result, variables) => {
+      if (variables.incidentId && variables.incidentId > 0) {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+        });
+      }
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.tasks(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
+export function useUpdateCapaTaskMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: UpdateCapaTaskInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to update a CAPA task.");
+      }
+
+      return updateCapaTask(
+        buildUpdateCapaTaskRequest({
+          id: input.taskId,
+          capaId: input.capaId,
+          task: input.task,
+          owner: input.owner,
+          dueDate: input.dueDate,
+          priority: input.priority,
+        }),
+      );
+    },
+    onSuccess: async (_result, variables) => {
+      if (variables.incidentId && variables.incidentId > 0) {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+        });
+      }
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.tasks(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
+export function useDropCapaMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: DropCapaInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to drop a CAPA.");
+      }
+
+      return dropCapa(input.capaId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
+export function useReopenCapaMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: ReopenCapaInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to reopen a CAPA.");
+      }
+
+      return reopenCapa(input.capaId);
+    },
+    onSuccess: async (_result, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.byId(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.review(variables.capaId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: capaQueryKeys.tasks(variables.capaId),
       });
       await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
