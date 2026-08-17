@@ -13,13 +13,15 @@ import {
 
 export type LotoModuleTabsProps = Readonly<{
   activeTab: LotoTabId;
+  /** Live counts per tab; a tab with no count yet renders no badge. */
+  counts?: Partial<Record<LotoTabId, number>>;
   onTabChange: (tab: LotoTabId) => void;
   onCreateProcedure?: () => void;
 }>;
 
 /** Module tabs + Create Procedure — Figma 6835:39794. */
 export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
-  const { activeTab, onTabChange, onCreateProcedure } = props;
+  const { activeTab, counts = {}, onTabChange, onCreateProcedure } = props;
 
   return (
     <div className="border-ehs-border flex flex-wrap items-center justify-between gap-3">
@@ -48,16 +50,18 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
               ].join(" ")}
             >
               {tab.label}
-              <span
-                className={[
-                  "text8 rounded-lg px-2 py-px font-semibold",
-                  isActive
-                    ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
-                    : "bg-slate-900/5 text-slate-400",
-                ].join(" ")}
-              >
-                {String(tab.count)}
-              </span>
+              {counts[tab.id] !== undefined ? (
+                <span
+                  className={[
+                    "text8 rounded-lg px-2 py-px font-semibold",
+                    isActive
+                      ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
+                      : "bg-slate-900/5 text-slate-400",
+                  ].join(" ")}
+                >
+                  {String(counts[tab.id])}
+                </span>
+              ) : null}
             </button>
           );
         })}

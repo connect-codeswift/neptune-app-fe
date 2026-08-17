@@ -2,6 +2,11 @@ import type { FormSchema, FormValues } from "@/components/form-builder";
 
 export const LOTO_APPLY_FORM_ID = "loto-apply-lockout-form";
 
+/**
+ * Lockout registration fields. There is deliberately no lock-number input:
+ * the backend assigns the next per-site number on POST /api/Loto/lockouts and
+ * returns it in the response.
+ */
 export function buildApplyLockoutSchema(): FormSchema {
   return [
     {
@@ -9,14 +14,6 @@ export function buildApplyLockoutSchema(): FormSchema {
       type: "text",
       label: "Operator (You)",
       readOnly: true,
-      colSpan: 6,
-    },
-    {
-      name: "lockNumber",
-      type: "text",
-      label: "Lock Number *",
-      placeholder: "e.g., LK-055",
-      required: true,
       colSpan: 6,
     },
     {
@@ -39,7 +36,6 @@ export function buildApplyLockoutSchema(): FormSchema {
 export function toApplyLockoutFormValues(operatorName: string): FormValues {
   return {
     operator: operatorName,
-    lockNumber: "",
     expectedCompletion: "",
     purpose: "",
   };

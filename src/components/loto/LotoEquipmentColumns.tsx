@@ -1,18 +1,10 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { Icon } from "@iconify/react";
 import type { TableColumns } from "@/components/ui/table-columns";
-import type {
-  LotoEquipmentItem,
-  LotoEquipmentStatus,
-} from "@/app/dashboard/lockout-tagout/loto-data";
+import type { LotoEquipmentItem } from "@/app/dashboard/lockout-tagout/loto-data";
+import { LotoStatusIcon } from "./LotoStatusIcon";
 
 const columnHelper = createColumnHelper<LotoEquipmentItem>();
-
-const statusClassName: Record<LotoEquipmentStatus, string> = {
-  Operational: "bg-[rgba(16,185,129,0.12)] text-[#10b981]",
-  "Locked Out": "bg-[rgba(239,68,68,0.12)] text-[#ef4444]",
-  Maintenance: "bg-[rgba(245,158,11,0.12)] text-[#f59e0b]",
-};
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
@@ -23,19 +15,21 @@ export function buildLotoEquipmentColumns(
   actions: LotoEquipmentColumnActions,
 ): TableColumns<LotoEquipmentItem> {
   return [
+    columnHelper.accessor("equipmentCode", {
+      header: "Code",
+      size: 90,
+      cell: (info) => (
+        <span className="text7 text-ehs-muted-text font-mono">
+          {info.getValue()}
+        </span>
+      ),
+      meta: { align: "left" as const },
+    }),
     columnHelper.accessor("name", {
       header: "Equipment",
       size: 180,
       cell: (info) => (
         <span className="text4 text-ehs-darker">{info.getValue()}</span>
-      ),
-      meta: { align: "left" as const },
-    }),
-    columnHelper.accessor("type", {
-      header: "Type",
-      size: 120,
-      cell: (info) => (
-        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
@@ -64,33 +58,15 @@ export function buildLotoEquipmentColumns(
       ),
       meta: { align: "left" as const },
     }),
-    columnHelper.accessor("procedureId", {
-      header: "Procedure",
-      size: 110,
-      cell: (info) => (
-        <span className="text7 text-ehs-muted-text font-mono">
-          {info.getValue()}
-        </span>
-      ),
-      meta: { align: "left" as const },
-    }),
     columnHelper.accessor("status", {
       header: "Status",
-      size: 110,
-      cell: (info) => {
-        const status = info.getValue() as LotoEquipmentStatus;
-        return (
-          <span
-            className={[
-              "text5 inline-flex rounded-full px-2.5 py-0.5",
-              statusClassName[status],
-            ].join(" ")}
-          >
-            {status}
-          </span>
-        );
-      },
-      meta: { align: "left" as const },
+      size: 70,
+      cell: (info) => (
+        <span className="inline-flex items-center justify-center">
+          <LotoStatusIcon status={info.getValue()} />
+        </span>
+      ),
+      meta: { align: "center" as const },
     }),
     columnHelper.accessor("lastInspection", {
       header: "Last Inspection",

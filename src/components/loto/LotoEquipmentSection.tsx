@@ -1,57 +1,66 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
-  LOTO_EQUIPMENT,
   LOTO_STATUS_FILTERS,
-  type LotoEquipmentItem,
   type LotoStatusFilter,
 } from "@/app/dashboard/lockout-tagout/loto-data";
 import { lotoApplyLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import type { LotoEquipmentStatusFilterDto } from "@/dtos/req/loto-request.dto";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import {
+  DEFAULT_LOTO_PAGE_SIZE,
+  useLotoEquipmentQuery,
+} from "@/hooks/use-loto-queries";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
+import { LotoQueryStatus } from "./LotoQueryStatus";
 
-function matchesSearch(item: LotoEquipmentItem, query: string): boolean {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return true;
-
-  return (
-    item.name.toLowerCase().includes(needle) ||
-    item.type.toLowerCase().includes(needle) ||
-    item.location.toLowerCase().includes(needle) ||
-    item.procedureId.toLowerCase().includes(needle) ||
-    item.energySources.some((source) => source.toLowerCase().includes(needle))
-  );
-}
-
-function matchesStatus(
-  item: LotoEquipmentItem,
-  status: LotoStatusFilter,
-): boolean {
-  if (status === "all") return true;
-  return item.status === status;
-}
+const SEARCH_DEBOUNCE_MS = 300;
 
 const STATUS_OPTIONS = LOTO_STATUS_FILTERS.map((filter) => ({
   value: filter.id,
   label: filter.label,
 }));
 
+function toStatusDto(status: LotoStatusFilter): LotoEquipmentStatusFilterDto {
+  return status === "all" ? "All" : status;
+}
+
 export function LotoEquipmentSection() {
   const router = useRouter();
+  const hasToken = useHasAccessToken();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [status, setStatus] = useState<LotoStatusFilter>("all");
+  const [pageNumber, setPageNumber] = useState(1);
 
-  const filtered = useMemo(
-    () =>
-      LOTO_EQUIPMENT.filter(
-        (item) => matchesSearch(item, query) && matchesStatus(item, status),
-      ),
-    [query, status],
+  // Debounce search and rewind to page 1 once it settles — a stale page number
+  // against a new term would land on an empty slice.
+  useEffect(() => {
+    const timer = globalThis.setTimeout(() => {
+      setDebouncedQuery(query);
+      setPageNumber(1);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timer);
+    };
+  }, [query]);
+
+  const equipmentQuery = useLotoEquipmentQuery(
+    {
+      pageNumber,
+      pageSize: DEFAULT_LOTO_PAGE_SIZE,
+      search: debouncedQuery.trim(),
+      status: toStatusDto(status),
+    },
+    hasToken === true,
   );
 
   const columns = useMemo(
@@ -67,7 +76,9 @@ export function LotoEquipmentSection() {
     [router],
   );
 
-  const resultLabel = `${String(filtered.length)} of ${String(LOTO_EQUIPMENT.length)}`;
+  const page = equipmentQuery.data;
+  const totalRecords = page?.totalRecords ?? 0;
+  const resultLabel = `${String(page?.items.length ?? 0)} of ${String(totalRecords)}`;
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
@@ -79,6 +90,7 @@ export function LotoEquipmentSection() {
             value: status,
             onChange: (value) => {
               setStatus(value as LotoStatusFilter);
+              setPageNumber(1);
             },
           },
         ]}
@@ -92,13 +104,37 @@ export function LotoEquipmentSection() {
         resultLabel={resultLabel}
       />
 
-      <Table
-        data={filtered}
-        columns={columns}
-        getRowId={(row) => row.id}
-        containerClassName="min-w-0"
-        variant="incident"
-      />
+      {hasToken === null || (hasToken && equipmentQuery.isLoading) ? (
+        <LotoQueryStatus state="loading" />
+      ) : hasToken === false ? (
+        <LotoQueryStatus
+          state="error"
+          message="Please sign in to load the equipment register."
+        />
+      ) : equipmentQuery.isError ? (
+        <LotoQueryStatus
+          state="error"
+          message={getMutationErrorMessage(
+            equipmentQuery.error,
+            "Failed to load the equipment register.",
+          )}
+        />
+      ) : (
+        <Table
+          data={page?.items ?? []}
+          columns={columns}
+          getRowId={(row) => String(row.id)}
+          containerClassName="min-w-0"
+          variant="incident"
+          pagination={{
+            pageNumber,
+            pageSize: DEFAULT_LOTO_PAGE_SIZE,
+            totalRecords,
+            onPageChange: setPageNumber,
+            isLoading: equipmentQuery.isFetching,
+          }}
+        />
+      )}
     </div>
   );
 }
