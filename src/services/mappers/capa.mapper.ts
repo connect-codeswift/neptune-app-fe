@@ -248,11 +248,16 @@ function resolveAssignee(
 ): string {
   const named =
     options?.taskOwnerName?.trim() ||
+    dto.assignedName?.trim() ||
     dto.assigneeName?.trim() ||
     dto.ownerName?.trim() ||
     "";
   if (named) {
     return named;
+  }
+
+  if (dto.assignedId == null || dto.assignedId === 0) {
+    return "—";
   }
 
   if (options?.currentUserId != null && dto.userId === options.currentUserId) {
@@ -454,8 +459,8 @@ export function formatCapaDaysLeftLabel(
     .toLowerCase()
     .replace(/[\s_-]+/g, "");
 
-  if (status === "closed" || status === "verified") {
-    return "Closed";
+  if (status === "closed") {
+    return "Complete";
   }
 
   if (typeof daysLeft === "number" && Number.isFinite(daysLeft)) {
@@ -470,9 +475,16 @@ export function formatCapaDaysLeftLabel(
 
 function lifecycleStepFromStatus(status: string): number {
   switch (status) {
+    case "Complete":
     case "Closed":
-      return 6;
+      return 4;
+    case "Pending":
+    case "Verified":
+      return 4;
+    case "In Progress":
+      return 3;
     case "Open":
+      return 0;
     default:
       return 2;
   }
@@ -498,9 +510,10 @@ export function mapCapaDtoToDashboardItem(
     type: item.actionType,
     title: item.title,
     source:
-      dto.incidentId > 0
+      dto.sourceInfo?.trim() ||
+      (dto.incidentId > 0
         ? `From Incident · ${String(dto.incidentId)}`
-        : item.controlCategory,
+        : item.controlCategory),
     control: item.controlCategory,
     owner: item.assignee,
     progress: item.progressPercent,
