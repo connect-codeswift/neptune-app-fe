@@ -27,13 +27,15 @@ import {
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
 import {
-  CLOUDINARY_MAX_BYTES,
   formatFileSize,
-} from "@/lib/cloudinary-constants";
+  getFileMaxBytes,
+  isPdfMimeType,
+} from "@/lib/files";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 const SDS_LIBRARY_ROUTE = "/dashboard/hazcom/sds";
+const SDS_MAX_BYTES = getFileMaxBytes("HazCom");
 
 /**
  * The chemical endpoint has no search param, so one large page stands in for
@@ -164,12 +166,28 @@ export function SdsUploadPageClient() {
       return;
     }
 
-    setSelectedFile(file);
+    // Enforced here rather than on the input: `accept` only filters the file
+    // picker, so a drag-and-drop bypassed both constraints entirely and the
+    // "PDF up to 50 MB" the dropzone promises went unchecked.
+    if (!isPdfMimeType(file.type)) {
+      toast.error("Unsupported file", "Safety data sheets must be PDF files.");
+      return;
+    }
+
+    if (file.size > SDS_MAX_BYTES) {
+      toast.error(
+        "File too large",
+        `${formatFileSize(file.size)} exceeds the ${formatFileSize(SDS_MAX_BYTES)} limit.`,
+      );
+      return;
+    }
+
+    setFileName(file.name);
     setIsUploading(true);
 
     try {
-      const uploaded = await uploadFileToCloudinary(file);
-      setPdfUrl(uploaded.secureUrl);
+      const uploaded = await uploadFile(file, { module: "HazCom" });
+      setPdfUrl(uploaded.fileId);
     } catch (error) {
       setSelectedFile(null);
       setPdfUrl("");

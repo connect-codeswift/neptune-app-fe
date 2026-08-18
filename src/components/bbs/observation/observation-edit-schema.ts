@@ -141,6 +141,7 @@ export const observationPhotosSchema: FormSchema = [
     label: "Photo Evidence",
     required: true,
     colSpan: 12,
+    fileModule: "Bbs",
     placeholder: "Tap to add photo",
     helperText: "Drop files here or click to upload",
   },

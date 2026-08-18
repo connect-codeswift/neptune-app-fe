@@ -12,15 +12,10 @@ import { UploadDocumentDropzone } from "@/components/policy-maker";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
-import { withAttachmentDisplayName } from "@/lib/attachment-url";
-import {
-  CLOUDINARY_MAX_BYTES,
-  isCloudinaryPublicConfigReady,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
 
 const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
@@ -168,17 +163,9 @@ export function AddObligationForm() {
       return;
     }
 
-    if (next.size > CLOUDINARY_MAX_BYTES) {
+    if (next.size > getFileMaxBytes("Document")) {
       clearPdf();
       setFileError("File must be 50MB or smaller.");
-      return;
-    }
-
-    if (!isCloudinaryPublicConfigReady()) {
-      clearPdf();
-      setFileError(
-        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
-      );
       return;
     }
 
@@ -186,26 +173,22 @@ export function AddObligationForm() {
     setPdfSecureUrl(null);
     setFileError(null);
     setIsUploadingPdf(true);
-    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+    toast.info("Uploading PDF…", "Transferring to secure storage.");
 
     try {
-      const result = await uploadFileToCloudinary(next);
+      const result = await uploadFile(next, { module: "Document" });
       if (result.kind !== "pdf" && !next.name.toLowerCase().endsWith(".pdf")) {
         throw new Error("Only PDF documents can be uploaded.");
       }
       const originalName = next.name.trim() || result.name;
-      const secureUrl = withAttachmentDisplayName(
-        result.secureUrl,
-        originalName,
-      );
-      setPdfSecureUrl(secureUrl);
+      setPdfSecureUrl(result.fileId);
       toast.success("PDF uploaded", `"${originalName}" is ready to submit.`);
     } catch (error: unknown) {
       clearPdf();
       const message =
         error instanceof Error
           ? error.message
-          : "Failed to upload PDF to Cloudinary.";
+          : "Failed to upload PDF.";
       setFileError(message);
       toast.error("Upload failed", message);
     } finally {

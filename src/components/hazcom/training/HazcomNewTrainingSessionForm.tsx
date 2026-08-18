@@ -26,7 +26,7 @@ import {
   formatFileSize,
 } from "@/lib/cloudinary-constants";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 const TRAINING_MATERIAL_ACCEPT =
   ".pdf,.ppt,.pptx,.doc,.docx,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation";
@@ -177,32 +177,30 @@ export function HazcomNewTrainingSessionForm(
     }
 
     setIsUploadingMaterial(true);
-    void (async () => {
-      try {
-        const uploaded = await uploadFileToCloudinary(file);
-        setForm((prev) => ({
-          ...prev,
-          materials: [
-            ...prev.materials,
-            {
-              fileUrl: uploaded.secureUrl,
-              fileName: file.name.trim() || uploaded.name,
-              fileType: uploaded.mimeType || uploaded.format || null,
-            },
-          ],
-        }));
-        toast.success("Training material uploaded");
-        setPendingFile(null);
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Could not upload the training material.";
-        setUploadError(message);
-        toast.error(message);
-        setPendingFile(null);
-      } finally {
-        setIsUploadingMaterial(false);
+    try {
+      const uploaded = await uploadFile(file, { module: "HazCom" });
+      setForm((prev) => ({
+        ...prev,
+        materials: [
+          ...prev.materials,
+          {
+            fileUrl: uploaded.fileId,
+            fileName: file.name.trim() || uploaded.name,
+            fileType: uploaded.mimeType || uploaded.format || null,
+          },
+        ],
+      }));
+      toast.success("Training material uploaded");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not upload the training material.",
+      );
+    } finally {
+      setIsUploadingMaterial(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     })();
   };

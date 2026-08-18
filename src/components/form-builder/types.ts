@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { FileModule } from "@/dtos/req/files-request.dto";
 
 /**
  * Schema-driven form types for the reusable {@link FormBuilder}.
@@ -167,14 +168,14 @@ export type CheckboxGroupFieldConfig = BaseField &
     requireAll?: boolean;
   }>;
 
-/** Image / file upload field. Files go straight to Cloudinary and the field
- * value is the list of resulting secure URLs. */
+/** Image / file upload field. Files go to private storage; the field value is
+ * the list of `fileId`s (legacy Cloudinary URLs still render). */
 export type PhotoFieldConfig = BaseField &
   Readonly<{
     type: "photo";
     /** Headline shown inside the drop zone. */
     placeholder?: string;
-    /** Maximum number of files. Defaults to {@link CLOUDINARY_MAX_FILES}. */
+    /** Maximum number of files. Defaults to {@link FILE_MAX_FILES}. */
     maxFiles?: number;
     /**
      * `image` (default) = photos only, thumbnail grid.
@@ -185,8 +186,10 @@ export type PhotoFieldConfig = BaseField &
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */
     hideLabel?: boolean;
-    /** Override the default Cloudinary byte limit for this field. */
+    /** Override the module size limit for this field. */
     maxBytes?: number;
+    /** Files API module. Defaults to `Document`. */
+    fileModule?: FileModule;
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */

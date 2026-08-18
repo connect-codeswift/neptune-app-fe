@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
-import { stripAttachmentDisplayName } from "@/lib/attachment-url";
 
 export type IncidentDetailPhotosCardProps = Readonly<{
   attachments: readonly AttachmentItem[];
@@ -97,11 +96,9 @@ function PhotosContent(
                   aria-label={`Preview ${item.name}`}
                 >
                   {hasImage ? (
-                    <Image
-                      src={stripAttachmentDisplayName(item.secureUrl!)}
+                    <ResolvedFileImage
+                      fileRef={item.secureUrl!}
                       alt={item.name}
-                      fill
-                      unoptimized
                       className="object-cover"
                       sizes="(max-width: 640px) 50vw, 25vw"
                     />

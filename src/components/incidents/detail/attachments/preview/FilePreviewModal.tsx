@@ -3,7 +3,9 @@
 import dynamic from "next/dynamic";
 import { Icon } from "@iconify/react";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
+import { useResolvedFileUrl } from "@/hooks/use-file-queries";
 import { stripAttachmentDisplayName } from "@/lib/attachment-url";
+import { isStoredFileId } from "@/lib/files";
 
 const FilePreviewPdf = dynamic(
   () => import("./FilePreviewPdf").then((module) => module.FilePreviewPdf),
@@ -33,9 +35,27 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
   const isVideo = file.kind === "video";
   const isPdf = file.kind === "pdf";
 
-  const fileUrl = file.secureUrl
-    ? stripAttachmentDisplayName(file.secureUrl)
-    : "/images/sample-coupling.jpg";
+  const storedRef = file.secureUrl?.trim() ?? "";
+  const resolved = useResolvedFileUrl(
+    isStoredFileId(storedRef) ? storedRef : null,
+  );
+  const fileUrl = isStoredFileId(storedRef)
+    ? (resolved.url ?? "")
+    : storedRef
+      ? stripAttachmentDisplayName(storedRef)
+      : "/images/sample-coupling.jpg";
+
+  if (isStoredFileId(storedRef) && resolved.isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+        <Icon
+          icon="mdi:loading"
+          className="size-8 animate-spin text-ehs-light-text"
+          aria-hidden
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">

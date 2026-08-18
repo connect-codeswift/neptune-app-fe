@@ -13,8 +13,10 @@ import Cropper, { type Area } from "react-easy-crop";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { Text } from "@/components/Text";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { getCroppedAvatarFile } from "@/lib/crop-image";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { isBlobUrl, isLegacyPublicUrl, isStoredFileId } from "@/lib/files";
+import { uploadFile } from "@/lib/upload-file";
 import {
   useProfileAvatarQuery,
   useRemoveProfileAvatarMutation,
@@ -55,15 +57,26 @@ function AvatarPreview(
     .join(" ");
 
   if (profileUrl) {
+    const useResolved = isStoredFileId(profileUrl) || isLegacyPublicUrl(profileUrl);
     return (
       <div className={frameClass}>
-        <Image
-          src={profileUrl}
-          alt=""
-          fill
-          sizes="96px"
-          className="object-cover"
-        />
+        {isBlobUrl(profileUrl) || !useResolved ? (
+          <Image
+            src={profileUrl}
+            alt=""
+            fill
+            sizes="96px"
+            unoptimized
+            className="object-cover"
+          />
+        ) : (
+          <ResolvedFileImage
+            fileRef={profileUrl}
+            alt=""
+            sizes="96px"
+            className="object-cover"
+          />
+        )}
       </div>
     );
   }
@@ -263,15 +276,15 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
 
   const handleCropConfirm = async (file: File) => {
     try {
-      const uploaded = await uploadFileToCloudinary(file);
-      const response = await uploadMutation.mutateAsync(uploaded.secureUrl);
+      const uploaded = await uploadFile(file, { module: "Profile" });
+      const response = await uploadMutation.mutateAsync(uploaded.fileId);
       const nextUrl =
         response.dataModel?.profileUrl ??
         (response as { DataModel?: { ProfileUrl?: string | null } }).DataModel
           ?.ProfileUrl ??
-        uploaded.secureUrl;
+        uploaded.fileId;
 
-      setLocalProfileUrl(nextUrl ?? uploaded.secureUrl);
+      setLocalProfileUrl(nextUrl ?? uploaded.fileId);
       toast.success("Profile photo updated");
       closeCropModal();
     } catch (error) {

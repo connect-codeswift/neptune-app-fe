@@ -9,11 +9,7 @@ import {
 } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import {
-  CLOUDINARY_MAX_BYTES,
-  formatFileSize,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, formatFileSize, isPdfMimeType } from "@/lib/files";
 
 const DEFAULT_ACCEPT = "application/pdf,.pdf";
 const DEFAULT_EMPTY_HINT = "PDF — Max 50MB";
@@ -83,9 +79,13 @@ export function UploadDocumentDropzone(
       onFileChange(null);
       return;
     }
-    const validationError = validateFile(next);
-    if (validationError) {
-      setLocalError(validationError);
+    if (!isPdfFile(next)) {
+      setLocalError("Only PDF files are allowed.");
+      onFileChange(null);
+      return;
+    }
+    if (next.size > getFileMaxBytes("Document")) {
+      setLocalError("File must be 50MB or smaller.");
       onFileChange(null);
       return;
     }

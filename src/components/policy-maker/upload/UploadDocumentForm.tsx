@@ -24,14 +24,10 @@ import {
   departmentOptionLabel,
 } from "@/services/mappers/document-list.mapper";
 import { getAuthContext } from "@/lib/auth-context";
-import {
-  CLOUDINARY_MAX_BYTES,
-  isCloudinaryPublicConfigReady,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
@@ -222,17 +218,9 @@ export function UploadDocumentForm() {
       return;
     }
 
-    if (next.size > CLOUDINARY_MAX_BYTES) {
+    if (next.size > getFileMaxBytes("Document")) {
       clearPdf();
       setFileError("File must be 50MB or smaller.");
-      return;
-    }
-
-    if (!isCloudinaryPublicConfigReady()) {
-      clearPdf();
-      setFileError(
-        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
-      );
       return;
     }
 
@@ -240,15 +228,15 @@ export function UploadDocumentForm() {
     setPdfSecureUrl(null);
     setFileError(null);
     setIsUploadingPdf(true);
-    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+    toast.info("Uploading PDF…", "Transferring to secure storage.");
 
     try {
-      const result = await uploadFileToCloudinary(next);
+      const result = await uploadFile(next, { module: "Document" });
       if (result.kind !== "pdf" && !next.name.toLowerCase().endsWith(".pdf")) {
         throw new Error("Only PDF documents can be uploaded.");
       }
       const originalName = next.name.trim() || result.name;
-      setPdfSecureUrl(result.secureUrl);
+      setPdfSecureUrl(result.fileId);
       toast.success("PDF uploaded", `"${originalName}" is ready to submit.`);
     } catch (error: unknown) {
       clearPdf();
@@ -256,7 +244,7 @@ export function UploadDocumentForm() {
         error,
         error instanceof Error
           ? error.message
-          : "Failed to upload PDF to Cloudinary.",
+          : "Failed to upload PDF.",
       );
       setFileError(message);
       toast.error("Upload failed", message);

@@ -121,6 +121,7 @@ export const hazardReportSchema: FormSchema = [
     name: "photos",
     label: "Photo Evidence",
     colSpan: 12,
+    fileModule: "Hazard",
     // The create endpoint stores a single image URL.
     maxFiles: 1,
     placeholder: "Attach Photo Evidence",
