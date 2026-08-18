@@ -35,7 +35,7 @@ export type UseRcaByIncidentQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads RCA categories via GET /api/Rca/Categories.
+ * Loads RCA categories via GET /api/v1/rca-categories.
  */
 export function useRcaCategoriesQuery(options?: UseRcaCategoriesQueryOptions) {
   const enabled = options?.enabled ?? true;
@@ -56,7 +56,7 @@ export function useRcaCategoriesQuery(options?: UseRcaCategoriesQueryOptions) {
 }
 
 /**
- * Loads RCA for an incident via GET /api/Rca/Incident/{incidentId}.
+ * Loads RCA for an incident via GET /api/v1/incidents/{incidentId}/rca.
  * Also loads categories so five HRCA lanes can be rendered even when dataModel is [].
  */
 export function useRcaByIncidentQuery(options: UseRcaByIncidentQueryOptions) {

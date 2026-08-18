@@ -94,7 +94,7 @@ function asOptionalNumber(value: unknown): number | undefined {
 }
 
 /**
- * Normalizes GET /api/NearMiss/NearMissKpi (camelCase or PascalCase).
+ * Normalizes GET /api/v1/near-misses/kpis (camelCase or PascalCase).
  */
 export function normalizeNearMissKpiDto(raw: unknown): NearMissKpiDto | null {
   if (!isRecord(raw)) return null;

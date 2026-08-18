@@ -1,4 +1,4 @@
-/** Shared register list filters for GET /api/Audit and GET /api/Inspection. */
+/** Shared register list filters for GET /api/v1/audits and GET /api/v1/inspections. */
 export type RegisterListParams = Readonly<{
   pageNumber: number;
   pageSize: number;

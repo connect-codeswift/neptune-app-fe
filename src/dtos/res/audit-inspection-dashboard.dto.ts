@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-/** Shared KPI payload from GET /api/Audit/summary and GET /api/Inspection/summary. */
+/** Shared KPI payload from GET /api/v1/audits/summary and GET /api/v1/inspections/summary. */
 export type AuditInspectionSummaryDto = {
   total: number;
   scheduled: number;

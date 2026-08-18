@@ -109,7 +109,7 @@ function LifecycleCardSkeleton() {
   );
 }
 
-/** Lifecycle donut — Figma 7123:42023. Loads GET /api/CAPA/lifecycle. */
+/** Lifecycle donut — Figma 7123:42023. Loads GET /api/v1/capas/lifecycle. */
 export function CapaLifecycleCard() {
   const hasToken = useHasAccessToken();
   const lifecycleQuery = useCapaLifecycleQuery(hasToken === true);

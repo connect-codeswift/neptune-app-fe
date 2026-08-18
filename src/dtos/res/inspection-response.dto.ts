@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** An inspection row as returned by GET /api/Inspection. */
+/** An inspection row as returned by GET /api/v1/inspections. */
 export type InspectionDto = {
   id: number;
   inspectionTitle?: string;
@@ -20,12 +20,12 @@ export type InspectionDto = {
   submittedAt?: string | null;
 };
 
-/** Matches the backend response for GET /api/Inspection (paged list). */
+/** Matches the backend response for GET /api/v1/inspections (paged list). */
 export type GetAllInspectionsResponseDto = ApiEnvelopeDto<
   PagedDataDto<InspectionDto>
 >;
 
-/** Matches the backend response for POST /api/Inspection. */
+/** Matches the backend response for POST /api/v1/inspections. */
 export type CreateInspectionResponseDto = ApiEnvelopeDto<InspectionDto | null>;
 
 /** One item inside a snapshotted section on an inspection. */
@@ -85,7 +85,7 @@ export type InspectionRecordedResponseDto = {
   isNA: boolean;
 };
 
-/** A single inspection's detail from GET /api/Inspection/{id}. */
+/** A single inspection's detail from GET /api/v1/inspections/{id}. */
 export type InspectionDetailDto = {
   id: number;
   inspectionTitle: string;
@@ -105,7 +105,7 @@ export type InspectionDetailDto = {
   snapshot: InspectionSnapshotDto;
 };
 
-/** Matches the backend response for GET /api/Inspection/{id}. */
+/** Matches the backend response for GET /api/v1/inspections/{id}. */
 export type GetInspectionByIdResponseDto =
   ApiEnvelopeDto<InspectionDetailDto | null>;
 
@@ -120,7 +120,7 @@ export type InspectionResponsesResultDto = {
   visibleItemIds?: number[];
 };
 
-/** Matches the backend response for PUT /api/Inspection/{id}/responses. */
+/** Matches the backend response for PUT /api/v1/inspections/{id}/responses. */
 export type SaveInspectionResponsesResponseDto =
   ApiEnvelopeDto<InspectionResponsesResultDto | null>;
 
@@ -143,7 +143,7 @@ export type InspectionFindingDto = {
 };
 
 /**
- * Matches the backend response for GET /api/Inspection/{id}/findings.
+ * Matches the backend response for GET /api/v1/inspections/{id}/findings.
  * On success, `dataModel` is always an array — empty when there are no findings:
  * `{ isError: false, dataModel: [], success: true, message: "Findings fetched successfully" }`
  */

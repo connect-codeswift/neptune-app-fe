@@ -116,7 +116,7 @@ export type CapaListViewProps = Readonly<{
  * Skeleton-first, in the same spirit as the Regulatory Compliance view: the
  * backend has no list-CAPAs endpoint yet (only /CAPA/Incident/{id}, /CAPA/Capa
  * and /CAPA/Drop), so this reads the closest list-shaped source —
- * GET /EHSCommandCenter/GetMyActions, the same feed behind the dashboard's
+ * GET /api/v1/command-center/my-actions, the same feed behind the dashboard's
  * "My Actions" card. That endpoint currently returns an empty array, so the
  * empty state is what renders until the backend fills it in.
  */

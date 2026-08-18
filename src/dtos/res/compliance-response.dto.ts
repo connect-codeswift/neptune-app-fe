@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-/** Row from GET /api/Compliance/{id} and list endpoints. */
+/** Row from GET /api/v1/compliance-records/{id} and list endpoints. */
 export type ComplianceDto = {
   id?: number | null;
   code?: string | null;
@@ -22,7 +22,7 @@ export type ComplianceDto = {
   markComplete?: boolean | null;
 };
 
-/** dataModel from PUT /api/Compliance/Update (mark complete). */
+/** dataModel from PUT /api/v1/compliance-records/{id} (mark complete). */
 export type ComplianceUpdateResultDto = Readonly<{
   complianceId?: number | null;
   nextCycleId?: number | null;
@@ -40,7 +40,7 @@ export type GetAllCompliancesResponseDto = ApiEnvelopeDto<
   GetAllCompliancesResultDto | ComplianceDto[] | null
 >;
 
-/** dataModel shape for GET /api/Compliance/dashboard-kpis. */
+/** dataModel shape for GET /api/v1/compliance-records/dashboard-kpis. */
 export type ComplianceDashboardKpisDto = {
   obligationsTracked?: number | null;
   compliant?: number | null;
@@ -51,7 +51,7 @@ export type ComplianceDashboardKpisDto = {
 export type GetComplianceDashboardKpisResponseDto =
   ApiEnvelopeDto<ComplianceDashboardKpisDto | null>;
 
-/** One entry of GET /api/Compliance/category-stats. */
+/** One entry of GET /api/v1/compliance-records/category-stats. */
 export type ComplianceCategoryStatDto = {
   category?: string | null;
   /** Compliant / completed obligation count for this category. */
@@ -68,7 +68,7 @@ export type GetComplianceCategoryStatsResponseDto = ApiEnvelopeDto<
   ComplianceCategoryStatDto[] | null
 >;
 
-/** One entry of GET /api/Compliance/upcoming-filings. */
+/** One entry of GET /api/v1/compliance-records/upcoming-filings. */
 export type ComplianceUpcomingFilingDto = {
   id?: number | null;
   title?: string | null;
@@ -85,7 +85,7 @@ export type GetComplianceUpcomingFilingsResponseDto = ApiEnvelopeDto<
   ComplianceUpcomingFilingDto[] | null
 >;
 
-/** One entry of GET /api/Compliance/calendar. */
+/** One entry of GET /api/v1/compliance-records/calendar. */
 export type ComplianceCalendarEventDto = {
   id?: number | null;
   title?: string | null;

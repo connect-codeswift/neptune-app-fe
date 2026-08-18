@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** An audit row as returned by GET /api/Audit. */
+/** An audit row as returned by GET /api/v1/audits. */
 export type AuditDto = {
   id: number;
   auditTitle: string;
@@ -20,7 +20,7 @@ export type AuditDto = {
   submittedAt: string | null;
 };
 
-/** Matches the backend response for POST /api/Audit. */
+/** Matches the backend response for POST /api/v1/audits. */
 export type CreateAuditResponseDto = ApiEnvelopeDto<AuditDto | null>;
 
 /** The audit's state after its answers were recorded. */
@@ -34,11 +34,11 @@ export type AuditResponsesResultDto = {
   visibleItemIds: number[];
 };
 
-/** Matches the backend response for POST /api/Audit/{id}/responses. */
+/** Matches the backend response for POST /api/v1/audits/{id}/responses. */
 export type SaveAuditResponsesResponseDto =
   ApiEnvelopeDto<AuditResponsesResultDto | null>;
 
-/** Matches the backend response for GET /api/Audit (paged list). */
+/** Matches the backend response for GET /api/v1/audits (paged list). */
 export type GetAllAuditsResponseDto = ApiEnvelopeDto<PagedDataDto<AuditDto>>;
 
 /** One item inside a snapshotted section on an audit detail. */
@@ -93,7 +93,7 @@ export type AuditRecordedResponseDto = {
   isNA: boolean;
 };
 
-/** A single audit's detail from GET /api/Audit/{id}. */
+/** A single audit's detail from GET /api/v1/audits/{id}. */
 export type AuditDetailDto = {
   id: number;
   auditTitle: string;
@@ -114,7 +114,7 @@ export type AuditDetailDto = {
   snapshot: AuditSnapshotDto;
 };
 
-/** Matches the backend response for GET /api/Audit/{id}. */
+/** Matches the backend response for GET /api/v1/audits/{id}. */
 export type GetAuditByIdResponseDto = ApiEnvelopeDto<AuditDetailDto | null>;
 
 /**
@@ -135,11 +135,11 @@ export type AuditFindingDto = {
   isCapaCreated?: boolean;
 };
 
-/** Matches the backend response for GET /api/Audit/{id}/findings. */
+/** Matches the backend response for GET /api/v1/audits/{id}/findings. */
 export type GetAuditFindingsResponseDto = ApiEnvelopeDto<
   AuditFindingDto[] | null
 >;
 
-/** Matches the backend response for GET /api/Audit/{id}/report. Left as
+/** Matches the backend response for GET /api/v1/audits/{id}/report. Left as
  * `unknown` until the report's shape is pinned down. */
 export type GetAuditReportResponseDto = ApiEnvelopeDto<unknown>;

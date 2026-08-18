@@ -37,7 +37,7 @@ export type CreateCapaTaskDraftInput = Readonly<{
   priority?: string;
 }>;
 
-/** POST /api/CAPA/Capa body + optional checklist tasks created afterward. */
+/** POST /api/v1/capas body + optional checklist tasks created afterward. */
 export type CreateCapaInput = Readonly<{
   payload: CreateCapaRequestDto;
   tasks?: readonly CreateCapaTaskDraftInput[];
@@ -170,7 +170,7 @@ export function useCreateCapaCommentMutation() {
           ? Math.trunc(input.assignedId)
           : auth.userId;
 
-      // POST /api/CAPA/Comment — body matches OpenAPI CapaCommentDto.
+      // POST /api/v1/capas/{capaId}/comments — body matches OpenAPI CapaCommentDto.
       return createCapaComment({
         capaId: Math.trunc(input.capaId),
         title: input.title?.trim() || "Comment",
@@ -467,7 +467,7 @@ export type SubmitCapaVerificationInput = Readonly<{
   checklist?: readonly { item: string; isChecked: boolean }[];
 }>;
 
-/** POST /api/CAPA/Verification — used by the CAPA detail verify page. */
+/** POST /api/v1/capas/{capaId}/verification — used by the CAPA detail verify page. */
 export function useSubmitCapaVerificationMutation() {
   const queryClient = useQueryClient();
 

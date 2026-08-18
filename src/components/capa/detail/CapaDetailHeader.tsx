@@ -70,7 +70,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
 
     setIsOpeningVerify(true);
     try {
-      // Prefetch GET /api/CAPA/Verification/{capaId} before opening the page.
+      // Prefetch GET /api/v1/capas/{capaId}/verification before opening the page.
       await queryClient.prefetchQuery({
         queryKey: capaQueryKeys.verification(record.numericId),
         queryFn: () => getCapaVerificationByCapaId(record.numericId),
@@ -95,7 +95,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
 
     setIsOpeningRca(true);
     try {
-      // Prefetch GET /api/CAPA/Rca/{rcaId} before opening the page.
+      // Prefetch GET /api/v1/rcas/{rcaId}/capas before opening the page.
       await queryClient.prefetchQuery({
         queryKey: capaQueryKeys.rca(rcaId),
         queryFn: () => getCapaRcaById(rcaId),

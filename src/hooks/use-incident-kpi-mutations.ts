@@ -10,7 +10,7 @@ export type SaveSiteWorkHoursInput = Readonly<{
   hours: number;
 }>;
 
-/** PUT /api/Incident/site-work-hours — creates or updates hours for one month. */
+/** PUT /api/v1/sites/work-hours — creates or updates hours for one month. */
 export function useSaveSiteWorkHoursMutation() {
   const queryClient = useQueryClient();
 

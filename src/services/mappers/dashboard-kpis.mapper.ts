@@ -40,7 +40,7 @@ function normalizeHazardsByCategory(
     .filter((entry): entry is NonNullable<typeof entry> => entry != null);
 }
 
-/** Normalizes GET /api/EHSCommandCenter/GetMainDashboardKpis (camelCase or PascalCase). */
+/** Normalizes GET /api/v1/command-center/dashboard-kpis (camelCase or PascalCase). */
 export function normalizeDashboardKpisDto(
   raw: unknown,
 ): DashboardKpisDto | null {

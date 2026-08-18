@@ -45,7 +45,7 @@ const META_FIELDS = [
   },
 ] as const;
 
-/** Active lockout cards — GET /api/Loto/active-lockouts. */
+/** Active lockout cards — GET /api/v1/loto/lockouts?status=active. */
 export function LotoActiveLockoutsSection() {
   const router = useRouter();
   const hasToken = useHasAccessToken();

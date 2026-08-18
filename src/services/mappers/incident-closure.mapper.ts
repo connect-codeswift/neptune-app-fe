@@ -207,7 +207,7 @@ export function mapIncidentClosureDtoToData(
 
 /**
  * Maps IncidentClosureData view model into SaveIncidentClosureDto for
- * PUT /api/Incident/{incidentId}/closure
+ * PUT /api/v1/incidents/{incidentId}/closure
  */
 export function mapIncidentClosureDataToUpdateDto(
   data: IncidentClosureData,

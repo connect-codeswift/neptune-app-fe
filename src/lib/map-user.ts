@@ -2,7 +2,7 @@ import type { SelectOption } from "@/components/form-builder";
 import type { UserDropdownItemDto } from "@/dtos/res/user-response.dto";
 
 /**
- * Turn GET /User/dropdown rows into select options. The id becomes the option
+ * Turn GET /api/v1/users/dropdown rows into select options. The id becomes the option
  * value (that is what the hazard payload's `assignedTo` expects) and the first
  * available name-ish field becomes the label.
  */

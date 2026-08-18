@@ -40,7 +40,7 @@ function parseRouteCapaId(capaId: string): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-/** CAPA Verification page — Figma 846:6031. GET then POST /CAPA/Verification. */
+/** CAPA Verification page — Figma 846:6031. GET then POST /api/v1/capas/{capaId}/verification. */
 export function CapaVerificationContent(props: CapaVerificationContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
@@ -101,7 +101,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
     }
 
     try {
-      // POST /api/CAPA/Verification
+      // POST /api/v1/capas/{capaId}/verification
       await submitVerificationMutation.mutateAsync({
         capaId: numericId,
         effectiveness: mapFormEffectivenessToApi(

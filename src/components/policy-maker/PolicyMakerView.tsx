@@ -56,7 +56,7 @@ function formatAckRate(value: number | null | undefined): string {
 }
 
 /**
- * Builds the 4 stat cards from GET /api/Document/dashboard-kpis.
+ * Builds the 4 stat cards from GET /api/v1/documents/dashboard-kpis.
  *
  * The endpoint returns counts only, so these carry no delta. What used to sit
  * in the badge as a word ("Needs action", "Clear") is a description, not a

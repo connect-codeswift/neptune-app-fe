@@ -10,13 +10,13 @@ export type LotoIsolationStep = Readonly<{
   verified: boolean;
 }>;
 
-/** A site location picked from GET /api/Loto/locations. */
+/** A site location picked from GET /api/v1/locations. */
 export type LotoLocationSelection = Readonly<{
   id: number;
   name: string;
 }>;
 
-/** A site user picked via GET /api/Auth/GetUsersBySiteId/{siteId}?search=. */
+/** A site user picked via GET /api/v1/sites/{siteId}/users?search=. */
 export type LotoPersonnelSelection = Readonly<{
   userId: number;
   name: string;

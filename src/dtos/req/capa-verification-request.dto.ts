@@ -6,7 +6,7 @@ export type CapaChecklistItemRequestDto = Readonly<{
   isChecked: boolean;
 }>;
 
-/** Body for POST /api/CAPA/Verification */
+/** Body for POST /api/v1/capas/{capaId}/verification */
 export type CapaVerificationRequestDto = Readonly<{
   capaId: number;
   userId: number;

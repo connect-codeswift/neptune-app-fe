@@ -10,7 +10,7 @@ import { buildLotoPersonnelColumns } from "./LotoPersonnelColumns";
 import { LotoQueryStatus } from "./LotoQueryStatus";
 import { LotoRegisterHeader } from "./LotoRegisterHeader";
 
-/** Authorized personnel table — GET /api/Loto/personnel. */
+/** Authorized personnel table — GET /api/v1/loto/personnel. */
 export function LotoPersonnelSection() {
   const hasToken = useHasAccessToken();
   const personnelQuery = useLotoPersonnelQuery(hasToken === true);
