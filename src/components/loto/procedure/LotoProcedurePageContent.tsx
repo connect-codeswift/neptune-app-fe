@@ -18,6 +18,8 @@ import { withEquipmentPrefix } from "@/services/mappers/loto.mapper";
 import { toast } from "@/lib/toast";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
+import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
+import { toPpeChipOptions } from "@/lib/map-ppe";
 import {
   useCreateLotoEquipmentMutation,
   useUpdateLotoEquipmentMutation,
@@ -157,6 +159,29 @@ function detailToFormState(
   };
 }
 
+/**
+ * Note shown above the Required PPE chips. Null once the catalog has options,
+ * so the chips stand on their own.
+ */
+function toPpeStatusMessage(
+  state: Readonly<{
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+    optionCount: number;
+  }>,
+): string | null {
+  if (state.isLoading) return "Loading PPE catalog…";
+  if (state.isError) {
+    return getMutationErrorMessage(
+      state.error,
+      "Couldn't load the PPE catalog.",
+    );
+  }
+  if (state.optionCount === 0) return "No PPE items in the catalog yet.";
+  return null;
+}
+
 type LotoProcedureEditorProps =
   | Readonly<{ mode: "create" }>
   | Readonly<{
@@ -193,6 +218,17 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
 
   const createMutation = useCreateLotoEquipmentMutation();
   const updateMutation = useUpdateLotoEquipmentMutation();
+
+  // Required PPE chips come from the PPE catalog, not a hardcoded list.
+  const hasToken = useHasAccessToken();
+  const ppeItemsQuery = usePpeItemsQuery(hasToken === true);
+  const ppeOptions = toPpeChipOptions(ppeItemsQuery.data ?? []);
+  const ppeStatusMessage = toPpeStatusMessage({
+    isLoading: hasToken !== true || ppeItemsQuery.isLoading,
+    isError: ppeItemsQuery.isError,
+    error: ppeItemsQuery.error,
+    optionCount: ppeOptions.length,
+  });
 
   // Equipment + Verification + PPE forms, plus one per isolation step.
   const formsToValidate = 3 + steps.length;
@@ -387,6 +423,8 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           setPreview((current) => ({ ...current, ...patch }));
         }}
         onFormValid={handleFormValid}
+        ppeOptions={ppeOptions}
+        ppeStatusMessage={ppeStatusMessage}
       />
     </div>
   );
