@@ -16,16 +16,15 @@ export const CLOUDINARY_ALLOWED_MIME_TYPES = FILE_ALLOWED_MIME_TYPES;
 export type CloudinaryAllowedMimeType = FileAllowedMimeType;
 
 export function getCloudinaryCloudName(): string {
-  return "";
+  return process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim() ?? "";
 }
 
 export function getCloudinaryUploadPreset(): string {
-  return "";
+  return process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim() ?? "";
 }
 
-/** Uploads no longer need a public Cloudinary config. */
 export function isCloudinaryPublicConfigReady(): boolean {
-  return true;
+  return Boolean(getCloudinaryCloudName() && getCloudinaryUploadPreset());
 }
 
 export { formatFileSize, isAllowedMimeType, isPdfMimeType };

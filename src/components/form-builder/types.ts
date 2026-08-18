@@ -168,8 +168,8 @@ export type CheckboxGroupFieldConfig = BaseField &
     requireAll?: boolean;
   }>;
 
-/** Image / file upload field. Files go to private storage; the field value is
- * the list of `fileId`s (legacy Cloudinary URLs still render). */
+/** Image / file upload field. Default storage is files-API `fileId`s;
+ * `storage: "cloudinary"` stores the Cloudinary secure URL instead. */
 export type PhotoFieldConfig = BaseField &
   Readonly<{
     type: "photo";
@@ -180,16 +180,22 @@ export type PhotoFieldConfig = BaseField &
     /**
      * `image` (default) = photos only, thumbnail grid.
      * `files` = images + PDF/DOC, Figma-style row list.
+     * `pdf` = PDF only (SDS sheets).
      */
-    accept?: "image" | "files";
+    accept?: "image" | "files" | "pdf";
     /** List presentation. Defaults to `grid` for images, `rows` for files. */
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */
     hideLabel?: boolean;
     /** Override the module size limit for this field. */
     maxBytes?: number;
-    /** Files API module. Defaults to `Document`. */
+    /** Files API module. Defaults to `Document`. Ignored when {@link storage} is `cloudinary`. */
     fileModule?: FileModule;
+    /**
+     * `files` (default) = POST /api/files/upload-intent.
+     * `cloudinary` = unsigned client upload; the field value is the secure URL.
+     */
+    storage?: "files" | "cloudinary";
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */

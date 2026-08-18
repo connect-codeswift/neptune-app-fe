@@ -19,14 +19,11 @@ import {
  */
 
 /**
- * `status` is server-assigned (the create body has no such field), so it is
- * read when present and inferred from the session date otherwise: a session
- * that has already happened reads as Completed.
+ * `status` is server-assigned (the create body has no such field). Null /
+ * blank stays null so the log can show “No status found” instead of guessing
+ * Completed vs Scheduled from the session date.
  */
-function toTrainingStatus(
-  value: unknown,
-  sessionDate: string,
-): HazcomTrainingStatus {
+function toTrainingStatus(value: unknown): HazcomTrainingStatus | null {
   const lower = asString(value).trim().toLowerCase();
   if (lower === "completed") {
     return "Completed";
@@ -34,16 +31,7 @@ function toTrainingStatus(
   if (lower === "scheduled") {
     return "Scheduled";
   }
-
-  if (sessionDate === "") {
-    return "Scheduled";
-  }
-  const parsed = new Date(sessionDate);
-  if (Number.isNaN(parsed.getTime())) {
-    return "Scheduled";
-  }
-
-  return parsed.getTime() <= Date.now() ? "Completed" : "Scheduled";
+  return null;
 }
 
 function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
@@ -125,7 +113,7 @@ function mapTrainingLogDtoToHazcomSession(
       readProp(record, "chemicalsCovered", "ChemicalsCovered", "chemicals"),
     ),
     attendees: toAttendeeCount(record),
-    status: toTrainingStatus(readProp(record, "status", "Status"), date),
+    status: toTrainingStatus(readProp(record, "status", "Status")),
     materials: toTrainingMaterials(materialsRaw),
     notes: asString(readProp(record, "notes", "Notes")),
   };
