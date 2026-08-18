@@ -4,7 +4,6 @@ import {
   isPdfMimeType,
   validateFileForModule,
 } from "@/lib/files";
-import { renderPdfFirstPageJpeg } from "@/lib/pdf-thumbnail";
 import {
   commitFile,
   createUploadIntent,
@@ -56,7 +55,8 @@ export async function uploadFile(
   const isPdf = isPdfMimeType(contentType);
   const wantThumbnail = options.withThumbnail ?? isPdf;
   let thumbnail: File | null = null;
-  if (wantThumbnail && isPdf) {
+  if (wantThumbnail && isPdf && typeof window !== "undefined") {
+    const { renderPdfFirstPageJpeg } = await import("@/lib/pdf-thumbnail");
     thumbnail = await renderPdfFirstPageJpeg(file);
   }
 
