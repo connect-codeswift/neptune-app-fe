@@ -12,13 +12,16 @@ const crumbLink =
 
 export type NearMissDetailHeaderProps = Readonly<{
   record: NearMissRecord;
+  editHref?: string;
+  /** Hides the Edit button for roles that may not edit a near miss. */
+  canEdit?: boolean;
   action?: React.ReactNode;
 }>;
 
 export function NearMissDetailHeader(
   props: Readonly<NearMissDetailHeaderProps>,
 ) {
-  const { record, action } = props;
+  const { record, editHref, canEdit = false, action } = props;
   const displayId = formatNearMissDisplayId(record.id);
 
   return (
@@ -58,8 +61,20 @@ export function NearMissDetailHeader(
           </Text>
         </div>
 
-        {action ? (
-          <div className="flex flex-wrap items-center gap-3">{action}</div>
+        {action || canEdit ? (
+          <div className="flex flex-wrap items-center gap-3">
+            {action}
+            {canEdit && editHref ? (
+              <Link
+                href={editHref}
+                className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium text-white transition-colors"
+              >
+                <Text as="span" className="text4">
+                  Edit
+                </Text>
+              </Link>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>

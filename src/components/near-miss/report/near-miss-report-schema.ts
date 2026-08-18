@@ -28,6 +28,7 @@ export const CONTRIBUTING_FACTOR_OPTIONS: readonly SelectOption[] = [
   { value: "distraction-rushing", label: "Distraction / rushing" },
   { value: "environmental-conditions", label: "Environmental conditions" },
   { value: "poor-housekeeping", label: "Poor housekeeping" },
+  { value: "other", label: "Other" },
 ];
 
 /** Strongly-typed shape of a submitted Near-Miss report. */
@@ -54,6 +55,8 @@ export const nearMissReportSchema: FormSchema = [
     required: true,
     colSpan: 6,
     placeholder: "Select hazard type",
+    helperText:
+      "The kind of hazard that almost caused harm — used to classify this near miss.",
     options: HAZARD_TYPE_OPTIONS,
     allowCustom: true,
     addCustomLabel: "Add custom hazard type",
@@ -66,18 +69,18 @@ export const nearMissReportSchema: FormSchema = [
     required: true,
     colSpan: 12,
     placeholder: "Select location",
+    helperText:
+      "Pick the named area. Nearby rooms that are the same space should share one location.",
     options: LOCATION_OPTIONS,
-    allowCustom: true,
-    addCustomLabel: "Add custom location",
-    addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
   },
   {
-    type: "checkbox-group",
+    type: "chips",
     name: "contributingFactors",
     label: "Contributing Factors (select all that apply)",
     colSpan: 12,
-    columns: 2,
     options: CONTRIBUTING_FACTOR_OPTIONS,
+    allowCustom: true,
+    addCustomPlaceholder: "Add another factor…",
   },
   {
     type: "textarea",
