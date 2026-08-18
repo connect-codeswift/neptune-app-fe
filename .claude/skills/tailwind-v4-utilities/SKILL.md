@@ -44,8 +44,12 @@ Only keep arbitrary values when the size is **not** on the 4px/0.25rem grid afte
 ## This is enforced by ESLint
 
 `eslint.config.mjs` reports all of the above as **warnings** — never errors, so they flag drift
-without failing a build. Class ordering is not among them: `prettier-plugin-tailwindcss` sorts
-classes on `npm run format`, and `tailwindcss/classnames-order` is off so the two never fight.
+without failing a build.
+
+Class **order** is enforced too, but by Prettier rather than by the Tailwind plugin:
+`.prettierrc` loads `prettier-plugin-tailwindcss`, and `eslint-plugin-prettier` surfaces the
+result as `prettier/prettier` warnings in ESLint. `tailwindcss/classnames-order` is therefore off
+— two sorters would fight. Both `npx eslint --fix` and `npm run format` clear ordering warnings.
 
 | What fires | Rule |
 | --- | --- |

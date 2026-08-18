@@ -65,7 +65,8 @@ const eslintConfig = defineConfig([
       // clear it.
       //
       // classnames-order (8955 warnings): prettier-plugin-tailwindcss already
-      //   sorts classes on format. Two sorters would fight.
+      //   sorts classes, and prettier/prettier below reports the result as a
+      //   warning. Two sorters would fight.
       // no-arbitrary-value (1514): bans every arbitrary value. Our own
       //   convention explicitly keeps them for genuinely off-grid sizes.
       // enforces-shorthand (217): `h-4 w-4` -> `size-4`. Sound, but not part
