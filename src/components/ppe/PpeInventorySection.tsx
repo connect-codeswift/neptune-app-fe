@@ -37,6 +37,7 @@ function matchesSearch(item: PpeInventoryItem, query: string): boolean {
   if (!normalized) return true;
 
   return (
+    item.itemName.toLowerCase().includes(normalized) ||
     item.category.toLowerCase().includes(normalized) ||
     (item.protectionType?.toLowerCase().includes(normalized) ?? false) ||
     item.supplier.toLowerCase().includes(normalized)
