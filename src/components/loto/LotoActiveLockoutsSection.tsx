@@ -2,17 +2,12 @@
 
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import {
-  LOTO_ACTIVE_LOCKOUTS,
-  type LotoActiveLockout,
-  type LotoActiveLockoutAccent,
-} from "@/app/dashboard/lockout-tagout/loto-data";
+import type { LotoActiveLockout } from "@/app/dashboard/lockout-tagout/loto-data";
 import { lotoRemoveLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
-
-const accentBorderClass: Record<LotoActiveLockoutAccent, string> = {
-  amber: "border-[rgba(245,158,11,0.25)]",
-  red: "border-[rgba(239,68,68,0.18)]",
-};
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useLotoActiveLockoutsQuery } from "@/hooks/use-loto-queries";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { LotoQueryStatus } from "./LotoQueryStatus";
 
 const META_FIELDS = [
   {
@@ -41,41 +36,73 @@ const META_FIELDS = [
   },
 ] as const;
 
-/** Active lockout cards — Figma 6888:48666. */
+/** Active lockout cards — GET /api/Loto/active-lockouts. Figma 6888:48666. */
 export function LotoActiveLockoutsSection() {
   const router = useRouter();
+  const hasToken = useHasAccessToken();
+  const lockoutsQuery = useLotoActiveLockoutsQuery(hasToken === true);
+
+  if (hasToken === null || (hasToken && lockoutsQuery.isLoading)) {
+    return <LotoQueryStatus state="loading" />;
+  }
+
+  if (hasToken === false) {
+    return (
+      <LotoQueryStatus
+        state="error"
+        message="Please sign in to load active lockouts."
+      />
+    );
+  }
+
+  if (lockoutsQuery.isError) {
+    return (
+      <LotoQueryStatus
+        state="error"
+        message={getMutationErrorMessage(
+          lockoutsQuery.error,
+          "Failed to load active lockouts.",
+        )}
+      />
+    );
+  }
+
+  const lockouts = lockoutsQuery.data ?? [];
+
+  if (lockouts.length === 0) {
+    return (
+      <LotoQueryStatus
+        state="empty"
+        message="No equipment is locked out at this site right now."
+      />
+    );
+  }
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      {LOTO_ACTIVE_LOCKOUTS.map((item) => (
+      {lockouts.map((item) => (
         <article
           key={item.id}
-          className={[
-            "rounded-5 border bg-[rgba(255,255,255,0.62)] px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]",
-            accentBorderClass[item.accent],
-          ].join(" ")}
+          className="rounded-5 border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.62)] px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]"
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h3 className="text3 text-ehs-darker">{item.equipmentName}</h3>
-                <span className="text5 inline-flex rounded-full px-2.5 py-0.5 text-[#ef4444]">
-                  Locked Out
-                </span>
-              </div>
+              <h3 className="text3 text-ehs-darker">{item.equipmentName}</h3>
               <p className="text4 text-ehs-muted-text mt-0.75">{item.purpose}</p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                router.push(lotoRemoveLockoutRoute(item.id));
-              }}
-              className="text4 text-ehs-gray inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
-            >
-              <Icon icon="mdi:lock-open-outline" className="size-3.5" />
-              Remove Lockout
-            </button>
+            {item.canRemove ? (
+              <button
+                type="button"
+                onClick={() => {
+                  router.push(lotoRemoveLockoutRoute(item.id));
+                }}
+                className="text4 text-ehs-gray inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
+              >
+                <Icon icon="mdi:lock-open-outline" className="size-3.5" />
+                Remove Lockout
+              </button>
+            ) : null}
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">

@@ -12,23 +12,24 @@ import {
   hazardLevelClassName,
   type LotoHazardLevel,
   type LotoIsolationStep,
+  type LotoLocationSelection,
+  type LotoPersonnelSelection,
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import { LotoLocationSearchField } from "./LotoLocationSearchField";
+import { LotoPersonnelSearchField } from "./LotoPersonnelSearchField";
 import {
   LOTO_EQUIPMENT_FORM_ID,
-  LOTO_PERSONNEL_FORM_ID,
   LOTO_PPE_FORM_ID,
   LOTO_VERIFICATION_FORM_ID,
   fieldString,
   fieldStringArray,
   lotoEquipmentSchema,
-  lotoPersonnelSchema,
   lotoPpeSchema,
   lotoStepFormId,
   lotoStepSchema,
   lotoVerificationSchema,
   toEquipmentFormValues,
-  toPersonnelFormValues,
   toPpeFormValues,
   toStepFormValues,
   toVerificationFormValues,
@@ -77,7 +78,6 @@ const sidebarFieldClass = [
 
 export type LotoProcedurePreview = Readonly<{
   equipmentName: string;
-  equipmentCode: string;
   location: string;
   hazardLevel: LotoHazardLevel;
   stepCount: number;
@@ -88,6 +88,10 @@ export type LotoProcedureFormProps = Readonly<{
   initial: LotoProcedureFormState;
   steps: readonly LotoIsolationStep[];
   onStepsChange: (steps: LotoIsolationStep[]) => void;
+  location: LotoLocationSelection | null;
+  onLocationChange: (location: LotoLocationSelection | null) => void;
+  personnel: readonly LotoPersonnelSelection[];
+  onPersonnelChange: (personnel: LotoPersonnelSelection[]) => void;
   preview: LotoProcedurePreview;
   onPreviewChange: (patch: Partial<LotoProcedurePreview>) => void;
   onFormValid: (
@@ -129,6 +133,10 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
     initial,
     steps,
     onStepsChange,
+    location,
+    onLocationChange,
+    personnel,
+    onPersonnelChange,
     preview,
     onPreviewChange,
     onFormValid,
@@ -155,6 +163,15 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
       <div className="flex min-w-0 flex-col gap-4">
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <h2 className="text3 text-ehs-darker mb-4">Equipment Information</h2>
+          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <LotoLocationSearchField
+              value={location}
+              onChange={(next) => {
+                onLocationChange(next);
+                onPreviewChange({ location: next?.name ?? "" });
+              }}
+            />
+          </div>
           <FormBuilder
             formId={LOTO_EQUIPMENT_FORM_ID}
             schema={lotoEquipmentSchema}
@@ -163,8 +180,6 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onChange={(values) => {
               onPreviewChange({
                 equipmentName: fieldString(values, "equipmentName"),
-                equipmentCode: fieldString(values, "equipmentCode"),
-                location: fieldString(values, "location"),
                 hazardLevel: fieldString(
                   values,
                   "hazardLevel",
@@ -266,10 +281,6 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
               value={displayOrDash(preview.equipmentName)}
             />
             <SummaryRow
-              label="ID"
-              value={displayOrDash(preview.equipmentCode)}
-            />
-            <SummaryRow
               label="Location"
               value={displayOrDash(preview.location)}
             />
@@ -305,15 +316,9 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
-          <FormBuilder
-            formId={LOTO_PERSONNEL_FORM_ID}
-            schema={lotoPersonnelSchema}
-            initialValues={toPersonnelFormValues(initial)}
-            hideActions
-            onSubmit={(values) => {
-              onFormValid(lotoPersonnelSchema, values);
-            }}
-            className={sidebarFieldClass}
+          <LotoPersonnelSearchField
+            value={personnel}
+            onChange={onPersonnelChange}
           />
         </IncidentGlassCard>
       </aside>
@@ -326,8 +331,7 @@ export function buildProcedurePreview(
 ): LotoProcedurePreview {
   return {
     equipmentName: state.equipmentName,
-    equipmentCode: state.equipmentCode,
-    location: state.location,
+    location: state.location?.name ?? "",
     hazardLevel: state.hazardLevel,
     stepCount: state.steps.length,
     ppeCount: state.selectedPpe.length,

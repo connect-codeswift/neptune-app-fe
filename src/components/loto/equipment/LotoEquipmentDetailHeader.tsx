@@ -67,7 +67,7 @@ export function LotoEquipmentDetailHeader(
                 {detail.name}
               </Text>
               <Text as="p" className="text4 text-[#8892a3]">
-                {`${detail.type} · ${detail.location}`}
+                {detail.location}
               </Text>
             </div>
           </div>

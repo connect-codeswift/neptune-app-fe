@@ -214,19 +214,13 @@ export function HazcomNewTrainingSessionForm(
     }
 
     const sessionDate = toSessionDate(form.date);
-    const missing =
-      sessionDate == null
-        ? "Session Date"
-        : form.trainer.trim() === ""
-          ? "Trainer"
-          : null;
+    if (sessionDate === null) {
+      toast.error("Session Date is required");
+      return;
+    }
 
-    if (missing !== null) {
-      toast.error(
-        missing === "Session Date"
-          ? "Session Date is required"
-          : "Trainer is required",
-      );
+    if (form.trainer.trim() === "") {
+      toast.error("Trainer is required");
       return;
     }
 

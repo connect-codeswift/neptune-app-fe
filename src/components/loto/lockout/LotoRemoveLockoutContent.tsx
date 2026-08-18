@@ -2,18 +2,39 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  getLotoRemoveLockoutContext,
   LOTO_REMOVE_SAFETY_RULES,
+  toEnergySourceViews,
   type LotoRemoveLockoutContext,
 } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import { getAuthDisplayName } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import {
+  useLotoActiveLockoutsQuery,
+  useLotoEquipmentDetailQuery,
+} from "@/hooks/use-loto-queries";
+import { useRemoveLotoLockoutMutation } from "@/hooks/use-loto-mutations";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import {
+  splitEnergySources,
+  withEquipmentPrefix,
+} from "@/services/mappers/loto.mapper";
 import { LotoRemoveLockoutHeader } from "./LotoRemoveLockoutHeader";
+import { LotoQueryStatus } from "../LotoQueryStatus";
+
+function toNumericId(idParam: string): number | null {
+  const trimmed = idParam.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
 
 export type LotoRemoveLockoutContentProps = Readonly<{
   lockoutId: string;
@@ -21,59 +42,138 @@ export type LotoRemoveLockoutContentProps = Readonly<{
 
 export function LotoRemoveLockoutContent(props: LotoRemoveLockoutContentProps) {
   const { lockoutId } = props;
-  const context = useMemo(
-    () => getLotoRemoveLockoutContext(lockoutId),
-    [lockoutId],
+  const hasToken = useHasAccessToken();
+  const numericId = toNumericId(lockoutId);
+
+  const activeLockoutsQuery = useLotoActiveLockoutsQuery(hasToken === true);
+  const lockoutRow = useMemo(
+    () =>
+      numericId === null
+        ? null
+        : (activeLockoutsQuery.data?.find((row) => row.id === numericId) ??
+          null),
+    [activeLockoutsQuery.data, numericId],
   );
 
-  if (!context) {
+  const equipmentQuery = useLotoEquipmentDetailQuery(
+    lockoutRow?.equipmentId ?? null,
+    hasToken === true && lockoutRow !== null,
+  );
+
+  const context = useMemo<LotoRemoveLockoutContext | null>(() => {
+    const detail = equipmentQuery.data;
+    if (!lockoutRow || !detail) return null;
+
+    return {
+      lockoutId: lockoutRow.id,
+      equipmentId: detail.id,
+      equipmentName: detail.name,
+      equipmentCode: withEquipmentPrefix(detail.equipmentCode),
+      operatorName: lockoutRow.operator,
+      lockNumber: lockoutRow.lockNumber,
+      startedAt: lockoutRow.startedAt,
+      purpose: lockoutRow.purpose,
+      energySources: toEnergySourceViews(
+        splitEnergySources(detail.energySources),
+      ),
+      signOffName: getAuthDisplayName(),
+    };
+  }, [lockoutRow, equipmentQuery.data]);
+
+  if (numericId === null) {
+    return <RemoveNotFound />;
+  }
+
+  const isLoading =
+    hasToken === null ||
+    (hasToken &&
+      (activeLockoutsQuery.isLoading ||
+        (lockoutRow !== null && equipmentQuery.isLoading)));
+
+  if (isLoading) {
+    return <LotoQueryStatus state="loading" />;
+  }
+
+  if (activeLockoutsQuery.isError || equipmentQuery.isError) {
     return (
-      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text4 text-ehs-darker font-semibold">
-            Active lockout not found
-          </Text>
-          <Link
-            href={`${LOTO_ROUTE}?tab=active-lockouts`}
-            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
-          >
-            Back to Active Lockouts
-          </Link>
-        </IncidentGlassCard>
-      </div>
+      <LotoQueryStatus
+        state="error"
+        message={getMutationErrorMessage(
+          activeLockoutsQuery.error ?? equipmentQuery.error,
+          "Failed to load this lockout.",
+        )}
+      />
     );
+  }
+
+  if (!context) {
+    return <RemoveNotFound />;
   }
 
   return <LotoRemoveLockoutForm context={context} />;
 }
 
-function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
+function RemoveNotFound() {
+  return (
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+      <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
+        <Text as="p" className="text4 text-ehs-darker font-semibold">
+          Active lockout not found
+        </Text>
+        <Link
+          href={`${LOTO_ROUTE}?tab=active-lockouts`}
+          className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
+        >
+          Back to Active Lockouts
+        </Link>
+      </IncidentGlassCard>
+    </div>
+  );
+}
+
+function LotoRemoveLockoutForm(
+  props: Readonly<{ context: LotoRemoveLockoutContext }>,
+) {
   const { context } = props;
+  const router = useRouter();
   const cancelHref = `${LOTO_ROUTE}?tab=active-lockouts`;
   const [energyRestored, setEnergyRestored] = useState(false);
   const [signedOff, setSignedOff] = useState(false);
+  const removeMutation = useRemoveLotoLockoutMutation();
 
-  const canConfirm = energyRestored && signedOff;
+  const canConfirm =
+    energyRestored && signedOff && !removeMutation.isPending;
 
   const handleConfirm = () => {
     if (!canConfirm) return;
 
-    // Nothing is persisted: there is no LOTO service or mutation hook in the
-    // codebase at all. Removing a lockout is the step that tells other workers
-    // the equipment is live again, so imitating a request with a 350ms timer
-    // and then toasting "Lockout removed" was the most dangerous version of
-    // this to fake.
-    toast.error(
-      "Not available yet",
-      "Removing a lockout isn't connected to the backend, so nothing was saved.",
+    removeMutation.mutate(
+      {
+        id: context.lockoutId,
+        payload: { energyRestoredConfirmed: true, signedOff: true },
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            "Lockout removed",
+            `${context.equipmentName} is back in service.`,
+          );
+          router.push(cancelHref);
+        },
+        onError: (error) => {
+          toast.error(
+            getMutationErrorMessage(error, "Failed to remove the lockout."),
+          );
+        },
+      },
     );
   };
 
   const summaryFields = [
-    { label: "Operator", value: context.lockout.operator },
-    { label: "Lock Number", value: context.lockout.lockNumber },
-    { label: "Started", value: context.lockout.startedAt },
-    { label: "Purpose", value: context.lockout.purpose },
+    { label: "Operator", value: context.operatorName },
+    { label: "Lock Number", value: context.lockNumber },
+    { label: "Started", value: context.startedAt },
+    { label: "Purpose", value: context.purpose },
   ] as const;
 
   return (
@@ -176,7 +276,9 @@ function LotoRemoveLockoutForm(props: { context: LotoRemoveLockoutContext }) {
               onClick={handleConfirm}
               className="text4 rounded-2.5 px-4 py-2.5 font-semibold shadow-[0px_6px_18px_rgba(8,145,166,0.45)] disabled:opacity-50"
             >
-              Confirm Lockout Removed
+              {removeMutation.isPending
+                ? "Removing…"
+                : "Confirm Lockout Removed"}
             </Button>
           </div>
         </div>

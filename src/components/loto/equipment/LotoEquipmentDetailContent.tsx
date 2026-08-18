@@ -6,18 +6,22 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  getActiveLockoutForEquipment,
   lotoApplyLockoutRoute,
   lotoRemoveLockoutRoute,
 } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
-import {
-  getLotoEquipmentDetail,
-  type LotoEquipmentDetailTab,
-} from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import { type LotoEquipmentDetailTab } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 import {
   LOTO_ROUTE,
   lotoProcedureEditRoute,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import {
+  useLotoEquipmentDetailQuery,
+  useLotoEquipmentHistoryQuery,
+} from "@/hooks/use-loto-queries";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { toLotoEquipmentDetail } from "@/services/mappers/loto.mapper";
+import { LotoQueryStatus } from "../LotoQueryStatus";
 import { LotoEquipmentDetailHeader } from "./LotoEquipmentDetailHeader";
 import { LotoEquipmentDetailTabs } from "./LotoEquipmentDetailTabs";
 import { LotoEquipmentHistoryTab } from "./LotoEquipmentHistoryTab";
@@ -27,6 +31,13 @@ import { LotoEquipmentProcedureTab } from "./LotoEquipmentProcedureTab";
 function parseTab(value: string | null | undefined): LotoEquipmentDetailTab {
   if (value === "procedure" || value === "history") return value;
   return "overview";
+}
+
+function toNumericId(idParam: string): number | null {
+  const trimmed = idParam.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
 export type LotoEquipmentDetailContentProps = Readonly<{
@@ -39,33 +50,53 @@ export function LotoEquipmentDetailContent(
 ) {
   const { equipmentId, initialTab } = props;
   const router = useRouter();
-  const detail = useMemo(
-    () => getLotoEquipmentDetail(equipmentId),
-    [equipmentId],
-  );
+  const hasToken = useHasAccessToken();
+  const numericId = toNumericId(equipmentId);
+
   const [activeTab, setActiveTab] = useState<LotoEquipmentDetailTab>(() =>
     parseTab(initialTab),
   );
 
-  if (!detail) {
+  const detailQuery = useLotoEquipmentDetailQuery(
+    numericId,
+    hasToken === true,
+  );
+  const historyQuery = useLotoEquipmentHistoryQuery(
+    numericId,
+    hasToken === true,
+  );
+
+  const detail = useMemo(() => {
+    if (!detailQuery.data) return null;
+    return toLotoEquipmentDetail(detailQuery.data, historyQuery.data ?? []);
+  }, [detailQuery.data, historyQuery.data]);
+
+  if (numericId === null) {
+    return <EquipmentNotFound equipmentId={equipmentId} />;
+  }
+
+  const isLoading =
+    hasToken === null ||
+    (hasToken && (detailQuery.isLoading || historyQuery.isLoading));
+
+  if (isLoading) {
+    return <LotoQueryStatus state="loading" />;
+  }
+
+  if (detailQuery.isError) {
     return (
-      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text4 text-ehs-darker font-semibold">
-            Equipment not found
-          </Text>
-          <Text as="p" className="text4 text-ehs-muted-text mt-1">
-            {`No equipment matches “${equipmentId}”.`}
-          </Text>
-          <Link
-            href={LOTO_ROUTE}
-            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
-          >
-            Back to LOTO
-          </Link>
-        </IncidentGlassCard>
-      </div>
+      <LotoQueryStatus
+        state="error"
+        message={getMutationErrorMessage(
+          detailQuery.error,
+          "Failed to load this equipment.",
+        )}
+      />
     );
+  }
+
+  if (!detail) {
+    return <EquipmentNotFound equipmentId={equipmentId} />;
   }
 
   const handleTabChange = (tab: LotoEquipmentDetailTab) => {
@@ -77,21 +108,23 @@ export function LotoEquipmentDetailContent(
     router.replace(url, { scroll: false });
   };
 
+  const isLockedOut = detail.status === "Locked Out";
+  const activeLockout = detail.history.find((row) => row.result === "Active");
+
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <LotoEquipmentDetailHeader
         detail={detail}
-        isLockedOut={detail.status === "Locked Out"}
+        isLockedOut={isLockedOut}
         onEdit={() => {
-          router.push(lotoProcedureEditRoute(equipmentId));
+          router.push(lotoProcedureEditRoute(numericId));
         }}
         onApplyLockout={() => {
-          const active = getActiveLockoutForEquipment(equipmentId);
-          if (detail.status === "Locked Out" && active) {
-            router.push(lotoRemoveLockoutRoute(active.id));
+          if (isLockedOut && activeLockout) {
+            router.push(lotoRemoveLockoutRoute(activeLockout.id));
             return;
           }
-          router.push(lotoApplyLockoutRoute(equipmentId));
+          router.push(lotoApplyLockoutRoute(numericId));
         }}
       />
 
@@ -120,6 +153,27 @@ export function LotoEquipmentDetailContent(
       {activeTab === "history" ? (
         <LotoEquipmentHistoryTab history={detail.history} />
       ) : null}
+    </div>
+  );
+}
+
+function EquipmentNotFound(props: Readonly<{ equipmentId: string }>) {
+  return (
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+      <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
+        <Text as="p" className="text4 text-ehs-darker font-semibold">
+          Equipment not found
+        </Text>
+        <Text as="p" className="text4 text-ehs-muted-text mt-1">
+          {`No equipment matches “${props.equipmentId}”.`}
+        </Text>
+        <Link
+          href={LOTO_ROUTE}
+          className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
+        >
+          Back to LOTO
+        </Link>
+      </IncidentGlassCard>
     </div>
   );
 }

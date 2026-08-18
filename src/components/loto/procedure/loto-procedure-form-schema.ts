@@ -9,7 +9,6 @@ import {
   LOTO_HAZARD_LEVELS,
   LOTO_ISOLATION_METHODS,
   LOTO_PPE_OPTIONS,
-  LOTO_PROCEDURE_PERSONNEL,
   type LotoIsolationStep,
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
@@ -17,7 +16,6 @@ import {
 export const LOTO_EQUIPMENT_FORM_ID = "loto-equipment-form";
 export const LOTO_VERIFICATION_FORM_ID = "loto-verification-form";
 export const LOTO_PPE_FORM_ID = "loto-ppe-form";
-export const LOTO_PERSONNEL_FORM_ID = "loto-personnel-form";
 
 export function lotoStepFormId(stepId: string): string {
   return `loto-step-form-${stepId}`;
@@ -40,11 +38,13 @@ const ppeOptions: readonly SelectOption[] = LOTO_PPE_OPTIONS.map((ppe) => ({
   label: ppe,
 }));
 
-const personnelOptions: readonly SelectOption[] = LOTO_PROCEDURE_PERSONNEL.map(
-  (person) => ({ value: person.id, label: person.name }),
-);
-
-/** Equipment Information card — Figma create/edit. */
+/**
+ * Equipment Information card — Figma create/edit. Equipment ID and Location
+ * are deliberately not FormBuilder fields: the code is backend-assigned (see
+ * FEGuides/Loto.md) and Location is a search picker over the location
+ * register (`LotoLocationSearchField`), both rendered directly in
+ * `LotoProcedureForm`.
+ */
 export const lotoEquipmentSchema: FormSchema = [
   {
     type: "text",
@@ -53,21 +53,6 @@ export const lotoEquipmentSchema: FormSchema = [
     required: true,
     colSpan: 6,
     placeholder: "e.g. Conveyor Belt Motor",
-  },
-  {
-    type: "text",
-    name: "equipmentCode",
-    label: "Equipment ID",
-    required: true,
-    colSpan: 6,
-    placeholder: "e.g. EQ-0042",
-  },
-  {
-    type: "text",
-    name: "location",
-    label: "Location",
-    colSpan: 6,
-    placeholder: "e.g. Plant B - Line 3",
   },
   {
     type: "select",
@@ -161,26 +146,12 @@ export const lotoPpeSchema: FormSchema = [
   },
 ];
 
-export const lotoPersonnelSchema: FormSchema = [
-  {
-    type: "checkbox-group",
-    name: "selectedPersonnelIds",
-    label: "Authorized Personnel",
-    helperText: "Only these users can perform this LOTO procedure",
-    colSpan: 12,
-    columns: 1,
-    options: personnelOptions,
-  },
-];
-
 export function toEquipmentFormValues(
   state: LotoProcedureFormState,
 ): FormValues {
   return {
     ...createInitialValues(lotoEquipmentSchema),
     equipmentName: state.equipmentName,
-    equipmentCode: state.equipmentCode,
-    location: state.location,
     hazardLevel: state.hazardLevel,
     description: state.description,
   };
@@ -211,15 +182,6 @@ export function toPpeFormValues(state: LotoProcedureFormState): FormValues {
   return {
     ...createInitialValues(lotoPpeSchema),
     selectedPpe: [...state.selectedPpe],
-  };
-}
-
-export function toPersonnelFormValues(
-  state: LotoProcedureFormState,
-): FormValues {
-  return {
-    ...createInitialValues(lotoPersonnelSchema),
-    selectedPersonnelIds: [...state.selectedPersonnelIds],
   };
 }
 

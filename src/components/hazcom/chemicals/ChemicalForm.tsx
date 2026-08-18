@@ -358,7 +358,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 onAmountChange={setQuantityAmount}
                 onUnitChange={setQuantityUnit}
               />
-              <StatusField value={status} onChange={setStatus} />
+              <StatusField
+                value={status}
+                onChange={(value) => {
+                  setStatus(value as "Active" | "Inactive");
+                }}
+              />
             </div>
           </FormSection>
 

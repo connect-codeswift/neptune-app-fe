@@ -12,14 +12,11 @@ const statusClassName: Record<LotoPersonnelStatus, string> = {
   Expired: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
 };
 
-export type LotoPersonnelColumnActions = Readonly<{
-  onEdit: (item: LotoPersonnel) => void;
-  onRenew: (item: LotoPersonnel) => void;
-}>;
-
-export function buildLotoPersonnelColumns(
-  actions: LotoPersonnelColumnActions,
-): TableColumns<LotoPersonnel> {
+/**
+ * Authorized personnel columns — read-only. Certification management (edit /
+ * renew) is moving to the admin dashboard, so there are no row actions here.
+ */
+export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
   return [
     columnHelper.accessor("name", {
       header: "Name",
@@ -35,20 +32,6 @@ export function buildLotoPersonnelColumns(
           </div>
         );
       },
-      meta: { align: "left" as const },
-    }),
-    columnHelper.display({
-      id: "role",
-      header: "Role & Department",
-      size: 120,
-      cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text4 text-ehs-darker">{row.original.role}</span>
-          <span className="text4 text-ehs-muted-text">
-            {row.original.department}
-          </span>
-        </div>
-      ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("certifiedOn", {
@@ -107,43 +90,6 @@ export function buildLotoPersonnelColumns(
           {info.getValue()}
         </span>
       ),
-      meta: { align: "left" as const },
-    }),
-    columnHelper.display({
-      id: "actions",
-      header: "Actions",
-      size: 120,
-      cell: ({ row }) => {
-        const item = row.original;
-        const isExpired = item.status === "Expired";
-
-        return (
-          <div className="flex items-center gap-2">
-            {isExpired ? (
-              <button
-                type="button"
-                className="text4 cursor-pointer font-semibold text-[#ef4444] hover:underline"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  actions.onRenew(item);
-                }}
-              >
-                Renew
-              </button>
-            ) : null}
-            <button
-              type="button"
-              className="text4 text-ehs-gray cursor-pointer font-semibold hover:underline"
-              onClick={(event) => {
-                event.stopPropagation();
-                actions.onEdit(item);
-              }}
-            >
-              Edit
-            </button>
-          </div>
-        );
-      },
       meta: { align: "left" as const },
     }),
   ];

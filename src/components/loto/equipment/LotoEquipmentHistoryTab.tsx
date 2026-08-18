@@ -126,7 +126,7 @@ export function LotoEquipmentHistoryTab(props: LotoEquipmentHistoryTabProps) {
     <Table
       data={history}
       columns={columns}
-      getRowId={(row) => row.id}
+      getRowId={(row) => String(row.id)}
       containerClassName="min-w-0"
       variant="incident"
       header={

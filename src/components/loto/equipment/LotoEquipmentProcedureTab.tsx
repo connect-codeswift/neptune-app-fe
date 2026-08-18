@@ -82,14 +82,18 @@ export function LotoEquipmentProcedureTab(
                     <p className="text4 mt-1.5 text-[#2a3446]">
                       {step.description}
                     </p>
-                    {step.critical ? (
-                      <p className="text4 mt-2 flex items-center gap-1.5 font-semibold text-[#ef4444]">
-                        <Icon
-                          icon="mdi:shield-alert-outline"
-                          className="size-3.5 shrink-0"
-                          aria-hidden="true"
-                        />
-                        Critical — must not be skipped
+                    {step.isolationPoint || step.lockTagPosition ? (
+                      <p className="text8 mt-1.5 text-[#8892a3]">
+                        {[
+                          step.isolationPoint
+                            ? `Isolation point: ${step.isolationPoint}`
+                            : null,
+                          step.lockTagPosition
+                            ? `Lock/tag: ${step.lockTagPosition}`
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </p>
                     ) : null}
                   </div>
@@ -104,27 +108,15 @@ export function LotoEquipmentProcedureTab(
         <h2 className="text3 text-ehs-darker mb-3">Procedure Info</h2>
         <dl className="flex flex-col">
           <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
-            <dt className="text4 text-[#8892a3]">Procedure ID</dt>
-            <dd className="text4 font-semibold text-[#0891a6]">
-              {detail.procedureId}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
             <dt className="text4 text-[#8892a3]">Energy Sources</dt>
             <dd className="text4 text-ehs-darker font-semibold">
               {`${String(detail.energySources.length)} sources`}
             </dd>
           </div>
-          <div className="flex items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2.5">
+          <div className="flex items-center justify-between gap-3 py-2.5">
             <dt className="text4 text-[#8892a3]">Total Steps</dt>
             <dd className="text4 text-ehs-darker font-semibold">
               {`${String(stepCount)} steps`}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3 py-2.5">
-            <dt className="text4 text-[#8892a3]">Last Updated</dt>
-            <dd className="text4 text-ehs-darker font-semibold">
-              {detail.procedureLastUpdated}
             </dd>
           </div>
         </dl>

@@ -13,6 +13,8 @@ import {
 } from "@/components/loto";
 import type { LotoTabId } from "@/app/dashboard/lockout-tagout/loto-data";
 import { LOTO_PROCEDURE_CREATE_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useLotoDashboardKpisQuery } from "@/hooks/use-loto-queries";
 
 const LOTO_TABS = [
   "equipment",
@@ -35,6 +37,18 @@ export default function LockoutTagoutPage() {
     parseLotoTab(searchParams.get("tab")),
   );
 
+  const hasToken = useHasAccessToken();
+  const kpisQuery = useLotoDashboardKpisQuery(hasToken === true);
+  const kpis = kpisQuery.data ?? null;
+
+  const tabCounts: Partial<Record<LotoTabId, number>> = kpis
+    ? {
+        equipment: kpis.equipmentOnFile,
+        "active-lockouts": kpis.activeLockouts,
+        personnel: kpis.authorizedPersonnel,
+      }
+    : {};
+
   const handleTabChange = (tab: LotoTabId) => {
     setActiveTab(tab);
     const url =
@@ -51,6 +65,7 @@ export default function LockoutTagoutPage() {
       <div className="flex flex-1 flex-col gap-6 px-4 pb-8">
         <LotoModuleTabs
           activeTab={activeTab}
+          counts={tabCounts}
           onTabChange={handleTabChange}
           onCreateProcedure={() => {
             router.push(LOTO_PROCEDURE_CREATE_ROUTE);
@@ -59,7 +74,11 @@ export default function LockoutTagoutPage() {
 
         {activeTab === "equipment" ? (
           <>
-            <LotoMetricsSection />
+            <LotoMetricsSection
+              kpis={kpis}
+              isLoading={hasToken === null || kpisQuery.isLoading}
+              isError={kpisQuery.isError}
+            />
             <LotoEquipmentSection />
           </>
         ) : null}

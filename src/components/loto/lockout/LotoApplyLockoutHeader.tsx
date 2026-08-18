@@ -28,7 +28,7 @@ export type LotoApplyLockoutHeaderProps = Readonly<{
 /** Breadcrumb + title — Figma 6915:57649. */
 export function LotoApplyLockoutHeader(props: LotoApplyLockoutHeaderProps) {
   const { context } = props;
-  const detailHref = lotoEquipmentDetailRoute(context.equipment.id);
+  const detailHref = lotoEquipmentDetailRoute(context.equipmentId);
 
   return (
     <div className="backdrop-blur-2.5 relative rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
@@ -63,7 +63,7 @@ export function LotoApplyLockoutHeader(props: LotoApplyLockoutHeaderProps) {
               Apply Lockout
             </Text>
             <Text as="p" className="text4 text-[#8892a3]">
-              {context.equipment.name}
+              {context.equipmentName}
             </Text>
           </div>
         </div>

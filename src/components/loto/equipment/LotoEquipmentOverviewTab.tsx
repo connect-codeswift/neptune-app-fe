@@ -1,10 +1,8 @@
 "use client";
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import {
-  statusClassName,
-  type LotoEquipmentDetail,
-} from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import { LotoStatusIcon } from "../LotoStatusIcon";
 
 function MetaCell(props: Readonly<{ label: string; value: string }>) {
   return (
@@ -31,19 +29,13 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
         <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h2 className="text3 text-ehs-darker">Equipment Details</h2>
-            <span
-              className={[
-                "text5 inline-flex rounded-full px-2.5 py-0.5",
-                statusClassName[detail.status],
-              ].join(" ")}
-            >
+            <span className="text5 inline-flex items-center gap-1.5 rounded-full bg-[rgba(15,23,42,0.06)] px-2.5 py-0.5">
+              <LotoStatusIcon status={detail.status} className="size-3.5" />
               {detail.status}
             </span>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <MetaCell label="Equipment ID" value={detail.equipmentCode} />
-            <MetaCell label="Type" value={detail.type} />
-            <MetaCell label="Procedure" value={detail.procedureId} />
             <MetaCell label="Last Inspection" value={detail.lastInspection} />
             <MetaCell label="Location" value={detail.location} />
             <MetaCell
