@@ -428,14 +428,6 @@ function dashboardPriority(value: string): CapaDashboardItem["priority"] {
   return "medium";
 }
 
-function isDueDateOverdue(dueDate: string | null | undefined): boolean {
-  const iso = parseCapaApiDate(dueDate);
-  if (!iso) return false;
-  const due = new Date(`${iso}T23:59:59`);
-  if (Number.isNaN(due.getTime())) return false;
-  return due.getTime() < Date.now();
-}
-
 function formatDashboardDueLabel(dueDate: string | null | undefined): string {
   const iso = parseCapaApiDate(dueDate);
   if (!iso) return "—";

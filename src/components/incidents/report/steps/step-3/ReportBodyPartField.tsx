@@ -171,12 +171,12 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
       </div>
 
       <div className="rounded-3.5 flex w-full flex-col gap-4 border border-[rgba(15,23,42,0.08)] bg-white/62 p-4 sm:p-5">
-        <div className="flex w-full rounded-2.5 bg-[rgba(15,23,42,0.04)] p-1 sm:hidden">
+        <div className="rounded-2.5 flex w-full bg-[rgba(15,23,42,0.04)] p-1 sm:hidden">
           <button
             type="button"
             onClick={() => setActiveTab("front")}
             className={[
-              "flex-1 rounded-2 py-1.5 text-sm font-bold transition-all duration-200",
+              "rounded-2 flex-1 py-1.5 text-sm font-bold transition-all duration-200",
               activeTab === "front"
                 ? "text-ehs-dark-blue bg-white shadow-sm"
                 : "text-ehs-gray hover:text-ehs-slate",
@@ -188,7 +188,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
             type="button"
             onClick={() => setActiveTab("back")}
             className={[
-              "flex-1 rounded-2 py-1.5 text-sm font-bold transition-all duration-200",
+              "rounded-2 flex-1 py-1.5 text-sm font-bold transition-all duration-200",
               activeTab === "back"
                 ? "text-ehs-dark-blue bg-white shadow-sm"
                 : "text-ehs-gray hover:text-ehs-slate",
@@ -238,7 +238,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                   the full width — a full-bleed teal bar reads as a banner
                   rather than a value. */}
               <div className="flex flex-wrap items-center gap-2.5">
-                <div className="border-ehs-normal-blue bg-ehs-normal-blue/18 flex min-w-0 flex-1 items-center gap-2.5 rounded-2.5 border px-3.5 py-2.5 sm:max-w-105">
+                <div className="border-ehs-normal-blue bg-ehs-normal-blue/18 rounded-2.5 flex min-w-0 flex-1 items-center gap-2.5 border px-3.5 py-2.5 sm:max-w-105">
                   <span className="bg-ehs-normal-blue size-2.5 shrink-0 rounded-full" />
                   <Text
                     as="span"
@@ -251,7 +251,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                 <button
                   type="button"
                   onClick={switchSide}
-                  className="text-ehs-slate inline-flex h-7 items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.14)] px-3 py-1 text-sm font-bold transition-colors hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70"
+                  className="text-ehs-slate rounded-2.5 inline-flex h-7 items-center gap-2 border border-[rgba(15,23,42,0.14)] px-3 py-1 text-sm font-bold transition-colors hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70"
                 >
                   <Icon
                     icon="mdi:chevron-left"
@@ -265,7 +265,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                   onClick={() => onMultiSelectChange(!multiSelect)}
                   aria-pressed={multiSelect}
                   className={[
-                    "inline-flex h-7 min-w-21 items-center justify-center rounded-2.5 border px-3 py-1 text-sm font-bold transition-colors",
+                    "rounded-2.5 inline-flex h-7 min-w-21 items-center justify-center border px-3 py-1 text-sm font-bold transition-colors",
                     multiSelect
                       ? "border-ehs-normal-blue bg-ehs-normal-blue/14 text-ehs-dark-blue"
                       : "text-ehs-slate border-[rgba(15,23,42,0.14)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/70",
@@ -301,7 +301,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                     >
                       <span
                         className={[
-                          "size-2 shrink-0 rounded-0.75",
+                          "rounded-0.75 size-2 shrink-0",
                           isSelected
                             ? "bg-ehs-normal-blue"
                             : "bg-ehs-muted-text",
@@ -359,7 +359,7 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                           setCustomError(null);
                         }
                       }}
-                      className="border-ehs-normal-blue/60 text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/15 h-8.5 w-40 rounded-full border bg-white px-3 text-sm outline-none focus:ring-0.75"
+                      className="border-ehs-normal-blue/60 text-ehs-dark-bg placeholder:text-ehs-muted-text focus:ring-ehs-normal-blue/15 focus:ring-0.75 h-8.5 w-40 rounded-full border bg-white px-3 text-sm outline-none"
                     />
                     <button
                       type="button"

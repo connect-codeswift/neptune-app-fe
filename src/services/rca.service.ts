@@ -165,13 +165,7 @@ function coerceRcaCorrectiveActionItem(
   raw: Record<string, unknown>,
 ): RcaCorrectiveActionItemDto | null {
   const id = asNumber(
-    readProp(
-      raw,
-      "id",
-      "Id",
-      "correctiveActionId",
-      "CorrectiveActionId",
-    ),
+    readProp(raw, "id", "Id", "correctiveActionId", "CorrectiveActionId"),
   );
   const description =
     asString(readProp(raw, "description", "Description")) ?? "";
@@ -343,8 +337,7 @@ function parseRcaIncidentEnvelope(data: unknown): RcaIncidentEnvelopeDto {
 function parseRcaContributingFactorEnvelope(
   data: unknown,
   fallback?:
-    | CreateContributingFactorRequestDto
-    | UpdateContributingFactorRequestDto,
+    CreateContributingFactorRequestDto | UpdateContributingFactorRequestDto,
 ): RcaContributingFactorEnvelopeDto {
   if (!isRecord(data)) {
     throw new HttpError({
@@ -369,10 +362,16 @@ function parseRcaContributingFactorEnvelope(
     factor = coerceRcaContributingFactor({
       ...dataModelRaw,
       id:
-        readProp(dataModelRaw, "id", "Id", "contributingFactorId", "ContributingFactorId") ??
-        contributingFactorId,
+        readProp(
+          dataModelRaw,
+          "id",
+          "Id",
+          "contributingFactorId",
+          "ContributingFactorId",
+        ) ?? contributingFactorId,
       incidentId:
-        readProp(dataModelRaw, "incidentId", "IncidentId") ?? fallback.incidentId,
+        readProp(dataModelRaw, "incidentId", "IncidentId") ??
+        fallback.incidentId,
       rcaCategoryId:
         readProp(dataModelRaw, "rcaCategoryId", "RcaCategoryId") ??
         fallback.rcaCategoryId,
@@ -495,9 +494,10 @@ function parseRcaWhyEnvelope(
   }
 
   if (!why) {
-    why = normalizeRcaWhyList(
-      readProp(data, "dataModel", "DataModel") ?? data,
-    )[0] ?? null;
+    why =
+      normalizeRcaWhyList(
+        readProp(data, "dataModel", "DataModel") ?? data,
+      )[0] ?? null;
   }
 
   assertEnvelopeSuccess(data, meta);
@@ -519,8 +519,7 @@ function parseRcaWhyEnvelope(
 function parseRcaCorrectiveActionEnvelope(
   data: unknown,
   fallback?:
-    | CreateRcaCorrectiveActionRequestDto
-    | UpdateRcaCorrectiveActionRequestDto,
+    CreateRcaCorrectiveActionRequestDto | UpdateRcaCorrectiveActionRequestDto,
 ): RcaCorrectiveActionEnvelopeDto {
   if (!isRecord(data)) {
     throw new HttpError({
@@ -726,10 +725,7 @@ export async function createRcaCorrectiveAction(
 export async function updateRcaCorrectiveAction(
   payload: UpdateRcaCorrectiveActionRequestDto,
 ): Promise<RcaCorrectiveActionItemDto> {
-  const { data } = await http.put<unknown>(
-    RCA_CORRECTIVE_ACTION_PATH,
-    payload,
-  );
+  const { data } = await http.put<unknown>(RCA_CORRECTIVE_ACTION_PATH, payload);
   return parseRcaCorrectiveActionEnvelope(data, payload).dataModel;
 }
 

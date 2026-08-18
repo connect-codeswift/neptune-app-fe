@@ -10,8 +10,16 @@ import { getCurrentUser } from "@/lib/current-user";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-function displayNameFor(user: Readonly<{ fullName?: string | null; email?: string | null; id: number }>): string {
-  return user.fullName?.trim() || user.email?.trim() || `User ${String(user.id)}`;
+function displayNameFor(
+  user: Readonly<{
+    fullName?: string | null;
+    email?: string | null;
+    id: number;
+  }>,
+): string {
+  return (
+    user.fullName?.trim() || user.email?.trim() || `User ${String(user.id)}`
+  );
 }
 
 export type LotoPersonnelSearchFieldProps = Readonly<{
@@ -60,7 +68,8 @@ export function LotoPersonnelSearchField(
 
   useDismissOnOutsideClick(rootRef, open, () => setOpen(false));
 
-  const isSearching = open && (usersQuery.isFetching || debouncedQuery !== query);
+  const isSearching =
+    open && (usersQuery.isFetching || debouncedQuery !== query);
 
   function addPerson(userId: number, name: string) {
     onChange([...value, { userId, name }]);
@@ -133,7 +142,7 @@ export function LotoPersonnelSearchField(
         />
 
         {open ? (
-          <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
             <ul
               id={listboxId}
               role="listbox"
@@ -174,7 +183,7 @@ export function LotoPersonnelSearchField(
                         addPerson(user.id, displayNameFor(user));
                         setOpen(false);
                       }}
-                      className="flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.04)]"
+                      className="rounded-2 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.04)]"
                     >
                       <span className="flex min-w-0 flex-col">
                         <span className="text-ehs-dark-bg truncate text-base font-semibold">

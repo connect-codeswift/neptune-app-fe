@@ -86,7 +86,7 @@ export function Table<TData>(props: TableProps<TData>) {
             isCapa
               ? "border-b border-white/90 px-4 py-4"
               : "border-b border-[rgba(15,23,42,0.08)]",
-            isCompliance ? "px-[15.57px] py-0" : isCapa ? "" : "px-4 py-2.5",
+            isCompliance ? "px-[16px] py-0" : isCapa ? "" : "px-4 py-2.5",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -138,7 +138,7 @@ export function Table<TData>(props: TableProps<TData>) {
                         isCapa
                           ? "text6 text-ehs-gray px-4 py-2.5 select-none"
                           : isCompliance
-                            ? "text6 text-ehs-muted-text px-[15.57px] py-3 select-none"
+                            ? "text6 text-ehs-muted-text px-[16px] py-3 select-none"
                             : isIncident
                               ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
                               : "text6 text-ehs-muted-text px-4 py-3.5 select-none",
@@ -214,7 +214,7 @@ export function Table<TData>(props: TableProps<TData>) {
                           key={cell.id}
                           className={[
                             isCompliance
-                              ? "px-[15.57px] py-3.5 align-middle"
+                              ? "px-[16px] py-3.5 align-middle"
                               : "text-ehs-darker px-4 py-4 align-middle",
                             alignClass,
                           ].join(" ")}
@@ -279,7 +279,7 @@ function TablePaginationBar(
       className={[
         "flex flex-wrap items-center justify-between gap-3 border-t py-3",
         isCompliance
-          ? "border-[rgba(15,23,42,0.08)] px-[15.57px]"
+          ? "border-[rgba(15,23,42,0.08)] px-[16px]"
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >

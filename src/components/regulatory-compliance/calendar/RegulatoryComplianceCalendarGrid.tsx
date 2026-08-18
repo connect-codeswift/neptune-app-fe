@@ -120,7 +120,7 @@ function DayTasksPanel(
               />
               <Text
                 as="span"
-                className="text4 text-ehs-darker wrap-break-word text-left"
+                className="text4 text-ehs-darker text-left wrap-break-word"
               >
                 {event.title}
               </Text>
@@ -249,14 +249,14 @@ export function RegulatoryComplianceCalendarGrid(
     <IncidentGlassCard
       paddingClassName="p-6"
       className={[
-        "relative bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5",
+        "backdrop-blur-2.5 relative bg-[rgba(255,255,255,0.62)]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       {isLoading ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-5 bg-white/45 backdrop-blur-0.25">
+        <div className="rounded-5 backdrop-blur-0.25 pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-white/45">
           <Text as="span" className="text8 text-ehs-muted-text">
             Loading calendar…
           </Text>

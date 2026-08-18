@@ -6,9 +6,7 @@ import { APP_NAV_GROUPS, getVisibleNavGroups } from "@/lib/app-nav";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { getCurrentUser } from "@/lib/current-user";
 import { parseActivatedModuleSet } from "@/lib/ehs-modules";
-import {
-  getCurrentUserPermissions,
-} from "@/lib/jwt-permissions";
+import { getCurrentUserPermissions } from "@/lib/jwt-permissions";
 import { formatJobTitleLabel } from "@/lib/format-job-title";
 import { mergePermissionSets } from "@/lib/normalize-session";
 import {
@@ -67,9 +65,9 @@ export function useSessionBootstrap() {
   const cachedAccessWindow = useCachedAccessWindow();
   const authContext = hasToken === true ? getAuthContext() : null;
   const currentUser =
-    hasToken === true ?
-      getCurrentUser()
-    : { userId: 0, siteId: 0, subCompanyId: 0, role: null };
+    hasToken === true
+      ? getCurrentUser()
+      : { userId: 0, siteId: 0, subCompanyId: 0, role: null };
 
   const sessionQuery = useQuery({
     queryKey: sessionQueryKeys.me,
@@ -82,10 +80,7 @@ export function useSessionBootstrap() {
   const session = sessionQuery.data;
 
   const accessWindow = useMemo((): AccessWindowState | null => {
-    if (
-      session &&
-      shouldShowAccessWindowBanner(session.accessExpiresAt)
-    ) {
+    if (session && shouldShowAccessWindowBanner(session.accessExpiresAt)) {
       return {
         accessExpiresAt: session.accessExpiresAt!,
         daysRemaining: session.daysRemaining ?? 0,
@@ -99,12 +94,7 @@ export function useSessionBootstrap() {
     }
 
     return null;
-  }, [
-    session,
-    cachedAccessWindow,
-    hasToken,
-    sessionQuery.isFetched,
-  ]);
+  }, [session, cachedAccessWindow, hasToken, sessionQuery.isFetched]);
 
   useEffect(() => {
     if (!session) {
@@ -153,11 +143,7 @@ export function useSessionBootstrap() {
       getCurrentUserPermissions(),
       session?.permissions ?? [],
     );
-  }, [
-    hasToken,
-    moduleOnlyGating,
-    session?.permissions,
-  ]);
+  }, [hasToken, session?.permissions]);
 
   const role = session?.role ?? currentUser.role;
 
@@ -174,22 +160,21 @@ export function useSessionBootstrap() {
   );
 
   const displayName =
-    hasToken === true ?
-      session?.fullName?.trim() || getAuthDisplayName()
-    : "";
+    hasToken === true ? session?.fullName?.trim() || getAuthDisplayName() : "";
   const siteLabel =
     session?.siteName ??
     authContext?.siteName ??
-    session?.sites.find((site) => site.id === (session?.siteId ?? authContext?.siteId))
-      ?.siteName ??
+    session?.sites.find(
+      (site) => site.id === (session?.siteId ?? authContext?.siteId),
+    )?.siteName ??
     null;
 
-  const isUserReady =
-    hasToken !== true || sessionQuery.isFetched;
+  const isUserReady = hasToken !== true || sessionQuery.isFetched;
 
   return {
     navGroups,
-    isLoading: hasToken === null || (hasToken === true && sessionQuery.isLoading),
+    isLoading:
+      hasToken === null || (hasToken === true && sessionQuery.isLoading),
     isUserReady,
     isError: sessionQuery.isError,
     sites: session?.sites ?? [],
@@ -206,7 +191,8 @@ export function useSessionBootstrap() {
       siteName: siteLabel,
       email: session?.email ?? authContext?.email ?? null,
       organizationName: session?.organizationName ?? null,
-      organizationId: session?.organizationId ?? authContext?.organizationId ?? null,
+      organizationId:
+        session?.organizationId ?? authContext?.organizationId ?? null,
     },
     activatedModules,
     permissions,

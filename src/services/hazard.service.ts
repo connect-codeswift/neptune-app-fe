@@ -108,4 +108,3 @@ export async function closeHazard(id: string) {
 
   return data;
 }
-

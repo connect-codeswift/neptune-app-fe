@@ -58,10 +58,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="h3"
-            className="text3 text-ehs-darker leading-tight"
-          >
+          <Text as="h3" className="text3 text-ehs-darker leading-tight">
             {chemical.name}
           </Text>
           <Text as="p" className="text8 text-ehs-muted-text">
@@ -141,10 +138,7 @@ export function HazcomGhsLabelCard(props: Readonly<HazcomGhsLabelCardProps>) {
                 aria-hidden="true"
                 className="h-8 w-32 bg-[repeating-linear-gradient(90deg,#0b1320_0px,#0b1320_2px,transparent_2px,transparent_5px)]"
               />
-              <Text
-                as="span"
-                className="text7 text-ehs-gray tracking-widest"
-              >
+              <Text as="span" className="text7 text-ehs-gray tracking-widest">
                 {chemical.id}
               </Text>
             </div>

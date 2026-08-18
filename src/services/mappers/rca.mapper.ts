@@ -19,9 +19,7 @@ import type {
   RcaCorrectiveActionItemDto,
   RcaWhyItemDto,
 } from "@/dtos/res/rca-incident-response.dto";
-import type {
-  HrcaRow,
-} from "@/components/incidents/detail/investigations/hrca/hrca-data";
+import type { HrcaRow } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 import type {
   ContributingFactorItem,
   StatusChecklistRow,
@@ -303,7 +301,9 @@ export function buildCreateRcaCorrectiveActionRequest(
   }
 
   if (input.contributingFactorId <= 0) {
-    throw new Error("Create the contributing factor before adding corrective actions.");
+    throw new Error(
+      "Create the contributing factor before adding corrective actions.",
+    );
   }
 
   const description = input.description.trim();
@@ -425,7 +425,9 @@ export function mapRcaContributingFactorDtoToView(
     userId: dto.userId,
     description: dto.description,
     whys: dto.whys.map(mapRcaWhyDtoToView),
-    correctiveActions: dto.correctiveActions.map(mapRcaCorrectiveActionDtoToView),
+    correctiveActions: dto.correctiveActions.map(
+      mapRcaCorrectiveActionDtoToView,
+    ),
   };
 }
 
@@ -543,9 +545,7 @@ function buildRcaWhyChainPreview(
   lanes: readonly RcaHrcaLaneViewModel[],
 ): WhyChainItem[] {
   const rootCauseItems = lanes.flatMap((lane) =>
-    lane.whys
-      .filter((why) => why.isRootCause)
-      .map((why) => ({ lane, why })),
+    lane.whys.filter((why) => why.isRootCause).map((why) => ({ lane, why })),
   );
 
   if (rootCauseItems.length > 0) {

@@ -86,7 +86,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -105,7 +105,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -137,7 +137,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (!item) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >

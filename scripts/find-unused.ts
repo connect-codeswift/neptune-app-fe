@@ -9,7 +9,7 @@
  *   node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/find-unused.ts
  *   npx tsx scripts/find-unused.ts
  *   npx tsx scripts/find-unused.ts --min 2 --json
- * 
+ *
  *   node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/find-unused.ts
  */
 

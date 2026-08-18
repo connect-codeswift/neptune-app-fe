@@ -8,8 +8,6 @@ export default async function PolicyMakerAcknowledgmentTrackingPage({
   const { id } = await params;
 
   return (
-    <AcknowledgmentTrackingContent
-      documentIdParam={decodeURIComponent(id)}
-    />
+    <AcknowledgmentTrackingContent documentIdParam={decodeURIComponent(id)} />
   );
 }

@@ -17,7 +17,8 @@ import prettierPlugin from "eslint-plugin-prettier";
 // line-height are legitimately sub-pixel, and rounding `tracking-[0.22px]` to
 // `0px` would silently change the design. Half the raw matches in this repo
 // were these two.
-const FRACTIONAL_ARBITRARY = "(?<!tracking-|leading-)\\[-?[0-9]*\\.[0-9]+(px|rem)\\]";
+const FRACTIONAL_ARBITRARY =
+  "(?<!tracking-|leading-)\\[-?[0-9]*\\.[0-9]+(px|rem)\\]";
 
 // Tailwind v4 renamed the gradient utilities. `from-*` / `via-*` / `to-*` are
 // unchanged.

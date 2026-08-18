@@ -53,7 +53,7 @@ function SidebarNavLinkPending() {
 
   return (
     <span
-      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-[1.5px] motion-reduce:animate-none"
+      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-2 motion-reduce:animate-none"
       aria-hidden="true"
     />
   );
@@ -96,9 +96,7 @@ function SidebarNavLink(
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text7 text-ehs-muted-text shrink-0">
-          {item.badge}
-        </span>
+        <span className="text7 text-ehs-muted-text shrink-0">{item.badge}</span>
       )}
     </Link>
   );
@@ -279,7 +277,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         .join(" ")}
     >
       <div className="shrink-0 px-5 pt-5">
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex items-center justify-between lg:justify-center">
           <Logo />
           {onClose ? (
             <button
@@ -316,10 +314,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           ) : (
             navGroups.map((group) => (
               <div key={group.title} className="flex flex-col gap-1">
-                <Text
-                  as="p"
-                  className="text6 text-ehs-muted-text px-3 pb-1"
-                >
+                <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
                   {group.title}
                 </Text>
                 <div className="flex flex-col gap-0.5">

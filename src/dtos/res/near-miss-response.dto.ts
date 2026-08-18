@@ -66,8 +66,7 @@ export type GetTopNearMissUsersResponseDto = ApiEnvelopeDto<
  * GET /api/NearMiss/MonthlyNearMissUsers?year=&month= — same row shape as
  * TopNearMissUsers, scoped to one calendar month.
  */
-export type GetMonthlyNearMissUsersResponseDto =
-  GetTopNearMissUsersResponseDto;
+export type GetMonthlyNearMissUsersResponseDto = GetTopNearMissUsersResponseDto;
 
 /** Matches backend response for GET /api/NearMiss/NearMiss/{id}. */
 export type GetNearMissByIdResponseDto =

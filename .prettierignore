@@ -1,0 +1,10 @@
+# Vendored build artifacts — served verbatim, not authored here. Formatting
+# public/pdf.worker.min.mjs un-minifies ~1MB of pdf.js into the bundle.
+public/
+
+# Generated
+.next/
+out/
+build/
+node_modules/
+package-lock.json

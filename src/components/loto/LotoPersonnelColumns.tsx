@@ -25,7 +25,7 @@ export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
         const item = info.row.original;
         return (
           <div className="flex items-center gap-2.5">
-            <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-8 shrink-0 items-center justify-center rounded-2.25 font-bold">
+            <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue rounded-2.25 flex size-8 shrink-0 items-center justify-center font-bold">
               {item.initials}
             </span>
             <span className="text4 text-ehs-darker">{item.name}</span>

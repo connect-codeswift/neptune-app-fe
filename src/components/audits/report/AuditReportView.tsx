@@ -31,7 +31,7 @@ export function AuditReportView(props: AuditReportViewProps) {
     <div className="mx-auto flex w-full max-w-200 min-w-0 flex-col gap-3.5">
       <IncidentGlassCard
         paddingClassName="p-5 sm:p-6"
-        className="bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+        className="backdrop-blur-2.5 bg-[rgba(255,255,255,0.62)]"
         incidentGlassCardClassName="gap-6"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -77,7 +77,7 @@ export function AuditReportView(props: AuditReportViewProps) {
       {report.sectionScores.length > 0 ? (
         <IncidentGlassCard
           paddingClassName="p-5 sm:p-6"
-          className="bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+          className="backdrop-blur-2.5 bg-[rgba(255,255,255,0.62)]"
           incidentGlassCardClassName="gap-4"
         >
           <Text as="h3" className="text3 text-ehs-darker">

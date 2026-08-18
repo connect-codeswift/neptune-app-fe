@@ -18,10 +18,7 @@ import {
   canEditNearMiss,
 } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
-import {
-  mapNearMissDtoToRecord,
-  toNearMissApiId,
-} from "@/lib/map-near-miss";
+import { mapNearMissDtoToRecord, toNearMissApiId } from "@/lib/map-near-miss";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
@@ -110,7 +107,7 @@ export function NearMissDetailContent(
                     variant="primary"
                     disabled={isClosed || closeMutation.isPending}
                     onClick={handleClose}
-                    className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                   >
                     <Icon
                       icon={
@@ -141,7 +138,7 @@ export function NearMissDetailContent(
                         `/dashboard/near-miss/${encodeURIComponent(record.id)}/convert`,
                       )
                     }
-                    className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                   >
                     <Icon
                       icon="mdi:plus"

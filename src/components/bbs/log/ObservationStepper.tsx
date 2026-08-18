@@ -17,13 +17,12 @@ export function ObservationStepper(props: ObservationStepperProps) {
         return (
           <li
             key={step}
-            className={index === 0 ? "flex items-center" : "flex flex-1 items-center"}
+            className={
+              index === 0 ? "flex items-center" : "flex flex-1 items-center"
+            }
           >
             {index === 0 ? null : (
-              <span
-                className="bg-ehs-border h-px flex-1"
-                aria-hidden="true"
-              />
+              <span className="bg-ehs-border h-px flex-1" aria-hidden="true" />
             )}
 
             <span

@@ -8,7 +8,11 @@ import { SiteWorkHoursMissingBanner } from "@/components/incidents/shared/SiteWo
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { useHeaderKpiQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
+import {
+  useHeaderKpiQuery,
+  useKpiTargetsQuery,
+  useSiteWorkHoursQuery,
+} from "@/hooks/use-incident-kpi-queries";
 import {
   mapHeaderKpisToHeroMetrics,
   mapKpiTargetsToLookup,

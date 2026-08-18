@@ -1,7 +1,5 @@
 export type CapaEffectiveness =
-  | "Effective"
-  | "Partially Effective"
-  | "Not Effective";
+  "Effective" | "Partially Effective" | "Not Effective";
 
 export type CapaChecklistItemRequestDto = Readonly<{
   item: string;

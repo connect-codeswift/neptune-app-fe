@@ -1,4 +1,7 @@
-import type { IhPlanListItem, IhPlanListStatus } from "./ih-sampling-plans-data";
+import type {
+  IhPlanListItem,
+  IhPlanListStatus,
+} from "./ih-sampling-plans-data";
 import { IH_PLAN_LIST, ihPlanPercent } from "./ih-sampling-plans-data";
 
 export type IhPlanSampleStatus = "Below PEL";

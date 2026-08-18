@@ -29,7 +29,7 @@ const textFieldClass = [
 const selectFieldClass = [fieldShellClass, "!h-9"].join(" ");
 const dateFieldClass = [
   fieldShellClass,
-  "!h-[37.6px] !w-full appearance-none pr-10",
+  "!h-[38px] !w-full appearance-none pr-10",
   "[&::-webkit-calendar-picker-indicator]:hidden",
   "[&::-webkit-datetime-edit]:text-inherit",
   "[&::-webkit-datetime-edit-fields-wrapper]:text-inherit",
@@ -40,11 +40,11 @@ const dateFieldClass = [
 ].join(" ");
 const titleFieldClass = [
   fieldShellClass,
-  "!h-[37.6px] !text-[#0b1320] placeholder:!text-[#8892a3]",
+  "!h-[38px] !text-[#0b1320] placeholder:!text-[#8892a3]",
 ].join(" ");
 
 const formCardClass =
-  "relative w-full rounded-4 border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-6 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+  "relative w-full rounded-4 border border-white/90 bg-[rgba(255,255,255,0.62)] p-6 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
 
 /** Figma EHSS-Web node 3326:20854 — stash:data-date */
 function openDatePicker(input: HTMLInputElement | null) {
@@ -186,9 +186,7 @@ export function AddObligationForm() {
     } catch (error: unknown) {
       clearPdf();
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to upload PDF.";
+        error instanceof Error ? error.message : "Failed to upload PDF.";
       setFileError(message);
       toast.error("Upload failed", message);
     } finally {
@@ -435,7 +433,7 @@ export function AddObligationForm() {
             <button
               type="submit"
               disabled={busy || !pdfSecureUrl}
-              className="text4 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center rounded-2.5 bg-[#0891a6] px-4 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 rounded-2.5 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center bg-[#0891a6] px-4 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

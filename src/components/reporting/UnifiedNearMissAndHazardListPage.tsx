@@ -175,7 +175,9 @@ export function UnifiedNearMissAndHazardListPage<TData>(
               columns={table.columns}
               getRowId={table.getRowId}
               selectedRowId={table.selectedRowId}
-              containerClassName={[complianceGlassCardClass, "min-w-0"].join(" ")}
+              containerClassName={[complianceGlassCardClass, "min-w-0"].join(
+                " ",
+              )}
               header={
                 <ReportingRegisterHeader
                   count={registerCount}

@@ -83,7 +83,8 @@ function coerceVersionDto(raw: Record<string, unknown>): DocumentVersionDto {
   return {
     id: asNumber(readProp(raw, "id", "Id")),
     versionNo: asNumber(readProp(raw, "versionNo", "VersionNo")),
-    versionLabel: asString(readProp(raw, "versionLabel", "VersionLabel")) ?? null,
+    versionLabel:
+      asString(readProp(raw, "versionLabel", "VersionLabel")) ?? null,
     status: asString(readProp(raw, "status", "Status")) ?? null,
     isCurrent: asBoolean(readProp(raw, "isCurrent", "IsCurrent")) ?? null,
     changeSummary:
@@ -109,21 +110,37 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     title: asString(readProp(raw, "title", "Title")) ?? null,
     categoryId: asNumber(readProp(raw, "categoryId", "CategoryId")),
     categoryName:
-      asString(readProp(raw, "categoryName", "CategoryName", "category", "Category")) ??
-      null,
+      asString(
+        readProp(raw, "categoryName", "CategoryName", "category", "Category"),
+      ) ?? null,
     category: asString(readProp(raw, "category", "Category")) ?? null,
     departmentId: asNumber(readProp(raw, "departmentId", "DepartmentId")),
     departmentName:
       asString(
-        readProp(raw, "departmentName", "DepartmentName", "department", "Department"),
+        readProp(
+          raw,
+          "departmentName",
+          "DepartmentName",
+          "department",
+          "Department",
+        ),
       ) ?? null,
     department: asString(readProp(raw, "department", "Department")) ?? null,
     reviewCycle: asString(readProp(raw, "reviewCycle", "ReviewCycle")) ?? null,
     createdBy: asNumber(readProp(raw, "createdBy", "CreatedBy")),
     createdByName:
-      asString(readProp(raw, "createdByName", "CreatedByName", "ownerName", "OwnerName")) ??
+      asString(
+        readProp(
+          raw,
+          "createdByName",
+          "CreatedByName",
+          "ownerName",
+          "OwnerName",
+        ),
+      ) ?? null,
+    ownerName:
+      asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
-    ownerName: asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ?? null,
     owner: asString(readProp(raw, "owner", "Owner")) ?? null,
     siteId: asNumber(
       readProp(raw, "siteId", "SiteId", "subCompanyId", "SubCompanyId"),
@@ -147,16 +164,25 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
       asString(readProp(raw, "versionLabel", "VersionLabel")) ?? null,
     versionNo: asNumber(readProp(raw, "versionNo", "VersionNo")),
     code:
-      asString(readProp(raw, "code", "Code", "documentCode", "DocumentCode")) ?? null,
-    documentCode: asString(readProp(raw, "documentCode", "DocumentCode")) ?? null,
+      asString(readProp(raw, "code", "Code", "documentCode", "DocumentCode")) ??
+      null,
+    documentCode:
+      asString(readProp(raw, "documentCode", "DocumentCode")) ?? null,
     site: asString(readProp(raw, "site", "Site")) ?? null,
-    pdfUrl: asString(readProp(raw, "pdfUrl", "PdfUrl", "fileUrl", "FileUrl")) ?? null,
+    pdfUrl:
+      asString(readProp(raw, "pdfUrl", "PdfUrl", "fileUrl", "FileUrl")) ?? null,
     fileUrl: asString(readProp(raw, "fileUrl", "FileUrl")) ?? null,
     pdfPath: asString(readProp(raw, "pdfPath", "PdfPath")) ?? null,
     fileName: asString(readProp(raw, "fileName", "FileName")) ?? null,
     fileType: asString(readProp(raw, "fileType", "FileType")) ?? null,
     fileSize: (() => {
-      const rawSize = readProp(raw, "fileSize", "FileSize", "sizeBytes", "SizeBytes");
+      const rawSize = readProp(
+        raw,
+        "fileSize",
+        "FileSize",
+        "sizeBytes",
+        "SizeBytes",
+      );
       if (typeof rawSize === "number" && Number.isFinite(rawSize)) {
         return rawSize;
       }
@@ -164,13 +190,26 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     })(),
     expiresAt:
       asString(
-        readProp(raw, "expiresAt", "ExpiresAt", "expiryDate", "ExpiryDate", "expires", "Expires"),
+        readProp(
+          raw,
+          "expiresAt",
+          "ExpiresAt",
+          "expiryDate",
+          "ExpiryDate",
+          "expires",
+          "Expires",
+        ),
       ) ?? null,
     expiryDate: asString(readProp(raw, "expiryDate", "ExpiryDate")) ?? null,
     expires: asString(readProp(raw, "expires", "Expires")) ?? null,
     reviewDate: asString(readProp(raw, "reviewDate", "ReviewDate")) ?? null,
-    createdAt: asString(readProp(raw, "createdAt", "CreatedAt", "createdDate", "CreatedDate")) ?? null,
-    updatedAt: asString(readProp(raw, "updatedAt", "UpdatedAt", "updated", "Updated")) ?? null,
+    createdAt:
+      asString(
+        readProp(raw, "createdAt", "CreatedAt", "createdDate", "CreatedDate"),
+      ) ?? null,
+    updatedAt:
+      asString(readProp(raw, "updatedAt", "UpdatedAt", "updated", "Updated")) ??
+      null,
     updated: asString(readProp(raw, "updated", "Updated")) ?? null,
     acknowledged: asNumber(
       readProp(
@@ -200,7 +239,8 @@ function coerceDocumentDto(raw: Record<string, unknown>): DocumentDto {
     totalAck: asNumber(readProp(raw, "totalAck", "TotalAck")),
     reviewersDone: asNumber(readProp(raw, "reviewersDone", "ReviewersDone")),
     reviewersTotal: asNumber(readProp(raw, "reviewersTotal", "ReviewersTotal")),
-    documentKind: asString(readProp(raw, "documentKind", "DocumentKind")) ?? null,
+    documentKind:
+      asString(readProp(raw, "documentKind", "DocumentKind")) ?? null,
     ackUserIds: asString(readProp(raw, "ackUserIds", "AckUserIds")) ?? null,
     approvalUserIds:
       asString(readProp(raw, "approvalUserIds", "ApprovalUserIds")) ?? null,
@@ -212,9 +252,7 @@ function asDocumentArray(value: unknown): DocumentDto[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value
-    .filter(isRecord)
-    .map((item) => coerceDocumentDto(item));
+  return value.filter(isRecord).map((item) => coerceDocumentDto(item));
 }
 
 function normalizeGetAllDocumentsResponse(
@@ -249,7 +287,13 @@ function normalizeGetAllDocumentsResponse(
   const page = dataModel ?? nestedData;
 
   const items = asDocumentArray(
-    (page && (page.data ?? page.Data ?? page.items ?? page.Items ?? page.documents ?? page.Documents)) ??
+    (page &&
+      (page.data ??
+        page.Data ??
+        page.items ??
+        page.Items ??
+        page.documents ??
+        page.Documents)) ??
       data.items ??
       data.Items ??
       data.data ??
@@ -460,9 +504,8 @@ function coerceCategoryDto(raw: Record<string, unknown>): DocCategoryDto {
     categorytName:
       asString(readProp(raw, "categorytName", "CategorytName")) ?? null,
     categoryName:
-      asString(
-        readProp(raw, "categoryName", "CategoryName", "name", "Name"),
-      ) ?? null,
+      asString(readProp(raw, "categoryName", "CategoryName", "name", "Name")) ??
+      null,
     name: asString(readProp(raw, "name", "Name")) ?? null,
   };
 }

@@ -122,10 +122,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
 
   return (
     <div
-      className={[
-        "flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8",
-        className,
-      ]
+      className={["flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8", className]
         .filter(Boolean)
         .join(" ")}
     >

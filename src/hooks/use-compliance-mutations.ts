@@ -44,7 +44,9 @@ export function useAddComplianceMutation() {
   return useMutation({
     mutationFn: (payload: AddComplianceRequestDto) => addCompliance(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+      await queryClient.invalidateQueries({
+        queryKey: complianceQueryKeys.all,
+      });
     },
   });
 }
@@ -75,7 +77,9 @@ export function useDeleteComplianceMutation() {
     mutationFn: (id: number) => deleteCompliance(id),
     onSuccess: async (_data, id) => {
       queryClient.removeQueries({ queryKey: complianceQueryKeys.detail(id) });
-      await queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+      await queryClient.invalidateQueries({
+        queryKey: complianceQueryKeys.all,
+      });
     },
   });
 }

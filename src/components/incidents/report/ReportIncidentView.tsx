@@ -365,7 +365,12 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
 
           <ReportIncidentAside
             severityBadge={livePreviewBadge}
-            location={[normalizedForm.location, formatIncidentLocationsLabel(normalizedForm.incidentLocations ?? [])]
+            location={[
+              normalizedForm.location,
+              formatIncidentLocationsLabel(
+                normalizedForm.incidentLocations ?? [],
+              ),
+            ]
               .filter(Boolean)
               .join(" · ")}
             title={

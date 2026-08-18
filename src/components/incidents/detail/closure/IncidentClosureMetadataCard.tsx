@@ -9,7 +9,7 @@ export type IncidentClosureMetadataCardProps = Readonly<{
 }>;
 
 export function IncidentClosureMetadataCard(
-  props: Readonly<IncidentClosureMetadataCardProps>
+  props: Readonly<IncidentClosureMetadataCardProps>,
 ) {
   const { data } = props;
 
@@ -17,23 +17,23 @@ export function IncidentClosureMetadataCard(
     <IncidentGlassCard
       paddingClassName="p-5.5"
       incidentGlassCardClassName="gap-4"
-      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-2.5"
+      className="backdrop-blur-2.5 h-fit bg-white/[0.62] shadow-none"
     >
       <div className="flex items-center justify-between">
         <Text
           as="h3"
-          className="text4 leading-normal font-bold text-ehs-dark-bg"
+          className="text4 text-ehs-dark-bg leading-normal font-bold"
         >
           Closure Metadata
         </Text>
-        <span className="rounded bg-[rgba(15,23,42,0.08)] px-2 py-0.5 text8 font-semibold text-ehs-gray">
+        <span className="text8 text-ehs-gray rounded bg-[rgba(15,23,42,0.08)] px-2 py-0.5 font-semibold">
           Auto-generated
         </span>
       </div>
 
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text8 font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Closed by
           </Text>
           <Text as="span" className="text7 text-ehs-dark-bg">
@@ -42,25 +42,25 @@ export function IncidentClosureMetadataCard(
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text8 font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Role
           </Text>
-          <Text as="span" className="text8 font-semibold text-ehs-dark-bg">
+          <Text as="span" className="text8 text-ehs-dark-bg font-semibold">
             {data.closedByRole}
           </Text>
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text8 font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Closure date
           </Text>
-          <Text as="span" className="text8 font-semibold text-ehs-dark-bg">
+          <Text as="span" className="text8 text-ehs-dark-bg font-semibold">
             {data.closureDate}
           </Text>
         </div>
 
         <div className="flex items-start justify-between gap-2">
-          <Text as="span" className="text8 font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Duration open
           </Text>
           <Text as="span" className="text7 text-ehs-dark-bg">

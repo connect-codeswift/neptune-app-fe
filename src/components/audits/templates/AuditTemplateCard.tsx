@@ -41,7 +41,7 @@ export function AuditTemplateCard(props: AuditTemplateCardProps) {
   return (
     <IncidentGlassCard
       paddingClassName="p-5"
-      className="min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+      className="backdrop-blur-2.5 min-w-0 bg-[rgba(255,255,255,0.62)]"
       incidentGlassCardClassName="gap-3"
     >
       <div className="mb-3 flex items-start justify-between gap-3">

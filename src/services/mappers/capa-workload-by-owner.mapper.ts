@@ -85,7 +85,17 @@ function normalizeOwner(raw: unknown): CapaWorkloadOwnerDto | null {
 
   return {
     assignedId: asOptionalId(
-      readProp(raw, "assignedId", "AssignedId", "ownerId", "OwnerId", "userId", "UserId", "id", "Id"),
+      readProp(
+        raw,
+        "assignedId",
+        "AssignedId",
+        "ownerId",
+        "OwnerId",
+        "userId",
+        "UserId",
+        "id",
+        "Id",
+      ),
     ),
     ownerName,
     openCount: asCount(

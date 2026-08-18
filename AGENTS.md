@@ -25,7 +25,7 @@ Work on `hamid` → push `origin/hamid`. **`origin/dev` is the integration branc
 latest** — branch from it and PR into it. `main` and `stag` trail behind.
 
 The backend is `connect-codeswift/Neptune-Ehss-BE` (`origin/Staging` is its live branch). It serves
-this app *and* four others — never assume an endpoint exists only for us.
+this app _and_ four others — never assume an endpoint exists only for us.
 
 ## Commands
 

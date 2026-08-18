@@ -79,9 +79,8 @@ function mapIntent(raw: unknown): UploadIntentResponseDto {
     fileId,
     uploadUrl,
     thumbnailUploadUrl:
-      asString(
-        readProp(raw, "thumbnailUploadUrl", "ThumbnailUploadUrl"),
-      ) || null,
+      asString(readProp(raw, "thumbnailUploadUrl", "ThumbnailUploadUrl")) ||
+      null,
     expiresAtUtc: asString(readProp(raw, "expiresAtUtc", "ExpiresAtUtc")) ?? "",
   };
 }

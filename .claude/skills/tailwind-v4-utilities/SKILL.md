@@ -27,10 +27,10 @@ Do **not** use arbitrary pixel (or rem) values when a Tailwind spacing-scale cla
 - Prefer: `h-45`, `w-12`, `p-4`, `gap-2`, `min-h-80`, `max-w-96`
 - Avoid: `h-[180px]`, `w-[48px]`, `p-[16px]`, `gap-[0.5rem]`, `min-h-[20rem]`
 
-| Arbitrary | Scale |
-|-----------|--------|
-| `Npx` | `N / 4` → e.g. `h-[180px]` → `h-45` |
-| `Nrem` | `N * 4` → e.g. `min-w-[12rem]` → `min-w-48` |
+| Arbitrary | Scale                                       |
+| --------- | ------------------------------------------- |
+| `Npx`     | `N / 4` → e.g. `h-[180px]` → `h-45`         |
+| `Nrem`    | `N * 4` → e.g. `min-w-[12rem]` → `min-w-48` |
 
 Only keep arbitrary values when the size is **not** on the 4px/0.25rem grid after rounding.
 
@@ -51,14 +51,35 @@ Class **order** is enforced too, but by Prettier rather than by the Tailwind plu
 result as `prettier/prettier` warnings in ESLint. `tailwindcss/classnames-order` is therefore off
 — two sorters would fight. Both `npx eslint --fix` and `npm run format` clear ordering warnings.
 
-| What fires | Rule |
-| --- | --- |
-| Fractional px/rem (`gap-[9.73px]`, `border-[0.97px]`) | `no-restricted-syntax` |
-| `bg-gradient-to-*` | `no-restricted-syntax` |
-| Arbitrary value that has a scale equivalent (`h-[180px]` → `h-45`) | `tailwindcss/no-unnecessary-arbitrary-value` |
-| Conflicting classes (`px-2 px-4`) | `tailwindcss/no-contradicting-classname` |
-| v3 important marker (`!flex` → `flex!`) | `tailwindcss/important-modifier-suffix` |
-| Negated arbitrary (`-translate-x-[85%]` → `translate-x-[-85%]`) | `tailwindcss/enforces-negative-arbitrary-values` |
+| What fires                                                         | Rule                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------ |
+| Fractional px/rem (`gap-[9.73px]`, `border-[0.97px]`)              | `no-restricted-syntax`                           |
+| `bg-gradient-to-*`                                                 | `no-restricted-syntax`                           |
+| Arbitrary value that has a scale equivalent (`h-[180px]` → `h-45`) | `tailwindcss/no-unnecessary-arbitrary-value`     |
+| Conflicting classes (`px-2 px-4`)                                  | `tailwindcss/no-contradicting-classname`         |
+| v3 important marker (`!flex` → `flex!`)                            | `tailwindcss/important-modifier-suffix`          |
+| Negated arbitrary (`-translate-x-[85%]` → `translate-x-[-85%]`)    | `tailwindcss/enforces-negative-arbitrary-values` |
+
+### Radius is token-gated — check before using `rounded-<number>`
+
+Tailwind's spacing scale is dynamic in v4 (`h-5.25`, `pb-2.75` all generate), **but radius is
+not**. Bare numeric radii only work when a matching `--radius-*` variable exists in
+`globals.css`, and only four do:
+
+```
+--radius-2.5: 0.625rem;   --radius-3: 0.75rem;
+--radius-4:   1rem;       --radius-5: 1.25rem;
+```
+
+`rounded-2`, `rounded-1.5`, `rounded-3.5` and friends emit **no CSS at all** — the corners
+render square and nothing warns you. Use `rounded-2.5` / `-3` / `-4` / `-5`, one of Tailwind's
+named sizes (`rounded-lg`, `rounded-full`), or an explicit `rounded-[9px]`. If you need a new
+numeric radius, add the `--radius-*` token first.
+
+> As of 2026-08-18 the repo has **263 occurrences** of untokenized numeric radii (172 of them
+> `rounded-2`) that are silently rendering square. Pre-existing and untouched by the formatting
+> sweep — fixing them changes the visual design in 263 places, so it needs a deliberate decision,
+> not a drive-by edit.
 
 Two things the enforcement deliberately does **not** do:
 

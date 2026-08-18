@@ -54,7 +54,10 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <Text as="span" className="text2 text-ehs-darker leading-none tabular-nums">
+        <Text
+          as="span"
+          className="text2 text-ehs-darker leading-none tabular-nums"
+        >
           {String(total)}
         </Text>
         <Text as="span" className="text9 text-ehs-muted-text mt-1">
@@ -221,7 +224,10 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
                   style={{ backgroundColor: segment.color }}
                   aria-hidden="true"
                 />
-                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1 truncate">
+                <Text
+                  as="span"
+                  className="text4 text-ehs-darker min-w-0 flex-1 truncate"
+                >
                   {segment.label}
                 </Text>
                 <Text as="span" className="text4 text-ehs-darker tabular-nums">
@@ -248,7 +254,10 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
                   className="bg-ehs-muted-text size-1.5 shrink-0 rounded-full"
                   aria-hidden="true"
                 />
-                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1">
+                <Text
+                  as="span"
+                  className="text4 text-ehs-darker min-w-0 flex-1"
+                >
                   {finding}
                 </Text>
               </li>

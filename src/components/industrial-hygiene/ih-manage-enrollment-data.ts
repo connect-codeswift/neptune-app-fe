@@ -180,7 +180,9 @@ const ENROLLMENT_BY_PROGRAM: Record<string, readonly IhEnrollmentRow[]> = {
 export function getIhEnrollmentProgramDetail(
   programId: string,
 ): IhEnrollmentProgramDetail | null {
-  const program = IH_SURVEILLANCE_PROGRAMS.find((item) => item.id === programId);
+  const program = IH_SURVEILLANCE_PROGRAMS.find(
+    (item) => item.id === programId,
+  );
   if (!program) return null;
 
   return {

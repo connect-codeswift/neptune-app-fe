@@ -55,7 +55,7 @@ export function PolicyMakerDetailPanel(
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -74,7 +74,7 @@ export function PolicyMakerDetailPanel(
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -106,7 +106,7 @@ export function PolicyMakerDetailPanel(
   if (!document) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >

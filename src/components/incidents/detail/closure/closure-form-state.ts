@@ -55,8 +55,7 @@ export type CreateInitialClosureDataOptions = Readonly<{
 export function createInitialClosureData(
   options: CreateInitialClosureDataOptions = {},
 ): IncidentClosureData {
-  const closedBy =
-    options.closedBy ?? (getAuthDisplayName() || "EHS Lead");
+  const closedBy = options.closedBy ?? (getAuthDisplayName() || "EHS Lead");
   const approverName = options.approverName ?? closedBy;
 
   return {

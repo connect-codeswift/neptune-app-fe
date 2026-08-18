@@ -69,7 +69,7 @@ export function InspectionReportHeader(props: InspectionReportHeaderProps) {
         variant="primary"
         onClick={onExportPdf}
         disabled={isExporting || !onExportPdf}
-        className={`${actionClass} relative z-1 shrink-0 !border-transparent !shadow-none disabled:cursor-not-allowed disabled:opacity-60`}
+        className={`${actionClass} relative z-1 shrink-0 border-transparent! shadow-none! disabled:cursor-not-allowed disabled:opacity-60`}
       >
         {isExporting ? "Exporting…" : "Export PDF"}
       </Button>

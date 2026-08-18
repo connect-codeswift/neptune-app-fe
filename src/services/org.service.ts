@@ -1,5 +1,8 @@
 import type { SessionBootstrapDto } from "@/dtos/res/session-response.dto";
-import { hasSessionData, normalizeOrgMeResponse } from "@/lib/normalize-session";
+import {
+  hasSessionData,
+  normalizeOrgMeResponse,
+} from "@/lib/normalize-session";
 import http from "@/lib/axios";
 
 const AUTH_ORG_ME_PATH = "/Auth/Org/me";

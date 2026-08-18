@@ -8,14 +8,13 @@ import type { CapaDashboardItem } from "@/components/capa/capa-dashboard-data";
 const columnHelper = createColumnHelper<CapaDashboardItem>();
 
 function statusTone(status: string): IncidentBadgeTone {
-  const normalized = status.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalized = status
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "overdue") return "danger";
   if (normalized === "pending" || normalized === "verified") return "warn";
-  if (
-    normalized === "inprogress" ||
-    normalized === "open"
-  )
-    return "teal";
+  if (normalized === "inprogress" || normalized === "open") return "teal";
   if (
     normalized === "complete" ||
     normalized === "closed" ||
@@ -184,11 +183,7 @@ export function createCapaColumns(
       cell: (info) => {
         const name = info.getValue()?.trim() || "—";
         return (
-          <Text
-            as="span"
-            className="text4 text-ehs-gray truncate"
-            title={name}
-          >
+          <Text as="span" className="text4 text-ehs-gray truncate" title={name}>
             {shortName(name)}
           </Text>
         );
@@ -253,7 +248,7 @@ export function createCapaColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
             ].join(" ")}
             aria-label={
               isOpen

@@ -227,7 +227,10 @@ export function WalkTalkRecentSessionsSection(
               </div>
               <div className="flex flex-col gap-3 p-3.5">
                 {filtered.length === 0 ? (
-                  <Text as="p" className="text4 text-ehs-muted-text py-8 text-center">
+                  <Text
+                    as="p"
+                    className="text4 text-ehs-muted-text py-8 text-center"
+                  >
                     No sessions found matching your filters.
                   </Text>
                 ) : (

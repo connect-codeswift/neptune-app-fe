@@ -36,7 +36,10 @@ function ModalBodySkeleton() {
     <div className="flex flex-col gap-5" aria-busy="true" aria-label="Loading">
       <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
         {Array.from({ length: 6 }, (_, index) => (
-          <div key={`issue-detail-sk-${String(index)}`} className="flex flex-col gap-1.5">
+          <div
+            key={`issue-detail-sk-${String(index)}`}
+            className="flex flex-col gap-1.5"
+          >
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-4 w-24" />
           </div>
@@ -93,7 +96,7 @@ export function PpeIssuanceDetailModal(
 
   return createPortal(
     <div
-      className="bg-ehs-dark-bg/45 fixed inset-0 z-[100] flex items-center justify-center p-3.5 backdrop-blur-0.75 sm:p-5"
+      className="bg-ehs-dark-bg/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-3.5 sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -114,7 +117,10 @@ export function PpeIssuanceDetailModal(
               >
                 {isLoading && !detail ? "Loading…" : title}
               </Text>
-              <Text as="p" className="text8 text-ehs-muted-text mt-0.5 truncate">
+              <Text
+                as="p"
+                className="text8 text-ehs-muted-text mt-0.5 truncate"
+              >
                 {isLoading && !detail ? "Fetching issuance" : subtitle}
               </Text>
             </div>
@@ -161,10 +167,7 @@ export function PpeIssuanceDetailModal(
               <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
                 <DetailField label="Item" value={detail.item} />
                 <DetailField label="Role" value={detail.role} />
-                <DetailField
-                  label="Quantity"
-                  value={String(detail.quantity)}
-                />
+                <DetailField label="Quantity" value={String(detail.quantity)} />
                 <DetailField label="Size" value={detail.size} />
                 <DetailField label="Issue date" value={detail.issueDate} />
                 <DetailField label="Status" value={detail.status} />
@@ -182,7 +185,10 @@ export function PpeIssuanceDetailModal(
                 <Text as="p" className="text9 text-ehs-muted-text">
                   Description
                 </Text>
-                <Text as="p" className="text4 text-ehs-slate whitespace-pre-wrap">
+                <Text
+                  as="p"
+                  className="text4 text-ehs-slate whitespace-pre-wrap"
+                >
                   {detail.note || "No description provided."}
                 </Text>
               </div>

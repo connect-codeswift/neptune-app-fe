@@ -35,9 +35,7 @@ All incident KPI endpoints use the standard Neptune envelope:
 ```json
 {
   "isError": false,
-  "dataModel": {
-    /* see below */
-  },
+  "dataModel": {/* see below */},
   "statusCode": 200,
   "success": true,
   "message": "Incident dashboard KPIs fetched successfully",

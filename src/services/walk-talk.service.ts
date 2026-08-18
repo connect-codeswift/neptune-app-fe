@@ -28,9 +28,8 @@ export async function getWalkTalkDashboardCounts() {
 
 /** Fetches top findings from GET /api/walkandtalk/top-findings. */
 export async function getWalkTalkTopFindings() {
-  const { data } = await http.get<GetWalkTalkTopFindingsResponseDto>(
-    TOP_FINDINGS_PATH,
-  );
+  const { data } =
+    await http.get<GetWalkTalkTopFindingsResponseDto>(TOP_FINDINGS_PATH);
 
   return data;
 }

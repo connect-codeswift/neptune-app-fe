@@ -27,9 +27,7 @@ const registerRequestSchema = z.object({
   organizationId: z.number().int().nonnegative(),
   organizationName: z.string().trim().min(1, "Organization name is required."),
   activatedModules: z.string().trim().min(1, "Select at least one module."),
-  sites: z
-    .array(siteRequestSchema)
-    .min(1, "At least one site is required."),
+  sites: z.array(siteRequestSchema).min(1, "At least one site is required."),
 });
 
 const signupFormSchema = z

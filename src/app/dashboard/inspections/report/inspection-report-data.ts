@@ -20,4 +20,3 @@ export type InspectionReport = Readonly<{
   executiveSummary: string;
   sectionScores: readonly SectionScore[];
 }>;
-

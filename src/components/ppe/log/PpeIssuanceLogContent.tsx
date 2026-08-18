@@ -72,7 +72,7 @@ function IssuanceLogTableHeader(
   const { onExportCsv } = props;
 
   return (
-    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+    <div className="flex h-[51px] flex-wrap items-center justify-between gap-3">
       <Text as="h2" className="text3 text-ehs-darker shrink-0">
         Issuance log
       </Text>
@@ -198,9 +198,7 @@ export function PpeIssuanceLogContent(
     toast.success("CSV downloaded");
   };
 
-  const tableHeader = (
-    <IssuanceLogTableHeader onExportCsv={handleExportCsv} />
-  );
+  const tableHeader = <IssuanceLogTableHeader onExportCsv={handleExportCsv} />;
 
   return (
     <div
@@ -275,7 +273,7 @@ export function PpeIssuanceLogContent(
                     setStatusFilter(chip.id);
                   }}
                   className={[
-                    "text8 shrink-0 cursor-pointer rounded-5 px-3 py-1.5 whitespace-nowrap transition-colors",
+                    "text8 rounded-5 shrink-0 cursor-pointer px-3 py-1.5 whitespace-nowrap transition-colors",
                     isActive
                       ? "bg-ehs-normal-blue text-white"
                       : "border-ehs-border text-ehs-muted-text border bg-white",

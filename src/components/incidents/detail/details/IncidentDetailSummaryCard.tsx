@@ -25,14 +25,11 @@ export function IncidentDetailSummaryCard(
     <IncidentGlassCard
       paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.25"
-      className={[className, isEditing ? "ring-1 ring-ehs-normal-blue/25" : ""]
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
         .filter(Boolean)
         .join(" ")}
     >
-      <Text
-        as="h3"
-        className="text-ehs-dark-bg text3"
-      >
+      <Text as="h3" className="text-ehs-dark-bg text3">
         Summary
       </Text>
       {isEditing ? (
@@ -44,7 +41,7 @@ export function IncidentDetailSummaryCard(
           className={FIELD_TEXTAREA_CLASS}
         />
       ) : (
-        <p className="text4 leading-[20.8px] whitespace-pre-wrap text-ehs-slate">
+        <p className="text4 text-ehs-slate leading-[20.8px] whitespace-pre-wrap">
           {summaryText.trim() || "No summary provided."}
         </p>
       )}

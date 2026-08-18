@@ -27,5 +27,4 @@ export type UpdateNearMissRequestDto = CreateNearMissRequestDto & {
 
 /** Either shape accepted by POST /api/NearMiss/NearMiss. */
 export type SaveNearMissRequestDto =
-  | CreateNearMissRequestDto
-  | UpdateNearMissRequestDto;
+  CreateNearMissRequestDto | UpdateNearMissRequestDto;

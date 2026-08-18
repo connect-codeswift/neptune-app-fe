@@ -87,7 +87,7 @@ function SettingsSectionNav(
             href={section.href}
             aria-current={isActive ? "page" : undefined}
             className={[
-              "inline-flex w-fit items-center rounded-2.25 px-4 py-2.25 transition-colors",
+              "rounded-2.25 inline-flex w-fit items-center px-4 py-2.25 transition-colors",
               isActive
                 ? "bg-ehs-normal-blue text5 text-ehs-light-text shadow-[0px_4px_12px_-4px_var(--ehs-normal-blue)]"
                 : "text4 text-ehs-gray hover:bg-white/70",
@@ -109,7 +109,7 @@ export function SettingsShell(props: Readonly<SettingsShellProps>) {
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pb-8 pt-4 sm:px-6">
+      <div className="flex min-w-0 flex-1 flex-col gap-5 px-3 pt-4 pb-8 sm:px-6">
         <header className="flex flex-col gap-3">
           <SettingsBreadcrumb sectionLabel={section.label} />
 

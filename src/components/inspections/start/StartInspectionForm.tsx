@@ -150,10 +150,7 @@ export function StartInspectionForm() {
   };
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-6"
-      className="w-full"
-    >
+    <IncidentGlassCard paddingClassName="p-6" className="w-full">
       <FormBuilder
         // Remount once when preselection flips in post-hydration, so the
         // one-shot initialValues seed picks up the preselected template.

@@ -30,7 +30,7 @@ export function SiteWorkHoursMissingBanner() {
   return (
     <div
       role="status"
-      className="border-ehs-border flex items-start gap-3 rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 shadow-sm"
+      className="flex items-start gap-3 rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 shadow-sm"
     >
       <Icon
         icon="mdi:clock-alert-outline"

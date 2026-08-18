@@ -9,4 +9,5 @@ export type CapaLifecycleDto = {
   total?: number | null;
 };
 
-export type GetCapaLifecycleResponseDto = ApiEnvelopeDto<CapaLifecycleDto | null>;
+export type GetCapaLifecycleResponseDto =
+  ApiEnvelopeDto<CapaLifecycleDto | null>;

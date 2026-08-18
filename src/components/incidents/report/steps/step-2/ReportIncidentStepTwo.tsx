@@ -52,9 +52,7 @@ export type ReportStepTwoErrors = Readonly<{
   natureOfInjury: string | null;
 }>;
 
-function getStepTwoErrors(
-  form: ReportIncidentFormState,
-): ReportStepTwoErrors {
+function getStepTwoErrors(form: ReportIncidentFormState): ReportStepTwoErrors {
   return {
     mechanismOfInjury: form.mechanismOfInjury.trim()
       ? null
@@ -81,8 +79,14 @@ export type ReportIncidentStepTwoProps = Readonly<{
 export function ReportIncidentStepTwo(
   props: Readonly<ReportIncidentStepTwoProps>,
 ) {
-  const { form, onChange, onBack, onContinue, showFieldErrors = false, className = "" } =
-    props;
+  const {
+    form,
+    onChange,
+    onBack,
+    onContinue,
+    showFieldErrors = false,
+    className = "",
+  } = props;
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const showErrors = attemptedContinue || showFieldErrors;
@@ -226,7 +230,9 @@ export function ReportIncidentStepTwo(
                   label="Initial Treatment"
                   required
                   value={form.initialTreatment}
-                  onChange={(initialTreatment) => onChange({ initialTreatment })}
+                  onChange={(initialTreatment) =>
+                    onChange({ initialTreatment })
+                  }
                   options={[...INITIAL_TREATMENT_OPTIONS]}
                   customOptions={form.customOptions.initialTreatment}
                   onAddCustomOption={(option) =>
@@ -238,10 +244,7 @@ export function ReportIncidentStepTwo(
               </div>
             ) : null}
             <div
-              className={[
-                "pb-4.5",
-                isFirstAid ? "sm:col-span-2" : "",
-              ]
+              className={["pb-4.5", isFirstAid ? "sm:col-span-2" : ""]
                 .filter(Boolean)
                 .join(" ")}
             >

@@ -119,9 +119,7 @@ export function HazcomRiskLevelOutput(
                 <span
                   className={[
                     "text7 w-3 shrink-0 text-right tabular-nums",
-                    row.field === "health"
-                      ? "text-ehs-red"
-                      : "text-ehs-darker",
+                    row.field === "health" ? "text-ehs-red" : "text-ehs-darker",
                   ].join(" ")}
                 >
                   {String(value)}

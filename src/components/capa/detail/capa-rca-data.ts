@@ -256,7 +256,8 @@ export function mapRcaFactorsToCapaLanes(
 
     return {
       id: String(factor.id),
-      category: factor.rcaCategoryName.trim() || `Category ${String(index + 1)}`,
+      category:
+        factor.rcaCategoryName.trim() || `Category ${String(index + 1)}`,
       categoryClassName: style.categoryClassName,
       accent: style.accent,
       accentSoft: style.accentSoft,

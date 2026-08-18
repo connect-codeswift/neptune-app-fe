@@ -72,10 +72,7 @@ export function guessAttachmentKind(url: string): "image" | "video" | "pdf" {
 }
 
 /** Prefer original upload name; fall back to a cleaned Cloudinary path segment. */
-export function fileNameFromAttachmentUrl(
-  url: string,
-  index: number,
-): string {
+export function fileNameFromAttachmentUrl(url: string, index: number): string {
   const original = readAttachmentDisplayName(url);
   if (original) {
     return original;

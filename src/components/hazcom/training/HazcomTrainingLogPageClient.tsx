@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
@@ -83,12 +83,7 @@ export function HazcomTrainingLogPageClient() {
           null),
     [selectedId, filteredSessions, items],
   );
-
-  useEffect(() => {
-    if (selectedId != null && selectedSession == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedSession]);
+  const activeSelectedId = selectedSession?.id ?? null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -151,7 +146,7 @@ export function HazcomTrainingLogPageClient() {
           >
             <HazcomTrainingLogTable
               sessions={filteredSessions}
-              selectedId={selectedId}
+              selectedId={activeSelectedId}
               onViewMore={handleToggleDetailPanel}
               expanded={!isPanelOpen}
               header={
@@ -240,7 +235,9 @@ export function HazcomTrainingLogPageClient() {
                               className="size-3.5 shrink-0"
                               aria-hidden="true"
                             />
-                            <span className="truncate">{material.fileName}</span>
+                            <span className="truncate">
+                              {material.fileName}
+                            </span>
                           </a>
                         </li>
                       ))}

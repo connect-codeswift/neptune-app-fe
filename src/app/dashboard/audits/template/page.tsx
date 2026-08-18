@@ -113,7 +113,10 @@ export default function AuditTemplatesPage() {
               >
                 Previous
               </button>
-              <Text as="span" className="text8 text-ehs-muted-text tabular-nums">
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text tabular-nums"
+              >
                 {`Page ${String(pageNumber)} of ${String(totalPages)}`}
               </Text>
               <button

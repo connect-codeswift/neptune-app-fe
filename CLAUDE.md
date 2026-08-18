@@ -10,12 +10,12 @@ every agent — Claude Code, Cursor, Codex — reads the same file. Edit `AGENTS
 Every skill under `.claude/skills/` is mirrored by a Cursor rule of the same name under
 `.cursor/rules/`, and the two bodies are kept identical — **edit both, or neither**:
 
-| Skill | Cursor rule | Covers |
-| --- | --- | --- |
-| `api-integration/` | `api-integration.mdc` | Wiring an endpoint: DTO → service → mapper → hook → Content component |
-| `react-readonly-props/` | `react-readonly-props.mdc` | `Readonly<XProps>` on every component (Sonar S6759) |
-| `tailwind-v4-utilities/` | `tailwind-v4-utilities.mdc` | Spacing scale, rounding Figma/MCP px, `bg-linear-to-*` |
-| `verify-before-done/` | `verify-before-done.mdc` | Fan out typecheck / lint / build across three agents; loop until clear |
+| Skill                    | Cursor rule                 | Covers                                                                 |
+| ------------------------ | --------------------------- | ---------------------------------------------------------------------- |
+| `api-integration/`       | `api-integration.mdc`       | Wiring an endpoint: DTO → service → mapper → hook → Content component  |
+| `react-readonly-props/`  | `react-readonly-props.mdc`  | `Readonly<XProps>` on every component (Sonar S6759)                    |
+| `tailwind-v4-utilities/` | `tailwind-v4-utilities.mdc` | Spacing scale, rounding Figma/MCP px, `bg-linear-to-*`                 |
+| `verify-before-done/`    | `verify-before-done.mdc`    | Fan out typecheck / lint / build across three agents; loop until clear |
 
 Cursor has no rule mirroring `AGENTS.md` itself; Cursor agents should read `AGENTS.md` directly,
 as Claude does through this file.

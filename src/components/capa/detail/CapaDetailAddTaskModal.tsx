@@ -90,7 +90,7 @@ export function CapaDetailAddTaskModal(
 
   return createPortal(
     <div
-      className="backdrop-blur-0.5 fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4"
+      className="backdrop-blur-0.5 fixed inset-0 z-110 flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4"
       onClick={() => {
         if (!busy) onClose();
       }}

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
@@ -245,8 +252,8 @@ export function ReportWitnessesField(
             inputRef.current?.focus();
           }}
           className={[
-            "flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-2.5 border border-[rgba(15,23,42,0.08)]",
-            "bg-white/[0.62] px-3.25 py-1.5 pr-9 backdrop-blur-1.25",
+            "rounded-2.5 flex min-h-9 w-full flex-wrap items-center gap-1.5 border border-[rgba(15,23,42,0.08)]",
+            "backdrop-blur-1.25 bg-white/[0.62] px-3.25 py-1.5 pr-9",
             "transition-[color,background-color,border-color,box-shadow] duration-150",
             "hover:border-[rgba(15,23,42,0.18)] hover:bg-white/[0.78]",
             open
@@ -257,7 +264,7 @@ export function ReportWitnessesField(
           {selectedNames.map((name) => (
             <span
               key={name.toLowerCase()}
-              className="border-ehs-border bg-ehs-light-bg text-ehs-darker inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 text-3.25 font-medium"
+              className="border-ehs-border bg-ehs-light-bg text-ehs-darker text-3.25 inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 font-medium"
             >
               <span className="truncate">{name}</span>
               <button
@@ -320,9 +327,9 @@ export function ReportWitnessesField(
         />
 
         {open ? (
-          <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
             {siteName ? (
-              <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-2 pb-1.5 text-2.5 font-semibold tracking-wider uppercase">
+              <p className="text-ehs-muted-text border-ehs-border text-2.5 truncate border-b px-3 pt-2 pb-1.5 font-semibold tracking-wider uppercase">
                 People at {siteName}
               </p>
             ) : null}
@@ -335,7 +342,7 @@ export function ReportWitnessesField(
               className="max-h-56 overflow-y-auto p-1"
             >
               {siteId <= 0 ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
+                <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
                   Your sign-in isn&apos;t linked to a site, so there&apos;s no
                   roster to search. Press Enter to add a typed name.
                 </li>
@@ -344,17 +351,17 @@ export function ReportWitnessesField(
                   {[0, 1, 2].map((row) => (
                     <span
                       key={row}
-                      className="h-10 animate-pulse rounded-2 bg-[rgba(15,23,42,0.06)]"
+                      className="rounded-2 h-10 animate-pulse bg-[rgba(15,23,42,0.06)]"
                     />
                   ))}
                 </li>
               ) : usersQuery.isError ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
+                <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
                   Couldn&apos;t load people for this site. Press Enter to add a
                   typed name, or try again in a moment.
                 </li>
               ) : users.length === 0 ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
+                <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
                   {debouncedQuery.trim()
                     ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Press Enter to keep that name.`
                     : `No people are listed for ${siteName ?? "this site"} yet.`}
@@ -386,7 +393,7 @@ export function ReportWitnessesField(
                         }}
                         onMouseEnter={() => moveHighlight(index)}
                         className={[
-                          "flex w-full items-center gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors",
+                          "rounded-2 flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition-colors",
                           isSelected
                             ? "cursor-default opacity-60"
                             : "cursor-pointer hover:bg-[rgba(15,23,42,0.04)]",
@@ -395,15 +402,15 @@ export function ReportWitnessesField(
                             : "",
                         ].join(" ")}
                       >
-                        <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-2.75 font-bold">
+                        <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
                           {initialsFor(name)}
                         </span>
                         <span className="flex min-w-0 flex-1 flex-col">
-                          <span className="text-ehs-dark-bg truncate text-[13.5px] font-semibold">
+                          <span className="text-ehs-dark-bg truncate text-[14px] font-semibold">
                             {name}
                           </span>
                           {secondary ? (
-                            <span className="text-ehs-muted-text truncate text-[11.5px]">
+                            <span className="text-ehs-muted-text truncate text-[12px]">
                               {secondary}
                             </span>
                           ) : null}

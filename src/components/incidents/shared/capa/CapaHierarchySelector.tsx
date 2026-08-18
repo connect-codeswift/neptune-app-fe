@@ -56,8 +56,8 @@ const LEVELS: readonly Level[] = [
   {
     id: "Elimination",
     label: "Elimination",
-    fill: "#0891A6",
-    labelClass: "text-white",
+    fill: "#3a72ad",
+    labelClass: "text-ehs-light-text",
     viewBox: "0 0 391.69 55.8906",
     path: "M0 0L391.69 4.39328e-05C385.486 11.4712 377.904 23.8374 371.362 35.2776L359.381 55.8874L32.5376 55.8906L0 0Z",
     top: 0,
@@ -69,8 +69,8 @@ const LEVELS: readonly Level[] = [
   {
     id: "Substitution",
     label: "Substitution",
-    fill: "#0891A6",
-    labelClass: "text-white",
+    fill: "#7fb539",
+    labelClass: "text-ehs-dark-bg",
     viewBox: "0 0 321.217 55.3021",
     path: "M0 0.143404C14.1767 -0.137902 28.9132 0.0809157 43.1337 0.0836883L122.571 0.0847557L321.217 0.101606C318.778 4.63684 315.883 9.40647 313.273 13.8809L300.921 35.1836C297.231 41.8533 293.115 48.6544 289.3 55.2967L31.7854 55.3021C28.6298 49.49 0.311462 2.0861 0 0.143404Z",
     top: 60.73,
@@ -82,8 +82,8 @@ const LEVELS: readonly Level[] = [
   {
     id: "Engineering Controls",
     label: "Engineering Controls",
-    fill: "#0891A6",
-    labelClass: "text-white",
+    fill: "#fcc10f",
+    labelClass: "text-ehs-dark-bg",
     viewBox: "0 0 252.811 54.5884",
     path: "M0 0.0264508L252.811 0C250.64 3.96751 248.003 8.24896 245.694 12.1653L232.796 34.0287C229.025 40.7365 224.694 47.7568 220.774 54.454C198.746 54.7417 176.066 54.4796 153.98 54.4696L32.1543 54.4723C28.3919 48.386 24.5683 41.6156 20.8959 35.4214L0 0.0264508Z",
     top: 120.44,
@@ -95,8 +95,8 @@ const LEVELS: readonly Level[] = [
   {
     id: "Administrative controls",
     label: "Administrative controls",
-    fill: "#0891A6",
-    labelClass: "text-white",
+    fill: "#ef8b2c",
+    labelClass: "text-ehs-dark-bg",
     viewBox: "0 0 184.419 52.5537",
     path: "M0 0.131956C6.60547 -0.126957 14.6494 0.074799 21.3929 0.0758654L61.6651 0.0814107L184.419 0.0735093C178.241 11.0297 171.496 22.2327 165.146 33.1395C161.452 39.4438 157.291 46.1832 153.816 52.5494L30.6946 52.5537C21.9869 37.2812 12.8021 22.2285 3.97615 7.01959C2.64487 4.72584 1.24436 2.47582 0 0.131956Z",
     top: 179.24,
@@ -108,8 +108,8 @@ const LEVELS: readonly Level[] = [
   {
     id: "PPE",
     label: "PPE",
-    fill: "#0891A6",
-    labelClass: "text-white",
+    fill: "#d81f26",
+    labelClass: "text-ehs-light-text",
     viewBox: "0 0 116.92 97.583",
     path: "M58.4602 0L116.92 97.583H0L58.4602 0Z",
     top: 205.17,
@@ -170,10 +170,7 @@ export function CapaHierarchySelector(
 
   return (
     <div
-      className={[
-        "relative mx-auto h-[335.285px] w-full max-w-[391.69px]",
-        className,
-      ]
+      className={["relative mx-auto h-[335px] w-full max-w-[392px]", className]
         .filter(Boolean)
         .join(" ")}
       role="radiogroup"

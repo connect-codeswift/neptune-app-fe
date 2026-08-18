@@ -6,7 +6,8 @@ import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
  * backend's inconsistent casing before anything else sees the row.
  */
 
-export type LotoEquipmentStatusDto = "Operational" | "Locked Out" | "Maintenance";
+export type LotoEquipmentStatusDto =
+  "Operational" | "Locked Out" | "Maintenance";
 
 /** One row of POST /api/Loto/GetAllEquipment. `energySources` is comma-separated. */
 export type LotoEquipmentGridRowDto = {

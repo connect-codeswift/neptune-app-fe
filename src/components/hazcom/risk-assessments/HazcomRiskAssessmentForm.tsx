@@ -226,7 +226,7 @@ export function HazcomRiskAssessmentForm(
                   aria-pressed={selected}
                   onClick={() => togglePpe(option)}
                   className={[
-                    "text8 inline-flex items-center gap-1 rounded-2.5 border px-3 py-1.5 transition-colors",
+                    "text8 rounded-2.5 inline-flex items-center gap-1 border px-3 py-1.5 transition-colors",
                     selected
                       ? "border-ehs-normal-blue text-ehs-dark-blue bg-white"
                       : "border-ehs-border text-ehs-muted-text hover:border-ehs-normal-blue/50 bg-white/60",
@@ -258,7 +258,7 @@ export function HazcomRiskAssessmentForm(
             <Button
               type="button"
               variant="tertiary"
-              className="text4 h-9 rounded-2.5 px-3"
+              className="text4 rounded-2.5 h-9 px-3"
             >
               Cancel
             </Button>
@@ -270,7 +270,7 @@ export function HazcomRiskAssessmentForm(
               variant="secondary"
               disabled={createAssessment.isPending}
               onClick={() => save(true)}
-              className="text4 h-9 rounded-2.5 px-3"
+              className="text4 rounded-2.5 h-9 px-3"
             >
               Save as Draft
             </Button>
@@ -278,7 +278,7 @@ export function HazcomRiskAssessmentForm(
               type="submit"
               variant="primary"
               isLoading={createAssessment.isPending}
-              className="text4 h-9 rounded-2.5 px-3"
+              className="text4 rounded-2.5 h-9 px-3"
             >
               {createAssessment.isPending ? "Saving…" : "Submit for Review"}
             </Button>

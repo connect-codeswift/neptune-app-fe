@@ -85,13 +85,7 @@ export type ScoringLogicStepProps = Readonly<{
 }>;
 
 export function ScoringLogicStep(props: ScoringLogicStepProps) {
-  const {
-    sections,
-    scoring,
-    onScoringChange,
-    rules,
-    onRulesChange,
-  } = props;
+  const { sections, scoring, onScoringChange, rules, onRulesChange } = props;
 
   const items = sections.flatMap((section) => section.items);
   const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);

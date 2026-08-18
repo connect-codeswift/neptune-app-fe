@@ -88,7 +88,9 @@ export function LotoActiveLockoutsSection() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 className="text3 text-ehs-darker">{item.equipmentName}</h3>
-              <p className="text4 text-ehs-muted-text mt-0.75">{item.purpose}</p>
+              <p className="text4 text-ehs-muted-text mt-0.75">
+                {item.purpose}
+              </p>
             </div>
 
             {item.canRemove ? (
@@ -97,7 +99,7 @@ export function LotoActiveLockoutsSection() {
                 onClick={() => {
                   router.push(lotoRemoveLockoutRoute(item.id));
                 }}
-                className="text4 text-ehs-gray inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
+                className="text4 text-ehs-gray rounded-2.5 inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
               >
                 <Icon icon="mdi:lock-open-outline" className="size-3.5" />
                 Remove Lockout
@@ -107,17 +109,16 @@ export function LotoActiveLockoutsSection() {
 
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {META_FIELDS.map((field) => (
-              <div
-                key={field.key}
-                className="rounded-2.5 px-3 pt-2.5 pb-2.5"
-              >
+              <div key={field.key} className="rounded-2.5 px-3 pt-2.5 pb-2.5">
                 <div className="flex items-center gap-1.25">
                   <Icon
                     icon={field.icon}
                     className="size-3.5 text-[#b3bbc8]"
                     aria-hidden="true"
                   />
-                  <span className="text6 text-ehs-muted-text">{field.label}</span>
+                  <span className="text6 text-ehs-muted-text">
+                    {field.label}
+                  </span>
                 </div>
                 <p className="text4 text-ehs-darker mt-1">
                   {field.getValue(item)}

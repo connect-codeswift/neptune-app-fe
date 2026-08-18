@@ -40,7 +40,7 @@ function CapaBadge(props: Readonly<{ label: string; tone: string }>) {
   return (
     <span
       className={[
-        "inline-flex items-center rounded-full px-2 py-0.5 text-2.75 font-semibold whitespace-nowrap",
+        "text-2.75 inline-flex items-center rounded-full px-2 py-0.5 font-semibold whitespace-nowrap",
         tone,
       ].join(" ")}
     >
@@ -59,7 +59,7 @@ function CapaKpiTile(
       <div className="flex items-center justify-between gap-3">
         <Text
           as="p"
-          className="text-ehs-gray text-[11.5px] font-bold tracking-[0.23px] uppercase"
+          className="text-ehs-gray text-[12px] font-bold tracking-[0.23px] uppercase"
         >
           {label}
         </Text>

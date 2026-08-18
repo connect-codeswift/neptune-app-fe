@@ -49,7 +49,7 @@ export function ReportIncidentStepThree(
             </Text>
             <Text
               as="h2"
-              className="text-ehs-dark-bg text-[21.8px] font-bold tracking-[-0.44px]"
+              className="text-ehs-dark-bg text-[22px] font-bold tracking-[-0.44px]"
             >
               People & injury
             </Text>

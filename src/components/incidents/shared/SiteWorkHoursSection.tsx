@@ -54,7 +54,9 @@ export type SiteWorkHoursSectionProps = Readonly<{
   className?: string;
 }>;
 
-export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>) {
+export function SiteWorkHoursSection(
+  props: Readonly<SiteWorkHoursSectionProps>,
+) {
   const { className = "" } = props;
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
@@ -210,7 +212,10 @@ export function SiteWorkHoursSection(props: Readonly<SiteWorkHoursSectionProps>)
             {saveMutation.isPending ? "Saving…" : "Save hours"}
           </Button>
         ) : (
-          <Text as="p" className="text8 text-ehs-muted-text max-w-xs text-right">
+          <Text
+            as="p"
+            className="text8 text-ehs-muted-text max-w-xs text-right"
+          >
             Contact your EHS Manager to update hours.
           </Text>
         )}

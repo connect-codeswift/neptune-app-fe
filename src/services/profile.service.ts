@@ -33,9 +33,8 @@ export async function uploadAvatar(profileUrl: string) {
 }
 
 export async function removeAvatar() {
-  const { data } = await http.delete<ApiEnvelopeDto<UserAvatarResponseDto>>(
-    AUTH_AVATAR_PATH,
-  );
+  const { data } =
+    await http.delete<ApiEnvelopeDto<UserAvatarResponseDto>>(AUTH_AVATAR_PATH);
 
   return data;
 }

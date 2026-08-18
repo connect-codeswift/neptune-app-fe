@@ -42,9 +42,7 @@ function formatDueBadge(rawDue: unknown): string {
  * candidates are unconfirmed guesses (mirroring CAPA-style naming used
  * elsewhere) — verify and adjust once a populated response is available.
  */
-function mapMyActionToItem(
-  raw: MyActionItemDto,
-): ComplianceDeadlinesItem {
+function mapMyActionToItem(raw: MyActionItemDto): ComplianceDeadlinesItem {
   const title =
     asString(readProp(raw, "title", "Title", "name", "Name")) ??
     "Untitled action";

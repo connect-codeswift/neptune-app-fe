@@ -79,7 +79,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             {detail.authorizedPersonnel.map((person) => (
               <div
                 key={person.id}
-                className="inline-flex items-center gap-2 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5"
+                className="rounded-2.5 inline-flex items-center gap-2 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5"
               >
                 <span className="text7 flex size-7 items-center justify-center rounded-lg bg-[rgba(8,145,166,0.12)] font-bold text-[#0891a6]">
                   {person.initials}

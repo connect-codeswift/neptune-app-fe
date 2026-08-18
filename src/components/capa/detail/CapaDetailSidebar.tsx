@@ -48,7 +48,7 @@ export function CapaDetailSidebar(props: CapaDetailSidebarProps) {
 
         <MetaRow label="Status">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.12)] px-2.5 py-0.5 text-sm font-semibold tracking-[0.11px] text-[#92400e]">
-            <span className="size-1.5 rounded-0.75 bg-[#f59e0b]" aria-hidden />
+            <span className="rounded-0.75 size-1.5 bg-[#f59e0b]" aria-hidden />
             {record.statusLabel}
           </span>
         </MetaRow>

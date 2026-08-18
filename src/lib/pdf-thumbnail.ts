@@ -6,9 +6,7 @@
  * evaluates `DOMMatrix` at module load, which Node does not have, and Next
  * then falls back from SSR to client rendering for every FormBuilder page.
  */
-export async function renderPdfFirstPageJpeg(
-  file: File,
-): Promise<File | null> {
+export async function renderPdfFirstPageJpeg(file: File): Promise<File | null> {
   if (typeof window === "undefined") {
     return null;
   }

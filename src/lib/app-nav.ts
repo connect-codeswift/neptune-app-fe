@@ -223,7 +223,10 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
  */
 function matchesRole(role: string | null, expected: string): boolean {
   const normalize = (value: string) =>
-    value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "");
   return role != null && normalize(role) === normalize(expected);
 }
 
@@ -281,7 +284,10 @@ function isNavItemVisible(
 
   // First, and deliberately ahead of both bypasses below: an allowedRoles list is a
   // restriction, and a restriction that any later rule can widen is not one.
-  if (item.allowedRoles && !item.allowedRoles.some((r) => matchesRole(role, r))) {
+  if (
+    item.allowedRoles &&
+    !item.allowedRoles.some((r) => matchesRole(role, r))
+  ) {
     return false;
   }
 

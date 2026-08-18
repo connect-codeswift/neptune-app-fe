@@ -395,7 +395,8 @@ export function normalizeIncidentDashboardKpisDto(
     lostTimeCount: asNumber(raw.lostTimeCount ?? raw.LostTimeCount) ?? 0,
     restrictedWorkCount:
       asNumber(raw.restrictedWorkCount ?? raw.RestrictedWorkCount) ?? 0,
-    medicalOnlyCount: asNumber(raw.medicalOnlyCount ?? raw.MedicalOnlyCount) ?? 0,
+    medicalOnlyCount:
+      asNumber(raw.medicalOnlyCount ?? raw.MedicalOnlyCount) ?? 0,
     firstAidCount: asNumber(raw.firstAidCount ?? raw.FirstAidCount) ?? 0,
     fatalityCount: asNumber(raw.fatalityCount ?? raw.FatalityCount) ?? 0,
     lostDays: asNumber(raw.lostDays ?? raw.LostDays) ?? 0,
@@ -404,12 +405,17 @@ export function normalizeIncidentDashboardKpisDto(
     sipCount: asNumber(raw.sipCount ?? raw.SipCount) ?? 0,
     recordablesBySite,
     recordablesMonthly,
-    recordableMix: normalizeRecordableMix(raw.recordableMix ?? raw.RecordableMix),
+    recordableMix: normalizeRecordableMix(
+      raw.recordableMix ?? raw.RecordableMix,
+    ),
     targets,
   };
 }
 
-function computeChartYMax(series: readonly number[], target: number | null): number {
+function computeChartYMax(
+  series: readonly number[],
+  target: number | null,
+): number {
   const peak = Math.max(...series, target ?? 0, 1);
   if (peak <= 6) {
     return 6;
@@ -436,9 +442,7 @@ function mapRecordableChart(
   };
 }
 
-function mapInjuryMix(
-  dto: IncidentDashboardKpisDto,
-): readonly InjuryMixItem[] {
+function mapInjuryMix(dto: IncidentDashboardKpisDto): readonly InjuryMixItem[] {
   return [
     {
       label: "Fatality",

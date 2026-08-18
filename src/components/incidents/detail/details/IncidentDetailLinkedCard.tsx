@@ -47,7 +47,7 @@ export function IncidentDetailLinkedCard(
           type="button"
           onClick={onAddCapa}
           disabled={!onAddCapa || isLoading}
-          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-2.5 px-2.75 py-[6.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-2.75 py-[7px] shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add CAPA
@@ -57,7 +57,7 @@ export function IncidentDetailLinkedCard(
       {isLoading ? (
         <SkeletonListRows rows={2} />
       ) : linkedItems.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-6 text-center text4">
+        <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] py-6 text-center">
           No CAPAs linked to this incident yet.
         </div>
       ) : (
@@ -78,7 +78,7 @@ export function IncidentDetailLinkedCard(
               <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                 {item.id}
               </span>
-              <span className="text-ehs-muted-text truncate text4 leading-normal">
+              <span className="text-ehs-muted-text text4 truncate leading-normal">
                 {item.label}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function IncidentDetailLinkedCard(
           <button
             type="button"
             onClick={onViewAll}
-            className="text-ehs-gray hover:text-ehs-dark-bg mx-auto flex items-center gap-2 rounded-2.5 px-2.5 py-[5.5px] text5 transition-colors"
+            className="text-ehs-gray hover:text-ehs-dark-bg rounded-2.5 text5 mx-auto flex items-center gap-2 px-2.5 py-[6px] transition-colors"
           >
             {hasMoreThanPreview
               ? `View all ${String(totalCount)} linked items`

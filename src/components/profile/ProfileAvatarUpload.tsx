@@ -57,7 +57,8 @@ function AvatarPreview(
     .join(" ");
 
   if (profileUrl) {
-    const useResolved = isStoredFileId(profileUrl) || isLegacyPublicUrl(profileUrl);
+    const useResolved =
+      isStoredFileId(profileUrl) || isLegacyPublicUrl(profileUrl);
     return (
       <div className={frameClass}>
         {isBlobUrl(profileUrl) || !useResolved ? (
@@ -152,7 +153,7 @@ function AvatarCropModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-ehs-dark-bg/45 p-4 backdrop-blur-0.75"
+      className="bg-ehs-dark-bg/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-4"
       onClick={isSaving ? undefined : onClose}
       role="presentation"
     >
@@ -169,7 +170,7 @@ function AvatarCropModal(
           </Text>
         </div>
 
-        <div className="relative h-72 bg-ehs-dark-bg">
+        <div className="bg-ehs-dark-bg relative h-72">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -234,10 +235,7 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
   const removeMutation = useRemoveProfileAvatarMutation();
 
   const resolvedProfileUrl =
-    localProfileUrl ??
-    profileUrlOverride ??
-    avatarQuery.data ??
-    null;
+    localProfileUrl ?? profileUrlOverride ?? avatarQuery.data ?? null;
 
   /**
    * Only mutations disable the control. React Query's `isLoading` is idle on

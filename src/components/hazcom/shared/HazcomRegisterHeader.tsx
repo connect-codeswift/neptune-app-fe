@@ -63,10 +63,7 @@ export function HazcomRegisterHeader(
 
   return (
     <div
-      className={[
-        "flex h-12.5 items-center justify-between gap-3",
-        className,
-      ]
+      className={["flex h-12.5 items-center justify-between gap-3", className]
         .filter(Boolean)
         .join(" ")}
     >

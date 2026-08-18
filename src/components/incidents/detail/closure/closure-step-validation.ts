@@ -17,9 +17,7 @@ function getDerivedRecordable(finalIncidentType: string): boolean {
 }
 
 /** Step 1 — Classification */
-function validateClosureStepOne(
-  data: IncidentClosureData,
-): string | null {
+function validateClosureStepOne(data: IncidentClosureData): string | null {
   const incidentType = data.finalIncidentType?.trim() || "Select option";
 
   if (incidentType === "Select option" || !incidentType) {
@@ -30,10 +28,7 @@ function validateClosureStepOne(
     return "Lost Time requires at least 1 day away.";
   }
 
-  if (
-    incidentType === "Restricted Work" &&
-    data.daysOnRestrictedDuty < 1
-  ) {
+  if (incidentType === "Restricted Work" && data.daysOnRestrictedDuty < 1) {
     return "Restricted Work / Job Transfer requires at least 1 day on restricted duty.";
   }
 
@@ -48,9 +43,7 @@ function validateClosureStepOne(
 }
 
 /** Step 2 — Root cause */
-function validateClosureStepTwo(
-  data: IncidentClosureData,
-): string | null {
+function validateClosureStepTwo(data: IncidentClosureData): string | null {
   if ((data.primaryRootCauseCategoryIds ?? []).length === 0) {
     return "Select at least one primary root cause category.";
   }
@@ -63,9 +56,7 @@ function validateClosureStepTwo(
 }
 
 /** Step 3 — Preventive measures */
-function validateClosureStepThree(
-  data: IncidentClosureData,
-): string | null {
+function validateClosureStepThree(data: IncidentClosureData): string | null {
   if (!data.actionsTaken?.trim()) {
     return "Describe the preventive actions taken before continuing.";
   }
@@ -74,9 +65,7 @@ function validateClosureStepThree(
 }
 
 /** Step 4 — Sign-off */
-function validateClosureStepFour(
-  data: IncidentClosureData,
-): string | null {
+function validateClosureStepFour(data: IncidentClosureData): string | null {
   if (!data.isEhsConfirmed) {
     return "Confirm EHS verification before closing the incident.";
   }

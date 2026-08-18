@@ -16,8 +16,7 @@ import {
 
 function useInvalidateLoto() {
   const queryClient = useQueryClient();
-  return () =>
-    queryClient.invalidateQueries({ queryKey: lotoQueryKeys.all });
+  return () => queryClient.invalidateQueries({ queryKey: lotoQueryKeys.all });
 }
 
 /** POST /api/Loto/equipment — creates the machine and its procedure in one call. */
