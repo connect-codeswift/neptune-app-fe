@@ -1,4 +1,4 @@
-/** Request body for POST /api/Rca/ContributingFactor */
+/** Request body for POST /api/v1/rca-contributing-factors */
 export type CreateContributingFactorRequestDto = Readonly<{
   incidentId: number;
   rcaCategoryId: number;
@@ -6,7 +6,7 @@ export type CreateContributingFactorRequestDto = Readonly<{
   userId: number;
 }>;
 
-/** Request body for PUT /api/Rca/ContributingFactor */
+/** Request body for PUT /api/v1/rca-contributing-factors */
 export type UpdateContributingFactorRequestDto = Readonly<{
   siteId: number;
   userId: number;
@@ -16,7 +16,7 @@ export type UpdateContributingFactorRequestDto = Readonly<{
   description: string;
 }>;
 
-/** Request body for PATCH /api/Rca/ContributingFactor/Drop/{id} */
+/** Request body for PATCH /api/v1/rca-contributing-factors/{id} */
 export type DropContributingFactorRequestDto = Readonly<{
   siteId: number;
   userId: number;

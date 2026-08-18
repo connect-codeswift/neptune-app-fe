@@ -102,7 +102,7 @@ export type ReportSection = Readonly<{
 }>;
 
 /**
- * Build the report straight from GET /api/Audit/{id}, which carries everything
+ * Build the report straight from GET /api/v1/audits/{id}, which carries everything
  * it needs: the audit's metadata, the template snapshot (sections, items and
  * pass threshold) and the recorded responses.
  */

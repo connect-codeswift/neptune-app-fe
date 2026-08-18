@@ -223,7 +223,7 @@ const LANE_STYLE_TEMPLATES = CAPA_RCA_WORKSHEET.lanes.map((lane) => ({
   accentGlow: lane.accentGlow,
 }));
 
-/** Maps GET /api/CAPA/Rca/{rcaId} factors onto the horizontal worksheet lanes. */
+/** Maps GET /api/v1/rcas/{rcaId}/capas factors onto the horizontal worksheet lanes. */
 export function mapRcaFactorsToCapaLanes(
   factors: readonly Readonly<{
     id: number;

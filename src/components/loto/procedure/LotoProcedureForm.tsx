@@ -6,6 +6,7 @@ import {
   FormBuilder,
   type FormSchema,
   type FormValues,
+  type SelectOption,
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -26,10 +27,10 @@ import {
   fieldString,
   fieldStringArray,
   lotoEquipmentSchema,
-  lotoPpeSchema,
   lotoStepFormId,
   lotoStepSchema,
   lotoVerificationSchema,
+  makeLotoPpeSchema,
   toEquipmentFormValues,
   toPpeFormValues,
   toStepFormValues,
@@ -95,6 +96,10 @@ export type LotoProcedureFormProps = Readonly<{
   onPersonnelChange: (personnel: LotoPersonnelSelection[]) => void;
   preview: LotoProcedurePreview;
   onPreviewChange: (patch: Partial<LotoProcedurePreview>) => void;
+  /** Required-PPE chips, from the PPE catalog (GET /api/ppe). */
+  ppeOptions: readonly SelectOption[];
+  /** Shown above the chips while the catalog is loading, empty, or failed. */
+  ppeStatusMessage: string | null;
   onFormValid: (
     schema: FormSchema,
     values: FormValues,
@@ -144,7 +149,11 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
     preview,
     onPreviewChange,
     onFormValid,
+    ppeOptions,
+    ppeStatusMessage,
   } = props;
+
+  const ppeSchema = makeLotoPpeSchema(ppeOptions);
 
   const addStep = () => {
     const next = createEmptyIsolationStep();
@@ -317,7 +326,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_PPE_FORM_ID}
-            schema={lotoPpeSchema}
+            schema={ppeSchema}
             initialValues={toPpeFormValues(initial)}
             hideActions
             onChange={(values) => {
@@ -326,10 +335,13 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
               });
             }}
             onSubmit={(values) => {
-              onFormValid(lotoPpeSchema, values);
+              onFormValid(ppeSchema, values);
             }}
             className={sidebarFieldClass}
           />
+          {ppeStatusMessage ? (
+            <p className="text8 text-ehs-muted-text mt-1">{ppeStatusMessage}</p>
+          ) : null}
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">

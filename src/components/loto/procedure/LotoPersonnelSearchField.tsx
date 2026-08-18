@@ -31,7 +31,7 @@ export type LotoPersonnelSearchFieldProps = Readonly<{
 
 /**
  * Multi-select authorized-personnel picker for the create/edit procedure form
- * — a combobox over GET /api/Auth/GetUsersBySiteId/{siteId}?search=. Any
+ * — a combobox over GET /api/v1/sites/{siteId}/users?search=. Any
  * registered, active user on the site is eligible, not just workers.
  */
 export function LotoPersonnelSearchField(

@@ -1,4 +1,4 @@
-/** Body for POST /api/CAPA/UploadCapaAttachments. */
+/** Body for POST /api/v1/capas/{capaId}/attachments. */
 export type CapaAttachmentRequestDto = {
   capaId: number;
   userId: number;

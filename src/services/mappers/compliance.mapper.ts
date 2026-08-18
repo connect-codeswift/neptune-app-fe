@@ -119,7 +119,7 @@ function normalizeComplianceCategoryStatDto(
   };
 }
 
-/** Normalizes GET /api/Compliance/category-stats list payload. */
+/** Normalizes GET /api/v1/compliance-records/category-stats list payload. */
 export function normalizeComplianceCategoryStatsList(
   raw: unknown,
 ): ComplianceCategoryStatDto[] {
@@ -176,7 +176,7 @@ function asCount(value: number | null | undefined): number {
   return value;
 }
 
-/** Maps GET /api/Compliance/dashboard-kpis into the four dashboard cards. */
+/** Maps GET /api/v1/compliance-records/dashboard-kpis into the four dashboard cards. */
 export function mapComplianceDashboardKpisToItems(
   dto: ComplianceDashboardKpisDto | null | undefined,
 ): readonly ComplianceKpiItem[] {
@@ -218,7 +218,7 @@ export function mapComplianceDashboardKpisToItems(
   ];
 }
 
-/** Maps GET /api/Compliance/category-stats into By Category progress rows. */
+/** Maps GET /api/v1/compliance-records/category-stats into By Category progress rows. */
 export function mapComplianceCategoryStatsToProgress(
   stats: readonly ComplianceCategoryStatDto[] | null | undefined,
 ): readonly ComplianceCategoryProgress[] {
@@ -300,7 +300,7 @@ function coerceComplianceDto(raw: Record<string, unknown>): ComplianceDto {
   };
 }
 
-/** Normalizes GET /api/Compliance/{id} envelope into a single ComplianceDto. */
+/** Normalizes GET /api/v1/compliance-records/{id} envelope into a single ComplianceDto. */
 export function normalizeComplianceByIdResponse(
   data: unknown,
 ): ComplianceDto | null {
@@ -383,7 +383,7 @@ export type MapComplianceDtoToObligationDetailOptions = Readonly<{
   responsibleName?: string;
 }>;
 
-/** Maps GET /api/Compliance/{id} into the obligation detail view model. */
+/** Maps GET /api/v1/compliance-records/{id} into the obligation detail view model. */
 export function mapComplianceDtoToObligationDetail(
   dto: ComplianceDto,
   options: MapComplianceDtoToObligationDetailOptions = {},
@@ -419,7 +419,7 @@ function asComplianceArray(value: unknown): ComplianceDto[] {
   return value.filter(isRecord).map((entry) => coerceComplianceDto(entry));
 }
 
-/** Normalizes POST /api/Compliance/GetAllCompliances response. */
+/** Normalizes POST /api/v1/compliance-records/search response. */
 export function normalizeGetAllCompliancesResponse(
   data: unknown,
   request: GetAllCompliancesRequestDto,
@@ -677,7 +677,7 @@ export function normalizeComplianceUpcomingFilingsList(
     .filter((entry): entry is ComplianceUpcomingFilingDto => entry != null);
 }
 
-/** Maps GET /api/Compliance/upcoming-filings into sidebar rows. */
+/** Maps GET /api/v1/compliance-records/upcoming-filings into sidebar rows. */
 export function mapComplianceUpcomingFilingsToItems(
   filings: readonly ComplianceUpcomingFilingDto[] | null | undefined,
 ): readonly UpcomingFilingItem[] {
@@ -770,7 +770,7 @@ export function normalizeComplianceCalendarEventsList(
     .filter((entry): entry is ComplianceCalendarEventDto => entry != null);
 }
 
-/** Maps GET /api/Compliance/calendar rows into month grid events. */
+/** Maps GET /api/v1/compliance-records/calendar rows into month grid events. */
 export function mapComplianceCalendarEventsToItems(
   events: readonly ComplianceCalendarEventDto[] | null | undefined,
 ): readonly CalendarEventItem[] {
@@ -807,7 +807,7 @@ export function mapComplianceCalendarEventsToItems(
   });
 }
 
-/** Inclusive month bounds as ISO date-time strings for GET /api/Compliance/calendar. */
+/** Inclusive month bounds as ISO date-time strings for GET /api/v1/compliance-records/calendar. */
 export function getComplianceCalendarMonthRange(activeStartDate: Date): {
   startDate: string;
   endDate: string;
@@ -868,7 +868,7 @@ export type BuildAddComplianceRequestInput = Readonly<{
   evidenceUrls: readonly string[];
 }>;
 
-/** Maps add-obligation form values into POST /api/Compliance/AddCompliance body. */
+/** Maps add-obligation form values into POST /api/v1/compliance-records body. */
 export function buildAddComplianceRequest(
   input: BuildAddComplianceRequestInput,
 ): AddComplianceRequestDto {
@@ -886,9 +886,9 @@ export function buildAddComplianceRequest(
   };
 }
 
-/** Maps a ComplianceDto into PUT /api/Compliance/Update body. */
-/** Builds PUT /api/Compliance/Update payload for Mark as Complete. */
-/** Normalizes PUT /api/Compliance/Update mark-complete response dataModel. */
+/** Maps a ComplianceDto into PUT /api/v1/compliance-records/{id} body. */
+/** Builds PUT /api/v1/compliance-records/{id} payload for Mark as Complete. */
+/** Normalizes PUT /api/v1/compliance-records/{id} mark-complete response dataModel. */
 export function normalizeComplianceUpdateResult(
   data: unknown,
 ): ComplianceUpdateResultDto | null {

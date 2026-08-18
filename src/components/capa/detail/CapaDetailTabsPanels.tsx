@@ -227,7 +227,7 @@ export function CapaDetailDetailsTab(
   );
 }
 
-/** Tasks tab — Figma 1370:3750. Loads GET /api/CAPA/Tasks/{capaId}. */
+/** Tasks tab — Figma 1370:3750. Loads GET /api/v1/capas/{capaId}/tasks. */
 export function CapaDetailTasksTab(
   props: Readonly<{ record: CapaDetailRecord }>,
 ) {

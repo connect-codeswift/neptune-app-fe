@@ -25,9 +25,9 @@ export type AcknowledgeDocumentFormProps = Readonly<{
  * Left-column acknowledge form (Figma 5568:25343).
  *
  * New flow from backend:
- * 1. GET /api/Document/versions/{documentVersionId}/acknowledgements returns
+ * 1. GET /api/v1/document-versions/{documentVersionId}/acknowledgements returns
  *    rows with `userId`. Match the current user by `row.userId === auth.userId`.
- * 2. PUT /api/Document/Acknowledgement?docVersionId={id} — no body, no AckId,
+ * 2. PUT /api/v1/document-versions/{versionId}/acknowledge?docVersionId={id} — no body, no AckId,
  *    backend reads the user from the token. success=true for both a fresh ack
  *    and an already-acknowledged case.
  * 3. Refetch the acknowledgements list to refresh the tracking tiles.

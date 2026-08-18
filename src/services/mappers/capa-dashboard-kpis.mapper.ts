@@ -97,7 +97,7 @@ function normalizeKpiCard(raw: unknown): CapaDashboardKpiCardDto | null {
   };
 }
 
-/** Normalize GET /api/CAPA/dashboard-kpis `dataModel`. */
+/** Normalize GET /api/v1/capas/dashboard-kpis `dataModel`. */
 export function normalizeCapaDashboardKpisDto(
   raw: unknown,
 ): CapaDashboardKpisDto | null {
@@ -212,7 +212,7 @@ function mapCard(
   return metric;
 }
 
-/** Maps GET /api/CAPA/dashboard-kpis into the four CAPA dashboard KPI cards. */
+/** Maps GET /api/v1/capas/dashboard-kpis into the four CAPA dashboard KPI cards. */
 export function mapCapaDashboardKpisToMetrics(
   dto: CapaDashboardKpisDto | null | undefined,
 ): readonly MetricCardProps[] {

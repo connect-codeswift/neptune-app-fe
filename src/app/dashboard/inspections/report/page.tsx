@@ -18,7 +18,7 @@ function InspectionReport() {
     searchParams.get("inspectionid") ?? "",
   );
 
-  // GET /api/Inspection/{id} carries the inspection, its template snapshot and
+  // GET /api/v1/inspections/{id} carries the inspection, its template snapshot and
   // the recorded responses — everything the report needs, from one call.
   const detailQuery = useInspectionDetailQuery(inspectionId);
   const detail = detailQuery.data?.dataModel ?? null;

@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-/** One week row in GET /api/CAPA/opened-vs-closed `dataModel.weeks`. */
+/** One week row in GET /api/v1/capas/opened-vs-closed `dataModel.weeks`. */
 export type CapaOpenedClosedWeekDto = {
   week?: string | null;
   weekStart?: string | null;
@@ -8,7 +8,7 @@ export type CapaOpenedClosedWeekDto = {
   closed?: number | null;
 };
 
-/** dataModel shape for GET /api/CAPA/opened-vs-closed. */
+/** dataModel shape for GET /api/v1/capas/opened-vs-closed. */
 export type CapaOpenedClosedDto = {
   totalOpened?: number | null;
   totalClosed?: number | null;

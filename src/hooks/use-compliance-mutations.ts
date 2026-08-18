@@ -37,7 +37,7 @@ async function invalidateComplianceSummaries(queryClient: QueryClient) {
   ]);
 }
 
-/** POST /api/Compliance/AddCompliance */
+/** POST /api/v1/compliance-records */
 export function useAddComplianceMutation() {
   const queryClient = useQueryClient();
 
@@ -51,7 +51,7 @@ export function useAddComplianceMutation() {
   });
 }
 
-/** PUT /api/Compliance/Update — mark obligation complete. */
+/** PUT /api/v1/compliance-records/{id} — mark obligation complete. */
 export function useMarkCompleteComplianceMutation() {
   const queryClient = useQueryClient();
 
@@ -69,7 +69,7 @@ export function useMarkCompleteComplianceMutation() {
   });
 }
 
-/** DELETE /api/Compliance/{id} */
+/** DELETE /api/v1/compliance-records/{id} */
 export function useDeleteComplianceMutation() {
   const queryClient = useQueryClient();
 

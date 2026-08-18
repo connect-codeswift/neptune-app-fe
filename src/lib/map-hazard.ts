@@ -25,7 +25,7 @@ function asOptionalNumber(value: unknown): number | undefined {
 }
 
 /**
- * Normalizes GET /api/Hazard/HazardKpiCount payload (camelCase or PascalCase).
+ * Normalizes GET /api/v1/hazards/kpis payload (camelCase or PascalCase).
  */
 export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {
   if (!isRecord(raw)) {

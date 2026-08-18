@@ -19,16 +19,12 @@ import type {
 import http, { HttpError } from "@/lib/axios";
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto.ts";
 
-const DOCUMENT_GET_ALL_PATH = "/Document/allDocuments";
-const DOCUMENT_BY_ID_PATH = "/Document";
-const DOCUMENT_CREATE_PATH = "/Document/document";
-const DOCUMENT_ADD_CATEGORY_PATH = "/Document/AddCategory";
-const DOCUMENT_ADD_DEPARTMENT_PATH = "/Document/AddDepartment";
-const DOCUMENT_CATEGORIES_PATH = "/Document/GetAllCategories";
-const DOCUMENT_DEPARTMENTS_PATH = "/Document/GetAllDepartments";
-const DOCUMENT_DASHBOARD_KPIS_PATH = "/Document/dashboard-kpis";
-const DOCUMENT_ACKNOWLEDGEMENT_PATH = "/Document/Acknowledgement";
-const DOCUMENT_APPROVAL_PATH = "/Document/DocApproval";
+const DOCUMENT_SEARCH_PATH = "/documents/search";
+const DOCUMENT_PATH = "/documents";
+const DOCUMENT_VERSIONS_PATH = "/document-versions";
+const DOCUMENT_CATEGORIES_PATH = "/document-categories";
+const DEPARTMENTS_PATH = "/departments";
+const DOCUMENT_DASHBOARD_KPIS_PATH = "/documents/dashboard-kpis";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -340,15 +336,15 @@ function normalizeGetAllDocumentsResponse(
 }
 
 /**
- * POST /api/Document/allDocuments
+ * POST /api/v1/documents/search
  * body: `{ pageNumber, pageSize }`
  */
 export async function getAllDocuments(request: GetAllDocumentsRequestDto) {
-  const { data } = await http.post<unknown>(DOCUMENT_GET_ALL_PATH, request);
+  const { data } = await http.post<unknown>(DOCUMENT_SEARCH_PATH, request);
   return normalizeGetAllDocumentsResponse(data, request);
 }
 
-/** GET /api/Document/dashboard-kpis */
+/** GET /api/v1/documents/dashboard-kpis */
 export async function getDocumentDashboardKpis() {
   const { data } = await http.get<GetDocumentDashboardKpisResponseDto>(
     DOCUMENT_DASHBOARD_KPIS_PATH,
@@ -357,23 +353,20 @@ export async function getDocumentDashboardKpis() {
   return data;
 }
 
-/** GET /api/Document/category-stats */
+/** GET /api/v1/documents/category-stats */
 /**
- * PUT /api/Document/Acknowledgement
- * Query param only: `docVersionId`. Backend resolves the user from the auth token.
- * Throws on success: false so the mutation catches not-assigned/bad-version cases.
+ * POST /api/v1/document-versions/{versionId}/acknowledge
+ * Was `PUT /api/v1/document-versions/{versionId}/acknowledge?docVersionId=`; the v1 rename made it a
+ * POST with the version id in the path. Backend still resolves the user from the
+ * auth token. Throws on success: false so the mutation catches
+ * not-assigned/bad-version cases.
  */
 export async function acknowledgeDocument(
   payload: AcknowledgeDocumentRequestDto,
 ) {
-  const { data } = await http.put<ApiEnvelopeDto<unknown>>(
-    DOCUMENT_ACKNOWLEDGEMENT_PATH,
+  const { data } = await http.post<ApiEnvelopeDto<unknown>>(
+    `${DOCUMENT_VERSIONS_PATH}/${String(payload.docVersionId)}/acknowledge`,
     null,
-    {
-      params: {
-        docVersionId: payload.docVersionId,
-      },
-    },
   );
 
   if (!data.success) {
@@ -390,12 +383,12 @@ export async function acknowledgeDocument(
   return data;
 }
 
-/** GET /api/Document/{documentId}/versions */
+/** GET /api/v1/documents/{documentId}/versions */
 export async function getDocumentVersions(
   documentId: number,
 ): Promise<DocumentVersionDto[]> {
   const { data } = await http.get<unknown>(
-    `${DOCUMENT_BY_ID_PATH}/${String(documentId)}/versions`,
+    `${DOCUMENT_PATH}/${String(documentId)}/versions`,
   );
   const list = unwrapListPayload(data);
   if (!Array.isArray(list)) {
@@ -404,17 +397,31 @@ export async function getDocumentVersions(
   return list.filter(isRecord).map(coerceVersionDto);
 }
 
-/** PUT /api/Document/DocApproval */
+/**
+ * POST /api/v1/document-versions/{docVersionId}/approval
+ *
+ * BLOCKER — route-map.md maps this to `POST /api/v1/documents/{id}/approval`, but
+ * there is no document id to put there: `DocApprovalDto`
+ * (Neptune.Application/DTOs/Document/DocApprovalDto.cs) carries only
+ * `ApproverId` + `docVersionId`, and its own comment says the approval row is
+ * found by approver + version. Nested under the version here so the segment is
+ * fillable. Backend must confirm before merge.
+ *
+ * Was `PUT /api/v1/document-versions/{docVersionId}/approval`.
+ */
 export async function approveDocument(payload: ApproveDocumentRequestDto) {
-  const { data } = await http.put<unknown>(DOCUMENT_APPROVAL_PATH, payload);
+  const { data } = await http.post<unknown>(
+    `${DOCUMENT_VERSIONS_PATH}/${String(payload.docVersionId)}/approval`,
+    payload,
+  );
 
   return data;
 }
 
-/** GET /api/Document/versions/{documentVersionId}/acknowledgements */
+/** GET /api/v1/document-versions/{documentVersionId}/acknowledgements */
 export async function getDocumentAcknowledgements(documentVersionId: number) {
   const { data } = await http.get<GetDocumentAcknowledgementsResponseDto>(
-    `/Document/versions/${String(documentVersionId)}/acknowledgements`,
+    `${DOCUMENT_VERSIONS_PATH}/${String(documentVersionId)}/acknowledgements`,
   );
 
   return data;
@@ -452,13 +459,11 @@ function normalizeDocumentResponse(data: unknown): DocumentDto | null {
 }
 
 /**
- * GET /api/Document/{id}
+ * GET /api/v1/documents/{id}
  * Returns a single document, or `null` if the backend has nothing for that id.
  */
 export async function getDocumentById(id: number): Promise<DocumentDto | null> {
-  const { data } = await http.get<unknown>(
-    `${DOCUMENT_BY_ID_PATH}/${String(id)}`,
-  );
+  const { data } = await http.get<unknown>(`${DOCUMENT_PATH}/${String(id)}`);
   return normalizeDocumentResponse(data);
 }
 
@@ -522,7 +527,7 @@ function coerceDepartmentDto(raw: Record<string, unknown>): DocDepartmentDto {
   };
 }
 
-/** GET /api/Document/GetAllCategories */
+/** GET /api/v1/document-categories */
 export async function getAllDocCategories(): Promise<DocCategoryDto[]> {
   const { data } = await http.get<unknown>(DOCUMENT_CATEGORIES_PATH);
   const list = unwrapListPayload(data);
@@ -533,19 +538,19 @@ export async function getAllDocCategories(): Promise<DocCategoryDto[]> {
 }
 
 /**
- * POST /api/Document/AddCategory
+ * POST /api/v1/document-categories
  * body: `{ categorytName }` (Swagger spelling)
  */
 export async function addDocCategory(payload: AddDocCategoryRequestDto) {
-  const { data } = await http.post<unknown>(DOCUMENT_ADD_CATEGORY_PATH, {
+  const { data } = await http.post<unknown>(DOCUMENT_CATEGORIES_PATH, {
     categorytName: payload.categorytName.trim(),
   });
   return data;
 }
 
-/** GET /api/Document/GetAllDepartments */
+/** GET /api/v1/departments */
 export async function getAllDocDepartments(): Promise<DocDepartmentDto[]> {
-  const { data } = await http.get<unknown>(DOCUMENT_DEPARTMENTS_PATH);
+  const { data } = await http.get<unknown>(DEPARTMENTS_PATH);
   const list = unwrapListPayload(data);
   if (!Array.isArray(list)) {
     return [];
@@ -554,23 +559,23 @@ export async function getAllDocDepartments(): Promise<DocDepartmentDto[]> {
 }
 
 /**
- * POST /api/Document/AddDepartment
+ * POST /api/v1/departments
  * body: `{ departmentName }`
  */
 export async function addDocDepartment(payload: AddDocDepartmentRequestDto) {
-  const { data } = await http.post<unknown>(DOCUMENT_ADD_DEPARTMENT_PATH, {
+  const { data } = await http.post<unknown>(DEPARTMENTS_PATH, {
     departmentName: payload.departmentName.trim(),
   });
   return data;
 }
 
 /**
- * POST /api/Document/document
+ * POST /api/v1/documents
  * JSON body — see CreateDocumentRequestDto. `pdfPath` must already be a
  * resolved Cloudinary URL (uploaded client-side before calling this).
  */
 export async function createDocument(payload: CreateDocumentRequestDto) {
-  const { data } = await http.post<unknown>(DOCUMENT_CREATE_PATH, {
+  const { data } = await http.post<unknown>(DOCUMENT_PATH, {
     id: payload.id,
     title: payload.title,
     categoryId: payload.categoryId,
@@ -588,28 +593,33 @@ export async function createDocument(payload: CreateDocumentRequestDto) {
 }
 
 /**
- * PUT /api/Document/document
- * JSON body — dedicated update endpoint (distinct from the POST create
- * endpoint above), takes `updatedBy` instead of `createdBy`/`siteId`.
+ * PUT /api/v1/documents/{id}
+ * JSON body — dedicated update endpoint (distinct from the POST create endpoint
+ * above), takes `updatedBy` instead of `createdBy`/`siteId`. The id moved from
+ * the body to the path in the v1 rename; it is still sent in the body, where the
+ * backend now ignores it.
  */
 export async function updateDocument(payload: UpdateDocumentRequestDto) {
-  const { data } = await http.put<unknown>(DOCUMENT_CREATE_PATH, {
-    id: payload.id,
-    title: payload.title,
-    categoryId: payload.categoryId,
-    departmentId: payload.departmentId,
-    reviewCycle: payload.reviewCycle,
-    updatedBy: payload.updatedBy,
-    ackUserIds: payload.ackUserIds,
-    approvalUserIds: payload.approvalUserIds,
-    pdfPath: payload.pdfPath,
-    fileName: payload.fileName,
-  });
+  const { data } = await http.put<unknown>(
+    `${DOCUMENT_PATH}/${String(payload.id)}`,
+    {
+      id: payload.id,
+      title: payload.title,
+      categoryId: payload.categoryId,
+      departmentId: payload.departmentId,
+      reviewCycle: payload.reviewCycle,
+      updatedBy: payload.updatedBy,
+      ackUserIds: payload.ackUserIds,
+      approvalUserIds: payload.approvalUserIds,
+      pdfPath: payload.pdfPath,
+      fileName: payload.fileName,
+    },
+  );
 
   return data;
 }
 
 /**
- * POST /api/Document/document_version
+ * POST /api/v1/documents/{documentId}/versions
  * JSON body — attaches a new PDF revision to an existing document.
  */

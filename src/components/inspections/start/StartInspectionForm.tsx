@@ -55,7 +55,7 @@ export function StartInspectionForm() {
     status: "Published",
   });
 
-  // GET /api/AuditTemplate/{id} labels the locked option.
+  // GET /api/v1/audit-templates/{id} labels the locked option.
   const templateQuery = useInspectionTemplateQuery(activeTemplateId);
   const lockedTemplate = templateQuery.data?.dataModel ?? null;
   const templateOptions = useMemo<SelectOption[]>(() => {

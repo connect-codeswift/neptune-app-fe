@@ -1137,7 +1137,7 @@ export type MapIncidentDetailOptions = Readonly<{
 }>;
 
 /**
- * Maps GET /Incident/GetIncidentById payload into the detail page view model.
+ * Maps GET /api/v1/incidents/{id} payload into the detail page view model.
  */
 export function mapIncidentDtoToDetailView(
   incident: IncidentDto,

@@ -5,7 +5,6 @@ import {
   getNearMissById,
   getNearMissKpi,
   getNearMissHeatMap,
-  getMonthlyNearMissUsers,
   getTopNearMissUsers,
 } from "@/services/near-miss.service";
 
@@ -28,16 +27,6 @@ export function useTopNearMissUsersQuery() {
   return useQuery({
     queryKey: ["near-miss", "top-users"] as const,
     queryFn: () => getTopNearMissUsers(),
-  });
-}
-
-export function useMonthlyNearMissUsersQuery(
-  params: Readonly<{ year: number; month: number }>,
-) {
-  return useQuery({
-    queryKey: ["near-miss", "monthly-users", params] as const,
-    queryFn: () => getMonthlyNearMissUsers(params),
-    enabled: params.year > 0 && params.month >= 1 && params.month <= 12,
   });
 }
 

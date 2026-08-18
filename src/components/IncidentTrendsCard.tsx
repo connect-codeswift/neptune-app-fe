@@ -255,7 +255,7 @@ export type IncidentTrendsCardProps = Readonly<{
 }>;
 
 /**
- * Incident Trends card. Loads GET /api/EHSCommandCenter/GetIncidentTrends —
+ * Incident Trends card. Loads GET /api/v1/command-center/incident-trends —
  * weekly buckets, series values, and the Y axis are all derived from the
  * response (no fixed week count or hardcoded series values).
  */

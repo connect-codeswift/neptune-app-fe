@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -93,20 +93,13 @@ export function WalkTalkRecentSessionsSection(
         sessions.find((session) => session.id === selectedId) ??
         null);
 
-  const detailQuery = useWalkTalkSessionDetailQuery(
-    selectedSession?.id ?? null,
-  );
+  const activeSessionId = selectedSession?.id ?? null;
 
-  const detail = useMemo(() => {
-    if (!detailQuery.data?.dataModel) return null;
-    return toWalkTalkSessionDetail(detailQuery.data.dataModel);
-  }, [detailQuery.data?.dataModel]);
+  const detailQuery = useWalkTalkSessionDetailQuery(activeSessionId);
 
-  useEffect(() => {
-    if (selectedId != null && selectedSession == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedSession]);
+  const detail = detailQuery.data?.dataModel
+    ? toWalkTalkSessionDetail(detailQuery.data.dataModel)
+    : null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -125,11 +118,11 @@ export function WalkTalkRecentSessionsSection(
   const columns = useMemo(
     () =>
       createWalkTalkSessionColumns({
-        selectedId,
+        selectedId: activeSessionId,
         onViewMore: handleToggleDetailPanel,
         expanded: !isPanelOpen,
       }),
-    [selectedId, handleToggleDetailPanel, isPanelOpen],
+    [activeSessionId, handleToggleDetailPanel, isPanelOpen],
   );
 
   const resultLabel = `${String(filtered.length)} ${
@@ -239,7 +232,7 @@ export function WalkTalkRecentSessionsSection(
                       <li key={session.id}>
                         <WalkTalkSessionCard
                           session={session}
-                          isSelected={selectedId === session.id}
+                          isSelected={activeSessionId === session.id}
                           onViewMore={() => {
                             handleToggleDetailPanel(session.id);
                           }}
@@ -311,7 +304,7 @@ export function WalkTalkRecentSessionsSection(
               data={filtered}
               columns={columns}
               getRowId={(row) => row.id}
-              selectedRowId={selectedId}
+              selectedRowId={activeSessionId}
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",
               )}

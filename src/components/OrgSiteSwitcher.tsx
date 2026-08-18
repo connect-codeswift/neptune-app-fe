@@ -14,9 +14,9 @@ export type OrgSiteSwitcherProps = Readonly<{
 }>;
 
 /**
- * Site switcher backed by GET /Auth/Org/me (organization name + the caller's sites).
+ * Site switcher backed by GET /api/v1/organizations/me (organization name + the caller's sites).
  *
- * Picking a site is a real server round trip, not a client filter: POST /Auth/select-site
+ * Picking a site is a real server round trip, not a client filter: POST /api/v1/auth/select-site
  * reissues the session's tokens against the new site, and every site-scoped query in the app
  * resolves its scope from that token. The current selection is therefore read back off the
  * token rather than tracked separately, so the control can never disagree with what the rest
