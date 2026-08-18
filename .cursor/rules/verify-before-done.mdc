@@ -65,21 +65,17 @@ Re-run typecheck alone once the build has finished before believing them.
 | `npm run lint`  | **no problem your change introduced** — the repo has a known baseline, below |
 | `npm run build` | exit 0, build completes                                                      |
 
-`npm run lint` does **not** exit 0 on a clean tree, but it is close. Baseline as of 2026-08-18,
-after the repo-wide formatting sweep: **13 errors, 1 warning**.
+`npm run lint` is **clean**: 0 errors, 0 warnings, exit 0, as of 2026-08-18. There is no
+baseline to subtract any more — any problem it reports is one you introduced, so the bar is
+simply that all three checks come back green.
 
-| Rule                                      | Severity | Count | Status                                                                                             |
-| ----------------------------------------- | -------- | ----- | -------------------------------------------------------------------------------------------------- |
-| `react-hooks/set-state-in-effect`         | error    | 11    | Accepted — the `*Content.tsx` boot gate. `AGENTS.md` says do not fix it                            |
-| `react-hooks/preserve-manual-memoization` | error    | 2     | Pre-existing, in the two `*RecentSessionsSection.tsx` files                                        |
-| `@next/next/no-img-element`               | warning  | 1     | Pre-existing, in `FilePreviewModal.tsx`. Converting to `next/image` needs a remote-loader decision |
+Keep it that way. The pool of "pre-existing noise to ignore" is gone, and it is much cheaper to
+fix one warning now than to let it become the next accepted baseline.
 
-Anything beyond those 14 is **yours**. There is no longer a large warning pool to hide in, so
-compare totals directly: `npm run lint` should report `13 errors, 1 warning` and nothing else.
-
-Prettier is enforced through ESLint (`prettier/prettier`), so formatting drift shows up here too.
-`npx eslint --fix <files you changed>` clears it mechanically — there is no reason to leave a
-`prettier/prettier` warning behind.
+The one standing exception is `@next/next/no-img-element`: previews of arbitrary user-uploaded
+remote files carry `// eslint-disable-next-line @next/next/no-img-element` plus a reason, because
+`next/image` needs intrinsic dimensions the app does not have. Nine sites do this. If you add a
+tenth, write the justification too — and never use a bare disable to silence anything else.
 
 ## Fix the cause, not the check
 

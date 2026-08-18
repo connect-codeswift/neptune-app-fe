@@ -72,6 +72,10 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
 
         <div className="rounded-2.5 bg-ehs-dark-bg flex min-h-60 min-w-70 items-center justify-center overflow-hidden">
           {isImage ? (
+            /* eslint-disable-next-line @next/next/no-img-element -- arbitrary
+               user-uploaded remote files of unknown intrinsic size; next/image
+               would need `fill` and a fixed container, changing the modal's
+               shrink-to-content layout. Matches the other 8 preview sites. */
             <img
               src={fileUrl}
               alt={file.name}

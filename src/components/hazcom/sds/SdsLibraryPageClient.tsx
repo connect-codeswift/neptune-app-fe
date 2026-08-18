@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
@@ -56,11 +56,11 @@ export function SdsLibraryPageClient() {
     [selectedId, filteredRecords, items],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedRecord == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedRecord]);
+  /**
+   * Derived during render: a selection whose row no longer resolves (filtered
+   * out, deleted, or on another page) reads as "nothing selected".
+   */
+  const activeId = selectedRecord?.id ?? null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -123,7 +123,7 @@ export function SdsLibraryPageClient() {
           >
             <SdsLibraryTable
               records={filteredRecords}
-              selectedId={selectedId}
+              selectedId={activeId}
               onViewMore={handleToggleDetailPanel}
               expanded={!isPanelOpen}
               header={
