@@ -1,15 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
+import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
-  CLOUDINARY_ALLOWED_MIME_TYPES,
-  CLOUDINARY_MAX_BYTES,
-  CLOUDINARY_MAX_FILES,
+  FILE_ALLOWED_MIME_TYPES,
+  FILE_MAX_FILES,
   formatFileSize,
-} from "@/lib/cloudinary-constants";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+  getFileMaxBytes,
+  isLegacyPublicUrl,
+  isStoredFileId,
+} from "@/lib/files";
+import { uploadFile } from "@/lib/upload-file";
 import type { PhotoFieldConfig } from "./types";
 
 const DOC_MIME_TYPES = [
@@ -18,13 +21,13 @@ const DOC_MIME_TYPES = [
 ] as const;
 
 const FILES_MIME_TYPES = [
-  ...CLOUDINARY_ALLOWED_MIME_TYPES,
+  ...FILE_ALLOWED_MIME_TYPES,
   ...DOC_MIME_TYPES,
 ] as const;
 
 export type PhotoUploadControlProps = Readonly<{
   field: PhotoFieldConfig;
-  /** Secure Cloudinary URLs already attached to this field. */
+  /** Stored fileIds, or legacy Cloudinary URLs still sitting in the database. */
   value: string[];
   error?: string;
   onChange: (urls: string[]) => void;
@@ -86,7 +89,7 @@ function parsePhotoRowEntry(
   return { name: entry, subtitle: null };
 }
 
-/** Dashed drop-zone that uploads to Cloudinary and lists the returned secure URLs. */
+/** Dashed drop-zone that uploads to private storage and lists the returned fileIds. */
 export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const { field, value, error, onChange } = props;
   const inputRef = useRef<HTMLInputElement>(null);
@@ -98,8 +101,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const acceptMode = field.accept ?? "image";
   const isFiles = acceptMode === "files";
   const listVariant = field.listVariant ?? (isFiles ? "rows" : "grid");
-  const maxFiles = field.maxFiles ?? CLOUDINARY_MAX_FILES;
-  const maxBytes = field.maxBytes ?? CLOUDINARY_MAX_BYTES;
+  const fileModule: FileModule = field.fileModule ?? "Document";
+  const maxFiles = field.maxFiles ?? FILE_MAX_FILES;
+  const maxBytes = field.maxBytes ?? getFileMaxBytes(fileModule);
   const isUploading = pendingCount > 0;
 
   const addFiles = async (incoming: FileList | null) => {
@@ -149,7 +153,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
     setPendingCount((count) => count + accepted.length);
 
     const results = await Promise.allSettled(
-      accepted.map((file) => uploadFileToCloudinary(file)),
+      accepted.map((file) => uploadFile(file, { module: fileModule })),
     );
 
     const uploaded = results.flatMap((result) => {
@@ -164,14 +168,14 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
       setMetaByUrl((current) => {
         const next = { ...current };
         for (const item of uploaded) {
-          next[item.secureUrl] = {
+          next[item.fileId] = {
             name: item.name,
             sizeLabel: item.sizeLabel,
           };
         }
         return next;
       });
-      onChange([...value, ...uploaded.map((item) => item.secureUrl)]);
+      onChange([...value, ...uploaded.map((item) => item.fileId)]);
     }
 
     if (failure) {
@@ -322,7 +326,8 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
       {value.length > 0 && listVariant === "grid" ? (
         <ul className="mt-1 flex flex-wrap gap-2">
           {value.map((entry, index) => {
-            const isUrl = /^https?:\/\//i.test(entry);
+            const isUrl = isLegacyPublicUrl(entry);
+            const canPreview = isUrl || isStoredFileId(entry);
             const fileName = isUrl
               ? (entry.split("/").pop()?.split("?")[0] ?? entry)
               : entry;
@@ -331,16 +336,15 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
               <li
                 key={`${entry}-${String(index)}`}
                 className={
-                  isUrl
+                  canPreview
                     ? "group relative size-28 overflow-hidden rounded-xl border border-slate-900/10"
                     : "border-ehs-border flex min-w-48 flex-1 items-center gap-3 rounded-2.5 border bg-white/50 p-3"
                 }
               >
-                {isUrl ? (
-                  <Image
-                    src={entry}
+                {canPreview ? (
+                  <ResolvedFileImage
+                    fileRef={entry}
                     alt={`Attached photo ${String(index + 1)}`}
-                    fill
                     sizes="80px"
                     className="object-cover"
                   />
@@ -365,14 +369,14 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   onClick={() => removeAt(index)}
                   aria-label={`Remove photo ${String(index + 1)}`}
                   className={
-                    isUrl
+                    canPreview
                       ? "absolute top-1 right-1 rounded-full bg-slate-900/60 p-0.5 text-white transition-colors hover:bg-slate-900/80"
                       : "text-ehs-muted-text hover:text-ehs-red flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-900/5 bg-white/60 transition-colors"
                   }
                 >
                   <Icon
                     icon="mdi:close"
-                    className={isUrl ? "size-3.5" : "size-2.5"}
+                    className={canPreview ? "size-3.5" : "size-2.5"}
                   />
                 </button>
               </li>

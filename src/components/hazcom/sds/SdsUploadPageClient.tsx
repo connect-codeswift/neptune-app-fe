@@ -27,14 +27,15 @@ import {
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
 import {
-  CLOUDINARY_MAX_BYTES,
   formatFileSize,
+  getFileMaxBytes,
   isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+} from "@/lib/files";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 const SDS_LIBRARY_ROUTE = "/dashboard/hazcom/sds";
+const SDS_MAX_BYTES = getFileMaxBytes("HazCom");
 
 /**
  * The chemical endpoint has no search param, so one large page stands in for
@@ -172,10 +173,10 @@ export function SdsUploadPageClient() {
       return;
     }
 
-    if (file.size > CLOUDINARY_MAX_BYTES) {
+    if (file.size > SDS_MAX_BYTES) {
       toast.error(
         "File too large",
-        `${formatFileSize(file.size)} exceeds the ${formatFileSize(CLOUDINARY_MAX_BYTES)} limit.`,
+        `${formatFileSize(file.size)} exceeds the ${formatFileSize(SDS_MAX_BYTES)} limit.`,
       );
       return;
     }
@@ -184,8 +185,8 @@ export function SdsUploadPageClient() {
     setIsUploading(true);
 
     try {
-      const uploaded = await uploadFileToCloudinary(file);
-      setPdfUrl(uploaded.secureUrl);
+      const uploaded = await uploadFile(file, { module: "HazCom" });
+      setPdfUrl(uploaded.fileId);
     } catch (error) {
       setFileName(null);
       setPdfUrl("");

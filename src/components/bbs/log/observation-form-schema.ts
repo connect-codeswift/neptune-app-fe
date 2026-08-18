@@ -71,6 +71,7 @@ export const observationDetailsSchema: FormSchema = [
     name: "photos",
     label: "Photo Evidence",
     colSpan: 12,
+    fileModule: "Bbs",
     placeholder: "Tap to add photo",
     helperText: "Optional — attach up to 10 images.",
   },

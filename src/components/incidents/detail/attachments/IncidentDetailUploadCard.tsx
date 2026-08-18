@@ -5,12 +5,11 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName } from "@/lib/auth-context";
-import { isAllowedMimeType } from "@/lib/cloudinary-constants";
+import { isAllowedMimeType } from "@/lib/files";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
 
 export type IncidentDetailUploadCardProps = Readonly<{
@@ -51,8 +50,8 @@ export function IncidentDetailUploadCard(
 
     try {
       setIsUploading(true);
-      toast.info("Uploading file...", "Transferring to Cloudinary server.");
-      const result = await uploadFileToCloudinary(file);
+      toast.info("Uploading file...", "Transferring to secure storage.");
+      const result = await uploadFile(file, { module: "Incident" });
 
       let kind: "image" | "video" | "pdf" = "pdf";
       if (result.resourceType === "video") {
@@ -65,7 +64,7 @@ export function IncidentDetailUploadCard(
 
       const originalName = file.name.trim() || result.name;
       const newItem: AttachmentItem = {
-        id: result.id,
+        id: result.fileId,
         name: originalName,
         description:
           kind === "pdf" ? "Document" : kind === "video" ? "Video" : "Photo",
@@ -73,7 +72,7 @@ export function IncidentDetailUploadCard(
         bytes: result.bytes,
         addedBy: getAuthDisplayName(),
         time: formatShortDateTime(new Date()),
-        secureUrl: withAttachmentDisplayName(result.secureUrl, originalName),
+        secureUrl: result.fileId,
         kind,
       };
 
@@ -87,7 +86,7 @@ export function IncidentDetailUploadCard(
         "Upload Failed",
         getMutationErrorMessage(
           error,
-          (error as Error).message || "Failed to upload file to Cloudinary.",
+          (error as Error).message || "Failed to upload file.",
         ),
       );
     } finally {
@@ -177,7 +176,7 @@ export function IncidentDetailUploadCard(
               Drop files here
             </span>
             <span className="text-ehs-muted-text mt-1 text8">
-              JPG, PNG, MP4, PDF up to 50 MB
+              JPG, PNG, PDF up to 25 MB
             </span>
             <span className="text-ehs-dark-blue mt-3.5 text5">
               Browse files

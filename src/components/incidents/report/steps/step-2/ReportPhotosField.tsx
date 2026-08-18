@@ -5,19 +5,20 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Text } from "@/components/Text";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
 import type { ReportPhotoFile } from "@/components/incidents/report/shared/report-incident-data";
 import {
-  stripAttachmentDisplayName,
-  withAttachmentDisplayName,
-} from "@/lib/attachment-url";
-import {
-  CLOUDINARY_MAX_BYTES,
-  CLOUDINARY_MAX_FILES,
+  FILE_MAX_FILES,
+  getFileMaxBytes,
   isAllowedMimeType,
+  isLegacyPublicUrl,
   isPdfMimeType,
-} from "@/lib/cloudinary-constants";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+  isStoredFileId,
+} from "@/lib/files";
+import { uploadFile } from "@/lib/upload-file";
+
+const INCIDENT_MAX_BYTES = getFileMaxBytes("Incident");
 
 export type ReportPhotosFieldProps = Readonly<{
   photos: readonly ReportPhotoFile[];
@@ -40,24 +41,26 @@ function AttachmentTile(
 ) {
   const { file, onRemove } = props;
   const isPdf = file.kind === "pdf" || file.format === "pdf";
-  const rawSrc = file.secureUrl ?? file.url ?? file.previewUrl;
-  const imageSrc = rawSrc
-    ? rawSrc.startsWith("blob:")
-      ? rawSrc
-      : stripAttachmentDisplayName(rawSrc)
-    : undefined;
-  const showImage = !isPdf && Boolean(imageSrc);
+  const rawSrc = file.previewUrl || file.secureUrl || file.url;
+  const showImage = !isPdf && Boolean(rawSrc);
 
   return (
     <div className="relative size-22 shrink-0 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[linear-gradient(135deg,#446580_0%,#223349_100%)]">
-      {showImage ? (
+      {showImage && file.previewUrl?.startsWith("blob:") ? (
         <Image
-          src={imageSrc!}
+          src={file.previewUrl}
           alt={file.name}
           fill
           unoptimized
           className="object-cover"
           sizes="88px"
+        />
+      ) : showImage && rawSrc && (isLegacyPublicUrl(rawSrc) || isStoredFileId(rawSrc)) ? (
+        <ResolvedFileImage
+          fileRef={rawSrc}
+          alt={file.name}
+          sizes="88px"
+          className="object-cover"
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-[linear-gradient(135deg,#3b4f66_0%,#1c2a3d_100%)] px-1.5">
@@ -122,9 +125,9 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
   const [isUploading, setIsUploading] = useState(false);
 
   const openPicker = () => {
-    if (photos.length >= CLOUDINARY_MAX_FILES) {
+    if (photos.length >= FILE_MAX_FILES) {
       toast.error(
-        `You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`,
+        `You can upload up to ${String(FILE_MAX_FILES)} files.`,
       );
       return;
     }
@@ -136,10 +139,10 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
       return;
     }
 
-    const remaining = CLOUDINARY_MAX_FILES - photos.length;
+    const remaining = FILE_MAX_FILES - photos.length;
     if (remaining <= 0) {
       toast.error(
-        `You can upload up to ${String(CLOUDINARY_MAX_FILES)} files.`,
+        `You can upload up to ${String(FILE_MAX_FILES)} files.`,
       );
       return;
     }
@@ -152,8 +155,8 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
         toast.error(`${file.name}: use JPG, PNG, WEBP, GIF, or PDF.`);
         continue;
       }
-      if (file.size > CLOUDINARY_MAX_BYTES) {
-        toast.error(`${file.name}: exceeds the 50 MB limit.`);
+      if (file.size > INCIDENT_MAX_BYTES) {
+        toast.error(`${file.name}: exceeds the 25 MB limit.`);
         continue;
       }
       validFiles.push(file);
@@ -190,29 +193,23 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
         const placeholder = placeholders[index];
 
         try {
-          const uploaded = await uploadFileToCloudinary(file);
+          const uploaded = await uploadFile(file, { module: "Incident" });
           const originalName = file.name.trim() || uploaded.name;
-          const secureUrl = withAttachmentDisplayName(
-            uploaded.secureUrl,
-            originalName,
-          );
           nextPhotos = nextPhotos.map((item) =>
             item.id === placeholder.id
               ? {
-                  id: uploaded.id,
-                  publicId: uploaded.publicId,
+                  id: uploaded.fileId,
+                  publicId: uploaded.fileId,
                   name: originalName,
                   sizeLabel: uploaded.sizeLabel,
                   bytes: uploaded.bytes,
-                  url: withAttachmentDisplayName(
-                    uploaded.url || uploaded.secureUrl,
-                    originalName,
-                  ),
-                  secureUrl,
+                  url: uploaded.fileId,
+                  secureUrl: uploaded.fileId,
                   mimeType: uploaded.mimeType,
                   format: uploaded.format,
                   resourceType: uploaded.resourceType,
                   kind: uploaded.kind,
+                  previewUrl: placeholder.previewUrl,
                   isUploading: false,
                 }
               : item,
@@ -228,10 +225,6 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
               : item,
           );
           onChange(nextPhotos);
-        } finally {
-          if (placeholder.previewUrl) {
-            URL.revokeObjectURL(placeholder.previewUrl);
-          }
         }
       }
     } finally {
@@ -252,7 +245,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
         label="Photos & files"
         trailing={
           <Text as="span" className="text-ehs-muted-text text-xs">
-            Up to 10 files, 50 MB each. Images or PDF.
+            Up to 10 files, 25 MB each. Images or PDF.
           </Text>
         }
       />
@@ -285,7 +278,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
         <button
           type="button"
           onClick={openPicker}
-          disabled={isUploading || photos.length >= CLOUDINARY_MAX_FILES}
+          disabled={isUploading || photos.length >= FILE_MAX_FILES}
           className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 flex size-22 shrink-0 flex-col items-center justify-center gap-1.25 rounded-2.5 border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon

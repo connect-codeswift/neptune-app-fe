@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
 import {
   SCORE_WEIGHT_OPTIONS,
@@ -100,7 +100,7 @@ function CheckBox(props: Readonly<{ checked: boolean }>) {
   );
 }
 
-/** Upload control for Photo / File items; stores the Cloudinary URL as value. */
+/** Upload control for Photo / File items; stores the fileId as value. */
 function ItemUploadControl(
   props: Readonly<{
     value: string;
@@ -121,8 +121,8 @@ function ItemUploadControl(
     setError(null);
     setIsUploading(true);
     try {
-      const result = await uploadFileToCloudinary(file);
-      onValueChange(result.secureUrl);
+      const result = await uploadFile(file, { module: "Audit" });
+      onValueChange(result.fileId);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Upload failed.");
     } finally {
@@ -152,10 +152,9 @@ function ItemUploadControl(
         <>
           {variant === "image" ? (
             <div className="relative size-28 overflow-hidden rounded-lg border border-slate-900/10">
-              <Image
-                src={value}
+              <ResolvedFileImage
+                fileRef={value}
                 alt="Uploaded preview"
-                fill
                 sizes="112px"
                 className="object-cover"
               />

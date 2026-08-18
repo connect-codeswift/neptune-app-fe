@@ -9,11 +9,7 @@ import {
 } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import {
-  CLOUDINARY_MAX_BYTES,
-  formatFileSize,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, formatFileSize, isPdfMimeType } from "@/lib/files";
 
 const ACCEPT = "application/pdf,.pdf";
 
@@ -64,7 +60,7 @@ export function UploadDocumentDropzone(
       onFileChange(null);
       return;
     }
-    if (next.size > CLOUDINARY_MAX_BYTES) {
+    if (next.size > getFileMaxBytes("Document")) {
       setLocalError("File must be 50MB or smaller.");
       onFileChange(null);
       return;

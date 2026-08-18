@@ -86,6 +86,7 @@ export function buildReplacementRequestSchema(
       name: "photos",
       label: "Photo Evidence",
       colSpan: 12,
+      fileModule: "Ppe",
       optionalHint: "(optional but recommended)",
       optionalHintClassName: "text-[#3b82f6]",
       placeholder: "Add photo of damaged item",

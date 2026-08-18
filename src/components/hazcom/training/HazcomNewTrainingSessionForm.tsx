@@ -19,7 +19,7 @@ import type {
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 type TrainingMaterialDraft = Readonly<{
   fileUrl: string;
@@ -122,13 +122,13 @@ export function HazcomNewTrainingSessionForm(
 
     setIsUploadingMaterial(true);
     try {
-      const uploaded = await uploadFileToCloudinary(file);
+      const uploaded = await uploadFile(file, { module: "HazCom" });
       setForm((prev) => ({
         ...prev,
         materials: [
           ...prev.materials,
           {
-            fileUrl: uploaded.secureUrl,
+            fileUrl: uploaded.fileId,
             fileName: file.name.trim() || uploaded.name,
             fileType: uploaded.mimeType || uploaded.format || null,
           },
