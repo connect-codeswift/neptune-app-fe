@@ -178,7 +178,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
           <Text as="h2" className="text3 text-ehs-darker mb-4">
             Equipment Information
           </Text>
-          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="mb-4 grid grid-cols-1 gap-4">
             <LotoLocationSearchField
               value={location}
               onChange={(next) => {
