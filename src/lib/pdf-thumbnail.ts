@@ -1,14 +1,23 @@
-import { pdfjs } from "react-pdf";
-import "@/lib/pdf-worker";
-
 /**
  * Render page 1 of a PDF to a JPEG. Best-effort — a failure must not block
  * the main upload (the files API commits without a thumbnail).
+ *
+ * pdf.js is loaded only inside this function. A top-level `react-pdf` import
+ * evaluates `DOMMatrix` at module load, which Node does not have, and Next
+ * then falls back from SSR to client rendering for every FormBuilder page.
  */
 export async function renderPdfFirstPageJpeg(
   file: File,
 ): Promise<File | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   try {
+    const [{ pdfjs }] = await Promise.all([
+      import("react-pdf"),
+      import("@/lib/pdf-worker"),
+    ]);
     const data = await file.arrayBuffer();
     const pdf = await pdfjs.getDocument({ data }).promise;
     const page = await pdf.getPage(1);
