@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
+import { ihManageEnrollmentPath } from "@/components/industrial-hygiene/ih-manage-enrollment-data";
 import {
   IH_SURVEILLANCE_PROGRAMS,
   type IhSurveillanceProgram,
@@ -75,22 +77,27 @@ function SurveillanceCard(props: Readonly<{ program: IhSurveillanceProgram }>) {
         </p>
       </div>
 
-      <Button
-        type="button"
-        variant="tertiary"
-        className="mt-3 w-full justify-center rounded-lg px-3.5 py-2 text-base! font-semibold text-[#2a3446]"
+      <Link
+        href={ihManageEnrollmentPath(program.id)}
+        className="mt-3 block w-full"
       >
-        {/* Figma 5348:38193 — users icon, 12×12 */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/icons/industrial-hygiene/users.svg"
-          alt=""
-          width={12}
-          height={12}
-          className="size-4"
-        />
-        Manage Enrollment
-      </Button>
+        <Button
+          type="button"
+          variant="tertiary"
+          className="w-full justify-center rounded-lg px-3.5 py-2 text-base! font-semibold text-[#2a3446]"
+        >
+          {/* Figma 5348:38193 — users icon, 12×12 */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/industrial-hygiene/users.svg"
+            alt=""
+            width={12}
+            height={12}
+            className="size-4"
+          />
+          Manage Enrollment
+        </Button>
+      </Link>
     </IncidentGlassCard>
   );
 }

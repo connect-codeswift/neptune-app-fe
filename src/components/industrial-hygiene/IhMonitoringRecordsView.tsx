@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@iconify/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
 import { IhSearchToolbar } from "@/components/industrial-hygiene/IhSearchToolbar";
+import { IH_LOG_RESULT_PATH } from "@/components/industrial-hygiene/ih-log-result-data";
+import { ihMonitoringRecordPath } from "@/components/industrial-hygiene/ih-monitoring-record-detail-data";
 import {
   IH_MONITORING_ROWS,
   type IhMonitoringRow,
@@ -126,14 +129,14 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
   {
     id: "actions",
     header: "",
-    cell: () => (
-      <button
-        type="button"
-        aria-label="View record"
+    cell: ({ row }) => (
+      <Link
+        href={ihMonitoringRecordPath(row.original.id)}
+        aria-label={`View ${row.original.code}`}
         className="inline-flex size-7 items-center justify-center rounded-md bg-[rgba(86,96,114,0.14)] text-[#566072] transition-colors hover:bg-[rgba(86,96,114,0.22)]"
       >
         <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
-      </button>
+      </Link>
     ),
   },
 ];
@@ -172,21 +175,26 @@ export function IhMonitoringRecordsView() {
                 variant="tertiary"
                 className="rounded-lg px-3.5 py-2 text-base! font-semibold"
               >
-                <Icon
-                  icon="mdi:export-variant"
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/icons/industrial-hygiene/download.svg"
+                  alt=""
+                  width={16}
+                  height={16}
                   className="size-4"
-                  aria-hidden
                 />
                 Export
               </Button>
-              <Button
-                type="button"
-                variant="primary"
-                className="rounded-lg px-3.5 py-2 text-base! font-semibold"
-              >
-                <Icon icon="mdi:plus" className="size-4" aria-hidden />
-                Log Result
-              </Button>
+              <Link href={IH_LOG_RESULT_PATH}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="rounded-lg px-3.5 py-2 text-base! font-semibold"
+                >
+                  <Icon icon="mdi:plus" className="size-4" aria-hidden />
+                  Log Result
+                </Button>
+              </Link>
             </>
           }
         />

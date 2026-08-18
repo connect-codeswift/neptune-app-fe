@@ -61,6 +61,7 @@ function isEmpty(value: FieldValue): boolean {
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
+    if (field.type === "heading") continue;
     if (!field.required) continue;
 
     if (field.type === "person") {
@@ -173,7 +174,7 @@ export function FormBuilder(props: FormBuilderProps) {
             <div className={field.card ? "relative z-1" : undefined}>
               <FieldRenderer
                 field={field}
-                value={values[field.name]}
+                value={values[field.name] ?? ""}
                 values={values}
                 error={errors[field.name]}
                 onChange={(value) => setValue(field.name, value)}

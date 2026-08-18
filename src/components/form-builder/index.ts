@@ -8,6 +8,7 @@ export {
   type FormErrors,
   type FormSchema,
   type FormValues,
+  type HeadingFieldConfig,
   type PersonFieldConfig,
   type PhotoFieldConfig,
   type SelectFieldConfig,
