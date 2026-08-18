@@ -8,7 +8,6 @@ import type {
   GetNearMissByIdResponseDto,
   GetNearMissKpiResponseDto,
   GetNearMissHeatMapResponseDto,
-  GetMonthlyNearMissUsersResponseDto,
   GetTopNearMissUsersResponseDto,
 } from "@/dtos/res/near-miss-response.dto";
 import http from "@/lib/axios";
@@ -17,10 +16,6 @@ const NEAR_MISS_PATH = "/near-misses";
 const NEAR_MISS_SEARCH_PATH = "/near-misses/search";
 const NEAR_MISS_KPI_PATH = "/near-misses/kpis";
 const NEAR_MISS_TOP_USERS_PATH = "/near-misses/top-users";
-// NOTE: route-map.md has no row for the old `/NearMiss/MonthlyNearMissUsers`.
-// Mapped by parity with `GET /api/v1/hazards/monthly-users`; flagged in the
-// handoff report as needing backend confirmation.
-const NEAR_MISS_MONTHLY_USERS_PATH = "/near-misses/monthly-users";
 const NEAR_MISS_HEAT_MAP_PATH = "/near-misses/heatmap";
 
 /**
@@ -68,17 +63,18 @@ export async function getTopNearMissUsers() {
   return data;
 }
 
-/** GET /api/v1/near-misses/monthly-users?year=&month= */
-export async function getMonthlyNearMissUsers(
-  params: Readonly<{ year: number; month: number }>,
-) {
-  const { data } = await http.get<GetMonthlyNearMissUsersResponseDto>(
-    NEAR_MISS_MONTHLY_USERS_PATH,
-    { params: { year: params.year, month: params.month } },
-  );
-
-  return data;
-}
+/*
+ * `getMonthlyNearMissUsers` is intentionally absent.
+ *
+ * `GET /api/NearMiss/MonthlyNearMissUsers` never existed: `INearMissService`
+ * has `GetTopNearMissUsers` and no monthly variant, and there is no repository
+ * query behind one. route-map.md has no row for it either. The Hazard twin
+ * (`GET /api/v1/hazards/monthly-users`) IS real, which is why it looked safe to
+ * map by parity — it is not. This call has been 404ing in production.
+ *
+ * Restore it, and the reporter list in `NearMissRecognitionCard`, once the
+ * backend serves `GET /api/v1/near-misses/monthly-users`.
+ */
 
 export async function getNearMissHeatMap() {
   const { data } = await http.get<GetNearMissHeatMapResponseDto>(

@@ -12,7 +12,6 @@ import {
   createCapaTask,
   deleteCapaTask,
   dropCapa,
-  reopenCapa,
   submitCapaVerification,
   updateCapa,
   updateCapaTask,
@@ -100,10 +99,6 @@ export type UpdateCapaTaskInput = Readonly<{
 }>;
 
 export type DropCapaInput = Readonly<{
-  capaId: number;
-}>;
-
-export type ReopenCapaInput = Readonly<{
   capaId: number;
 }>;
 
@@ -345,33 +340,6 @@ export function useDropCapaMutation() {
       return dropCapa(input.capaId);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
-    },
-  });
-}
-
-export function useReopenCapaMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: ReopenCapaInput) => {
-      const auth = getAuthContext();
-      if (!auth) {
-        throw new Error("Sign in required to reopen a CAPA.");
-      }
-
-      return reopenCapa(input.capaId);
-    },
-    onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.tasks(variables.capaId),
-      });
       await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
   });
