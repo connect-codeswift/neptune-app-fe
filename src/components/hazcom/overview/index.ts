@@ -10,4 +10,10 @@ export type { HazcomRecentChemicalAdditionsCardProps } from "./HazcomRecentChemi
 export { HazcomSdsStatusOverviewCard } from "./HazcomSdsStatusOverviewCard";
 export type { HazcomSdsStatusOverviewCardProps } from "./HazcomSdsStatusOverviewCard";
 
+export { HazcomUpcomingDeadlinesCard } from "./HazcomUpcomingDeadlinesCard";
+export type { HazcomUpcomingDeadlinesCardProps } from "./HazcomUpcomingDeadlinesCard";
+
+export { HazcomTrainingComplianceCard } from "./HazcomTrainingComplianceCard";
+export type { HazcomTrainingComplianceCardProps } from "./HazcomTrainingComplianceCard";
+
 export { HazcomOverviewPageClient } from "./HazcomOverviewPageClient";
