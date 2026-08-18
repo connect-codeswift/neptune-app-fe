@@ -38,7 +38,11 @@ npm run format     # prettier
 npx tsc --noEmit -p tsconfig.json   # typecheck; ignore .next/dev/types noise (stale generated)
 ```
 
-There are **no tests**. Verify with `npm run lint` and `npm run build`.
+There are **no tests**. Every task ends with all three checks green — typecheck, lint, build —
+run as three concurrent agents reporting back to the orchestrator. The full rule, including the
+accepted lint baseline, is [.cursor/rules/verify-before-done.mdc](.cursor/rules/verify-before-done.mdc)
+(mirrored as the `verify-before-done` skill). `npm run lint` does not exit 0 on a clean tree; the
+test is the delta against that baseline, not the total.
 
 `HANDOFF.md` is a point-in-time session note, not a rules file — its conventions are folded into
 this document, and where the two disagree, this one is current. Its session log (the blocked

@@ -1,10 +1,9 @@
 ---
-description: React components must use Readonly props (Sonar typescript:S6759)
-globs: src/components/**/*.tsx
-alwaysApply: false
+name: react-readonly-props
+description: React components under src/components must take a single props parameter typed Readonly<XProps> (Sonar typescript:S6759). Use when creating or editing any component, or when a Sonar S6759 finding comes up.
 ---
 
-<!-- Mirror of .claude/skills/react-readonly-props/SKILL.md — edit both, keep the bodies identical. -->
+<!-- Mirror of .cursor/rules/react-readonly-props.mdc — edit both, keep the bodies identical. -->
 
 # Read-only component props (Sonar S6759)
 

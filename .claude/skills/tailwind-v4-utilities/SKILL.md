@@ -1,10 +1,9 @@
 ---
-description: Tailwind v4 — spacing scale, round MCP values, bg-linear-to-*
-globs: "**/*.{tsx,ts,css}"
-alwaysApply: true
+name: tailwind-v4-utilities
+description: Tailwind v4 spacing scale, rounding fractional MCP/Figma px, and bg-linear-to-* gradients. Use when writing classes from a Figma/MCP spec, or when tempted to write an arbitrary [Npx] value.
 ---
 
-<!-- Mirror of .claude/skills/tailwind-v4-utilities/SKILL.md — edit both, keep the bodies identical. -->
+<!-- Mirror of .cursor/rules/tailwind-v4-utilities.mdc — edit both, keep the bodies identical. -->
 
 # Tailwind v4 utilities
 
