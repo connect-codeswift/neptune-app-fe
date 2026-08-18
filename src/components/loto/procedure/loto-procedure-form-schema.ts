@@ -8,7 +8,6 @@ import {
   LOTO_ENERGY_TYPES,
   LOTO_HAZARD_LEVELS,
   LOTO_ISOLATION_METHODS,
-  LOTO_PPE_OPTIONS,
   type LotoIsolationStep,
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
@@ -32,11 +31,6 @@ const energyOptions: readonly SelectOption[] = LOTO_ENERGY_TYPES.map(
 const methodOptions: readonly SelectOption[] = LOTO_ISOLATION_METHODS.map(
   (method) => ({ value: method, label: method }),
 );
-
-const ppeOptions: readonly SelectOption[] = LOTO_PPE_OPTIONS.map((ppe) => ({
-  value: ppe,
-  label: ppe,
-}));
 
 /**
  * Equipment Information card — Figma create/edit. Equipment ID and Location
@@ -136,15 +130,24 @@ export const lotoVerificationSchema: FormSchema = [
   },
 ];
 
-export const lotoPpeSchema: FormSchema = [
-  {
-    type: "chips",
-    name: "selectedPpe",
-    label: "Required PPE",
-    colSpan: 12,
-    options: ppeOptions,
-  },
-];
+/**
+ * Required PPE chips. Options come from the PPE catalog (GET /api/ppe) via
+ * `toPpeChipOptions`, so the schema is built per render rather than being a
+ * module constant — pass `[]` while the catalog is still loading.
+ */
+export function makeLotoPpeSchema(
+  options: readonly SelectOption[],
+): FormSchema {
+  return [
+    {
+      type: "chips",
+      name: "selectedPpe",
+      label: "Required PPE",
+      colSpan: 12,
+      options,
+    },
+  ];
+}
 
 export function toEquipmentFormValues(
   state: LotoProcedureFormState,
@@ -180,7 +183,7 @@ export function toVerificationFormValues(
 
 export function toPpeFormValues(state: LotoProcedureFormState): FormValues {
   return {
-    ...createInitialValues(lotoPpeSchema),
+    ...createInitialValues(makeLotoPpeSchema([])),
     selectedPpe: [...state.selectedPpe],
   };
 }

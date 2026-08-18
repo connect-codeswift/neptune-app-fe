@@ -1,11 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import type { HazcomChemical } from "@/components/hazcom/shared/hazcom-types";
+import type {
+  HazcomChemical,
+  HazcomTrainingCompliance,
+  HazcomUpcomingDeadline,
+} from "@/components/hazcom/shared/hazcom-types";
 import {
   useChemicalsListQuery,
   useSdsListQuery,
+  useTrainingComplianceQuery,
   useTrainingLogsQuery,
+  useUpcomingDeadlinesQuery,
 } from "@/hooks/use-hazcom-queries";
 
 /**
@@ -33,6 +39,9 @@ export type HazcomOverviewState = Readonly<{
   totalTrainingSessions: number;
   sds: HazcomOverviewSdsCounts;
   recentChemicals: readonly HazcomChemical[];
+  upcomingDeadlines: readonly HazcomUpcomingDeadline[];
+  /** `null` when the dashboard endpoint has no compliance row. */
+  trainingCompliance: HazcomTrainingCompliance | null;
   /** True when either list holds more rows than one page could load. */
   isSampled: boolean;
   isLoading: boolean;
@@ -47,14 +56,9 @@ function byAddedOnDescending(a: HazcomChemical, b: HazcomChemical): number {
 }
 
 /**
- * The figures behind the HazCom overview, derived from the module's real list
- * endpoints.
- *
- * There is no HazCom summary endpoint. Everything this returns is counted from
- * rows the API actually served; anything the API cannot answer — per-employee
- * training compliance, generic compliance deadlines — is absent here on
- * purpose, and the panels that used to show it say it is unavailable instead of
- * filling in a number.
+ * The figures behind the HazCom overview: list totals from the module
+ * endpoints, plus the dashboard projections for deadlines and training
+ * compliance.
  */
 export function useHazcomOverview(): HazcomOverviewState {
   const chemicalsQuery = useChemicalsListQuery({
@@ -69,6 +73,8 @@ export function useHazcomOverview(): HazcomOverviewState {
     pageNumber: 1,
     pageSize: 1,
   });
+  const deadlinesQuery = useUpcomingDeadlinesQuery();
+  const complianceQuery = useTrainingComplianceQuery();
 
   const sds = useMemo<HazcomOverviewSdsCounts>(() => {
     // "Compliant" / "Due Soon" / "Overdue" are derived from each sheet's
@@ -103,21 +109,29 @@ export function useHazcomOverview(): HazcomOverviewState {
     totalTrainingSessions: trainingQuery.totalRecords,
     sds,
     recentChemicals,
+    upcomingDeadlines: deadlinesQuery.deadlines,
+    trainingCompliance: complianceQuery.compliance,
     isSampled:
       chemicalsQuery.totalRecords > chemicalsQuery.items.length ||
       sdsQuery.totalRecords > sdsQuery.items.length,
     isLoading:
-      chemicalsQuery.isLoading || sdsQuery.isLoading || trainingQuery.isLoading,
-    // Whichever list failed first — the panels degrade together, so one message
-    // is enough.
+      chemicalsQuery.isLoading ||
+      sdsQuery.isLoading ||
+      trainingQuery.isLoading ||
+      deadlinesQuery.isLoading ||
+      complianceQuery.isLoading,
     errorMessage:
       chemicalsQuery.errorMessage ??
       sdsQuery.errorMessage ??
-      trainingQuery.errorMessage,
+      trainingQuery.errorMessage ??
+      deadlinesQuery.errorMessage ??
+      complianceQuery.errorMessage,
     refetch: () => {
       chemicalsQuery.refetch();
       sdsQuery.refetch();
       trainingQuery.refetch();
+      deadlinesQuery.refetch();
+      complianceQuery.refetch();
     },
   };
 }

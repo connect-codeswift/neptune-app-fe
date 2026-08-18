@@ -36,6 +36,21 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
   });
 }
 
+/**
+ * Turn GET /api/ppe rows into chip options for a required-PPE picker
+ * (LOTO procedure). Value is the catalog id; label is the item's display name,
+ * sorted so the chip order does not shift with API row order.
+ */
+export function toPpeChipOptions(items: readonly PpeItemDto[]): SelectOption[] {
+  return items
+    .flatMap((item) =>
+      item.id === undefined
+        ? []
+        : [{ value: String(item.id), label: toItemDisplayName(item) }],
+    )
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
 function toPpeSizeOptions(availableSize?: string | null): SelectOption[] {
   if (!availableSize?.trim()) return [];
@@ -532,6 +547,7 @@ export function toPpeInventoryItems(
     return [
       {
         id: String(item.id),
+        itemName: toItemDisplayName(item),
         category: item.category?.trim() || "—",
         protectionType: item.category?.trim(),
         onHand,
