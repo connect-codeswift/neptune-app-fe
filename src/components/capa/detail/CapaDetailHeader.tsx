@@ -10,12 +10,9 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
-import {
-  useDropCapaMutation,
-  useReopenCapaMutation,
-} from "@/hooks/use-capa-mutations";
+import { useDropCapaMutation } from "@/hooks/use-capa-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { isCapaStatusClosed, isCapaStatusPending } from "@/lib/capa-filters";
+import { isCapaStatusClosed } from "@/lib/capa-filters";
 import { getCapaVerificationByCapaId } from "@/services/capa.service";
 import { getCapaRcaById } from "@/services/rca.service";
 import { toast } from "@/lib/toast";
@@ -49,15 +46,9 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   const [isOpeningRca, setIsOpeningRca] = useState(false);
   const [isConfirmingDrop, setIsConfirmingDrop] = useState(false);
   const dropCapaMutation = useDropCapaMutation();
-  const reopenCapaMutation = useReopenCapaMutation();
 
   const isClosed = isCapaStatusClosed(record.statusLabel);
-  const canReopen = isCapaStatusPending(record.statusLabel);
-  const isBusy =
-    isOpeningRca ||
-    isOpeningVerify ||
-    dropCapaMutation.isPending ||
-    reopenCapaMutation.isPending;
+  const isBusy = isOpeningRca || isOpeningVerify || dropCapaMutation.isPending;
 
   const verifyHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/verify`;
   const rcaHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/rca`;
@@ -108,26 +99,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
       );
     } finally {
       setIsOpeningRca(false);
-    }
-  }
-
-  async function handleReopen() {
-    if (record.numericId <= 0) {
-      toast.error(
-        "Could not reopen CAPA",
-        "This CAPA is missing a server id. Refresh and try again.",
-      );
-      return;
-    }
-
-    try {
-      await reopenCapaMutation.mutateAsync({ capaId: record.numericId });
-      toast.success("CAPA reopened");
-    } catch (error) {
-      toast.error(
-        "Could not reopen CAPA",
-        getMutationErrorMessage(error, "Please try again."),
-      );
     }
   }
 
@@ -215,20 +186,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               >
                 RCA
               </Button>
-              {canReopen ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  isLoading={reopenCapaMutation.isPending}
-                  disabled={isBusy}
-                  onClick={() => {
-                    void handleReopen();
-                  }}
-                  className="rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-4 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0] sm:px-6"
-                >
-                  Reopen
-                </Button>
-              ) : null}
               {isClosed ? null : (
                 <Button
                   type="button"

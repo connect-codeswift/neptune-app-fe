@@ -1212,32 +1212,19 @@ export async function dropCapa(capaId: number) {
   return data;
 }
 
-/** PATCH /api/v1/capas/{id}/status — reopen. Only `{ status: "Open" }` is accepted. */
-export async function reopenCapa(
-  capaId: number,
-  payload: CapaStatusRequestDto = { status: "Open" },
-) {
-  if (!Number.isFinite(capaId) || capaId <= 0) {
-    throw new Error("CAPA id is required to reopen.");
-  }
-
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    throw new Error("Sign in required to reopen a CAPA.");
-  }
-
-  const { data } = await http.patch<unknown>(
-    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/status`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
-
-  return normalizeCapaDto(data);
-}
+/*
+ * CAPA reopen is intentionally absent.
+ *
+ * There is no capa-level status write in the backend: `ICapaService` /
+ * `CapaService` have no method behind `PATCH /CAPA/Capa/{id}/status`, and
+ * route-map.md has no row for it — the design doc listed it, the code never
+ * implemented it, so it has been 404ing in production. The only real status
+ * writes are `PATCH /api/v1/capa-tasks/{taskId}/status` and
+ * `POST /api/v1/capas/{id}/request-verification`.
+ *
+ * Restore `reopenCapa` here, and the Reopen button in `CapaDetailHeader`, once
+ * the backend actually serves it.
+ */
 
 /** GET /api/v1/capas/{capaId}/attachments */
 export async function getCapaAttachmentsByCapaId(capaId: number) {
