@@ -5,6 +5,7 @@ import type {
   HazcomSignalWord,
   HazcomStatementCode,
 } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   asNumber,
   asString,
@@ -136,9 +137,8 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
   );
 
   return {
-    // `id` doubles as the row key and the detail/edit route segment, so it
-    // always falls back to a string even when the backend omits it.
-    id: asString(readProp(record, "id", "Id")),
+    // Prefixed display id (`CHEM-12`) is also the detail/edit route segment.
+    id: formatRecordDisplayId("CHEM", asString(readProp(record, "id", "Id"))),
     // `chemi_Name` / `caS_Number` / `ghs*` are the backend's own spellings
     // (see `ChemicalRequestDto`); the rest stay as defensive fallbacks.
     name: asString(
@@ -185,7 +185,10 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
       readProp(record, "ghsSignal", "GhsSignal", "signalWord", "SignalWord"),
     ),
     status: toChemicalStatus(readProp(record, "status", "Status")),
-    sdsRecordId: sdsId === undefined ? null : asString(sdsId),
+    sdsRecordId:
+      sdsId === undefined || asString(sdsId) === ""
+        ? null
+        : formatRecordDisplayId("SDS", asString(sdsId)),
     sdsFileName:
       asString(
         readProp(

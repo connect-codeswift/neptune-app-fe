@@ -34,6 +34,7 @@ import {
 import type { FormValues } from "@/components/form-builder";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatCapaStatusDisplay } from "@/lib/capa-filters";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   formatCapaApiDateForDisplay,
   parseCapaApiDate,
@@ -291,7 +292,7 @@ function mapCapaDtoToItem(
     description:
       (dto.description ?? dto.title ?? "").trim() || `CAPA-${String(dto.id)}`,
     isDrop: dto.isDrop ?? false,
-    code: dto.capaCode?.trim() || dto.code?.trim() || `CAPA-${String(dto.id)}`,
+    code: formatRecordDisplayId("CAPA", dto.id),
     controlCategory: normalizeControlLevel(dto.controlLevel),
     actionType: normalizeActionType(dto.capaType),
     status,

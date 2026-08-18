@@ -4,6 +4,7 @@ import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { CapaDashboardItem } from "@/components/capa/capa-dashboard-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const columnHelper = createColumnHelper<CapaDashboardItem>();
 
@@ -124,6 +125,25 @@ export function createCapaColumns(
   const { selectedId, onViewMore, expanded = true } = options;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const displayId = formatRecordDisplayId("CAPA", row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
     columnHelper.accessor("title", {
       header: "CAPA",
       minSize: 180,
@@ -133,22 +153,13 @@ export function createCapaColumns(
         const label = clipWords(item.title);
 
         return (
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <Text
-              as="span"
-              className="text4 text-ehs-darker truncate"
-              title={item.title}
-            >
-              {label}
-            </Text>
-            <Text
-              as="span"
-              className="text8 text-ehs-muted-text truncate"
-              title={item.code}
-            >
-              {item.code}
-            </Text>
-          </div>
+          <Text
+            as="span"
+            className="text4 text-ehs-darker truncate"
+            title={item.title}
+          >
+            {label}
+          </Text>
         );
       },
     }),

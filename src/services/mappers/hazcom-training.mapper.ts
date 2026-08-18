@@ -3,6 +3,7 @@ import type {
   HazcomTrainingSession,
   HazcomTrainingStatus,
 } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   asLeadingNumber,
   asNumber,
@@ -101,7 +102,7 @@ function mapTrainingLogDtoToHazcomSession(
   );
 
   return {
-    id: asString(readProp(record, "id", "Id")),
+    id: formatRecordDisplayId("TR", asString(readProp(record, "id", "Id"))),
     date,
     trainer: asString(readProp(record, "trainer", "Trainer")),
     // The form labels this "Topic / Training Title"; `trainerTitle` is the

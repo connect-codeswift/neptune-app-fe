@@ -1,4 +1,5 @@
 import type { MyActionItemDto } from "@/dtos/res/ehs-command-center-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 /** One row of the CAPA register table. */
 export type CapaListRow = Readonly<{
@@ -88,24 +89,11 @@ function mapActionToCapaRow(
   raw: MyActionItemDto,
   index: number,
 ): CapaListRow {
-  const code =
-    asString(
-      readProp(
-        raw,
-        "code",
-        "Code",
-        "capaCode",
-        "CapaCode",
-        "referenceCode",
-        "ReferenceCode",
-        "actionCode",
-        "ActionCode",
-      ),
-    ) ?? EM_DASH;
-
   const id =
     asString(readProp(raw, "id", "Id", "capaId", "CapaId")) ??
-    `${code}-${String(index)}`;
+    String(index);
+
+  const code = formatRecordDisplayId("CAPA", id);
 
   return {
     id,

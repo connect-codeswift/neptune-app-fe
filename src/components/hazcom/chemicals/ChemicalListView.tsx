@@ -195,7 +195,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
                   id: selectedChemical.id,
                   title: selectedChemical.name,
                   subtitle: selectedChemical.sdsRecordId
-                    ? `SDS ${selectedChemical.sdsRecordId}`
+                    ? selectedChemical.sdsRecordId
                     : "No SDS record linked",
                 }}
                 emptyMessage="Select a chemical to view details."
