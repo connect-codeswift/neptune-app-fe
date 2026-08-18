@@ -11,8 +11,7 @@ import type {
 } from "@/dtos/res/inspection-template-response.dto";
 import http from "@/lib/axios";
 
-const INSPECTION_TEMPLATE_PATH = "/InspectionTemplate";
-const INSPECTION_TEMPLATE_GET_ALL_PATH = "/InspectionTemplate/GetAll";
+const INSPECTION_TEMPLATE_PATH = "/inspection-templates";
 /** Fetching one template by id is served by the AuditTemplate controller. */
 
 export async function createInspectionTemplate(
@@ -94,7 +93,7 @@ export async function getAllInspectionTemplates(
   }>,
 ) {
   const { data } = await http.get<GetAllInspectionTemplatesResponseDto>(
-    INSPECTION_TEMPLATE_GET_ALL_PATH,
+    INSPECTION_TEMPLATE_PATH,
     // The endpoint serves both kinds of template, so scope it to inspections.
     { params: { ...params, kind: params.kind ?? "Inspection" } },
   );

@@ -18,7 +18,7 @@ export type LotoLocationSearchFieldProps = Readonly<{
 
 /**
  * Location picker for the create/edit procedure form — a combobox over
- * GET /api/Loto/locations?search=. The backend requires a `locationId` from
+ * GET /api/v1/locations?search=. The backend requires a `locationId` from
  * this register; free text is gone.
  */
 export function LotoLocationSearchField(

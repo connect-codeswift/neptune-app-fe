@@ -28,7 +28,7 @@ function asCount(value: unknown): number {
   return 0;
 }
 
-/** Normalize GET /api/CAPA/lifecycle `dataModel`. */
+/** Normalize GET /api/v1/capas/lifecycle `dataModel`. */
 export function normalizeCapaLifecycleDto(
   raw: unknown,
 ): CapaLifecycleDto | null {
@@ -57,7 +57,7 @@ const SLICE_COLORS = {
   verified: "#10b981",
 } as const;
 
-/** Maps GET /api/CAPA/lifecycle into donut slices + total. */
+/** Maps GET /api/v1/capas/lifecycle into donut slices + total. */
 export function mapCapaLifecycleToView(
   dto: CapaLifecycleDto | null | undefined,
 ): CapaLifecycleViewModel {

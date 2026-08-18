@@ -26,7 +26,7 @@ function parseDocumentId(raw: string): number | null {
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and renders the edit view.
+ * Loads a document via GET /api/v1/documents/{id} and renders the edit view.
  */
 export function EditDocumentContent(props: Readonly<EditDocumentContentProps>) {
   const { documentIdParam } = props;

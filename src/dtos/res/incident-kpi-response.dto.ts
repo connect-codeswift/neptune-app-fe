@@ -16,7 +16,7 @@ export type IncidentKpiCardDto = {
   trendDeltaWeeks: number | null;
 };
 
-/** dataModel shape for GET /api/Incident/GetHeaderKpi. */
+/** dataModel shape for GET /api/v1/incidents/header-kpis. */
 export type HeaderKpiDto = {
   rir: IncidentKpiCardDto;
   ltir: IncidentKpiCardDto;
@@ -25,7 +25,7 @@ export type HeaderKpiDto = {
 
 export type GetHeaderKpiResponseDto = ApiEnvelopeDto<HeaderKpiDto | null>;
 
-/** dataModel shape for GET /api/Incident/GetIncidentListKpis. */
+/** dataModel shape for GET /api/v1/incidents/list-kpis. */
 export type IncidentListKpiDto = {
   openIncidents: IncidentKpiCardDto;
   mttc: IncidentKpiCardDto;
@@ -40,7 +40,7 @@ export type GetIncidentListKpisResponseDto =
 export type KpiMetricKey =
   "rir" | "ltir" | "mttc" | "openIncidents" | "daysWithoutLti";
 
-/** One entry from GET /api/Incident/kpi-targets. */
+/** One entry from GET /api/v1/kpi-targets. */
 export type KpiTargetDto = {
   metric: string;
   targetValue: number;
@@ -55,7 +55,7 @@ export type SaveKpiTargetResponseDto = ApiEnvelopeDto<unknown>;
 /** Lookup table keyed by normalized metric name. */
 export type KpiTargetsLookup = Partial<Record<KpiMetricKey, number>>;
 
-/** One monthly work-hours entry from GET /api/Incident/site-work-hours. */
+/** One monthly work-hours entry from GET /api/v1/sites/work-hours. */
 export type SiteWorkHoursDto = {
   id: number;
   siteId: number;
@@ -70,13 +70,13 @@ export type GetSiteWorkHoursResponseDto = ApiEnvelopeDto<
 
 export type SaveSiteWorkHoursResponseDto = ApiEnvelopeDto<unknown>;
 
-/** One site row on GET /api/Incident/dashboard-kpis. */
+/** One site row on GET /api/v1/incidents/dashboard-kpis. */
 export type RecordablesBySiteDto = {
   site: string;
   count: number;
 };
 
-/** One monthly row on GET /api/Incident/dashboard-kpis. */
+/** One monthly row on GET /api/v1/incidents/dashboard-kpis. */
 export type RecordablesMonthlyDto = {
   year: number;
   month: number;
@@ -84,7 +84,7 @@ export type RecordablesMonthlyDto = {
   count: number;
 };
 
-/** Recordable mix breakdown on GET /api/Incident/dashboard-kpis. */
+/** Recordable mix breakdown on GET /api/v1/incidents/dashboard-kpis. */
 export type RecordableMixDto = {
   lostTime: number;
   restricted: number;
@@ -92,10 +92,10 @@ export type RecordableMixDto = {
   firstAid: number;
 };
 
-/** Optional targets bundled with GET /api/Incident/dashboard-kpis. */
+/** Optional targets bundled with GET /api/v1/incidents/dashboard-kpis. */
 export type IncidentDashboardTargetsDto = Record<string, number>;
 
-/** dataModel shape for GET /api/Incident/dashboard-kpis. */
+/** dataModel shape for GET /api/v1/incidents/dashboard-kpis. */
 export type IncidentDashboardKpisDto = {
   totalRecordable: number;
   lostTimeCount: number;

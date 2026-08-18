@@ -195,7 +195,7 @@ type LotoProcedureEditorProps =
     }>;
 
 /**
- * Owns the editable state and the POST/PUT /api/Loto/equipment submit. The
+ * Owns the editable state and the POST/PUT /api/v1/loto/equipment submit. The
  * equipment code is never editable — the backend assigns it — so create and
  * edit share this same body shape (`UpsertLotoEquipmentRequestDto`).
  */

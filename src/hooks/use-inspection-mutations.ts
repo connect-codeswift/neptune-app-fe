@@ -8,7 +8,7 @@ import {
   saveInspectionResponses,
 } from "@/services/inspection.service";
 
-/** Records an inspection's answers via PUT /api/Inspection/{id}/responses. */
+/** Records an inspection's answers via PUT /api/v1/inspections/{id}/responses. */
 export function useSaveInspectionResponsesMutation() {
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ export function useSaveInspectionResponsesMutation() {
   });
 }
 
-/** Starts (schedules) an inspection from a template via POST /api/Inspection. */
+/** Starts (schedules) an inspection from a template via POST /api/v1/inspections. */
 export function useCreateInspectionMutation() {
   const queryClient = useQueryClient();
 

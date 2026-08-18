@@ -19,7 +19,7 @@ export const incidentKpiQueryKeys = {
     [...incidentKpiQueryKeys.all, "site-work-hours"] as const,
 };
 
-/** GET /api/Incident/GetHeaderKpi */
+/** GET /api/v1/incidents/header-kpis */
 export function useHeaderKpiQuery(enabled = true) {
   return useQuery({
     queryKey: incidentKpiQueryKeys.header(),
@@ -28,7 +28,7 @@ export function useHeaderKpiQuery(enabled = true) {
   });
 }
 
-/** GET /api/Incident/GetIncidentListKpis */
+/** GET /api/v1/incidents/list-kpis */
 export function useIncidentListKpisQuery(enabled = true) {
   return useQuery({
     queryKey: incidentKpiQueryKeys.list(),
@@ -37,7 +37,7 @@ export function useIncidentListKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/Incident/dashboard-kpis */
+/** GET /api/v1/incidents/dashboard-kpis */
 export function useIncidentDashboardKpisQuery(enabled = true) {
   return useQuery({
     queryKey: incidentKpiQueryKeys.dashboard(),
@@ -46,7 +46,7 @@ export function useIncidentDashboardKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/Incident/kpi-targets */
+/** GET /api/v1/kpi-targets */
 export function useKpiTargetsQuery(enabled = true) {
   return useQuery({
     queryKey: incidentKpiQueryKeys.targets(),
@@ -55,7 +55,7 @@ export function useKpiTargetsQuery(enabled = true) {
   });
 }
 
-/** GET /api/Incident/site-work-hours */
+/** GET /api/v1/sites/work-hours */
 export function useSiteWorkHoursQuery(enabled = true) {
   return useQuery({
     queryKey: incidentKpiQueryKeys.siteWorkHours(),

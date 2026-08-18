@@ -24,7 +24,7 @@ const STATUS_OPTIONS = [
   { value: "Completed", label: "Completed" },
 ] as const;
 
-/** Lockout history — POST /api/Loto/GetAllLockouts, the global site-wide log. */
+/** Lockout history — POST /api/v1/loto/lockouts/search, the global site-wide log. */
 export function LotoHistorySection() {
   const hasToken = useHasAccessToken();
   const [query, setQuery] = useState("");

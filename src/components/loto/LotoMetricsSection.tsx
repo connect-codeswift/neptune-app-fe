@@ -12,7 +12,7 @@ export type LotoMetricsSectionProps = Readonly<{
   isError: boolean;
 }>;
 
-/** KPI strip — same MetricCard as every other module header, fed by GET /api/Loto/dashboard-kpis. */
+/** KPI strip — same MetricCard as every other module header, fed by GET /api/v1/loto/dashboard-kpis. */
 export function LotoMetricsSection(props: Readonly<LotoMetricsSectionProps>) {
   const { kpis, isLoading, isError } = props;
 

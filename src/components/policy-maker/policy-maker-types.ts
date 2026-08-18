@@ -55,7 +55,7 @@ export type PolicyDocument = Readonly<{
   filePath?: string | null;
   /** Original uploaded filename, when the backend has it (older docs may be null). */
   fileName?: string | null;
-  /** Numeric id of the current version row, needed for PUT /api/Document/Acknowledgement. */
+  /** Numeric id of the current version row, needed for PUT /api/v1/document-versions/{versionId}/acknowledge. */
   versionId?: number | null;
 }>;
 

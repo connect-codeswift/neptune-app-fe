@@ -10,7 +10,7 @@ import {
   updateInspectionTemplate,
 } from "@/services/inspection-template.service";
 
-/** Updates an existing inspection template via PUT /api/InspectionTemplate/{id}. */
+/** Updates an existing inspection template via PUT /api/v1/inspection-templates/{id}. */
 export function useUpdateInspectionTemplateMutation() {
   const queryClient = useQueryClient();
 
@@ -42,7 +42,7 @@ export function useCreateInspectionTemplateMutation() {
 
 /**
  * Publishes an already-saved inspection template via
- * POST /api/InspectionTemplate/{id}/publish.
+ * POST /api/v1/inspection-templates/{id}/publish.
  */
 export function usePublishInspectionTemplateMutation() {
   const queryClient = useQueryClient();

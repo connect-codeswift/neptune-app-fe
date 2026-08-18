@@ -578,7 +578,7 @@ function buildRcaWhyChainPreview(
   }));
 }
 
-/** Builds Investigation tab preview cards from GET /Rca/Incident data. */
+/** Builds Investigation tab preview cards from GET /api/v1/incidents/{incidentId}/rca data. */
 export function buildRcaInvestigationPreview(
   lanes: readonly RcaHrcaLaneViewModel[],
   input: BuildRcaInvestigationPreviewInput,

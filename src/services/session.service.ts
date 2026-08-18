@@ -38,8 +38,8 @@ function mapUserByIdFallback(
 }
 
 /**
- * Primary session bootstrap: GET /Auth/Org/me.
- * Falls back to GET /Auth/GetUserById/{id} when Org/me is unavailable.
+ * Primary session bootstrap: GET /api/v1/organizations/me.
+ * Falls back to GET /api/v1/users/{id}/{id} when Org/me is unavailable.
  */
 export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
   try {

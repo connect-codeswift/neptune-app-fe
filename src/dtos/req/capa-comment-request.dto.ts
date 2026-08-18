@@ -1,4 +1,4 @@
-/** Body for POST /api/CAPA/Comment — matches OpenAPI `CapaCommentDto`. */
+/** Body for POST /api/v1/capas/{capaId}/comments — matches OpenAPI `CapaCommentDto`. */
 export type CapaCommentRequestDto = {
   capaId: number;
   title: string;

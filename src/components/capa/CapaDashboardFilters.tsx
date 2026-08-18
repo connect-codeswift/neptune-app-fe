@@ -19,7 +19,7 @@ export type CapaDashboardFiltersProps = Readonly<{
   onPriorityChange: (value: string) => void;
 }>;
 
-/** Filter toolbar — GET /api/CAPA Scope, Status, CapaType, Priority. */
+/** Filter toolbar — GET /api/v1/capas Scope, Status, CapaType, Priority. */
 export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
   const {
     scope,

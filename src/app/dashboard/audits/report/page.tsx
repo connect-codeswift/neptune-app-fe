@@ -15,7 +15,7 @@ function AuditReport() {
   const searchParams = useSearchParams();
   const auditId = decodeURIComponent(searchParams.get("auditid") ?? "");
 
-  // GET /api/Audit/{id} carries the audit, its template snapshot and the
+  // GET /api/v1/audits/{id} carries the audit, its template snapshot and the
   // recorded responses — everything the report needs, from one call.
   const detailQuery = useAuditDetailQuery(auditId);
   const detail = detailQuery.data?.dataModel ?? null;

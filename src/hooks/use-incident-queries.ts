@@ -71,7 +71,7 @@ export type UseIncidentsListQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads incidents via POST /api/Incident/GetAllIncidents
+ * Loads incidents via POST /api/v1/incidents/search
  * body: `{ pageNumber, pageSize, search?, severity?, site? }`
  * Tenant scope is resolved from the JWT — not sent in the body.
  */
@@ -118,7 +118,7 @@ export type UseIncidentByIdQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads a single incident via GET /api/Incident/GetIncidentById
+ * Loads a single incident via GET /api/v1/incidents/{id}
  * query: `{ id }` — tenant scope comes from the JWT
  * header: `Authorization: Bearer <token>` (required)
  *
@@ -171,7 +171,7 @@ export type UseIncidentClosureQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads incident closure data via GET /api/Incident/{incidentId}/closure
+ * Loads incident closure data via GET /api/v1/incidents/{incidentId}/closure
  * header: `Authorization: Bearer <token>` (required)
  */
 export function useIncidentClosureQuery(

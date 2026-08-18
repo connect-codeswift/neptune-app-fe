@@ -1,7 +1,7 @@
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** Created near-miss record returned by POST /api/NearMiss/NearMiss. */
+/** Created near-miss record returned by POST /api/v1/near-misses. */
 export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
   /** Server-side creation timestamp; drives the table's Age column. */
   createdAt?: string;
@@ -9,13 +9,13 @@ export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
   status?: string | null;
 };
 
-/** Matches backend response for POST /api/NearMiss/GetAllNearMiss. */
+/** Matches backend response for POST /api/v1/near-misses/search. */
 export type GetAllNearMissResponseDto = ApiEnvelopeDto<
   PagedDataDto<CreateNearMissResponseDto>
 >;
 
 /**
- * KPI counters from GET /api/NearMiss/NearMissKpi. Key names aren't pinned
+ * KPI counters from GET /api/v1/near-misses/kpis. Key names aren't pinned
  * down yet, so the likely spellings are optional here.
  */
 export type NearMissKpiDto = {
@@ -33,10 +33,10 @@ export type NearMissKpiDto = {
   convertedToIncidentsChange?: number;
 };
 
-/** Matches backend response for GET /api/NearMiss/NearMissKpi. */
+/** Matches backend response for GET /api/v1/near-misses/kpis. */
 export type GetNearMissKpiResponseDto = ApiEnvelopeDto<NearMissKpiDto | null>;
 
-/** One cell of GET /api/NearMiss/NearMissApiForHeatMap — a location/type tally. */
+/** One cell of GET /api/v1/near-misses/heatmap — a location/type tally. */
 export type NearMissHeatMapCellDto = {
   location: string;
   /** Present when the backend groups by department instead of (or as well as) location. */
@@ -45,29 +45,29 @@ export type NearMissHeatMapCellDto = {
   count: number;
 };
 
-/** Matches backend response for GET /api/NearMiss/NearMissApiForHeatMap. */
+/** Matches backend response for GET /api/v1/near-misses/heatmap. */
 export type GetNearMissHeatMapResponseDto = ApiEnvelopeDto<
   NearMissHeatMapCellDto[] | null
 >;
 
-/** One row of GET /api/NearMiss/TopNearMissUsers. */
+/** One row of GET /api/v1/near-misses/top-users. */
 export type TopNearMissUserDto = {
   userId: number;
   userName: string;
   nearMissCount: number;
 };
 
-/** Matches backend response for GET /api/NearMiss/TopNearMissUsers. */
+/** Matches backend response for GET /api/v1/near-misses/top-users. */
 export type GetTopNearMissUsersResponseDto = ApiEnvelopeDto<
   TopNearMissUserDto[] | null
 >;
 
 /**
- * GET /api/NearMiss/MonthlyNearMissUsers?year=&month= — same row shape as
+ * GET /api/v1/near-misses/monthly-users?year=&month= — same row shape as
  * TopNearMissUsers, scoped to one calendar month.
  */
 export type GetMonthlyNearMissUsersResponseDto = GetTopNearMissUsersResponseDto;
 
-/** Matches backend response for GET /api/NearMiss/NearMiss/{id}. */
+/** Matches backend response for GET /api/v1/near-misses/{id}. */
 export type GetNearMissByIdResponseDto =
   ApiEnvelopeDto<CreateNearMissResponseDto | null>;

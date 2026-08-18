@@ -64,7 +64,7 @@ function ChartSkeleton() {
   );
 }
 
-/** Opened vs closed trend — Figma 7123:42070. Loads GET /api/CAPA/opened-vs-closed. */
+/** Opened vs closed trend — Figma 7123:42070. Loads GET /api/v1/capas/opened-vs-closed. */
 export function CapaOpenedClosedCard() {
   const hasToken = useHasAccessToken();
   const { data, isPending, isError } = useCapaOpenedVsClosedQuery(

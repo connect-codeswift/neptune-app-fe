@@ -22,9 +22,9 @@ export type StartAuditValues = {
 };
 
 export type StartAuditSchemaOptions = Readonly<{
-  /** Auditors from GET /User/dropdown. */
+  /** Auditors from GET /api/v1/users/dropdown. */
   auditorOptions: readonly SelectOption[];
-  /** Templates for the current page of GET /AuditTemplate/GetAll. */
+  /** Templates for the current page of GET /api/v1/audit-templates. */
   templateOptions: readonly SelectOption[];
   /** Prev/next paging for the template dropdown, when more than one page. */
   templatePagination?: SelectPagination;

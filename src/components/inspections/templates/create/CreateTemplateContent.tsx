@@ -135,7 +135,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   const updateTemplate = useUpdateInspectionTemplateMutation();
   const publishTemplate = usePublishInspectionTemplateMutation();
 
-  /** Publish an already-saved template via POST /api/InspectionTemplate/{id}/publish. */
+  /** Publish an already-saved template via POST /api/v1/inspection-templates/{id}/publish. */
   const publishSavedTemplate = (
     templateId: string,
     onSuccess: () => void,
