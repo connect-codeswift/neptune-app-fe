@@ -15,52 +15,54 @@ import type {
 } from "@/dtos/res/ppe-response.dto";
 import http from "@/lib/axios";
 
-const PPE_PATH = "/ppe";
-const PPE_ISSUE_PATH = "/ppe/issue";
-const PPE_ISSUE_BY_STATUS_PATH = "/ppe/issue/by-status";
-const PPE_ISSUE_ASSIGNED_TO_PATH = "/ppe/issue/assigned-to";
-const PPE_KPI_PATH = "/ppe/kpi";
-const PPE_ACKNOWLEDGE_PATH = "/ppe/acknowledge";
-const PPE_REPLACE_REQUEST_PATH = "/ppe/replace-request";
+const PPE_ITEMS_PATH = "/ppe/items";
+const PPE_ISSUES_PATH = "/ppe/issues";
+const PPE_ISSUES_ASSIGNED_TO_ME_PATH = "/ppe/issues/assigned-to-me";
+const PPE_KPI_PATH = "/ppe/kpis";
+const PPE_REPLACE_REQUESTS_PATH = "/ppe/replace-requests";
 
-/** Matches backend response for GET /api/ppe/issue/by-status. */
+/** Matches backend response for GET /api/v1/ppe/issues?status=. */
 export type GetPpeIssuesByStatusResponseDto = ApiEnvelopeDto<
   PpeIssueDto[] | null
 >;
 
-/** Matches backend response for GET /api/ppe/issue/assigned-to. */
+/** Matches backend response for GET /api/v1/ppe/issues/assigned-to-me. */
 export type GetPpeIssuesAssignedToResponseDto = ApiEnvelopeDto<
   PpeIssueDto[] | null
 >;
 
 export async function getPpeItems() {
-  const { data } = await http.get<GetPpeItemsResponseDto>(PPE_PATH);
+  const { data } = await http.get<GetPpeItemsResponseDto>(PPE_ITEMS_PATH);
 
   return data;
 }
 
-/** GET /api/ppe/{id} */
+/** GET /api/v1/ppe/items/{id} */
 export async function getPpeItemById(id: number) {
   const { data } = await http.get<GetPpeItemByIdResponseDto>(
-    `${PPE_PATH}/${String(id)}`,
+    `${PPE_ITEMS_PATH}/${String(id)}`,
   );
 
   return data;
 }
 
-/** GET /api/ppe/issue/{id} */
+/** GET /api/v1/ppe/issues/{id} */
 export async function getPpeIssueById(id: number) {
   const { data } = await http.get<GetPpeIssueByIdResponseDto>(
-    `${PPE_ISSUE_PATH}/${String(id)}`,
+    `${PPE_ISSUES_PATH}/${String(id)}`,
   );
 
   return data;
 }
 
-/** GET /api/ppe/issue/by-status */
+/**
+ * GET /api/v1/ppe/issues?status=
+ * The old dedicated `/ppe/issue/by-status` path collapsed into a query
+ * parameter on the issues collection.
+ */
 export async function getPpeIssuesByStatus(status?: string) {
   const { data } = await http.get<GetPpeIssuesByStatusResponseDto>(
-    PPE_ISSUE_BY_STATUS_PATH,
+    PPE_ISSUES_PATH,
     {
       params: status ? { status } : undefined,
     },
@@ -69,16 +71,16 @@ export async function getPpeIssuesByStatus(status?: string) {
   return data;
 }
 
-/** GET /api/ppe/issue/assigned-to — current user's assigned PPE for acknowledgement. */
+/** GET /api/v1/ppe/issues/assigned-to-me — current user's assigned PPE for acknowledgement. */
 export async function getPpeIssuesAssignedTo() {
   const { data } = await http.get<GetPpeIssuesAssignedToResponseDto>(
-    PPE_ISSUE_ASSIGNED_TO_PATH,
+    PPE_ISSUES_ASSIGNED_TO_ME_PATH,
   );
 
   return data;
 }
 
-/** GET /api/ppe/kpi */
+/** GET /api/v1/ppe/kpis */
 export async function getPpeKpi() {
   const { data } = await http.get<GetPpeKpiResponseDto>(PPE_KPI_PATH);
 
@@ -87,7 +89,7 @@ export async function getPpeKpi() {
 
 export async function issuePpe(payload: IssuePpeRequestDto) {
   const { data } = await http.post<IssuePpeResponseDto>(
-    PPE_ISSUE_PATH,
+    PPE_ISSUES_PATH,
     payload,
   );
 
@@ -101,13 +103,17 @@ export type AcknowledgePpeParams = Readonly<{
   siteId: number;
 }>;
 
+/**
+ * POST /api/v1/ppe/issues/{id}/acknowledge
+ * The issue id moved out of the query string into the path in the v1 rename;
+ * `org` and `siteId` stay as query parameters.
+ */
 export async function acknowledgePpe(params: AcknowledgePpeParams) {
   const { data } = await http.post<AcknowledgePpeResponseDto>(
-    PPE_ACKNOWLEDGE_PATH,
+    `${PPE_ISSUES_PATH}/${String(params.issueId)}/acknowledge`,
     null,
     {
       params: {
-        issueId: params.issueId,
         org: params.org,
         siteId: params.siteId,
       },
@@ -117,10 +123,10 @@ export async function acknowledgePpe(params: AcknowledgePpeParams) {
   return data;
 }
 
-/** POST /api/ppe/replace-request */
+/** POST /api/v1/ppe/replace-requests */
 export async function createReplacePpeRequest(payload: ReplacePpeRequestDto) {
   const { data } = await http.post<ReplacePpeRequestResponseDto>(
-    PPE_REPLACE_REQUEST_PATH,
+    PPE_REPLACE_REQUESTS_PATH,
     payload,
   );
 

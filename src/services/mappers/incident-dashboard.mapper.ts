@@ -467,7 +467,7 @@ function mapInjuryMix(dto: IncidentDashboardKpisDto): readonly InjuryMixItem[] {
   ];
 }
 
-/** Maps GET /api/Incident/dashboard-kpis into dashboard section view models. */
+/** Maps GET /api/v1/incidents/dashboard-kpis into dashboard section view models. */
 export function mapIncidentDashboardKpisToViewModel(
   dto: IncidentDashboardKpisDto | null | undefined,
   kpiTargets: readonly KpiTargetDto[] | null | undefined,

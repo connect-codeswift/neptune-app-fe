@@ -232,7 +232,7 @@ function normalizeSites(raw: unknown): SessionSiteDto[] {
     .filter((site): site is SessionSiteDto => site !== null);
 }
 
-/** Normalize GET /Auth/Org/me — org-centric payload (`id` is organization id, not user id). */
+/** Normalize GET /api/v1/organizations/me — org-centric payload (`id` is organization id, not user id). */
 export function normalizeOrgMeResponse(
   data: unknown,
 ): SessionBootstrapDto | null {
@@ -316,7 +316,7 @@ function mergeJwtUserIntoSession(
   };
 }
 
-/** Normalize GET /Auth/GetUserById and similar user-entity payloads. */
+/** Normalize GET /api/v1/users/{id} and similar user-entity payloads. */
 export function normalizeSessionBootstrap(
   data: unknown,
 ): SessionBootstrapDto | null {

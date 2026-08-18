@@ -61,7 +61,7 @@ function normalizeWeek(raw: unknown): CapaOpenedClosedWeekDto | null {
   };
 }
 
-/** Normalize GET /api/CAPA/opened-vs-closed `dataModel`. */
+/** Normalize GET /api/v1/capas/opened-vs-closed `dataModel`. */
 export function normalizeCapaOpenedClosedDto(
   raw: unknown,
 ): CapaOpenedClosedDto | null {
@@ -113,7 +113,7 @@ function isClosingFaster(points: readonly CapaTrendPoint[]): boolean {
   return closed >= opened * 0.5;
 }
 
-/** Maps GET /api/CAPA/opened-vs-closed into chart points + summary. */
+/** Maps GET /api/v1/capas/opened-vs-closed into chart points + summary. */
 export function mapCapaOpenedClosedToView(
   dto: CapaOpenedClosedDto | null | undefined,
 ): CapaOpenedClosedViewModel {

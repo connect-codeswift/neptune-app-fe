@@ -18,7 +18,7 @@ export type StartInspectionValues = {
 };
 
 export type StartInspectionSchemaOptions = Readonly<{
-  /** Inspectors from GET /User/dropdown. */
+  /** Inspectors from GET /api/v1/users/dropdown. */
   inspectorOptions: readonly SelectOption[];
   /** Templates available to pick from. */
   templateOptions: readonly SelectOption[];

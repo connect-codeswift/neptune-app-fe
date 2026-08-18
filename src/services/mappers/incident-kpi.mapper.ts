@@ -110,7 +110,7 @@ export function normalizeKpiMetricKey(metric: string): KpiMetricKey | null {
   return isKpiMetricKey(resolved) ? resolved : null;
 }
 
-/** Builds a lookup table from GET /api/Incident/kpi-targets. */
+/** Builds a lookup table from GET /api/v1/kpi-targets. */
 export function mapKpiTargetsToLookup(
   targets: readonly KpiTargetDto[] | null | undefined,
 ): KpiTargetsLookup {
@@ -359,7 +359,7 @@ function mapKpiCardToListMetric(
   };
 }
 
-/** Maps GET /api/Incident/GetHeaderKpi into dashboard hero cards. */
+/** Maps GET /api/v1/incidents/header-kpis into dashboard hero cards. */
 export function mapHeaderKpisToHeroMetrics(
   dto: HeaderKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,
@@ -383,7 +383,7 @@ export function mapHeaderKpisToHeroMetrics(
   );
 }
 
-/** Maps GET /api/Incident/GetIncidentListKpis into list KPI cards. */
+/** Maps GET /api/v1/incidents/list-kpis into list KPI cards. */
 export function mapIncidentListKpisToMetrics(
   dto: IncidentListKpiDto | null | undefined,
   targetsLookup?: KpiTargetsLookup,

@@ -254,8 +254,8 @@ export type PersonFieldConfig = BaseField &
     trailingHint?: string;
     /**
      * Where the picker loads people from.
-     * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
-     * - `dropdown`: GET /User/dropdown (client-filtered)
+     * - `site` (default): GET /api/v1/sites/{siteId}/users
+     * - `dropdown`: GET /api/v1/users/dropdown (client-filtered)
      */
     usersSource?: "site" | "dropdown";
     /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */

@@ -33,7 +33,7 @@ export function CapaDashboardView() {
   const hasToken = useHasAccessToken();
   const isClientReady = hasToken !== null;
 
-  /** Empty string = All (matches ModuleFilterBar / GET /api/CAPA omit). */
+  /** Empty string = All (matches ModuleFilterBar / GET /api/v1/capas omit). */
   const [scope, setScope] = useState("");
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");

@@ -75,7 +75,7 @@ function formatDueLabel(rawDue: unknown): string {
 }
 
 /**
- * Maps one `actions[]` entry from GET /api/EHSCommandCenter/GetMyActions into a
+ * Maps one `actions[]` entry from GET /api/v1/command-center/my-actions into a
  * register row.
  *
  * That endpoint has only ever returned an empty array, and its field names are

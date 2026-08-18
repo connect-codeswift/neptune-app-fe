@@ -56,7 +56,7 @@ export type HazardReportValues = {
   hazardType: string;
   location: string;
   /**
-   * Feeds the AI draft only. `POST /Hazard/Hazards` neither accepts nor stores
+   * Feeds the AI draft only. `POST /api/v1/hazards` neither accepts nor stores
    * it, so it must not reach the create payload — persisting it is a backend
    * change and a migration.
    */

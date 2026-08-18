@@ -109,7 +109,7 @@ function mapRateMetricCard(options: {
   };
 }
 
-/** Builds the 4 KPI cards from GET /api/EHSCommandCenter/GetMainDashboardKpis. */
+/** Builds the 4 KPI cards from GET /api/v1/command-center/dashboard-kpis. */
 export function mapDashboardKpisToMetrics(
   dto: DashboardKpisDto | null | undefined,
 ): readonly MetricCardProps[] {

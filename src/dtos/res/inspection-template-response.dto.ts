@@ -28,23 +28,23 @@ export type InspectionTemplateDto = {
   allowSites: string;
 };
 
-/** Matches backend response for POST /api/InspectionTemplate. */
+/** Matches backend response for POST /api/v1/inspection-templates. */
 export type CreateInspectionTemplateResponseDto =
   ApiEnvelopeDto<InspectionTemplateDto | null>;
 
-/** Matches backend response for POST /api/InspectionTemplate/{id}/publish. */
+/** Matches backend response for POST /api/v1/inspection-templates/{id}/publish. */
 export type PublishInspectionTemplateResponseDto = ApiEnvelopeDto<{
   id: number;
   versionNo: number;
 } | null>;
 
-/** Matches backend response for GET /api/InspectionTemplate/GetAll. */
+/** Matches backend response for GET /api/v1/inspection-templates. */
 export type GetAllInspectionTemplatesResponseDto = ApiEnvelopeDto<
   PagedDataDto<InspectionTemplateDto>
 >;
 
 /**
- * A section row from GET /api/InspectionTemplate/{id}/sections.
+ * A section row from GET /api/v1/inspection-templates/{id}/sections.
  * Fields stay optional since the exact response shape isn't pinned down.
  */
 export type InspectionTemplateSectionDto = {
@@ -55,7 +55,7 @@ export type InspectionTemplateSectionDto = {
   displayOrder?: number;
 };
 
-/** An item row from GET /api/InspectionTemplate/sections/{id}/items. */
+/** An item row from GET /api/v1/inspection-templates/sections/{id}/items. */
 export type InspectionTemplateItemDto = {
   id: number;
   itemType?: string;
@@ -68,7 +68,7 @@ export type InspectionTemplateItemDto = {
   templateSectionId?: number;
 };
 
-/** A rule from GET /api/InspectionTemplate/{id}/conditional-logics. */
+/** A rule from GET /api/v1/inspection-templates/{id}/conditional-logics. */
 export type InspectionTemplateLogicDto = {
   id: number;
   status?: string;

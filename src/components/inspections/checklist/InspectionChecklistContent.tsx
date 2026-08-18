@@ -176,7 +176,7 @@ export function InspectionChecklistContent(
         onSuccess: (response) => {
           toast.success(response.message || "Inspection submitted");
 
-          // The report reads everything back from GET /api/Inspection/{id}.
+          // The report reads everything back from GET /api/v1/inspections/{id}.
           router.push(
             `${INSPECTION_REPORT_ROUTE}?inspectionid=${encodeURIComponent(inspectionId)}`,
           );

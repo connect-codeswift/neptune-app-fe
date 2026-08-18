@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-/** dataModel shape for GET /api/CAPA/lifecycle. */
+/** dataModel shape for GET /api/v1/capas/lifecycle. */
 export type CapaLifecycleDto = {
   open?: number | null;
   inProgress?: number | null;
