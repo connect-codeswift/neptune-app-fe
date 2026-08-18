@@ -92,7 +92,7 @@ export function HazcomNewTrainingSessionForm(
   return (
     <IncidentGlassCard
       paddingClassName="p-6 sm:p-8"
-      className={["min-w-0 w-full rounded-2xl", className]
+      className={["w-full min-w-0 rounded-2xl", className]
         .filter(Boolean)
         .join(" ")}
       incidentGlassCardClassName="gap-0"
