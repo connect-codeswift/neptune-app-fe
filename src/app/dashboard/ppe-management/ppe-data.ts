@@ -4,7 +4,9 @@ export type PpeSiteId = "plant-a" | "plant-b" | "whse-1" | "whse-2";
 
 export type PpeInventoryItem = Readonly<{
   id: string;
-  /** Primary row label — maps from API `itemName`. */
+  /** Primary row label — maps from API `itemName` (falls back to `item` / `name`). */
+  itemName: string;
+  /** Protection category — maps from API `category`. */
   category: string;
   /** Protection type — maps from API `category`. */
   protectionType?: string;

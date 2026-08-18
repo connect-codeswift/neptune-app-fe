@@ -532,6 +532,7 @@ export function toPpeInventoryItems(
     return [
       {
         id: String(item.id),
+        itemName: toItemDisplayName(item),
         category: item.category?.trim() || "—",
         protectionType: item.category?.trim(),
         onHand,
