@@ -78,7 +78,7 @@ function LifecycleDonut(
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text mt-1 text-2.5 font-bold tracking-[0.8px] uppercase"
+          className="text-ehs-muted-text text-2.5 mt-1 font-bold tracking-[0.8px] uppercase"
         >
           Total
         </Text>
@@ -109,7 +109,7 @@ function LifecycleCardSkeleton() {
   );
 }
 
-/** Lifecycle donut — Figma 7123:42023. Loads GET /api/CAPA/lifecycle. */
+/** Lifecycle donut — Figma 7123:42023. Loads GET /api/v1/capas/lifecycle. */
 export function CapaLifecycleCard() {
   const hasToken = useHasAccessToken();
   const lifecycleQuery = useCapaLifecycleQuery(hasToken === true);
@@ -144,12 +144,9 @@ export function CapaLifecycleCard() {
 
         <ul className="flex min-w-0 flex-1 flex-col gap-3">
           {slices.map((slice) => (
-            <li
-              key={slice.label}
-              className="flex items-center gap-2 text-3.25"
-            >
+            <li key={slice.label} className="text-3.25 flex items-center gap-2">
               <span
-                className="size-2 shrink-0 rounded-0.5"
+                className="rounded-0.5 size-2 shrink-0"
                 style={{ backgroundColor: slice.color }}
                 aria-hidden="true"
               />

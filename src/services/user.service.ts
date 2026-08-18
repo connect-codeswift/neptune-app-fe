@@ -11,9 +11,9 @@ import {
 } from "@/lib/normalize-session";
 import http from "@/lib/axios";
 
-const USER_DROPDOWN_PATH = "/User/dropdown";
-const AUTH_GET_USER_BY_ID_PATH = "/Auth/GetUserById";
-const AUTH_USERS_BY_SITE_PATH = "/Auth/GetUsersBySiteId";
+const USER_DROPDOWN_PATH = "/users/dropdown";
+const USERS_PATH = "/users";
+const SITES_PATH = "/sites";
 
 function mapSessionToUserDto(
   session: NonNullable<ReturnType<typeof normalizeSessionBootstrap>>,
@@ -49,7 +49,7 @@ export type SiteUsersParams = Readonly<{
 }>;
 
 /**
- * GET /Auth/GetUsersBySiteId/{siteId} — the people who belong to one site.
+ * GET /api/v1/sites/{siteId}/users — the people who belong to one site.
  *
  * The endpoint filters server-side via `search`, so the affected-person picker
  * does not have to hold the whole roster in memory to be searchable.
@@ -64,7 +64,7 @@ export async function getUsersBySiteId(
   params: SiteUsersParams = {},
 ): Promise<readonly SiteUserDto[]> {
   const { data } = await http.get<GetUsersBySiteIdResponseDto>(
-    `${AUTH_USERS_BY_SITE_PATH}/${String(siteId)}`,
+    `${SITES_PATH}/${String(siteId)}/users`,
     {
       params: {
         ...(params.search?.trim() ? { search: params.search.trim() } : {}),
@@ -82,19 +82,19 @@ export async function getUsersBySiteId(
 /**
  * The one field of a user record the incident form needs: their gender.
  *
- * Separate from `getUserById` on purpose. `GET /Auth/GetUserById/{id}` returns
+ * Separate from `getUserById` on purpose. `GET /api/v1/users/{id}` returns
  * the entire row — `passwordHash`, `resetOtp`, `totpSecret` — and none of that
  * should be sitting in a React Query cache in the browser because a form wanted
  * one string. This reads the field and drops the rest on the floor.
  *
- * It exists at all only because `GET /Auth/GetUsersBySiteId/{siteId}` doesn't
+ * It exists at all only because `GET /api/v1/sites/{siteId}/users` doesn't
  * project `gender`, so the picker can't read it off the roster row it already
  * has. Once that endpoint carries it this whole call goes away — the caller
  * checks the row first and only falls back to here.
  */
 export async function getUserGenderById(userId: number): Promise<string> {
   const { data } = await http.get<ApiEnvelopeDto<unknown>>(
-    `${AUTH_GET_USER_BY_ID_PATH}/${String(userId)}`,
+    `${USERS_PATH}/${String(userId)}`,
   );
 
   const model = data.dataModel;
@@ -113,11 +113,13 @@ export async function getUserGenderById(userId: number): Promise<string> {
   return "";
 }
 
-/** GET /Auth/GetUserById/{id} — fallback when Org/me is unavailable. */
-export async function getUserById(userId: number): Promise<AuthResponseDto | null> {
+/** GET /api/v1/users/{id} — fallback when Org/me is unavailable. */
+export async function getUserById(
+  userId: number,
+): Promise<AuthResponseDto | null> {
   try {
     const { data } = await http.get<ApiEnvelopeDto<unknown>>(
-      `${AUTH_GET_USER_BY_ID_PATH}/${userId}`,
+      `${USERS_PATH}/${String(userId)}`,
     );
 
     const session = normalizeSessionBootstrap(data);

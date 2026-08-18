@@ -57,7 +57,7 @@ export function ChemicalEditView(props: Readonly<ChemicalEditViewProps>) {
               type="button"
               variant="secondary"
               onClick={refetch}
-              className="text4 mt-1 rounded-2.5 px-4 py-2"
+              className="text4 rounded-2.5 mt-1 px-4 py-2"
             >
               Retry
             </Button>

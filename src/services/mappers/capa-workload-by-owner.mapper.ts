@@ -85,7 +85,17 @@ function normalizeOwner(raw: unknown): CapaWorkloadOwnerDto | null {
 
   return {
     assignedId: asOptionalId(
-      readProp(raw, "assignedId", "AssignedId", "ownerId", "OwnerId", "userId", "UserId", "id", "Id"),
+      readProp(
+        raw,
+        "assignedId",
+        "AssignedId",
+        "ownerId",
+        "OwnerId",
+        "userId",
+        "UserId",
+        "id",
+        "Id",
+      ),
     ),
     ownerName,
     openCount: asCount(
@@ -130,7 +140,7 @@ function extractOwnerList(raw: unknown): unknown[] {
   return Array.isArray(nested) ? nested : [];
 }
 
-/** Normalize GET /api/CAPA/workload-by-owner `dataModel`. */
+/** Normalize GET /api/v1/capas/workload-by-owner `dataModel`. */
 export function normalizeCapaWorkloadByOwnerDto(
   raw: unknown,
 ): CapaWorkloadByOwnerDto | null {
@@ -149,7 +159,7 @@ export type CapaWorkloadByOwnerViewModel = Readonly<{
   owners: readonly CapaOwnerWorkload[];
 }>;
 
-/** Maps GET /api/CAPA/workload-by-owner into bar-list rows. */
+/** Maps GET /api/v1/capas/workload-by-owner into bar-list rows. */
 export function mapCapaWorkloadByOwnerToView(
   dto: CapaWorkloadByOwnerDto | null | undefined,
 ): CapaWorkloadByOwnerViewModel {

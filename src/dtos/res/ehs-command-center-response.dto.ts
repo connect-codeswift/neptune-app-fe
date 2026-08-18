@@ -1,12 +1,12 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-/** One entry of `hazardsByCategory` on GET /api/EHSCommandCenter/GetMainDashboardKpis. */
+/** One entry of `hazardsByCategory` on GET /api/v1/command-center/dashboard-kpis. */
 export type HazardCategoryCountDto = {
   category?: string | null;
   count?: number | null;
 };
 
-/** dataModel shape for GET /api/EHSCommandCenter/GetMainDashboardKpis. */
+/** dataModel shape for GET /api/v1/command-center/dashboard-kpis. */
 export type DashboardKpisDto = {
   siteId?: number | null;
   /** OSHA recordable injury rate (cases × 200,000 ÷ hours worked YTD). */
@@ -32,9 +32,10 @@ export type DashboardKpisDto = {
   ratesAvailable?: boolean | null;
 };
 
-export type GetMainDashboardKpisResponseDto = ApiEnvelopeDto<DashboardKpisDto | null>;
+export type GetMainDashboardKpisResponseDto =
+  ApiEnvelopeDto<DashboardKpisDto | null>;
 
-/** One weekly bucket of GET /api/EHSCommandCenter/GetIncidentTrends. */
+/** One weekly bucket of GET /api/v1/command-center/incident-trends. */
 export type IncidentTrendWeekDto = {
   week?: string | null;
   weekStart?: string | null;
@@ -43,24 +44,25 @@ export type IncidentTrendWeekDto = {
   hazards?: number | null;
 };
 
-/** dataModel shape for GET /api/EHSCommandCenter/GetIncidentTrends. */
+/** dataModel shape for GET /api/v1/command-center/incident-trends. */
 export type IncidentTrendsDto = {
   siteId?: number | null;
   weeks?: number | null;
   trends?: IncidentTrendWeekDto[] | null;
 };
 
-export type GetIncidentTrendsResponseDto = ApiEnvelopeDto<IncidentTrendsDto | null>;
+export type GetIncidentTrendsResponseDto =
+  ApiEnvelopeDto<IncidentTrendsDto | null>;
 
 /**
- * One entry of `actions` on GET /api/EHSCommandCenter/GetMyActions.
+ * One entry of `actions` on GET /api/v1/command-center/my-actions.
  * Field names are UNCONFIRMED — the endpoint has only ever returned an empty
  * array so far. These are best-guess candidates (mirroring CAPA-style
  * fields elsewhere in the app); revisit once a populated response exists.
  */
 export type MyActionItemDto = Record<string, unknown>;
 
-/** dataModel shape for GET /api/EHSCommandCenter/GetMyActions. */
+/** dataModel shape for GET /api/v1/command-center/my-actions. */
 export type MyActionsDto = {
   siteId?: number | null;
   assignedCount?: number | null;

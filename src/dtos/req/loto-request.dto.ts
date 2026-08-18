@@ -8,12 +8,9 @@
  */
 
 export type LotoEquipmentStatusFilterDto =
-  | "All"
-  | "Operational"
-  | "Locked Out"
-  | "Maintenance";
+  "All" | "Operational" | "Locked Out" | "Maintenance";
 
-/** POST /api/Loto/GetAllEquipment body. */
+/** POST /api/v1/loto/equipment/search body. */
 export type GetAllLotoEquipmentRequestDto = {
   pageNumber: number;
   pageSize: number;
@@ -23,7 +20,7 @@ export type GetAllLotoEquipmentRequestDto = {
 
 export type LotoLockoutStatusFilterDto = "All" | "Active" | "Completed";
 
-/** POST /api/Loto/GetAllLockouts body. */
+/** POST /api/v1/loto/lockouts/search body. */
 export type GetAllLotoLockoutsRequestDto = {
   pageNumber: number;
   pageSize: number;
@@ -40,7 +37,7 @@ export type LotoProcedureStepRequestDto = {
 
 export type LotoHazardLevelDto = "Low" | "Medium" | "High";
 
-/** POST /api/Loto/equipment and PUT /api/Loto/equipment/{id} body. */
+/** POST /api/v1/loto/equipment and PUT /api/v1/loto/equipment/{id} body. */
 export type UpsertLotoEquipmentRequestDto = {
   name: string;
   locationId: number;
@@ -53,7 +50,7 @@ export type UpsertLotoEquipmentRequestDto = {
   authorizedUserIds: number[];
 };
 
-/** POST /api/Loto/lockouts body. The backend assigns the lock number. */
+/** POST /api/v1/loto/lockouts body. The backend assigns the lock number. */
 export type ApplyLotoLockoutRequestDto = {
   lotoEquipmentId: number;
   purpose: string;
@@ -61,7 +58,7 @@ export type ApplyLotoLockoutRequestDto = {
   confirmationAccepted: boolean;
 };
 
-/** POST /api/Loto/lockouts/{id}/remove body. Both flags are required. */
+/** POST /api/v1/loto/lockouts/{id}/remove body. Both flags are required. */
 export type RemoveLotoLockoutRequestDto = {
   energyRestoredConfirmed: boolean;
   signedOff: boolean;

@@ -67,7 +67,7 @@ export function CapaDetailTabs(props: CapaDetailTabsProps) {
             aria-selected={isActive}
             onClick={() => onTabChange(tab.id)}
             className={[
-              "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-[1.5px] px-4 py-2.5 text-base whitespace-nowrap transition-colors",
+              "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 py-2.5 text-base whitespace-nowrap transition-colors",
               isActive
                 ? "border-[#0891a6] font-medium text-[#0891a6]"
                 : "border-transparent font-medium text-[#566072] hover:text-[#0b1320]",

@@ -113,9 +113,7 @@ function resolveModuleToken(token: string): readonly EhsModuleCode[] {
 }
 
 /** Parse comma-separated backend module values into canonical API codes. */
-function parseActivatedModuleCodes(
-  value: string | null | undefined,
-): string[] {
+function parseActivatedModuleCodes(value: string | null | undefined): string[] {
   if (!value?.trim()) {
     return [];
   }

@@ -16,7 +16,9 @@ export type HazcomPageHeaderProps = Readonly<{
   actions?: ReactNode;
 }>;
 
-function normalizeCrumb(item: string | HazcomBreadcrumbItem): HazcomBreadcrumbItem {
+function normalizeCrumb(
+  item: string | HazcomBreadcrumbItem,
+): HazcomBreadcrumbItem {
   return typeof item === "string" ? { label: item } : item;
 }
 

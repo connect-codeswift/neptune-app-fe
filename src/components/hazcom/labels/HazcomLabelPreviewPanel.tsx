@@ -38,10 +38,7 @@ export function HazcomLabelPreviewPanel(
         .join(" ")}
     >
       <div className="flex w-full flex-col items-center gap-6">
-        <Text
-          as="p"
-          className="text6 text-ehs-muted-text"
-        >
+        <Text as="p" className="text6 text-ehs-muted-text">
           {`Live Preview — ${size.previewLabel} Label`}
         </Text>
 

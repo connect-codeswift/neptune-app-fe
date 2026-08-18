@@ -18,7 +18,7 @@ export type LotoLocationSearchFieldProps = Readonly<{
 
 /**
  * Location picker for the create/edit procedure form — a combobox over
- * GET /api/Loto/locations?search=. The backend requires a `locationId` from
+ * GET /api/v1/locations?search=. The backend requires a `locationId` from
  * this register; free text is gone.
  */
 export function LotoLocationSearchField(
@@ -118,7 +118,7 @@ export function LotoLocationSearchField(
       </div>
 
       {open ? (
-        <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+        <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
           <ul
             id={listboxId}
             role="listbox"
@@ -146,7 +146,11 @@ export function LotoLocationSearchField(
               </li>
             ) : (
               locations.map((location) => (
-                <li key={location.id} role="option" aria-selected={value?.id === location.id}>
+                <li
+                  key={location.id}
+                  role="option"
+                  aria-selected={value?.id === location.id}
+                >
                   <button
                     type="button"
                     // Pointer-down, not click: the input's blur would otherwise
@@ -157,7 +161,7 @@ export function LotoLocationSearchField(
                       setQuery("");
                       setOpen(false);
                     }}
-                    className="flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.04)]"
+                    className="rounded-2 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.04)]"
                   >
                     <span className="text-ehs-dark-bg truncate text-base font-semibold">
                       {location.name}

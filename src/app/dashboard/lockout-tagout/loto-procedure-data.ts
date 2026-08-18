@@ -10,13 +10,13 @@ export type LotoIsolationStep = Readonly<{
   verified: boolean;
 }>;
 
-/** A site location picked from GET /api/Loto/locations. */
+/** A site location picked from GET /api/v1/locations. */
 export type LotoLocationSelection = Readonly<{
   id: number;
   name: string;
 }>;
 
-/** A site user picked via GET /api/Auth/GetUsersBySiteId/{siteId}?search=. */
+/** A site user picked via GET /api/v1/sites/{siteId}/users?search=. */
 export type LotoPersonnelSelection = Readonly<{
   userId: number;
   name: string;
@@ -64,26 +64,13 @@ export const LOTO_ISOLATION_METHODS = [
   "Verify Zero Energy",
 ] as const;
 
-export const LOTO_PPE_OPTIONS = [
-  "Safety glasses",
-  "Face shield",
-  "Insulated gloves",
-  "Hard hat",
-  "Arc flash PPE",
-  "Safety boots",
-  "Hearing protection",
-  "Chemical gloves",
-  "Respirator",
-] as const;
-
 let stepSeq = 0;
 
 export function createEmptyIsolationStep(
   overrides: Partial<LotoIsolationStep> = {},
 ): LotoIsolationStep {
-  stepSeq += 1;
   return {
-    id: `step-${String(stepSeq)}`,
+    id: crypto.randomUUID(),
     description: "",
     isolationPoint: "",
     energyType: "",
@@ -101,7 +88,13 @@ export function createEmptyProcedureForm(): LotoProcedureFormState {
     location: null,
     hazardLevel: "Medium",
     description: "",
-    steps: [createEmptyIsolationStep(), createEmptyIsolationStep()],
+    // Stable ids so SSR HTML and the hydrating client render the same form
+    // `id`s. A module-level counter would keep climbing across Strict Mode
+    // remounts and mismatch (step-1 on the server vs step-5 on the client).
+    steps: [
+      createEmptyIsolationStep({ id: "step-1" }),
+      createEmptyIsolationStep({ id: "step-2" }),
+    ],
     verificationMethod: "",
     additionalNotes: "",
     selectedPpe: [],

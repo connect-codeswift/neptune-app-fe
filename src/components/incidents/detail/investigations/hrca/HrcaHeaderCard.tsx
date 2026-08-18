@@ -20,13 +20,13 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
     <div className="flex flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-center text1 leading-6.5 font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text1 text-center leading-6.5 font-bold tracking-[-0.52px]"
       >
         {String(value)}
       </Text>
       <Text
         as="p"
-        className="text-ehs-muted-text text-center text8 leading-none font-bold tracking-[0.8px] uppercase"
+        className="text-ehs-muted-text text8 text-center leading-none font-bold tracking-[0.8px] uppercase"
       >
         {label}
       </Text>
@@ -51,7 +51,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <div className="bg-ehs-normal-blue relative flex size-11.5 shrink-0 items-center justify-center rounded-3.25 shadow-[0px_8px_22px_-8px_#0891a6]">
+            <div className="bg-ehs-normal-blue rounded-3.25 relative flex size-11.5 shrink-0 items-center justify-center shadow-[0px_8px_22px_-8px_#0891a6]">
               <Icon
                 icon="mdi:lightning-bolt"
                 className="text-ehs-light-text size-5.5"
@@ -114,7 +114,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
       </div>
 
       <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-3.75 pb-3.5">
-        <div className="flex size-7.5 shrink-0 items-center justify-center rounded-2 bg-white/62">
+        <div className="rounded-2 flex size-7.5 shrink-0 items-center justify-center bg-white/62">
           <Icon
             icon="mdi:file-document-outline"
             className="text-ehs-gray size-3.75"
@@ -128,7 +128,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
           >
             Incident description
           </Text>
-          <p className="text-ehs-slate mt-0.5 text4 leading-[19.38px] font-normal">
+          <p className="text-ehs-slate text4 mt-0.5 leading-[19.38px] font-normal">
             {meta.description}
           </p>
         </div>

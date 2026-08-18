@@ -42,9 +42,7 @@ export default function InspectionFindingsPage() {
     : `I-${inspectionRunId}`;
 
   const subtitle =
-    inspection?.inspectionTitle ??
-    inspection?.snapshot?.templateName ??
-    "";
+    inspection?.inspectionTitle ?? inspection?.snapshot?.templateName ?? "";
 
   const handleGenerateReport = () => {
     router.push(

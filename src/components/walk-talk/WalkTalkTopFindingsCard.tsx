@@ -28,10 +28,7 @@ function FindingRow(
         <Text as="span" className="text4 text-ehs-darker min-w-0 truncate">
           {finding.label}
         </Text>
-        <Text
-          as="span"
-          className="text7 text-ehs-muted-text shrink-0"
-        >
+        <Text as="span" className="text7 text-ehs-muted-text shrink-0">
           {String(finding.count)}
         </Text>
       </div>

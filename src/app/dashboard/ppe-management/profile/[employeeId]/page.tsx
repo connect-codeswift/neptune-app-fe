@@ -10,8 +10,6 @@ export default async function PpeEmployeeProfilePage(
   const { employeeId } = await props.params;
 
   return (
-    <PpeEmployeeProfilePageClient
-      issueId={decodeURIComponent(employeeId)}
-    />
+    <PpeEmployeeProfilePageClient issueId={decodeURIComponent(employeeId)} />
   );
 }

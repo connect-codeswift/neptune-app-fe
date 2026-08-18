@@ -26,7 +26,7 @@ export type AiModule = "incident" | "nearMiss" | "hazard";
  *
  * Two reasons, and both matter. Permissions: each trio is gated on its own
  * module's `.Create`, and the Incident endpoints do not accept `Ehs_Associate`
- * — an associate reporting a hazard through `/Incident/proofread` would get a
+ * — an associate reporting a hazard through `/incidents/ai/proofread` would get a
  * 403 on a form they are allowed to submit.
  *
  * Tense: a near miss is over, so its rewrites come back in the past tense; a
@@ -40,19 +40,19 @@ const MODULE_PATHS: Record<
   Readonly<{ proofread: string; paraphrase: string; draft: string }>
 > = {
   incident: {
-    proofread: "/Incident/proofread",
-    paraphrase: "/Incident/paraphrase",
-    draft: "/Incident/draft-assist",
+    proofread: "/incidents/ai/proofread",
+    paraphrase: "/incidents/ai/paraphrase",
+    draft: "/incidents/ai/draft-assist",
   },
   nearMiss: {
-    proofread: "/NearMiss/proofread",
-    paraphrase: "/NearMiss/paraphrase",
-    draft: "/NearMiss/draft-assist",
+    proofread: "/near-misses/ai/proofread",
+    paraphrase: "/near-misses/ai/paraphrase",
+    draft: "/near-misses/ai/draft-assist",
   },
   hazard: {
-    proofread: "/Hazard/proofread",
-    paraphrase: "/Hazard/paraphrase",
-    draft: "/Hazard/draft-assist",
+    proofread: "/hazards/ai/proofread",
+    paraphrase: "/hazards/ai/paraphrase",
+    draft: "/hazards/ai/draft-assist",
   },
 };
 

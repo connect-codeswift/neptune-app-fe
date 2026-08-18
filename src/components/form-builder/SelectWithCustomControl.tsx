@@ -234,7 +234,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
       <button
         type="button"
         id={field.name}
@@ -346,25 +346,25 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
 
           {field.allowCustom ? (
             <div className="border-t border-slate-900/10">
-            {isAdding ? (
-              <AddCustomForm
-                placeholder={
-                  field.addCustomPlaceholder ?? `Add a ${field.label}`
-                }
-                inputLabel={`Custom ${field.label}`}
-                onAdd={addCustomOption}
-                onCancel={() => setIsAdding(false)}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsAdding(true)}
-                className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
-              >
-                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
-                {field.addCustomLabel ?? "Add custom option"}
-              </button>
-            )}
+              {isAdding ? (
+                <AddCustomForm
+                  placeholder={
+                    field.addCustomPlaceholder ?? `Add a ${field.label}`
+                  }
+                  inputLabel={`Custom ${field.label}`}
+                  onAdd={addCustomOption}
+                  onCancel={() => setIsAdding(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(true)}
+                  className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
+                >
+                  <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+                  {field.addCustomLabel ?? "Add custom option"}
+                </button>
+              )}
             </div>
           ) : null}
         </div>

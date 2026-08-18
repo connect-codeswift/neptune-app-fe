@@ -37,7 +37,7 @@ export function PpeInventoryHeader(props: Readonly<PpeInventoryHeaderProps>) {
   };
 
   return (
-    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+    <div className="flex h-[51px] flex-wrap items-center justify-between gap-3">
       <Text as="h2" className="text3 text-ehs-darker shrink-0">
         Inventory
       </Text>

@@ -42,7 +42,7 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
     pending = false,
     onAccept,
     onDismiss,
-    fieldPaddingClassName = "px-3.25 pt-[10.5px]",
+    fieldPaddingClassName = "px-3.25 pt-[11px]",
     fieldTextClassName = "text-3.25 leading-[19.5px]",
   } = props;
 
@@ -93,12 +93,12 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
       <div className="absolute inset-x-2.5 bottom-2.5 z-20 flex items-center gap-2">
         <span className="bg-ehs-light-blue text-ehs-dark-blue border-ehs-light-blue-active inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5">
           <Icon icon="mdi:creation-outline" className="size-3 shrink-0" />
-          <span className="text-[9.5px] font-bold tracking-[0.2px]">
+          <span className="text-[10px] font-bold tracking-[0.2px]">
             AI draft
           </span>
         </span>
 
-        <span className="text-ehs-muted-text hidden min-w-0 flex-1 truncate text-[10.5px] sm:block">
+        <span className="text-ehs-muted-text hidden min-w-0 flex-1 truncate text-[11px] sm:block">
           Start typing to write your own
         </span>
 

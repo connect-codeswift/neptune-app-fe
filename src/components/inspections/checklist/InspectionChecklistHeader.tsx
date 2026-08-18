@@ -69,7 +69,7 @@ export function InspectionChecklistHeader(
           type="button"
           variant="primary"
           onClick={onViewFindings}
-          className={`${actionClass} relative z-1 shrink-0 !border-transparent !shadow-none`}
+          className={`${actionClass} relative z-1 shrink-0 border-transparent! shadow-none!`}
         >
           View Findings
         </Button>

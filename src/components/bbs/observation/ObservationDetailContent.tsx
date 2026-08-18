@@ -122,7 +122,7 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
       <div className="mx-auto flex w-full max-w-200 justify-center">
         <IncidentGlassCard
           paddingClassName="p-0 overflow-hidden"
-          className="w-full bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+          className="backdrop-blur-2.5 w-full bg-[rgba(255,255,255,0.62)]"
         >
           <div className="border-ehs-border flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 sm:px-6">
             <Text as="h2" className="text3 text-ehs-darker">
@@ -133,7 +133,7 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
               type="button"
               variant="primary"
               onClick={handleEdit}
-              className={`${actionClass} !border-transparent !shadow-none`}
+              className={`${actionClass} border-transparent! shadow-none!`}
             >
               <Icon
                 icon="mdi:pencil-outline"
@@ -179,7 +179,7 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
                   </Text>
                 </div>
               ) : (
-                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                <div className="flex items-start gap-2 rounded-xl bg-[rgba(11,19,32,0.04)] px-3 py-2.5">
                   <Icon
                     icon="mdi:note-outline"
                     className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
@@ -197,7 +197,7 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
             <section>
               <SectionTitle>Photo Evidence</SectionTitle>
               {detail.photos.length === 0 ? (
-                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                <div className="flex items-start gap-2 rounded-xl bg-[rgba(11,19,32,0.04)] px-3 py-2.5">
                   <Icon
                     icon="mdi:image-outline"
                     className="text-ehs-muted-text mt-0.5 size-4 shrink-0"

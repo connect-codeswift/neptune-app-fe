@@ -393,7 +393,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                       : `${String(pictogramCount)} selected`}
                   </Text>
                 </div>
-                <div className="border-ehs-border bg-ehs-light-bg/35 flex flex-wrap gap-2 rounded-2.5 border border-dashed p-3">
+                <div className="border-ehs-border bg-ehs-light-bg/35 rounded-2.5 flex flex-wrap gap-2 border border-dashed p-3">
                   {HAZCOM_PICTOGRAMS.map((pictogram) => (
                     <HazcomPictogramChip
                       key={pictogram}
@@ -422,12 +422,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           </FormSection>
         </div>
 
-        <div className="border-ehs-border bg-white/40 sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3.5 backdrop-blur-xl sm:px-5">
+        <div className="border-ehs-border sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t bg-white/40 px-4 py-3.5 backdrop-blur-xl sm:px-5">
           <Link href={cancelHref}>
             <Button
               type="button"
               variant="tertiary"
-              className={`${actionClass} border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+              className={`${actionClass} border border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
             >
               <Icon
                 icon="mdi:arrow-left"
@@ -522,7 +522,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onAmountChange(event.target.value)}
           placeholder="0"
           aria-label="Quantity amount"
-          className={`${FIELD_INPUT_CLASS} min-w-0 flex-1 !w-auto`}
+          className={`${FIELD_INPUT_CLASS} w-auto! min-w-0 flex-1`}
         />
         <input
           type="text"
@@ -530,7 +530,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onUnitChange(event.target.value)}
           placeholder="Unit"
           aria-label="Quantity unit"
-          className={`${FIELD_INPUT_CLASS} w-28 shrink-0 !w-28`}
+          className={`${FIELD_INPUT_CLASS} w-28! shrink-0`}
         />
       </div>
     </div>
@@ -600,7 +600,7 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
               onClick={() => onChange(word)}
               className={[
                 choiceButtonBaseClass,
-                "uppercase tracking-wide",
+                "tracking-wide uppercase",
                 isSelected
                   ? isDanger
                     ? "border-ehs-red bg-ehs-red/5 text-ehs-red"

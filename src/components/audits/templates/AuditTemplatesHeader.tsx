@@ -78,9 +78,13 @@ export function AuditTemplatesHeader(props: AuditTemplatesHeaderProps) {
           type="button"
           variant="primary"
           onClick={onCreateTemplate}
-          className={`${actionClass} shrink-0 !border-transparent !shadow-none`}
+          className={`${actionClass} shrink-0 border-transparent! shadow-none!`}
         >
-          <Icon icon="mdi:plus" className="size-4 shrink-0" aria-hidden="true" />
+          <Icon
+            icon="mdi:plus"
+            className="size-4 shrink-0"
+            aria-hidden="true"
+          />
           Create Template
         </Button>
       </div>

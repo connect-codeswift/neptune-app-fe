@@ -53,7 +53,7 @@ function AnswerToggle(
             aria-checked={isSelected}
             onClick={() => onChange(answer)}
             className={[
-              "text8 w-16 cursor-pointer rounded-2.5 px-2 py-1 transition-colors",
+              "text8 rounded-2.5 w-16 cursor-pointer px-2 py-1 transition-colors",
               isSelected
                 ? "bg-ehs-green text-white"
                 : "text-ehs-gray border border-[rgba(15,23,42,0.1)] bg-white hover:bg-black/5",
@@ -198,7 +198,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           if (result) dispatch(setAuditResult(result));
           dispatch(setAuditAnswers(responses));
           // The report is keyed by audit — it reads everything from GET
-          // /api/Audit/{id}, including the snapshot and recorded answers.
+          // /api/v1/audits/{id}, including the snapshot and recorded answers.
           router.push(
             `${AUDIT_REPORT_ROUTE}?auditid=${encodeURIComponent(String(audit.id))}`,
           );
@@ -287,7 +287,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           type="button"
           onClick={handleSubmit}
           disabled={saveResponses.isPending}
-          className="text4 bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-2.5 px-5 py-2.5 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="text4 bg-ehs-green hover:bg-ehs-green/90 rounded-2.5 cursor-pointer px-5 py-2.5 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saveResponses.isPending ? "Submitting…" : "Submit Audit"}
         </button>

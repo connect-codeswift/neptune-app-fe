@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -56,7 +56,7 @@ function formatAckRate(value: number | null | undefined): string {
 }
 
 /**
- * Builds the 4 stat cards from GET /api/Document/dashboard-kpis.
+ * Builds the 4 stat cards from GET /api/v1/documents/dashboard-kpis.
  *
  * The endpoint returns counts only, so these carry no delta. What used to sit
  * in the badge as a word ("Needs action", "Clear") is a description, not a
@@ -158,6 +158,8 @@ export function PolicyMakerView() {
     selectedId == null
       ? null
       : (documents.find((doc) => doc.id === selectedId) ?? null);
+  // A row that filters out or is deleted drops the selection during render.
+  const activeId = selectedListDocument?.id ?? null;
 
   const selectedNumericId = useMemo(() => {
     if (selectedListDocument == null) {
@@ -171,12 +173,6 @@ export function PolicyMakerView() {
     id: selectedNumericId,
     enabled: isClientReady && hasToken && selectedNumericId != null,
   });
-
-  useEffect(() => {
-    if (selectedId != null && selectedListDocument == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedListDocument]);
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -298,7 +294,7 @@ export function PolicyMakerView() {
                   categoryLabel={categoryLabel(categoryId)}
                   documentCount={documents.length}
                   documents={documents}
-                  selectedId={selectedId}
+                  selectedId={activeId}
                   onViewMore={handleToggleDetailPanel}
                   expanded={!isPanelOpen}
                   onUploadDocument={() =>

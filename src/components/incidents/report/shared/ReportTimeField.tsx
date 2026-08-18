@@ -143,7 +143,7 @@ export function ReportTimeField(props: Readonly<ReportTimeFieldProps>) {
           <button
             type="button"
             onClick={() => onChange(nowHhMm())}
-            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg cursor-pointer rounded-full border border-[rgba(15,23,42,0.1)] px-2 py-px text-2.75 font-semibold transition-colors"
+            className="text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg text-2.75 cursor-pointer rounded-full border border-[rgba(15,23,42,0.1)] px-2 py-px font-semibold transition-colors"
           >
             Now
           </button>

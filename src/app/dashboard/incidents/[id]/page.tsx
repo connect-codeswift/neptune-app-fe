@@ -7,7 +7,5 @@ export default async function IncidentDetailPage({
 }) {
   const { id } = await params;
 
-  return (
-    <IncidentDetailContent incidentIdParam={decodeURIComponent(id)} />
-  );
+  return <IncidentDetailContent incidentIdParam={decodeURIComponent(id)} />;
 }

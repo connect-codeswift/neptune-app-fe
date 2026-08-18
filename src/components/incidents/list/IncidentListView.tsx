@@ -15,7 +15,10 @@ import {
   incidentMatchesSeverityFilter,
   toApiSeverityFilter,
 } from "@/components/incidents/list/incident-list-data";
-import { IncidentGlassCard, SiteWorkHoursMissingBanner } from "@/components/incidents/shared";
+import {
+  IncidentGlassCard,
+  SiteWorkHoursMissingBanner,
+} from "@/components/incidents/shared";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { SkeletonKpiRow, SkeletonTable } from "@/components/ui/skeletons";

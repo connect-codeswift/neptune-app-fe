@@ -19,13 +19,13 @@ export type UpdateMyProfilePayload = Readonly<{
   jobTitle?: string;
 }>;
 
-const AUTH_AVATAR_UPLOAD_PATH = "/Auth/avatar/upload";
-const AUTH_AVATAR_PATH = "/Auth/avatar";
-const AUTH_ME_PROFILE_PATH = "/Auth/me/profile";
+const USER_AVATAR_PATH = "/users/me/avatar";
+
+const USER_ME_PATH = "/users/me";
 
 export async function uploadAvatar(profileUrl: string) {
   const { data } = await http.post<ApiEnvelopeDto<UserAvatarResponseDto>>(
-    AUTH_AVATAR_UPLOAD_PATH,
+    USER_AVATAR_PATH,
     { profileUrl },
   );
 
@@ -33,17 +33,16 @@ export async function uploadAvatar(profileUrl: string) {
 }
 
 export async function removeAvatar() {
-  const { data } = await http.delete<ApiEnvelopeDto<UserAvatarResponseDto>>(
-    AUTH_AVATAR_PATH,
-  );
+  const { data } =
+    await http.delete<ApiEnvelopeDto<UserAvatarResponseDto>>(USER_AVATAR_PATH);
 
   return data;
 }
 
-/** PUT /Auth/me/profile — the signed-in user editing their own details. */
+/** PUT /users/me — the signed-in user editing their own details. */
 export async function updateMyProfile(payload: UpdateMyProfilePayload) {
   const { data } = await http.put<ApiEnvelopeDto<UserProfileResponseDto>>(
-    AUTH_ME_PROFILE_PATH,
+    USER_ME_PATH,
     payload,
   );
 

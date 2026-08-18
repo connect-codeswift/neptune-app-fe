@@ -4,7 +4,9 @@ import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import { Text } from "@/components/Text";
 import type { InspectionFinding } from "@/app/dashboard/inspections/findings/inspection-findings-data";
 
-export type InspectionFindingCardProps = Readonly<{ finding: InspectionFinding }>;
+export type InspectionFindingCardProps = Readonly<{
+  finding: InspectionFinding;
+}>;
 
 function severityTone(severity: string): IncidentBadgeTone {
   const normalized = severity.trim().toLowerCase();
@@ -26,7 +28,7 @@ export function InspectionFindingCard(props: InspectionFindingCardProps) {
   return (
     <IncidentGlassCard
       paddingClassName="px-5 py-4"
-      className="min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+      className="backdrop-blur-2.5 min-w-0 bg-[rgba(255,255,255,0.62)]"
       incidentGlassCardClassName="gap-2.5"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -36,7 +38,10 @@ export function InspectionFindingCard(props: InspectionFindingCardProps) {
             tone={severityTone(finding.severity)}
             className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
           />
-          <Text as="span" className="text8 text-ehs-muted-text min-w-0 truncate">
+          <Text
+            as="span"
+            className="text8 text-ehs-muted-text min-w-0 truncate"
+          >
             {finding.category}
           </Text>
         </div>

@@ -18,6 +18,8 @@ import { withEquipmentPrefix } from "@/services/mappers/loto.mapper";
 import { toast } from "@/lib/toast";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
+import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
+import { toPpeChipOptions } from "@/lib/map-ppe";
 import {
   useCreateLotoEquipmentMutation,
   useUpdateLotoEquipmentMutation,
@@ -138,15 +140,19 @@ function detailToFormState(
     description: detail.description ?? "",
     steps:
       detail.steps.length > 0
-        ? detail.steps.map((step) =>
+        ? detail.steps.map((step, index) =>
             createEmptyIsolationStep({
+              id: `step-${String(index + 1)}`,
               description: step.description,
               isolationPoint: step.isolationPoint ?? "",
               energyType: step.energyType ?? "",
               lockTagPosition: step.lockTagPosition ?? "",
             }),
           )
-        : [createEmptyIsolationStep(), createEmptyIsolationStep()],
+        : [
+            createEmptyIsolationStep({ id: "step-1" }),
+            createEmptyIsolationStep({ id: "step-2" }),
+          ],
     verificationMethod: "",
     additionalNotes: detail.additionalNotes ?? "",
     selectedPpe: [],
@@ -155,6 +161,29 @@ function detailToFormState(
       name: person.fullName,
     })),
   };
+}
+
+/**
+ * Note shown above the Required PPE chips. Null once the catalog has options,
+ * so the chips stand on their own.
+ */
+function toPpeStatusMessage(
+  state: Readonly<{
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+    optionCount: number;
+  }>,
+): string | null {
+  if (state.isLoading) return "Loading PPE catalog…";
+  if (state.isError) {
+    return getMutationErrorMessage(
+      state.error,
+      "Couldn't load the PPE catalog.",
+    );
+  }
+  if (state.optionCount === 0) return "No PPE items in the catalog yet.";
+  return null;
 }
 
 type LotoProcedureEditorProps =
@@ -166,7 +195,7 @@ type LotoProcedureEditorProps =
     }>;
 
 /**
- * Owns the editable state and the POST/PUT /api/Loto/equipment submit. The
+ * Owns the editable state and the POST/PUT /api/v1/loto/equipment submit. The
  * equipment code is never editable — the backend assigns it — so create and
  * edit share this same body shape (`UpsertLotoEquipmentRequestDto`).
  */
@@ -193,6 +222,17 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
 
   const createMutation = useCreateLotoEquipmentMutation();
   const updateMutation = useUpdateLotoEquipmentMutation();
+
+  // Required PPE chips come from the PPE catalog, not a hardcoded list.
+  const hasToken = useHasAccessToken();
+  const ppeItemsQuery = usePpeItemsQuery(hasToken === true);
+  const ppeOptions = toPpeChipOptions(ppeItemsQuery.data ?? []);
+  const ppeStatusMessage = toPpeStatusMessage({
+    isLoading: hasToken !== true || ppeItemsQuery.isLoading,
+    isError: ppeItemsQuery.isError,
+    error: ppeItemsQuery.error,
+    optionCount: ppeOptions.length,
+  });
 
   // Equipment + Verification + PPE forms, plus one per isolation step.
   const formsToValidate = 3 + steps.length;
@@ -260,9 +300,7 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       steps: stepPayloads.map((step) => ({
         description: step.description.trim(),
         isolationPoint:
-          step.isolationPoint.trim() === ""
-            ? null
-            : step.isolationPoint.trim(),
+          step.isolationPoint.trim() === "" ? null : step.isolationPoint.trim(),
         energyType:
           step.energyType.trim() === "" ? null : step.energyType.trim(),
         lockTagPosition:
@@ -300,7 +338,9 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       onSuccess: (result) => {
         toast.success(
           "LOTO procedure created",
-          result ? `Equipment ${withEquipmentPrefix(result.equipmentCode)} registered.` : undefined,
+          result
+            ? `Equipment ${withEquipmentPrefix(result.equipmentCode)} registered.`
+            : undefined,
         );
         router.push(LOTO_ROUTE);
       },
@@ -387,6 +427,8 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           setPreview((current) => ({ ...current, ...patch }));
         }}
         onFormValid={handleFormValid}
+        ppeOptions={ppeOptions}
+        ppeStatusMessage={ppeStatusMessage}
       />
     </div>
   );

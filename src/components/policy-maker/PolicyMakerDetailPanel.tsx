@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
-  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
+  /** Mapped GET /api/v1/documents/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
   isLoading?: boolean;
   errorMessage?: string | null;
@@ -55,7 +55,7 @@ export function PolicyMakerDetailPanel(
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -74,7 +74,7 @@ export function PolicyMakerDetailPanel(
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -106,7 +106,7 @@ export function PolicyMakerDetailPanel(
   if (!document) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >

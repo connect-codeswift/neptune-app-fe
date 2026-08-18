@@ -58,7 +58,7 @@ export function RegulatoryComplianceHeader(
           type="button"
           variant="tertiary"
           onClick={onSecondaryAction}
-          className="text4 text-ehs-gray rounded-2.5 border-white/90 bg-white/62 px-3.5 py-2 shadow-sm backdrop-blur-2.5 hover:bg-white"
+          className="text4 text-ehs-gray rounded-2.5 backdrop-blur-2.5 border-white/90 bg-white/62 px-3.5 py-2 shadow-sm hover:bg-white"
         >
           <Icon icon="mdi:tune" className="size-4" aria-hidden="true" />
           {secondaryActionLabel}

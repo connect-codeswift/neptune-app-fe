@@ -284,14 +284,14 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             <Text as="p" className="text-ehs-darker text4 font-semibold">
               Couldn’t load incident
             </Text>
-            <Text as="p" className="text-ehs-muted-text max-w-md text4">
+            <Text as="p" className="text-ehs-muted-text text4 max-w-md">
               {errorMessage}
             </Text>
             {hasToken && canRetry ? (
               <button
                 type="button"
                 onClick={onRetry}
-                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text4 font-semibold"
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg text4 mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 font-semibold"
               >
                 <Icon
                   icon="mdi:refresh"
@@ -334,10 +334,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                         isEditingDetails ? "ring-ehs-normal-blue/25 ring-1" : ""
                       }
                     >
-                      <Text
-                        as="h3"
-                        className="text-ehs-dark-bg text3"
-                      >
+                      <Text as="h3" className="text-ehs-dark-bg text3">
                         Response notes
                       </Text>
                       {isEditingDetails ? (
@@ -477,10 +474,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       paddingClassName="p-4.75"
                       incidentGlassCardClassName="gap-2"
                     >
-                      <Text
-                        as="h3"
-                        className="text-ehs-dark-bg text3"
-                      >
+                      <Text as="h3" className="text-ehs-dark-bg text3">
                         Delete files
                       </Text>
                       <span className="text-ehs-gray text4 leading-normal">
@@ -503,7 +497,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   meta={investigation.hrcaMeta}
                 />
               ) : showHrca ? (
-                <div className="text-ehs-muted-text rounded-3 border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center text4">
+                <div className="text-ehs-muted-text rounded-3 text4 border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center">
                   Sign in and open a valid incident to load the HRCA worksheet.
                 </div>
               ) : (

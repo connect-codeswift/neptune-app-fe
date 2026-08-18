@@ -48,7 +48,14 @@ export type EmailInputProps = Readonly<
 
 export function EmailInput(props: Readonly<EmailInputProps>) {
   const { className, autoComplete = "email", ...rest } = props;
-  return <input type="email" autoComplete={autoComplete} className={className} {...rest} />;
+  return (
+    <input
+      type="email"
+      autoComplete={autoComplete}
+      className={className}
+      {...rest}
+    />
+  );
 }
 ```
 

@@ -12,10 +12,10 @@ import type {
 } from "@/dtos/res/walk-talk-response.dto";
 import http from "@/lib/axios";
 
-const WALK_TALK_PATH = "/walkandtalk";
-const DASHBOARD_COUNTS_PATH = `${WALK_TALK_PATH}/dashboard-counts`;
-const TOP_FINDINGS_PATH = `${WALK_TALK_PATH}/top-findings`;
-const GRAPH_PATH = `${WALK_TALK_PATH}/graph`;
+const WALK_TALK_PATH = "/walk-and-talk/sessions";
+const DASHBOARD_COUNTS_PATH = "/walk-and-talk/dashboard-kpis";
+const TOP_FINDINGS_PATH = "/walk-and-talk/top-findings";
+const GRAPH_PATH = "/walk-and-talk/graph";
 
 /** Fetches dashboard counts from GET /api/walkandtalk/dashboard-counts. */
 export async function getWalkTalkDashboardCounts() {
@@ -28,9 +28,8 @@ export async function getWalkTalkDashboardCounts() {
 
 /** Fetches top findings from GET /api/walkandtalk/top-findings. */
 export async function getWalkTalkTopFindings() {
-  const { data } = await http.get<GetWalkTalkTopFindingsResponseDto>(
-    TOP_FINDINGS_PATH,
-  );
+  const { data } =
+    await http.get<GetWalkTalkTopFindingsResponseDto>(TOP_FINDINGS_PATH);
 
   return data;
 }

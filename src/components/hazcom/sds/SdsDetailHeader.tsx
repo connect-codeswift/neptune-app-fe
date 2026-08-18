@@ -131,7 +131,7 @@ export function SdsDetailHeader(props: Readonly<SdsDetailHeaderProps>) {
               href={pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="min-w-0 w-full sm:w-auto"
+              className="w-full min-w-0 sm:w-auto"
             >
               <Button
                 type="button"

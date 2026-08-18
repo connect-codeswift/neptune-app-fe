@@ -1,11 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  isBlobUrl,
-  isLegacyPublicUrl,
-  isStoredFileId,
-} from "@/lib/files";
+import { isBlobUrl, isLegacyPublicUrl, isStoredFileId } from "@/lib/files";
 import { getStoredFile } from "@/services/files.service";
 
 export const fileQueryKeys = {

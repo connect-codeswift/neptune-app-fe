@@ -61,7 +61,9 @@ export function buildDraftAssistInput(
     ...(form.customBodyParts ?? []).filter((part) => part.trim()),
   ].join(", ");
 
-  const incidentAreas = formatIncidentLocationsLabel(form.incidentLocations ?? []);
+  const incidentAreas = formatIncidentLocationsLabel(
+    form.incidentLocations ?? [],
+  );
   const plant = form.location.trim();
 
   const input: IncidentDraftRequestDto = {
@@ -72,9 +74,7 @@ export function buildDraftAssistInput(
     fleetVehicleInvolved: form.classifications.fleet ?? "",
     thirdPartyInvolved: form.classifications.tempWorker ?? "",
     emergencyServicesCalled: form.classifications.emergency ?? "",
-    seriousIncident: seriousIncidentLabelForDraft(
-      form.classifications.serious,
-    ),
+    seriousIncident: seriousIncidentLabelForDraft(form.classifications.serious),
     mechanismOfInjury: optionLabel(MECHANISM_OPTIONS, form.mechanismOfInjury),
     natureOfInjury: optionLabel(NATURE_OF_INJURY_OPTIONS, form.natureOfInjury),
     objectInvolved: form.objectInvolved.trim(),

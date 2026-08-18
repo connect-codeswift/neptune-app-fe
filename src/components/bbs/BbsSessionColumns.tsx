@@ -7,7 +7,10 @@ import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 const columnHelper = createColumnHelper<BbsSession>();
 
 function observeTone(type: string): "teal" | "warn" | "muted" {
-  const normalized = type.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalized = type
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "safe") return "teal";
   if (normalized === "atrisk") return "warn";
   return "muted";
@@ -15,7 +18,10 @@ function observeTone(type: string): "teal" | "warn" | "muted" {
 
 /** Keep badge copy consistent even if the API omits the hyphen. */
 function formatObserveLabel(type: string): string {
-  const normalized = type.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalized = type
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "safe") return "Safe";
   if (normalized === "atrisk") return "At-Risk";
   return type.trim() || "—";
@@ -106,11 +112,7 @@ export function createBbsSessionColumns(
         const name = info.getValue()?.trim() || "—";
         const short = name.split(/\s+/).slice(0, 2).join(" ");
         return (
-          <Text
-            as="span"
-            className="text4 text-ehs-gray truncate"
-            title={name}
-          >
+          <Text as="span" className="text4 text-ehs-gray truncate" title={name}>
             {short}
           </Text>
         );
@@ -171,7 +173,7 @@ export function createBbsSessionColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
             ].join(" ")}
             aria-label={
               isOpen

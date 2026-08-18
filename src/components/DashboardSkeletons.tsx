@@ -86,7 +86,7 @@ function CardHeadingSkeleton() {
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2.5 w-28" />
       </div>
-      <Skeleton className="h-6 w-16 rounded-2.5" />
+      <Skeleton className="rounded-2.5 h-6 w-16" />
     </div>
   );
 }

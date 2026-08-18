@@ -12,10 +12,10 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-ehs-gray flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 rounded-2 bg-white text4">
+      <div className="text-ehs-gray rounded-2 text4 flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 bg-white">
         <Icon
           icon="mdi:loading"
-          className="size-6 animate-spin text-ehs-normal-blue"
+          className="text-ehs-normal-blue size-6 animate-spin"
         />
         <span>Loading PDF viewer...</span>
       </div>
@@ -50,7 +50,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
         <Icon
           icon="mdi:loading"
-          className="size-8 animate-spin text-ehs-light-text"
+          className="text-ehs-light-text size-8 animate-spin"
           aria-hidden
         />
       </div>
@@ -61,17 +61,21 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
       <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
 
-      <div className="relative z-10 flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center rounded-4 border border-white/10 bg-black/30 p-2 shadow-2xl backdrop-blur-lg">
+      <div className="rounded-4 relative z-10 flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center border border-white/10 bg-black/30 p-2 shadow-2xl backdrop-blur-lg">
         <button
           type="button"
           onClick={onClose}
-          className="absolute -top-12 right-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 text-ehs-light-text shadow-lg transition-all hover:bg-white/20"
+          className="text-ehs-light-text absolute -top-12 right-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/10 shadow-lg transition-all hover:bg-white/20"
         >
           <Icon icon="mdi:close" className="size-5" />
         </button>
 
-        <div className="flex min-h-60 min-w-70 items-center justify-center overflow-hidden rounded-2.5 bg-ehs-dark-bg">
+        <div className="rounded-2.5 bg-ehs-dark-bg flex min-h-60 min-w-70 items-center justify-center overflow-hidden">
           {isImage ? (
+            /* eslint-disable-next-line @next/next/no-img-element -- arbitrary
+               user-uploaded remote files of unknown intrinsic size; next/image
+               would need `fill` and a fixed container, changing the modal's
+               shrink-to-content layout. Matches the other 8 preview sites. */
             <img
               src={fileUrl}
               alt={file.name}
@@ -84,21 +88,21 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
               src={fileUrl}
               controls
               autoPlay
-              className="max-h-[70vh] max-w-[80vw] rounded-2 object-contain"
+              className="rounded-2 max-h-[70vh] max-w-[80vw] object-contain"
             />
           ) : null}
 
           {isPdf ? <FilePreviewPdf fileUrl={fileUrl} /> : null}
         </div>
 
-        <div className="mt-2 flex w-full items-center justify-between px-3.5 py-1 text-ehs-light-text">
+        <div className="text-ehs-light-text mt-2 flex w-full items-center justify-between px-3.5 py-1">
           <div className="flex min-w-0 flex-col pr-4">
-            <span className="truncate text5">{file.name}</span>
-            <span className="truncate text8 text-ehs-light-text/70">
+            <span className="text5 truncate">{file.name}</span>
+            <span className="text8 text-ehs-light-text/70 truncate">
               {file.description}
             </span>
           </div>
-          <span className="shrink-0 rounded-full bg-white/14 px-3 py-0.5 text7 text-ehs-light-text/90">
+          <span className="text7 text-ehs-light-text/90 shrink-0 rounded-full bg-white/14 px-3 py-0.5">
             {file.sizeLabel}
           </span>
         </div>

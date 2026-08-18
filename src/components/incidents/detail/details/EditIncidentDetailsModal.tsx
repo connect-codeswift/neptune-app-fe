@@ -28,7 +28,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text4 leading-[19.5px] text-ehs-gray"
+      className="text4 text-ehs-gray block leading-[19.5px]"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}

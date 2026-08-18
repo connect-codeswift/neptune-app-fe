@@ -52,7 +52,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
           .join(" ")}
       >
         <ReportFieldLabel label={label} required={required} />
-        <div className="h-9 animate-pulse rounded-2.5 bg-[rgba(15,23,42,0.06)]" />
+        <div className="rounded-2.5 h-9 animate-pulse bg-[rgba(15,23,42,0.06)]" />
       </div>
     );
   }
@@ -102,7 +102,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
         <span className="text-ehs-dark-bg min-w-0 flex-1 truncate font-medium">
           {siteName}
         </span>
-        <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-px text-2.5 font-semibold">
+        <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.5 inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-px font-semibold">
           <Icon icon="mdi:lock-outline" className="size-3" aria-hidden="true" />
           Auto
         </span>

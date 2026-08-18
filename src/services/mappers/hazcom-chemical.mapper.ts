@@ -165,9 +165,7 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
     ),
     location: asString(readProp(record, "location", "Location")),
     disposeLocation:
-      asString(
-        readProp(record, "disposeLocation", "DisposeLocation"),
-      ) || null,
+      asString(readProp(record, "disposeLocation", "DisposeLocation")) || null,
     quantity: toQuantity(record),
     hazardClass: asString(
       readProp(record, "hazardClass", "HazardClass", "hazardClassification"),

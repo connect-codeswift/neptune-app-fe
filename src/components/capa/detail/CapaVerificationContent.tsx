@@ -40,7 +40,7 @@ function parseRouteCapaId(capaId: string): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-/** CAPA Verification page — Figma 846:6031. GET then POST /CAPA/Verification. */
+/** CAPA Verification page — Figma 846:6031. GET then POST /api/v1/capas/{capaId}/verification. */
 export function CapaVerificationContent(props: CapaVerificationContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
@@ -101,7 +101,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
     }
 
     try {
-      // POST /api/CAPA/Verification
+      // POST /api/v1/capas/{capaId}/verification
       await submitVerificationMutation.mutateAsync({
         capaId: numericId,
         effectiveness: mapFormEffectivenessToApi(
@@ -225,7 +225,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
         initialValues={initialValues}
         hideActions
         isSubmitting={submitVerificationMutation.isPending}
-        className="!gap-5"
+        className="gap-5!"
         onSubmit={(values) => {
           void handleSubmit(values);
         }}
@@ -243,7 +243,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
           type="submit"
           form={CAPA_VERIFICATION_FORM_ID}
           disabled={submitVerificationMutation.isPending || isAlreadyVerified}
-          className="cursor-pointer rounded-2.5 bg-[#10b981] px-5 py-2.5 text-sm leading-5 font-medium text-[#eceef2] shadow-[0px_6px_18px_-6px_#10b981] transition-colors hover:bg-[#0ea572] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2.5 cursor-pointer bg-[#10b981] px-5 py-2.5 text-sm leading-5 font-medium text-[#eceef2] shadow-[0px_6px_18px_-6px_#10b981] transition-colors hover:bg-[#0ea572] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isAlreadyVerified
             ? "Already Verified"

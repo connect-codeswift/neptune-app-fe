@@ -25,7 +25,7 @@ Work on `hamid` → push `origin/hamid`. **`origin/dev` is the integration branc
 latest** — branch from it and PR into it. `main` and `stag` trail behind.
 
 The backend is `connect-codeswift/Neptune-Ehss-BE` (`origin/Staging` is its live branch). It serves
-this app *and* four others — never assume an endpoint exists only for us.
+this app _and_ four others — never assume an endpoint exists only for us.
 
 ## Commands
 
@@ -125,9 +125,12 @@ Render order is fixed: boot/query spinner → "sign in required" → query error
 `*View.tsx` / header / list / card components are **presentational only** — resolved props in,
 no fetching, no query hooks.
 
-> This pattern trips `react-hooks/set-state-in-effect` in every `*Content.tsx` in the repo. It
-> is a pre-existing, accepted lint error — do not "fix" it while touching a file for something
-> else.
+> This pattern used to trip `react-hooks/set-state-in-effect` and was treated as an accepted
+> error. **That is no longer true — lint is clean, 0 errors and 0 warnings.** If your boot gate
+> reports that rule, it is a real finding: derive the value during render rather than assigning
+> it from an effect. The same applies to the "clear a selection whose row disappeared" effect
+> that several list views used to carry — derive the active id from the resolved object instead
+> (`const activeId = selectedThing?.id ?? null`) and pass that down.
 
 ## Auth, session, permissions
 
@@ -193,6 +196,19 @@ export function MyComponent(props: Readonly<MyComponentProps>) {
   const { label, onClick } = props;
   …
 }
+```
+
+### No nested ternaries (Sonar S3358)
+
+A ternary must never appear inside another ternary's branches. Extract the inner one — a lookup
+`Record` keyed on the union (the idiom in `ui/Button.tsx`, `incidents/list/IncidentBadge.tsx`), a
+named `const` per condition, or a `resolveX` helper with early returns. `npm run lint` does not
+catch this; SonarLint does. Full rule, including what is _not_ a violation:
+[.cursor/rules/no-nested-ternaries.mdc](.cursor/rules/no-nested-ternaries.mdc).
+
+```tsx
+// ✗  {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+const label = labelForState[state]; // ✓ Record<SaveState, string>
 ```
 
 ## Styling — Tailwind v4

@@ -54,9 +54,9 @@ export type CapaDetailRecord = Readonly<{
   rcaId: number | null;
   /** Linked incident id when known; `0` for standalone. */
   incidentId: number;
-  /** CAPA creator user id (GET /CAPA/Comments `userId`). */
+  /** CAPA creator user id (GET /api/v1/capas/{capaId}/comments `userId`). */
   userId: number;
-  /** CAPA assignee user id (GET /CAPA/Comments `assignedId`). */
+  /** CAPA assignee user id (GET /api/v1/capas/{capaId}/comments `assignedId`). */
   assignedId: number;
   code: string;
   title: string;

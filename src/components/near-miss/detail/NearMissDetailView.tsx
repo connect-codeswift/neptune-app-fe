@@ -8,10 +8,11 @@ import type {
 } from "@/app/dashboard/near-miss/near-miss-data";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 
+const CAPA_NEW_ROUTE = "/dashboard/capa/new";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 const statusTone: Record<NearMissStatus, IncidentBadgeTone> = {
-  Open: "neutral",
+  Open: "teal",
   Investigating: "warn",
   Closed: "muted",
 };
@@ -22,8 +23,8 @@ function DetailField(
   const { label, children } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <Text as="p" className="text6 text-ehs-muted-text">
+    <div className="flex min-w-0 flex-col gap-1">
+      <Text as="p" className="text9 text-ehs-muted-text">
         {label}
       </Text>
       {children}
@@ -45,92 +46,68 @@ export function NearMissDetailView(
   const { record } = props;
 
   return (
-    <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,772fr)_minmax(0,354fr)]">
-      {/* Left column: narrative sections */}
-      <div className="flex min-w-0 flex-col gap-5">
-        <IncidentGlassCard incidentGlassCardClassName="gap-2">
-          <Text as="h3" className={sectionHeadingClass}>
-            Event Description
-          </Text>
-          <Text as="p" className="text4 text-ehs-darker">
-            {record.description}
-          </Text>
-        </IncidentGlassCard>
-
-        <IncidentGlassCard incidentGlassCardClassName="gap-2">
-          <Text as="h3" className={sectionHeadingClass}>
-            Contributing Factors
-          </Text>
-          {record.contributingFactors.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {record.contributingFactors.map((factor) => (
-                <span
-                  key={factor}
-                  className="text4 bg-ehs-dark-bg/12 text-ehs-darker inline-flex items-center rounded-full px-6 py-1"
-                >
-                  {factor}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <Text as="p" className="text8 text-ehs-muted-text">
-              No contributing factors recorded.
-            </Text>
-          )}
-        </IncidentGlassCard>
-
-        <IncidentGlassCard incidentGlassCardClassName="gap-2">
-          <Text as="h3" className={sectionHeadingClass}>
-            What Could Have Happened?
-          </Text>
-          <div className="bg-ehs-dark-bg/12 border-ehs-dark-bg/12 rounded-lg border p-4">
-            {/* Plain <p>: mixed weights, so `Text` (single string child) doesn't fit */}
-            <p className="text4 text-ehs-darker">
-              If the near-miss had escalated, this could have resulted in a{" "}
-              injury or incident. Immediate corrective action is required to
-              prevent recurrence.
-            </p>
-          </div>
-        </IncidentGlassCard>
-      </div>
-
-      {/* Right column: details + related CAPAs */}
+    <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
       <div className="flex min-w-0 flex-col gap-3.5">
-        <IncidentGlassCard incidentGlassCardClassName="gap-2">
+        <IncidentGlassCard incidentGlassCardClassName="gap-4">
           <Text as="h3" className={sectionHeadingClass}>
-            Details
+            Near Miss Details
           </Text>
-          <div className="flex flex-col gap-3">
-            <DetailField label="Date">
-              <DetailValue value={record.dateOfEvent} />
+          <DetailField label="What happened">
+            <DetailValue value={record.description || "—"} />
+          </DetailField>
+          <DetailField label="Contributing Factors">
+            {record.contributingFactors.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                {record.contributingFactors.map((factor) => (
+                  <Text
+                    key={factor}
+                    as="span"
+                    className="text4 bg-ehs-dark-bg/12 text-ehs-darker inline-flex items-center rounded-full px-3 py-1"
+                  >
+                    {factor}
+                  </Text>
+                ))}
+              </div>
+            ) : (
+              <DetailValue value="—" />
+            )}
+          </DetailField>
+          <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+            <DetailField label="Hazard Type">
+              <DetailValue value={record.hazardType} />
             </DetailField>
             <DetailField label="Location">
               <DetailValue value={record.location} />
-            </DetailField>
-            <DetailField label="Reporter">
-              <DetailValue value={record.reporter} />
             </DetailField>
             <DetailField label="Status">
               <IncidentBadge
                 label={record.status}
                 tone={statusTone[record.status]}
                 showDot
-                className="w-fit px-2.5 py-0.5"
+                className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
               />
+            </DetailField>
+            <DetailField label="Date of Event">
+              <DetailValue value={record.dateOfEvent} />
+            </DetailField>
+            <DetailField label="Reporter">
+              <DetailValue value={record.reporter} />
             </DetailField>
           </div>
         </IncidentGlassCard>
+      </div>
 
-        <IncidentGlassCard incidentGlassCardClassName="gap-2">
+      <div className="flex min-w-0 flex-col gap-3.5">
+        <IncidentGlassCard incidentGlassCardClassName="gap-3">
           <div className="flex items-center justify-between gap-3">
             <Text as="h3" className={sectionHeadingClass}>
               Related CAPAs
             </Text>
             <Link
-              href="/dashboard/capa"
+              href={CAPA_NEW_ROUTE}
               className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
-              + Add
+              Add CAPA
             </Link>
           </div>
 

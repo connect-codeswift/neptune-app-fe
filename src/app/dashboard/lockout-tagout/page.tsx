@@ -62,14 +62,11 @@ export default function LockoutTagoutPage() {
     <div className="flex flex-1 flex-col gap-3.5">
       <DashboardHeader title="Lockout / Tagout (LOTO)" />
 
-      <div className="flex flex-1 flex-col gap-6 px-4 pb-8">
+      <div className="flex flex-1 flex-col gap-4.5 px-4 pb-8">
         <LotoModuleTabs
           activeTab={activeTab}
           counts={tabCounts}
           onTabChange={handleTabChange}
-          onCreateProcedure={() => {
-            router.push(LOTO_PROCEDURE_CREATE_ROUTE);
-          }}
         />
 
         {activeTab === "equipment" ? (
@@ -79,7 +76,11 @@ export default function LockoutTagoutPage() {
               isLoading={hasToken === null || kpisQuery.isLoading}
               isError={kpisQuery.isError}
             />
-            <LotoEquipmentSection />
+            <LotoEquipmentSection
+              onCreateProcedure={() => {
+                router.push(LOTO_PROCEDURE_CREATE_ROUTE);
+              }}
+            />
           </>
         ) : null}
 

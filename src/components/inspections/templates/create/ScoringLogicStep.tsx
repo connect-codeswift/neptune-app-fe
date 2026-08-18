@@ -85,13 +85,7 @@ export type ScoringLogicStepProps = Readonly<{
 }>;
 
 export function ScoringLogicStep(props: ScoringLogicStepProps) {
-  const {
-    sections,
-    scoring,
-    onScoringChange,
-    rules,
-    onRulesChange,
-  } = props;
+  const { sections, scoring, onScoringChange, rules, onRulesChange } = props;
 
   const items = sections.flatMap((section) => section.items);
   const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);
@@ -297,7 +291,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                 <div className="flex items-center justify-between gap-3">
                   <span
                     className={[
-                      "rounded-md px-2 py-0.5 text-2.75 font-bold tracking-wider uppercase",
+                      "text-2.75 rounded-md px-2 py-0.5 font-bold tracking-wider uppercase",
                       rule.active
                         ? "bg-ehs-normal-blue/15 text-ehs-dark-blue"
                         : "text-ehs-muted-text bg-slate-900/8",

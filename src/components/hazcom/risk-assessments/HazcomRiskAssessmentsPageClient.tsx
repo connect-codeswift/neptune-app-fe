@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
@@ -103,11 +103,8 @@ export function HazcomRiskAssessmentsPageClient() {
     [selectedId, filteredAssessments, items],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedAssessment == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedAssessment]);
+  /** Derived during render so a selection whose row no longer resolves reads as unselected. */
+  const activeAssessmentId = selectedAssessment?.id ?? null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -170,7 +167,7 @@ export function HazcomRiskAssessmentsPageClient() {
           >
             <HazcomRiskAssessmentsTable
               assessments={filteredAssessments}
-              selectedId={selectedId}
+              selectedId={activeAssessmentId}
               onViewMore={handleToggleDetailPanel}
               expanded={!isPanelOpen}
               header={

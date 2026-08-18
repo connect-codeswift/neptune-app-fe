@@ -50,7 +50,7 @@ const REVIEW_CYCLE_OPTIONS = [
 
 /** Figma 5568:25826 — 800px card; grows like upload on larger breakpoints. */
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.973px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-200 xl:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-200 xl:max-w-5xl";
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
@@ -60,9 +60,9 @@ function isPdfFile(file: File): boolean {
  * Edit form card (Figma 5568:25826).
  * A replacement PDF is uploaded to Cloudinary client-side first; if none is
  * picked, the document's existing `filePath`/`fileName` are reused. Saves
- * through the dedicated PUT /api/Document/document update endpoint, which
+ * through the dedicated PUT /api/v1/documents update endpoint, which
  * already creates a new version record itself when `pdfPath` changes — a
- * separate POST /api/Document/document_version call is NOT made here, since
+ * separate POST /api/v1/documents/{documentId}/versions call is NOT made here, since
  * that duplicated the version row the PUT endpoint had already created.
  */
 export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
@@ -261,9 +261,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
       setPdfSecureUrl(null);
       const message = getMutationErrorMessage(
         error,
-        error instanceof Error
-          ? error.message
-          : "Failed to upload PDF.",
+        error instanceof Error ? error.message : "Failed to upload PDF.",
       );
       setFileError(message);
       toast.error("Upload failed", message);
@@ -390,7 +388,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
                 readOnly
                 disabled={busy}
                 aria-readonly="true"
-                className={`${controlClass} text-ehs-gray !cursor-not-allowed !bg-[#eef1f6] !pr-9 italic`}
+                className={`${controlClass} text-ehs-gray cursor-not-allowed! bg-[#eef1f6]! pr-9! italic`}
               />
               <Icon
                 icon="mdi:lock-outline"

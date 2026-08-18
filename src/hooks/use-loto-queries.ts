@@ -44,7 +44,7 @@ export const lotoQueryKeys = {
 export const DEFAULT_LOTO_PAGE_NUMBER = 1;
 export const DEFAULT_LOTO_PAGE_SIZE = 10;
 
-/** GET /api/Loto/dashboard-kpis — the equipment tab's KPI strip and tab counts. */
+/** GET /api/v1/loto/dashboard-kpis — the equipment tab's KPI strip and tab counts. */
 export function useLotoDashboardKpisQuery(enabled: boolean) {
   return useQuery({
     queryKey: lotoQueryKeys.dashboardKpis(),
@@ -60,7 +60,7 @@ export type LotoEquipmentListParams = Readonly<{
   status: LotoEquipmentStatusFilterDto;
 }>;
 
-/** POST /api/Loto/GetAllEquipment — paginated, server-side search + status filter. */
+/** POST /api/v1/loto/equipment/search — paginated, server-side search + status filter. */
 export function useLotoEquipmentQuery(
   params: LotoEquipmentListParams,
   enabled: boolean,
@@ -77,7 +77,7 @@ export function useLotoEquipmentQuery(
   });
 }
 
-/** GET /api/Loto/equipment/{id} — raw detail DTO; callers compose the view they need. */
+/** GET /api/v1/loto/equipment/{id} — raw detail DTO; callers compose the view they need. */
 export function useLotoEquipmentDetailQuery(id: number | null, enabled = true) {
   return useQuery({
     queryKey: lotoQueryKeys.equipmentDetail(id ?? -1),
@@ -86,7 +86,7 @@ export function useLotoEquipmentDetailQuery(id: number | null, enabled = true) {
   });
 }
 
-/** GET /api/Loto/equipment/{id}/history — one machine's lockouts, newest first. */
+/** GET /api/v1/loto/equipment/{id}/history — one machine's lockouts, newest first. */
 export function useLotoEquipmentHistoryQuery(
   id: number | null,
   enabled = true,
@@ -99,7 +99,7 @@ export function useLotoEquipmentHistoryQuery(
 }
 
 /**
- * GET /api/Loto/locations?search= — the create/edit form's location picker.
+ * GET /api/v1/locations?search= — the create/edit form's location picker.
  * Each distinct term is its own cache entry; debounce before it gets here.
  */
 export function useLotoLocationsQuery(search: string, enabled: boolean) {
@@ -110,7 +110,7 @@ export function useLotoLocationsQuery(search: string, enabled: boolean) {
   });
 }
 
-/** GET /api/Loto/active-lockouts — mapped to the active-lockout card rows. */
+/** GET /api/v1/loto/lockouts?status=active — mapped to the active-lockout card rows. */
 export function useLotoActiveLockoutsQuery(enabled: boolean) {
   return useQuery({
     queryKey: lotoQueryKeys.activeLockouts(),
@@ -127,7 +127,7 @@ export type LotoLockoutHistoryParams = Readonly<{
   status: LotoLockoutStatusFilterDto;
 }>;
 
-/** POST /api/Loto/GetAllLockouts — the global site-wide history log. */
+/** POST /api/v1/loto/lockouts/search — the global site-wide history log. */
 export function useLotoLockoutHistoryQuery(
   params: LotoLockoutHistoryParams,
   enabled: boolean,
@@ -144,7 +144,7 @@ export function useLotoLockoutHistoryQuery(
   });
 }
 
-/** GET /api/Loto/personnel — everyone authorized on at least one machine on this site. */
+/** GET /api/v1/loto/personnel — everyone authorized on at least one machine on this site. */
 export function useLotoPersonnelQuery(enabled: boolean) {
   return useQuery({
     queryKey: lotoQueryKeys.personnel(),

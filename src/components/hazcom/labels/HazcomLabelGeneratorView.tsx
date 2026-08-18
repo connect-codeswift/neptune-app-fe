@@ -90,11 +90,7 @@ export function HazcomLabelGeneratorView() {
                 variant="primary"
                 className="text4 mt-1 rounded-lg px-4 py-2"
               >
-                <Icon
-                  icon="mdi:plus"
-                  className="size-4"
-                  aria-hidden="true"
-                />
+                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 Add Chemical
               </Button>
             </Link>

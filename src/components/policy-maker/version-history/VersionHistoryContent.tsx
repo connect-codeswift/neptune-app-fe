@@ -27,8 +27,8 @@ function parseDocumentId(raw: string): number | null {
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and its versions via
- * GET /api/Document/{id}/versions, then renders the version history view.
+ * Loads a document via GET /api/v1/documents/{id} and its versions via
+ * GET /api/v1/documents/{id}/versions, then renders the version history view.
  */
 export function VersionHistoryContent(
   props: Readonly<VersionHistoryContentProps>,

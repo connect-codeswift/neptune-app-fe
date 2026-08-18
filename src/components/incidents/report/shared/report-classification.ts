@@ -3,13 +3,7 @@
  * also accepts SIA / SIP / SIF on severities that use that picker.
  * `""` is only kept for typing; live form state normalizes blanks.
  */
-export type ClassificationValue =
-  | "Yes"
-  | "No"
-  | "SIA"
-  | "SIP"
-  | "SIF"
-  | "";
+export type ClassificationValue = "Yes" | "No" | "SIA" | "SIP" | "SIF" | "";
 
 export type ClassificationField = Readonly<{
   id: string;

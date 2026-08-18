@@ -36,7 +36,7 @@ function DetailHeaderSkeleton() {
         <Skeleton className="hidden h-3 w-48 rounded-md md:block" />
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
-            <Skeleton className="size-8 shrink-0 rounded-2.5 md:hidden" />
+            <Skeleton className="rounded-2.5 size-8 shrink-0 md:hidden" />
             <div className="flex min-w-0 flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Skeleton className="h-7 w-28 rounded-md" />
@@ -46,8 +46,8 @@ function DetailHeaderSkeleton() {
             </div>
           </div>
           <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
-            <Skeleton className="h-9 w-20 rounded-2.5" />
-            <Skeleton className="h-9 w-32 rounded-2.5 bg-[#0891a6]/25" />
+            <Skeleton className="rounded-2.5 h-9 w-20" />
+            <Skeleton className="rounded-2.5 h-9 w-32 bg-[#0891a6]/25" />
           </div>
         </div>
       </div>
@@ -58,8 +58,8 @@ function DetailHeaderSkeleton() {
 function ProgressCardSkeleton() {
   return (
     <IncidentGlassCard paddingClassName="p-5" className="min-w-0 rounded-2xl">
-      <div className="mb-5 -mx-1 overflow-x-auto px-1">
-        <div className="flex min-w-max items-start gap-2 sm:min-w-0 sm:w-full">
+      <div className="-mx-1 mb-5 overflow-x-auto px-1">
+        <div className="flex min-w-max items-start gap-2 sm:w-full sm:min-w-0">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
@@ -111,7 +111,7 @@ function TabsPanelSkeleton() {
         ))}
       </div>
       <div
-        className={`${glassCardClass} rounded-tl-none rounded-tr-3.5 rounded-br-3.5 rounded-bl-3.5`}
+        className={`${glassCardClass} rounded-tr-3.5 rounded-br-3.5 rounded-bl-3.5 rounded-tl-none`}
       >
         <div className="relative z-1 flex flex-col gap-4 px-5.25 pt-5.25 pb-5">
           <Skeleton className="h-3 w-24 rounded-md" />
@@ -201,8 +201,8 @@ export function CapaRcaSkeleton() {
         <div className="relative z-1 flex flex-col">
           <div className="flex flex-wrap items-start justify-between gap-4 px-4 py-5 sm:px-6">
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-              <Skeleton className="size-8 shrink-0 rounded-2.5 md:hidden" />
-              <Skeleton className="size-11.5 shrink-0 rounded-3.25" />
+              <Skeleton className="rounded-2.5 size-8 shrink-0 md:hidden" />
+              <Skeleton className="rounded-3.25 size-11.5 shrink-0" />
               <div className="flex min-w-0 flex-col gap-2">
                 <Skeleton className="h-3 w-40 rounded-md" />
                 <Skeleton className="h-6 w-56 max-w-full rounded-md sm:w-80" />
@@ -250,10 +250,7 @@ export function CapaRcaSkeleton() {
           {Array.from({ length: 4 }).map((_, row) => (
             <div key={row} className="mb-3 flex gap-2.5">
               {Array.from({ length: 8 }).map((_, col) => (
-                <Skeleton
-                  key={col}
-                  className="h-24 w-36 shrink-0 rounded-xl"
-                />
+                <Skeleton key={col} className="h-24 w-36 shrink-0 rounded-xl" />
               ))}
             </div>
           ))}
@@ -345,7 +342,7 @@ export function CapaMineSkeleton() {
             <Skeleton className="mb-3 h-4 w-32 rounded-md" />
             <div className="flex flex-col gap-2.5">
               {Array.from({ length: 3 }).map((_, row) => (
-                <Skeleton key={row} className="h-16 w-full rounded-2.5" />
+                <Skeleton key={row} className="rounded-2.5 h-16 w-full" />
               ))}
             </div>
           </IncidentGlassCard>

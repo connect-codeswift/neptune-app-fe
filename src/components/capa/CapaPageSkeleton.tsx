@@ -75,19 +75,16 @@ function OpenedClosedCardSkeleton() {
 /** Filter / status pills bar — Figma 4818:19493. */
 function FiltersBarSkeleton() {
   return (
-    <div className="flex w-full flex-wrap items-center gap-4 rounded-5 border border-white/90 bg-white/60 p-3 shadow-sm backdrop-blur-md">
+    <div className="rounded-5 flex w-full flex-wrap items-center gap-4 border border-white/90 bg-white/60 p-3 shadow-sm backdrop-blur-md">
       <Skeleton className="h-2.5 w-10 rounded-md opacity-60" />
       <div className="flex flex-wrap items-center gap-2">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton
-            key={index}
-            className="h-6 w-15 rounded-md opacity-80"
-          />
+          <Skeleton key={index} className="h-6 w-15 rounded-md opacity-80" />
         ))}
       </div>
       <div className="ml-auto flex flex-wrap items-center gap-2">
-        <Skeleton className="h-9 w-22 rounded-2.5" />
-        <Skeleton className="h-9 w-25 rounded-2.5 bg-[#0891a6]/30" />
+        <Skeleton className="rounded-2.5 h-9 w-22" />
+        <Skeleton className="rounded-2.5 h-9 w-25 bg-[#0891a6]/30" />
       </div>
     </div>
   );
@@ -243,7 +240,7 @@ export function CapaDashboardSkeleton() {
       <div className="grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
         <IncidentGlassCard
           paddingClassName="p-0 overflow-hidden"
-          className="min-w-0 max-w-full"
+          className="max-w-full min-w-0"
         >
           <div className="overflow-x-auto">
             <div className="border-ehs-border/60 flex min-w-max items-center gap-4 border-b px-5 py-3.5 sm:min-w-0">
@@ -276,8 +273,8 @@ export function CapaPageSkeleton() {
           <Skeleton className="h-2.5 w-44 rounded-md opacity-60" />
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:ml-auto lg:justify-end">
-          <Skeleton className="h-9 w-22 rounded-2.5" />
-          <Skeleton className="h-9 w-25 rounded-2.5 bg-[#0891a6]/30" />
+          <Skeleton className="rounded-2.5 h-9 w-22" />
+          <Skeleton className="rounded-2.5 h-9 w-25 bg-[#0891a6]/30" />
         </div>
       </header>
 

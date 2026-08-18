@@ -221,10 +221,7 @@ export default function AcceptInvitationRightPanel() {
   if (!linkIsUsable) {
     return (
       <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
-        <ShadeBall
-          positionAsClassName="-top-37.5 -right-37.5"
-          blur={80}
-        />
+        <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
         <div className="flex w-full max-w-sm flex-col gap-4">
           <h2 className="text-ehs-darker text-2xl font-bold">
             This invitation link is incomplete
@@ -248,10 +245,7 @@ export default function AcceptInvitationRightPanel() {
   return (
     <div className="bg-ehs-light-bg relative flex h-full items-center justify-center px-4 py-8 lg:px-8">
       <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
-      <ShadeBall
-        positionAsClassName="-bottom-37.5 -left-37.5"
-        blur={80}
-      />
+      <ShadeBall positionAsClassName="-bottom-37.5 -left-37.5" blur={80} />
 
       {step === "password" ? (
         <div className="flex w-full max-w-sm flex-col gap-5">

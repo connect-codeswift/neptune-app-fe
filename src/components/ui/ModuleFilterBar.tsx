@@ -73,7 +73,7 @@ function FilterSegment(props: ModuleFilterSegment) {
           aria-label={label}
           className={[
             "border-ehs-border text4 text-ehs-dark-bg min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border bg-white/60 py-1.5 pr-8 pl-2.5 outline-none",
-            "hover:bg-black/5 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15",
+            "focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15 hover:bg-black/5",
             "disabled:cursor-not-allowed disabled:opacity-50",
           ].join(" ")}
         >

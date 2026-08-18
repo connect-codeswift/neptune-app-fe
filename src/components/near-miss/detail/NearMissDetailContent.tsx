@@ -3,29 +3,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { NearMissDetailHeader } from "@/components/near-miss/detail/NearMissDetailHeader";
 import { NearMissDetailView } from "@/components/near-miss/detail/NearMissDetailView";
-import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMissHeader";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import {
-  useCloseNearMissMutation,
-  useDeleteNearMissMutation,
-} from "@/hooks/use-near-miss-mutations";
+import { useCloseNearMissMutation } from "@/hooks/use-near-miss-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import {
   canCloseNearMiss,
   canConvertNearMissToIncident,
+  canEditNearMiss,
 } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
-import {
-  formatNearMissDisplayId,
-  mapNearMissDtoToRecord,
-} from "@/lib/map-near-miss";
+import { mapNearMissDtoToRecord, toNearMissApiId } from "@/lib/map-near-miss";
 import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
@@ -39,10 +32,10 @@ export function NearMissDetailContent(
 ) {
   const { nearMissId } = props;
   const router = useRouter();
-  const detailQuery = useNearMissDetailQuery(nearMissId);
+  const apiId = toNearMissApiId(nearMissId);
+  const detailQuery = useNearMissDetailQuery(apiId);
   const dto = detailQuery.data?.dataModel ?? null;
 
-  // The record carries a userId, not a reporter name — resolve it for display.
   const userDropdownQuery = useUserDropdownQuery();
   const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
 
@@ -51,46 +44,22 @@ export function NearMissDetailContent(
     ? { ...mapped, reporter: userNameFor(userNames, mapped.reporterId ?? "") }
     : null;
 
-  // Resolve the role after mount: the token lives in localStorage, so reading
-  // it during render would mismatch the server-rendered HTML.
   const [canConvert, setCanConvert] = useState(false);
   const [canClose, setCanClose] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time role read from localStorage token
     setCanConvert(canConvertNearMissToIncident());
     setCanClose(canCloseNearMiss());
+    setCanEdit(canEditNearMiss());
   }, []);
 
   const closeMutation = useCloseNearMissMutation();
-  const deleteMutation = useDeleteNearMissMutation();
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const isClosed = record?.status === "Closed";
 
-  const handleConfirmDelete = () => {
-    deleteMutation.mutate(nearMissId, {
-      onSuccess: () => {
-        // The mutation already invalidated the near-miss queries, so the list
-        // refetches as we land on it.
-        toast.success(`${formatNearMissDisplayId(nearMissId)} deleted`);
-        setIsConfirmingDelete(false);
-        router.push(NEAR_MISS_LIST_ROUTE);
-      },
-      onError: (error) => {
-        toast.error(
-          getMutationErrorMessage(
-            error,
-            "Could not delete the near miss. Please try again.",
-          ),
-        );
-      },
-    });
-  };
-
   const handleClose = () => {
-    closeMutation.mutate(nearMissId, {
+    closeMutation.mutate(apiId, {
       onSuccess: () => {
-        // The mutation already invalidated the near-miss queries, so the list
-        // refetches as we land on it.
         toast.success("Near miss closed");
         router.push(NEAR_MISS_LIST_ROUTE);
       },
@@ -106,123 +75,87 @@ export function NearMissDetailContent(
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader />
-      <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
-        <ReportNearMissHeader
-          action={
-            <div className="flex flex-wrap items-center gap-3">
-              {canClose && record ? (
-                <Button
-                  type="button"
-                  variant="primary"
-                  disabled={isClosed || closeMutation.isPending}
-                  onClick={handleClose}
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon={
-                      closeMutation.isPending
-                        ? "mdi:loading"
-                        : "mdi:check-circle-outline"
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      {detailQuery.isPending && <SkeletonDetailPage />}
+
+      {detailQuery.isError && (
+        <Text as="p" className="text4 text-ehs-red">
+          {getMutationErrorMessage(
+            detailQuery.error,
+            "Could not load this near miss.",
+          )}
+        </Text>
+      )}
+
+      {!detailQuery.isPending && !detailQuery.isError && !record && (
+        <Text as="p" className="text4 text-ehs-muted-text">
+          {`No near miss found for id ${nearMissId}.`}
+        </Text>
+      )}
+
+      {record ? (
+        <>
+          <NearMissDetailHeader
+            record={record}
+            canEdit={canEdit}
+            editHref={`${NEAR_MISS_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
+            action={
+              <>
+                {canClose ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={isClosed || closeMutation.isPending}
+                    onClick={handleClose}
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon={
+                        closeMutation.isPending
+                          ? "mdi:loading"
+                          : "mdi:check-circle-outline"
+                      }
+                      className={[
+                        "size-4 shrink-0",
+                        closeMutation.isPending ? "animate-spin" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      {isClosed ? "Closed" : "Close Near Miss"}
+                    </Text>
+                  </Button>
+                ) : null}
+
+                {canConvert && !isClosed ? (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/near-miss/${encodeURIComponent(record.id)}/convert`,
+                      )
                     }
-                    className={[
-                      "size-4 shrink-0",
-                      closeMutation.isPending ? "animate-spin" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    aria-hidden="true"
-                  />
-                  <span className="whitespace-nowrap">
-                    {isClosed ? "Closed" : "Close Near Miss"}
-                  </span>
-                </Button>
-              ) : null}
-
-              {record ? (
-                <Button
-                  type="button"
-                  variant="tertiary"
-                  disabled={deleteMutation.isPending}
-                  onClick={() => setIsConfirmingDelete(true)}
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon={
-                      deleteMutation.isPending
-                        ? "mdi:loading"
-                        : "mdi:trash-can-outline"
-                    }
-                    className={[
-                      "size-4 shrink-0",
-                      deleteMutation.isPending ? "animate-spin" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    aria-hidden="true"
-                  />
-                  <span className="whitespace-nowrap">Delete</span>
-                </Button>
-              ) : null}
-
-              {canConvert ? (
-                <Button
-                  type="button"
-                  variant="danger"
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/near-miss/${encodeURIComponent(nearMissId)}/convert`,
-                    )
-                  }
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon="mdi:plus"
-                    className="size-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="whitespace-nowrap">Convert to Incident</span>
-                </Button>
-              ) : null}
-            </div>
-          }
-        />
-
-        {detailQuery.isPending && (
-          <SkeletonDetailPage />
-        )}
-
-        {detailQuery.isError && (
-          <Text as="p" className="text4 text-ehs-red">
-            {getMutationErrorMessage(
-              detailQuery.error,
-              "Could not load this near miss.",
-            )}
-          </Text>
-        )}
-
-        {/* Request succeeded but the record isn't there. */}
-        {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <Text as="p" className="text4 text-ehs-muted-text">
-            {`No near miss found for id ${nearMissId}.`}
-          </Text>
-        )}
-
-        {record && <NearMissDetailView record={record} />}
-      </div>
-
-      <ConfirmDialog
-        open={isConfirmingDelete}
-        title="Delete near miss?"
-        description={`${formatNearMissDisplayId(nearMissId)} will be permanently removed. This can't be undone.`}
-        confirmLabel="Delete"
-        isConfirming={deleteMutation.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => {
-          if (!deleteMutation.isPending) setIsConfirmingDelete(false);
-        }}
-      />
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon="mdi:plus"
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      Convert to Incident
+                    </Text>
+                  </Button>
+                ) : null}
+              </>
+            }
+          />
+          <NearMissDetailView record={record} />
+        </>
+      ) : null}
     </div>
   );
 }

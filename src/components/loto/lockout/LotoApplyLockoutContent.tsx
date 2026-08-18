@@ -20,7 +20,11 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
 import { useApplyLotoLockoutMutation } from "@/hooks/use-loto-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { withLockPrefix, withEquipmentPrefix, splitEnergySources } from "@/services/mappers/loto.mapper";
+import {
+  withLockPrefix,
+  withEquipmentPrefix,
+  splitEnergySources,
+} from "@/services/mappers/loto.mapper";
 import {
   LOTO_APPLY_FORM_ID,
   buildApplyLockoutSchema,
@@ -56,10 +60,7 @@ export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
   const { equipmentId } = props;
   const hasToken = useHasAccessToken();
   const numericId = toNumericId(equipmentId);
-  const detailQuery = useLotoEquipmentDetailQuery(
-    numericId,
-    hasToken === true,
-  );
+  const detailQuery = useLotoEquipmentDetailQuery(numericId, hasToken === true);
 
   const context = useMemo<LotoApplyLockoutContext | null>(() => {
     const detail = detailQuery.data;
@@ -156,7 +157,8 @@ function LotoApplyLockoutForm(
       {
         lotoEquipmentId: context.equipmentId,
         purpose,
-        expectedCompletionAt: expectedCompletion === "" ? null : expectedCompletion,
+        expectedCompletionAt:
+          expectedCompletion === "" ? null : expectedCompletion,
         confirmationAccepted: true,
       },
       {

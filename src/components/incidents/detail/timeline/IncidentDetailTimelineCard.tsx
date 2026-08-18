@@ -60,7 +60,7 @@ export function IncidentDetailTimelineCard(
         <button
           type="button"
           onClick={handleExport}
-          className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[10.5px] text5 backdrop-blur-1.5 transition-colors hover:bg-white/80"
+          className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 inline-flex shrink-0 items-center gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[11px] transition-colors hover:bg-white/80"
         >
           <Icon
             icon="mdi:export-variant"
@@ -72,7 +72,7 @@ export function IncidentDetailTimelineCard(
       </div>
 
       {events.length === 0 ? (
-        <div className="text-ehs-muted-text py-10 text-center text4">
+        <div className="text-ehs-muted-text text4 py-10 text-center">
           No activity recorded for this incident yet.
         </div>
       ) : (
@@ -84,7 +84,7 @@ export function IncidentDetailTimelineCard(
           <div className="relative flex flex-col gap-1">
             {events.map((event) => (
               <div key={event.id} className="flex items-start gap-3.5 py-2">
-                <div className="border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray relative z-1 flex size-9 shrink-0 items-center justify-center rounded-2.75 border-2">
+                <div className="border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray rounded-2.75 relative z-1 flex size-9 shrink-0 items-center justify-center border-2">
                   <Icon
                     icon={event.icon}
                     className="size-4"
@@ -97,7 +97,7 @@ export function IncidentDetailTimelineCard(
                     <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                       {event.title}
                     </span>
-                    <span className="text-ehs-muted-text ml-auto text4 leading-normal whitespace-nowrap">
+                    <span className="text-ehs-muted-text text4 ml-auto leading-normal whitespace-nowrap">
                       {event.time}
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export function IncidentDetailTimelineCard(
                     {event.description}
                   </p>
                   <div className="flex items-center gap-1.5 pt-0.75">
-                    <span className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-5 shrink-0 items-center justify-center rounded-md text7">
+                    <span className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text7 flex size-5 shrink-0 items-center justify-center rounded-md">
                       {event.actorInitials}
                     </span>
                     <span className="text-ehs-gray text4 leading-normal">

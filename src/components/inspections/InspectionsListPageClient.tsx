@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -92,6 +92,8 @@ export function InspectionsListPageClient() {
         records.find((record) => record.id === selectedId) ??
         null);
 
+  const activeId = selectedRecord?.id ?? null;
+
   const detailSummaryQuery = useInspectionDetailSummaryQuery(
     selectedRecord?.id ?? null,
   );
@@ -105,12 +107,6 @@ export function InspectionsListPageClient() {
     [summaryQuery.data],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedRecord == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedRecord]);
-
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
   }, []);
@@ -120,11 +116,11 @@ export function InspectionsListPageClient() {
   const columns = useMemo(
     () =>
       createInspectionColumns({
-        selectedId,
+        selectedId: activeId,
         onViewMore: handleToggleDetailPanel,
         expanded: !isPanelOpen,
       }),
-    [selectedId, handleToggleDetailPanel, isPanelOpen],
+    [activeId, handleToggleDetailPanel, isPanelOpen],
   );
 
   const resultLabel = `${String(filteredRecords.length)} ${
@@ -228,7 +224,7 @@ export function InspectionsListPageClient() {
               variant="compliance"
               data={filteredRecords}
               columns={columns}
-              selectedRowId={selectedId}
+              selectedRowId={activeId}
               getRowId={(row) => row.id}
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",

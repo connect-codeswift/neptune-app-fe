@@ -40,7 +40,7 @@ export function HazcomHazardRatingSelector(
               aria-pressed={selected}
               onClick={() => onChange(rating)}
               className={[
-                "text5 flex size-8 items-center justify-center rounded-2.5 transition-colors",
+                "text5 rounded-2.5 flex size-8 items-center justify-center transition-colors",
                 selected
                   ? "bg-ehs-normal-blue text-ehs-light-text"
                   : "bg-ehs-dark-bg/10 text-ehs-muted-text hover:bg-ehs-dark-bg/16",

@@ -30,7 +30,10 @@ import type {
 } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 import { EMPTY_HRCA_META } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
-export type { HrcaRow, HrcaWhyStep } from "@/components/incidents/detail/investigations/hrca/hrca-data";
+export type {
+  HrcaRow,
+  HrcaWhyStep,
+} from "@/components/incidents/detail/investigations/hrca/hrca-data";
 
 export type IncidentDetailHrcaBoardProps = Readonly<{
   incidentId: number;
@@ -56,9 +59,8 @@ export function IncidentDetailHrcaBoard(
   } = props;
 
   const [cellModal, setCellModal] = useState<HrcaCellModalState | null>(null);
-  const [confirmModal, setConfirmModal] = useState<HrcaConfirmModalState | null>(
-    null,
-  );
+  const [confirmModal, setConfirmModal] =
+    useState<HrcaConfirmModalState | null>(null);
 
   const rcaQuery = useRcaByIncidentQuery({
     incidentId,
@@ -96,16 +98,19 @@ export function IncidentDetailHrcaBoard(
     0,
   );
 
-  const requireContributingFactor = useCallback((row: HrcaRow): number | null => {
-    if (row.contributingFactorId == null || row.contributingFactorId <= 0) {
-      toast.error(
-        "Contributing factor required",
-        `Define the contributing factor for ${row.category} before continuing.`,
-      );
-      return null;
-    }
-    return row.contributingFactorId;
-  }, []);
+  const requireContributingFactor = useCallback(
+    (row: HrcaRow): number | null => {
+      if (row.contributingFactorId == null || row.contributingFactorId <= 0) {
+        toast.error(
+          "Contributing factor required",
+          `Define the contributing factor for ${row.category} before continuing.`,
+        );
+        return null;
+      }
+      return row.contributingFactorId;
+    },
+    [],
+  );
 
   const openEditFactor = useCallback(
     (rowId: string, currentText: string) => {
@@ -242,7 +247,10 @@ export function IncidentDetailHrcaBoard(
 
       const action = row.correctiveActions[actionIndex];
       if (!action?.id) {
-        toast.error("Cannot remove", "This corrective action is not saved yet.");
+        toast.error(
+          "Cannot remove",
+          "This corrective action is not saved yet.",
+        );
         return;
       }
 
@@ -273,7 +281,10 @@ export function IncidentDetailHrcaBoard(
               rcaCategoryId: row.categoryId,
               description,
             });
-            toast.success("Saved", `Contributing factor added to ${row.category}.`);
+            toast.success(
+              "Saved",
+              `Contributing factor added to ${row.category}.`,
+            );
           } else {
             await updateFactorMutation.mutateAsync({
               incidentId,
@@ -441,10 +452,9 @@ export function IncidentDetailHrcaBoard(
     ],
   );
 
-  const errorMessage =
-    rcaQuery.isError
-      ? getMutationErrorMessage(rcaQuery.error, "Failed to load HRCA data.")
-      : null;
+  const errorMessage = rcaQuery.isError
+    ? getMutationErrorMessage(rcaQuery.error, "Failed to load HRCA data.")
+    : null;
 
   return (
     <>
@@ -457,7 +467,7 @@ export function IncidentDetailHrcaBoard(
           <button
             type="button"
             onClick={onClose}
-            className="text-ehs-gray hover:text-ehs-dark-bg inline-flex w-fit items-center gap-1.5 text4 font-semibold transition-colors"
+            className="text-ehs-gray hover:text-ehs-dark-bg text4 inline-flex w-fit items-center gap-1.5 font-semibold transition-colors"
           >
             <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
             Back to investigation
@@ -471,26 +481,26 @@ export function IncidentDetailHrcaBoard(
           actions={totalActions}
         />
 
-        <div className="text-ehs-muted-text flex items-start gap-2.75 text4 leading-3.75">
+        <div className="text-ehs-muted-text text4 flex items-start gap-2.75 leading-3.75">
           <Icon
             icon="mdi:information-outline"
             className="text-ehs-gray mt-px size-3.25 shrink-0"
             aria-hidden="true"
           />
           <span>
-            This is an interactive worksheet — click any cell to edit, add or remove
-            Why steps, and edit corrective actions. The last step in each lane is the
-            root cause.
+            This is an interactive worksheet — click any cell to edit, add or
+            remove Why steps, and edit corrective actions. The last step in each
+            lane is the root cause.
             {isSaving ? " Saving changes…" : ""}
           </span>
         </div>
 
         {rcaQuery.isLoading ? (
-          <div className="text-ehs-muted-text rounded-5 border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-2.5">
+          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border border-white/90 bg-white/62 px-4 py-10 text-center">
             Loading HRCA worksheet…
           </div>
         ) : errorMessage ? (
-          <div className="flex flex-col items-center gap-3 rounded-5 border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-2.5">
+          <div className="rounded-5 text4 backdrop-blur-2.5 flex flex-col items-center gap-3 border border-white/90 bg-white/62 px-4 py-10 text-center">
             <p className="text-ehs-red">{errorMessage}</p>
             <button
               type="button"
@@ -503,7 +513,7 @@ export function IncidentDetailHrcaBoard(
             </button>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-ehs-muted-text rounded-5 border border-white/90 bg-white/62 px-4 py-10 text-center text4 backdrop-blur-2.5">
+          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border border-white/90 bg-white/62 px-4 py-10 text-center">
             No HRCA lanes are configured. Seeded RCA categories (ids 1–5) are
             required to render the worksheet.
           </div>
@@ -513,8 +523,8 @@ export function IncidentDetailHrcaBoard(
 
         <p className="text-ehs-muted-text text4 leading-4.25 font-medium">
           Read each lane left → right: the contributing factor, then ask
-          &quot;Why?&quot; until you reach the root cause (ringed). Edits persist on
-          this device.
+          &quot;Why?&quot; until you reach the root cause (ringed). Edits
+          persist on this device.
         </p>
       </div>
 

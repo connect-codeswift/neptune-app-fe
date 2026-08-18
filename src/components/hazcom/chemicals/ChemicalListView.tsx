@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Text } from "@/components/Text";
 import {
   HazcomDetailPanel,
@@ -66,11 +66,11 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
     [selectedId, filteredChemicals, chemicals],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedChemical == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedChemical]);
+  /**
+   * Derived during render so a selection whose row no longer resolves (filtered
+   * out or deleted) reads as "nothing selected" without an extra state write.
+   */
+  const activeChemicalId = selectedChemical?.id ?? null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -122,10 +122,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
 
   return (
     <div
-      className={[
-        "flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8",
-        className,
-      ]
+      className={["flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -169,7 +166,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
           >
             <ChemicalListTable
               chemicals={filteredChemicals}
-              selectedId={selectedId}
+              selectedId={activeChemicalId}
               onViewMore={handleToggleDetailPanel}
               header={
                 <HazcomRegisterHeader

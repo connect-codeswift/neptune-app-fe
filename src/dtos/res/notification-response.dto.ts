@@ -25,18 +25,14 @@ export type NotificationReadAllResultDto = {
   updatedCount: number;
 };
 
-export type GetNotificationsResponseDto = ApiEnvelopeDto<
-  PagedDataDto<NotificationDto> | null
->;
+export type GetNotificationsResponseDto =
+  ApiEnvelopeDto<PagedDataDto<NotificationDto> | null>;
 
-export type GetUnreadNotificationCountResponseDto = ApiEnvelopeDto<
-  NotificationUnreadCountDto | null
->;
+export type GetUnreadNotificationCountResponseDto =
+  ApiEnvelopeDto<NotificationUnreadCountDto | null>;
 
-export type MarkNotificationReadResponseDto = ApiEnvelopeDto<
-  NotificationReadResultDto | null
->;
+export type MarkNotificationReadResponseDto =
+  ApiEnvelopeDto<NotificationReadResultDto | null>;
 
-export type MarkAllNotificationsReadResponseDto = ApiEnvelopeDto<
-  NotificationReadAllResultDto | null
->;
+export type MarkAllNotificationsReadResponseDto =
+  ApiEnvelopeDto<NotificationReadAllResultDto | null>;

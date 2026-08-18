@@ -70,23 +70,23 @@ export function IncidentDetailHeader(
       {!hideIncidentChrome ? (
         <>
           {/* Breadcrumb Navigation */}
-          <div className="text-ehs-muted-text flex flex-wrap items-center gap-1 text8 font-medium">
+          <div className="text-ehs-muted-text text8 flex flex-wrap items-center gap-1 font-medium">
             <span
               onClick={() => router.push("/dashboard/incidents/list")}
               className="hover:text-ehs-dark-bg cursor-pointer hover:underline"
             >
               Incidents
             </span>
-            <Icon icon="mdi:chevron-right" className="text-ehs-muted-text size-3" />
+            <Icon
+              icon="mdi:chevron-right"
+              className="text-ehs-muted-text size-3"
+            />
             <span className="text-ehs-gray">{incidentId}</span>
           </div>
 
           {/* Page Title & Actions Toolbar */}
           <div className="mt-2.5 flex flex-wrap items-center justify-between gap-4">
-            <Text
-              as="h1"
-              className="text-ehs-dark-bg text1"
-            >
+            <Text as="h1" className="text-ehs-dark-bg text1">
               {incidentId}
             </Text>
 
@@ -100,8 +100,8 @@ export function IncidentDetailHeader(
                     isLoading={isSaving}
                     className={
                       isEditing
-                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 px-4 py-2 text4 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
-                        : "text-ehs-slate rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 text4 font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
+                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
+                        : "text-ehs-slate rounded-2.5 text4 border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
                     }
                   >
                     {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
@@ -116,8 +116,7 @@ export function IncidentDetailHeader(
             <nav className="flex gap-6 px-1 whitespace-nowrap">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
-                const isDisabled =
-                  tab.id === "closure" && closureTabDisabled;
+                const isDisabled = tab.id === "closure" && closureTabDisabled;
 
                 return (
                   <button
@@ -136,7 +135,7 @@ export function IncidentDetailHeader(
                         : undefined
                     }
                     className={[
-                      "border-b-2 py-2.5 text4 font-semibold transition-all",
+                      "text4 border-b-2 py-2.5 font-semibold transition-all",
                       isDisabled
                         ? "text-ehs-muted-text/70 cursor-not-allowed border-transparent"
                         : isActive

@@ -38,7 +38,7 @@ export const complianceQueryKeys = {
 export const DEFAULT_COMPLIANCES_PAGE_NUMBER = 1;
 export const DEFAULT_COMPLIANCES_PAGE_SIZE = 10;
 
-/** GET /api/Compliance/dashboard-kpis */
+/** GET /api/v1/compliance-records/dashboard-kpis */
 export function useComplianceDashboardKpisQuery(enabled = true) {
   return useQuery({
     queryKey: complianceQueryKeys.dashboardKpis,
@@ -47,7 +47,7 @@ export function useComplianceDashboardKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/Compliance/category-stats */
+/** GET /api/v1/compliance-records/category-stats */
 export function useComplianceCategoryStatsQuery(enabled = true) {
   return useQuery({
     queryKey: complianceQueryKeys.categoryStats,
@@ -56,7 +56,7 @@ export function useComplianceCategoryStatsQuery(enabled = true) {
   });
 }
 
-/** GET /api/Compliance/upcoming-filings */
+/** GET /api/v1/compliance-records/upcoming-filings */
 export function useComplianceUpcomingFilingsQuery(enabled = true) {
   return useQuery({
     queryKey: complianceQueryKeys.upcomingFilings,
@@ -73,7 +73,7 @@ export type UseComplianceCalendarQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** GET /api/Compliance/calendar */
+/** GET /api/v1/compliance-records/calendar */
 export function useComplianceCalendarQuery(
   options: UseComplianceCalendarQueryOptions,
 ) {
@@ -107,7 +107,7 @@ export type ComplianceByIdQueryResult = Readonly<{
   detail: ComplianceObligationDetail;
 }>;
 
-/** GET /api/Compliance/{id} */
+/** GET /api/v1/compliance-records/{id} */
 export function useComplianceByIdQuery(options: UseComplianceByIdQueryOptions) {
   const enabled =
     (options.enabled ?? false) && options.id != null && options.id > 0;
@@ -147,7 +147,7 @@ export type UseCompliancesListQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** POST /api/Compliance/GetAllCompliances */
+/** POST /api/v1/compliance-records/search */
 export function useCompliancesListQuery(
   options: UseCompliancesListQueryOptions = {},
 ) {

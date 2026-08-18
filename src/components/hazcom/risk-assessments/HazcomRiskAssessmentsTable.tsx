@@ -162,7 +162,10 @@ function createRiskAssessmentColumns(
             size: 112,
             minSize: 88,
             cell: (info) => (
-              <Text as="span" className="text8 text-ehs-muted-text tabular-nums">
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text tabular-nums"
+              >
                 {info.getValue() || "—"}
               </Text>
             ),
@@ -184,7 +187,7 @@ function createRiskAssessmentColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
             ].join(" ")}
             aria-label={
               isOpen
@@ -340,7 +343,10 @@ export function HazcomRiskAssessmentsTable(
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize(), totalSize)}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "py-3 align-middle",
                             cellPad,

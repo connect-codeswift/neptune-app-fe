@@ -59,7 +59,7 @@ export function ReportIncidentStepFour(
             </Text>
             <Text
               as="h2"
-              className="text-ehs-dark-bg text-[21.8px] font-bold tracking-[-0.44px]"
+              className="text-ehs-dark-bg text-[22px] font-bold tracking-[-0.44px]"
             >
               Immediate response
             </Text>
@@ -87,7 +87,7 @@ export function ReportIncidentStepFour(
                     type="button"
                     onClick={() => toggleAction(action.id)}
                     className={[
-                      "flex min-h-13 cursor-pointer items-center gap-3 rounded-2.5 border px-4 py-3 text-left transition-all duration-200",
+                      "rounded-2.5 flex min-h-13 cursor-pointer items-center gap-3 border px-4 py-3 text-left transition-all duration-200",
                       isChecked
                         ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_rgba(8,145,166,0.06)]"
                         : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
@@ -95,7 +95,7 @@ export function ReportIncidentStepFour(
                   >
                     <div
                       className={[
-                        "flex size-5 shrink-0 items-center justify-center rounded-1 border transition-colors",
+                        "rounded-1 flex size-5 shrink-0 items-center justify-center border transition-colors",
                         isChecked
                           ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
                           : "border-[rgba(15,23,42,0.18)] bg-white",

@@ -28,7 +28,7 @@ export function IncidentDetailResponseMetricsCard(
       </div>
 
       {metrics.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5 text4">
+        <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5">
           No response metrics recorded for this incident.
         </div>
       ) : (

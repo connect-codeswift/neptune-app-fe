@@ -13,7 +13,7 @@ function Bar(props: Readonly<{ className?: string }>) {
   return (
     <div
       aria-hidden="true"
-      className={["animate-pulse rounded-1", className]
+      className={["rounded-1 animate-pulse", className]
         .filter(Boolean)
         .join(" ")}
     />
@@ -69,7 +69,7 @@ function DocumentRowSkeleton(props: Readonly<{ selected?: boolean }>) {
       </div>
       <Bar className="h-2.5 w-10 shrink-0 bg-[#e5e7eb]" />
       <Bar className="h-2.5 w-20 shrink-0 bg-[#e5e7eb]" />
-      <Bar className="h-5 w-20 shrink-0 rounded-2.5 bg-[#e5e7eb]" />
+      <Bar className="rounded-2.5 h-5 w-20 shrink-0 bg-[#e5e7eb]" />
     </div>
   );
 }
@@ -85,12 +85,12 @@ export function PolicyMakerPageSkeleton() {
       <div className="flex h-13 w-full items-center justify-between">
         <Bar className="h-5 w-45 bg-[#d1d5db]" />
         <div className="flex items-center gap-3">
-          <div className="flex h-8.75 w-70 items-center rounded-[9.7px] border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3">
+          <div className="rounded-2.5 flex h-8.75 w-70 items-center border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3">
             <Bar className="size-3.5 shrink-0 bg-[#e5e7eb]" />
             <span className="w-3 shrink-0" aria-hidden="true" />
             <Bar className="h-2 w-35 bg-[#8892a3]/45" />
           </div>
-          <Bar className="h-8.75 w-35 rounded-2.5 bg-[#e5e7eb]" />
+          <Bar className="rounded-2.5 h-8.75 w-35 bg-[#e5e7eb]" />
         </div>
       </div>
 
@@ -98,9 +98,9 @@ export function PolicyMakerPageSkeleton() {
       <MetricCardsRowSkeleton />
 
       {/* DocumentGrid — library 206px + table (details pane is ~0px in Figma) */}
-      <div className="grid min-w-0 items-start gap-[13.6px] xl:grid-cols-[206px_minmax(0,1fr)]">
+      <div className="grid min-w-0 items-start gap-[14px] xl:grid-cols-[206px_minmax(0,1fr)]">
         {/* LibraryPane — Figma 4818:18912: w-206 h-411, folder y-step 106 (76px gap) */}
-        <div className="flex h-102.75 w-full flex-col gap-19 overflow-hidden rounded-[19.4px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] p-4 backdrop-blur-[9.7px]">
+        <div className="flex h-102.75 w-full flex-col gap-19 overflow-hidden rounded-[19px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] p-4 backdrop-blur-[10px]">
           <Bar className="h-2 w-15 shrink-0 bg-[#8892a3]/45" />
           <LibraryItemSkeleton />
           <LibraryItemSkeleton active />
@@ -111,7 +111,7 @@ export function PolicyMakerPageSkeleton() {
         </div>
 
         {/* TablePane — Figma 4818:18932: gap 48px between header / columns / rows */}
-        <div className="flex min-h-151 w-full flex-col gap-12 overflow-hidden rounded-[19.4px] border-[0.97px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] backdrop-blur-[9.7px]">
+        <div className="flex min-h-151 w-full flex-col gap-12 overflow-hidden rounded-[19px] border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] backdrop-blur-[10px]">
           <div className="flex h-12 items-center justify-between border-b border-[rgba(15,23,42,0.08)] px-4">
             <Bar className="h-3 w-25 bg-[#d1d5db]" />
             <Bar className="h-6 w-30 rounded-lg bg-[#e5e7eb]" />

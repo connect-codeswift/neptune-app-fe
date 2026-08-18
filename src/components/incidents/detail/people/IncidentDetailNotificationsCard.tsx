@@ -33,7 +33,7 @@ export function IncidentDetailNotificationsCard(
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25 text4">
+        <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25">
           No notifications recorded for this incident.
         </div>
       ) : null}
@@ -44,21 +44,17 @@ export function IncidentDetailNotificationsCard(
           className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25"
         >
           <div className="text-ehs-gray flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(255,255,255,0.82)]">
-            <Icon
-              icon={notif.icon}
-              className="size-3.25"
-              aria-hidden="true"
-            />
+            <Icon icon={notif.icon} className="size-3.25" aria-hidden="true" />
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="text-ehs-dark-bg text4 leading-normal">
               {notif.target}
             </span>
-            <span className="text-ehs-muted-text truncate text4 leading-normal">
+            <span className="text-ehs-muted-text text4 truncate leading-normal">
               {notif.channel}
             </span>
           </div>
-          <span className="text-ehs-muted-text shrink-0 text4 leading-normal">
+          <span className="text-ehs-muted-text text4 shrink-0 leading-normal">
             {notif.time}
           </span>
         </div>

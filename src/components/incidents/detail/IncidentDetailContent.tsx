@@ -55,9 +55,7 @@ import {
   parseIncidentRouteId,
 } from "@/services/mappers/incident-detail.mapper";
 import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
-import {
-  buildRcaInvestigationPreview,
-} from "@/services/mappers/rca.mapper";
+import { buildRcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
   /** Route param: numeric id or `INC-{id}`. */
@@ -241,10 +239,7 @@ export function IncidentDetailContent(
     setInfoItems(detail.infoItems);
   }
 
-  if (
-    closureHydrateKey != null &&
-    closureHydrateKey !== hydratedClosureKey
-  ) {
+  if (closureHydrateKey != null && closureHydrateKey !== hydratedClosureKey) {
     setHydratedClosureKey(closureHydrateKey);
     if (closureQuery.data) {
       setClosureData((prev) =>

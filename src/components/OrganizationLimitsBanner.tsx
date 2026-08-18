@@ -23,14 +23,16 @@ export function OrganizationLimitsBanner(props: OrganizationLimitsBannerProps) {
         "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-sm",
         isAtLimit
           ? "border-ehs-red/25 bg-ehs-red/8 text-ehs-darker"
-          : "border-amber-200/80 bg-amber-50/90 text-ehs-darker",
+          : "text-ehs-darker border-amber-200/80 bg-amber-50/90",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <Icon
-        icon={isAtLimit ? "mdi:account-alert-outline" : "mdi:account-group-outline"}
+        icon={
+          isAtLimit ? "mdi:account-alert-outline" : "mdi:account-group-outline"
+        }
         className={[
           "mt-0.5 shrink-0 text-lg",
           isAtLimit ? "text-ehs-red" : "text-amber-600",

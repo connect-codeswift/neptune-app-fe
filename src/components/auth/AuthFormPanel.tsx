@@ -46,17 +46,14 @@ export function AuthFormPanel(props: Readonly<AuthFormPanelProps>) {
       {overlay}
 
       <ShadeBall positionAsClassName="-top-37.5 -right-37.5" blur={80} />
-      <ShadeBall
-        positionAsClassName="-bottom-37.5 -left-37.5"
-        blur={80}
-      />
+      <ShadeBall positionAsClassName="-bottom-37.5 -left-37.5" blur={80} />
 
       {/* Colour for the glass to blur: without these, the pane sits on a
           near-white ground and reads as a plain card. Placed to break across
           the card's edges, where refraction is most visible. */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="bg-ehs-normal-blue/25 absolute top-[24%] left-1/2 size-80 -translate-x-[85%] rounded-full blur-3xl" />
-        <div className="absolute top-[58%] left-1/2 size-80 -translate-x-[8%] rounded-full bg-cyan-300/30 blur-3xl" />
+        <div className="bg-ehs-normal-blue/25 absolute top-[24%] left-1/2 size-80 translate-x-[-85%] rounded-full blur-3xl" />
+        <div className="absolute top-[58%] left-1/2 size-80 translate-x-[-8%] rounded-full bg-cyan-300/30 blur-3xl" />
       </div>
 
       <div className="relative z-10 flex w-full max-w-120 flex-col gap-6">

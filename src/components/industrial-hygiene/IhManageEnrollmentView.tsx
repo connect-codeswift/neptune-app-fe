@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import type { ColumnDef } from "@tanstack/react-table";

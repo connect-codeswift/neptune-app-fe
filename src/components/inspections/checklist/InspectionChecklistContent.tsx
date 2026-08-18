@@ -49,7 +49,7 @@ function AnswerToggle(
             aria-checked={isSelected}
             onClick={() => onChange(answer)}
             className={[
-              "w-16 cursor-pointer rounded-2.5 px-2 py-1 text-sm font-medium transition-colors",
+              "rounded-2.5 w-16 cursor-pointer px-2 py-1 text-sm font-medium transition-colors",
               isSelected
                 ? "bg-ehs-green text-white"
                 : "text-ehs-gray border border-[rgba(15,23,42,0.1)] bg-white hover:bg-black/5",
@@ -176,7 +176,7 @@ export function InspectionChecklistContent(
         onSuccess: (response) => {
           toast.success(response.message || "Inspection submitted");
 
-          // The report reads everything back from GET /api/Inspection/{id}.
+          // The report reads everything back from GET /api/v1/inspections/{id}.
           router.push(
             `${INSPECTION_REPORT_ROUTE}?inspectionid=${encodeURIComponent(inspectionId)}`,
           );
@@ -263,7 +263,7 @@ export function InspectionChecklistContent(
           type="button"
           onClick={handleSubmit}
           disabled={saveResponses.isPending}
-          className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-2.5 px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-green hover:bg-ehs-green/90 rounded-2.5 cursor-pointer px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saveResponses.isPending ? "Submitting…" : "Submit Inspection"}
         </button>

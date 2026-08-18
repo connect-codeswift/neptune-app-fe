@@ -26,9 +26,7 @@ export type HazcomSdsUploadFormProps = Readonly<{
   className?: string;
 }>;
 
-export function HazcomSdsUploadForm(
-  props: Readonly<HazcomSdsUploadFormProps>,
-) {
+export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
   const { className = "" } = props;
   const router = useRouter();
   const createSds = useCreateSdsMutation();
@@ -90,7 +88,7 @@ export function HazcomSdsUploadForm(
   return (
     <IncidentGlassCard
       paddingClassName="p-6 sm:p-8"
-      className={["min-w-0 w-full rounded-2xl", className]
+      className={["w-full min-w-0 rounded-2xl", className]
         .filter(Boolean)
         .join(" ")}
       incidentGlassCardClassName="gap-0"

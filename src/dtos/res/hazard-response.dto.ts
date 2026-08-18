@@ -1,7 +1,7 @@
 import type { CreateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** Created hazard record returned by POST /api/Hazard/Hazards. */
+/** Created hazard record returned by POST /api/v1/hazards. */
 export type CreateHazardResponseDto = ApiEnvelopeDto<CreateHazardRequestDto>;
 
 /** A hazard row as returned by the list endpoint. */
@@ -12,14 +12,14 @@ export type HazardDto = CreateHazardRequestDto & {
   updatedAt: string | null;
 };
 
-/** Matches backend response for POST /api/Hazard/GetAllHazard. */
+/** Matches backend response for POST /api/v1/hazards/search. */
 export type GetAllHazardResponseDto = ApiEnvelopeDto<PagedDataDto<HazardDto>>;
 
-/** Matches backend response for GET /api/Hazard/Hazard/{id}. */
+/** Matches backend response for GET /api/v1/hazards/{id}. */
 export type GetHazardByIdResponseDto = ApiEnvelopeDto<HazardDto | null>;
 
 /**
- * KPI counters from GET /api/Hazard/HazardKpiCount.
+ * KPI counters from GET /api/v1/hazards/kpis.
  */
 export type HazardKpiDto = {
   totalHazards: number;
@@ -32,29 +32,35 @@ export type HazardKpiDto = {
   hazardConvertedToIncidentChange?: number;
 };
 
-/** Matches backend response for GET /api/Hazard/HazardKpiCount. */
+/** Matches backend response for GET /api/v1/hazards/kpis. */
 export type GetHazardKpiResponseDto = ApiEnvelopeDto<HazardKpiDto | null>;
 
-/** One cell of GET /api/Hazard/HazardApiForHeatMap — a location/type tally. */
+/** One cell of GET /api/v1/hazards/heatmap — a location/type tally. */
 export type HazardHeatMapCellDto = {
   location: string;
   type: string;
   count: number;
 };
 
-/** Matches backend response for GET /api/Hazard/HazardApiForHeatMap. */
+/** Matches backend response for GET /api/v1/hazards/heatmap. */
 export type GetHazardHeatMapResponseDto = ApiEnvelopeDto<
   HazardHeatMapCellDto[] | null
 >;
 
-/** One row of GET /api/Hazard/TopHazardUsers. */
+/** One row of GET /api/v1/hazards/top-users. */
 export type TopHazardUserDto = {
   userId: number;
   userName: string;
   hazardCount: number;
 };
 
-/** Matches backend response for GET /api/Hazard/TopHazardUsers. */
+/** Matches backend response for GET /api/v1/hazards/top-users. */
 export type GetTopHazardUsersResponseDto = ApiEnvelopeDto<
   TopHazardUserDto[] | null
 >;
+
+/**
+ * GET /api/v1/hazards/monthly-users?year=&month= — same row shape as
+ * TopHazardUsers, scoped to one calendar month.
+ */
+export type GetMonthlyHazardUsersResponseDto = GetTopHazardUsersResponseDto;

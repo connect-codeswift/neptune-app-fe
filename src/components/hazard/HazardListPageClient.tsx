@@ -10,6 +10,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { UnifiedNearMissAndHazardListPage } from "@/components/reporting/UnifiedNearMissAndHazardListPage";
 import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
+import { HazardDetailPanel } from "@/components/hazard/HazardDetailPanel";
 import { makeHazardColumns } from "@/components/hazard/HazardColumns";
 import {
   formatHazardDisplayId,
@@ -22,18 +23,14 @@ import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
 
-const STATUS_OPTIONS = [
-  "All",
-  "Open",
-  "Investigating",
-  "Closed",
-] as const;
+const STATUS_OPTIONS = ["All", "Open", "Investigating", "Closed"] as const;
 
 export function HazardListPageClient() {
   const router = useRouter();
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [canViewInsights, setCanViewInsights] = useState(false);
 
   useEffect(() => {
@@ -90,15 +87,26 @@ export function HazardListPageClient() {
     });
   }, [records, searchQuery, selectedStatus, userNames]);
 
+  const selectedRecord =
+    selectedId == null
+      ? null
+      : (filteredRecords.find((record) => record.id === selectedId) ??
+        records.find((record) => record.id === selectedId) ??
+        null);
+  const activeSelectedId = selectedRecord?.id ?? null;
+
   const columns = useMemo(
     () =>
       makeHazardColumns({
         userNames,
+        selectedId: activeSelectedId,
         onView: (record) => {
-          router.push(`/dashboard/hazard/${encodeURIComponent(record.id)}`);
+          setSelectedId((current) =>
+            current === record.id ? null : record.id,
+          );
         },
       }),
-    [router, userNames],
+    [userNames, activeSelectedId],
   );
 
   const metrics = useMemo(
@@ -106,26 +114,43 @@ export function HazardListPageClient() {
     [hazardKpiQuery.data?.dataModel],
   );
 
-  const isLoading =
+  const isLoading = canViewInsights && hazardKpiQuery.isPending;
+  const isTableLoading =
     hazardListQuery.isPending ||
-    (canViewInsights && hazardKpiQuery.isPending);
+    (hazardListQuery.isFetching && hazardListQuery.data === undefined);
+  const resultLabel = `${String(filteredRecords.length)} ${
+    filteredRecords.length === 1 ? "hazard" : "hazards"
+  }`;
 
   return (
     <UnifiedNearMissAndHazardListPage
       title="Hazard Reporting"
       isLoading={isLoading}
+      isTableLoading={isTableLoading}
       canViewInsights={canViewInsights}
       metrics={metrics}
       statusOptions={STATUS_OPTIONS}
       selectedStatus={selectedStatus}
-      onStatusChange={setSelectedStatus}
+      onStatusChange={(status) => {
+        setSelectedStatus(status);
+        setPageNumber(1);
+        setSelectedId(null);
+      }}
       reportActionLabel="Report Hazard"
       onReportClick={() => {
         router.push("/dashboard/hazard/report");
       }}
       searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
+      onSearchChange={(query) => {
+        setSearchQuery(query);
+        setPageNumber(1);
+        setSelectedId(null);
+      }}
       searchAriaLabel="Search hazards"
+      resultLabel={resultLabel}
+      itemNoun="hazard"
+      itemNounPlural="hazards"
+      registerCount={page?.totalRecords ?? filteredRecords.length}
       listError={
         hazardListQuery.isError
           ? getMutationErrorMessage(
@@ -134,18 +159,34 @@ export function HazardListPageClient() {
             )
           : null
       }
+      onRetry={() => {
+        void hazardListQuery.refetch();
+      }}
       table={{
         data: filteredRecords,
         columns,
         getRowId: (row) => row.id,
+        selectedRowId: activeSelectedId,
         pagination: {
           pageNumber: page?.pageNumber ?? pageNumber,
           pageSize: page?.pageSize ?? PAGE_SIZE,
           totalRecords: page?.totalRecords ?? 0,
-          onPageChange: setPageNumber,
+          onPageChange: (nextPage) => {
+            setPageNumber(nextPage);
+            setSelectedId(null);
+          },
           isLoading: hazardListQuery.isFetching,
         },
       }}
+      detailPanel={
+        selectedRecord ? (
+          <HazardDetailPanel
+            record={selectedRecord}
+            userNames={userNames}
+            className="min-w-0 xl:sticky xl:top-4"
+          />
+        ) : null
+      }
       insights={
         <>
           <HazardHeatmapCard />

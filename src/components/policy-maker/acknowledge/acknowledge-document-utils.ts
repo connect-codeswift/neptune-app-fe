@@ -5,9 +5,7 @@ export function formatPublishedLabel(isoDate: string): string {
     return isoDate;
   }
   const day = date.getDate();
-  const month = date
-    .toLocaleString("en-US", { month: "short" })
-    .toLowerCase();
+  const month = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
   const year = date.getFullYear();
   return `${day} ${month} ${year}`;
 }

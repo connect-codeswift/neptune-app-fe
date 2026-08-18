@@ -35,7 +35,7 @@ export function ModuleSearchBar(props: ModuleSearchBarProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative w-full min-w-0 max-w-md">
+      <div className="relative w-full max-w-md min-w-0">
         <Icon
           icon="mdi:magnify"
           className="text-ehs-normal-blue pointer-events-none absolute top-1/2 left-3 z-10 size-5 -translate-y-1/2"
@@ -60,7 +60,9 @@ export function ModuleSearchBar(props: ModuleSearchBarProps) {
       </div>
 
       {resultLabel ? (
-        <span className="text4 text-ehs-muted-text shrink-0">{resultLabel}</span>
+        <span className="text4 text-ehs-muted-text shrink-0">
+          {resultLabel}
+        </span>
       ) : null}
     </div>
   );

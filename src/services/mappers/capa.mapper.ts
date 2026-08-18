@@ -154,7 +154,7 @@ function progressForStatus(
   return 0;
 }
 
-/** Maps PATCH /CAPA/Task/Status values to progress bar fill. */
+/** Maps PATCH /api/v1/capa-tasks/{taskId}/status values to progress bar fill. */
 function capaTaskStatusToProgressPercent(
   status: CapaTaskStatus | null | undefined,
 ): number {
@@ -429,14 +429,6 @@ function dashboardPriority(value: string): CapaDashboardItem["priority"] {
   return "medium";
 }
 
-function isDueDateOverdue(dueDate: string | null | undefined): boolean {
-  const iso = parseCapaApiDate(dueDate);
-  if (!iso) return false;
-  const due = new Date(`${iso}T23:59:59`);
-  if (Number.isNaN(due.getTime())) return false;
-  return due.getTime() < Date.now();
-}
-
 function formatDashboardDueLabel(dueDate: string | null | undefined): string {
   const iso = parseCapaApiDate(dueDate);
   if (!iso) return "—";
@@ -494,7 +486,7 @@ function lifecycleStepFromStatus(status: string): number {
   }
 }
 
-/** Maps GET /CAPA list rows into CAPA dashboard register items. */
+/** Maps GET /api/v1/capas list rows into CAPA dashboard register items. */
 export function mapCapaDtoToDashboardItem(
   dto: CapaDto,
   options?: Readonly<{ currentUserId?: number }>,
@@ -571,7 +563,7 @@ export function toSelectorControlLevel(
   return null;
 }
 
-/** Short label required by POST /CAPA/Capa — derived from the action description. */
+/** Short label required by POST /api/v1/capas — derived from the action description. */
 export function buildCapaTitleFromDescription(description: string): string {
   const trimmed = description.trim();
   const firstLine = trimmed.split(/\r?\n/)[0]?.trim() ?? trimmed;
@@ -847,7 +839,7 @@ export function mapFormEffectivenessToApi(value: string): CapaEffectiveness {
   }
 }
 
-/** Prefill the verification FormBuilder from GET /CAPA/Verification/{capaId}. */
+/** Prefill the verification FormBuilder from GET /api/v1/capas/{capaId}/verification. */
 export function mapCapaVerificationDtoToFormValues(
   verification: CapaVerificationDto | null | undefined,
 ): FormValues {
@@ -937,7 +929,7 @@ function detailTaskStatusFromDto(
   }
 }
 
-/** Maps GET /api/CAPA/Tasks/{capaId} rows into detail-page task rows. */
+/** Maps GET /api/v1/capas/{capaId}/tasks rows into detail-page task rows. */
 export function mapCapaTaskDtoToDetailTask(
   task: CapaTaskDto,
   options?: Readonly<{ fallbackOwner?: string; fallbackDueDate?: string }>,
@@ -979,7 +971,7 @@ function formatCommentTimestamp(value: string | null | undefined): string {
   return raw;
 }
 
-/** Maps GET /api/CAPA/Comments rows into detail-page comment cards. */
+/** Maps GET /api/v1/capas/{capaId}/comments rows into detail-page comment cards. */
 export function mapCapaCommentDtoToDetailComment(
   comment: CapaCommentDto,
   index = 0,
@@ -1003,7 +995,7 @@ export function mapCapaCommentDtoToDetailComment(
   };
 }
 
-/** Maps GET /api/CAPA/Attachments/{capaId} rows into detail attachment rows. */
+/** Maps GET /api/v1/capas/{capaId}/attachments rows into detail attachment rows. */
 export function mapCapaAttachmentDtoToDetailAttachment(
   file: CapaAttachmentItemDto,
   index = 0,
@@ -1132,7 +1124,7 @@ function detailWorkflowStepFromStatus(statusLabel: string): number {
 }
 
 /**
- * Maps GET /api/CAPA/Capa/{id} (+ tasks / attachments) into the detail page
+ * Maps GET /api/v1/capas/{id} (+ tasks / attachments) into the detail page
  * view model.
  */
 export function mapCapaApiToDetailRecord(

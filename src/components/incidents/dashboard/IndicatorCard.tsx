@@ -21,11 +21,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
 
   return (
     <IncidentGlassCard
-      paddingClassName={
-        isFootnoteOnly
-          ? "px-4.25 pt-4.25 pb-6.75"
-          : "p-4.25"
-      }
+      paddingClassName={isFootnoteOnly ? "px-4.25 pt-4.25 pb-6.75" : "p-4.25"}
       className={[indicatorCardShellClass, className].filter(Boolean).join(" ")}
     >
       <div className="flex h-full flex-col gap-2">
@@ -39,13 +35,13 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
         >
           {metric.titleDot ? (
             <span
-              className="mt-1.25 size-1.75 shrink-0 rounded-[3.5px]"
+              className="mt-1.25 size-1.75 shrink-0 rounded-[4px]"
               style={{ backgroundColor: metric.titleDot }}
               aria-hidden="true"
             />
           ) : null}
 
-          <div className="min-w-0 pb-[15.35px]">
+          <div className="min-w-0 pb-[15px]">
             <Text
               as="p"
               className="text-ehs-gray text-2.75 leading-[14.3px] font-bold tracking-[0.11px]"
@@ -55,7 +51,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
             {titleSecondary ? (
               <Text
                 as="p"
-                className="text-ehs-muted-text pt-px text-[10.8px] leading-normal"
+                className="text-ehs-muted-text pt-px text-[11px] leading-normal"
               >
                 {titleSecondary}
               </Text>
@@ -84,7 +80,7 @@ export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
           {metric.footnote ? (
             <Text
               as="p"
-              className="text-ehs-muted-text py-px text-[9.8px] leading-normal"
+              className="text-ehs-muted-text py-px text-[10px] leading-normal"
             >
               {metric.footnote}
             </Text>

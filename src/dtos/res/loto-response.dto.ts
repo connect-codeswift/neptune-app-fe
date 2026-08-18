@@ -6,9 +6,10 @@ import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
  * backend's inconsistent casing before anything else sees the row.
  */
 
-export type LotoEquipmentStatusDto = "Operational" | "Locked Out" | "Maintenance";
+export type LotoEquipmentStatusDto =
+  "Operational" | "Locked Out" | "Maintenance";
 
-/** One row of POST /api/Loto/GetAllEquipment. `energySources` is comma-separated. */
+/** One row of POST /api/v1/loto/equipment/search. `energySources` is comma-separated. */
 export type LotoEquipmentGridRowDto = {
   id: number;
   /** Raw per-site sequence, e.g. "7" — draw with the `EQ-` prefix. */
@@ -32,7 +33,7 @@ export type LotoAuthorizedPersonDto = {
   fullName: string;
 };
 
-/** GET /api/Loto/equipment/{id} — the grid row plus procedure and authorization detail. */
+/** GET /api/v1/loto/equipment/{id} — the grid row plus procedure and authorization detail. */
 export type LotoEquipmentDetailDto = LotoEquipmentGridRowDto & {
   locationId: number;
   description: string | null;
@@ -45,7 +46,7 @@ export type LotoEquipmentDetailDto = LotoEquipmentGridRowDto & {
   cannotApplyReason: string | null;
 };
 
-/** GET /api/Loto/locations row. */
+/** GET /api/v1/locations row. */
 export type LotoLocationDto = {
   id: number;
   name: string;
@@ -54,8 +55,8 @@ export type LotoLocationDto = {
 export type LotoLockoutStatusDto = "Active" | "Completed";
 
 /**
- * One lockout row — shared by GET /api/Loto/active-lockouts,
- * POST /api/Loto/GetAllLockouts and GET /api/Loto/equipment/{id}/history.
+ * One lockout row — shared by GET /api/v1/loto/lockouts?status=active,
+ * POST /api/v1/loto/lockouts/search and GET /api/v1/loto/equipment/{id}/history.
  */
 export type LotoLockoutRowDto = {
   id: number;
@@ -74,7 +75,7 @@ export type LotoLockoutRowDto = {
   canRemove: boolean;
 };
 
-/** GET /api/Loto/personnel row. `equipment` holds raw machine codes. */
+/** GET /api/v1/loto/personnel row. `equipment` holds raw machine codes. */
 export type LotoPersonnelDto = {
   userId: number;
   fullName: string;
@@ -84,7 +85,7 @@ export type LotoPersonnelDto = {
   equipment: string[];
 };
 
-/** GET /api/Loto/dashboard-kpis. */
+/** GET /api/v1/loto/dashboard-kpis. */
 export type LotoDashboardKpisDto = {
   equipmentOnFile: number;
   activeLockouts: number;
@@ -92,13 +93,13 @@ export type LotoDashboardKpisDto = {
   availableEquipment: number;
 };
 
-/** POST /api/Loto/equipment dataModel — the generated code feeds the success toast. */
+/** POST /api/v1/loto/equipment dataModel — the generated code feeds the success toast. */
 export type CreateLotoEquipmentResultDto = {
   id: number;
   equipmentCode: string;
 };
 
-/** POST /api/Loto/lockouts dataModel. */
+/** POST /api/v1/loto/lockouts dataModel. */
 export type ApplyLotoLockoutResultDto = {
   id: number;
   logCode: string;

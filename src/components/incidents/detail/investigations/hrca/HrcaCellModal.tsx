@@ -24,7 +24,7 @@ function FieldLabel(
   return (
     <label
       htmlFor={htmlFor}
-      className="block text4 leading-[19.5px] text-ehs-gray"
+      className="text4 text-ehs-gray block leading-[19.5px]"
     >
       {children}
       {required ? <span className="text-ehs-red"> *</span> : null}
@@ -37,9 +37,11 @@ function modalCopy(state: HrcaCellModalState) {
 
   if (kind === "contributingFactor") {
     return {
-      title: mode === "add" ? "Add contributing factor" : "Edit contributing factor",
+      title:
+        mode === "add" ? "Add contributing factor" : "Edit contributing factor",
       fieldLabel: "Contributing factor",
-      placeholder: "Describe what contributed to the incident in this category…",
+      placeholder:
+        "Describe what contributed to the incident in this category…",
       primaryLabel: mode === "add" ? "Add factor" : "Save changes",
       footerHint:
         "Define the initial cause for this lane before adding Why steps.",
@@ -49,7 +51,8 @@ function modalCopy(state: HrcaCellModalState) {
   if (kind === "why") {
     const step = stepNum ?? 1;
     return {
-      title: mode === "add" ? `Add Why ${String(step)}` : `Edit Why ${String(step)}`,
+      title:
+        mode === "add" ? `Add Why ${String(step)}` : `Edit Why ${String(step)}`,
       fieldLabel: `Why ${String(step)} description`,
       placeholder: `Why did this happen? (step ${String(step)} in the chain)`,
       primaryLabel: mode === "add" ? "Add why step" : "Save changes",
@@ -60,8 +63,7 @@ function modalCopy(state: HrcaCellModalState) {
   }
 
   return {
-    title:
-      mode === "add" ? "Add corrective action" : "Edit corrective action",
+    title: mode === "add" ? "Add corrective action" : "Edit corrective action",
     fieldLabel: "Corrective action",
     placeholder: "Describe the action to address the root cause…",
     primaryLabel: mode === "add" ? "Add action" : "Save changes",

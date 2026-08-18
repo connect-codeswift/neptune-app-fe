@@ -119,8 +119,7 @@ function createTrainingLogColumns(
             minSize: 120,
             cell: (info) => {
               const chemicals = info.getValue();
-              const label =
-                chemicals.length > 0 ? chemicals.join(", ") : "—";
+              const label = chemicals.length > 0 ? chemicals.join(", ") : "—";
 
               return (
                 <Text
@@ -177,7 +176,7 @@ function createTrainingLogColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
             ].join(" ")}
             aria-label={
               isOpen

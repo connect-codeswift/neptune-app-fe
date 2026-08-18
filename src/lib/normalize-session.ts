@@ -1,4 +1,7 @@
-import type { SessionBootstrapDto, SessionSiteDto } from "@/dtos/res/session-response.dto";
+import type {
+  SessionBootstrapDto,
+  SessionSiteDto,
+} from "@/dtos/res/session-response.dto";
 import { getAuthContext } from "@/lib/auth-context";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -64,7 +67,10 @@ function unwrapEnvelope(data: unknown): unknown {
   return dataModel ?? data;
 }
 
-function collectPermissionNames(value: unknown, permissions: Set<string>): void {
+function collectPermissionNames(
+  value: unknown,
+  permissions: Set<string>,
+): void {
   if (typeof value === "string" && value.trim().length > 0) {
     permissions.add(value.trim());
     return;
@@ -226,8 +232,10 @@ function normalizeSites(raw: unknown): SessionSiteDto[] {
     .filter((site): site is SessionSiteDto => site !== null);
 }
 
-/** Normalize GET /Auth/Org/me — org-centric payload (`id` is organization id, not user id). */
-export function normalizeOrgMeResponse(data: unknown): SessionBootstrapDto | null {
+/** Normalize GET /api/v1/organizations/me — org-centric payload (`id` is organization id, not user id). */
+export function normalizeOrgMeResponse(
+  data: unknown,
+): SessionBootstrapDto | null {
   const unwrapped = unwrapEnvelope(data);
 
   if (!isRecord(unwrapped)) {
@@ -246,7 +254,13 @@ export function normalizeOrgMeResponse(data: unknown): SessionBootstrapDto | nul
       readProp(unwrapped, "id", "Id", "organizationId", "OrganizationId"),
     ),
     organizationName: asString(
-      readProp(unwrapped, "name", "Name", "organizationName", "OrganizationName"),
+      readProp(
+        unwrapped,
+        "name",
+        "Name",
+        "organizationName",
+        "OrganizationName",
+      ),
     ),
     siteId: null,
     siteName: null,
@@ -297,12 +311,15 @@ function mergeJwtUserIntoSession(
     siteId: auth?.siteId ?? session.siteId,
     siteName: auth?.siteName ?? session.siteName,
     organizationId: session.organizationId ?? auth?.organizationId ?? null,
-    organizationName: session.organizationName ?? auth?.organizationName ?? null,
+    organizationName:
+      session.organizationName ?? auth?.organizationName ?? null,
   };
 }
 
-/** Normalize GET /Auth/GetUserById and similar user-entity payloads. */
-export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | null {
+/** Normalize GET /api/v1/users/{id} and similar user-entity payloads. */
+export function normalizeSessionBootstrap(
+  data: unknown,
+): SessionBootstrapDto | null {
   const unwrapped = unwrapEnvelope(data);
 
   if (!isRecord(unwrapped)) {
@@ -315,9 +332,7 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     id: asNumber(readProp(unwrapped, "id", "Id", "userId", "UserId")),
     fullName: asString(readProp(unwrapped, "fullName", "FullName")),
     email: asString(readProp(unwrapped, "email", "Email")),
-    role: asString(
-      readProp(unwrapped, "role", "Role", "roleName", "RoleName"),
-    ),
+    role: asString(readProp(unwrapped, "role", "Role", "roleName", "RoleName")),
     jobTitle: asString(readProp(unwrapped, "jobTitle", "JobTitle")),
     organizationId: asNumber(
       readProp(unwrapped, "organizationId", "OrganizationId"),
@@ -327,9 +342,7 @@ export function normalizeSessionBootstrap(data: unknown): SessionBootstrapDto | 
     ),
     siteId: asNumber(readProp(unwrapped, "siteId", "SiteId")),
     siteName: asString(readProp(unwrapped, "siteName", "SiteName")),
-    profileUrl: asString(
-      readProp(unwrapped, "profileUrl", "ProfileUrl"),
-    ),
+    profileUrl: asString(readProp(unwrapped, "profileUrl", "ProfileUrl")),
     activatedModules: extractActivatedModules(unwrapped),
     permissions: extractPermissions(unwrapped),
     sites,
@@ -383,18 +396,20 @@ export function mergePermissionSets(
   return merged;
 }
 
-export function hasSessionData(session: SessionBootstrapDto | null | undefined): boolean {
+export function hasSessionData(
+  session: SessionBootstrapDto | null | undefined,
+): boolean {
   if (!session) {
     return false;
   }
 
   return Boolean(
     session.fullName ||
-      session.email ||
-      session.role ||
-      session.organizationName ||
-      session.activatedModules ||
-      session.permissions.length > 0 ||
-      session.sites.length > 0,
+    session.email ||
+    session.role ||
+    session.organizationName ||
+    session.activatedModules ||
+    session.permissions.length > 0 ||
+    session.sites.length > 0,
   );
 }

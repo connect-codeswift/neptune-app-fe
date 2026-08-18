@@ -1,10 +1,7 @@
 import { getAccessToken } from "@/lib/axios";
 import { decodeAccessTokenClaims } from "@/lib/current-user";
 
-function addPermissionValue(
-  permissions: Set<string>,
-  value: unknown,
-): void {
+function addPermissionValue(permissions: Set<string>, value: unknown): void {
   if (typeof value === "string" && value.trim().length > 0) {
     permissions.add(value.trim());
     return;
@@ -84,6 +81,9 @@ export function isAdminRole(role: string | null | undefined): boolean {
     return false;
   }
 
-  const normalized = role.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const normalized = role
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   return normalized === "ehsdirector";
 }
