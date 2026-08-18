@@ -199,9 +199,6 @@ export function HazcomNewTrainingSessionForm(
       );
     } finally {
       setIsUploadingMaterial(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 

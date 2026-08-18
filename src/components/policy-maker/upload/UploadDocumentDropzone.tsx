@@ -41,7 +41,7 @@ function defaultValidateFile(file: File): string | null {
   if (!isPdfFile(file)) {
     return DEFAULT_INVALID_MESSAGE;
   }
-  if (file.size > CLOUDINARY_MAX_BYTES) {
+  if (file.size > getFileMaxBytes("Document")) {
     return "File must be 50MB or smaller.";
   }
   return null;
@@ -79,13 +79,9 @@ export function UploadDocumentDropzone(
       onFileChange(null);
       return;
     }
-    if (!isPdfFile(next)) {
-      setLocalError("Only PDF files are allowed.");
-      onFileChange(null);
-      return;
-    }
-    if (next.size > getFileMaxBytes("Document")) {
-      setLocalError("File must be 50MB or smaller.");
+    const validationError = validateFile(next);
+    if (validationError) {
+      setLocalError(validationError);
       onFileChange(null);
       return;
     }
