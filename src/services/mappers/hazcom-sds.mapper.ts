@@ -4,6 +4,7 @@ import type {
   HazcomSignalWord,
   HazcomStatementCode,
 } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   asString,
   isRecord,
@@ -67,7 +68,7 @@ function mapSdsDtoToHazcomSdsRecord(raw: unknown): HazcomSdsRecord {
   );
 
   return {
-    id: asString(readProp(record, "id", "Id")),
+    id: formatRecordDisplayId("SDS", asString(readProp(record, "id", "Id"))),
     chemicalName: asString(
       readProp(
         record,

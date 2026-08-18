@@ -13,6 +13,7 @@ import type {
 } from "@/components/hazcom/shared";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getAccessToken, isApiError } from "@/lib/axios";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import {
   getAllChemicalRiskAssessments,
   getAllChemicals,
@@ -121,10 +122,9 @@ export function useIsClientReady(): boolean {
   );
 }
 
-/** Route segment as an id the API can address, or null when it isn't one. */
+/** Route segment as an id the API can address, e.g. `12` or `CHEM-12`. */
 function toNumericId(idParam: string): number | null {
-  const trimmed = idParam.trim();
-  return /^\d+$/.test(trimmed) ? Number(trimmed) : null;
+  return parseRecordNumericId(idParam);
 }
 
 export type ChemicalDetailState = Readonly<{

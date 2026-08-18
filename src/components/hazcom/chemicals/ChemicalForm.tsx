@@ -23,6 +23,7 @@ import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 
 export type ChemicalFormProps = Readonly<{
@@ -116,10 +117,7 @@ function firstMissingRequiredField(values: ChemicalFormValues): string | null {
 
 /** Row id as a number, or null when it isn't one the API can address. */
 function toNumericId(id: string | undefined): number | null {
-  if (id === undefined || !/^\d+$/.test(id.trim())) {
-    return null;
-  }
-  return Number(id.trim());
+  return parseRecordNumericId(id);
 }
 
 /**

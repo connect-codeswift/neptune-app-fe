@@ -19,7 +19,7 @@ export type HazcomStatementCode = Readonly<{
 }>;
 
 export type HazcomChemical = Readonly<{
-  id: string; // "C001"
+  id: string; // "CHEM-12"
   name: string; // "Hydrochloric Acid"
   casNumber: string; // "7647-01-0"
   location: string; // "Lab 1 - Room 131"
@@ -29,7 +29,7 @@ export type HazcomChemical = Readonly<{
   pictograms: readonly HazcomPictogram[];
   signalWord: HazcomSignalWord;
   status: HazcomChemicalStatus;
-  sdsRecordId: string | null; // "SDS-001"
+  sdsRecordId: string | null; // "SDS-12"
   sdsFileName: string | null; // "SDS_Hydrochloric_Acid_Rev2026.pdf"
   storageNotes: string;
   hazardStatements: readonly HazcomStatementCode[];
@@ -40,7 +40,7 @@ export type HazcomChemical = Readonly<{
 export type HazcomSdsStatus = "Compliant" | "Due Soon" | "Overdue";
 
 export type HazcomSdsRecord = Readonly<{
-  id: string; // "SDS-001"
+  id: string; // "SDS-12"
   chemicalName: string;
   manufacturer: string; // "Sigma-Aldrich"
   casNumber: string;
@@ -68,7 +68,7 @@ export type HazcomTrainingMaterial = Readonly<{
 export type HazcomTrainingStatus = "Completed" | "Scheduled";
 
 export type HazcomTrainingSession = Readonly<{
-  id: string; // "TR-001"
+  id: string; // "TR-12"
   date: string; // ISO
   trainer: string; // "TBD" when scheduled
   topic: string;
@@ -110,7 +110,7 @@ export type HazcomHazardRatings = Readonly<{
 }>;
 
 export type HazcomRiskAssessment = Readonly<{
-  id: string; // "RA-001"
+  id: string; // "RA-12"
   chemical: string;
   exposureScenario: string; // "Tank filling - 60 min"
   exposureMinutes: number;

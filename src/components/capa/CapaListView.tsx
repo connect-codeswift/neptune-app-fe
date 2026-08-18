@@ -182,9 +182,9 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
     () => [
       {
         accessorKey: "code",
-        header: "Code",
+        header: "ID",
         cell: (info) => (
-          <span className="text-ehs-dark-bg font-semibold">
+          <span className="text-ehs-muted-text whitespace-nowrap">
             {String(info.getValue() ?? "—")}
           </span>
         ),
@@ -193,7 +193,7 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
         accessorKey: "title",
         header: "Action",
         cell: (info) => (
-          <span className="text-ehs-slate">
+          <span className="text-ehs-slate truncate">
             {String(info.getValue() ?? "—")}
           </span>
         ),
