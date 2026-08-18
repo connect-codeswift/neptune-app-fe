@@ -11,7 +11,7 @@ import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 const statusTone: Record<NearMissStatus, IncidentBadgeTone> = {
-  Open: "neutral",
+  Open: "teal",
   Investigating: "warn",
   Closed: "muted",
 };
@@ -22,8 +22,8 @@ function DetailField(
   const { label, children } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <Text as="p" className="text6 text-ehs-muted-text">
+    <div className="flex min-w-0 flex-col gap-1">
+      <Text as="p" className="text9 text-ehs-muted-text">
         {label}
       </Text>
       {children}
@@ -64,12 +64,13 @@ export function NearMissDetailView(
           {record.contributingFactors.length > 0 ? (
             <div className="flex flex-wrap items-center gap-2">
               {record.contributingFactors.map((factor) => (
-                <span
+                <Text
                   key={factor}
+                  as="span"
                   className="text4 bg-ehs-dark-bg/12 text-ehs-darker inline-flex items-center rounded-full px-6 py-1"
                 >
                   {factor}
-                </span>
+                </Text>
               ))}
             </div>
           ) : (
@@ -115,7 +116,7 @@ export function NearMissDetailView(
                 label={record.status}
                 tone={statusTone[record.status]}
                 showDot
-                className="w-fit px-2.5 py-0.5"
+                className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
               />
             </DetailField>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { SkeletonListRows } from "@/components/ui/skeletons";
 import { useTopNearMissUsersQuery } from "@/hooks/use-near-miss-queries";
 
@@ -26,8 +27,12 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-3 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Recognition</h3>
-        <p className="text4 text-ehs-muted-text">Top reporters this month</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Recognition
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Top reporters this month
+        </Text>
       </header>
 
       {reporters.length > 0 ? (
@@ -37,15 +42,21 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
               key={reporter.userId}
               className="flex items-center gap-2.5 border-t border-slate-900/10 py-4"
             >
-              <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold">
+              <Text
+                as="span"
+                className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold"
+              >
                 {initialsOf(reporter.userName)}
-              </span>
-              <span className="text5 text-ehs-dark-bg min-w-0 flex-1 truncate">
+              </Text>
+              <Text
+                as="span"
+                className="text4 text-ehs-darker min-w-0 flex-1 truncate"
+              >
                 {reporter.userName}
-              </span>
-              <span className="text5 text-ehs-dark-bg tabular-nums">
+              </Text>
+              <Text as="span" className="text4 text-ehs-darker tabular-nums">
                 {String(reporter.nearMissCount)}
-              </span>
+              </Text>
             </li>
           ))}
         </ul>
@@ -54,9 +65,12 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
           <SkeletonListRows rows={4} />
         </div>
       ) : (
-        <p className="text4 text-ehs-muted-text border-t border-slate-900/10 py-2">
+        <Text
+          as="p"
+          className="text8 text-ehs-muted-text border-t border-slate-900/10 py-2"
+        >
           No reporters yet this month.
-        </p>
+        </Text>
       )}
     </IncidentGlassCard>
   );

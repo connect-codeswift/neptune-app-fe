@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
@@ -263,9 +264,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   : "Attach Photo Evidence"))}
           </span>
           {field.helperText ? (
-            <span className="text8 leading-4 text-[#8892a3]">
+            <Text as="span" className="text8 text-ehs-muted-text leading-4">
               {field.helperText}
-            </span>
+            </Text>
           ) : null}
         </span>
       </button>
@@ -385,7 +386,11 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
         </ul>
       ) : null}
 
-      {message ? <p className="text8 text-ehs-red">{message}</p> : null}
+      {message ? (
+        <Text as="p" className="text8 text-ehs-red">
+          {message}
+        </Text>
+      ) : null}
     </div>
   );
 }
