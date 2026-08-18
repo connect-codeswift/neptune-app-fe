@@ -10,8 +10,10 @@ import {
   formatFileSize,
   getFileMaxBytes,
   isLegacyPublicUrl,
+  isPdfMimeType,
   isStoredFileId,
 } from "@/lib/files";
+import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
 import { uploadFile } from "@/lib/upload-file";
 import type { PhotoFieldConfig } from "./types";
 
@@ -20,14 +22,27 @@ const DOC_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ] as const;
 
+const PPT_MIME_TYPES = [
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+] as const;
+
 const FILES_MIME_TYPES = [
   ...FILE_ALLOWED_MIME_TYPES,
   ...DOC_MIME_TYPES,
 ] as const;
 
+const CLOUDINARY_FILES_MIME_TYPES = [
+  ...FILES_MIME_TYPES,
+  ...PPT_MIME_TYPES,
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+] as const;
+
 export type PhotoUploadControlProps = Readonly<{
   field: PhotoFieldConfig;
-  /** Stored fileIds, or legacy Cloudinary URLs still sitting in the database. */
+  /** Stored fileIds, Cloudinary secure URLs, or legacy public URLs. */
   value: string[];
   error?: string;
   onChange: (urls: string[]) => void;
@@ -89,7 +104,7 @@ function parsePhotoRowEntry(
   return { name: entry, subtitle: null };
 }
 
-/** Dashed drop-zone that uploads to private storage and lists the returned fileIds. */
+/** Dashed drop-zone. Default is files-API `fileId`s; `storage: "cloudinary"` stores the secure URL. */
 export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const { field, value, error, onChange } = props;
   const inputRef = useRef<HTMLInputElement>(null);
@@ -99,9 +114,12 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const [metaByUrl, setMetaByUrl] = useState<Record<string, FileMeta>>({});
 
   const acceptMode = field.accept ?? "image";
+  const isPdf = acceptMode === "pdf";
   const isFiles = acceptMode === "files";
-  const listVariant = field.listVariant ?? (isFiles ? "rows" : "grid");
+  const isFileLike = isFiles || isPdf;
+  const listVariant = field.listVariant ?? (isFileLike ? "rows" : "grid");
   const fileModule: FileModule = field.fileModule ?? "Document";
+  const useCloudinary = field.storage === "cloudinary";
   const maxFiles = field.maxFiles ?? FILE_MAX_FILES;
   const maxBytes = field.maxBytes ?? getFileMaxBytes(fileModule);
   const isUploading = pendingCount > 0;
@@ -112,13 +130,20 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
 
     const candidates = Array.from(incoming);
     const acceptedTypes = isFiles
-      ? (FILES_MIME_TYPES as readonly string[])
+      ? useCloudinary
+        ? (CLOUDINARY_FILES_MIME_TYPES as readonly string[])
+        : (FILES_MIME_TYPES as readonly string[])
       : null;
 
     const filtered = candidates.filter((file) => {
+      if (isPdf) {
+        return isPdfMimeType(file.type);
+      }
       if (acceptedTypes) {
         return (
-          acceptedTypes.includes(file.type) || file.type.startsWith("image/")
+          acceptedTypes.includes(file.type) ||
+          file.type.startsWith("image/") ||
+          (useCloudinary && file.type.startsWith("video/"))
         );
       }
       return file.type.startsWith("image/");
@@ -126,9 +151,13 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
 
     if (filtered.length === 0) {
       setUploadError(
-        isFiles
-          ? "Only JPG, PNG, PDF, or DOC files can be attached."
-          : "Only image files can be attached.",
+        isPdf
+          ? "Only PDF files can be attached."
+          : isFiles
+            ? useCloudinary
+              ? "Only images, PDF, DOC, PPT, or video files can be attached."
+              : "Only JPG, PNG, PDF, or DOC files can be attached."
+            : "Only image files can be attached.",
       );
       return;
     }
@@ -144,7 +173,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
     const room = maxFiles - value.length;
     if (room <= 0) {
       setUploadError(
-        `You can attach up to ${String(maxFiles)} ${isFiles ? "files" : "photos"}.`,
+        `You can attach up to ${String(maxFiles)} ${isFileLike ? "file" : "photo"}${maxFiles === 1 ? "" : "s"}.`,
       );
       return;
     }
@@ -153,12 +182,19 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
     setPendingCount((count) => count + accepted.length);
 
     const results = await Promise.allSettled(
-      accepted.map((file) => uploadFile(file, { module: fileModule })),
+      accepted.map((file) =>
+        useCloudinary
+          ? uploadFileToCloudinary(file)
+          : uploadFile(file, { module: fileModule }),
+      ),
     );
 
     const uploaded = results.flatMap((result) => {
       if (result.status !== "fulfilled") return [];
-      return [result.value];
+      const item = result.value;
+      const storedId =
+        "secureUrl" in item ? item.secureUrl : item.fileId;
+      return [{ storedId, name: item.name, sizeLabel: item.sizeLabel }];
     });
     const failure = results.find((result) => result.status === "rejected");
 
@@ -168,14 +204,14 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
       setMetaByUrl((current) => {
         const next = { ...current };
         for (const item of uploaded) {
-          next[item.fileId] = {
+          next[item.storedId] = {
             name: item.name,
             sizeLabel: item.sizeLabel,
           };
         }
         return next;
       });
-      onChange([...value, ...uploaded.map((item) => item.fileId)]);
+      onChange([...value, ...uploaded.map((item) => item.storedId)]);
     }
 
     if (failure) {
@@ -200,9 +236,13 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   };
 
   const message = error ?? uploadError;
-  const acceptAttr = isFiles
-    ? "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    : "image/*";
+  const acceptAttr = isPdf
+    ? "application/pdf"
+    : isFiles
+      ? useCloudinary
+        ? "image/*,application/pdf,.doc,.docx,.ppt,.pptx,video/mp4,video/quicktime,video/webm"
+        : "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      : "image/*";
 
   return (
     <div className="flex flex-col gap-4">
@@ -221,12 +261,12 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
         }}
         className={[
           "flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-[1.5px] border-dashed px-6 text-center transition-colors",
-          isFiles ? "min-h-32.75 gap-2 py-6" : "gap-2 py-7",
+          isFileLike ? "min-h-32.75 gap-2 py-6" : "gap-2 py-7",
           isDragging
             ? "border-ehs-normal-blue bg-ehs-normal-blue/5"
             : message
               ? "border-ehs-red/60"
-              : isFiles
+              : isFileLike
                 ? "border-[rgba(15,23,42,0.1)] hover:border-[rgba(15,23,42,0.18)] hover:bg-[rgba(15,23,42,0.02)]"
                 : "hover:border-ehs-normal-blue/60 hover:bg-ehs-light-bg/40 border-slate-900/10",
         ].join(" ")}
@@ -235,13 +275,15 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
           icon={
             isUploading
               ? "mdi:loading"
-              : isFiles
-                ? "mdi:tray-arrow-up"
-                : "mdi:camera-outline"
+              : isPdf
+                ? "mdi:file-pdf-box-outline"
+                : isFiles
+                  ? "mdi:tray-arrow-up"
+                  : "mdi:camera-outline"
           }
           className={[
             "size-8",
-            isFiles ? "text-[#566072]" : "text-ehs-muted-text",
+            isFileLike ? "text-[#566072]" : "text-ehs-muted-text",
             isUploading ? "animate-spin" : "",
           ]
             .filter(Boolean)
@@ -252,15 +294,17 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
           <span
             className={[
               "text4 leading-5 font-medium",
-              isFiles ? "text-[#2a3446]" : "text4 text-ehs-gray font-normal",
+              isFileLike ? "text-[#2a3446]" : "text4 text-ehs-gray font-normal",
             ].join(" ")}
           >
             {isUploading
-              ? `Uploading ${String(pendingCount)} ${isFiles ? "file" : "photo"}${pendingCount === 1 ? "" : "s"}...`
+              ? `Uploading ${String(pendingCount)} ${isFileLike ? "file" : "photo"}${pendingCount === 1 ? "" : "s"}...`
               : (field.placeholder ??
-                (isFiles
-                  ? "Drop files here or click to upload"
-                  : "Attach Photo Evidence"))}
+                (isPdf
+                  ? "Drop a PDF here or click to browse"
+                  : isFiles
+                    ? "Drop files here or click to upload"
+                    : "Attach Photo Evidence"))}
           </span>
           {field.helperText ? (
             <span className="text8 leading-4 text-[#8892a3]">
@@ -274,7 +318,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
         ref={inputRef}
         type="file"
         accept={acceptAttr}
-        multiple
+        multiple={maxFiles > 1}
         className="hidden"
         onChange={(event) => {
           void addFiles(event.target.files);

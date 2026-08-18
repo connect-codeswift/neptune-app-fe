@@ -37,7 +37,7 @@ function trainingMatchesSearch(
     session.date,
     session.trainer,
     session.topic,
-    session.status,
+    session.status ?? "No status found",
     ...session.chemicals,
   ]
     .join(" ")
@@ -45,7 +45,14 @@ function trainingMatchesSearch(
     .includes(needle);
 }
 
-function statusTone(status: string): IncidentBadgeTone {
+const NO_STATUS_LABEL = "No status found";
+
+function statusLabel(status: string | null): string {
+  return status ?? NO_STATUS_LABEL;
+}
+
+function statusTone(status: string | null): IncidentBadgeTone {
+  if (status == null) return "muted";
   return status.trim().toLowerCase() === "completed" ? "teal" : "warn";
 }
 
@@ -172,7 +179,7 @@ export function HazcomTrainingLogPageClient() {
                 emptyMessage="Select a training session to view details."
                 headerAside={
                   <IncidentBadge
-                    label={selectedSession.status}
+                    label={statusLabel(selectedSession.status)}
                     tone={statusTone(selectedSession.status)}
                     showDot
                     className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
