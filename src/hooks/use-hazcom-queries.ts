@@ -7,7 +7,9 @@ import type {
   HazcomRiskAssessment,
   HazcomSdsRecord,
   HazcomStatementCode,
+  HazcomTrainingCompliance,
   HazcomTrainingSession,
+  HazcomUpcomingDeadline,
 } from "@/components/hazcom/shared";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getAccessToken, isApiError } from "@/lib/axios";
@@ -22,6 +24,8 @@ import {
   getPrecautionaryCodes,
   getSafetyDataSheetById,
   getSdsStatements,
+  getTrainingCompliance,
+  getUpcomingDeadlines,
 } from "@/services/hazcom.service";
 import {
   mapChemicalDtoToHazcomChemical,
@@ -37,6 +41,10 @@ import {
   mapSdsStatementsDto,
   type HazcomSdsDetail,
 } from "@/services/mappers/hazcom-sds.mapper";
+import {
+  mapTrainingComplianceDto,
+  mapUpcomingDeadlineDtos,
+} from "@/services/mappers/hazcom-dashboard.mapper";
 import { mapTrainingLogDtosToHazcomSessions } from "@/services/mappers/hazcom-training.mapper";
 
 type PageParams = { pageNumber: number; pageSize: number };
@@ -59,6 +67,10 @@ export const hazcomQueryKeys = {
     [...hazcomQueryKeys.all, "training", params] as const,
   riskAssessments: (params: PageParams) =>
     [...hazcomQueryKeys.all, "risk-assessments", params] as const,
+  upcomingDeadlines: () =>
+    [...hazcomQueryKeys.all, "dashboard", "upcoming-deadlines"] as const,
+  trainingCompliance: () =>
+    [...hazcomQueryKeys.all, "dashboard", "training-compliance"] as const,
 };
 
 /** Spec defaults for GET /api/hazcom/chemical. */
@@ -354,6 +366,83 @@ export function useChemicalNamesQuery(): Readonly<{
           "Failed to load the chemical list.",
         )
       : null,
+  };
+}
+
+/**
+ * GET /api/hazcom/dashboard/upcoming-deadlines — unpaged list for the
+ * overview card.
+ */
+export function useUpcomingDeadlinesQuery(): Readonly<{
+  deadlines: readonly HazcomUpcomingDeadline[];
+  isLoading: boolean;
+  errorMessage: string | null;
+  refetch: () => void;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: hazcomQueryKeys.upcomingDeadlines(),
+    enabled: hasToken,
+    queryFn: async () => {
+      const response = await getUpcomingDeadlines();
+
+      return mapUpcomingDeadlineDtos(response.dataModel ?? []);
+    },
+  });
+
+  const isNotFound = isApiError(query.error) && query.error.status === 404;
+
+  return {
+    deadlines: query.data ?? [],
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(
+            query.error,
+            "Failed to load upcoming deadlines.",
+          )
+        : null,
+    refetch: () => void query.refetch(),
+  };
+}
+
+/**
+ * GET /api/hazcom/dashboard/training-compliance — overview count split.
+ */
+export function useTrainingComplianceQuery(): Readonly<{
+  compliance: HazcomTrainingCompliance | null;
+  isLoading: boolean;
+  errorMessage: string | null;
+  refetch: () => void;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: hazcomQueryKeys.trainingCompliance(),
+    enabled: hasToken,
+    queryFn: async () => {
+      const response = await getTrainingCompliance();
+
+      return mapTrainingComplianceDto(response.dataModel);
+    },
+  });
+
+  const isNotFound = isApiError(query.error) && query.error.status === 404;
+
+  return {
+    compliance: isNotFound ? null : (query.data ?? null),
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(
+            query.error,
+            "Failed to load training compliance.",
+          )
+        : null,
+    refetch: () => void query.refetch(),
   };
 }
 

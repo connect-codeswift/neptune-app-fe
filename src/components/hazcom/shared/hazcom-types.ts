@@ -80,6 +80,25 @@ export type HazcomTrainingSession = Readonly<{
   notes: string;
 }>;
 
+/** One row of GET /api/hazcom/dashboard/upcoming-deadlines. */
+export type HazcomUpcomingDeadline = Readonly<{
+  id: string;
+  title: string;
+  type: string;
+  owner: string;
+  dueDate: string;
+  daysLeft: number | null;
+  daysLeftLabel: string;
+}>;
+
+/** Split from GET /api/hazcom/dashboard/training-compliance. */
+export type HazcomTrainingCompliance = Readonly<{
+  compliant: number;
+  dueSoon: number;
+  overdue: number;
+  neverTrained: number;
+}>;
+
 export type HazcomRiskLevel = "Low" | "Medium" | "High" | "Critical";
 export type HazcomAssessmentStatus = "Approved" | "Pending" | "Draft";
 

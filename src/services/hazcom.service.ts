@@ -17,6 +17,8 @@ import type {
   GetChemicalByIdResponseDto,
   GetChemicalNamesResponseDto,
   GetHazardHCodesResponseDto,
+  GetHazcomTrainingComplianceResponseDto,
+  GetHazcomUpcomingDeadlinesResponseDto,
   GetPrecautionaryCodesResponseDto,
   GetSdsStatementsResponseDto,
   GetSafetyDataSheetByIdResponseDto,
@@ -32,6 +34,8 @@ const HAZARD_HCODE_PATH = "/hazcom/hazard-hcode";
 const PRECAUTIONARY_CODE_PATH = "/hazcom/precautionary-code";
 const TRAINING_PATH = "/hazcom/training";
 const RISK_ASSESSMENT_PATH = "/hazcom/risk-assessment";
+const UPCOMING_DEADLINES_PATH = "/hazcom/dashboard/upcoming-deadlines";
+const TRAINING_COMPLIANCE_PATH = "/hazcom/dashboard/training-compliance";
 
 /** Spec defaults for the paged list endpoints. */
 const HAZCOM_DEFAULT_PAGE: HazcomPageQueryDto = {
@@ -68,9 +72,8 @@ export async function getAllChemicals(
 /** GET /api/hazcom/chemical/published?pageNumber&pageSize */
 /** GET /api/hazcom/chemical/names — lookup list for the chemical pickers. */
 export async function getChemicalNames() {
-  const { data } = await http.get<GetChemicalNamesResponseDto>(
-    CHEMICAL_NAMES_PATH,
-  );
+  const { data } =
+    await http.get<GetChemicalNamesResponseDto>(CHEMICAL_NAMES_PATH);
 
   return data;
 }
@@ -202,5 +205,26 @@ export async function getAllChemicalRiskAssessments(
     { params: query },
   );
 
+  return data;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dashboard                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** GET /api/hazcom/dashboard/upcoming-deadlines */
+export async function getUpcomingDeadlines() {
+  const { data } = await http.get<GetHazcomUpcomingDeadlinesResponseDto>(
+    UPCOMING_DEADLINES_PATH,
+  );
+
+  return data;
+}
+
+/** GET /api/hazcom/dashboard/training-compliance */
+export async function getTrainingCompliance() {
+  const { data } = await http.get<GetHazcomTrainingComplianceResponseDto>(
+    TRAINING_COMPLIANCE_PATH,
+  );
   return data;
 }
