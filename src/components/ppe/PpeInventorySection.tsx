@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { Table } from "@/components/ui/Table";
@@ -105,13 +105,9 @@ export function PpeInventorySection() {
       ? null
       : (filtered.find((item) => item.id === selectedId) ?? null);
 
-  const detailQuery = usePpeItemDetailQuery(selectedListItem?.id ?? "");
+  const activeId = selectedListItem?.id ?? null;
 
-  useEffect(() => {
-    if (selectedId != null && selectedListItem == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedListItem]);
+  const detailQuery = usePpeItemDetailQuery(selectedListItem?.id ?? "");
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -135,10 +131,10 @@ export function PpeInventorySection() {
   const columns = useMemo(
     () =>
       makePpeInventoryColumns({
-        selectedId,
+        selectedId: activeId,
         onViewMore: handleToggleDetailPanel,
       }),
-    [selectedId, handleToggleDetailPanel],
+    [activeId, handleToggleDetailPanel],
   );
 
   const header = (
@@ -227,7 +223,7 @@ export function PpeInventorySection() {
                   data={filtered}
                   columns={columns}
                   getRowId={(row) => row.id}
-                  selectedRowId={selectedId}
+                  selectedRowId={activeId}
                   getRowClassName={(row) =>
                     row.attention ? "bg-[rgba(239,68,68,0.06)]" : undefined
                   }

@@ -92,10 +92,7 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
   const hasToken = useHasAccessToken();
-  const [lanes, setLanes] = useState<EditableLane[]>(() =>
-    cloneLanes(CAPA_RCA_WORKSHEET.lanes),
-  );
-  const [lanesHydrated, setLanesHydrated] = useState(false);
+  const [editedLanes, setEditedLanes] = useState<EditableLane[] | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
 
   const detailQuery = useCapaDetailQuery({
@@ -110,14 +107,18 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     enabled: hasToken === true && rcaId != null && rcaId > 0,
   });
 
-  useEffect(() => {
-    if (!rcaQuery.isSuccess || lanesHydrated) {
-      return;
-    }
+  // The worksheet is server data until the user touches it, then local edits
+  // win. Deriving it here rather than hydrating state from an effect avoids the
+  // cascading render that `react-hooks/set-state-in-effect` flags.
+  const lanes =
+    editedLanes ??
+    (rcaQuery.isSuccess
+      ? cloneLanes(mapRcaFactorsToCapaLanes(rcaQuery.data ?? []))
+      : cloneLanes(CAPA_RCA_WORKSHEET.lanes));
 
-    setLanes(cloneLanes(mapRcaFactorsToCapaLanes(rcaQuery.data ?? [])));
-    setLanesHydrated(true);
-  }, [lanesHydrated, rcaQuery.data, rcaQuery.isSuccess]);
+  function setLanes(update: (prev: EditableLane[]) => EditableLane[]) {
+    setEditedLanes((prev) => update(prev ?? lanes));
+  }
 
   useEffect(() => {
     if (

@@ -13,6 +13,7 @@ Every skill under `.claude/skills/` is mirrored by a Cursor rule of the same nam
 | Skill                    | Cursor rule                 | Covers                                                                 |
 | ------------------------ | --------------------------- | ---------------------------------------------------------------------- |
 | `api-integration/`       | `api-integration.mdc`       | Wiring an endpoint: DTO → service → mapper → hook → Content component  |
+| `no-nested-ternaries/`   | `no-nested-ternaries.mdc`   | No ternary inside a ternary (Sonar S3358) — extract it                  |
 | `react-readonly-props/`  | `react-readonly-props.mdc`  | `Readonly<XProps>` on every component (Sonar S6759)                    |
 | `tailwind-v4-utilities/` | `tailwind-v4-utilities.mdc` | Spacing scale, rounding Figma/MCP px, `bg-linear-to-*`                 |
 | `verify-before-done/`    | `verify-before-done.mdc`    | Fan out typecheck / lint / build across three agents; loop until clear |
