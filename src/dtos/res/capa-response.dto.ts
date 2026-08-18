@@ -23,7 +23,9 @@ export type CapaDto = {
   progress?: number | null;
   progressPercentage?: number | null;
   assigneeName?: string | null;
+  assignedName?: string | null;
   ownerName?: string | null;
+  sourceInfo?: string | null;
   code?: string | null;
   capaCode?: string | null;
 };

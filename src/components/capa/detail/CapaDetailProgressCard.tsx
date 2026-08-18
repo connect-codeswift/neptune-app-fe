@@ -8,6 +8,7 @@ import {
   CAPA_DETAIL_WORKFLOW_STEPS,
   type CapaDetailRecord,
 } from "@/components/capa/detail/capa-detail-data";
+import { isCapaStatusClosed } from "@/lib/capa-filters";
 
 export type CapaDetailProgressCardProps = Readonly<{
   record: CapaDetailRecord;
@@ -17,12 +18,15 @@ export type CapaDetailProgressCardProps = Readonly<{
 export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
   const { record } = props;
   const totalSteps = CAPA_DETAIL_WORKFLOW_STEPS.length;
-  const isClosed = record.statusLabel.trim().toLowerCase() === "closed";
+  const isClosed = isCapaStatusClosed(record.statusLabel);
   const current = Math.min(Math.max(record.workflowStep, 1), totalSteps);
   const progress = Math.min(100, Math.max(0, record.progress));
 
   return (
-    <IncidentGlassCard paddingClassName="p-4 sm:p-5" className="min-w-0 rounded-2xl">
+    <IncidentGlassCard
+      paddingClassName="p-4 sm:p-5"
+      className="min-w-0 rounded-2xl"
+    >
       <div className="-mx-1 mb-5 overflow-x-auto px-1">
         <ol className="flex w-full min-w-max items-start sm:min-w-0">
           {CAPA_DETAIL_WORKFLOW_STEPS.map((label, index) => {

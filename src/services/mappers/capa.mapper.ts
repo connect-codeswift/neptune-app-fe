@@ -17,7 +17,10 @@ import type {
 import type { CapaVerificationRequestDto } from "@/dtos/req/capa-verification-request.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import type { CreateCapaRequestDto } from "@/dtos/req/capa-request.dto";
-import type { CapaTaskStatus } from "@/dtos/req/capa-task-status-request.dto";
+import type {
+  CapaTaskStatus,
+  CapaTaskStatusRequestDto,
+} from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaAttachmentItemDto } from "@/dtos/res/capa-attachment-response.dto";
 import type { CapaCommentDto } from "@/dtos/res/capa-comment-response.dto";
@@ -248,11 +251,16 @@ function resolveAssignee(
 ): string {
   const named =
     options?.taskOwnerName?.trim() ||
+    dto.assignedName?.trim() ||
     dto.assigneeName?.trim() ||
     dto.ownerName?.trim() ||
     "";
   if (named) {
     return named;
+  }
+
+  if (dto.assignedId == null || dto.assignedId === 0) {
+    return "—";
   }
 
   if (options?.currentUserId != null && dto.userId === options.currentUserId) {
@@ -454,8 +462,8 @@ export function formatCapaDaysLeftLabel(
     .toLowerCase()
     .replace(/[\s_-]+/g, "");
 
-  if (status === "closed" || status === "verified") {
-    return "Closed";
+  if (status === "closed") {
+    return "Complete";
   }
 
   if (typeof daysLeft === "number" && Number.isFinite(daysLeft)) {
@@ -470,9 +478,16 @@ export function formatCapaDaysLeftLabel(
 
 function lifecycleStepFromStatus(status: string): number {
   switch (status) {
+    case "Complete":
     case "Closed":
-      return 6;
+      return 4;
+    case "Pending":
+    case "Verified":
+      return 4;
+    case "In Progress":
+      return 3;
     case "Open":
+      return 0;
     default:
       return 2;
   }
@@ -498,9 +513,10 @@ export function mapCapaDtoToDashboardItem(
     type: item.actionType,
     title: item.title,
     source:
-      dto.incidentId > 0
+      dto.sourceInfo?.trim() ||
+      (dto.incidentId > 0
         ? `From Incident · ${String(dto.incidentId)}`
-        : item.controlCategory,
+        : item.controlCategory),
     control: item.controlCategory,
     owner: item.assignee,
     progress: item.progressPercent,
@@ -710,6 +726,56 @@ export function buildCreateCapaTaskRequest(input: {
   };
 }
 
+export function buildUpdateCapaTaskRequest(input: {
+  id: number;
+  capaId: number;
+  task: string;
+  owner: string;
+  dueDate: string;
+  priority?: string;
+}): CapaTaskRequestDto {
+  return {
+    ...buildCreateCapaTaskRequest({
+      capaId: input.capaId,
+      task: input.task,
+      owner: input.owner,
+      dueDate: input.dueDate,
+      priority: input.priority,
+    }),
+    id: input.id,
+  };
+}
+
+export function buildUpdateCapaTaskStatusRequest(input: {
+  taskId: number;
+  status: CapaTaskStatus;
+}): CapaTaskStatusRequestDto {
+  const auth = getAuthContext();
+  const userId = auth?.userId ?? 0;
+  if (userId <= 0) {
+    throw new Error("Sign in required to update a CAPA task status.");
+  }
+
+  return {
+    id: input.taskId,
+    status: input.status,
+    userId,
+  };
+}
+
+export function toCapaTaskStatusFromDetail(
+  status: CapaDetailTaskStatus,
+): CapaTaskStatus {
+  switch (status) {
+    case "Completed":
+      return "Completed";
+    case "In Progress":
+      return "InProcess";
+    default:
+      return "NotStarted";
+  }
+}
+
 /** Whether the assigner should review a completed CAPA before closing. */
 export function capaNeedsManagerReview(item: CapaItem): boolean {
   return (
@@ -875,14 +941,20 @@ export function mapCapaTaskDtoToDetailTask(
   task: CapaTaskDto,
   options?: Readonly<{ fallbackOwner?: string; fallbackDueDate?: string }>,
 ): CapaDetailTask {
+  const dueDateRaw = task.dueDate ?? options?.fallbackDueDate;
   return {
     id: String(task.id),
     label: task.task.trim() || "Untitled task",
     owner:
       task.ownerName?.trim() ||
       options?.fallbackOwner ||
-      (task.ownerId != null ? `User ${String(task.ownerId)}` : "—"),
-    dueDate: formatDueDate(task.dueDate ?? options?.fallbackDueDate),
+      (task.ownerId != null && task.ownerId > 0
+        ? `User ${String(task.ownerId)}`
+        : "—"),
+    ownerId: task.ownerId != null && task.ownerId > 0 ? task.ownerId : null,
+    dueDate: formatDueDate(dueDateRaw),
+    dueDateIso: parseCapaApiDate(dueDateRaw) ?? "",
+    priority: task.priority?.trim() || "Medium",
     status: detailTaskStatusFromDto(task.status),
   };
 }
@@ -1043,8 +1115,15 @@ export function formAttachmentValuesToDtos(
 function detailWorkflowStepFromStatus(statusLabel: string): number {
   switch (statusLabel) {
     case "Closed":
+    case "Complete":
       return 6;
+    case "Verified":
+    case "Pending":
+      return 4;
+    case "In Progress":
+      return 3;
     case "Open":
+    case "Overdue":
       return 2;
     default:
       return 1;
