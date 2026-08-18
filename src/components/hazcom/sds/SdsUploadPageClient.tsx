@@ -182,7 +182,7 @@ export function SdsUploadPageClient() {
       return;
     }
 
-    setFileName(file.name);
+    setSelectedFile(file);
     setIsUploading(true);
 
     try {
@@ -278,7 +278,7 @@ export function SdsUploadPageClient() {
           file={selectedFile}
           isUploading={isBusy}
           uploadedLabel={pdfUrl ? "Uploaded to library storage" : null}
-          emptyHint={`PDF — Max ${formatFileSize(CLOUDINARY_MAX_BYTES)}`}
+          emptyHint={`PDF — Max ${formatFileSize(SDS_MAX_BYTES)}`}
           onFileChange={(file) => void handleFileChange(file)}
         />
 

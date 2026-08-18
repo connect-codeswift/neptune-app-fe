@@ -41,7 +41,7 @@ function defaultValidateFile(file: File): string | null {
   if (!isPdfFile(file)) {
     return DEFAULT_INVALID_MESSAGE;
   }
-  if (file.size > CLOUDINARY_MAX_BYTES) {
+  if (file.size > getFileMaxBytes("Document")) {
     return "File must be 50MB or smaller.";
   }
   return null;

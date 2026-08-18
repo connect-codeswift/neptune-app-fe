@@ -53,21 +53,15 @@ export function IncidentDetailUploadCard(
       toast.info("Uploading file...", "Transferring to secure storage.");
       const result = await uploadFile(file, { module: "Incident" });
 
-      let kind: "image" | "video" | "pdf" = "pdf";
-      if (result.resourceType === "video") {
-        kind = "video";
-      } else if (result.kind === "pdf" || result.resourceType === "raw") {
-        kind = "pdf";
-      } else if (result.kind === "image") {
-        kind = "image";
-      }
+      // The files API stores images and PDFs only; video was a Cloudinary-era
+      // resource type. `AttachmentItem` still carries it for existing records.
+      const kind: AttachmentItem["kind"] = result.kind;
 
       const originalName = file.name.trim() || result.name;
       const newItem: AttachmentItem = {
         id: result.fileId,
         name: originalName,
-        description:
-          kind === "pdf" ? "Document" : kind === "video" ? "Video" : "Photo",
+        description: kind === "pdf" ? "Document" : "Photo",
         sizeLabel: result.sizeLabel,
         bytes: result.bytes,
         addedBy: getAuthDisplayName(),

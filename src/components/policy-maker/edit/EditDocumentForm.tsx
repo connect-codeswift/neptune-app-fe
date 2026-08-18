@@ -27,7 +27,7 @@ import {
   departmentOptionLabel,
 } from "@/services/mappers/document-list.mapper";
 import { getAuthContext } from "@/lib/auth-context";
-import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
+import { formatFileSize, getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
