@@ -79,13 +79,9 @@ export function UploadDocumentDropzone(
       onFileChange(null);
       return;
     }
-    if (!isPdfFile(next)) {
-      setLocalError("Only PDF files are allowed.");
-      onFileChange(null);
-      return;
-    }
-    if (next.size > getFileMaxBytes("Document")) {
-      setLocalError("File must be 50MB or smaller.");
+    const validationError = validateFile(next);
+    if (validationError) {
+      setLocalError(validationError);
       onFileChange(null);
       return;
     }
