@@ -61,9 +61,7 @@ export async function getComplianceDashboardKpis(): Promise<GetComplianceDashboa
 
   return {
     ...data,
-    dataModel: normalizeComplianceDashboardKpisDto(
-      readEnvelopeDataModel(data),
-    ),
+    dataModel: normalizeComplianceDashboardKpisDto(readEnvelopeDataModel(data)),
   };
 }
 

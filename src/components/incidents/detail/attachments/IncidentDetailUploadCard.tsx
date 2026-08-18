@@ -143,7 +143,7 @@ export function IncidentDetailUploadCard(
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={[
-          "relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center rounded-3 border-2 border-dashed p-6 text-center transition-all",
+          "rounded-3 relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center border-2 border-dashed p-6 text-center transition-all",
           dragActive
             ? "border-ehs-normal-blue bg-[rgba(8,145,166,0.08)]"
             : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
@@ -157,22 +157,20 @@ export function IncidentDetailUploadCard(
               className="text-ehs-normal-blue size-8 animate-spin"
               aria-hidden="true"
             />
-            <span className="text-ehs-dark-bg text5">
-              Uploading...
-            </span>
+            <span className="text-ehs-dark-bg text5">Uploading...</span>
           </div>
         ) : (
           <>
             <div className="text-ehs-dark-blue flex size-8.5 shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="text-ehs-dark-bg mt-2.5 text5">
+            <span className="text-ehs-dark-bg text5 mt-2.5">
               Drop files here
             </span>
-            <span className="text-ehs-muted-text mt-1 text8">
+            <span className="text-ehs-muted-text text8 mt-1">
               JPG, PNG, PDF up to 25 MB
             </span>
-            <span className="text-ehs-dark-blue mt-3.5 text5">
+            <span className="text-ehs-dark-blue text5 mt-3.5">
               Browse files
             </span>
           </>

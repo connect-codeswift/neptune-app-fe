@@ -22,7 +22,8 @@ export const incidentQueryKeys = {
   // v8: tenant ids left the key along with the request params. They were only
   // ever there because they were sent — the JWT decides scope now, and a
   // token swap replaces the cache wholesale.
-  detail: (id: number) => [...incidentQueryKeys.all, "detail", "v8", id] as const,
+  detail: (id: number) =>
+    [...incidentQueryKeys.all, "detail", "v8", id] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
 };
 

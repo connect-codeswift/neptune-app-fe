@@ -50,10 +50,7 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 }
 
 export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
-  const {
-    incident,
-    className = "",
-  } = props;
+  const { incident, className = "" } = props;
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
   const createCapaMutation = useCreateCapaMutation();
   const accessTokenState = useHasAccessToken();
@@ -72,9 +69,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
   if (!incident) {
     return (
       <IncidentGlassCard
-        className={["min-h-60 min-w-0", className]
-          .filter(Boolean)
-          .join(" ")}
+        className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
         <Text as="p" className="text-ehs-muted-text text-sm">
@@ -171,10 +166,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
         <Text as="h2" className="text-ehs-darker text-lg font-bold">
           {incident.title}
         </Text>
-        <Text
-          as="p"
-          className="text-ehs-muted-text mt-2 text-sm leading-3.25"
-        >
+        <Text as="p" className="text-ehs-muted-text mt-2 text-sm leading-3.25">
           {incident.site}
         </Text>
       </div>
@@ -245,7 +237,11 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
                   >
                     {capa.id}
                   </Text>
-                  <IncidentBadge label={capa.hierarchy} tone="neutral" showDot />
+                  <IncidentBadge
+                    label={capa.hierarchy}
+                    tone="neutral"
+                    showDot
+                  />
                   <IncidentBadge label={capa.status} tone="muted" />
                   <IncidentBadge label={capa.priority} tone="neutral" />
                 </div>

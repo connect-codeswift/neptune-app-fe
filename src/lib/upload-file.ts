@@ -81,7 +81,7 @@ export async function uploadFile(
   const displayName = file.name.trim() || "file";
   const format = isPdf
     ? "pdf"
-    : (contentType.split("/")[1] ?? "").split(";")[0] ?? "";
+    : ((contentType.split("/")[1] ?? "").split(";")[0] ?? "");
 
   return {
     fileId,

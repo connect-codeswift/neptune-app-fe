@@ -95,9 +95,7 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
         sessions.find((session) => session.id === selectedId) ??
         null);
 
-  const detailQuery = useBbsObservationDetailQuery(
-    selectedSession?.id ?? null,
-  );
+  const detailQuery = useBbsObservationDetailQuery(selectedSession?.id ?? null);
 
   const detail = useMemo(() => {
     if (!detailQuery.data?.dataModel) return null;

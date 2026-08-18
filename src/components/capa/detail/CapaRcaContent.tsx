@@ -23,10 +23,7 @@ import {
 } from "@/components/capa/detail/capa-rca-data";
 import { CapaRcaSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { Text } from "@/components/Text";
-import {
-  useCapaDetailQuery,
-  useCapaRcaQuery,
-} from "@/hooks/use-capa-queries";
+import { useCapaDetailQuery, useCapaRcaQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
 
@@ -356,15 +353,15 @@ function WorksheetHeader() {
       {Array.from({ length: WHY_SLOTS }, (_, index) => (
         <div
           key={`why-h-${String(index + 1)}`}
-          className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2 py-2 text-sm font-bold tracking-[0.23px] text-[#566072]"
+          className="rounded-2.25 flex items-center justify-center gap-1.5 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2 py-2 text-sm font-bold tracking-[0.23px] text-[#566072]"
         >
-          <span className="inline-flex size-5 items-center justify-center rounded-[8.5px] bg-[#2a3446] text-xs font-bold tracking-[0.23px] text-[#f3f5f8]">
+          <span className="inline-flex size-5 items-center justify-center rounded-[9px] bg-[#2a3446] text-xs font-bold tracking-[0.23px] text-[#f3f5f8]">
             {String(index + 1)}
           </span>
           Why?
         </div>
       ))}
-      <div className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-3 py-2 text-sm font-bold tracking-[0.23px] text-[#10b981]">
+      <div className="rounded-2.25 flex items-center justify-center gap-1.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-3 py-2 text-sm font-bold tracking-[0.23px] text-[#10b981]">
         <Icon
           icon="mdi:clipboard-check-outline"
           className="size-3 text-[#10b981]"
@@ -405,7 +402,7 @@ function WorksheetLane(
     <div className="grid grid-cols-[136px_minmax(180px,1.15fr)_repeat(5,minmax(180px,1fr))_minmax(200px,1.25fr)] gap-2.5">
       <div
         className={[
-          "flex min-h-35 items-center justify-center rounded-2.25 border border-[rgba(15,23,42,0.08)] px-3 text-center text-sm font-bold text-[#0b1320]",
+          "rounded-2.25 flex min-h-35 items-center justify-center border border-[rgba(15,23,42,0.08)] px-3 text-center text-sm font-bold text-[#0b1320]",
           lane.categoryClassName,
         ].join(" ")}
       >
@@ -603,7 +600,7 @@ function WhyCell(
     >
       <div className="flex items-center gap-1.5">
         <span
-          className="inline-flex size-4.75 items-center justify-center rounded-[9.5px] text-[10.5px] font-bold text-white"
+          className="rounded-2.5 inline-flex size-4.75 items-center justify-center text-[11px] font-bold text-white"
           style={{ backgroundColor: accent }}
         >
           {String(step)}
@@ -664,7 +661,7 @@ function AddWhyCell(
       className="flex min-h-35 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[rgba(15,23,42,0.14)] bg-transparent text-[#8892a3] transition-colors"
     >
       <span
-        className="inline-flex size-7 items-center justify-center rounded-3.25"
+        className="rounded-3.25 inline-flex size-7 items-center justify-center"
         style={{ backgroundColor: accentSoft, color: accent }}
       >
         <Icon icon="mdi:plus" className="size-4" aria-hidden />
@@ -701,7 +698,7 @@ function ActionsCell(
       <div className="flex flex-col gap-2">
         {actions.map((action) => (
           <div key={action.id} className="flex items-start gap-2">
-            <span className="mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center rounded-1.25 text-[#10b981]">
+            <span className="rounded-1.25 mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center text-[#10b981]">
               <Icon icon="mdi:check" className="size-4" aria-hidden />
             </span>
             <p className="min-w-0 flex-1 text-sm leading-[17.4px] text-[#2a3446]">

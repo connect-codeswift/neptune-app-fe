@@ -1,8 +1,5 @@
 export type InjuryLevelId =
-  | "no-injury"
-  | "first-aid"
-  | "medical-treatment"
-  | "lost-time";
+  "no-injury" | "first-aid" | "medical-treatment" | "lost-time";
 
 export type InjuryLevelOption = Readonly<{
   id: InjuryLevelId;

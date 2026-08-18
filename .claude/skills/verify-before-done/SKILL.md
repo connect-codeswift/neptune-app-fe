@@ -9,11 +9,11 @@ description: Fan out three agents — one running typecheck, one lint, one build
 
 No task is finished until all three checks are green:
 
-| Check | Command |
-| --- | --- |
+| Check     | Command                             |
+| --------- | ----------------------------------- |
 | typecheck | `npx tsc --noEmit -p tsconfig.json` |
-| lint | `npm run lint` |
-| build | `npm run build` |
+| lint      | `npm run lint`                      |
+| build     | `npm run build`                     |
 
 There are no tests in this repo. These three are the whole safety net, so none is optional and
 none is "probably fine".
@@ -57,59 +57,27 @@ Re-run typecheck alone once the build has finished before believing them.
 
 ## What "cleared" means
 
-| Check | Cleared when |
-| --- | --- |
-| `tsc --noEmit` | exit 0, no errors |
-| `npm run lint` | **no problem your change introduced** — the repo has a known baseline, below |
-| `npm run build` | exit 0, build completes |
+| Check           | Cleared when                                                                 |
+| --------------- | ---------------------------------------------------------------------------- |
+| `tsc --noEmit`  | exit 0, no errors                                                            |
+| `npm run lint`  | **no problem your change introduced** — the repo has a known baseline, below |
+| `npm run build` | exit 0, build completes                                                      |
 
-`npm run lint` does **not** exit 0 on a clean tree. Baseline as of 2026-08-18 (commit `268402b`
-plus the Prettier and Tailwind v4 lint rules): **13 errors, 1269 warnings**.
+`npm run lint` does **not** exit 0 on a clean tree, but it is close. Baseline as of 2026-08-18,
+after the repo-wide formatting sweep: **13 errors, 1 warning**.
 
-| Rule | Severity | Count | Status |
-| --- | --- | --- | --- |
-| `prettier/prettier` | warning | 1064 | Formatting debt — auto-fixable, cleared file-by-file |
-| `no-restricted-syntax` (fractional px, v3 gradients) | warning | 135 | Tailwind v4 convention debt |
-| `tailwindcss/important-modifier-suffix` | warning | 35 | Tailwind v4 convention debt — auto-fixable |
-| `tailwindcss/no-unnecessary-arbitrary-value` | warning | 18 | Tailwind v4 convention debt — auto-fixable |
-| `react-hooks/set-state-in-effect` | error | 11 | Accepted — the `*Content.tsx` boot gate. `AGENTS.md` says do not fix it |
-| `tailwindcss/no-contradicting-classname` | warning | 8 | Tailwind v4 convention debt |
-| `@typescript-eslint/no-unused-vars` | warning | 5 | Pre-existing |
-| `react-hooks/preserve-manual-memoization` | error | 2 | Pre-existing |
-| `tailwindcss/enforces-negative-arbitrary-values` | warning | 2 | Tailwind v4 convention debt |
-| `react-hooks/exhaustive-deps` | warning | 1 | Pre-existing |
-| `@next/next/no-img-element` | warning | 1 | Pre-existing |
+| Rule                                      | Severity | Count | Status                                                                                             |
+| ----------------------------------------- | -------- | ----- | -------------------------------------------------------------------------------------------------- |
+| `react-hooks/set-state-in-effect`         | error    | 11    | Accepted — the `*Content.tsx` boot gate. `AGENTS.md` says do not fix it                            |
+| `react-hooks/preserve-manual-memoization` | error    | 2     | Pre-existing, in the two `*RecentSessionsSection.tsx` files                                        |
+| `@next/next/no-img-element`               | warning  | 1     | Pre-existing, in `FilePreviewModal.tsx`. Converting to `next/image` needs a remote-loader decision |
 
-(13 errors = 11 + 2. 1269 warnings = 1064 + 135 + 35 + 18 + 8 + 5 + 2 + 1 + 1.)
+Anything beyond those 14 is **yours**. There is no longer a large warning pool to hide in, so
+compare totals directly: `npm run lint` should report `13 errors, 1 warning` and nothing else.
 
-None of this is new breakage — the error count has never moved off 13. These are **pre-existing
-debt surfaced by newly added rules**, deliberately at warning severity so they flag drift without
-failing anything.
-
-### Checking the delta against a 1269-warning baseline
-
-Comparing repo-wide totals is useless at this size — one edit shifts the count and you cannot
-tell whose it was. **Check the files you touched instead:**
-
-```bash
-npx eslint --fix <the files you changed>   # clears their formatting + 55 Tailwind warnings
-npx eslint <the files you changed>         # then read what is left
-```
-
-A file you edited should come back with **zero `prettier/prettier` warnings** — those are always
-mechanically fixable, so any that survive `--fix` mean you skipped the step. Tailwind warnings
-that remain need a human to pick the right rounded value; fix the ones in code you wrote, and
-leave the rest of the file's debt alone (see *Stay in your lane*).
-
-This repo is on fix-as-you-go by explicit decision: no repo-wide `npm run format` sweep, because
-a ~340-file formatting diff would conflict with every in-flight branch. The debt drains as files
-get edited. Re-baseline the table above when it has drained meaningfully.
-
-So the test is **the delta, not the total**. If the count went up, or a new file appeared in the
-list, that is yours — fix it. If the numbers match the table, lint is cleared.
-
-Re-baseline this table (noting the date and commit) whenever the pre-existing set genuinely
-changes, so it never silently drifts into cover for new problems.
+Prettier is enforced through ESLint (`prettier/prettier`), so formatting drift shows up here too.
+`npx eslint --fix <files you changed>` clears it mechanically — there is no reason to leave a
+`prettier/prettier` warning behind.
 
 ## Fix the cause, not the check
 

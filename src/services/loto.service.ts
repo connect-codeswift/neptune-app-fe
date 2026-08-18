@@ -89,7 +89,9 @@ function normalizeLockoutStatus(value: unknown): LotoLockoutStatusDto {
   return asString(value) === "Completed" ? "Completed" : "Active";
 }
 
-function normalizeEquipmentGridRow(raw: unknown): LotoEquipmentGridRowDto | null {
+function normalizeEquipmentGridRow(
+  raw: unknown,
+): LotoEquipmentGridRowDto | null {
   if (!isRecord(raw)) {
     return null;
   }
@@ -124,7 +126,9 @@ function normalizeEquipmentStep(raw: unknown): LotoEquipmentStepDto | null {
   };
 }
 
-function normalizeAuthorizedPerson(raw: unknown): LotoAuthorizedPersonDto | null {
+function normalizeAuthorizedPerson(
+  raw: unknown,
+): LotoAuthorizedPersonDto | null {
   if (!isRecord(raw)) {
     return null;
   }
@@ -157,7 +161,9 @@ function normalizeEquipmentDetail(raw: unknown): LotoEquipmentDetailDto | null {
     locationId: asNumber(readProp(raw, "locationId", "LocationId")),
     description: asNullableString(readProp(raw, "description", "Description")),
     hazardLevel: asNullableString(readProp(raw, "hazardLevel", "HazardLevel")),
-    isOutOfService: asBoolean(readProp(raw, "isOutOfService", "IsOutOfService")),
+    isOutOfService: asBoolean(
+      readProp(raw, "isOutOfService", "IsOutOfService"),
+    ),
     additionalNotes: asNullableString(
       readProp(raw, "additionalNotes", "AdditionalNotes"),
     ),
@@ -169,7 +175,9 @@ function normalizeEquipmentDetail(raw: unknown): LotoEquipmentDetailDto | null {
     authorizedPersonnel: Array.isArray(rawPersonnel)
       ? rawPersonnel
           .map(normalizeAuthorizedPerson)
-          .filter((person): person is LotoAuthorizedPersonDto => person !== null)
+          .filter(
+            (person): person is LotoAuthorizedPersonDto => person !== null,
+          )
       : [],
     canApply: asBoolean(readProp(raw, "canApply", "CanApply")),
     cannotApplyReason: asNullableString(
@@ -226,9 +234,10 @@ function normalizePersonnel(raw: unknown): LotoPersonnelDto | null {
     fullName: asString(readProp(raw, "fullName", "FullName")),
     certifiedAt: asNullableString(readProp(raw, "certifiedAt", "CertifiedAt")),
     expiresAt: asNullableString(readProp(raw, "expiresAt", "ExpiresAt")),
-    status: asString(readProp(raw, "status", "Status")) === "Expired"
-      ? "Expired"
-      : "Current",
+    status:
+      asString(readProp(raw, "status", "Status")) === "Expired"
+        ? "Expired"
+        : "Current",
     equipment: Array.isArray(rawEquipment)
       ? rawEquipment.map(asString).filter((code) => code !== "")
       : [],
@@ -239,8 +248,12 @@ function normalizeDashboardKpis(raw: unknown): LotoDashboardKpisDto {
   const record = isRecord(raw) ? raw : {};
 
   return {
-    equipmentOnFile: asNumber(readProp(record, "equipmentOnFile", "EquipmentOnFile")),
-    activeLockouts: asNumber(readProp(record, "activeLockouts", "ActiveLockouts")),
+    equipmentOnFile: asNumber(
+      readProp(record, "equipmentOnFile", "EquipmentOnFile"),
+    ),
+    activeLockouts: asNumber(
+      readProp(record, "activeLockouts", "ActiveLockouts"),
+    ),
     authorizedPersonnel: asNumber(
       readProp(record, "authorizedPersonnel", "AuthorizedPersonnel"),
     ),
@@ -250,14 +263,15 @@ function normalizeDashboardKpis(raw: unknown): LotoDashboardKpisDto {
   };
 }
 
-function toList<T>(payload: unknown, normalize: (raw: unknown) => T | null): T[] {
+function toList<T>(
+  payload: unknown,
+  normalize: (raw: unknown) => T | null,
+): T[] {
   if (!Array.isArray(payload)) {
     return [];
   }
 
-  return payload
-    .map(normalize)
-    .filter((item): item is T => item !== null);
+  return payload.map(normalize).filter((item): item is T => item !== null);
 }
 
 /** The grid endpoints are POST-with-body RPC style; dataModel may be a bare array or a paged wrapper. */
@@ -449,9 +463,8 @@ export async function getLotoEquipmentHistory(
 
 /** GET /api/Loto/personnel — everyone authorized on at least one machine on this site. */
 export async function getLotoPersonnel(): Promise<LotoPersonnelDto[]> {
-  const { data } = await http.get<GetLotoPersonnelResponseDto>(
-    LOTO_PERSONNEL_PATH,
-  );
+  const { data } =
+    await http.get<GetLotoPersonnelResponseDto>(LOTO_PERSONNEL_PATH);
 
   return toList(unwrapDataModel(data), normalizePersonnel);
 }

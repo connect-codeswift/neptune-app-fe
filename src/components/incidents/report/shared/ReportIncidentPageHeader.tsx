@@ -18,13 +18,13 @@ export function ReportIncidentPageHeader(
   return (
     <div
       className={[
-        "relative flex min-h-22.5 flex-wrap items-center justify-between gap-4 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-3 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-4",
+        "backdrop-blur-2.5 relative flex min-h-22.5 flex-wrap items-center justify-between gap-4 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-3 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-4",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative z-[1] flex min-w-0 flex-col gap-2">
+      <div className="relative z-1 flex min-w-0 flex-col gap-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1">
           <Link
             href="/dashboard/incidents/list"
@@ -53,7 +53,7 @@ export function ReportIncidentPageHeader(
         type="button"
         variant="tertiary"
         onClick={onSaveExit}
-        className="text-ehs-dark-bg relative z-[1] rounded-2.5 border-[rgba(11,19,32,0.14)] px-3.75 py-2.5 text-sm font-bold"
+        className="text-ehs-dark-bg rounded-2.5 relative z-1 border-[rgba(11,19,32,0.14)] px-3.75 py-2.5 text-sm font-bold"
       >
         Save & exit
       </Button>

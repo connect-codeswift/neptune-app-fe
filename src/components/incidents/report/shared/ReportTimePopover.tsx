@@ -73,7 +73,7 @@ export function ReportTimePopover(props: Readonly<ReportTimePopoverProps>) {
       role="dialog"
       aria-label="Choose a time"
       onKeyDown={onKeyDown}
-      className="animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-58 -translate-x-1/2 rounded-3 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+      className="animate-popover-in rounded-3 absolute top-full left-1/2 z-40 mt-1.5 w-58 -translate-x-1/2 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
     >
       <div className="flex divide-x divide-[rgba(15,23,42,0.08)]">
         <div className={columnClass} role="listbox" aria-label="Hour">

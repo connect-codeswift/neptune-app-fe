@@ -93,7 +93,7 @@ const TRAINING_LOG_ROUTE = "/dashboard/hazcom/training";
 const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-5xl";
 
 /**
  * Session date is collected as `MM/DD/YYYY` (incident date field) and sent as
@@ -266,7 +266,7 @@ export function HazcomNewTrainingSessionForm(
               {form.materials.map((material, index) => (
                 <li
                   key={`${material.fileUrl}-${String(index)}`}
-                  className="border-ehs-border flex items-center justify-between gap-3 rounded-2.5 border bg-white/60 px-3 py-2"
+                  className="border-ehs-border rounded-2.5 flex items-center justify-between gap-3 border bg-white/60 px-3 py-2"
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     <Icon
@@ -344,9 +344,7 @@ export function HazcomNewTrainingSessionForm(
               min={0}
               placeholder="0"
               value={form.attendees}
-              onChange={(event) =>
-                updateField("attendees", event.target.value)
-              }
+              onChange={(event) => updateField("attendees", event.target.value)}
               disabled={busy}
               className="min-w-0"
             />
@@ -355,9 +353,7 @@ export function HazcomNewTrainingSessionForm(
               label="Chemicals Covered"
               placeholder="e.g. HCl, Acetone, NaOH"
               value={form.chemicals}
-              onChange={(event) =>
-                updateField("chemicals", event.target.value)
-              }
+              onChange={(event) => updateField("chemicals", event.target.value)}
               disabled={busy}
               className="min-w-0 min-[800px]:col-span-2"
             />
@@ -380,7 +376,7 @@ export function HazcomNewTrainingSessionForm(
               type="button"
               variant="tertiary"
               disabled={createTrainingLog.isPending}
-              className="text4 h-9 rounded-2.5 px-3 sm:h-9.5 sm:px-4"
+              className="text4 rounded-2.5 h-9 px-3 sm:h-9.5 sm:px-4"
             >
               Cancel
             </Button>
@@ -390,7 +386,7 @@ export function HazcomNewTrainingSessionForm(
             variant="primary"
             isLoading={createTrainingLog.isPending}
             disabled={busy}
-            className="text4 h-9 rounded-2.5 px-3 sm:h-9.5 sm:px-4"
+            className="text4 rounded-2.5 h-9 px-3 sm:h-9.5 sm:px-4"
           >
             <Icon icon="mdi:check" className="size-4" aria-hidden="true" />
             {createTrainingLog.isPending ? "Saving…" : "Save Session"}

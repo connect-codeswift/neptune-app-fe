@@ -99,7 +99,9 @@ export function ReplacementRequestContent() {
   const selectedEmployeeValue = useMemo(() => {
     if (!employeeOptions.length) return "";
     if (employeeId) {
-      const byId = employeeOptions.find((option) => option.value === employeeId);
+      const byId = employeeOptions.find(
+        (option) => option.value === employeeId,
+      );
       if (byId) return byId.value;
     }
     if (employeeName) {

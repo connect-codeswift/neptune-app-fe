@@ -84,10 +84,7 @@ function formatDueLabel(rawDue: unknown): string {
  * elsewhere in the app, and falls back to an em dash rather than throwing.
  * Narrow these key lists once a populated response exists.
  */
-function mapActionToCapaRow(
-  raw: MyActionItemDto,
-  index: number,
-): CapaListRow {
+function mapActionToCapaRow(raw: MyActionItemDto, index: number): CapaListRow {
   const code =
     asString(
       readProp(

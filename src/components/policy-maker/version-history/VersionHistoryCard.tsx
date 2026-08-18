@@ -24,40 +24,37 @@ export function VersionHistoryCard(props: Readonly<VersionHistoryCardProps>) {
   return (
     <article
       className={[
-        "relative w-full min-w-0 overflow-hidden rounded-4 border-[0.8px] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']",
+        "rounded-4 before:rounded-4 relative w-full min-w-0 overflow-hidden border bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']",
         borderClass,
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-3.5 pt-4 pb-4 sm:px-[16.8px] sm:pt-[16.8px] sm:pb-[16.8px]">
+      <div className="relative z-1 flex min-w-0 flex-col gap-2 px-3.5 pt-4 pb-4 sm:px-[17px] sm:pt-[17px] sm:pb-[17px]">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
-            <Text
-              as="span"
-              className="text3 text-ehs-dark-bg font-mono"
-            >
+            <Text as="span" className="text3 text-ehs-dark-bg font-mono">
               {entry.version}
             </Text>
 
             {entry.status === "published" || entry.isCurrent ? (
-              <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(0,201,80,0.12)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-0.75 bg-[#00c950]" />
+              <span className="inline-flex h-[21px] items-center gap-1.5 rounded-full bg-[rgba(0,201,80,0.12)] pr-2.5 pl-2">
+                <span className="rounded-0.75 size-1.5 shrink-0 bg-[#00c950]" />
                 <span className="text5 text-[#15803d]">Published</span>
               </span>
             ) : null}
 
             {entry.status === "superseded" ? (
-              <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
-                <span className="size-1.5 shrink-0 rounded-0.75 bg-[#8892a3]" />
+              <span className="inline-flex h-[21px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
+                <span className="rounded-0.75 size-1.5 shrink-0 bg-[#8892a3]" />
                 <span className="text5 text-ehs-slate">Superseded</span>
               </span>
             ) : null}
 
             {entry.status === "review" ? (
-              <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.14)] pr-2.5 pl-2">
-                <span className="bg-ehs-yellow size-1.5 shrink-0 rounded-0.75" />
+              <span className="inline-flex h-[21px] items-center gap-1.5 rounded-full bg-[rgba(245,158,11,0.14)] pr-2.5 pl-2">
+                <span className="bg-ehs-yellow rounded-0.75 size-1.5 shrink-0" />
                 <span className="text5 text-ehs-slate">In review</span>
               </span>
             ) : null}

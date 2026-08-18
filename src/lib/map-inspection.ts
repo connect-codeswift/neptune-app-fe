@@ -72,9 +72,7 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
     status: formatRunStatus((dto.status ?? "").trim()),
     dueDate: formatInspectionDate(dto.scheduleDate ?? ""),
     findings:
-      (dto.findingCount ?? 0) > 0
-        ? `${String(dto.findingCount)} open`
-        : null,
+      (dto.findingCount ?? 0) > 0 ? `${String(dto.findingCount)} open` : null,
   };
 }
 

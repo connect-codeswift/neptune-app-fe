@@ -133,7 +133,7 @@ export function UploadDocumentDropzone(
         onDrop={onDrop}
         aria-disabled={isUploading || undefined}
         className={[
-          "flex min-h-35 w-full flex-col items-center justify-center rounded-4 border-[1.6px] border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
+          "rounded-4 flex min-h-35 w-full flex-col items-center justify-center border-2 border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
           isUploading
             ? "cursor-wait border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
             : "cursor-pointer",

@@ -68,9 +68,8 @@ export async function getAllChemicals(
 /** GET /api/hazcom/chemical/published?pageNumber&pageSize */
 /** GET /api/hazcom/chemical/names — lookup list for the chemical pickers. */
 export async function getChemicalNames() {
-  const { data } = await http.get<GetChemicalNamesResponseDto>(
-    CHEMICAL_NAMES_PATH,
-  );
+  const { data } =
+    await http.get<GetChemicalNamesResponseDto>(CHEMICAL_NAMES_PATH);
 
   return data;
 }

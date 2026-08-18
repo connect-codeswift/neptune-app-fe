@@ -14,8 +14,8 @@ function TableRowSkeleton() {
         <Skeleton className="h-2 w-28" />
       </div>
       <Skeleton className="h-2.5 w-24" />
-      <Skeleton className="h-5 w-16 rounded-2.5" />
-      <Skeleton className="h-5 w-14 rounded-2.5" />
+      <Skeleton className="rounded-2.5 h-5 w-16" />
+      <Skeleton className="rounded-2.5 h-5 w-14" />
     </div>
   );
 }

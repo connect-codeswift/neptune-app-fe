@@ -4,10 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import {
-  FormBuilder,
-  type FormValues,
-} from "@/components/form-builder";
+import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
@@ -23,14 +20,17 @@ import { toast } from "@/lib/toast";
 /** Create Sampling Plan — Figma 5298:29449. */
 export function IhCreateSamplingPlanView() {
   const router = useRouter();
-  const [values, setValues] = useState<FormValues>(IH_CREATE_PLAN_INITIAL_VALUES);
+  const [values, setValues] = useState<FormValues>(
+    IH_CREATE_PLAN_INITIAL_VALUES,
+  );
 
   const goBack = () => {
     router.push(`${IH_BASE_PATH}/sampling-plans`);
   };
 
   const handleSaveDraft = () => {
-    const name = typeof values.planName === "string" ? values.planName.trim() : "";
+    const name =
+      typeof values.planName === "string" ? values.planName.trim() : "";
     toast.success(name ? `Draft saved: ${name}` : "Draft saved");
     goBack();
   };

@@ -84,9 +84,7 @@ function isComplete(dateValue: string): boolean {
  * fillable. Incomplete values return no error: half-typed input is not yet a
  * mistake, and flagging it mid-keystroke just argues with the reporter.
  */
-function validateTiming(
-  form: ReportIncidentFormState,
-): ReportTimingErrors {
+function validateTiming(form: ReportIncidentFormState): ReportTimingErrors {
   const todayDate = today();
   const incidentDate = parseMmDdYyyy(form.incidentDate);
   const reportDate = parseMmDdYyyy(form.reportDate);
@@ -133,9 +131,7 @@ function validateTiming(
  * Exported so the view can gate the left-hand stepper too — otherwise clicking
  * straight to Step 2 skips this check entirely.
  */
-function getStepOneErrors(
-  form: ReportIncidentFormState,
-): ReportStepOneErrors {
+function getStepOneErrors(form: ReportIncidentFormState): ReportStepOneErrors {
   const timing = validateTiming(form);
   const classificationErrors = Object.fromEntries(
     classificationFieldsForStepOne(form.severity).map((field) => {
@@ -219,8 +215,14 @@ export type ReportIncidentStepOneProps = Readonly<{
 export function ReportIncidentStepOne(
   props: Readonly<ReportIncidentStepOneProps>,
 ) {
-  const { form, onChange, onBack, onContinue, showFieldErrors = false, className = "" } =
-    props;
+  const {
+    form,
+    onChange,
+    onBack,
+    onContinue,
+    showFieldErrors = false,
+    className = "",
+  } = props;
 
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
@@ -598,7 +600,7 @@ export function ReportIncidentStepOne(
             type="button"
             variant="tertiary"
             onClick={onBack}
-            className="text-ehs-slate rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-transparent px-3.75 pt-2.5 pb-[10.5px] text-sm font-bold opacity-40 transition hover:opacity-70"
+            className="text-ehs-slate rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-transparent px-3.75 pt-2.5 pb-[11px] text-sm font-bold opacity-40 transition hover:opacity-70"
           >
             <Icon
               icon="mdi:chevron-left"
@@ -616,7 +618,7 @@ export function ReportIncidentStepOne(
             type="button"
             variant="primary"
             onClick={handleContinue}
-            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 px-3.75 pt-2.5 pb-[10.5px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition"
+            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 px-3.75 pt-2.5 pb-[11px] text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition"
           >
             Continue
             <Icon

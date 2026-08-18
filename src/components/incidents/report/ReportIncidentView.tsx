@@ -346,7 +346,12 @@ export function ReportIncidentView() {
 
           <ReportIncidentAside
             severityBadge={livePreviewBadge}
-            location={[normalizedForm.location, formatIncidentLocationsLabel(normalizedForm.incidentLocations ?? [])]
+            location={[
+              normalizedForm.location,
+              formatIncidentLocationsLabel(
+                normalizedForm.incidentLocations ?? [],
+              ),
+            ]
               .filter(Boolean)
               .join(" · ")}
             title={

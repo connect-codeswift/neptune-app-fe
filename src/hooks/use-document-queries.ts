@@ -149,7 +149,12 @@ export function useDocumentAcknowledgementsQuery(
     enabled,
     queryFn: async () => {
       if (documentVersionId == null) {
-        return { records: [], acknowledgedCount: 0, pendingCount: 0, completionRate: 0 };
+        return {
+          records: [],
+          acknowledgedCount: 0,
+          pendingCount: 0,
+          completionRate: 0,
+        };
       }
       const response = await getDocumentAcknowledgements(documentVersionId);
       return mapAcknowledgementsDto(response.dataModel);

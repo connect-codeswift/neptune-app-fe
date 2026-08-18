@@ -126,7 +126,9 @@ export function ReportLocationsField(
 
     if (isSelected(locations, normalized)) {
       onChange(
-        locations.filter((entry) => locationKey(entry) !== locationKey(normalized)),
+        locations.filter(
+          (entry) => locationKey(entry) !== locationKey(normalized),
+        ),
       );
       return;
     }
@@ -188,7 +190,7 @@ export function ReportLocationsField(
           {locations.map((entry) => (
             <span
               key={locationKey(entry)}
-              className="border-ehs-border bg-ehs-light-bg text-ehs-darker inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 text-3.25 font-medium"
+              className="border-ehs-border bg-ehs-light-bg text-ehs-darker text-3.25 inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 font-medium"
             >
               <Icon
                 icon="mdi:map-marker-outline"
@@ -202,7 +204,11 @@ export function ReportLocationsField(
                 aria-label={`Remove location ${entry}`}
                 className="text-ehs-muted-text hover:text-ehs-darker inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
               >
-                <Icon icon="mdi:close" className="size-3.5" aria-hidden="true" />
+                <Icon
+                  icon="mdi:close"
+                  className="size-3.5"
+                  aria-hidden="true"
+                />
               </button>
             </span>
           ))}
@@ -250,7 +256,7 @@ export function ReportLocationsField(
         />
 
         {open ? (
-          <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
             <ul
               id={listboxId}
               role="listbox"
@@ -269,7 +275,7 @@ export function ReportLocationsField(
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => toggleLocation(option.label)}
                       className={[
-                        "flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left text-[13.5px] transition-colors",
+                        "rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-[14px] transition-colors",
                         selected
                           ? "text-ehs-dark-blue bg-[rgba(8,145,166,0.1)] font-semibold"
                           : "text-ehs-dark-bg hover:bg-[rgba(8,145,166,0.06)]",
@@ -339,9 +345,13 @@ export function ReportLocationsField(
                 <button
                   type="button"
                   onClick={() => setIsAdding(true)}
-                  className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex w-full cursor-pointer items-center gap-1 rounded-2 px-2 py-2 text-sm font-semibold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                  className="text-ehs-normal-blue hover:text-ehs-dark-blue rounded-2 inline-flex w-full cursor-pointer items-center gap-1 px-2 py-2 text-sm font-semibold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
                 >
-                  <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
+                  <Icon
+                    icon="mdi:plus"
+                    className="size-3.5"
+                    aria-hidden="true"
+                  />
                   Add custom location
                 </button>
               )}

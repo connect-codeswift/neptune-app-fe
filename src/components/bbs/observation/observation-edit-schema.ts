@@ -53,15 +53,11 @@ export function buildObservationInfoSchema(args: {
   currentLocation?: string;
 }): FormSchema {
   const categoryOptions = withCurrentOption(
-    args.categoryOptions?.length
-      ? args.categoryOptions
-      : EDIT_CATEGORY_OPTIONS,
+    args.categoryOptions?.length ? args.categoryOptions : EDIT_CATEGORY_OPTIONS,
     args.currentCategory ?? "",
   );
   const locationOptions = withCurrentOption(
-    args.locationOptions?.length
-      ? args.locationOptions
-      : EDIT_LOCATION_OPTIONS,
+    args.locationOptions?.length ? args.locationOptions : EDIT_LOCATION_OPTIONS,
     args.currentLocation ?? "",
   );
 

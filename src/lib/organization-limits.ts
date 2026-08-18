@@ -10,10 +10,13 @@ export type OrganizationLimitsState = Readonly<{
 const APPROACHING_THRESHOLD = 0.9;
 
 export function getOrganizationLimitsState(
-  session: Pick<
-    SessionBootstrapDto,
-    "maxSeats" | "seatsUsed" | "seatsAvailable" | "atSeatLimit"
-  > | null | undefined,
+  session:
+    | Pick<
+        SessionBootstrapDto,
+        "maxSeats" | "seatsUsed" | "seatsAvailable" | "atSeatLimit"
+      >
+    | null
+    | undefined,
 ): OrganizationLimitsState | null {
   if (!session?.maxSeats) {
     return null;

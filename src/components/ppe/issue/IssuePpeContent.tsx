@@ -246,9 +246,7 @@ export function IssuePpeContent() {
         onChange={handleFormChange}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        submitLabel={
-          issuePpe.isPending ? "Confirming..." : "Confirm Issuance"
-        }
+        submitLabel={issuePpe.isPending ? "Confirming..." : "Confirm Issuance"}
         cancelLabel="Cancel"
         isSubmitting={issuePpe.isPending}
         className={issuePpeFormFieldClass}

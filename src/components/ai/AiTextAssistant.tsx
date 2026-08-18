@@ -177,17 +177,17 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
         // pointer-events-auto so clicks land here rather than in the field
         // being rewritten underneath.
         <div
-          className="pointer-events-auto absolute inset-0 z-10 overflow-hidden rounded-2.5 bg-white/35 backdrop-blur-0.25"
+          className="rounded-2.5 backdrop-blur-0.25 pointer-events-auto absolute inset-0 z-10 overflow-hidden bg-white/35"
           aria-hidden="true"
         >
           <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.9)_42%,rgba(8,145,166,0.4)_58%,transparent_100%)] motion-reduce:animate-none" />
-          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 absolute inset-0 rounded-2.5 ring-1 ring-inset motion-reduce:animate-none" />
+          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 rounded-2.5 absolute inset-0 ring-1 ring-inset motion-reduce:animate-none" />
         </div>
       ) : null}
 
       {justApplied ? (
         <div
-          className="animate-ai-result-flash ring-ehs-normal-blue/50 pointer-events-none absolute inset-0 z-10 rounded-2.5 ring-2 ring-inset"
+          className="animate-ai-result-flash ring-ehs-normal-blue/50 rounded-2.5 pointer-events-none absolute inset-0 z-10 ring-2 ring-inset"
           aria-hidden="true"
         />
       ) : null}
@@ -258,7 +258,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
               {!isBusy ? (
                 <span
                   role="tooltip"
-                  className="bg-ehs-dark-bg pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 text-2.5 font-semibold whitespace-nowrap text-white opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
+                  className="bg-ehs-dark-bg text-2.5 pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 font-semibold whitespace-nowrap text-white opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
                 >
                   {copy.label}
                 </span>
@@ -271,7 +271,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
           <button
             type="button"
             onClick={undo}
-            className="text-ehs-gray hover:text-ehs-darker inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-900/10 bg-white/85 px-2.5 py-1 text-2.75 font-semibold shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+            className="text-ehs-gray hover:text-ehs-darker text-2.75 inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-900/10 bg-white/85 px-2.5 py-1 font-semibold shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
           >
             <Icon
               icon="mdi:undo-variant"

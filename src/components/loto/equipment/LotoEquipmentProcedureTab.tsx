@@ -68,7 +68,7 @@ export function LotoEquipmentProcedureTab(
               return (
                 <li key={step.id} className="flex gap-3.5 px-2.5 py-3">
                   <div className="flex flex-col items-center">
-                    <span className="text5 flex size-7.5 shrink-0 items-center justify-center rounded-3.75 bg-[rgba(8,145,166,0.12)] text-[#0891a6]">
+                    <span className="text5 rounded-3.75 flex size-7.5 shrink-0 items-center justify-center bg-[rgba(8,145,166,0.12)] text-[#0891a6]">
                       {String(index + 1)}
                     </span>
                     {!isLast ? (
@@ -76,7 +76,7 @@ export function LotoEquipmentProcedureTab(
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1 pt-1">
-                    <span className="text6 inline-flex rounded-1.25 bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-[#8892a3]">
+                    <span className="text6 rounded-1.25 inline-flex bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-[#8892a3]">
                       {step.tag}
                     </span>
                     <p className="text4 mt-1.5 text-[#2a3446]">

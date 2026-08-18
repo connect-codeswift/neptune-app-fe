@@ -105,12 +105,7 @@ export type HazcomRiskAssessment = Readonly<{
 }>;
 
 export type HazcomBadgeTone =
-  | "neutral"
-  | "teal"
-  | "muted"
-  | "danger"
-  | "warn"
-  | "success";
+  "neutral" | "teal" | "muted" | "danger" | "warn" | "success";
 
 const RISK_LEVEL_LOW_MAX = 3;
 const RISK_LEVEL_MEDIUM_MAX = 7;

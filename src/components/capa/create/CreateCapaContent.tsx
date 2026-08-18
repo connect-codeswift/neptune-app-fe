@@ -49,7 +49,7 @@ function parseAssignedId(value: string): number {
 
 function StepBadge(props: Readonly<{ step: string }>) {
   return (
-    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0891a6] pt-[1.5px] pb-[2.5px] text-sm leading-5 text-white">
+    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0891a6] pt-[2px] pb-[3px] text-sm leading-5 text-white">
       {props.step}
     </span>
   );
@@ -210,7 +210,7 @@ export function CreateCapaContent() {
                     <button
                       type="button"
                       onClick={() => setAddTaskOpen(true)}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 text-3.25 font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+                      className="text-3.25 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
                     >
                       <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
                       Add Task
@@ -222,7 +222,7 @@ export function CreateCapaContent() {
                       No tasks yet. Add checklist items for the assignee.
                     </div>
                   ) : (
-                    <ul className="overflow-hidden rounded-2.5 border border-[#e2e8f0]">
+                    <ul className="rounded-2.5 overflow-hidden border border-[#e2e8f0]">
                       {tasks.map((task, index) => (
                         <li
                           key={task.id}

@@ -48,10 +48,6 @@ function fileNameFromUrl(url: string): string {
   }
 }
 
-function isImageUrl(url: string): boolean {
-  return /\.(jpe?g|png|gif|webp|bmp|svg)(\?|$)/i.test(url);
-}
-
 /** Parse a photo row value: URL, `title|||subtitle`, or `title|||subtitle|||url`. */
 function parsePhotoRowEntry(
   entry: string,
@@ -220,7 +216,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
           void addFiles(event.dataTransfer.files);
         }}
         className={[
-          "flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-[1.5px] border-dashed px-6 text-center transition-colors",
+          "flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 text-center transition-colors",
           isFiles ? "min-h-32.75 gap-2 py-6" : "gap-2 py-7",
           isDragging
             ? "border-ehs-normal-blue bg-ehs-normal-blue/5"
@@ -290,9 +286,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
             return (
               <li
                 key={`${entry}-${String(index)}`}
-                className="group flex items-center gap-3 rounded-2.5 bg-[rgba(238,241,246,0.7)] py-3 pr-3 pl-3"
+                className="group rounded-2.5 flex items-center gap-3 bg-[rgba(238,241,246,0.7)] py-3 pr-3 pl-3"
               >
-                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-2.5 bg-[rgba(8,145,166,0.2)] text-[#0891a6]">
+                <span className="rounded-2.5 inline-flex size-9 shrink-0 items-center justify-center bg-[rgba(8,145,166,0.2)] text-[#0891a6]">
                   <Icon
                     icon="mdi:file-document-outline"
                     className="size-5"
@@ -338,7 +334,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 className={
                   canPreview
                     ? "group relative size-28 overflow-hidden rounded-xl border border-slate-900/10"
-                    : "border-ehs-border flex min-w-48 flex-1 items-center gap-3 rounded-2.5 border bg-white/50 p-3"
+                    : "border-ehs-border rounded-2.5 flex min-w-48 flex-1 items-center gap-3 border bg-white/50 p-3"
                 }
               >
                 {canPreview ? (

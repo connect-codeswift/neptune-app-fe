@@ -32,7 +32,8 @@ export type DashboardKpisDto = {
   ratesAvailable?: boolean | null;
 };
 
-export type GetMainDashboardKpisResponseDto = ApiEnvelopeDto<DashboardKpisDto | null>;
+export type GetMainDashboardKpisResponseDto =
+  ApiEnvelopeDto<DashboardKpisDto | null>;
 
 /** One weekly bucket of GET /api/EHSCommandCenter/GetIncidentTrends. */
 export type IncidentTrendWeekDto = {
@@ -50,7 +51,8 @@ export type IncidentTrendsDto = {
   trends?: IncidentTrendWeekDto[] | null;
 };
 
-export type GetIncidentTrendsResponseDto = ApiEnvelopeDto<IncidentTrendsDto | null>;
+export type GetIncidentTrendsResponseDto =
+  ApiEnvelopeDto<IncidentTrendsDto | null>;
 
 /**
  * One entry of `actions` on GET /api/EHSCommandCenter/GetMyActions.

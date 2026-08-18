@@ -141,8 +141,7 @@ function LotoRemoveLockoutForm(
   const [signedOff, setSignedOff] = useState(false);
   const removeMutation = useRemoveLotoLockoutMutation();
 
-  const canConfirm =
-    energyRestored && signedOff && !removeMutation.isPending;
+  const canConfirm = energyRestored && signedOff && !removeMutation.isPending;
 
   const handleConfirm = () => {
     if (!canConfirm) return;
@@ -182,7 +181,7 @@ function LotoRemoveLockoutForm(
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
-          <div className="relative rounded-5 bg-white px-4.5 pt-4.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+          <div className="rounded-5 before:rounded-5 relative bg-white px-4.5 pt-4.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
             <div className="relative z-1 flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Icon
@@ -212,14 +211,14 @@ function LotoRemoveLockoutForm(
 
           <IncidentGlassCard
             paddingClassName="p-5"
-            className="min-w-0 rounded-5"
+            className="rounded-5 min-w-0"
           >
             <h2 className="text3 text-ehs-darker">Energy Restoration</h2>
             <ul className="mt-3.5 flex flex-col gap-2">
               {context.energySources.map((source) => (
                 <li
                   key={source.id}
-                  className="flex items-center justify-between gap-2.5 rounded-2.5 border border-[rgba(11,19,32,0.14)] px-3.5 py-2.5"
+                  className="rounded-2.5 flex items-center justify-between gap-2.5 border border-[rgba(11,19,32,0.14)] px-3.5 py-2.5"
                 >
                   <span className="text4 text-ehs-darker font-semibold">
                     {source.label}
@@ -235,7 +234,7 @@ function LotoRemoveLockoutForm(
                 type="checkbox"
                 checked={energyRestored}
                 onChange={(event) => setEnergyRestored(event.target.checked)}
-                className="size-4 shrink-0 rounded-0.5 border border-[#566072] accent-[#0891a6]"
+                className="rounded-0.5 size-4 shrink-0 border border-[#566072] accent-[#0891a6]"
               />
               <span className="text4 font-semibold text-[#2a3446]">
                 Confirmed — all energy sources have been safely restored to
@@ -244,12 +243,12 @@ function LotoRemoveLockoutForm(
             </label>
           </IncidentGlassCard>
 
-          <label className="relative flex cursor-pointer items-start gap-3 rounded-5 border border-[rgba(16,185,129,0.2)] bg-[#fafbfc] px-4.5 py-4.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+          <label className="rounded-5 before:rounded-5 relative flex cursor-pointer items-start gap-3 border border-[rgba(16,185,129,0.2)] bg-[#fafbfc] px-4.5 py-4.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
             <input
               type="checkbox"
               checked={signedOff}
               onChange={(event) => setSignedOff(event.target.checked)}
-              className="relative z-1 mt-0.5 size-4 shrink-0 rounded-0.5 border border-[#566072] accent-[#10b981]"
+              className="rounded-0.5 relative z-1 mt-0.5 size-4 shrink-0 border border-[#566072] accent-[#10b981]"
             />
             <span className="relative z-1 min-w-0">
               <span className="text5 block text-[#10b981]">
@@ -264,7 +263,7 @@ function LotoRemoveLockoutForm(
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={cancelHref}
-              className="text4 text-ehs-gray inline-flex items-center gap-1.75 rounded-2.5 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-1.5 font-medium transition-colors hover:bg-white"
+              className="text4 text-ehs-gray rounded-2.5 inline-flex items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-1.5 font-medium transition-colors hover:bg-white"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -283,7 +282,7 @@ function LotoRemoveLockoutForm(
           </div>
         </div>
 
-        <div className="relative h-fit rounded-5 border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.5)] px-4.5 pt-4.5 pb-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+        <div className="rounded-5 before:rounded-5 relative h-fit border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.5)] px-4.5 pt-4.5 pb-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
           <div className="relative z-1">
             <h2 className="text3 text-[#ef4444]">Critical Safety Rules</h2>
             <ul className="mt-2.5 list-disc space-y-2 pl-4">

@@ -90,7 +90,7 @@ export function RegulatoryComplianceObligationDetailsCard(
     <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
       className={[
-        "w-full max-w-175 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5",
+        "backdrop-blur-2.5 w-full max-w-175 bg-[rgba(255,255,255,0.62)]",
         className,
       ]
         .filter(Boolean)
@@ -204,7 +204,7 @@ export function RegulatoryComplianceObligationDetailsCard(
               />
             </div>
           ) : (
-            <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+            <div className="flex items-start gap-2 rounded-xl bg-[rgba(11,19,32,0.04)] px-3 py-2.5">
               <Icon
                 icon="mdi:clock-outline"
                 className="text-ehs-muted-text mt-0.5 size-4 shrink-0"

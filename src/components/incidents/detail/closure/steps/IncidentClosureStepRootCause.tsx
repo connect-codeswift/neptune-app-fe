@@ -100,16 +100,13 @@ export function IncidentClosureStepRootCause(
 
   return (
     <div className="flex flex-col gap-5">
-      <Text
-        as="h2"
-        className="text5 leading-normal font-bold text-ehs-dark-bg"
-      >
+      <Text as="h2" className="text5 text-ehs-dark-bg leading-normal font-bold">
         Root Cause Summary
       </Text>
 
       {/* Primary Root Cause */}
       <div className="flex flex-col">
-        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text8 text-ehs-muted-text mb-2 font-bold tracking-[0.5px] uppercase">
           PRIMARY ROOT CAUSE
         </label>
         <CreatableMultiSelectInput
@@ -129,7 +126,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Contributing Factors */}
       <div className="flex flex-col">
-        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text8 text-ehs-muted-text mb-2 font-bold tracking-[0.5px] uppercase">
           CONTRIBUTING FACTORS
         </label>
         <CreatableMultiSelectInput
@@ -145,7 +142,7 @@ export function IncidentClosureStepRootCause(
 
       {/* Root Cause Description */}
       <div className="flex flex-col">
-        <label className="mb-2 text8 font-bold tracking-[0.5px] text-ehs-muted-text uppercase">
+        <label className="text8 text-ehs-muted-text mb-2 font-bold tracking-[0.5px] uppercase">
           ROOT CAUSE DESCRIPTION
         </label>
         <textarea
@@ -156,7 +153,7 @@ export function IncidentClosureStepRootCause(
           placeholder="Describe the root cause details..."
           className={FIELD_TEXTAREA_CLASS}
         />
-        <span className="mt-1.5 self-end text8 font-normal text-ehs-muted-text">
+        <span className="text8 text-ehs-muted-text mt-1.5 self-end font-normal">
           {`${String(data.rootCauseSummary.length)} / 1000 min`}
         </span>
       </div>

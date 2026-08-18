@@ -15,7 +15,9 @@ function readNumberList(raw: unknown): number[] {
     .filter((entry): entry is number => entry != null);
 }
 
-function normalizeHazardsByCategory(raw: unknown): DashboardKpisDto["hazardsByCategory"] {
+function normalizeHazardsByCategory(
+  raw: unknown,
+): DashboardKpisDto["hazardsByCategory"] {
   if (!Array.isArray(raw)) {
     return [];
   }
@@ -39,7 +41,9 @@ function normalizeHazardsByCategory(raw: unknown): DashboardKpisDto["hazardsByCa
 }
 
 /** Normalizes GET /api/EHSCommandCenter/GetMainDashboardKpis (camelCase or PascalCase). */
-export function normalizeDashboardKpisDto(raw: unknown): DashboardKpisDto | null {
+export function normalizeDashboardKpisDto(
+  raw: unknown,
+): DashboardKpisDto | null {
   if (!isRecord(raw)) {
     return null;
   }

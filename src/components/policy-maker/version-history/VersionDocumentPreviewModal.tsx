@@ -18,7 +18,7 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text4 text-ehs-gray flex h-[70vh] w-full flex-col items-center justify-center gap-2 rounded-2 bg-white">
+      <div className="text4 text-ehs-gray rounded-2 flex h-[70vh] w-full flex-col items-center justify-center gap-2 bg-white">
         <Icon
           icon="mdi:loading"
           className="text-ehs-normal-blue size-6 animate-spin"
@@ -87,7 +87,7 @@ export function VersionDocumentPreviewModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b1320]/50 p-3 backdrop-blur-sm sm:p-5"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b1320]/50 p-3 backdrop-blur-sm sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -96,7 +96,7 @@ export function VersionDocumentPreviewModal(
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
-        className="relative flex max-h-[92vh] w-full max-w-230 flex-col overflow-hidden rounded-5 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.92)] shadow-[0px_25px_50px_-12px_rgba(15,23,42,0.35)]"
+        className="rounded-5 relative flex max-h-[92vh] w-full max-w-230 flex-col overflow-hidden border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.92)] shadow-[0px_25px_50px_-12px_rgba(15,23,42,0.35)]"
       >
         <header className="flex shrink-0 flex-col gap-3 border-b border-[rgba(15,23,42,0.08)] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
           <div className="min-w-0 pr-10 sm:pr-0">
@@ -113,18 +113,15 @@ export function VersionDocumentPreviewModal(
                   Current
                 </span>
               ) : (
-                <span className="inline-flex h-[20.5px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
-                  <span className="bg-ehs-muted-text size-1.5 shrink-0 rounded-0.75" />
+                <span className="inline-flex h-[21px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
+                  <span className="bg-ehs-muted-text rounded-0.75 size-1.5 shrink-0" />
                   <span className="text5 text-ehs-slate">
                     {entry.status === "review" ? "In review" : "Superseded"}
                   </span>
                 </span>
               )}
             </div>
-            <Text
-              as="p"
-              className="text8 text-ehs-muted-text mt-0.5 truncate"
-            >
+            <Text as="p" className="text8 text-ehs-muted-text mt-0.5 truncate">
               {policyDocument.title}
             </Text>
           </div>
@@ -134,7 +131,7 @@ export function VersionDocumentPreviewModal(
               type="button"
               variant="tertiary"
               onClick={onDownload}
-              className="text4 text-ehs-dark-bg h-9 rounded-2.5 border-[0.8px] border-[rgba(11,19,32,0.14)] px-3 !shadow-none"
+              className="text4 text-ehs-dark-bg rounded-2.5 h-9 border border-[rgba(11,19,32,0.14)] px-3 shadow-none!"
             >
               <Icon
                 icon="mdi:download-outline"
@@ -147,7 +144,7 @@ export function VersionDocumentPreviewModal(
               type="button"
               aria-label="Close preview"
               onClick={onClose}
-              className="text-ehs-gray absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white transition-colors hover:bg-[#eef1f6] sm:static sm:size-9"
+              className="text-ehs-gray rounded-2.5 absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center border border-[rgba(15,23,42,0.1)] bg-white transition-colors hover:bg-[#eef1f6] sm:static sm:size-9"
             >
               <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
             </button>
@@ -160,10 +157,7 @@ export function VersionDocumentPreviewModal(
             className="text-ehs-red size-3.5 shrink-0"
             aria-hidden="true"
           />
-          <Text
-            as="span"
-            className="text5 text-ehs-dark-bg min-w-0 truncate"
-          >
+          <Text as="span" className="text5 text-ehs-dark-bg min-w-0 truncate">
             {fileName}
           </Text>
         </div>

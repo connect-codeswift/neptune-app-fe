@@ -125,7 +125,7 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
                   key={columns[index].key}
                   style={cellStyle(value, max)}
                   className={[
-                    "text7 flex h-8 items-center justify-center rounded border border-slate-900/10 font-bold leading-none",
+                    "text7 flex h-8 items-center justify-center rounded border border-slate-900/10 leading-none font-bold",
                     value != null && value >= max * 0.75
                       ? "text-white"
                       : "text-slate-700",

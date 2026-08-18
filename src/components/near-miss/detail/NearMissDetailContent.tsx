@@ -118,7 +118,7 @@ export function NearMissDetailContent(
                   variant="primary"
                   disabled={isClosed || closeMutation.isPending}
                   onClick={handleClose}
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon={
@@ -146,7 +146,7 @@ export function NearMissDetailContent(
                   variant="tertiary"
                   disabled={deleteMutation.isPending}
                   onClick={() => setIsConfirmingDelete(true)}
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon={
@@ -175,7 +175,7 @@ export function NearMissDetailContent(
                       `/dashboard/near-miss/${encodeURIComponent(nearMissId)}/convert`,
                     )
                   }
-                  className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                 >
                   <Icon
                     icon="mdi:plus"
@@ -189,9 +189,7 @@ export function NearMissDetailContent(
           }
         />
 
-        {detailQuery.isPending && (
-          <SkeletonDetailPage />
-        )}
+        {detailQuery.isPending && <SkeletonDetailPage />}
 
         {detailQuery.isError && (
           <Text as="p" className="text4 text-ehs-red">

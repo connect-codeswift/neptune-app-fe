@@ -27,9 +27,7 @@ function headerSubtitle(detail: WalkTalkSessionDetail): string {
  * Detail page header bar — breadcrumbs, title, type pill.
  * No back button (same pattern as Regulatory Compliance).
  */
-export function WalkTalkDetailBannerCard(
-  props: WalkTalkDetailBannerCardProps,
-) {
+export function WalkTalkDetailBannerCard(props: WalkTalkDetailBannerCardProps) {
   const { detail, sessionType = "Walk & Talk", className = "" } = props;
   const subtitle = headerSubtitle(detail);
 

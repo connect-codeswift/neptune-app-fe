@@ -257,7 +257,7 @@ export function LogWalkTalkContent() {
             <button
               type="button"
               onClick={addFollowUpAction}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover shrink-0 cursor-pointer transition-colors md:rounded-lg md:bg-ehs-normal-blue/14 md:px-3 md:py-1.5 md:hover:bg-ehs-normal-blue/20"
+              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover md:bg-ehs-normal-blue/14 md:hover:bg-ehs-normal-blue/20 shrink-0 cursor-pointer transition-colors md:rounded-lg md:px-3 md:py-1.5"
             >
               + Add Action
             </button>
@@ -268,7 +268,7 @@ export function LogWalkTalkContent() {
               {savedActions.map((entry, index) => (
                 <li
                   key={`${entry.action}-${String(index)}`}
-                  className="border-ehs-border flex items-start justify-between gap-3 rounded-2.5 border bg-white/62 px-3.5 py-2.5"
+                  className="border-ehs-border rounded-2.5 flex items-start justify-between gap-3 border bg-white/62 px-3.5 py-2.5"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text4 text-ehs-darker">
@@ -332,7 +332,7 @@ export function LogWalkTalkContent() {
             type="button"
             variant="tertiary"
             onClick={() => router.push(WALK_TALK_ROUTE)}
-            className="text4 h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-[#566072] md:h-auto md:flex-none md:rounded-2.5 md:border md:border-slate-900/14 md:bg-white/62 md:text-[#2a3446]"
+            className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-[#566072] md:h-auto md:flex-none md:border md:border-slate-900/14 md:bg-white/62 md:text-[#2a3446]"
           >
             Cancel
           </Button>
@@ -342,7 +342,7 @@ export function LogWalkTalkContent() {
             variant="primary"
             isLoading={createWalkTalk.isPending}
             onClick={saveAll}
-            className="text4 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:rounded-2.5 md:px-5 md:shadow-[0px_6px_18px_-6px_#0891a6]"
+            className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:px-5 md:shadow-[0px_6px_18px_-6px_#0891a6]"
           >
             {createWalkTalk.isPending
               ? "Submitting..."

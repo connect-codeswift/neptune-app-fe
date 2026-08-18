@@ -69,7 +69,7 @@ export function ReportFieldError(props: Readonly<ReportFieldErrorProps>) {
   const { id, children } = props;
 
   return (
-    <p id={id} className="text-ehs-red flex items-start gap-1 text-2.75">
+    <p id={id} className="text-ehs-red text-2.75 flex items-start gap-1">
       <Icon
         icon="mdi:alert-circle-outline"
         className="mt-px size-3 shrink-0"
@@ -339,7 +339,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
             id={listboxId}
             role="listbox"
             aria-label={label}
-            className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 max-h-56 overflow-y-auto rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white p-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 max-h-56 overflow-y-auto border border-[rgba(15,23,42,0.1)] bg-white p-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -358,7 +358,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
                     }}
                     onMouseEnter={() => setActiveIndex(index)}
                     className={[
-                      "flex w-full cursor-pointer items-center gap-2 rounded-2 px-2.5 py-2 text-left text-[13.5px] transition-colors",
+                      "rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-[14px] transition-colors",
                       isSelected
                         ? "text-ehs-dark-blue font-semibold"
                         : "text-ehs-dark-bg",

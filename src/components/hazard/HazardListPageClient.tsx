@@ -22,12 +22,7 @@ import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const PAGE_SIZE = 10;
 
-const STATUS_OPTIONS = [
-  "All",
-  "Open",
-  "Investigating",
-  "Closed",
-] as const;
+const STATUS_OPTIONS = ["All", "Open", "Investigating", "Closed"] as const;
 
 export function HazardListPageClient() {
   const router = useRouter();
@@ -107,8 +102,7 @@ export function HazardListPageClient() {
   );
 
   const isLoading =
-    hazardListQuery.isPending ||
-    (canViewInsights && hazardKpiQuery.isPending);
+    hazardListQuery.isPending || (canViewInsights && hazardKpiQuery.isPending);
 
   return (
     <UnifiedNearMissAndHazardListPage

@@ -1,6 +1,7 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-export type CapaDashboardKpiStatusDto = "OnTarget" | "OffTarget" | string | null;
+export type CapaDashboardKpiStatusDto =
+  "OnTarget" | "OffTarget" | string | null;
 
 export type CapaDashboardKpiChangeDto = {
   value?: number | null;

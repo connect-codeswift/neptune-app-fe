@@ -38,8 +38,7 @@ export function CapaDashboardFooterCards() {
     (hasToken === true && workloadQuery.isPending && !workloadQuery.data);
 
   const owners =
-    workloadQuery.data?.owners ??
-    mapCapaWorkloadByOwnerToView(null).owners;
+    workloadQuery.data?.owners ?? mapCapaWorkloadByOwnerToView(null).owners;
   const previewOwners = owners.slice(0, WORKLOAD_PREVIEW_LIMIT);
   const maxOpen = Math.max(...previewOwners.map((owner) => owner.openCount), 1);
 

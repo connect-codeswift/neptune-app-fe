@@ -96,7 +96,7 @@ export function ReportOptionCards<T extends string>(
       data-field-error={error ? "true" : undefined}
     >
       <div className="flex flex-wrap items-end gap-x-1.5 gap-y-0.5">
-        <Text as="span" className="text-sm font-bold text-ehs-slate">
+        <Text as="span" className="text-ehs-slate text-sm font-bold">
           {label}
         </Text>
         {required ? (
@@ -146,7 +146,7 @@ export function ReportOptionCards<T extends string>(
                 key={option.id}
                 {...shared}
                 className={[
-                  "flex min-h-14.25 cursor-pointer flex-col items-start gap-0.5 rounded-2.5 border p-3.25 text-left transition-all duration-200",
+                  "rounded-2.5 flex min-h-14.25 cursor-pointer flex-col items-start gap-0.5 border p-3.25 text-left transition-all duration-200",
                   FOCUS_RING,
                   isSelected
                     ? "border-ehs-normal-blue bg-ehs-normal-blue/18 shadow-[0_0_0_1px_rgba(8,145,166,0.12)]"

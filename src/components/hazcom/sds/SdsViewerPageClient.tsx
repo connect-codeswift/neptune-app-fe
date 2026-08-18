@@ -109,7 +109,7 @@ function SdsViewerBody(
                   standard requires this section to cover; it is not this
                   product's own text. The attached PDF is the authoritative sheet.
                 */}
-                <div className="border-ehs-yellow/40 bg-ehs-yellow/8 flex items-start gap-2 rounded-2.5 border px-3 py-2.5">
+                <div className="border-ehs-yellow/40 bg-ehs-yellow/8 rounded-2.5 flex items-start gap-2 border px-3 py-2.5">
                   <Icon
                     icon="mdi:information-outline"
                     className="text-ehs-yellow mt-px size-4 shrink-0"
@@ -145,7 +145,7 @@ function SdsViewerBody(
                   Math.max(FIRST_SECTION_NUMBER, current - 1),
                 )
               }
-              className="text4 h-9 rounded-2.5 px-3"
+              className="text4 rounded-2.5 h-9 px-3"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -166,7 +166,7 @@ function SdsViewerBody(
                   Math.min(LAST_SECTION_NUMBER, current + 1),
                 )
               }
-              className="text4 h-9 rounded-2.5 px-3"
+              className="text4 rounded-2.5 h-9 px-3"
             >
               Next
               <Icon

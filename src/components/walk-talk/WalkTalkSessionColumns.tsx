@@ -33,9 +33,7 @@ export function createWalkTalkSessionColumns(
               {session.focusArea}
             </Text>
             <Text as="span" className="text8 text-ehs-muted-text">
-              {expanded
-                ? session.id
-                : `${session.id} · ${session.when}`}
+              {expanded ? session.id : `${session.id} · ${session.when}`}
             </Text>
           </div>
         );
@@ -70,10 +68,7 @@ export function createWalkTalkSessionColumns(
               verticalAlign: "middle" as const,
             },
             cell: (info) => (
-              <Text
-                as="span"
-                className="text4 text-ehs-gray whitespace-nowrap"
-              >
+              <Text as="span" className="text4 text-ehs-gray whitespace-nowrap">
                 {info.getValue()}
               </Text>
             ),

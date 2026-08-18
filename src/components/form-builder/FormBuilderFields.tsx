@@ -639,7 +639,7 @@ function SegmentedFillTilesControl(
     <div
       role="radiogroup"
       aria-label={field.label}
-      className="flex w-full items-stretch gap-0.5 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
+      className="rounded-2.5 flex w-full items-stretch gap-0.5 border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
     >
       {field.options.map((option) => {
         const isSelected = value === option.value;
@@ -654,7 +654,7 @@ function SegmentedFillTilesControl(
               onChange(option.value);
             }}
             className={[
-              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-1.5 py-2 leading-normal transition-colors",
+              "text4 rounded-1.5 flex min-w-0 flex-1 cursor-pointer items-center justify-center py-2 leading-normal transition-colors",
               isSelected
                 ? "bg-[#0891a6] font-semibold text-white"
                 : "font-medium text-[#566072] hover:bg-white/70",
@@ -780,7 +780,9 @@ function TilesControl(
               />
             ) : null}
 
-            <span className="text4 text-ehs-darker font-bold">{option.label}</span>
+            <span className="text4 text-ehs-darker font-bold">
+              {option.label}
+            </span>
 
             {option.description ? (
               <span className="text8 text-ehs-muted-text">
@@ -835,10 +837,10 @@ function CheckboxGroupControl(
               // row-level selected state, so a group of these read as grey
               // bars and the only feedback was the 16px box. Now frosted like
               // every other control, and the whole row responds.
-              "text4 flex cursor-pointer items-center gap-2.5 rounded-2.5 border px-3 py-2.5 transition-colors",
+              "text4 rounded-2.5 flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors",
               checked
                 ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
-                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
+                : "text-ehs-gray backdrop-blur-1.25 border-[rgba(15,23,42,0.08)] bg-white/55 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
             ].join(" ")}
           >
             <input

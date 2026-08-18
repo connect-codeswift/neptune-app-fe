@@ -12,9 +12,8 @@ const MY_ACTIONS_PATH = "/EHSCommandCenter/GetMyActions";
 
 /** GET /api/EHSCommandCenter/GetMainDashboardKpis */
 export async function getMainDashboardKpis() {
-  const { data } = await http.get<GetMainDashboardKpisResponseDto>(
-    DASHBOARD_KPIS_PATH,
-  );
+  const { data } =
+    await http.get<GetMainDashboardKpisResponseDto>(DASHBOARD_KPIS_PATH);
 
   return {
     ...data,
@@ -24,9 +23,8 @@ export async function getMainDashboardKpis() {
 
 /** GET /api/EHSCommandCenter/GetIncidentTrends */
 export async function getIncidentTrends() {
-  const { data } = await http.get<GetIncidentTrendsResponseDto>(
-    INCIDENT_TRENDS_PATH,
-  );
+  const { data } =
+    await http.get<GetIncidentTrendsResponseDto>(INCIDENT_TRENDS_PATH);
 
   return data;
 }

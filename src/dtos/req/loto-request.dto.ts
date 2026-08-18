@@ -8,10 +8,7 @@
  */
 
 export type LotoEquipmentStatusFilterDto =
-  | "All"
-  | "Operational"
-  | "Locked Out"
-  | "Maintenance";
+  "All" | "Operational" | "Locked Out" | "Maintenance";
 
 /** POST /api/Loto/GetAllEquipment body. */
 export type GetAllLotoEquipmentRequestDto = {

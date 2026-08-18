@@ -1,10 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  getRcaByIncidentId,
-  getRcaCategories,
-} from "@/services/rca.service";
+import { getRcaByIncidentId, getRcaCategories } from "@/services/rca.service";
 import {
   EMPTY_RCA_INCIDENT_VIEW,
   mapRcaCategoryDtosToView,
@@ -16,8 +13,7 @@ import {
 
 export const rcaQueryKeys = {
   categories: ["rca", "categories"] as const,
-  byIncident: (incidentId: number) =>
-    ["rca", "incident", incidentId] as const,
+  byIncident: (incidentId: number) => ["rca", "incident", incidentId] as const,
 };
 
 export type RcaCategoriesViewModel = Readonly<{

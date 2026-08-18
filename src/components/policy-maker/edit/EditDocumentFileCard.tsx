@@ -32,7 +32,7 @@ export function EditDocumentFileCard(
   return (
     <div
       className={[
-        "flex w-full min-w-0 flex-col gap-3 rounded-3 border-[1.5px] border-dashed border-[rgba(15,23,42,0.1)] bg-[rgba(238,241,246,0.45)] p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
+        "rounded-3 flex w-full min-w-0 flex-col gap-3 border-2 border-dashed border-[rgba(15,23,42,0.1)] bg-[rgba(238,241,246,0.45)] p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
         className,
       ]
         .filter(Boolean)
@@ -47,10 +47,7 @@ export function EditDocumentFileCard(
           />
         </div>
         <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="p"
-            className="text4 text-ehs-dark-bg truncate"
-          >
+          <Text as="p" className="text4 text-ehs-dark-bg truncate">
             {fileName}
           </Text>
           <Text as="p" className="text8 text-ehs-muted-text">

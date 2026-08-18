@@ -46,8 +46,7 @@ export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
     const session = await getOrgMe();
 
     if (session) {
-      const userId =
-        getAuthContext()?.userId ?? getCurrentUser().userId ?? 0;
+      const userId = getAuthContext()?.userId ?? getCurrentUser().userId ?? 0;
 
       if (!session.profileUrl && userId > 0) {
         try {

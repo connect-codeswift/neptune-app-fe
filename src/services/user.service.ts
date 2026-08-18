@@ -114,7 +114,9 @@ export async function getUserGenderById(userId: number): Promise<string> {
 }
 
 /** GET /Auth/GetUserById/{id} — fallback when Org/me is unavailable. */
-export async function getUserById(userId: number): Promise<AuthResponseDto | null> {
+export async function getUserById(
+  userId: number,
+): Promise<AuthResponseDto | null> {
   try {
     const { data } = await http.get<ApiEnvelopeDto<unknown>>(
       `${AUTH_GET_USER_BY_ID_PATH}/${userId}`,

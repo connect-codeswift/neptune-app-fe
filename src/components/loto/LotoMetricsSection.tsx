@@ -1,4 +1,7 @@
-import { MetricCardsRow, MetricCardsRowSkeleton } from "@/components/ui/MetricCard";
+import {
+  MetricCardsRow,
+  MetricCardsRowSkeleton,
+} from "@/components/ui/MetricCard";
 import type { LotoDashboardKpisDto } from "@/dtos/res/loto-response.dto";
 import { toLotoMetrics } from "@/services/mappers/loto.mapper";
 

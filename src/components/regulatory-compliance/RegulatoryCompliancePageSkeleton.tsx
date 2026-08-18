@@ -20,7 +20,7 @@ function Bar(props: BarProps) {
   return (
     <div
       aria-hidden="true"
-      className={["animate-pulse rounded-1.5 bg-[#e2e8f0]", className]
+      className={["rounded-1.5 animate-pulse bg-[#e2e8f0]", className]
         .filter(Boolean)
         .join(" ")}
       style={{ opacity }}
@@ -38,7 +38,7 @@ function GlassPanel(props: GlassPanelProps) {
   return (
     <div
       className={[
-        "rounded-5 border border-white/90 bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.08)] backdrop-blur-2.5",
+        "rounded-5 backdrop-blur-2.5 border border-white/90 bg-white/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.08)]",
         className,
       ]
         .filter(Boolean)
@@ -81,7 +81,7 @@ function ProgressRowSkeleton() {
         <Bar className="h-2 w-20" />
         <Bar className="h-2 w-7.5" />
       </div>
-      <Bar className="h-1.5 w-full rounded-0.75" />
+      <Bar className="rounded-0.75 h-1.5 w-full" />
     </div>
   );
 }
@@ -102,10 +102,10 @@ export function RegulatoryCompliancePageSkeleton() {
         </div>
 
         <div className="flex items-start gap-2">
-          <div className="flex items-start rounded-2.5 border border-white/90 bg-white/62 px-3.5 py-2">
+          <div className="rounded-2.5 flex items-start border border-white/90 bg-white/62 px-3.5 py-2">
             <Bar className="h-3 w-27.5" />
           </div>
-          <div className="flex items-start rounded-2.5 bg-[#0891a6] px-3.5 py-2">
+          <div className="rounded-2.5 flex items-start bg-[#0891a6] px-3.5 py-2">
             <Bar className="h-3 w-20 bg-white/90" />
           </div>
         </div>

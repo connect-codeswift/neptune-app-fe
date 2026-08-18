@@ -1,7 +1,4 @@
-import type {
-  LotoEquipmentStatus,
-  LotoHistoryRecord,
-} from "./loto-data";
+import type { LotoEquipmentStatus, LotoHistoryRecord } from "./loto-data";
 
 export type LotoEquipmentDetailTab = "overview" | "procedure" | "history";
 

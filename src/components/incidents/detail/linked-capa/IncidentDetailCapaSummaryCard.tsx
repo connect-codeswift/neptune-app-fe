@@ -49,7 +49,7 @@ export function IncidentDetailCapaSummaryCard(
         {stats.map((item) => (
           <div
             key={item.label}
-            className="flex flex-col gap-1.25 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.75"
+            className="rounded-2.5 flex flex-col gap-1.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.75"
           >
             <span
               className={[

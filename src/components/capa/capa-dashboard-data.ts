@@ -3,11 +3,7 @@ import type { MetricCardProps } from "@/components/ui/MetricCard";
 /** Figma CAPA Dashboard status filter — node 7123:41912.
  * Prefer `CAPA_STATUS_FILTER_OPTIONS` in `@/lib/capa-filters` for live API filters.
  */
-export const CAPA_DASHBOARD_STATUS_FILTERS = [
-  "All",
-  "Open",
-  "Closed",
-] as const;
+export const CAPA_DASHBOARD_STATUS_FILTERS = ["All", "Open", "Closed"] as const;
 
 export const CAPA_DASHBOARD_TYPE_FILTERS = [
   "All",

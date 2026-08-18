@@ -66,7 +66,7 @@ export function InspectionFindingsHeader(props: InspectionFindingsHeaderProps) {
             type="button"
             variant="primary"
             onClick={onGenerateReport}
-            className={`${actionClass} shrink-0 !border-transparent !shadow-none`}
+            className={`${actionClass} shrink-0 border-transparent! shadow-none!`}
           >
             <Icon
               icon="mdi:file-document-outline"

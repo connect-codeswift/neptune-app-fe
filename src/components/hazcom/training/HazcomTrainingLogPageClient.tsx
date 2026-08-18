@@ -233,7 +233,9 @@ export function HazcomTrainingLogPageClient() {
                               className="size-3.5 shrink-0"
                               aria-hidden="true"
                             />
-                            <span className="truncate">{material.fileName}</span>
+                            <span className="truncate">
+                              {material.fileName}
+                            </span>
                           </a>
                         </li>
                       ))}

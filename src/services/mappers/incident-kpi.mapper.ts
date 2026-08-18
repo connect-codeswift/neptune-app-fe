@@ -76,10 +76,7 @@ type ValueFormat = "integer" | "decimal";
  * on every page load, even for a site with hours already entered.
  */
 export type SiteWorkHoursAvailability =
-  | "loading"
-  | "error"
-  | "insufficient"
-  | "available";
+  "loading" | "error" | "insufficient" | "available";
 
 /** Caption on a rate card when `/site-work-hours` failed. */
 export const RATE_HOURS_CHECK_FAILED_LABEL = "Couldn't check work hours";
@@ -89,9 +86,7 @@ export const RATE_HOURS_CHECK_FAILED_LABEL = "Couldn't check work hours";
  * hide the numeric rate; only `"check-failed"` gets an error caption.
  */
 export type IncidentRateHoursGate =
-  | "available"
-  | "unavailable"
-  | "check-failed";
+  "available" | "unavailable" | "check-failed";
 
 /** Backend swagger has shown `mttr` — normalize to `mttc`. */
 const KPI_METRIC_ALIASES: Partial<Record<string, KpiMetricKey>> = {
@@ -300,9 +295,7 @@ function mapKpiCardToListMetric(
   const hasNoLtiRecorded =
     definition.key === "daysWithoutLti" && rawValue == null;
   const unit =
-    showRate && !hasNoLtiRecorded
-      ? card?.unit?.trim() || undefined
-      : undefined;
+    showRate && !hasNoLtiRecorded ? card?.unit?.trim() || undefined : undefined;
   const series = showRate ? toNumericTrend(card?.trend) : [];
 
   // The backend computes this week-over-week. Never derive it from the series
@@ -335,8 +328,7 @@ function mapKpiCardToListMetric(
       )
     : "";
 
-  const rateHoursFailed =
-    isRateMetric && rateHoursGate === "check-failed";
+  const rateHoursFailed = isRateMetric && rateHoursGate === "check-failed";
 
   const metric = {
     id: definition.id,

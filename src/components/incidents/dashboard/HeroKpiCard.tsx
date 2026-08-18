@@ -124,7 +124,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
           {status ? (
             <span
               className={[
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] text-sm font-bold tracking-[0.11px]",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[3px] text-sm font-bold tracking-[0.11px]",
                 status === "on"
                   ? "bg-ehs-green/14 text-ehs-green"
                   : "bg-ehs-red/14 text-ehs-red",
@@ -132,7 +132,7 @@ export function HeroKpiCard(props: Readonly<HeroKpiCardProps>) {
             >
               <span
                 className={[
-                  "size-1.5 rounded-0.75",
+                  "rounded-0.75 size-1.5",
                   status === "on" ? "bg-ehs-green" : "bg-ehs-red",
                 ].join(" ")}
                 aria-hidden="true"

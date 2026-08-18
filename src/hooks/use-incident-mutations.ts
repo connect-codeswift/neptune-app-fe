@@ -84,9 +84,7 @@ export function useUpdateIncidentClosureMutation() {
       incidentId: number;
       data: IncidentClosureData;
     }) => {
-      const payload = mapIncidentClosureDataToUpdateDto(
-        input.data,
-      );
+      const payload = mapIncidentClosureDataToUpdateDto(input.data);
       return updateIncidentClosure(input.incidentId, payload);
     },
     onSuccess: async (_res, variables) => {
@@ -97,4 +95,3 @@ export function useUpdateIncidentClosureMutation() {
     },
   });
 }
-

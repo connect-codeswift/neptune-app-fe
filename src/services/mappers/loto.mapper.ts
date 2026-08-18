@@ -51,10 +51,7 @@ function formatDate(value: string | null): string {
 }
 
 /** "4h 25m" between two ISO stamps; an active lockout reads as in progress. */
-function formatDuration(
-  startedAt: string,
-  removedAt: string | null,
-): string {
+function formatDuration(startedAt: string, removedAt: string | null): string {
   const start = new Date(startedAt);
   if (Number.isNaN(start.getTime())) return "—";
   if (!removedAt) return "In progress";
@@ -122,7 +119,8 @@ export function toLotoHistoryRecord(dto: LotoLockoutRowDto): LotoHistoryRecord {
     operator: dto.operatorName,
     lockNumber: withLockPrefix(dto.lockNumber),
     startAt: formatDateTime(dto.startedAt),
-    endAt: dto.status === "Active" ? "In progress" : formatDateTime(dto.removedAt),
+    endAt:
+      dto.status === "Active" ? "In progress" : formatDateTime(dto.removedAt),
     purpose: dto.purpose,
     duration: formatDuration(dto.startedAt, dto.removedAt),
     result: dto.status,
@@ -178,13 +176,15 @@ export function toLotoEquipmentDetail(
 ): LotoEquipmentDetail {
   const historyRecords = history.map(toLotoHistoryRecord);
 
-  const recentLockouts: LotoRecentLockout[] = history.slice(0, 3).map((row) => ({
-    id: row.id,
-    purpose: row.purpose,
-    operator: row.operatorName,
-    date: formatDate(row.startedAt),
-    duration: formatDuration(row.startedAt, row.removedAt),
-  }));
+  const recentLockouts: LotoRecentLockout[] = history
+    .slice(0, 3)
+    .map((row) => ({
+      id: row.id,
+      purpose: row.purpose,
+      operator: row.operatorName,
+      date: formatDate(row.startedAt),
+      duration: formatDuration(row.startedAt, row.removedAt),
+    }));
 
   return {
     id: dto.id,

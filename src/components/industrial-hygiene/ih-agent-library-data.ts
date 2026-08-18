@@ -1,12 +1,7 @@
 export type IhAgentStatus = "Active" | "Closed";
 
 export type IhAgentTypeLabel =
-  | "Chemical"
-  | "Noise"
-  | "Dust"
-  | "Radiation"
-  | "Biological"
-  | "Thermal";
+  "Chemical" | "Noise" | "Dust" | "Radiation" | "Biological" | "Thermal";
 
 export type IhAgentRow = Readonly<{
   id: string;

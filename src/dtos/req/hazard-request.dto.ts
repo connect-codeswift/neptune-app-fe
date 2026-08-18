@@ -34,5 +34,4 @@ export type UpdateHazardRequestDto = {
 
 /** Either shape accepted by POST /api/Hazard/Hazards. */
 export type SaveHazardRequestDto =
-  | CreateHazardRequestDto
-  | UpdateHazardRequestDto;
+  CreateHazardRequestDto | UpdateHazardRequestDto;

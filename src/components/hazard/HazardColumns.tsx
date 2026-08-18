@@ -55,11 +55,7 @@ export function makeHazardColumns(
       header: "Status",
       size: 130,
       cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone="muted"
-          className="w-fit"
-        />
+        <IncidentBadge label={info.getValue()} tone="muted" className="w-fit" />
       ),
       meta: { align: "left" as const },
     }),
@@ -67,7 +63,9 @@ export function makeHazardColumns(
       header: "Age",
       size: 90,
       cell: (info) => (
-        <span className="text4 text-ehs-gray tabular-nums">{info.getValue()}</span>
+        <span className="text4 text-ehs-gray tabular-nums">
+          {info.getValue()}
+        </span>
       ),
       meta: { align: "right" as const },
     }),

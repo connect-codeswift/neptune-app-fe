@@ -154,7 +154,7 @@ export function ReportCalendarPopover(
       // first. Centring keeps all three inside it.
       className={
         className ??
-        "animate-popover-in absolute top-full left-1/2 z-40 mt-1.5 w-65 -translate-x-1/2 rounded-3 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+        "animate-popover-in rounded-3 absolute top-full left-1/2 z-40 mt-1.5 w-65 -translate-x-1/2 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
       }
     >
       <div className="flex items-center justify-between pb-2">
@@ -195,7 +195,7 @@ export function ReportCalendarPopover(
           <span
             key={weekday}
             aria-hidden="true"
-            className="text-ehs-muted-text flex h-6 items-center justify-center text-2.5 font-semibold"
+            className="text-ehs-muted-text text-2.5 flex h-6 items-center justify-center font-semibold"
           >
             {weekday}
           </span>
@@ -233,7 +233,7 @@ export function ReportCalendarPopover(
                 if (!isSameDay(day, focusedDate)) setFocusedDate(day);
               }}
               className={[
-                "relative flex h-8 cursor-pointer items-center justify-center rounded-lg text-[12.5px] transition-colors",
+                "relative flex h-8 cursor-pointer items-center justify-center rounded-lg text-[13px] transition-colors",
                 "focus-visible:ring-ehs-normal-blue/40 focus-visible:ring-2 focus-visible:outline-none",
                 disabled
                   ? "cursor-not-allowed text-[rgba(15,23,42,0.22)]"

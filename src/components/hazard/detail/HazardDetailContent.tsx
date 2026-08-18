@@ -159,7 +159,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                       variant="primary"
                       disabled={isClosed || closeMutation.isPending}
                       onClick={handleClose}
-                      className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                      className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                     >
                       <Icon
                         icon={
@@ -186,7 +186,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
                     variant="tertiary"
                     disabled={dropMutation.isPending}
                     onClick={() => setIsConfirmingDrop(true)}
-                    className="text4 gap-2 rounded-2.5 px-4 py-2.5 font-semibold"
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                   >
                     <Icon
                       icon={

@@ -47,9 +47,8 @@ export type GetWalkTalkSessionsResponseDto = ApiEnvelopeDto<
 >;
 
 /** Matches backend response for GET /api/walkandtalk/{id}. */
-export type GetWalkTalkSessionByIdResponseDto = ApiEnvelopeDto<
-  WalkTalkSessionDto | null
->;
+export type GetWalkTalkSessionByIdResponseDto =
+  ApiEnvelopeDto<WalkTalkSessionDto | null>;
 
 /** dataModel shape for GET /api/walkandtalk/dashboard-counts. */
 export type WalkTalkDashboardCountsDto = {
@@ -58,9 +57,8 @@ export type WalkTalkDashboardCountsDto = {
 };
 
 /** Matches backend response for GET /api/walkandtalk/dashboard-counts. */
-export type GetWalkTalkDashboardCountsResponseDto = ApiEnvelopeDto<
-  WalkTalkDashboardCountsDto | null
->;
+export type GetWalkTalkDashboardCountsResponseDto =
+  ApiEnvelopeDto<WalkTalkDashboardCountsDto | null>;
 
 /** One finding from GET /api/walkandtalk/top-findings. */
 export type WalkTalkTopFindingDto = {
@@ -86,9 +84,8 @@ export type WalkTalkGraphDto = {
 };
 
 /** Matches backend response for GET /api/walkandtalk/graph. */
-export type GetWalkTalkGraphResponseDto = ApiEnvelopeDto<
-  WalkTalkGraphDto | null
->;
+export type GetWalkTalkGraphResponseDto =
+  ApiEnvelopeDto<WalkTalkGraphDto | null>;
 
 /** Matches backend response for POST /api/walkandtalk. */
 export type CreateWalkTalkResponseDto = ApiEnvelopeDto<unknown>;

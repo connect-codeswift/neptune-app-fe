@@ -6,7 +6,10 @@ function SectionCardSkeleton(props: Readonly<{ rows: number }>) {
   const { rows } = props;
 
   return (
-    <IncidentGlassCard paddingClassName="p-0 overflow-hidden" className="min-w-0">
+    <IncidentGlassCard
+      paddingClassName="p-0 overflow-hidden"
+      className="min-w-0"
+    >
       <header className="border-b border-white/90 bg-[rgba(238,241,246,0.7)] px-5 py-3">
         <Skeleton className="h-4 w-52" />
       </header>
@@ -20,10 +23,7 @@ function SectionCardSkeleton(props: Readonly<{ rows: number }>) {
             <Skeleton className="h-3 w-64" />
             <div className="flex shrink-0 items-center gap-2">
               {Array.from({ length: 4 }).map((_, answerIndex) => (
-                <Skeleton
-                  key={answerIndex}
-                  className="h-7 w-16 rounded-2.5"
-                />
+                <Skeleton key={answerIndex} className="rounded-2.5 h-7 w-16" />
               ))}
             </div>
           </li>
@@ -62,7 +62,7 @@ export function InspectionChecklistSkeleton() {
       <SectionCardSkeleton rows={2} />
 
       <div className="flex">
-        <Skeleton className="h-11 w-44 rounded-2.5" />
+        <Skeleton className="rounded-2.5 h-11 w-44" />
       </div>
     </div>
   );

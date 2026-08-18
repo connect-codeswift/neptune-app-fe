@@ -44,7 +44,7 @@ export function IncidentDetailStorageCard(
           />
         </div>
 
-        <div className="text-ehs-muted-text flex items-center justify-between text4 font-semibold">
+        <div className="text-ehs-muted-text text4 flex items-center justify-between font-semibold">
           <span className="text-ehs-gray">
             {usedMB} MB of {maxMB} MB
           </span>

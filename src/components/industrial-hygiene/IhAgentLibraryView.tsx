@@ -8,7 +8,10 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { IhModuleTabs } from "@/components/industrial-hygiene/IhModuleTabs";
 import { IhPageHeader } from "@/components/industrial-hygiene/IhPageHeader";
 import { IhSearchToolbar } from "@/components/industrial-hygiene/IhSearchToolbar";
-import { IH_ADD_AGENT_PATH, ihEditAgentPath } from "@/components/industrial-hygiene/ih-add-agent-data";
+import {
+  IH_ADD_AGENT_PATH,
+  ihEditAgentPath,
+} from "@/components/industrial-hygiene/ih-add-agent-data";
 import {
   IH_AGENT_ROWS,
   type IhAgentRow,

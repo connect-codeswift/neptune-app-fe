@@ -6,11 +6,11 @@
 
 Three placeholder controls appeared in most page headers:
 
-| Control | Purpose (planned) | Typical placeholder |
-|---------|-------------------|---------------------|
-| **Global search** | Fuzzy search across incidents, CAPAs, documents, users, messages; `⌘K` shortcut | `"Search incidents, actions, docs…"` |
-| **Date range / calendar** | Filter page data by reporting period | `"Year to date"` / `"March 25 — April 24, 2026"` |
-| **Notification bell** | Unread alerts inbox | Red dot when unread |
+| Control                   | Purpose (planned)                                                               | Typical placeholder                              |
+| ------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ |
+| **Global search**         | Fuzzy search across incidents, CAPAs, documents, users, messages; `⌘K` shortcut | `"Search incidents, actions, docs…"`             |
+| **Date range / calendar** | Filter page data by reporting period                                            | `"Year to date"` / `"March 25 — April 24, 2026"` |
+| **Notification bell**     | Unread alerts inbox                                                             | Red dot when unread                              |
 
 These were mostly non-functional UI shells (toasts or no-op handlers).
 

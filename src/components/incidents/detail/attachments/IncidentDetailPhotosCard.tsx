@@ -56,7 +56,7 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[10.5px] text5 backdrop-blur-1.5 transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 inline-flex shrink-0 items-center gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[11px] transition-colors hover:bg-white/80"
           >
             <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
             Add file
@@ -65,7 +65,7 @@ function PhotosContent(
       </div>
 
       {displayItems.length === 0 ? (
-        <div className="text-ehs-muted-text py-8 text-center text4">
+        <div className="text-ehs-muted-text text4 py-8 text-center">
           No media files uploaded.
         </div>
       ) : (
@@ -84,7 +84,7 @@ function PhotosContent(
             return (
               <div
                 key={item.id}
-                className="relative aspect-[152/114] w-full overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.08)]"
+                className="rounded-2.5 relative aspect-[152/114] w-full overflow-hidden border border-[rgba(15,23,42,0.08)]"
                 style={{
                   backgroundImage: gradients[index % gradients.length],
                 }}
@@ -123,7 +123,7 @@ function PhotosContent(
 
                   {isVideo ? (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
-                      <div className="text-ehs-dark-bg flex size-9 items-center justify-center rounded-4.5 bg-[rgba(255,255,255,0.92)]">
+                      <div className="text-ehs-dark-bg rounded-4.5 flex size-9 items-center justify-center bg-[rgba(255,255,255,0.92)]">
                         <Icon
                           icon="mdi:play"
                           className="size-4"
@@ -134,10 +134,10 @@ function PhotosContent(
                   ) : null}
 
                   <div className="absolute inset-x-2 bottom-0.75 z-20 flex items-start justify-between gap-1">
-                    <span className="truncate text8 leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="text8 truncate leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.name.replace(/\.[^.]+$/, "")}
                     </span>
-                    <span className="shrink-0 text8 leading-normal text-[rgba(255,255,255,0.9)]">
+                    <span className="text8 shrink-0 leading-normal text-[rgba(255,255,255,0.9)]">
                       {item.sizeLabel}
                     </span>
                   </div>

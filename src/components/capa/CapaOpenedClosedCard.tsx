@@ -175,7 +175,7 @@ export function CapaOpenedClosedCard() {
       <div className="mt-2 flex items-center gap-5">
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-0.5"
+            className="rounded-0.5 size-2"
             style={{ backgroundColor: OPENED_COLOR }}
             aria-hidden
           />
@@ -183,7 +183,7 @@ export function CapaOpenedClosedCard() {
         </div>
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-0.5"
+            className="rounded-0.5 size-2"
             style={{ backgroundColor: CLOSED_COLOR }}
             aria-hidden
           />

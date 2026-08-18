@@ -63,7 +63,7 @@ export function IncidentDetailResponseCard(
               ) : (
                 <div className="size-4 shrink-0 rounded border border-[rgba(15,23,42,0.14)] bg-transparent" />
               )}
-              <span className="text-ehs-dark-bg truncate text4 leading-normal">
+              <span className="text-ehs-dark-bg text4 truncate leading-normal">
                 {action.label}
               </span>
             </div>

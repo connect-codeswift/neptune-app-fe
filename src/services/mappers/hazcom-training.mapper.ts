@@ -68,15 +68,16 @@ function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
   };
 }
 
-function toTrainingMaterials(value: unknown): readonly HazcomTrainingMaterial[] {
+function toTrainingMaterials(
+  value: unknown,
+): readonly HazcomTrainingMaterial[] {
   if (!Array.isArray(value)) {
     // Legacy single-link responses before materials[] shipped.
     const legacyLink = asString(value);
     if (legacyLink === "") {
       return [];
     }
-    const fileName =
-      legacyLink.split("/").pop()?.trim() || "Training material";
+    const fileName = legacyLink.split("/").pop()?.trim() || "Training material";
     return [{ fileUrl: legacyLink, fileName }];
   }
 
@@ -96,9 +97,7 @@ function toAttendeeCount(record: Record<string, unknown>): number {
   return asLeadingNumber(readProp(record, "attendees", "Attendees"));
 }
 
-function mapTrainingLogDtoToHazcomSession(
-  raw: unknown,
-): HazcomTrainingSession {
+function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
   const record = isRecord(raw) ? raw : {};
   const date = toIsoDate(
     readProp(record, "sessionDate", "SessionDate", "date", "Date"),

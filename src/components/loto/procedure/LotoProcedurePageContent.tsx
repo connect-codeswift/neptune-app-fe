@@ -260,9 +260,7 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       steps: stepPayloads.map((step) => ({
         description: step.description.trim(),
         isolationPoint:
-          step.isolationPoint.trim() === ""
-            ? null
-            : step.isolationPoint.trim(),
+          step.isolationPoint.trim() === "" ? null : step.isolationPoint.trim(),
         energyType:
           step.energyType.trim() === "" ? null : step.energyType.trim(),
         lockTagPosition:
@@ -300,7 +298,9 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       onSuccess: (result) => {
         toast.success(
           "LOTO procedure created",
-          result ? `Equipment ${withEquipmentPrefix(result.equipmentCode)} registered.` : undefined,
+          result
+            ? `Equipment ${withEquipmentPrefix(result.equipmentCode)} registered.`
+            : undefined,
         );
         router.push(LOTO_ROUTE);
       },

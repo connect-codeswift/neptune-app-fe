@@ -1,9 +1,5 @@
 export type LibraryCategoryId =
-  | "policies"
-  | "sops"
-  | "training"
-  | "permits"
-  | "forms";
+  "policies" | "sops" | "training" | "permits" | "forms";
 
 export type DocumentStatus = "Current" | "In review" | "Expiring soon";
 

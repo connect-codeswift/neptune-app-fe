@@ -118,7 +118,7 @@ export function ChemicalDetailHeader(
             <Button
               type="button"
               variant="tertiary"
-              className={`${actionBaseClass} border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+              className={`${actionBaseClass} border border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
             >
               <Icon
                 icon="mdi:pencil-outline"
@@ -129,11 +129,7 @@ export function ChemicalDetailHeader(
             </Button>
           </Link>
           <Link href="/dashboard/hazcom/labels" className="min-w-0">
-            <Button
-              type="button"
-              variant="primary"
-              className={actionBaseClass}
-            >
+            <Button type="button" variant="primary" className={actionBaseClass}>
               <Icon
                 icon="mdi:printer-outline"
                 className="size-4"

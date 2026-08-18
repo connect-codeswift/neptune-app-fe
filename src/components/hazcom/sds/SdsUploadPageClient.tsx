@@ -26,11 +26,7 @@ import {
   useHazardHCodesQuery,
   usePrecautionaryCodesQuery,
 } from "@/hooks/use-hazcom-queries";
-import {
-  formatFileSize,
-  getFileMaxBytes,
-  isPdfMimeType,
-} from "@/lib/files";
+import { formatFileSize, getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
 
@@ -349,16 +345,10 @@ export function SdsUploadPageClient() {
                 className={`flex flex-col gap-1.5 sm:col-span-2 ${lockedFieldClass}`}
               >
                 <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-                  <Text
-                    as="span"
-                    className={HAZCOM_FIELD_LABEL_CLASS}
-                  >
+                  <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
                     Signal Word
                   </Text>
-                  <Text
-                    as="span"
-                    className="text8 text-ehs-muted-text ml-auto"
-                  >
+                  <Text as="span" className="text8 text-ehs-muted-text ml-auto">
                     From chemical
                   </Text>
                 </div>
@@ -371,7 +361,7 @@ export function SdsUploadPageClient() {
                         key={word}
                         aria-hidden={!selected}
                         className={[
-                          "text5 flex h-9 flex-1 items-center justify-center rounded-2.5 border uppercase",
+                          "text5 rounded-2.5 flex h-9 flex-1 items-center justify-center border uppercase",
                           signalWordButtonClass(word, selected),
                         ].join(" ")}
                       >
@@ -402,16 +392,10 @@ export function SdsUploadPageClient() {
           {selectedChemical ? (
             <div className={`flex flex-col gap-1.5 ${lockedFieldClass}`}>
               <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-                <Text
-                  as="span"
-                  className={HAZCOM_FIELD_LABEL_CLASS}
-                >
+                <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
                   GHS Pictograms
                 </Text>
-                <Text
-                  as="span"
-                  className="text8 text-ehs-muted-text ml-auto"
-                >
+                <Text as="span" className="text8 text-ehs-muted-text ml-auto">
                   From chemical
                 </Text>
               </div>

@@ -57,10 +57,7 @@ export function LotoEquipmentDetailContent(
     parseTab(initialTab),
   );
 
-  const detailQuery = useLotoEquipmentDetailQuery(
-    numericId,
-    hasToken === true,
-  );
+  const detailQuery = useLotoEquipmentDetailQuery(numericId, hasToken === true);
   const historyQuery = useLotoEquipmentHistoryQuery(
     numericId,
     hasToken === true,

@@ -286,7 +286,7 @@ function Sparkline(
 }
 
 const badgeClass =
-  "text8 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] font-bold tracking-[0.22px]";
+  "text8 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[3px] font-bold tracking-[0.22px]";
 
 function valueTextClass(value: string | number): string {
   const classes = ["text2 text-ehs-dark-bg min-w-0 wrap-break-word"];
@@ -397,7 +397,10 @@ export function MetricCard(props: MetricCardProps) {
           {String(value)}
         </Text>
         {unit ? (
-          <Text as="span" className="text8 text-ehs-gray font-semibold uppercase">
+          <Text
+            as="span"
+            className="text8 text-ehs-gray font-semibold uppercase"
+          >
             {unit}
           </Text>
         ) : null}

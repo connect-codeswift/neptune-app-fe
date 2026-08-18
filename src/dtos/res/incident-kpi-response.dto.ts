@@ -38,11 +38,7 @@ export type GetIncidentListKpisResponseDto =
 
 /** Known KPI metric keys used across target save/list and card matching. */
 export type KpiMetricKey =
-  | "rir"
-  | "ltir"
-  | "mttc"
-  | "openIncidents"
-  | "daysWithoutLti";
+  "rir" | "ltir" | "mttc" | "openIncidents" | "daysWithoutLti";
 
 /** One entry from GET /api/Incident/kpi-targets. */
 export type KpiTargetDto = {

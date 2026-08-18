@@ -71,10 +71,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   };
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-6"
-      className="w-full"
-    >
+    <IncidentGlassCard paddingClassName="p-6" className="w-full">
       <FormBuilder
         schema={schema}
         initialValues={toHazardEditValues(record)}

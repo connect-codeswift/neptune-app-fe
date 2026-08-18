@@ -1,6 +1,4 @@
-import type {
-  SaveSiteWorkHoursRequestDto,
-} from "@/dtos/req/incident-kpi-request.dto";
+import type { SaveSiteWorkHoursRequestDto } from "@/dtos/req/incident-kpi-request.dto";
 import type {
   GetHeaderKpiResponseDto,
   GetIncidentDashboardKpisResponseDto,

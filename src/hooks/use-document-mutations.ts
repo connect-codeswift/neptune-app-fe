@@ -76,7 +76,8 @@ export function useApproveDocumentMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ApproveDocumentRequestDto) => approveDocument(payload),
+    mutationFn: (payload: ApproveDocumentRequestDto) =>
+      approveDocument(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },

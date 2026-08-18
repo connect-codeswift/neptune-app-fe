@@ -41,13 +41,10 @@ export function IncidentDetailCapaControlCoverageCard(
       className={["bg-white/62", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-0.5">
-        <Text
-          as="h3"
-          className="text-ehs-dark-bg text3"
-        >
+        <Text as="h3" className="text-ehs-dark-bg text3">
           Control coverage
         </Text>
-        <span className="text4 leading-normal text-ehs-muted-text">
+        <span className="text4 text-ehs-muted-text leading-normal">
           Across hierarchy of controls
         </span>
       </div>
@@ -62,20 +59,16 @@ export function IncidentDetailCapaControlCoverageCard(
               key={ctrl.label}
               className={[
                 "flex items-center gap-2.5",
-                isFirst
-                  ? "pt-5.5 pb-2"
-                  : isLast
-                    ? "pt-2 pb-4.5"
-                    : "py-2",
+                isFirst ? "pt-5.5 pb-2" : isLast ? "pt-2 pb-4.5" : "py-2",
               ].join(" ")}
             >
-              <span className="size-2.5 shrink-0 rounded-0.75 bg-ehs-gray" />
-              <span className="min-w-0 flex-1 text4 leading-normal text-ehs-slate">
+              <span className="rounded-0.75 bg-ehs-gray size-2.5 shrink-0" />
+              <span className="text4 text-ehs-slate min-w-0 flex-1 leading-normal">
                 {ctrl.label}
               </span>
               <span
                 className={[
-                  "shrink-0 text5",
+                  "text5 shrink-0",
                   isLoading
                     ? "text-ehs-muted-text"
                     : ctrl.count > 0
@@ -91,9 +84,8 @@ export function IncidentDetailCapaControlCoverageCard(
       </div>
 
       {!isLoading && noticeMessage ? (
-        <div className="rounded-2.5 border border-[rgba(11,19,32,0.35)] bg-ehs-dark-bg/14 px-3.25 pt-3 pb-3.25 text8 leading-[16.5px] text-ehs-slate">
-          <span className="font-bold">{noticeLead}</span>{" "}
-          {noticeRest}
+        <div className="rounded-2.5 bg-ehs-dark-bg/14 text8 text-ehs-slate border border-[rgba(11,19,32,0.35)] px-3.25 pt-3 pb-3.25 leading-[16.5px]">
+          <span className="font-bold">{noticeLead}</span> {noticeRest}
         </div>
       ) : null}
     </IncidentGlassCard>
