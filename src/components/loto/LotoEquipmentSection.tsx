@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import {
   LOTO_STATUS_FILTERS,
   type LotoStatusFilter,
@@ -20,6 +21,7 @@ import {
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
 import { LotoQueryStatus } from "./LotoQueryStatus";
+import { LotoRegisterHeader } from "./LotoRegisterHeader";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -32,7 +34,14 @@ function toStatusDto(status: LotoStatusFilter): LotoEquipmentStatusFilterDto {
   return status === "all" ? "All" : status;
 }
 
-export function LotoEquipmentSection() {
+export type LotoEquipmentSectionProps = Readonly<{
+  onCreateProcedure?: () => void;
+}>;
+
+export function LotoEquipmentSection(
+  props: Readonly<LotoEquipmentSectionProps>,
+) {
+  const { onCreateProcedure } = props;
   const router = useRouter();
   const hasToken = useHasAccessToken();
   const [query, setQuery] = useState("");
@@ -124,8 +133,18 @@ export function LotoEquipmentSection() {
           data={page?.items ?? []}
           columns={columns}
           getRowId={(row) => String(row.id)}
-          containerClassName="min-w-0"
-          variant="incident"
+          variant="compliance"
+          containerClassName={[complianceGlassCardClass, "min-w-0"].join(" ")}
+          header={
+            <LotoRegisterHeader
+              count={totalRecords}
+              itemNoun="item"
+              itemNounPlural="items"
+              actionLabel={onCreateProcedure ? "Create Procedure" : undefined}
+              actionIcon="mdi:file-document-outline"
+              onAction={onCreateProcedure}
+            />
+          }
           pagination={{
             pageNumber,
             pageSize: DEFAULT_LOTO_PAGE_SIZE,

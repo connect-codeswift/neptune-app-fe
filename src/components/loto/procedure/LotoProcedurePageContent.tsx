@@ -140,15 +140,19 @@ function detailToFormState(
     description: detail.description ?? "",
     steps:
       detail.steps.length > 0
-        ? detail.steps.map((step) =>
+        ? detail.steps.map((step, index) =>
             createEmptyIsolationStep({
+              id: `step-${String(index + 1)}`,
               description: step.description,
               isolationPoint: step.isolationPoint ?? "",
               energyType: step.energyType ?? "",
               lockTagPosition: step.lockTagPosition ?? "",
             }),
           )
-        : [createEmptyIsolationStep(), createEmptyIsolationStep()],
+        : [
+            createEmptyIsolationStep({ id: "step-1" }),
+            createEmptyIsolationStep({ id: "step-2" }),
+          ],
     verificationMethod: "",
     additionalNotes: detail.additionalNotes ?? "",
     selectedPpe: [],

@@ -1,3 +1,4 @@
+import { Text } from "@/components/Text";
 import {
   MetricCardsRow,
   MetricCardsRowSkeleton,
@@ -12,7 +13,7 @@ export type LotoMetricsSectionProps = Readonly<{
 }>;
 
 /** KPI strip — same MetricCard as every other module header, fed by GET /api/Loto/dashboard-kpis. */
-export function LotoMetricsSection(props: LotoMetricsSectionProps) {
+export function LotoMetricsSection(props: Readonly<LotoMetricsSectionProps>) {
   const { kpis, isLoading, isError } = props;
 
   if (isLoading) {
@@ -21,9 +22,9 @@ export function LotoMetricsSection(props: LotoMetricsSectionProps) {
 
   if (isError || !kpis) {
     return (
-      <p className="text4 text-ehs-muted-text px-1">
+      <Text as="p" className="text4 text-ehs-muted-text px-1">
         Couldn&apos;t load LOTO metrics.
-      </p>
+      </Text>
     );
   }
 

@@ -1,4 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { Text } from "@/components/Text";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoHistoryRecord,
@@ -7,106 +9,107 @@ import type {
 
 const columnHelper = createColumnHelper<LotoHistoryRecord>();
 
-const resultClassName: Record<LotoHistoryResult, string> = {
-  Completed: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
-  Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
-};
+function columnHeader(label: string) {
+  return (
+    <Text as="span" className="text6 text-ehs-muted-text">
+      {label}
+    </Text>
+  );
+}
 
 export function buildLotoHistoryColumns(): TableColumns<LotoHistoryRecord> {
   return [
     columnHelper.accessor("logId", {
-      header: "Log ID",
+      header: () => columnHeader("Log ID"),
       size: 120,
       cell: (info) => (
-        <button
-          type="button"
-          className="text7 text-ehs-normal-blue cursor-pointer font-mono hover:underline"
-        >
+        <Text as="span" className="text7 text-ehs-normal-blue font-mono">
           {info.getValue()}
-        </button>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("equipment", {
-      header: "Equipment",
+      header: () => columnHeader("Equipment"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-darker line-clamp-1">
+        <Text as="span" className="text4 text-ehs-darker line-clamp-1">
           {info.getValue()}
-        </span>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("operator", {
-      header: "Operator",
+      header: () => columnHeader("Operator"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-gray">{info.getValue()}</span>
+        <Text as="span" className="text4 text-ehs-gray">
+          {info.getValue()}
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("lockNumber", {
-      header: "Lock",
+      header: () => columnHeader("Lock"),
       size: 120,
       cell: (info) => (
-        <span className="text7 text-ehs-gray font-mono">{info.getValue()}</span>
+        <Text as="span" className="text7 text-ehs-gray font-mono">
+          {info.getValue()}
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("startAt", {
-      header: "Start",
+      header: () => columnHeader("Start"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-gray whitespace-nowrap">
+        <Text as="span" className="text4 text-ehs-gray whitespace-nowrap">
           {info.getValue()}
-        </span>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("endAt", {
-      header: "End",
+      header: () => columnHeader("End"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-muted-text whitespace-nowrap">
+        <Text as="span" className="text4 text-ehs-muted-text whitespace-nowrap">
           {info.getValue()}
-        </span>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("purpose", {
-      header: "Purpose",
+      header: () => columnHeader("Purpose"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-gray line-clamp-1 max-w-40">
+        <Text as="span" className="text4 text-ehs-gray line-clamp-1 max-w-40">
           {info.getValue()}
-        </span>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("duration", {
-      header: "Duration",
+      header: () => columnHeader("Duration"),
       size: 90,
       cell: (info) => (
-        <span className="text7 text-ehs-muted-text font-mono">
+        <Text as="span" className="text7 text-ehs-muted-text font-mono">
           {info.getValue()}
-        </span>
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("result", {
-      header: "Result",
-      size: 100,
+      header: () => columnHeader("Result"),
+      size: 110,
       cell: (info) => {
         const result = info.getValue() as LotoHistoryResult;
         return (
-          <span
-            className={[
-              "text5 inline-flex rounded-full px-2.5 py-0.5",
-              resultClassName[result],
-            ].join(" ")}
-          >
-            {result}
-          </span>
+          <IncidentBadge
+            label={result}
+            tone={result === "Completed" ? "teal" : "danger"}
+            showDot
+          />
         );
       },
       meta: { align: "left" as const },

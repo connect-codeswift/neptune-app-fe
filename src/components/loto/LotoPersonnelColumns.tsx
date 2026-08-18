@@ -1,4 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import { Text } from "@/components/Text";
+import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoPersonnel,
@@ -7,89 +10,91 @@ import type {
 
 const columnHelper = createColumnHelper<LotoPersonnel>();
 
-const statusClassName: Record<LotoPersonnelStatus, string> = {
-  Current: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
-  Expired: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
-};
+function columnHeader(label: string) {
+  return (
+    <Text as="span" className="text6 text-ehs-muted-text">
+      {label}
+    </Text>
+  );
+}
 
-/**
- * Authorized personnel columns — read-only. Certification management (edit /
- * renew) is moving to the admin dashboard, so there are no row actions here.
- */
 export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
   return [
     columnHelper.accessor("name", {
-      header: "Name",
+      header: () => columnHeader("Name"),
       size: 120,
       cell: (info) => {
         const item = info.row.original;
         return (
           <div className="flex items-center gap-2.5">
-            <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue rounded-2.25 flex size-8 shrink-0 items-center justify-center font-bold">
+            <Text
+              as="span"
+              className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue rounded-2.25 flex size-8 shrink-0 items-center justify-center font-bold"
+            >
               {item.initials}
-            </span>
-            <span className="text4 text-ehs-darker">{item.name}</span>
+            </Text>
+            <Text as="span" className="text4 text-ehs-darker">
+              {item.name}
+            </Text>
           </div>
         );
       },
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("certifiedOn", {
-      header: "Certified",
+      header: () => columnHeader("Certified"),
       size: 120,
       cell: (info) => (
-        <span className="text4 text-ehs-gray">{info.getValue()}</span>
+        <Text as="span" className="text4 text-ehs-gray">
+          {info.getValue()}
+        </Text>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("expiresOn", {
-      header: "Expires",
+      header: () => columnHeader("Expires"),
       size: 120,
       cell: (info) => {
         const expired = info.row.original.status === "Expired";
         return (
-          <span
+          <Text
+            as="span"
             className={[
               "text4",
-              expired ? "font-semibold text-[#ef4444]" : "text-ehs-gray",
+              expired ? "text-ehs-red" : "text-ehs-gray",
             ].join(" ")}
           >
             {info.getValue()}
-          </span>
+          </Text>
         );
       },
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("equipmentIds", {
-      header: "Equipment",
+      header: () => columnHeader("Equipment"),
       size: 120,
       cell: (info) => (
         <div className="flex max-w-70 flex-wrap gap-1">
           {info.getValue().map((equipmentId: string) => (
-            <span
-              key={equipmentId}
-              className="text8 text-ehs-gray rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5"
-            >
-              {equipmentId}
-            </span>
+            <CompliancePill key={equipmentId} label={equipmentId} />
           ))}
         </div>
       ),
       meta: { align: "left" as const },
     }),
     columnHelper.accessor("status", {
-      header: "Status",
+      header: () => columnHeader("Status"),
       size: 120,
-      cell: (info) => (
-        <span
-          className={[
-            "text5 inline-flex rounded-full px-2.5 py-0.5",
-            statusClassName[info.getValue() as LotoPersonnelStatus],
-          ].join(" ")}
-        >
-          {info.getValue()}
-        </span>
-      ),
+      cell: (info) => {
+        const status = info.getValue() as LotoPersonnelStatus;
+        return (
+          <IncidentBadge
+            label={status}
+            tone={status === "Current" ? "teal" : "danger"}
+            showDot
+          />
+        );
+      },
       meta: { align: "left" as const },
     }),
   ];
