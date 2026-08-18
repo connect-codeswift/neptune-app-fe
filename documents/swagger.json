@@ -841,27 +841,6 @@
         }
       }
     },
-    "/api/Auth/DeleteDemoUser/{id}": {
-      "delete": {
-        "tags": ["Auth"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/Auth/GetUserById/{id}": {
       "get": {
         "tags": ["Auth"],
@@ -1222,137 +1201,6 @@
         }
       }
     },
-    "/api/Auth/CreateRole": {
-      "post": {
-        "tags": ["Auth"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoleDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/GetAllRoles": {
-      "get": {
-        "tags": ["Auth"],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/GetSitesByOrganizationId/{organizationId}": {
-      "get": {
-        "tags": ["Auth"],
-        "parameters": [
-          {
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 10
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/GetUsersByOrganizationId/{organizationId}": {
-      "get": {
-        "tags": ["Auth"],
-        "parameters": [
-          {
-            "name": "organizationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 10
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/Auth/GetUsersBySiteId/{siteId}": {
       "get": {
         "tags": ["Auth"],
@@ -1392,55 +1240,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/assign-permissions": {
-      "post": {
-        "tags": ["Auth"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignPermissionsToRoleDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignPermissionsToRoleDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignPermissionsToRoleDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/all-Permissions": {
-      "get": {
-        "tags": ["Auth"],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Auth/AllRolesPermissions": {
-      "get": {
-        "tags": ["Auth"],
         "responses": {
           "200": {
             "description": "Success"
@@ -1790,9 +1589,18 @@
             }
           },
           {
+            "name": "Scope",
+            "in": "query",
+            "schema": {
+              "pattern": "^(All|AssignedToMe)$",
+              "type": "string"
+            }
+          },
+          {
             "name": "Status",
             "in": "query",
             "schema": {
+              "pattern": "^(All|Open|In Progress|Verified|Closed|Overdue)$",
               "type": "string"
             }
           },
@@ -1800,6 +1608,7 @@
             "name": "CapaType",
             "in": "query",
             "schema": {
+              "pattern": "^(All|Corrective|Preventive)$",
               "type": "string"
             }
           },
@@ -1807,15 +1616,8 @@
             "name": "Priority",
             "in": "query",
             "schema": {
+              "pattern": "^(All|Low|Medium|High)$",
               "type": "string"
-            }
-          },
-          {
-            "name": "AssignedId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
             }
           },
           {
@@ -5040,6 +4842,77 @@
         }
       }
     },
+    "/api/files/upload-intent": {
+      "post": {
+        "tags": ["Files"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadIntentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadIntentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/files/{fileId}/commit": {
+      "post": {
+        "tags": ["Files"],
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/files/{fileId}": {
+      "get": {
+        "tags": ["Files"],
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Hazard/proofread": {
       "post": {
         "tags": ["Hazard"],
@@ -5977,6 +5850,57 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hazcom/dashboard/kpis": {
+      "get": {
+        "tags": ["HazCom"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hazcom/dashboard/sds-status": {
+      "get": {
+        "tags": ["HazCom"],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hazcom/dashboard/recent-chemicals": {
+      "get": {
+        "tags": ["HazCom"],
+        "parameters": [
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/hazcom/dashboard/upcoming-deadlines": {
+      "get": {
+        "tags": ["HazCom"],
         "responses": {
           "200": {
             "description": "Success"
@@ -7444,6 +7368,113 @@
         }
       }
     },
+    "/api/Loto/locations": {
+      "get": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Loto"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/locations/{id}": {
+      "put": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LotoLocationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loto/locations/{id}/drop": {
+      "put": {
+        "tags": ["Loto"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Loto/personnel": {
       "get": {
         "tags": ["Loto"],
@@ -8216,6 +8247,13 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -9326,6 +9364,27 @@
         }
       }
     },
+    "/api/SuperAdminRoles/{roleId}": {
+      "delete": {
+        "tags": ["SuperAdminRoles"],
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/SuperAdminSites": {
       "get": {
         "tags": ["SuperAdminSites"],
@@ -9905,7 +9964,7 @@
   "components": {
     "schemas": {
       "AcceptInvitationDto": {
-        "required": ["email", "fullName", "password", "siteId", "userId"],
+        "required": ["fullName", "password", "token"],
         "type": "object",
         "properties": {
           "fullName": {
@@ -9920,18 +9979,9 @@
             "type": "string",
             "nullable": true
           },
-          "siteId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "email": {
+          "token": {
             "minLength": 1,
-            "type": "string",
-            "format": "email"
+            "type": "string"
           },
           "password": {
             "minLength": 1,
@@ -10827,16 +10877,12 @@
         "additionalProperties": false
       },
       "ApplyLockoutDto": {
-        "required": ["lockNumber", "lotoEquipmentId", "purpose"],
+        "required": ["lotoEquipmentId", "purpose"],
         "type": "object",
         "properties": {
           "lotoEquipmentId": {
             "type": "integer",
             "format": "int32"
-          },
-          "lockNumber": {
-            "minLength": 1,
-            "type": "string"
           },
           "purpose": {
             "minLength": 1,
@@ -10849,24 +10895,6 @@
           },
           "confirmationAccepted": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssignPermissionsToRoleDto": {
-        "type": "object",
-        "properties": {
-          "roleId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "permissionIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -11256,6 +11284,11 @@
           },
           "notes": {
             "type": "string",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           },
           "isDraft": {
@@ -11804,7 +11837,7 @@
         "additionalProperties": false
       },
       "DemoHostMfaSetupDto": {
-        "required": ["email"],
+        "required": ["email", "password"],
         "type": "object",
         "properties": {
           "email": {
@@ -11812,6 +11845,10 @@
             "minLength": 1,
             "type": "string",
             "format": "email"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -13151,24 +13188,16 @@
         "additionalProperties": false
       },
       "LotoEquipmentDto": {
-        "required": ["equipmentCode", "name"],
+        "required": ["locationId", "name"],
         "type": "object",
         "properties": {
-          "equipmentCode": {
-            "minLength": 1,
-            "type": "string"
-          },
           "name": {
             "minLength": 1,
             "type": "string"
           },
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
+          "locationId": {
+            "type": "integer",
+            "format": "int32"
           },
           "description": {
             "type": "string",
@@ -13228,6 +13257,21 @@
             "pattern": "^(All|Operational|Locked Out|Maintenance)$",
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LotoLocationDto": {
+        "required": ["name"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -13625,25 +13669,6 @@
             "format": "int32"
           },
           "reason": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RoleDto": {
-        "required": ["roleName"],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "roleName": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "description": {
             "type": "string",
             "nullable": true
           }
@@ -14287,6 +14312,11 @@
           "timeZoneId": {
             "maxLength": 100,
             "type": "string",
+            "nullable": true
+          },
+          "siteLeadUserId": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -15063,6 +15093,35 @@
             "maxLength": 100,
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UploadIntentDto": {
+        "required": ["contentType", "fileName", "module"],
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "contentType": {
+            "maxLength": 250,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "module": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "withThumbnail": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
