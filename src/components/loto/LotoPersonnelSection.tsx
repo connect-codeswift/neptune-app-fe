@@ -2,13 +2,15 @@
 
 import { useMemo } from "react";
 import { Table } from "@/components/ui/Table";
+import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoPersonnelQuery } from "@/hooks/use-loto-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { buildLotoPersonnelColumns } from "./LotoPersonnelColumns";
 import { LotoQueryStatus } from "./LotoQueryStatus";
+import { LotoRegisterHeader } from "./LotoRegisterHeader";
 
-/** Authorized personnel table — GET /api/Loto/personnel. Figma 6888:49696. */
+/** Authorized personnel table — GET /api/Loto/personnel. */
 export function LotoPersonnelSection() {
   const hasToken = useHasAccessToken();
   const personnelQuery = useLotoPersonnelQuery(hasToken === true);
@@ -41,22 +43,20 @@ export function LotoPersonnelSection() {
 
   const personnel = personnelQuery.data ?? [];
 
-  if (personnel.length === 0) {
-    return (
-      <LotoQueryStatus
-        state="empty"
-        message="No one is authorized on any equipment at this site yet."
-      />
-    );
-  }
-
   return (
     <Table
       data={personnel}
       columns={columns}
       getRowId={(row) => String(row.id)}
-      containerClassName="min-w-0"
-      variant="incident"
+      variant="compliance"
+      containerClassName={[complianceGlassCardClass, "min-w-0"].join(" ")}
+      header={
+        <LotoRegisterHeader
+          count={personnel.length}
+          itemNoun="person"
+          itemNounPlural="people"
+        />
+      }
     />
   );
 }

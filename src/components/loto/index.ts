@@ -1,5 +1,6 @@
 export { LotoModuleTabs } from "./LotoModuleTabs";
 export { LotoMetricsSection } from "./LotoMetricsSection";
+export { LotoRegisterHeader } from "./LotoRegisterHeader";
 export { LotoEquipmentSection } from "./LotoEquipmentSection";
 export { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
 export { LotoActiveLockoutsSection } from "./LotoActiveLockoutsSection";

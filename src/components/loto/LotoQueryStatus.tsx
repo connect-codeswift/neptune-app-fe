@@ -1,4 +1,5 @@
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export type LotoQueryStatusProps = Readonly<{
@@ -8,7 +9,7 @@ export type LotoQueryStatusProps = Readonly<{
 }>;
 
 /** Loading / error / empty placeholder shared by the LOTO tab sections. */
-export function LotoQueryStatus(props: LotoQueryStatusProps) {
+export function LotoQueryStatus(props: Readonly<LotoQueryStatusProps>) {
   const { state, message } = props;
 
   if (state === "loading") {
@@ -28,7 +29,9 @@ export function LotoQueryStatus(props: LotoQueryStatusProps) {
 
   return (
     <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-      <p className="text4 text-ehs-muted-text">{message ?? ""}</p>
+      <Text as="p" className="text4 text-ehs-muted-text">
+        {message ?? ""}
+      </Text>
     </IncidentGlassCard>
   );
 }

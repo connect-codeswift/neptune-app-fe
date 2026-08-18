@@ -1,27 +1,21 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
-import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import {
   LOTO_TABS,
   type LotoTabId,
 } from "@/app/dashboard/lockout-tagout/loto-data";
-import {
-  TABLE_HEADER_ACTION_CLASS,
-  TABLE_HEADER_ACTION_ICON_CLASS,
-} from "@/components/ui/table-header-action";
 
 export type LotoModuleTabsProps = Readonly<{
   activeTab: LotoTabId;
   /** Live counts per tab; a tab with no count yet renders no badge. */
   counts?: Partial<Record<LotoTabId, number>>;
   onTabChange: (tab: LotoTabId) => void;
-  onCreateProcedure?: () => void;
 }>;
 
-/** Module tabs + Create Procedure — Figma 6835:39794. */
+/** Module tabs for the LOTO dashboard views. */
 export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
-  const { activeTab, counts = {}, onTabChange, onCreateProcedure } = props;
+  const { activeTab, counts = {}, onTabChange } = props;
 
   return (
     <div className="border-ehs-border flex flex-wrap items-center justify-between gap-3">
@@ -32,6 +26,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
       >
         {LOTO_TABS.map((tab) => {
           const isActive = tab.id === activeTab;
+          const count = counts[tab.id];
 
           return (
             <button
@@ -43,45 +38,38 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                 onTabChange(tab.id);
               }}
               className={[
-                "text4 inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 whitespace-nowrap transition-colors",
+                "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 pt-2.5 pb-2.5 whitespace-nowrap transition-colors",
                 isActive
-                  ? "border-ehs-normal-blue text-ehs-normal-blue font-semibold"
-                  : "text-ehs-muted-text hover:text-ehs-gray border-transparent font-normal",
+                  ? "border-ehs-normal-blue text-ehs-normal-blue"
+                  : "text-ehs-muted-text hover:text-ehs-gray border-transparent",
               ].join(" ")}
             >
-              {tab.label}
-              {counts[tab.id] !== undefined ? (
-                <span
+              <Text
+                as="span"
+                className={[
+                  "text4",
+                  isActive ? "font-semibold" : "font-normal",
+                ].join(" ")}
+              >
+                {tab.label}
+              </Text>
+              {count !== undefined ? (
+                <Text
+                  as="span"
                   className={[
                     "text8 rounded-lg px-2 py-px font-semibold",
                     isActive
                       ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
-                      : "bg-slate-900/5 text-slate-400",
+                      : "bg-ehs-dark-bg/8 text-ehs-muted-text",
                   ].join(" ")}
                 >
-                  {String(counts[tab.id])}
-                </span>
+                  {String(count)}
+                </Text>
               ) : null}
             </button>
           );
         })}
       </div>
-
-      {activeTab === "equipment" && onCreateProcedure ? (
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onCreateProcedure}
-          className={TABLE_HEADER_ACTION_CLASS}
-        >
-          <Icon
-            icon="mdi:file-document-outline"
-            className={TABLE_HEADER_ACTION_ICON_CLASS}
-            aria-hidden="true"
-          />
-          Create Procedure
-        </Button>
-      ) : null}
     </div>
   );
 }
