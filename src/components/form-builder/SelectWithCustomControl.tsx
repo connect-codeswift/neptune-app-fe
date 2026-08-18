@@ -234,7 +234,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
       <button
         type="button"
         id={field.name}

@@ -430,7 +430,7 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
           ) : undefined
         }
       />
-      <div className="relative">
+      <div className="relative z-0">
         <textarea
           id={id}
           className={

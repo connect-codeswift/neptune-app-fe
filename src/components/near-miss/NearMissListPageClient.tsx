@@ -10,6 +10,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { UnifiedNearMissAndHazardListPage } from "@/components/reporting/UnifiedNearMissAndHazardListPage";
 import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard";
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
+import { NearMissDetailPanel } from "@/components/near-miss/NearMissDetailPanel";
 import { makeNearMissColumns } from "@/components/near-miss/NearMissColumns";
 import {
   formatNearMissDisplayId,
@@ -30,6 +31,7 @@ export function NearMissListPageClient() {
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [canViewInsights, setCanViewInsights] = useState(false);
 
   useEffect(() => {
@@ -81,15 +83,26 @@ export function NearMissListPageClient() {
     });
   }, [records, searchQuery, selectedStatus, userNames]);
 
+  const selectedRecord =
+    selectedId == null
+      ? null
+      : (filteredRecords.find((record) => record.id === selectedId) ??
+        records.find((record) => record.id === selectedId) ??
+        null);
+  const activeSelectedId = selectedRecord?.id ?? null;
+
   const columns = useMemo(
     () =>
       makeNearMissColumns({
         userNames,
+        selectedId: activeSelectedId,
         onView: (record) => {
-          router.push(`/dashboard/near-miss/${encodeURIComponent(record.id)}`);
+          setSelectedId((current) =>
+            current === record.id ? null : record.id,
+          );
         },
       }),
-    [router, userNames],
+    [userNames, activeSelectedId],
   );
 
   const metrics = useMemo(
@@ -100,26 +113,43 @@ export function NearMissListPageClient() {
     [nearMissKpiQuery.data?.dataModel],
   );
 
-  const isLoading =
+  const isLoading = canViewInsights && nearMissKpiQuery.isPending;
+  const isTableLoading =
     nearMissListQuery.isPending ||
-    (canViewInsights && nearMissKpiQuery.isPending);
+    (nearMissListQuery.isFetching && nearMissListQuery.data === undefined);
+  const resultLabel = `${String(filteredRecords.length)} ${
+    filteredRecords.length === 1 ? "near miss" : "near misses"
+  }`;
 
   return (
     <UnifiedNearMissAndHazardListPage
       title="Near Miss Reporting"
       isLoading={isLoading}
+      isTableLoading={isTableLoading}
       canViewInsights={canViewInsights}
       metrics={metrics}
       statusOptions={STATUS_OPTIONS}
       selectedStatus={selectedStatus}
-      onStatusChange={setSelectedStatus}
+      onStatusChange={(status) => {
+        setSelectedStatus(status);
+        setPageNumber(1);
+        setSelectedId(null);
+      }}
       reportActionLabel="Report Near Miss"
       onReportClick={() => {
         router.push("/dashboard/near-miss/report");
       }}
       searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
+      onSearchChange={(query) => {
+        setSearchQuery(query);
+        setPageNumber(1);
+        setSelectedId(null);
+      }}
       searchAriaLabel="Search near misses"
+      resultLabel={resultLabel}
+      itemNoun="near miss"
+      itemNounPlural="near misses"
+      registerCount={page?.totalRecords ?? filteredRecords.length}
       listError={
         nearMissListQuery.isError
           ? getMutationErrorMessage(
@@ -128,18 +158,34 @@ export function NearMissListPageClient() {
             )
           : null
       }
+      onRetry={() => {
+        void nearMissListQuery.refetch();
+      }}
       table={{
         data: filteredRecords,
         columns,
         getRowId: (row) => row.id,
+        selectedRowId: activeSelectedId,
         pagination: {
           pageNumber: page?.pageNumber ?? pageNumber,
           pageSize: page?.pageSize ?? PAGE_SIZE,
           totalRecords: page?.totalRecords ?? 0,
-          onPageChange: setPageNumber,
+          onPageChange: (nextPage) => {
+            setPageNumber(nextPage);
+            setSelectedId(null);
+          },
           isLoading: nearMissListQuery.isFetching,
         },
       }}
+      detailPanel={
+        selectedRecord ? (
+          <NearMissDetailPanel
+            record={selectedRecord}
+            userNames={userNames}
+            className="min-w-0 xl:sticky xl:top-4"
+          />
+        ) : null
+      }
       insights={
         <>
           <NearMissHeatmapCard />
