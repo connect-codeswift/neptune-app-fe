@@ -14,7 +14,7 @@ export type CreateHazardRequestDto = {
   description: string;
   /** Secure Cloudinary URL of the attached photo evidence. */
   image: string;
-  /** 0 until the assign-hazard flow exists. */
+  /** User id of the person responsible for assessing and closing the hazard. */
   assignedTo: number;
   userId: number;
   siteId: number;
@@ -27,9 +27,15 @@ export type CreateHazardRequestDto = {
  */
 export type UpdateHazardRequestDto = {
   id: number;
-  status: string;
-  assignedTo: number;
+  type: string;
+  location: string;
   description: string;
+  image: string;
+  assignedTo: number;
+  userId: number;
+  siteId: number;
+  isDrop: boolean;
+  status: string;
 };
 
 /** Either shape accepted by POST /api/Hazard/Hazards. */

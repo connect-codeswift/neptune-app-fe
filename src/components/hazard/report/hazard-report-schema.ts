@@ -87,9 +87,6 @@ export const hazardReportSchema: FormSchema = [
     colSpan: 6,
     placeholder: "Select location",
     options: LOCATION_OPTIONS,
-    allowCustom: true,
-    addCustomLabel: "Add custom location",
-    addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
   },
   {
     // Above Description because the draft is composed from answers already

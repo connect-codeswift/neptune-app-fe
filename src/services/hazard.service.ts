@@ -9,6 +9,7 @@ import type {
   GetHazardKpiResponseDto,
   GetHazardHeatMapResponseDto,
   GetTopHazardUsersResponseDto,
+  GetMonthlyHazardUsersResponseDto,
 } from "@/dtos/res/hazard-response.dto";
 import http from "@/lib/axios";
 import { normalizeHazardKpiDto } from "@/lib/map-hazard";
@@ -18,6 +19,7 @@ const HAZARD_GET_ALL_PATH = "/Hazard/GetAllHazard";
 const HAZARD_BY_ID_PATH = "/Hazard/Hazard";
 const HAZARD_KPI_COUNT_PATH = "/Hazard/HazardKpiCount";
 const HAZARD_TOP_USERS_PATH = "/Hazard/TopHazardUsers";
+const HAZARD_MONTHLY_USERS_PATH = "/Hazard/MonthlyHazardUsers";
 const HAZARD_HEAT_MAP_PATH = "/Hazard/HazardApiForHeatMap";
 
 export async function createHazard(payload: SaveHazardRequestDto) {
@@ -52,6 +54,18 @@ export async function getHazardKpiCount(params: Readonly<{ userId: number }>) {
 export async function getTopHazardUsers() {
   const { data } = await http.get<GetTopHazardUsersResponseDto>(
     HAZARD_TOP_USERS_PATH,
+  );
+
+  return data;
+}
+
+/** GET /api/Hazard/MonthlyHazardUsers?year=&month= */
+export async function getMonthlyHazardUsers(
+  params: Readonly<{ year: number; month: number }>,
+) {
+  const { data } = await http.get<GetMonthlyHazardUsersResponseDto>(
+    HAZARD_MONTHLY_USERS_PATH,
+    { params: { year: params.year, month: params.month } },
   );
 
   return data;

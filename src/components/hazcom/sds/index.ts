@@ -8,6 +8,9 @@ export type { SdsDetailHeaderProps } from "./SdsDetailHeader";
 
 export { SdsUploadPageClient } from "./SdsUploadPageClient";
 
+export { HazcomSdsUploadForm } from "./HazcomSdsUploadForm";
+export type { HazcomSdsUploadFormProps } from "./HazcomSdsUploadForm";
+
 export { SdsViewerSectionNav } from "./SdsViewerSectionNav";
 export type { SdsViewerSectionNavProps } from "./SdsViewerSectionNav";
 

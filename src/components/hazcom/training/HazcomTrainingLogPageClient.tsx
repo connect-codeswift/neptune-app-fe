@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
@@ -37,7 +37,7 @@ function trainingMatchesSearch(
     session.date,
     session.trainer,
     session.topic,
-    session.status,
+    session.status ?? "No status found",
     ...session.chemicals,
   ]
     .join(" ")
@@ -45,7 +45,14 @@ function trainingMatchesSearch(
     .includes(needle);
 }
 
-function statusTone(status: string): IncidentBadgeTone {
+const NO_STATUS_LABEL = "No status found";
+
+function statusLabel(status: string | null): string {
+  return status ?? NO_STATUS_LABEL;
+}
+
+function statusTone(status: string | null): IncidentBadgeTone {
+  if (status == null) return "muted";
   return status.trim().toLowerCase() === "completed" ? "teal" : "warn";
 }
 
@@ -76,12 +83,7 @@ export function HazcomTrainingLogPageClient() {
           null),
     [selectedId, filteredSessions, items],
   );
-
-  useEffect(() => {
-    if (selectedId != null && selectedSession == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedSession]);
+  const activeSelectedId = selectedSession?.id ?? null;
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -144,7 +146,7 @@ export function HazcomTrainingLogPageClient() {
           >
             <HazcomTrainingLogTable
               sessions={filteredSessions}
-              selectedId={selectedId}
+              selectedId={activeSelectedId}
               onViewMore={handleToggleDetailPanel}
               expanded={!isPanelOpen}
               header={
@@ -172,7 +174,7 @@ export function HazcomTrainingLogPageClient() {
                 emptyMessage="Select a training session to view details."
                 headerAside={
                   <IncidentBadge
-                    label={selectedSession.status}
+                    label={statusLabel(selectedSession.status)}
                     tone={statusTone(selectedSession.status)}
                     showDot
                     className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"

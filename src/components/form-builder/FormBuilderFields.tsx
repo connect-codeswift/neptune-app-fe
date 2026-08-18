@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
@@ -139,9 +140,13 @@ function FieldShell(
       )}
       {children}
       {!showMessages ? null : error ? (
-        <p className="text8 text-ehs-red">{error}</p>
+        <Text as="p" className="text8 text-ehs-red">
+          {error}
+        </Text>
       ) : field.helperText ? (
-        <p className="text8 text-ehs-muted-text">{field.helperText}</p>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          {field.helperText}
+        </Text>
       ) : null}
     </div>
   );
@@ -355,10 +360,9 @@ function SelectControl(
 ) {
   const { field, value, error, onChange } = props;
 
-  // A native <select> can't render a footer, so the custom listbox also backs
-  // paginated option lists (prev/next controls live in that footer). A disabled
-  // field has nothing to pick, so it always falls through to the native one.
-  if (!field.disabled && (field.allowCustom || field.pagination)) {
+  // A native <select>'s popup cannot be styled. Use the glass listbox for
+  // every enabled select so Status and the rest match the current dropdown UI.
+  if (!field.disabled) {
     return (
       <SelectWithCustomControl
         field={field}
@@ -453,8 +457,10 @@ function TextareaControl(
 
   // `AiInFieldDraft` positions itself against this wrapper — it is absolute,
   // so without a positioned ancestor the ghost text escapes the field.
+  // `z-0` keeps the in-field AI icons in this stacking context so they cannot
+  // paint over an open select menu in a field above.
   return (
-    <div className="relative">
+    <div className="relative z-0">
       {textarea}
       {field.assistant({ value, onChange })}
     </div>

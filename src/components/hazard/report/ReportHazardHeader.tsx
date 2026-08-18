@@ -2,47 +2,58 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { ReactNode } from "react";
 import { Text } from "@/components/Text";
 
-const crumbMuted = "text4 font-normal text-ehs-gray";
-const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
+const HAZARD_ROUTE = "/dashboard/hazard";
 
-export function ReportHazardHeader(props: Readonly<{ action?: ReactNode }>) {
+const crumbMuted = "text8 text-ehs-gray";
+const crumbLink =
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
+
+export type ReportHazardHeaderProps = Readonly<{
+  action?: React.ReactNode;
+}>;
+
+export function ReportHazardHeader(props: Readonly<ReportHazardHeaderProps>) {
   const { action } = props;
 
   return (
-    <div className="backdrop-blur-2.5 relative flex items-center justify-between rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
-      <div className="relative flex flex-col justify-center gap-1.5">
+    <div className="backdrop-blur-2.5 relative flex w-full items-center justify-between rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+      <div className="relative z-1 flex min-w-0 flex-col justify-center gap-1.5">
         <nav
           aria-label="Breadcrumb"
-          className="relative z-1 flex items-center gap-1"
+          className="flex min-w-0 flex-wrap items-center gap-1"
         >
-          <span className={crumbMuted}>Safety</span>
+          <Text as="span" className={crumbMuted}>
+            Safety
+          </Text>
           <Icon
             icon="mdi:chevron-right"
-            className="text-ehs-muted-text size-4"
+            className="text-ehs-muted-text size-3 shrink-0"
             aria-hidden="true"
           />
-          <Link href="/dashboard/hazard" className={crumbLink}>
+          <Link href={HAZARD_ROUTE} className={crumbLink}>
             Hazard Reporting
           </Link>
           <Icon
             icon="mdi:chevron-right"
-            className="text-ehs-muted-text size-4"
+            className="text-ehs-muted-text size-3 shrink-0"
             aria-hidden="true"
           />
-          <span className={crumbMuted}>Report New</span>
+          <Text as="span" className={crumbMuted}>
+            Report New
+          </Text>
         </nav>
-        <Text as="h1" className="text1 text-ehs-darker relative z-1">
-          Report a Hazard
-        </Text>
-        <p className="text8 text-ehs-muted-text relative z-1">
-          Report an unsafe condition or hazardous situation
-        </p>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text as="h1" className="text1 text-ehs-darker">
+            Report a Hazard
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text">
+            Report an unsafe condition or hazardous situation
+          </Text>
+        </div>
       </div>
-      <div className="relative z-1">{action}</div>
+      {action ? <div className="relative z-1">{action}</div> : null}
     </div>
   );
 }

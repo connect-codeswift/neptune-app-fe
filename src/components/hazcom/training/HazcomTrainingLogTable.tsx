@@ -35,7 +35,14 @@ const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
 
 const columnHelper = createColumnHelper<HazcomTrainingSession>();
 
-function statusTone(status: string): IncidentBadgeTone {
+const NO_STATUS_LABEL = "No status found";
+
+function statusLabel(status: string | null): string {
+  return status ?? NO_STATUS_LABEL;
+}
+
+function statusTone(status: string | null): IncidentBadgeTone {
+  if (status == null) return "muted";
   return status.trim().toLowerCase() === "completed" ? "teal" : "warn";
 }
 
@@ -141,14 +148,18 @@ function createTrainingLogColumns(
       header: "Status",
       size: expanded ? 120 : 110,
       minSize: 96,
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={statusTone(info.getValue())}
-          showDot
-          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
-        />
-      ),
+      cell: (info) => {
+        const status = info.getValue();
+
+        return (
+          <IncidentBadge
+            label={statusLabel(status)}
+            tone={statusTone(status)}
+            showDot
+            className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+          />
+        );
+      },
     }),
     columnHelper.display({
       id: "actions",

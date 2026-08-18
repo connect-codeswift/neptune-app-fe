@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { NearMissDetailHeader } from "@/components/near-miss/detail/NearMissDetailHeader";
 import { NearMissDetailView } from "@/components/near-miss/detail/NearMissDetailView";
-import { ReportNearMissHeader } from "@/components/near-miss/report/ReportNearMissHeader";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
@@ -106,41 +105,58 @@ export function NearMissDetailContent(
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader />
-      <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
-        <ReportNearMissHeader
-          action={
-            <div className="flex flex-wrap items-center gap-3">
-              {canClose && record ? (
-                <Button
-                  type="button"
-                  variant="primary"
-                  disabled={isClosed || closeMutation.isPending}
-                  onClick={handleClose}
-                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon={
-                      closeMutation.isPending
-                        ? "mdi:loading"
-                        : "mdi:check-circle-outline"
-                    }
-                    className={[
-                      "size-4 shrink-0",
-                      closeMutation.isPending ? "animate-spin" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                    aria-hidden="true"
-                  />
-                  <span className="whitespace-nowrap">
-                    {isClosed ? "Closed" : "Close Near Miss"}
-                  </span>
-                </Button>
-              ) : null}
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      {detailQuery.isPending && <SkeletonDetailPage />}
 
-              {record ? (
+      {detailQuery.isError && (
+        <Text as="p" className="text4 text-ehs-red">
+          {getMutationErrorMessage(
+            detailQuery.error,
+            "Could not load this near miss.",
+          )}
+        </Text>
+      )}
+
+      {!detailQuery.isPending && !detailQuery.isError && !record && (
+        <Text as="p" className="text4 text-ehs-muted-text">
+          {`No near miss found for id ${nearMissId}.`}
+        </Text>
+      )}
+
+      {record ? (
+        <>
+          <NearMissDetailHeader
+            record={record}
+            action={
+              <>
+                {canClose ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    disabled={isClosed || closeMutation.isPending}
+                    onClick={handleClose}
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon={
+                        closeMutation.isPending
+                          ? "mdi:loading"
+                          : "mdi:check-circle-outline"
+                      }
+                      className={[
+                        "size-4 shrink-0",
+                        closeMutation.isPending ? "animate-spin" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      {isClosed ? "Closed" : "Close Near Miss"}
+                    </Text>
+                  </Button>
+                ) : null}
+
                 <Button
                   type="button"
                   variant="tertiary"
@@ -162,53 +178,38 @@ export function NearMissDetailContent(
                       .join(" ")}
                     aria-hidden="true"
                   />
-                  <span className="whitespace-nowrap">Delete</span>
+                  <Text as="span" className="text4 whitespace-nowrap">
+                    Delete
+                  </Text>
                 </Button>
-              ) : null}
 
-              {canConvert ? (
-                <Button
-                  type="button"
-                  variant="danger"
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/near-miss/${encodeURIComponent(nearMissId)}/convert`,
-                    )
-                  }
-                  className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
-                >
-                  <Icon
-                    icon="mdi:plus"
-                    className="size-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span className="whitespace-nowrap">Convert to Incident</span>
-                </Button>
-              ) : null}
-            </div>
-          }
-        />
-
-        {detailQuery.isPending && <SkeletonDetailPage />}
-
-        {detailQuery.isError && (
-          <Text as="p" className="text4 text-ehs-red">
-            {getMutationErrorMessage(
-              detailQuery.error,
-              "Could not load this near miss.",
-            )}
-          </Text>
-        )}
-
-        {/* Request succeeded but the record isn't there. */}
-        {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <Text as="p" className="text4 text-ehs-muted-text">
-            {`No near miss found for id ${nearMissId}.`}
-          </Text>
-        )}
-
-        {record && <NearMissDetailView record={record} />}
-      </div>
+                {canConvert ? (
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/near-miss/${encodeURIComponent(nearMissId)}/convert`,
+                      )
+                    }
+                    className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
+                  >
+                    <Icon
+                      icon="mdi:plus"
+                      className="size-4 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <Text as="span" className="text4 whitespace-nowrap">
+                      Convert to Incident
+                    </Text>
+                  </Button>
+                ) : null}
+              </>
+            }
+          />
+          <NearMissDetailView record={record} />
+        </>
+      ) : null}
 
       <ConfirmDialog
         open={isConfirmingDelete}

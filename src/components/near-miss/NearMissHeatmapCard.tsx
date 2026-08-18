@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useNearMissHeatMapQuery } from "@/hooks/use-near-miss-queries";
 import {
@@ -92,8 +93,12 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-4 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Heatmap by area</h3>
-        <p className="text4 text-ehs-muted-text">Reports last 30 days</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Heatmap by area
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Reports last 30 days
+        </Text>
       </header>
 
       {rows.length > 0 ? (
@@ -106,20 +111,24 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
           {/* Column header row: empty corner + hazard type labels */}
           <span aria-hidden="true" />
           {columns.map((column) => (
-            <span
+            <Text
               key={column.key}
-              className="text4 text-ehs-muted-text truncate text-center"
+              as="span"
+              className="text8 text-ehs-muted-text truncate text-center"
             >
               {column.label}
-            </span>
+            </Text>
           ))}
 
           {/* Data rows: location label + heat cells */}
           {rows.map((row) => (
             <Fragment key={row.key}>
-              <span className="text4 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap">
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap"
+              >
                 {row.label}
-              </span>
+              </Text>
               {row.values.map((value, index) => (
                 <div
                   key={columns[index].key}
@@ -140,9 +149,9 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
       ) : heatMapQuery.isPending ? (
         <SkeletonHeatmapGrid />
       ) : (
-        <p className="text4 text-ehs-muted-text">
+        <Text as="p" className="text8 text-ehs-muted-text">
           No near misses reported in this period.
-        </p>
+        </Text>
       )}
     </IncidentGlassCard>
   );

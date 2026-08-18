@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useHazardHeatMapQuery } from "@/hooks/use-hazard-queries";
 import {
@@ -55,7 +56,14 @@ function cellStyle(value: number | null, max: number) {
 
 /** Pivot the flat location/type tallies into the grid the card renders. */
 function toGrid(cells: readonly HazardHeatMapCellDto[]) {
-  const locations = [...new Set(cells.map((cell) => cell.location))];
+  const apiLocations = [...new Set(cells.map((cell) => cell.location))];
+  const defaultLocations = LOCATION_OPTIONS.map((option) => option.value);
+  const defaultLocationSet = new Set(defaultLocations);
+  const locations = [
+    ...defaultLocations,
+    ...apiLocations.filter((location) => !defaultLocationSet.has(location)),
+  ];
+
   const apiTypes = [...new Set(cells.map((cell) => cell.type))];
   const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
   const types = [
@@ -95,11 +103,17 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-4 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Heatmap by area</h3>
-        <p className="text4 text-ehs-muted-text">Reports last 30 days</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Heatmap by area
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Reports last 30 days
+        </Text>
       </header>
 
-      {rows.length > 0 ? (
+      {heatMapQuery.isPending && cells == null ? (
+        <SkeletonHeatmapGrid />
+      ) : rows.length > 0 ? (
         <div
           className="grid gap-1"
           style={{
@@ -109,20 +123,24 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
           {/* Column header row: empty corner + hazard type labels */}
           <span aria-hidden="true" />
           {columns.map((column) => (
-            <span
+            <Text
               key={column.key}
-              className="text4 text-ehs-muted-text truncate text-center"
+              as="span"
+              className="text8 text-ehs-muted-text truncate text-center"
             >
               {column.label}
-            </span>
+            </Text>
           ))}
 
           {/* Data rows: location label + heat cells */}
           {rows.map((row) => (
             <Fragment key={row.key}>
-              <span className="text4 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap">
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap"
+              >
                 {row.label}
-              </span>
+              </Text>
               {row.values.map((value, index) => (
                 <div
                   key={columns[index].key}
@@ -143,9 +161,9 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
       ) : heatMapQuery.isPending ? (
         <SkeletonHeatmapGrid />
       ) : (
-        <p className="text4 text-ehs-muted-text">
+        <Text as="p" className="text8 text-ehs-muted-text">
           No hazards reported in this period.
-        </p>
+        </Text>
       )}
     </IncidentGlassCard>
   );

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 
 /**
  * Server-side pagination state. The rows in `data` are already the current
@@ -96,7 +97,7 @@ export function Table<TData>(props: TableProps<TData>) {
 
       <div className="w-full min-w-0 overflow-x-auto">
         <table
-          className={["w-full border-collapse text-left text-sm", className]
+          className={["text4 w-full border-collapse text-left", className]
             .filter(Boolean)
             .join(" ")}
         >
@@ -159,13 +160,12 @@ export function Table<TData>(props: TableProps<TData>) {
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text4 text-ehs-muted-text px-4 py-12 text-center"
-                >
-                  {isCapa
-                    ? "No tasks yet."
-                    : "No records found matching your filters."}
+                <td colSpan={columns.length} className="px-4 py-12 text-center">
+                  <Text as="p" className="text4 text-ehs-muted-text">
+                    {isCapa
+                      ? "No tasks yet."
+                      : "No records found matching your filters."}
+                  </Text>
                 </td>
               </tr>
             ) : (
@@ -283,9 +283,9 @@ function TablePaginationBar(
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >
-      <span className="text8 text-ehs-muted-text">
-        {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
-      </span>
+      <Text as="span" className="text8 text-ehs-muted-text">
+        {`Showing ${String(firstRow)}-${String(lastRow)} of ${String(totalRecords)}`}
+      </Text>
 
       <div className="flex items-center gap-2">
         <button
@@ -297,9 +297,9 @@ function TablePaginationBar(
           Previous
         </button>
 
-        <span className="text8 text-ehs-muted-text px-1 tabular-nums">
-          {`Page ${currentPage} of ${pageCount}`}
-        </span>
+        <Text as="span" className="text8 text-ehs-muted-text px-1 tabular-nums">
+          {`Page ${String(currentPage)} of ${String(pageCount)}`}
+        </Text>
 
         <button
           type="button"

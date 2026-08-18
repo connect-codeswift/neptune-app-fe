@@ -3,23 +3,6 @@ import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-/** KPI card placeholder: label + trend dot, then a value bar. */
-/** One placeholder row in the records table. */
-function TableRowSkeleton() {
-  return (
-    <div className="border-ehs-border/45 flex items-center gap-4 border-b p-4">
-      <Skeleton className="h-2.5 w-10" />
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <Skeleton className="h-3 w-48" />
-        <Skeleton className="h-2 w-28" />
-      </div>
-      <Skeleton className="h-2.5 w-24" />
-      <Skeleton className="rounded-2.5 h-5 w-16" />
-      <Skeleton className="rounded-2.5 h-5 w-14" />
-    </div>
-  );
-}
-
 /** One placeholder reporter row in the recognition card. */
 function RecognitionRowSkeleton() {
   return (
@@ -47,8 +30,8 @@ function InsightsCardSkeleton(props: Readonly<{ children: ReactNode }>) {
 }
 
 /**
- * Loading placeholder for Near Miss / Hazard list pages. Mirrors
- * `UnifiedNearMissAndHazardListPage` so content swap does not shift the page.
+ * KPI + insights placeholder for Near Miss / Hazard. Filters and the register
+ * table render themselves (or `SkeletonTable`) so the page does not jump.
  */
 export function UnifiedNearMissAndHazardListPageSkeleton() {
   return (
@@ -78,30 +61,6 @@ export function UnifiedNearMissAndHazardListPageSkeleton() {
           </div>
         </InsightsCardSkeleton>
       </div>
-
-      <div className="flex w-full items-center gap-4 rounded-3xl bg-white/70 px-4 py-3 shadow-sm">
-        <Skeleton className="h-6 w-16 rounded-lg" />
-        <span className="h-5 w-px bg-white/90" aria-hidden="true" />
-        <Skeleton className="h-6 w-24 rounded-lg" />
-        <Skeleton className="ml-auto h-6 w-28 rounded-lg" />
-      </div>
-
-      <IncidentGlassCard
-        paddingClassName="p-0 overflow-hidden"
-        className="min-w-0"
-      >
-        <div className="border-ehs-border/45 flex items-center gap-4 border-b px-4 py-3">
-          <Skeleton className="h-2.5 w-10" />
-          <Skeleton className="h-2.5 w-40" />
-          <Skeleton className="h-2.5 w-24" />
-          <Skeleton className="h-2.5 w-20" />
-          <Skeleton className="h-2.5 w-20" />
-        </div>
-
-        {Array.from({ length: 5 }).map((_, index) => (
-          <TableRowSkeleton key={index} />
-        ))}
-      </IncidentGlassCard>
     </>
   );
 }

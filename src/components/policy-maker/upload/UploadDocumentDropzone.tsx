@@ -12,7 +12,8 @@ import { Text } from "@/components/Text";
 import { getFileMaxBytes, formatFileSize, isPdfMimeType } from "@/lib/files";
 
 const DEFAULT_ACCEPT = "application/pdf,.pdf";
-const DEFAULT_EMPTY_HINT = "PDF — Max 50MB";
+const DEFAULT_MAX_BYTES = getFileMaxBytes("Document");
+const DEFAULT_EMPTY_HINT = `PDF — Max ${formatFileSize(DEFAULT_MAX_BYTES)}`;
 const DEFAULT_INVALID_MESSAGE = "Only PDF files are allowed.";
 
 export type UploadDocumentDropzoneProps = Readonly<{
@@ -41,8 +42,8 @@ function defaultValidateFile(file: File): string | null {
   if (!isPdfFile(file)) {
     return DEFAULT_INVALID_MESSAGE;
   }
-  if (file.size > getFileMaxBytes("Document")) {
-    return "File must be 50MB or smaller.";
+  if (file.size > DEFAULT_MAX_BYTES) {
+    return `File must be ${formatFileSize(DEFAULT_MAX_BYTES)} or smaller.`;
   }
   return null;
 }

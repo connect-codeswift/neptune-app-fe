@@ -74,7 +74,8 @@ export type HazcomTrainingSession = Readonly<{
   topic: string;
   chemicals: readonly string[];
   attendees: number;
-  status: HazcomTrainingStatus;
+  /** Server-assigned; `null` when the API has not set a status. */
+  status: HazcomTrainingStatus | null;
   materials: readonly HazcomTrainingMaterial[];
   notes: string;
 }>;

@@ -56,7 +56,7 @@ export type SafetyDataSheetRequestDto = {
   id?: number;
   /** Links the sheet to a row from /api/hazcom/chemical. */
   chemicalId?: number | null;
-  /** Uploaded document location — a Cloudinary URL, as elsewhere in this app. */
+  /** Cloudinary URL after client-side upload — never a files-intent id. */
   pdfUrl?: string | null;
   /** Required by the API. */
   productName: string;
@@ -105,20 +105,20 @@ export type TrainingMaterialRequestDto = {
 /**
  * Swagger `TrainingLogDto` — body for POST /api/hazcom/training.
  *
- * Carries no `status`: the create route assigns one. The UI's "Topic /
- * Training Title" maps to `trainerTitle`, the only free-text field it can be —
- * worth confirming the backend doesn't mean the trainer's job title.
+ * Carries no `status`: the create route assigns one. Materials upload to
+ * Cloudinary first; only the `secureUrl` is sent as `fileUrl` on this body.
  */
 export type TrainingLogRequestDto = {
   chemicalId?: number | null;
-  /** Required by the API. ISO date-time. */
+  /** Required by the API. ISO date-time with offset. */
   sessionDate: string;
   /** Required by the API. */
   trainer: string;
+  /** Trainer job title, e.g. "Safety Officer". */
   trainerTitle?: string | null;
-  /** Comma-separated chemical names. */
+  /** Comma-separated chemical names / topics covered. */
   chemicalsCovered?: string | null;
-  /** A string on the wire even though the UI collects a count. */
+  /** Comma-separated attendee names. */
   attendees?: string | null;
   /** Full materials list — PUT must send the entire array, not a patch. */
   materials?: TrainingMaterialRequestDto[] | null;

@@ -58,3 +58,9 @@ export type TopHazardUserDto = {
 export type GetTopHazardUsersResponseDto = ApiEnvelopeDto<
   TopHazardUserDto[] | null
 >;
+
+/**
+ * GET /api/Hazard/MonthlyHazardUsers?year=&month= — same row shape as
+ * TopHazardUsers, scoped to one calendar month.
+ */
+export type GetMonthlyHazardUsersResponseDto = GetTopHazardUsersResponseDto;

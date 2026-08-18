@@ -1,26 +1,25 @@
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
-import { formatHazardDisplayId } from "@/lib/map-hazard";
+import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
+import { formatNearMissDisplayId } from "@/lib/map-near-miss";
 
-const HAZARD_ROUTE = "/dashboard/hazard";
+const NEAR_MISS_ROUTE = "/dashboard/near-miss";
 
 const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
   "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
-export type HazardDetailHeaderProps = Readonly<{
-  record: HazardRecord;
-  editHref: string;
-  /** Hides the Edit button for roles that may not edit a hazard. */
-  canEdit?: boolean;
+export type NearMissDetailHeaderProps = Readonly<{
+  record: NearMissRecord;
   action?: React.ReactNode;
 }>;
 
-export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
-  const { record, editHref, canEdit = false, action } = props;
-  const displayId = formatHazardDisplayId(record.id);
+export function NearMissDetailHeader(
+  props: Readonly<NearMissDetailHeaderProps>,
+) {
+  const { record, action } = props;
+  const displayId = formatNearMissDisplayId(record.id);
 
   return (
     <div className="backdrop-blur-2.5 relative flex w-full flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
@@ -36,8 +35,8 @@ export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
           className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
-        <Link href={HAZARD_ROUTE} className={crumbLink}>
-          Hazard Reporting
+        <Link href={NEAR_MISS_ROUTE} className={crumbLink}>
+          Near-Miss
         </Link>
         <Icon
           icon="mdi:chevron-right"
@@ -59,17 +58,9 @@ export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
           </Text>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {action}
-          {canEdit ? (
-            <Link
-              href={editHref}
-              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium text-white transition-colors"
-            >
-              Edit
-            </Link>
-          ) : null}
-        </div>
+        {action ? (
+          <div className="flex flex-wrap items-center gap-3">{action}</div>
+        ) : null}
       </div>
     </div>
   );
