@@ -1,8 +1,6 @@
 import { Text } from "@/components/Text";
-import {
-  HazcomGlassCard,
-  type HazcomChemical,
-} from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import type { HazcomChemical } from "@/components/hazcom/shared";
 import { HazcomGhsLabelCard } from "@/components/hazcom/labels/HazcomGhsLabelCard";
 import {
   findHazcomLabelSize,
@@ -33,7 +31,7 @@ export function HazcomLabelPreviewPanel(
   const size = findHazcomLabelSize(labelSizeId);
 
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       paddingClassName="p-8"
       className={["min-w-0 items-center justify-center", className]
         .filter(Boolean)
@@ -55,6 +53,6 @@ export function HazcomLabelPreviewPanel(
           internalNote={internalNote}
         />
       </div>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

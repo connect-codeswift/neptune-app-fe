@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export const TEMPLATE_WIZARD_STEPS = [
@@ -32,7 +33,7 @@ export function TemplateWizardProgress(
                 <span
                   aria-hidden="true"
                   className={[
-                    "flex size-7 items-center justify-center rounded-full text-sm font-bold",
+                    "text5 flex size-7 items-center justify-center rounded-full",
                     isDone
                       ? "bg-ehs-green text-white"
                       : isCurrent
@@ -48,12 +49,12 @@ export function TemplateWizardProgress(
                 </span>
                 <span
                   className={[
-                    "text-sm whitespace-nowrap",
+                    "whitespace-nowrap",
                     isDone
-                      ? "text-ehs-green"
+                      ? "text4 text-ehs-green"
                       : isCurrent
-                        ? "text-ehs-normal-blue font-semibold"
-                        : "text-ehs-muted-text",
+                        ? "text5 text-ehs-normal-blue"
+                        : "text4 text-ehs-muted-text",
                   ].join(" ")}
                 >
                   {label}
@@ -89,7 +90,9 @@ export function TemplateWizardStepList(
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-3"
     >
-      <h3 className="text-ehs-dark-bg font-bold">Wizard steps</h3>
+      <Text as="h3" className="text3 text-ehs-dark-bg">
+        Wizard steps
+      </Text>
 
       <ol className="flex flex-col gap-3">
         {TEMPLATE_WIZARD_STEPS.map((label, index) => {
@@ -101,7 +104,7 @@ export function TemplateWizardStepList(
               <span
                 aria-hidden="true"
                 className={[
-                  "flex size-5 items-center justify-center rounded-full text-sm font-bold",
+                  "text5 flex size-5 items-center justify-center rounded-full",
                   isCurrent
                     ? "bg-ehs-normal-blue text-white"
                     : "text-ehs-muted-text bg-[#eef1f6]",
@@ -110,12 +113,11 @@ export function TemplateWizardStepList(
                 {stepNumber}
               </span>
               <span
-                className={[
-                  "",
+                className={
                   isCurrent
-                    ? "text-ehs-normal-blue font-semibold"
-                    : "text-ehs-muted-text",
-                ].join(" ")}
+                    ? "text5 text-ehs-normal-blue"
+                    : "text4 text-ehs-muted-text"
+                }
               >
                 {label}
               </span>

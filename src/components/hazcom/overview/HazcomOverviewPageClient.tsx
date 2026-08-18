@@ -4,13 +4,12 @@ import {
   HazcomErrorCard,
   HazcomModuleTabs,
   HazcomPageHeader,
+  HazcomUnavailablePanel,
 } from "@/components/hazcom/shared";
 import { HazcomOverviewSkeleton } from "@/components/hazcom/overview/HazcomOverviewSkeleton";
 import { HazcomOverviewStatsRow } from "@/components/hazcom/overview/HazcomOverviewStatsRow";
 import { HazcomRecentChemicalAdditionsCard } from "@/components/hazcom/overview/HazcomRecentChemicalAdditionsCard";
 import { HazcomSdsStatusOverviewCard } from "@/components/hazcom/overview/HazcomSdsStatusOverviewCard";
-import { HazcomTrainingComplianceCard } from "@/components/hazcom/overview/HazcomTrainingComplianceCard";
-import { HazcomUpcomingDeadlinesCard } from "@/components/hazcom/overview/HazcomUpcomingDeadlinesCard";
 import { useHazcomOverview } from "@/hooks/use-hazcom-overview";
 
 /**
@@ -22,7 +21,7 @@ export function HazcomOverviewPageClient() {
   const overview = useHazcomOverview();
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5 px-4 pb-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8">
       <HazcomModuleTabs />
 
       <HazcomPageHeader
@@ -46,8 +45,14 @@ export function HazcomOverviewPageClient() {
           <div className="grid gap-4 xl:grid-cols-2">
             <HazcomRecentChemicalAdditionsCard overview={overview} />
             <HazcomSdsStatusOverviewCard overview={overview} />
-            <HazcomTrainingComplianceCard />
-            <HazcomUpcomingDeadlinesCard />
+            <HazcomUnavailablePanel
+              title="Training Compliance"
+              message="Per-employee compliance needs a trainee roster and role requirements, which the training endpoint doesn't return yet."
+            />
+            <HazcomUnavailablePanel
+              title="Upcoming Deadlines"
+              message="Compliance deadlines will appear here once the API serves them for this site."
+            />
           </div>
         </>
       )}

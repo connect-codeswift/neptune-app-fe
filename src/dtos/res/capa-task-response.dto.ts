@@ -9,5 +9,6 @@ export type CapaTaskDto = {
   dueDate?: string | null;
   userId: number;
   status?: CapaTaskStatus | null;
+  priority?: string | null;
   createdAt?: string | null;
 };

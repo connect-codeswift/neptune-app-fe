@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import {
   TEMPLATE_ITEM_META,
   TEMPLATE_ITEM_TYPES,
@@ -46,9 +47,9 @@ export function ChooseItemTypeDialog(props: ChooseItemTypeDialogProps) {
 
       <div className="relative z-1 flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/90 bg-white shadow-[0px_24px_60px_-12px_rgba(15,23,42,0.4)]">
         <header className="flex items-center justify-between gap-3 border-b border-slate-900/10 px-5 py-4">
-          <h2 className="text-ehs-dark-bg text-lg font-bold">
+          <Text as="h2" className="text3 text-ehs-dark-bg">
             Choose item type
-          </h2>
+          </Text>
           <button
             type="button"
             aria-label="Close"
@@ -70,7 +71,7 @@ export function ChooseItemTypeDialog(props: ChooseItemTypeDialogProps) {
                 onClick={() => onSelect(type)}
                 className="hover:border-ehs-normal-blue/60 hover:bg-ehs-normal-blue/5 flex cursor-pointer flex-col gap-1 rounded-xl border border-slate-900/10 bg-[rgba(238,241,246,0.5)] p-3 text-left transition-colors"
               >
-                <span className="text-ehs-dark-bg flex items-center gap-1.5 font-semibold">
+                <span className="text5 text-ehs-dark-bg flex items-center gap-1.5">
                   <Icon
                     icon={meta.icon}
                     className="text-ehs-gray size-4 shrink-0"
@@ -78,7 +79,7 @@ export function ChooseItemTypeDialog(props: ChooseItemTypeDialogProps) {
                   />
                   {type}
                 </span>
-                <span className="text-ehs-muted-text text-xs leading-4">
+                <span className="text8 text-ehs-muted-text leading-4">
                   {meta.description}
                 </span>
               </button>

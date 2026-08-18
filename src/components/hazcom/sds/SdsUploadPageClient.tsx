@@ -8,7 +8,6 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
   HAZCOM_FIELD_LABEL_CLASS,
-  HazcomGlassCard,
   HazcomFormLayout,
   HazcomPageHeader,
   HazcomPictogramChip,
@@ -17,7 +16,8 @@ import {
   type HazcomSignalWord,
   type HazcomStatementCode,
 } from "@/components/hazcom/shared";
-import { SdsUploadDropzone } from "@/components/hazcom/sds/SdsUploadDropzone";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { UploadDocumentDropzone } from "@/components/policy-maker/upload/UploadDocumentDropzone";
 import type { SafetyDataSheetRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateSdsMutation } from "@/hooks/use-hazcom-mutations";
@@ -97,7 +97,7 @@ export function SdsUploadPageClient() {
   const { codes: precautionaryCodes, isLoading: isLoadingPrecautionaryCodes } =
     usePrecautionaryCodesQuery();
 
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   /** Cloudinary URL of the uploaded sheet; "" until one lands. */
   const [pdfUrl, setPdfUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -157,10 +157,11 @@ export function SdsUploadPageClient() {
   /**
    * The record stores a URL, so the PDF goes to Cloudinary as soon as it is
    * picked — the same path the incident and document uploads take.
+   * MIME / size checks live on `UploadDocumentDropzone`.
    */
   const handleFileChange = async (file: File | null) => {
     if (!file) {
-      setFileName(null);
+      setSelectedFile(null);
       setPdfUrl("");
       return;
     }
@@ -188,7 +189,7 @@ export function SdsUploadPageClient() {
       const uploaded = await uploadFile(file, { module: "HazCom" });
       setPdfUrl(uploaded.fileId);
     } catch (error) {
-      setFileName(null);
+      setSelectedFile(null);
       setPdfUrl("");
       toast.error(
         error instanceof Error
@@ -268,22 +269,18 @@ export function SdsUploadPageClient() {
         subtitle="Upload a PDF and enter GHS metadata for the SDS record"
       />
 
-      <HazcomGlassCard
+      <IncidentGlassCard
         paddingClassName="p-6 sm:p-8"
-        hazcomGlassCardClassName="gap-6"
+        incidentGlassCardClassName="gap-6"
         className="w-full"
       >
-        <SdsUploadDropzone
-          fileName={fileName}
-          disabled={isBusy}
+        <UploadDocumentDropzone
+          file={selectedFile}
+          isUploading={isBusy}
+          uploadedLabel={pdfUrl ? "Uploaded to library storage" : null}
+          emptyHint={`PDF — Max ${formatFileSize(CLOUDINARY_MAX_BYTES)}`}
           onFileChange={(file) => void handleFileChange(file)}
         />
-
-        {isUploading ? (
-          <Text as="p" className="text8 text-ehs-muted-text">
-            Uploading PDF…
-          </Text>
-        ) : null}
 
         <div className="flex flex-col gap-4">
           <Text as="h2" className="text3 text-ehs-darker">
@@ -493,7 +490,7 @@ export function SdsUploadPageClient() {
             </Button>
           </div>
         </div>
-      </HazcomGlassCard>
+      </IncidentGlassCard>
     </HazcomFormLayout>
   );
 }

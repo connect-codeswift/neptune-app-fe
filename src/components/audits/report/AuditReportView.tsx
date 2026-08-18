@@ -1,4 +1,5 @@
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import type { AuditReport } from "@/app/dashboard/audits/report/audit-report-data";
 
 /** Scores at or above the template's pass mark are green, the rest red. */
@@ -10,9 +11,13 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="text-ehs-muted-text">{label}</span>
-      <span className="text-ehs-dark-bg">{value}</span>
+    <div className="flex min-w-0 flex-col gap-1">
+      <Text as="span" className="text6 text-ehs-muted-text">
+        {label}
+      </Text>
+      <Text as="span" className="text4 text-ehs-darker">
+        {value}
+      </Text>
     </div>
   );
 }
@@ -23,28 +28,33 @@ export function AuditReportView(props: AuditReportViewProps) {
   const { report } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-3.5 xl:max-w-4xl">
-      {/* Summary */}
+    <div className="mx-auto flex w-full max-w-200 min-w-0 flex-col gap-3.5">
       <IncidentGlassCard
-        paddingClassName="p-6"
+        paddingClassName="p-5 sm:p-6"
+        className="bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
         incidentGlassCardClassName="gap-6"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
-            <h2 className="text-ehs-dark-bg text-2xl font-bold">
+            <Text as="h2" className="text3 text-ehs-darker">
               {report.title}
-            </h2>
-            <p className="text-ehs-gray">{report.scope}</p>
+            </Text>
+            <Text as="p" className="text8 text-ehs-muted-text">
+              {report.scope}
+            </Text>
           </div>
 
           <div className="flex shrink-0 flex-col items-end">
-            <span
-              className="text-3xl font-bold tabular-nums"
+            <Text
+              as="span"
+              className="text2 tabular-nums"
               style={{ color: scoreColor(report.score, report.passThreshold) }}
             >
               {`${String(report.score)}%`}
-            </span>
-            <span className="text-ehs-muted-text text-sm">Audit Score</span>
+            </Text>
+            <Text as="span" className="text8 text-ehs-muted-text">
+              Audit Score
+            </Text>
           </div>
         </div>
 
@@ -55,22 +65,24 @@ export function AuditReportView(props: AuditReportViewProps) {
         </div>
 
         <div className="flex flex-col gap-2 rounded-xl bg-[rgba(238,241,246,0.7)] p-4">
-          <h3 className="text-ehs-dark-bg font-bold">Executive Summary</h3>
-          <p className="text-ehs-darker text-lg leading-6">
+          <Text as="h3" className="text8 text-ehs-muted-text font-semibold">
+            Executive Summary
+          </Text>
+          <Text as="p" className="text4 text-ehs-darker">
             {report.executiveSummary}
-          </p>
+          </Text>
         </div>
       </IncidentGlassCard>
 
-      {/* Per-section scores */}
       {report.sectionScores.length > 0 ? (
         <IncidentGlassCard
-          paddingClassName="p-6"
+          paddingClassName="p-5 sm:p-6"
+          className="bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
           incidentGlassCardClassName="gap-4"
         >
-          <h3 className="text-ehs-dark-bg text-xl font-bold">
+          <Text as="h3" className="text3 text-ehs-darker">
             Score by Section
-          </h3>
+          </Text>
 
           <ul className="flex flex-col gap-4">
             {report.sectionScores.map((entry) => {
@@ -79,12 +91,19 @@ export function AuditReportView(props: AuditReportViewProps) {
               return (
                 <li key={entry.section} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-ehs-gray min-w-0 truncate text-lg">
+                    <Text
+                      as="span"
+                      className="text4 text-ehs-gray min-w-0 truncate"
+                    >
                       {entry.section}
-                    </span>
-                    <span className="shrink-0 tabular-nums" style={{ color }}>
+                    </Text>
+                    <Text
+                      as="span"
+                      className="text4 shrink-0 tabular-nums"
+                      style={{ color }}
+                    >
                       {`${String(entry.score)}%`}
-                    </span>
+                    </Text>
                   </div>
 
                   <span

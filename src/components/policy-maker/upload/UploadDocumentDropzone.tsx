@@ -11,7 +11,9 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { getFileMaxBytes, formatFileSize, isPdfMimeType } from "@/lib/files";
 
-const ACCEPT = "application/pdf,.pdf";
+const DEFAULT_ACCEPT = "application/pdf,.pdf";
+const DEFAULT_EMPTY_HINT = "PDF — Max 50MB";
+const DEFAULT_INVALID_MESSAGE = "Only PDF files are allowed.";
 
 export type UploadDocumentDropzoneProps = Readonly<{
   file: File | null;
@@ -19,6 +21,15 @@ export type UploadDocumentDropzoneProps = Readonly<{
   error?: string | null;
   isUploading?: boolean;
   uploadedLabel?: string | null;
+  /** Defaults to PDF-only (Policy Maker). Override for other modules. */
+  accept?: string;
+  /** Helper line under the drop prompt when no file is selected. */
+  emptyHint?: string;
+  /**
+   * Return an error message to reject the file, or `null` to accept.
+   * Defaults to PDF-only validation.
+   */
+  validateFile?: (file: File) => string | null;
   className?: string;
 }>;
 
@@ -26,9 +37,19 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
+function defaultValidateFile(file: File): string | null {
+  if (!isPdfFile(file)) {
+    return DEFAULT_INVALID_MESSAGE;
+  }
+  if (file.size > CLOUDINARY_MAX_BYTES) {
+    return "File must be 50MB or smaller.";
+  }
+  return null;
+}
+
 /**
- * PDF drag-and-drop zone (Figma 5568:24716).
- * Validates PDF-only + Cloudinary size limit; parent uploads to Cloudinary.
+ * Shared drag-and-drop upload zone (Figma 5568:24716).
+ * Policy Maker uses PDF defaults; other modules pass accept / validateFile.
  */
 export function UploadDocumentDropzone(
   props: Readonly<UploadDocumentDropzoneProps>,
@@ -39,6 +60,9 @@ export function UploadDocumentDropzone(
     error = null,
     isUploading = false,
     uploadedLabel = null,
+    accept = DEFAULT_ACCEPT,
+    emptyHint = DEFAULT_EMPTY_HINT,
+    validateFile = defaultValidateFile,
     className = "",
   } = props;
   const inputId = useId();
@@ -99,6 +123,9 @@ export function UploadDocumentDropzone(
 
   const message = error ?? localError;
   const sizeLabel = file ? formatFileSize(file.size) : null;
+  const selectedTypeLabel = file
+    ? file.name.split(".").pop()?.toUpperCase() || "FILE"
+    : null;
 
   return (
     <div className={["w-full min-w-0", className].filter(Boolean).join(" ")}>
@@ -128,7 +155,7 @@ export function UploadDocumentDropzone(
           ref={inputRef}
           id={inputId}
           type="file"
-          accept={ACCEPT}
+          accept={accept}
           disabled={isUploading}
           className="sr-only"
           onChange={onChange}
@@ -170,13 +197,10 @@ export function UploadDocumentDropzone(
             </Text>
           </>
         )}
-        <Text
-          as="p"
-          className="text8 text-ehs-muted-text mt-1 text-center"
-        >
+        <Text as="p" className="text8 text-ehs-muted-text mt-1 text-center">
           {file && sizeLabel
-            ? `${sizeLabel} · PDF${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
-            : "PDF — Max 50MB"}
+            ? `${sizeLabel} · ${selectedTypeLabel ?? "FILE"}${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
+            : emptyHint}
         </Text>
         {file && !isUploading ? (
           <button

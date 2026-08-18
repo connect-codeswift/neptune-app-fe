@@ -6,6 +6,14 @@ import {
 
 export const CAPA_ADD_TASK_FORM_ID = "capa-add-task-form";
 
+export type CapaAddTaskInitialDraft = Readonly<{
+  name?: string;
+  assigneeName?: string;
+  assigneeUserId?: string;
+  dueDate?: string;
+  priority?: string;
+}>;
+
 /** FormBuilder schema for CAPA Add Task modal — Figma 5491:23536. */
 export function buildCapaAddTaskSchema(): FormSchema {
   return [
@@ -50,14 +58,17 @@ export function buildCapaAddTaskSchema(): FormSchema {
   ];
 }
 
-export function createCapaAddTaskInitialValues(schema: FormSchema): FormValues {
+export function createCapaAddTaskInitialValues(
+  schema: FormSchema,
+  draft?: CapaAddTaskInitialDraft,
+): FormValues {
   return {
     ...createInitialValues(schema),
-    name: "",
-    assigned: "",
-    assignedName: "",
-    dueDate: "",
-    priority: "Medium",
+    name: draft?.name ?? "",
+    assigned: draft?.assigneeUserId ?? "",
+    assignedName: draft?.assigneeName ?? "",
+    dueDate: draft?.dueDate ?? "",
+    priority: draft?.priority || "Medium",
   };
 }
 

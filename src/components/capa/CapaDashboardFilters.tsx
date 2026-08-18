@@ -3,41 +3,44 @@
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import {
   CAPA_PRIORITY_FILTER_OPTIONS,
+  CAPA_SCOPE_FILTER_OPTIONS,
   CAPA_STATUS_FILTER_OPTIONS,
   CAPA_TYPE_FILTER_OPTIONS,
 } from "@/lib/capa-filters";
 
 export type CapaDashboardFiltersProps = Readonly<{
+  scope: string;
   status: string;
   type: string;
   priority: string;
-  shownCount: number;
-  totalCount: number;
+  onScopeChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onTypeChange: (value: string) => void;
   onPriorityChange: (value: string) => void;
-  onMyCapas: () => void;
-  onNewCapa: () => void;
 }>;
 
-/** Filter toolbar — Figma 7123:42136. Options match GET /api/CAPA query params. */
+/** Filter toolbar — GET /api/CAPA Scope, Status, CapaType, Priority. */
 export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
   const {
+    scope,
     status,
     type,
     priority,
-    shownCount,
-    totalCount,
+    onScopeChange,
     onStatusChange,
     onTypeChange,
     onPriorityChange,
-    onMyCapas,
-    onNewCapa,
   } = props;
 
   return (
     <ModuleFilterBar
       segments={[
+        {
+          label: "Scope",
+          options: CAPA_SCOPE_FILTER_OPTIONS,
+          value: scope,
+          onChange: onScopeChange,
+        },
         {
           label: "Status",
           options: CAPA_STATUS_FILTER_OPTIONS,
@@ -57,17 +60,6 @@ export function CapaDashboardFilters(props: CapaDashboardFiltersProps) {
           onChange: onPriorityChange,
         },
       ]}
-      // meta={`${String(shownCount)} of ${String(totalCount)}`}
-      secondaryAction={{
-        label: "My CAPAs",
-        onClick: onMyCapas,
-        icon: "mdi:account-outline",
-      }}
-      action={{
-        label: "New CAPA",
-        onClick: onNewCapa,
-        icon: "mdi:plus",
-      }}
     />
   );
 }

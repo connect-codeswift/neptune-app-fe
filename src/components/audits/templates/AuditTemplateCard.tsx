@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import type { AuditTemplate } from "@/app/dashboard/audits/template/audit-templates-data";
 
@@ -40,13 +41,13 @@ export function AuditTemplateCard(props: AuditTemplateCardProps) {
   return (
     <IncidentGlassCard
       paddingClassName="p-5"
-      className="min-w-0"
+      className="min-w-0 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
       incidentGlassCardClassName="gap-3"
     >
       <div className="mb-3 flex items-start justify-between gap-3">
-        <span className="text-ehs-muted-text text-sm">
+        <Text as="span" className="text8 text-ehs-muted-text">
           {`${String(template.sectionCount)} sections · ${String(template.itemCount)} items`}
-        </span>
+        </Text>
 
         <div ref={menuRef} className="relative shrink-0">
           <button
@@ -72,7 +73,7 @@ export function AuditTemplateCard(props: AuditTemplateCardProps) {
                   setMenuOpen(false);
                   onEdit?.(template);
                 }}
-                className="hover:bg-ehs-light-bg/60 text-ehs-dark-bg flex w-full cursor-pointer items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
+                className="text4 hover:bg-ehs-light-bg/60 text-ehs-dark-bg flex w-full cursor-pointer items-center gap-2.5 px-4 py-2.5 text-left transition-colors"
               >
                 <Icon
                   icon="mdi:pencil-outline"
@@ -87,21 +88,23 @@ export function AuditTemplateCard(props: AuditTemplateCardProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <h3 className="text-ehs-dark-bg text-lg font-bold">{template.title}</h3>
-        <p className="text-ehs-gray">
+        <Text as="h3" className="text3 text-ehs-darker">
+          {template.title}
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
           {`${template.category} · ${template.scope}`}
-        </p>
+        </Text>
       </div>
 
-      <p className="text-ehs-muted-text text-sm">
+      <Text as="p" className="text8 text-ehs-muted-text">
         {`Last used: ${template.lastUsed}`}
-      </p>
+      </Text>
 
       <Button
         type="button"
         variant="primary"
         onClick={() => onUse?.(template)}
-        className="mt-1 w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold"
+        className="text4 mt-1 w-full justify-center rounded-xl px-4 py-2.5"
       >
         Use Template
       </Button>

@@ -21,6 +21,7 @@ import {
   type CapaRcaWhyStep,
   type CapaRcaWorksheet,
 } from "@/components/capa/detail/capa-rca-data";
+import { CapaRcaSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { Text } from "@/components/Text";
 import {
   useCapaDetailQuery,
@@ -245,13 +246,7 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
   }
 
   if (isBootstrapping || record == null) {
-    return (
-      <div className="flex min-w-0 flex-col gap-3 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading RCA…
-        </Text>
-      </div>
-    );
+    return <CapaRcaSkeleton />;
   }
 
   if (detailQuery.isError) {
@@ -323,8 +318,8 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         the root cause.
       </p>
 
-      <div className={`${glassCardClass} overflow-x-auto`}>
-        <div className="relative z-1 min-w-275 p-4">
+      <div className={`${glassCardClass} max-w-full overflow-x-auto`}>
+        <div className="relative z-1 min-w-max p-3 sm:p-4 md:min-w-275">
           <WorksheetHeader />
           <div className="mt-3 flex flex-col gap-3">
             {lanes.map((lane) => (
