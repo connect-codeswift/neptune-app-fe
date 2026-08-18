@@ -3,7 +3,7 @@
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { SkeletonListRows } from "@/components/ui/skeletons";
-import { useTopNearMissUsersQuery } from "@/hooks/use-near-miss-queries";
+import { useMonthlyNearMissUsersQuery } from "@/hooks/use-near-miss-queries";
 
 /** "Mian Hamid Ur Rehman" -> "MH". Falls back to "?" for a blank name. */
 function initialsOf(name: string): string {
@@ -21,8 +21,12 @@ export type NearMissRecognitionCardProps = Readonly<{ className?: string }>;
 export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
   const { className = "" } = props;
 
-  const topUsersQuery = useTopNearMissUsersQuery();
-  const reporters = topUsersQuery.data?.dataModel ?? [];
+  const now = new Date();
+  const monthlyUsersQuery = useMonthlyNearMissUsersQuery({
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  });
+  const reporters = monthlyUsersQuery.data?.dataModel ?? [];
 
   return (
     <IncidentGlassCard className={className}>
@@ -60,7 +64,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
             </li>
           ))}
         </ul>
-      ) : topUsersQuery.isPending ? (
+      ) : monthlyUsersQuery.isPending ? (
         <div className="border-t border-slate-900/10 pt-3">
           <SkeletonListRows rows={4} />
         </div>

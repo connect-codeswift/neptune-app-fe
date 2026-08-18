@@ -27,16 +27,12 @@ import {
 
 const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
 
-/** Typography-only overrides — do not set fixed input heights. */
+/** Keep FormBuilder on the Inter scale without restyling every nested button/p. */
 const nearMissFormFieldClass = [
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:text4",
-  "[&_select]:text4",
-  "[&_textarea]:text4",
-  "[&_button]:text4",
-  "[&_p]:text8",
+  "[&_label]:text8 [&_label]:text-ehs-muted-text",
+  "[&_input]:text4 [&_input]:text-ehs-darker",
+  "[&_select]:text4 [&_select]:text-ehs-darker",
+  "[&_textarea]:text4 [&_textarea]:text-ehs-darker",
 ].join(" ");
 
 /**
@@ -163,6 +159,10 @@ export function ReportNearMissForm() {
     const payload = toCreateRequest(values as NearMissReportValues);
 
     createNearMiss.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Near-miss report submitted");
+        router.push(NEAR_MISS_LIST_ROUTE);
+      },
       onError: (error) => {
         toast.error(
           getMutationErrorMessage(

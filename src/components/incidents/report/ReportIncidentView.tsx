@@ -73,12 +73,28 @@ function renderStepForm(
   }
 }
 
-export function ReportIncidentView() {
+export type ReportIncidentViewProps = Readonly<{
+  initialForm?: Partial<ReportIncidentFormState>;
+  exitHref?: string;
+  headerTitle?: string;
+  backHref?: string;
+  backLabel?: string;
+}>;
+
+export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
+  const {
+    initialForm,
+    exitHref = "/dashboard/incidents/list",
+    headerTitle,
+    backHref,
+    backLabel,
+  } = props;
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<ReportStepId>(1);
-  const [form, setForm] = useState<ReportIncidentFormState>(
-    createInitialReportFormState,
-  );
+  const [form, setForm] = useState<ReportIncidentFormState>(() => ({
+    ...createInitialReportFormState(),
+    ...initialForm,
+  }));
   const [showStepFieldErrors, setShowStepFieldErrors] = useState<
     Partial<Record<ReportStepId, boolean>>
   >({});
@@ -319,14 +335,17 @@ export function ReportIncidentView() {
       setCurrentStep((currentStep - 1) as ReportStepId);
       return;
     }
-    router.push("/dashboard/incidents/list");
+    router.push(exitHref);
   };
 
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <ReportIncidentPageHeader
-          onSaveExit={() => router.push("/dashboard/incidents/list")}
+          onSaveExit={() => router.push(exitHref)}
+          backHref={backHref}
+          backLabel={backLabel}
+          title={headerTitle}
         />
 
         <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
