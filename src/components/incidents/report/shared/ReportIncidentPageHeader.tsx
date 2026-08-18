@@ -8,12 +8,21 @@ import { Text } from "@/components/Text";
 export type ReportIncidentPageHeaderProps = Readonly<{
   onSaveExit?: () => void;
   className?: string;
+  backHref?: string;
+  backLabel?: string;
+  title?: string;
 }>;
 
 export function ReportIncidentPageHeader(
   props: Readonly<ReportIncidentPageHeaderProps>,
 ) {
-  const { onSaveExit, className = "" } = props;
+  const {
+    onSaveExit,
+    className = "",
+    backHref = "/dashboard/incidents/list",
+    backLabel = "Incidents",
+    title = "Report an incident",
+  } = props;
 
   return (
     <div
@@ -27,10 +36,10 @@ export function ReportIncidentPageHeader(
       <div className="relative z-[1] flex min-w-0 flex-col gap-2">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1">
           <Link
-            href="/dashboard/incidents/list"
+            href={backHref}
             className="text-ehs-muted-text hover:text-ehs-gray text-sm font-medium transition-colors"
           >
-            Incidents
+            {backLabel}
           </Link>
           <Icon
             icon="mdi:chevron-right"
@@ -45,7 +54,7 @@ export function ReportIncidentPageHeader(
           as="h1"
           className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
         >
-          Report an incident
+          {title}
         </Text>
       </div>
 

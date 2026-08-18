@@ -39,6 +39,8 @@ export type GetNearMissKpiResponseDto = ApiEnvelopeDto<NearMissKpiDto | null>;
 /** One cell of GET /api/NearMiss/NearMissApiForHeatMap — a location/type tally. */
 export type NearMissHeatMapCellDto = {
   location: string;
+  /** Present when the backend groups by department instead of (or as well as) location. */
+  department?: string;
   type: string;
   count: number;
 };
@@ -59,6 +61,13 @@ export type TopNearMissUserDto = {
 export type GetTopNearMissUsersResponseDto = ApiEnvelopeDto<
   TopNearMissUserDto[] | null
 >;
+
+/**
+ * GET /api/NearMiss/MonthlyNearMissUsers?year=&month= — same row shape as
+ * TopNearMissUsers, scoped to one calendar month.
+ */
+export type GetMonthlyNearMissUsersResponseDto =
+  GetTopNearMissUsersResponseDto;
 
 /** Matches backend response for GET /api/NearMiss/NearMiss/{id}. */
 export type GetNearMissByIdResponseDto =

@@ -1,13 +1,12 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
-import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { ReportIncidentView } from "@/components/incidents/report";
+import { INCIDENT_LOCATION_OPTIONS } from "@/components/incidents/report/shared/report-locations";
+import { formatMmDdYyyy } from "@/components/incidents/report/shared/report-date-time";
+import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-data";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useNearMissDetailQuery } from "@/hooks/use-near-miss-queries";
@@ -15,55 +14,38 @@ import { canConvertNearMissToIncident } from "@/lib/current-user";
 import {
   formatNearMissDisplayId,
   mapNearMissDtoToRecord,
+  toNearMissApiId,
 } from "@/lib/map-near-miss";
-import { toast } from "@/lib/toast";
 import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
-import { convertToIncidentSchema } from "./convert-incident-schema";
-
-const crumbMuted = "text4 font-normal text-ehs-gray";
-const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
-
-/** Typography-only overrides — do not set fixed input heights. */
-const convertFormFieldClass = [
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:text4",
-  "[&_select]:text4",
-  "[&_textarea]:text4",
-  "[&_button]:text4",
-  "[&_p]:text8",
-].join(" ");
 
 export type ConvertToIncidentContentProps = Readonly<{
   nearMissId: string;
 }>;
 
-function PrePopulatedPanel(props: Readonly<{ record: NearMissRecord }>) {
-  const { record } = props;
+function eventDateToMmDdYyyy(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
+  if (match) {
+    return `${match[2]}/${match[3]}/${match[1]}`;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return formatMmDdYyyy(parsed);
+}
 
-  const entries: readonly (readonly [string, string])[] = [
-    ["Date", record.dateOfEvent],
-    ["Location", record.location],
-    ["Reporter", record.reporter],
-  ];
-
-  return (
-    <div className="rounded-2xl bg-[rgba(238,241,246,0.7)] p-4">
-      <Text as="p" className="text5 text-ehs-darker">
-        Pre-populated from Near-Miss:
-      </Text>
-      <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
-        {entries.map(([label, value]) => (
-          <div key={label} className="flex min-w-0 items-center gap-1">
-            <dt className="text4 text-ehs-darker">{`${label}:`}</dt>
-            <dd className="text4 text-ehs-darker min-w-0 truncate">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+function toIncidentPrefill(
+  record: NearMissRecord,
+): Partial<ReportIncidentFormState> {
+  const location = record.location.trim();
+  const known = INCIDENT_LOCATION_OPTIONS.some(
+    (option) => option.value === location || option.label === location,
   );
+
+  return {
+    description: record.description,
+    incidentDate: eventDateToMmDdYyyy(record.dateOfEvent),
+    incidentLocations: location ? [location] : [],
+    customIncidentLocations: location && !known ? [location] : [],
+  };
 }
 
 export function ConvertToIncidentContent(
@@ -71,16 +53,13 @@ export function ConvertToIncidentContent(
 ) {
   const { nearMissId } = props;
   const router = useRouter();
-  const detailQuery = useNearMissDetailQuery(nearMissId);
+  const apiId = toNearMissApiId(nearMissId);
+  const detailQuery = useNearMissDetailQuery(apiId);
 
   const dto = detailQuery.data?.dataModel ?? null;
   const record = dto ? mapNearMissDtoToRecord(dto) : null;
+  const detailRoute = `/dashboard/near-miss/${encodeURIComponent(apiId)}`;
 
-  const detailRoute = `/dashboard/near-miss/${encodeURIComponent(nearMissId)}`;
-
-  // Role guard. `null` = still resolving from the localStorage token; once
-  // known, an unauthorized user is redirected back to the detail page. This
-  // mirrors the button visibility check so the route can't be reached directly.
   const [isAllowed, setIsAllowed] = useState<boolean | null>(null);
   useEffect(() => {
     const allowed = canConvertNearMissToIncident();
@@ -91,108 +70,60 @@ export function ConvertToIncidentContent(
     }
   }, [router, detailRoute]);
 
+  useEffect(() => {
+    if (record?.status === "Closed") {
+      router.replace(detailRoute);
+    }
+  }, [record?.status, router, detailRoute]);
+
   if (isAllowed !== true) {
-    // Render nothing while resolving or before the redirect lands.
     return null;
   }
 
-  const handleSubmit = (_values: FormValues) => {
-    // There is no near-miss -> incident endpoint yet; POST /Incident/incident
-    // needs a field mapping that hasn't been decided. The submit label says
-    // "Convert & Create Incident", so this states plainly that nothing was
-    // saved rather than logging the payload to the console and moving on.
-    void _values;
-    toast.error(
-      "Not available yet",
-      "Converting a near miss to an incident isn't connected to the backend, so nothing was saved.",
+  if (record?.status === "Closed") {
+    return null;
+  }
+
+  if (detailQuery.isPending) {
+    return (
+      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+        <SkeletonFormPage fields={8} />
+      </div>
     );
-  };
+  }
+
+  if (detailQuery.isError) {
+    return (
+      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+        <Text as="p" className="text4 text-ehs-red">
+          {getMutationErrorMessage(
+            detailQuery.error,
+            "Could not load this near miss.",
+          )}
+        </Text>
+      </div>
+    );
+  }
+
+  if (!record) {
+    return (
+      <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+        <Text as="p" className="text4 text-ehs-muted-text">
+          {`No near miss found for id ${nearMissId}.`}
+        </Text>
+      </div>
+    );
+  }
+
+  const displayId = formatNearMissDisplayId(record.id);
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <DashboardHeader />
-
-      <div className="mx-auto flex w-full flex-col gap-5 px-4 pb-8">
-        {/* Page header */}
-        <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
-          <nav
-            aria-label="Breadcrumb"
-            className="relative z-1 flex flex-wrap items-center gap-1"
-          >
-            <span className={crumbMuted}>Safety</span>
-            <Icon
-              icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
-              aria-hidden="true"
-            />
-            <Link href="/dashboard/near-miss" className={crumbLink}>
-              Near-Miss
-            </Link>
-            <Icon
-              icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
-              aria-hidden="true"
-            />
-            <Link href={detailRoute} className={crumbLink}>
-              {formatNearMissDisplayId(nearMissId)}
-            </Link>
-            <Icon
-              icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
-              aria-hidden="true"
-            />
-            <span className={crumbMuted}>Convert</span>
-          </nav>
-
-          <Text as="h1" className="text1 text-ehs-darker relative z-1">
-            Convert to Full Incident
-          </Text>
-
-          <Text as="p" className="text4 text-ehs-muted-text relative z-1">
-            {record?.title ?? ""}
-          </Text>
-        </div>
-
-        {detailQuery.isPending && <SkeletonFormPage fields={8} />}
-
-        {detailQuery.isError && (
-          <Text as="p" className="text4 text-ehs-red">
-            {getMutationErrorMessage(
-              detailQuery.error,
-              "Could not load this near miss.",
-            )}
-          </Text>
-        )}
-
-        {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <Text as="p" className="text4 text-ehs-muted-text">
-            {`No near miss found for id ${nearMissId}.`}
-          </Text>
-        )}
-
-        {record && (
-          <IncidentGlassCard
-            paddingClassName="p-6"
-            incidentGlassCardClassName="mx-auto w-full max-w-3xl gap-5"
-            className="mx-auto w-full max-w-3xl gap-5"
-          >
-            <Text as="h3" className="text3 text-ehs-darker">
-              Additional Information Required
-            </Text>
-
-            <FormBuilder
-              schema={convertToIncidentSchema}
-              className={convertFormFieldClass}
-              submitLabel="Convert & Create Incident"
-              cancelLabel="Cancel"
-              submitVariant="danger"
-              beforeActions={<PrePopulatedPanel record={record} />}
-              onSubmit={handleSubmit}
-              onCancel={() => router.push(detailRoute)}
-            />
-          </IncidentGlassCard>
-        )}
-      </div>
-    </div>
+    <ReportIncidentView
+      initialForm={toIncidentPrefill(record)}
+      exitHref={detailRoute}
+      backHref={detailRoute}
+      backLabel={displayId}
+      headerTitle={`Convert ${displayId} to an incident`}
+    />
   );
 }

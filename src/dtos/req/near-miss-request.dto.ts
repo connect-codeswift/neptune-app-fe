@@ -16,3 +16,16 @@ export type CreateNearMissRequestDto = {
   userId: number;
   siteId: number;
 };
+
+/**
+ * Edit body for the same POST /api/NearMiss/NearMiss endpoint — sending an `id`
+ * updates the existing record instead of creating one.
+ */
+export type UpdateNearMissRequestDto = CreateNearMissRequestDto & {
+  id: number;
+};
+
+/** Either shape accepted by POST /api/NearMiss/NearMiss. */
+export type SaveNearMissRequestDto =
+  | CreateNearMissRequestDto
+  | UpdateNearMissRequestDto;

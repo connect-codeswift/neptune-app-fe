@@ -54,9 +54,22 @@ function cellStyle(value: number | null, max: number) {
   };
 }
 
-/** Pivot the flat location/type tallies into the grid the card renders. */
+/** Pivot the flat department/location × type tallies into the grid. */
+function areaKey(cell: NearMissHeatMapCellDto): string {
+  const department = cell.department?.trim();
+  if (department) return department;
+  return cell.location.trim();
+}
+
 function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
-  const locations = [...new Set(cells.map((cell) => cell.location))];
+  const apiAreas = [...new Set(cells.map(areaKey).filter(Boolean))];
+  const defaultAreas = LOCATION_OPTIONS.map((option) => option.value);
+  const defaultAreaSet = new Set(defaultAreas);
+  const locations = [
+    ...defaultAreas,
+    ...apiAreas.filter((area) => !defaultAreaSet.has(area)),
+  ];
+
   const apiTypes = [...new Set(cells.map((cell) => cell.type))];
   const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
   const types = [
@@ -65,7 +78,7 @@ function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
   ];
 
   const counts = new Map(
-    cells.map((cell) => [`${cell.location}|${cell.type}`, cell.count]),
+    cells.map((cell) => [`${areaKey(cell)}|${cell.type}`, cell.count]),
   );
 
   const rows = locations.map((location) => ({
@@ -94,14 +107,16 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
     <IncidentGlassCard className={className}>
       <header className="mb-4 flex flex-col gap-0.5">
         <Text as="h3" className="text3 text-ehs-darker">
-          Heatmap by area
+          Heatmap by department
         </Text>
         <Text as="p" className="text8 text-ehs-muted-text">
           Reports last 30 days
         </Text>
       </header>
 
-      {rows.length > 0 ? (
+      {heatMapQuery.isPending && cells == null ? (
+        <SkeletonHeatmapGrid />
+      ) : rows.length > 0 ? (
         <div
           className="grid gap-1"
           style={{
