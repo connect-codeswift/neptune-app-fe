@@ -6,19 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 
-const crumbMuted = "text4 font-normal text-[#b3bbc8]";
+const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
-
-function Chevron() {
-  return (
-    <Icon
-      icon="mdi:chevron-right"
-      className="text-ehs-muted-text size-3 shrink-0"
-      aria-hidden="true"
-    />
-  );
-}
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
 export type LotoProcedureHeaderProps = Readonly<{
   mode: "create" | "edit";
@@ -29,7 +19,7 @@ export type LotoProcedureHeaderProps = Readonly<{
 }>;
 
 /** Breadcrumb + title + Cancel / primary action — Figma 6912:56200 / 6915:56769. */
-export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
+export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
   const {
     mode,
     equipmentCode,
@@ -54,15 +44,27 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
       <div className="relative z-1 flex min-w-0 flex-col gap-3">
         <nav
           aria-label="Breadcrumb"
-          className="hidden items-center gap-1.5 overflow-x-auto md:flex"
+          className="hidden items-center gap-1 overflow-x-auto md:flex"
         >
-          <span className={crumbMuted}>Admin</span>
-          <Chevron />
+          <Text as="span" className={crumbMuted}>
+            Admin
+          </Text>
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-ehs-muted-text size-3 shrink-0"
+            aria-hidden="true"
+          />
           <Link href={LOTO_ROUTE} className={crumbLink}>
             LOTO Procedures
           </Link>
-          <Chevron />
-          <span className={crumbMuted}>{crumbTail}</span>
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-ehs-muted-text size-3 shrink-0"
+            aria-hidden="true"
+          />
+          <Text as="span" className={crumbMuted}>
+            {crumbTail}
+          </Text>
         </nav>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -74,13 +76,13 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
-            <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <Text as="h1" className="text1 text-ehs-darker">
                 {title}
               </Text>
               <Text
                 as="p"
-                className="text4 text-ehs-muted-text hidden md:block"
+                className="text8 text-ehs-muted-text hidden md:block"
               >
                 {subtitle}
               </Text>

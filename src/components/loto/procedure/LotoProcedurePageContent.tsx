@@ -26,6 +26,7 @@ import {
 } from "@/hooks/use-loto-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { LotoQueryStatus } from "../LotoQueryStatus";
+import { Text } from "@/components/Text";
 import {
   LotoProcedureForm,
   buildProcedurePreview,
@@ -48,7 +49,9 @@ export type LotoProcedurePageContentProps = Readonly<{
 }>;
 
 /** Routes create straight to a blank editor; edit loads the real equipment first. */
-export function LotoProcedurePageContent(props: LotoProcedurePageContentProps) {
+export function LotoProcedurePageContent(
+  props: Readonly<LotoProcedurePageContentProps>,
+) {
   const { mode, equipmentId } = props;
   const hasToken = useHasAccessToken();
 
@@ -116,9 +119,9 @@ function LotoProcedureEditLoader(
 function EditNotFound(props: Readonly<{ equipmentId: string }>) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-      <p className="text4 text-ehs-darker">
+      <Text as="p" className="text4 text-ehs-darker">
         {`No equipment matches "${props.equipmentId}".`}
-      </p>
+      </Text>
     </div>
   );
 }
