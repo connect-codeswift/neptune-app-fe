@@ -168,7 +168,7 @@ export function HazcomNewTrainingSessionForm(
     }));
   };
 
-  const handleMaterialFileChange = (file: File | null) => {
+  const handleMaterialFileChange = async (file: File | null) => {
     setPendingFile(file);
     setUploadError(null);
 
@@ -202,7 +202,7 @@ export function HazcomNewTrainingSessionForm(
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    })();
+    }
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -260,7 +260,9 @@ export function HazcomNewTrainingSessionForm(
             accept={TRAINING_MATERIAL_ACCEPT}
             emptyHint={`PDF, PPT, DOC, or image — Max ${formatFileSize(CLOUDINARY_MAX_BYTES)}`}
             validateFile={validateTrainingMaterial}
-            onFileChange={handleMaterialFileChange}
+            onFileChange={(file) => {
+              void handleMaterialFileChange(file);
+            }}
           />
           {form.materials.length > 0 ? (
             <ul className="mt-1 flex flex-col gap-2">
