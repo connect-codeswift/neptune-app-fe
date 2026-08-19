@@ -536,8 +536,10 @@
    * Without them, border-radius is invalid and corners render square.
    * Values match the pre-refactor arbitrary sizes (20px / 10px / 12px).
    */
+  --radius-0\.5: 0.125rem;
   --radius-2\.5: 0.625rem;
   --radius-3: 0.75rem;
+  --radius-3\.5: 0.875rem;
   --radius-4: 1rem;
   --radius-5: 1.25rem;
 }

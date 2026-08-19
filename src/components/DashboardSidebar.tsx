@@ -1,5 +1,6 @@
 "use client";
 
+import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
@@ -75,6 +76,13 @@ function SidebarNavLink(
 ) {
   const { item, active, onNavigate } = props;
 
+  // The Chat entry lights up in the assistant's own teal wash rather than the route-active
+  // pill — per its design node, and so the one brand entry reads differently from modules.
+  const activeClass =
+    item.href === NEPTUNE_AI_HREF
+      ? "bg-ehs-normal-blue/18 text-ehs-normal-blue font-bold"
+      : "bg-ehs-light-blue text-ehs-darker";
+
   return (
     <Link
       href={item.href}
@@ -84,7 +92,7 @@ function SidebarNavLink(
         // desktop rail is pointed at with a cursor and can stay compact.
         "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
         active
-          ? "bg-ehs-light-blue text-ehs-darker"
+          ? activeClass
           : // Darker on the mobile sheet: there it sits over a blurred,
             // arbitrarily-coloured page instead of the desktop rail's calm
             // ground, and ehs-gray washed out against it. ehs-slate is the
@@ -349,8 +357,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           {isLoading ? (
             <SidebarNavSkeleton />
           ) : (
-            navGroups.map((group) => (
-              <div key={group.title} className="flex flex-col gap-1">
+            navGroups.map((group, groupIndex) => (
+              // Title alone is not unique — the design repeats the NEPTUNE AI heading.
+              <div
+                key={`${group.title}-${String(groupIndex)}`}
+                className="flex flex-col gap-1"
+              >
                 <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
                   {group.title}
                 </Text>
