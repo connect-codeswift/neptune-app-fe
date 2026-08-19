@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  getUserById,
   getUserDropdown,
   getUsersBySiteId,
   type SiteUsersParams,
@@ -48,4 +49,23 @@ export function useSiteUsersQuery(
  */
 export function userGenderQueryKey(userId: number) {
   return ["user", "gender", userId] as const;
+}
+
+/**
+ * The signed-in user's own record, for the fields the session bootstrap does not carry.
+ *
+ * `GET /organizations/me` is org-scoped — it brings the job title along because the sidebar
+ * needs it on first paint, but not the phone number. The profile form needs the stored phone to
+ * seed its field, and seeding it from anything else would show the user a number that is not
+ * theirs and write it back on save.
+ */
+export const myProfileQueryKey = ["user", "me"] as const;
+
+export function useMyProfileQuery(userId: number, enabled = true) {
+  return useQuery({
+    queryKey: [...myProfileQueryKey, userId] as const,
+    queryFn: () => getUserById(userId),
+    enabled: enabled && userId > 0,
+    staleTime: 5 * 60 * 1000,
+  });
 }

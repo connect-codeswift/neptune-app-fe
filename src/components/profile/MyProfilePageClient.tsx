@@ -1,7 +1,6 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import Link from "next/link";
 import { BreadCrumbTab } from "@/components/BreadCrumbTab";
 import { CardHeading } from "@/components/CardHeading";
 import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
@@ -119,7 +118,7 @@ export function MyProfilePageClient() {
           <ProfileHeaderSkeleton />
         ) : (
           <GlassCard className="gap-4">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start gap-4">
               <div className="flex min-w-0 flex-1 items-start gap-4">
                 <AvatarPreview
                   profileUrl={user.profileUrl}
@@ -157,17 +156,6 @@ export function MyProfilePageClient() {
                 </div>
               </div>
 
-              <Link
-                href="/dashboard/settings/profile"
-                className="btn-sweep bg-ehs-normal-blue text-ehs-on-accent shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover text4 inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 shadow-md transition-colors"
-              >
-                Settings
-                <Icon
-                  icon="mdi:arrow-right"
-                  className="size-4"
-                  aria-hidden="true"
-                />
-              </Link>
             </div>
           </GlassCard>
         )}

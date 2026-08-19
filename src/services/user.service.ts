@@ -30,6 +30,7 @@ function mapSessionToUserDto(
     activatedModules: session.activatedModules ?? "",
     profileUrl: session.profileUrl,
     jobTitle: session.jobTitle,
+    contactNo: session.contactNo,
     sites: [...session.sites],
   };
 }

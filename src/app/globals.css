@@ -176,6 +176,18 @@
   --ehs-skeleton: rgb(226 232 240 / 0.8);
   --ehs-skeleton-strong: #d1d5db;
 
+  /* A warning notice: tinted panel, its edge, and the ink on it.
+
+     Amber is the one hue with no usable token pair. `--ehs-yellow` is a fill
+     colour - fine as a dot or a bar, far too light as text - and the notices
+     that need it were written against Tailwind's amber-50/300/700, which are
+     literals and cannot flip. In dark the panel becomes a low-alpha wash of
+     the hue and the ink becomes the light end of it, so the notice reads as a
+     warning in both themes instead of a pale smudge. */
+  --ehs-warning-surface: rgb(255 251 235 / 0.9);
+  --ehs-warning-border: rgb(253 230 138 / 0.8);
+  --ehs-warning-ink: #b45309;
+
   /* The bright edge on glass. White at full strength in light; in dark a
      dilute slate, because a white hairline on a dark card reads as a seam. */
   --ehs-hairline: #ffffff;
@@ -371,6 +383,10 @@
   /* Holes in the surface, not blocks on top of it. */
   --ehs-skeleton: rgb(148 163 184 / 0.13);
   --ehs-skeleton-strong: rgb(148 163 184 / 0.2);
+
+  --ehs-warning-surface: rgb(251 191 36 / 0.1);
+  --ehs-warning-border: rgb(251 191 36 / 0.3);
+  --ehs-warning-ink: #fcd34d;
   --ehs-border-strong: #263444;
   --ehs-placeholder: #64748b;
   /* No glass edge in dark, deliberately.
@@ -495,6 +511,9 @@
   --color-ehs-border-ink: var(--ehs-border-ink);
   --color-ehs-skeleton: var(--ehs-skeleton);
   --color-ehs-skeleton-strong: var(--ehs-skeleton-strong);
+  --color-ehs-warning-surface: var(--ehs-warning-surface);
+  --color-ehs-warning-border: var(--ehs-warning-border);
+  --color-ehs-warning-ink: var(--ehs-warning-ink);
   --color-ehs-overlay-media: var(--ehs-overlay-media);
   --color-ehs-red-ink: var(--ehs-red-ink);
   --color-ehs-red-ink-soft: var(--ehs-red-ink-soft);

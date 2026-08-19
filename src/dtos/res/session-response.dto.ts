@@ -19,6 +19,12 @@ export type SessionBootstrapDto = Readonly<{
    */
   jobTitle: string | null;
   /**
+   * The user's own phone number. Present on GET /users/{id}, absent from
+   * GET /organizations/me — that payload is org-scoped and carries only the
+   * handful of user fields the sidebar needs on first paint.
+   */
+  contactNo: string | null;
+  /**
    * Whether the signed-in user has two-factor authentication on, from GET /Auth/Org/me.
    *
    * It is user-scoped rather than org-scoped, and lives on this payload for the same reason
