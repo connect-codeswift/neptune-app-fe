@@ -8,8 +8,8 @@ import type {
 const columnHelper = createColumnHelper<LotoPersonnel>();
 
 const statusClassName: Record<LotoPersonnelStatus, string> = {
-  Current: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
-  Expired: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
+  Current: "bg-ehs-green/10 text-ehs-green",
+  Expired: "bg-ehs-red/10 text-ehs-red",
 };
 
 /**
@@ -51,7 +51,7 @@ export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
           <span
             className={[
               "text4",
-              expired ? "font-semibold text-[#ef4444]" : "text-ehs-gray",
+              expired ? "text-ehs-red font-semibold" : "text-ehs-gray",
             ].join(" ")}
           >
             {info.getValue()}
@@ -68,7 +68,7 @@ export function buildLotoPersonnelColumns(): TableColumns<LotoPersonnel> {
           {info.getValue().map((equipmentId: string) => (
             <span
               key={equipmentId}
-              className="text8 text-ehs-gray rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5"
+              className="text8 text-ehs-gray bg-ehs-surface-inverse/6 rounded-md px-2 py-0.5"
             >
               {equipmentId}
             </span>

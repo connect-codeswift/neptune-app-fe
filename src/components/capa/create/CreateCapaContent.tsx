@@ -31,6 +31,12 @@ import {
   toApiControlLevel,
 } from "@/services/mappers/capa.mapper";
 
+/* The slate text ramp here is pinned (#1e293b, #334155, #475569, #64748b,
+   #94a3b8): it is Tailwind's slate scale, not the brand greys, and rounding
+   each to the nearest `--ehs-*` grey collapses five steps into three. The
+   disabled submit fill #7bc1c5 is pinned for the same reason - it is opaque,
+   not a translucent teal. */
+
 const CAPA_ROUTE = "/dashboard/capa";
 
 export type CreateCapaTaskDraft = Readonly<
@@ -49,7 +55,7 @@ function parseAssignedId(value: string): number {
 
 function StepBadge(props: Readonly<{ step: string }>) {
   return (
-    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-[#0891a6] pt-[2px] pb-[3px] text-sm leading-5 text-white">
+    <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
       {props.step}
     </span>
   );
@@ -203,14 +209,14 @@ export function CreateCapaContent() {
                   <div className="flex items-center justify-between gap-3">
                     <Text
                       as="h4"
-                      className="text-base font-bold text-[#0b1320]"
+                      className="text-ehs-dark-bg text-base font-bold"
                     >
                       Tasks Checklist
                     </Text>
                     <button
                       type="button"
                       onClick={() => setAddTaskOpen(true)}
-                      className="text-3.25 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.18)] bg-[rgba(8,145,166,0.12)] px-3 py-2 font-bold text-[#0891a6] transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+                      className="text-3.25 border-ehs-normal-blue/18 bg-ehs-normal-blue/12 text-ehs-normal-blue hover:bg-ehs-normal-blue/18 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-2 font-bold transition-colors"
                     >
                       <Icon icon="mdi:plus" className="size-3.5" aria-hidden />
                       Add Task
@@ -218,18 +224,18 @@ export function CreateCapaContent() {
                   </div>
 
                   {tasks.length === 0 ? (
-                    <div className="rounded-2.5 border border-dashed border-[#e2e8f0] bg-white/70 px-4 py-5 text-center text-sm text-[#94a3b8]">
+                    <div className="rounded-2.5 border-ehs-border bg-ehs-surface/70 border border-dashed px-4 py-5 text-center text-sm text-[#94a3b8]">
                       No tasks yet. Add checklist items for the assignee.
                     </div>
                   ) : (
-                    <ul className="rounded-2.5 overflow-hidden border border-[#e2e8f0]">
+                    <ul className="rounded-2.5 border-ehs-border overflow-hidden border">
                       {tasks.map((task, index) => (
                         <li
                           key={task.id}
                           className={[
-                            "flex items-center justify-between gap-3 bg-white px-4 py-3",
+                            "bg-ehs-surface flex items-center justify-between gap-3 px-4 py-3",
                             index < tasks.length - 1
-                              ? "border-b border-[#e2e8f0]"
+                              ? "border-ehs-border border-b"
                               : "",
                           ].join(" ")}
                         >
@@ -245,14 +251,14 @@ export function CreateCapaContent() {
                             ) : null}
                           </div>
                           <div className="flex shrink-0 items-center gap-4">
-                            <span className="rounded-full bg-[rgba(11,19,32,0.14)] px-2.5 py-1 text-xs font-bold tracking-wide text-[#566072] uppercase">
+                            <span className="bg-ehs-surface-inverse/14 text-ehs-gray rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase">
                               {task.priority}
                             </span>
                             <button
                               type="button"
                               aria-label={`Remove ${task.name}`}
                               onClick={() => removeTask(task.id)}
-                              className="text-[#8892a3] transition-colors hover:text-[#ef4444]"
+                              className="text-ehs-muted-text hover:text-ehs-red transition-colors"
                             >
                               <Icon
                                 icon="mdi:trash-can-outline"
@@ -270,7 +276,7 @@ export function CreateCapaContent() {
           </section>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-[#cfd6d9] px-4 py-5 sm:px-6 md:flex-row md:flex-wrap md:items-center md:justify-between md:px-8">
+        <div className="border-ehs-border flex flex-col gap-3 border-t px-4 py-5 sm:px-6 md:flex-row md:flex-wrap md:items-center md:justify-between md:px-8">
           <p className="text-sm leading-[19.5px] text-[#94a3b8]">
             {controlLevel
               ? `${controlLevel} selected`
@@ -282,7 +288,7 @@ export function CreateCapaContent() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="rounded-xl border border-[#cbd5e1] px-6 py-2.5 text-sm text-[#334155] max-md:flex-1"
+              className="border-ehs-border rounded-xl border px-6 py-2.5 text-sm text-[#334155] max-md:flex-1"
             >
               Cancel
             </Button>

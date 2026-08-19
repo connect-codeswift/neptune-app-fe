@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { usePpeIssueDetailQuery } from "@/hooks/use-ppe-queries";
 
+/* The close icon is pinned to `text-slate-500` (#64748b), lighter than
+   `--ehs-gray` (#566072). */
+
 export type PpeIssuanceDetailModalProps = Readonly<{
   open: boolean;
   /** Issue id for GET /api/ppe/issue/{id}. */
@@ -96,7 +99,7 @@ export function PpeIssuanceDetailModal(
 
   return createPortal(
     <div
-      className="bg-ehs-dark-bg/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-3.5 sm:p-5"
+      className="bg-ehs-surface-inverse/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-3.5 sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -105,7 +108,7 @@ export function PpeIssuanceDetailModal(
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
-        className="bg-ehs-light-bg flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]"
+        className="bg-ehs-light-bg flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-(--ehs-shadow-modal)"
       >
         <header className="border-ehs-border relative shrink-0 border-b px-4 py-4 sm:px-6 sm:pt-6 sm:pb-4">
           <div className="flex items-start justify-between gap-3 pr-10">
@@ -137,7 +140,7 @@ export function PpeIssuanceDetailModal(
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg bg-white/40 transition-colors hover:bg-white/70 sm:top-6 sm:right-6"
+            className="bg-ehs-surface/40 hover:bg-ehs-surface/70 absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg transition-colors sm:top-6 sm:right-6"
           >
             <Icon
               icon="mdi:close"

@@ -12,6 +12,9 @@ import {
 import type { SelectOption } from "@/components/form-builder";
 import type { HazardHeatMapCellDto } from "@/dtos/res/hazard-response.dto";
 
+/* The cell label is pinned to `text-slate-700` (#334155); `--ehs-slate`
+   (#2a3446) is a different grey. */
+
 /**
  * Fixed heatmap columns — design baseline (Mech…Slip) plus Fire / Envt.
  * Extra API types append after these so custom categories still appear.
@@ -43,14 +46,24 @@ function shortTypeLabel(type: string): string {
   return word.slice(0, 4).replace(/^./, (char) => char.toUpperCase());
 }
 
-/** Map a report count to the teal fill opacity used in the Figma heatmap. */
+/**
+ * Map a report count to the teal fill opacity used in the Figma heatmap.
+ *
+ * `color-mix()` rather than a literal `rgba()`: the ramp needs a computed alpha, which a bare
+ * `var(--ehs-...)` cannot carry, and the hardcoded white and teal it replaced could not follow
+ * the theme -- every empty cell in the grid stayed white on a dark page.
+ */
 function cellStyle(value: number | null, max: number) {
   if (value == null || value <= 0) {
-    return { backgroundColor: "rgba(255,255,255,0.62)" };
+    return {
+      backgroundColor:
+        "color-mix(in oklab, var(--ehs-surface) 62%, transparent)",
+    };
   }
   const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
+  const percent = ((0.22 + ratio * 0.58) * 100).toFixed(1);
   return {
-    backgroundColor: `rgba(8,145,166,${(0.22 + ratio * 0.58).toFixed(3)})`,
+    backgroundColor: `color-mix(in oklab, var(--ehs-normal-blue) ${percent}%, transparent)`,
   };
 }
 
@@ -146,9 +159,9 @@ export function HazardHeatmapCard(props: HazardHeatmapCardProps) {
                   key={columns[index].key}
                   style={cellStyle(value, max)}
                   className={[
-                    "text7 flex h-8 items-center justify-center rounded border border-slate-900/10 leading-none font-bold",
+                    "text7 border-ehs-border-ink/10 flex h-8 items-center justify-center rounded border leading-none font-bold",
                     value != null && value >= max * 0.75
-                      ? "text-white"
+                      ? "text-ehs-on-accent"
                       : "text-slate-700",
                   ].join(" ")}
                 >

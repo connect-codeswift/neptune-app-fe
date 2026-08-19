@@ -49,11 +49,11 @@ export function IncidentDetailResponseCard(
                 "flex h-9.5 items-center gap-2.5 rounded-lg border px-3.25 py-2.75",
                 action.completed
                   ? "border-ehs-green bg-ehs-green-bg-light"
-                  : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
+                  : "border-ehs-border-ink/8 bg-ehs-surface/62",
               ].join(" ")}
             >
               {action.completed ? (
-                <div className="bg-ehs-green text-ehs-light-text flex size-4 shrink-0 items-center justify-center rounded">
+                <div className="bg-ehs-green text-ehs-on-accent flex size-4 shrink-0 items-center justify-center rounded">
                   <Icon
                     icon="mdi:check"
                     className="size-2.75"
@@ -61,7 +61,7 @@ export function IncidentDetailResponseCard(
                   />
                 </div>
               ) : (
-                <div className="size-4 shrink-0 rounded border border-[rgba(15,23,42,0.14)] bg-transparent" />
+                <div className="border-ehs-border-ink/14 size-4 shrink-0 rounded border bg-transparent" />
               )}
               <span className="text-ehs-dark-bg text4 truncate leading-normal">
                 {action.label}

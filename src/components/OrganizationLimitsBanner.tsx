@@ -6,6 +6,10 @@ import {
   type OrganizationLimitsState,
 } from "@/lib/organization-limits";
 
+/* The amber warning wash is pinned (`amber-200/80` on `amber-50/90`, icon at
+   `--ehs-yellow-ink-soft` == amber-600) rather than folded into `--ehs-yellow`,
+   which is the fill hue and washes the ink out. */
+
 export type OrganizationLimitsBannerProps = Readonly<{
   limits: OrganizationLimitsState;
   className?: string;
@@ -35,7 +39,7 @@ export function OrganizationLimitsBanner(props: OrganizationLimitsBannerProps) {
         }
         className={[
           "mt-0.5 shrink-0 text-lg",
-          isAtLimit ? "text-ehs-red" : "text-amber-600",
+          isAtLimit ? "text-ehs-red" : "text-ehs-yellow-ink-soft",
         ].join(" ")}
         aria-hidden="true"
       />

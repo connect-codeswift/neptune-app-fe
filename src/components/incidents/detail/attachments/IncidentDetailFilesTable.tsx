@@ -77,7 +77,7 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] py-8 text-center"
+                  className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-8 text-center"
                 >
                   No files uploaded.
                 </td>
@@ -92,15 +92,15 @@ function FilesContent(
                     }
                   }}
                   className={[
-                    "border-t border-[rgba(15,23,42,0.08)] transition-colors",
+                    "border-ehs-border-ink/8 border-t transition-colors",
                     isEditing
                       ? ""
-                      : "cursor-pointer hover:bg-[rgba(15,23,42,0.02)]",
+                      : "hover:bg-ehs-surface-inverse/2 cursor-pointer",
                   ].join(" ")}
                 >
                   <td className="py-3.5 pr-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="text-ehs-gray flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)]">
+                      <div className="text-ehs-gray border-ehs-border-ink/8 bg-ehs-surface/82 flex h-8 w-7 shrink-0 items-center justify-center rounded border">
                         <Icon
                           icon={getFileIcon(item.kind)}
                           className="size-3.25"

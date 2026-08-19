@@ -34,7 +34,7 @@ export function PpeIssuanceLogHeader(
   const { embedded = false } = props;
 
   return (
-    <div className="relative flex w-full flex-col justify-center gap-1.5 rounded-2xl border border-white/70 bg-white/50 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] backdrop-blur-xl before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6">
+    <div className="relative flex w-full flex-col justify-center gap-1.5 rounded-2xl border border-ehs-hairline/70 bg-ehs-surface/50 px-4 py-4 shadow-(--ehs-shadow-panel) backdrop-blur-xl before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] md:px-6">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         {!embedded ? (
           <nav

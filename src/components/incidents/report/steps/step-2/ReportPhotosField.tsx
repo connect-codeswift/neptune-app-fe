@@ -45,7 +45,7 @@ function AttachmentTile(
   const showImage = !isPdf && Boolean(rawSrc);
 
   return (
-    <div className="rounded-2.5 relative size-22 shrink-0 overflow-hidden border border-[rgba(15,23,42,0.08)] bg-[linear-gradient(135deg,#446580_0%,#223349_100%)]">
+    <div className="rounded-2.5 border-ehs-border-ink/8 relative size-22 shrink-0 overflow-hidden border bg-[linear-gradient(135deg,#446580_0%,#223349_100%)]">
       {showImage && file.previewUrl?.startsWith("blob:") ? (
         <Image
           src={file.previewUrl}
@@ -277,7 +277,7 @@ export function ReportPhotosField(props: Readonly<ReportPhotosFieldProps>) {
           type="button"
           onClick={openPicker}
           disabled={isUploading || photos.length >= FILE_MAX_FILES}
-          className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 rounded-2.5 flex size-22 shrink-0 flex-col items-center justify-center gap-1.25 border border-dashed border-[rgba(15,23,42,0.14)] bg-white/62 transition disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:border-ehs-normal-blue/40 hover:bg-ehs-normal-blue/5 rounded-2.5 border-ehs-border-ink/14 bg-ehs-surface/62 flex size-22 shrink-0 flex-col items-center justify-center gap-1.25 border border-dashed transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon
             icon={isUploading ? "mdi:loading" : "mdi:plus"}

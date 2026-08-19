@@ -109,7 +109,7 @@ function SummaryRow(
   }>,
 ) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2">
+    <div className="border-ehs-border-ink/8 flex items-start justify-between gap-3 border-b py-2">
       <span className="text6 text-ehs-muted-text">{props.label}</span>
       <span
         className={[
@@ -199,7 +199,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             <button
               type="button"
               onClick={addStep}
-              className="text4 text-ehs-normal-blue inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 font-semibold transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+              className="text4 text-ehs-normal-blue border-ehs-normal-blue/20 bg-ehs-normal-blue/12 hover:bg-ehs-normal-blue/18 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border px-3 font-semibold transition-colors"
             >
               <Icon icon="mdi:plus" className="size-3.5" />
               Add Step
@@ -214,7 +214,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className="rounded-3.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
+                className="rounded-3.5 border-ehs-border-ink/8 bg-ehs-surface/50 border p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                       Step {String(index + 1)}
                     </span>
                     {step.verified ? (
-                      <span className="text8 rounded-1.25 bg-[rgba(16,185,129,0.1)] px-1.5 py-px font-bold text-[#10b981]">
+                      <span className="text8 rounded-1.25 text-ehs-green bg-ehs-green/10 px-1.5 py-px font-bold">
                         Verified
                       </span>
                     ) : null}
@@ -234,7 +234,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                     onClick={() => {
                       removeStep(step.id);
                     }}
-                    className="rounded-1.75 flex size-6.5 cursor-pointer items-center justify-center text-[#ef4444] transition-colors hover:bg-[rgba(239,68,68,0.08)] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-1.75 text-ehs-red hover:bg-ehs-red/8 flex size-6.5 cursor-pointer items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Icon icon="mdi:trash-can-outline" className="size-3" />
                   </button>
@@ -272,7 +272,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
       <aside className="flex min-w-0 flex-col gap-3.5 xl:sticky xl:top-4">
         <IncidentGlassCard
           paddingClassName="px-4.5 py-4.5"
-          className="min-w-0 bg-[rgba(255,255,255,0.82)]"
+          className="bg-ehs-surface/82 min-w-0"
         >
           <h2 className="text3 text-ehs-darker mb-3">Procedure Summary</h2>
           <div className="flex flex-col">

@@ -154,7 +154,7 @@ export function ReportCalendarPopover(
       // first. Centring keeps all three inside it.
       className={
         className ??
-        "animate-popover-in rounded-3 absolute top-full left-1/2 z-40 mt-1.5 w-65 -translate-x-1/2 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+        "animate-popover-in rounded-3 border-ehs-border-ink/10 bg-ehs-surface absolute top-full left-1/2 z-40 mt-1.5 w-65 -translate-x-1/2 border p-2.5 shadow-(--ehs-shadow-popover)"
       }
     >
       <div className="flex items-center justify-between pb-2">
@@ -236,9 +236,9 @@ export function ReportCalendarPopover(
                 "relative flex h-8 cursor-pointer items-center justify-center rounded-lg text-[13px] transition-colors",
                 "focus-visible:ring-ehs-normal-blue/40 focus-visible:ring-2 focus-visible:outline-none",
                 disabled
-                  ? "cursor-not-allowed text-[rgba(15,23,42,0.22)]"
+                  ? "text-ehs-border-ink/22 cursor-not-allowed"
                   : isSelected
-                    ? "bg-ehs-normal-blue font-bold text-white"
+                    ? "bg-ehs-normal-blue text-ehs-on-accent font-bold"
                     : isCurrentMonth
                       ? "text-ehs-dark-bg hover:bg-ehs-light-bg font-medium"
                       : "text-ehs-muted-text hover:bg-ehs-light-bg",

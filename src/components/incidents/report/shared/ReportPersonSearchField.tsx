@@ -434,7 +434,7 @@ export function ReportPersonSearchField(
             {[0, 1, 2].map((row) => (
               <span
                 key={row}
-                className="h-10 animate-pulse rounded-lg bg-[rgba(15,23,42,0.06)]"
+                className="bg-ehs-surface-inverse/6 h-10 animate-pulse rounded-lg"
               />
             ))}
           </li>
@@ -472,8 +472,8 @@ export function ReportPersonSearchField(
                   className={[
                     "rounded-2 flex w-full cursor-pointer items-center gap-2.5 px-2.5 py-2 text-left transition-colors",
                     isActive
-                      ? "bg-[rgba(8,145,166,0.1)]"
-                      : "hover:bg-[rgba(15,23,42,0.04)]",
+                      ? "bg-ehs-normal-blue/10"
+                      : "hover:bg-ehs-surface-inverse/4",
                   ].join(" ")}
                 >
                   <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
@@ -507,7 +507,7 @@ export function ReportPersonSearchField(
 
   const inlineMenu =
     open && !isEmbedded ? (
-      <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+      <div className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
         {listbox}
       </div>
     ) : null;
@@ -522,7 +522,7 @@ export function ReportPersonSearchField(
               left: menuPosition.left,
               width: menuPosition.width,
             }}
-            className="animate-popover-in rounded-2.5 fixed z-120 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface fixed z-120 overflow-hidden border shadow-(--ehs-shadow-popover)"
           >
             {listbox}
           </div>,
@@ -561,7 +561,7 @@ export function ReportPersonSearchField(
         onKeyDown={onKeyDown}
         className={[
           inputClassName || inputClass,
-          "border border-slate-900/10",
+          "border-ehs-border-ink/10 border",
           hasSelection ? "pr-16" : "pr-9",
         ]
           .filter(Boolean)
@@ -622,7 +622,7 @@ export function ReportPersonSearchField(
         {hideLabel ? null : (
           <label
             htmlFor={fieldId}
-            className="text-slate-70 block text-base leading-[19.5px] font-medium"
+            className="block text-base leading-[19.5px] font-medium"
           >
             {label}
             {required ? <span className="text-ehs-red"> *</span> : null}

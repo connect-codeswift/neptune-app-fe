@@ -8,9 +8,7 @@ import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
-  formatPermissionLabel,
   PLACEHOLDER_ACTIVITY,
-  PLACEHOLDER_ASSIGNED_PERMISSIONS,
   PLACEHOLDER_CERTIFICATIONS,
   PLACEHOLDER_PERSONAL_INFO,
   type ProfileCertification,
@@ -38,55 +36,6 @@ function InfoRow(
         {value}
       </Text>
     </div>
-  );
-}
-
-function PermissionsAccessCard(
-  props: Readonly<{
-    role: string;
-    permissionLabels: readonly string[];
-  }>,
-) {
-  const { role, permissionLabels } = props;
-  const displayedPermissions =
-    permissionLabels.length > 0
-      ? permissionLabels
-      : [...PLACEHOLDER_ASSIGNED_PERMISSIONS];
-
-  return (
-    <GlassCard>
-      <CardHeading title="Permissions & Access" />
-
-      <div className="mt-1">
-        <InfoRow label="System Role" value={role} />
-        <InfoRow
-          label="Access Level"
-          value="Level 3 (Full EHS Module Access)"
-        />
-
-        <div className="border-ehs-border/50 border-b py-3">
-          <Text as="p" className="text8 text-ehs-muted-text">
-            Assigned Permissions
-          </Text>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {displayedPermissions.map((permission) => (
-              <span
-                key={permission}
-                className="bg-ehs-light-bg text7 text-ehs-gray rounded-lg px-3 py-1.5"
-              >
-                {permission}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <InfoRow label="Last Login" value="Today at 9:42 AM" />
-        <InfoRow
-          label="Account Created"
-          value={PLACEHOLDER_PERSONAL_INFO.startDate}
-        />
-      </div>
-    </GlassCard>
   );
 }
 
@@ -147,11 +96,8 @@ function ProfileHeaderSkeleton() {
 }
 
 export function MyProfilePageClient() {
-  const { user, permissions, isLoading, sites } = useSessionBootstrap();
+  const { user, isLoading, sites } = useSessionBootstrap();
 
-  const permissionLabels = Array.from(permissions).map((permission) =>
-    formatPermissionLabel(permission),
-  );
   const siteLocation =
     sites.find((site) => site.siteName === user.siteName)?.location ??
     user.siteName ??
@@ -212,8 +158,8 @@ export function MyProfilePageClient() {
               </div>
 
               <Link
-                href="/dashboard/my-profile/settings"
-                className="btn-sweep bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover text4 inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 shadow-md transition-colors"
+                href="/dashboard/settings/profile"
+                className="btn-sweep bg-ehs-normal-blue text-ehs-on-accent shadow-ehs-normal-blue/60 hover:bg-ehs-normal-blue-hover text4 inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 shadow-md transition-colors"
               >
                 Settings
                 <Icon
@@ -302,12 +248,7 @@ export function MyProfilePageClient() {
           </GlassCard>
         </div>
 
-        <div className="grid gap-3.5 lg:grid-cols-2">
-          <PermissionsAccessCard
-            role={user.role}
-            permissionLabels={permissionLabels}
-          />
-
+        <div className="grid gap-3.5">
           <GlassCard>
             <CardHeading
               title="Recent Activity"

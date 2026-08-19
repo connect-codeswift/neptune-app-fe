@@ -278,7 +278,7 @@ export function ReplacementRequestContent() {
                 className={fieldLabelClass}
               />
 
-              <div className="flex flex-col-reverse gap-2.5 border-t border-[rgba(11,19,32,0.08)] pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:border-0 md:pt-0">
+              <div className="flex flex-col-reverse gap-2.5 border-t border-ehs-border-ink/8 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:border-0 md:pt-0">
                 <Button
                   type="button"
                   variant="tertiary"
@@ -293,7 +293,7 @@ export function ReplacementRequestContent() {
                   variant="primary"
                   isLoading={replaceRequest.isPending}
                   disabled={!issueIdParam || itemOptions.length === 0}
-                  className="text4 rounded-2.5 w-full px-5 py-2.5 shadow-[0px_6px_18px_-6px_#0891a6] sm:w-auto"
+                  className="text4 rounded-2.5 w-full px-5 py-2.5 shadow-(--ehs-shadow-button-primary-flat) sm:w-auto"
                 >
                   {replaceRequest.isPending
                     ? "Submitting..."

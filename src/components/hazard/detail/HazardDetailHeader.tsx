@@ -23,7 +23,7 @@ export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
   const displayId = formatHazardDisplayId(record.id);
 
   return (
-    <div className="backdrop-blur-2.5 relative flex w-full flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+    <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex w-full flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
       <nav
         aria-label="Breadcrumb"
         className="relative z-1 flex min-w-0 flex-wrap items-center gap-1"
@@ -64,7 +64,7 @@ export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
           {canEdit ? (
             <Link
               href={editHref}
-              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium text-white transition-colors"
+              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium text-ehs-on-accent transition-colors"
             >
               Edit
             </Link>

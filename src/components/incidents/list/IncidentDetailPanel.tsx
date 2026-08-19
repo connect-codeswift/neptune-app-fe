@@ -138,7 +138,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
           {incident.numericId > 0 ? (
             <Link
               href={`/dashboard/incidents/${String(incident.numericId)}`}
-              className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold transition-colors"
+              className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 bg-ehs-surface inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold transition-colors"
             >
               Open details
               <Icon
@@ -151,7 +151,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             <button
               type="button"
               disabled
-              className="border-ehs-border text-ehs-normal-blue inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 text-xs font-bold opacity-50"
+              className="border-ehs-border text-ehs-normal-blue bg-ehs-surface inline-flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold opacity-50"
             >
               Open details
               <Icon
@@ -204,7 +204,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             type="button"
             onClick={() => setIsAddCapaOpen(true)}
             disabled={incident.numericId <= 0}
-            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex items-center gap-1 rounded-lg border bg-white px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
             Add CAPA
@@ -228,7 +228,7 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             {capas.map((capa) => (
               <div
                 key={capa.id}
-                className="border-ehs-border rounded-xl border bg-white/70 px-3.5 py-3"
+                className="border-ehs-border bg-ehs-surface/70 rounded-xl border px-3.5 py-3"
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Text

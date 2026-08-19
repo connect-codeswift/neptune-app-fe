@@ -58,7 +58,7 @@ function HazcomSdsRowSkeleton(
         <Skeleton className="h-3 w-36" />
         <Skeleton className="h-3 w-6" />
       </div>
-      <div className="bg-ehs-dark-bg/8 relative h-1.5 overflow-hidden rounded-full">
+      <div className="bg-ehs-surface-inverse/8 relative h-1.5 overflow-hidden rounded-full">
         <div
           className={[
             "absolute top-0 left-0 h-full animate-pulse rounded-full",

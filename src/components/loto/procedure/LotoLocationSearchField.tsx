@@ -118,7 +118,7 @@ export function LotoLocationSearchField(
       </div>
 
       {open ? (
-        <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+        <div className="animate-popover-in rounded-2.5 bg-ehs-surface border-ehs-border-ink/10 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
           <ul
             id={listboxId}
             role="listbox"
@@ -130,7 +130,7 @@ export function LotoLocationSearchField(
                 {[0, 1, 2].map((row) => (
                   <span
                     key={row}
-                    className="h-8 animate-pulse rounded-lg bg-[rgba(15,23,42,0.06)]"
+                    className="bg-ehs-surface-inverse/6 h-8 animate-pulse rounded-lg"
                   />
                 ))}
               </li>
@@ -161,7 +161,7 @@ export function LotoLocationSearchField(
                       setQuery("");
                       setOpen(false);
                     }}
-                    className="rounded-2 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-[rgba(15,23,42,0.04)]"
+                    className="rounded-2 hover:bg-ehs-surface-inverse/4 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors"
                   >
                     <span className="text-ehs-dark-bg truncate text-base font-semibold">
                       {location.name}

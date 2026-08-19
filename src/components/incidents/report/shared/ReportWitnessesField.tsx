@@ -252,10 +252,10 @@ export function ReportWitnessesField(
             inputRef.current?.focus();
           }}
           className={[
-            "rounded-2.5 flex min-h-9 w-full flex-wrap items-center gap-1.5 border border-[rgba(15,23,42,0.08)]",
-            "backdrop-blur-1.25 bg-white/[0.62] px-3.25 py-1.5 pr-9",
+            "rounded-2.5 border-ehs-border-ink/8 flex min-h-9 w-full flex-wrap items-center gap-1.5 border",
+            "backdrop-blur-1.25 bg-ehs-surface/[0.62] px-3.25 py-1.5 pr-9",
             "transition-[color,background-color,border-color,box-shadow] duration-150",
-            "hover:border-[rgba(15,23,42,0.18)] hover:bg-white/[0.78]",
+            "hover:border-ehs-border-ink/18 hover:bg-ehs-surface/[0.78]",
             open
               ? "border-ehs-normal-blue ring-0.75 ring-ehs-normal-blue/[0.15]"
               : "focus-within:border-ehs-normal-blue focus-within:ring-0.75 focus-within:ring-ehs-normal-blue/[0.15]",
@@ -327,7 +327,7 @@ export function ReportWitnessesField(
         />
 
         {open ? (
-          <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
             {siteName ? (
               <p className="text-ehs-muted-text border-ehs-border text-2.5 truncate border-b px-3 pt-2 pb-1.5 font-semibold tracking-wider uppercase">
                 People at {siteName}
@@ -351,7 +351,7 @@ export function ReportWitnessesField(
                   {[0, 1, 2].map((row) => (
                     <span
                       key={row}
-                      className="rounded-2 h-10 animate-pulse bg-[rgba(15,23,42,0.06)]"
+                      className="rounded-2 bg-ehs-surface-inverse/6 h-10 animate-pulse"
                     />
                   ))}
                 </li>
@@ -396,9 +396,9 @@ export function ReportWitnessesField(
                           "rounded-2 flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition-colors",
                           isSelected
                             ? "cursor-default opacity-60"
-                            : "cursor-pointer hover:bg-[rgba(15,23,42,0.04)]",
+                            : "hover:bg-ehs-surface-inverse/4 cursor-pointer",
                           isActive && !isSelected
-                            ? "bg-[rgba(8,145,166,0.1)]"
+                            ? "bg-ehs-normal-blue/10"
                             : "",
                         ].join(" ")}
                       >

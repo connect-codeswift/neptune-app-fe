@@ -123,7 +123,7 @@ export function IncidentDetailCapaListCard(
       <IncidentGlassCard
         paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
-        className={["bg-white/62", className].filter(Boolean).join(" ")}
+        className={["bg-ehs-surface/62", className].filter(Boolean).join(" ")}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
@@ -142,7 +142,7 @@ export function IncidentDetailCapaListCard(
               type="button"
               onClick={() => setAddModalRequestedLocally(true)}
               disabled={isSubmitting}
-              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
               Add CAPA
@@ -172,17 +172,17 @@ export function IncidentDetailCapaListCard(
                 <div
                   key={item.id}
                   className={[
-                    "rounded-3 flex flex-col gap-1.75 border bg-[rgba(255,255,255,0.82)] p-4.25",
+                    "rounded-3 bg-ehs-surface/82 flex flex-col gap-1.75 border p-4.25",
                     needsReview
                       ? "border-ehs-green/30 ring-ehs-green/20 ring-1"
-                      : "border-[rgba(15,23,42,0.08)]",
+                      : "border-ehs-border-ink/8",
                   ].join(" ")}
                 >
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                     <span className="text-ehs-muted-text text5">
                       {item.code}
                     </span>
-                    <span className="bg-ehs-dark-bg/14 text-ehs-gray text7 inline-flex items-center gap-1.25 rounded-full px-2.25 py-0.75">
+                    <span className="bg-ehs-surface-inverse/14 text-ehs-gray text7 inline-flex items-center gap-1.25 rounded-full px-2.25 py-0.75">
                       <span className="bg-ehs-gray rounded-0.75 size-1.5" />
                       {item.controlCategory}
                     </span>

@@ -187,7 +187,7 @@ function createRiskAssessmentColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
             ].join(" ")}
             aria-label={
               isOpen
@@ -268,7 +268,7 @@ export function HazcomRiskAssessmentsTable(
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       {header ? (
-        <div className="border-b border-[rgba(15,23,42,0.08)] px-4">
+        <div className="border-b border-ehs-border-ink/8 px-4">
           {header}
         </div>
       ) : null}
@@ -318,7 +318,7 @@ export function HazcomRiskAssessmentsTable(
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
+                  className="border-t border-ehs-border-ink/8 px-4 py-10 text-center"
                 >
                   <Text as="p" className="text4 text-ehs-muted-text">
                     No risk assessments match your search.
@@ -333,8 +333,8 @@ export function HazcomRiskAssessmentsTable(
                   <tr
                     key={row.id}
                     className={[
-                      "border-t border-[rgba(15,23,42,0.08)] transition-colors",
-                      isSelected ? "bg-ehs-normal-blue/6" : "hover:bg-black/2",
+                      "border-t border-ehs-border-ink/8 transition-colors",
+                      isSelected ? "bg-ehs-normal-blue/6" : "hover:bg-ehs-surface-inverse/2",
                     ].join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {

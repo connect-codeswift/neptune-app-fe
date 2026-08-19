@@ -34,16 +34,16 @@ const SIA_SIP_SIF_STYLES: Record<
   Readonly<{ pane: string; activeText: string }>
 > = {
   SIA: {
-    pane: "bg-orange-500 shadow-[0px_4px_14px_-4px_rgba(249,115,22,0.55),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
-    activeText: "text-white",
+    pane: "bg-ehs-orange shadow-[0px_4px_14px_-4px_color-mix(in_oklab,var(--ehs-orange)_55%,transparent),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
+    activeText: "text-ehs-on-accent",
   },
   SIP: {
-    pane: "bg-ehs-yellow shadow-[0px_4px_14px_-4px_rgba(245,158,11,0.55),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
-    activeText: "text-white",
+    pane: "bg-ehs-yellow shadow-[0px_4px_14px_-4px_color-mix(in_oklab,var(--ehs-yellow)_55%,transparent),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
+    activeText: "text-ehs-on-accent",
   },
   SIF: {
-    pane: "bg-ehs-red shadow-[0px_4px_14px_-4px_rgba(239,68,68,0.55),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
-    activeText: "text-ehs-light-text",
+    pane: "bg-ehs-red shadow-[0px_4px_14px_-4px_color-mix(in_oklab,var(--ehs-red)_55%,transparent),inset_0px_1px_0px_rgba(255,255,255,0.35)]",
+    activeText: "text-ehs-on-accent",
   },
 };
 
@@ -104,7 +104,7 @@ export function ReportClassificationToggle(
         aria-label={label}
         data-invalid={error ? "true" : undefined}
         className={[
-          "rounded-2.5 relative grid h-10 border border-white/70 bg-white/45 p-1 shadow-[inset_0px_2px_4px_rgba(15,23,42,0.06)] backdrop-blur-md",
+          "rounded-2.5 border-ehs-hairline/70 bg-ehs-surface/45 relative grid h-10 border p-1 shadow-[inset_0px_2px_4px_rgba(15,23,42,0.06)] backdrop-blur-md",
           optionCount === 3 ? "grid-cols-3" : "grid-cols-2",
           error ? "border-ehs-red/50" : "",
         ].join(" ")}
@@ -117,8 +117,8 @@ export function ReportClassificationToggle(
               selectedSiaStyle
                 ? selectedSiaStyle.pane
                 : isPrimarySelected
-                  ? "from-ehs-normal-blue to-ehs-dark-blue bg-linear-to-br shadow-[0px_4px_14px_-4px_rgba(8,145,166,0.7),inset_0px_1px_0px_rgba(255,255,255,0.35)]"
-                  : "border border-white/70 bg-white/85 shadow-[0px_2px_6px_-1px_rgba(15,23,42,0.18)]",
+                  ? "from-ehs-normal-blue to-ehs-dark-blue bg-linear-to-br shadow-[0px_4px_14px_-4px_color-mix(in_oklab,var(--ehs-normal-blue)_70%,transparent),inset_0px_1px_0px_rgba(255,255,255,0.35)]"
+                  : "border-ehs-hairline/70 bg-ehs-surface/85 border shadow-[0px_2px_6px_-1px_rgba(15,23,42,0.18)]",
             ].join(" ")}
             style={{
               width: `calc(${100 / optionCount}% - 4px)`,
@@ -149,7 +149,7 @@ export function ReportClassificationToggle(
                   ? optionStyle
                     ? optionStyle.activeText
                     : isPrimarySelected && index === 0
-                      ? "text-ehs-light-text"
+                      ? "text-ehs-on-accent"
                       : "text-ehs-slate"
                   : "text-ehs-muted-text hover:text-ehs-slate",
               ].join(" ")}

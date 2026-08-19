@@ -11,6 +11,9 @@ import {
   TABLE_HEADER_ACTION_ICON_CLASS,
 } from "@/components/ui/table-header-action";
 
+/* The inactive tab count is pinned to `slate-400` (#94a3b8), one step lighter
+   than `--ehs-muted-text` (#8892a3). */
+
 export type LotoModuleTabsProps = Readonly<{
   activeTab: LotoTabId;
   /** Live counts per tab; a tab with no count yet renders no badge. */
@@ -56,7 +59,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                     "text8 rounded-lg px-2 py-px font-semibold",
                     isActive
                       ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
-                      : "bg-slate-900/5 text-slate-400",
+                      : "bg-ehs-surface-inverse/5 text-slate-400",
                   ].join(" ")}
                 >
                   {String(counts[tab.id])}

@@ -496,11 +496,11 @@ export function IncidentDetailHrcaBoard(
         </div>
 
         {rcaQuery.isLoading ? (
-          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border border-white/90 bg-white/62 px-4 py-10 text-center">
+          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 border px-4 py-10 text-center">
             Loading HRCA worksheet…
           </div>
         ) : errorMessage ? (
-          <div className="rounded-5 text4 backdrop-blur-2.5 flex flex-col items-center gap-3 border border-white/90 bg-white/62 px-4 py-10 text-center">
+          <div className="rounded-5 text4 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 flex flex-col items-center gap-3 border px-4 py-10 text-center">
             <p className="text-ehs-red">{errorMessage}</p>
             <button
               type="button"
@@ -513,7 +513,7 @@ export function IncidentDetailHrcaBoard(
             </button>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border border-white/90 bg-white/62 px-4 py-10 text-center">
+          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 border px-4 py-10 text-center">
             No HRCA lanes are configured. Seeded RCA categories (ids 1–5) are
             required to render the worksheet.
           </div>

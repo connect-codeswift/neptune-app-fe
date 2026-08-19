@@ -44,7 +44,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
           {reporters.map((reporter) => (
             <li
               key={reporter.userId}
-              className="flex items-center gap-2.5 border-t border-slate-900/10 py-4"
+              className="border-ehs-border-ink/10 flex items-center gap-2.5 border-t py-4"
             >
               <Text
                 as="span"
@@ -65,13 +65,13 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
           ))}
         </ul>
       ) : monthlyUsersQuery.isPending ? (
-        <div className="border-t border-slate-900/10 pt-3">
+        <div className="border-ehs-border-ink/10 border-t pt-3">
           <SkeletonListRows rows={4} />
         </div>
       ) : (
         <Text
           as="p"
-          className="text8 text-ehs-muted-text border-t border-slate-900/10 py-2"
+          className="text8 text-ehs-muted-text border-ehs-border-ink/10 border-t py-2"
         >
           No reporters yet this month.
         </Text>

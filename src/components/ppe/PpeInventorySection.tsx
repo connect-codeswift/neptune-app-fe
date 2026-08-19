@@ -225,7 +225,7 @@ export function PpeInventorySection() {
                   getRowId={(row) => row.id}
                   selectedRowId={activeId}
                   getRowClassName={(row) =>
-                    row.attention ? "bg-[rgba(239,68,68,0.06)]" : undefined
+                    row.attention ? "bg-ehs-red/6" : undefined
                   }
                   containerClassName={complianceGlassCardClass}
                   header={header}

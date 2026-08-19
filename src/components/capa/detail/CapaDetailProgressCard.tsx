@@ -10,6 +10,9 @@ import {
 } from "@/components/capa/detail/capa-detail-data";
 import { isCapaStatusClosed } from "@/lib/capa-filters";
 
+/* The step labels are pinned to #f6f6f6, an off-white; `--ehs-on-accent` is
+   pure white. */
+
 export type CapaDetailProgressCardProps = Readonly<{
   record: CapaDetailRecord;
 }>;
@@ -44,10 +47,10 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
                     className={[
                       "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
                       isDone
-                        ? "bg-[#00c950] text-[#f6f6f6]"
+                        ? "bg-ehs-progress-done text-[#f6f6f6]"
                         : isCurrent
                           ? "bg-ehs-normal-blue text-[#f6f6f6]"
-                          : "border border-[rgba(15,23,42,0.12)] bg-[#eef1f6] text-[#8892a3]",
+                          : "border-ehs-border-ink/12 bg-ehs-form-classes-bg text-ehs-muted-text border",
                     ].join(" ")}
                   >
                     {isDone ? (
@@ -61,10 +64,10 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
                     className={[
                       "max-w-18 text-center text-xs leading-tight font-medium sm:max-w-none sm:text-sm",
                       isDone
-                        ? "text-[#10b981]"
+                        ? "text-ehs-green"
                         : isCurrent
-                          ? "text-[#0891a6]"
-                          : "text-[#8892a3]",
+                          ? "text-ehs-normal-blue"
+                          : "text-ehs-muted-text",
                     ].join(" ")}
                   >
                     {label}
@@ -79,7 +82,9 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
                     <div
                       className={[
                         "h-0.5 w-full",
-                        lineDone ? "bg-[#00c950]" : "bg-[#eef1f6]",
+                        lineDone
+                          ? "bg-ehs-progress-done"
+                          : "bg-ehs-form-classes-bg",
                       ].join(" ")}
                     />
                   </li>
@@ -91,10 +96,10 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <Text as="span" className="shrink-0 text-base text-[#566072]">
+        <Text as="span" className="text-ehs-gray shrink-0 text-base">
           Overall
         </Text>
-        <div className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+        <div className="bg-ehs-surface-inverse/8 h-2.5 min-w-0 flex-1 overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full"
             style={{ width: `${String(progress)}%` }}
@@ -102,7 +107,7 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
         </div>
         <Text
           as="span"
-          className="shrink-0 text-sm font-semibold text-[#0b1320] tabular-nums"
+          className="text-ehs-dark-bg shrink-0 text-sm font-semibold tabular-nums"
         >
           {`${String(progress)}%`}
         </Text>

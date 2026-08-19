@@ -83,7 +83,7 @@ export function LotoActiveLockoutsSection() {
       {lockouts.map((item) => (
         <article
           key={item.id}
-          className="rounded-5 border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.62)] px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]"
+          className="rounded-5 border-ehs-red/18 bg-ehs-surface/62 border px-5 py-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]"
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -99,7 +99,7 @@ export function LotoActiveLockoutsSection() {
                 onClick={() => {
                   router.push(lotoRemoveLockoutRoute(item.id));
                 }}
-                className="text4 text-ehs-gray rounded-2.5 inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 border border-[rgba(15,23,42,0.14)] px-4 font-medium transition-colors"
+                className="text4 text-ehs-gray rounded-2.5 border-ehs-border-ink/14 inline-flex h-9.75 shrink-0 cursor-pointer items-center gap-2 border px-4 font-medium transition-colors"
               >
                 <Icon icon="mdi:lock-open-outline" className="size-3.5" />
                 Remove Lockout
@@ -113,7 +113,7 @@ export function LotoActiveLockoutsSection() {
                 <div className="flex items-center gap-1.25">
                   <Icon
                     icon={field.icon}
-                    className="size-3.5 text-[#b3bbc8]"
+                    className="text-ehs-placeholder size-3.5"
                     aria-hidden="true"
                   />
                   <span className="text6 text-ehs-muted-text">

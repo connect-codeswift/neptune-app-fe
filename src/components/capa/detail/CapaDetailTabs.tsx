@@ -44,7 +44,7 @@ export function CapaDetailTabs(props: CapaDetailTabsProps) {
 
   return (
     <div
-      className="flex gap-0 overflow-x-auto border-b border-white/90"
+      className="border-ehs-hairline/90 flex gap-0 overflow-x-auto border-b"
       role="tablist"
       aria-label="CAPA detail views"
     >
@@ -69,8 +69,8 @@ export function CapaDetailTabs(props: CapaDetailTabsProps) {
             className={[
               "inline-flex shrink-0 cursor-pointer items-center gap-2.5 border-b-2 px-4 py-2.5 text-base whitespace-nowrap transition-colors",
               isActive
-                ? "border-[#0891a6] font-medium text-[#0891a6]"
-                : "border-transparent font-medium text-[#566072] hover:text-[#0b1320]",
+                ? "border-ehs-normal-blue text-ehs-normal-blue font-medium"
+                : "text-ehs-gray hover:text-ehs-dark-bg border-transparent font-medium",
             ].join(" ")}
           >
             <Icon icon={tab.icon} className="size-4 shrink-0" aria-hidden />

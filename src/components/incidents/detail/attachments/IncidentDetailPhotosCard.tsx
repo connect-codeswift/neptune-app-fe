@@ -56,7 +56,7 @@ function PhotosContent(
           <button
             type="button"
             onClick={onAddFile}
-            className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 inline-flex shrink-0 items-center gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[11px] transition-colors hover:bg-white/80"
+            className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface/80 inline-flex shrink-0 items-center gap-2 border px-3.75 pt-2.5 pb-[11px] transition-colors"
           >
             <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
             Add file
@@ -84,7 +84,7 @@ function PhotosContent(
             return (
               <div
                 key={item.id}
-                className="rounded-2.5 relative aspect-[152/114] w-full overflow-hidden border border-[rgba(15,23,42,0.08)]"
+                className="rounded-2.5 border-ehs-border-ink/8 relative aspect-[152/114] w-full overflow-hidden border"
                 style={{
                   backgroundImage: gradients[index % gradients.length],
                 }}
@@ -123,7 +123,7 @@ function PhotosContent(
 
                   {isVideo ? (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45">
-                      <div className="text-ehs-dark-bg rounded-4.5 flex size-9 items-center justify-center bg-[rgba(255,255,255,0.92)]">
+                      <div className="text-ehs-dark-bg rounded-4.5 bg-ehs-surface/92 flex size-9 items-center justify-center">
                         <Icon
                           icon="mdi:play"
                           className="size-4"
@@ -150,7 +150,7 @@ function PhotosContent(
                       event.stopPropagation();
                       onDeleteFile?.(item);
                     }}
-                    className="bg-ehs-dark-bg/72 text-ehs-light-text hover:bg-ehs-red absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full shadow-sm transition-colors"
+                    className="bg-ehs-surface-inverse/72 text-ehs-light-text hover:bg-ehs-red absolute top-1.5 right-1.5 z-30 inline-flex size-7 items-center justify-center rounded-full shadow-sm transition-colors"
                     aria-label={`Delete ${item.name}`}
                   >
                     <Icon

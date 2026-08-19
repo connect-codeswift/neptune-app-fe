@@ -38,10 +38,10 @@ function IconButton(
 
   const toneClass =
     tone === "active"
-      ? "bg-ehs-normal-blue text-white"
+      ? "bg-ehs-normal-blue text-ehs-on-accent"
       : tone === "danger"
         ? "text-ehs-red bg-ehs-red/10 hover:bg-ehs-red/20"
-        : "text-ehs-muted-text bg-ehs-light-bg/60 hover:bg-black/5";
+        : "text-ehs-muted-text bg-ehs-light-bg/60 hover:bg-ehs-surface-inverse/5";
 
   return (
     <button
@@ -73,11 +73,11 @@ function RadioDot(props: Readonly<{ checked: boolean }>) {
         "flex size-5.5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
         props.checked
           ? "border-ehs-normal-blue bg-ehs-normal-blue"
-          : "border-slate-900/25",
+          : "border-ehs-border-ink/25",
       ].join(" ")}
     >
       {props.checked ? (
-        <span className="size-2.5 rounded-full bg-white" />
+        <span className="bg-ehs-surface size-2.5 rounded-full" />
       ) : null}
     </span>
   );
@@ -91,8 +91,8 @@ function CheckBox(props: Readonly<{ checked: boolean }>) {
       className={[
         "flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
         props.checked
-          ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
-          : "border-slate-900/25",
+          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
+          : "border-ehs-border-strong",
       ].join(" ")}
     >
       {props.checked ? <Icon icon="mdi:check" className="size-3.5" /> : null}
@@ -151,7 +151,7 @@ function ItemUploadControl(
       {value ? (
         <>
           {variant === "image" ? (
-            <div className="relative size-28 overflow-hidden rounded-lg border border-slate-900/10">
+            <div className="border-ehs-border-ink/10 relative size-28 overflow-hidden rounded-lg border">
               <ResolvedFileImage
                 fileRef={value}
                 alt="Uploaded preview"
@@ -164,7 +164,7 @@ function ItemUploadControl(
               href={value}
               target="_blank"
               rel="noreferrer"
-              className="text-ehs-dark-bg flex items-center gap-2 rounded-lg border border-slate-900/10 bg-white px-3 py-2 text-sm"
+              className="text-ehs-dark-bg border-ehs-border-ink/10 bg-ehs-surface flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
             >
               <Icon
                 icon="mdi:file-document-outline"
@@ -198,7 +198,7 @@ function ItemUploadControl(
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={isUploading}
-          className="text-ehs-gray hover:border-ehs-normal-blue/60 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-900/15 px-3 py-3 transition-colors disabled:cursor-not-allowed"
+          className="text-ehs-gray hover:border-ehs-normal-blue/60 border-ehs-border-ink/15 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-3 transition-colors disabled:cursor-not-allowed"
         >
           <Icon
             icon={isUploading ? "mdi:loading" : icon}
@@ -402,7 +402,7 @@ function ItemPreview(
       );
     case "Signature":
       return (
-        <div className="text-ehs-muted-text flex h-14 items-center justify-center rounded-lg border border-dashed border-slate-900/15 text-sm">
+        <div className="text-ehs-muted-text border-ehs-border-ink/15 flex h-14 items-center justify-center rounded-lg border border-dashed text-sm">
           Sign-off capture
         </div>
       );
@@ -453,12 +453,12 @@ function ItemRow(
       onDragOver={onDragOver}
       onDrop={onDrop}
       className={[
-        "overflow-hidden rounded-xl border bg-white transition-opacity",
+        "bg-ehs-surface overflow-hidden rounded-xl border transition-opacity",
         isDragging
           ? "border-ehs-normal-blue opacity-50"
           : invalid
             ? "border-ehs-red/60"
-            : "border-slate-900/10",
+            : "border-ehs-border-ink/10",
       ].join(" ")}
     >
       <div className="flex items-center gap-2.5 p-2.5">
@@ -513,7 +513,7 @@ function ItemRow(
       </div>
 
       {isExpanded ? (
-        <div className="bg-ehs-normal-blue-bg-light/30 grid gap-4 border-t border-slate-900/10 p-4 sm:grid-cols-2">
+        <div className="bg-ehs-normal-blue-bg-light/30 border-ehs-border-ink/10 grid gap-4 border-t p-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <span className={labelClass}>Guidance / Hint</span>
             <input
@@ -645,7 +645,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                       "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors",
                       isActive
                         ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
-                        : "border-transparent hover:bg-black/5",
+                        : "hover:bg-ehs-surface-inverse/5 border-transparent",
                     ].join(" ")}
                     onClick={() => setActiveSectionId(section.id)}
                   >
@@ -684,7 +684,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
         <button
           type="button"
           onClick={handleAddSection}
-          className="text-ehs-normal-blue inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-semibold transition-colors"
+          className="text-ehs-normal-blue border-ehs-border-ink/10 bg-ehs-surface inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors"
         >
           <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
           Add Section
@@ -750,7 +750,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               />
             </div>
 
-            <div className="flex flex-col gap-2.5 border-t border-slate-900/10 pt-4">
+            <div className="border-ehs-border-ink/10 flex flex-col gap-2.5 border-t pt-4">
               <h3 className={labelClass}>
                 {`Items (${String(activeSection.items.length)})`}
               </h3>

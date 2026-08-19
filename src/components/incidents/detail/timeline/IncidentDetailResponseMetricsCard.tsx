@@ -28,14 +28,14 @@ export function IncidentDetailResponseMetricsCard(
       </div>
 
       {metrics.length === 0 ? (
-        <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5">
+        <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t pt-2.75 pb-2.5">
           No response metrics recorded for this incident.
         </div>
       ) : (
         metrics.map((metric) => (
           <div
             key={metric.label}
-            className="flex items-center justify-between border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5"
+            className="border-ehs-border-ink/8 flex items-center justify-between border-t pt-2.75 pb-2.5"
           >
             <span className="text-ehs-gray text4 leading-normal">
               {metric.label}

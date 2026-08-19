@@ -45,7 +45,7 @@ export function IncidentClosureStepsSidebar(
     <IncidentGlassCard
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-6"
-      className="backdrop-blur-2.5 h-fit bg-white/[0.62] shadow-none"
+      className="backdrop-blur-2.5 bg-ehs-surface/[0.62] h-fit shadow-none"
     >
       <Text
         as="h4"
@@ -70,20 +70,20 @@ export function IncidentClosureStepsSidebar(
               className={[
                 "rounded-2.5 flex items-start gap-2.5 p-2.5 text-left transition-all duration-200",
                 isActive
-                  ? "bg-ehs-dark-blue-bg-light border border-[rgba(8,145,166,0.1)]"
+                  ? "bg-ehs-dark-blue-bg-light border-ehs-normal-blue/10 border"
                   : isLocked
                     ? "cursor-not-allowed border border-transparent opacity-50"
-                    : "border border-transparent hover:bg-white/60",
+                    : "hover:bg-ehs-surface/60 border border-transparent",
               ].join(" ")}
             >
               <div
                 className={[
                   "rounded-2.75 text8 mt-0.5 flex size-5.5 shrink-0 items-center justify-center transition-colors",
                   isComplete
-                    ? "bg-ehs-green text-ehs-light-text font-bold"
+                    ? "bg-ehs-green text-ehs-on-accent font-bold"
                     : isActive
-                      ? "bg-ehs-normal-blue text-ehs-light-text font-bold"
-                      : "text-ehs-gray border border-[rgba(15,23,42,0.08)] bg-white font-bold",
+                      ? "bg-ehs-normal-blue text-ehs-on-accent font-bold"
+                      : "text-ehs-gray border-ehs-border-ink/8 bg-ehs-surface border font-bold",
                 ].join(" ")}
               >
                 {isComplete ? (
@@ -120,7 +120,7 @@ export function IncidentClosureStepsSidebar(
         })}
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
+      <div className="border-ehs-border-ink/8 flex flex-col gap-2 border-t pt-5">
         <div className="flex items-center justify-between">
           <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Progress

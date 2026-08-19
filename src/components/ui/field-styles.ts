@@ -20,13 +20,13 @@
  */
 
 const FIELD_BASE = [
-  "w-full rounded-2.5 border border-[rgba(15,23,42,0.08)]",
+  "w-full rounded-2.5 border border-ehs-border-ink/8",
   // 55% white to sit on the thinner glass cards the app now uses — 62% read
   // a step more solid than the surface underneath it.
-  "bg-white/55 text-ehs-dark-bg backdrop-blur-1.25 outline-none",
+  "bg-ehs-surface/55 text-ehs-dark-bg backdrop-blur-1.25 outline-none",
   "transition-[color,background-color,border-color,box-shadow] duration-150",
   "placeholder:text-ehs-muted-text",
-  "hover:border-[rgba(15,23,42,0.18)] hover:bg-white/[0.78]",
+  "hover:border-ehs-border-ink/18 hover:bg-ehs-surface/[0.78]",
   // A soft 3px halo rather than a hard 2px ring — reads as a glow at this
   // field size instead of a second border fighting the first.
   "focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/[0.15]",

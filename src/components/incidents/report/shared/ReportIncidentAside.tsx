@@ -55,7 +55,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
           <Text as="span" className="text-ehs-muted-text text-xs font-bold">
             INC-DRAFT
           </Text>
-          <span className="bg-ehs-dark-bg/14 inline-flex items-center gap-1.5 rounded-full px-2.25 py-[3px]">
+          <span className="bg-ehs-surface-inverse/14 inline-flex items-center gap-1.5 rounded-full px-2.25 py-[3px]">
             <span className="bg-ehs-gray rounded-0.75 size-1.5" />
             <Text
               as="span"
@@ -89,7 +89,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
           {locationPreview}
         </Text>
 
-        <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+        <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
         <p
           className={[
@@ -127,7 +127,7 @@ export function ReportIncidentAside(props: Readonly<ReportIncidentAsideProps>) {
         </div>
       </IncidentGlassCard>
 
-      <div className="rounded-5 border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light backdrop-blur-2.5 before:rounded-5 relative flex flex-col gap-1.75 border p-4.25 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']">
+      <div className="rounded-5 border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light backdrop-blur-2.5 before:rounded-5 relative flex flex-col gap-1.75 border p-4.25 shadow-(--ehs-shadow-card) before:pointer-events-none before:absolute before:inset-0 before:content-['']">
         <div className="relative z-1 flex items-center gap-1.5">
           <Icon
             icon="mdi:lightbulb-on-outline"

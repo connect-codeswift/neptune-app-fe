@@ -60,7 +60,7 @@ export function IncidentDetailTimelineCard(
         <button
           type="button"
           onClick={handleExport}
-          className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 inline-flex shrink-0 items-center gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[11px] transition-colors hover:bg-white/80"
+          className="text-ehs-dark-bg rounded-2.5 text5 backdrop-blur-1.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface/80 inline-flex shrink-0 items-center gap-2 border px-3.75 pt-2.5 pb-[11px] transition-colors"
         >
           <Icon
             icon="mdi:export-variant"
@@ -79,12 +79,12 @@ export function IncidentDetailTimelineCard(
         <div className="relative pl-1">
           <div
             aria-hidden="true"
-            className="absolute top-1.5 bottom-1.5 left-5.25 w-0.5 bg-[rgba(15,23,42,0.04)]"
+            className="bg-ehs-surface-inverse/4 absolute top-1.5 bottom-1.5 left-5.25 w-0.5"
           />
           <div className="relative flex flex-col gap-1">
             {events.map((event) => (
               <div key={event.id} className="flex items-start gap-3.5 py-2">
-                <div className="border-ehs-form-classes-bg bg-ehs-dark-bg/14 text-ehs-gray rounded-2.75 relative z-1 flex size-9 shrink-0 items-center justify-center border-2">
+                <div className="border-ehs-form-classes-bg bg-ehs-surface-inverse/14 text-ehs-gray rounded-2.75 relative z-1 flex size-9 shrink-0 items-center justify-center border-2">
                   <Icon
                     icon={event.icon}
                     className="size-4"

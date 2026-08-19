@@ -228,8 +228,8 @@ export function HazcomRiskAssessmentForm(
                   className={[
                     "text8 rounded-2.5 inline-flex items-center gap-1 border px-3 py-1.5 transition-colors",
                     selected
-                      ? "border-ehs-normal-blue text-ehs-dark-blue bg-white"
-                      : "border-ehs-border text-ehs-muted-text hover:border-ehs-normal-blue/50 bg-white/60",
+                      ? "border-ehs-normal-blue text-ehs-dark-blue bg-ehs-surface"
+                      : "border-ehs-border text-ehs-muted-text hover:border-ehs-normal-blue/50 bg-ehs-surface/60",
                   ].join(" ")}
                 >
                   {selected ? (
@@ -253,7 +253,7 @@ export function HazcomRiskAssessmentForm(
           onChange={(event) => onChange({ controls: event.target.value })}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-4 sm:pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-4 sm:pt-5">
           <Link href={ASSESSMENTS_ROUTE}>
             <Button
               type="button"

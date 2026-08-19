@@ -18,10 +18,10 @@ function AcknowledgementMobileCard(
   const { entry } = props;
 
   return (
-    <div className="border-ehs-border flex w-full flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.02)]">
+    <div className="border-ehs-border bg-ehs-surface/80 flex w-full flex-col gap-3 rounded-2xl border p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.02)]">
       <div className="flex items-center gap-2">
         <span
-          className="text8 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#566072] text-white"
+          className="text8 bg-ehs-gray text-ehs-surface-inverse-text flex size-7 shrink-0 items-center justify-center rounded-full"
           aria-hidden="true"
         >
           {entry.initials}
@@ -41,12 +41,12 @@ function AcknowledgementMobileCard(
         ) : null}
       </div>
 
-      <div className="flex items-center justify-end border-t border-[rgba(11,19,32,0.08)] pt-3">
+      <div className="border-ehs-border-ink/8 flex items-center justify-end border-t pt-3">
         {entry.acknowledged ? (
           <IncidentBadge
             label="Acknowledged"
             tone="muted"
-            className="w-fit bg-[rgba(16,185,129,0.12)] text-[#10b981]"
+            className="bg-ehs-green/12 text-ehs-green w-fit"
           />
         ) : (
           <Button
@@ -54,7 +54,7 @@ function AcknowledgementMobileCard(
             variant="primary"
             disabled
             title="Acknowledging PPE from this list is not available yet"
-            className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+            className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_25%,transparent)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
           >
             Acknowledge
           </Button>
@@ -82,7 +82,7 @@ export function PpeAcknowledgementsContent() {
           <ul className="flex flex-col gap-3 md:hidden">
             {Array.from({ length: 4 }, (_, index) => (
               <li key={`ack-skel-${String(index)}`}>
-                <div className="border-ehs-border h-32 rounded-2xl border bg-white/60" />
+                <div className="border-ehs-border bg-ehs-surface/60 h-32 rounded-2xl border" />
               </li>
             ))}
           </ul>
@@ -141,7 +141,7 @@ export function PpeAcknowledgementsContent() {
 
           <IncidentGlassCard
             paddingClassName="p-5"
-            className="min-w-0 bg-white/48"
+            className="bg-ehs-surface/48 min-w-0"
           >
             <Text as="p" className="text3 text-ehs-darker">
               Verification Guidelines

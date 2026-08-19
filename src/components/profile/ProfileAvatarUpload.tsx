@@ -86,7 +86,7 @@ function AvatarPreview(
     <div
       className={[
         frameClass,
-        "bg-ehs-normal-blue text1 text-ehs-light-text flex items-center justify-center",
+        "bg-ehs-normal-blue text1 text-ehs-on-accent flex items-center justify-center",
       ].join(" ")}
       aria-hidden="true"
     >
@@ -153,7 +153,7 @@ function AvatarCropModal(
 
   return createPortal(
     <div
-      className="bg-ehs-dark-bg/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-4"
+      className="bg-ehs-surface-inverse/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-4"
       onClick={isSaving ? undefined : onClose}
       role="presentation"
     >
@@ -162,7 +162,7 @@ function AvatarCropModal(
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
-        className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl"
+        className="bg-ehs-surface flex w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-xl"
       >
         <div className="border-ehs-border/60 border-b px-5 py-4">
           <Text as="h2" id={titleId} className="text3 text-ehs-darker">
@@ -170,7 +170,7 @@ function AvatarCropModal(
           </Text>
         </div>
 
-        <div className="bg-ehs-dark-bg relative h-72">
+        <div className="bg-ehs-canvas-dark relative h-72">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -212,7 +212,7 @@ function AvatarCropModal(
               type="button"
               onClick={() => void handleSave()}
               disabled={isSaving || !croppedAreaPixels}
-              className="bg-ehs-normal-blue text4 text-ehs-light-text hover:bg-ehs-darker rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-ehs-normal-blue text4 text-ehs-on-accent hover:bg-ehs-darker rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaving ? "Saving…" : "Save photo"}
             </button>
@@ -320,11 +320,11 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
             sizeClassName="size-24"
             isBusy={isBusy}
           />
-          <span className="bg-ehs-dark-bg/55 text-ehs-light-text absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 disabled:opacity-0">
+          <span className="bg-ehs-surface-inverse/55 text-ehs-light-text absolute inset-0 flex items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 disabled:opacity-0">
             <Icon icon="mdi:camera-outline" className="size-6" aria-hidden />
           </span>
           {isBusy ? (
-            <span className="border-ehs-normal-blue absolute inset-0 flex items-center justify-center rounded-full border-2 border-dashed bg-white/70">
+            <span className="border-ehs-normal-blue bg-ehs-surface/70 absolute inset-0 flex items-center justify-center rounded-full border-2 border-dashed">
               <Icon
                 icon="mdi:loading"
                 className="text-ehs-normal-blue size-6 animate-spin"
@@ -350,7 +350,7 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
               type="button"
               onClick={openFilePicker}
               disabled={isBusy}
-              className="bg-ehs-normal-blue text4 text-ehs-light-text hover:bg-ehs-darker inline-flex items-center gap-2 rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-ehs-normal-blue text4 text-ehs-on-accent hover:bg-ehs-darker inline-flex items-center gap-2 rounded-lg px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Icon icon="mdi:upload-outline" className="size-4" aria-hidden />
               {resolvedProfileUrl ? "Change photo" : "Upload photo"}
@@ -360,7 +360,7 @@ export function ProfileAvatarUpload(props: ProfileAvatarUploadProps) {
                 type="button"
                 onClick={() => void handleRemove()}
                 disabled={isBusy}
-                className="border-ehs-border/60 text4 text-ehs-gray hover:text-ehs-red hover:border-ehs-red/30 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="border-ehs-border/60 text4 text-ehs-gray hover:text-ehs-red hover:border-ehs-red/30 bg-ehs-surface inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Icon
                   icon="mdi:trash-can-outline"

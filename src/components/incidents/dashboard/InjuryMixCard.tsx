@@ -14,7 +14,7 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const injuryMixCardShellClass =
-  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5";
+  "border-ehs-hairline/90 bg-ehs-surface/62 backdrop-blur-2.5";
 
 function DonutChart(
   props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>,
@@ -79,6 +79,7 @@ function DonutChart(
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
+            /* Literal: `var()` is not valid in an SVG presentation attribute. */
             stroke="rgba(136, 146, 163, 0.18)"
             strokeWidth={STROKE}
             aria-hidden="true"

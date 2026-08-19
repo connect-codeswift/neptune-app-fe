@@ -49,7 +49,7 @@ export function buildLotoEquipmentColumns(
           {info.getValue().map((source: string) => (
             <span
               key={source}
-              className="text8 rounded-md bg-[rgba(15,23,42,0.06)] px-2 py-0.5 text-[#566072]"
+              className="text8 text-ehs-gray bg-ehs-surface-inverse/6 rounded-md px-2 py-0.5"
             >
               {source}
             </span>
@@ -107,7 +107,7 @@ export function buildLotoEquipmentColumns(
               className={[
                 "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
                 isLockedOut
-                  ? "cursor-default text-[#ef4444]"
+                  ? "text-ehs-red cursor-default"
                   : "text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer",
               ].join(" ")}
               aria-label={

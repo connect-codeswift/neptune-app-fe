@@ -180,7 +180,7 @@ export function CapaCompletionReviewModal(
           </div>
         ) : (
           <div className="flex flex-col gap-6">
-            <section className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-4">
+            <section className="border-ehs-border-ink/8 bg-ehs-surface/70 rounded-xl border p-4">
               <div className="mb-3 flex items-center gap-2">
                 <Icon
                   icon="mdi:check-decagram"
@@ -207,7 +207,7 @@ export function CapaCompletionReviewModal(
               </div>
             </section>
 
-            <section className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-4">
+            <section className="border-ehs-border-ink/8 bg-ehs-surface/70 rounded-xl border p-4">
               <div className="mb-3 flex items-center gap-2">
                 <Icon
                   icon="mdi:paperclip"
@@ -230,7 +230,7 @@ export function CapaCompletionReviewModal(
                     return (
                       <li
                         key={`${file.attachmentUrl}-${file.attachmentTitle}`}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-[rgba(15,23,42,0.06)] bg-white/80 px-3 py-2"
+                        className="border-ehs-border-ink/6 bg-ehs-surface/80 flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
                       >
                         <div className="flex min-w-0 items-center gap-2">
                           <Icon
@@ -270,7 +270,7 @@ export function CapaCompletionReviewModal(
             </section>
 
             {!isAlreadyVerified ? (
-              <section className="rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-4">
+              <section className="border-ehs-border-ink/8 bg-ehs-surface/70 rounded-xl border p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <Icon
                     icon="mdi:clipboard-check-outline"
@@ -294,7 +294,7 @@ export function CapaCompletionReviewModal(
                           className={[
                             "rounded-full px-3 py-1.5 text-xs font-bold transition-colors",
                             effectiveness === option
-                              ? "bg-ehs-normal-blue text-ehs-light-text"
+                              ? "bg-ehs-normal-blue text-ehs-on-accent"
                               : "bg-ehs-gray/14 text-ehs-gray hover:bg-ehs-gray/20",
                           ].join(" ")}
                         >
@@ -343,7 +343,7 @@ export function CapaCompletionReviewModal(
       </IncidentModalShell>
 
       {previewUrl ? (
-        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+        <div className="bg-ehs-overlay-media fixed inset-0 z-110 flex items-center justify-center p-4 backdrop-blur-md">
           <div
             className="absolute inset-0"
             onClick={() => setPreviewUrl(null)}
@@ -375,7 +375,7 @@ export function CapaCompletionReviewModal(
               <iframe
                 src={previewUrl}
                 title="Attachment preview"
-                className="h-[80vh] w-[85vw] rounded-lg bg-white"
+                className="bg-ehs-surface h-[80vh] w-[85vw] rounded-lg"
               />
             ) : (
               <div className="flex flex-col items-center gap-3 px-8 py-12 text-white">

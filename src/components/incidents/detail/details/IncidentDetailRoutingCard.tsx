@@ -27,14 +27,14 @@ export function IncidentDetailRoutingCard(
 
       <div className="flex flex-col">
         {members.length === 0 ? (
-          <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] py-6 text-center">
+          <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
             No routing assignments returned by the API.
           </div>
         ) : null}
         {members.map((member) => (
           <div
             key={`${member.role}-${member.name}`}
-            className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.75 pb-2.5"
+            className="border-ehs-border-ink/8 flex items-center gap-2.5 border-t pt-2.75 pb-2.5"
           >
             <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue rounded-2.5 text5 flex size-8 shrink-0 items-center justify-center">
               {member.initials}

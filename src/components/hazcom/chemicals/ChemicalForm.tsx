@@ -424,12 +424,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           </FormSection>
         </div>
 
-        <div className="border-ehs-border sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t bg-white/40 px-4 py-3.5 backdrop-blur-xl sm:px-5">
+        <div className="border-ehs-border sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t bg-ehs-surface/40 px-4 py-3.5 backdrop-blur-xl sm:px-5">
           <Link href={cancelHref}>
             <Button
               type="button"
               variant="tertiary"
-              className={`${actionClass} border border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+              className={`${actionClass} border border-ehs-border-ink/14 text-ehs-dark-bg shadow-none`}
             >
               <Icon
                 icon="mdi:arrow-left"
@@ -497,7 +497,7 @@ function FieldLabelRow(
 const choiceButtonBaseClass =
   "text5 flex-1 rounded-2.5 border px-3 py-3 tracking-normal transition-colors";
 const choiceButtonIdleClass =
-  "border-ehs-border bg-white/55 text-ehs-gray hover:border-ehs-normal-blue/40 hover:bg-white/78";
+  "border-ehs-border bg-ehs-surface/55 text-ehs-gray hover:border-ehs-normal-blue/40 hover:bg-ehs-surface/78";
 
 type QuantityFieldProps = Readonly<{
   amount: string;
@@ -565,7 +565,7 @@ function StatusField(props: Readonly<ChoiceFieldProps>) {
                 isSelected
                   ? option.value === "Active"
                     ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue"
-                    : "border-ehs-muted-text/50 bg-ehs-dark-bg/8 text-ehs-gray"
+                    : "border-ehs-muted-text/50 bg-ehs-surface-inverse/8 text-ehs-gray"
                   : choiceButtonIdleClass,
               ].join(" ")}
             >

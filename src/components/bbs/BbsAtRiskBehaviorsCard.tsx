@@ -10,8 +10,8 @@ import type {
 } from "@/app/dashboard/bbs/bbs-data";
 
 const toneColor: Record<BehaviorTone, string> = {
-  risk: "#ef4444",
-  info: "#0891a6",
+  risk: "var(--ehs-red)",
+  info: "var(--ehs-normal-blue)",
 };
 
 /** One category: label + count above a proportional bar. */
@@ -33,7 +33,7 @@ function BehaviorRow(
       </div>
 
       <span
-        className="h-2.5 w-full overflow-hidden rounded-full bg-[#eef1f6]"
+        className="bg-ehs-form-classes-bg h-2.5 w-full overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <span

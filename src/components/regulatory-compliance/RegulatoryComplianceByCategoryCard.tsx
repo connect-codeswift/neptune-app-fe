@@ -13,13 +13,13 @@ export type RegulatoryComplianceByCategoryCardProps = Readonly<{
 
 /** Figma 764:1104 — fill colors per category row */
 const CATEGORY_FILL_COLORS: Readonly<Record<string, string>> = {
-  regulatory: "#3b82f6",
-  safety: "#0891a6",
-  health: "#566072",
+  regulatory: "var(--ehs-blue)",
+  safety: "var(--ehs-normal-blue)",
+  health: "var(--ehs-gray)",
 };
 
 const CATEGORY_TRACK_CLASS =
-  "absolute inset-x-0 top-[21px] h-[6px] overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]";
+  "absolute inset-x-0 top-[21px] h-[6px] overflow-hidden rounded-full bg-ehs-muted-text/20";
 
 function categoryFillColor(categoryId: string, fallback: string): string {
   return CATEGORY_FILL_COLORS[categoryId.toLowerCase()] ?? fallback;
@@ -79,6 +79,8 @@ function CategoryProgressRow(props: CategoryProgressRowProps) {
 function CategoryProgressSkeleton() {
   return (
     <div className="relative h-[27px] w-full">
+      {/* The skeleton bars are pinned to #e2e8f6, a hair lighter and bluer
+          than --ehs-border (#e5e7eb). */}
       <div className="flex h-[17px] items-center justify-between">
         <div className="rounded-1.5 h-4.25 w-20 animate-pulse bg-[#e2e8f6]" />
         <div className="rounded-1.5 h-3.5 w-9 animate-pulse bg-[#e2e8f6]" />

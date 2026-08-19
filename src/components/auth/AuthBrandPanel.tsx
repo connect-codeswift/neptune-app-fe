@@ -28,7 +28,7 @@ export function AuthBrandPanel(props: AuthBrandPanelProps) {
   const { headline, sub, note, eyebrow = "EHS Command Center" } = props;
 
   return (
-    <div className="bg-ehs-dark-bg relative hidden h-full flex-col overflow-hidden px-12 py-10 lg:flex">
+    <div className="bg-ehs-canvas-dark relative hidden h-full flex-col overflow-hidden px-12 py-10 lg:flex">
       <ShadeBall positionAsClassName="-top-37.5 -left-37.5" blur={40} />
       <ShadeBall positionAsClassName="-bottom-37.5 -right-37.5" blur={40} />
 
@@ -40,7 +40,7 @@ export function AuthBrandPanel(props: AuthBrandPanelProps) {
           hierarchy, and the crop keeps it from reading as a badge. */}
       <LogoMark
         decorative
-        className="text-ehs-light-text opacity-0.06 pointer-events-none absolute -right-44 -bottom-44 size-160"
+        className="text-ehs-canvas-dark-text opacity-0.06 pointer-events-none absolute -right-44 -bottom-44 size-160"
       />
 
       <div className="relative z-10 flex h-full flex-col justify-between">
@@ -57,7 +57,7 @@ export function AuthBrandPanel(props: AuthBrandPanelProps) {
             />
             <LogoMark
               decorative
-              className="text-ehs-light-text relative size-24 xl:size-28"
+              className="text-ehs-canvas-dark-text relative size-24 xl:size-28"
             />
           </div>
 
@@ -65,14 +65,14 @@ export function AuthBrandPanel(props: AuthBrandPanelProps) {
             <p className="text-ehs-normal-blue text-xs font-semibold tracking-[0.24em] uppercase">
               {eyebrow}
             </p>
-            <h1 className="text-ehs-light-text leading-1.08 text-5xl font-semibold tracking-tight xl:text-6xl">
+            <h1 className="text-ehs-canvas-dark-text leading-1.08 text-5xl font-semibold tracking-tight xl:text-6xl">
               {headline}
             </h1>
             <p className="text-ehs-muted-text max-w-md text-base leading-relaxed xl:text-lg">
               {sub}
             </p>
             {note ? (
-              <p className="text-ehs-light-text/80 text-sm font-medium">
+              <p className="text-ehs-canvas-dark-text/80 text-sm font-medium">
                 {note}
               </p>
             ) : null}

@@ -54,10 +54,10 @@ export function IhEditAgentView() {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="items-center gap-3 text-center"
           >
-            <Text as="h1" className="text-lg font-bold text-[#0b1320]">
+            <Text as="h1" className="text-lg font-bold text-ehs-dark-bg">
               Agent not found
             </Text>
-            <Text as="p" className="text-sm text-[#8892a3]">
+            <Text as="p" className="text-sm text-ehs-muted-text">
               This hazard agent could not be loaded.
             </Text>
             <Button
@@ -102,12 +102,12 @@ export function IhEditAgentView() {
               className="gap-4.5"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel
@@ -117,7 +117,7 @@ export function IhEditAgentView() {
                 type="submit"
                 form={IH_EDIT_AGENT_FORM_ID}
                 variant="primary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
               >
                 Save Changes
               </Button>

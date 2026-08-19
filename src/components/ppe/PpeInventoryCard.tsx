@@ -16,7 +16,7 @@ export function PpeInventoryCard(props: Readonly<PpeInventoryCardProps>) {
     <button
       type="button"
       onClick={onClick}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-2.5 rounded-xl border bg-white p-3.5 text-left shadow-[0px_2px_4px_rgba(15,23,42,0.02)] transition-colors hover:bg-slate-50/80"
+      className="border-ehs-border flex w-full cursor-pointer flex-col gap-2.5 rounded-xl border bg-ehs-surface p-3.5 text-left shadow-[0px_2px_4px_rgba(15,23,42,0.02)] transition-colors hover:bg-ehs-surface-raised/80"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text4 text-ehs-darker truncate">{item.category}</span>

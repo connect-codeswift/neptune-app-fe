@@ -155,7 +155,7 @@ export function GlassSelect(props: GlassSelectProps) {
         // Near-opaque (96%) on purpose — at 85% the content behind the menu
         // read through the option rows. A floating menu has to win against
         // whatever it covers; the blur and hairline carry the material.
-        <div className="animate-popover-in absolute z-20 mt-1.5 w-full min-w-40 overflow-hidden rounded-xl border border-white/70 bg-white/96 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+        <div className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 absolute z-20 mt-1.5 w-full min-w-40 overflow-hidden rounded-xl border shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}

@@ -20,6 +20,10 @@ type SeriesMeta = Readonly<{
   fill?: string;
 }>;
 
+/* `color` and `fill` are rendered as `stroke={...}` / `fill={...}`, which are
+   SVG *presentation attributes*. `var()` is not valid in one - the browser
+   drops the attribute and the line falls back to the SVG default - so these
+   stay literal. */
 const SERIES_META: readonly SeriesMeta[] = [
   {
     key: "incidents",
@@ -208,6 +212,7 @@ function TrendChart(
                 cx={point.x}
                 cy={point.y}
                 r="2.5"
+                /* Literal: `var()` is not valid in an SVG presentation attribute. */
                 fill="#ffffff"
                 stroke={series.color}
                 strokeWidth="2"
@@ -229,7 +234,7 @@ function FilterToggle(
   const { value, onChange } = props;
 
   return (
-    <div className="inline-flex gap-1 rounded-full border border-[rgba(15,23,42,0.08)] bg-white/[0.62] p-1">
+    <div className="border-ehs-border-ink/8 bg-ehs-surface/[0.62] inline-flex gap-1 rounded-full border p-1">
       {FILTERS.map((option) => (
         <button
           key={option}
@@ -239,7 +244,7 @@ function FilterToggle(
           className={[
             "text8 cursor-pointer rounded-full px-2.5 py-1 whitespace-nowrap capitalize transition-colors",
             value === option
-              ? "bg-ehs-dark-bg text-ehs-light-bg"
+              ? "bg-ehs-surface-inverse text-ehs-light-bg"
               : "text-ehs-gray hover:bg-ehs-light-bg",
           ].join(" ")}
         >

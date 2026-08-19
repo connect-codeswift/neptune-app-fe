@@ -35,6 +35,10 @@ import { LotoApplyLockoutHeader } from "./LotoApplyLockoutHeader";
 import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
 import { LotoQueryStatus } from "../LotoQueryStatus";
 
+/* The warning line's ink is pinned to #b45309 (amber-700): one step lighter
+   than `--ehs-yellow-ink` (#92400e) and far darker than `--ehs-yellow`, which
+   is the tint it sits on. */
+
 const fieldClass = [
   "gap-3.5",
   "[&_label]:text8",
@@ -204,24 +208,24 @@ function LotoApplyLockoutForm(
           </IncidentGlassCard>
 
           {!context.canApply ? (
-            <p className="text4 rounded-xl border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.08)] px-4.5 py-3 font-medium text-[#b45309]">
+            <p className="text4 border-ehs-yellow/30 bg-ehs-yellow/8 rounded-xl border px-4.5 py-3 font-medium text-[#b45309]">
               {context.cannotApplyReason ??
                 "This equipment cannot be locked out right now."}
             </p>
           ) : null}
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-4.5 py-4">
+          <label className="border-ehs-red/16 bg-ehs-red/4 flex cursor-pointer items-start gap-3 rounded-xl border px-4.5 py-4">
             <input
               type="checkbox"
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
-              className="rounded-0.5 mt-0.5 size-4 shrink-0 border border-[#767676] accent-[#ef4444]"
+              className="rounded-0.5 accent-ehs-red mt-0.5 size-4 shrink-0 border border-[#767676]"
             />
             <span className="min-w-0">
-              <span className="text5 block text-[#ef4444]">
+              <span className="text5 text-ehs-red block">
                 Final Confirmation
               </span>
-              <span className="text4 mt-1 block font-medium text-[#566072]">
+              <span className="text4 text-ehs-gray mt-1 block font-medium">
                 I have read, understood, and followed the energy control
                 procedure for this machine. I confirm the machine cannot be
                 started. I accept responsibility for this lockout.
@@ -232,7 +236,7 @@ function LotoApplyLockoutForm(
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="text4 rounded-2.5 inline-flex h-9.75 items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="text4 rounded-2.5 text-ehs-slate hover:bg-ehs-surface border-ehs-border-ink/14 bg-ehs-surface/62 inline-flex h-9.75 items-center gap-1.75 border px-4 py-5.5 font-medium transition-colors"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -247,7 +251,7 @@ function LotoApplyLockoutForm(
                   ? (context.cannotApplyReason ?? undefined)
                   : undefined
               }
-              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
               {applyMutation.isPending

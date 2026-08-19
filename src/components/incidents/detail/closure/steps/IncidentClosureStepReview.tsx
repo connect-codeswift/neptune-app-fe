@@ -59,8 +59,8 @@ export function IncidentClosureStepReview(
           className={[
             "flex size-5 shrink-0 items-center justify-center rounded transition-colors",
             isConfirmed
-              ? "bg-ehs-normal-blue text-ehs-light-text"
-              : "border-ehs-border border bg-white",
+              ? "bg-ehs-normal-blue text-ehs-on-accent"
+              : "border-ehs-border bg-ehs-surface border",
           ].join(" ")}
         >
           {isConfirmed ? (

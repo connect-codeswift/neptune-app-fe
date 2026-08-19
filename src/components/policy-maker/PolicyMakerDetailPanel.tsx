@@ -33,12 +33,12 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 
 function versionBadgeClass(badge: "review" | "archived" | "current"): string {
   if (badge === "review") {
-    return "bg-[rgba(59,130,246,0.14)] text-[#3b82f6]";
+    return "bg-ehs-blue/14 text-ehs-blue";
   }
   if (badge === "current") {
-    return "bg-[rgba(8,145,166,0.14)] text-[#056e7e]";
+    return "bg-ehs-normal-blue/14 text-ehs-dark-blue";
   }
-  return "bg-[rgba(86,96,114,0.14)] text-[#566072]";
+  return "bg-ehs-gray/14 text-ehs-gray";
 }
 
 export function PolicyMakerDetailPanel(
@@ -135,7 +135,7 @@ export function PolicyMakerDetailPanel(
 
           <Link
             href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

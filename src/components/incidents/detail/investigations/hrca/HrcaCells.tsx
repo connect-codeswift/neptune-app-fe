@@ -45,7 +45,7 @@ export function HrcaCategoryCell(props: Readonly<{ category: string }>) {
     <div
       className={[
         HRCA_ROW_MIN_HEIGHT_CLASS,
-        "bg-ehs-normal-blue/13 rounded-2.25 flex h-full items-center justify-center self-stretch border border-[rgba(15,23,42,0.08)] px-2.75 py-2.25",
+        "bg-ehs-normal-blue/13 rounded-2.25 border-ehs-border-ink/8 flex h-full items-center justify-center self-stretch border px-2.75 py-2.25",
       ].join(" ")}
     >
       <p className="text-ehs-dark-bg text8 text-center leading-[14.4px] font-bold">
@@ -201,7 +201,7 @@ export function HrcaWhyCell(
           onClick={onAdd}
           className={[
             HRCA_ROW_MIN_HEIGHT_CLASS,
-            "rounded-3 flex h-full min-h-32 w-full cursor-pointer flex-col items-center justify-center gap-1.5 border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-3.25 transition-colors hover:border-[rgba(15,23,42,0.28)] hover:bg-white/40",
+            "rounded-3 border-ehs-border-ink/14 hover:border-ehs-border-ink/28 hover:bg-ehs-surface/40 flex h-full min-h-32 w-full cursor-pointer flex-col items-center justify-center gap-1.5 border border-dashed px-3.5 py-3.25 transition-colors",
           ].join(" ")}
         >
           <span
@@ -229,7 +229,7 @@ export function HrcaWhyCell(
       <div
         className={[
           HRCA_ROW_MIN_HEIGHT_CLASS,
-          "rounded-3 flex h-full min-h-32 w-full items-center justify-center border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-3.25",
+          "rounded-3 border-ehs-border-ink/14 flex h-full min-h-32 w-full items-center justify-center border border-dashed px-3.5 py-3.25",
         ].join(" ")}
       >
         <Text as="span" className="text-ehs-muted-text text4 leading-[15.95px]">
@@ -255,10 +255,10 @@ export function HrcaCorrectiveActionsCell(
       className={[
         hrcaCellShellClass,
         HRCA_ROW_MIN_HEIGHT_CLASS,
-        "min-h-32 border-[rgba(16,185,129,0.35)]",
+        "border-ehs-green/35 min-h-32",
       ].join(" ")}
     >
-      <p className="text8 mb-2 leading-3.25 font-bold tracking-[0.72px] text-[#10b981] uppercase">
+      <p className="text8 text-ehs-green mb-2 leading-3.25 font-bold tracking-[0.72px] uppercase">
         Corrective actions
       </p>
       <div className="flex w-full flex-1 flex-col gap-2">
@@ -267,7 +267,7 @@ export function HrcaCorrectiveActionsCell(
             key={action.id ?? `${action.text}-${index}`}
             className="group flex items-start gap-2"
           >
-            <span className="rounded-1.25 mt-px flex size-4.25 shrink-0 items-center justify-center bg-[rgba(16,185,129,0.14)] text-[#10b981]">
+            <span className="rounded-1.25 bg-ehs-green/14 text-ehs-green mt-px flex size-4.25 shrink-0 items-center justify-center">
               <Icon icon="mdi:check" className="size-2.75" aria-hidden="true" />
             </span>
             <button
@@ -290,7 +290,7 @@ export function HrcaCorrectiveActionsCell(
         <button
           type="button"
           onClick={onAdd}
-          className="hover:text-ehs-dark-blue-active text4 inline-flex items-center gap-1.5 self-start pt-0.5 leading-3.25 font-bold text-[#10b981] transition-colors"
+          className="hover:text-ehs-dark-blue-active text4 text-ehs-green inline-flex items-center gap-1.5 self-start pt-0.5 leading-3.25 font-bold transition-colors"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add action

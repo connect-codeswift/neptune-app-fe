@@ -13,10 +13,10 @@ const kindIcon: Record<LotoEnergySourceView["kind"], string> = {
 };
 
 const kindIconClass: Record<LotoEnergySourceView["kind"], string> = {
-  electrical: "text-[#f59e0b]",
-  hydraulic: "text-[#3b82f6]",
-  pneumatic: "text-[#0891a6]",
-  other: "text-[#8892a3]",
+  electrical: "text-ehs-yellow",
+  hydraulic: "text-ehs-blue",
+  pneumatic: "text-ehs-normal-blue",
+  other: "text-ehs-muted-text",
 };
 
 export type LotoEnergySourcesPanelProps = Readonly<{
@@ -34,7 +34,7 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
   });
 
   return (
-    <div className="rounded-5 before:rounded-5 relative border border-white/90 bg-[rgba(255,255,255,0.82)] p-4.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="rounded-5 before:rounded-5 border-ehs-hairline/90 bg-ehs-surface/82 relative border p-4.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-['']">
       <div className="relative z-1 flex flex-col gap-3.5">
         <h2 className="text3 text-ehs-darker">Energy Sources</h2>
         <ul ref={listRef} className="flex flex-col gap-1.5">
@@ -44,7 +44,7 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
             return (
               <li
                 key={source.id}
-                className="rounded-2.5 relative flex items-center gap-2.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(15,23,42,0.04)] px-3 py-2.5"
+                className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface-inverse/4 relative flex items-center gap-2.5 border px-3 py-2.5"
               >
                 <Icon
                   icon={kindIcon[source.kind]}
@@ -55,7 +55,9 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
                   <p className="text4 text-ehs-darker font-semibold">
                     {source.label}
                   </p>
-                  <p className="text4 text-[#b3bbc8]">{source.pointLabel}</p>
+                  <p className="text4 text-ehs-placeholder">
+                    {source.pointLabel}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -64,7 +66,7 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
                   onClick={() => {
                     setOpenSourceId(isOpen ? null : source.id);
                   }}
-                  className="hover:text-ehs-gray inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 text-[#b3bbc8] transition-colors"
+                  className="hover:text-ehs-gray text-ehs-placeholder inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
                 >
                   <Icon
                     icon="mdi:information-outline"
@@ -76,12 +78,12 @@ export function LotoEnergySourcesPanel(props: LotoEnergySourcesPanelProps) {
                 {isOpen ? (
                   <div
                     role="tooltip"
-                    className="rounded-2.5 absolute top-full right-3 left-3 z-20 mt-1.5 border border-[rgba(15,23,42,0.1)] bg-white px-3.5 py-3 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+                    className="rounded-2.5 bg-ehs-surface border-ehs-border-ink/10 absolute top-full right-3 left-3 z-20 mt-1.5 border px-3.5 py-3 shadow-(--ehs-shadow-popover)"
                   >
                     <p className="text4 text-ehs-darker font-semibold">
                       {source.label} — {source.pointLabel}
                     </p>
-                    <p className="text4 mt-1 text-[#566072]">
+                    <p className="text4 text-ehs-gray mt-1">
                       Every energy source on this machine must be isolated at
                       its isolation point and secured with your personal lock
                       and tag before work begins. Verify zero energy at each

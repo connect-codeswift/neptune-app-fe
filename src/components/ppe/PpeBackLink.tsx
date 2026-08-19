@@ -39,7 +39,7 @@ export function PpeBackLink(props: Readonly<PpeBackLinkProps>) {
       aria-label={label}
       onClick={handleBack}
       className={[
-        "border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 cursor-pointer items-center justify-center border bg-white transition-colors hover:bg-slate-50",
+        "border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 cursor-pointer items-center justify-center border bg-ehs-surface transition-colors hover:bg-ehs-surface-raised",
         className,
       ]
         .filter(Boolean)

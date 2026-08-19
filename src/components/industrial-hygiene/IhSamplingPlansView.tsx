@@ -20,9 +20,9 @@ import { Text } from "@/components/Text";
 
 function PlanStatusBadge(props: Readonly<{ status: IhPlanListStatus }>) {
   const styles: Record<IhPlanListStatus, string> = {
-    "In Progress": "bg-[rgba(8,145,166,0.12)] text-[#0891a6]",
-    Approved: "bg-[rgba(16,185,129,0.12)] text-[#10b981]",
-    Draft: "bg-[rgba(86,96,114,0.12)] text-[#566072]",
+    "In Progress": "bg-ehs-normal-blue/12 text-ehs-normal-blue",
+    Approved: "bg-ehs-green/12 text-ehs-green",
+    Draft: "bg-ehs-gray/12 text-ehs-gray",
   };
 
   return (
@@ -53,7 +53,7 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Text
               as="span"
-              className="font-mono text-sm font-bold text-[#0891a6]"
+              className="font-mono text-sm font-bold text-ehs-normal-blue"
             >
               {plan.code}
             </Text>
@@ -62,17 +62,17 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
 
           <Text
             as="h2"
-            className="mt-1.5 text-base leading-6 font-bold text-[#0b1320]"
+            className="mt-1.5 text-base leading-6 font-bold text-ehs-dark-bg"
           >
             {plan.title}
           </Text>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="inline-flex items-center gap-1 text-sm text-[#8892a3]">
+            <span className="inline-flex items-center gap-1 text-sm text-ehs-muted-text">
               <Icon icon="mdi:account-outline" className="size-3" aria-hidden />
               {plan.owner}
             </span>
-            <span className="inline-flex items-center gap-1 text-sm text-[#8892a3]">
+            <span className="inline-flex items-center gap-1 text-sm text-ehs-muted-text">
               <Icon
                 icon="mdi:calendar-outline"
                 className="size-3"
@@ -80,7 +80,7 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
               />
               {`Next: ${plan.nextDate}`}
             </span>
-            <span className="inline-flex items-center gap-1 text-sm text-[#8892a3]">
+            <span className="inline-flex items-center gap-1 text-sm text-ehs-muted-text">
               <Icon icon="mdi:flask-outline" className="size-3" aria-hidden />
               {plan.agents}
             </span>
@@ -89,17 +89,17 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
           {showProgress ? (
             <div className="mt-3">
               <div className="flex items-center justify-between gap-3">
-                <Text as="span" className="text-sm text-[#8892a3]">
+                <Text as="span" className="text-sm text-ehs-muted-text">
                   Samples completed
                 </Text>
                 <Text
                   as="span"
-                  className="text-sm font-semibold text-[#566072]"
+                  className="text-sm font-semibold text-ehs-gray"
                 >
                   {`${String(plan.completed)} / ${String(plan.total)} (${String(percent)}%)`}
                 </Text>
               </div>
-              <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+              <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-ehs-surface-inverse/8">
                 <div
                   className="bg-ehs-normal-blue h-full rounded-full"
                   style={{ width: `${String(percent)}%` }}
@@ -114,7 +114,7 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
             <Button
               type="button"
               variant="tertiary"
-              className="rounded-lg px-3 py-2 text-base font-semibold text-[#2a3446]"
+              className="rounded-lg px-3 py-2 text-base font-semibold text-ehs-slate"
             >
               <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
               View
@@ -123,7 +123,7 @@ function PlanCard(props: Readonly<{ plan: IhPlanListItem }>) {
           <Button
             type="button"
             variant="secondary"
-            className="rounded-lg bg-[rgba(15,23,42,0.05)] px-3 py-2 text-base font-semibold text-[#2a3446]"
+            className="rounded-lg bg-ehs-surface-inverse/5 px-3 py-2 text-base font-semibold text-ehs-slate"
           >
             <Icon icon="mdi:plus" className="size-3" aria-hidden />
             Log Result

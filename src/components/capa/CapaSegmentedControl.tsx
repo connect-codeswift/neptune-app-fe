@@ -34,7 +34,7 @@ export function CapaSegmentedControl(
         </Text>
       </div>
 
-      <div className="border-ehs-border/70 flex min-w-0 flex-1 flex-wrap items-center gap-2 rounded-xl border bg-white/80 p-2 shadow-xs backdrop-blur-xs">
+      <div className="border-ehs-border/70 bg-ehs-surface/80 flex min-w-0 flex-1 flex-wrap items-center gap-2 rounded-xl border p-2 shadow-xs backdrop-blur-xs">
         {options.map((option) => {
           const isActive = value === option;
 
@@ -47,8 +47,8 @@ export function CapaSegmentedControl(
               className={[
                 "flex min-w-max flex-1 cursor-pointer items-center justify-center rounded-md px-2.5 py-1 text-sm whitespace-nowrap transition-colors",
                 isActive
-                  ? "bg-ehs-dark-bg text-ehs-light-text font-semibold shadow-xs"
-                  : "text-ehs-gray hover:text-ehs-darker hover:bg-black/5",
+                  ? "bg-ehs-surface-inverse text-ehs-surface-inverse-text font-semibold shadow-xs"
+                  : "text-ehs-gray hover:text-ehs-darker hover:bg-ehs-surface-inverse/5",
               ].join(" ")}
             >
               <span>{option}</span>

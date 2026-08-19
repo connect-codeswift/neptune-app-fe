@@ -19,7 +19,7 @@ export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
   return (
     <div
       className={[
-        "border-ehs-border flex w-full flex-col gap-3 rounded-xl border bg-white p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.05)]",
+        "border-ehs-border bg-ehs-surface flex w-full flex-col gap-3 rounded-xl border p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.05)]",
         isSelected ? "ring-ehs-normal-blue/30 ring-2" : "",
       ]
         .filter(Boolean)

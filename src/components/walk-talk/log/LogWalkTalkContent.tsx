@@ -215,7 +215,7 @@ export function LogWalkTalkContent() {
               "[&_label]:hidden",
               // Match Figma's solid teal Participants "Add" button.
               "[&_.flex.items-center.gap-2>button]:bg-ehs-normal-blue",
-              "[&_.flex.items-center.gap-2>button]:text-white",
+              "[&_.flex.items-center.gap-2>button]:text-ehs-on-accent",
               "[&_.flex.items-center.gap-2>button]:hover:bg-ehs-normal-blue-hover",
               "[&_.flex.items-center.gap-2>button]:rounded-xl",
             ].join(" ")}
@@ -240,7 +240,7 @@ export function LogWalkTalkContent() {
               "gap-4",
               "[&_label]:hidden",
               "[&_textarea]:min-h-32",
-              "[&_textarea]:bg-white/62",
+              "[&_textarea]:bg-ehs-surface/62",
               "[&_textarea]:text4",
             ].join(" ")}
           />
@@ -268,7 +268,7 @@ export function LogWalkTalkContent() {
               {savedActions.map((entry, index) => (
                 <li
                   key={`${entry.action}-${String(index)}`}
-                  className="border-ehs-border rounded-2.5 flex items-start justify-between gap-3 border bg-white/62 px-3.5 py-2.5"
+                  className="border-ehs-border rounded-2.5 bg-ehs-surface/62 flex items-start justify-between gap-3 border px-3.5 py-2.5"
                 >
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="text4 text-ehs-darker">
@@ -332,7 +332,7 @@ export function LogWalkTalkContent() {
             type="button"
             variant="tertiary"
             onClick={() => router.push(WALK_TALK_ROUTE)}
-            className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 text-[#566072] md:h-auto md:flex-none md:border md:border-slate-900/14 md:bg-white/62 md:text-[#2a3446]"
+            className="text4 md:rounded-2.5 text-ehs-gray md:border-ehs-border-ink/14 md:bg-ehs-surface/62 md:text-ehs-slate h-11 flex-1 rounded-xl border-0 bg-transparent px-4 py-2.5 md:h-auto md:flex-none md:border"
           >
             Cancel
           </Button>
@@ -342,7 +342,7 @@ export function LogWalkTalkContent() {
             variant="primary"
             isLoading={createWalkTalk.isPending}
             onClick={saveAll}
-            className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_rgba(8,145,166,0.15)] md:h-auto md:flex-none md:px-5 md:shadow-[0px_6px_18px_-6px_#0891a6]"
+            className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_15%,transparent)] md:h-auto md:flex-none md:px-5 md:shadow-(--ehs-shadow-button-primary-flat)"
           >
             {createWalkTalk.isPending
               ? "Submitting..."

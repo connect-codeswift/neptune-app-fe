@@ -203,7 +203,7 @@ export function StartAuditForm() {
   return (
     <IncidentGlassCard
       paddingClassName="p-5 sm:p-6"
-      className="backdrop-blur-2.5 w-full bg-[rgba(255,255,255,0.62)]"
+      className="backdrop-blur-2.5 bg-ehs-surface/62 w-full"
     >
       <FormBuilder
         // Remount once when preselection flips in post-hydration, so the

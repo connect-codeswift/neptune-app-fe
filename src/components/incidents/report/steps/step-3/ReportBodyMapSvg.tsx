@@ -25,6 +25,10 @@ type BodyPath = Readonly<{
 
 const STROKE = 0.888902;
 
+/* Every colour below is rendered onto an SVG *presentation attribute*
+   (`fill=`, `stroke=`), where `var()` is not valid - the browser drops the
+   attribute and the shape falls back to the SVG default black. They stay
+   literal hex. */
 const IDLE_FILL = "#8892A3";
 const IDLE_FILL_OPACITY = 0.08;
 const IDLE_STROKE = "#0F172A";

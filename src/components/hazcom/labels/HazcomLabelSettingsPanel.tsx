@@ -124,7 +124,7 @@ export function HazcomLabelSettingsPanel(
                           "rounded-2.5 h-9 border transition-colors",
                           isSelected
                             ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
-                            : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
+                            : "border-ehs-border-ink/18 text4 text-ehs-gray bg-ehs-surface/62 hover:border-ehs-border-strong",
                         ].join(" ")}
                       >
                         {size.label}
@@ -148,7 +148,7 @@ export function HazcomLabelSettingsPanel(
                         "rounded-2.5 h-9 w-full border transition-colors",
                         isSelected
                           ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text5 text-ehs-dark-blue"
-                          : "border-ehs-border text4 text-ehs-gray bg-white/62 hover:border-[rgba(15,23,42,0.18)]",
+                          : "border-ehs-border-ink/18 text4 text-ehs-gray bg-ehs-surface/62 hover:border-ehs-border-strong",
                       ].join(" ")}
                     >
                       {size.label}

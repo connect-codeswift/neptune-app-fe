@@ -12,7 +12,7 @@ export type AcknowledgeActionsCardProps = Readonly<{
 }>;
 
 const glassCardClass =
-  "relative w-full min-w-0 overflow-hidden rounded-4 border-b border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative w-full min-w-0 overflow-hidden rounded-4 border-b border-ehs-border-ink/8 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:content-['']";
 
 /**
  * Audit notice + Cancel / I Approve (Figma 5568:25378).
@@ -46,7 +46,7 @@ export function AcknowledgeActionsCard(
             variant="tertiary"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="text4 text-ehs-gray rounded-2.5 h-9.5 w-full border border-[rgba(11,19,32,0.12)] bg-transparent px-3.75 shadow-none hover:bg-white/60 sm:w-auto sm:min-w-16.5"
+            className="text4 text-ehs-gray rounded-2.5 h-9.5 w-full border border-ehs-border-ink/12 bg-transparent px-3.75 shadow-none hover:bg-ehs-surface/60 sm:w-auto sm:min-w-16.5"
           >
             Cancel
           </Button>
@@ -56,7 +56,7 @@ export function AcknowledgeActionsCard(
             onClick={onApprove}
             isLoading={isSubmitting}
             disabled={!canApprove}
-            className="text4 rounded-2.5 h-9.5 w-full bg-[#0891a6] px-[15px] whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] disabled:opacity-50 sm:w-auto"
+            className="text4 rounded-2.5 h-9.5 w-full bg-ehs-normal-blue px-[15px] whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] hover:bg-ehs-normal-blue-hover disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "I Approve"}
           </Button>

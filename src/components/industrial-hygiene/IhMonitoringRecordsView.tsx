@@ -29,8 +29,8 @@ function MonitoringStatusBadge(
       className={[
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold",
         isExceeded
-          ? "bg-[rgba(239,68,68,0.12)] text-[#ef4444]"
-          : "bg-[rgba(16,185,129,0.12)] text-[#10b981]",
+          ? "bg-ehs-red/12 text-ehs-red"
+          : "bg-ehs-green/12 text-ehs-green",
       ].join(" ")}
     >
       {props.status}
@@ -43,7 +43,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "code",
     header: "ID",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm font-bold text-[#0891a6]">
+      <Text as="span" className="text-sm font-bold text-ehs-normal-blue">
         {row.original.code}
       </Text>
     ),
@@ -53,10 +53,10 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     header: "Agent",
     cell: ({ row }) => (
       <div className="min-w-36 py-1">
-        <Text as="p" className="text-sm font-semibold text-[#0b1320]">
+        <Text as="p" className="text-sm font-semibold text-ehs-dark-bg">
           {row.original.agent}
         </Text>
-        <Text as="p" className="text-sm text-[#b3bbc8]">
+        <Text as="p" className="text-sm text-ehs-placeholder">
           {row.original.sampleType}
         </Text>
       </div>
@@ -66,7 +66,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "employee",
     header: "Employee / Group",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#2a3446]">
+      <Text as="span" className="text-sm text-ehs-slate">
         {row.original.employee}
       </Text>
     ),
@@ -75,7 +75,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "workArea",
     header: "Work Area",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#566072]">
+      <Text as="span" className="text-sm text-ehs-gray">
         {row.original.workArea}
       </Text>
     ),
@@ -84,7 +84,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "method",
     header: "Method",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#566072]">
+      <Text as="span" className="text-sm text-ehs-gray">
         {row.original.method}
       </Text>
     ),
@@ -94,10 +94,10 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     header: "Result",
     cell: ({ row }) => (
       <div className="flex items-baseline gap-1">
-        <Text as="span" className="text-sm font-extrabold text-[#566072]">
+        <Text as="span" className="text-sm font-extrabold text-ehs-gray">
           {row.original.resultValue}
         </Text>
-        <Text as="span" className="text-sm text-[#8892a3]">
+        <Text as="span" className="text-sm text-ehs-muted-text">
           {row.original.resultUnit}
         </Text>
       </div>
@@ -107,7 +107,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "oel",
     header: "OEL",
     cell: ({ row }) => (
-      <Text as="span" className="font-mono text-sm text-[#566072]">
+      <Text as="span" className="font-mono text-sm text-ehs-gray">
         {row.original.oel}
       </Text>
     ),
@@ -121,7 +121,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "date",
     header: "Date",
     cell: ({ row }) => (
-      <Text as="span" className="text-xs text-[#566072]">
+      <Text as="span" className="text-xs text-ehs-gray">
         {row.original.date}
       </Text>
     ),
@@ -133,7 +133,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
       <Link
         href={ihMonitoringRecordPath(row.original.id)}
         aria-label={`View ${row.original.code}`}
-        className="inline-flex size-7 items-center justify-center rounded-md bg-[rgba(86,96,114,0.14)] text-[#566072] transition-colors hover:bg-[rgba(86,96,114,0.22)]"
+        className="inline-flex size-7 items-center justify-center rounded-md bg-ehs-gray/14 text-ehs-gray transition-colors hover:bg-ehs-gray/22"
       >
         <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
       </Link>

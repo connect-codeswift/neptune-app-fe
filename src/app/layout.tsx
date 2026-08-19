@@ -3,7 +3,9 @@ import "./globals.css";
 import { inter } from "@/fonts/inter";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { StoreProvider } from "@/components/providers/StoreProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: {
@@ -36,18 +38,6 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * Ambient page background from Figma (node 686:6515): a flat `#f3f5f8` base
- * with a blue bloom in the top-left corner and a cyan one in the bottom-right.
- * Each gradient runs solid at its centre to transparent at 70% radius, which
- * matches the falloff of the blurred ellipses used in the design.
- */
-const SHELL_BACKGROUND = [
-  "radial-gradient(370px 294px at 222px 147px, rgba(219,234,254,0.75) 0%, rgba(219,234,254,0) 70%)",
-  "radial-gradient(407px 319px at calc(100% - 185px) calc(100% - 123px), rgba(207,250,254,0.75) 0%, rgba(207,250,254,0) 70%)",
-  "#f3f5f8",
-].join(", ");
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,21 +49,27 @@ export default function RootLayout({
       className={`${inter.variable} antialiased`}
       suppressHydrationWarning
     >
-      <body
-        className="bg-ehs-light-bg min-h-screen w-full"
-        style={{
-          background: SHELL_BACKGROUND,
-          // Keep the blooms anchored to the viewport rather than scrolling away
-          // on long dashboard pages.
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <StoreProvider>
-          <QueryProvider>
-            {children}
-            <ToastProvider />
-          </QueryProvider>
-        </StoreProvider>
+      <head>
+        {/* Before first paint, so a dark-theme user never sees a white flash.
+            It only writes `data-theme` / `color-scheme` on <html>; ThemeProvider
+            adopts that value on mount rather than recomputing it. */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+      </head>
+      <body className="min-h-screen w-full">
+        {/* The ambient gradient ground now lives on `body` in globals.css as
+            --ehs-shell-bg, so it changes with the theme. It used to be an
+            inline style here, which no theme could reach. */}
+        <ThemeProvider>
+          <StoreProvider>
+            <QueryProvider>
+              {children}
+              <ToastProvider />
+            </QueryProvider>
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

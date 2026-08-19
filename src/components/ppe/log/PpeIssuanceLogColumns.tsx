@@ -85,7 +85,7 @@ export function buildPpeIssuanceLogColumns(): TableColumns<PpeIssuanceLogEntry> 
           className={[
             "w-fit",
             info.getValue() === "Returned"
-              ? "bg-[rgba(15,23,42,0.08)] text-[#8892a3]"
+              ? "bg-ehs-surface-inverse/8 text-ehs-muted-text"
               : "",
           ].join(" ")}
         />

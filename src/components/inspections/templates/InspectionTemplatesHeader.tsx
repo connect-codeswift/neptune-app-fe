@@ -30,7 +30,7 @@ export function InspectionTemplatesHeader(
   const { onCreateTemplate, status = "Published", onStatusChange } = props;
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+    <div className="backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-wrap items-start justify-between gap-3 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"
@@ -39,7 +39,7 @@ export function InspectionTemplatesHeader(
           <span className={crumbMuted}>Compliance</span>
           <Icon
             icon="mdi:chevron-right"
-            className="size-3 shrink-0 text-[#8892a3]"
+            className="text-ehs-muted-text size-3 shrink-0"
             aria-hidden="true"
           />
           <Link href="/dashboard/inspections" className={crumbLink}>
@@ -47,7 +47,7 @@ export function InspectionTemplatesHeader(
           </Link>
           <Icon
             icon="mdi:chevron-right"
-            className="size-3 shrink-0 text-[#8892a3]"
+            className="text-ehs-muted-text size-3 shrink-0"
             aria-hidden="true"
           />
           <span className={crumbMuted}>Templates</span>

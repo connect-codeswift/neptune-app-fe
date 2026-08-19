@@ -102,7 +102,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
         className="gap-4.5"
       />
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-ehs-border-ink/8 pt-5">
         <Button
           type="button"
           variant="tertiary"
@@ -135,7 +135,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
             form={HAZCOM_SDS_FORM_ID}
             variant="primary"
             isLoading={createSds.isPending}
-            className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+            className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
             onClick={() => {
               saveAsDraftRef.current = false;
             }}

@@ -16,7 +16,7 @@ export function IhModuleTabs(props: Readonly<IhModuleTabsProps>) {
   return (
     <div
       className={[
-        "flex gap-2 overflow-x-auto border-b border-[rgba(15,23,42,0.08)] whitespace-nowrap",
+        "flex gap-2 overflow-x-auto border-b border-ehs-border-ink/8 whitespace-nowrap",
         className,
       ]
         .filter(Boolean)

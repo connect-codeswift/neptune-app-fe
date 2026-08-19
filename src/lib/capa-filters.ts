@@ -1,5 +1,8 @@
 import type { ModuleFilterOption } from "@/components/ui/ModuleFilterBar";
 
+/* The overdue chip's ink is pinned to #45556c, which sits between
+   `--ehs-gray` (#566072) and `--ehs-slate` (#2a3446). */
+
 /**
  * Backend CAPA list filters — GET /api/CAPA
  * Query: Scope?, Status?, CapaType?, Priority?, Search?, PageNumber, PageSize
@@ -115,16 +118,16 @@ export function capaStatusPillClass(status: string): string {
   switch (status) {
     case "Open":
     case "In Progress":
-      return "bg-[rgba(8,145,166,0.12)] text-[#0891a6]";
+      return "bg-ehs-normal-blue/12 text-ehs-normal-blue";
     case "Pending":
     case "Verified":
-      return "bg-[rgba(245,158,11,0.14)] text-[#f59e0b]";
+      return "bg-ehs-yellow/14 text-ehs-yellow";
     case "Overdue":
-      return "bg-[rgba(239,68,68,0.12)] text-[#ef4444]";
+      return "bg-ehs-red/12 text-ehs-red";
     case "Complete":
     case "Closed":
-      return "bg-[rgba(15,23,42,0.08)] text-[#45556c]";
+      return "bg-ehs-surface-inverse/8 text-[#45556c]";
     default:
-      return "bg-[rgba(15,23,42,0.06)] text-[#566072]";
+      return "bg-ehs-surface-inverse/6 text-ehs-gray";
   }
 }

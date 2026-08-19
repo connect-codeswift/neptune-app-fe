@@ -88,7 +88,7 @@ export function buildReplacementRequestSchema(
       colSpan: 12,
       fileModule: "Ppe",
       optionalHint: "(optional but recommended)",
-      optionalHintClassName: "text-[#3b82f6]",
+      optionalHintClassName: "text-ehs-blue",
       placeholder: "Add photo of damaged item",
       maxFiles: 1,
     },

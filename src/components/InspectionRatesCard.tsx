@@ -44,7 +44,7 @@ function InspectionRateRow(props: Readonly<InspectionRate>) {
       </div>
 
       <div
-        className="relative h-1.5 w-full rounded-full bg-[rgba(136,146,163,0.18)]"
+        className="bg-ehs-muted-text/18 relative h-1.5 w-full rounded-full"
         role="progressbar"
         aria-label={label}
         aria-valuenow={current}

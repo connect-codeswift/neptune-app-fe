@@ -18,7 +18,7 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text4 text-ehs-gray rounded-2 flex h-[70vh] w-full flex-col items-center justify-center gap-2 bg-white">
+      <div className="text4 text-ehs-gray rounded-2 bg-ehs-surface flex h-[70vh] w-full flex-col items-center justify-center gap-2">
         <Icon
           icon="mdi:loading"
           className="text-ehs-normal-blue size-6 animate-spin"
@@ -87,7 +87,7 @@ export function VersionDocumentPreviewModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-[#0b1320]/50 p-3 backdrop-blur-sm sm:p-5"
+      className="bg-ehs-surface-inverse/50 fixed inset-0 z-100 flex items-center justify-center p-3 backdrop-blur-sm sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -96,9 +96,9 @@ export function VersionDocumentPreviewModal(
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
-        className="rounded-5 relative flex max-h-[92vh] w-full max-w-230 flex-col overflow-hidden border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.92)] shadow-[0px_25px_50px_-12px_rgba(15,23,42,0.35)]"
+        className="rounded-5 border-ehs-hairline/90 bg-ehs-surface/92 relative flex max-h-[92vh] w-full max-w-230 flex-col overflow-hidden border shadow-[0px_25px_50px_-12px_rgba(15,23,42,0.35)]"
       >
-        <header className="flex shrink-0 flex-col gap-3 border-b border-[rgba(15,23,42,0.08)] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
+        <header className="border-ehs-border-ink/8 flex shrink-0 flex-col gap-3 border-b px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
           <div className="min-w-0 pr-10 sm:pr-0">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Text
@@ -109,11 +109,11 @@ export function VersionDocumentPreviewModal(
                 {entry.version}
               </Text>
               {entry.isCurrent ? (
-                <span className="text8 text-ehs-gray inline-flex h-5 items-center rounded bg-[rgba(11,19,32,0.14)] px-2 py-0.5">
+                <span className="text8 text-ehs-gray bg-ehs-surface-inverse/14 inline-flex h-5 items-center rounded px-2 py-0.5">
                   Current
                 </span>
               ) : (
-                <span className="inline-flex h-[21px] items-center gap-1.5 rounded-full bg-[rgba(86,96,114,0.1)] pr-2.5 pl-2">
+                <span className="bg-ehs-gray/10 inline-flex h-[21px] items-center gap-1.5 rounded-full pr-2.5 pl-2">
                   <span className="bg-ehs-muted-text rounded-0.75 size-1.5 shrink-0" />
                   <span className="text5 text-ehs-slate">
                     {entry.status === "review" ? "In review" : "Superseded"}
@@ -131,7 +131,7 @@ export function VersionDocumentPreviewModal(
               type="button"
               variant="tertiary"
               onClick={onDownload}
-              className="text4 text-ehs-dark-bg rounded-2.5 h-9 border border-[rgba(11,19,32,0.14)] px-3 shadow-none!"
+              className="text4 text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/14 h-9 border px-3 shadow-none!"
             >
               <Icon
                 icon="mdi:download-outline"
@@ -144,14 +144,14 @@ export function VersionDocumentPreviewModal(
               type="button"
               aria-label="Close preview"
               onClick={onClose}
-              className="text-ehs-gray rounded-2.5 absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center border border-[rgba(15,23,42,0.1)] bg-white transition-colors hover:bg-[#eef1f6] sm:static sm:size-9"
+              className="text-ehs-gray rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface hover:bg-ehs-form-classes-bg absolute top-3.5 right-3.5 inline-flex size-8 cursor-pointer items-center justify-center border transition-colors sm:static sm:size-9"
             >
               <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
             </button>
           </div>
         </header>
 
-        <div className="flex h-10.75 shrink-0 items-center gap-2 border-b border-[rgba(15,23,42,0.08)] px-3 sm:px-4">
+        <div className="border-ehs-border-ink/8 flex h-10.75 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
           <Icon
             icon="mdi:file-pdf-box"
             className="text-ehs-red size-3.5 shrink-0"
@@ -162,11 +162,11 @@ export function VersionDocumentPreviewModal(
           </Text>
         </div>
 
-        <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto bg-[#eef1f6]/70 px-4 py-8 sm:px-8 sm:py-10">
+        <div className="bg-ehs-form-classes-bg/70 flex min-h-0 flex-1 items-start justify-center overflow-auto px-4 py-8 sm:px-8 sm:py-10">
           {fileUrl ? (
             <FilePreviewPdf fileUrl={fileUrl} />
           ) : (
-            <div className="flex h-[50vh] w-full max-w-135 flex-col items-center justify-center gap-2 rounded bg-white text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
+            <div className="bg-ehs-surface flex h-[50vh] w-full max-w-135 flex-col items-center justify-center gap-2 rounded text-center shadow-[0px_8px_32px_-8px_rgba(15,23,42,0.16)]">
               <Icon
                 icon="mdi:file-alert-outline"
                 className="text-ehs-muted-text size-8"

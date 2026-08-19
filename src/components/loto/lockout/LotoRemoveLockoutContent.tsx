@@ -29,6 +29,9 @@ import {
 import { LotoRemoveLockoutHeader } from "./LotoRemoveLockoutHeader";
 import { LotoQueryStatus } from "../LotoQueryStatus";
 
+/* The confirmation card is pinned to #fafbfc - an off-white that is a shade
+   below `--ehs-surface`, which sets it apart from the white cards above it. */
+
 function toNumericId(idParam: string): number | null {
   const trimmed = idParam.trim();
   if (!/^\d+$/.test(trimmed)) return null;
@@ -181,15 +184,15 @@ function LotoRemoveLockoutForm(
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <div className="flex min-w-0 flex-col gap-3.5">
-          <div className="rounded-5 before:rounded-5 relative bg-white px-4.5 pt-4.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+          <div className="rounded-5 before:rounded-5 bg-ehs-surface relative px-4.5 pt-4.5 pb-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-['']">
             <div className="relative z-1 flex flex-col gap-3">
               <div className="flex items-center gap-2">
                 <Icon
                   icon="mdi:lock-outline"
-                  className="size-3.5 shrink-0 text-[#ef4444]"
+                  className="text-ehs-red size-3.5 shrink-0"
                   aria-hidden="true"
                 />
-                <h2 className="text3 text-[#ef4444]">
+                <h2 className="text3 text-ehs-red">
                   Active Lockout Being Removed
                 </h2>
               </div>
@@ -199,7 +202,7 @@ function LotoRemoveLockoutForm(
                     key={field.label}
                     className="rounded-2.5 px-3 pt-2.5 pb-2.5"
                   >
-                    <p className="text6 text-[#ef4444]">{field.label}</p>
+                    <p className="text6 text-ehs-red">{field.label}</p>
                     <p className="text4 text-ehs-darker mt-0.75 font-semibold">
                       {field.value}
                     </p>
@@ -218,12 +221,12 @@ function LotoRemoveLockoutForm(
               {context.energySources.map((source) => (
                 <li
                   key={source.id}
-                  className="rounded-2.5 flex items-center justify-between gap-2.5 border border-[rgba(11,19,32,0.14)] px-3.5 py-2.5"
+                  className="rounded-2.5 border-ehs-border-ink/14 flex items-center justify-between gap-2.5 border px-3.5 py-2.5"
                 >
                   <span className="text4 text-ehs-darker font-semibold">
                     {source.label}
                   </span>
-                  <span className="text4 font-semibold text-[#10b981]">
+                  <span className="text4 text-ehs-green font-semibold">
                     Restoring
                   </span>
                 </li>
@@ -234,27 +237,27 @@ function LotoRemoveLockoutForm(
                 type="checkbox"
                 checked={energyRestored}
                 onChange={(event) => setEnergyRestored(event.target.checked)}
-                className="rounded-0.5 size-4 shrink-0 border border-[#566072] accent-[#0891a6]"
+                className="rounded-0.5 border-ehs-gray accent-ehs-normal-blue size-4 shrink-0 border"
               />
-              <span className="text4 font-semibold text-[#2a3446]">
+              <span className="text4 text-ehs-slate font-semibold">
                 Confirmed — all energy sources have been safely restored to
                 operational state
               </span>
             </label>
           </IncidentGlassCard>
 
-          <label className="rounded-5 before:rounded-5 relative flex cursor-pointer items-start gap-3 border border-[rgba(16,185,129,0.2)] bg-[#fafbfc] px-4.5 py-4.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+          <label className="rounded-5 before:rounded-5 border-ehs-green/20 relative flex cursor-pointer items-start gap-3 border bg-[#fafbfc] px-4.5 py-4.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-['']">
             <input
               type="checkbox"
               checked={signedOff}
               onChange={(event) => setSignedOff(event.target.checked)}
-              className="rounded-0.5 relative z-1 mt-0.5 size-4 shrink-0 border border-[#566072] accent-[#10b981]"
+              className="rounded-0.5 border-ehs-gray accent-ehs-green relative z-1 mt-0.5 size-4 shrink-0 border"
             />
             <span className="relative z-1 min-w-0">
-              <span className="text5 block text-[#10b981]">
+              <span className="text5 text-ehs-green block">
                 Sign-Off Confirmation
               </span>
-              <span className="text4 mt-0.75 block font-medium text-[#566072]">
+              <span className="text4 text-ehs-gray mt-0.75 block font-medium">
                 {`I, ${context.signOffName}, confirm that the work is complete, all personnel are clear, all lockout devices have been removed, and the equipment is safe to return to service.`}
               </span>
             </span>
@@ -263,7 +266,7 @@ function LotoRemoveLockoutForm(
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={cancelHref}
-              className="text4 text-ehs-gray rounded-2.5 inline-flex items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-1.5 font-medium transition-colors hover:bg-white"
+              className="text4 text-ehs-gray rounded-2.5 hover:bg-ehs-surface border-ehs-border-ink/14 bg-ehs-surface/62 inline-flex items-center gap-1.75 border px-4 py-1.5 font-medium transition-colors"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -273,7 +276,7 @@ function LotoRemoveLockoutForm(
               variant="primary"
               disabled={!canConfirm}
               onClick={handleConfirm}
-              className="text4 rounded-2.5 px-4 py-2.5 font-semibold shadow-[0px_6px_18px_rgba(8,145,166,0.45)] disabled:opacity-50"
+              className="text4 rounded-2.5 px-4 py-2.5 font-semibold shadow-[0px_6px_18px_color-mix(in_oklab,var(--ehs-normal-blue)_45%,transparent)] disabled:opacity-50"
             >
               {removeMutation.isPending
                 ? "Removing…"
@@ -282,12 +285,12 @@ function LotoRemoveLockoutForm(
           </div>
         </div>
 
-        <div className="rounded-5 before:rounded-5 relative h-fit border border-[rgba(239,68,68,0.18)] bg-[rgba(255,255,255,0.5)] px-4.5 pt-4.5 pb-5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+        <div className="rounded-5 before:rounded-5 border-ehs-red/18 bg-ehs-surface/50 relative h-fit border px-4.5 pt-4.5 pb-5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-['']">
           <div className="relative z-1">
-            <h2 className="text3 text-[#ef4444]">Critical Safety Rules</h2>
+            <h2 className="text3 text-ehs-red">Critical Safety Rules</h2>
             <ul className="mt-2.5 list-disc space-y-2 pl-4">
               {LOTO_REMOVE_SAFETY_RULES.map((rule) => (
-                <li key={rule} className="text4 text-[#566072]">
+                <li key={rule} className="text4 text-ehs-gray">
                   {rule}
                 </li>
               ))}

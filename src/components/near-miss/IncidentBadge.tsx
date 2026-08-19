@@ -9,9 +9,9 @@ export type IncidentBadgeProps = Readonly<{
 }>;
 
 const toneClassName: Record<IncidentBadgeTone, string> = {
-  neutral: "bg-ehs-dark-bg/16 text-ehs-gray",
+  neutral: "bg-ehs-surface-inverse/16 text-ehs-gray",
   teal: "bg-ehs-normal-blue/18 text-ehs-dark-blue",
-  muted: "bg-ehs-dark-bg/14 text-ehs-gray",
+  muted: "bg-ehs-surface-inverse/14 text-ehs-gray",
   danger: "bg-ehs-red/10 text-ehs-red",
   warn: "bg-ehs-yellow/15 text-ehs-yellow",
 };
@@ -35,7 +35,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
         // own compositing layer, and at pill size the effect is invisible —
         // the translucent tint + hairline carry the material.
         // text5 matches Incident list badge type scale.
-        "text5 inline-flex items-center gap-1.5 rounded-full border border-white/50 px-2.5 py-0.5 whitespace-nowrap",
+        "text5 border-ehs-hairline/50 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 whitespace-nowrap",
         toneClassName[tone],
         className,
       ]
