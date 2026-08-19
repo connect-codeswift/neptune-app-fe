@@ -10,9 +10,12 @@ import type { GetCapaOpenedClosedResponseDto } from "@/dtos/res/capa-opened-clos
 import type { GetCapaWorkloadByOwnerResponseDto } from "@/dtos/res/capa-workload-by-owner-response.dto";
 import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
-import type { CapaStatusRequestDto } from "@/dtos/req/capa-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaTaskStatusRequestDto } from "@/dtos/req/capa-task-status-request.dto";
+import type {
+  CapaDetailDto,
+  CapaLifecycleStageDto,
+} from "@/dtos/res/capa-detail-response.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import http, { getAccessToken, HttpError } from "@/lib/axios";
@@ -1004,6 +1007,82 @@ export async function getCapaById(capaId: number) {
     },
   );
   return normalizeCapaDto(data);
+}
+
+function coerceCapaLifecycleStage(
+  raw: Record<string, unknown>,
+): CapaLifecycleStageDto | null {
+  const stage = asString(readProp(raw, "stage", "Stage"))?.trim();
+  if (!stage) {
+    return null;
+  }
+
+  return {
+    stage,
+    stageIndex: asNumber(readProp(raw, "stageIndex", "StageIndex")) ?? 0,
+    isCompleted:
+      asBoolean(readProp(raw, "isCompleted", "IsCompleted")) ?? false,
+    isCurrent: asBoolean(readProp(raw, "isCurrent", "IsCurrent")) ?? false,
+  };
+}
+
+function asCapaLifecycleStageArray(value: unknown): CapaLifecycleStageDto[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => isRecord(item))
+    .map((item) => coerceCapaLifecycleStage(item))
+    .filter((item): item is CapaLifecycleStageDto => item != null)
+    .sort((a, b) => a.stageIndex - b.stageIndex);
+}
+
+/**
+ * GET /api/v1/capas/{id}/detail
+ * Superset of GET /api/v1/capas/{id}: adds the lifecycle stepper and the task
+ * roll-up. The plain CAPA fields are coerced by the same helper the list uses.
+ */
+export async function getCapaDetail(
+  capaId: number,
+): Promise<CapaDetailDto | null> {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    return null;
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPA details.");
+  }
+
+  const { data } = await http.get<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/detail`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  const payload = unwrapPayload(data);
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const capa = coerceCapaDto(payload);
+  if (!capa) {
+    return null;
+  }
+
+  return {
+    capa,
+    lifecycleStages: asCapaLifecycleStageArray(
+      readProp(payload, "lifecycleStages", "LifecycleStages"),
+    ),
+    totalTasks: asNumber(readProp(payload, "totalTasks", "TotalTasks")) ?? null,
+    completedTasks:
+      asNumber(readProp(payload, "completedTasks", "CompletedTasks")) ?? null,
+  };
 }
 
 /** GET /api/v1/capas/{capaId}/tasks */

@@ -7,10 +7,9 @@ import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
-import {
-  CAPA_LIFECYCLE_STAGES,
-  type CapaDashboardItem,
-  type CapaDashboardTask,
+import type {
+  CapaDashboardItem,
+  CapaDashboardTask,
 } from "@/components/capa/capa-dashboard-data";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -122,14 +121,6 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
               className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
             />
           </div>
-          <button
-            type="button"
-            className="text-ehs-muted-text hover:text-ehs-darker inline-flex size-6 items-center justify-center rounded-md"
-            aria-label="More actions"
-            onClick={() => toast.info("More actions coming soon")}
-          >
-            <Icon icon="mdi:dots-horizontal" className="size-4" aria-hidden />
-          </button>
         </div>
         <Text as="h2" className="text3 text-ehs-darker mt-2">
           {item.title}
@@ -161,48 +152,6 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
         <MetaField label="Due" value={item.dueDate} />
         <MetaField label="Priority" value={item.priority} />
         <MetaField label="Days left" value={item.dueLabel} />
-      </div>
-
-      <div className="border-ehs-border border-b px-5 py-4">
-        <Text as="p" className="text9 text-ehs-muted-text mb-3">
-          Lifecycle
-        </Text>
-        <div className="flex items-start justify-between gap-1">
-          {CAPA_LIFECYCLE_STAGES.map((stage, index) => {
-            const complete = index < item.lifecycleStep;
-            const current = index === item.lifecycleStep;
-
-            return (
-              <div
-                key={stage}
-                className="flex min-w-0 flex-1 flex-col items-center gap-2"
-              >
-                <span
-                  className={[
-                    "text7 flex size-6.5 items-center justify-center rounded-full",
-                    complete
-                      ? "bg-ehs-normal-blue text-ehs-on-accent"
-                      : current
-                        ? "border-ehs-normal-blue text-ehs-normal-blue bg-ehs-surface border"
-                        : "border-ehs-border text-ehs-muted-text bg-ehs-surface border",
-                  ].join(" ")}
-                >
-                  {complete ? (
-                    <Icon icon="mdi:check" className="size-3" aria-hidden />
-                  ) : (
-                    String(index + 1)
-                  )}
-                </span>
-                <Text
-                  as="span"
-                  className="text8 text-ehs-muted-text text-center"
-                >
-                  {stage}
-                </Text>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       <div className="border-ehs-border border-b px-5 py-4">
@@ -289,34 +238,6 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
         >
           <Icon icon="mdi:check" className="size-3.5 shrink-0" aria-hidden />
           Update progress
-        </Button>
-        <Button
-          type="button"
-          variant="tertiary"
-          className="rounded-2.5 shrink-0 p-0"
-          aria-label="Collaborators"
-          onClick={() => toast.info("Collaborators coming soon")}
-        >
-          <Icon
-            icon="mdi:account-multiple-outline"
-            className="size-5"
-            aria-hidden
-          />
-        </Button>
-        <Button
-          type="button"
-          variant="tertiary"
-          className="rounded-2.5 shrink-0 p-0"
-          aria-label="Open CAPA detail"
-          onClick={() => {
-            if (onOpenDetail) {
-              onOpenDetail();
-              return;
-            }
-            toast.info("Open CAPA coming soon");
-          }}
-        >
-          <Icon icon="mdi:open-in-new" className="size-5" aria-hidden />
         </Button>
       </div>
     </IncidentGlassCard>

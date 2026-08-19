@@ -200,15 +200,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                   Verify & Close
                 </Button>
               )}
-              <Button
-                type="button"
-                variant="tertiary"
-                disabled={isBusy}
-                onClick={() => setIsConfirmingDrop(true)}
-                className="rounded-2.5 px-4 py-2 font-normal! text-[#2a3446]"
-              >
-                Drop
-              </Button>
             </div>
           </div>
         </div>

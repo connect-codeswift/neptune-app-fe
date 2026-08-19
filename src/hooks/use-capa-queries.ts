@@ -7,6 +7,7 @@ import {
   getCapaById,
   getCapaComments,
   getCapaDashboardKpis,
+  getCapaDetail,
   getCapaLifecycle,
   getCapaOpenedVsClosed,
   getCapaWorkloadByOwner,
@@ -390,7 +391,8 @@ export type UseCapaDetailQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads GET /api/v1/capas/{id} for the detail page.
+ * Loads GET /api/v1/capas/{id}/detail for the detail page — the by-id row plus
+ * the lifecycle stepper the backend owns.
  */
 export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
   const capaId = options.capaId;
@@ -405,15 +407,16 @@ export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
         return null;
       }
 
-      return getCapaById(capaId);
+      return getCapaDetail(capaId);
     },
-    select: (capa) => {
-      if (!capa) {
+    select: (detail) => {
+      if (!detail) {
         return null;
       }
 
-      return mapCapaApiToDetailRecord(capa, {
+      return mapCapaApiToDetailRecord(detail.capa, {
         currentUserId: auth?.userId,
+        lifecycleStages: detail.lifecycleStages,
       });
     },
   });

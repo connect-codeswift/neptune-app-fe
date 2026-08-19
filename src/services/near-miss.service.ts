@@ -8,14 +8,16 @@ import type {
   GetNearMissByIdResponseDto,
   GetNearMissKpiResponseDto,
   GetNearMissHeatMapResponseDto,
-  GetTopNearMissUsersResponseDto,
+  GetNearMissRecognitionsResponseDto,
+  NearMissRecognitionDto,
 } from "@/dtos/res/near-miss-response.dto";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 import http from "@/lib/axios";
 
 const NEAR_MISS_PATH = "/near-misses";
 const NEAR_MISS_SEARCH_PATH = "/near-misses/search";
 const NEAR_MISS_KPI_PATH = "/near-misses/kpis";
-const NEAR_MISS_TOP_USERS_PATH = "/near-misses/top-users";
+const NEAR_MISS_RECOGNITIONS_PATH = "/near-misses/recognitions";
 const NEAR_MISS_HEAT_MAP_PATH = "/near-misses/heatmap";
 
 /**
@@ -55,26 +57,56 @@ export async function getNearMissKpi() {
   return data;
 }
 
-export async function getTopNearMissUsers() {
-  const { data } = await http.get<GetTopNearMissUsersResponseDto>(
-    NEAR_MISS_TOP_USERS_PATH,
-  );
-
-  return data;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/*
- * `getMonthlyNearMissUsers` is intentionally absent.
- *
- * `GET /api/NearMiss/MonthlyNearMissUsers` never existed: `INearMissService`
- * has `GetTopNearMissUsers` and no monthly variant, and there is no repository
- * query behind one. route-map.md has no row for it either. The Hazard twin
- * (`GET /api/v1/hazards/monthly-users`) IS real, which is why it looked safe to
- * map by parity — it is not. This call has been 404ing in production.
- *
- * Restore it, and the reporter list in `NearMissRecognitionCard`, once the
- * backend serves `GET /api/v1/near-misses/monthly-users`.
+function readProp(record: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const key of keys) {
+    if (key in record && record[key] !== undefined) {
+      return record[key];
+    }
+  }
+  return undefined;
+}
+
+function asNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+/**
+ * `dataModel` is a bare array, but the card must never crash on a shape it
+ * did not expect — a non-array once reached `reporters.map` and took the page
+ * down. Anything that is not an array degrades to "no reporters". Rows are read
+ * in both casings because the API mixes them.
  */
+function normalizeRecognitions(dataModel: unknown): NearMissRecognitionDto[] {
+  const rows: unknown[] = Array.isArray(dataModel) ? dataModel : [];
+
+  return rows.filter(isRecord).map((row) => ({
+    userId: asNumber(readProp(row, "userId", "UserId")),
+    userName: asString(readProp(row, "userName", "UserName")),
+    nearMissCount: asNumber(
+      readProp(row, "nearMissCount", "NearMissCount", "count", "Count"),
+    ),
+  }));
+}
+
+/** GET /api/v1/near-misses/recognitions?year=&month= */
+export async function getNearMissRecognitions(
+  params: Readonly<{ year: number; month: number }>,
+): Promise<GetNearMissRecognitionsResponseDto> {
+  const { data } = await http.get<ApiEnvelopeDto<unknown>>(
+    NEAR_MISS_RECOGNITIONS_PATH,
+    { params: { year: params.year, month: params.month } },
+  );
+
+  return { ...data, dataModel: normalizeRecognitions(data.dataModel) };
+}
 
 export async function getNearMissHeatMap() {
   const { data } = await http.get<GetNearMissHeatMapResponseDto>(
