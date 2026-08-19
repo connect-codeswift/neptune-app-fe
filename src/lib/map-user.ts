@@ -3,7 +3,7 @@ import type { UserDropdownItemDto } from "@/dtos/res/user-response.dto";
 
 /**
  * Turn GET /api/v1/users/dropdown rows into select options. The id becomes the option
- * value (that is what the hazard payload's `assignedTo` expects) and the first
+ * value (that is what an assignee payload field expects) and the first
  * available name-ish field becomes the label.
  */
 export function toAssigneeOptions(

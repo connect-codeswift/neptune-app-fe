@@ -227,16 +227,16 @@
     inset 0 1px 0 0 rgb(255 255 255 / 0.9);
 
   /* Filled buttons: a coloured drop that reads as the button's own light
-     spilling onto a white page, plus the material's inset top highlight.
+     spilling onto a white page. No inset top highlight - the white rim read as
+     a gloss strip along the top edge of every primary and danger button, so
+     the filled tiers now match their `-flat` variants in light as they already
+     did in dark.
 
      The whole list is a token, not just the colour, because the dark theme
      drops the glow entirely rather than recolouring it - see the note there.
      Use with Tailwind v4's `shadow-(--ehs-shadow-button-primary)`. */
-  --ehs-shadow-button-primary:
-    0 6px 18px -6px var(--ehs-normal-blue),
-    inset 0 1px 0 1px rgb(255 255 255 / 0.25);
-  --ehs-shadow-button-danger:
-    0 6px 18px -6px var(--ehs-red), inset 0 1px 0 1px rgb(255 255 255 / 0.25);
+  --ehs-shadow-button-primary: 0 6px 18px -6px var(--ehs-normal-blue);
+  --ehs-shadow-button-danger: 0 6px 18px -6px var(--ehs-red);
   --ehs-shadow-button-primary-sm: 0 4px 12px -4px var(--ehs-normal-blue);
 
   /* The lifted pill behind the active tab in a segmented control. */
@@ -679,7 +679,10 @@ body {
   animation-fill-mode: both;
 }
 
-/* Light sweep that travels across primary buttons on hover */
+/* Light sweep that travels across a control on hover. The primary and danger
+   button tiers no longer take it - a command button reads as a solid fill -
+   so this is now only the AI rewrite affordance, where the shine is the
+   point. */
 @utility btn-sweep {
   position: relative;
   overflow: hidden;

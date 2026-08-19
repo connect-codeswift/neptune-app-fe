@@ -42,10 +42,6 @@ import { Icon } from "@iconify/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 
-/* Two literals are pinned: the timestamp ink #45556c, between `--ehs-gray` and
-   `--ehs-slate`; and the muted note fill #f6f6f6, a warmer grey than
-   `--ehs-surface-raised` (#f8fafc). */
-
 const TASK_STATUS_CLASS: Record<CapaDetailTaskStatus, string> = {
   Completed: "bg-ehs-green/10 text-ehs-green",
   "In Progress": "bg-ehs-yellow/10 text-ehs-yellow",
@@ -197,7 +193,9 @@ function SectionBlock(
       <div
         className={[
           "text-ehs-slate text-base leading-[22.75px]",
-          props.muted ? "rounded-2.5 bg-[#f6f6f6] px-3 py-3" : "px-3 py-3",
+          props.muted
+            ? "rounded-2.5 bg-ehs-surface-raised px-3 py-3"
+            : "px-3 py-3",
         ].join(" ")}
       >
         {props.children}
@@ -610,7 +608,7 @@ function CommentCard(props: Readonly<{ comment: CapaDetailComment }>) {
           </Text>
           <Text
             as="span"
-            className="ml-auto shrink-0 text-base leading-4 text-[#45556c]"
+            className="text-ehs-gray ml-auto shrink-0 text-base leading-4"
           >
             {comment.timestamp}
           </Text>

@@ -42,7 +42,6 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
       location: edited.location,
       description: edited.description,
       image: record.image ?? "",
-      assignedTo: Number(edited.assignedTo) || 0,
       userId,
       siteId,
       isDrop: false,

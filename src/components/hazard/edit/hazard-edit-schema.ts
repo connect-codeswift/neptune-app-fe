@@ -20,9 +20,6 @@ export type HazardEditValues = {
   hazardType: string;
   location: string;
   status: string;
-  /** User id from the person picker, as a string; "" when unassigned. */
-  assignedTo: string;
-  assignedToName: string;
   description: string;
 };
 
@@ -106,16 +103,6 @@ export function buildHazardEditSchema(record: HazardRecord): FormSchema {
       options: STATUS_OPTIONS,
     },
     {
-      type: "person",
-      name: "assignedTo",
-      label: "Assigned To",
-      colSpan: 6,
-      usersSource: "dropdown",
-      displayNameField: "assignedToName",
-      placeholder: "Start typing a name…",
-      helperText: "Person responsible for assessing and closing this hazard.",
-    },
-    {
       type: "textarea",
       name: "description",
       label: "Description",
@@ -129,17 +116,10 @@ export function buildHazardEditSchema(record: HazardRecord): FormSchema {
 
 /** Pre-fill the edit form from an existing record. */
 export function toHazardEditValues(record: HazardRecord): FormValues {
-  const assignedId =
-    record.assignedToId != null && record.assignedToId > 0
-      ? String(record.assignedToId)
-      : "";
-
   return {
     hazardType: selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType),
     location: selectValueFor(LOCATION_OPTIONS, record.location),
     status: record.status,
-    assignedTo: assignedId,
-    assignedToName: assignedId ? record.assignedTo : "",
     description: record.description,
   };
 }

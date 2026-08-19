@@ -267,6 +267,18 @@ export type PersonFieldConfig = BaseField &
     disabled?: boolean;
   }>;
 
+/**
+ * Caller-rendered control placed in the form grid, so a bespoke picker can sit
+ * in field order rather than above or below the form (e.g. the LOTO location
+ * combobox). The node owns its own label, value and error — FormBuilder only
+ * positions it, and stores no value for it.
+ */
+export type CustomFieldConfig = BaseField &
+  Readonly<{
+    type: "custom";
+    render: ReactNode;
+  }>;
+
 export type FieldConfig =
   | TextFieldConfig
   | DateFieldConfig
@@ -279,6 +291,7 @@ export type FieldConfig =
   | TilesFieldConfig
   | SwitchFieldConfig
   | HeadingFieldConfig
+  | CustomFieldConfig
   | PersonFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
@@ -287,7 +300,7 @@ export type FormSchema = readonly FieldConfig[];
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
   for (const field of schema) {
-    if (field.type === "heading") continue;
+    if (field.type === "heading" || field.type === "custom") continue;
 
     const isMultiValue =
       field.type === "checkbox-group" ||

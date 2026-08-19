@@ -61,7 +61,9 @@ function isEmpty(value: FieldValue): boolean {
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
-    if (field.type === "heading") continue;
+    // Neither holds a value: headings are decoration, and a custom field's
+    // node owns its own value and error outside the form.
+    if (field.type === "heading" || field.type === "custom") continue;
     if (!field.required) continue;
 
     if (field.type === "person") {

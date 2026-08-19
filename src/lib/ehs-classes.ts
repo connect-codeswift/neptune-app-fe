@@ -29,9 +29,12 @@ export const ehsButtonBaseClass =
 /**
  * Button tiers in the glass system: filled colour stays for commands —
  * primary and danger keep solid fills so the actions that matter never
- * dissolve into the scenery — but they take the material's inset top
- * highlight, while the quiet tiers (secondary/tertiary/ghost) frost like the
- * fields: same fill, hairline and blur as ehsInputClass.
+ * dissolve into the scenery — while the quiet tiers (secondary/tertiary/ghost)
+ * frost like the fields: same fill, hairline and blur as ehsInputClass.
+ *
+ * No shine on the filled tiers: neither the inset top highlight (dropped from
+ * the shadow tokens) nor the light sweep that used to travel across them on
+ * hover. A command button reads as a solid coloured surface.
  *
  * The filled tiers' shadow is a token rather than a literal because the two
  * themes need different *shapes*, not different colours: the coloured glow
@@ -40,7 +43,7 @@ export const ehsButtonBaseClass =
  * value drops it for a plain contact shadow.
  */
 export const ehsButtonPrimaryClass =
-  "btn-sweep bg-ehs-normal-blue text-ehs-on-accent shadow-(--ehs-shadow-button-primary) hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
+  "bg-ehs-normal-blue text-ehs-on-accent shadow-(--ehs-shadow-button-primary) hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active";
 
 export const ehsButtonSecondaryClass =
   "border border-ehs-hairline/60 bg-ehs-light-blue/75 text-ehs-darker shadow-sm backdrop-blur-1.25 hover:bg-ehs-light-blue active:bg-ehs-light-blue-active";
@@ -49,7 +52,7 @@ export const ehsButtonTertiaryClass =
   "border border-ehs-border-ink/8 bg-ehs-surface/55 text-ehs-gray shadow-sm backdrop-blur-1.25 hover:border-ehs-border-ink/18 hover:bg-ehs-surface/75";
 
 export const ehsButtonDangerClass =
-  "btn-sweep bg-ehs-red text-ehs-on-accent shadow-(--ehs-shadow-button-danger) hover:bg-ehs-red/90 active:bg-ehs-red/80 focus-visible:ring-ehs-red/30";
+  "bg-ehs-red text-ehs-on-accent shadow-(--ehs-shadow-button-danger) hover:bg-ehs-red/90 active:bg-ehs-red/80 focus-visible:ring-ehs-red/30";
 
 export const ehsIconButtonBaseClass =
   "inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/20 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50";
