@@ -4,13 +4,15 @@ import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { InspectionRecord } from "@/app/dashboard/inspections/inspections-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const columnHelper = createColumnHelper<InspectionRecord>();
 
 function statusTone(status: string): IncidentBadgeTone {
   const normalized = status.trim().toLowerCase();
   if (normalized === "overdue") return "danger";
-  if (normalized === "in progress" || normalized === "inprogress") return "teal";
+  if (normalized === "in progress" || normalized === "inprogress")
+    return "teal";
   if (
     normalized === "closed" ||
     normalized === "completed" ||
@@ -23,6 +25,20 @@ function statusTone(status: string): IncidentBadgeTone {
 
 function isOverdue(status: string): boolean {
   return status.trim().toLowerCase() === "overdue";
+}
+
+function inspectionDisplayId(id: string): string {
+  return formatRecordDisplayId("I", id);
+}
+
+function inspectionSubtitle(
+  record: InspectionRecord,
+  expanded: boolean,
+): string {
+  const rest = expanded ? record.scope : record.site;
+  return [inspectionDisplayId(record.id), rest]
+    .filter((part) => part.trim() !== "")
+    .join(" · ");
 }
 
 /**
@@ -45,7 +61,7 @@ function ProgressMeter(props: Readonly<{ value: number; compact?: boolean }>) {
   return (
     <div className="flex min-w-0 items-center gap-2">
       <span
-        className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-[rgba(11,19,32,0.08)]"
+        className="bg-ehs-surface-inverse/8 h-1.5 w-16 shrink-0 overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <span
@@ -80,35 +96,51 @@ export function createInspectionColumns(
   const { selectedId, onViewMore, expanded = true } = options;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const displayId = inspectionDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
     columnHelper.accessor("title", {
       header: "Inspection",
       // No `size` → Table default 150 → no fixed width → this column fills leftover space.
       minSize: 180,
       meta: { align: "left" as const },
-      cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="span"
-            className="text4 text-ehs-darker truncate"
-            title={row.original.title}
-          >
-            {row.original.title}
-          </Text>
-          <Text
-            as="span"
-            className="text8 text-ehs-muted-text truncate"
-            title={
-              expanded
-                ? `I-${row.original.id} · ${row.original.scope}`
-                : `I-${row.original.id} · ${row.original.scope} · ${row.original.site}`
-            }
-          >
-            {expanded
-              ? `I-${row.original.id} · ${row.original.scope}`
-              : `I-${row.original.id} · ${row.original.site}`}
-          </Text>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const subtitle = inspectionSubtitle(row.original, expanded);
+        return (
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text
+              as="span"
+              className="text4 text-ehs-darker truncate"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            <Text
+              as="span"
+              className="text8 text-ehs-muted-text truncate"
+              title={subtitle}
+            >
+              {subtitle}
+            </Text>
+          </div>
+        );
+      },
     }),
     ...(expanded
       ? [
@@ -207,12 +239,12 @@ export function createInspectionColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
             ].join(" ")}
             aria-label={
               isOpen
-                ? `Close details for I-${row.original.id}`
-                : `View I-${row.original.id}`
+                ? `Close details for ${inspectionDisplayId(row.original.id)}`
+                : `View ${inspectionDisplayId(row.original.id)}`
             }
             aria-pressed={isOpen}
             onClick={(event) => {

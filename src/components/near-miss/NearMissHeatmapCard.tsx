@@ -2,6 +2,7 @@
 
 import { Fragment, useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { SkeletonHeatmapGrid } from "@/components/ui/skeletons";
 import { useNearMissHeatMapQuery } from "@/hooks/use-near-miss-queries";
 import {
@@ -10,6 +11,9 @@ import {
 } from "@/components/hazard/report/hazard-report-schema";
 import type { SelectOption } from "@/components/form-builder";
 import type { NearMissHeatMapCellDto } from "@/dtos/res/near-miss-response.dto";
+
+/* The cell label is pinned to `text-slate-700` (#334155); `--ehs-slate`
+   (#2a3446) is a different grey. */
 
 /**
  * Fixed heatmap columns — design baseline (Mech…Slip) plus Fire / Envt.
@@ -42,20 +46,43 @@ function shortTypeLabel(type: string): string {
   return word.slice(0, 4).replace(/^./, (char) => char.toUpperCase());
 }
 
-/** Map a report count to the teal fill opacity used in the Figma heatmap. */
+/**
+ * Map a report count to the teal fill opacity used in the Figma heatmap.
+ *
+ * `color-mix()` rather than a literal `rgba()`: the ramp needs a computed alpha, which a bare
+ * `var(--ehs-...)` cannot carry, and the hardcoded white and teal it replaced could not follow
+ * the theme -- every empty cell in the grid stayed white on a dark page.
+ */
 function cellStyle(value: number | null, max: number) {
   if (value == null || value <= 0) {
-    return { backgroundColor: "rgba(255,255,255,0.62)" };
+    return {
+      backgroundColor:
+        "color-mix(in oklab, var(--ehs-surface) 62%, transparent)",
+    };
   }
   const ratio = max > 1 ? (value - 1) / (max - 1) : 0;
+  const percent = ((0.22 + ratio * 0.58) * 100).toFixed(1);
   return {
-    backgroundColor: `rgba(8,145,166,${(0.22 + ratio * 0.58).toFixed(3)})`,
+    backgroundColor: `color-mix(in oklab, var(--ehs-normal-blue) ${percent}%, transparent)`,
   };
 }
 
-/** Pivot the flat location/type tallies into the grid the card renders. */
+/** Pivot the flat department/location × type tallies into the grid. */
+function areaKey(cell: NearMissHeatMapCellDto): string {
+  const department = cell.department?.trim();
+  if (department) return department;
+  return cell.location.trim();
+}
+
 function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
-  const locations = [...new Set(cells.map((cell) => cell.location))];
+  const apiAreas = [...new Set(cells.map(areaKey).filter(Boolean))];
+  const defaultAreas = LOCATION_OPTIONS.map((option) => option.value);
+  const defaultAreaSet = new Set(defaultAreas);
+  const locations = [
+    ...defaultAreas,
+    ...apiAreas.filter((area) => !defaultAreaSet.has(area)),
+  ];
+
   const apiTypes = [...new Set(cells.map((cell) => cell.type))];
   const knownTypeSet = new Set<string>(HEATMAP_TYPE_COLUMNS);
   const types = [
@@ -64,7 +91,7 @@ function toGrid(cells: readonly NearMissHeatMapCellDto[]) {
   ];
 
   const counts = new Map(
-    cells.map((cell) => [`${cell.location}|${cell.type}`, cell.count]),
+    cells.map((cell) => [`${areaKey(cell)}|${cell.type}`, cell.count]),
   );
 
   const rows = locations.map((location) => ({
@@ -92,11 +119,17 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-4 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Heatmap by area</h3>
-        <p className="text4 text-ehs-muted-text">Reports last 30 days</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Heatmap by department
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Reports last 30 days
+        </Text>
       </header>
 
-      {rows.length > 0 ? (
+      {heatMapQuery.isPending && cells == null ? (
+        <SkeletonHeatmapGrid />
+      ) : rows.length > 0 ? (
         <div
           className="grid gap-1"
           style={{
@@ -106,28 +139,32 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
           {/* Column header row: empty corner + hazard type labels */}
           <span aria-hidden="true" />
           {columns.map((column) => (
-            <span
+            <Text
               key={column.key}
-              className="text4 text-ehs-muted-text truncate text-center"
+              as="span"
+              className="text8 text-ehs-muted-text truncate text-center"
             >
               {column.label}
-            </span>
+            </Text>
           ))}
 
           {/* Data rows: location label + heat cells */}
           {rows.map((row) => (
             <Fragment key={row.key}>
-              <span className="text4 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap">
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text flex items-center pr-2 whitespace-nowrap"
+              >
                 {row.label}
-              </span>
+              </Text>
               {row.values.map((value, index) => (
                 <div
                   key={columns[index].key}
                   style={cellStyle(value, max)}
                   className={[
-                    "text7 flex h-8 items-center justify-center rounded border border-slate-900/10 font-bold leading-none",
+                    "text7 border-ehs-border-ink/10 flex h-8 items-center justify-center rounded border leading-none font-bold",
                     value != null && value >= max * 0.75
-                      ? "text-white"
+                      ? "text-ehs-on-accent"
                       : "text-slate-700",
                   ].join(" ")}
                 >
@@ -140,9 +177,9 @@ export function NearMissHeatmapCard(props: NearMissHeatmapCardProps) {
       ) : heatMapQuery.isPending ? (
         <SkeletonHeatmapGrid />
       ) : (
-        <p className="text4 text-ehs-muted-text">
+        <Text as="p" className="text8 text-ehs-muted-text">
           No near misses reported in this period.
-        </p>
+        </Text>
       )}
     </IncidentGlassCard>
   );

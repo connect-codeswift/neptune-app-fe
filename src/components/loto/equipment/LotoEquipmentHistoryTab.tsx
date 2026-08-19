@@ -13,8 +13,8 @@ import { toast } from "@/lib/toast";
 const columnHelper = createColumnHelper<LotoHistoryRecord>();
 
 const resultClassName: Record<LotoHistoryResult, string> = {
-  Completed: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
-  Active: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
+  Completed: "bg-ehs-green/10 text-ehs-green",
+  Active: "bg-ehs-red/10 text-ehs-red",
 };
 
 function buildColumns(): TableColumns<LotoHistoryRecord> {
@@ -126,7 +126,7 @@ export function LotoEquipmentHistoryTab(props: LotoEquipmentHistoryTabProps) {
     <Table
       data={history}
       columns={columns}
-      getRowId={(row) => row.id}
+      getRowId={(row) => String(row.id)}
       containerClassName="min-w-0"
       variant="incident"
       header={

@@ -1,17 +1,13 @@
-import { HAZARD_TYPE_OPTIONS } from "@/components/hazard/report/hazard-report-schema";
+import {
+  HAZARD_TYPE_OPTIONS,
+  LOCATION_OPTIONS,
+} from "@/components/hazard/report/hazard-report-schema";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 import type {
   FormSchema,
   FormValues,
   SelectOption,
 } from "@/components/form-builder";
-
-/** Hazard types keyed by their label — records store the label, not a slug. */
-const HAZARD_TYPE_LABEL_OPTIONS: readonly SelectOption[] =
-  HAZARD_TYPE_OPTIONS.map((option) => ({
-    value: option.label,
-    label: option.label,
-  }));
 
 const STATUS_OPTIONS: readonly SelectOption[] = [
   { value: "Open", label: "Open" },
@@ -22,19 +18,52 @@ const STATUS_OPTIONS: readonly SelectOption[] = [
 /** Shape of a submitted hazard edit, keyed by the schema field names. */
 export type HazardEditValues = {
   hazardType: string;
+  location: string;
   status: string;
-  /** User id from the dropdown, as a string; "" when unassigned. */
-  assignedTo: string;
   description: string;
 };
 
+/** Keep a stored custom type/location in the list so the trigger can show it. */
+function withStoredOption(
+  options: readonly SelectOption[],
+  stored: string,
+): SelectOption[] {
+  const trimmed = stored.trim();
+  if (!trimmed) return [...options];
+  if (
+    options.some(
+      (option) => option.value === trimmed || option.label === trimmed,
+    )
+  ) {
+    return [...options];
+  }
+  return [...options, { value: trimmed, label: trimmed }];
+}
+
+/** Map a stored slug or label back to the option value the select expects. */
+function selectValueFor(
+  options: readonly SelectOption[],
+  stored: string,
+): string {
+  const trimmed = stored.trim();
+  if (!trimmed) return "";
+  const byValue = options.find((option) => option.value === trimmed);
+  if (byValue) return byValue.value;
+  const byLabel = options.find((option) => option.label === trimmed);
+  if (byLabel) return byLabel.value;
+  return trimmed;
+}
+
 /**
- * Assignees come from GET /User/dropdown, so the schema is built per render
- * rather than declared as a module constant.
+ * Assignees come from the org person picker. Custom type/location values from
+ * create are appended so they still appear on edit.
  */
-export function buildHazardEditSchema(
-  assigneeOptions: readonly SelectOption[],
-): FormSchema {
+export function buildHazardEditSchema(record: HazardRecord): FormSchema {
+  const typeOptions = withStoredOption(HAZARD_TYPE_OPTIONS, record.hazardType);
+  const locationOptions = withStoredOption(LOCATION_OPTIONS, record.location);
+  const typeValue = selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType);
+  const locationValue = selectValueFor(LOCATION_OPTIONS, record.location);
+
   return [
     {
       type: "select",
@@ -43,10 +72,26 @@ export function buildHazardEditSchema(
       required: true,
       colSpan: 6,
       placeholder: "Select hazard type",
-      options: HAZARD_TYPE_LABEL_OPTIONS,
+      options: typeOptions,
       allowCustom: true,
       addCustomLabel: "Add custom hazard type",
       addCustomPlaceholder: "e.g. Confined space entry",
+      selectedOption: typeOptions.find((option) => option.value === typeValue),
+    },
+    {
+      type: "select",
+      name: "location",
+      label: "Location",
+      required: true,
+      colSpan: 6,
+      placeholder: "Select location",
+      options: locationOptions,
+      allowCustom: true,
+      addCustomLabel: "Add custom location",
+      addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
+      selectedOption: locationOptions.find(
+        (option) => option.value === locationValue,
+      ),
     },
     {
       type: "select",
@@ -56,14 +101,6 @@ export function buildHazardEditSchema(
       colSpan: 6,
       placeholder: "Select status",
       options: STATUS_OPTIONS,
-    },
-    {
-      type: "select",
-      name: "assignedTo",
-      label: "Assigned To",
-      colSpan: 12,
-      placeholder: "Select assignee",
-      options: assigneeOptions,
     },
     {
       type: "textarea",
@@ -80,9 +117,9 @@ export function buildHazardEditSchema(
 /** Pre-fill the edit form from an existing record. */
 export function toHazardEditValues(record: HazardRecord): FormValues {
   return {
-    hazardType: record.hazardType,
+    hazardType: selectValueFor(HAZARD_TYPE_OPTIONS, record.hazardType),
+    location: selectValueFor(LOCATION_OPTIONS, record.location),
     status: record.status,
-    assignedTo: record.assignedToId ? String(record.assignedToId) : "",
     description: record.description,
   };
 }

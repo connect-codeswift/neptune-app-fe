@@ -23,10 +23,7 @@ export function AcknowledgeConfirmSection(
         .filter(Boolean)
         .join(" ")}
     >
-      <Text
-        as="h3"
-        className="text3 text-ehs-dark-bg"
-      >
+      <Text as="h3" className="text3 text-ehs-dark-bg">
         Please Confirm
       </Text>
       <label className="flex max-w-87.5 cursor-pointer items-start gap-2">

@@ -1,7 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 const columnHelper = createColumnHelper<PpeInventoryItem>();
 
@@ -21,11 +23,38 @@ export function makePpeInventoryColumns(
   const { selectedId, onViewMore } = handlers;
 
   return [
-    columnHelper.accessor("category", {
-      header: "Category",
-      size: 180,
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      cell: ({ row }) => {
+        const displayId = formatPpeDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+      meta: { align: "left" as const },
+    }),
+    columnHelper.accessor("itemName", {
+      header: "Item name",
+      size: 200,
       cell: (info) => (
         <span className="text4 text-ehs-darker">{info.getValue()}</span>
+      ),
+      meta: { align: "left" as const },
+    }),
+    columnHelper.accessor("category", {
+      header: "Category",
+      size: 160,
+      cell: (info) => (
+        <span className="text4 text-ehs-gray">{info.getValue()}</span>
       ),
       meta: { align: "left" as const },
     }),
@@ -68,8 +97,8 @@ export function makePpeInventoryColumns(
             className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
             aria-label={
               isOpen
-                ? `Close details for ${row.original.category}`
-                : `View ${row.original.category}`
+                ? `Close details for ${row.original.itemName}`
+                : `View ${row.original.itemName}`
             }
             onClick={(event) => {
               event.stopPropagation();

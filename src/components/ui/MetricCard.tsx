@@ -40,12 +40,17 @@ export type MetricCardProps = Readonly<{
   /** Unit shown next to the value, e.g. "TRIR", "%", "d". */
   unit?: string;
   /**
-   * Sparkline series, oldest → newest. Also the source of the delta badge, so
-   * the badge and the line can't tell two different stories.
+   * Sparkline series, oldest → newest. Used to derive the delta badge only
+   * when `delta` is omitted.
    */
   trend?: readonly number[];
-  /** Explicit delta. Only used when `trend` carries no usable series. */
-  delta?: number;
+  /** Explicit delta. Takes precedence over `trend`. `null` means no badge. */
+  delta?: number | null;
+  /**
+   * Weeks spanned by `delta`. 1 renders "vs last week"; larger renders
+   * "vs N weeks ago". Omit to render the delta bare.
+   */
+  deltaWeeks?: number;
   /** Numeric target, for `signalOwnedBy: "target"`. */
   target?: number;
   /**
@@ -136,13 +141,23 @@ function resolveCurrent(
 }
 
 /**
- * Movement across the whole window the sparkline draws — last point minus
- * first — so badge and line describe the same span.
+ * An explicit delta is authoritative — it comes from the API, which knows
+ * things the series does not (e.g. that days-without-LTI resets to zero on
+ * every incident). `null` means "no badge"; omit `delta` to derive from
+ * the series (the default for modules that only pass `trend`).
  */
 function resolveDelta(
   trend: readonly number[] | null,
-  explicitDelta: number | undefined,
+  explicitDelta: number | null | undefined,
 ): number | null {
+  if (explicitDelta != null && Number.isFinite(explicitDelta)) {
+    return explicitDelta;
+  }
+
+  if (explicitDelta === null) {
+    return null;
+  }
+
   if (trend) {
     const first = trend[0];
     const last = trend.at(-1);
@@ -151,9 +166,19 @@ function resolveDelta(
     }
   }
 
-  return explicitDelta != null && Number.isFinite(explicitDelta)
-    ? explicitDelta
-    : null;
+  return null;
+}
+
+function deltaPeriodLabel(deltaWeeks: number | undefined): string | undefined {
+  if (deltaWeeks == null) {
+    return undefined;
+  }
+
+  if (deltaWeeks === 1) {
+    return "vs last week";
+  }
+
+  return `vs ${String(deltaWeeks)} weeks ago`;
 }
 
 function formatDelta(delta: number): string {
@@ -261,26 +286,45 @@ function Sparkline(
 }
 
 const badgeClass =
-  "text8 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] font-bold tracking-[0.22px]";
+  "text8 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[3px] font-bold tracking-[0.22px]";
+
+function valueTextClass(value: string | number): string {
+  const classes = ["text2 text-ehs-dark-bg min-w-0 wrap-break-word"];
+  if (typeof value === "string" && !LEADING_NUMBER.test(value.trim())) {
+    classes.push("leading-7 tracking-normal");
+  }
+  return classes.join(" ");
+}
 
 function MetricBadge(
   props: Readonly<{
     delta: number | null;
+    deltaWeeks: number | undefined;
     icon: string | undefined;
     tone: MetricCardTone;
   }>,
 ) {
-  const { delta, icon, tone } = props;
+  const { delta, deltaWeeks, icon, tone } = props;
+  const periodLabel = deltaPeriodLabel(deltaWeeks);
 
   if (delta != null) {
+    const deltaText = formatDelta(delta);
+    const accessibleLabel = periodLabel
+      ? `${deltaText} ${periodLabel}`
+      : undefined;
+
     return (
-      <span className={[badgeClass, toneClasses[tone].badge].join(" ")}>
+      <span
+        className={[badgeClass, toneClasses[tone].badge].join(" ")}
+        title={periodLabel}
+        aria-label={accessibleLabel}
+      >
         <Icon
           icon={deltaIcon(delta)}
           className="size-2.75"
           aria-hidden="true"
         />
-        {formatDelta(delta)}
+        {deltaText}
       </span>
     );
   }
@@ -308,6 +352,7 @@ export function MetricCard(props: MetricCardProps) {
     unit,
     trend,
     delta: explicitDelta,
+    deltaWeeks,
     target,
     isMorePositive = true,
     signalOwnedBy = "isMorePositive",
@@ -339,15 +384,23 @@ export function MetricCard(props: MetricCardProps) {
           {title}
         </Text>
 
-        <MetricBadge delta={delta} icon={icon} tone={tone} />
+        <MetricBadge
+          delta={delta}
+          deltaWeeks={deltaWeeks}
+          icon={icon}
+          tone={tone}
+        />
       </div>
 
-      <div className="flex items-baseline gap-1.5">
-        <Text as="p" className="text2 text-ehs-dark-bg">
+      <div className="flex min-w-0 items-baseline gap-1.5">
+        <Text as="p" className={valueTextClass(value)}>
           {String(value)}
         </Text>
         {unit ? (
-          <Text as="span" className="text8 text-ehs-gray font-semibold uppercase">
+          <Text
+            as="span"
+            className="text8 text-ehs-gray font-semibold uppercase"
+          >
             {unit}
           </Text>
         ) : null}

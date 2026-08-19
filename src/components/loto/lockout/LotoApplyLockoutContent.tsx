@@ -2,18 +2,29 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
-  getLotoApplyLockoutContext,
+  toEnergySourceViews,
   type LotoApplyLockoutContext,
 } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import { getAuthDisplayName } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
+import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
+import { useApplyLotoLockoutMutation } from "@/hooks/use-loto-mutations";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import {
+  withLockPrefix,
+  withEquipmentPrefix,
+  splitEnergySources,
+} from "@/services/mappers/loto.mapper";
 import {
   LOTO_APPLY_FORM_ID,
   buildApplyLockoutSchema,
@@ -22,6 +33,11 @@ import {
 } from "./apply-lockout-schema";
 import { LotoApplyLockoutHeader } from "./LotoApplyLockoutHeader";
 import { LotoEnergySourcesPanel } from "./LotoEnergySourcesPanel";
+import { LotoQueryStatus } from "../LotoQueryStatus";
+
+/* The warning line's ink is pinned to #b45309 (amber-700): one step lighter
+   than `--ehs-yellow-ink` (#92400e) and far darker than `--ehs-yellow`, which
+   is the tint it sits on. */
 
 const fieldClass = [
   "gap-3.5",
@@ -33,43 +49,99 @@ const fieldClass = [
   "[&_textarea]:text4",
 ].join(" ");
 
+function toNumericId(idParam: string): number | null {
+  const trimmed = idParam.trim();
+  if (!/^\d+$/.test(trimmed)) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 export type LotoApplyLockoutContentProps = Readonly<{
   equipmentId: string;
 }>;
 
 export function LotoApplyLockoutContent(props: LotoApplyLockoutContentProps) {
   const { equipmentId } = props;
-  const context = useMemo(
-    () => getLotoApplyLockoutContext(equipmentId),
-    [equipmentId],
-  );
+  const hasToken = useHasAccessToken();
+  const numericId = toNumericId(equipmentId);
+  const detailQuery = useLotoEquipmentDetailQuery(numericId, hasToken === true);
+
+  const context = useMemo<LotoApplyLockoutContext | null>(() => {
+    const detail = detailQuery.data;
+    if (!detail) return null;
+
+    return {
+      equipmentId: detail.id,
+      equipmentName: detail.name,
+      equipmentCode: withEquipmentPrefix(detail.equipmentCode),
+      energySources: toEnergySourceViews(
+        splitEnergySources(detail.energySources),
+      ),
+      operatorName: getAuthDisplayName(),
+      canApply: detail.canApply,
+      cannotApplyReason: detail.cannotApplyReason,
+    };
+  }, [detailQuery.data]);
+
+  if (numericId === null) {
+    return <ApplyNotFound equipmentId={equipmentId} />;
+  }
+
+  if (hasToken === null || (hasToken && detailQuery.isLoading)) {
+    return <LotoQueryStatus state="loading" />;
+  }
+
+  if (detailQuery.isError) {
+    return (
+      <LotoQueryStatus
+        state="error"
+        message={getMutationErrorMessage(
+          detailQuery.error,
+          "Failed to load this equipment.",
+        )}
+      />
+    );
+  }
 
   if (!context) {
-    return (
-      <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-        <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-          <Text as="p" className="text4 text-ehs-darker font-semibold">
-            Equipment not found
-          </Text>
-          <Link
-            href={LOTO_ROUTE}
-            className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
-          >
-            Back to LOTO
-          </Link>
-        </IncidentGlassCard>
-      </div>
-    );
+    return <ApplyNotFound equipmentId={equipmentId} />;
   }
 
   return <LotoApplyLockoutForm context={context} />;
 }
 
-function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
+function ApplyNotFound(props: Readonly<{ equipmentId: string }>) {
+  return (
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+      <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
+        <Text as="p" className="text4 text-ehs-darker font-semibold">
+          Equipment not found
+        </Text>
+        <Text as="p" className="text4 text-ehs-muted-text mt-1">
+          {`No equipment matches “${props.equipmentId}”.`}
+        </Text>
+        <Link
+          href={LOTO_ROUTE}
+          className="text4 text-ehs-normal-blue mt-3 inline-block hover:underline"
+        >
+          Back to LOTO
+        </Link>
+      </IncidentGlassCard>
+    </div>
+  );
+}
+
+function LotoApplyLockoutForm(
+  props: Readonly<{ context: LotoApplyLockoutContext }>,
+) {
   const { context } = props;
-  const detailHref = lotoEquipmentDetailRoute(context.equipment.id);
+  const router = useRouter();
+  const detailHref = lotoEquipmentDetailRoute(context.equipmentId);
   const schema = useMemo(() => buildApplyLockoutSchema(), []);
   const [confirmed, setConfirmed] = useState(false);
+  const applyMutation = useApplyLotoLockoutMutation();
+
+  const canSubmit = confirmed && context.canApply && !applyMutation.isPending;
 
   const handleValid = (values: FormValues) => {
     if (!confirmed) {
@@ -77,20 +149,38 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
       return;
     }
 
-    const lockNumber = fieldString(values, "lockNumber").trim();
     const purpose = fieldString(values, "purpose").trim();
-    if (!lockNumber || !purpose) {
-      toast.error("Lock number and purpose are required");
+    if (!purpose) {
+      toast.error("Purpose of work is required");
       return;
     }
 
-    // Nothing is persisted: there is no LOTO service or mutation hook in the
-    // codebase at all. This previously waited 350ms to imitate a request, then
-    // toasted "Lockout applied" and navigated to the active-lockouts tab — so
-    // a lockout that was never recorded looked registered. Say so instead.
-    toast.error(
-      "Not available yet",
-      "Applying a lockout isn't connected to the backend, so nothing was saved.",
+    const expectedCompletion = fieldString(values, "expectedCompletion").trim();
+
+    applyMutation.mutate(
+      {
+        lotoEquipmentId: context.equipmentId,
+        purpose,
+        expectedCompletionAt:
+          expectedCompletion === "" ? null : expectedCompletion,
+        confirmationAccepted: true,
+      },
+      {
+        onSuccess: (result) => {
+          toast.success(
+            "Lockout applied",
+            result
+              ? `Lock ${withLockPrefix(result.lockNumber)} registered as ${result.logCode}.`
+              : undefined,
+          );
+          router.push(`${LOTO_ROUTE}?tab=active-lockouts`);
+        },
+        onError: (error) => {
+          toast.error(
+            getMutationErrorMessage(error, "Failed to apply the lockout."),
+          );
+        },
+      },
     );
   };
 
@@ -117,21 +207,28 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
             </div>
           </IncidentGlassCard>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[rgba(239,68,68,0.16)] bg-[rgba(239,68,68,0.04)] px-4.5 py-4">
+          {!context.canApply ? (
+            <p className="text4 border-ehs-yellow/30 bg-ehs-yellow/8 rounded-xl border px-4.5 py-3 font-medium text-ehs-warning-ink">
+              {context.cannotApplyReason ??
+                "This equipment cannot be locked out right now."}
+            </p>
+          ) : null}
+
+          <label className="border-ehs-red/16 bg-ehs-red/4 flex cursor-pointer items-start gap-3 rounded-xl border px-4.5 py-4">
             <input
               type="checkbox"
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
-              className="rounded-0.5 mt-0.5 size-4 shrink-0 border border-[#767676] accent-[#ef4444]"
+              className="rounded-0.5 accent-ehs-red mt-0.5 size-4 shrink-0 border border-[#767676]"
             />
             <span className="min-w-0">
-              <span className="text5 block text-[#ef4444]">
+              <span className="text5 text-ehs-red block">
                 Final Confirmation
               </span>
-              <span className="text4 mt-1 block font-medium text-[#566072]">
-                {`I have read, understood, and followed procedure `}
-                <span className="font-bold">{context.procedureId}</span>
-                {`. I confirm the machine cannot be started. I accept responsibility for this lockout.`}
+              <span className="text4 text-ehs-gray mt-1 block font-medium">
+                I have read, understood, and followed the energy control
+                procedure for this machine. I confirm the machine cannot be
+                started. I accept responsibility for this lockout.
               </span>
             </span>
           </label>
@@ -139,7 +236,7 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href={detailHref}
-              className="text4 rounded-2.5 inline-flex h-9.75 items-center gap-1.75 border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.62)] px-4 py-5.5 font-medium text-[#2a3446] transition-colors hover:bg-white"
+              className="text4 rounded-2.5 text-ehs-slate hover:bg-ehs-surface border-ehs-border-ink/14 bg-ehs-surface/62 inline-flex h-9.75 items-center gap-1.75 border px-4 py-5.5 font-medium transition-colors"
             >
               <Icon icon="mdi:arrow-left" className="size-3.5" />
               Cancel
@@ -148,11 +245,18 @@ function LotoApplyLockoutForm(props: { context: LotoApplyLockoutContext }) {
               type="submit"
               form={LOTO_APPLY_FORM_ID}
               variant="danger"
-              disabled={!confirmed}
-              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_rgba(239,68,68,0.4)] disabled:opacity-50"
+              disabled={!canSubmit}
+              title={
+                !context.canApply
+                  ? (context.cannotApplyReason ?? undefined)
+                  : undefined
+              }
+              className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
-              Confirm Lockout Applied
+              {applyMutation.isPending
+                ? "Applying…"
+                : "Confirm Lockout Applied"}
             </Button>
           </div>
         </div>

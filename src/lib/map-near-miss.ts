@@ -37,6 +37,11 @@ export function formatNearMissDisplayId(id: string): string {
   return id.startsWith("NM-") ? id : `NM-${id}`;
 }
 
+/** Strip the display prefix back off, e.g. "NM-3" -> "3", for API calls. */
+export function toNearMissApiId(displayId: string): string {
+  return displayId.replace(/^NM-/i, "");
+}
+
 export { formatAge };
 
 const NEAR_MISS_STATUSES: readonly NearMissStatus[] = [
@@ -89,7 +94,7 @@ function asOptionalNumber(value: unknown): number | undefined {
 }
 
 /**
- * Normalizes GET /api/NearMiss/NearMissKpi (camelCase or PascalCase).
+ * Normalizes GET /api/v1/near-misses/kpis (camelCase or PascalCase).
  */
 export function normalizeNearMissKpiDto(raw: unknown): NearMissKpiDto | null {
   if (!isRecord(raw)) return null;

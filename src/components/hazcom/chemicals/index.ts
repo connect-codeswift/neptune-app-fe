@@ -4,14 +4,17 @@ export type { ChemicalListViewProps } from "./ChemicalListView";
 export { ChemicalListTable } from "./ChemicalListTable";
 export type { ChemicalListTableProps } from "./ChemicalListTable";
 
-export { ChemicalAddView } from "./ChemicalAddView";
-export type { ChemicalAddViewProps } from "./ChemicalAddView";
-
 export { ChemicalEditView } from "./ChemicalEditView";
 export type { ChemicalEditViewProps } from "./ChemicalEditView";
 
+export { ChemicalEditHeader } from "./ChemicalEditHeader";
+export type { ChemicalEditHeaderProps } from "./ChemicalEditHeader";
+
 export { ChemicalDetailView } from "./ChemicalDetailView";
 export type { ChemicalDetailViewProps } from "./ChemicalDetailView";
+
+export { ChemicalDetailHeader } from "./ChemicalDetailHeader";
+export type { ChemicalDetailHeaderProps } from "./ChemicalDetailHeader";
 
 export { ChemicalForm } from "./ChemicalForm";
 export type { ChemicalFormProps } from "./ChemicalForm";

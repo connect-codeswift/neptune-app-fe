@@ -40,7 +40,7 @@ export type ModuleFilterBarProps = Readonly<{
 }>;
 
 const shellClass =
-  "flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-white/60 px-4 py-3 shadow-md sm:px-5";
+  "flex w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-3 rounded-xl bg-ehs-surface/60 px-4 py-3 shadow-md sm:px-5";
 
 function toOptions(
   options: ModuleFilterSegment["options"],
@@ -72,8 +72,8 @@ function FilterSegment(props: ModuleFilterSegment) {
           onChange={(event) => onChange(event.target.value)}
           aria-label={label}
           className={[
-            "border-ehs-border text4 text-ehs-dark-bg min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border bg-white/60 py-1.5 pr-8 pl-2.5 outline-none",
-            "hover:bg-black/5 focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15",
+            "border-ehs-border text4 text-ehs-dark-bg bg-ehs-surface/60 min-h-9 w-full min-w-36 cursor-pointer appearance-none rounded-lg border py-1.5 pr-8 pl-2.5 outline-none",
+            "focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/15 hover:bg-ehs-surface-inverse/5",
             "disabled:cursor-not-allowed disabled:opacity-50",
           ].join(" ")}
         >
@@ -93,7 +93,7 @@ function FilterSegment(props: ModuleFilterSegment) {
         />
       </div>
 
-      <div className="border-ehs-border hidden flex-wrap items-center gap-1 rounded-lg border bg-white/60 px-1 py-1 xl:flex">
+      <div className="border-ehs-border bg-ehs-surface/60 hidden flex-wrap items-center gap-1 rounded-lg border px-1 py-1 xl:flex">
         {normalized.map((option) => {
           const isActive = value === option.value;
 
@@ -106,8 +106,8 @@ function FilterSegment(props: ModuleFilterSegment) {
               className={[
                 "text4 cursor-pointer rounded-md px-2 py-1 font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50",
                 isActive
-                  ? "bg-ehs-dark-bg text-ehs-light-text"
-                  : "text-ehs-gray hover:bg-black/5",
+                  ? "bg-ehs-surface-inverse text-ehs-surface-inverse-text"
+                  : "text-ehs-gray hover:bg-ehs-surface-inverse/5",
               ].join(" ")}
             >
               {option.label}
@@ -147,7 +147,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
               type="button"
               onClick={secondaryAction.onClick}
               className={[
-                "border-ehs-border text-ehs-darker inline-flex min-h-9 cursor-pointer items-center justify-center border bg-white/80 shadow-sm hover:bg-black/5",
+                "border-ehs-border text-ehs-darker bg-ehs-surface/80 hover:bg-ehs-surface-inverse/5 inline-flex min-h-9 cursor-pointer items-center justify-center border shadow-sm",
                 TABLE_HEADER_SECONDARY_ACTION_CLASS,
               ].join(" ")}
             >
@@ -165,7 +165,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
               type="button"
               onClick={action.onClick}
               className={[
-                "btn-sweep bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex min-h-9 cursor-pointer items-center justify-center shadow-sm",
+                "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex min-h-9 cursor-pointer items-center justify-center shadow-sm",
                 TABLE_HEADER_ACTION_CLASS,
               ].join(" ")}
             >

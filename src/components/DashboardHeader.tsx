@@ -7,7 +7,7 @@ import { Text } from "@/components/Text";
 
 export type DashboardHeaderProps = Readonly<{
   title?: string;
-  /** When true (default), loads org + sites from GET /Auth/Org/me. */
+  /** When true (default), loads org + sites from GET /api/v1/organizations/me. */
   showSiteSwitcher?: boolean;
   actionLabel?: string;
   className?: string;

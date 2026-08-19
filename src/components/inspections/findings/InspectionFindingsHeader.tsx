@@ -21,7 +21,7 @@ export function InspectionFindingsHeader(props: InspectionFindingsHeaderProps) {
   const { inspectionId, subtitle, onGenerateReport } = props;
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+    <div className="backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
       <nav
         aria-label="Breadcrumb"
         className="relative z-1 flex min-w-0 flex-wrap items-center gap-1"
@@ -29,7 +29,7 @@ export function InspectionFindingsHeader(props: InspectionFindingsHeaderProps) {
         <span className={crumbMuted}>Compliance</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <Link href="/dashboard/inspections" className={crumbLink}>
@@ -37,13 +37,13 @@ export function InspectionFindingsHeader(props: InspectionFindingsHeaderProps) {
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <span className={`${crumbMuted} truncate`}>{inspectionId}</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <span className={crumbMuted}>Findings</span>
@@ -66,7 +66,7 @@ export function InspectionFindingsHeader(props: InspectionFindingsHeaderProps) {
             type="button"
             variant="primary"
             onClick={onGenerateReport}
-            className={`${actionClass} shrink-0 !border-transparent !shadow-none`}
+            className={`${actionClass} shrink-0 border-transparent! shadow-none!`}
           >
             <Icon
               icon="mdi:file-document-outline"

@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PpeCatalogDetail } from "@/app/dashboard/ppe-management/ppe-data";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 export type PpeDetailPanelProps = Readonly<{
   /** Mapped GET /api/ppe/{id} payload for the fields this card shows. */
@@ -86,7 +87,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -105,7 +106,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -137,7 +138,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (!item) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
@@ -159,12 +160,12 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {item.standard}
+            {formatPpeDisplayId(item.id)}
           </Text>
 
           <Link
             href={`${CATALOG_ROUTE}/${encodeURIComponent(item.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text4 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text4 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

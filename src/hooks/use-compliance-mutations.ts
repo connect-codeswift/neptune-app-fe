@@ -37,19 +37,21 @@ async function invalidateComplianceSummaries(queryClient: QueryClient) {
   ]);
 }
 
-/** POST /api/Compliance/AddCompliance */
+/** POST /api/v1/compliance-records */
 export function useAddComplianceMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: AddComplianceRequestDto) => addCompliance(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+      await queryClient.invalidateQueries({
+        queryKey: complianceQueryKeys.all,
+      });
     },
   });
 }
 
-/** PUT /api/Compliance/Update — mark obligation complete. */
+/** PUT /api/v1/compliance-records/{id} — mark obligation complete. */
 export function useMarkCompleteComplianceMutation() {
   const queryClient = useQueryClient();
 
@@ -67,7 +69,7 @@ export function useMarkCompleteComplianceMutation() {
   });
 }
 
-/** DELETE /api/Compliance/{id} */
+/** DELETE /api/v1/compliance-records/{id} */
 export function useDeleteComplianceMutation() {
   const queryClient = useQueryClient();
 
@@ -75,7 +77,9 @@ export function useDeleteComplianceMutation() {
     mutationFn: (id: number) => deleteCompliance(id),
     onSuccess: async (_data, id) => {
       queryClient.removeQueries({ queryKey: complianceQueryKeys.detail(id) });
-      await queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+      await queryClient.invalidateQueries({
+        queryKey: complianceQueryKeys.all,
+      });
     },
   });
 }

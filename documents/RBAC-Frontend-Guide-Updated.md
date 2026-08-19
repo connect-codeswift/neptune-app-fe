@@ -61,16 +61,16 @@ symbols to `@$!%*?&`, so a password like `Hamid.123` was rejected here but accep
 
 ## 2. Breaking — the role names changed
 
-| Old | New |
-|---|---|
-| `Ehs_Director` | `Ehs_Director` — unchanged |
-| — | `Ehs_Lead` — **new** |
-| `Ehs_Manager` | `Ehs_Manager` — unchanged |
-| `Ehs_Analyst` | **`Supervisor`** |
-| `Ehs_Associate` | **`Worker`** |
-| `Admin` | **removed** |
-| `Primary_Admin` | **removed** |
-| `Manager` | **removed** |
+| Old             | New                        |
+| --------------- | -------------------------- |
+| `Ehs_Director`  | `Ehs_Director` — unchanged |
+| —               | `Ehs_Lead` — **new**       |
+| `Ehs_Manager`   | `Ehs_Manager` — unchanged  |
+| `Ehs_Analyst`   | **`Supervisor`**           |
+| `Ehs_Associate` | **`Worker`**               |
+| `Admin`         | **removed**                |
+| `Primary_Admin` | **removed**                |
+| `Manager`       | **removed**                |
 
 Anywhere the app compares a role name — route guards, conditional rendering, labels, filters
 — must be updated. The role arrives in the JWT as the standard role claim.
@@ -97,26 +97,26 @@ authority defining company-wide roles would rebuild the escalation the audit fla
 
 Use this to decide what to show. The API enforces it regardless.
 
-| | Director | Lead | Manager | Supervisor | Worker |
-|---|:--:|:--:|:--:|:--:|:--:|
-| Admin portal (users, roles, sites) | ✓ | — | — | — | — |
-| Everything else in the app | ✓ | ✓ | — | — | — |
-| Delete / drop records | ✓ | ✓ | — | — | — |
-| Reopen a closed audit or inspection | ✓ | ✓ | — | — | — |
-| Templates (audit, inspection) | ✓ | ✓ | ✓ | — | — |
-| PPE catalogue, LOTO equipment register | ✓ | ✓ | ✓ | — | — |
-| Set KPI targets | ✓ | ✓ | ✓ | — | — |
-| Close an incident | ✓ | ✓ | ✓ | — | — |
-| Create / update CAPA, RCA, compliance | ✓ | ✓ | ✓ | ✓ | — |
-| Report an incident | ✓ | ✓ | ✓ | ✓ | — |
-| Apply / remove a lockout, issue PPE | ✓ | ✓ | ✓ | ✓ | — |
-| BBS observations, walk-and-talks | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Report a hazard or near miss | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Complete an audit / inspection | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Read safety data sheets (HazCom) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| See which machines are locked out | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Read controlled documents | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Request a PPE replacement | ✓ | ✓ | ✓ | ✓ | ✓ |
+|                                        | Director | Lead | Manager | Supervisor | Worker |
+| -------------------------------------- | :------: | :--: | :-----: | :--------: | :----: |
+| Admin portal (users, roles, sites)     |    ✓     |  —   |    —    |     —      |   —    |
+| Everything else in the app             |    ✓     |  ✓   |    —    |     —      |   —    |
+| Delete / drop records                  |    ✓     |  ✓   |    —    |     —      |   —    |
+| Reopen a closed audit or inspection    |    ✓     |  ✓   |    —    |     —      |   —    |
+| Templates (audit, inspection)          |    ✓     |  ✓   |    ✓    |     —      |   —    |
+| PPE catalogue, LOTO equipment register |    ✓     |  ✓   |    ✓    |     —      |   —    |
+| Set KPI targets                        |    ✓     |  ✓   |    ✓    |     —      |   —    |
+| Close an incident                      |    ✓     |  ✓   |    ✓    |     —      |   —    |
+| Create / update CAPA, RCA, compliance  |    ✓     |  ✓   |    ✓    |     ✓      |   —    |
+| Report an incident                     |    ✓     |  ✓   |    ✓    |     ✓      |   —    |
+| Apply / remove a lockout, issue PPE    |    ✓     |  ✓   |    ✓    |     ✓      |   —    |
+| BBS observations, walk-and-talks       |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| Report a hazard or near miss           |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| Complete an audit / inspection         |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| Read safety data sheets (HazCom)       |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| See which machines are locked out      |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| Read controlled documents              |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
+| Request a PPE replacement              |    ✓     |  ✓   |    ✓    |     ✓      |   ✓    |
 
 **A Worker cannot report an incident** — hazards and near misses only, by decision.
 
@@ -131,7 +131,7 @@ scope isn't a permission — it comes from the `SiteId` in the token, and
 The token carries ~167 UI permission claims (`page:dashboard`, `button:report-hazard`, …).
 **All five roles now receive all of them.**
 
-That's a deliberate restore — a bug meant `Supervisor` and `Worker` received *none* on newly
+That's a deliberate restore — a bug meant `Supervisor` and `Worker` received _none_ on newly
 created companies, so those users saw no pages and no buttons at all.
 
 The consequence: **these claims currently do no filtering.**
@@ -153,16 +153,16 @@ and saving a role no longer strips the hidden flags.
 
 ### Removed — these now 404
 
-| Endpoint | Why |
-|---|---|
-| `POST /api/Auth/assign-permissions` | Ungated; let any logged-in user grant any permission to any role |
-| `GET /api/Auth/all-Permissions` | Fed the ids that made the above practical |
-| `GET /api/Auth/AllRolesPermissions` | Same |
-| `POST /api/Auth/CreateRole` | Ungated role creation |
-| `GET /api/Auth/GetAllRoles` | Ungated |
-| `GET /api/Auth/GetUsersByOrganizationId/{id}` | Took the org id from the URL — walked every company's roster |
-| `GET /api/Auth/GetSitesByOrganizationId/{id}` | Same |
-| `DELETE /api/Auth/DeleteDemoUser/{id}` | Ungated |
+| Endpoint                                      | Why                                                              |
+| --------------------------------------------- | ---------------------------------------------------------------- |
+| `POST /api/Auth/assign-permissions`           | Ungated; let any logged-in user grant any permission to any role |
+| `GET /api/Auth/all-Permissions`               | Fed the ids that made the above practical                        |
+| `GET /api/Auth/AllRolesPermissions`           | Same                                                             |
+| `POST /api/Auth/CreateRole`                   | Ungated role creation                                            |
+| `GET /api/Auth/GetAllRoles`                   | Ungated                                                          |
+| `GET /api/Auth/GetUsersByOrganizationId/{id}` | Took the org id from the URL — walked every company's roster     |
+| `GET /api/Auth/GetSitesByOrganizationId/{id}` | Same                                                             |
+| `DELETE /api/Auth/DeleteDemoUser/{id}`        | Ungated                                                          |
 
 **Confirmed: none of the five frontends call any of them.** The only match anywhere is
 `neptune-admin-fe/.docs/swagger.json`, a stale API spec — worth regenerating, but not code.
@@ -185,7 +185,7 @@ you aren't on returns an error rather than the roster.
 If any screen lists or assigns permissions, these are new: `Compliance.Create`,
 `Compliance.View`, `Compliance.Update`, `Compliance.Delete`, `PPE.Issue`, `PPE.Request`.
 
-`PPE.Create` used to cover the catalogue, issuing, inspection *and* a worker's own
+`PPE.Create` used to cover the catalogue, issuing, inspection _and_ a worker's own
 replacement request. It now means the catalogue only — `PPE.Issue` covers issuing and
 inspection, `PPE.Request` covers the replacement request.
 
@@ -205,7 +205,7 @@ are read from your token, not from what you send. Leaving them in place is harml
 
 ### PPE permissions split
 
-`PPE.Create` used to gate the catalogue, issuing, inspection *and* a worker's own replacement
+`PPE.Create` used to gate the catalogue, issuing, inspection _and_ a worker's own replacement
 request. Now: `PPE.Create` is the catalogue only, `PPE.Issue` covers issuing and inspection,
 `PPE.Request` covers the replacement request. No route changed — only who can call them.
 

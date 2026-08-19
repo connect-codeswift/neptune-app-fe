@@ -62,7 +62,7 @@ function TemplatePreview(
         Preview
       </h3>
 
-      <div className="flex flex-col gap-2 rounded-xl border border-slate-900/10 bg-white p-4">
+      <div className="border-ehs-border-ink/10 bg-ehs-surface flex flex-col gap-2 rounded-xl border p-4">
         <span
           className={
             name ? "text-ehs-dark-bg font-semibold" : "text-ehs-muted-text"
@@ -135,7 +135,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   const updateTemplate = useUpdateInspectionTemplateMutation();
   const publishTemplate = usePublishInspectionTemplateMutation();
 
-  /** Publish an already-saved template via POST /api/InspectionTemplate/{id}/publish. */
+  /** Publish an already-saved template via POST /api/v1/inspection-templates/{id}/publish. */
   const publishSavedTemplate = (
     templateId: string,
     onSuccess: () => void,
@@ -305,18 +305,18 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       {/* Header */}
-      <div className="backdrop-blur-2.5 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6">
+      <div className="backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1">
             <Link
               href={TEMPLATES_ROUTE}
-              className="text8 text-ehs-muted-text transition-colors hover:text-ehs-gray"
+              className="text8 text-ehs-muted-text hover:text-ehs-gray transition-colors"
             >
               Templates
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-3 shrink-0 text-[#8892a3]"
+              className="text-ehs-muted-text size-3 shrink-0"
               aria-hidden="true"
             />
             <Text as="span" className="text8 text-ehs-gray">
@@ -336,7 +336,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         <button
           type="button"
           onClick={handleSaveDraft}
-          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors"
+          className="text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 font-medium transition-colors"
         >
           <Icon
             icon="mdi:content-save-outline"
@@ -424,7 +424,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => router.push(TEMPLATES_ROUTE)}
-            className="text-ehs-dark-bg cursor-pointer rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/12 bg-ehs-surface cursor-pointer border px-5 py-2.5 font-medium transition-colors"
           >
             Cancel
           </button>
@@ -432,7 +432,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => setStep(step - 1)}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 border px-5 py-2.5 font-medium transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -449,7 +449,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors"
+              className="text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 font-medium transition-colors"
             >
               <Icon
                 icon="mdi:content-save-outline"
@@ -464,7 +464,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               type={step === 1 ? "submit" : "button"}
               form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
               onClick={step === 1 ? undefined : handleNext}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-2.5 px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ehs-on-accent shadow-(--ehs-shadow-button-primary-flat) transition-colors"
             >
               <Icon
                 icon="mdi:arrow-right"

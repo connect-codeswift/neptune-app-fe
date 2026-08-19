@@ -6,6 +6,7 @@ import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import { toTitleCase } from "@/lib/string";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceDetailBannerCardProps = Readonly<{
@@ -27,7 +28,12 @@ function statusTone(
 }
 
 function headerSubtitle(detail: ComplianceObligationDetail): string {
-  const parts = [detail.code, detail.category, detail.regulatoryBody]
+  const parts = [
+    formatComplianceDisplayId(detail.id),
+    detail.code,
+    detail.category,
+    detail.regulatoryBody,
+  ]
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && part !== "—");
   return parts.join(" · ");
@@ -46,7 +52,7 @@ export function RegulatoryComplianceDetailBannerCard(
   return (
     <div
       className={[
-        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6",
+        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6",
         className,
       ]
         .filter(Boolean)
@@ -59,7 +65,7 @@ export function RegulatoryComplianceDetailBannerCard(
         <span className={crumbMuted}>Safety</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="size-3 shrink-0 text-ehs-muted-text"
           aria-hidden="true"
         />
         <Link href="/dashboard/regulatory-compliance" className={crumbLink}>
@@ -67,10 +73,12 @@ export function RegulatoryComplianceDetailBannerCard(
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="size-3 shrink-0 text-ehs-muted-text"
           aria-hidden="true"
         />
-        <span className={`${crumbMuted} truncate`}>{detail.code}</span>
+        <span className={`${crumbMuted} truncate`}>
+          {formatComplianceDisplayId(detail.id)}
+        </span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-wrap items-start justify-between gap-3">

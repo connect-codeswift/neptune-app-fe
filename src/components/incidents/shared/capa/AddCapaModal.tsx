@@ -87,13 +87,15 @@ function StepBadge(props: Readonly<{ step: string }>) {
   const { step } = props;
 
   return (
-    <span className="bg-ehs-normal-blue text-ehs-light-text inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[1.5px] pb-[2.5px] text-sm leading-5">
+    <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
       {step}
     </span>
   );
 }
 
-function FieldLabel(props: Readonly<{ children: string; required?: boolean; htmlFor?: string }>) {
+function FieldLabel(
+  props: Readonly<{ children: string; required?: boolean; htmlFor?: string }>,
+) {
   return <CapaModalFieldLabel {...props} />;
 }
 
@@ -138,7 +140,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   );
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
-  const busy = isSubmitting || isLocalSubmitting || isCreatingTask || isDeletingTask;
+  const busy =
+    isSubmitting || isLocalSubmitting || isCreatingTask || isDeletingTask;
   const canSubmit =
     controlLevel != null && description.trim().length > 0 && !busy;
   const modalCapaId = capaToEdit?.code ?? capaId;
@@ -207,8 +210,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
       }
     >
       <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-8 lg:gap-12">
-          <section className="w-full shrink-0 md:w-80 lg:w-95">
-            <div className="mb-4 flex flex-col gap-1.25 sm:mb-6">
+        <section className="w-full shrink-0 md:w-80 lg:w-95">
+          <div className="mb-4 flex flex-col gap-1.25 sm:mb-6">
             <div className="flex items-center gap-2.5">
               <StepBadge step="1" />
               <Text
@@ -224,13 +227,13 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
             >
               Most → least effective. Prefer higher-order controls.
             </Text>
-            </div>
+          </div>
 
-            <CapaHierarchySelector
-              value={controlLevel}
-              onChange={setControlLevel}
-            />
-          </section>
+          <CapaHierarchySelector
+            value={controlLevel}
+            onChange={setControlLevel}
+          />
+        </section>
 
         <section className="min-w-0 flex-1">
           <div className="mb-4 flex items-center gap-2.5 sm:mb-6">
@@ -374,7 +377,8 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
     await onDeleteTask?.(taskId);
   };
 
-  const addTaskCapaCode = isEditMode && capaToEdit ? capaToEdit.code : `new ${capaId}`;
+  const addTaskCapaCode =
+    isEditMode && capaToEdit ? capaToEdit.code : `new ${capaId}`;
   const savedTasks = tasksQuery.data ?? [];
   const initialDescription = capaToEdit?.description ?? "";
   const initialOwner = capaToEdit?.assignee ?? "";

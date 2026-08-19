@@ -22,7 +22,7 @@ export function HazcomOverviewPageClient() {
   const overview = useHazcomOverview();
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-5 px-4 pb-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3.5 px-4 pb-8">
       <HazcomModuleTabs />
 
       <HazcomPageHeader
@@ -46,8 +46,8 @@ export function HazcomOverviewPageClient() {
           <div className="grid gap-4 xl:grid-cols-2">
             <HazcomRecentChemicalAdditionsCard overview={overview} />
             <HazcomSdsStatusOverviewCard overview={overview} />
-            <HazcomTrainingComplianceCard />
-            <HazcomUpcomingDeadlinesCard />
+            <HazcomTrainingComplianceCard overview={overview} />
+            <HazcomUpcomingDeadlinesCard overview={overview} />
           </div>
         </>
       )}

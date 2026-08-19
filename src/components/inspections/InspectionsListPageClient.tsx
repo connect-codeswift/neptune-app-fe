@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DashboardHeader } from "@/components/DashboardHeader";
@@ -22,6 +22,7 @@ import {
   useInspectionSummaryQuery,
 } from "@/hooks/use-inspection-queries";
 import { mapInspectionDtoToRecord } from "@/lib/map-inspection";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   mapInspectionDetailSummaryToDetail,
   mapSummaryToMetrics,
@@ -70,6 +71,7 @@ export function InspectionsListPageClient() {
     return records.filter((record) => {
       const haystack = [
         record.id,
+        formatRecordDisplayId("I", record.id),
         record.title,
         record.scope,
         record.site,
@@ -92,6 +94,8 @@ export function InspectionsListPageClient() {
         records.find((record) => record.id === selectedId) ??
         null);
 
+  const activeId = selectedRecord?.id ?? null;
+
   const detailSummaryQuery = useInspectionDetailSummaryQuery(
     selectedRecord?.id ?? null,
   );
@@ -105,12 +109,6 @@ export function InspectionsListPageClient() {
     [summaryQuery.data],
   );
 
-  useEffect(() => {
-    if (selectedId != null && selectedRecord == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedRecord]);
-
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
   }, []);
@@ -120,11 +118,11 @@ export function InspectionsListPageClient() {
   const columns = useMemo(
     () =>
       createInspectionColumns({
-        selectedId,
+        selectedId: activeId,
         onViewMore: handleToggleDetailPanel,
         expanded: !isPanelOpen,
       }),
-    [selectedId, handleToggleDetailPanel, isPanelOpen],
+    [activeId, handleToggleDetailPanel, isPanelOpen],
   );
 
   const resultLabel = `${String(filteredRecords.length)} ${
@@ -228,7 +226,7 @@ export function InspectionsListPageClient() {
               variant="compliance"
               data={filteredRecords}
               columns={columns}
-              selectedRowId={selectedId}
+              selectedRowId={activeId}
               getRowId={(row) => row.id}
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",

@@ -19,6 +19,14 @@ import type {
   PpeItemDto,
   PpeKpiDto,
 } from "@/dtos/res/ppe-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
+
+/** Display form of a PPE catalog id, e.g. `1008` → `"PPE-1008"`. */
+export function formatPpeDisplayId(
+  id: string | number | null | undefined,
+): string {
+  return formatRecordDisplayId("PPE", id);
+}
 
 /** Turn GET /api/ppe rows into select options for the issue form. */
 export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
@@ -34,6 +42,21 @@ export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {
 
     return [{ value: String(item.id), label }];
   });
+}
+
+/**
+ * Turn GET /api/ppe rows into chip options for a required-PPE picker
+ * (LOTO procedure). Value is the catalog id; label is the item's display name,
+ * sorted so the chip order does not shift with API row order.
+ */
+export function toPpeChipOptions(items: readonly PpeItemDto[]): SelectOption[] {
+  return items
+    .flatMap((item) =>
+      item.id === undefined
+        ? []
+        : [{ value: String(item.id), label: toItemDisplayName(item) }],
+    )
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 /** Parse comma-separated sizes (e.g. "S,M,L,XL,XXL") into select options. */
@@ -532,6 +555,7 @@ export function toPpeInventoryItems(
     return [
       {
         id: String(item.id),
+        itemName: toItemDisplayName(item),
         category: item.category?.trim() || "—",
         protectionType: item.category?.trim(),
         onHand,

@@ -28,10 +28,7 @@ export function IncidentClosureStepReview(
         >
           Digital Sign-off & Submission
         </Text>
-        <Text
-          as="p"
-          className="text-ehs-gray mt-2 text4 leading-5 font-normal"
-        >
+        <Text as="p" className="text-ehs-gray text4 mt-2 leading-5 font-normal">
           Closing this incident creates a legal compliance record. Verification
           of security credentials and multi-factor authorization is requested to
           finalize digital signatures.
@@ -46,7 +43,7 @@ export function IncidentClosureStepReview(
         <Text as="p" className="text-ehs-dark-bg text4 font-bold">
           {data.closedBy || "Not recorded"}
         </Text>
-        <Text as="p" className="text-ehs-gray mt-0.5 text4 font-normal">
+        <Text as="p" className="text-ehs-gray text4 mt-0.5 font-normal">
           {[data.closedByRole, data.closureDate].filter(Boolean).join(" · ") ||
             "Role and date not recorded"}
         </Text>
@@ -62,12 +59,12 @@ export function IncidentClosureStepReview(
           className={[
             "flex size-5 shrink-0 items-center justify-center rounded transition-colors",
             isConfirmed
-              ? "bg-ehs-normal-blue text-ehs-light-text"
-              : "border-ehs-border border bg-white",
+              ? "bg-ehs-normal-blue text-ehs-on-accent"
+              : "border-ehs-border bg-ehs-surface border",
           ].join(" ")}
         >
           {isConfirmed ? (
-            <Icon icon="mdi:check" className="size-4 stroke-[3]" />
+            <Icon icon="mdi:check" className="size-4 stroke-3" />
           ) : null}
         </div>
         <Text as="span" className="text-ehs-dark-bg text4 font-bold">

@@ -59,7 +59,7 @@ export function HazcomPictogramChip(props: Readonly<HazcomPictogramChipProps>) {
     "text5 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-colors",
     selected
       ? "border-ehs-normal-blue bg-ehs-normal-blue-bg-light text-ehs-dark-blue"
-      : "border-ehs-border bg-white/60 text-ehs-gray",
+      : "border-ehs-border bg-ehs-surface/60 text-ehs-gray",
   ]
     .filter(Boolean)
     .join(" ");

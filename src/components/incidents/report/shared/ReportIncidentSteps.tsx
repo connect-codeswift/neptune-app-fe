@@ -20,10 +20,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
   return (
     <IncidentGlassCard
       paddingClassName="p-3.5"
-      className={[
-        "w-full md:sticky md:top-0 md:w-55 md:shrink-0",
-        className,
-      ]
+      className={["w-full md:sticky md:top-0 md:w-55 md:shrink-0", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -45,18 +42,18 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
               type="button"
               onClick={() => onStepChange(step.id)}
               className={[
-                "flex w-full items-start gap-2.5 rounded-2.5 p-2.5 text-left transition-colors",
+                "rounded-2.5 flex w-full items-start gap-2.5 p-2.5 text-left transition-colors",
                 isActive ? "bg-ehs-normal-blue/18" : "hover:bg-ehs-light-bg/80",
               ].join(" ")}
             >
               <span
                 className={[
-                  "inline-flex size-5.5 shrink-0 items-center justify-center rounded-2.75 text-xs font-bold",
+                  "rounded-2.75 inline-flex size-5.5 shrink-0 items-center justify-center text-xs font-bold",
                   isComplete
-                    ? "bg-ehs-green text-ehs-light-text"
+                    ? "bg-ehs-green text-ehs-on-accent"
                     : isActive
-                      ? "bg-ehs-normal-blue text-ehs-light-text"
-                      : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-white/82",
+                      ? "bg-ehs-normal-blue text-ehs-on-accent"
+                      : "text-ehs-gray border-ehs-border-strong bg-ehs-surface/82 border",
                 ].join(" ")}
               >
                 {isComplete ? (
@@ -75,8 +72,8 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
                   className={[
                     "leading-normal",
                     isActive
-                      ? "text-ehs-dark-blue text-[12.3px] font-bold"
-                      : "text-ehs-dark-bg text-[12.3px] font-normal",
+                      ? "text-ehs-dark-blue text-[12px] font-bold"
+                      : "text-ehs-dark-bg text-[12px] font-normal",
                   ].join(" ")}
                 >
                   {step.title}
@@ -93,7 +90,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
         })}
       </div>
 
-      <div className="mt-4.5 border-t border-[rgba(15,23,42,0.08)] px-2 pt-3">
+      <div className="border-ehs-border-ink/8 mt-4.5 border-t px-2 pt-3">
         <div className="mb-1.5 flex items-center justify-between">
           <Text as="span" className="text-ehs-muted-text text-xs">
             Progress

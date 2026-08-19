@@ -53,7 +53,7 @@ export function IncidentDetailInfoCard(
 
       <div className="grid grid-cols-1 gap-x-4.5 gap-y-4.5 sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="text-ehs-muted-text col-span-full py-6 text-center text4">
+          <div className="text-ehs-muted-text text4 col-span-full py-6 text-center">
             No incident detail fields returned by the API.
           </div>
         ) : (
@@ -63,9 +63,7 @@ export function IncidentDetailInfoCard(
 
             return (
               <div key={item.key} className="flex flex-col gap-0.75">
-                <span className="text-ehs-muted-text text6">
-                  {item.label}
-                </span>
+                <span className="text-ehs-muted-text text6">{item.label}</span>
                 {canEdit && kind === "yesno" ? (
                   <GlassSelect
                     options={YES_NO_OPTIONS}

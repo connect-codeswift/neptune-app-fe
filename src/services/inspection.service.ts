@@ -20,7 +20,7 @@ import {
   normalizeSummaryDto,
 } from "@/lib/map-audit-inspection-dashboard";
 
-const INSPECTION_PATH = "/Inspection";
+const INSPECTION_PATH = "/inspections";
 
 function buildRegisterQueryParams(params: RegisterListParams) {
   return {

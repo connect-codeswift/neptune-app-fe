@@ -114,10 +114,7 @@ export type IncidentClosureData = Readonly<{
   /** Furthest step unlocked via Proceed — sidebar cannot jump beyond this. */
   maxAccessibleStep: 1 | 2 | 3 | 4;
   closureStatus:
-    | "Pending Checklist"
-    | "Ready for Closure"
-    | "Closed"
-    | "Under Review";
+    "Pending Checklist" | "Ready for Closure" | "Closed" | "Under Review";
   closureId?: string;
   closedAt?: string;
   closedBy: string;

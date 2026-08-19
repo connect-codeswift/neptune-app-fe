@@ -9,13 +9,12 @@ import {
 } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import {
-  CLOUDINARY_MAX_BYTES,
-  formatFileSize,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, formatFileSize, isPdfMimeType } from "@/lib/files";
 
-const ACCEPT = "application/pdf,.pdf";
+const DEFAULT_ACCEPT = "application/pdf,.pdf";
+const DEFAULT_MAX_BYTES = getFileMaxBytes("Document");
+const DEFAULT_EMPTY_HINT = `PDF — Max ${formatFileSize(DEFAULT_MAX_BYTES)}`;
+const DEFAULT_INVALID_MESSAGE = "Only PDF files are allowed.";
 
 export type UploadDocumentDropzoneProps = Readonly<{
   file: File | null;
@@ -23,6 +22,15 @@ export type UploadDocumentDropzoneProps = Readonly<{
   error?: string | null;
   isUploading?: boolean;
   uploadedLabel?: string | null;
+  /** Defaults to PDF-only (Policy Maker). Override for other modules. */
+  accept?: string;
+  /** Helper line under the drop prompt when no file is selected. */
+  emptyHint?: string;
+  /**
+   * Return an error message to reject the file, or `null` to accept.
+   * Defaults to PDF-only validation.
+   */
+  validateFile?: (file: File) => string | null;
   className?: string;
 }>;
 
@@ -30,9 +38,19 @@ function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
 
+function defaultValidateFile(file: File): string | null {
+  if (!isPdfFile(file)) {
+    return DEFAULT_INVALID_MESSAGE;
+  }
+  if (file.size > DEFAULT_MAX_BYTES) {
+    return `File must be ${formatFileSize(DEFAULT_MAX_BYTES)} or smaller.`;
+  }
+  return null;
+}
+
 /**
- * PDF drag-and-drop zone (Figma 5568:24716).
- * Validates PDF-only + Cloudinary size limit; parent uploads to Cloudinary.
+ * Shared drag-and-drop upload zone (Figma 5568:24716).
+ * Policy Maker uses PDF defaults; other modules pass accept / validateFile.
  */
 export function UploadDocumentDropzone(
   props: Readonly<UploadDocumentDropzoneProps>,
@@ -43,6 +61,9 @@ export function UploadDocumentDropzone(
     error = null,
     isUploading = false,
     uploadedLabel = null,
+    accept = DEFAULT_ACCEPT,
+    emptyHint = DEFAULT_EMPTY_HINT,
+    validateFile = defaultValidateFile,
     className = "",
   } = props;
   const inputId = useId();
@@ -59,13 +80,9 @@ export function UploadDocumentDropzone(
       onFileChange(null);
       return;
     }
-    if (!isPdfFile(next)) {
-      setLocalError("Only PDF files are allowed.");
-      onFileChange(null);
-      return;
-    }
-    if (next.size > CLOUDINARY_MAX_BYTES) {
-      setLocalError("File must be 50MB or smaller.");
+    const validationError = validateFile(next);
+    if (validationError) {
+      setLocalError(validationError);
       onFileChange(null);
       return;
     }
@@ -103,6 +120,9 @@ export function UploadDocumentDropzone(
 
   const message = error ?? localError;
   const sizeLabel = file ? formatFileSize(file.size) : null;
+  const selectedTypeLabel = file
+    ? file.name.split(".").pop()?.toUpperCase() || "FILE"
+    : null;
 
   return (
     <div className={["w-full min-w-0", className].filter(Boolean).join(" ")}>
@@ -114,15 +134,15 @@ export function UploadDocumentDropzone(
         onDrop={onDrop}
         aria-disabled={isUploading || undefined}
         className={[
-          "flex min-h-35 w-full flex-col items-center justify-center rounded-4 border-[1.6px] border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
+          "rounded-4 flex min-h-35 w-full flex-col items-center justify-center border-2 border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
           isUploading
-            ? "cursor-wait border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
+            ? "cursor-wait border-ehs-normal-blue bg-ehs-normal-blue/6"
             : "cursor-pointer",
           !isUploading && dragActive
-            ? "border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
+            ? "border-ehs-normal-blue bg-ehs-normal-blue/6"
             : "",
           !isUploading && !dragActive
-            ? "border-[rgba(15,23,42,0.1)] bg-transparent hover:border-[rgba(8,145,166,0.45)] hover:bg-[rgba(8,145,166,0.03)]"
+            ? "border-ehs-border-ink/10 bg-transparent hover:border-ehs-normal-blue/45 hover:bg-ehs-normal-blue/3"
             : "",
         ]
           .filter(Boolean)
@@ -132,7 +152,7 @@ export function UploadDocumentDropzone(
           ref={inputRef}
           id={inputId}
           type="file"
-          accept={ACCEPT}
+          accept={accept}
           disabled={isUploading}
           className="sr-only"
           onChange={onChange}
@@ -174,13 +194,10 @@ export function UploadDocumentDropzone(
             </Text>
           </>
         )}
-        <Text
-          as="p"
-          className="text8 text-ehs-muted-text mt-1 text-center"
-        >
+        <Text as="p" className="text8 text-ehs-muted-text mt-1 text-center">
           {file && sizeLabel
-            ? `${sizeLabel} · PDF${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
-            : "PDF — Max 50MB"}
+            ? `${sizeLabel} · ${selectedTypeLabel ?? "FILE"}${uploadedLabel ? ` · ${uploadedLabel}` : ""}`
+            : emptyHint}
         </Text>
         {file && !isUploading ? (
           <button

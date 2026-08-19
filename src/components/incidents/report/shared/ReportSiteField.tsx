@@ -52,7 +52,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
           .join(" ")}
       >
         <ReportFieldLabel label={label} required={required} />
-        <div className="h-9 animate-pulse rounded-2.5 bg-[rgba(15,23,42,0.06)]" />
+        <div className="rounded-2.5 bg-ehs-surface-inverse/6 h-9 animate-pulse" />
       </div>
     );
   }
@@ -91,7 +91,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
           FIELD_INPUT_CLASS,
           // Not a disabled input: this is a settled fact, not a control that
           // happens to be switched off, and dimmed text would read as broken.
-          "flex cursor-default items-center gap-2 hover:border-[rgba(15,23,42,0.08)] hover:bg-white/[0.62]",
+          "hover:border-ehs-border-ink/8 hover:bg-ehs-surface/[0.62] flex cursor-default items-center gap-2",
         ].join(" ")}
       >
         <Icon
@@ -102,7 +102,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
         <span className="text-ehs-dark-bg min-w-0 flex-1 truncate font-medium">
           {siteName}
         </span>
-        <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-px text-2.5 font-semibold">
+        <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.5 inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-px font-semibold">
           <Icon icon="mdi:lock-outline" className="size-3" aria-hidden="true" />
           Auto
         </span>

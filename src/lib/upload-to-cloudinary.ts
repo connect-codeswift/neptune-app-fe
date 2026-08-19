@@ -17,7 +17,7 @@ export type CloudinaryUploadResult = Readonly<{
   resourceType: "image" | "raw" | "video" | "auto";
   format: string;
   mimeType: string;
-  kind: "image" | "pdf";
+  kind: "image" | "pdf" | "video" | "file";
 }>;
 
 type CloudinaryApiResponse = Readonly<{
@@ -31,6 +31,10 @@ type CloudinaryApiResponse = Readonly<{
   error?: { message?: string };
 }>;
 
+/**
+ * Unsigned client-side upload to Cloudinary. Persist `secureUrl` on the API
+ * body — never the files-service intent path.
+ */
 export async function uploadFileToCloudinary(
   file: File,
 ): Promise<CloudinaryUploadResult> {
@@ -43,15 +47,12 @@ export async function uploadFileToCloudinary(
   const cloudName = getCloudinaryCloudName();
   const uploadPreset = getCloudinaryUploadPreset();
   const isPdf = isPdfMimeType(file.type);
-
-  // `auto` accepts images and PDFs via an unsigned upload preset.
+  const isVideo = file.type.startsWith("video/");
   const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
 
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
-  // Unsigned presets reject `use_filename` / `unique_filename`.
-  // `filename_override` is allowed and keeps the original name in metadata.
   const originalName = file.name.trim();
   if (originalName) {
     formData.append("filename_override", originalName);
@@ -76,13 +77,15 @@ export async function uploadFileToCloudinary(
   }
 
   const displayName = file.name.trim() || payload.original_filename || "file";
-
   const bytes = payload.bytes ?? file.size;
   const format = payload.format ?? (isPdf ? "pdf" : "");
-  const kind: "image" | "pdf" =
-    isPdf || format === "pdf" || payload.resource_type === "raw"
+  const kind: CloudinaryUploadResult["kind"] = isVideo
+    ? "video"
+    : isPdf || format === "pdf" || payload.resource_type === "raw"
       ? "pdf"
-      : "image";
+      : file.type.startsWith("image/")
+        ? "image"
+        : "file";
 
   return {
     id: payload.public_id,

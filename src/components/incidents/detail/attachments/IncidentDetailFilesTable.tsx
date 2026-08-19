@@ -63,7 +63,7 @@ function FilesContent(
                 <th
                   key={column.label || `action-${String(index)}`}
                   className={[
-                    "text-ehs-muted-text pt-2.75 pb-[11.5px] text6",
+                    "text-ehs-muted-text text6 pt-2.75 pb-[12px]",
                     column.align === "right" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
@@ -77,7 +77,7 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="text-ehs-muted-text border-t border-[rgba(15,23,42,0.08)] py-8 text-center text4"
+                  className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-8 text-center"
                 >
                   No files uploaded.
                 </td>
@@ -92,36 +92,36 @@ function FilesContent(
                     }
                   }}
                   className={[
-                    "border-t border-[rgba(15,23,42,0.08)] transition-colors",
+                    "border-ehs-border-ink/8 border-t transition-colors",
                     isEditing
                       ? ""
-                      : "cursor-pointer hover:bg-[rgba(15,23,42,0.02)]",
+                      : "hover:bg-ehs-surface-inverse/2 cursor-pointer",
                   ].join(" ")}
                 >
                   <td className="py-3.5 pr-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="text-ehs-gray flex h-8 w-7 shrink-0 items-center justify-center rounded border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.82)]">
+                      <div className="text-ehs-gray border-ehs-border-ink/8 bg-ehs-surface/82 flex h-8 w-7 shrink-0 items-center justify-center rounded border">
                         <Icon
                           icon={getFileIcon(item.kind)}
                           className="size-3.25"
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="text-ehs-dark-bg max-w-35 truncate text4 leading-normal">
+                      <span className="text-ehs-dark-bg text4 max-w-35 truncate leading-normal">
                         {item.name}
                       </span>
                     </div>
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal">
+                  <td className="text-ehs-gray text4 py-3.5 pr-3 leading-normal">
                     {item.description}
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
+                  <td className="text-ehs-gray text4 py-3.5 pr-3 leading-normal whitespace-nowrap">
                     {item.sizeLabel}
                   </td>
-                  <td className="text-ehs-gray py-3.5 pr-3 text4 leading-normal whitespace-nowrap">
+                  <td className="text-ehs-gray text4 py-3.5 pr-3 leading-normal whitespace-nowrap">
                     {item.addedBy}
                   </td>
-                  <td className="text-ehs-muted-text py-3.5 text-right text4 leading-normal whitespace-nowrap">
+                  <td className="text-ehs-muted-text text4 py-3.5 text-right leading-normal whitespace-nowrap">
                     {item.time}
                   </td>
                   {isEditing ? (
@@ -132,7 +132,7 @@ function FilesContent(
                           event.stopPropagation();
                           onDeleteFile?.(item);
                         }}
-                        className="text-ehs-muted-text hover:bg-ehs-red/10 hover:text-ehs-red inline-flex size-7 items-center justify-center rounded-2 transition-colors"
+                        className="text-ehs-muted-text hover:bg-ehs-red/10 hover:text-ehs-red rounded-2 inline-flex size-7 items-center justify-center transition-colors"
                         aria-label={`Delete ${item.name}`}
                       >
                         <Icon

@@ -94,7 +94,7 @@ export function useInspectionTemplateQuery(templateId: string) {
   });
 }
 
-/** Fetches a paged list of inspection templates from GET /api/InspectionTemplate/GetAll. */
+/** Fetches a paged list of inspection templates from GET /api/v1/inspection-templates. */
 export function useInspectionTemplatesQuery(
   params: Readonly<{
     pageNumber: number;

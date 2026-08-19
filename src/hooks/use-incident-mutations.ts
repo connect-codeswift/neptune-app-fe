@@ -54,7 +54,7 @@ export function useCloseIncidentMutation() {
   });
 }
 
-/** Updates incident fields via PUT /Incident/UpdateIncident/{id}. */
+/** Updates incident fields via PUT /api/v1/incidents/{id}. */
 export function useUpdateIncidentMutation() {
   const queryClient = useQueryClient();
 
@@ -75,7 +75,7 @@ export function useUpdateIncidentMutation() {
   });
 }
 
-/** Updates incident closure details via PUT /api/Incident/{incidentId}/closure */
+/** Updates incident closure details via PUT /api/v1/incidents/{incidentId}/closure */
 export function useUpdateIncidentClosureMutation() {
   const queryClient = useQueryClient();
 
@@ -84,9 +84,7 @@ export function useUpdateIncidentClosureMutation() {
       incidentId: number;
       data: IncidentClosureData;
     }) => {
-      const payload = mapIncidentClosureDataToUpdateDto(
-        input.data,
-      );
+      const payload = mapIncidentClosureDataToUpdateDto(input.data);
       return updateIncidentClosure(input.incidentId, payload);
     },
     onSuccess: async (_res, variables) => {
@@ -97,4 +95,3 @@ export function useUpdateIncidentClosureMutation() {
     },
   });
 }
-

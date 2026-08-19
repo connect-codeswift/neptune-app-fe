@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
@@ -74,7 +75,7 @@ function FieldLabel(
         <span
           className={[
             "font-normal",
-            optionalHintClassName ?? "text-[#b3bbc8]",
+            optionalHintClassName ?? "text-ehs-placeholder",
           ].join(" ")}
         >
           {` ${hint}`}
@@ -139,9 +140,13 @@ function FieldShell(
       )}
       {children}
       {!showMessages ? null : error ? (
-        <p className="text8 text-ehs-red">{error}</p>
+        <Text as="p" className="text8 text-ehs-red">
+          {error}
+        </Text>
       ) : field.helperText ? (
-        <p className="text8 text-ehs-muted-text">{field.helperText}</p>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          {field.helperText}
+        </Text>
       ) : null}
     </div>
   );
@@ -268,7 +273,7 @@ function TextSuggestions(
         onClick={() => {
           setIsOpen((open) => !open);
         }}
-        className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover absolute top-1/2 right-3 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-white transition-colors"
+        className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover absolute top-1/2 right-3 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-ehs-on-accent transition-colors"
       >
         <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
       </button>
@@ -276,7 +281,7 @@ function TextSuggestions(
       {isOpen ? (
         <div
           role="menu"
-          className="animate-popover-in absolute right-0 z-50 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+          className="animate-popover-in border-ehs-border-ink/10 bg-ehs-surface absolute right-0 z-50 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border py-1 shadow-(--ehs-shadow-popover)"
         >
           {suggestions.map((suggestion) => (
             <button
@@ -355,10 +360,9 @@ function SelectControl(
 ) {
   const { field, value, error, onChange } = props;
 
-  // A native <select> can't render a footer, so the custom listbox also backs
-  // paginated option lists (prev/next controls live in that footer). A disabled
-  // field has nothing to pick, so it always falls through to the native one.
-  if (!field.disabled && (field.allowCustom || field.pagination)) {
+  // A native <select>'s popup cannot be styled. Use the glass listbox for
+  // every enabled select so Status and the rest match the current dropdown UI.
+  if (!field.disabled) {
     return (
       <SelectWithCustomControl
         field={field}
@@ -453,8 +457,10 @@ function TextareaControl(
 
   // `AiInFieldDraft` positions itself against this wrapper — it is absolute,
   // so without a positioned ancestor the ghost text escapes the field.
+  // `z-0` keeps the in-field AI icons in this stacking context so they cannot
+  // paint over an open select menu in a field above.
   return (
-    <div className="relative">
+    <div className="relative z-0">
       {textarea}
       {field.assistant({ value, onChange })}
     </div>
@@ -510,7 +516,7 @@ function ChipsControl(
                 "text4 cursor-pointer rounded-lg border px-3 py-1.5 transition-colors",
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue font-semibold"
-                  : "text-ehs-gray border-slate-900/10 bg-white hover:bg-black/5",
+                  : "text-ehs-gray border-ehs-border-ink/10 bg-ehs-surface hover:bg-ehs-surface-inverse/5",
               ].join(" ")}
             >
               {option.label}
@@ -558,13 +564,13 @@ const tileToneClass: Record<
     selected: "border-ehs-green bg-ehs-green/8",
   },
   warning: {
-    icon: "text-[#f59e0b]",
-    base: "border-[#f59e0b]/20 bg-[#f59e0b]/5 hover:border-[#f59e0b]/40",
-    selected: "border-[#f59e0b] bg-[#f59e0b]/8",
+    icon: "text-ehs-yellow",
+    base: "border-ehs-yellow/20 bg-ehs-yellow/5 hover:border-ehs-yellow/40",
+    selected: "border-ehs-yellow bg-ehs-yellow/8",
   },
   neutral: {
     icon: "text-ehs-gray",
-    base: "border-slate-900/10 bg-white hover:border-slate-900/20",
+    base: "border-ehs-border-ink/10 bg-ehs-surface hover:border-ehs-border-ink/20",
     selected: "border-ehs-normal-blue bg-ehs-normal-blue/8",
   },
 };
@@ -607,14 +613,14 @@ function SegmentedTilesControl(
               "text4 flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 font-bold transition-colors",
               isSelected
                 ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
-                : "border-slate-900/8 bg-white/40 text-[#566072]",
+                : "border-ehs-border-ink/8 bg-ehs-surface/40 text-ehs-gray",
             ].join(" ")}
           >
             <span
               aria-hidden="true"
               className={[
                 "size-2 shrink-0 rounded-full",
-                isSelected ? "bg-ehs-normal-blue" : "bg-[#566072]",
+                isSelected ? "bg-ehs-normal-blue" : "bg-ehs-gray",
               ].join(" ")}
             />
             {option.label}
@@ -639,7 +645,7 @@ function SegmentedFillTilesControl(
     <div
       role="radiogroup"
       aria-label={field.label}
-      className="flex w-full items-stretch gap-0.5 rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-1"
+      className="rounded-2.5 bg-ehs-surface-raised border-ehs-border-ink/8 flex w-full items-stretch gap-0.5 border p-1"
     >
       {field.options.map((option) => {
         const isSelected = value === option.value;
@@ -654,10 +660,10 @@ function SegmentedFillTilesControl(
               onChange(option.value);
             }}
             className={[
-              "text4 flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-1.5 py-2 leading-normal transition-colors",
+              "text4 rounded-1.5 flex min-w-0 flex-1 cursor-pointer items-center justify-center py-2 leading-normal transition-colors",
               isSelected
-                ? "bg-[#0891a6] font-semibold text-white"
-                : "font-medium text-[#566072] hover:bg-white/70",
+                ? "bg-ehs-normal-blue font-semibold text-ehs-on-accent"
+                : "text-ehs-gray hover:bg-ehs-surface/70 font-medium",
             ].join(" ")}
           >
             {option.label}
@@ -700,10 +706,10 @@ function AssessmentTilesControl(
             className={[
               "text4 flex h-13.5 cursor-pointer items-center justify-center rounded-2xl border px-3 text-center leading-5 font-medium transition-colors",
               isSelected && isPositive
-                ? "border-[#10b981] bg-[rgba(123,241,168,0.12)] text-[#10b981]"
+                ? "border-ehs-green text-ehs-green bg-[rgba(123,241,168,0.12)]"
                 : isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/8 text-ehs-normal-blue"
-                  : "border-[rgba(15,23,42,0.1)] bg-transparent text-[#566072] hover:bg-white/50",
+                  : "text-ehs-gray hover:bg-ehs-surface/50 border-ehs-border-ink/10 bg-transparent",
             ].join(" ")}
           >
             {option.label}
@@ -780,7 +786,9 @@ function TilesControl(
               />
             ) : null}
 
-            <span className="text4 text-ehs-darker font-bold">{option.label}</span>
+            <span className="text4 text-ehs-darker font-bold">
+              {option.label}
+            </span>
 
             {option.description ? (
               <span className="text8 text-ehs-muted-text">
@@ -835,10 +843,10 @@ function CheckboxGroupControl(
               // row-level selected state, so a group of these read as grey
               // bars and the only feedback was the 16px box. Now frosted like
               // every other control, and the whole row responds.
-              "text4 flex cursor-pointer items-center gap-2.5 rounded-2.5 border px-3 py-2.5 transition-colors",
+              "text4 rounded-2.5 flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors",
               checked
                 ? "border-ehs-normal-blue/40 bg-ehs-light-blue/70 text-ehs-darker font-medium"
-                : "text-ehs-gray border-[rgba(15,23,42,0.08)] bg-white/55 backdrop-blur-1.25 hover:border-[rgba(15,23,42,0.18)] hover:bg-white/75",
+                : "text-ehs-gray backdrop-blur-1.25 bg-ehs-surface/55 hover:bg-ehs-surface/75 border-ehs-border-ink/8 hover:border-ehs-border-ink/18",
             ].join(" ")}
           >
             <input
@@ -855,10 +863,10 @@ function CheckboxGroupControl(
                 "flex shrink-0 items-center justify-center rounded border transition-colors",
                 isRows ? "size-3.25" : "size-4",
                 checked
-                  ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
+                  ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
                   : isRows
-                    ? "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.62)]"
-                    : "border-slate-900/20 bg-white/70",
+                    ? "border-ehs-border-ink/12 bg-ehs-surface/62"
+                    : "border-ehs-border-strong bg-ehs-surface/70",
               ].join(" ")}
             >
               {checked ? (
@@ -1111,6 +1119,14 @@ export function FieldRenderer(props: FieldRendererProps) {
           />
         </FieldShell>
       );
+    case "heading":
+      return (
+        <div className="border-ehs-border-ink/8 border-b pt-1 pb-2.5">
+          <p className="text-ehs-dark-bg text-sm font-bold">{field.label}</p>
+        </div>
+      );
+    case "custom":
+      return <>{field.render}</>;
     case "person": {
       const nameKey = personDisplayNameKey(field);
       const displayName = String(values[nameKey] ?? "");

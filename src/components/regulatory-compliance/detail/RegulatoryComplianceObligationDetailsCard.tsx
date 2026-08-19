@@ -6,6 +6,7 @@ import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceObligationDetailsCardProps = Readonly<{
@@ -90,7 +91,7 @@ export function RegulatoryComplianceObligationDetailsCard(
     <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
       className={[
-        "w-full max-w-175 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5",
+        "backdrop-blur-2.5 w-full max-w-175 bg-ehs-surface/62",
         className,
       ]
         .filter(Boolean)
@@ -109,7 +110,7 @@ export function RegulatoryComplianceObligationDetailsCard(
               onClick={onDelete}
               disabled={busy}
               isLoading={isDeleting}
-              className={`${actionClass} border-ehs-border text-ehs-gray border bg-white/80 shadow-none`}
+              className={`${actionClass} border-ehs-border text-ehs-gray border bg-ehs-surface/80 shadow-none`}
             >
               <Icon
                 icon="mdi:trash-can-outline"
@@ -150,6 +151,11 @@ export function RegulatoryComplianceObligationDetailsCard(
         <section>
           <SectionTitle>Overview</SectionTitle>
           <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
+            <DetailField
+              label="ID"
+              value={formatComplianceDisplayId(detail.id)}
+            />
+            <DetailField label="Code" value={detail.code} />
             <DetailField label="Category" value={detail.category} />
             <DetailField
               label="Regulatory Body"
@@ -168,7 +174,7 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
         </section>
 
-        <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+        <div className="h-px w-full bg-ehs-surface-inverse/8" />
 
         <section>
           <SectionTitle>Schedule</SectionTitle>
@@ -188,7 +194,7 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
         </section>
 
-        <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+        <div className="h-px w-full bg-ehs-surface-inverse/8" />
 
         <section>
           <SectionTitle>Completion</SectionTitle>
@@ -204,7 +210,7 @@ export function RegulatoryComplianceObligationDetailsCard(
               />
             </div>
           ) : (
-            <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+            <div className="flex items-start gap-2 rounded-xl bg-ehs-surface-inverse/4 px-3 py-2.5">
               <Icon
                 icon="mdi:clock-outline"
                 className="text-ehs-muted-text mt-0.5 size-4 shrink-0"

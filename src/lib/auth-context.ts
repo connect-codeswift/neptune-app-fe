@@ -125,7 +125,12 @@ export function getAuthContext(): AuthContext | null {
     siteId,
     subCompanyId: siteId,
     siteName: toOptionalString(
-      readClaim(payload, ["siteName", "SiteName", "subCompanyName", "SubCompanyName"]),
+      readClaim(payload, [
+        "siteName",
+        "SiteName",
+        "subCompanyName",
+        "SubCompanyName",
+      ]),
     ),
     organizationId: toNonNegativeInt(
       readClaim(payload, [

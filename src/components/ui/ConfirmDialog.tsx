@@ -55,10 +55,10 @@ export function ConfirmDialog(props: Readonly<ConfirmDialogProps>) {
         aria-label="Close"
         tabIndex={-1}
         onClick={onCancel}
-        className="backdrop-blur-0.5 absolute inset-0 cursor-default bg-slate-900/40"
+        className="backdrop-blur-0.5 bg-ehs-overlay absolute inset-0 cursor-default"
       />
 
-      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+      <div className="bg-ehs-surface relative z-10 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
         <div className="bg-ehs-red/10 text-ehs-red mb-4 inline-flex size-11 items-center justify-center rounded-full">
           <Icon
             icon="mdi:alert-outline"

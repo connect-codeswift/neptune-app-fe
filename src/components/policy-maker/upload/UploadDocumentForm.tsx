@@ -24,14 +24,10 @@ import {
   departmentOptionLabel,
 } from "@/services/mappers/document-list.mapper";
 import { getAuthContext } from "@/lib/auth-context";
-import {
-  CLOUDINARY_MAX_BYTES,
-  isCloudinaryPublicConfigReady,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 
 const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
@@ -45,7 +41,7 @@ const REVIEW_CYCLE_OPTIONS = [
 ] as const;
 
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border border-ehs-hairline/90 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:content-[''] sm:max-w-3xl lg:max-w-5xl";
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
@@ -222,17 +218,9 @@ export function UploadDocumentForm() {
       return;
     }
 
-    if (next.size > CLOUDINARY_MAX_BYTES) {
+    if (next.size > getFileMaxBytes("Document")) {
       clearPdf();
       setFileError("File must be 50MB or smaller.");
-      return;
-    }
-
-    if (!isCloudinaryPublicConfigReady()) {
-      clearPdf();
-      setFileError(
-        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
-      );
       return;
     }
 
@@ -240,23 +228,21 @@ export function UploadDocumentForm() {
     setPdfSecureUrl(null);
     setFileError(null);
     setIsUploadingPdf(true);
-    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+    toast.info("Uploading PDF…", "Transferring to secure storage.");
 
     try {
-      const result = await uploadFileToCloudinary(next);
+      const result = await uploadFile(next, { module: "Document" });
       if (result.kind !== "pdf" && !next.name.toLowerCase().endsWith(".pdf")) {
         throw new Error("Only PDF documents can be uploaded.");
       }
       const originalName = next.name.trim() || result.name;
-      setPdfSecureUrl(result.secureUrl);
+      setPdfSecureUrl(result.fileId);
       toast.success("PDF uploaded", `"${originalName}" is ready to submit.`);
     } catch (error: unknown) {
       clearPdf();
       const message = getMutationErrorMessage(
         error,
-        error instanceof Error
-          ? error.message
-          : "Failed to upload PDF to Cloudinary.",
+        error instanceof Error ? error.message : "Failed to upload PDF.",
       );
       setFileError(message);
       toast.error("Upload failed", message);
@@ -468,7 +454,7 @@ export function UploadDocumentForm() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="text4 text-ehs-dark-bg h-9 w-full rounded-2.5 border border-[rgba(11,19,32,0.14)] px-4 shadow-none sm:w-auto"
+              className="text4 text-ehs-dark-bg rounded-2.5 h-9 w-full border border-ehs-border-ink/14 px-4 shadow-none sm:w-auto"
             >
               Cancel
             </Button>
@@ -477,7 +463,7 @@ export function UploadDocumentForm() {
               variant="primary"
               isLoading={isSubmitting}
               disabled={busy || !pdfSecureUrl || lookupsLoading}
-              className="text4 h-9.5 w-full rounded-2.5 bg-[#0891a6] px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-52"
+              className="text4 rounded-2.5 h-9.5 w-full bg-ehs-normal-blue px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] hover:bg-ehs-normal-blue-hover sm:w-auto sm:min-w-52"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

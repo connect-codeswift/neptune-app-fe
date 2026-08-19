@@ -59,7 +59,7 @@ export function ReportIncidentStepFour(
             </Text>
             <Text
               as="h2"
-              className="text-ehs-dark-bg text-[21.8px] font-bold tracking-[-0.44px]"
+              className="text-ehs-dark-bg text-[22px] font-bold tracking-[-0.44px]"
             >
               Immediate response
             </Text>
@@ -87,18 +87,18 @@ export function ReportIncidentStepFour(
                     type="button"
                     onClick={() => toggleAction(action.id)}
                     className={[
-                      "flex min-h-13 cursor-pointer items-center gap-3 rounded-2.5 border px-4 py-3 text-left transition-all duration-200",
+                      "rounded-2.5 flex min-h-13 cursor-pointer items-center gap-3 border px-4 py-3 text-left transition-all duration-200",
                       isChecked
-                        ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_rgba(8,145,166,0.06)]"
-                        : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
+                        ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_color-mix(in_oklab,var(--ehs-normal-blue)_6%,transparent)]"
+                        : "border-ehs-border bg-ehs-surface/62 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
                     ].join(" ")}
                   >
                     <div
                       className={[
-                        "flex size-5 shrink-0 items-center justify-center rounded-1 border transition-colors",
+                        "rounded-1 flex size-5 shrink-0 items-center justify-center border transition-colors",
                         isChecked
-                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-light-text"
-                          : "border-[rgba(15,23,42,0.18)] bg-white",
+                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-on-accent"
+                          : "border-ehs-border-strong bg-ehs-surface",
                       ].join(" ")}
                     >
                       {isChecked && (
@@ -173,7 +173,7 @@ export function ReportIncidentStepFour(
         </div>
 
         {/* Form Bottom Toolbar Actions */}
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
+        <div className="border-ehs-border-ink/8 border-t pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
@@ -198,7 +198,7 @@ export function ReportIncidentStepFour(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
               Continue
               <Icon

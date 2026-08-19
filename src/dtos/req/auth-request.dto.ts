@@ -16,7 +16,7 @@ const siteRequestSchema = z.object({
   location: z.string().trim().min(1, "Location is required."),
 });
 
-/** Matches backend `UserDto` for POST /Auth/register */
+/** Matches backend `UserDto` for POST /api/v1/auth/register */
 const registerRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
   fullName: z.string().trim().min(1, "Full name is required.").max(50),
@@ -27,9 +27,7 @@ const registerRequestSchema = z.object({
   organizationId: z.number().int().nonnegative(),
   organizationName: z.string().trim().min(1, "Organization name is required."),
   activatedModules: z.string().trim().min(1, "Select at least one module."),
-  sites: z
-    .array(siteRequestSchema)
-    .min(1, "At least one site is required."),
+  sites: z.array(siteRequestSchema).min(1, "At least one site is required."),
 });
 
 const signupFormSchema = z
@@ -80,12 +78,61 @@ const acceptInvitationRequestSchema = z.object({
   password: strongPasswordSchema,
 });
 
+const AUTHENTICATOR_CODE_MESSAGE =
+  "Enter the 6-digit code from your authenticator app.";
+
+const authenticatorCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, AUTHENTICATOR_CODE_MESSAGE);
+
 const enableMfaRequestSchema = z.object({
-  code: z
-    .string()
-    .trim()
-    .regex(/^\d{6}$/, "Enter the 6-digit code from your authenticator app."),
+  code: authenticatorCodeSchema,
 });
+
+/** Step two of sign-in — the challenge token from login plus a code from the app. */
+const verifyMfaRequestSchema = z.object({
+  mfaToken: z.string().trim().min(1, "This sign-in attempt has expired."),
+  code: authenticatorCodeSchema,
+});
+
+/**
+ * Turning 2FA off. The API decides which credential it requires — the password for a normal
+ * account, an authenticator code for an SSO-only one — so both are optional here and the form
+ * sends whichever it collected. Requiring the password in this schema would make the SSO case
+ * unsubmittable.
+ */
+const disableMfaRequestSchema = z
+  .object({
+    currentPassword: z.string().optional(),
+    code: authenticatorCodeSchema.optional(),
+  })
+  .refine((data) => Boolean(data.currentPassword) || Boolean(data.code), {
+    message: "Confirm it's you before turning off two-factor authentication.",
+    path: ["currentPassword"],
+  });
+
+/**
+ * Changing your own password while signed in.
+ *
+ * `newPassword` must stay on {@link strongPasswordSchema} — the same rule the API applies. The
+ * "must differ" check is also enforced server-side; it is repeated here only to save a round
+ * trip.
+ */
+const changePasswordRequestSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password."),
+    newPassword: strongPasswordSchema,
+    confirmPassword: z.string().min(1, "Confirm your new password."),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: "New password must be different from your current one.",
+    path: ["newPassword"],
+  });
 
 // =====================================================
 
@@ -105,6 +152,14 @@ export type AcceptInvitationRequestDto = z.infer<
   typeof acceptInvitationRequestSchema
 >;
 export type EnableMfaRequestDto = z.infer<typeof enableMfaRequestSchema>;
+export type VerifyMfaRequestDto = z.infer<typeof verifyMfaRequestSchema>;
+export type DisableMfaRequestDto = z.infer<typeof disableMfaRequestSchema>;
+export type ChangePasswordFormDto = z.infer<typeof changePasswordRequestSchema>;
+/** What the API takes — the form's `confirmPassword` never leaves the browser. */
+export type ChangePasswordRequestDto = Readonly<{
+  currentPassword: string;
+  newPassword: string;
+}>;
 
 // =====================================================
 
@@ -134,4 +189,16 @@ export function safeParseAcceptInvitationRequest(data: unknown) {
 
 export function safeParseEnableMfaRequest(data: unknown) {
   return enableMfaRequestSchema.safeParse(data);
+}
+
+export function safeParseVerifyMfaRequest(data: unknown) {
+  return verifyMfaRequestSchema.safeParse(data);
+}
+
+export function safeParseDisableMfaRequest(data: unknown) {
+  return disableMfaRequestSchema.safeParse(data);
+}
+
+export function safeParseChangePasswordRequest(data: unknown) {
+  return changePasswordRequestSchema.safeParse(data);
 }

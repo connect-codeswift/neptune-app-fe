@@ -18,6 +18,9 @@ import { useCapaOpenedVsClosedQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { mapCapaOpenedClosedToView } from "@/services/mappers/capa-opened-closed.mapper";
 
+/* Recharts puts these straight onto SVG *presentation attributes* (`fill=`,
+   `stroke=`), where `var()` is not valid - the browser drops the attribute and
+   the mark falls back to the SVG default. They stay literal. */
 const OPENED_COLOR = "#3b82f6";
 const CLOSED_COLOR = "#10b981";
 const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
@@ -41,7 +44,7 @@ function ChartTooltip(
     payload.find((entry) => entry.dataKey === key)?.value ?? 0;
 
   return (
-    <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
+    <div className="border-ehs-border bg-ehs-surface rounded-lg border px-3 py-2 shadow-(--ehs-shadow-tooltip)">
       <p className="text-ehs-dark-bg text-xs font-bold">{String(label)}</p>
       <div className="mt-1 flex flex-col gap-0.5">
         <span className="text-ehs-gray text-xs">
@@ -64,7 +67,7 @@ function ChartSkeleton() {
   );
 }
 
-/** Opened vs closed trend — Figma 7123:42070. Loads GET /api/CAPA/opened-vs-closed. */
+/** Opened vs closed trend — Figma 7123:42070. Loads GET /api/v1/capas/opened-vs-closed. */
 export function CapaOpenedClosedCard() {
   const hasToken = useHasAccessToken();
   const { data, isPending, isError } = useCapaOpenedVsClosedQuery(
@@ -106,12 +109,12 @@ export function CapaOpenedClosedCard() {
         </div>
         {!showSkeleton &&
           (view.closingFaster ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(16,185,129,0.12)] px-2.5 py-2 text-sm font-semibold text-[#10b981]">
+            <span className="bg-ehs-green/12 text-ehs-green inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold">
               <Icon icon="mdi:trending-down" className="size-4" aria-hidden />
               Closing faster
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(59,130,246,0.12)] px-2.5 py-2 text-sm font-semibold text-[#3b82f6]">
+            <span className="bg-ehs-blue/12 text-ehs-blue inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-semibold">
               <Icon icon="mdi:trending-up" className="size-4" aria-hidden />
               Opening faster
             </span>
@@ -175,7 +178,7 @@ export function CapaOpenedClosedCard() {
       <div className="mt-2 flex items-center gap-5">
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-0.5"
+            className="rounded-0.5 size-2"
             style={{ backgroundColor: OPENED_COLOR }}
             aria-hidden
           />
@@ -183,7 +186,7 @@ export function CapaOpenedClosedCard() {
         </div>
         <div className="flex items-center gap-2">
           <span
-            className="size-2 rounded-0.5"
+            className="rounded-0.5 size-2"
             style={{ backgroundColor: CLOSED_COLOR }}
             aria-hidden
           />

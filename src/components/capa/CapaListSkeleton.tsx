@@ -2,7 +2,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const FILTER_SHELL =
-  "relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
+  "relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-ehs-hairline/80 bg-ehs-surface/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5";
 
 const TABLE_ROWS = 8;
 const TABLE_COLUMNS = 8;

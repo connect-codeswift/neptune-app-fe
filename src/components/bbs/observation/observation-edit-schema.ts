@@ -53,15 +53,11 @@ export function buildObservationInfoSchema(args: {
   currentLocation?: string;
 }): FormSchema {
   const categoryOptions = withCurrentOption(
-    args.categoryOptions?.length
-      ? args.categoryOptions
-      : EDIT_CATEGORY_OPTIONS,
+    args.categoryOptions?.length ? args.categoryOptions : EDIT_CATEGORY_OPTIONS,
     args.currentCategory ?? "",
   );
   const locationOptions = withCurrentOption(
-    args.locationOptions?.length
-      ? args.locationOptions
-      : EDIT_LOCATION_OPTIONS,
+    args.locationOptions?.length ? args.locationOptions : EDIT_LOCATION_OPTIONS,
     args.currentLocation ?? "",
   );
 
@@ -141,6 +137,7 @@ export const observationPhotosSchema: FormSchema = [
     label: "Photo Evidence",
     required: true,
     colSpan: 12,
+    fileModule: "Bbs",
     placeholder: "Tap to add photo",
     helperText: "Drop files here or click to upload",
   },

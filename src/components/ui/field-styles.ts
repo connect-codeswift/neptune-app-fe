@@ -20,13 +20,13 @@
  */
 
 const FIELD_BASE = [
-  "w-full rounded-2.5 border border-[rgba(15,23,42,0.08)]",
+  "w-full rounded-2.5 border border-ehs-border-ink/8",
   // 55% white to sit on the thinner glass cards the app now uses — 62% read
   // a step more solid than the surface underneath it.
-  "bg-white/55 text-ehs-dark-bg backdrop-blur-1.25 outline-none",
+  "bg-ehs-surface/55 text-ehs-dark-bg backdrop-blur-1.25 outline-none",
   "transition-[color,background-color,border-color,box-shadow] duration-150",
   "placeholder:text-ehs-muted-text",
-  "hover:border-[rgba(15,23,42,0.18)] hover:bg-white/[0.78]",
+  "hover:border-ehs-border-ink/18 hover:bg-ehs-surface/[0.78]",
   // A soft 3px halo rather than a hard 2px ring — reads as a glow at this
   // field size instead of a second border fighting the first.
   "focus:border-ehs-normal-blue focus:ring-0.75 focus:ring-ehs-normal-blue/[0.15]",
@@ -52,14 +52,14 @@ export const FIELD_SELECT_CLASS = `${FIELD_INPUT_CLASS} cursor-pointer appearanc
 export const FIELD_SELECT_PLACEHOLDER_CLASS = "text-ehs-muted-text text4";
 
 /** Multi-line inputs — same skin, no fixed height. */
-export const FIELD_TEXTAREA_CLASS = `min-h-27.5 resize-y px-3.25 py-[10.5px] text4 leading-normal ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_CLASS = `min-h-27.5 resize-y px-3.25 py-[11px] text4 leading-normal ${FIELD_BASE}`;
 
 /**
  * Textarea with a reserved strip along the bottom for in-field controls such as
  * the AI assist button. Taller than the plain variant so the writing area still
  * shows three lines once the strip is taken out.
  */
-export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-32 resize-y px-3.25 pt-[10.5px] pb-10 text4 leading-[19.5px] ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-32 resize-y px-3.25 pt-[11px] pb-10 text4 leading-[19.5px] ${FIELD_BASE}`;
 
 /**
  * Taller variant for the template/form builders, where a field is the primary

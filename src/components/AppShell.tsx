@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { AskNeptuneAiButton } from "@/components/neptune-ai/AskNeptuneAiButton";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import { OrganizationLimitsBanner } from "@/components/OrganizationLimitsBanner";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
@@ -8,6 +15,9 @@ import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { getAccessToken } from "@/lib/axios";
 import { safeAppNavigate } from "@/lib/safe-app-navigation";
 import { Icon } from "@iconify/react";
+
+/* The mobile drawer scrim is pinned to `bg-black/40`. `--ehs-overlay` is slate
+   at the same alpha, not black, and no token carries black at 0.4. */
 
 export type AppShellProps = Readonly<{
   children: ReactNode;
@@ -94,12 +104,12 @@ export function AppShell(props: Readonly<AppShellProps>) {
       </div>
       {/* Mobile top navigation header. Sticky so the menu button is still
           reachable once you have scrolled down a long incident list. */}
-      <header className="backdrop-blur-3.5 sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-[rgba(15,23,42,0.08)] bg-white/80 px-4 py-3.5 lg:hidden">
+      <header className="backdrop-blur-3.5 border-ehs-border-ink/8 bg-ehs-surface/80 sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b px-4 py-3.5 lg:hidden">
         <button
           ref={menuButtonRef}
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="text-ehs-gray hover:bg-ehs-light-bg inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(15,23,42,0.08)]"
+          className="text-ehs-gray hover:bg-ehs-light-bg border-ehs-border-ink/8 inline-flex h-9 w-9 items-center justify-center rounded-lg border"
           aria-label="Open navigation menu"
           aria-expanded={sidebarOpen}
           aria-controls="app-sidebar"
@@ -166,6 +176,9 @@ export function AppShell(props: Readonly<AppShellProps>) {
         ) : null}
         {children}
       </div>
+
+      {/* Fixed to the viewport, so it stays put while the content column scrolls. */}
+      <AskNeptuneAiButton />
     </div>
   );
 }

@@ -42,13 +42,13 @@ const columnHelper = createColumnHelper<HrcaRow>();
 function WhyHeader(props: Readonly<{ step: number }>) {
   const { step } = props;
   return (
-    <div className="flex h-8.75 w-full items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2.75 py-2.25">
-      <span className="bg-ehs-slate inline-flex size-4.25 shrink-0 items-center justify-center rounded-[8.5px] text8 font-bold tracking-[0.23px] text-[#f3f5f8]">
+    <div className="rounded-2.25 border-ehs-border-ink/8 bg-ehs-surface/62 flex h-8.75 w-full items-center justify-center gap-1.5 border px-2.75 py-2.25">
+      <span className="bg-ehs-slate text8 text-ehs-light-bg inline-flex size-4.25 shrink-0 items-center justify-center rounded-[9px] font-bold tracking-[0.23px]">
         {String(step)}
       </span>
       <Text
         as="span"
-        className="text8 leading-none font-bold tracking-[0.23px] text-[#566072]"
+        className="text8 text-ehs-gray leading-none font-bold tracking-[0.23px]"
       >
         Why?
       </Text>
@@ -66,7 +66,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         header: () => (
           <Text
             as="span"
-            className="text-ehs-muted-text pl-1 text8 leading-none font-bold tracking-[0.84px] uppercase"
+            className="text-ehs-muted-text text8 pl-1 leading-none font-bold tracking-[0.84px] uppercase"
           >
             Category
           </Text>
@@ -76,10 +76,10 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("contributingFactor", {
         id: "contributingFactor",
         header: () => (
-          <div className="bg-ehs-normal-blue/13 my-0.5 flex h-7.75 w-full items-center justify-center rounded-2.25 border border-[rgba(15,23,42,0.08)] px-2.75 py-2.25">
+          <div className="bg-ehs-normal-blue/13 rounded-2.25 border-ehs-border-ink/8 my-0.5 flex h-7.75 w-full items-center justify-center border px-2.75 py-2.25">
             <Text
               as="span"
-              className="text-center text8 leading-none font-bold tracking-[0.23px] text-[#056e7e]"
+              className="text8 text-ehs-dark-blue text-center leading-none font-bold tracking-[0.23px]"
             >
               Contributing factor
             </Text>
@@ -123,15 +123,15 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
       columnHelper.accessor("correctiveActions", {
         id: "correctiveActions",
         header: () => (
-          <div className="my-0.5 flex h-7.75 w-full items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-2.75 py-2.25">
+          <div className="rounded-2.25 border-ehs-border-ink/8 bg-ehs-green/14 my-0.5 flex h-7.75 w-full items-center justify-center gap-1.5 border px-2.75 py-2.25">
             <Icon
               icon="mdi:check"
-              className="size-3 text-[#10b981]"
+              className="text-ehs-green size-3"
               aria-hidden="true"
             />
             <Text
               as="span"
-              className="text-center text8 leading-none font-bold tracking-[0.23px] text-[#10b981]"
+              className="text8 text-ehs-green text-center leading-none font-bold tracking-[0.23px]"
             >
               Corrective actions
             </Text>
@@ -163,7 +163,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
   return (
     <article
       className={[
-        "relative overflow-hidden rounded-5 border border-white/90 bg-white/62 p-4.25 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)]",
+        "rounded-5 backdrop-blur-2.5 before:rounded-5 border-ehs-hairline/90 bg-ehs-surface/62 relative overflow-hidden border p-4.25 shadow-(--ehs-shadow-card) before:pointer-events-none before:absolute before:inset-0",
         className,
       ]
         .filter(Boolean)
@@ -214,7 +214,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
                     className={[
                       "min-w-0",
                       cell.column.id === "category"
-                        ? "sticky left-0 z-10 bg-[rgba(255,255,255,0.95)] backdrop-blur-sm"
+                        ? "bg-ehs-surface/95 sticky left-0 z-10 backdrop-blur-sm"
                         : "",
                     ].join(" ")}
                   >

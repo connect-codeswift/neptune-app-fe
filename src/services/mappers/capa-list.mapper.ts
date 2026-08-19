@@ -1,4 +1,5 @@
 import type { MyActionItemDto } from "@/dtos/res/ehs-command-center-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 /** One row of the CAPA register table. */
 export type CapaListRow = Readonly<{
@@ -75,7 +76,7 @@ function formatDueLabel(rawDue: unknown): string {
 }
 
 /**
- * Maps one `actions[]` entry from GET /api/EHSCommandCenter/GetMyActions into a
+ * Maps one `actions[]` entry from GET /api/v1/command-center/my-actions into a
  * register row.
  *
  * That endpoint has only ever returned an empty array, and its field names are
@@ -84,28 +85,12 @@ function formatDueLabel(rawDue: unknown): string {
  * elsewhere in the app, and falls back to an em dash rather than throwing.
  * Narrow these key lists once a populated response exists.
  */
-function mapActionToCapaRow(
-  raw: MyActionItemDto,
-  index: number,
-): CapaListRow {
-  const code =
-    asString(
-      readProp(
-        raw,
-        "code",
-        "Code",
-        "capaCode",
-        "CapaCode",
-        "referenceCode",
-        "ReferenceCode",
-        "actionCode",
-        "ActionCode",
-      ),
-    ) ?? EM_DASH;
-
+function mapActionToCapaRow(raw: MyActionItemDto, index: number): CapaListRow {
   const id =
     asString(readProp(raw, "id", "Id", "capaId", "CapaId")) ??
-    `${code}-${String(index)}`;
+    String(index);
+
+  const code = formatRecordDisplayId("CAPA", id);
 
   return {
     id,

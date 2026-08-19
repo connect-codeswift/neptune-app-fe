@@ -64,7 +64,7 @@ export function InspectionTemplateCard(props: InspectionTemplateCardProps) {
           {menuOpen ? (
             <div
               role="menu"
-              className="animate-popover-in absolute right-0 z-20 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+              className="animate-popover-in border-ehs-border-ink/10 bg-ehs-surface absolute right-0 z-20 mt-1.5 w-52 origin-top-right overflow-hidden rounded-xl border py-1 shadow-(--ehs-shadow-popover)"
             >
               <button
                 type="button"

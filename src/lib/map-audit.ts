@@ -10,6 +10,7 @@ import type {
   AuditFindingDto,
 } from "@/dtos/res/audit-response.dto";
 import { formatRunStatus } from "@/lib/audit-inspection-status";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 /** Prettify a location code (e.g. "plant-b" -> "Plant B"); pass through others. */
 function formatLocation(location: string): string {
@@ -102,7 +103,7 @@ export type ReportSection = Readonly<{
 }>;
 
 /**
- * Build the report straight from GET /api/Audit/{id}, which carries everything
+ * Build the report straight from GET /api/v1/audits/{id}, which carries everything
  * it needs: the audit's metadata, the template snapshot (sections, items and
  * pass threshold) and the recorded responses.
  */
@@ -162,7 +163,7 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
     .join(" ");
 
   return {
-    auditId: `A-${String(dto.id)}`,
+    auditId: formatRecordDisplayId("A", dto.id),
     title: dto.auditTitle || "Audit report",
     scope: [snapshot?.templateName, formatLocation(dto.location ?? "")]
       .filter(Boolean)

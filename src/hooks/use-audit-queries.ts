@@ -24,7 +24,7 @@ const auditQueryKeys = {
     [...auditQueryKeys.all, "findings", auditId] as const,
 };
 
-/** Fetches a paged list of audits from GET /api/Audit. */
+/** Fetches a paged list of audits from GET /api/v1/audits. */
 export function useAuditsQuery(params: RegisterListParams) {
   return useQuery({
     queryKey: auditQueryKeys.list(params),
@@ -33,7 +33,7 @@ export function useAuditsQuery(params: RegisterListParams) {
   });
 }
 
-/** KPI tiles from GET /api/Audit/summary?kind=Audit — scoped per signed-in user. */
+/** KPI tiles from GET /api/v1/audits/summary?kind=Audit — scoped per signed-in user. */
 export function useAuditSummaryQuery(userId: number | null, enabled = true) {
   return useQuery({
     queryKey: auditQueryKeys.summary(userId),
@@ -42,7 +42,7 @@ export function useAuditSummaryQuery(userId: number | null, enabled = true) {
   });
 }
 
-/** Fetches a single audit's detail from GET /api/Audit/{id}. */
+/** Fetches a single audit's detail from GET /api/v1/audits/{id}. */
 export function useAuditDetailQuery(auditId: string | null) {
   return useQuery({
     queryKey: auditQueryKeys.detail(auditId),
@@ -51,7 +51,7 @@ export function useAuditDetailQuery(auditId: string | null) {
   });
 }
 
-/** Donut + top findings from GET /api/Audit/{id}/detail-summary. */
+/** Donut + top findings from GET /api/v1/audits/{id}/detail-summary. */
 export function useAuditDetailSummaryQuery(auditId: string | null) {
   return useQuery({
     queryKey: auditQueryKeys.detailSummary(auditId),
@@ -71,7 +71,7 @@ export function useAuditDetailSummaryQuery(auditId: string | null) {
   });
 }
 
-/** Fetches an audit's findings from GET /api/Audit/{id}/findings. */
+/** Fetches an audit's findings from GET /api/v1/audits/{id}/findings. */
 export function useAuditFindingsQuery(auditId: string | null) {
   return useQuery({
     queryKey: auditQueryKeys.findings(auditId),

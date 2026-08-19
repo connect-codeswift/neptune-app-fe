@@ -8,6 +8,7 @@ import {
   CAPA_VERIFICATION_SCHEMA,
 } from "@/components/capa/detail/capa-verification-schema";
 import { CapaVerificationHeader } from "@/components/capa/detail/CapaVerificationHeader";
+import { CapaVerificationSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -24,6 +25,9 @@ import {
   mapFormEffectivenessToApi,
 } from "@/services/mappers/capa.mapper";
 
+/* The verify button's hover green is pinned to #0ea572 - it is neither
+   `--ehs-green` (#10b981) nor `--ehs-green-hover` (#059669). */
+
 export type CapaVerificationContentProps = Readonly<{
   /** Route param — numeric CAPA id. */
   capaId: string;
@@ -32,14 +36,14 @@ export type CapaVerificationContentProps = Readonly<{
 const NO_VERIFICATION_MESSAGE = "No verification found for this CAPA";
 
 const glassCardClass =
-  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-5.25 pt-5.25 pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-2xl border border-ehs-hairline/90 bg-ehs-surface/62 px-5.25 pt-5.25 pb-5 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-['']";
 
 function parseRouteCapaId(capaId: string): number | null {
   const parsed = Number.parseInt(decodeURIComponent(capaId).trim(), 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-/** CAPA Verification page — Figma 846:6031. GET then POST /CAPA/Verification. */
+/** CAPA Verification page — Figma 846:6031. GET then POST /api/v1/capas/{capaId}/verification. */
 export function CapaVerificationContent(props: CapaVerificationContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
@@ -100,7 +104,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
     }
 
     try {
-      // POST /api/CAPA/Verification
+      // POST /api/v1/capas/{capaId}/verification
       await submitVerificationMutation.mutateAsync({
         capaId: numericId,
         effectiveness: mapFormEffectivenessToApi(
@@ -152,19 +156,13 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
   }
 
   if (isBootstrapping) {
-    return (
-      <div className="flex min-w-0 flex-col gap-3 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading verification…
-        </Text>
-      </div>
-    );
+    return <CapaVerificationSkeleton />;
   }
 
   if (detailQuery.isError || !record) {
     return (
       <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
-        <Text as="p" className="text-sm text-[#ef4444]">
+        <Text as="p" className="text-ehs-red text-sm">
           {getMutationErrorMessage(
             detailQuery.error,
             "Could not load this CAPA.",
@@ -188,9 +186,12 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
       {showNoVerificationBanner ? (
         <div
           role="status"
-          className="rounded-[10px] border border-[rgba(245,158,11,0.35)] bg-[rgba(245,158,11,0.12)] px-4 py-3"
+          className="rounded-2.5 border-ehs-yellow/35 bg-ehs-yellow/12 border px-4 py-3"
         >
-          <Text as="p" className="text-sm leading-5 font-medium text-[#92400e]">
+          <Text
+            as="p"
+            className="text-ehs-yellow-ink text-sm leading-5 font-medium"
+          >
             {NO_VERIFICATION_MESSAGE}
           </Text>
         </div>
@@ -202,17 +203,17 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
         <div className="relative z-1 flex flex-col gap-2">
           <Text
             as="h2"
-            className="text-lg leading-6 font-semibold text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg leading-6 font-semibold"
           >
             Verification Summary
           </Text>
-          <p className="text-base leading-5 text-[#566072]">
+          <p className="text-ehs-gray text-base leading-5">
             {"Verifier: "}
-            <span className="text-[#0b1320]">{verifierLabel}</span>
+            <span className="text-ehs-dark-bg">{verifierLabel}</span>
             {` · Verifier must be different from action owner (${record.owner})`}
           </p>
           {isAlreadyVerified ? (
-            <Text as="p" className="text-base leading-5 text-[#0891a6]">
+            <Text as="p" className="text-ehs-normal-blue text-base leading-5">
               {`This CAPA already has a verification on file${
                 existingVerification.verifiedAt
                   ? ` (${existingVerification.verifiedAt})`
@@ -230,7 +231,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
         initialValues={initialValues}
         hideActions
         isSubmitting={submitVerificationMutation.isPending}
-        className="!gap-5"
+        className="gap-5!"
         onSubmit={(values) => {
           void handleSubmit(values);
         }}
@@ -240,7 +241,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
         <button
           type="button"
           onClick={() => router.push(detailHref)}
-          className="cursor-pointer px-4 py-2 text-sm leading-5 font-medium text-[#566072] transition-colors hover:text-[#0b1320]"
+          className="text-ehs-gray hover:text-ehs-dark-bg cursor-pointer px-4 py-2 text-sm leading-5 font-medium transition-colors"
         >
           Cancel
         </button>
@@ -248,7 +249,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
           type="submit"
           form={CAPA_VERIFICATION_FORM_ID}
           disabled={submitVerificationMutation.isPending || isAlreadyVerified}
-          className="cursor-pointer rounded-2.5 bg-[#10b981] px-5 py-2.5 text-sm leading-5 font-medium text-[#eceef2] shadow-[0px_6px_18px_-6px_#10b981] transition-colors hover:bg-[#0ea572] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-2.5 bg-ehs-green text-ehs-on-accent cursor-pointer px-5 py-2.5 text-sm leading-5 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-green)] transition-colors hover:bg-[#0ea572] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isAlreadyVerified
             ? "Already Verified"

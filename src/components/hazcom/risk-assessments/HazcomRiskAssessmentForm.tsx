@@ -6,10 +6,9 @@ import { useRouter } from "next/navigation";
 import { useMemo, type FormEvent } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   HAZCOM_PPE_OPTIONS,
-  HazcomGlassCard,
-  HazcomSelectField,
   HazcomTextareaField,
   HazcomTextField,
   hazcomRiskLevel,
@@ -18,6 +17,7 @@ import {
 } from "@/components/hazcom/shared";
 import { HazcomHazardRatingSelector } from "@/components/hazcom/risk-assessments/HazcomHazardRatingSelector";
 import type { HazcomRiskAssessmentFormState } from "@/components/hazcom/risk-assessments/risk-assessment-form-state";
+import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
 import type { ChemicalRiskAssessmentRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateRiskAssessmentMutation } from "@/hooks/use-hazcom-mutations";
@@ -79,17 +79,12 @@ export function HazcomRiskAssessmentForm(
   } = useChemicalNamesQuery();
 
   const chemicalOptions = useMemo(
-    () => [
-      {
-        value: "",
-        label: isLoadingChemicals ? "Loading chemicals…" : "Select a chemical…",
-      },
-      ...chemicals.map((chemical) => ({
+    () =>
+      chemicals.map((chemical) => ({
         value: String(chemical.id),
         label: chemical.name,
       })),
-    ],
-    [chemicals, isLoadingChemicals],
+    [chemicals],
   );
 
   const updateRating = (field: keyof HazcomHazardRatings, value: number) => {
@@ -138,18 +133,27 @@ export function HazcomRiskAssessmentForm(
   };
 
   return (
-    <HazcomGlassCard
-      paddingClassName="p-6"
+    <IncidentGlassCard
+      paddingClassName="p-3.5 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-8 lg:pb-8"
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      <form onSubmit={handleSubmitForReview} className="flex flex-col gap-5">
-        <HazcomSelectField
+      <form
+        onSubmit={handleSubmitForReview}
+        className="flex flex-col gap-4 sm:gap-5 lg:gap-6"
+        noValidate
+      >
+        <ReportSelectField
           label="Chemical"
           required
           value={values.chemicalId}
-          onChange={(event) => onChange({ chemicalId: event.target.value })}
+          onChange={(value) => onChange({ chemicalId: value })}
           options={chemicalOptions}
-          hint={chemicalsError ?? undefined}
+          placeholder={
+            isLoadingChemicals ? "Loading chemicals…" : "Select a chemical…"
+          }
+          disabled={isLoadingChemicals}
+          error={chemicalsError}
+          className="min-w-0"
         />
 
         <HazcomTextareaField
@@ -179,11 +183,11 @@ export function HazcomRiskAssessmentForm(
           />
         </div>
 
-        <div className="flex flex-col gap-3">
-          <Text as="p" className="text3 text-ehs-darker">
-            Hazard Ratings (0-4)
+        <div className="flex flex-col gap-2.5">
+          <Text as="p" className="text7 text-ehs-darker">
+            Hazard Ratings (0–4)
           </Text>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
             <HazcomHazardRatingSelector
               label="Health"
               value={values.ratings.health}
@@ -207,8 +211,8 @@ export function HazcomRiskAssessmentForm(
           </div>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <Text as="p" className="text3 text-ehs-darker">
+        <div className="flex flex-col gap-2.5">
+          <Text as="p" className="text7 text-ehs-darker">
             Recommended PPE
           </Text>
           <div className="flex flex-wrap gap-2">
@@ -222,10 +226,10 @@ export function HazcomRiskAssessmentForm(
                   aria-pressed={selected}
                   onClick={() => togglePpe(option)}
                   className={[
-                    "inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 transition-colors",
+                    "text8 rounded-2.5 inline-flex items-center gap-1 border px-3 py-1.5 transition-colors",
                     selected
-                      ? "border-ehs-normal-blue text7 text-ehs-dark-blue bg-white"
-                      : "border-ehs-border text8 text-ehs-gray hover:border-ehs-normal-blue/50 bg-white/60",
+                      ? "border-ehs-normal-blue text-ehs-dark-blue bg-ehs-surface"
+                      : "border-ehs-border text-ehs-muted-text hover:border-ehs-normal-blue/50 bg-ehs-surface/60",
                   ].join(" ")}
                 >
                   {selected ? (
@@ -249,24 +253,24 @@ export function HazcomRiskAssessmentForm(
           onChange={(event) => onChange({ controls: event.target.value })}
         />
 
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-4 sm:pt-5">
           <Link href={ASSESSMENTS_ROUTE}>
-            <Button type="button" variant="tertiary">
-              <Icon
-                icon="mdi:arrow-left"
-                className="size-4"
-                aria-hidden="true"
-              />
+            <Button
+              type="button"
+              variant="tertiary"
+              className="text4 rounded-2.5 h-9 px-3"
+            >
               Cancel
             </Button>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Button
               type="button"
               variant="secondary"
               disabled={createAssessment.isPending}
               onClick={() => save(true)}
+              className="text4 rounded-2.5 h-9 px-3"
             >
               Save as Draft
             </Button>
@@ -274,12 +278,13 @@ export function HazcomRiskAssessmentForm(
               type="submit"
               variant="primary"
               isLoading={createAssessment.isPending}
+              className="text4 rounded-2.5 h-9 px-3"
             >
               {createAssessment.isPending ? "Saving…" : "Submit for Review"}
             </Button>
           </div>
         </div>
       </form>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

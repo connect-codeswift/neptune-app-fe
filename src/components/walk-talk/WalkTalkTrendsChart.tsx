@@ -11,6 +11,9 @@ import {
 } from "recharts";
 import type { WalkTalkTrendPoint } from "@/app/dashboard/walk-talk/walk-talk-data";
 
+/* Recharts puts these straight onto SVG *presentation attributes* (`fill=`,
+   `stroke=`), where `var()` is not valid - the browser drops the attribute and
+   the mark falls back to the SVG default. They stay literal. */
 const AXIS_TICK = { fill: "#8892a3", fontSize: 10 };
 
 type TooltipEntry = Readonly<{
@@ -33,7 +36,7 @@ function ChartTooltip(
     payload.find((entry) => entry.dataKey === key)?.value ?? 0;
 
   return (
-    <div className="border-ehs-border rounded-lg border bg-white px-3 py-2 shadow-[0px_8px_24px_-8px_rgba(15,23,42,0.28)]">
+    <div className="border-ehs-border bg-ehs-surface rounded-lg border px-3 py-2 shadow-(--ehs-shadow-tooltip)">
       <p className="text5 text-ehs-darker">{String(label)}</p>
       <div className="mt-1 flex items-center gap-2">
         <span

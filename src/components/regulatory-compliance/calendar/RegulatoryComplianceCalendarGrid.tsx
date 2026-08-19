@@ -88,7 +88,7 @@ function DayTasksPanel(
       aria-label={`Tasks for ${state.heading}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="border-ehs-border fixed z-100 flex max-h-[min(320px,70vh)] w-70 flex-col overflow-hidden rounded-xl border bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.22)]"
+      className="border-ehs-border fixed z-100 flex max-h-[min(320px,70vh)] w-70 flex-col overflow-hidden rounded-xl border bg-ehs-surface shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.22)]"
       style={{ top: state.top, left: state.left }}
     >
       <div className="border-ehs-border shrink-0 border-b px-3 py-2.5">
@@ -120,7 +120,7 @@ function DayTasksPanel(
               />
               <Text
                 as="span"
-                className="text4 text-ehs-darker wrap-break-word text-left"
+                className="text4 text-ehs-darker text-left wrap-break-word"
               >
                 {event.title}
               </Text>
@@ -249,14 +249,14 @@ export function RegulatoryComplianceCalendarGrid(
     <IncidentGlassCard
       paddingClassName="p-6"
       className={[
-        "relative bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5",
+        "backdrop-blur-2.5 relative bg-ehs-surface/62",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       {isLoading ? (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-5 bg-white/45 backdrop-blur-0.25">
+        <div className="rounded-5 backdrop-blur-0.25 pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ehs-surface/45">
           <Text as="span" className="text8 text-ehs-muted-text">
             Loading calendar…
           </Text>
@@ -342,8 +342,12 @@ export function RegulatoryComplianceCalendarGrid(
           min-height: 105px;
           padding: 0.5rem !important;
           border-radius: 0.75rem !important;
-          border: 1px solid rgba(15, 23, 42, 0.04) !important;
-          background-color: rgba(255, 255, 255, 0.6) !important;
+          border: 1px solid var(--ehs-border) !important;
+          background-color: color-mix(
+            in oklab,
+            var(--ehs-surface) 60%,
+            transparent
+          ) !important;
           text-align: left !important;
           display: flex !important;
           flex-direction: column !important;

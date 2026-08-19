@@ -1,10 +1,5 @@
 export type IncidentBadgeTone =
-  | "neutral"
-  | "teal"
-  | "muted"
-  | "danger"
-  | "warn"
-  | "success";
+  "neutral" | "teal" | "muted" | "danger" | "warn" | "success";
 
 export type IncidentBadgeProps = Readonly<{
   label: string;
@@ -14,9 +9,9 @@ export type IncidentBadgeProps = Readonly<{
 }>;
 
 const toneClassName: Record<IncidentBadgeTone, string> = {
-  neutral: "bg-ehs-dark-bg/16 text-ehs-gray",
+  neutral: "bg-ehs-surface-inverse/16 text-ehs-gray",
   teal: "bg-ehs-normal-blue/18 text-ehs-dark-blue",
-  muted: "bg-ehs-dark-bg/14 text-ehs-gray",
+  muted: "bg-ehs-surface-inverse/14 text-ehs-gray",
   danger: "bg-ehs-red/10 text-ehs-red",
   warn: "bg-ehs-yellow/15 text-ehs-yellow",
   success: "bg-ehs-green/10 text-ehs-green",
@@ -47,7 +42,7 @@ export function IncidentBadge(props: Readonly<IncidentBadgeProps>) {
       {showDot ? (
         <span
           className={[
-            "size-1.5 shrink-0 rounded-0.75",
+            "rounded-0.75 size-1.5 shrink-0",
             dotClassName[tone],
           ].join(" ")}
           aria-hidden="true"

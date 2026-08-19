@@ -8,6 +8,7 @@ import {
   CAPA_ADD_TASK_FORM_ID,
   createCapaAddTaskInitialValues,
   fieldString,
+  type CapaAddTaskInitialDraft,
 } from "@/components/capa/detail/capa-add-task-schema";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
@@ -25,6 +26,8 @@ export type CapaDetailAddTaskModalProps = Readonly<{
   isSubmitting?: boolean;
   /** Primary button label. Defaults to "Assign Task". */
   confirmLabel?: string;
+  title?: string;
+  initialDraft?: CapaAddTaskInitialDraft;
   onAssign?: (task: CapaDetailAddTaskDraft) => void | Promise<void>;
 }>;
 
@@ -37,15 +40,15 @@ export function CapaDetailAddTaskModal(
     onAssign,
     isSubmitting = false,
     confirmLabel = "Assign Task",
+    title = "Add New Task",
+    initialDraft,
   } = props;
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
   const busy = isSubmitting || isLocalSubmitting;
 
   const schema = useMemo(() => buildCapaAddTaskSchema(), []);
-
-  const initialValues = useMemo(
-    () => createCapaAddTaskInitialValues(schema),
-    [schema],
+  const [initialValues] = useState(() =>
+    createCapaAddTaskInitialValues(schema, initialDraft),
   );
 
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CapaDetailAddTaskModal(
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-[rgba(11,19,32,0.45)] p-4 backdrop-blur-0.5"
+      className="backdrop-blur-0.5 bg-ehs-surface-inverse/45 fixed inset-0 z-110 flex items-center justify-center p-4"
       onClick={() => {
         if (!busy) onClose();
       }}
@@ -98,22 +101,22 @@ export function CapaDetailAddTaskModal(
         aria-modal="true"
         aria-labelledby="capa-detail-add-task-title"
         onClick={(event) => event.stopPropagation()}
-        className="flex w-full max-w-140 flex-col overflow-hidden rounded-2xl bg-white shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]"
+        className="bg-ehs-surface flex w-full max-w-140 flex-col overflow-hidden rounded-2xl shadow-(--ehs-shadow-modal)"
       >
-        <header className="flex items-center justify-between border-b border-[rgba(15,23,42,0.08)] px-6 pt-5 pb-4">
+        <header className="border-ehs-border-ink/8 flex items-center justify-between border-b px-6 pt-5 pb-4">
           <Text
             as="h2"
             id="capa-detail-add-task-title"
-            className="text-lg leading-normal font-semibold text-[#0b1320]"
+            className="text-ehs-dark-bg text-lg leading-normal font-semibold"
           >
-            Add New Task
+            {title}
           </Text>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
             disabled={busy}
-            className="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-ehs-gray hover:text-ehs-dark-bg inline-flex size-5 shrink-0 cursor-pointer items-center justify-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon icon="mdi:close" className="size-6" aria-hidden />
           </button>
@@ -131,12 +134,12 @@ export function CapaDetailAddTaskModal(
           />
         </div>
 
-        <footer className="flex items-center justify-end gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-4 pb-5">
+        <footer className="border-ehs-border-ink/8 flex items-center justify-end gap-3 border-t px-6 pt-4 pb-5">
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="cursor-pointer rounded-2.5 border border-[#cbd5e1] px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2.5 border-ehs-border hover:bg-ehs-surface-raised text-ehs-slate cursor-pointer border px-5 py-2.5 text-sm leading-normal font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
@@ -144,7 +147,7 @@ export function CapaDetailAddTaskModal(
             type="submit"
             form={CAPA_ADD_TASK_FORM_ID}
             disabled={busy}
-            className="cursor-pointer rounded-2.5 bg-[#0891a6] px-5 py-2.5 text-sm leading-normal font-semibold text-white transition-colors hover:bg-[#078395] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2.5 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent cursor-pointer px-5 py-2.5 text-sm leading-normal font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? "Saving…" : confirmLabel}
           </button>

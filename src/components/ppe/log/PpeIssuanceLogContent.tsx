@@ -29,10 +29,10 @@ const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 type LogStatusFilter = "all" | "active" | "returned";
 
 const statusToneClass: Record<PpeLogStatus, string> = {
-  Issued: "bg-[rgba(16,185,129,0.1)] text-[#10b981]",
-  "Due Inspection": "bg-[rgba(245,158,11,0.1)] text-[#f59e0b]",
-  Overdue: "bg-[rgba(239,68,68,0.1)] text-[#ef4444]",
-  Returned: "bg-[rgba(86,96,114,0.1)] text-[#566072]",
+  Issued: "bg-ehs-green/10 text-ehs-green",
+  "Due Inspection": "bg-ehs-yellow/10 text-ehs-yellow",
+  Overdue: "bg-ehs-red/10 text-ehs-red",
+  Returned: "bg-ehs-gray/10 text-ehs-gray",
 };
 
 const statusLabel: Record<PpeLogStatus, string> = {
@@ -72,7 +72,7 @@ function IssuanceLogTableHeader(
   const { onExportCsv } = props;
 
   return (
-    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+    <div className="flex h-[51px] flex-wrap items-center justify-between gap-3">
       <Text as="h2" className="text3 text-ehs-darker shrink-0">
         Issuance log
       </Text>
@@ -106,10 +106,10 @@ function IssuanceLogMobileCard(
     <button
       type="button"
       onClick={onOpen}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
+      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-ehs-surface/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
     >
       <div className="flex items-center gap-2">
-        <span className="text7 text-ehs-gray rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5">
+        <span className="text7 text-ehs-gray rounded-full bg-ehs-surface-inverse/6 px-2 py-0.5">
           {entry.issueId}
         </span>
         <span className="text4 text-ehs-darker min-w-0 flex-1 truncate">
@@ -133,10 +133,10 @@ function IssuanceLogMobileCard(
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-[rgba(11,19,32,0.08)] pt-3">
+      <div className="flex items-center justify-between gap-2 border-t border-ehs-border-ink/8 pt-3">
         <p className="text4 text-ehs-muted-text">
           Condition:{" "}
-          <span className="text7 text-ehs-gray rounded-full bg-[rgba(15,23,42,0.06)] px-2 py-0.5">
+          <span className="text7 text-ehs-gray rounded-full bg-ehs-surface-inverse/6 px-2 py-0.5">
             {entry.condition}
           </span>
         </p>
@@ -198,9 +198,7 @@ export function PpeIssuanceLogContent(
     toast.success("CSV downloaded");
   };
 
-  const tableHeader = (
-    <IssuanceLogTableHeader onExportCsv={handleExportCsv} />
-  );
+  const tableHeader = <IssuanceLogTableHeader onExportCsv={handleExportCsv} />;
 
   return (
     <div
@@ -275,10 +273,10 @@ export function PpeIssuanceLogContent(
                     setStatusFilter(chip.id);
                   }}
                   className={[
-                    "text8 shrink-0 cursor-pointer rounded-5 px-3 py-1.5 whitespace-nowrap transition-colors",
+                    "text8 rounded-5 shrink-0 cursor-pointer px-3 py-1.5 whitespace-nowrap transition-colors",
                     isActive
-                      ? "bg-ehs-normal-blue text-white"
-                      : "border-ehs-border text-ehs-muted-text border bg-white",
+                      ? "bg-ehs-normal-blue text-ehs-on-accent"
+                      : "border-ehs-border text-ehs-muted-text border bg-ehs-surface",
                   ].join(" ")}
                 >
                   {chip.label}

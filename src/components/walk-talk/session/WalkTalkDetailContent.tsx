@@ -91,15 +91,19 @@ function ParticipantRow(
 }
 
 const statusClass: Record<WalkTalkActionStatus, string> = {
-  Open: "bg-[rgba(8,145,166,0.1)] text-[#0891a6]",
+  Open: "bg-ehs-normal-blue/10 text-ehs-normal-blue",
   Closed: "bg-ehs-green/14 text-ehs-green",
-  "In Progress": "bg-[rgba(86,96,114,0.14)] text-[#566072]",
+  "In Progress": "bg-ehs-gray/14 text-ehs-gray",
 };
 
 function StatusBadge(props: Readonly<{ status: WalkTalkActionStatus }>) {
   const { status } = props;
   const label =
-    status === "Closed" ? "Done" : status === "In Progress" ? "In Progress" : status;
+    status === "Closed"
+      ? "Done"
+      : status === "In Progress"
+        ? "In Progress"
+        : status;
 
   return (
     <span
@@ -118,7 +122,7 @@ function FollowUpList(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
 
   if (rows.length === 0) {
     return (
-      <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+      <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
         <Icon
           icon="mdi:check-circle-outline"
           className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
@@ -165,12 +169,17 @@ function FollowUpList(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
       <div className="border-ehs-border hidden overflow-hidden rounded-xl border sm:block">
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="bg-[rgba(11,19,32,0.06)]">
-              {["Action", "Assigned To", "Due Date", "Status"].map((heading) => (
-                <th key={heading} className="text6 text-ehs-muted-text px-4 py-3">
-                  {heading}
-                </th>
-              ))}
+            <tr className="bg-ehs-surface-inverse/6">
+              {["Action", "Assigned To", "Due Date", "Status"].map(
+                (heading) => (
+                  <th
+                    key={heading}
+                    className="text6 text-ehs-muted-text px-4 py-3"
+                  >
+                    {heading}
+                  </th>
+                ),
+              )}
             </tr>
           </thead>
           <tbody>
@@ -185,7 +194,7 @@ function FollowUpList(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
                 <td className="text4 text-ehs-gray px-4 py-3.5">
                   {row.assignedTo}
                 </td>
-                <td className="text4 text-ehs-gray whitespace-nowrap px-4 py-3.5">
+                <td className="text4 text-ehs-gray px-4 py-3.5 whitespace-nowrap">
                   {row.dueDate}
                 </td>
                 <td className="px-4 py-3.5">
@@ -214,7 +223,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
       <div className="mx-auto flex w-full max-w-200 justify-center">
         <IncidentGlassCard
           paddingClassName="p-0 overflow-hidden"
-          className="w-full bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5"
+          className="backdrop-blur-2.5 bg-ehs-surface/62 w-full"
         >
           <div className="border-ehs-border border-b px-5 py-4 sm:px-6">
             <Text as="h2" className="text3 text-ehs-darker">
@@ -235,7 +244,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
               </div>
             </section>
 
-            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+            <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
             <section>
               <SectionTitle>Discussion Notes</SectionTitle>
@@ -244,7 +253,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
                   {detail.notes}
                 </Text>
               ) : (
-                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
                   <Icon
                     icon="mdi:note-outline"
                     className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
@@ -257,12 +266,12 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
               )}
             </section>
 
-            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+            <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
             <section>
               <SectionTitle>Participants</SectionTitle>
               {detail.participants.length === 0 ? (
-                <div className="bg-[rgba(11,19,32,0.04)] flex items-start gap-2 rounded-xl px-3 py-2.5">
+                <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
                   <Icon
                     icon="mdi:account-outline"
                     className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
@@ -285,7 +294,7 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
               )}
             </section>
 
-            <div className="h-px w-full bg-[rgba(15,23,42,0.08)]" />
+            <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
             <section>
               <SectionTitle>Follow-Up Actions</SectionTitle>

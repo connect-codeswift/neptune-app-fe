@@ -15,6 +15,11 @@ export type HeroKpiMetric = Readonly<{
   chartData: readonly number[];
   /** When omitted, derived from target/current. Null hides the status pill. */
   status?: TargetStatus | null;
+  /**
+   * Replaces TargetProgress. `""` hides the meter (hours missing; a banner
+   * explains). A non-empty string is an error caption.
+   */
+  footerNote?: string;
 }>;
 
 export type SiteRecordable = Readonly<{

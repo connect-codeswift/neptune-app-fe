@@ -5,8 +5,7 @@ import type {
 import type { AcknowledgmentRecord } from "@/components/policy-maker/acknowledgment-tracking/acknowledgment-tracking-types";
 
 export type FindMyAcknowledgementResult =
-  | { ackId: number; error?: undefined }
-  | { ackId: null; error: string };
+  { ackId: number; error?: undefined } | { ackId: null; error: string };
 
 /**
  * Match the current user's acknowledgement row by userId.

@@ -1,4 +1,4 @@
-/** Request body for PUT /api/Incident/{incidentId}/closure (`SaveIncidentClosureDto`). */
+/** Request body for PUT /api/v1/incidents/{incidentId}/closure (`SaveIncidentClosureDto`). */
 export type SaveIncidentClosureDto = {
   finalIncidentType?: string | null;
   sifClassification?: string | null;

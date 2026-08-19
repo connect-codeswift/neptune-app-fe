@@ -3,16 +3,9 @@
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
-import {
-  HazcomGlassCard,
-  type HazcomBadgeTone,
-} from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import type { HazcomBadgeTone } from "@/components/hazcom/shared";
 import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
-import {
-  ehsButtonBaseClass,
-  ehsButtonSecondaryClass,
-  ehsButtonTertiaryClass,
-} from "@/lib/ehs-classes";
 
 const barClassByTone: Record<HazcomBadgeTone, string> = {
   neutral: "bg-ehs-gray",
@@ -87,7 +80,7 @@ export function HazcomSdsStatusOverviewCard(
   const maxRowValue = Math.max(...rows.map((row) => row.value), 1);
 
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       paddingClassName="p-5"
       className={["min-w-0", className].filter(Boolean).join(" ")}
     >
@@ -97,10 +90,14 @@ export function HazcomSdsStatusOverviewCard(
         </Text>
         <Link
           href="/dashboard/hazcom/sds"
-          className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover inline-flex items-center gap-0.5"
+          className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg rounded-2.5 inline-flex items-center gap-2 px-2 py-1 transition-colors"
         >
           View SDS library
-          <Icon icon="mdi:arrow-right" className="size-3.5" aria-hidden="true" />
+          <Icon
+            icon="mdi:arrow-right"
+            className="size-3 shrink-0"
+            aria-hidden="true"
+          />
         </Link>
       </div>
 
@@ -127,7 +124,7 @@ export function HazcomSdsStatusOverviewCard(
                   {String(row.value)}
                 </Text>
               </div>
-              <div className="bg-ehs-dark-bg/8 relative h-1.5 overflow-hidden rounded-full">
+              <div className="bg-ehs-surface-inverse/8 relative h-1.5 overflow-hidden rounded-full">
                 <div
                   className={[
                     "absolute top-0 left-0 h-full rounded-full transition-all",
@@ -140,31 +137,6 @@ export function HazcomSdsStatusOverviewCard(
           );
         })}
       </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <Link
-          href="/dashboard/hazcom/sds/upload"
-          className={[
-            ehsButtonBaseClass,
-            ehsButtonSecondaryClass,
-            "text4",
-          ].join(" ")}
-        >
-          <Icon icon="mdi:upload" className="size-3.5" aria-hidden="true" />
-          Upload SDS
-        </Link>
-        <Link
-          href="/dashboard/hazcom/risk-assessments"
-          className={[
-            ehsButtonBaseClass,
-            ehsButtonTertiaryClass,
-            "text4",
-          ].join(" ")}
-        >
-          <Icon icon="mdi:chart-bar" className="size-3.5" aria-hidden="true" />
-          Reports
-        </Link>
-      </div>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

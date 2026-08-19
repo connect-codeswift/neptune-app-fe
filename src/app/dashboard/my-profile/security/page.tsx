@@ -1,6 +1,6 @@
-import { AccountSettingsSecurityClient } from "@/components/profile/AccountSettingsSecurityClient";
+import { redirect } from "next/navigation";
 
-/** Account settings — security tab. */
+/** Moved into the tabbed Settings page — see the sibling settings route for why. */
 export default function AccountSecurityPage() {
-  return <AccountSettingsSecurityClient />;
+  redirect("/dashboard/settings/security");
 }

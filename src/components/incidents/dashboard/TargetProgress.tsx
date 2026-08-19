@@ -66,7 +66,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       >
         <div
           className={[
-            "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+            "bg-ehs-muted-text/18 relative w-full rounded-full",
             compact ? "h-1.5" : "h-1.5",
           ].join(" ")}
         >
@@ -81,7 +81,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
             as="span"
             className={[
               "text-ehs-muted-text font-medium",
-              compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
+              compact ? "text-[9px] leading-normal" : "text-[10px]",
             ].join(" ")}
           >
             No target configured
@@ -90,7 +90,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
             as="span"
             className={[
               "text-ehs-muted-text whitespace-nowrap",
-              compact ? "text-[9.5px] leading-normal" : "text-xs",
+              compact ? "text-[10px] leading-normal" : "text-xs",
             ].join(" ")}
           >
             {targetLabel ?? ""}
@@ -116,7 +116,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
     >
       <div
         className={[
-          "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+          "bg-ehs-muted-text/18 relative w-full rounded-full",
           compact ? "h-1.5" : "h-1.5",
         ].join(" ")}
       >
@@ -129,7 +129,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         />
         <div
           className={[
-            "bg-ehs-slate absolute -top-0.5 -bottom-0.5 w-0.5 rounded-0.5",
+            "bg-ehs-slate rounded-0.5 absolute -top-0.5 -bottom-0.5 w-0.5",
           ].join(" ")}
           style={{ left: `${TARGET_MARKER_PCT}%` }}
           aria-hidden="true"
@@ -140,7 +140,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
         <span
           className={[
             "inline-flex items-center gap-0.75 font-bold",
-            compact ? "text-[9.2px] leading-normal" : "text-[10.3px]",
+            compact ? "text-[9px] leading-normal" : "text-[10px]",
             isOn ? "text-ehs-green" : "text-ehs-red",
           ].join(" ")}
         >
@@ -156,7 +156,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
           as="span"
           className={[
             "text-ehs-muted-text py-px whitespace-nowrap",
-            compact ? "text-[9.5px] leading-normal" : "text-xs",
+            compact ? "text-[10px] leading-normal" : "text-xs",
           ].join(" ")}
         >
           {targetLabel ?? ""}

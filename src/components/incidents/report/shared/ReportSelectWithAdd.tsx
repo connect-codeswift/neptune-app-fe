@@ -131,12 +131,12 @@ export function ReportSelectWithAdd(props: Readonly<ReportSelectWithAddProps>) {
                   cancel();
                 }
               }}
-              className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:ring-2"
+              className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 bg-ehs-surface min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
             />
             <button
               type="button"
               onClick={commit}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold transition-colors"
             >
               Add
             </button>

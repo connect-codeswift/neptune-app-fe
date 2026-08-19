@@ -1,3 +1,4 @@
+import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import type { EhsModuleCode } from "@/lib/ehs-modules";
 import { isAdminRole } from "@/lib/jwt-permissions";
 
@@ -29,6 +30,22 @@ export type AppNavGroup = Readonly<{
 
 /** Static sidebar catalog — filtered at runtime by licensed modules + JWT permissions. */
 export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
+  {
+    // The assistant's single sidebar home: one heading, one entry. "Chat" routes to the full
+    // workspace page; the floating launcher covers the quick popup from anywhere. No module
+    // code — the assistant is not a licensed EHS module, and an item with neither a moduleCode
+    // nor alwaysVisible is rejected outright by the licence gate.
+    title: "Neptune AI",
+    items: [
+      {
+        label: "Chat",
+        href: NEPTUNE_AI_HREF,
+        icon: "ri:chat-ai-line",
+        alwaysVisible: true,
+        requiredPermissions: [],
+      },
+    ],
+  },
   {
     title: "Dashboard",
     items: [
@@ -193,8 +210,8 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
     items: [
       {
         label: "Industrial Hygiene",
-        href: "/dashboard/health-emissions",
-        icon: "mdi:leaf",
+        href: "/dashboard/industrial-hygiene",
+        icon: "mdi:flask-outline",
         moduleCode: "INDUSTRIAL_HYGIENE",
         requiredPermissions: ["View Claims", "View Medical Records"],
       },
@@ -209,8 +226,11 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         icon: "mdi:cog-outline",
         alwaysVisible: true,
         requiredPermissions: [],
-        // Company-wide configuration — the owner's screen, not a per-user one.
-        allowedRoles: ["Ehs_Director"],
+        // Deliberately open to every role. This used to be Ehs_Director only, when the page
+        // held nothing but company-wide incident-rate configuration. It now also holds each
+        // user's own profile, password, two-factor and theme, and hiding it would leave an
+        // ordinary user with no route to their own account. The company-only tab inside is
+        // gated separately — see components/settings/settings-nav.ts.
       },
     ],
   },
@@ -223,7 +243,10 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
  */
 function matchesRole(role: string | null, expected: string): boolean {
   const normalize = (value: string) =>
-    value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "");
   return role != null && normalize(role) === normalize(expected);
 }
 
@@ -281,7 +304,10 @@ function isNavItemVisible(
 
   // First, and deliberately ahead of both bypasses below: an allowedRoles list is a
   // restriction, and a restriction that any later rule can widen is not one.
-  if (item.allowedRoles && !item.allowedRoles.some((r) => matchesRole(role, r))) {
+  if (
+    item.allowedRoles &&
+    !item.allowedRoles.some((r) => matchesRole(role, r))
+  ) {
     return false;
   }
 
@@ -302,7 +328,8 @@ function isNavItemVisible(
   );
 
   // alwaysVisible items sit outside the page catalogue — Settings has no page: row of its
-  // own and is restricted by allowedRoles above instead, so the page gate must not hide it.
+  // own, and every user needs it for their own account, so the page gate must not hide it.
+  // The company-wide tab inside Settings does its own role check.
   if (holdsAnyPagePermission && item.alwaysVisible !== true) {
     return hasPagePermission(item.href, userPermissions);
   }

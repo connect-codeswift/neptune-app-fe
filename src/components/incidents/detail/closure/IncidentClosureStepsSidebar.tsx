@@ -45,11 +45,11 @@ export function IncidentClosureStepsSidebar(
     <IncidentGlassCard
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-6"
-      className="h-fit bg-white/[0.62] shadow-none backdrop-blur-2.5"
+      className="backdrop-blur-2.5 bg-ehs-surface/[0.62] h-fit shadow-none"
     >
       <Text
         as="h4"
-        className="text8 font-bold tracking-[1.05px] text-ehs-muted-text uppercase"
+        className="text8 text-ehs-muted-text font-bold tracking-[1.05px] uppercase"
       >
         Steps
       </Text>
@@ -68,22 +68,22 @@ export function IncidentClosureStepsSidebar(
               disabled={isLocked}
               aria-disabled={isLocked}
               className={[
-                "flex items-start gap-2.5 rounded-2.5 p-2.5 text-left transition-all duration-200",
+                "rounded-2.5 flex items-start gap-2.5 p-2.5 text-left transition-all duration-200",
                 isActive
-                  ? "bg-ehs-dark-blue-bg-light border border-[rgba(8,145,166,0.1)]"
+                  ? "bg-ehs-dark-blue-bg-light border-ehs-normal-blue/10 border"
                   : isLocked
                     ? "cursor-not-allowed border border-transparent opacity-50"
-                    : "border border-transparent hover:bg-white/60",
+                    : "hover:bg-ehs-surface/60 border border-transparent",
               ].join(" ")}
             >
               <div
                 className={[
-                  "mt-0.5 flex size-5.5 shrink-0 items-center justify-center rounded-2.75 text8 transition-colors",
+                  "rounded-2.75 text8 mt-0.5 flex size-5.5 shrink-0 items-center justify-center transition-colors",
                   isComplete
-                    ? "bg-ehs-green font-bold text-ehs-light-text"
+                    ? "bg-ehs-green text-ehs-on-accent font-bold"
                     : isActive
-                      ? "bg-ehs-normal-blue font-bold text-ehs-light-text"
-                      : "border border-[rgba(15,23,42,0.08)] bg-white font-bold text-ehs-gray",
+                      ? "bg-ehs-normal-blue text-ehs-on-accent font-bold"
+                      : "text-ehs-gray border-ehs-border-ink/8 bg-ehs-surface border font-bold",
                 ].join(" ")}
               >
                 {isComplete ? (
@@ -102,15 +102,15 @@ export function IncidentClosureStepsSidebar(
                   className={[
                     "text8 leading-normal",
                     isActive
-                      ? "font-bold text-ehs-normal-blue"
-                      : "font-medium text-ehs-dark-bg",
+                      ? "text-ehs-normal-blue font-bold"
+                      : "text-ehs-dark-bg font-medium",
                   ].join(" ")}
                 >
                   {step.title}
                 </Text>
                 <Text
                   as="span"
-                  className="text8 font-normal leading-normal text-ehs-muted-text"
+                  className="text8 text-ehs-muted-text leading-normal font-normal"
                 >
                   {step.subtitle}
                 </Text>
@@ -120,18 +120,18 @@ export function IncidentClosureStepsSidebar(
         })}
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
+      <div className="border-ehs-border-ink/8 flex flex-col gap-2 border-t pt-5">
         <div className="flex items-center justify-between">
-          <Text as="span" className="text8 font-normal text-ehs-muted-text">
+          <Text as="span" className="text8 text-ehs-muted-text font-normal">
             Progress
           </Text>
-          <Text as="span" className="text8 font-bold text-ehs-gray">
+          <Text as="span" className="text8 text-ehs-gray font-bold">
             {`${String(currentStep)} / 4`}
           </Text>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-249.75 bg-ehs-muted-text/20">
+        <div className="rounded-249.75 bg-ehs-muted-text/20 h-1.5 w-full overflow-hidden">
           <div
-            className="h-full rounded-249.75 bg-ehs-normal-blue transition-all duration-300"
+            className="rounded-249.75 bg-ehs-normal-blue h-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

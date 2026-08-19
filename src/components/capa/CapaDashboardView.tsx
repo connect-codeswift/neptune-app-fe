@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 import { CapaDashboardFilters } from "@/components/capa/CapaDashboardFilters";
 import { CapaDashboardFooterCards } from "@/components/capa/CapaDashboardFooterCards";
 import { CapaDashboardMetrics } from "@/components/capa/CapaDashboardMetrics";
@@ -10,7 +11,10 @@ import { CapaLifecycleCard } from "@/components/capa/CapaLifecycleCard";
 import { CapaOpenedClosedCard } from "@/components/capa/CapaOpenedClosedCard";
 import { CapaDashboardSkeleton } from "@/components/capa/CapaPageSkeleton";
 import { CapaRegisterTable } from "@/components/capa/CapaRegisterTable";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
+import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   DEFAULT_CAPAS_PAGE_NUMBER,
@@ -22,7 +26,6 @@ import { isApiError } from "@/lib/axios";
 import { toCapaListFilterParam } from "@/lib/capa-filters";
 
 const CREATE_CAPA_ROUTE = "/dashboard/capa/new";
-const MY_CAPAS_ROUTE = "/dashboard/capa/mine";
 
 /** CAPA Dashboard main content — Figma 7123:41912. */
 export function CapaDashboardView() {
@@ -30,17 +33,20 @@ export function CapaDashboardView() {
   const hasToken = useHasAccessToken();
   const isClientReady = hasToken !== null;
 
-  /** Empty string = All (matches ModuleFilterBar / GET /api/CAPA omit). */
+  /** Empty string = All (matches ModuleFilterBar / GET /api/v1/capas omit). */
+  const [scope, setScope] = useState("");
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(DEFAULT_CAPAS_PAGE_NUMBER);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const capasQuery = useCapasListQuery({
     pageNumber,
     pageSize: DEFAULT_CAPAS_PAGE_SIZE,
-    search: "",
+    search: toCapaListFilterParam(searchQuery),
+    scope: toCapaListFilterParam(scope),
     status: toCapaListFilterParam(status),
     capaType: toCapaListFilterParam(type),
     priority: toCapaListFilterParam(priority),
@@ -55,11 +61,11 @@ export function CapaDashboardView() {
   const currentPage = capasQuery.data?.pageNumber ?? pageNumber;
 
   const selected =
-    (selectedId != null
-      ? items.find((item) => item.id === selectedId)
-      : null) ??
-    items[0] ??
-    null;
+    selectedId != null
+      ? (items.find((item) => item.id === selectedId) ?? null)
+      : null;
+
+  const isPanelOpen = selected != null;
 
   const showBootLoading = !isClientReady;
   const showQueryLoading =
@@ -81,9 +87,17 @@ export function CapaDashboardView() {
     setSelectedId(null);
   }
 
+  const handleToggleDetail = (id: string) => {
+    setSelectedId((current) => (current === id ? null : id));
+  };
+
   if (showBootLoading || showQueryLoading) {
     return <CapaDashboardSkeleton />;
   }
+
+  const resultLabel = `${String(totalCount)} ${
+    totalCount === 1 ? "CAPA" : "CAPAs"
+  }`;
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5">
@@ -96,11 +110,14 @@ export function CapaDashboardView() {
       <CapaDashboardFooterCards />
 
       <CapaDashboardFilters
+        scope={scope}
         status={status}
         type={type}
         priority={priority}
-        shownCount={items.length}
-        totalCount={totalCount}
+        onScopeChange={(value) => {
+          setScope(value);
+          resetToFirstPage();
+        }}
         onStatusChange={(value) => {
           setStatus(value);
           resetToFirstPage();
@@ -113,28 +130,57 @@ export function CapaDashboardView() {
           setPriority(value);
           resetToFirstPage();
         }}
-        onMyCapas={() => router.push(MY_CAPAS_ROUTE)}
-        onNewCapa={() => router.push(CREATE_CAPA_ROUTE)}
+      />
+
+      <ModuleSearchBar
+        value={searchQuery}
+        onChange={(value) => {
+          setSearchQuery(value);
+          resetToFirstPage();
+        }}
+        placeholder="Search by title..."
+        aria-label="Search CAPAs"
+        resultLabel={resultLabel}
       />
 
       {errorMessage ? (
-        <Text as="p" className="text-sm text-[#ef4444]">
-          {errorMessage}
-        </Text>
-      ) : null}
-
-      {!errorMessage && items.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          No CAPAs found.
-        </Text>
-      ) : null}
-
-      {items.length > 0 ? (
-        <div className="grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <IncidentGlassCard
+          className="min-h-45 text-center"
+          incidentGlassCardClassName="items-center justify-center gap-2"
+        >
+          <Icon
+            icon="mdi:alert-circle-outline"
+            className="text-ehs-red size-8"
+            aria-hidden="true"
+          />
+          <Text as="p" className="text4 text-ehs-darker">
+            Could not load CAPAs
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text">
+            {errorMessage}
+          </Text>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => void capasQuery.refetch()}
+            className="mt-1"
+          >
+            Retry
+          </Button>
+        </IncidentGlassCard>
+      ) : (
+        <div
+          className={[
+            "grid min-w-0 items-start gap-x-3.5 gap-y-5",
+            isPanelOpen
+              ? "xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+              : "xl:grid-cols-1",
+          ].join(" ")}
+        >
           <CapaRegisterTable
             items={items}
             selectedId={selected?.id ?? null}
-            onSelect={setSelectedId}
+            onToggleDetail={handleToggleDetail}
             pageNumber={currentPage}
             pageSize={pageSize}
             totalCount={totalCount}
@@ -143,6 +189,8 @@ export function CapaDashboardView() {
               setSelectedId(null);
             }}
             isPaginationLoading={capasQuery.isFetching}
+            expanded={!isPanelOpen}
+            onNewCapa={() => router.push(CREATE_CAPA_ROUTE)}
           />
           {selected ? (
             <CapaDetailPanel
@@ -152,10 +200,11 @@ export function CapaDashboardView() {
                   `/dashboard/capa/${encodeURIComponent(selected.id)}`,
                 )
               }
+              className="min-w-0 xl:sticky xl:top-4"
             />
           ) : null}
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

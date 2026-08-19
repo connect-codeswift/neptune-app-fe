@@ -8,6 +8,7 @@ import type {
   InspectionFindingDto,
 } from "@/dtos/res/inspection-response.dto";
 import { formatRunStatus } from "@/lib/audit-inspection-status";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const SHORT_MONTHS = [
   "Jan",
@@ -72,9 +73,7 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
     status: formatRunStatus((dto.status ?? "").trim()),
     dueDate: formatInspectionDate(dto.scheduleDate ?? ""),
     findings:
-      (dto.findingCount ?? 0) > 0
-        ? `${String(dto.findingCount)} open`
-        : null,
+      (dto.findingCount ?? 0) > 0 ? `${String(dto.findingCount)} open` : null,
   };
 }
 
@@ -94,7 +93,7 @@ export function mapFindingDtoToFinding(
 
 /** Map an API inspection detail onto the detail panel's donut shape. */
 /**
- * Turn GET /api/Inspection/{id} into a runnable checklist: the template
+ * Turn GET /api/v1/inspections/{id} into a runnable checklist: the template
  * snapshot carries the sections and their items.
  */
 export function mapInspectionDetailToChecklist(
@@ -114,14 +113,14 @@ export function mapInspectionDetailToChecklist(
     }));
 
   return {
-    inspectionId: `I-${String(dto.id)}`,
+    inspectionId: formatRecordDisplayId("I", dto.id),
     subtitle: dto.inspectionTitle || dto.snapshot?.templateName || "Inspection",
     sections,
   };
 }
 
 /**
- * Build the report straight from GET /api/Inspection/{id}, which carries
+ * Build the report straight from GET /api/v1/inspections/{id}, which carries
  * everything it needs: the inspection's metadata, the template snapshot
  * (sections, items and pass threshold) and the recorded responses.
  */
@@ -186,7 +185,7 @@ export function buildInspectionReportFromDetail(
     .join(" ");
 
   return {
-    inspectionId: `I-${String(dto.id)}`,
+    inspectionId: formatRecordDisplayId("I", dto.id),
     title: dto.inspectionTitle || "Inspection report",
     scope: [snapshot?.templateName, formatLocation(dto.location ?? "")]
       .filter(Boolean)

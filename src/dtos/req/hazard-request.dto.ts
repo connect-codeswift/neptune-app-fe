@@ -1,4 +1,4 @@
-/** Matches backend body for POST /api/Hazard/GetAllHazard. */
+/** Matches backend body for POST /api/v1/hazards/search. */
 export type GetAllHazardRequestDto = {
   pageNumber: number;
   pageSize: number;
@@ -6,7 +6,7 @@ export type GetAllHazardRequestDto = {
   userId: number;
 };
 
-/** Matches backend body for POST /api/Hazard/Hazards. */
+/** Matches backend body for POST /api/v1/hazards. */
 export type CreateHazardRequestDto = {
   id?: number;
   type: string;
@@ -14,25 +14,27 @@ export type CreateHazardRequestDto = {
   description: string;
   /** Secure Cloudinary URL of the attached photo evidence. */
   image: string;
-  /** 0 until the assign-hazard flow exists. */
-  assignedTo: number;
   userId: number;
   siteId: number;
   isDrop: boolean;
 };
 
 /**
- * Edit body for the same POST /api/Hazard/Hazards endpoint — sending an `id`
+ * Edit body for the same POST /api/v1/hazards endpoint — sending an `id`
  * updates the existing record instead of creating one.
  */
 export type UpdateHazardRequestDto = {
   id: number;
-  status: string;
-  assignedTo: number;
+  type: string;
+  location: string;
   description: string;
+  image: string;
+  userId: number;
+  siteId: number;
+  isDrop: boolean;
+  status: string;
 };
 
-/** Either shape accepted by POST /api/Hazard/Hazards. */
+/** Either shape accepted by POST /api/v1/hazards. */
 export type SaveHazardRequestDto =
-  | CreateHazardRequestDto
-  | UpdateHazardRequestDto;
+  CreateHazardRequestDto | UpdateHazardRequestDto;

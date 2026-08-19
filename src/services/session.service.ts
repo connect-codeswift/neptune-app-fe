@@ -16,6 +16,12 @@ function mapUserByIdFallback(
     email: user.email,
     role: currentUser.role,
     jobTitle: user.jobTitle ?? null,
+    contactNo: user.contactNo ?? null,
+    // GetUserById deliberately does not expose MFA state (UserSummaryDto omits it), so this
+    // fallback cannot know. False is the safe default: the Security screen treats an unknown
+    // state as "off" and offers enrolment, which the API rejects if it is already on.
+    mfaEnabled: false,
+    mfaPromptDismissed: false,
     organizationId: user.organizationId,
     organizationName: user.organizationName,
     siteId: authContext?.siteId ?? null,
@@ -38,16 +44,15 @@ function mapUserByIdFallback(
 }
 
 /**
- * Primary session bootstrap: GET /Auth/Org/me.
- * Falls back to GET /Auth/GetUserById/{id} when Org/me is unavailable.
+ * Primary session bootstrap: GET /api/v1/organizations/me.
+ * Falls back to GET /api/v1/users/{id}/{id} when Org/me is unavailable.
  */
 export async function getOrgSession(): Promise<SessionBootstrapDto | null> {
   try {
     const session = await getOrgMe();
 
     if (session) {
-      const userId =
-        getAuthContext()?.userId ?? getCurrentUser().userId ?? 0;
+      const userId = getAuthContext()?.userId ?? getCurrentUser().userId ?? 0;
 
       if (!session.profileUrl && userId > 0) {
         try {

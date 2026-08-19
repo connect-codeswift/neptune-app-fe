@@ -28,7 +28,7 @@ function PriorityBadge(props: Readonly<{ priority?: string }>) {
   const label = (props.priority ?? "Medium").toUpperCase();
 
   return (
-    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex shrink-0 rounded-full px-2.5 py-1 text-2.5 font-bold tracking-[0.2px] uppercase">
+    <span className="bg-ehs-gray/14 text-ehs-gray text-2.5 inline-flex shrink-0 rounded-full px-2.5 py-1 font-bold tracking-[0.2px] uppercase">
       {label}
     </span>
   );
@@ -44,7 +44,7 @@ function ChecklistRow(
   const { task, priority, onRemove } = props;
 
   return (
-    <div className="flex items-center gap-3 border-b border-[rgba(15,23,42,0.08)] px-3.5 py-3 last:border-b-0">
+    <div className="border-ehs-border-ink/8 flex items-center gap-3 border-b px-3.5 py-3 last:border-b-0">
       <p className="text-ehs-dark-bg min-w-0 flex-1 text-sm leading-[19.5px]">
         {task}
       </p>
@@ -95,7 +95,7 @@ export function CapaModalTasksSection(
           type="button"
           onClick={onOpenAddTask}
           disabled={busy}
-          className="bg-ehs-normal-blue/10 text-ehs-normal-blue hover:bg-ehs-normal-blue/15 inline-flex shrink-0 items-center gap-1.5 rounded-2.5 px-3 py-[7.5px] text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-normal-blue/10 text-ehs-normal-blue hover:bg-ehs-normal-blue/15 rounded-2.5 inline-flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
           Add Task
@@ -103,7 +103,7 @@ export function CapaModalTasksSection(
       </div>
 
       {hasTasks ? (
-        <div className="overflow-hidden rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80">
+        <div className="border-ehs-border-ink/8 bg-ehs-surface/80 overflow-hidden rounded-xl border">
           {isEditMode
             ? savedTasks.map((taskItem) => (
                 <ChecklistRow

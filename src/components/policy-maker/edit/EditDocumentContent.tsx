@@ -14,6 +14,7 @@ import {
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
 
 export type EditDocumentContentProps = Readonly<{
@@ -21,12 +22,12 @@ export type EditDocumentContentProps = Readonly<{
 }>;
 
 function parseDocumentId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and renders the edit view.
+ * Loads a document via GET /api/v1/documents/{id} and renders the edit view.
  */
 export function EditDocumentContent(props: Readonly<EditDocumentContentProps>) {
   const { documentIdParam } = props;

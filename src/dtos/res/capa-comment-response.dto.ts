@@ -1,6 +1,6 @@
 /**
  * Matches backend `CapaCommentDto` (OpenAPI) plus optional list fields
- * returned by GET /api/CAPA/Comments.
+ * returned by GET /api/v1/capas/{capaId}/comments.
  */
 export type CapaCommentDto = {
   id?: number | null;

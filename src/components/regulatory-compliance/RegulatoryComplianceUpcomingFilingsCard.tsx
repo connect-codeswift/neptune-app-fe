@@ -18,7 +18,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[17.51px]"
+      paddingClassName="p-[18px]"
       className={[complianceGlassCardClass, className]
         .filter(Boolean)
         .join(" ")}
@@ -38,13 +38,13 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`filing-skeleton-${String(index)}`}
-                className="flex h-[36.785px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
+                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <div className="h-3.5 w-10 animate-pulse rounded-1.5 bg-[#e2e8f0]" />
-                  <div className="h-4.25 min-w-0 flex-1 animate-pulse rounded-1.5 bg-[#e2e8f0]" />
+                  <div className="rounded-1.5 h-3.5 w-10 animate-pulse bg-ehs-border" />
+                  <div className="rounded-1.5 h-4.25 min-w-0 flex-1 animate-pulse bg-ehs-border" />
                 </div>
-                <div className="h-5 w-14 animate-pulse rounded-full bg-[#e2e8f0]" />
+                <div className="h-5 w-14 animate-pulse rounded-full bg-ehs-border" />
               </div>
             ))}
           </div>
@@ -57,7 +57,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             {filings.map((item) => (
               <div
                 key={item.id}
-                className="flex h-[36.785px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
+                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Text
@@ -66,10 +66,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
                   >
                     {item.date}
                   </Text>
-                  <Text
-                    as="span"
-                    className="text4 text-ehs-darker truncate"
-                  >
+                  <Text as="span" className="text4 text-ehs-darker truncate">
                     {item.title}
                   </Text>
                 </div>

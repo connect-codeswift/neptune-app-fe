@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 export type WalkTalkSessionCardProps = Readonly<{
   session: WalkTalkSession;
@@ -15,11 +16,12 @@ export type WalkTalkSessionCardProps = Readonly<{
 /** Mobile session card — matches Figma 6415:34651. */
 export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
   const { session, isSelected = false, onViewMore } = props;
+  const displayId = formatRecordDisplayId("WT", session.id);
 
   return (
     <div
       className={[
-        "border-ehs-border flex w-full flex-col gap-3 rounded-xl border bg-white p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.05)]",
+        "border-ehs-border bg-ehs-surface flex w-full flex-col gap-3 rounded-xl border p-3.5 shadow-[0px_4px_6px_rgba(15,23,42,0.05)]",
         isSelected ? "ring-ehs-normal-blue/30 ring-2" : "",
       ]
         .filter(Boolean)
@@ -27,7 +29,7 @@ export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
     >
       <div className="flex items-center justify-between gap-3">
         <Text as="span" className="text7 text-ehs-muted-text">
-          {session.id}
+          {displayId}
         </Text>
         <div className="flex items-center gap-1.5">
           <IncidentBadge
@@ -41,8 +43,8 @@ export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
               className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
               aria-label={
                 isSelected
-                  ? `Close details for ${session.id}`
-                  : `View ${session.id}`
+                  ? `Close details for ${displayId}`
+                  : `View ${displayId}`
               }
               onClick={onViewMore}
             >

@@ -45,10 +45,10 @@ export function HrcaCategoryCell(props: Readonly<{ category: string }>) {
     <div
       className={[
         HRCA_ROW_MIN_HEIGHT_CLASS,
-        "bg-ehs-normal-blue/13 flex h-full items-center justify-center self-stretch rounded-2.25 border border-[rgba(15,23,42,0.08)] px-2.75 py-2.25",
+        "bg-ehs-normal-blue/13 rounded-2.25 border-ehs-border-ink/8 flex h-full items-center justify-center self-stretch border px-2.75 py-2.25",
       ].join(" ")}
     >
-      <p className="text-ehs-dark-bg text-center text8 leading-[14.4px] font-bold">
+      <p className="text-ehs-dark-bg text8 text-center leading-[14.4px] font-bold">
         {lines.map((line) => (
           <span key={line} className="block">
             {line}
@@ -80,7 +80,7 @@ export function HrcaContributingFactorCell(
       ].join(" ")}
     >
       <p
-        className="mb-1.5 text8 leading-3.25 font-bold tracking-[0.72px] uppercase"
+        className="text8 mb-1.5 leading-3.25 font-bold tracking-[0.72px] uppercase"
         style={{ color: accent }}
       >
         Contributing factor
@@ -139,14 +139,14 @@ export function HrcaWhyCell(
         >
           <div className="mb-1.75 flex w-full items-center gap-1.75">
             <span
-              className="inline-flex size-4.75 shrink-0 items-center justify-center rounded-[9.5px] text8 leading-[15.23px] font-bold text-white"
+              className="text8 rounded-2.5 inline-flex size-4.75 shrink-0 items-center justify-center leading-[15.23px] font-bold text-white"
               style={{ backgroundColor: accent }}
             >
               {String(why.num)}
             </span>
             {why.isRootCause ? (
               <span
-                className="inline-flex items-center gap-0.75 text8 leading-3.25 font-bold tracking-[0.54px] uppercase"
+                className="text8 inline-flex items-center gap-0.75 leading-3.25 font-bold tracking-[0.54px] uppercase"
                 style={{ color: accent }}
               >
                 <Icon
@@ -178,14 +178,10 @@ export function HrcaWhyCell(
                   onRemove();
                 }
               }}
-              className="text-ehs-muted-text hover:text-ehs-red ml-auto inline-flex size-4.5 items-center justify-center rounded-1.25 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              className="text-ehs-muted-text hover:text-ehs-red rounded-1.25 ml-auto inline-flex size-4.5 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
               aria-label="Remove why step"
             >
-              <Icon
-                icon="mdi:close"
-                className="size-2.75"
-                aria-hidden="true"
-              />
+              <Icon icon="mdi:close" className="size-2.75" aria-hidden="true" />
             </span>
           </div>
           <p className="text-ehs-slate text4 leading-[18.13px] font-normal">
@@ -205,11 +201,11 @@ export function HrcaWhyCell(
           onClick={onAdd}
           className={[
             HRCA_ROW_MIN_HEIGHT_CLASS,
-            "flex h-full min-h-32 w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-3 border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-3.25 transition-colors hover:border-[rgba(15,23,42,0.28)] hover:bg-white/40",
+            "rounded-3 border-ehs-border-ink/14 hover:border-ehs-border-ink/28 hover:bg-ehs-surface/40 flex h-full min-h-32 w-full cursor-pointer flex-col items-center justify-center gap-1.5 border border-dashed px-3.5 py-3.25 transition-colors",
           ].join(" ")}
         >
           <span
-            className="flex size-6.5 items-center justify-center rounded-3.25"
+            className="rounded-3.25 flex size-6.5 items-center justify-center"
             style={{ backgroundColor: hexToRgba(accent, 0.22) }}
           >
             <Icon
@@ -219,10 +215,7 @@ export function HrcaWhyCell(
               aria-hidden="true"
             />
           </span>
-          <Text
-            as="span"
-            className="text-ehs-muted-text text4 leading-3.25"
-          >
+          <Text as="span" className="text-ehs-muted-text text4 leading-3.25">
             Add why
           </Text>
         </button>
@@ -236,13 +229,10 @@ export function HrcaWhyCell(
       <div
         className={[
           HRCA_ROW_MIN_HEIGHT_CLASS,
-          "flex h-full min-h-32 w-full items-center justify-center rounded-3 border border-dashed border-[rgba(15,23,42,0.14)] px-3.5 py-3.25",
+          "rounded-3 border-ehs-border-ink/14 flex h-full min-h-32 w-full items-center justify-center border border-dashed px-3.5 py-3.25",
         ].join(" ")}
       >
-        <Text
-          as="span"
-          className="text-ehs-muted-text text4 leading-[15.95px]"
-        >
+        <Text as="span" className="text-ehs-muted-text text4 leading-[15.95px]">
           —
         </Text>
       </div>
@@ -265,10 +255,10 @@ export function HrcaCorrectiveActionsCell(
       className={[
         hrcaCellShellClass,
         HRCA_ROW_MIN_HEIGHT_CLASS,
-        "min-h-32 border-[rgba(16,185,129,0.35)]",
+        "border-ehs-green/35 min-h-32",
       ].join(" ")}
     >
-      <p className="mb-2 text8 leading-3.25 font-bold tracking-[0.72px] text-[#10b981] uppercase">
+      <p className="text8 text-ehs-green mb-2 leading-3.25 font-bold tracking-[0.72px] uppercase">
         Corrective actions
       </p>
       <div className="flex w-full flex-1 flex-col gap-2">
@@ -277,17 +267,13 @@ export function HrcaCorrectiveActionsCell(
             key={action.id ?? `${action.text}-${index}`}
             className="group flex items-start gap-2"
           >
-            <span className="mt-px flex size-4.25 shrink-0 items-center justify-center rounded-1.25 bg-[rgba(16,185,129,0.14)] text-[#10b981]">
-              <Icon
-                icon="mdi:check"
-                className="size-2.75"
-                aria-hidden="true"
-              />
+            <span className="rounded-1.25 bg-ehs-green/14 text-ehs-green mt-px flex size-4.25 shrink-0 items-center justify-center">
+              <Icon icon="mdi:check" className="size-2.75" aria-hidden="true" />
             </span>
             <button
               type="button"
               onClick={() => onEdit(index, action.text)}
-              className="text-ehs-slate hover:text-ehs-dark-bg min-w-0 flex-1 text-left text4 leading-[18.13px] font-normal"
+              className="text-ehs-slate hover:text-ehs-dark-bg text4 min-w-0 flex-1 text-left leading-[18.13px] font-normal"
             >
               {action.text}
             </button>
@@ -304,7 +290,7 @@ export function HrcaCorrectiveActionsCell(
         <button
           type="button"
           onClick={onAdd}
-          className="hover:text-ehs-dark-blue-active inline-flex items-center gap-1.5 self-start pt-0.5 text4 leading-3.25 font-bold text-[#10b981] transition-colors"
+          className="hover:text-ehs-dark-blue-active text4 text-ehs-green inline-flex items-center gap-1.5 self-start pt-0.5 leading-3.25 font-bold transition-colors"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
           Add action

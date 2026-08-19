@@ -28,11 +28,11 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
         type="button"
         aria-current="step"
         onClick={() => onStepChange?.(stepNumber)}
-        className="border-ehs-light-blue-active/70 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border bg-white px-6 py-3 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
+        className="border-ehs-light-blue-active/70 shadow-ehs-normal-blue/15 focus-visible:ring-ehs-normal-blue/30 bg-ehs-surface inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border px-6 py-3 shadow-md transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
         <span
           aria-hidden="true"
-          className="bg-ehs-normal-blue text-ehs-light-text shadow-ehs-normal-blue/35 flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
+          className="bg-ehs-normal-blue text-ehs-on-accent shadow-ehs-normal-blue/35 flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md"
         >
           {stepNumber}
         </span>
@@ -56,7 +56,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
       >
         <span
           aria-hidden="true"
-          className="bg-ehs-green shadow-ehs-green/40 flex size-8 items-center justify-center rounded-full text-white shadow-md"
+          className="bg-ehs-green shadow-ehs-green/40 flex size-8 items-center justify-center rounded-full text-ehs-on-accent shadow-md"
         >
           <Icon icon="mdi:check" className="text-base" />
         </span>
@@ -73,7 +73,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
     >
       <span
         aria-hidden="true"
-        className="text-ehs-muted-text flex size-8 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold"
+        className="text-ehs-muted-text bg-ehs-border flex size-8 items-center justify-center rounded-full text-sm font-semibold"
       >
         {stepNumber}
       </span>
@@ -95,7 +95,7 @@ export function MobileStepper(props: Readonly<MobileStepperProps>) {
       aria-label={ariaLabel}
       className={["w-full", className].filter(Boolean).join(" ")}
     >
-      <ol className="shadow-ehs-normal-blue/15 flex items-center justify-between rounded-full border border-white/70 bg-white/60 px-5 py-2 shadow-lg backdrop-blur-xl">
+      <ol className="shadow-ehs-normal-blue/15 border-ehs-hairline/70 bg-ehs-surface/60 flex items-center justify-between rounded-full border px-5 py-2 shadow-lg backdrop-blur-xl">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
           const isActive = stepNumber === currentStep;

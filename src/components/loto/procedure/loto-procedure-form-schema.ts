@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   createInitialValues,
   type FormSchema,
@@ -8,8 +9,6 @@ import {
   LOTO_ENERGY_TYPES,
   LOTO_HAZARD_LEVELS,
   LOTO_ISOLATION_METHODS,
-  LOTO_PPE_OPTIONS,
-  LOTO_PROCEDURE_PERSONNEL,
   type LotoIsolationStep,
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
@@ -17,7 +16,6 @@ import {
 export const LOTO_EQUIPMENT_FORM_ID = "loto-equipment-form";
 export const LOTO_VERIFICATION_FORM_ID = "loto-verification-form";
 export const LOTO_PPE_FORM_ID = "loto-ppe-form";
-export const LOTO_PERSONNEL_FORM_ID = "loto-personnel-form";
 
 export function lotoStepFormId(stepId: string): string {
   return `loto-step-form-${stepId}`;
@@ -35,58 +33,52 @@ const methodOptions: readonly SelectOption[] = LOTO_ISOLATION_METHODS.map(
   (method) => ({ value: method, label: method }),
 );
 
-const ppeOptions: readonly SelectOption[] = LOTO_PPE_OPTIONS.map((ppe) => ({
-  value: ppe,
-  label: ppe,
-}));
-
-const personnelOptions: readonly SelectOption[] = LOTO_PROCEDURE_PERSONNEL.map(
-  (person) => ({ value: person.id, label: person.name }),
-);
-
-/** Equipment Information card — Figma create/edit. */
-export const lotoEquipmentSchema: FormSchema = [
-  {
-    type: "text",
-    name: "equipmentName",
-    label: "Equipment Name",
-    required: true,
-    colSpan: 6,
-    placeholder: "e.g. Conveyor Belt Motor",
-  },
-  {
-    type: "text",
-    name: "equipmentCode",
-    label: "Equipment ID",
-    required: true,
-    colSpan: 6,
-    placeholder: "e.g. EQ-0042",
-  },
-  {
-    type: "text",
-    name: "location",
-    label: "Location",
-    colSpan: 6,
-    placeholder: "e.g. Plant B - Line 3",
-  },
-  {
-    type: "select",
-    name: "hazardLevel",
-    label: "Hazard Level",
-    colSpan: 6,
-    placeholder: "Select hazard level",
-    options: hazardOptions,
-  },
-  {
-    type: "textarea",
-    name: "description",
-    label: "Equipment Description",
-    colSpan: 12,
-    rows: 3,
-    placeholder:
-      "Describe the equipment, its function, and any relevant background information…",
-  },
-];
+/**
+ * Equipment Information card — Figma create/edit. Equipment ID is not a field
+ * at all: the code is backend-assigned (see FEGuides/Loto.md). Location is a
+ * search picker over the location register (`LotoLocationSearchField`) whose
+ * value lives in `LotoProcedureForm`, so it rides in as a `custom` field —
+ * that is what lets it sit second, between Equipment Name and Hazard Level,
+ * instead of being stacked above the form.
+ */
+export function makeLotoEquipmentSchema(
+  locationField: ReactNode = null,
+): FormSchema {
+  return [
+    {
+      type: "text",
+      name: "equipmentName",
+      label: "Equipment Name",
+      required: true,
+      colSpan: 6,
+      placeholder: "e.g. Conveyor Belt Motor",
+    },
+    {
+      type: "custom",
+      name: "location",
+      label: "Location",
+      colSpan: 6,
+      render: locationField,
+    },
+    {
+      type: "select",
+      name: "hazardLevel",
+      label: "Hazard Level",
+      colSpan: 6,
+      placeholder: "Select hazard level",
+      options: hazardOptions,
+    },
+    {
+      type: "textarea",
+      name: "description",
+      label: "Equipment Description",
+      colSpan: 12,
+      rows: 3,
+      placeholder:
+        "Describe the equipment, its function, and any relevant background information…",
+    },
+  ];
+}
 
 /** Single isolation step fields. */
 export const lotoStepSchema: FormSchema = [
@@ -151,36 +143,31 @@ export const lotoVerificationSchema: FormSchema = [
   },
 ];
 
-export const lotoPpeSchema: FormSchema = [
-  {
-    type: "chips",
-    name: "selectedPpe",
-    label: "Required PPE",
-    colSpan: 12,
-    options: ppeOptions,
-  },
-];
-
-export const lotoPersonnelSchema: FormSchema = [
-  {
-    type: "checkbox-group",
-    name: "selectedPersonnelIds",
-    label: "Authorized Personnel",
-    helperText: "Only these users can perform this LOTO procedure",
-    colSpan: 12,
-    columns: 1,
-    options: personnelOptions,
-  },
-];
+/**
+ * Required PPE chips. Options come from the PPE catalog (GET /api/ppe) via
+ * `toPpeChipOptions`, so the schema is built per render rather than being a
+ * module constant — pass `[]` while the catalog is still loading.
+ */
+export function makeLotoPpeSchema(
+  options: readonly SelectOption[],
+): FormSchema {
+  return [
+    {
+      type: "chips",
+      name: "selectedPpe",
+      label: "Required PPE",
+      colSpan: 12,
+      options,
+    },
+  ];
+}
 
 export function toEquipmentFormValues(
   state: LotoProcedureFormState,
 ): FormValues {
   return {
-    ...createInitialValues(lotoEquipmentSchema),
+    ...createInitialValues(makeLotoEquipmentSchema()),
     equipmentName: state.equipmentName,
-    equipmentCode: state.equipmentCode,
-    location: state.location,
     hazardLevel: state.hazardLevel,
     description: state.description,
   };
@@ -209,17 +196,8 @@ export function toVerificationFormValues(
 
 export function toPpeFormValues(state: LotoProcedureFormState): FormValues {
   return {
-    ...createInitialValues(lotoPpeSchema),
+    ...createInitialValues(makeLotoPpeSchema([])),
     selectedPpe: [...state.selectedPpe],
-  };
-}
-
-export function toPersonnelFormValues(
-  state: LotoProcedureFormState,
-): FormValues {
-  return {
-    ...createInitialValues(lotoPersonnelSchema),
-    selectedPersonnelIds: [...state.selectedPersonnelIds],
   };
 }
 

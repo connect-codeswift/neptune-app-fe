@@ -53,19 +53,17 @@ export function StartAuditForm() {
   const templatesQuery = useAuditTemplatesQuery({
     pageNumber: templatePage,
     pageSize: TEMPLATE_PAGE_SIZE,
+    status: "Published",
   });
   const templatePageData = templatesQuery.data?.dataModel;
 
-  // Only published templates can start an audit (the backend rejects drafts),
-  // so drafts are filtered out of the dropdown entirely.
+  // Only published templates can start an audit (the backend rejects drafts).
   const templateOptions = useMemo<SelectOption[]>(
     () =>
-      (templatePageData?.data ?? [])
-        .filter((template) => template.isPublished)
-        .map((template) => ({
-          value: String(template.id),
-          label: template.templateName || "Untitled template",
-        })),
+      (templatePageData?.data ?? []).map((template) => ({
+        value: String(template.id),
+        label: template.templateName || "Untitled template",
+      })),
     [templatePageData],
   );
 
@@ -204,8 +202,8 @@ export function StartAuditForm() {
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-6"
-      className="w-full"
+      paddingClassName="p-5 sm:p-6"
+      className="backdrop-blur-2.5 bg-ehs-surface/62 w-full"
     >
       <FormBuilder
         // Remount once when preselection flips in post-hydration, so the

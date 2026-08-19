@@ -4,14 +4,20 @@ import { useMemo } from "react";
 import { Text } from "@/components/Text";
 import { HeroKpiCard } from "@/components/incidents/dashboard/HeroKpiCard";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { SiteWorkHoursMissingBanner } from "@/components/incidents/shared/SiteWorkHoursMissingBanner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { useHeaderKpiQuery, useKpiTargetsQuery, useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
+import {
+  useHeaderKpiQuery,
+  useKpiTargetsQuery,
+  useSiteWorkHoursQuery,
+} from "@/hooks/use-incident-kpi-queries";
 import {
   mapHeaderKpisToHeroMetrics,
   mapKpiTargetsToLookup,
-  hasSufficientSiteWorkHours,
+  resolveSiteWorkHoursAvailability,
+  toIncidentRateHoursGate,
 } from "@/services/mappers/incident-kpi.mapper";
 
 function HeroKpiSkeleton() {
@@ -46,22 +52,28 @@ export function IncidentKpisHeroRow() {
     [kpiTargetsQuery.data?.dataModel],
   );
 
-  const ratesAvailable = hasSufficientSiteWorkHours(
-    siteWorkHoursQuery.data?.dataModel,
-  );
+  const workHoursAvailability = resolveSiteWorkHoursAvailability({
+    isLoading: siteWorkHoursQuery.isLoading,
+    isError: siteWorkHoursQuery.isError,
+    records: siteWorkHoursQuery.data?.dataModel,
+  });
+  const rateHoursGate = toIncidentRateHoursGate(workHoursAvailability);
 
   const heroMetrics = useMemo(
     () =>
       mapHeaderKpisToHeroMetrics(
         headerKpiQuery.data?.dataModel,
         targetsLookup,
-        ratesAvailable,
+        rateHoursGate,
       ),
-    [headerKpiQuery.data?.dataModel, targetsLookup, ratesAvailable],
+    [headerKpiQuery.data?.dataModel, targetsLookup, rateHoursGate],
   );
 
   const showBootLoading = !isClientReady;
-  const showQueryLoading = isClientReady && hasToken && headerKpiQuery.isLoading;
+  const showQueryLoading =
+    isClientReady &&
+    hasToken &&
+    (headerKpiQuery.isLoading || workHoursAvailability === "loading");
   const errorMessage =
     isClientReady && !hasToken
       ? "Please sign in to load incident KPIs."
@@ -88,6 +100,10 @@ export function IncidentKpisHeroRow() {
         <Text as="p" className="text-ehs-red text-sm">
           {errorMessage}
         </Text>
+      ) : null}
+
+      {workHoursAvailability === "insufficient" ? (
+        <SiteWorkHoursMissingBanner />
       ) : null}
 
       <div className="grid gap-3 md:grid-cols-3">

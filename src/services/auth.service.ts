@@ -1,10 +1,13 @@
 import type {
   AcceptInvitationRequestDto,
+  ChangePasswordRequestDto,
+  DisableMfaRequestDto,
   EnableMfaRequestDto,
   ForgotPasswordRequestDto,
   LoginRequestDto,
   RegisterRequestDto,
   ResetPasswordRequestDto,
+  VerifyMfaRequestDto,
 } from "@/dtos/req/auth-request.dto";
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 import type {
@@ -25,16 +28,19 @@ import http, {
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
 
-const AUTH_REGISTER_PATH = "/Auth/register";
-const AUTH_LOGIN_PATH = "/Auth/login";
-const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset password
-const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
-const AUTH_LOGOUT_PATH = "/Auth/logout";
-const USER_ACCEPT_INVITATION_PATH = "/User/accept-invitation";
-const AUTH_MFA_SETUP_PATH = "/Auth/mfa/setup";
-const AUTH_MFA_ENABLE_PATH = "/Auth/mfa/enable";
-const AUTH_MFA_DISMISS_PATH = "/Auth/mfa/dismiss";
-const AUTH_SELECT_SITE_PATH = "/Auth/select-site";
+const AUTH_REGISTER_PATH = "/auth/register";
+const AUTH_LOGIN_PATH = "/auth/login";
+const AUTH_RESET_PASSWORD_PATH = "/auth/verify-otp"; // it is actually reset password
+const AUTH_FORGOT_PASSWORD_PATH = "/auth/forgot-password";
+const AUTH_LOGOUT_PATH = "/auth/logout";
+const USER_ACCEPT_INVITATION_PATH = "/users/accept-invitation";
+const AUTH_MFA_SETUP_PATH = "/auth/mfa/setup";
+const AUTH_MFA_ENABLE_PATH = "/auth/mfa/enable";
+const AUTH_MFA_DISABLE_PATH = "/auth/mfa/disable";
+const AUTH_MFA_DISMISS_PATH = "/auth/mfa/dismiss";
+const AUTH_MFA_VERIFY_PATH = "/auth/verify-mfa";
+const AUTH_CHANGE_PASSWORD_PATH = "/auth/me/change-password";
+const AUTH_SELECT_SITE_PATH = "/auth/select-site";
 
 function readLoginTokens(data: unknown): LoginResponseDto | null {
   const payload = unwrapAuthPayload(data);
@@ -68,8 +74,46 @@ async function registerUser(payload: RegisterRequestDto) {
   await http.post(AUTH_REGISTER_PATH, payload);
 }
 
-async function loginUser(credentials: LoginRequestDto) {
+/**
+ * The short-lived challenge token, when the account has 2FA on.
+ *
+ * The API answers a correct password with `{ mfaRequired: true, mfaToken }` and *no* session
+ * tokens — the second factor has not been presented yet. Reading it is not optional: treating a
+ * token-less login as a failure locked every 2FA user out of the app entirely.
+ */
+function readMfaChallenge(data: unknown): string | null {
+  const payload = unwrapAuthPayload(data);
+
+  if (!payload) {
+    return null;
+  }
+
+  const required = payload.mfaRequired ?? payload.MfaRequired;
+  const mfaToken = payload.mfaToken ?? payload.MfaToken;
+
+  if (required !== true || typeof mfaToken !== "string" || mfaToken === "") {
+    return null;
+  }
+
+  return mfaToken;
+}
+
+/**
+ * Either a live session or a 2FA challenge to answer — the two things a correct password can
+ * produce. Callers must branch on `status` rather than assuming tokens.
+ */
+export type LoginResult =
+  | Readonly<{ status: "authenticated"; session: LoginResponseDto }>
+  | Readonly<{ status: "mfa-required"; mfaToken: string }>;
+
+async function loginUser(credentials: LoginRequestDto): Promise<LoginResult> {
   const { data } = await http.post<unknown>(AUTH_LOGIN_PATH, credentials);
+
+  const mfaToken = readMfaChallenge(data);
+  if (mfaToken) {
+    return { status: "mfa-required", mfaToken };
+  }
+
   const tokens = readLoginTokens(data);
 
   if (!tokens) {
@@ -78,7 +122,7 @@ async function loginUser(credentials: LoginRequestDto) {
     );
   }
 
-  return tokens;
+  return { status: "authenticated", session: tokens };
 }
 
 /** Stores a token pair and its access window as the live session. */
@@ -90,16 +134,60 @@ function persistSession(tokens: LoginResponseDto) {
   return tokens;
 }
 
-export async function authenticateUser(credentials: LoginRequestDto) {
-  const tokens = await loginUser(credentials);
+/**
+ * Password sign-in. Returns either a persisted session or the 2FA challenge to answer with
+ * {@link verifyMfa} — nothing is stored in the challenge case, because no session exists yet.
+ */
+export async function authenticateUser(
+  credentials: LoginRequestDto,
+): Promise<LoginResult> {
+  const result = await loginUser(credentials);
+
+  if (result.status === "mfa-required") {
+    return result;
+  }
 
   // Fail loudly here: if the response shape ever drifts, `setAccessToken`
   // would otherwise be handed `undefined` and quietly *clear* the stored
   // token, leaving every later call to 401 with no clue as to why.
-  if (typeof tokens?.accessToken !== "string" || tokens.accessToken === "") {
+  if (
+    typeof result.session?.accessToken !== "string" ||
+    result.session.accessToken === ""
+  ) {
     throw new Error(
-      `Login succeeded but returned no accessToken. Response keys: ${Object.keys(tokens ?? {}).join(", ") || "(none)"}`,
+      `Login succeeded but returned no accessToken. Response keys: ${Object.keys(result.session ?? {}).join(", ") || "(none)"}`,
     );
+  }
+
+  return { status: "authenticated", session: persistSession(result.session) };
+}
+
+/**
+ * Sign-in that must end in a session — the account was created moments ago, so 2FA cannot be on.
+ *
+ * Registration and invitation-acceptance both log the new user straight in and have nowhere to
+ * show a code prompt. If the API ever does challenge here, that is a genuine surprise and worth
+ * an explicit error rather than a silently token-less "success".
+ */
+async function authenticateWithoutMfa(credentials: LoginRequestDto) {
+  const result = await authenticateUser(credentials);
+
+  if (result.status !== "authenticated") {
+    throw new Error(
+      "This account has two-factor authentication enabled. Sign in from the login page to continue.",
+    );
+  }
+
+  return result.session;
+}
+
+/** Step two of sign-in: exchange the challenge token and a 6-digit code for a session. */
+export async function verifyMfa(payload: VerifyMfaRequestDto) {
+  const { data } = await http.post<unknown>(AUTH_MFA_VERIFY_PATH, payload);
+  const tokens = readLoginTokens(data);
+
+  if (!tokens) {
+    throw new Error("Verification succeeded but returned no access token.");
   }
 
   return persistSession(tokens);
@@ -113,7 +201,7 @@ export async function completeRegistration(
 
   await registerUser(payload);
 
-  return authenticateUser({
+  return authenticateWithoutMfa({
     email: signup.email,
     password: signup.password,
   });
@@ -167,7 +255,7 @@ export async function acceptInvitation(payload: AcceptInvitationRequestDto) {
   if (email) {
     // A freshly accepted user always has MfaEnabled false, so login returns tokens
     // outright rather than an MFA challenge.
-    return authenticateUser({ email, password: payload.password });
+    return authenticateWithoutMfa({ email, password: payload.password });
   }
 
   return null;
@@ -183,9 +271,31 @@ export async function enableMfa(payload: EnableMfaRequestDto) {
   await http.post(AUTH_MFA_ENABLE_PATH, payload);
 }
 
+/**
+ * Turns 2FA off. The API re-authenticates the caller — password for a normal account, a current
+ * authenticator code for an SSO-only one — and clears the stored secret, so re-enrolling later
+ * issues a fresh secret and the old authenticator entry is dead.
+ *
+ * The session survives; only the second factor is removed.
+ */
+export async function disableMfa(payload: DisableMfaRequestDto) {
+  await http.post(AUTH_MFA_DISABLE_PATH, payload);
+}
+
 /** "Not now" on the optional MFA offer, so later logins stop asking. */
 export async function dismissMfaPrompt() {
   await http.post(AUTH_MFA_DISMISS_PATH);
+}
+
+/**
+ * Rotates the signed-in user's password.
+ *
+ * The API revokes every refresh token the account holds, so this device's session is on borrowed
+ * time too — the caller is expected to sign the user out rather than let the session drop at a
+ * random moment later.
+ */
+export async function changePassword(payload: ChangePasswordRequestDto) {
+  await http.post(AUTH_CHANGE_PASSWORD_PATH, payload);
 }
 
 /**

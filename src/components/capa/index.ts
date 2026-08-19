@@ -5,6 +5,7 @@ export * from "./CapaListSkeleton";
 export * from "./CapaListView";
 export * from "./CapaPageClient";
 export * from "./CapaPageSkeleton";
+export * from "./CapaRouteSkeletons";
 export * from "./create/CreateCapaContent";
 export * from "./mine/MyCapasContent";
 export * from "./detail/CapaDetailContent";

@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
-import { HazcomGlassCard } from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export type ChemicalNotFoundProps = Readonly<{
   chemicalId: string;
@@ -13,11 +13,10 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
   const { chemicalId, className = "" } = props;
 
   return (
-    <HazcomGlassCard
-      className={["min-h-70 text-center", className]
-        .filter(Boolean)
-        .join(" ")}
-      hazcomGlassCardClassName="items-center justify-center gap-3"
+    <IncidentGlassCard
+      paddingClassName="p-6"
+      className={["min-h-70 min-w-0", className].filter(Boolean).join(" ")}
+      incidentGlassCardClassName="items-center justify-center gap-3 text-center"
     >
       <Icon
         icon="mdi:flask-off-outline"
@@ -40,6 +39,6 @@ export function ChemicalNotFound(props: Readonly<ChemicalNotFoundProps>) {
           Back to Chemical Inventory
         </Button>
       </Link>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

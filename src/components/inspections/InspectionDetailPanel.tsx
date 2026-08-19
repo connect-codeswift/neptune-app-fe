@@ -9,6 +9,7 @@ import type {
   InspectionDetail,
   InspectionRecord,
 } from "@/app/dashboard/inspections/inspections-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 type Segment = Readonly<{ label: string; value: number; color: string }>;
 
@@ -54,7 +55,10 @@ function ItemsDonut(props: Readonly<{ segments: readonly Segment[] }>) {
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <Text as="span" className="text2 text-ehs-darker leading-none tabular-nums">
+        <Text
+          as="span"
+          className="text2 text-ehs-darker leading-none tabular-nums"
+        >
           {String(total)}
         </Text>
         <Text as="span" className="text9 text-ehs-muted-text mt-1">
@@ -152,7 +156,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
 
   const id = detail?.id ?? record?.id ?? "";
   const title = detail?.title ?? record?.title ?? "Inspection";
-  const displayCode = detail?.code ?? (id ? `I-${id}` : "—");
+  const displayCode = detail?.code ?? (id ? formatRecordDisplayId("I", id) : "—");
   const progress = detail?.progress ?? record?.progress ?? 0;
   const findingsHref = `/dashboard/inspections/findings/${encodeURIComponent(id)}`;
 
@@ -190,7 +194,7 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
 
           <Link
             href={findingsHref}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 bg-ehs-surface inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon
@@ -221,7 +225,10 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
                   style={{ backgroundColor: segment.color }}
                   aria-hidden="true"
                 />
-                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1 truncate">
+                <Text
+                  as="span"
+                  className="text4 text-ehs-darker min-w-0 flex-1 truncate"
+                >
                   {segment.label}
                 </Text>
                 <Text as="span" className="text4 text-ehs-darker tabular-nums">
@@ -248,7 +255,10 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
                   className="bg-ehs-muted-text size-1.5 shrink-0 rounded-full"
                   aria-hidden="true"
                 />
-                <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1">
+                <Text
+                  as="span"
+                  className="text4 text-ehs-darker min-w-0 flex-1"
+                >
                   {finding}
                 </Text>
               </li>

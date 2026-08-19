@@ -1,14 +1,12 @@
 export type CapaEffectiveness =
-  | "Effective"
-  | "Partially Effective"
-  | "Not Effective";
+  "Effective" | "Partially Effective" | "Not Effective";
 
 export type CapaChecklistItemRequestDto = Readonly<{
   item: string;
   isChecked: boolean;
 }>;
 
-/** Body for POST /api/CAPA/Verification */
+/** Body for POST /api/v1/capas/{capaId}/verification */
 export type CapaVerificationRequestDto = Readonly<{
   capaId: number;
   userId: number;

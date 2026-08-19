@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { usePpeIssueDetailQuery } from "@/hooks/use-ppe-queries";
 
+/* The close icon is pinned to `text-slate-500` (#64748b), lighter than
+   `--ehs-gray` (#566072). */
+
 export type PpeIssuanceDetailModalProps = Readonly<{
   open: boolean;
   /** Issue id for GET /api/ppe/issue/{id}. */
@@ -36,7 +39,10 @@ function ModalBodySkeleton() {
     <div className="flex flex-col gap-5" aria-busy="true" aria-label="Loading">
       <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
         {Array.from({ length: 6 }, (_, index) => (
-          <div key={`issue-detail-sk-${String(index)}`} className="flex flex-col gap-1.5">
+          <div
+            key={`issue-detail-sk-${String(index)}`}
+            className="flex flex-col gap-1.5"
+          >
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-4 w-24" />
           </div>
@@ -93,7 +99,7 @@ export function PpeIssuanceDetailModal(
 
   return createPortal(
     <div
-      className="bg-ehs-dark-bg/45 fixed inset-0 z-[100] flex items-center justify-center p-3.5 backdrop-blur-0.75 sm:p-5"
+      className="bg-ehs-surface-inverse/45 backdrop-blur-0.75 fixed inset-0 z-100 flex items-center justify-center p-3.5 sm:p-5"
       onClick={onClose}
       role="presentation"
     >
@@ -102,7 +108,7 @@ export function PpeIssuanceDetailModal(
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
-        className="bg-ehs-light-bg flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]"
+        className="bg-ehs-light-bg flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-(--ehs-shadow-modal)"
       >
         <header className="border-ehs-border relative shrink-0 border-b px-4 py-4 sm:px-6 sm:pt-6 sm:pb-4">
           <div className="flex items-start justify-between gap-3 pr-10">
@@ -114,7 +120,10 @@ export function PpeIssuanceDetailModal(
               >
                 {isLoading && !detail ? "Loading…" : title}
               </Text>
-              <Text as="p" className="text8 text-ehs-muted-text mt-0.5 truncate">
+              <Text
+                as="p"
+                className="text8 text-ehs-muted-text mt-0.5 truncate"
+              >
                 {isLoading && !detail ? "Fetching issuance" : subtitle}
               </Text>
             </div>
@@ -131,7 +140,7 @@ export function PpeIssuanceDetailModal(
             type="button"
             aria-label="Close modal"
             onClick={onClose}
-            className="absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg bg-white/40 transition-colors hover:bg-white/70 sm:top-6 sm:right-6"
+            className="bg-ehs-surface/40 hover:bg-ehs-surface/70 absolute top-4 right-4 flex size-8 items-center justify-center rounded-lg transition-colors sm:top-6 sm:right-6"
           >
             <Icon
               icon="mdi:close"
@@ -161,10 +170,7 @@ export function PpeIssuanceDetailModal(
               <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
                 <DetailField label="Item" value={detail.item} />
                 <DetailField label="Role" value={detail.role} />
-                <DetailField
-                  label="Quantity"
-                  value={String(detail.quantity)}
-                />
+                <DetailField label="Quantity" value={String(detail.quantity)} />
                 <DetailField label="Size" value={detail.size} />
                 <DetailField label="Issue date" value={detail.issueDate} />
                 <DetailField label="Status" value={detail.status} />
@@ -182,7 +188,10 @@ export function PpeIssuanceDetailModal(
                 <Text as="p" className="text9 text-ehs-muted-text">
                   Description
                 </Text>
-                <Text as="p" className="text4 text-ehs-slate whitespace-pre-wrap">
+                <Text
+                  as="p"
+                  className="text4 text-ehs-slate whitespace-pre-wrap"
+                >
                   {detail.note || "No description provided."}
                 </Text>
               </div>

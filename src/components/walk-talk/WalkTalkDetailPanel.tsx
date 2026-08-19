@@ -10,6 +10,7 @@ import type {
   WalkTalkSession,
   WalkTalkSessionDetail,
 } from "@/app/dashboard/walk-talk/walk-talk-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const SESSION_ROUTE = "/dashboard/walk-talk/session";
 
@@ -117,6 +118,7 @@ export function WalkTalkDetailPanel(props: Readonly<WalkTalkDetailPanelProps>) {
   const observer = detail?.observer ?? session.observer;
   const site = detail?.site ?? session.site;
   const focusArea = detail?.topic ?? session.focusArea;
+  const displayId = formatRecordDisplayId("WT", session.id);
   const when = detail
     ? [detail.date, detail.time].filter(Boolean).join(" · ")
     : session.when;
@@ -133,12 +135,12 @@ export function WalkTalkDetailPanel(props: Readonly<WalkTalkDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {session.id}
+            {displayId}
           </Text>
 
           <Link
             href={`${SESSION_ROUTE}?id=${encodeURIComponent(session.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 bg-ehs-surface inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

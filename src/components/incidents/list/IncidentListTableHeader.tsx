@@ -26,7 +26,7 @@ export function IncidentListTableHeader(
   return (
     <div
       className={[
-        "flex h-12.5 flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-4 sm:px-5",
+        "border-ehs-border-ink/8 flex h-12.5 flex-wrap items-center justify-between gap-3 border-b px-4 sm:px-5",
         className,
       ]
         .filter(Boolean)
@@ -34,7 +34,7 @@ export function IncidentListTableHeader(
     >
       <Text
         as="h2"
-        className="shrink-0 text-xs leading-none font-bold text-[#0b1320]"
+        className="text-ehs-dark-bg shrink-0 text-xs leading-none font-bold"
       >
         {title}
       </Text>

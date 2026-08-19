@@ -2,7 +2,6 @@
 
 import { Suspense, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { AuditReportHeader } from "@/components/audits/report/AuditReportHeader";
 import { AuditReportSkeleton } from "@/components/audits/report/AuditReportSkeleton";
 import { AuditReportView } from "@/components/audits/report/AuditReportView";
@@ -16,7 +15,7 @@ function AuditReport() {
   const searchParams = useSearchParams();
   const auditId = decodeURIComponent(searchParams.get("auditid") ?? "");
 
-  // GET /api/Audit/{id} carries the audit, its template snapshot and the
+  // GET /api/v1/audits/{id} carries the audit, its template snapshot and the
   // recorded responses — everything the report needs, from one call.
   const detailQuery = useAuditDetailQuery(auditId);
   const detail = detailQuery.data?.dataModel ?? null;
@@ -45,7 +44,7 @@ function AuditReport() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
+    <div className="flex flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
       <AuditReportHeader
         auditId={report?.auditId ?? "—"}
         subtitle={report?.title ?? ""}
@@ -76,9 +75,7 @@ function AuditReport() {
 
 export default function AuditReportPage() {
   return (
-    <div className="flex min-h-screen flex-1 flex-col gap-3.5">
-      <DashboardHeader />
-
+    <div className="flex min-h-screen flex-1 flex-col">
       <Suspense fallback={null}>
         <AuditReport />
       </Suspense>

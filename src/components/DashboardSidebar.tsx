@@ -1,5 +1,6 @@
 "use client";
 
+import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
@@ -16,6 +17,13 @@ import {
   formatAccessWindowRemaining,
   type AccessWindowState,
 } from "@/lib/access-window";
+
+/* The amber warning tile now runs on `--ehs-warning-surface` / `-border` / `-ink`,
+   whose light values are the amber wash it used to hardcode. It had to become a
+   token: Tailwind's amber-50/300/700 cannot flip, so on a dark rail the tile was
+   a pale smudge with brown text.
+   The skeleton bars use `--ehs-border-strong` at 40% == the slate-300/40 they
+   had, which is deliberately lighter than the `--ehs-border` body bars. */
 
 export type SidebarProps = Readonly<{
   className?: string;
@@ -53,7 +61,7 @@ function SidebarNavLinkPending() {
 
   return (
     <span
-      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-[1.5px] motion-reduce:animate-none"
+      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-2 motion-reduce:animate-none"
       aria-hidden="true"
     />
   );
@@ -68,6 +76,13 @@ function SidebarNavLink(
 ) {
   const { item, active, onNavigate } = props;
 
+  // The Chat entry lights up in the assistant's own teal wash rather than the route-active
+  // pill — per its design node, and so the one brand entry reads differently from modules.
+  const activeClass =
+    item.href === NEPTUNE_AI_HREF
+      ? "bg-ehs-normal-blue/18 text-ehs-normal-blue font-bold"
+      : "bg-ehs-light-blue text-ehs-darker";
+
   return (
     <Link
       href={item.href}
@@ -77,12 +92,12 @@ function SidebarNavLink(
         // desktop rail is pointed at with a cursor and can stay compact.
         "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
         active
-          ? "bg-ehs-light-blue text-ehs-darker"
+          ? activeClass
           : // Darker on the mobile sheet: there it sits over a blurred,
             // arbitrarily-coloured page instead of the desktop rail's calm
             // ground, and ehs-gray washed out against it. ehs-slate is the
             // designed one-step-darker companion, so this stays on palette.
-            "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-white/35",
+            "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
       ].join(" ")}
     >
       <Icon
@@ -96,9 +111,7 @@ function SidebarNavLink(
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text7 text-ehs-muted-text shrink-0">
-          {item.badge}
-        </span>
+        <span className="text7 text-ehs-muted-text shrink-0">{item.badge}</span>
       )}
     </Link>
   );
@@ -109,11 +122,11 @@ function SidebarNavSkeleton() {
     <div className="flex flex-col gap-6 px-4 py-5">
       {Array.from({ length: 4 }).map((_, groupIndex) => (
         <div key={groupIndex} className="flex flex-col gap-2">
-          <div className="mx-3 h-2.5 w-16 animate-pulse rounded bg-slate-300/40" />
+          <div className="bg-ehs-border-strong/40 mx-3 h-2.5 w-16 animate-pulse rounded" />
           {Array.from({ length: 3 }).map((__, itemIndex) => (
             <div
               key={itemIndex}
-              className="mx-2 h-9 animate-pulse rounded-lg bg-slate-300/40"
+              className="bg-ehs-border-strong/40 mx-2 h-9 animate-pulse rounded-lg"
             />
           ))}
         </div>
@@ -126,12 +139,12 @@ function SidebarUserSkeleton() {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2">
       <div
-        className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-300/40"
+        className="bg-ehs-border-strong/40 h-9 w-9 shrink-0 animate-pulse rounded-lg"
         aria-hidden="true"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="h-3.5 w-24 animate-pulse rounded bg-slate-300/40" />
-        <div className="h-3 w-32 animate-pulse rounded bg-slate-300/40" />
+        <div className="bg-ehs-border-strong/40 h-3.5 w-24 animate-pulse rounded" />
+        <div className="bg-ehs-border-strong/40 h-3 w-32 animate-pulse rounded" />
       </div>
     </div>
   );
@@ -148,6 +161,17 @@ function SidebarUserSkeleton() {
  * Which is why the copy escalates instead of the placement — "Contact CodeSwift"
  * only appears in the last week, when it is finally something to act on.
  */
+/**
+ * The access-window notice in the sidebar footer.
+ *
+ * Three states, one shape. The tone carries the whole difference — panel tint, edge, icon chip
+ * and headline ink all move together — so the notice never reads as a different component when
+ * it escalates.
+ *
+ * Everything is a token rather than a literal because this box has to work on both the near-white
+ * sidebar and the near-black one. Amber is the case that forced the issue: written as Tailwind's
+ * amber-50/300/700 it was a pale wash with brown text, which on a dark rail is a smudge.
+ */
 function SidebarAccessWindow(
   props: Readonly<{ accessWindow: AccessWindowState }>,
 ) {
@@ -156,47 +180,66 @@ function SidebarAccessWindow(
   const hasExpired = days <= 0;
   const isUrgent = days <= 7;
 
-  const tone = hasExpired
-    ? {
-        box: "border-ehs-red/25 bg-ehs-red/[0.06]",
-        icon: "text-ehs-red",
-        title: "text-ehs-red",
-      }
-    : isUrgent
-      ? {
-          box: "border-amber-300/50 bg-amber-50/70",
-          icon: "text-amber-600",
-          title: "text-amber-700",
-        }
-      : {
-          box: "border-ehs-border bg-ehs-light-bg/60",
-          icon: "text-ehs-muted-text",
-          title: "text-ehs-darker",
-        };
+  const expiredTone = {
+    panel: "border-ehs-red/30 bg-ehs-red/8",
+    chip: "bg-ehs-red/15 text-ehs-red",
+    title: "text-ehs-red",
+    rule: "border-ehs-red/20",
+  };
+  const urgentTone = {
+    panel: "border-ehs-warning-border bg-ehs-warning-surface",
+    chip: "bg-ehs-warning-ink/15 text-ehs-warning-ink",
+    title: "text-ehs-warning-ink",
+    rule: "border-ehs-warning-border",
+  };
+  const calmTone = {
+    panel: "border-ehs-border bg-ehs-surface/50",
+    chip: "bg-ehs-normal-blue/12 text-ehs-normal-blue",
+    title: "text-ehs-darker",
+    rule: "border-ehs-border",
+  };
+
+  const urgentOrCalm = isUrgent ? urgentTone : calmTone;
+  const tone = hasExpired ? expiredTone : urgentOrCalm;
 
   return (
     <div className="shrink-0 px-4 pt-1 pb-1">
       <div
         role="status"
-        className={`flex flex-col gap-0.5 rounded-xl border px-3 py-2.5 ${tone.box}`}
+        className={`rounded-2.5 flex flex-col gap-2 border px-3 py-2.75 ${tone.panel}`}
       >
-        <div className="flex items-center gap-1.5">
-          <Icon
-            icon={hasExpired ? "mdi:alert-circle-outline" : "mdi:clock-outline"}
-            className={`size-3.5 shrink-0 ${tone.icon}`}
+        <div className="flex items-start gap-2.5">
+          {/* The icon sits in a chip rather than loose against the text: at 14px an outline glyph
+              on a tinted panel has almost no presence, and the chip gives it a shape to hold. */}
+          <span
+            className={`inline-flex size-7 shrink-0 items-center justify-center rounded-lg ${tone.chip}`}
             aria-hidden="true"
-          />
-          <Text as="span" className={`text5 ${tone.title}`}>
-            {formatAccessWindowRemaining(days)}
-          </Text>
+          >
+            <Icon
+              icon={
+                hasExpired ? "mdi:alert-circle-outline" : "mdi:clock-outline"
+              }
+              className="size-4"
+            />
+          </span>
+
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text as="span" className={`text5 leading-tight ${tone.title}`}>
+              {formatAccessWindowRemaining(days)}
+            </Text>
+            <Text as="span" className="text8 text-ehs-muted-text leading-tight">
+              {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
+            </Text>
+          </div>
         </div>
 
-        <Text as="p" className="text8 text-ehs-muted-text pl-5">
-          {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
-        </Text>
-
         {isUrgent ? (
-          <Text as="p" className="text8 text-ehs-muted-text pl-5">
+          /* Divided off rather than stacked as a third line of meta: it is the one thing here
+             the reader can act on, and it should not read as more small print. */
+          <Text
+            as="p"
+            className={`text8 text-ehs-gray border-t pt-2 leading-tight ${tone.rule}`}
+          >
             Contact CodeSwift to extend
           </Text>
         ) : null}
@@ -229,7 +272,7 @@ function SidebarUserFooter(
         </div>
       ) : (
         <div
-          className="bg-ehs-normal-blue text-ehs-light-text text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+          className="bg-ehs-normal-blue text-ehs-on-accent text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           {initials}
@@ -271,7 +314,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         // sheet. min-h-0 lets the nav below actually scroll instead of
         // pushing the footer off the bottom.
         "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border",
-        "border-ehs-border bg-white lg:border-white/60 lg:bg-white/45 lg:backdrop-blur-2xl",
+        "border-ehs-border bg-ehs-surface lg:border-ehs-hairline/60 lg:bg-ehs-surface/45 lg:backdrop-blur-2xl",
         "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]",
         className,
       ]
@@ -279,7 +322,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         .join(" ")}
     >
       <div className="shrink-0 px-5 pt-5">
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex items-center justify-between lg:justify-center">
           <Logo />
           {onClose ? (
             <button
@@ -297,7 +340,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             rule reads as a smudge. On the solid sheet it is the inverse: a
             white rule on white is no rule at all. */}
         <div
-          className="border-ehs-border mt-4 w-full border-t lg:border-white/60"
+          className="border-ehs-border lg:border-ehs-hairline/60 mt-4 w-full border-t"
           aria-hidden="true"
         />
       </div>
@@ -314,12 +357,13 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           {isLoading ? (
             <SidebarNavSkeleton />
           ) : (
-            navGroups.map((group) => (
-              <div key={group.title} className="flex flex-col gap-1">
-                <Text
-                  as="p"
-                  className="text6 text-ehs-muted-text px-3 pb-1"
-                >
+            navGroups.map((group, groupIndex) => (
+              // Title alone is not unique — the design repeats the NEPTUNE AI heading.
+              <div
+                key={`${group.title}-${String(groupIndex)}`}
+                className="flex flex-col gap-1"
+              >
+                <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
                   {group.title}
                 </Text>
                 <div className="flex flex-col gap-0.5">
@@ -337,7 +381,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           )}
         </nav>
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-linear-to-t from-white to-transparent lg:from-white/70"
+          className="from-ehs-surface lg:from-ehs-surface/70 pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-linear-to-t to-transparent"
           aria-hidden="true"
         />
       </div>
@@ -346,7 +390,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         <SidebarAccessWindow accessWindow={accessWindow} />
       ) : null}
 
-      <div className="border-ehs-border shrink-0 border-t px-4 py-4 lg:border-white/40">
+      <div className="border-ehs-border lg:border-ehs-hairline/40 shrink-0 border-t px-4 py-4">
         <div className="flex items-center gap-1">
           {isUserReady ? (
             <Link
@@ -356,7 +400,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                 "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
                 profileActive
                   ? "bg-ehs-light-blue text-ehs-darker"
-                  : "hover:bg-ehs-light-bg lg:hover:bg-white/35",
+                  : "hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
               ].join(" ")}
               aria-current={profileActive ? "page" : undefined}
             >
@@ -377,7 +421,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             disabled={isLoggingOut || !isUserReady}
             aria-label={isLoggingOut ? "Signing out" : "Log out"}
             title={isLoggingOut ? "Signing out…" : "Log out"}
-            className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 lg:hover:bg-white/50"
+            className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/50 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon
               icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}

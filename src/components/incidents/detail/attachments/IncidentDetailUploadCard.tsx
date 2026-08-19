@@ -5,12 +5,11 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { withAttachmentDisplayName } from "@/lib/attachment-url";
 import { getAuthDisplayName } from "@/lib/auth-context";
-import { isAllowedMimeType } from "@/lib/cloudinary-constants";
+import { isAllowedMimeType } from "@/lib/files";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import type { AttachmentItem } from "@/components/incidents/detail/shared/types";
 
 export type IncidentDetailUploadCardProps = Readonly<{
@@ -51,29 +50,23 @@ export function IncidentDetailUploadCard(
 
     try {
       setIsUploading(true);
-      toast.info("Uploading file...", "Transferring to Cloudinary server.");
-      const result = await uploadFileToCloudinary(file);
+      toast.info("Uploading file...", "Transferring to secure storage.");
+      const result = await uploadFile(file, { module: "Incident" });
 
-      let kind: "image" | "video" | "pdf" = "pdf";
-      if (result.resourceType === "video") {
-        kind = "video";
-      } else if (result.kind === "pdf" || result.resourceType === "raw") {
-        kind = "pdf";
-      } else if (result.kind === "image") {
-        kind = "image";
-      }
+      // The files API stores images and PDFs only; video was a Cloudinary-era
+      // resource type. `AttachmentItem` still carries it for existing records.
+      const kind: AttachmentItem["kind"] = result.kind;
 
       const originalName = file.name.trim() || result.name;
       const newItem: AttachmentItem = {
-        id: result.id,
+        id: result.fileId,
         name: originalName,
-        description:
-          kind === "pdf" ? "Document" : kind === "video" ? "Video" : "Photo",
+        description: kind === "pdf" ? "Document" : "Photo",
         sizeLabel: result.sizeLabel,
         bytes: result.bytes,
         addedBy: getAuthDisplayName(),
         time: formatShortDateTime(new Date()),
-        secureUrl: withAttachmentDisplayName(result.secureUrl, originalName),
+        secureUrl: result.fileId,
         kind,
       };
 
@@ -87,7 +80,7 @@ export function IncidentDetailUploadCard(
         "Upload Failed",
         getMutationErrorMessage(
           error,
-          (error as Error).message || "Failed to upload file to Cloudinary.",
+          (error as Error).message || "Failed to upload file.",
         ),
       );
     } finally {
@@ -150,10 +143,10 @@ export function IncidentDetailUploadCard(
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={[
-          "relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center rounded-3 border-2 border-dashed p-6 text-center transition-all",
+          "rounded-3 relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center border-2 border-dashed p-6 text-center transition-all",
           dragActive
-            ? "border-ehs-normal-blue bg-[rgba(8,145,166,0.08)]"
-            : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
+            ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
+            : "border-ehs-border bg-ehs-surface/42 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
           isUploading ? "pointer-events-none opacity-60" : "",
         ].join(" ")}
       >
@@ -164,22 +157,20 @@ export function IncidentDetailUploadCard(
               className="text-ehs-normal-blue size-8 animate-spin"
               aria-hidden="true"
             />
-            <span className="text-ehs-dark-bg text5">
-              Uploading...
-            </span>
+            <span className="text-ehs-dark-bg text5">Uploading...</span>
           </div>
         ) : (
           <>
-            <div className="text-ehs-dark-blue flex size-8.5 shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
+            <div className="text-ehs-dark-blue bg-ehs-normal-blue/14 flex size-8.5 shrink-0 items-center justify-center rounded-full">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
-            <span className="text-ehs-dark-bg mt-2.5 text5">
+            <span className="text-ehs-dark-bg text5 mt-2.5">
               Drop files here
             </span>
-            <span className="text-ehs-muted-text mt-1 text8">
-              JPG, PNG, MP4, PDF up to 50 MB
+            <span className="text-ehs-muted-text text8 mt-1">
+              JPG, PNG, PDF up to 25 MB
             </span>
-            <span className="text-ehs-dark-blue mt-3.5 text5">
+            <span className="text-ehs-dark-blue text5 mt-3.5">
               Browse files
             </span>
           </>

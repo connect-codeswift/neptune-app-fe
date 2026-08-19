@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { useSaveAuditResponsesMutation } from "@/hooks/use-audit-mutations";
 import { useAuditForTemplate } from "@/hooks/use-audit-queries";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getCurrentUser } from "@/lib/current-user";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import { mapDetailToChecklist } from "@/lib/map-audit-template";
 import { toast } from "@/lib/toast";
 import { setAuditAnswers, setAuditResult } from "@/store/audit-slice";
@@ -52,10 +54,10 @@ function AnswerToggle(
             aria-checked={isSelected}
             onClick={() => onChange(answer)}
             className={[
-              "w-16 cursor-pointer rounded-2.5 px-2 py-1 text-sm font-medium transition-colors",
+              "text8 rounded-2.5 w-16 cursor-pointer px-2 py-1 transition-colors",
               isSelected
-                ? "bg-ehs-green text-white"
-                : "text-ehs-gray border border-[rgba(15,23,42,0.1)] bg-white hover:bg-black/5",
+                ? "bg-ehs-green text-ehs-on-accent"
+                : "text-ehs-gray bg-ehs-surface hover:bg-ehs-surface-inverse/5 border-ehs-border-ink/10 border",
             ].join(" ")}
           >
             {answer}
@@ -80,21 +82,21 @@ function SectionCard(
       paddingClassName="p-0 overflow-hidden"
       className="min-w-0"
     >
-      <header className="border-b border-white/90 bg-[rgba(238,241,246,0.7)] px-5 py-3">
-        <h3 className="text-ehs-dark-bg text-lg font-semibold">
+      <header className="border-ehs-hairline/90 bg-ehs-form-classes-bg/70 border-b px-5 py-3">
+        <Text as="h3" className="text3 text-ehs-darker">
           {section.title}
-        </h3>
+        </Text>
       </header>
 
       <ul className="flex flex-col">
         {section.items.map((item) => (
           <li
             key={item.id}
-            className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-900/10 px-5 py-4 last:border-b-0"
+            className="border-ehs-border-ink/10 flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 last:border-b-0"
           >
-            <span className="text-ehs-darker min-w-0 flex-1">
+            <Text as="span" className="text4 text-ehs-darker min-w-0 flex-1">
               {item.question}
-            </span>
+            </Text>
 
             <AnswerToggle
               itemId={item.id}
@@ -197,7 +199,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           if (result) dispatch(setAuditResult(result));
           dispatch(setAuditAnswers(responses));
           // The report is keyed by audit — it reads everything from GET
-          // /api/Audit/{id}, including the snapshot and recorded answers.
+          // /api/v1/audits/{id}, including the snapshot and recorded answers.
           router.push(
             `${AUDIT_REPORT_ROUTE}?auditid=${encodeURIComponent(String(audit.id))}`,
           );
@@ -221,7 +223,9 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   if (detailQuery.isError || !checklist) {
     return (
       <div className="flex flex-1 items-center justify-center px-4 pb-8">
-        <p className="text-ehs-red text-sm">Could not load this checklist.</p>
+        <Text as="p" className="text4 text-ehs-red">
+          Could not load this checklist.
+        </Text>
       </div>
     );
   }
@@ -229,7 +233,9 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <AuditChecklistHeader
-        auditId={audit ? `A-${String(audit.id)}` : checklist.auditId}
+        auditId={
+          audit ? formatRecordDisplayId("A", audit.id) : checklist.auditId
+        }
         subtitle={audit?.auditTitle || checklist.subtitle}
         // Findings aren't wired up yet — re-enable once that flow is ready.
         // onViewFindings={() =>
@@ -242,26 +248,26 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
       {/* Score summary */}
       <IncidentGlassCard paddingClassName="px-5 py-4" className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="text-ehs-gray">
+          <p className="text4 text-ehs-gray">
             Score:{" "}
-            <span className="text-ehs-dark-bg text-lg font-bold tabular-nums">
+            <span className="text5 text-ehs-darker tabular-nums">
               {`${String(score)}%`}
             </span>
           </p>
 
-          <p className="text-ehs-gray">
+          <p className="text4 text-ehs-gray">
             Items:{" "}
-            <span className="text-ehs-dark-bg tabular-nums">
+            <span className="text5 text-ehs-darker tabular-nums">
               {`${String(answered.length)}/${String(items.length)} answered`}
             </span>
           </p>
 
           <span
-            className="h-1.5 w-48 shrink-0 overflow-hidden rounded-full bg-[#eef1f6]"
+            className="bg-ehs-form-classes-bg h-1.5 w-48 shrink-0 overflow-hidden rounded-full"
             aria-hidden="true"
           >
             <span
-              className="bg-ehs-dark-bg block h-full rounded-full transition-[width]"
+              className="bg-ehs-surface-inverse block h-full rounded-full transition-[width]"
               style={{ width: `${String(completion)}%` }}
             />
           </span>
@@ -284,7 +290,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           type="button"
           onClick={handleSubmit}
           disabled={saveResponses.isPending}
-          className="bg-ehs-green hover:bg-ehs-green/90 cursor-pointer rounded-2.5 px-5 py-2.5 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="text4 bg-ehs-green hover:bg-ehs-green/90 rounded-2.5 cursor-pointer px-5 py-2.5 text-ehs-on-accent transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saveResponses.isPending ? "Submitting…" : "Submit Audit"}
         </button>

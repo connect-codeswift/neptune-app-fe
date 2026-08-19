@@ -30,13 +30,12 @@ import type {
 } from "@/dtos/res/rca-incident-response.dto";
 import http, { HttpError } from "@/lib/axios";
 
-const RCA_CATEGORIES_PATH = "/Rca/Categories";
-const RCA_BY_INCIDENT_PATH = "/Rca/Incident";
-const CAPA_RCA_BY_ID_PATH = "/CAPA/Rca";
-const RCA_CONTRIBUTING_FACTOR_PATH = "/Rca/ContributingFactor";
-const RCA_WHYS_PATH = "/Rca/Whys";
-const RCA_WHY_PATH = "/Rca/Why";
-const RCA_CORRECTIVE_ACTION_PATH = "/Rca/CorrectiveAction";
+const RCA_CATEGORIES_PATH = "/rca-categories";
+const INCIDENTS_PATH = "/incidents";
+const RCAS_PATH = "/rcas";
+const RCA_CONTRIBUTING_FACTORS_PATH = "/rca-contributing-factors";
+const RCA_WHYS_PATH = "/rca-whys";
+const RCA_CORRECTIVE_ACTIONS_PATH = "/rca-corrective-actions";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -165,13 +164,7 @@ function coerceRcaCorrectiveActionItem(
   raw: Record<string, unknown>,
 ): RcaCorrectiveActionItemDto | null {
   const id = asNumber(
-    readProp(
-      raw,
-      "id",
-      "Id",
-      "correctiveActionId",
-      "CorrectiveActionId",
-    ),
+    readProp(raw, "id", "Id", "correctiveActionId", "CorrectiveActionId"),
   );
   const description =
     asString(readProp(raw, "description", "Description")) ?? "";
@@ -343,8 +336,7 @@ function parseRcaIncidentEnvelope(data: unknown): RcaIncidentEnvelopeDto {
 function parseRcaContributingFactorEnvelope(
   data: unknown,
   fallback?:
-    | CreateContributingFactorRequestDto
-    | UpdateContributingFactorRequestDto,
+    CreateContributingFactorRequestDto | UpdateContributingFactorRequestDto,
 ): RcaContributingFactorEnvelopeDto {
   if (!isRecord(data)) {
     throw new HttpError({
@@ -369,10 +361,16 @@ function parseRcaContributingFactorEnvelope(
     factor = coerceRcaContributingFactor({
       ...dataModelRaw,
       id:
-        readProp(dataModelRaw, "id", "Id", "contributingFactorId", "ContributingFactorId") ??
-        contributingFactorId,
+        readProp(
+          dataModelRaw,
+          "id",
+          "Id",
+          "contributingFactorId",
+          "ContributingFactorId",
+        ) ?? contributingFactorId,
       incidentId:
-        readProp(dataModelRaw, "incidentId", "IncidentId") ?? fallback.incidentId,
+        readProp(dataModelRaw, "incidentId", "IncidentId") ??
+        fallback.incidentId,
       rcaCategoryId:
         readProp(dataModelRaw, "rcaCategoryId", "RcaCategoryId") ??
         fallback.rcaCategoryId,
@@ -495,9 +493,10 @@ function parseRcaWhyEnvelope(
   }
 
   if (!why) {
-    why = normalizeRcaWhyList(
-      readProp(data, "dataModel", "DataModel") ?? data,
-    )[0] ?? null;
+    why =
+      normalizeRcaWhyList(
+        readProp(data, "dataModel", "DataModel") ?? data,
+      )[0] ?? null;
   }
 
   assertEnvelopeSuccess(data, meta);
@@ -519,8 +518,7 @@ function parseRcaWhyEnvelope(
 function parseRcaCorrectiveActionEnvelope(
   data: unknown,
   fallback?:
-    | CreateRcaCorrectiveActionRequestDto
-    | UpdateRcaCorrectiveActionRequestDto,
+    CreateRcaCorrectiveActionRequestDto | UpdateRcaCorrectiveActionRequestDto,
 ): RcaCorrectiveActionEnvelopeDto {
   if (!isRecord(data)) {
     throw new HttpError({
@@ -622,13 +620,13 @@ function parseRcaCategoryEnvelope(data: unknown): RcaCategoryEnvelopeDto {
   };
 }
 
-/** GET /api/Rca/Categories */
+/** GET /api/v1/rca-categories */
 export async function getRcaCategories(): Promise<RcaCategoryDto[]> {
   const { data } = await http.get<unknown>(RCA_CATEGORIES_PATH);
   return parseRcaCategoriesEnvelope(data).dataModel;
 }
 
-/** POST /api/Rca/Categories */
+/** POST /api/v1/rca-categories */
 export async function createRcaCategory(
   payload: CreateRcaCategoryRequestDto,
 ): Promise<RcaCategoryDto> {
@@ -636,17 +634,17 @@ export async function createRcaCategory(
   return parseRcaCategoryEnvelope(data).dataModel;
 }
 
-/** GET /api/Rca/Incident/{incidentId} */
+/** GET /api/v1/incidents/{incidentId}/rca */
 export async function getRcaByIncidentId(
   incidentId: number,
 ): Promise<RcaContributingFactorDto[]> {
   const { data } = await http.get<unknown>(
-    `${RCA_BY_INCIDENT_PATH}/${String(incidentId)}`,
+    `${INCIDENTS_PATH}/${String(incidentId)}/rca`,
   );
   return parseRcaIncidentEnvelope(data).dataModel;
 }
 
-/** GET /api/CAPA/Rca/{rcaId} */
+/** GET /api/v1/rcas/{rcaId}/capas */
 export async function getCapaRcaById(
   rcaId: number,
 ): Promise<RcaContributingFactorDto[]> {
@@ -655,92 +653,118 @@ export async function getCapaRcaById(
   }
 
   const { data } = await http.get<unknown>(
-    `${CAPA_RCA_BY_ID_PATH}/${encodeURIComponent(String(rcaId))}`,
+    `${RCAS_PATH}/${encodeURIComponent(String(rcaId))}/capas`,
   );
   return parseRcaIncidentEnvelope(data).dataModel;
 }
 
-/** POST /api/Rca/ContributingFactor */
+/**
+ * POST /api/v1/incidents/{incidentId}/rca/contributing-factors
+ *
+ * BLOCKER — route-map.md maps this to `POST /api/v1/rcas/{rcaId}/contributing-factors`,
+ * but there is no `rcaId` to put there: `AddContributingFactorDto` carries
+ * `IncidentId` (Neptune.Application/DTOs/Rca/RcaDto.cs:3) and
+ * `RcaRepository.AddContributingFactor` looks the parent up by incident. There is
+ * no `Rca` entity at all — "an RCA" is the set of ContributingFactors on one
+ * incident. Nested under the incident here, per convention rule 4 and to match
+ * `GET /api/v1/incidents/{incidentId}/rca`. Backend must confirm before merge.
+ */
 export async function createContributingFactor(
   payload: CreateContributingFactorRequestDto,
 ): Promise<RcaContributingFactorDto> {
   const { data } = await http.post<unknown>(
-    RCA_CONTRIBUTING_FACTOR_PATH,
+    `${INCIDENTS_PATH}/${String(payload.incidentId)}/rca/contributing-factors`,
     payload,
   );
   return parseRcaContributingFactorEnvelope(data, payload).dataModel;
 }
 
-/** PUT /api/Rca/ContributingFactor */
+/** PUT /api/v1/rca-contributing-factors/{id} — id moved from the body to the path. */
 export async function updateContributingFactor(
   payload: UpdateContributingFactorRequestDto,
 ): Promise<RcaContributingFactorDto> {
   const { data } = await http.put<unknown>(
-    RCA_CONTRIBUTING_FACTOR_PATH,
+    `${RCA_CONTRIBUTING_FACTORS_PATH}/${encodeURIComponent(String(payload.contributingFactorId))}`,
     payload,
   );
   return parseRcaContributingFactorEnvelope(data, payload).dataModel;
 }
 
-/** PATCH /api/Rca/ContributingFactor/Drop/{id} */
-/** POST /api/Rca/Whys */
+/** DELETE /api/v1/rca-contributing-factors/{id} */
+/**
+ * POST /api/v1/rca-contributing-factors/{contributingFactorId}/whys
+ *
+ * BLOCKER — route-map.md says `/api/v1/rcas/{rcaId}/whys`. `AddRcaWhysDto`
+ * carries `ContributingFactorId`, not an rcaId (RcaDto.cs:11), so whys nest
+ * under the contributing factor. Backend must confirm before merge.
+ */
 export async function createRcaWhys(
   payload: CreateRcaWhysRequestDto,
 ): Promise<RcaWhyItemDto[]> {
-  const { data } = await http.post<unknown>(RCA_WHYS_PATH, payload);
+  const { data } = await http.post<unknown>(
+    `${RCA_CONTRIBUTING_FACTORS_PATH}/${encodeURIComponent(String(payload.contributingFactorId))}/whys`,
+    payload,
+  );
   return parseRcaWhysEnvelope(data).dataModel;
 }
 
-/** PUT /api/Rca/Why */
+/** PUT /api/v1/rca-whys/{id} — id moved from the body to the path. */
 export async function updateRcaWhy(
   payload: UpdateRcaWhyRequestDto,
 ): Promise<RcaWhyItemDto> {
-  const { data } = await http.put<unknown>(RCA_WHY_PATH, payload);
+  const { data } = await http.put<unknown>(
+    `${RCA_WHYS_PATH}/${encodeURIComponent(String(payload.whyId))}`,
+    payload,
+  );
   return parseRcaWhyEnvelope(data, payload).dataModel;
 }
 
-/** PATCH /api/Rca/Why/Drop/{id} */
+/** DELETE /api/v1/rca-whys/{id} — was `PATCH /api/v1/rca-whys/{id}`. */
 export async function dropRcaWhy(
   id: number,
-  payload: DropRcaWhyRequestDto,
+  _payload: DropRcaWhyRequestDto,
 ): Promise<void> {
-  const { data } = await http.patch<unknown>(
-    `${RCA_WHY_PATH}/Drop/${encodeURIComponent(String(id))}`,
-    payload,
+  const { data } = await http.delete<unknown>(
+    `${RCA_WHYS_PATH}/${encodeURIComponent(String(id))}`,
   );
   parseRcaActionEnvelope(data);
 }
 
-/** POST /api/Rca/CorrectiveAction */
+/**
+ * POST /api/v1/rca-contributing-factors/{contributingFactorId}/corrective-actions
+ *
+ * BLOCKER — route-map.md says `/api/v1/rcas/{rcaId}/corrective-actions`.
+ * `AddCorrectiveActionDto` carries `ContributingFactorId` (RcaDto.cs:25), not an
+ * rcaId. Backend must confirm before merge.
+ */
 export async function createRcaCorrectiveAction(
   payload: CreateRcaCorrectiveActionRequestDto,
 ): Promise<RcaCorrectiveActionItemDto> {
   const { data } = await http.post<unknown>(
-    RCA_CORRECTIVE_ACTION_PATH,
+    `${RCA_CONTRIBUTING_FACTORS_PATH}/${encodeURIComponent(String(payload.contributingFactorId))}/corrective-actions`,
     payload,
   );
   return parseRcaCorrectiveActionEnvelope(data, payload).dataModel;
 }
 
-/** PUT /api/Rca/CorrectiveAction */
+/** PUT /api/v1/rca-corrective-actions/{id} — id moved from the body to the path. */
 export async function updateRcaCorrectiveAction(
   payload: UpdateRcaCorrectiveActionRequestDto,
 ): Promise<RcaCorrectiveActionItemDto> {
   const { data } = await http.put<unknown>(
-    RCA_CORRECTIVE_ACTION_PATH,
+    `${RCA_CORRECTIVE_ACTIONS_PATH}/${encodeURIComponent(String(payload.correctiveActionId))}`,
     payload,
   );
   return parseRcaCorrectiveActionEnvelope(data, payload).dataModel;
 }
 
-/** PATCH /api/Rca/CorrectiveAction/Drop/{id} */
+/** DELETE /api/v1/rca-corrective-actions/{id} — was `PATCH .../Drop/{id}`. */
 export async function dropRcaCorrectiveAction(
   id: number,
-  payload: DropRcaCorrectiveActionRequestDto,
+  _payload: DropRcaCorrectiveActionRequestDto,
 ): Promise<void> {
-  const { data } = await http.patch<unknown>(
-    `${RCA_CORRECTIVE_ACTION_PATH}/Drop/${encodeURIComponent(String(id))}`,
-    payload,
+  const { data } = await http.delete<unknown>(
+    `${RCA_CORRECTIVE_ACTIONS_PATH}/${encodeURIComponent(String(id))}`,
   );
   parseRcaActionEnvelope(data);
 }

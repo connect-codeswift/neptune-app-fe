@@ -28,14 +28,18 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
   return (
     <div
       className={[
-        "flex min-h-16.25 items-center gap-2.75 py-3 pl-5 pr-5.25",
+        "flex min-h-16.25 items-center gap-2.75 py-3 pr-5.25 pl-5",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex size-7.5 shrink-0 items-center justify-center rounded-2 bg-white/62">
-        <Icon icon={icon} className="text-ehs-gray size-3.75" aria-hidden="true" />
+      <div className="rounded-2 bg-ehs-surface/62 flex size-7.5 shrink-0 items-center justify-center">
+        <Icon
+          icon={icon}
+          className="text-ehs-gray size-3.75"
+          aria-hidden="true"
+        />
       </div>
       <div className="relative min-w-0 flex-1">
         {labelLines ? (

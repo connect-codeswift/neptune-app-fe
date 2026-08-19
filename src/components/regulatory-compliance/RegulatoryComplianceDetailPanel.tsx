@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import { CompliancePill } from "./compliance-ui";
 import type { ComplianceObligationDetail } from "./regulatory-compliance-types";
 
@@ -115,12 +116,12 @@ export function RegulatoryComplianceDetailPanel(
       <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {detail.code}
+            {formatComplianceDisplayId(detail.id)}
           </Text>
 
           <Link
             href={`/dashboard/regulatory-compliance/${encodeURIComponent(detail.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

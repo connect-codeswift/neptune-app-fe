@@ -6,19 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 
-const crumbMuted = "text4 font-normal text-[#b3bbc8]";
+const crumbMuted = "text8 text-ehs-gray";
 const crumbLink =
-  "text4 text-ehs-muted-text hover:text-ehs-gray font-normal transition-colors";
-
-function Chevron() {
-  return (
-    <Icon
-      icon="mdi:chevron-right"
-      className="text-ehs-muted-text size-3 shrink-0"
-      aria-hidden="true"
-    />
-  );
-}
+  "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
 export type LotoProcedureHeaderProps = Readonly<{
   mode: "create" | "edit";
@@ -29,7 +19,7 @@ export type LotoProcedureHeaderProps = Readonly<{
 }>;
 
 /** Breadcrumb + title + Cancel / primary action — Figma 6912:56200 / 6915:56769. */
-export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
+export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
   const {
     mode,
     equipmentCode,
@@ -50,19 +40,31 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
   const submitIcon = isCreate ? "mdi:plus" : "mdi:content-save-outline";
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-3 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-5.5 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl  before:content-['']">
       <div className="relative z-1 flex min-w-0 flex-col gap-3">
         <nav
           aria-label="Breadcrumb"
-          className="hidden items-center gap-1.5 overflow-x-auto md:flex"
+          className="hidden items-center gap-1 overflow-x-auto md:flex"
         >
-          <span className={crumbMuted}>Admin</span>
-          <Chevron />
+          <Text as="span" className={crumbMuted}>
+            Admin
+          </Text>
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-ehs-muted-text size-3 shrink-0"
+            aria-hidden="true"
+          />
           <Link href={LOTO_ROUTE} className={crumbLink}>
             LOTO Procedures
           </Link>
-          <Chevron />
-          <span className={crumbMuted}>{crumbTail}</span>
+          <Icon
+            icon="mdi:chevron-right"
+            className="text-ehs-muted-text size-3 shrink-0"
+            aria-hidden="true"
+          />
+          <Text as="span" className={crumbMuted}>
+            {crumbTail}
+          </Text>
         </nav>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -70,17 +72,17 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
             <Link
               href={LOTO_ROUTE}
               aria-label="Back to Lockout / Tagout"
-              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-white transition-colors hover:bg-slate-50 md:hidden"
+              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-ehs-surface transition-colors hover:bg-ehs-surface-raised md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
-            <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex min-w-0 flex-col gap-0.5">
               <Text as="h1" className="text1 text-ehs-darker">
                 {title}
               </Text>
               <Text
                 as="p"
-                className="text4 text-ehs-muted-text hidden md:block"
+                className="text8 text-ehs-muted-text hidden md:block"
               >
                 {subtitle}
               </Text>
@@ -101,7 +103,7 @@ export function LotoProcedureHeader(props: LotoProcedureHeaderProps) {
               variant="primary"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
+              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_30%,transparent)]"
             >
               <Icon icon={submitIcon} className="size-3.5 shrink-0" />
               {submitLabel}

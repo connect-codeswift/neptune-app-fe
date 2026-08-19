@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import {
   createColumnHelper,
@@ -10,153 +11,300 @@ import {
 } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import {
-  assessmentStatusTone,
-  HazcomBadge,
-  HazcomGlassCard,
-  riskLevelTone,
-  type HazcomRiskAssessment,
-} from "@/components/hazcom/shared";
+  IncidentBadge,
+  type IncidentBadgeTone,
+} from "@/components/near-miss/IncidentBadge";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import type { HazcomRiskAssessment } from "@/components/hazcom/shared";
 
 export type HazcomRiskAssessmentsTableProps = Readonly<{
   assessments: readonly HazcomRiskAssessment[];
+  selectedId?: string | null;
+  onViewMore?: (id: string) => void;
+  /** When true (detail panel closed), columns use the wider layout. */
+  expanded?: boolean;
+  header?: ReactNode;
   className?: string;
 }>;
 
-/**
- * Column alignment, keyed by column id — presentation, so it lives with the
- * renderers that read it rather than in each column's `meta`. `meta` is one
- * interface shared by every table in the project, so putting `align` there
- * hands it to tables that have no use for it. Anything absent is left-aligned.
- */
 const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
-  actions: "right",
+  riskLevel: "center",
+  status: "center",
+  actions: "center",
 };
 
 const columnHelper = createColumnHelper<HazcomRiskAssessment>();
 
-const columns: ColumnDef<HazcomRiskAssessment, unknown>[] = [
-  columnHelper.accessor("id", {
-    header: "ID",
-    cell: (info) => (
-      <Text as="span" className="text5 text-ehs-normal-blue">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("chemical", {
-    header: "Chemical",
-    cell: (info) => (
-      <Text as="span" className="text4 text-ehs-dark-bg font-semibold">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("exposureScenario", {
-    header: "Exposure Scenario",
-    cell: (info) => (
-      <Text as="span" className="text4 text-ehs-gray">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("riskLevel", {
-    header: "Risk Level",
-    cell: (info) => (
-      <HazcomBadge
-        label={info.getValue()}
-        tone={riskLevelTone(info.getValue())}
-      />
-    ),
-  }),
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: (info) => (
-      <HazcomBadge
-        label={info.getValue()}
-        tone={assessmentStatusTone(info.getValue())}
-      />
-    ),
-  }),
-  columnHelper.accessor("reviewer", {
-    header: "Reviewer",
-    cell: (info) => (
-      <Text as="span" className="text4 text-ehs-dark-bg">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.accessor("date", {
-    header: "Date",
-    cell: (info) => (
-      <Text as="span" className="text4 text-ehs-gray">
-        {info.getValue()}
-      </Text>
-    ),
-  }),
-  columnHelper.display({
-    id: "actions",
-    header: "",
-    cell: () => (
-      <div className="flex items-center justify-end gap-2">
-        <span
-          aria-hidden="true"
-          className="border-ehs-border text-ehs-muted-text inline-flex size-8 items-center justify-center rounded-lg border bg-white/70"
+function riskLevelTone(value: string): IncidentBadgeTone {
+  switch (value.trim().toLowerCase()) {
+    case "low":
+      return "teal";
+    case "medium":
+      return "warn";
+    case "high":
+    case "critical":
+      return "danger";
+    default:
+      return "neutral";
+  }
+}
+
+function assessmentStatusTone(value: string): IncidentBadgeTone {
+  switch (value.trim().toLowerCase()) {
+    case "approved":
+      return "teal";
+    case "pending":
+      return "warn";
+    case "draft":
+      return "muted";
+    default:
+      return "neutral";
+  }
+}
+
+export type RiskAssessmentColumnOptions = Readonly<{
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
+  expanded?: boolean;
+}>;
+
+function createRiskAssessmentColumns(
+  options: RiskAssessmentColumnOptions,
+): ColumnDef<HazcomRiskAssessment, unknown>[] {
+  const { selectedId, onViewMore, expanded = true } = options;
+
+  return [
+    columnHelper.accessor("id", {
+      header: "ID",
+      size: expanded ? 88 : 80,
+      minSize: 72,
+      cell: (info) => (
+        <Text as="span" className="text7 text-ehs-muted-text tabular-nums">
+          {info.getValue()}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("chemical", {
+      header: "Chemical",
+      size: expanded ? 160 : 140,
+      minSize: 112,
+      cell: (info) => (
+        <Text
+          as="span"
+          className="text4 text-ehs-darker truncate"
+          title={info.getValue()}
         >
-          <Icon icon="mdi:eye-outline" className="size-4" aria-hidden="true" />
-        </span>
-        <span
-          aria-hidden="true"
-          className="border-ehs-border text-ehs-muted-text inline-flex size-8 items-center justify-center rounded-lg border bg-white/70"
-        >
-          <Icon
-            icon="mdi:pencil-outline"
-            className="size-4"
-            aria-hidden="true"
-          />
-        </span>
-      </div>
-    ),
-  }),
-] as ColumnDef<HazcomRiskAssessment, unknown>[];
+          {info.getValue() || "—"}
+        </Text>
+      ),
+    }),
+    ...(expanded
+      ? [
+          columnHelper.accessor("exposureScenario", {
+            header: "Exposure Scenario",
+            size: 200,
+            minSize: 140,
+            cell: (info) => (
+              <Text
+                as="span"
+                className="text4 text-ehs-gray truncate"
+                title={info.getValue()}
+              >
+                {info.getValue() || "—"}
+              </Text>
+            ),
+          }),
+        ]
+      : []),
+    columnHelper.accessor("riskLevel", {
+      header: "Risk Level",
+      size: expanded ? 120 : 110,
+      minSize: 96,
+      cell: (info) => (
+        <IncidentBadge
+          label={info.getValue()}
+          tone={riskLevelTone(info.getValue())}
+          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+        />
+      ),
+    }),
+    columnHelper.accessor("status", {
+      header: "Status",
+      size: expanded ? 120 : 110,
+      minSize: 96,
+      cell: (info) => (
+        <IncidentBadge
+          label={info.getValue()}
+          tone={assessmentStatusTone(info.getValue())}
+          showDot
+          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+        />
+      ),
+    }),
+    ...(expanded
+      ? [
+          columnHelper.accessor("reviewer", {
+            header: "Reviewer",
+            size: 140,
+            minSize: 100,
+            cell: (info) => (
+              <Text
+                as="span"
+                className="text4 text-ehs-darker truncate"
+                title={info.getValue()}
+              >
+                {info.getValue() || "—"}
+              </Text>
+            ),
+          }),
+          columnHelper.accessor("date", {
+            header: "Date",
+            size: 112,
+            minSize: 88,
+            cell: (info) => (
+              <Text
+                as="span"
+                className="text8 text-ehs-muted-text tabular-nums"
+              >
+                {info.getValue() || "—"}
+              </Text>
+            ),
+          }),
+        ]
+      : []),
+    columnHelper.display({
+      id: "actions",
+      header: "",
+      size: 56,
+      minSize: 48,
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className={[
+              "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
+              isOpen
+                ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
+            ].join(" ")}
+            aria-label={
+              isOpen
+                ? `Close details for ${row.original.chemical || row.original.id}`
+                : `View ${row.original.chemical || row.original.id}`
+            }
+            aria-pressed={isOpen}
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+    }),
+  ] as ColumnDef<HazcomRiskAssessment, unknown>[];
+}
+
+function columnWidthStyle(size: number, totalSize: number) {
+  return { width: `${(size / totalSize) * 100}%` };
+}
+
+function alignClass(align: "left" | "center" | "right" | undefined) {
+  if (align === "center") return "text-center";
+  if (align === "right") return "text-right";
+  return "text-left";
+}
 
 export function HazcomRiskAssessmentsTable(
   props: Readonly<HazcomRiskAssessmentsTableProps>,
 ) {
-  const { assessments, className = "" } = props;
+  const {
+    assessments,
+    selectedId = null,
+    onViewMore,
+    expanded = true,
+    header,
+    className = "",
+  } = props;
+
+  const columns = useMemo(
+    () =>
+      createRiskAssessmentColumns({
+        selectedId,
+        onViewMore: onViewMore ?? (() => undefined),
+        expanded,
+      }),
+    [selectedId, onViewMore, expanded],
+  );
 
   const table = useReactTable({
     data: assessments as HazcomRiskAssessment[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
+    defaultColumn: {
+      minSize: 70,
+      size: 120,
+    },
   });
 
+  const totalSize = table.getTotalSize();
+  const cellPad = expanded ? "px-4" : "px-3";
+
   return (
-    <HazcomGlassCard
+    <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
-      className={["w-full min-w-0", className].filter(Boolean).join(" ")}
+      className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="w-full min-w-0 overflow-x-auto">
-        <table className="w-full min-w-240 border-collapse text-left">
+      {header ? (
+        <div className="border-b border-ehs-border-ink/8 px-4">
+          {header}
+        </div>
+      ) : null}
+
+      <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
+        <table className="w-full table-fixed border-collapse text-left">
+          <colgroup>
+            {table.getAllLeafColumns().map((column) => (
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
+            ))}
+          </colgroup>
+
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const align = COLUMN_ALIGN[header.column.id] ?? "left";
+              <tr key={headerGroup.id} className="bg-ehs-light-bg/60">
+                {headerGroup.headers.map((headerCell) => {
+                  const align = COLUMN_ALIGN[headerCell.column.id] ?? "left";
 
                   return (
                     <th
-                      key={header.id}
+                      key={headerCell.id}
+                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
                       className={[
-                        "text6 text-ehs-muted-text px-4 pt-3.25 pb-[13.5px]",
-                        align === "right" ? "text-right" : "text-left",
+                        "text6 text-ehs-muted-text py-3 select-none",
+                        cellPad,
+                        alignClass(align),
                       ].join(" ")}
                     >
-                      {header.isPlaceholder
+                      {headerCell.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
+                            headerCell.column.columnDef.header,
+                            headerCell.getContext(),
                           )}
                     </th>
                   );
@@ -170,7 +318,7 @@ export function HazcomRiskAssessmentsTable(
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
+                  className="border-t border-ehs-border-ink/8 px-4 py-10 text-center"
                 >
                   <Text as="p" className="text4 text-ehs-muted-text">
                     No risk assessments match your search.
@@ -178,35 +326,47 @@ export function HazcomRiskAssessmentsTable(
                 </td>
               </tr>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-t border-[rgba(15,23,42,0.08)]"
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const align = COLUMN_ALIGN[cell.column.id] ?? "left";
+              table.getRowModel().rows.map((row) => {
+                const isSelected = selectedId === row.original.id;
 
-                    return (
-                      <td
-                        key={cell.id}
-                        className={[
-                          "px-4 py-4 align-middle",
-                          align === "right" ? "text-right" : "text-left",
-                        ].join(" ")}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
+                return (
+                  <tr
+                    key={row.id}
+                    className={[
+                      "border-t border-ehs-border-ink/8 transition-colors",
+                      isSelected ? "bg-ehs-normal-blue/6" : "hover:bg-ehs-surface-inverse/2",
+                    ].join(" ")}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const align = COLUMN_ALIGN[cell.column.id] ?? "left";
+
+                      return (
+                        <td
+                          key={cell.id}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
+                          className={[
+                            "py-3 align-middle",
+                            cellPad,
+                            alignClass(align),
+                          ].join(" ")}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

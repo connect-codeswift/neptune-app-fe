@@ -6,9 +6,10 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
-  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
+  /** Mapped GET /api/v1/documents/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
   isLoading?: boolean;
   errorMessage?: string | null;
@@ -33,12 +34,12 @@ function MetaField(props: Readonly<{ label: string; value: string }>) {
 
 function versionBadgeClass(badge: "review" | "archived" | "current"): string {
   if (badge === "review") {
-    return "bg-[rgba(59,130,246,0.14)] text-[#3b82f6]";
+    return "bg-ehs-blue/14 text-ehs-blue";
   }
   if (badge === "current") {
-    return "bg-[rgba(8,145,166,0.14)] text-[#056e7e]";
+    return "bg-ehs-normal-blue/14 text-ehs-dark-blue";
   }
-  return "bg-[rgba(86,96,114,0.14)] text-[#566072]";
+  return "bg-ehs-gray/14 text-ehs-gray";
 }
 
 export function PolicyMakerDetailPanel(
@@ -55,7 +56,7 @@ export function PolicyMakerDetailPanel(
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -74,7 +75,7 @@ export function PolicyMakerDetailPanel(
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -106,7 +107,7 @@ export function PolicyMakerDetailPanel(
   if (!document) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
@@ -130,12 +131,12 @@ export function PolicyMakerDetailPanel(
       <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {document.code}
+            {formatDocumentDisplayId(document.id)}
           </Text>
 
           <Link
             href={`/dashboard/policy-maker/${encodeURIComponent(document.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

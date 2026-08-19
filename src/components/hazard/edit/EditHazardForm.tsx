@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { getCurrentUser } from "@/lib/current-user";
 import { toHazardApiId } from "@/lib/map-hazard";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
   buildHazardEditSchema,
@@ -18,29 +16,20 @@ import {
 } from "./hazard-edit-schema";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
-/** Typography-only overrides — do not set fixed input heights. */
+/** Keep FormBuilder on the Inter scale without restyling every nested button/p. */
 const hazardFormFieldClass = [
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:text4",
-  "[&_select]:text4",
-  "[&_textarea]:text4",
-  "[&_button]:text4",
-  "[&_p]:text8",
+  "[&_label]:text8 [&_label]:text-ehs-muted-text",
+  "[&_input]:text4 [&_input]:text-ehs-darker",
+  "[&_select]:text4 [&_select]:text-ehs-darker",
+  "[&_textarea]:text4 [&_textarea]:text-ehs-darker",
 ].join(" ");
 
 export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   const { record } = props;
   const router = useRouter();
   const saveHazard = useCreateHazardMutation();
-
-  const userDropdownQuery = useUserDropdownQuery();
-  const users = userDropdownQuery.data?.dataModel;
-  const schema = useMemo(
-    () => buildHazardEditSchema(toAssigneeOptions(users ?? [])),
-    [users],
-  );
+  const { userId, siteId } = getCurrentUser();
+  const schema = buildHazardEditSchema(record);
 
   const detailRoute = `/dashboard/hazard/${encodeURIComponent(record.id)}`;
 
@@ -49,9 +38,14 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
 
     const payload: UpdateHazardRequestDto = {
       id: Number(toHazardApiId(record.id)),
-      status: edited.status,
-      assignedTo: Number(edited.assignedTo) || 0,
+      type: edited.hazardType,
+      location: edited.location,
       description: edited.description,
+      image: record.image ?? "",
+      userId,
+      siteId,
+      isDrop: false,
+      status: edited.status,
     };
 
     saveHazard.mutate(payload, {
@@ -71,10 +65,7 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
   };
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-6"
-      className="w-full"
-    >
+    <IncidentGlassCard paddingClassName="p-6" className="w-full">
       <FormBuilder
         schema={schema}
         initialValues={toHazardEditValues(record)}

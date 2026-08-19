@@ -7,6 +7,10 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useSiteWorkHoursQuery } from "@/hooks/use-incident-kpi-queries";
 import { hasSufficientSiteWorkHours } from "@/services/mappers/incident-kpi.mapper";
 
+/* The amber warning wash is pinned (`amber-200/80` on `amber-50/90`, icon at
+   `--ehs-yellow-ink-soft` == amber-600). `--ehs-yellow` is the base hue, which
+   is the fill colour here, so the label disappears into it. */
+
 const SETTINGS_HREF = "/dashboard/settings/incident-rates";
 
 export function SiteWorkHoursMissingBanner() {
@@ -19,6 +23,10 @@ export function SiteWorkHoursMissingBanner() {
     return null;
   }
 
+  if (workHoursQuery.isError) {
+    return null;
+  }
+
   if (hasSufficientSiteWorkHours(workHoursQuery.data?.dataModel)) {
     return null;
   }
@@ -26,11 +34,11 @@ export function SiteWorkHoursMissingBanner() {
   return (
     <div
       role="status"
-      className="border-ehs-border flex items-start gap-3 rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 shadow-sm"
+      className="flex items-start gap-3 rounded-xl border-ehs-warning-border bg-ehs-warning-surface border px-4 py-3 shadow-sm"
     >
       <Icon
         icon="mdi:clock-alert-outline"
-        className="mt-0.5 shrink-0 text-lg text-amber-600"
+        className="text-ehs-yellow-ink-soft mt-0.5 shrink-0 text-lg"
         aria-hidden="true"
       />
       <div className="flex min-w-0 flex-col gap-0.5">

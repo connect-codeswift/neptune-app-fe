@@ -2,7 +2,7 @@ import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 
 /**
  * Matches backend `IncidentGridFilterDto` for
- * POST /api/Incident/GetAllIncidents
+ * POST /api/v1/incidents/search
  *
  * Tenant scope comes from the JWT — do not send siteId or userId here.
  */
@@ -30,11 +30,11 @@ export type GetAllIncidentsRequestDto = {
  */
 export type IncidentWritePayloadDto = Omit<IncidentDto, "siteId" | "userId">;
 
-/** Request body for POST /api/Incident/incident. */
+/** Request body for POST /api/v1/incidents. */
 export type CreateIncidentRequestDto = IncidentWritePayloadDto;
 
 /**
- * Request body for PUT /api/Incident/UpdateIncident/{id}.
+ * Request body for PUT /api/v1/incidents/{id}.
  * Same shape as create payload.
  */
 export type UpdateIncidentRequestDto = IncidentWritePayloadDto;

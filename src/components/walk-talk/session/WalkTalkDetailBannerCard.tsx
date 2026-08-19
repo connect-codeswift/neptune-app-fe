@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { WalkTalkSessionDetail } from "@/app/dashboard/walk-talk/walk-talk-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 export type WalkTalkDetailBannerCardProps = Readonly<{
   detail: WalkTalkSessionDetail;
@@ -17,7 +18,12 @@ const crumbLink =
   "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
 function headerSubtitle(detail: WalkTalkSessionDetail): string {
-  return [detail.id, detail.site, detail.date, detail.time]
+  return [
+    formatRecordDisplayId("WT", detail.id),
+    detail.site,
+    detail.date,
+    detail.time,
+  ]
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && part !== "—")
     .join(" · ");
@@ -27,16 +33,14 @@ function headerSubtitle(detail: WalkTalkSessionDetail): string {
  * Detail page header bar — breadcrumbs, title, type pill.
  * No back button (same pattern as Regulatory Compliance).
  */
-export function WalkTalkDetailBannerCard(
-  props: WalkTalkDetailBannerCardProps,
-) {
+export function WalkTalkDetailBannerCard(props: WalkTalkDetailBannerCardProps) {
   const { detail, sessionType = "Walk & Talk", className = "" } = props;
   const subtitle = headerSubtitle(detail);
 
   return (
     <div
       className={[
-        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-6",
+        "backdrop-blur-2.5 bg-ehs-surface/62 border-ehs-border-ink/8 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6",
         className,
       ]
         .filter(Boolean)
@@ -49,7 +53,7 @@ export function WalkTalkDetailBannerCard(
         <span className={crumbMuted}>Safety</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <Link href="/dashboard/walk-talk" className={crumbLink}>
@@ -57,10 +61,12 @@ export function WalkTalkDetailBannerCard(
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
-        <span className={`${crumbMuted} truncate`}>{detail.id}</span>
+        <span className={`${crumbMuted} truncate`}>
+          {formatRecordDisplayId("WT", detail.id)}
+        </span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-wrap items-start justify-between gap-3">

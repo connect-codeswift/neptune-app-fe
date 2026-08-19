@@ -3,11 +3,7 @@ import type { MetricCardProps } from "@/components/ui/MetricCard";
 /** Figma CAPA Dashboard status filter — node 7123:41912.
  * Prefer `CAPA_STATUS_FILTER_OPTIONS` in `@/lib/capa-filters` for live API filters.
  */
-export const CAPA_DASHBOARD_STATUS_FILTERS = [
-  "All",
-  "Open",
-  "Closed",
-] as const;
+export const CAPA_DASHBOARD_STATUS_FILTERS = ["All", "Open", "Closed"] as const;
 
 export const CAPA_DASHBOARD_TYPE_FILTERS = [
   "All",
@@ -18,9 +14,6 @@ export const CAPA_DASHBOARD_TYPE_FILTERS = [
 export type CapaDashboardStatus =
   (typeof CAPA_DASHBOARD_STATUS_FILTERS)[number];
 export type CapaDashboardType = (typeof CAPA_DASHBOARD_TYPE_FILTERS)[number];
-
-export type CapaLifecycleStage =
-  "Identified" | "Root cause" | "Action plan" | "Implement" | "Verify";
 
 export type CapaDashboardTask = Readonly<{
   id: string;
@@ -38,13 +31,12 @@ export type CapaDashboardItem = Readonly<{
   control: string;
   owner: string;
   progress: number;
-  /** Backend status display label (Open / In progress / Overdue / Verified / Closed / —). */
+  /** Stored status, spelled as the API spells it — see `CAPA_API_STATUS`. */
   status: string;
   dueDate: string;
   dueLabel: string;
   priority: "high" | "medium" | "low";
   daysLeft: string;
-  lifecycleStep: number;
   tasks: readonly CapaDashboardTask[];
 }>;
 
@@ -113,6 +105,9 @@ export const CAPA_DASHBOARD_KPIS: readonly MetricCardProps[] = [
 ];
 
 export const CAPA_LIFECYCLE_SLICES: readonly CapaLifecycleSlice[] = [
+  /* `color` is rendered as `stroke={...}` on the donut arcs, an SVG
+     presentation attribute where `var()` is not valid, so these stay
+     literal hex. */
   { label: "Open", value: 1, color: "#0891a6" },
   { label: "In progress", value: 5, color: "#3b82f6" },
   { label: "Overdue", value: 1, color: "#ef4444" },
@@ -191,12 +186,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "M. Torres",
     progress: 62,
-    status: "In progress",
+    status: "In Progress",
     dueDate: "2026-05-08",
     dueLabel: "14d left",
     priority: "high",
     daysLeft: "14d",
-    lifecycleStep: 3,
     tasks: HOSE_TASKS,
   },
   {
@@ -208,12 +202,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "A. Chen",
     progress: 35,
-    status: "In progress",
+    status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
     priority: "medium",
     daysLeft: "21d",
-    lifecycleStep: 2,
     tasks: [],
   },
   {
@@ -230,7 +223,6 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     dueLabel: "Overdue",
     priority: "high",
     daysLeft: "0d",
-    lifecycleStep: 3,
     tasks: [],
   },
   {
@@ -242,12 +234,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "R. Patel",
     progress: 18,
-    status: "In progress",
+    status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
     priority: "medium",
     daysLeft: "21d",
-    lifecycleStep: 1,
     tasks: [],
   },
   {
@@ -259,12 +250,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "D. Park",
     progress: 48,
-    status: "In progress",
+    status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
     priority: "high",
     daysLeft: "21d",
-    lifecycleStep: 2,
     tasks: [],
   },
   {
@@ -281,7 +271,6 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     dueLabel: "21d left",
     priority: "low",
     daysLeft: "21d",
-    lifecycleStep: 0,
     tasks: [],
   },
   {
@@ -293,12 +282,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "A. Osei",
     progress: 100,
-    status: "Verified",
+    status: "Pending Verification",
     dueDate: "2026-04-10",
     dueLabel: "Closed",
     priority: "medium",
     daysLeft: "0d",
-    lifecycleStep: 4,
     tasks: [],
   },
   {
@@ -310,12 +298,11 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "P. Mehra",
     progress: 55,
-    status: "In progress",
+    status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
     priority: "medium",
     daysLeft: "21d",
-    lifecycleStep: 2,
     tasks: [],
   },
   {
@@ -327,22 +314,13 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     control: "Administrative Controls",
     owner: "J. Bell",
     progress: 100,
-    status: "Verified",
+    status: "Pending Verification",
     dueDate: "2026-04-01",
     dueLabel: "Closed",
     priority: "low",
     daysLeft: "0d",
-    lifecycleStep: 4,
     tasks: [],
   },
-];
-
-export const CAPA_LIFECYCLE_STAGES: readonly CapaLifecycleStage[] = [
-  "Identified",
-  "Root cause",
-  "Action plan",
-  "Implement",
-  "Verify",
 ];
 
 export function filterCapaDashboardItems(

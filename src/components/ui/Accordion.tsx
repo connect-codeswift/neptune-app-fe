@@ -41,7 +41,7 @@ function getAccordionItemClass(hasError: boolean, isOpen: boolean) {
   if (isOpen) {
     return "border-ehs-light-blue-active/60 bg-ehs-light-blue/20";
   }
-  return "border-ehs-border bg-white";
+  return "border-ehs-border bg-ehs-surface";
 }
 
 export function AccordionItem(props: Readonly<AccordionItemProps>) {

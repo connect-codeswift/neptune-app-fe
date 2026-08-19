@@ -25,23 +25,28 @@ export type ReportReviewDetailCardProps = Readonly<{
 export function ReportReviewDetailCard(
   props: Readonly<ReportReviewDetailCardProps>,
 ) {
-  const { title, rows, error = null, paddingClassName = "p-3.75", className = "" } =
-    props;
+  const {
+    title,
+    rows,
+    error = null,
+    paddingClassName = "p-3.75",
+    className = "",
+  } = props;
 
   return (
     <div
       className={[
-        "relative flex flex-col gap-2 rounded-5 border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)] backdrop-blur-2.5",
+        "rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 relative flex flex-col gap-2 border shadow-(--ehs-shadow-card)",
         paddingClassName,
         error ? "border-ehs-red/40" : "",
-        "before:pointer-events-none before:absolute before:inset-0 before:rounded-5 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']",
+        "before:rounded-5 before:pointer-events-none before:absolute before:inset-0 before:content-['']",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <div className="relative z-[1] flex w-full flex-col items-start py-px">
+      <div className="relative z-1 flex w-full flex-col items-start py-px">
         <Text
           as="p"
           className="text-ehs-muted-text w-full text-xs font-bold tracking-[1.05px] uppercase"
@@ -50,7 +55,7 @@ export function ReportReviewDetailCard(
         </Text>
       </div>
 
-      <div className="relative z-[1] flex w-full flex-col gap-1.5">
+      <div className="relative z-1 flex w-full flex-col gap-1.5">
         {rows.map((row) => (
           <div
             key={row.label}
@@ -63,10 +68,7 @@ export function ReportReviewDetailCard(
             </div>
             <div className="min-w-0 py-px text-right">
               {typeof row.value === "string" ? (
-                <Text
-                  as="p"
-                  className="text-ehs-dark-bg text-sm break-words"
-                >
+                <Text as="p" className="text-ehs-dark-bg text-sm break-words">
                   {row.value}
                 </Text>
               ) : (

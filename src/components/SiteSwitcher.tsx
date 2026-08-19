@@ -99,18 +99,16 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        className="border-ehs-border text-ehs-darker hover:bg-ehs-light-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm font-semibold shadow-sm transition-colors disabled:cursor-wait disabled:opacity-60"
+        className="border-ehs-border text-ehs-darker hover:bg-ehs-light-bg bg-ehs-surface inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold shadow-sm transition-colors disabled:cursor-wait disabled:opacity-60"
       >
         <Icon
           icon="mdi:office-building-outline"
           className="text-ehs-gray size-3.5 shrink-0"
           aria-hidden="true"
         />
-        <span className="max-w-48 truncate whitespace-nowrap">
-          {company}
-        </span>
+        <span className="max-w-48 truncate whitespace-nowrap">{company}</span>
         {selectedSiteName === ALL_SITES ? null : (
-          <span className="bg-ehs-light-blue text-ehs-dark-blue max-w-32 truncate rounded-full px-2 py-px text-2.5 font-semibold">
+          <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.5 max-w-32 truncate rounded-full px-2 py-px font-semibold">
             {selectedSiteName}
           </span>
         )}
@@ -129,9 +127,9 @@ export function SiteSwitcher(props: Readonly<SiteSwitcherProps>) {
           id={menuId}
           role="menu"
           aria-label={`Sites for ${company}`}
-          className="animate-popover-in absolute right-0 z-30 mt-1.5 w-60 origin-top-right overflow-hidden rounded-xl border border-slate-900/10 bg-white py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+          className="animate-popover-in border-ehs-border-ink/10 bg-ehs-surface absolute right-0 z-30 mt-1.5 w-60 origin-top-right overflow-hidden rounded-xl border py-1 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
         >
-          <p className="text-ehs-muted-text border-ehs-border truncate border-b px-3 pt-1.5 pb-2 text-2.5 font-semibold tracking-wider uppercase">
+          <p className="text-ehs-muted-text border-ehs-border text-2.5 truncate border-b px-3 pt-1.5 pb-2 font-semibold tracking-wider uppercase">
             {company}
           </p>
 

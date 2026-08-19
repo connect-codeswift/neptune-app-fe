@@ -25,7 +25,7 @@ function asOptionalNumber(value: unknown): number | undefined {
 }
 
 /**
- * Normalizes GET /api/Hazard/HazardKpiCount payload (camelCase or PascalCase).
+ * Normalizes GET /api/v1/hazards/kpis payload (camelCase or PascalCase).
  */
 export function normalizeHazardKpiDto(raw: unknown): HazardKpiDto | null {
   if (!isRecord(raw)) {
@@ -167,9 +167,6 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     category: type,
     description: dto.description,
     dateReported: dto.createdDate.slice(0, 10),
-    assignedTo:
-      dto.assignedTo === 0 ? "Unassigned" : `User ${String(dto.assignedTo)}`,
-    assignedToId: dto.assignedTo,
     location,
     image: dto.image,
     relatedCapas: [],

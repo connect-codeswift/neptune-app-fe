@@ -317,3 +317,40 @@ export type GetChemicalRiskAssessmentByIdResponseDto =
 /** PUT /api/hazcom/risk-assessment/{id} — acknowledgement only. */
 export type UpdateChemicalRiskAssessmentResponseDto =
   ApiEnvelopeDto<SaveAcknowledgementDto>;
+
+/* -------------------------------------------------------------------------- */
+/* Dashboard                                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One row of GET /api/hazcom/dashboard/upcoming-deadlines.
+ * Projected for the overview card — not a raw entity.
+ */
+export type HazcomUpcomingDeadlineDto = {
+  id: number;
+  title: string;
+  type: string;
+  owner: string | null;
+  dueDate: string;
+  daysLeft: number;
+};
+
+/** GET /api/hazcom/dashboard/upcoming-deadlines */
+export type GetHazcomUpcomingDeadlinesResponseDto = ApiEnvelopeDto<
+  HazcomUpcomingDeadlineDto[]
+>;
+
+/**
+ * GET /api/hazcom/dashboard/training-compliance.
+ * Per-employee split for the overview card — not a raw entity.
+ */
+export type HazcomTrainingComplianceDto = {
+  compliant: number;
+  dueSoon: number;
+  overdue: number;
+  neverTrained: number;
+};
+
+/** GET /api/hazcom/dashboard/training-compliance */
+export type GetHazcomTrainingComplianceResponseDto =
+  ApiEnvelopeDto<HazcomTrainingComplianceDto>;

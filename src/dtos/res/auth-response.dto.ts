@@ -19,6 +19,8 @@ export type AuthResponseDto = {
   profileUrl?: string | null;
   /** Free-text job title, distinct from the role. Null until someone sets it. */
   jobTitle?: string | null;
+  /** The user's phone number, as stored. Null until they set one. */
+  contactNo?: string | null;
   sites: SiteDto[];
 };
 
@@ -31,7 +33,7 @@ export type LoginResponseDto = {
   accessExpiresAt?: string;
 };
 
-/** POST /Auth/mfa/setup — the shared secret plus the otpauth:// URI to encode as a QR. */
+/** POST /api/v1/auth/mfa/setup — the shared secret plus the otpauth:// URI to encode as a QR. */
 export type MfaSetupResponseDto = {
   mfaSecret: string;
   otpAuthUri: string;

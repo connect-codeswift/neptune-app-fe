@@ -20,9 +20,7 @@ import {
 
 /** Step 2 dropdowns the reporter can extend with their own options. */
 export type CustomOptionField =
-  | "initialTreatment"
-  | "mechanismOfInjury"
-  | "natureOfInjury";
+  "initialTreatment" | "mechanismOfInjury" | "natureOfInjury";
 
 const EMPTY_CUSTOM_OPTIONS: Readonly<
   Record<CustomOptionField, readonly string[]>
@@ -37,9 +35,7 @@ const EMPTY_CUSTOM_OPTIONS: Readonly<
  * what the backend stores in `AiAssistedFields`.
  */
 export type AiAssistedFieldName =
-  | "description"
-  | "injuryDescription"
-  | "actionNotes";
+  "description" | "injuryDescription" | "actionNotes";
 
 /**
  * Drafts from one `draft-assist` call, held until the reporter accepts or

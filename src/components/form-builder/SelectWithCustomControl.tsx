@@ -123,7 +123,7 @@ function AddCustomForm(
           type="button"
           onClick={submit}
           disabled={!canAdd}
-          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-white transition-colors disabled:opacity-40"
+          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-ehs-on-accent transition-colors disabled:opacity-40"
         >
           Add
         </button>
@@ -234,7 +234,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
       <button
         type="button"
         id={field.name}
@@ -264,7 +264,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
         {field.variant === "search" ? (
           // Reads as a search box whose menu opens from the round add button.
           <span
-            className="bg-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full text-white"
+            className="bg-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full text-ehs-on-accent"
             aria-hidden="true"
           >
             <Icon icon="mdi:plus" className="size-4" />
@@ -289,7 +289,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
         // through the option rows. A floating menu has to win against
         // whatever it covers, so the blur and hairline carry the material
         // here and the fill stays high.
-        <div className="animate-popover-in absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border border-white/70 bg-white/96 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)] backdrop-blur-xl">
+        <div className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border shadow-(--ehs-shadow-popover) backdrop-blur-xl">
           <ul
             ref={listRef}
             id={listboxId}
@@ -317,12 +317,12 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
           </ul>
 
           {field.pagination && field.pagination.totalPages > 1 ? (
-            <div className="flex items-center justify-between gap-2 border-t border-slate-900/10 px-3 py-2">
+            <div className="border-ehs-border-ink/10 flex items-center justify-between gap-2 border-t px-3 py-2">
               <button
                 type="button"
                 disabled={field.pagination.pageNumber <= 1}
                 onClick={() => field.pagination?.onPrev()}
-                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Prev
               </button>
@@ -337,7 +337,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
                   field.pagination.pageNumber >= field.pagination.totalPages
                 }
                 onClick={() => field.pagination?.onNext()}
-                className="text8 text-ehs-darker cursor-pointer rounded-lg border border-slate-900/12 bg-white px-2.5 py-1 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>
@@ -345,26 +345,26 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
           ) : null}
 
           {field.allowCustom ? (
-            <div className="border-t border-slate-900/10">
-            {isAdding ? (
-              <AddCustomForm
-                placeholder={
-                  field.addCustomPlaceholder ?? `Add a ${field.label}`
-                }
-                inputLabel={`Custom ${field.label}`}
-                onAdd={addCustomOption}
-                onCancel={() => setIsAdding(false)}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsAdding(true)}
-                className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
-              >
-                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
-                {field.addCustomLabel ?? "Add custom option"}
-              </button>
-            )}
+            <div className="border-ehs-border-ink/10 border-t">
+              {isAdding ? (
+                <AddCustomForm
+                  placeholder={
+                    field.addCustomPlaceholder ?? `Add a ${field.label}`
+                  }
+                  inputLabel={`Custom ${field.label}`}
+                  onAdd={addCustomOption}
+                  onCancel={() => setIsAdding(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(true)}
+                  className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
+                >
+                  <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
+                  {field.addCustomLabel ?? "Add custom option"}
+                </button>
+              )}
             </div>
           ) : null}
         </div>
