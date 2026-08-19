@@ -16,17 +16,18 @@ import {
   useDocumentDepartmentsQuery,
 } from "@/hooks/use-document-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
 import { getAuthContext } from "@/lib/auth-context";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
+import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDocumentDetailContentProps = Readonly<{
   documentIdParam: string;
 }>;
 
 function parseDocumentId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 /**

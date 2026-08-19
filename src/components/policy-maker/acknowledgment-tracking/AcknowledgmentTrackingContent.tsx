@@ -15,14 +15,15 @@ import {
   useDocumentAcknowledgementsQuery,
   useDocumentByIdQuery,
 } from "@/hooks/use-document-queries";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 
 export type AcknowledgmentTrackingContentProps = Readonly<{
   documentIdParam: string;
 }>;
 
 function parseDocumentId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 /**

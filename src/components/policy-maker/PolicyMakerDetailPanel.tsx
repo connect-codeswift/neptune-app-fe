@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
   /** Mapped GET /api/v1/documents/{id} payload for the fields this card shows. */
@@ -130,7 +131,7 @@ export function PolicyMakerDetailPanel(
       <div className="border-ehs-border border-b px-5 pt-4.5 pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {document.code}
+            {formatDocumentDisplayId(document.id)}
           </Text>
 
           <Link

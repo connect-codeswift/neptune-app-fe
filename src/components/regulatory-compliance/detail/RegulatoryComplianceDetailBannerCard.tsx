@@ -6,6 +6,7 @@ import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import { toTitleCase } from "@/lib/string";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceDetailBannerCardProps = Readonly<{
@@ -27,7 +28,12 @@ function statusTone(
 }
 
 function headerSubtitle(detail: ComplianceObligationDetail): string {
-  const parts = [detail.code, detail.category, detail.regulatoryBody]
+  const parts = [
+    formatComplianceDisplayId(detail.id),
+    detail.code,
+    detail.category,
+    detail.regulatoryBody,
+  ]
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && part !== "—");
   return parts.join(" · ");
@@ -70,7 +76,9 @@ export function RegulatoryComplianceDetailBannerCard(
           className="size-3 shrink-0 text-ehs-muted-text"
           aria-hidden="true"
         />
-        <span className={`${crumbMuted} truncate`}>{detail.code}</span>
+        <span className={`${crumbMuted} truncate`}>
+          {formatComplianceDisplayId(detail.id)}
+        </span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-wrap items-start justify-between gap-3">

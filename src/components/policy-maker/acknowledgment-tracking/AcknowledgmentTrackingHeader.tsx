@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type AcknowledgmentTrackingHeaderProps = Readonly<{
   document: PolicyDocument;
@@ -51,7 +52,7 @@ export function AcknowledgmentTrackingHeader(
           aria-hidden="true"
         />
         <Link href={detailHref} className={`${crumbMuted} truncate`}>
-          {document.code}
+          {formatDocumentDisplayId(document.id)}
         </Link>
         <Icon
           icon="mdi:chevron-right"

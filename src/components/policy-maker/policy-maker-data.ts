@@ -4,6 +4,7 @@ import type {
   LibraryCategory,
   PolicyDocument,
 } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 /** Base library nav labels/icons — counts are computed from API data in the view. */
 export const LIBRARY_CATEGORIES: readonly LibraryCategory[] = [
@@ -346,6 +347,8 @@ export function documentMatchesSearch(
 
   return [
     document.title,
+    formatDocumentDisplayId(document.id),
+    document.id,
     document.code,
     document.owner,
     document.ownerFullName,

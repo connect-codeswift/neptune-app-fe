@@ -6,12 +6,13 @@ import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Table, type TablePagination } from "@/components/ui/Table";
 import { Text } from "@/components/Text";
-import type { ComplianceObligationItem } from "./regulatory-compliance-types";
-import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
 import {
   TABLE_HEADER_ACTION_CLASS,
   TABLE_HEADER_ACTION_ICON_CLASS,
 } from "@/components/ui/table-header-action";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
+import type { ComplianceObligationItem } from "./regulatory-compliance-types";
+import { CompliancePill, complianceGlassCardClass } from "./compliance-ui";
 
 const CALENDAR_HREF = "/dashboard/regulatory-compliance/calendar";
 const ADD_OBLIGATION_HREF = "/dashboard/regulatory-compliance/calendar/new";
@@ -36,6 +37,25 @@ function createObligationColumns(
   const { selectedId, onViewMore } = options;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      meta: { align: "left" },
+      cell: ({ row }) => {
+        const displayId = formatComplianceDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
     columnHelper.accessor("code", {
       header: "Code",
       size: 116,

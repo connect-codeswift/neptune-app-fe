@@ -1,6 +1,7 @@
 import type { HazcomChemical } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
-/** Case-insensitive match against chemical name, CAS number, and location. */
+/** Case-insensitive match against id, name, CAS number, and location. */
 export function chemicalMatchesSearch(
   chemical: HazcomChemical,
   query: string,
@@ -11,6 +12,9 @@ export function chemicalMatchesSearch(
   }
 
   return (
+    formatRecordDisplayId("CHEM", chemical.id)
+      .toLowerCase()
+      .includes(trimmed) ||
     chemical.name.toLowerCase().includes(trimmed) ||
     chemical.casNumber.toLowerCase().includes(trimmed) ||
     chemical.location.toLowerCase().includes(trimmed)
@@ -40,6 +44,7 @@ export function chemicalStatusTextClass(status: string): string {
 }
 
 const CSV_HEADER = [
+  "ID",
   "Chemical Name",
   "CAS #",
   "Location",
@@ -56,6 +61,7 @@ function csvCell(value: string): string {
 function buildChemicalsCsv(chemicals: readonly HazcomChemical[]): string {
   const rows = chemicals.map((chemical) =>
     [
+      formatRecordDisplayId("CHEM", chemical.id),
       chemical.name,
       chemical.casNumber,
       chemical.location,

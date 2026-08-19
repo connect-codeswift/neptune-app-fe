@@ -15,6 +15,7 @@ import {
   TABLE_HEADER_ACTION_ICON_CLASS,
 } from "@/components/ui/table-header-action";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDocumentTableProps = Readonly<{
   categoryLabel: string;
@@ -32,6 +33,23 @@ export type PolicyMakerDocumentTableProps = Readonly<{
 
 const columnHelper = createColumnHelper<PolicyDocument>();
 
+function documentSubtitle(doc: PolicyDocument): string {
+  const displayId = formatDocumentDisplayId(doc.id);
+  const code = doc.code.trim();
+  const parts: string[] = [];
+  if (
+    code !== "" &&
+    code !== "—" &&
+    code.toUpperCase() !== displayId.toUpperCase()
+  ) {
+    parts.push(code);
+  }
+  if (doc.site.trim() !== "") {
+    parts.push(doc.site);
+  }
+  return parts.join(" · ");
+}
+
 function createDocumentColumns(
   expanded: boolean,
   options: Readonly<{
@@ -42,6 +60,25 @@ function createDocumentColumns(
   const { selectedId, onViewMore } = options;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const displayId = formatDocumentDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
     columnHelper.display({
       id: "document",
       header: "Document",
@@ -64,7 +101,7 @@ function createDocumentColumns(
                 {doc.title}
               </Text>
               <Text as="p" className="text8 text-ehs-muted-text">
-                {`${doc.code} · ${doc.site}`}
+                {documentSubtitle(doc)}
               </Text>
             </div>
           </div>

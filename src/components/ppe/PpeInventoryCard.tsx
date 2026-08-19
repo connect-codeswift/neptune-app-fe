@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 export type PpeInventoryCardProps = Readonly<{
   item: PpeInventoryItem;
@@ -19,7 +20,14 @@ export function PpeInventoryCard(props: Readonly<PpeInventoryCardProps>) {
       className="border-ehs-border flex w-full cursor-pointer flex-col gap-2.5 rounded-xl border bg-ehs-surface p-3.5 text-left shadow-[0px_2px_4px_rgba(15,23,42,0.02)] transition-colors hover:bg-ehs-surface-raised/80"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text4 text-ehs-darker truncate">{item.category}</span>
+        <div className="flex min-w-0 flex-col">
+          <span className="text7 text-ehs-muted-text">
+            {formatPpeDisplayId(item.id)}
+          </span>
+          <span className="text4 text-ehs-darker truncate">
+            {item.itemName}
+          </span>
+        </div>
         <span className="text7 text-ehs-darker shrink-0 whitespace-nowrap">
           {`${item.onHand.toLocaleString("en-US")} / ${item.stockCapacity.toLocaleString("en-US")}`}
         </span>

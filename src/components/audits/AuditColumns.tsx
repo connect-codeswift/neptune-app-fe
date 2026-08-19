@@ -4,6 +4,7 @@ import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { AuditRecord } from "@/app/dashboard/audits/audits-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const columnHelper = createColumnHelper<AuditRecord>();
 
@@ -24,6 +25,17 @@ function statusTone(status: string): IncidentBadgeTone {
 
 function isOverdue(status: string): boolean {
   return status.trim().toLowerCase() === "overdue";
+}
+
+function auditDisplayId(id: string): string {
+  return formatRecordDisplayId("A", id);
+}
+
+function auditSubtitle(record: AuditRecord, expanded: boolean): string {
+  const rest = expanded ? record.scope : record.site;
+  return [auditDisplayId(record.id), rest]
+    .filter((part) => part.trim() !== "")
+    .join(" · ");
 }
 
 /**
@@ -81,35 +93,51 @@ export function createAuditColumns(
   const { selectedId, onViewMore, expanded = true } = options;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const displayId = auditDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
     columnHelper.accessor("title", {
       header: "Audit",
       // No `size` → Table default 150 → no fixed width → this column fills leftover space.
       minSize: 180,
       meta: { align: "left" as const },
-      cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="span"
-            className="text4 text-ehs-darker truncate"
-            title={row.original.title}
-          >
-            {row.original.title}
-          </Text>
-          <Text
-            as="span"
-            className="text8 text-ehs-muted-text truncate"
-            title={
-              expanded
-                ? `A-${row.original.id} · ${row.original.scope}`
-                : `A-${row.original.id} · ${row.original.scope} · ${row.original.site}`
-            }
-          >
-            {expanded
-              ? `A-${row.original.id} · ${row.original.scope}`
-              : `A-${row.original.id} · ${row.original.site}`}
-          </Text>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const subtitle = auditSubtitle(row.original, expanded);
+        return (
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text
+              as="span"
+              className="text4 text-ehs-darker truncate"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            <Text
+              as="span"
+              className="text8 text-ehs-muted-text truncate"
+              title={subtitle}
+            >
+              {subtitle}
+            </Text>
+          </div>
+        );
+      },
     }),
     ...(expanded
       ? [
@@ -212,8 +240,8 @@ export function createAuditColumns(
             ].join(" ")}
             aria-label={
               isOpen
-                ? `Close details for A-${row.original.id}`
-                : `View A-${row.original.id}`
+                ? `Close details for ${auditDisplayId(row.original.id)}`
+                : `View ${auditDisplayId(row.original.id)}`
             }
             aria-pressed={isOpen}
             onClick={(event) => {
