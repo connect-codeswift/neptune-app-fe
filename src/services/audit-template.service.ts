@@ -11,12 +11,7 @@ import type {
 } from "@/dtos/res/audit-template-response.dto";
 import http from "@/lib/axios";
 
-const AUDIT_TEMPLATE_PATH = "/AuditTemplate";
-const AUDIT_TEMPLATE_GET_ALL_PATH = "/AuditTemplate/GetAll";
-const SECTIONS_BY_TEMPLATE_PATH = "/AuditTemplate/GetSectionsByTemplateId";
-const ITEMS_BY_SECTION_PATH = "/AuditTemplate/GetItemsBySectionId";
-const LOGICS_BY_TEMPLATE_PATH =
-  "/AuditTemplate/GetConditionalLogicsByTemplateId";
+const AUDIT_TEMPLATE_PATH = "/audit-templates";
 
 export async function createAuditTemplate(
   payload: CreateAuditTemplateRequestDto,
@@ -57,7 +52,7 @@ export async function getAllAuditTemplates(
   }>,
 ) {
   const { data } = await http.get<GetAllAuditTemplatesResponseDto>(
-    AUDIT_TEMPLATE_GET_ALL_PATH,
+    AUDIT_TEMPLATE_PATH,
     // The endpoint serves both kinds of template, so scope it to audits.
     { params: { ...params, kind: params.kind ?? "Audit" } },
   );
@@ -66,7 +61,7 @@ export async function getAllAuditTemplates(
 
 export async function getSectionsByTemplateId(templateId: string) {
   const { data } = await http.get<GetTemplateSectionsResponseDto>(
-    `${SECTIONS_BY_TEMPLATE_PATH}/${encodeURIComponent(templateId)}`,
+    `${AUDIT_TEMPLATE_PATH}/${encodeURIComponent(templateId)}/sections`,
   );
 
   return data;
@@ -74,7 +69,7 @@ export async function getSectionsByTemplateId(templateId: string) {
 
 export async function getItemsBySectionId(sectionId: string) {
   const { data } = await http.get<GetTemplateItemsResponseDto>(
-    `${ITEMS_BY_SECTION_PATH}/${encodeURIComponent(sectionId)}`,
+    `${AUDIT_TEMPLATE_PATH}/sections/${encodeURIComponent(sectionId)}/items`,
   );
 
   return data;
@@ -82,7 +77,7 @@ export async function getItemsBySectionId(sectionId: string) {
 
 export async function getConditionalLogicsByTemplateId(templateId: string) {
   const { data } = await http.get<GetTemplateLogicsResponseDto>(
-    `${LOGICS_BY_TEMPLATE_PATH}/${encodeURIComponent(templateId)}`,
+    `${AUDIT_TEMPLATE_PATH}/${encodeURIComponent(templateId)}/conditional-logics`,
   );
 
   return data;

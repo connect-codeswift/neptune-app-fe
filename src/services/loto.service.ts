@@ -40,14 +40,16 @@ import {
   readProp,
 } from "@/services/mappers/record-readers";
 
-const LOTO_PATH = "/Loto";
-const LOTO_GET_ALL_EQUIPMENT_PATH = `${LOTO_PATH}/GetAllEquipment`;
+const LOTO_PATH = "/loto";
 const LOTO_EQUIPMENT_PATH = `${LOTO_PATH}/equipment`;
-const LOTO_LOCATIONS_PATH = `${LOTO_PATH}/locations`;
+const LOTO_EQUIPMENT_SEARCH_PATH = `${LOTO_EQUIPMENT_PATH}/search`;
 const LOTO_LOCKOUTS_PATH = `${LOTO_PATH}/lockouts`;
-const LOTO_ACTIVE_LOCKOUTS_PATH = `${LOTO_PATH}/active-lockouts`;
-const LOTO_GET_ALL_LOCKOUTS_PATH = `${LOTO_PATH}/GetAllLockouts`;
+const LOTO_LOCKOUTS_SEARCH_PATH = `${LOTO_LOCKOUTS_PATH}/search`;
 const LOTO_PERSONNEL_PATH = `${LOTO_PATH}/personnel`;
+// Locations were promoted out of the LOTO controller into a global resource
+// every module can reach (`LotoLocation` -> `Location`), so this is no longer
+// under `/loto`.
+const LOCATIONS_PATH = "/locations";
 const LOTO_DASHBOARD_KPIS_PATH = `${LOTO_PATH}/dashboard-kpis`;
 
 export type LotoPage<TItem> = Readonly<{
@@ -319,12 +321,12 @@ function toPage<T>(
   };
 }
 
-/** POST /api/Loto/GetAllEquipment — paginated equipment register grid. */
+/** POST /api/v1/loto/equipment/search — paginated equipment register grid. */
 export async function getAllLotoEquipment(
   payload: GetAllLotoEquipmentRequestDto,
 ): Promise<LotoPage<LotoEquipmentGridRowDto>> {
   const { data } = await http.post<GetLotoEquipmentResponseDto>(
-    LOTO_GET_ALL_EQUIPMENT_PATH,
+    LOTO_EQUIPMENT_SEARCH_PATH,
     payload,
   );
 
@@ -334,7 +336,7 @@ export async function getAllLotoEquipment(
   });
 }
 
-/** GET /api/Loto/equipment/{id} — full equipment + procedure detail. */
+/** GET /api/v1/loto/equipment/{id} — full equipment + procedure detail. */
 export async function getLotoEquipmentById(
   id: number,
 ): Promise<LotoEquipmentDetailDto | null> {
@@ -345,7 +347,7 @@ export async function getLotoEquipmentById(
   return normalizeEquipmentDetail(unwrapDataModel(data));
 }
 
-/** POST /api/Loto/equipment — creates the machine and its procedure in one call. */
+/** POST /api/v1/loto/equipment — creates the machine and its procedure in one call. */
 export async function createLotoEquipment(
   payload: UpsertLotoEquipmentRequestDto,
 ): Promise<CreateLotoEquipmentResultDto | null> {
@@ -365,7 +367,7 @@ export async function createLotoEquipment(
   };
 }
 
-/** PUT /api/Loto/equipment/{id} — same body as create; the code cannot change. */
+/** PUT /api/v1/loto/equipment/{id} — same body as create; the code cannot change. */
 export async function updateLotoEquipment(
   id: number,
   payload: UpsertLotoEquipmentRequestDto,
@@ -378,21 +380,18 @@ export async function updateLotoEquipment(
   unwrapDataModel(data);
 }
 
-/** GET /api/Loto/locations?search= — the site's location register, ordered by name. */
+/** GET /api/v1/locations?search= — the site's location register, ordered by name. */
 export async function getLotoLocations(
   search?: string,
 ): Promise<LotoLocationDto[]> {
-  const { data } = await http.get<GetLotoLocationsResponseDto>(
-    LOTO_LOCATIONS_PATH,
-    {
-      params: search?.trim() ? { search: search.trim() } : undefined,
-    },
-  );
+  const { data } = await http.get<GetLotoLocationsResponseDto>(LOCATIONS_PATH, {
+    params: search?.trim() ? { search: search.trim() } : undefined,
+  });
 
   return toList(unwrapDataModel(data), normalizeLocation);
 }
 
-/** POST /api/Loto/lockouts — apply a lockout; the backend assigns the lock number. */
+/** POST /api/v1/loto/lockouts — apply a lockout; the backend assigns the lock number. */
 export async function applyLotoLockout(
   payload: ApplyLotoLockoutRequestDto,
 ): Promise<ApplyLotoLockoutResultDto | null> {
@@ -413,7 +412,7 @@ export async function applyLotoLockout(
   };
 }
 
-/** POST /api/Loto/lockouts/{id}/remove — only the operator who applied it may remove it. */
+/** POST /api/v1/loto/lockouts/{id}/remove — only the operator who applied it may remove it. */
 export async function removeLotoLockout(
   id: number,
   payload: RemoveLotoLockoutRequestDto,
@@ -426,21 +425,26 @@ export async function removeLotoLockout(
   unwrapDataModel(data);
 }
 
-/** GET /api/Loto/active-lockouts — every active lockout on the site, newest first. */
+/**
+ * GET /api/v1/loto/lockouts?status=active — every active lockout on the site,
+ * newest first. The dedicated `/Loto/active-lockouts` path collapsed into a
+ * `status` query parameter on the lockouts collection.
+ */
 export async function getLotoActiveLockouts(): Promise<LotoLockoutRowDto[]> {
   const { data } = await http.get<GetLotoActiveLockoutsResponseDto>(
-    LOTO_ACTIVE_LOCKOUTS_PATH,
+    LOTO_LOCKOUTS_PATH,
+    { params: { status: "active" } },
   );
 
   return toList(unwrapDataModel(data), normalizeLockoutRow);
 }
 
-/** POST /api/Loto/GetAllLockouts — the global, site-wide history log. */
+/** POST /api/v1/loto/lockouts/search — the global, site-wide history log. */
 export async function getAllLotoLockouts(
   payload: GetAllLotoLockoutsRequestDto,
 ): Promise<LotoPage<LotoLockoutRowDto>> {
   const { data } = await http.post<GetLotoLockoutsResponseDto>(
-    LOTO_GET_ALL_LOCKOUTS_PATH,
+    LOTO_LOCKOUTS_SEARCH_PATH,
     payload,
   );
 
@@ -450,7 +454,7 @@ export async function getAllLotoLockouts(
   });
 }
 
-/** GET /api/Loto/equipment/{id}/history — one machine's lockouts, newest first. */
+/** GET /api/v1/loto/equipment/{id}/history — one machine's lockouts, newest first. */
 export async function getLotoEquipmentHistory(
   id: number,
 ): Promise<LotoLockoutRowDto[]> {
@@ -461,7 +465,7 @@ export async function getLotoEquipmentHistory(
   return toList(unwrapDataModel(data), normalizeLockoutRow);
 }
 
-/** GET /api/Loto/personnel — everyone authorized on at least one machine on this site. */
+/** GET /api/v1/loto/personnel — everyone authorized on at least one machine on this site. */
 export async function getLotoPersonnel(): Promise<LotoPersonnelDto[]> {
   const { data } =
     await http.get<GetLotoPersonnelResponseDto>(LOTO_PERSONNEL_PATH);
@@ -469,7 +473,7 @@ export async function getLotoPersonnel(): Promise<LotoPersonnelDto[]> {
   return toList(unwrapDataModel(data), normalizePersonnel);
 }
 
-/** GET /api/Loto/dashboard-kpis — KPI strip for the equipment tab. */
+/** GET /api/v1/loto/dashboard-kpis — KPI strip for the equipment tab. */
 export async function getLotoDashboardKpis(): Promise<LotoDashboardKpisDto> {
   const { data } = await http.get<GetLotoDashboardKpisResponseDto>(
     LOTO_DASHBOARD_KPIS_PATH,

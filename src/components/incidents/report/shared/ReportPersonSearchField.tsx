@@ -64,8 +64,8 @@ export type ReportPersonSearchFieldProps = Readonly<{
   onChange: (next: ReportPersonSelection) => void;
   /**
    * Where people are loaded from.
-   * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
-   * - `dropdown`: GET /User/dropdown, filtered client-side
+   * - `site` (default): GET /api/v1/sites/{siteId}/users
+   * - `dropdown`: GET /api/v1/users/dropdown, filtered client-side
    */
   usersSource?: "site" | "dropdown";
   /** Site whose roster is offered when `usersSource` is `site`. `0` = no site claim. */
@@ -147,7 +147,7 @@ function filterUsersByQuery(
  * Affected-person picker: a combobox over the people who belong to the current
  * site, or the org-wide `/User/dropdown` list when `usersSource` is `dropdown`.
  *
- * Site search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`).
+ * Site search runs on the backend (`GET /api/v1/sites/{siteId}/users?search=`).
  * Dropdown mode loads once and filters client-side.
  *
  * Free text is still accepted. The affected person is often a contractor,

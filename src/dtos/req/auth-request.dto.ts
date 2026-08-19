@@ -16,7 +16,7 @@ const siteRequestSchema = z.object({
   location: z.string().trim().min(1, "Location is required."),
 });
 
-/** Matches backend `UserDto` for POST /Auth/register */
+/** Matches backend `UserDto` for POST /api/v1/auth/register */
 const registerRequestSchema = z.object({
   id: z.number().int().nonnegative().optional(),
   fullName: z.string().trim().min(1, "Full name is required.").max(50),

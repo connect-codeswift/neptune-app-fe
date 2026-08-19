@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import type { LotoLocationSelection } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
@@ -18,7 +19,7 @@ export type LotoLocationSearchFieldProps = Readonly<{
 
 /**
  * Location picker for the create/edit procedure form — a combobox over
- * GET /api/Loto/locations?search=. The backend requires a `locationId` from
+ * GET /api/v1/locations?search=. The backend requires a `locationId` from
  * this register; free text is gone.
  */
 export function LotoLocationSearchField(
@@ -59,10 +60,14 @@ export function LotoLocationSearchField(
 
   return (
     <div ref={rootRef} className="relative flex flex-col gap-1.5">
-      <span className="text8 text-ehs-gray block font-semibold">
-        Location
-        <span className="text-ehs-red"> *</span>
-      </span>
+      <div className="flex items-center gap-1">
+        <Text as="span" className="text8 text-ehs-gray font-semibold">
+          Location
+        </Text>
+        <Text as="span" className="text8 text-ehs-red">
+          *
+        </Text>
+      </div>
 
       <div className="relative min-w-0">
         <input
@@ -135,14 +140,18 @@ export function LotoLocationSearchField(
                 ))}
               </li>
             ) : locationsQuery.isError ? (
-              <li className="text-ehs-muted-text px-2.5 py-3 text-sm">
-                Couldn&apos;t load locations. Try again in a moment.
+              <li className="px-2.5 py-3">
+                <Text as="p" className="text8 text-ehs-muted-text">
+                  Couldn&apos;t load locations. Try again in a moment.
+                </Text>
               </li>
             ) : locations.length === 0 ? (
-              <li className="text-ehs-muted-text px-2.5 py-3 text-sm">
-                {debouncedQuery.trim()
-                  ? `No location matches “${debouncedQuery.trim()}”.`
-                  : "No locations are registered for this site yet."}
+              <li className="px-2.5 py-3">
+                <Text as="p" className="text8 text-ehs-muted-text">
+                  {debouncedQuery.trim()
+                    ? `No location matches “${debouncedQuery.trim()}”.`
+                    : "No locations are registered for this site yet."}
+                </Text>
               </li>
             ) : (
               locations.map((location) => (
@@ -163,9 +172,12 @@ export function LotoLocationSearchField(
                     }}
                     className="rounded-2 hover:bg-ehs-surface-inverse/4 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors"
                   >
-                    <span className="text-ehs-dark-bg truncate text-base font-semibold">
+                    <Text
+                      as="span"
+                      className="text4 text-ehs-darker truncate font-semibold"
+                    >
                       {location.name}
-                    </span>
+                    </Text>
                     {value?.id === location.id ? (
                       <Icon
                         icon="mdi:check"
@@ -181,7 +193,11 @@ export function LotoLocationSearchField(
         </div>
       ) : null}
 
-      {error ? <p className="text8 text-ehs-red">{error}</p> : null}
+      {error ? (
+        <Text as="p" className="text8 text-ehs-red">
+          {error}
+        </Text>
+      ) : null}
     </div>
   );
 }

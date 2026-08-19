@@ -44,16 +44,15 @@ function readEnvelopeDataModel(data: unknown): unknown {
   return data;
 }
 
-const COMPLIANCE_DASHBOARD_KPIS_PATH = "/Compliance/dashboard-kpis";
-const COMPLIANCE_CATEGORY_STATS_PATH = "/Compliance/category-stats";
-const COMPLIANCE_GET_ALL_PATH = "/Compliance/GetAllCompliances";
-const COMPLIANCE_UPCOMING_FILINGS_PATH = "/Compliance/upcoming-filings";
-const COMPLIANCE_CALENDAR_PATH = "/Compliance/calendar";
-const COMPLIANCE_ADD_PATH = "/Compliance/AddCompliance";
-const COMPLIANCE_BY_ID_PATH = "/Compliance";
-const COMPLIANCE_UPDATE_PATH = "/Compliance/Update";
+const COMPLIANCE_DASHBOARD_KPIS_PATH = "/compliance-records/dashboard-kpis";
+const COMPLIANCE_CATEGORY_STATS_PATH = "/compliance-records/category-stats";
+const COMPLIANCE_GET_ALL_PATH = "/compliance-records/search";
+const COMPLIANCE_UPCOMING_FILINGS_PATH = "/compliance-records/upcoming-filings";
+const COMPLIANCE_CALENDAR_PATH = "/compliance-records/calendar";
+const COMPLIANCE_ADD_PATH = "/compliance-records";
+const COMPLIANCE_BY_ID_PATH = "/compliance-records";
 
-/** GET /api/Compliance/dashboard-kpis */
+/** GET /api/v1/compliance-records/dashboard-kpis */
 export async function getComplianceDashboardKpis(): Promise<GetComplianceDashboardKpisResponseDto> {
   const { data } = await http.get<GetComplianceDashboardKpisResponseDto>(
     COMPLIANCE_DASHBOARD_KPIS_PATH,
@@ -65,7 +64,7 @@ export async function getComplianceDashboardKpis(): Promise<GetComplianceDashboa
   };
 }
 
-/** GET /api/Compliance/category-stats */
+/** GET /api/v1/compliance-records/category-stats */
 export async function getComplianceCategoryStats(): Promise<GetComplianceCategoryStatsResponseDto> {
   const { data } = await http.get<GetComplianceCategoryStatsResponseDto>(
     COMPLIANCE_CATEGORY_STATS_PATH,
@@ -79,7 +78,7 @@ export async function getComplianceCategoryStats(): Promise<GetComplianceCategor
   };
 }
 
-/** POST /api/Compliance/GetAllCompliances */
+/** POST /api/v1/compliance-records/search */
 export async function getAllCompliances(request: GetAllCompliancesRequestDto) {
   const payload: GetAllCompliancesRequestDto = {
     pageNumber: request.pageNumber,
@@ -93,7 +92,7 @@ export async function getAllCompliances(request: GetAllCompliancesRequestDto) {
   return normalizeGetAllCompliancesResponse(data, request);
 }
 
-/** GET /api/Compliance/upcoming-filings */
+/** GET /api/v1/compliance-records/upcoming-filings */
 export async function getComplianceUpcomingFilings(): Promise<GetComplianceUpcomingFilingsResponseDto> {
   const { data } = await http.get<GetComplianceUpcomingFilingsResponseDto>(
     COMPLIANCE_UPCOMING_FILINGS_PATH,
@@ -110,7 +109,7 @@ export type GetComplianceCalendarParams = Readonly<{
   endDate: string;
 }>;
 
-/** GET /api/Compliance/calendar?startDate=&endDate= */
+/** GET /api/v1/compliance-records/calendar?startDate=&endDate= */
 export async function getComplianceCalendar(
   params: GetComplianceCalendarParams,
 ): Promise<GetComplianceCalendarResponseDto> {
@@ -130,7 +129,7 @@ export async function getComplianceCalendar(
   };
 }
 
-/** POST /api/Compliance/AddCompliance */
+/** POST /api/v1/compliance-records */
 export async function addCompliance(
   payload: AddComplianceRequestDto,
 ): Promise<AddComplianceResponseDto> {
@@ -153,7 +152,7 @@ export async function addCompliance(
   return data;
 }
 
-/** GET /api/Compliance/{id} */
+/** GET /api/v1/compliance-records/{id} */
 export async function getComplianceById(
   id: number,
 ): Promise<ComplianceDto | null> {
@@ -174,12 +173,16 @@ export async function getComplianceById(
   };
 }
 
-/** PUT /api/Compliance/Update — mark obligation complete. */
+/**
+ * PUT /api/v1/compliance-records/{id} — mark obligation complete.
+ * The id moved from the request body to the path in the v1 rename; the body is
+ * otherwise unchanged (the backend now ignores its `id` rather than reading it).
+ */
 export async function markComplianceComplete(
   id: number,
 ): Promise<UpdateComplianceResponseDto> {
   const { data } = await http.put<UpdateComplianceResponseDto>(
-    COMPLIANCE_UPDATE_PATH,
+    `${COMPLIANCE_BY_ID_PATH}/${String(id)}`,
     {
       id,
       markComplete: true,
@@ -189,7 +192,7 @@ export async function markComplianceComplete(
   return data;
 }
 
-/** DELETE /api/Compliance/{id} */
+/** DELETE /api/v1/compliance-records/{id} */
 export async function deleteCompliance(
   id: number,
 ): Promise<DeleteComplianceResponseDto> {

@@ -72,6 +72,85 @@ export function subscribeToColorSchemeChange(
 }
 
 /**
+ * The theme as an external store, for `useSyncExternalStore`.
+ *
+ * The preference lives in localStorage, which React cannot read during render without risking a
+ * hydration mismatch — the server has no such value. Modelling it as an external store is the
+ * sanctioned way out: the server snapshot is the default, the client snapshot is the real value,
+ * and React reconciles them without a state assignment inside an effect.
+ *
+ * Three things can move the theme, so all three notify: this tab writing a preference, another
+ * tab writing one, and the OS changing while the preference is "system".
+ */
+const themeListeners = new Set<() => void>();
+
+function notifyThemeChange() {
+  for (const listener of themeListeners) {
+    listener();
+  }
+}
+
+export function subscribeToTheme(onStoreChange: () => void): () => void {
+  themeListeners.add(onStoreChange);
+  globalThis.addEventListener?.("storage", onStoreChange);
+  const unsubscribeMedia = subscribeToColorSchemeChange(onStoreChange);
+
+  return () => {
+    themeListeners.delete(onStoreChange);
+    globalThis.removeEventListener?.("storage", onStoreChange);
+    unsubscribeMedia();
+  };
+}
+
+/**
+ * Cached so the snapshot is referentially stable: `useSyncExternalStore` re-reads on every
+ * render and loops forever if a fresh object comes back each time.
+ */
+let themeSnapshot: ThemeSnapshot = {
+  preference: DEFAULT_THEME_PREFERENCE,
+  resolvedTheme: "light",
+  isReady: false,
+};
+
+export type ThemeSnapshot = Readonly<{
+  preference: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  isReady: boolean;
+}>;
+
+const SERVER_THEME_SNAPSHOT: ThemeSnapshot = {
+  preference: DEFAULT_THEME_PREFERENCE,
+  resolvedTheme: "light",
+  isReady: false,
+};
+
+export function getThemeSnapshot(): ThemeSnapshot {
+  const preference = readStoredThemePreference();
+  const resolvedTheme = resolveTheme(preference);
+
+  if (
+    themeSnapshot.preference !== preference ||
+    themeSnapshot.resolvedTheme !== resolvedTheme ||
+    !themeSnapshot.isReady
+  ) {
+    themeSnapshot = { preference, resolvedTheme, isReady: true };
+  }
+
+  return themeSnapshot;
+}
+
+export function getServerThemeSnapshot(): ThemeSnapshot {
+  return SERVER_THEME_SNAPSHOT;
+}
+
+/** Persist a choice, paint it, and wake every subscriber. */
+export function setThemePreference(preference: ThemePreference): void {
+  storeThemePreference(preference);
+  applyResolvedTheme(resolveTheme(preference));
+  notifyThemeChange();
+}
+
+/**
  * Writes the resolved theme onto `<html>`.
  *
  * `color-scheme` is set alongside the attribute so the browser's own surfaces — form controls,

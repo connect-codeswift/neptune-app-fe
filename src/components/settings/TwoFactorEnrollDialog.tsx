@@ -36,7 +36,14 @@ export function TwoFactorEnrollDialog(
 ) {
   const { open, secret, otpAuthUri, onClose, onEnabled } = props;
 
-  const [qrDataUrl, setQrDataUrl] = useState("");
+  // Keyed by the URI it was drawn from, so the code for a previous enrolment is never shown
+  // against a new secret. Storing the pair also means the "no URI yet" case is derived during
+  // render rather than reset from inside the effect, which would be a synchronous state
+  // assignment in an effect — the cascading-render pattern this codebase treats as a defect.
+  const [renderedQr, setRenderedQr] = useState<{
+    uri: string;
+    dataUrl: string;
+  } | null>(null);
   const [formError, setFormError] = useState("");
   const enableMfa = useEnableMfaMutation();
 
@@ -44,7 +51,6 @@ export function TwoFactorEnrollDialog(
   // to a QR-image service would post the second factor to a third party.
   useEffect(() => {
     if (!otpAuthUri) {
-      setQrDataUrl("");
       return;
     }
 
@@ -57,21 +63,21 @@ export function TwoFactorEnrollDialog(
     })
       .then((url) => {
         if (!cancelled) {
-          setQrDataUrl(url);
+          setRenderedQr({ uri: otpAuthUri, dataUrl: url });
         }
       })
       .catch(() => {
         // The secret below the QR is the documented fallback for exactly this case, so a
         // failed render is a downgrade rather than a dead end.
-        if (!cancelled) {
-          setQrDataUrl("");
-        }
       });
 
     return () => {
       cancelled = true;
     };
   }, [otpAuthUri]);
+
+  const qrDataUrl =
+    renderedQr && renderedQr.uri === otpAuthUri ? renderedQr.dataUrl : "";
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();

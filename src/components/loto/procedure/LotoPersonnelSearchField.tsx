@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import type { LotoPersonnelSelection } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
@@ -30,7 +31,7 @@ export type LotoPersonnelSearchFieldProps = Readonly<{
 
 /**
  * Multi-select authorized-personnel picker for the create/edit procedure form
- * — a combobox over GET /api/Auth/GetUsersBySiteId/{siteId}?search=. Any
+ * — a combobox over GET /api/v1/sites/{siteId}/users?search=. Any
  * registered, active user on the site is eligible, not just workers.
  */
 export function LotoPersonnelSearchField(
@@ -82,12 +83,12 @@ export function LotoPersonnelSearchField(
 
   return (
     <div ref={rootRef} className="relative flex flex-col gap-1.5">
-      <span className="text8 text-ehs-gray block font-semibold">
+      <Text as="span" className="text8 text-ehs-gray font-semibold">
         Authorized Personnel
-      </span>
-      <p className="text8 text-ehs-muted-text">
+      </Text>
+      <Text as="p" className="text8 text-ehs-muted-text">
         Only these users can perform this LOTO procedure
-      </p>
+      </Text>
 
       {value.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
@@ -96,7 +97,9 @@ export function LotoPersonnelSearchField(
               key={person.userId}
               className="text8 bg-ehs-light-blue text-ehs-dark-blue inline-flex items-center gap-1 rounded-full py-1 pr-1.5 pl-2.5 font-semibold"
             >
-              {person.name}
+              <Text as="span" className="text8">
+                {person.name}
+              </Text>
               <button
                 type="button"
                 onClick={() => {
@@ -150,9 +153,11 @@ export function LotoPersonnelSearchField(
               className="max-h-56 overflow-y-auto p-1"
             >
               {siteId <= 0 ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-sm">
-                  Your sign-in isn&apos;t linked to a site, so there&apos;s no
-                  roster to search.
+                <li className="px-2.5 py-3">
+                  <Text as="p" className="text8 text-ehs-muted-text">
+                    Your sign-in isn&apos;t linked to a site, so there&apos;s no
+                    roster to search.
+                  </Text>
                 </li>
               ) : usersQuery.isLoading ? (
                 <li className="flex flex-col gap-1 p-1.5">
@@ -164,14 +169,18 @@ export function LotoPersonnelSearchField(
                   ))}
                 </li>
               ) : usersQuery.isError ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-sm">
-                  Couldn&apos;t load people. Try again in a moment.
+                <li className="px-2.5 py-3">
+                  <Text as="p" className="text8 text-ehs-muted-text">
+                    Couldn&apos;t load people. Try again in a moment.
+                  </Text>
                 </li>
               ) : users.length === 0 ? (
-                <li className="text-ehs-muted-text px-2.5 py-3 text-sm">
-                  {debouncedQuery.trim()
-                    ? `No one matches "${debouncedQuery.trim()}".`
-                    : "No one else is available to add."}
+                <li className="px-2.5 py-3">
+                  <Text as="p" className="text8 text-ehs-muted-text">
+                    {debouncedQuery.trim()
+                      ? `No one matches "${debouncedQuery.trim()}".`
+                      : "No one else is available to add."}
+                  </Text>
                 </li>
               ) : (
                 users.map((user) => (
@@ -186,13 +195,19 @@ export function LotoPersonnelSearchField(
                       className="rounded-2 hover:bg-ehs-surface-inverse/4 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors"
                     >
                       <span className="flex min-w-0 flex-col">
-                        <span className="text-ehs-dark-bg truncate text-base font-semibold">
+                        <Text
+                          as="span"
+                          className="text4 text-ehs-darker truncate font-semibold"
+                        >
                           {displayNameFor(user)}
-                        </span>
+                        </Text>
                         {user.roleName ? (
-                          <span className="text-ehs-muted-text truncate text-sm">
+                          <Text
+                            as="span"
+                            className="text8 text-ehs-muted-text truncate"
+                          >
                             {user.roleName.replaceAll("_", " ")}
-                          </span>
+                          </Text>
                         ) : null}
                       </span>
                       <Icon
@@ -209,7 +224,11 @@ export function LotoPersonnelSearchField(
         ) : null}
       </div>
 
-      {error ? <p className="text8 text-ehs-red">{error}</p> : null}
+      {error ? (
+        <Text as="p" className="text8 text-ehs-red">
+          {error}
+        </Text>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * POST /api/Compliance/GetAllCompliances
+ * POST /api/v1/compliance-records/search
  * Swagger: ComplianceGridFilterDto
  */
 export type GetAllCompliancesRequestDto = {
@@ -11,7 +11,7 @@ export type GetAllCompliancesRequestDto = {
 };
 
 /**
- * POST /api/Compliance/AddCompliance
+ * POST /api/v1/compliance-records
  * Swagger: AddComplianceDto
  */
 export type AddComplianceRequestDto = {
@@ -28,7 +28,7 @@ export type AddComplianceRequestDto = {
 };
 
 /**
- * PUT /api/Compliance/Update — mark complete (minimal payload).
+ * PUT /api/v1/compliance-records/{id} — mark complete (minimal payload).
  * All other fields fall back to stored values on the server.
  */
 export type MarkCompleteComplianceRequestDto = Readonly<{
@@ -37,7 +37,7 @@ export type MarkCompleteComplianceRequestDto = Readonly<{
 }>;
 
 /**
- * PUT /api/Compliance/Update
+ * PUT /api/v1/compliance-records/{id}
  * Swagger: UpdateComplianceDto
  */
 export type UpdateComplianceRequestDto = {

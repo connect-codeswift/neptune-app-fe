@@ -17,7 +17,7 @@ const subscribeToNothing = () => () => {};
 
 /**
  * KPI row (Figma dashboard header cards). Loads live values from
- * GET /api/EHSCommandCenter/GetMainDashboardKpis — TRIR/LTIR use the
+ * GET /api/v1/command-center/dashboard-kpis — TRIR/LTIR use the
  * shared OSHA rate engine; compliance and CAPA use site-scoped counts.
  */
 export function DashboardKpiMetrics() {

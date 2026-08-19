@@ -12,7 +12,6 @@ import {
   createCapaTask,
   deleteCapaTask,
   dropCapa,
-  reopenCapa,
   submitCapaVerification,
   updateCapa,
   updateCapaTask,
@@ -37,7 +36,7 @@ export type CreateCapaTaskDraftInput = Readonly<{
   priority?: string;
 }>;
 
-/** POST /api/CAPA/Capa body + optional checklist tasks created afterward. */
+/** POST /api/v1/capas body + optional checklist tasks created afterward. */
 export type CreateCapaInput = Readonly<{
   payload: CreateCapaRequestDto;
   tasks?: readonly CreateCapaTaskDraftInput[];
@@ -100,10 +99,6 @@ export type UpdateCapaTaskInput = Readonly<{
 }>;
 
 export type DropCapaInput = Readonly<{
-  capaId: number;
-}>;
-
-export type ReopenCapaInput = Readonly<{
   capaId: number;
 }>;
 
@@ -170,7 +165,7 @@ export function useCreateCapaCommentMutation() {
           ? Math.trunc(input.assignedId)
           : auth.userId;
 
-      // POST /api/CAPA/Comment — body matches OpenAPI CapaCommentDto.
+      // POST /api/v1/capas/{capaId}/comments — body matches OpenAPI CapaCommentDto.
       return createCapaComment({
         capaId: Math.trunc(input.capaId),
         title: input.title?.trim() || "Comment",
@@ -350,33 +345,6 @@ export function useDropCapaMutation() {
   });
 }
 
-export function useReopenCapaMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input: ReopenCapaInput) => {
-      const auth = getAuthContext();
-      if (!auth) {
-        throw new Error("Sign in required to reopen a CAPA.");
-      }
-
-      return reopenCapa(input.capaId);
-    },
-    onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.tasks(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
-    },
-  });
-}
-
 export function useCreateCapaMutation() {
   const queryClient = useQueryClient();
 
@@ -467,7 +435,7 @@ export type SubmitCapaVerificationInput = Readonly<{
   checklist?: readonly { item: string; isChecked: boolean }[];
 }>;
 
-/** POST /api/CAPA/Verification — used by the CAPA detail verify page. */
+/** POST /api/v1/capas/{capaId}/verification — used by the CAPA detail verify page. */
 export function useSubmitCapaVerificationMutation() {
   const queryClient = useQueryClient();
 

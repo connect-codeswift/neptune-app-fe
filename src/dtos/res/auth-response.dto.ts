@@ -31,7 +31,7 @@ export type LoginResponseDto = {
   accessExpiresAt?: string;
 };
 
-/** POST /Auth/mfa/setup — the shared secret plus the otpauth:// URI to encode as a QR. */
+/** POST /api/v1/auth/mfa/setup — the shared secret plus the otpauth:// URI to encode as a QR. */
 export type MfaSetupResponseDto = {
   mfaSecret: string;
   otpAuthUri: string;

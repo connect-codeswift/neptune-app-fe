@@ -108,7 +108,7 @@ export type CreateInspectionTemplateRequestDto = {
 };
 
 /**
- * Matches the backend body for PUT /api/InspectionTemplate/{id}, which renames
+ * Matches the backend body for PUT /api/v1/inspection-templates/{id}, which renames
  * the item FKs to `inspectionResponseSetId` / `inspectionSectionId`.
  */
 export type UpdateInspectionTemplateRequestDto = Omit<

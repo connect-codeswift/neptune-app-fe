@@ -297,7 +297,7 @@ export function ReportIncidentStepOne(
     };
 
     // The roster row already knows — no lookup needed. This is the path taken
-    // once `GET /Auth/GetUsersBySiteId` projects `gender`.
+    // once `GET /api/v1/sites/{siteId}/users` projects `gender`.
     if (person.gender) {
       genderRequestRef.current = person.userId;
       onChange({ ...identity, gender: person.gender, genderFromProfile: true });

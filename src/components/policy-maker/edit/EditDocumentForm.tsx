@@ -60,9 +60,9 @@ function isPdfFile(file: File): boolean {
  * Edit form card (Figma 5568:25826).
  * A replacement PDF is uploaded to Cloudinary client-side first; if none is
  * picked, the document's existing `filePath`/`fileName` are reused. Saves
- * through the dedicated PUT /api/Document/document update endpoint, which
+ * through the dedicated PUT /api/v1/documents update endpoint, which
  * already creates a new version record itself when `pdfPath` changes — a
- * separate POST /api/Document/document_version call is NOT made here, since
+ * separate POST /api/v1/documents/{documentId}/versions call is NOT made here, since
  * that duplicated the version row the PUT endpoint had already created.
  */
 export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {

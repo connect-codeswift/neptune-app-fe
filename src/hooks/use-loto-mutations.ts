@@ -19,7 +19,7 @@ function useInvalidateLoto() {
   return () => queryClient.invalidateQueries({ queryKey: lotoQueryKeys.all });
 }
 
-/** POST /api/Loto/equipment — creates the machine and its procedure in one call. */
+/** POST /api/v1/loto/equipment — creates the machine and its procedure in one call. */
 export function useCreateLotoEquipmentMutation() {
   const invalidate = useInvalidateLoto();
 
@@ -32,7 +32,7 @@ export function useCreateLotoEquipmentMutation() {
   });
 }
 
-/** PUT /api/Loto/equipment/{id} — same body as create; the code cannot change. */
+/** PUT /api/v1/loto/equipment/{id} — same body as create; the code cannot change. */
 export function useUpdateLotoEquipmentMutation() {
   const invalidate = useInvalidateLoto();
 
@@ -47,7 +47,7 @@ export function useUpdateLotoEquipmentMutation() {
   });
 }
 
-/** POST /api/Loto/lockouts — the backend assigns the lock number. */
+/** POST /api/v1/loto/lockouts — the backend assigns the lock number. */
 export function useApplyLotoLockoutMutation() {
   const invalidate = useInvalidateLoto();
 
@@ -60,7 +60,7 @@ export function useApplyLotoLockoutMutation() {
   });
 }
 
-/** POST /api/Loto/lockouts/{id}/remove — both confirmation flags are required. */
+/** POST /api/v1/loto/lockouts/{id}/remove — both confirmation flags are required. */
 export function useRemoveLotoLockoutMutation() {
   const invalidate = useInvalidateLoto();
 

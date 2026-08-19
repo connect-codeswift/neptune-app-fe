@@ -198,7 +198,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           if (result) dispatch(setAuditResult(result));
           dispatch(setAuditAnswers(responses));
           // The report is keyed by audit — it reads everything from GET
-          // /api/Audit/{id}, including the snapshot and recorded answers.
+          // /api/v1/audits/{id}, including the snapshot and recorded answers.
           router.push(
             `${AUDIT_REPORT_ROUTE}?auditid=${encodeURIComponent(String(audit.id))}`,
           );

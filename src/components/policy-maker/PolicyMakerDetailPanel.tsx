@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
 
 export type PolicyMakerDetailPanelProps = Readonly<{
-  /** Mapped GET /api/Document/{id} payload for the fields this card shows. */
+  /** Mapped GET /api/v1/documents/{id} payload for the fields this card shows. */
   document: PolicyDocument | null;
   isLoading?: boolean;
   errorMessage?: string | null;

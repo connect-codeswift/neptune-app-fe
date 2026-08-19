@@ -17,21 +17,46 @@ const REFRESH_TOKEN_KEY = "neptune-refresh-token";
 const configuredApiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api";
 
+/**
+ * The API version segment. It lives here, once, and NOT in the 190-odd path
+ * constants across `src/services/`.
+ *
+ * The deployed environments all set `NEXT_PUBLIC_API_BASE_URL` / `API_PROXY_TARGET`
+ * to a URL ending in `/api` (local `.env` uses the same-origin `/api`, which
+ * `next.config.ts` rewrites to the proxy target). Deriving `/v1` from that means
+ * the rename needs no env-var change in any environment, and a new service file
+ * cannot forget to version itself.
+ *
+ * `withApiVersion` is idempotent, so a base URL someone has already pointed at
+ * `.../api/v1` does not become `.../api/v1/v1`.
+ */
+const API_VERSION_SEGMENT = "v1";
+
+function withApiVersion(baseUrl: string) {
+  const trimmed = baseUrl.replace(/\/+$/, "");
+
+  if (trimmed.endsWith(`/${API_VERSION_SEGMENT}`)) {
+    return trimmed;
+  }
+
+  return `${trimmed}/${API_VERSION_SEGMENT}`;
+}
+
 function getApiBaseUrl() {
   if (configuredApiBaseUrl.startsWith("/")) {
     if (globalThis.window !== undefined) {
-      return configuredApiBaseUrl.replace(/\/$/, "");
+      return withApiVersion(configuredApiBaseUrl);
     }
 
     const proxyTarget = process.env.API_PROXY_TARGET;
     if (proxyTarget) {
-      return proxyTarget.replace(/\/$/, "");
+      return withApiVersion(proxyTarget);
     }
 
-    return configuredApiBaseUrl.replace(/\/$/, "");
+    return withApiVersion(configuredApiBaseUrl);
   }
 
-  return configuredApiBaseUrl.replace(/\/$/, "");
+  return withApiVersion(configuredApiBaseUrl);
 }
 
 const API_BASE_URL = getApiBaseUrl();
@@ -199,7 +224,7 @@ export function isApiError(error: unknown): error is HttpError {
   return error instanceof HttpError;
 }
 
-const AUTH_REFRESH_PATH = "/Auth/refresh-token";
+const AUTH_REFRESH_PATH = "/auth/refresh-token";
 
 /** Request config tagged so a refreshed request is only ever retried once. */
 type RetriableRequestConfig = InternalAxiosRequestConfig & {

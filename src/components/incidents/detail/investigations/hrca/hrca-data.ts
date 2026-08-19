@@ -1,5 +1,5 @@
 export type HrcaWhyStep = Readonly<{
-  /** Persisted why id from GET /api/Rca/Incident/{id}. */
+  /** Persisted why id from GET /api/v1/incidents/{id}/rca. */
   id?: number;
   num: number;
   text: string;
@@ -7,7 +7,7 @@ export type HrcaWhyStep = Readonly<{
 }>;
 
 export type HrcaCorrectiveAction = Readonly<{
-  /** Persisted corrective action id from GET /api/Rca/Incident/{id}. */
+  /** Persisted corrective action id from GET /api/v1/incidents/{id}/rca. */
   id?: number;
   text: string;
 }>;

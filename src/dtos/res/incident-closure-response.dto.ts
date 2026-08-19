@@ -1,4 +1,4 @@
-/** Matches backend DTO shape for GET /api/Incident/{incidentId}/closure */
+/** Matches backend DTO shape for GET /api/v1/incidents/{incidentId}/closure */
 
 export type ClosureChecklistItemDto = {
   id?: string | null;

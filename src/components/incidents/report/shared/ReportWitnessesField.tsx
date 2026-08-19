@@ -80,7 +80,7 @@ function joinWitnessNames(names: readonly string[]): string {
 }
 
 /**
- * Witness picker: search site roster (`GET /Auth/GetUsersBySiteId/{siteId}`),
+ * Witness picker: search site roster (`GET /api/v1/sites/{siteId}/users`),
  * same source as the affected-person field, with multi-select chips.
  *
  * Free-typed names can still be added with Enter when no roster row is

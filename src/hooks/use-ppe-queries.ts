@@ -72,9 +72,14 @@ function toNumericId(idParam: string): number | null {
   return /^\d+$/.test(trimmed) ? Number(trimmed) : null;
 }
 
-export function usePpeItemsQuery() {
+/**
+ * GET /api/ppe — the PPE catalog. `enabled` defaults to true for the PPE
+ * module's own screens; screens that must wait for an access token pass it.
+ */
+export function usePpeItemsQuery(enabled = true) {
   return useQuery({
     queryKey: ["ppe", "items"] as const,
+    enabled,
     queryFn: async () => {
       const response = await getPpeItems();
       return toList<PpeItemDto>(

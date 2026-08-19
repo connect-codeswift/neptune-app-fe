@@ -1,4 +1,4 @@
-/** Body for POST /api/CAPA/Task (create with `id: 0`) and PUT /api/CAPA/Task (update). */
+/** Body for POST /api/v1/capa-tasks/{taskId} (create with `id: 0`) and PUT /api/v1/capa-tasks/{taskId} (update). */
 export type CapaTaskRequestDto = {
   id: number;
   capaId: number;

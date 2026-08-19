@@ -148,7 +148,7 @@ function ChangePasswordCard() {
           </Button>
 
           <Text as="p" className="text8 text-ehs-muted-text">
-            You'll be signed out on every device.
+            You&apos;ll be signed out on every device.
           </Text>
         </div>
       </form>

@@ -28,19 +28,19 @@ import http, {
 import type { OnboardingPersistedState } from "@/lib/onboarding-storage";
 import type { SignupPersistedState } from "@/lib/signup-storage";
 
-const AUTH_REGISTER_PATH = "/Auth/register";
-const AUTH_LOGIN_PATH = "/Auth/login";
-const AUTH_RESET_PASSWORD_PATH = "/Auth/verify-otp"; // it is actually reset password
-const AUTH_FORGOT_PASSWORD_PATH = "/Auth/forgot-password";
-const AUTH_LOGOUT_PATH = "/Auth/logout";
-const USER_ACCEPT_INVITATION_PATH = "/User/accept-invitation";
-const AUTH_MFA_SETUP_PATH = "/Auth/mfa/setup";
-const AUTH_MFA_ENABLE_PATH = "/Auth/mfa/enable";
-const AUTH_MFA_DISABLE_PATH = "/Auth/mfa/disable";
-const AUTH_MFA_DISMISS_PATH = "/Auth/mfa/dismiss";
-const AUTH_MFA_VERIFY_PATH = "/Auth/verify-mfa";
-const AUTH_CHANGE_PASSWORD_PATH = "/Auth/me/change-password";
-const AUTH_SELECT_SITE_PATH = "/Auth/select-site";
+const AUTH_REGISTER_PATH = "/auth/register";
+const AUTH_LOGIN_PATH = "/auth/login";
+const AUTH_RESET_PASSWORD_PATH = "/auth/verify-otp"; // it is actually reset password
+const AUTH_FORGOT_PASSWORD_PATH = "/auth/forgot-password";
+const AUTH_LOGOUT_PATH = "/auth/logout";
+const USER_ACCEPT_INVITATION_PATH = "/users/accept-invitation";
+const AUTH_MFA_SETUP_PATH = "/auth/mfa/setup";
+const AUTH_MFA_ENABLE_PATH = "/auth/mfa/enable";
+const AUTH_MFA_DISABLE_PATH = "/auth/mfa/disable";
+const AUTH_MFA_DISMISS_PATH = "/auth/mfa/dismiss";
+const AUTH_MFA_VERIFY_PATH = "/auth/verify-mfa";
+const AUTH_CHANGE_PASSWORD_PATH = "/auth/me/change-password";
+const AUTH_SELECT_SITE_PATH = "/auth/select-site";
 
 function readLoginTokens(data: unknown): LoginResponseDto | null {
   const payload = unwrapAuthPayload(data);

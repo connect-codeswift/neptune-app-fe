@@ -139,7 +139,7 @@ export function toLotoPersonnel(dto: LotoPersonnelDto): LotoPersonnel {
   };
 }
 
-/** GET /api/Loto/dashboard-kpis → the equipment tab's KPI strip. */
+/** GET /api/v1/loto/dashboard-kpis → the equipment tab's KPI strip. */
 export function toLotoMetrics(kpis: LotoDashboardKpisDto): LotoMetric[] {
   return [
     {

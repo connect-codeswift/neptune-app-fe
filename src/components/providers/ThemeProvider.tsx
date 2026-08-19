@@ -2,19 +2,15 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
-  applyResolvedTheme,
-  DEFAULT_THEME_PREFERENCE,
-  readStoredThemePreference,
-  resolveTheme,
-  storeThemePreference,
-  subscribeToColorSchemeChange,
+  getServerThemeSnapshot,
+  getThemeSnapshot,
+  setThemePreference,
+  subscribeToTheme,
   type ResolvedTheme,
   type ThemePreference,
 } from "@/lib/theme";
@@ -43,55 +39,34 @@ export type ThemeProviderProps = Readonly<{ children: ReactNode }>;
  * The attribute itself is written before this mounts, by the inline script in the root layout —
  * this provider adopts that value rather than racing it. What it adds is the React-visible
  * state, persistence, and the live OS listener that "system" needs.
+ *
+ * The preference is read through `useSyncExternalStore` rather than held in `useState` and
+ * seeded from an effect. It lives in `localStorage`, which does not exist on the server, so
+ * reading it during render would hydrate mismatched — and assigning it from an effect is the
+ * cascading-render pattern this codebase treats as a real defect. An external store is the
+ * arrangement React provides for exactly this: server snapshot is the default, client snapshot
+ * is the truth, no state assignment in an effect at all.
  */
 export function ThemeProvider(props: Readonly<ThemeProviderProps>) {
   const { children } = props;
 
-  // Deliberately the default, not the stored value: this runs on the server too, where
-  // localStorage does not exist, and any other seed would hydrate mismatched.
-  const [preference, setPreferenceState] = useState<ThemePreference>(
-    DEFAULT_THEME_PREFERENCE,
+  const { preference, resolvedTheme, isReady } = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
   );
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const stored = readStoredThemePreference();
-    setPreferenceState(stored);
-    setResolvedTheme(resolveTheme(stored));
-    setIsReady(true);
-  }, []);
-
-  // Only "system" tracks the OS. An explicit choice must survive the user changing their
-  // desktop theme, which is the entire point of making it explicit.
-  useEffect(() => {
-    if (preference !== "system") {
-      return;
-    }
-
-    return subscribeToColorSchemeChange((prefersDark) => {
-      const next: ResolvedTheme = prefersDark ? "dark" : "light";
-      setResolvedTheme(next);
-      applyResolvedTheme(next);
-    });
-  }, [preference]);
-
-  const setPreference = useCallback((next: ThemePreference) => {
-    const resolved = resolveTheme(next);
-
-    setPreferenceState(next);
-    setResolvedTheme(resolved);
-    storeThemePreference(next);
-
-    // Written straight to the DOM rather than through an effect: the attribute drives every
-    // colour on the page, and going through a render pass first shows one frame of the old
-    // theme behind the new toggle position.
-    applyResolvedTheme(resolved);
-  }, []);
 
   return (
     <ThemeContext.Provider
-      value={{ preference, resolvedTheme, setPreference, isReady }}
+      value={{
+        preference,
+        resolvedTheme,
+        // Writes straight to the DOM and then wakes the store, rather than going through a
+        // render first — the attribute drives every colour on the page, and waiting a pass
+        // shows one frame of the old theme behind the new toggle position.
+        setPreference: setThemePreference,
+        isReady,
+      }}
     >
       {children}
     </ThemeContext.Provider>

@@ -4,7 +4,7 @@ export const LOTO_APPLY_FORM_ID = "loto-apply-lockout-form";
 
 /**
  * Lockout registration fields. There is deliberately no lock-number input:
- * the backend assigns the next per-site number on POST /api/Loto/lockouts and
+ * the backend assigns the next per-site number on POST /api/v1/loto/lockouts and
  * returns it in the response.
  */
 export function buildApplyLockoutSchema(): FormSchema {

@@ -162,6 +162,20 @@
      were therefore wrong at both ends. */
   --ehs-border-ink: #0f172a;
 
+  /* Loading placeholders.
+
+     A skeleton has to sit clearly above its card without becoming the
+     brightest thing on screen. In light that is a cool grey a little lighter
+     than the border; in dark it cannot be the same grey, because a light block
+     on a near-black card reads as content that has finished loading rather
+     than as an absence. Dark uses a low-alpha wash instead, so the blocks read
+     as holes in the surface.
+
+     The light values are exactly what they replaced: slate-200/80 for the bar
+     and #d1d5db for the heavier title bars. */
+  --ehs-skeleton: rgb(226 232 240 / 0.8);
+  --ehs-skeleton-strong: #d1d5db;
+
   /* The bright edge on glass. White at full strength in light; in dark a
      dilute slate, because a white hairline on a dark card reads as a seam. */
   --ehs-hairline: #ffffff;
@@ -353,6 +367,10 @@
   /* Light ink, so the same /8 … /35 modifiers draw a faint bright hairline
      instead of a faint dark one. */
   --ehs-border-ink: #94a3b8;
+
+  /* Holes in the surface, not blocks on top of it. */
+  --ehs-skeleton: rgb(148 163 184 / 0.13);
+  --ehs-skeleton-strong: rgb(148 163 184 / 0.2);
   --ehs-border-strong: #263444;
   --ehs-placeholder: #64748b;
   /* No glass edge in dark, deliberately.
@@ -475,6 +493,8 @@
   --color-ehs-paper-muted: var(--ehs-paper-muted);
   --color-ehs-paper-line: var(--ehs-paper-line);
   --color-ehs-border-ink: var(--ehs-border-ink);
+  --color-ehs-skeleton: var(--ehs-skeleton);
+  --color-ehs-skeleton-strong: var(--ehs-skeleton-strong);
   --color-ehs-overlay-media: var(--ehs-overlay-media);
   --color-ehs-red-ink: var(--ehs-red-ink);
   --color-ehs-red-ink-soft: var(--ehs-red-ink-soft);

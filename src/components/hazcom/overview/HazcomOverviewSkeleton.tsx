@@ -10,6 +10,8 @@ const STAT_CARD_KEYS = [
 ] as const;
 
 const CHEMICAL_ROW_KEYS = ["c1", "c2", "c3", "c4"] as const;
+const COMPLIANCE_ROW_KEYS = ["p1", "p2", "p3", "p4"] as const;
+const DEADLINE_ROW_KEYS = ["d1", "d2", "d3", "d4"] as const;
 const SDS_ROW_SKELETONS = [
   { key: "compliant", tone: "success" },
   { key: "expiring-90", tone: "muted" },
@@ -76,14 +78,8 @@ export type HazcomOverviewSkeletonProps = Readonly<{
 }>;
 
 /**
- * Holds the shape of the two overview regions that wait on a query — the KPI
- * row and the two data panels.
- *
- * It no longer draws a page header or its own tab row: the page renders the real
- * tabs above this, so those were a second, pill-shaped set beneath the real
- * underlined ones. The Training Compliance and Upcoming Deadlines skeletons are
- * gone too — those panels have no query to wait for, so they render their
- * unavailable state immediately.
+ * Holds the shape of the overview regions that wait on a query — the KPI
+ * row and the four data panels.
  */
 export function HazcomOverviewSkeleton(
   props: Readonly<HazcomOverviewSkeletonProps>,
@@ -118,6 +114,33 @@ export function HazcomOverviewSkeleton(
           <div className="mt-4 grid grid-cols-2 gap-2">
             <Skeleton className="h-9 rounded-lg" />
             <Skeleton className="h-9 rounded-lg" />
+          </div>
+        </IncidentGlassCard>
+
+        <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
+          <HazcomPanelHeaderSkeleton />
+          <div className="divide-ehs-border mt-4 flex flex-col divide-y">
+            {COMPLIANCE_ROW_KEYS.map((key) => (
+              <div
+                key={key}
+                className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              >
+                <span className="flex items-center gap-2">
+                  <Skeleton className="size-2 shrink-0 rounded-full" />
+                  <Skeleton className="h-3.5 w-28" />
+                </span>
+                <Skeleton className="h-3.5 w-8" />
+              </div>
+            ))}
+          </div>
+        </IncidentGlassCard>
+
+        <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
+          <HazcomPanelHeaderSkeleton showLink={false} />
+          <div className="divide-ehs-border mt-4 flex flex-col divide-y">
+            {DEADLINE_ROW_KEYS.map((key) => (
+              <HazcomChemicalRowSkeleton key={key} />
+            ))}
           </div>
         </IncidentGlassCard>
       </div>

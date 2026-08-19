@@ -6,11 +6,11 @@ import type {
 import http from "@/lib/axios";
 import { normalizeDashboardKpisDto } from "@/services/mappers/dashboard-kpis.mapper";
 
-const DASHBOARD_KPIS_PATH = "/EHSCommandCenter/GetMainDashboardKpis";
-const INCIDENT_TRENDS_PATH = "/EHSCommandCenter/GetIncidentTrends";
-const MY_ACTIONS_PATH = "/EHSCommandCenter/GetMyActions";
+const DASHBOARD_KPIS_PATH = "/command-center/dashboard-kpis";
+const INCIDENT_TRENDS_PATH = "/command-center/incident-trends";
+const MY_ACTIONS_PATH = "/command-center/my-actions";
 
-/** GET /api/EHSCommandCenter/GetMainDashboardKpis */
+/** GET /api/v1/command-center/dashboard-kpis */
 export async function getMainDashboardKpis() {
   const { data } =
     await http.get<GetMainDashboardKpisResponseDto>(DASHBOARD_KPIS_PATH);
@@ -21,7 +21,7 @@ export async function getMainDashboardKpis() {
   } satisfies GetMainDashboardKpisResponseDto;
 }
 
-/** GET /api/EHSCommandCenter/GetIncidentTrends */
+/** GET /api/v1/command-center/incident-trends */
 export async function getIncidentTrends() {
   const { data } =
     await http.get<GetIncidentTrendsResponseDto>(INCIDENT_TRENDS_PATH);
@@ -29,7 +29,7 @@ export async function getIncidentTrends() {
   return data;
 }
 
-/** GET /api/EHSCommandCenter/GetMyActions */
+/** GET /api/v1/command-center/my-actions */
 export async function getMyActions() {
   const { data } = await http.get<GetMyActionsResponseDto>(MY_ACTIONS_PATH);
 

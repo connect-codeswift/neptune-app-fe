@@ -23,7 +23,7 @@ function parseDocumentId(raw: string): number | null {
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and renders the
+ * Loads a document via GET /api/v1/documents/{id} and renders the
  * Read & Acknowledge view.
  */
 export function AcknowledgeDocumentContent(

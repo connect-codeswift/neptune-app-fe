@@ -13,11 +13,14 @@ import type {
 import { normalizeIncidentDashboardKpisDto } from "@/services/mappers/incident-dashboard.mapper";
 import http from "@/lib/axios";
 
-const INCIDENT_HEADER_KPI_PATH = "/Incident/GetHeaderKpi";
-const INCIDENT_LIST_KPI_PATH = "/Incident/GetIncidentListKpis";
-const INCIDENT_DASHBOARD_KPIS_PATH = "/Incident/dashboard-kpis";
-const INCIDENT_KPI_TARGETS_PATH = "/Incident/kpi-targets";
-const INCIDENT_SITE_WORK_HOURS_PATH = "/Incident/site-work-hours";
+const INCIDENT_HEADER_KPI_PATH = "/incidents/header-kpis";
+const INCIDENT_LIST_KPI_PATH = "/incidents/list-kpis";
+const INCIDENT_DASHBOARD_KPIS_PATH = "/incidents/dashboard-kpis";
+// KPI targets are served by KpiTargetController, NOT by IncidentController. The
+// old `/Incident/kpi-targets` this file used had 404'd for months.
+const KPI_TARGETS_PATH = "/kpi-targets";
+// Site work hours are site configuration; they moved off IncidentController.
+const SITE_WORK_HOURS_PATH = "/sites/work-hours";
 
 const SITE_WORK_HOURS_MIN_YEAR = 2000;
 const SITE_WORK_HOURS_MAX_YEAR = 2100;
@@ -151,7 +154,7 @@ function validateSiteWorkHoursPayload(payload: SaveSiteWorkHoursRequestDto) {
   }
 }
 
-/** GET /api/Incident/GetHeaderKpi */
+/** GET /api/v1/incidents/header-kpis */
 export async function getHeaderKpi() {
   const { data } = await http.get<GetHeaderKpiResponseDto>(
     INCIDENT_HEADER_KPI_PATH,
@@ -164,7 +167,7 @@ export async function getHeaderKpi() {
   return data;
 }
 
-/** GET /api/Incident/GetIncidentListKpis */
+/** GET /api/v1/incidents/list-kpis */
 export async function getIncidentListKpis() {
   const { data } = await http.get<GetIncidentListKpisResponseDto>(
     INCIDENT_LIST_KPI_PATH,
@@ -177,7 +180,7 @@ export async function getIncidentListKpis() {
   return data;
 }
 
-/** GET /api/Incident/dashboard-kpis */
+/** GET /api/v1/incidents/dashboard-kpis */
 export async function getIncidentDashboardKpis(): Promise<
   GetIncidentDashboardKpisResponseDto & {
     dataModel: IncidentDashboardKpisDto | null;
@@ -197,11 +200,9 @@ export async function getIncidentDashboardKpis(): Promise<
   };
 }
 
-/** GET /api/Incident/kpi-targets */
+/** GET /api/v1/kpi-targets */
 export async function getKpiTargets() {
-  const { data } = await http.get<GetKpiTargetsResponseDto>(
-    INCIDENT_KPI_TARGETS_PATH,
-  );
+  const { data } = await http.get<GetKpiTargetsResponseDto>(KPI_TARGETS_PATH);
 
   if (!data.success) {
     throw new Error(data.message || "Failed to load KPI targets.");
@@ -213,12 +214,11 @@ export async function getKpiTargets() {
   };
 }
 
-/** PUT /api/Incident/kpi-targets */
-/** GET /api/Incident/site-work-hours */
+/** PUT /api/v1/kpi-targets */
+/** GET /api/v1/sites/work-hours */
 export async function getSiteWorkHours() {
-  const { data } = await http.get<GetSiteWorkHoursResponseDto>(
-    INCIDENT_SITE_WORK_HOURS_PATH,
-  );
+  const { data } =
+    await http.get<GetSiteWorkHoursResponseDto>(SITE_WORK_HOURS_PATH);
 
   if (!data.success) {
     throw new Error(data.message || "Failed to load site work hours.");
@@ -230,12 +230,12 @@ export async function getSiteWorkHours() {
   };
 }
 
-/** PUT /api/Incident/site-work-hours */
+/** PUT /api/v1/sites/work-hours */
 export async function saveSiteWorkHours(payload: SaveSiteWorkHoursRequestDto) {
   validateSiteWorkHoursPayload(payload);
 
   const { data } = await http.put<SaveSiteWorkHoursResponseDto>(
-    INCIDENT_SITE_WORK_HOURS_PATH,
+    SITE_WORK_HOURS_PATH,
     {
       year: payload.year,
       month: payload.month,

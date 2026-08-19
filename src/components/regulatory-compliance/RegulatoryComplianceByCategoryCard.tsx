@@ -82,8 +82,8 @@ function CategoryProgressSkeleton() {
       {/* The skeleton bars are pinned to #e2e8f6, a hair lighter and bluer
           than --ehs-border (#e5e7eb). */}
       <div className="flex h-[17px] items-center justify-between">
-        <div className="rounded-1.5 h-4.25 w-20 animate-pulse bg-[#e2e8f6]" />
-        <div className="rounded-1.5 h-3.5 w-9 animate-pulse bg-[#e2e8f6]" />
+        <div className="rounded-1.5 h-4.25 w-20 animate-pulse bg-ehs-skeleton" />
+        <div className="rounded-1.5 h-3.5 w-9 animate-pulse bg-ehs-skeleton" />
       </div>
       <div className={`${CATEGORY_TRACK_CLASS} animate-pulse`} />
     </div>

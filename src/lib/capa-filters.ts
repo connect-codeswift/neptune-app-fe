@@ -4,7 +4,7 @@ import type { ModuleFilterOption } from "@/components/ui/ModuleFilterBar";
    `--ehs-gray` (#566072) and `--ehs-slate` (#2a3446). */
 
 /**
- * Backend CAPA list filters — GET /api/CAPA
+ * Backend CAPA list filters — GET /api/v1/capas
  * Query: Scope?, Status?, CapaType?, Priority?, Search?, PageNumber, PageSize
  * Empty string = All = omit the param.
  */

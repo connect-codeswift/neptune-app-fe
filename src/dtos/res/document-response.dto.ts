@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** Version row nested on GET /api/Document/{id} (and possibly allDocuments). */
+/** Version row nested on GET /api/v1/documents/{id} (and possibly allDocuments). */
 export type DocumentVersionDto = {
   id?: number | null;
   versionNo?: number | null;
@@ -16,7 +16,7 @@ export type DocumentVersionDto = {
 };
 
 /**
- * Document row from POST /api/Document/allDocuments.
+ * Document row from POST /api/v1/documents/search.
  * Backend field names vary (camelCase / PascalCase); the service coerces them.
  */
 export type DocumentDto = {
@@ -83,7 +83,7 @@ export type GetAllDocumentsResponseDto = ApiEnvelopeDto<
   PagedDataDto<DocumentDto>
 >;
 
-/** Category row from GET /api/Document/GetAllCategories. */
+/** Category row from GET /api/v1/document-categories. */
 export type DocCategoryDto = {
   id?: number;
   categoryId?: number;
@@ -93,7 +93,7 @@ export type DocCategoryDto = {
   name?: string | null;
 };
 
-/** Department row from GET /api/Document/GetAllDepartments. */
+/** Department row from GET /api/v1/departments. */
 export type DocDepartmentDto = {
   id?: number;
   departmentId?: number;
@@ -111,10 +111,10 @@ export type GetAllDocDepartmentsResponseDto = ApiEnvelopeDto<
 
 export type CreateDocumentResponseDto = ApiEnvelopeDto<DocumentDto | null>;
 
-/** Envelope shape for GET /api/Document/{id}. */
+/** Envelope shape for GET /api/v1/documents/{id}. */
 export type GetDocumentByIdResponseDto = ApiEnvelopeDto<DocumentDto | null>;
 
-/** dataModel shape for GET /api/Document/dashboard-kpis. */
+/** dataModel shape for GET /api/v1/documents/dashboard-kpis. */
 export type DocumentDashboardKpisDto = {
   activeDocs?: number | null;
   pendingReview?: number | null;
@@ -125,7 +125,7 @@ export type DocumentDashboardKpisDto = {
 export type GetDocumentDashboardKpisResponseDto =
   ApiEnvelopeDto<DocumentDashboardKpisDto | null>;
 
-/** One entry of GET /api/Document/category-stats. */
+/** One entry of GET /api/v1/documents/category-stats. */
 export type DocumentCategoryStatDto = {
   category?: string | null;
   totalCount?: number | null;
@@ -135,7 +135,7 @@ export type GetDocumentCategoryStatsResponseDto = ApiEnvelopeDto<
   DocumentCategoryStatDto[] | null
 >;
 
-/** One row of GET /api/Document/versions/{documentVersionId}/acknowledgements. */
+/** One row of GET /api/v1/document-versions/{documentVersionId}/acknowledgements. */
 export type DocumentAcknowledgementRowDto = {
   id?: number | null;
   userId?: number | null;
@@ -145,7 +145,7 @@ export type DocumentAcknowledgementRowDto = {
   acknowledgedDate?: string | null;
 };
 
-/** dataModel shape for GET /api/Document/versions/{documentVersionId}/acknowledgements. */
+/** dataModel shape for GET /api/v1/document-versions/{documentVersionId}/acknowledgements. */
 export type DocumentAcknowledgementsDto = {
   documentId?: number | null;
   documentVersionId?: number | null;

@@ -19,9 +19,9 @@ export type CapaItem = Readonly<{
   dueDate: string;
   priority: string;
   progressPercent: number;
-  /** First linked task id — used to read assignee progress from GET /CAPA/Tasks. */
+  /** First linked task id — used to read assignee progress from GET /api/v1/capas/{capaId}/tasks. */
   primaryTaskId: number | null;
-  /** Assignee task status from GET /CAPA/Tasks/{capaId} (updated by the assignee). */
+  /** Assignee task status from GET /api/v1/capas/{capaId}/tasks (updated by the assignee). */
   taskStatus: CapaTaskStatus | null;
 }>;
 
