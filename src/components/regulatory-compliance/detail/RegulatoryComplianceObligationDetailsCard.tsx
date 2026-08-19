@@ -6,6 +6,7 @@ import { IncidentBadge } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/incidents/list/IncidentBadge";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { formatComplianceDisplayId } from "@/services/mappers/compliance.mapper";
 import type { ComplianceObligationDetail } from "../regulatory-compliance-types";
 
 export type RegulatoryComplianceObligationDetailsCardProps = Readonly<{
@@ -150,6 +151,11 @@ export function RegulatoryComplianceObligationDetailsCard(
         <section>
           <SectionTitle>Overview</SectionTitle>
           <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
+            <DetailField
+              label="ID"
+              value={formatComplianceDisplayId(detail.id)}
+            />
+            <DetailField label="Code" value={detail.code} />
             <DetailField label="Category" value={detail.category} />
             <DetailField
               label="Regulatory Body"

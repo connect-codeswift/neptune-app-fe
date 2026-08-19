@@ -12,14 +12,15 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useDocumentByIdQuery } from "@/hooks/use-document-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext } from "@/lib/auth-context";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 
 export type AcknowledgeDocumentContentProps = Readonly<{
   documentIdParam: string;
 }>;
 
 function parseDocumentId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 /**

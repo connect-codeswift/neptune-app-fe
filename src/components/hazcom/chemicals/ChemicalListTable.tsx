@@ -20,6 +20,7 @@ import {
   type HazcomChemical,
 } from "@/components/hazcom/shared";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 function signalTone(signalWord: string): IncidentBadgeTone {
   return signalWord.trim().toLowerCase() === "danger" ? "danger" : "warn";
@@ -66,23 +67,36 @@ function createChemicalListColumns(
 
   return [
     columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      cell: ({ row }) => {
+        const displayId = formatRecordDisplayId("CHEM", row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+    }),
+    columnHelper.display({
       id: "name",
       header: "Chemical",
       size: 220,
       minSize: 160,
       cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <Text
-            as="span"
-            className="text4 text-ehs-darker truncate"
-            title={row.original.name}
-          >
-            {row.original.name}
-          </Text>
-          <Text as="span" className="text8 text-ehs-muted-text truncate">
-            {row.original.id}
-          </Text>
-        </div>
+        <Text
+          as="span"
+          className="text4 text-ehs-darker truncate"
+          title={row.original.name}
+        >
+          {row.original.name}
+        </Text>
       ),
     }),
     columnHelper.accessor("casNumber", {

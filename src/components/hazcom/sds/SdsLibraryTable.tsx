@@ -78,7 +78,7 @@ function createSdsLibraryColumns(
 
   return [
     columnHelper.accessor("id", {
-      header: "SDS ID",
+      header: "ID",
       size: expanded ? 96 : 72,
       minSize: 64,
       cell: (info) => (

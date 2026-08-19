@@ -9,6 +9,7 @@ import { useAuditForTemplate } from "@/hooks/use-audit-queries";
 import { useAuditTemplateDetailQuery } from "@/hooks/use-audit-template-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getCurrentUser } from "@/lib/current-user";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import { mapDetailToChecklist } from "@/lib/map-audit-template";
 import { toast } from "@/lib/toast";
 import { setAuditAnswers, setAuditResult } from "@/store/audit-slice";
@@ -232,7 +233,9 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <AuditChecklistHeader
-        auditId={audit ? `A-${String(audit.id)}` : checklist.auditId}
+        auditId={
+          audit ? formatRecordDisplayId("A", audit.id) : checklist.auditId
+        }
         subtitle={audit?.auditTitle || checklist.subtitle}
         // Findings aren't wired up yet — re-enable once that flow is ready.
         // onViewFindings={() =>

@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import type { PolicyDocument } from "@/components/policy-maker/policy-maker-types";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDocumentDetailHeaderProps = Readonly<{
   document: PolicyDocument;
@@ -74,7 +75,9 @@ export function PolicyMakerDocumentDetailHeader(
           className="size-2.75 shrink-0 text-[#8892a3]"
           aria-hidden="true"
         />
-        <span className={`${crumbActive} truncate`}>{document.code}</span>
+        <span className={`${crumbActive} truncate`}>
+          {formatDocumentDisplayId(document.id)}
+        </span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -83,7 +86,7 @@ export function PolicyMakerDocumentDetailHeader(
             {document.title}
           </Text>
           <Text as="p" className="text8 text-ehs-muted-text">
-            {`${document.documentKind} · ${document.version}`}
+            {`${formatDocumentDisplayId(document.id)} · ${document.documentKind} · ${document.version}`}
           </Text>
         </div>
 

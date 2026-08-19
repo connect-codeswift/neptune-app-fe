@@ -62,6 +62,25 @@ export function makeNearMissColumns(
   const { userNames, selectedId = null, onView } = handlers;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: () => columnHeader("ID"),
+      size: 108,
+      minSize: 96,
+      cell: ({ row }) => {
+        const displayId = formatNearMissDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+    }),
     columnHelper.accessor("title", {
       header: () => columnHeader("Near Miss"),
       minSize: 180,
