@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sessionQueryKeys } from "@/hooks/use-session-bootstrap";
+import { myProfileQueryKey } from "@/hooks/use-user-queries";
 import {
   removeAvatar,
   updateMyProfile,
@@ -32,6 +33,9 @@ export function useUploadProfileAvatarMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: sessionQueryKeys.all });
       await queryClient.invalidateQueries({ queryKey: profileQueryKeys.all });
+      // The profile form seeds its phone field from here; without this the field would go on
+      // showing the pre-save number until the cache expired.
+      await queryClient.invalidateQueries({ queryKey: myProfileQueryKey });
     },
   });
 }

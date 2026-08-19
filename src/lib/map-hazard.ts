@@ -167,9 +167,6 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     category: type,
     description: dto.description,
     dateReported: dto.createdDate.slice(0, 10),
-    assignedTo:
-      dto.assignedTo === 0 ? "Unassigned" : `User ${String(dto.assignedTo)}`,
-    assignedToId: dto.assignedTo,
     location,
     image: dto.image,
     relatedCapas: [],

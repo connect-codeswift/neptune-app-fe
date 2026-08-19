@@ -76,9 +76,6 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             <DetailField label="Reporter">
               <DetailValue value={record.reporter} />
             </DetailField>
-            <DetailField label="Assigned To">
-              <DetailValue value={record.assignedTo} />
-            </DetailField>
           </div>
         </IncidentGlassCard>
       </div>

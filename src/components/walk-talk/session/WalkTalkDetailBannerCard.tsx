@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { WalkTalkSessionDetail } from "@/app/dashboard/walk-talk/walk-talk-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 export type WalkTalkDetailBannerCardProps = Readonly<{
   detail: WalkTalkSessionDetail;
@@ -17,7 +18,12 @@ const crumbLink =
   "text8 text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
 function headerSubtitle(detail: WalkTalkSessionDetail): string {
-  return [detail.id, detail.site, detail.date, detail.time]
+  return [
+    formatRecordDisplayId("WT", detail.id),
+    detail.site,
+    detail.date,
+    detail.time,
+  ]
     .map((part) => part.trim())
     .filter((part) => part.length > 0 && part !== "—")
     .join(" · ");
@@ -58,7 +64,9 @@ export function WalkTalkDetailBannerCard(props: WalkTalkDetailBannerCardProps) {
           className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
-        <span className={`${crumbMuted} truncate`}>{detail.id}</span>
+        <span className={`${crumbMuted} truncate`}>
+          {formatRecordDisplayId("WT", detail.id)}
+        </span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-wrap items-start justify-between gap-3">

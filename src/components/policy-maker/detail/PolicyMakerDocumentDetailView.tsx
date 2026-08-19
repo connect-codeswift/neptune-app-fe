@@ -14,6 +14,7 @@ import type { PolicyDocument } from "@/components/policy-maker/policy-maker-type
 import { VersionDocumentPreviewModal } from "@/components/policy-maker/version-history/VersionDocumentPreviewModal";
 import { toVersionHistoryCard } from "@/components/policy-maker/version-history/version-history-utils";
 import { toast } from "@/lib/toast";
+import { formatDocumentDisplayId } from "@/services/mappers/document-list.mapper";
 
 export type PolicyMakerDocumentDetailViewProps = Readonly<{
   document: PolicyDocument;
@@ -155,6 +156,11 @@ export function PolicyMakerDocumentDetailView(
                 Document Details
               </Text>
               <div className="relative z-1 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2">
+                <DetailField label="ID">
+                  <Text as="p" className="text4 text-ehs-darker">
+                    {formatDocumentDisplayId(document.id)}
+                  </Text>
+                </DetailField>
                 <DetailField label="Category">
                   <Text as="p" className="text4 text-ehs-darker">
                     {document.documentKind}

@@ -1,7 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type { PpeInventoryItem } from "@/app/dashboard/ppe-management/ppe-data";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 const columnHelper = createColumnHelper<PpeInventoryItem>();
 
@@ -21,6 +23,25 @@ export function makePpeInventoryColumns(
   const { selectedId, onViewMore } = handlers;
 
   return [
+    columnHelper.display({
+      id: "displayId",
+      header: "ID",
+      size: 108,
+      minSize: 96,
+      cell: ({ row }) => {
+        const displayId = formatPpeDisplayId(row.original.id);
+        return (
+          <Text
+            as="span"
+            className="text7 text-ehs-muted-text whitespace-nowrap"
+            title={displayId}
+          >
+            {displayId}
+          </Text>
+        );
+      },
+      meta: { align: "left" as const },
+    }),
     columnHelper.accessor("itemName", {
       header: "Item name",
       size: 200,

@@ -27,7 +27,7 @@ function Chevron() {
   return (
     <Icon
       icon="mdi:chevron-right"
-      className="size-2.75 shrink-0 text-ehs-muted-text"
+      className="text-ehs-muted-text size-2.75 shrink-0"
       aria-hidden
     />
   );
@@ -131,7 +131,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
 
   return (
     <>
-      <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 pt-3.5 pb-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl  before:content-[''] sm:px-5.5">
+      <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-col gap-1.5 rounded-2xl border px-4 pt-3.5 pb-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-5.5">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav
             aria-label="Breadcrumb"
@@ -151,7 +151,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               <Link
                 href={CAPA_ROUTE}
                 aria-label="Back to CAPA Dashboard"
-                className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-white transition-colors hover:bg-slate-50 md:hidden"
+                className="border-ehs-border text-ehs-dark-bg bg-ehs-surface hover:bg-ehs-surface-raised rounded-2.5 flex size-8 shrink-0 items-center justify-center border transition-colors md:hidden"
               >
                 <Icon icon="mdi:chevron-left" className="size-3.5" />
               </Link>
@@ -159,15 +159,18 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <Text
                     as="h1"
-                    className="text-5.5 leading-7 font-semibold tracking-[-0.2px] text-[#0b1320]"
+                    className="text-ehs-dark-bg text-5.5 leading-7 font-semibold tracking-[-0.2px]"
                   >
                     {record.code}
                   </Text>
-                  <span className="text-2.75 inline-flex items-center rounded-md bg-[rgba(239,68,68,0.16)] px-2 py-0.5 font-semibold tracking-[0.11px] text-[#7f1d1d]">
+                  <span className="bg-ehs-red/16 text-ehs-red-ink text-2.75 inline-flex items-center rounded-md px-2 py-0.5 font-semibold tracking-[0.11px]">
                     {record.priority}
                   </span>
                 </div>
-                <Text as="p" className="text-sm leading-4.5 text-ehs-muted-text">
+                <Text
+                  as="p"
+                  className="text-ehs-muted-text text-sm leading-4.5"
+                >
                   {record.title}
                 </Text>
               </div>
@@ -182,7 +185,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                 onClick={() => {
                   void handleOpenRca();
                 }}
-                className="rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#EEF1F6]! px-4 py-2 font-normal! text-[#2a3446] shadow-none hover:bg-[#e5eaf0] sm:px-6"
+                className="border-ehs-border-ink/10 bg-ehs-form-classes-bg! text-ehs-slate hover:bg-ehs-light-blue! rounded-2.5 border px-4 py-2 font-normal! shadow-none sm:px-6"
               >
                 RCA
               </Button>
@@ -195,20 +198,11 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                   onClick={() => {
                     void handleVerifyAndClose();
                   }}
-                  className="rounded-2.5 before:rounded-2.5 relative bg-[#0891a6] px-3 py-0 font-medium text-white shadow-[0px_6px_18px_-6px_#0891a6] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078395]"
+                  className="rounded-2.5 px-3 py-0 font-medium"
                 >
                   Verify & Close
                 </Button>
               )}
-              <Button
-                type="button"
-                variant="tertiary"
-                disabled={isBusy}
-                onClick={() => setIsConfirmingDrop(true)}
-                className="rounded-2.5 px-4 py-2 font-normal! text-[#2a3446]"
-              >
-                Drop
-              </Button>
             </div>
           </div>
         </div>

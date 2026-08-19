@@ -1,5 +1,6 @@
 "use client";
 
+import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
@@ -17,9 +18,10 @@ import {
   type AccessWindowState,
 } from "@/lib/access-window";
 
-/* The amber warning tile is pinned: `amber-300/50` on `amber-50/70` with an
-   `amber-700` title, one step darker than the `amber-600` icon. That icon/title
-   split is the point of it, and no token carries #b45309.
+/* The amber warning tile now runs on `--ehs-warning-surface` / `-border` / `-ink`,
+   whose light values are the amber wash it used to hardcode. It had to become a
+   token: Tailwind's amber-50/300/700 cannot flip, so on a dark rail the tile was
+   a pale smudge with brown text.
    The skeleton bars use `--ehs-border-strong` at 40% == the slate-300/40 they
    had, which is deliberately lighter than the `--ehs-border` body bars. */
 
@@ -74,6 +76,13 @@ function SidebarNavLink(
 ) {
   const { item, active, onNavigate } = props;
 
+  // The Chat entry lights up in the assistant's own teal wash rather than the route-active
+  // pill — per its design node, and so the one brand entry reads differently from modules.
+  const activeClass =
+    item.href === NEPTUNE_AI_HREF
+      ? "bg-ehs-normal-blue/18 text-ehs-normal-blue font-bold"
+      : "bg-ehs-light-blue text-ehs-darker";
+
   return (
     <Link
       href={item.href}
@@ -83,7 +92,7 @@ function SidebarNavLink(
         // desktop rail is pointed at with a cursor and can stay compact.
         "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
         active
-          ? "bg-ehs-light-blue text-ehs-darker"
+          ? activeClass
           : // Darker on the mobile sheet: there it sits over a blurred,
             // arbitrarily-coloured page instead of the desktop rail's calm
             // ground, and ehs-gray washed out against it. ehs-slate is the
@@ -152,6 +161,17 @@ function SidebarUserSkeleton() {
  * Which is why the copy escalates instead of the placement — "Contact CodeSwift"
  * only appears in the last week, when it is finally something to act on.
  */
+/**
+ * The access-window notice in the sidebar footer.
+ *
+ * Three states, one shape. The tone carries the whole difference — panel tint, edge, icon chip
+ * and headline ink all move together — so the notice never reads as a different component when
+ * it escalates.
+ *
+ * Everything is a token rather than a literal because this box has to work on both the near-white
+ * sidebar and the near-black one. Amber is the case that forced the issue: written as Tailwind's
+ * amber-50/300/700 it was a pale wash with brown text, which on a dark rail is a smudge.
+ */
 function SidebarAccessWindow(
   props: Readonly<{ accessWindow: AccessWindowState }>,
 ) {
@@ -160,47 +180,66 @@ function SidebarAccessWindow(
   const hasExpired = days <= 0;
   const isUrgent = days <= 7;
 
-  const tone = hasExpired
-    ? {
-        box: "border-ehs-red/25 bg-ehs-red/[0.06]",
-        icon: "text-ehs-red",
-        title: "text-ehs-red",
-      }
-    : isUrgent
-      ? {
-          box: "border-amber-300/50 bg-amber-50/70",
-          icon: "text-ehs-yellow-ink-soft",
-          title: "text-amber-700",
-        }
-      : {
-          box: "border-ehs-border bg-ehs-light-bg/60",
-          icon: "text-ehs-muted-text",
-          title: "text-ehs-darker",
-        };
+  const expiredTone = {
+    panel: "border-ehs-red/30 bg-ehs-red/8",
+    chip: "bg-ehs-red/15 text-ehs-red",
+    title: "text-ehs-red",
+    rule: "border-ehs-red/20",
+  };
+  const urgentTone = {
+    panel: "border-ehs-warning-border bg-ehs-warning-surface",
+    chip: "bg-ehs-warning-ink/15 text-ehs-warning-ink",
+    title: "text-ehs-warning-ink",
+    rule: "border-ehs-warning-border",
+  };
+  const calmTone = {
+    panel: "border-ehs-border bg-ehs-surface/50",
+    chip: "bg-ehs-normal-blue/12 text-ehs-normal-blue",
+    title: "text-ehs-darker",
+    rule: "border-ehs-border",
+  };
+
+  const urgentOrCalm = isUrgent ? urgentTone : calmTone;
+  const tone = hasExpired ? expiredTone : urgentOrCalm;
 
   return (
     <div className="shrink-0 px-4 pt-1 pb-1">
       <div
         role="status"
-        className={`flex flex-col gap-0.5 rounded-xl border px-3 py-2.5 ${tone.box}`}
+        className={`rounded-2.5 flex flex-col gap-2 border px-3 py-2.75 ${tone.panel}`}
       >
-        <div className="flex items-center gap-1.5">
-          <Icon
-            icon={hasExpired ? "mdi:alert-circle-outline" : "mdi:clock-outline"}
-            className={`size-3.5 shrink-0 ${tone.icon}`}
+        <div className="flex items-start gap-2.5">
+          {/* The icon sits in a chip rather than loose against the text: at 14px an outline glyph
+              on a tinted panel has almost no presence, and the chip gives it a shape to hold. */}
+          <span
+            className={`inline-flex size-7 shrink-0 items-center justify-center rounded-lg ${tone.chip}`}
             aria-hidden="true"
-          />
-          <Text as="span" className={`text5 ${tone.title}`}>
-            {formatAccessWindowRemaining(days)}
-          </Text>
+          >
+            <Icon
+              icon={
+                hasExpired ? "mdi:alert-circle-outline" : "mdi:clock-outline"
+              }
+              className="size-4"
+            />
+          </span>
+
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <Text as="span" className={`text5 leading-tight ${tone.title}`}>
+              {formatAccessWindowRemaining(days)}
+            </Text>
+            <Text as="span" className="text8 text-ehs-muted-text leading-tight">
+              {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
+            </Text>
+          </div>
         </div>
 
-        <Text as="p" className="text8 text-ehs-muted-text pl-5">
-          {`Ends ${formatAccessWindowExpiry(accessWindow.accessExpiresAt)}`}
-        </Text>
-
         {isUrgent ? (
-          <Text as="p" className="text8 text-ehs-muted-text pl-5">
+          /* Divided off rather than stacked as a third line of meta: it is the one thing here
+             the reader can act on, and it should not read as more small print. */
+          <Text
+            as="p"
+            className={`text8 text-ehs-gray border-t pt-2 leading-tight ${tone.rule}`}
+          >
             Contact CodeSwift to extend
           </Text>
         ) : null}
@@ -318,8 +357,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           {isLoading ? (
             <SidebarNavSkeleton />
           ) : (
-            navGroups.map((group) => (
-              <div key={group.title} className="flex flex-col gap-1">
+            navGroups.map((group, groupIndex) => (
+              // Title alone is not unique — the design repeats the NEPTUNE AI heading.
+              <div
+                key={`${group.title}-${String(groupIndex)}`}
+                className="flex flex-col gap-1"
+              >
                 <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
                   {group.title}
                 </Text>

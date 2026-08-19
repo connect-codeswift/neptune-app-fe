@@ -14,8 +14,6 @@ export type CreateHazardRequestDto = {
   description: string;
   /** Secure Cloudinary URL of the attached photo evidence. */
   image: string;
-  /** User id of the person responsible for assessing and closing the hazard. */
-  assignedTo: number;
   userId: number;
   siteId: number;
   isDrop: boolean;
@@ -31,7 +29,6 @@ export type UpdateHazardRequestDto = {
   location: string;
   description: string;
   image: string;
-  assignedTo: number;
   userId: number;
   siteId: number;
   isDrop: boolean;

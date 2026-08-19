@@ -8,17 +8,17 @@ import type {
   GetHazardByIdResponseDto,
   GetHazardKpiResponseDto,
   GetHazardHeatMapResponseDto,
-  GetTopHazardUsersResponseDto,
-  GetMonthlyHazardUsersResponseDto,
+  GetHazardRecognitionsResponseDto,
+  HazardRecognitionDto,
 } from "@/dtos/res/hazard-response.dto";
+import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 import http from "@/lib/axios";
 import { normalizeHazardKpiDto } from "@/lib/map-hazard";
 
 const HAZARD_PATH = "/hazards";
 const HAZARD_SEARCH_PATH = "/hazards/search";
 const HAZARD_KPI_COUNT_PATH = "/hazards/kpis";
-const HAZARD_TOP_USERS_PATH = "/hazards/top-users";
-const HAZARD_MONTHLY_USERS_PATH = "/hazards/monthly-users";
+const HAZARD_RECOGNITIONS_PATH = "/hazards/recognitions";
 const HAZARD_HEAT_MAP_PATH = "/hazards/heatmap";
 
 /**
@@ -66,24 +66,55 @@ export async function getHazardKpiCount(params: Readonly<{ userId: number }>) {
   };
 }
 
-export async function getTopHazardUsers() {
-  const { data } = await http.get<GetTopHazardUsersResponseDto>(
-    HAZARD_TOP_USERS_PATH,
-  );
-
-  return data;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** GET /api/v1/hazards/monthly-users?year=&month= */
-export async function getMonthlyHazardUsers(
+function readProp(record: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const key of keys) {
+    if (key in record && record[key] !== undefined) {
+      return record[key];
+    }
+  }
+  return undefined;
+}
+
+function asNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+/**
+ * `dataModel` is a bare array, but the card must never crash on a shape it
+ * did not expect — a non-array once reached `reporters.map` and took the page
+ * down. Anything that is not an array degrades to "no reporters". Rows are read
+ * in both casings because the API mixes them.
+ */
+function normalizeRecognitions(dataModel: unknown): HazardRecognitionDto[] {
+  const rows: unknown[] = Array.isArray(dataModel) ? dataModel : [];
+
+  return rows.filter(isRecord).map((row) => ({
+    userId: asNumber(readProp(row, "userId", "UserId")),
+    userName: asString(readProp(row, "userName", "UserName")),
+    hazardCount: asNumber(
+      readProp(row, "hazardCount", "HazardCount", "count", "Count"),
+    ),
+  }));
+}
+
+/** GET /api/v1/hazards/recognitions?year=&month= */
+export async function getHazardRecognitions(
   params: Readonly<{ year: number; month: number }>,
-) {
-  const { data } = await http.get<GetMonthlyHazardUsersResponseDto>(
-    HAZARD_MONTHLY_USERS_PATH,
+): Promise<GetHazardRecognitionsResponseDto> {
+  const { data } = await http.get<ApiEnvelopeDto<unknown>>(
+    HAZARD_RECOGNITIONS_PATH,
     { params: { year: params.year, month: params.month } },
   );
 
-  return data;
+  return { ...data, dataModel: normalizeRecognitions(data.dataModel) };
 }
 
 export async function getHazardHeatMap() {

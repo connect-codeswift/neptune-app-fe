@@ -2,6 +2,7 @@ export { FormBuilder, type FormBuilderProps } from "./FormBuilder";
 export {
   createInitialValues,
   type CheckboxGroupFieldConfig,
+  type CustomFieldConfig,
   type DateFieldConfig,
   type FieldConfig,
   type FieldValue,

@@ -34,9 +34,6 @@ export type HazardRecord = Readonly<{
   category: string;
   description: string;
   dateReported: string;
-  assignedTo: string;
-  /** Raw user id behind {@link assignedTo}; 0 / absent when unassigned. */
-  assignedToId?: number;
   location: string;
   /** Cloudinary URL of the attached photo evidence, when one was uploaded. */
   image?: string;
@@ -58,7 +55,6 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
     description:
       "Power cable run left unprotected across the forklift aisle. Traffic crosses it on every pallet move, risking abrasion and arc flash.",
     dateReported: "2025-03-06",
-    assignedTo: "David Chen",
     location: "Warehouse 1 / Forklift Aisle B",
     relatedCapas: [
       {
@@ -82,7 +78,6 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
     description:
       "Fixed guard absent from the pedestal grinder. Rotating wheel is exposed at the operator position.",
     dateReported: "2025-03-05",
-    assignedTo: "Tom Bradley",
     location: "Plant B / Fab 1 · Tool Room",
     relatedCapas: [
       {
@@ -111,7 +106,6 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
     description:
       "Coolant seeping from the return line leaves a persistent film on the walkway beside Line 2.",
     dateReported: "2025-03-05",
-    assignedTo: "Unassigned",
     location: "Plant A / Line 2 · Walkway",
     relatedCapas: [],
   },
@@ -129,7 +123,6 @@ const HAZARD_RECORDS: readonly HazardRecord[] = [
     description:
       "Staged pallets blocked the east fire exit for a full shift. Egress route restored and re-marked.",
     dateReported: "2025-03-04",
-    assignedTo: "David Chen",
     location: "Plant A / Warehouse A · East Exit",
     relatedCapas: [
       {

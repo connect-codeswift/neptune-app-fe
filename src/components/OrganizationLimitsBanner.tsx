@@ -6,9 +6,10 @@ import {
   type OrganizationLimitsState,
 } from "@/lib/organization-limits";
 
-/* The amber warning wash is pinned (`amber-200/80` on `amber-50/90`, icon at
-   `--ehs-yellow-ink-soft` == amber-600) rather than folded into `--ehs-yellow`,
-   which is the fill hue and washes the ink out. */
+/* The amber warning wash is `--ehs-warning-surface` / `-border`, whose light
+   values are exactly the `amber-50/90` on `amber-200/80` this used to hardcode.
+   Not `--ehs-yellow`: that is the base fill hue and washes the ink out. The icon
+   stays on `--ehs-yellow-ink-soft` == amber-600, a step lighter than the ink. */
 
 export type OrganizationLimitsBannerProps = Readonly<{
   limits: OrganizationLimitsState;
@@ -27,7 +28,7 @@ export function OrganizationLimitsBanner(props: OrganizationLimitsBannerProps) {
         "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-sm",
         isAtLimit
           ? "border-ehs-red/25 bg-ehs-red/8 text-ehs-darker"
-          : "text-ehs-darker border-amber-200/80 bg-amber-50/90",
+          : "text-ehs-darker border-ehs-warning-border bg-ehs-warning-surface",
         className,
       ]
         .filter(Boolean)

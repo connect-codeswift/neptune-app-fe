@@ -267,7 +267,7 @@ export function RegulatoryComplianceView() {
         <ModuleSearchBar
           value={registerSearchQuery}
           onChange={setRegisterSearchQuery}
-          placeholder="Search obligations, code, jurisdiction..."
+          placeholder="Search by ID, obligation, code, jurisdiction..."
           aria-label="Search compliance register"
           resultLabel={
             totalCount === 1

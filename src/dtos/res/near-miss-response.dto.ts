@@ -50,16 +50,21 @@ export type GetNearMissHeatMapResponseDto = ApiEnvelopeDto<
   NearMissHeatMapCellDto[] | null
 >;
 
-/** One row of GET /api/v1/near-misses/top-users. */
-export type TopNearMissUserDto = {
+/** One row of GET /api/v1/near-misses/recognitions. */
+export type NearMissRecognitionDto = {
   userId: number;
   userName: string;
   nearMissCount: number;
 };
 
-/** Matches backend response for GET /api/v1/near-misses/top-users. */
-export type GetTopNearMissUsersResponseDto = ApiEnvelopeDto<
-  TopNearMissUserDto[] | null
+/**
+ * Matches backend response for
+ * GET /api/v1/near-misses/recognitions?year=&month=&limit= — the Recognition
+ * card's top reporters for one calendar month. Renamed from `monthly-users`;
+ * the two `top-users` routes it used to share a shape with are gone.
+ */
+export type GetNearMissRecognitionsResponseDto = ApiEnvelopeDto<
+  NearMissRecognitionDto[] | null
 >;
 
 /** Matches backend response for GET /api/v1/near-misses/{id}. */

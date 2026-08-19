@@ -65,10 +65,6 @@ export function HazardDetailPanel(props: Readonly<HazardDetailPanelProps>) {
     record.reporterId != null && record.reporterId > 0
       ? userNameFor(userNames, record.reporterId)
       : record.reporter;
-  const assignedTo =
-    record.assignedToId != null && record.assignedToId > 0
-      ? userNameFor(userNames, record.assignedToId)
-      : record.assignedTo;
 
   return (
     <IncidentGlassCard
@@ -120,7 +116,6 @@ export function HazardDetailPanel(props: Readonly<HazardDetailPanelProps>) {
         <MetaField label="Type" value={record.hazardType} />
         <MetaField label="Age" value={record.age} />
         <MetaField label="Reporter" value={reporter} />
-        <MetaField label="Assigned To" value={assignedTo} />
         <MetaField label="Date Reported" value={record.dateReported} />
         <MetaField label="Status" value={record.status} />
       </div>

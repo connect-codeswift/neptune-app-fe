@@ -4,25 +4,23 @@ import { Fragment } from "react";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
-import {
-  CAPA_DETAIL_WORKFLOW_STEPS,
-  type CapaDetailRecord,
-} from "@/components/capa/detail/capa-detail-data";
-import { isCapaStatusClosed } from "@/lib/capa-filters";
-
-/* The step labels are pinned to #f6f6f6, an off-white; `--ehs-on-accent` is
-   pure white. */
+import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
 
 export type CapaDetailProgressCardProps = Readonly<{
   record: CapaDetailRecord;
 }>;
 
-/** Workflow stepper + overall progress — Figma 1366:3125. */
+/**
+ * Lifecycle stepper + overall progress — Figma 1366:3125.
+ *
+ * The stages, and which one is current, come from
+ * GET /api/v1/capas/{id}/detail. Nothing here is derived locally: a stage is
+ * ticked because the backend said `isCompleted`, not because of its position.
+ */
 export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
   const { record } = props;
-  const totalSteps = CAPA_DETAIL_WORKFLOW_STEPS.length;
-  const isClosed = isCapaStatusClosed(record.statusLabel);
-  const current = Math.min(Math.max(record.workflowStep, 1), totalSteps);
+  const stages = record.lifecycleStages;
+  const totalSteps = stages.length;
   const progress = Math.min(100, Math.max(0, record.progress));
 
   return (
@@ -32,24 +30,23 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
     >
       <div className="-mx-1 mb-5 overflow-x-auto px-1">
         <ol className="flex w-full min-w-max items-start sm:min-w-0">
-          {CAPA_DETAIL_WORKFLOW_STEPS.map((label, index) => {
+          {stages.map((stage, index) => {
             const step = index + 1;
-            // Closed CAPAs tick every step, including the final "Closed" node.
-            const isDone = isClosed || step < current;
-            const isCurrent = !isClosed && step === current;
+            const isDone = stage.isCompleted;
+            const isCurrent = stage.isCurrent;
             const isLast = index === totalSteps - 1;
-            const lineDone = isClosed || step < current;
+            const lineDone = isDone;
 
             return (
-              <Fragment key={label}>
+              <Fragment key={stage.stage}>
                 <li className="flex w-18 shrink-0 flex-col items-center gap-2 sm:w-auto sm:flex-1">
                   <span
                     className={[
                       "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
                       isDone
-                        ? "bg-ehs-progress-done text-[#f6f6f6]"
+                        ? "bg-ehs-progress-done text-ehs-on-accent"
                         : isCurrent
-                          ? "bg-ehs-normal-blue text-[#f6f6f6]"
+                          ? "bg-ehs-normal-blue text-ehs-on-accent"
                           : "border-ehs-border-ink/12 bg-ehs-form-classes-bg text-ehs-muted-text border",
                     ].join(" ")}
                   >
@@ -70,7 +67,7 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
                           : "text-ehs-muted-text",
                     ].join(" ")}
                   >
-                    {label}
+                    {stage.stage}
                   </Text>
                 </li>
 

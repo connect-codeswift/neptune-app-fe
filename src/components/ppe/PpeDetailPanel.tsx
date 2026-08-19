@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import type { PpeCatalogDetail } from "@/app/dashboard/ppe-management/ppe-data";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 export type PpeDetailPanelProps = Readonly<{
   /** Mapped GET /api/ppe/{id} payload for the fields this card shows. */
@@ -159,7 +160,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
       <div className="border-ehs-border border-b px-5 pt-[18px] pb-4">
         <div className="mb-3 flex items-start justify-between gap-3">
           <Text as="span" className="text7 text-ehs-muted-text">
-            {item.standard}
+            {formatPpeDisplayId(item.id)}
           </Text>
 
           <Link

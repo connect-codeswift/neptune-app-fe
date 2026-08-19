@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 export type WalkTalkSessionCardProps = Readonly<{
   session: WalkTalkSession;
@@ -15,6 +16,7 @@ export type WalkTalkSessionCardProps = Readonly<{
 /** Mobile session card — matches Figma 6415:34651. */
 export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
   const { session, isSelected = false, onViewMore } = props;
+  const displayId = formatRecordDisplayId("WT", session.id);
 
   return (
     <div
@@ -27,7 +29,7 @@ export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
     >
       <div className="flex items-center justify-between gap-3">
         <Text as="span" className="text7 text-ehs-muted-text">
-          {session.id}
+          {displayId}
         </Text>
         <div className="flex items-center gap-1.5">
           <IncidentBadge
@@ -41,8 +43,8 @@ export function WalkTalkSessionCard(props: WalkTalkSessionCardProps) {
               className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
               aria-label={
                 isSelected
-                  ? `Close details for ${session.id}`
-                  : `View ${session.id}`
+                  ? `Close details for ${displayId}`
+                  : `View ${displayId}`
               }
               onClick={onViewMore}
             >

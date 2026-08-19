@@ -19,6 +19,7 @@ import {
   useWalkTalkSessionsQuery,
 } from "@/hooks/use-walk-talk-queries";
 import { toWalkTalkSessionDetail } from "@/lib/map-walk-talk";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import { WalkTalkDetailPanel } from "./WalkTalkDetailPanel";
 import { WalkTalkSessionCard } from "./WalkTalkSessionCard";
 import { createWalkTalkSessionColumns } from "./WalkTalkSessionColumns";
@@ -77,6 +78,7 @@ export function WalkTalkRecentSessionsSection(
 
       return [
         session.id,
+        formatRecordDisplayId("WT", session.id),
         session.observer,
         session.focusArea,
         session.site,

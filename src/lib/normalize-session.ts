@@ -250,6 +250,7 @@ export function normalizeOrgMeResponse(
     email: null,
     role: null,
     jobTitle: asString(readProp(unwrapped, "jobTitle", "JobTitle")),
+    contactNo: asString(readProp(unwrapped, "contactNo", "ContactNo")),
     mfaEnabled: Boolean(readProp(unwrapped, "mfaEnabled", "MfaEnabled")),
     mfaPromptDismissed: Boolean(
       readProp(unwrapped, "mfaPromptDismissed", "MfaPromptDismissed"),
@@ -338,6 +339,7 @@ export function normalizeSessionBootstrap(
     email: asString(readProp(unwrapped, "email", "Email")),
     role: asString(readProp(unwrapped, "role", "Role", "roleName", "RoleName")),
     jobTitle: asString(readProp(unwrapped, "jobTitle", "JobTitle")),
+    contactNo: asString(readProp(unwrapped, "contactNo", "ContactNo")),
     mfaEnabled: Boolean(readProp(unwrapped, "mfaEnabled", "MfaEnabled")),
     mfaPromptDismissed: Boolean(
       readProp(unwrapped, "mfaPromptDismissed", "MfaPromptDismissed"),

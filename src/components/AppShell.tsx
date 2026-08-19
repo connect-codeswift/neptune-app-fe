@@ -1,5 +1,6 @@
 "use client";
 
+import { AskNeptuneAiButton } from "@/components/neptune-ai/AskNeptuneAiButton";
 import {
   useCallback,
   useEffect,
@@ -175,6 +176,9 @@ export function AppShell(props: Readonly<AppShellProps>) {
         ) : null}
         {children}
       </div>
+
+      {/* Fixed to the viewport, so it stays put while the content column scrolls. */}
+      <AskNeptuneAiButton />
     </div>
   );
 }

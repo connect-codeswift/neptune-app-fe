@@ -19,6 +19,14 @@ import type {
   AddComplianceRequestDto,
   GetAllCompliancesRequestDto,
 } from "@/dtos/req/compliance-request.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
+
+/** Display form of a compliance record id, e.g. `2006` → `"RC-2006"`. */
+export function formatComplianceDisplayId(
+  id: string | number | null | undefined,
+): string {
+  return formatRecordDisplayId("RC", id);
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;

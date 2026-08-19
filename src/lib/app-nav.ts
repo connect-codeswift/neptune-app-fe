@@ -1,3 +1,4 @@
+import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import type { EhsModuleCode } from "@/lib/ehs-modules";
 import { isAdminRole } from "@/lib/jwt-permissions";
 
@@ -29,6 +30,22 @@ export type AppNavGroup = Readonly<{
 
 /** Static sidebar catalog — filtered at runtime by licensed modules + JWT permissions. */
 export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
+  {
+    // The assistant's single sidebar home: one heading, one entry. "Chat" routes to the full
+    // workspace page; the floating launcher covers the quick popup from anywhere. No module
+    // code — the assistant is not a licensed EHS module, and an item with neither a moduleCode
+    // nor alwaysVisible is rejected outright by the licence gate.
+    title: "Neptune AI",
+    items: [
+      {
+        label: "Chat",
+        href: NEPTUNE_AI_HREF,
+        icon: "ri:chat-ai-line",
+        alwaysVisible: true,
+        requiredPermissions: [],
+      },
+    ],
+  },
   {
     title: "Dashboard",
     items: [

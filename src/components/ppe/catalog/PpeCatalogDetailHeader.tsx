@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { PPE_ROUTE } from "@/components/ppe/PpeBackLink";
+import { formatPpeDisplayId } from "@/lib/map-ppe";
 
 const crumbMuted = "text8 text-ehs-muted-text";
 const crumbLink =
@@ -21,6 +22,7 @@ function Chevron() {
 }
 
 export type PpeCatalogDetailHeaderProps = Readonly<{
+  id?: string;
   name: string;
   protectionType: string;
 }>;
@@ -29,7 +31,12 @@ export type PpeCatalogDetailHeaderProps = Readonly<{
 export function PpeCatalogDetailHeader(
   props: Readonly<PpeCatalogDetailHeaderProps>,
 ) {
-  const { name, protectionType } = props;
+  const { id, name, protectionType } = props;
+  const displayId = id ? formatPpeDisplayId(id) : "";
+  const subtitle = [displayId, protectionType]
+    .filter((part) => part.trim() !== "")
+    .join(" · ");
+  const crumbLabel = displayId || name;
 
   return (
     <IncidentGlassCard paddingClassName="px-4 py-3 md:px-5" className="min-w-0">
@@ -43,7 +50,7 @@ export function PpeCatalogDetailHeader(
           PPE Management
         </Link>
         <Chevron />
-        <span className={`${crumbMuted} truncate`}>{name}</span>
+        <span className={`${crumbMuted} truncate`}>{crumbLabel}</span>
       </nav>
 
       <div className="flex min-w-0 flex-col gap-0.5">
@@ -51,7 +58,7 @@ export function PpeCatalogDetailHeader(
           {name}
         </Text>
         <Text as="p" className="text8 text-ehs-muted-text">
-          {protectionType}
+          {subtitle}
         </Text>
       </div>
     </IncidentGlassCard>

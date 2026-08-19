@@ -16,6 +16,7 @@ function mapUserByIdFallback(
     email: user.email,
     role: currentUser.role,
     jobTitle: user.jobTitle ?? null,
+    contactNo: user.contactNo ?? null,
     // GetUserById deliberately does not expose MFA state (UserSummaryDto omits it), so this
     // fallback cannot know. False is the safe default: the Security screen treats an unknown
     // state as "off" and offers enrolment, which the API rejects if it is already on.

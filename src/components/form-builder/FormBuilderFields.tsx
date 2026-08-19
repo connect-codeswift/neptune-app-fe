@@ -1125,6 +1125,8 @@ export function FieldRenderer(props: FieldRendererProps) {
           <p className="text-ehs-dark-bg text-sm font-bold">{field.label}</p>
         </div>
       );
+    case "custom":
+      return <>{field.render}</>;
     case "person": {
       const nameKey = personDisplayNameKey(field);
       const displayName = String(values[nameKey] ?? "");

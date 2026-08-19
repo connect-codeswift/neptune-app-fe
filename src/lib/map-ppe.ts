@@ -19,6 +19,14 @@ import type {
   PpeItemDto,
   PpeKpiDto,
 } from "@/dtos/res/ppe-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
+
+/** Display form of a PPE catalog id, e.g. `1008` → `"PPE-1008"`. */
+export function formatPpeDisplayId(
+  id: string | number | null | undefined,
+): string {
+  return formatRecordDisplayId("PPE", id);
+}
 
 /** Turn GET /api/ppe rows into select options for the issue form. */
 export function toPpeItemOptions(items: readonly PpeItemDto[]): SelectOption[] {

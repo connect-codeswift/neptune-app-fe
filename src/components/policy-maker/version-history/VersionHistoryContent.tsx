@@ -15,6 +15,7 @@ import {
   useDocumentVersionsQuery,
 } from "@/hooks/use-document-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
 
 export type VersionHistoryContentProps = Readonly<{
@@ -22,8 +23,8 @@ export type VersionHistoryContentProps = Readonly<{
 }>;
 
 function parseDocumentId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 /**

@@ -137,7 +137,7 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
       <ModuleSearchBar
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder="Search by name, CAS#, location..."
+        placeholder="Search by ID, name, CAS#, location..."
         aria-label="Search chemicals"
         resultLabel={resultLabel}
       />
