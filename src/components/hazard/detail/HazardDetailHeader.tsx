@@ -64,7 +64,7 @@ export function HazardDetailHeader(props: Readonly<HazardDetailHeaderProps>) {
           {canEdit ? (
             <Link
               href={editHref}
-              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium text-ehs-on-accent transition-colors"
+              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 text-ehs-on-accent inline-flex shrink-0 items-center justify-center px-8 py-2 font-medium transition-colors"
             >
               Edit
             </Link>

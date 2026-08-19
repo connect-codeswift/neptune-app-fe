@@ -45,10 +45,6 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     ? {
         ...mapped,
         reporter: userNameFor(userNames, mapped.reporterId ?? ""),
-        assignedTo:
-          mapped.assignedToId != null && mapped.assignedToId > 0
-            ? userNameFor(userNames, mapped.assignedToId)
-            : mapped.assignedTo,
       }
     : null;
 

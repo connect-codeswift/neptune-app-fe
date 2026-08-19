@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   createInitialValues,
   type FormSchema,
@@ -33,39 +34,51 @@ const methodOptions: readonly SelectOption[] = LOTO_ISOLATION_METHODS.map(
 );
 
 /**
- * Equipment Information card — Figma create/edit. Equipment ID and Location
- * are deliberately not FormBuilder fields: the code is backend-assigned (see
- * FEGuides/Loto.md) and Location is a search picker over the location
- * register (`LotoLocationSearchField`), both rendered directly in
- * `LotoProcedureForm`.
+ * Equipment Information card — Figma create/edit. Equipment ID is not a field
+ * at all: the code is backend-assigned (see FEGuides/Loto.md). Location is a
+ * search picker over the location register (`LotoLocationSearchField`) whose
+ * value lives in `LotoProcedureForm`, so it rides in as a `custom` field —
+ * that is what lets it sit second, between Equipment Name and Hazard Level,
+ * instead of being stacked above the form.
  */
-export const lotoEquipmentSchema: FormSchema = [
-  {
-    type: "text",
-    name: "equipmentName",
-    label: "Equipment Name",
-    required: true,
-    colSpan: 6,
-    placeholder: "e.g. Conveyor Belt Motor",
-  },
-  {
-    type: "select",
-    name: "hazardLevel",
-    label: "Hazard Level",
-    colSpan: 6,
-    placeholder: "Select hazard level",
-    options: hazardOptions,
-  },
-  {
-    type: "textarea",
-    name: "description",
-    label: "Equipment Description",
-    colSpan: 12,
-    rows: 3,
-    placeholder:
-      "Describe the equipment, its function, and any relevant background information…",
-  },
-];
+export function makeLotoEquipmentSchema(
+  locationField: ReactNode = null,
+): FormSchema {
+  return [
+    {
+      type: "text",
+      name: "equipmentName",
+      label: "Equipment Name",
+      required: true,
+      colSpan: 6,
+      placeholder: "e.g. Conveyor Belt Motor",
+    },
+    {
+      type: "custom",
+      name: "location",
+      label: "Location",
+      colSpan: 6,
+      render: locationField,
+    },
+    {
+      type: "select",
+      name: "hazardLevel",
+      label: "Hazard Level",
+      colSpan: 6,
+      placeholder: "Select hazard level",
+      options: hazardOptions,
+    },
+    {
+      type: "textarea",
+      name: "description",
+      label: "Equipment Description",
+      colSpan: 12,
+      rows: 3,
+      placeholder:
+        "Describe the equipment, its function, and any relevant background information…",
+    },
+  ];
+}
 
 /** Single isolation step fields. */
 export const lotoStepSchema: FormSchema = [
@@ -153,7 +166,7 @@ export function toEquipmentFormValues(
   state: LotoProcedureFormState,
 ): FormValues {
   return {
-    ...createInitialValues(lotoEquipmentSchema),
+    ...createInitialValues(makeLotoEquipmentSchema()),
     equipmentName: state.equipmentName,
     hazardLevel: state.hazardLevel,
     description: state.description,

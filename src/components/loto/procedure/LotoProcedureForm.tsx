@@ -26,10 +26,10 @@ import {
   LOTO_VERIFICATION_FORM_ID,
   fieldString,
   fieldStringArray,
-  lotoEquipmentSchema,
   lotoStepFormId,
   lotoStepSchema,
   lotoVerificationSchema,
+  makeLotoEquipmentSchema,
   makeLotoPpeSchema,
   toEquipmentFormValues,
   toPpeFormValues,
@@ -153,6 +153,16 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
     ppeStatusMessage,
   } = props;
 
+  const equipmentSchema = makeLotoEquipmentSchema(
+    <LotoLocationSearchField
+      value={location}
+      onChange={(next) => {
+        onLocationChange(next);
+        onPreviewChange({ location: next?.name ?? "" });
+      }}
+    />,
+  );
+
   const ppeSchema = makeLotoPpeSchema(ppeOptions);
 
   const addStep = () => {
@@ -178,18 +188,9 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
           <Text as="h2" className="text3 text-ehs-darker mb-4">
             Equipment Information
           </Text>
-          <div className="mb-4 grid grid-cols-1 gap-4">
-            <LotoLocationSearchField
-              value={location}
-              onChange={(next) => {
-                onLocationChange(next);
-                onPreviewChange({ location: next?.name ?? "" });
-              }}
-            />
-          </div>
           <FormBuilder
             formId={LOTO_EQUIPMENT_FORM_ID}
-            schema={lotoEquipmentSchema}
+            schema={equipmentSchema}
             initialValues={toEquipmentFormValues(initial)}
             hideActions
             onChange={(values) => {
@@ -202,7 +203,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
               });
             }}
             onSubmit={(values) => {
-              onFormValid(lotoEquipmentSchema, values);
+              onFormValid(equipmentSchema, values);
             }}
             className={equipmentFieldClass}
           />

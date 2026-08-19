@@ -52,8 +52,6 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
     description: report.description,
     // The endpoint takes a single URL; the field is capped at one photo.
     image: report.photos[0] ?? "",
-    // Assignment happens after triage, so nobody is assigned on create.
-    assignedTo: 0,
     userId,
     siteId,
     isDrop: false,

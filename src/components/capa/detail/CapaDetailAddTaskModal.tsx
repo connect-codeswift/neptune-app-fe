@@ -13,9 +13,6 @@ import {
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 
-/* The cancel button's label is pinned to #334155 (slate-700), darker than
-   `--ehs-slate` (#2a3446) is light. */
-
 export type CapaDetailAddTaskDraft = Readonly<{
   name: string;
   assigneeName: string;
@@ -142,7 +139,7 @@ export function CapaDetailAddTaskModal(
             type="button"
             onClick={onClose}
             disabled={busy}
-            className="rounded-2.5 border-ehs-border hover:bg-ehs-surface-raised cursor-pointer border px-5 py-2.5 text-sm leading-normal font-semibold text-[#334155] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-2.5 border-ehs-border hover:bg-ehs-surface-raised text-ehs-slate cursor-pointer border px-5 py-2.5 text-sm leading-normal font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>

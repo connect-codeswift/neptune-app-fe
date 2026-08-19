@@ -9,10 +9,8 @@ import { EditHazardHeader } from "./EditHazardHeader";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { canEditHazard, getCurrentUser } from "@/lib/current-user";
 import { mapHazardDtoToRecord, toHazardApiId } from "@/lib/map-hazard";
-import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
 
@@ -27,22 +25,11 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
     userId,
   });
 
-  const userDropdownQuery = useUserDropdownQuery();
-  const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
-
   const dto = detailQuery.data?.dataModel ?? null;
   const mapped = dto ? mapHazardDtoToRecord(dto) : null;
-  const record = mapped
-    ? {
-        ...mapped,
-        assignedTo:
-          mapped.assignedToId != null && mapped.assignedToId > 0
-            ? userNameFor(userNames, mapped.assignedToId)
-            : mapped.assignedTo,
-      }
-    : null;
+  const record = mapped;
 
-  const isPending = detailQuery.isPending || userDropdownQuery.isPending;
+  const isPending = detailQuery.isPending;
 
   const detailRoute = `${HAZARD_LIST_ROUTE}/${encodeURIComponent(hazardId)}`;
 

@@ -6,9 +6,6 @@ import { IncidentGlassCard } from "@/components/incidents";
 import { Text } from "@/components/Text";
 import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
 
-/* The step labels are pinned to #f6f6f6, an off-white; `--ehs-on-accent` is
-   pure white. */
-
 export type CapaDetailProgressCardProps = Readonly<{
   record: CapaDetailRecord;
 }>;
@@ -47,9 +44,9 @@ export function CapaDetailProgressCard(props: CapaDetailProgressCardProps) {
                     className={[
                       "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
                       isDone
-                        ? "bg-ehs-progress-done text-[#f6f6f6]"
+                        ? "bg-ehs-progress-done text-ehs-on-accent"
                         : isCurrent
-                          ? "bg-ehs-normal-blue text-[#f6f6f6]"
+                          ? "bg-ehs-normal-blue text-ehs-on-accent"
                           : "border-ehs-border-ink/12 bg-ehs-form-classes-bg text-ehs-muted-text border",
                     ].join(" ")}
                   >

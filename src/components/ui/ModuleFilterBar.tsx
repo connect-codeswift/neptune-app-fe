@@ -165,7 +165,7 @@ export function ModuleFilterBar(props: ModuleFilterBarProps) {
               type="button"
               onClick={action.onClick}
               className={[
-                "btn-sweep bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex min-h-9 cursor-pointer items-center justify-center shadow-sm",
+                "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex min-h-9 cursor-pointer items-center justify-center shadow-sm",
                 TABLE_HEADER_ACTION_CLASS,
               ].join(" ")}
             >
