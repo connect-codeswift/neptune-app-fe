@@ -1,8 +1,5 @@
 export type SettingsSectionId =
-  | "profile"
-  | "security"
-  | "appearance"
-  | "incident-rates";
+  "profile" | "security" | "appearance" | "incident-rates";
 
 export type SettingsSection = Readonly<{
   id: SettingsSectionId;
