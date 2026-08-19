@@ -148,7 +148,7 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
             {`${String(item.progress)}%`}
           </Text>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[rgba(11,19,32,0.08)]">
+        <div className="bg-ehs-surface-inverse/8 h-2 overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full"
             style={{ width: `${String(item.progress)}%` }}
@@ -181,10 +181,10 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
                   className={[
                     "text7 flex size-6.5 items-center justify-center rounded-full",
                     complete
-                      ? "bg-ehs-normal-blue text-white"
+                      ? "bg-ehs-normal-blue text-ehs-on-accent"
                       : current
-                        ? "border-ehs-normal-blue text-ehs-normal-blue border bg-white"
-                        : "border-ehs-border text-ehs-muted-text border bg-white",
+                        ? "border-ehs-normal-blue text-ehs-normal-blue bg-ehs-surface border"
+                        : "border-ehs-border text-ehs-muted-text bg-ehs-surface border",
                   ].join(" ")}
                 >
                   {complete ? (
@@ -248,7 +248,7 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
                   className={[
                     "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded",
                     task.done
-                      ? "bg-ehs-normal-blue text-white"
+                      ? "bg-ehs-normal-blue text-ehs-on-accent"
                       : "border-ehs-border border",
                     "disabled:cursor-not-allowed disabled:opacity-60",
                   ].join(" ")}

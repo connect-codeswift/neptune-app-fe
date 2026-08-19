@@ -27,7 +27,7 @@ export type CapaDetailContentProps = Readonly<{
 }>;
 
 const tabPanelShellClass =
-  "relative overflow-hidden rounded-tl-none rounded-tr-3.5 rounded-br-3.5 rounded-bl-3.5 border border-white/90 bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-tl-none rounded-tr-3.5 rounded-br-3.5 rounded-bl-3.5 border border-ehs-hairline/90 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:content-['']";
 
 function parseRouteCapaId(capaId: string): number | null {
   const parsed = Number.parseInt(decodeURIComponent(capaId).trim(), 10);
@@ -91,7 +91,7 @@ export function CapaDetailContent(props: CapaDetailContentProps) {
   if (detailQuery.isError) {
     return (
       <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
-        <Text as="p" className="text-sm text-[#ef4444]">
+        <Text as="p" className="text-ehs-red text-sm">
           {getMutationErrorMessage(
             detailQuery.error,
             "Could not load this CAPA.",

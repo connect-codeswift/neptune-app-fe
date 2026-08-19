@@ -34,7 +34,7 @@ export function HrcaMetaField(props: Readonly<HrcaMetaFieldProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="rounded-2 flex size-7.5 shrink-0 items-center justify-center bg-white/62">
+      <div className="rounded-2 bg-ehs-surface/62 flex size-7.5 shrink-0 items-center justify-center">
         <Icon
           icon={icon}
           className="text-ehs-gray size-3.75"

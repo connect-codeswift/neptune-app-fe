@@ -36,10 +36,10 @@ export function ReportReviewDetailCard(
   return (
     <div
       className={[
-        "rounded-5 backdrop-blur-2.5 relative flex flex-col gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)]",
+        "rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 relative flex flex-col gap-2 border shadow-(--ehs-shadow-card)",
         paddingClassName,
         error ? "border-ehs-red/40" : "",
-        "before:rounded-5 before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_1px_rgba(255,255,255,0.9)] before:content-['']",
+        "before:rounded-5 before:pointer-events-none before:absolute before:inset-0 before:content-['']",
         className,
       ]
         .filter(Boolean)

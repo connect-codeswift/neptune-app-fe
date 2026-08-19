@@ -52,7 +52,7 @@ export function IncidentDetailInvestigationCard(
       ? "bg-ehs-green-bg-light text-ehs-dark-blue"
       : statusLabel === "In progress"
         ? "bg-ehs-blue/14 text-ehs-blue"
-        : "bg-ehs-dark-bg/10 text-ehs-gray";
+        : "bg-ehs-surface-inverse/10 text-ehs-gray";
 
   const statusDot =
     statusLabel === "Complete"
@@ -104,7 +104,7 @@ export function IncidentDetailInvestigationCard(
           <button
             type="button"
             onClick={handleOpenHrca}
-            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex shrink-0 items-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
+            className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex shrink-0 items-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-(--ehs-shadow-button-primary-flat) transition-colors"
           >
             <Icon
               icon="mdi:open-in-new"
@@ -119,7 +119,7 @@ export function IncidentDetailInvestigationCard(
       <IncidentGlassCard
         paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
-        className="bg-white/62"
+        className="bg-ehs-surface/62"
       >
         <div className="flex flex-col gap-0.5">
           <Text as="h3" className="text-ehs-dark-bg text3">
@@ -165,14 +165,14 @@ export function IncidentDetailInvestigationCard(
                       className={[
                         "rounded-3.5 text5 flex size-7 shrink-0 items-center justify-center",
                         isRoot
-                          ? "bg-ehs-normal-blue text-ehs-light-text"
-                          : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)]",
+                          ? "bg-ehs-normal-blue text-ehs-on-accent"
+                          : "text-ehs-gray border-ehs-border-strong bg-ehs-surface/82 border",
                       ].join(" ")}
                     >
                       {item.step}
                     </div>
                     {!isLast ? (
-                      <div className="min-h-3.5 w-0.5 flex-1 bg-[rgba(15,23,42,0.08)]" />
+                      <div className="bg-ehs-surface-inverse/8 min-h-3.5 w-0.5 flex-1" />
                     ) : null}
                   </div>
 
@@ -186,7 +186,7 @@ export function IncidentDetailInvestigationCard(
                         "rounded-2.5 flex flex-col gap-0.5 border px-3.75 py-2.75",
                         isRoot
                           ? "border-ehs-normal-blue bg-ehs-dark-blue-bg-light"
-                          : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
+                          : "border-ehs-border-ink/8 bg-ehs-surface/62",
                       ].join(" ")}
                     >
                       <span
@@ -227,7 +227,7 @@ export function IncidentDetailInvestigationCard(
         <IncidentGlassCard
           paddingClassName="p-5.75"
           incidentGlassCardClassName="gap-3.5"
-          className="bg-white/62"
+          className="bg-ehs-surface/62"
         >
           <Text as="h3" className="text-ehs-dark-bg text3">
             Contributing factors
@@ -237,7 +237,7 @@ export function IncidentDetailInvestigationCard(
             {contributingFactors.map((factor) => (
               <div
                 key={`${factor.category}-${factor.text}`}
-                className="rounded-2.5 border-l-0.75 flex items-start gap-3 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-3.25 pr-3.25 pl-3.75"
+                className="rounded-2.5 border-l-0.75 border-ehs-border-ink/8 bg-ehs-surface/62 flex items-start gap-3 border py-3.25 pr-3.25 pl-3.75"
                 style={{ borderLeftColor: factor.accent }}
               >
                 <span

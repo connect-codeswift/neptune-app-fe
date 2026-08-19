@@ -103,7 +103,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
                 <Link
                   key={capa.id}
                   href="/dashboard/capa"
-                  className="flex flex-col gap-1.5 rounded-lg bg-[rgba(238,241,246,0.7)] p-2.5 transition-colors hover:bg-[rgba(238,241,246,0.95)]"
+                  className="bg-ehs-form-classes-bg/70 hover:bg-ehs-form-classes-bg/95 flex flex-col gap-1.5 rounded-lg p-2.5 transition-colors"
                 >
                   <Text as="span" className="text7 text-ehs-normal-blue">
                     {capa.id}

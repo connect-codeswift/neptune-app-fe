@@ -245,7 +245,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             </Text>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-[#8892a3]"
+              className="size-2.75 shrink-0 text-ehs-muted-text"
               aria-hidden="true"
             />
             <Link
@@ -256,7 +256,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-[#8892a3]"
+              className="size-2.75 shrink-0 text-ehs-muted-text"
               aria-hidden="true"
             />
             <Text as="span" className="text8 text-ehs-muted-text">

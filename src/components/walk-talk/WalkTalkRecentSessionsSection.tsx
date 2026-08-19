@@ -212,7 +212,7 @@ export function WalkTalkRecentSessionsSection(
               paddingClassName="p-0 overflow-hidden"
               className={complianceGlassCardClass}
             >
-              <div className="border-b border-[rgba(15,23,42,0.08)] px-4">
+              <div className="border-ehs-border-ink/8 border-b px-4">
                 <WalkTalkSessionsHeader
                   sessionCount={filtered.length}
                   onStartWalkTalk={handleStartWalkTalk}

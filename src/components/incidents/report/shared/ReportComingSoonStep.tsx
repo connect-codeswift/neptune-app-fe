@@ -47,7 +47,7 @@ export function ReportComingSoonStep(
           </Text>
         </div>
 
-        <div className="mt-auto border-t border-[rgba(15,23,42,0.08)] pt-5.25">
+        <div className="border-ehs-border-ink/8 mt-auto border-t pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
@@ -68,7 +68,7 @@ export function ReportComingSoonStep(
                 type="button"
                 variant="primary"
                 onClick={onContinue}
-                className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+                className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
               >
                 Continue
                 <Icon

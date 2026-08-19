@@ -4,7 +4,7 @@ import type { InspectionReport } from "@/app/dashboard/inspections/report/inspec
 
 /** Scores at or above the template's pass mark are green, the rest red. */
 function scoreColor(score: number, passThreshold: number): string {
-  return score >= passThreshold ? "#10b981" : "#ef4444";
+  return score >= passThreshold ? "var(--ehs-green)" : "var(--ehs-red)";
 }
 
 function MetaField(props: Readonly<{ label: string; value: string }>) {
@@ -31,7 +31,7 @@ export function InspectionReportView(props: InspectionReportViewProps) {
     <div className="mx-auto flex w-full max-w-200 min-w-0 flex-col gap-3.5">
       <IncidentGlassCard
         paddingClassName="p-5 sm:p-6"
-        className="backdrop-blur-2.5 bg-[rgba(255,255,255,0.62)]"
+        className="backdrop-blur-2.5 bg-ehs-surface/62"
         incidentGlassCardClassName="gap-6"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -64,7 +64,7 @@ export function InspectionReportView(props: InspectionReportViewProps) {
           <MetaField label="Status" value={report.status} />
         </div>
 
-        <div className="flex flex-col gap-2 rounded-xl bg-[rgba(238,241,246,0.7)] p-4">
+        <div className="bg-ehs-form-classes-bg/70 flex flex-col gap-2 rounded-xl p-4">
           <Text as="h3" className="text8 text-ehs-muted-text font-semibold">
             Executive Summary
           </Text>
@@ -76,7 +76,7 @@ export function InspectionReportView(props: InspectionReportViewProps) {
 
       <IncidentGlassCard
         paddingClassName="p-5 sm:p-6"
-        className="backdrop-blur-2.5 bg-[rgba(255,255,255,0.62)]"
+        className="backdrop-blur-2.5 bg-ehs-surface/62"
         incidentGlassCardClassName="gap-4"
       >
         <Text as="h3" className="text3 text-ehs-darker">
@@ -106,7 +106,7 @@ export function InspectionReportView(props: InspectionReportViewProps) {
                 </div>
 
                 <span
-                  className="h-2.5 w-full overflow-hidden rounded-full bg-[#eef1f6]"
+                  className="bg-ehs-form-classes-bg h-2.5 w-full overflow-hidden rounded-full"
                   aria-hidden="true"
                 >
                   <span

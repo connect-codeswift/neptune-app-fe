@@ -37,7 +37,7 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
 
       <Text
         as="p"
-        className="text8 text-ehs-muted-text border-t border-slate-900/10 py-2"
+        className="text8 text-ehs-muted-text border-t border-ehs-border-ink/10 py-2"
       >
         Monthly reporter rankings are not available yet.
       </Text>

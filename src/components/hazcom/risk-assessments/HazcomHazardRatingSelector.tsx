@@ -42,8 +42,8 @@ export function HazcomHazardRatingSelector(
               className={[
                 "text5 rounded-2.5 flex size-8 items-center justify-center transition-colors",
                 selected
-                  ? "bg-ehs-normal-blue text-ehs-light-text"
-                  : "bg-ehs-dark-bg/10 text-ehs-muted-text hover:bg-ehs-dark-bg/16",
+                  ? "bg-ehs-normal-blue text-ehs-on-accent"
+                  : "bg-ehs-surface-inverse/10 text-ehs-muted-text hover:bg-ehs-surface-inverse/16",
               ].join(" ")}
             >
               {String(rating)}

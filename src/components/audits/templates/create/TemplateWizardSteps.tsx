@@ -35,10 +35,10 @@ export function TemplateWizardProgress(
                   className={[
                     "text5 flex size-7 items-center justify-center rounded-full",
                     isDone
-                      ? "bg-ehs-green text-white"
+                      ? "bg-ehs-green text-ehs-on-accent"
                       : isCurrent
-                        ? "bg-ehs-normal-blue text-white"
-                        : "text-ehs-muted-text border border-slate-900/12 bg-[#eef1f6]",
+                        ? "bg-ehs-normal-blue text-ehs-on-accent"
+                        : "text-ehs-muted-text border-ehs-border-ink/12 bg-ehs-form-classes-bg border",
                   ].join(" ")}
                 >
                   {isDone ? (
@@ -67,7 +67,7 @@ export function TemplateWizardProgress(
                   aria-hidden="true"
                   className={[
                     "mt-3.5 h-px min-w-4 flex-1",
-                    isDone ? "bg-ehs-green" : "bg-slate-900/10",
+                    isDone ? "bg-ehs-green" : "bg-ehs-surface-inverse/10",
                   ].join(" ")}
                 />
               ) : null}
@@ -106,8 +106,8 @@ export function TemplateWizardStepList(
                 className={[
                   "text5 flex size-5 items-center justify-center rounded-full",
                   isCurrent
-                    ? "bg-ehs-normal-blue text-white"
-                    : "text-ehs-muted-text bg-[#eef1f6]",
+                    ? "bg-ehs-normal-blue text-ehs-on-accent"
+                    : "text-ehs-muted-text bg-ehs-form-classes-bg",
                 ].join(" ")}
               >
                 {stepNumber}

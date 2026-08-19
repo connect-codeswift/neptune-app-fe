@@ -29,8 +29,8 @@ function EnrollmentStatusCell(props: Readonly<{ status: IhEnrollmentStatus }>) {
       as="span"
       className={
         isOverdue
-          ? "text-sm font-bold text-[#0b1320]"
-          : "text-sm font-semibold text-[#8892a3]"
+          ? "text-sm font-bold text-ehs-dark-bg"
+          : "text-sm font-semibold text-ehs-muted-text"
       }
     >
       {props.status}
@@ -42,7 +42,7 @@ function EmployeeAvatar(props: Readonly<{ name: string }>) {
   return (
     <span
       aria-hidden
-      className="inline-flex size-7.5 shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)] text-xs font-semibold text-[#0891a6]"
+      className="inline-flex size-7.5 shrink-0 items-center justify-center rounded-full bg-ehs-normal-blue/14 text-xs font-semibold text-ehs-normal-blue"
     >
       {ihEmployeeInitials(props.name)}
     </span>
@@ -56,7 +56,7 @@ const ENROLLMENT_COLUMNS: ColumnDef<IhEnrollmentRow, unknown>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-2.5 py-1">
         <EmployeeAvatar name={row.original.name} />
-        <Text as="span" className="text-sm font-semibold text-[#0b1320]">
+        <Text as="span" className="text-sm font-semibold text-ehs-dark-bg">
           {row.original.name}
         </Text>
       </div>
@@ -66,7 +66,7 @@ const ENROLLMENT_COLUMNS: ColumnDef<IhEnrollmentRow, unknown>[] = [
     id: "department",
     header: "Department",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#566072]">
+      <Text as="span" className="text-sm text-ehs-gray">
         {row.original.department}
       </Text>
     ),
@@ -75,7 +75,7 @@ const ENROLLMENT_COLUMNS: ColumnDef<IhEnrollmentRow, unknown>[] = [
     id: "lastExam",
     header: "Last Exam",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#566072]">
+      <Text as="span" className="text-sm text-ehs-gray">
         {row.original.lastExam}
       </Text>
     ),
@@ -84,7 +84,7 @@ const ENROLLMENT_COLUMNS: ColumnDef<IhEnrollmentRow, unknown>[] = [
     id: "nextExamDue",
     header: "Next Exam Due",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-[#566072]">
+      <Text as="span" className="text-sm text-ehs-gray">
         {row.original.nextExamDue}
       </Text>
     ),
@@ -135,10 +135,10 @@ export function IhManageEnrollmentView() {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="items-center gap-3 text-center"
           >
-            <Text as="h1" className="text-lg font-bold text-[#0b1320]">
+            <Text as="h1" className="text-lg font-bold text-ehs-dark-bg">
               Program not found
             </Text>
-            <Text as="p" className="text-sm text-[#8892a3]">
+            <Text as="p" className="text-sm text-ehs-muted-text">
               This surveillance program could not be loaded.
             </Text>
             <Button
@@ -180,7 +180,7 @@ export function IhManageEnrollmentView() {
               <Button
                 type="button"
                 variant="tertiary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -195,7 +195,7 @@ export function IhManageEnrollmentView() {
               <Button
                 type="button"
                 variant="primary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
               >
                 <Icon
                   icon="mdi:account-plus"

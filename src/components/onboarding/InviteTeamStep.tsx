@@ -145,11 +145,11 @@ export function InviteTeamStep(props: Readonly<InviteTeamStepProps>) {
           {invites.map((invite) => (
             <li
               key={invite.id}
-              className="flex items-center gap-3 rounded-xl bg-white px-3 py-2 shadow-sm"
+              className="bg-ehs-surface flex items-center gap-3 rounded-xl px-3 py-2 shadow-sm"
             >
               <span
                 aria-hidden="true"
-                className="bg-ehs-normal-blue text-ehs-light-text flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                className="bg-ehs-normal-blue text-ehs-on-accent flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
               >
                 {getInitials(invite.email)}
               </span>

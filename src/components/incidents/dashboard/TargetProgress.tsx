@@ -66,7 +66,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
       >
         <div
           className={[
-            "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+            "bg-ehs-muted-text/18 relative w-full rounded-full",
             compact ? "h-1.5" : "h-1.5",
           ].join(" ")}
         >
@@ -116,7 +116,7 @@ export function TargetProgress(props: Readonly<TargetProgressProps>) {
     >
       <div
         className={[
-          "relative w-full rounded-full bg-[rgba(136,146,163,0.18)]",
+          "bg-ehs-muted-text/18 relative w-full rounded-full",
           compact ? "h-1.5" : "h-1.5",
         ].join(" ")}
       >

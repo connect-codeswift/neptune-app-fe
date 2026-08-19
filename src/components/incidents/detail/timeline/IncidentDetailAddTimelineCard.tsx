@@ -62,7 +62,7 @@ export function IncidentDetailAddTimelineCard(
         <button
           type="button"
           onClick={handleAttachPhoto}
-          className="rounded-2.5 text5 text-ehs-dark-bg backdrop-blur-1.5 inline-flex min-w-0 flex-1 items-center justify-center gap-2 border border-white/90 bg-[rgba(255,255,255,0.62)] px-3.75 pt-2.5 pb-[11px] transition-colors hover:bg-white/80"
+          className="rounded-2.5 text5 text-ehs-dark-bg backdrop-blur-1.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface/80 inline-flex min-w-0 flex-1 items-center justify-center gap-2 border px-3.75 pt-2.5 pb-[11px] transition-colors"
         >
           <Icon
             icon="mdi:camera-outline"
@@ -75,7 +75,7 @@ export function IncidentDetailAddTimelineCard(
         <button
           type="button"
           onClick={handlePost}
-          className="rounded-2.5 bg-ehs-normal-blue text5 text-ehs-light-text hover:bg-ehs-normal-blue-active relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
+          className="rounded-2.5 bg-ehs-normal-blue text5 text-ehs-on-accent hover:bg-ehs-normal-blue-active relative inline-flex min-w-0 flex-1 items-center justify-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-(--ehs-shadow-button-primary-flat) transition-colors"
         >
           <Icon icon="mdi:check" className="size-3.25" aria-hidden="true" />
           Post

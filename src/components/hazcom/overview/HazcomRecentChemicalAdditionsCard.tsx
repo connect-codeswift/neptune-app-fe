@@ -80,7 +80,7 @@ export function HazcomRecentChemicalAdditionsCard(
               href={`/dashboard/hazcom/chemicals/${chemical.id}`}
               className="hover:bg-ehs-light-bg/40 -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors first:mt-1"
             >
-              <span className="bg-ehs-dark-bg/6 text-ehs-gray flex size-9 shrink-0 items-center justify-center rounded-lg">
+              <span className="bg-ehs-surface-inverse/6 text-ehs-gray flex size-9 shrink-0 items-center justify-center rounded-lg">
                 <Icon
                   icon="mdi:flask-outline"
                   className="size-4"

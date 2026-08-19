@@ -137,7 +137,7 @@ export function IncidentDetailClosureCard(
         <IncidentGlassCard
           paddingClassName="p-5.5"
           incidentGlassCardClassName="gap-4.5"
-          className="backdrop-blur-2.5 bg-white/[0.62] shadow-none"
+          className="backdrop-blur-2.5 bg-ehs-surface/[0.62] shadow-none"
         >
           {currentStep === 1 && (
             <IncidentClosureStepClassification
@@ -172,14 +172,14 @@ export function IncidentDetailClosureCard(
         {/* Bottom Action Bar */}
         <IncidentGlassCard
           paddingClassName="p-5"
-          className="rounded-4 backdrop-blur-2.5 border-t-[rgba(15,23,42,0.08)] bg-white/[0.62] shadow-none"
+          className="rounded-4 backdrop-blur-2.5 border-t-ehs-border bg-ehs-surface/[0.62] shadow-none"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={handleBackPrevious}
-                className="rounded-2.5 text4 text-ehs-dark-bg hover:bg-ehs-light-bg bg-white px-4.5 py-2.5 font-bold shadow-xs transition-colors"
+                className="rounded-2.5 text4 text-ehs-dark-bg hover:bg-ehs-light-bg bg-ehs-surface px-4.5 py-2.5 font-bold shadow-xs transition-colors"
               >
                 {STEP_BACK_LABELS[currentStep as 2 | 3 | 4]}
               </button>
@@ -199,7 +199,7 @@ export function IncidentDetailClosureCard(
               <button
                 type="button"
                 onClick={onSaveAsDraft}
-                className="rounded-2.5 border-ehs-normal-blue text4 text-ehs-normal-blue border bg-white px-4 py-2.5 font-bold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                className="rounded-2.5 border-ehs-normal-blue text4 text-ehs-normal-blue bg-ehs-surface hover:bg-ehs-normal-blue/6 border px-4 py-2.5 font-bold transition-colors"
               >
                 Save as Draft
               </button>
@@ -214,7 +214,7 @@ export function IncidentDetailClosureCard(
                 className={[
                   "rounded-2.5 text4 text-ehs-light-text px-5 py-2.5 font-bold transition-all",
                   data.closureStatus === "Closed" && currentStep === 4
-                    ? "cursor-default bg-emerald-600"
+                    ? "bg-ehs-green-hover cursor-default"
                     : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active active:scale-[0.99]",
                 ].join(" ")}
               >

@@ -24,7 +24,7 @@ function ActivePpeRow(props: Readonly<{ item: PpeActiveItem }>) {
   const { item } = props;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] px-4.5 py-3.5 last:border-b-0">
+    <div className="border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 border-b px-4.5 py-3.5 last:border-b-0">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Text as="p" className="text4 text-ehs-darker">
           {item.name}
@@ -39,7 +39,7 @@ function ActivePpeRow(props: Readonly<{ item: PpeActiveItem }>) {
         {item.canInspect ? (
           <button
             type="button"
-            className="text8 text-ehs-gray cursor-pointer rounded-lg bg-[rgba(11,19,32,0.14)] px-2.5 py-1 transition-colors hover:bg-[rgba(11,19,32,0.2)]"
+            className="text8 text-ehs-gray bg-ehs-surface-inverse/14 hover:bg-ehs-surface-inverse/20 cursor-pointer rounded-lg px-2.5 py-1 transition-colors"
             onClick={(event) => {
               event.stopPropagation();
               toast.success(`Inspection started for ${item.name}`);
@@ -57,14 +57,14 @@ function ActivePpeMobileCard(props: Readonly<{ item: PpeActiveItem }>) {
   const { item } = props;
 
   return (
-    <div className="border-ehs-border flex flex-col gap-3 rounded-xl border bg-white p-3.5">
+    <div className="border-ehs-border bg-ehs-surface flex flex-col gap-3 rounded-xl border p-3.5">
       <Text as="p" className="text4 text-ehs-darker">
         {item.name}
       </Text>
       <Text as="p" className="text8 text-ehs-muted-text">
         {item.summary}
       </Text>
-      <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
+      <div className="bg-ehs-surface-inverse/8 h-px w-full" />
       <div className="flex flex-wrap gap-2">
         <IncidentBadge label={item.status} tone="muted" className="w-fit" />
         {item.canInspect ? (
@@ -87,7 +87,7 @@ function HistoryMobileCard(props: Readonly<{ record: PpeHistoryRecord }>) {
   const { record } = props;
 
   return (
-    <div className="border-ehs-border rounded-2.5 flex flex-col gap-3 border bg-white p-3.5">
+    <div className="border-ehs-border rounded-2.5 bg-ehs-surface flex flex-col gap-3 border p-3.5">
       <div className="flex items-center justify-between gap-3">
         <Text as="p" className="text4 text-ehs-darker min-w-0 flex-1">
           {record.item}
@@ -98,7 +98,7 @@ function HistoryMobileCard(props: Readonly<{ record: PpeHistoryRecord }>) {
           className="w-fit shrink-0"
         />
       </div>
-      <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
+      <div className="bg-ehs-surface-inverse/8 h-px w-full" />
       <div className="text8 text-ehs-muted-text flex flex-col gap-1">
         <p>{`Qty: ${String(record.quantity)} · Issue Date: ${record.issueDate}`}</p>
         <p>{`Condition: ${record.condition} · Status: ${record.status}`}</p>
@@ -167,7 +167,7 @@ export function PpeEmployeeProfileContent(
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3 md:gap-4">
               <div
-                className="bg-ehs-normal-blue text4 md:rounded-3.5 flex size-12 shrink-0 items-center justify-center rounded-full text-white md:size-13 md:bg-[#566072]"
+                className="bg-ehs-normal-blue text4 md:rounded-3.5 text-ehs-on-accent md:text-ehs-surface-inverse-text md:bg-ehs-gray flex size-12 shrink-0 items-center justify-center rounded-full md:size-13"
                 aria-hidden="true"
               >
                 {profile.initials}
@@ -219,7 +219,7 @@ export function PpeEmployeeProfileContent(
           paddingClassName="overflow-hidden p-0"
           className="hidden min-w-0 md:block"
         >
-          <div className="border-b border-[rgba(15,23,42,0.08)] px-4.5 py-3.5">
+          <div className="border-ehs-border-ink/8 border-b px-4.5 py-3.5">
             <Text as="h3" className="text3 text-ehs-darker">
               {`Active PPE (${String(activeCount)})`}
             </Text>

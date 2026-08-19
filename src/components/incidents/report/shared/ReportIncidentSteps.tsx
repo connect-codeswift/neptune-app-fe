@@ -50,10 +50,10 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
                 className={[
                   "rounded-2.75 inline-flex size-5.5 shrink-0 items-center justify-center text-xs font-bold",
                   isComplete
-                    ? "bg-ehs-green text-ehs-light-text"
+                    ? "bg-ehs-green text-ehs-on-accent"
                     : isActive
-                      ? "bg-ehs-normal-blue text-ehs-light-text"
-                      : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-white/82",
+                      ? "bg-ehs-normal-blue text-ehs-on-accent"
+                      : "text-ehs-gray border-ehs-border-strong bg-ehs-surface/82 border",
                 ].join(" ")}
               >
                 {isComplete ? (
@@ -90,7 +90,7 @@ export function ReportIncidentSteps(props: Readonly<ReportIncidentStepsProps>) {
         })}
       </div>
 
-      <div className="mt-4.5 border-t border-[rgba(15,23,42,0.08)] px-2 pt-3">
+      <div className="border-ehs-border-ink/8 mt-4.5 border-t px-2 pt-3">
         <div className="mb-1.5 flex items-center justify-between">
           <Text as="span" className="text-ehs-muted-text text-xs">
             Progress

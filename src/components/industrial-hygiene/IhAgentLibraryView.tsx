@@ -29,8 +29,8 @@ function AgentStatusBadge(props: Readonly<{ status: IhAgentStatus }>) {
       className={[
         "inline-flex items-center rounded-full px-2.5 py-0.5 text-base font-semibold",
         isActive
-          ? "bg-[rgba(8,145,166,0.12)] text-[#0891a6]"
-          : "bg-[rgba(15,23,42,0.08)] text-[#8892a3]",
+          ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
+          : "bg-ehs-surface-inverse/8 text-ehs-muted-text",
       ].join(" ")}
     >
       {props.status}
@@ -44,10 +44,10 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     header: "Agent Name",
     cell: ({ row }) => (
       <div className="min-w-36 py-1">
-        <Text as="p" className="text-base font-semibold text-[#0b1320]">
+        <Text as="p" className="text-base font-semibold text-ehs-dark-bg">
           {row.original.name}
         </Text>
-        <Text as="p" className="text-sm text-[#b3bbc8]">
+        <Text as="p" className="text-sm text-ehs-placeholder">
           {row.original.code}
         </Text>
       </div>
@@ -58,14 +58,14 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     header: "Type",
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
-        <span className="inline-flex size-6 items-center justify-center rounded-md bg-[rgba(86,96,114,0.09)]">
+        <span className="inline-flex size-6 items-center justify-center rounded-md bg-ehs-gray/9">
           <Icon
             icon={row.original.typeIcon}
-            className="size-4 text-[#566072]"
+            className="size-4 text-ehs-gray"
             aria-hidden
           />
         </span>
-        <Text as="span" className="text-base text-[#566072]">
+        <Text as="span" className="text-base text-ehs-gray">
           {row.original.type}
         </Text>
       </div>
@@ -75,7 +75,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "unit",
     header: "Unit",
     cell: ({ row }) => (
-      <Text as="span" className="text-base text-[#566072]">
+      <Text as="span" className="text-base text-ehs-gray">
         {row.original.unit}
       </Text>
     ),
@@ -84,7 +84,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "osha",
     header: "OSHA PEL",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-[#2a3446]">
+      <Text as="span" className="text-base font-semibold text-ehs-slate">
         {row.original.oshaPel}
       </Text>
     ),
@@ -93,7 +93,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "acgih",
     header: "ACGIH TLV",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-[#2a3446]">
+      <Text as="span" className="text-base font-semibold text-ehs-slate">
         {row.original.acgihTlv}
       </Text>
     ),
@@ -102,7 +102,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "niosh",
     header: "NIOSH REL",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-[#2a3446]">
+      <Text as="span" className="text-base font-semibold text-ehs-slate">
         {row.original.nioshRel}
       </Text>
     ),
@@ -111,7 +111,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "internal",
     header: "Internal Limit",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-bold text-[#0891a6]">
+      <Text as="span" className="text-base font-bold text-ehs-normal-blue">
         {row.original.internalLimit}
       </Text>
     ),
@@ -123,12 +123,12 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
       row.original.sdsLink ? (
         <button
           type="button"
-          className="text-base text-[#0891a6] hover:underline"
+          className="text-base text-ehs-normal-blue hover:underline"
         >
           {row.original.sdsLink}
         </button>
       ) : (
-        <Text as="span" className="text-base text-[#b3bbc8]">
+        <Text as="span" className="text-base text-ehs-placeholder">
           —
         </Text>
       ),
@@ -145,7 +145,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
       <Link
         href={ihEditAgentPath(row.original.id)}
         aria-label={`Edit ${row.original.name}`}
-        className="inline-flex size-7 items-center justify-center rounded-md bg-[rgba(86,96,114,0.14)] text-[#566072] transition-colors hover:bg-[rgba(86,96,114,0.22)]"
+        className="inline-flex size-7 items-center justify-center rounded-md bg-ehs-gray/14 text-ehs-gray transition-colors hover:bg-ehs-gray/22"
       >
         <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
       </Link>

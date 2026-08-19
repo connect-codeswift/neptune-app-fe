@@ -9,6 +9,9 @@ type HazardCategory = Readonly<{
   barColor: string;
 }>;
 
+/* `barColor` is rendered as `fill={...}`, an SVG *presentation attribute*.
+   `var()` is not valid there - the browser drops the attribute and the bar
+   falls back to the SVG default black - so these stay literal hex. */
 const HAZARD_CATEGORIES: readonly HazardCategory[] = [
   { label: "Electrical", tick: "Electr.", value: 28, barColor: "#067485" },
   { label: "Chemical", tick: "Chem.", value: 22, barColor: "#078395" },

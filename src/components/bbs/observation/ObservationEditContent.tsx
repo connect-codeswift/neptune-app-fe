@@ -218,7 +218,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8 md:gap-4">
       {/* Header — compact on mobile */}
-      <div className="backdrop-blur-2.5 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-4 py-3 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] md:px-6 md:py-4">
+      <div className="backdrop-blur-2.5 bg-ehs-surface border-ehs-border-ink/8 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] md:px-6 md:py-4">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav
             aria-label="Breadcrumb"
@@ -245,7 +245,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             <Link
               href={detailRoute}
               aria-label="Back to observation"
-              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-white transition-colors hover:bg-slate-50 md:hidden"
+              className="border-ehs-border text-ehs-dark-bg rounded-2.5 bg-ehs-surface hover:bg-ehs-surface-raised flex size-8 shrink-0 items-center justify-center border transition-colors md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
@@ -279,14 +279,14 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             "[&_label]:font-bold",
             "[&_label]:uppercase",
             "[&_label]:tracking-[0.24px]",
-            "[&_label]:text-[#566072]",
+            "[&_label]:text-ehs-gray",
             "[&_input]:h-10",
-            "[&_input]:bg-white/80",
+            "[&_input]:bg-ehs-surface/80",
             "[&_input]:px-3",
             "[&_input]:py-0",
             "[&_input]:text-3.25",
             "[&_select]:h-10",
-            "[&_select]:bg-white/80",
+            "[&_select]:bg-ehs-surface/80",
             "[&_select]:px-3",
             "[&_select]:py-0",
             "[&_select]:text-3.25",
@@ -316,10 +316,10 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
             "[&_label]:font-bold",
             "[&_label]:uppercase",
             "[&_label]:tracking-[0.24px]",
-            "[&_label]:text-[#566072]",
+            "[&_label]:text-ehs-gray",
             "[&_textarea]:h-32.5",
             "[&_textarea]:resize-none",
-            "[&_textarea]:bg-white/80",
+            "[&_textarea]:bg-ehs-surface/80",
             "[&_textarea]:px-3",
             "[&_textarea]:py-3",
             "[&_textarea]:text-3.25",
@@ -353,7 +353,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
           type="button"
           variant="tertiary"
           onClick={() => router.push(detailRoute)}
-          className="text-ehs-gray text-3.25 h-11 flex-1 rounded-xl border border-slate-900/8 bg-white/40 px-4 py-2.5 font-bold md:h-auto md:flex-none md:rounded-lg md:px-5"
+          className="text-ehs-gray text-3.25 border-ehs-border-ink/8 bg-ehs-surface/40 h-11 flex-1 rounded-xl border px-4 py-2.5 font-bold md:h-auto md:flex-none md:rounded-lg md:px-5"
         >
           Cancel
         </Button>
@@ -363,7 +363,7 @@ export function ObservationEditContent(props: ObservationEditContentProps) {
           variant="primary"
           isLoading={updateObservation.isPending}
           onClick={saveAll}
-          className="text-3.25 h-11 flex-1 rounded-xl px-4 py-2.5 font-bold shadow-[0px_6px_18px_-6px_#0891a6] md:h-auto md:flex-none md:rounded-lg md:px-6"
+          className="text-3.25 h-11 flex-1 rounded-xl px-4 py-2.5 font-bold shadow-(--ehs-shadow-button-primary-flat) md:h-auto md:flex-none md:rounded-lg md:px-6"
         >
           {updateObservation.isPending ? "Saving..." : "Save Changes"}
         </Button>

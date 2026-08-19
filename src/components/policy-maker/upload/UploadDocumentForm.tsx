@@ -41,7 +41,7 @@ const REVIEW_CYCLE_OPTIONS = [
 ] as const;
 
 const glassCardClass =
-  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:max-w-3xl lg:max-w-5xl";
+  "relative w-full min-w-0 max-w-full overflow-hidden rounded-4 border border-ehs-hairline/90 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:content-[''] sm:max-w-3xl lg:max-w-5xl";
 
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
@@ -454,7 +454,7 @@ export function UploadDocumentForm() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="text4 text-ehs-dark-bg rounded-2.5 h-9 w-full border border-[rgba(11,19,32,0.14)] px-4 shadow-none sm:w-auto"
+              className="text4 text-ehs-dark-bg rounded-2.5 h-9 w-full border border-ehs-border-ink/14 px-4 shadow-none sm:w-auto"
             >
               Cancel
             </Button>
@@ -463,7 +463,7 @@ export function UploadDocumentForm() {
               variant="primary"
               isLoading={isSubmitting}
               disabled={busy || !pdfSecureUrl || lookupsLoading}
-              className="text4 rounded-2.5 h-9.5 w-full bg-[#0891a6] px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] hover:bg-[#078196] sm:w-auto sm:min-w-52"
+              className="text4 rounded-2.5 h-9.5 w-full bg-ehs-normal-blue px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] hover:bg-ehs-normal-blue-hover sm:w-auto sm:min-w-52"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

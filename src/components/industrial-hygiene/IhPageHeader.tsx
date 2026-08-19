@@ -40,7 +40,7 @@ export function IhPageHeader(props: Readonly<IhPageHeaderProps>) {
                     {index > 0 ? (
                       <Icon
                         icon="mdi:chevron-right"
-                        className="size-3 text-[#b3bbc8]"
+                        className="size-3 text-ehs-placeholder"
                         aria-hidden
                       />
                     ) : null}
@@ -48,7 +48,7 @@ export function IhPageHeader(props: Readonly<IhPageHeaderProps>) {
                       as="span"
                       className={[
                         "text-sm",
-                        isLast ? "text-[#b3bbc8]" : "text-[#8892a3]",
+                        isLast ? "text-ehs-placeholder" : "text-ehs-muted-text",
                       ].join(" ")}
                     >
                       {label}
@@ -61,13 +61,13 @@ export function IhPageHeader(props: Readonly<IhPageHeaderProps>) {
 
           <Text
             as="h1"
-            className="text-xl leading-8 font-bold tracking-tight text-[#0b1320]"
+            className="text-xl leading-8 font-bold tracking-tight text-ehs-dark-bg"
           >
             {title}
           </Text>
 
           {subtitle ? (
-            <Text as="p" className="text-base text-[#8892a3]">
+            <Text as="p" className="text-base text-ehs-muted-text">
               {subtitle}
             </Text>
           ) : null}

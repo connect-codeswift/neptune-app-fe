@@ -31,13 +31,13 @@ function OelReferenceRow(
     <div
       className={[
         "flex items-center justify-between gap-3 py-1.5",
-        props.isLast ? "" : "border-b border-[rgba(15,23,42,0.08)]",
+        props.isLast ? "" : "border-b border-ehs-border-ink/8",
       ].join(" ")}
     >
-      <Text as="span" className="text-xs text-[#566072]">
+      <Text as="span" className="text-xs text-ehs-gray">
         {props.label}
       </Text>
-      <Text as="span" className="text-xs font-bold text-[#0b1320]">
+      <Text as="span" className="text-xs font-bold text-ehs-dark-bg">
         {props.value}
       </Text>
     </div>
@@ -57,32 +57,32 @@ function OelComparisonCard(
     >
       <Text
         as="p"
-        className="text-center text-xs font-semibold tracking-wider text-[#8892a3] uppercase"
+        className="text-center text-xs font-semibold tracking-wider text-ehs-muted-text uppercase"
       >
         OEL Comparison
       </Text>
 
       {comparison ? (
         <div className="flex flex-col items-center gap-2 pt-1">
-          <Text as="p" className="text-2xl font-bold text-[#0b1320]">
+          <Text as="p" className="text-2xl font-bold text-ehs-dark-bg">
             {comparison.resultLabel}
           </Text>
-          <Text as="p" className="text-sm text-[#566072]">
+          <Text as="p" className="text-sm text-ehs-gray">
             {`${String(comparison.percentOfInternal)}% of internal limit (${comparison.limitLabel})`}
           </Text>
           <span
             className={[
               "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold",
               comparison.status === "Exceeded"
-                ? "bg-[rgba(239,68,68,0.12)] text-[#ef4444]"
-                : "bg-[rgba(16,185,129,0.12)] text-[#10b981]",
+                ? "bg-ehs-red/12 text-ehs-red"
+                : "bg-ehs-green/12 text-ehs-green",
             ].join(" ")}
           >
             {comparison.status}
           </span>
         </div>
       ) : (
-        <Text as="p" className="pt-2.5 text-center text-sm text-[#b3bbc8]">
+        <Text as="p" className="pt-2.5 text-center text-sm text-ehs-placeholder">
           Enter a result value to see OEL comparison
         </Text>
       )}
@@ -119,7 +119,7 @@ function OelReferenceCard(props: Readonly<{ agent: IhAgentOelRef | null }>) {
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-0"
     >
-      <Text as="h2" className="text-sm font-bold text-[#0b1320]">
+      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
         OEL Reference
       </Text>
       <div className="mt-2.5 flex flex-col">
@@ -196,12 +196,12 @@ export function IhLogResultView() {
               className="gap-4"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel
@@ -211,7 +211,7 @@ export function IhLogResultView() {
                 type="submit"
                 form={IH_LOG_RESULT_FORM_ID}
                 variant="primary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
               >
                 Save Record
               </Button>

@@ -40,7 +40,7 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
   const submitIcon = isCreate ? "mdi:plus" : "mdi:content-save-outline";
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-5.5 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']">
+    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-3 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-5.5 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl  before:content-['']">
       <div className="relative z-1 flex min-w-0 flex-col gap-3">
         <nav
           aria-label="Breadcrumb"
@@ -72,7 +72,7 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
             <Link
               href={LOTO_ROUTE}
               aria-label="Back to Lockout / Tagout"
-              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-white transition-colors hover:bg-slate-50 md:hidden"
+              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-ehs-surface transition-colors hover:bg-ehs-surface-raised md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>
@@ -103,7 +103,7 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
               variant="primary"
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_rgba(8,145,166,0.3)]"
+              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_30%,transparent)]"
             >
               <Icon icon={submitIcon} className="size-3.5 shrink-0" />
               {submitLabel}

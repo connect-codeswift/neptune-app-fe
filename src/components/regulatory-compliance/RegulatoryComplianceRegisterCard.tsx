@@ -86,7 +86,7 @@ function createObligationColumns(
       size: 90,
       meta: { align: "right" },
       cell: (info) => (
-        <Text as="span" className="text4 text-[#056e7e]">
+        <Text as="span" className="text4 text-ehs-dark-blue">
           {info.getValue()}
         </Text>
       ),
@@ -187,7 +187,7 @@ export function RegulatoryComplianceRegisterCard(
             <Link
               href={ADD_OBLIGATION_HREF}
               className={[
-                "bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text inline-flex items-center transition-colors",
+                "bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent inline-flex items-center transition-colors",
                 TABLE_HEADER_ACTION_CLASS,
               ].join(" ")}
             >

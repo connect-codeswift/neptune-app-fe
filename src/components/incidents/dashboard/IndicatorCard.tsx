@@ -9,7 +9,7 @@ export type IndicatorCardProps = Readonly<{
 }>;
 
 const indicatorCardShellClass =
-  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5";
+  "border-ehs-hairline/90 bg-ehs-surface/62 backdrop-blur-2.5";
 
 export function IndicatorCard(props: Readonly<IndicatorCardProps>) {
   const { metric, className = "" } = props;

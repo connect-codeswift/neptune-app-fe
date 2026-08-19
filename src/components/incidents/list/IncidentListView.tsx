@@ -365,7 +365,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
             <button
               type="button"
               onClick={() => void incidentsQuery.refetch()}
-              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 text-sm font-semibold"
+              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface mt-1 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold"
             >
               <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
               Retry
@@ -418,7 +418,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                   className="min-w-0"
                 />
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3">
+                <div className="border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 border-t pt-3">
                   <Text as="p" className="text-ehs-muted-text text-sm">
                     {[
                       `Page ${String(pageNumber)} of ${String(totalPages)}`,

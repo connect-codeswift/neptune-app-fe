@@ -77,7 +77,7 @@ export function HazcomRiskLevelOutput(
           {`Score: ${String(score)} / ${String(MAX_SCORE)}`}
         </Text>
 
-        <div className="bg-ehs-dark-bg/10 mt-4 h-1.5 w-full rounded-full">
+        <div className="bg-ehs-surface-inverse/10 mt-4 h-1.5 w-full rounded-full">
           <div
             className={[
               "h-1.5 rounded-full transition-all",
@@ -110,9 +110,9 @@ export function HazcomRiskLevelOutput(
                 <span className="text8 text-ehs-muted-text w-21 shrink-0">
                   {row.label}
                 </span>
-                <div className="bg-ehs-dark-bg/8 h-1.5 flex-1 rounded-full">
+                <div className="bg-ehs-surface-inverse/8 h-1.5 flex-1 rounded-full">
                   <div
-                    className="bg-ehs-dark-bg/25 h-1.5 rounded-full"
+                    className="bg-ehs-surface-inverse/25 h-1.5 rounded-full"
                     style={{ width: `${String(fillPercent)}%` }}
                   />
                 </div>

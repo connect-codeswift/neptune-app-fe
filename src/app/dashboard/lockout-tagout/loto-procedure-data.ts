@@ -103,8 +103,8 @@ export function createEmptyProcedureForm(): LotoProcedureFormState {
 }
 
 export function hazardLevelClassName(level: LotoHazardLevel): string {
-  if (level === "High") return "text-[#ef4444]";
-  if (level === "Medium") return "text-[#f59e0b]";
-  if (level === "Low") return "text-[#10b981]";
+  if (level === "High") return "text-ehs-red";
+  if (level === "Medium") return "text-ehs-yellow";
+  if (level === "Low") return "text-ehs-green";
   return "text-ehs-darker";
 }

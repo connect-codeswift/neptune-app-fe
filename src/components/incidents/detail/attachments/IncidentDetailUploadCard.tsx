@@ -145,8 +145,8 @@ export function IncidentDetailUploadCard(
         className={[
           "rounded-3 relative flex min-h-43.5 cursor-pointer flex-col items-center justify-center border-2 border-dashed p-6 text-center transition-all",
           dragActive
-            ? "border-ehs-normal-blue bg-[rgba(8,145,166,0.08)]"
-            : "border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.42)] hover:border-[rgba(15,23,42,0.22)] hover:bg-white/80",
+            ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
+            : "border-ehs-border bg-ehs-surface/42 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
           isUploading ? "pointer-events-none opacity-60" : "",
         ].join(" ")}
       >
@@ -161,7 +161,7 @@ export function IncidentDetailUploadCard(
           </div>
         ) : (
           <>
-            <div className="text-ehs-dark-blue flex size-8.5 shrink-0 items-center justify-center rounded-full bg-[rgba(8,145,166,0.14)]">
+            <div className="text-ehs-dark-blue bg-ehs-normal-blue/14 flex size-8.5 shrink-0 items-center justify-center rounded-full">
               <Icon icon="mdi:plus" className="size-5" aria-hidden="true" />
             </div>
             <span className="text-ehs-dark-bg text5 mt-2.5">

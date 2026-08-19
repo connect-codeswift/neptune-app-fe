@@ -106,7 +106,7 @@ export function HazcomNewTrainingSessionForm(
         className="gap-4.5"
       />
 
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-2 border-t border-[rgba(15,23,42,0.08)] pt-5">
+      <div className="mt-6 flex flex-wrap items-center justify-end gap-2 border-t border-ehs-border-ink/8 pt-5">
         <Button
           type="button"
           variant="tertiary"
@@ -121,7 +121,7 @@ export function HazcomNewTrainingSessionForm(
           form={HAZCOM_TRAINING_FORM_ID}
           variant="primary"
           isLoading={createTrainingLog.isPending}
-          className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-[0px_6px_18px_-6px_#0891a6]"
+          className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
         >
           <Icon icon="mdi:check" className="size-4" aria-hidden />
           Save Session

@@ -87,7 +87,7 @@ function StepBadge(props: Readonly<{ step: string }>) {
   const { step } = props;
 
   return (
-    <span className="bg-ehs-normal-blue text-ehs-light-text inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
+    <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-6 shrink-0 items-center justify-center rounded-full pt-[2px] pb-[3px] text-sm leading-5">
       {step}
     </span>
   );

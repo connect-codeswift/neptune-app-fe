@@ -107,7 +107,7 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
           onClick={() => onAccept(draft)}
           title="Use this draft"
           aria-label="Use this draft"
-          className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-dark-blue focus-visible:ring-ehs-normal-blue/40 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full shadow-[0px_3px_10px_-2px_rgba(8,145,166,0.65)] transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-dark-blue focus-visible:ring-ehs-normal-blue/40 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full shadow-[0px_3px_10px_-2px_color-mix(in_oklab,var(--ehs-normal-blue)_65%,transparent)] transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           <Icon icon="mdi:check" className="size-4" aria-hidden="true" />
         </button>
@@ -116,7 +116,7 @@ export function AiInFieldDraft(props: Readonly<AiInFieldDraftProps>) {
           onClick={onDismiss}
           title="Discard this draft"
           aria-label="Discard this draft"
-          className="text-ehs-muted-text hover:text-ehs-red focus-visible:ring-ehs-red/30 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[rgba(15,23,42,0.12)] bg-white transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          className="text-ehs-muted-text hover:text-ehs-red focus-visible:ring-ehs-red/30 bg-ehs-surface border-ehs-border-ink/12 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           <Icon icon="mdi:close" className="size-4" aria-hidden="true" />
         </button>

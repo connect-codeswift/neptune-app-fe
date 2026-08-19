@@ -19,7 +19,7 @@ const INCIDENT_TYPE_SELECT_OPTIONS = INCIDENT_TYPE_OPTIONS.filter(
 
 /** Same frame the native selects' wrapper drew, now on GlassSelect's trigger. */
 const CLASSIFICATION_TRIGGER_CLASS =
-  "w-full rounded-2 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-2.25 text4 font-normal outline-none backdrop-blur-1.25";
+  "w-full rounded-2 border border-ehs-border-ink/8 bg-ehs-surface/55 px-3 py-2.25 text4 font-normal outline-none backdrop-blur-1.25";
 
 export type IncidentClosureStepClassificationProps = Readonly<{
   data: IncidentClosureData;
@@ -198,10 +198,10 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "rounded-2 backdrop-blur-1.25 flex items-center justify-between border bg-white/55 px-3 py-2.25",
+                    "rounded-2 backdrop-blur-1.25 bg-ehs-surface/55 flex items-center justify-between border px-3 py-2.25",
                     lostTimeMissingDays
                       ? "border-ehs-red"
-                      : "border-[rgba(15,23,42,0.08)]",
+                      : "border-ehs-border-ink/8",
                   ].join(" ")}
                 >
                   <input
@@ -251,10 +251,10 @@ export function IncidentClosureStepClassification(
                 </label>
                 <div
                   className={[
-                    "rounded-2 backdrop-blur-1.25 flex items-center justify-between border bg-white/55 px-3 py-2.25",
+                    "rounded-2 backdrop-blur-1.25 bg-ehs-surface/55 flex items-center justify-between border px-3 py-2.25",
                     restrictedMissingDays
                       ? "border-ehs-red"
-                      : "border-[rgba(15,23,42,0.08)]",
+                      : "border-ehs-border-ink/8",
                   ].join(" ")}
                 >
                   <input
@@ -324,11 +324,11 @@ export function IncidentClosureStepClassification(
                 "flex size-4 items-center justify-center rounded-full border transition-all",
                 data.isOshaRecordable
                   ? "border-ehs-normal-blue bg-ehs-normal-blue"
-                  : "border-[rgba(15,23,42,0.08)] bg-white",
+                  : "border-ehs-border-ink/8 bg-ehs-surface",
               ].join(" ")}
             >
               {data.isOshaRecordable ? (
-                <div className="size-2 rounded-full bg-white" />
+                <div className="bg-ehs-surface size-2 rounded-full" />
               ) : null}
             </div>
             <span>Yes</span>
@@ -344,11 +344,11 @@ export function IncidentClosureStepClassification(
                 "flex size-4 items-center justify-center rounded-full border transition-all",
                 !data.isOshaRecordable
                   ? "border-ehs-normal-blue bg-ehs-normal-blue"
-                  : "border-[rgba(15,23,42,0.08)] bg-white",
+                  : "border-ehs-border-ink/8 bg-ehs-surface",
               ].join(" ")}
             >
               {!data.isOshaRecordable ? (
-                <div className="size-2 rounded-full bg-white" />
+                <div className="bg-ehs-surface size-2 rounded-full" />
               ) : null}
             </div>
             <span>No</span>
@@ -371,7 +371,7 @@ export function IncidentClosureStepClassification(
                 onChangeField("oshaOverrideReason", e.target.value)
               }
               placeholder="Enter required reason for OSHA recordability override..."
-              className="rounded-1.5 border-ehs-yellow/30 text4 text-ehs-dark-bg backdrop-blur-1.25 focus:border-ehs-yellow w-full border bg-white/55 px-3 py-1.5 font-normal outline-none"
+              className="rounded-1.5 border-ehs-yellow/30 text4 text-ehs-dark-bg backdrop-blur-1.25 focus:border-ehs-yellow bg-ehs-surface/55 w-full border px-3 py-1.5 font-normal outline-none"
             />
             {overrideReasonMissing && (
               <span className="text8 text-ehs-red font-normal">

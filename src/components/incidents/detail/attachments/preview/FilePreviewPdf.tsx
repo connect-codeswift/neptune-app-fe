@@ -20,7 +20,7 @@ export function FilePreviewPdf(props: Readonly<FilePreviewPdfProps>) {
       : 600;
 
   return (
-    <div className="rounded-2 h-[70vh] w-[80vw] overflow-y-auto bg-white p-4">
+    <div className="rounded-2 bg-ehs-surface h-[70vh] w-[80vw] overflow-y-auto p-4">
       <Document
         file={fileUrl}
         onLoadSuccess={({ numPages: loadedPages }) => setNumPages(loadedPages)}

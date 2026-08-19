@@ -7,10 +7,10 @@ const statusIcon: Record<
 > = {
   Operational: {
     icon: "mdi:lock-open-variant-outline",
-    className: "text-[#10b981]",
+    className: "text-ehs-green",
   },
-  "Locked Out": { icon: "mdi:lock", className: "text-[#ef4444]" },
-  Maintenance: { icon: "mdi:cog", className: "text-[#f59e0b]" },
+  "Locked Out": { icon: "mdi:lock", className: "text-ehs-red" },
+  Maintenance: { icon: "mdi:cog", className: "text-ehs-yellow" },
 };
 
 export type LotoStatusIconProps = Readonly<{

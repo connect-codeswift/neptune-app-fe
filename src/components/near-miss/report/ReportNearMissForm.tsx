@@ -177,7 +177,7 @@ export function ReportNearMissForm() {
   return (
     <IncidentGlassCard
       paddingClassName="p-6 sm:p-8"
-      // No `bg-white!`: that override forced the card opaque, so this was the
+      // No `bg-ehs-surface!`: that override forced the card opaque, so this was the
       // one solid slab on an otherwise frosted page. Width comes from the
       // page container now, so the card and the header above it line up.
       className="w-full"

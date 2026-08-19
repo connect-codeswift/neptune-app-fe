@@ -145,7 +145,7 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                   "flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all select-none",
                   isSelected
                     ? "border-ehs-normal-blue bg-ehs-light-blue"
-                    : "border-ehs-border hover:border-ehs-border bg-white",
+                    : "border-ehs-border hover:border-ehs-border bg-ehs-surface",
                 ].join(" ")}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -153,8 +153,8 @@ function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
                     className={[
                       "flex size-5 shrink-0 items-center justify-center rounded border transition-colors",
                       isSelected
-                        ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-light-text"
-                        : "border-ehs-border bg-white",
+                        ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
+                        : "border-ehs-border bg-ehs-surface",
                     ].join(" ")}
                   >
                     {isSelected && (
@@ -266,7 +266,7 @@ export function IncidentClosureStepPreventive(
           {linkedCapas.map((capa) => (
             <div
               key={capa.id}
-              className="rounded-3.5 border-ehs-border hover:border-ehs-border flex items-center justify-between border bg-white px-4 py-3.5 shadow-xs transition-all"
+              className="rounded-3.5 border-ehs-border hover:border-ehs-border bg-ehs-surface flex items-center justify-between border px-4 py-3.5 shadow-xs transition-all"
             >
               <div className="flex items-center gap-3">
                 <div className="bg-ehs-light-blue/60 text-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full">

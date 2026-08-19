@@ -27,7 +27,7 @@ function optionClass(isSelected: boolean): string {
   return [
     "cursor-pointer rounded-1.75 px-2 py-1.5 text-center text-3.25 transition-colors",
     isSelected
-      ? "bg-ehs-normal-blue font-bold text-white"
+      ? "bg-ehs-normal-blue font-bold text-ehs-on-accent"
       : "text-ehs-dark-bg hover:bg-ehs-light-bg",
   ].join(" ");
 }
@@ -73,9 +73,9 @@ export function ReportTimePopover(props: Readonly<ReportTimePopoverProps>) {
       role="dialog"
       aria-label="Choose a time"
       onKeyDown={onKeyDown}
-      className="animate-popover-in rounded-3 absolute top-full left-1/2 z-40 mt-1.5 w-58 -translate-x-1/2 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+      className="animate-popover-in rounded-3 border-ehs-border-ink/10 bg-ehs-surface absolute top-full left-1/2 z-40 mt-1.5 w-58 -translate-x-1/2 border shadow-(--ehs-shadow-popover)"
     >
-      <div className="flex divide-x divide-[rgba(15,23,42,0.08)]">
+      <div className="divide-ehs-surface-inverse/8 flex divide-x">
         <div className={columnClass} role="listbox" aria-label="Hour">
           {HOURS.map((hour) => {
             const isSelected = hasValue && hour === parts.hour12;
@@ -137,7 +137,7 @@ export function ReportTimePopover(props: Readonly<ReportTimePopoverProps>) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-[rgba(15,23,42,0.08)] px-2 py-1.5">
+      <div className="border-ehs-border-ink/8 flex items-center justify-between gap-2 border-t px-2 py-1.5">
         <button
           type="button"
           onClick={() => onSelect(nowHhMm())}

@@ -14,8 +14,8 @@ export function Check(props: Readonly<CheckProps>) {
       className={[
         "pointer-events-none flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors",
         checked
-          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-light-text"
-          : "border-ehs-border bg-white",
+          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
+          : "border-ehs-border bg-ehs-surface",
         className,
       ]
         .filter(Boolean)

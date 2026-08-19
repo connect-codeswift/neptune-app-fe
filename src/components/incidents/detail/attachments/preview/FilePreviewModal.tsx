@@ -12,7 +12,7 @@ const FilePreviewPdf = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-ehs-gray rounded-2 text4 flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2 bg-white">
+      <div className="text-ehs-gray rounded-2 text4 bg-ehs-surface flex h-[70vh] w-[80vw] flex-col items-center justify-center gap-2">
         <Icon
           icon="mdi:loading"
           className="text-ehs-normal-blue size-6 animate-spin"
@@ -47,7 +47,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
 
   if (isStoredFileId(storedRef) && resolved.isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+      <div className="bg-ehs-overlay-media fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md">
         <Icon
           icon="mdi:loading"
           className="text-ehs-light-text size-8 animate-spin"
@@ -58,7 +58,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+    <div className="bg-ehs-overlay-media fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md">
       <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
 
       <div className="rounded-4 relative z-10 flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center border border-white/10 bg-black/30 p-2 shadow-2xl backdrop-blur-lg">
@@ -70,7 +70,7 @@ export function FilePreviewModal(props: Readonly<FilePreviewModalProps>) {
           <Icon icon="mdi:close" className="size-5" />
         </button>
 
-        <div className="rounded-2.5 bg-ehs-dark-bg flex min-h-60 min-w-70 items-center justify-center overflow-hidden">
+        <div className="rounded-2.5 bg-ehs-canvas-dark flex min-h-60 min-w-70 items-center justify-center overflow-hidden">
           {isImage ? (
             /* eslint-disable-next-line @next/next/no-img-element -- arbitrary
                user-uploaded remote files of unknown intrinsic size; next/image

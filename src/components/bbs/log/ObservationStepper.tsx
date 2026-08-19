@@ -30,7 +30,7 @@ export function ObservationStepper(props: ObservationStepperProps) {
               className={[
                 "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-colors",
                 isReached
-                  ? "bg-ehs-normal-blue text-white"
+                  ? "bg-ehs-normal-blue text-ehs-on-accent"
                   : "bg-ehs-border/70 text-ehs-muted-text",
               ].join(" ")}
             >

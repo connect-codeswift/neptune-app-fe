@@ -71,7 +71,7 @@ export function ModulesSetupStep(props: Readonly<ModulesSetupStepProps>) {
                   "md:rounded-xl md:border md:px-4",
                   isActive
                     ? "md:border-ehs-normal-blue/40 md:bg-ehs-light-blue"
-                    : "md:border-ehs-border md:bg-white",
+                    : "md:border-ehs-border md:bg-ehs-surface",
                 ].join(" ")}
               >
                 <span className="flex min-w-0 flex-1 items-center gap-3">

@@ -60,7 +60,7 @@ export function LotoModuleTabs(props: Readonly<LotoModuleTabsProps>) {
                     "text8 rounded-lg px-2 py-px font-semibold",
                     isActive
                       ? "bg-ehs-normal-blue/10 text-ehs-normal-blue"
-                      : "bg-ehs-dark-bg/8 text-ehs-muted-text",
+                      : "bg-ehs-surface-inverse/8 text-ehs-muted-text",
                   ].join(" ")}
                 >
                   {String(count)}

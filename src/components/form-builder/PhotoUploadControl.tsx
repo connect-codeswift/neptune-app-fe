@@ -263,8 +263,8 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
             : message
               ? "border-ehs-red/60"
               : isFileLike
-                ? "border-[rgba(15,23,42,0.1)] hover:border-[rgba(15,23,42,0.18)] hover:bg-[rgba(15,23,42,0.02)]"
-                : "hover:border-ehs-normal-blue/60 hover:bg-ehs-light-bg/40 border-slate-900/10",
+                ? "border-ehs-border-ink/10 hover:border-ehs-border-ink/18 hover:bg-ehs-surface-inverse/2"
+                : "hover:border-ehs-normal-blue/60 hover:bg-ehs-light-bg/40 border-ehs-border",
         ].join(" ")}
       >
         <Icon
@@ -279,7 +279,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
           }
           className={[
             "size-8",
-            isFileLike ? "text-[#566072]" : "text-ehs-muted-text",
+            isFileLike ? "text-ehs-gray" : "text-ehs-muted-text",
             isUploading ? "animate-spin" : "",
           ]
             .filter(Boolean)
@@ -290,7 +290,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
           <span
             className={[
               "text4 leading-5 font-medium",
-              isFileLike ? "text-[#2a3446]" : "text4 text-ehs-gray font-normal",
+              isFileLike ? "text-ehs-slate" : "text4 text-ehs-gray font-normal",
             ].join(" ")}
           >
             {isUploading
@@ -330,9 +330,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
             return (
               <li
                 key={`${entry}-${String(index)}`}
-                className="group rounded-2.5 flex items-center gap-3 bg-[rgba(238,241,246,0.7)] py-3 pr-3 pl-3"
+                className="group rounded-2.5 bg-ehs-form-classes-bg/70 flex items-center gap-3 py-3 pr-3 pl-3"
               >
-                <span className="rounded-2.5 inline-flex size-9 shrink-0 items-center justify-center bg-[rgba(8,145,166,0.2)] text-[#0891a6]">
+                <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
                   <Icon
                     icon="mdi:file-document-outline"
                     className="size-5"
@@ -340,11 +340,11 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   />
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="text4 truncate leading-5 text-[#2a3446]">
+                  <p className="text4 text-ehs-slate truncate leading-5">
                     {name}
                   </p>
                   {subtitle ? (
-                    <p className="text8 truncate leading-4 text-[#8892a3]">
+                    <p className="text8 text-ehs-muted-text truncate leading-4">
                       {subtitle}
                     </p>
                   ) : null}
@@ -377,8 +377,8 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 key={`${entry}-${String(index)}`}
                 className={
                   canPreview
-                    ? "group relative size-28 overflow-hidden rounded-xl border border-slate-900/10"
-                    : "border-ehs-border rounded-2.5 flex min-w-48 flex-1 items-center gap-3 border bg-white/50 p-3"
+                    ? "group border-ehs-border-ink/10 relative size-28 overflow-hidden rounded-xl border"
+                    : "border-ehs-border rounded-2.5 bg-ehs-surface/50 flex min-w-48 flex-1 items-center gap-3 border p-3"
                 }
               >
                 {canPreview ? (
@@ -410,8 +410,8 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                   aria-label={`Remove photo ${String(index + 1)}`}
                   className={
                     canPreview
-                      ? "absolute top-1 right-1 rounded-full bg-slate-900/60 p-0.5 text-white transition-colors hover:bg-slate-900/80"
-                      : "text-ehs-muted-text hover:text-ehs-red flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-900/5 bg-white/60 transition-colors"
+                      ? "bg-ehs-border-ink/60 hover:bg-ehs-border-ink/80 absolute top-1 right-1 rounded-full p-0.5 text-white transition-colors"
+                      : "text-ehs-muted-text hover:text-ehs-red border-ehs-border bg-ehs-surface/60 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-xl border transition-colors"
                   }
                 >
                   <Icon

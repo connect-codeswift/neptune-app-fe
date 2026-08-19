@@ -109,7 +109,7 @@ export default function AuditTemplatesPage() {
                 type="button"
                 disabled={pageNumber <= 1}
                 onClick={() => setPageNumber((current) => current - 1)}
-                className="text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg cursor-pointer rounded-lg border px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-gray border-ehs-border bg-ehs-surface hover:bg-ehs-light-bg cursor-pointer rounded-lg border px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Previous
               </button>
@@ -123,7 +123,7 @@ export default function AuditTemplatesPage() {
                 type="button"
                 disabled={pageNumber >= totalPages}
                 onClick={() => setPageNumber((current) => current + 1)}
-                className="text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg cursor-pointer rounded-lg border px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="text8 text-ehs-gray border-ehs-border bg-ehs-surface hover:bg-ehs-light-bg cursor-pointer rounded-lg border px-3 py-1.5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
               </button>

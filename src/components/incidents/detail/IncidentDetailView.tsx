@@ -291,7 +291,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               <button
                 type="button"
                 onClick={onRetry}
-                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg text4 mt-1 inline-flex items-center gap-1.5 rounded-lg border bg-white px-3 py-1.5 font-semibold"
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg text4 bg-ehs-surface mt-1 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-semibold"
               >
                 <Icon
                   icon="mdi:refresh"
@@ -497,7 +497,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   meta={investigation.hrcaMeta}
                 />
               ) : showHrca ? (
-                <div className="text-ehs-muted-text rounded-3 text4 border border-[rgba(15,23,42,0.08)] bg-white/50 px-4 py-10 text-center">
+                <div className="text-ehs-muted-text rounded-3 text4 border-ehs-border-ink/8 bg-ehs-surface/50 border px-4 py-10 text-center">
                   Sign in and open a valid incident to load the HRCA worksheet.
                 </div>
               ) : (

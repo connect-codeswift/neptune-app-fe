@@ -14,7 +14,7 @@ function AssignToCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className="text8 flex size-8 shrink-0 items-center justify-center rounded-full bg-[#566072] text-white"
+        className="text8 bg-ehs-gray text-ehs-surface-inverse-text flex size-8 shrink-0 items-center justify-center rounded-full"
         aria-hidden="true"
       >
         {entry.initials}
@@ -32,7 +32,7 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
       <IncidentBadge
         label="Acknowledged"
         tone="muted"
-        className="w-fit bg-[rgba(16,185,129,0.12)] text-[#10b981]"
+        className="bg-ehs-green/12 text-ehs-green w-fit"
       />
     );
   }
@@ -47,7 +47,7 @@ function ActionCell(props: Readonly<{ entry: PpeAcknowledgementEntry }>) {
       variant="primary"
       disabled
       title="Acknowledging PPE from this table is not available yet"
-      className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_rgba(8,145,166,0.25)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
+      className="text4 rounded-lg px-3.5 py-1.5 shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_25%,transparent)] disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
     >
       Acknowledge
     </Button>

@@ -26,7 +26,7 @@ function MyCapasSectionCard(
       paddingClassName="p-4.25"
       className="min-h-37.25 min-w-0 rounded-2xl"
     >
-      <Text as="h3" className="mb-3 text-base font-medium text-[#566072]">
+      <Text as="h3" className="text-ehs-gray mb-3 text-base font-medium">
         {title}
       </Text>
 
@@ -35,7 +35,7 @@ function MyCapasSectionCard(
           <div className="flex flex-1 items-center justify-center py-4">
             <Text
               as="p"
-              className="text-center text-sm leading-4 text-[#8892a3]"
+              className="text-ehs-muted-text text-center text-sm leading-4"
             >
               {emptyLabel}
             </Text>
@@ -64,11 +64,11 @@ function DefaultItem(props: Readonly<{ item: MyCapaCardItem }>) {
   const { item } = props;
 
   return (
-    <div className="rounded-2.5 border border-[rgba(15,23,42,0.08)] bg-white/70 px-3 py-3">
-      <Text as="p" className="text-xs leading-4 text-[#566072]">
+    <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/70 border px-3 py-3">
+      <Text as="p" className="text-ehs-gray text-xs leading-4">
         {item.code}
       </Text>
-      <Text as="p" className="mt-1 text-sm leading-5 text-[#0b1320]">
+      <Text as="p" className="text-ehs-dark-bg mt-1 text-sm leading-5">
         {item.title}
       </Text>
     </div>
@@ -79,13 +79,13 @@ function OverdueItem(props: Readonly<{ item: MyCapaCardItem }>) {
   const { item } = props;
 
   return (
-    <div className="rounded-2.5 border border-[rgba(251,44,54,0.2)] bg-[rgba(239,68,68,0.1)] px-3 py-3">
-      <Text as="p" className="text-sm leading-4 text-[#ef4444]">
+    <div className="rounded-2.5 border-ehs-red/20 bg-ehs-red/10 border px-3 py-3">
+      <Text as="p" className="text-ehs-red text-sm leading-4">
         {item.code}
       </Text>
       <Text
         as="p"
-        className="mt-1 overflow-hidden text-base leading-5 text-ellipsis whitespace-nowrap text-[#0b1320]"
+        className="text-ehs-dark-bg mt-1 overflow-hidden text-base leading-5 text-ellipsis whitespace-nowrap"
       >
         {item.title}
       </Text>

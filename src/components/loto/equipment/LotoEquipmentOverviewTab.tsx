@@ -29,7 +29,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
         <IncidentGlassCard paddingClassName="p-5" className="min-w-0">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h2 className="text3 text-ehs-darker">Equipment Details</h2>
-            <span className="text5 inline-flex items-center gap-1.5 rounded-full bg-[rgba(15,23,42,0.06)] px-2.5 py-0.5">
+            <span className="text5 bg-ehs-surface-inverse/6 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5">
               <LotoStatusIcon status={detail.status} className="size-3.5" />
               {detail.status}
             </span>
@@ -56,7 +56,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
                 className="rounded-3 border border-black/10 px-4 py-3.5"
               >
                 <p className="text4 text-ehs-darker font-semibold">{source}</p>
-                <p className="text8 mt-0.5 text-[#8892a3]">
+                <p className="text8 text-ehs-muted-text mt-0.5">
                   {`Isolation Point #${String(index + 1)}`}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             <button
               type="button"
               onClick={onManagePersonnel}
-              className="text4 cursor-pointer font-semibold text-[#0891a6] hover:underline"
+              className="text4 text-ehs-normal-blue cursor-pointer font-semibold hover:underline"
             >
               Manage →
             </button>
@@ -79,9 +79,9 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
             {detail.authorizedPersonnel.map((person) => (
               <div
                 key={person.id}
-                className="rounded-2.5 inline-flex items-center gap-2 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5"
+                className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/70 inline-flex items-center gap-2 border px-2.5 py-1.5"
               >
-                <span className="text7 flex size-7 items-center justify-center rounded-lg bg-[rgba(8,145,166,0.12)] font-bold text-[#0891a6]">
+                <span className="text7 text-ehs-normal-blue bg-ehs-normal-blue/12 flex size-7 items-center justify-center rounded-lg font-bold">
                   {person.initials}
                 </span>
                 <span className="text4 text-ehs-darker font-semibold">
@@ -99,7 +99,7 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
           <button
             type="button"
             onClick={onViewAllHistory}
-            className="text4 cursor-pointer font-semibold text-[#0891a6] hover:underline"
+            className="text4 text-ehs-normal-blue cursor-pointer font-semibold hover:underline"
           >
             All →
           </button>
@@ -111,14 +111,14 @@ export function LotoEquipmentOverviewTab(props: LotoEquipmentOverviewTabProps) {
               className={[
                 "py-3",
                 index < detail.recentLockouts.length - 1
-                  ? "border-b border-[rgba(15,23,42,0.08)]"
+                  ? "border-ehs-border-ink/8 border-b"
                   : "",
               ].join(" ")}
             >
               <p className="text4 text-ehs-darker font-semibold">
                 {lockout.purpose}
               </p>
-              <p className="text4 mt-1 text-[#8892a3]">
+              <p className="text4 text-ehs-muted-text mt-1">
                 {`${lockout.operator} · ${lockout.date} · ${lockout.duration}`}
               </p>
             </li>

@@ -11,8 +11,8 @@ import type {
 } from "@/app/dashboard/walk-talk/walk-talk-data";
 
 const toneColor: Record<FindingTone, string> = {
-  primary: "#0891a6",
-  muted: "#8892a3",
+  primary: "var(--ehs-normal-blue)",
+  muted: "var(--ehs-muted-text)",
 };
 
 /** One category: label + count above a proportional bar. */
@@ -34,7 +34,7 @@ function FindingRow(
       </div>
 
       <span
-        className="h-2 w-full overflow-hidden rounded-full bg-[rgba(136,146,163,0.18)]"
+        className="bg-ehs-muted-text/18 h-2 w-full overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <span

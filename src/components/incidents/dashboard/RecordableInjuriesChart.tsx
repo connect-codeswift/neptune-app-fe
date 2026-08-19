@@ -127,6 +127,8 @@ function RecordablesLineChart(
           );
         })}
 
+        {/* Pinned literal: the approved wash is #c25555 at 10%, which no token
+            carries, and `fill-ehs-red/10` resolves to a different red. */}
         {areaPath ? <path d={areaPath} fill="rgba(194, 85, 85, 0.1)" /> : null}
 
         {targetY != null ? (

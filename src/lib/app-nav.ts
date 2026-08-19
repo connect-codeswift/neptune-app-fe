@@ -209,8 +209,11 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         icon: "mdi:cog-outline",
         alwaysVisible: true,
         requiredPermissions: [],
-        // Company-wide configuration — the owner's screen, not a per-user one.
-        allowedRoles: ["Ehs_Director"],
+        // Deliberately open to every role. This used to be Ehs_Director only, when the page
+        // held nothing but company-wide incident-rate configuration. It now also holds each
+        // user's own profile, password, two-factor and theme, and hiding it would leave an
+        // ordinary user with no route to their own account. The company-only tab inside is
+        // gated separately — see components/settings/settings-nav.ts.
       },
     ],
   },
@@ -308,7 +311,8 @@ function isNavItemVisible(
   );
 
   // alwaysVisible items sit outside the page catalogue — Settings has no page: row of its
-  // own and is restricted by allowedRoles above instead, so the page gate must not hide it.
+  // own, and every user needs it for their own account, so the page gate must not hide it.
+  // The company-wide tab inside Settings does its own role check.
   if (holdsAnyPagePermission && item.alwaysVisible !== true) {
     return hasPagePermission(item.href, userPermissions);
   }

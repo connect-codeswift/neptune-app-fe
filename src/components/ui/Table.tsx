@@ -84,8 +84,8 @@ export function Table<TData>(props: TableProps<TData>) {
         <div
           className={[
             isCapa
-              ? "border-b border-white/90 px-4 py-4"
-              : "border-b border-[rgba(15,23,42,0.08)]",
+              ? "border-ehs-hairline/90 border-b px-4 py-4"
+              : "border-ehs-border border-b",
             isCompliance ? "px-[16px] py-0" : isCapa ? "" : "px-4 py-2.5",
           ]
             .filter(Boolean)
@@ -107,9 +107,9 @@ export function Table<TData>(props: TableProps<TData>) {
                 key={headerGroup.id}
                 className={
                   isCapa
-                    ? "border-b border-white/90 bg-[rgba(11,19,32,0.14)]"
+                    ? "border-ehs-hairline/90 bg-ehs-surface-inverse/14 border-b"
                     : isCompliance
-                      ? "border-b border-[rgba(15,23,42,0.08)]"
+                      ? "border-ehs-border-ink/8 border-b"
                       : "border-ehs-border/40 border-b"
                 }
               >
@@ -179,17 +179,17 @@ export function Table<TData>(props: TableProps<TData>) {
                     onClick={() => onRowClick?.(row.original)}
                     className={[
                       isCapa
-                        ? "border-b border-[rgba(15,23,42,0.07)] last:border-b-0"
+                        ? "border-ehs-border-ink/7 border-b last:border-b-0"
                         : isCompliance
-                          ? "border-t border-[rgba(15,23,42,0.08)] transition-colors"
+                          ? "border-ehs-border-ink/8 border-t transition-colors"
                           : "border-ehs-border/45 border-b last:border-b-0",
                       onRowClick ? "cursor-pointer" : "",
                       isCapa
-                        ? "hover:bg-[rgba(15,23,42,0.03)]"
+                        ? "hover:bg-ehs-surface-inverse/3"
                         : isCompliance
                           ? isSelected
-                            ? "bg-[rgba(8,145,166,0.18)]"
-                            : "hover:bg-[rgba(8,145,166,0.08)]"
+                            ? "bg-ehs-normal-blue/18"
+                            : "hover:bg-ehs-normal-blue/8"
                           : isSelected
                             ? "bg-ehs-normal-blue/18"
                             : "hover:bg-ehs-normal-blue/18",
@@ -242,7 +242,7 @@ export function Table<TData>(props: TableProps<TData>) {
 }
 
 const pageButtonClass =
-  "text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 text-ehs-gray border-ehs-border bg-ehs-surface hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 function TablePaginationBar(
   props: Readonly<
@@ -279,7 +279,7 @@ function TablePaginationBar(
       className={[
         "flex flex-wrap items-center justify-between gap-3 border-t py-3",
         isCompliance
-          ? "border-[rgba(15,23,42,0.08)] px-[16px]"
+          ? "border-ehs-border-ink/8 px-[16px]"
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >

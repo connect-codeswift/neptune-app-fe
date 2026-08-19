@@ -9,7 +9,7 @@ export type AcknowledgeCommentsCardProps = Readonly<{
 }>;
 
 const glassCardClass =
-  "relative w-full min-w-0 overflow-hidden rounded-4 border-b border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative w-full min-w-0 overflow-hidden rounded-4 border-b border-ehs-border-ink/8 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:content-['']";
 
 /**
  * Optional comments textarea (Figma 5568:25373).

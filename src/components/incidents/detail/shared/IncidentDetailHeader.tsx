@@ -100,8 +100,8 @@ export function IncidentDetailHeader(
                     isLoading={isSaving}
                     className={
                       isEditing
-                        ? "bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:opacity-50"
-                        : "text-ehs-slate rounded-2.5 text4 border border-[rgba(15,23,42,0.14)] bg-white px-4 py-2 font-medium transition-colors hover:bg-white/70 disabled:opacity-50"
+                        ? "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:opacity-50"
+                        : "text-ehs-slate rounded-2.5 text4 border-ehs-border-strong bg-ehs-surface hover:bg-ehs-surface/70 border px-4 py-2 font-medium transition-colors disabled:opacity-50"
                     }
                   >
                     {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
@@ -112,7 +112,7 @@ export function IncidentDetailHeader(
           </div>
 
           {/* Horizontal Tabs List */}
-          <div className="mt-4 flex scrollbar-none overflow-x-auto border-b border-[rgba(15,23,42,0.08)]">
+          <div className="border-ehs-border-ink/8 mt-4 flex scrollbar-none overflow-x-auto border-b">
             <nav className="flex gap-6 px-1 whitespace-nowrap">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;

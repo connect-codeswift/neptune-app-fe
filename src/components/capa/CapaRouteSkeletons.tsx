@@ -3,7 +3,7 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const glassCardClass =
-  "relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-['']";
 
 function PageShell(
   props: Readonly<{
@@ -47,7 +47,7 @@ function DetailHeaderSkeleton() {
           </div>
           <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
             <Skeleton className="rounded-2.5 h-9 w-20" />
-            <Skeleton className="rounded-2.5 h-9 w-32 bg-[#0891a6]/25" />
+            <Skeleton className="rounded-2.5 bg-ehs-normal-blue/25 h-9 w-32" />
           </div>
         </div>
       </div>
@@ -102,7 +102,7 @@ function SidebarSkeleton() {
 function TabsPanelSkeleton() {
   return (
     <div className="flex min-w-0 flex-col">
-      <div className="flex gap-0 overflow-x-auto border-b border-white/90">
+      <div className="border-ehs-hairline/90 flex gap-0 overflow-x-auto border-b">
         {Array.from({ length: 4 }).map((_, index) => (
           <Skeleton
             key={index}
@@ -172,7 +172,7 @@ export function CapaVerificationSkeleton() {
           <Skeleton className="h-28 w-full rounded-xl" />
           <div className="mt-2 flex flex-wrap justify-end gap-2">
             <Skeleton className="h-10 w-24 rounded-xl" />
-            <Skeleton className="h-10 w-40 rounded-xl bg-[#10b981]/25" />
+            <Skeleton className="bg-ehs-green/25 h-10 w-40 rounded-xl" />
           </div>
         </div>
       </div>
@@ -217,7 +217,7 @@ export function CapaRcaSkeleton() {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-1 border-t border-[rgba(15,23,42,0.08)] md:grid-cols-3">
+          <div className="border-ehs-border-ink/8 grid grid-cols-1 border-t md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="flex gap-3 px-4 py-4 sm:px-6">
                 <Skeleton className="size-9 shrink-0 rounded-lg" />
@@ -228,7 +228,7 @@ export function CapaRcaSkeleton() {
               </div>
             ))}
           </div>
-          <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-4 py-4 sm:px-6">
+          <div className="border-ehs-border-ink/8 flex items-start gap-3 border-t px-4 py-4 sm:px-6">
             <Skeleton className="size-9 shrink-0 rounded-lg" />
             <div className="flex min-w-0 flex-1 flex-col gap-2">
               <Skeleton className="h-3 w-32 rounded-md opacity-60" />
@@ -302,11 +302,11 @@ export function CapaCreateSkeleton() {
             </div>
           </section>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#cfd6d9] px-6 py-5 md:px-8">
+        <div className="border-ehs-border flex flex-wrap items-center justify-between gap-3 border-t px-6 py-5 md:px-8">
           <Skeleton className="h-4 w-40 rounded-md opacity-50" />
           <div className="flex flex-wrap gap-2">
             <Skeleton className="h-10 w-24 rounded-xl" />
-            <Skeleton className="h-10 w-32 rounded-xl bg-[#0891a6]/25" />
+            <Skeleton className="bg-ehs-normal-blue/25 h-10 w-32 rounded-xl" />
           </div>
         </div>
       </IncidentGlassCard>

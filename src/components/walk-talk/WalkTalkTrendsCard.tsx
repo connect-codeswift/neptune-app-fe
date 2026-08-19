@@ -31,6 +31,8 @@ const WalkTalkTrendsChart = dynamic(
 );
 
 /** Owned here so the legend below and the chart cannot drift apart. */
+/* Reaches the chart as `stroke=` / `fill=` on SVG marks, and `var()` is not
+   valid in a presentation attribute, so it stays literal hex. */
 const SESSIONS_COLOR = "#0891a6";
 
 function LegendItem(props: Readonly<{ color: string; label: string }>) {

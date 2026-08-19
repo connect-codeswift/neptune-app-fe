@@ -3,20 +3,18 @@
 import { useMemo, useState } from "react";
 import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
-import {
-  AccountSettingsShell,
-  settingsLabelClass,
-} from "@/components/profile/AccountSettingsShell";
+import { SettingsShell } from "@/components/settings/SettingsShell";
 import {
   DEFAULT_EMERGENCY_CONTACT,
   DEFAULT_PROFILE_FORM,
   NOTIFICATION_PREFERENCES,
   splitDisplayName,
   type NotificationPreferenceKey,
-} from "@/components/profile/account-settings-data";
+} from "@/components/settings/profile-settings-data";
 import { ToggleSwitch } from "@/components/profile/ToggleSwitch";
 import { CardHeading } from "@/components/CardHeading";
 import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 import { useUpdateMyProfileMutation } from "@/hooks/use-profile-avatar";
@@ -65,7 +63,10 @@ function buildInitialFormState(
   };
 }
 
-export function AccountSettingsProfileClient() {
+/** Sentence-case form labels, matching the other settings tabs. */
+const settingsLabelClass = "text7 text-ehs-darker block";
+
+export function ProfileSettingsClient() {
   const { user, sites } = useSessionBootstrap();
   const currentUser = getCurrentUser();
   const updateProfile = useUpdateMyProfileMutation();
@@ -136,10 +137,29 @@ export function AccountSettingsProfileClient() {
   };
 
   return (
-    <AccountSettingsShell
-      activeTab="profile"
-      onSave={handleSave}
-      onCancel={handleCancel}
+    <SettingsShell
+      activeSection="profile"
+      actions={
+        <>
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={updateProfile.isPending}
+            className="text4 text-ehs-darker hover:text-ehs-gray cursor-pointer bg-transparent px-1 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <Button
+            type="button"
+            variant="primary"
+            className="text4 rounded-lg px-5 py-2.5"
+            onClick={handleSave}
+            isLoading={updateProfile.isPending}
+          >
+            {updateProfile.isPending ? "Saving…" : "Save changes"}
+          </Button>
+        </>
+      }
     >
       <GlassCard>
         <CardHeading title="Profile Photo" />
@@ -254,6 +274,6 @@ export function AccountSettingsProfileClient() {
           </div>
         </GlassCard>
       </div>
-    </AccountSettingsShell>
+    </SettingsShell>
   );
 }

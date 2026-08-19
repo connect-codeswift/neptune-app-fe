@@ -256,7 +256,7 @@ export function ReportLocationsField(
         />
 
         {open ? (
-          <div className="animate-popover-in rounded-2.5 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+          <div className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
             <ul
               id={listboxId}
               role="listbox"
@@ -277,8 +277,8 @@ export function ReportLocationsField(
                       className={[
                         "rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-[14px] transition-colors",
                         selected
-                          ? "text-ehs-dark-blue bg-[rgba(8,145,166,0.1)] font-semibold"
-                          : "text-ehs-dark-bg hover:bg-[rgba(8,145,166,0.06)]",
+                          ? "text-ehs-dark-blue bg-ehs-normal-blue/10 font-semibold"
+                          : "text-ehs-dark-bg hover:bg-ehs-normal-blue/6",
                       ].join(" ")}
                     >
                       <span className="min-w-0 flex-1 truncate">
@@ -297,7 +297,7 @@ export function ReportLocationsField(
               })}
             </ul>
 
-            <div className="border-t border-[rgba(15,23,42,0.08)] p-2">
+            <div className="border-ehs-border-ink/8 border-t p-2">
               {isAdding ? (
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
@@ -325,12 +325,12 @@ export function ReportLocationsField(
                           setAddError(null);
                         }
                       }}
-                      className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:ring-2"
+                      className="border-ehs-border text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 bg-ehs-surface min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2"
                     />
                     <button
                       type="button"
                       onClick={commitCustom}
-                      className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-light-text shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold transition-colors"
+                      className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-bold transition-colors"
                     >
                       Add
                     </button>
@@ -345,7 +345,7 @@ export function ReportLocationsField(
                 <button
                   type="button"
                   onClick={() => setIsAdding(true)}
-                  className="text-ehs-normal-blue hover:text-ehs-dark-blue rounded-2 inline-flex w-full cursor-pointer items-center gap-1 px-2 py-2 text-sm font-semibold transition-colors hover:bg-[rgba(8,145,166,0.06)]"
+                  className="text-ehs-normal-blue hover:text-ehs-dark-blue rounded-2 hover:bg-ehs-normal-blue/6 inline-flex w-full cursor-pointer items-center gap-1 px-2 py-2 text-sm font-semibold transition-colors"
                 >
                   <Icon
                     icon="mdi:plus"

@@ -173,7 +173,7 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
               left: position.left,
               width: position.width,
             }}
-            className="rounded-2.5 fixed z-120 max-h-52 overflow-y-auto border border-[rgba(15,23,42,0.1)] bg-white p-1 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
+            className="rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface fixed z-120 max-h-52 overflow-y-auto border p-1 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14)]"
           >
             {options.map((option) => {
               const selected = value.includes(option.value);
@@ -185,16 +185,16 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
                     className={[
                       "text-3.5 rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left transition-colors",
                       selected
-                        ? "bg-[rgba(8,145,166,0.12)] text-[#056e7e]"
-                        : "text-[#0b1320] hover:bg-[rgba(15,23,42,0.04)]",
+                        ? "bg-ehs-normal-blue/12 text-ehs-dark-blue"
+                        : "text-ehs-dark-bg hover:bg-ehs-surface-inverse/4",
                     ].join(" ")}
                   >
                     <span
                       className={[
                         "inline-flex size-4 shrink-0 items-center justify-center rounded border",
                         selected
-                          ? "border-[#0891a6] bg-[#0891a6] text-white"
-                          : "border-[rgba(15,23,42,0.2)] bg-white",
+                          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
+                          : "border-ehs-border-strong bg-ehs-surface",
                       ].join(" ")}
                       aria-hidden="true"
                     >
@@ -231,10 +231,10 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
         }}
         onKeyDown={onTriggerKeyDown}
         className={[
-          "rounded-2.5 backdrop-blur-1.25 flex w-full min-w-0 items-center gap-2 border border-[rgba(15,23,42,0.08)] bg-white/55 px-3 py-1.5 transition-colors outline-none hover:border-[rgba(15,23,42,0.18)] hover:bg-white/70",
+          "rounded-2.5 backdrop-blur-1.25 border-ehs-border-ink/8 bg-ehs-surface/55 hover:border-ehs-border-ink/18 hover:bg-ehs-surface/70 flex w-full min-w-0 items-center gap-2 border px-3 py-1.5 transition-colors outline-none",
           open
-            ? "ring-0.75 border-[#0891a6] ring-[#0891a6]/15"
-            : "focus-visible:ring-0.75 focus-visible:border-[#0891a6] focus-visible:ring-[#0891a6]/15",
+            ? "ring-0.75 border-ehs-normal-blue ring-ehs-normal-blue/15"
+            : "focus-visible:ring-0.75 focus-visible:border-ehs-normal-blue focus-visible:ring-ehs-normal-blue/15",
           selectedOptions.length > 0 ? "min-h-9" : "h-9 sm:h-9",
           disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           className,
@@ -244,14 +244,14 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
           {selectedOptions.length === 0 ? (
-            <Text as="span" className="text-3.5 text-[#8892a3]">
+            <Text as="span" className="text-3.5 text-ehs-muted-text">
               {placeholder}
             </Text>
           ) : (
             selectedOptions.map((option) => (
               <span
                 key={option.value}
-                className="inline-flex max-w-full items-center gap-1 rounded-md bg-white/90 py-0.5 pr-0.5 pl-1.5 text-xs leading-4 font-medium text-[#0b1320] ring-1 ring-[rgba(15,23,42,0.1)]"
+                className="bg-ehs-surface/90 text-ehs-dark-bg ring-ehs-border inline-flex max-w-full items-center gap-1 rounded-md py-0.5 pr-0.5 pl-1.5 text-xs leading-4 font-medium ring-1"
               >
                 <span className="truncate">{option.label}</span>
                 <button
@@ -262,7 +262,7 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
                     event.stopPropagation();
                     removeValue(option.value);
                   }}
-                  className="inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-[#8892a3] transition-colors hover:bg-[rgba(15,23,42,0.06)] hover:text-[#0b1320] disabled:cursor-not-allowed"
+                  className="text-ehs-muted-text hover:bg-ehs-surface-inverse/6 hover:text-ehs-dark-bg inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded transition-colors disabled:cursor-not-allowed"
                 >
                   <Icon
                     icon="mdi:close"
@@ -276,7 +276,7 @@ export function MultiSelectInput(props: Readonly<MultiSelectInputProps>) {
         </div>
         <Icon
           icon={open ? "mdi:chevron-up" : "mdi:chevron-down"}
-          className="size-4 shrink-0 text-[#8892a3]"
+          className="text-ehs-muted-text size-4 shrink-0"
           aria-hidden="true"
         />
       </div>

@@ -13,7 +13,7 @@ export type HazcomPagerProps = Readonly<{
 }>;
 
 const pageButtonClass =
-  "text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-ehs-surface px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 /**
  * Pager for the HazCom list endpoints, which all page the same way

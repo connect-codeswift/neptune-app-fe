@@ -36,7 +36,7 @@ export function IncidentDetailAiCard(
   return (
     <div
       className={[
-        "rounded-5 border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light backdrop-blur-2.5 flex flex-col gap-1.75 border p-4.75 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_-12px_rgba(15,23,42,0.14)]",
+        "rounded-5 border-ehs-normal-blue/30 bg-ehs-dark-blue-bg-light backdrop-blur-2.5 flex flex-col gap-1.75 border p-4.75 shadow-(--ehs-shadow-card-flat)",
         className,
       ]
         .filter(Boolean)

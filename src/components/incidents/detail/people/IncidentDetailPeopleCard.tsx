@@ -36,7 +36,7 @@ function responderBadgeClass(tone: ResponderMember["badgeTone"]): string {
   if (tone === "teal" || tone === "green" || tone === "blue") {
     return "bg-ehs-dark-blue-bg-light text-ehs-dark-blue";
   }
-  return "bg-ehs-dark-bg/14 text-ehs-gray";
+  return "bg-ehs-surface-inverse/14 text-ehs-gray";
 }
 
 function editableDisplayValue(value: string): string {
@@ -147,14 +147,14 @@ export function IncidentDetailPeopleCard(
                   aria-label="Injury level"
                 />
               ) : (
-                <span className="bg-ehs-dark-bg/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
+                <span className="bg-ehs-surface-inverse/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
                   {affectedInjuryLabel}
                 </span>
               )}
             </div>
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
-              <div className="rounded-2.5 flex flex-col gap-0.75 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
+              <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Body part</span>
                 {isEditing ? (
                   <input
@@ -170,7 +170,7 @@ export function IncidentDetailPeopleCard(
                   </span>
                 )}
               </div>
-              <div className="rounded-2.5 flex flex-col gap-0.75 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
+              <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Treatment</span>
                 {isEditing ? (
                   <input
@@ -188,7 +188,7 @@ export function IncidentDetailPeopleCard(
                   </span>
                 )}
               </div>
-              <div className="rounded-2.5 flex flex-col gap-0.75 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] p-3.25">
+              <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Days away</span>
                 <span className="text-ehs-dark-bg text4 leading-normal">
                   {daysAway}
@@ -217,7 +217,7 @@ export function IncidentDetailPeopleCard(
         </div>
 
         {responders.length === 0 ? (
-          <div className="text-ehs-muted-text text4 border-t border-[rgba(15,23,42,0.08)] py-6 text-center">
+          <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
             No responders returned by the API.
           </div>
         ) : (
@@ -228,7 +228,7 @@ export function IncidentDetailPeopleCard(
               // every keystroke. ResponderMember carries no stable id, and the
               // list is not reordered or filtered while editing.
               key={index}
-              className="flex items-center gap-3 border-t border-[rgba(15,23,42,0.08)] pt-3.25 pb-3"
+              className="border-ehs-border-ink/8 flex items-center gap-3 border-t pt-3.25 pb-3"
             >
               <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 rounded-2.5 flex size-8.5 shrink-0 items-center justify-center">
                 {person.initials}

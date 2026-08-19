@@ -89,7 +89,7 @@ function ProgressMeter(props: Readonly<{ value: number; compact?: boolean }>) {
   return (
     <div className="flex min-w-0 items-center gap-2">
       <span
-        className="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-[rgba(11,19,32,0.08)]"
+        className="bg-ehs-surface-inverse/8 h-1.5 w-16 shrink-0 overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <span
@@ -259,7 +259,7 @@ export function createCapaColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-[rgba(11,19,32,0.06)]",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
             ].join(" ")}
             aria-label={
               isOpen

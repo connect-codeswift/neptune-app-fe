@@ -19,15 +19,15 @@ import { toast } from "@/lib/toast";
 
 const CAPA_ROUTE = "/dashboard/capa";
 
-const crumbMuted = "text-sm font-medium leading-[16.5px] text-[#566072]";
+const crumbMuted = "text-sm font-medium leading-[16.5px] text-ehs-gray";
 const crumbLink =
-  "text-sm font-medium leading-[16.5px] text-[#8892a3] transition-colors hover:text-ehs-gray";
+  "text-sm font-medium leading-[16.5px] text-ehs-muted-text transition-colors hover:text-ehs-gray";
 
 function Chevron() {
   return (
     <Icon
       icon="mdi:chevron-right"
-      className="size-2.75 shrink-0 text-[#8892a3]"
+      className="size-2.75 shrink-0 text-ehs-muted-text"
       aria-hidden
     />
   );
@@ -131,7 +131,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
 
   return (
     <>
-      <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 px-4 pt-3.5 pb-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5">
+      <div className="backdrop-blur-2.5 relative flex flex-col gap-1.5 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 pt-3.5 pb-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl  before:content-[''] sm:px-5.5">
         <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
           <nav
             aria-label="Breadcrumb"
@@ -167,7 +167,7 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                     {record.priority}
                   </span>
                 </div>
-                <Text as="p" className="text-sm leading-4.5 text-[#8892a3]">
+                <Text as="p" className="text-sm leading-4.5 text-ehs-muted-text">
                   {record.title}
                 </Text>
               </div>

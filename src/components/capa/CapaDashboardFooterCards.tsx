@@ -87,9 +87,9 @@ export function CapaDashboardFooterCards() {
                     {String(owner.openCount)}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+                <div className="bg-ehs-surface-inverse/8 h-1.5 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-[#0891a6]"
+                    className="bg-ehs-normal-blue h-full rounded-full"
                     style={{
                       width: `${String((owner.openCount / maxOpen) * 100)}%`,
                     }}
@@ -114,7 +114,7 @@ export function CapaDashboardFooterCards() {
               Closed actions pending verification
             </Text>
           </div>
-          <span className="inline-flex rounded-full bg-[rgba(245,158,11,0.14)] px-2.5 py-1 text-xs font-semibold text-[#d97706]">
+          <span className="bg-ehs-yellow/14 text-ehs-yellow-ink-soft inline-flex rounded-full px-2.5 py-1 text-xs font-semibold">
             {`${String(CAPA_PENDING_REVIEWS.length)} pending`}
           </span>
         </div>
@@ -123,9 +123,9 @@ export function CapaDashboardFooterCards() {
           {CAPA_PENDING_REVIEWS.map((review) => (
             <li
               key={review.id}
-              className="flex items-center gap-3 border-b border-[rgba(15,23,42,0.06)] py-3 last:border-b-0"
+              className="border-ehs-border-ink/6 flex items-center gap-3 border-b py-3 last:border-b-0"
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[rgba(245,158,11,0.14)] text-[#d97706]">
+              <span className="bg-ehs-yellow/14 text-ehs-yellow-ink-soft flex size-10 shrink-0 items-center justify-center rounded-full">
                 <Icon icon="mdi:clipboard-check-outline" className="size-5" />
               </span>
               <div className="min-w-0 flex-1">

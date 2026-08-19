@@ -353,7 +353,7 @@ export function IncidentListTable<
               <tr>
                 <td
                   colSpan={Math.max(columns.length, 1)}
-                  className="border-t border-[rgba(15,23,42,0.08)] px-4 py-10 text-center"
+                  className="border-ehs-border-ink/8 border-t px-4 py-10 text-center"
                 >
                   <Text as="p" className="text-ehs-muted-text text-sm">
                     No rows to display.
@@ -387,7 +387,7 @@ export function IncidentListTable<
                     }
                     className={[
                       handleRowClick ? "cursor-pointer" : "",
-                      "border-t border-[rgba(15,23,42,0.08)] transition-colors",
+                      "border-ehs-border-ink/8 border-t transition-colors",
                       isSelected
                         ? "bg-ehs-normal-blue/18"
                         : handleRowClick

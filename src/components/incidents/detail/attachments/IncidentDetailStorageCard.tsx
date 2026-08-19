@@ -37,7 +37,7 @@ export function IncidentDetailStorageCard(
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="relative h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.06)]">
+        <div className="bg-ehs-surface-inverse/6 relative h-2 w-full overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full transition-all duration-300"
             style={{ width: `${String(percentage)}%` }}

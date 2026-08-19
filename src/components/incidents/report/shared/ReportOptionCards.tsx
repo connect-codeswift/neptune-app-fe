@@ -28,7 +28,7 @@ export type ReportOptionCardsProps<T extends string = string> = Readonly<{
 }>;
 
 const FOCUS_RING =
-  "outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+  "outline-none focus-visible:ring-2 focus-visible:ring-ehs-normal-blue/45 focus-visible:ring-offset-2 focus-visible:ring-offset-ehs-surface";
 
 export function ReportOptionCards<T extends string>(
   props: Readonly<ReportOptionCardsProps<T>>,
@@ -149,8 +149,8 @@ export function ReportOptionCards<T extends string>(
                   "rounded-2.5 flex min-h-14.25 cursor-pointer flex-col items-start gap-0.5 border p-3.25 text-left transition-all duration-200",
                   FOCUS_RING,
                   isSelected
-                    ? "border-ehs-normal-blue bg-ehs-normal-blue/18 shadow-[0_0_0_1px_rgba(8,145,166,0.12)]"
-                    : "border-[rgba(15,23,42,0.08)] bg-white/62 hover:border-[rgba(15,23,42,0.16)] hover:bg-white/80",
+                    ? "border-ehs-normal-blue bg-ehs-normal-blue/18 shadow-[0_0_0_1px_color-mix(in_oklab,var(--ehs-normal-blue)_12%,transparent)]"
+                    : "border-ehs-border bg-ehs-surface/62 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
                 ].join(" ")}
               >
                 <span
@@ -183,7 +183,7 @@ export function ReportOptionCards<T extends string>(
                 FOCUS_RING,
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/[0.10] text-ehs-dark-blue font-bold"
-                  : "text-ehs-gray hover:text-ehs-dark-bg border-[rgba(15,23,42,0.10)] bg-white/[0.62] font-semibold hover:border-[rgba(15,23,42,0.22)]",
+                  : "text-ehs-gray hover:text-ehs-dark-bg border-ehs-border-ink/10 bg-ehs-surface/[0.62] hover:border-ehs-border-ink/22 font-semibold",
               ].join(" ")}
             >
               {option.label}

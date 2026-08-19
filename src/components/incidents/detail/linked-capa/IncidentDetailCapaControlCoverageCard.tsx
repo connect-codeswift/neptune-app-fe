@@ -38,7 +38,7 @@ export function IncidentDetailCapaControlCoverageCard(
     <IncidentGlassCard
       paddingClassName="p-4.75"
       incidentGlassCardClassName="gap-0"
-      className={["bg-white/62", className].filter(Boolean).join(" ")}
+      className={["bg-ehs-surface/62", className].filter(Boolean).join(" ")}
     >
       <div className="flex flex-col gap-0.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
@@ -84,7 +84,7 @@ export function IncidentDetailCapaControlCoverageCard(
       </div>
 
       {!isLoading && noticeMessage ? (
-        <div className="rounded-2.5 bg-ehs-dark-bg/14 text8 text-ehs-slate border border-[rgba(11,19,32,0.35)] px-3.25 pt-3 pb-3.25 leading-[16.5px]">
+        <div className="rounded-2.5 bg-ehs-surface-inverse/14 text8 text-ehs-slate border-ehs-border-ink/35 border px-3.25 pt-3 pb-3.25 leading-[16.5px]">
           <span className="font-bold">{noticeLead}</span> {noticeRest}
         </div>
       ) : null}

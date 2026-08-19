@@ -17,7 +17,7 @@ export function IncidentClosureMetadataCard(
     <IncidentGlassCard
       paddingClassName="p-5.5"
       incidentGlassCardClassName="gap-4"
-      className="backdrop-blur-2.5 h-fit bg-white/[0.62] shadow-none"
+      className="backdrop-blur-2.5 bg-ehs-surface/[0.62] h-fit shadow-none"
     >
       <div className="flex items-center justify-between">
         <Text
@@ -26,7 +26,7 @@ export function IncidentClosureMetadataCard(
         >
           Closure Metadata
         </Text>
-        <span className="text8 text-ehs-gray rounded bg-[rgba(15,23,42,0.08)] px-2 py-0.5 font-semibold">
+        <span className="text8 text-ehs-gray bg-ehs-surface-inverse/8 rounded px-2 py-0.5 font-semibold">
           Auto-generated
         </span>
       </div>

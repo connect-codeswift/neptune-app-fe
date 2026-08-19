@@ -136,13 +136,13 @@ export function UploadDocumentDropzone(
         className={[
           "rounded-4 flex min-h-35 w-full flex-col items-center justify-center border-2 border-dashed px-4 py-6 transition-colors sm:min-h-42.75 sm:px-8 sm:py-8 lg:min-h-50 lg:py-10",
           isUploading
-            ? "cursor-wait border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
+            ? "cursor-wait border-ehs-normal-blue bg-ehs-normal-blue/6"
             : "cursor-pointer",
           !isUploading && dragActive
-            ? "border-[#0891a6] bg-[rgba(8,145,166,0.06)]"
+            ? "border-ehs-normal-blue bg-ehs-normal-blue/6"
             : "",
           !isUploading && !dragActive
-            ? "border-[rgba(15,23,42,0.1)] bg-transparent hover:border-[rgba(8,145,166,0.45)] hover:bg-[rgba(8,145,166,0.03)]"
+            ? "border-ehs-border-ink/10 bg-transparent hover:border-ehs-normal-blue/45 hover:bg-ehs-normal-blue/3"
             : "",
         ]
           .filter(Boolean)

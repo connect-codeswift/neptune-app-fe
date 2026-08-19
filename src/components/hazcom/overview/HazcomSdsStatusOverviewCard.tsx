@@ -124,7 +124,7 @@ export function HazcomSdsStatusOverviewCard(
                   {String(row.value)}
                 </Text>
               </div>
-              <div className="bg-ehs-dark-bg/8 relative h-1.5 overflow-hidden rounded-full">
+              <div className="bg-ehs-surface-inverse/8 relative h-1.5 overflow-hidden rounded-full">
                 <div
                   className={[
                     "absolute top-0 left-0 h-full rounded-full transition-all",

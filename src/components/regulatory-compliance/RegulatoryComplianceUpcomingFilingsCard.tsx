@@ -38,13 +38,13 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`filing-skeleton-${String(index)}`}
-                className="flex h-[37px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
+                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <div className="rounded-1.5 h-3.5 w-10 animate-pulse bg-[#e2e8f0]" />
-                  <div className="rounded-1.5 h-4.25 min-w-0 flex-1 animate-pulse bg-[#e2e8f0]" />
+                  <div className="rounded-1.5 h-3.5 w-10 animate-pulse bg-ehs-border" />
+                  <div className="rounded-1.5 h-4.25 min-w-0 flex-1 animate-pulse bg-ehs-border" />
                 </div>
-                <div className="h-5 w-14 animate-pulse rounded-full bg-[#e2e8f0]" />
+                <div className="h-5 w-14 animate-pulse rounded-full bg-ehs-border" />
               </div>
             ))}
           </div>
@@ -57,7 +57,7 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             {filings.map((item) => (
               <div
                 key={item.id}
-                className="flex h-[37px] items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)]"
+                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Text

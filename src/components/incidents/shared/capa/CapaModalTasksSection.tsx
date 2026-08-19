@@ -44,7 +44,7 @@ function ChecklistRow(
   const { task, priority, onRemove } = props;
 
   return (
-    <div className="flex items-center gap-3 border-b border-[rgba(15,23,42,0.08)] px-3.5 py-3 last:border-b-0">
+    <div className="border-ehs-border-ink/8 flex items-center gap-3 border-b px-3.5 py-3 last:border-b-0">
       <p className="text-ehs-dark-bg min-w-0 flex-1 text-sm leading-[19.5px]">
         {task}
       </p>
@@ -103,7 +103,7 @@ export function CapaModalTasksSection(
       </div>
 
       {hasTasks ? (
-        <div className="overflow-hidden rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80">
+        <div className="border-ehs-border-ink/8 bg-ehs-surface/80 overflow-hidden rounded-xl border">
           {isEditMode
             ? savedTasks.map((taskItem) => (
                 <ChecklistRow

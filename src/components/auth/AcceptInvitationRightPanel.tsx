@@ -349,7 +349,7 @@ export default function AcceptInvitationRightPanel() {
             </p>
           </div>
 
-          <div className="border-ehs-border flex flex-col items-center gap-3 rounded-xl border bg-white p-4">
+          <div className="border-ehs-border bg-ehs-surface flex flex-col items-center gap-3 rounded-xl border p-4">
             {qrDataUrl ? (
               /* `qrDataUrl` is a client-generated data: URI — nothing for
                  next/image to fetch or optimise. */

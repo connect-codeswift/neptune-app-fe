@@ -74,12 +74,12 @@ export function IhCreateSamplingPlanView() {
               className="gap-4.5"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel
@@ -90,7 +90,7 @@ export function IhCreateSamplingPlanView() {
                   type="button"
                   variant="tertiary"
                   onClick={handleSaveDraft}
-                  className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                  className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
                 >
                   Save as Draft
                 </Button>

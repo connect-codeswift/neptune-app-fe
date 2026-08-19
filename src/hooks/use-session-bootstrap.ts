@@ -193,6 +193,10 @@ export function useSessionBootstrap() {
       organizationName: session?.organizationName ?? null,
       organizationId:
         session?.organizationId ?? authContext?.organizationId ?? null,
+      /** Two-factor state, for the Security screen's toggle. False until Org/me resolves. */
+      mfaEnabled: session?.mfaEnabled ?? false,
+      /** True once the user has turned down the optional MFA offer. */
+      mfaPromptDismissed: session?.mfaPromptDismissed ?? false,
     },
     activatedModules,
     permissions,

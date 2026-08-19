@@ -217,15 +217,15 @@ export function ReportIncidentStepFive(
           </div>
 
           {/* Section 1: Top nested summary card */}
-          <div className="rounded-3 flex flex-col gap-2.5 border border-[rgba(15,23,42,0.08)] bg-white/42 p-4">
+          <div className="rounded-3 border-ehs-border-ink/8 bg-ehs-surface/42 flex flex-col gap-2.5 border p-4">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {severityBadge}
               </span>
-              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {typeBadge}
               </span>
-              <span className="text-ehs-gray rounded-1.5 bg-[rgba(15,23,42,0.06)] px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
+              <span className="text-ehs-gray rounded-1.5 bg-ehs-surface-inverse/6 px-2.5 py-1 text-xs font-bold tracking-[0.2px]">
                 {siteBadge}
               </span>
             </div>
@@ -319,7 +319,7 @@ export function ReportIncidentStepFive(
 
           {/* Section 4: AI summary ready banner */}
           <div className="from-ehs-light-blue to-ehs-light-blue-hover border-ehs-normal-blue/15 rounded-3 flex items-start gap-3 border bg-linear-to-r p-3.5">
-            <div className="text-ehs-normal-blue rounded-1.5 mt-0.5 flex size-5 shrink-0 items-center justify-center bg-white shadow-sm">
+            <div className="text-ehs-normal-blue rounded-1.5 bg-ehs-surface mt-0.5 flex size-5 shrink-0 items-center justify-center shadow-sm">
               <Icon icon="mdi:creation-outline" className="size-3.5" />
             </div>
             <div className="flex min-w-0 flex-col gap-0.5">
@@ -338,7 +338,7 @@ export function ReportIncidentStepFive(
         </div>
 
         {/* Form Bottom Toolbar Actions */}
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
+        <div className="border-ehs-border-ink/8 border-t pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
@@ -365,7 +365,7 @@ export function ReportIncidentStepFive(
               variant="primary"
               onClick={() => void handleSubmit()}
               disabled={createIncidentMutation.isPending}
-              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
               {createIncidentMutation.isPending ? (
                 <>

@@ -16,6 +16,9 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 
+/* The analyte chip fill is pinned to #f3f4f6, a neutral grey rather than the
+   blue-tinted `--ehs-surface-raised` (#f8fafc). */
+
 function DetailField(
   props: Readonly<{ label: string; value: string; className?: string }>,
 ) {
@@ -27,11 +30,11 @@ function DetailField(
     >
       <Text
         as="span"
-        className="text-xs font-semibold tracking-wide text-[#8892a3] uppercase"
+        className="text-ehs-muted-text text-xs font-semibold tracking-wide uppercase"
       >
         {props.label}
       </Text>
-      <Text as="p" className="text-sm font-medium text-[#0b1320]">
+      <Text as="p" className="text-ehs-dark-bg text-sm font-medium">
         {props.value}
       </Text>
     </div>
@@ -54,7 +57,7 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
           className="min-w-0 rounded-2xl"
           incidentGlassCardClassName="gap-6"
         >
-          <Text as="h2" className="text-base font-bold text-[#0b1320]">
+          <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
             Plan Details
           </Text>
 
@@ -62,11 +65,11 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
             <div className="flex flex-col gap-1.5">
               <Text
                 as="span"
-                className="text-xs font-semibold tracking-wide text-[#8892a3] uppercase"
+                className="text-ehs-muted-text text-xs font-semibold tracking-wide uppercase"
               >
                 Purpose / Scope
               </Text>
-              <Text as="p" className="text-sm leading-5 text-[#566072]">
+              <Text as="p" className="text-ehs-gray text-sm leading-5">
                 {detail.purpose}
               </Text>
             </div>
@@ -94,14 +97,14 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="gap-4"
           >
-            <Text as="h2" className="text-base font-bold text-[#0b1320]">
+            <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
               Target Hazard Agents
             </Text>
             <div className="flex flex-wrap gap-2">
               {detail.agents.map((agent) => (
                 <span
                   key={agent}
-                  className="inline-flex rounded-full bg-[rgba(8,145,166,0.12)] px-2.5 py-0.5 text-xs font-semibold text-[#0891a6]"
+                  className="bg-ehs-normal-blue/12 text-ehs-normal-blue inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
                 >
                   {agent}
                 </span>
@@ -114,7 +117,7 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="gap-4"
           >
-            <Text as="h2" className="text-base font-bold text-[#0b1320]">
+            <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
               Target Work Areas
             </Text>
             <div className="flex flex-wrap gap-2">
@@ -122,13 +125,13 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
                 detail.workAreas.map((area) => (
                   <span
                     key={area}
-                    className="inline-flex rounded-full bg-[#f3f4f6] px-2.5 py-0.5 text-xs font-semibold text-[#566072]"
+                    className="text-ehs-gray inline-flex rounded-full bg-[#f3f4f6] px-2.5 py-0.5 text-xs font-semibold"
                   >
                     {area}
                   </span>
                 ))
               ) : (
-                <Text as="p" className="text-sm text-[#8892a3]">
+                <Text as="p" className="text-ehs-muted-text text-sm">
                   No work areas listed
                 </Text>
               )}
@@ -143,30 +146,30 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
         incidentGlassCardClassName="gap-5"
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Text as="h2" className="text-base font-bold text-[#0b1320]">
+          <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
             Sampling Progress
           </Text>
-          <Text as="p" className="text-sm font-semibold text-[#0891a6]">
+          <Text as="p" className="text-ehs-normal-blue text-sm font-semibold">
             {progressLabel}
           </Text>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.08)]">
+        <div className="bg-ehs-surface-inverse/8 h-2 w-full overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full"
             style={{ width: `${String(percent)}%` }}
           />
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/30">
+        <div className="border-ehs-border-ink/8 bg-ehs-surface/30 overflow-x-auto rounded-xl border">
           <table className="w-full min-w-140 border-collapse text-left text-sm">
             <thead>
-              <tr className="bg-[rgba(15,23,42,0.04)]">
+              <tr className="bg-ehs-surface-inverse/4">
                 {["Date", "Agent", "Location", "Result", "Status"].map(
                   (heading) => (
                     <th
                       key={heading}
-                      className="px-3 py-3 text-xs font-bold tracking-wide text-[#566072] uppercase"
+                      className="text-ehs-gray px-3 py-3 text-xs font-bold tracking-wide uppercase"
                     >
                       {heading}
                     </th>
@@ -179,7 +182,7 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-8 text-center text-sm text-[#8892a3]"
+                    className="text-ehs-muted-text px-4 py-8 text-center text-sm"
                   >
                     No sample results yet.
                   </td>
@@ -188,22 +191,22 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
                 detail.samples.map((sample) => (
                   <tr
                     key={sample.id}
-                    className="border-t border-[rgba(15,23,42,0.08)]"
+                    className="border-ehs-border-ink/8 border-t"
                   >
-                    <td className="px-4 py-2.5 text-sm font-medium text-[#8892a3]">
+                    <td className="text-ehs-muted-text px-4 py-2.5 text-sm font-medium">
                       {sample.date}
                     </td>
-                    <td className="px-4 py-2.5 text-sm font-semibold text-[#0b1320]">
+                    <td className="text-ehs-dark-bg px-4 py-2.5 text-sm font-semibold">
                       {sample.agent}
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[#566072]">
+                    <td className="text-ehs-gray px-4 py-2.5 text-sm">
                       {sample.location}
                     </td>
-                    <td className="px-4 py-2.5 text-sm font-bold text-[#0b1320]">
+                    <td className="text-ehs-dark-bg px-4 py-2.5 text-sm font-bold">
                       {sample.result}
                     </td>
                     <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981]">
+                      <span className="text-ehs-green inline-flex items-center gap-1 text-xs font-semibold">
                         <Icon
                           icon="mdi:check-circle"
                           className="size-3.5"
@@ -226,10 +229,10 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
           className="min-w-0 rounded-2xl"
           incidentGlassCardClassName="gap-3"
         >
-          <Text as="h2" className="text-base font-bold text-[#0b1320]">
+          <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
             Additional Notes
           </Text>
-          <Text as="p" className="text-sm leading-5 text-[#566072]">
+          <Text as="p" className="text-ehs-gray text-sm leading-5">
             {detail.notes}
           </Text>
         </IncidentGlassCard>
@@ -260,10 +263,10 @@ export function IhSamplingPlanDetailView() {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="items-center gap-3 text-center"
           >
-            <Text as="h1" className="text-lg font-bold text-[#0b1320]">
+            <Text as="h1" className="text-ehs-dark-bg text-lg font-bold">
               Plan not found
             </Text>
-            <Text as="p" className="text-sm text-[#8892a3]">
+            <Text as="p" className="text-ehs-muted-text text-sm">
               This sampling plan could not be loaded.
             </Text>
             <Button
@@ -303,7 +306,7 @@ export function IhSamplingPlanDetailView() {
               <Button
                 type="button"
                 variant="tertiary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
               >
                 <Icon
                   icon="mdi:pencil-outline"
@@ -323,7 +326,7 @@ export function IhSamplingPlanDetailView() {
               <Button
                 type="button"
                 variant="tertiary"
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-[#2a3446]"
+                className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
               >
                 <Icon
                   icon="mdi:download-outline"
