@@ -2,27 +2,106 @@
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
+import { SkeletonListRows } from "@/components/ui/skeletons";
+import type { NearMissRecognitionDto } from "@/dtos/res/near-miss-response.dto";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useNearMissRecognitionsQuery } from "@/hooks/use-near-miss-queries";
+
+/** "Mian Hamid Ur Rehman" -> "MH". Falls back to "?" for a blank name. */
+function initialsOf(name: string): string {
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "");
+
+  return letters.join("") || "?";
+}
+
+type RecognitionBodyProps = Readonly<{
+  reporters: readonly NearMissRecognitionDto[];
+  isPending: boolean;
+  isError: boolean;
+  error: unknown;
+}>;
+
+/**
+ * Rows, skeleton, error, or empty copy — sequential returns, never nested
+ * ternaries. The error branch is load-bearing: without it a 400/403/500 renders
+ * as "No reporters yet this month" and looks like an empty month.
+ */
+function RecognitionBody(props: RecognitionBodyProps) {
+  const { reporters, isPending, isError, error } = props;
+
+  if (isPending) {
+    return (
+      <div className="border-ehs-border-ink/10 border-t pt-3">
+        <SkeletonListRows rows={4} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Text
+        as="p"
+        className="text4 text-ehs-red border-ehs-border-ink/10 border-t py-2"
+      >
+        {getMutationErrorMessage(error, "Could not load top reporters.")}
+      </Text>
+    );
+  }
+
+  if (reporters.length === 0) {
+    return (
+      <Text
+        as="p"
+        className="text8 text-ehs-muted-text border-ehs-border-ink/10 border-t py-2"
+      >
+        No reporters yet this month.
+      </Text>
+    );
+  }
+
+  return (
+    <ul className="flex flex-col">
+      {reporters.map((reporter) => (
+        <li
+          key={reporter.userId}
+          className="border-ehs-border-ink/10 flex items-center gap-2.5 border-t py-3"
+        >
+          <Text
+            as="span"
+            className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold"
+          >
+            {initialsOf(reporter.userName)}
+          </Text>
+          <Text
+            as="span"
+            className="text4 text-ehs-darker min-w-0 flex-1 truncate"
+          >
+            {reporter.userName}
+          </Text>
+          <Text as="span" className="text4 text-ehs-darker tabular-nums">
+            {String(reporter.nearMissCount)}
+          </Text>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export type NearMissRecognitionCardProps = Readonly<{ className?: string }>;
 
-/**
- * "Recognition" card — top near-miss reporters for the current month.
- *
- * The reporter list is NOT wired, deliberately. It used to call
- * `GET /api/NearMiss/MonthlyNearMissUsers`, which never existed on the backend:
- * `INearMissService` exposes `GetTopNearMissUsers` and no monthly variant, and
- * route-map.md has no row for it. That call has been 404ing in production, and
- * because the card fell back to its empty state on error it displayed
- * "No reporters yet this month." — which read as a real, empty month rather
- * than a missing feature.
- *
- * Rather than keep firing a request that cannot succeed, the card now states
- * plainly that the data is unavailable. Restore `getMonthlyNearMissUsers` in
- * `near-miss.service.ts` and render the list again once the backend serves
- * `GET /api/v1/near-misses/monthly-users`.
- */
 export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
   const { className = "" } = props;
+
+  const now = new Date();
+  const recognitionsQuery = useNearMissRecognitionsQuery({
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  });
+  const reporters = recognitionsQuery.data?.dataModel ?? [];
 
   return (
     <IncidentGlassCard className={className}>
@@ -35,12 +114,12 @@ export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
         </Text>
       </header>
 
-      <Text
-        as="p"
-        className="text8 text-ehs-muted-text border-t border-ehs-border-ink/10 py-2"
-      >
-        Monthly reporter rankings are not available yet.
-      </Text>
+      <RecognitionBody
+        reporters={reporters}
+        isPending={recognitionsQuery.isPending}
+        isError={recognitionsQuery.isError}
+        error={recognitionsQuery.error}
+      />
     </IncidentGlassCard>
   );
 }

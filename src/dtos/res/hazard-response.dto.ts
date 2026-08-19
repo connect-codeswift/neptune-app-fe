@@ -47,20 +47,19 @@ export type GetHazardHeatMapResponseDto = ApiEnvelopeDto<
   HazardHeatMapCellDto[] | null
 >;
 
-/** One row of GET /api/v1/hazards/top-users. */
-export type TopHazardUserDto = {
+/** One row of GET /api/v1/hazards/recognitions. */
+export type HazardRecognitionDto = {
   userId: number;
   userName: string;
   hazardCount: number;
 };
 
-/** Matches backend response for GET /api/v1/hazards/top-users. */
-export type GetTopHazardUsersResponseDto = ApiEnvelopeDto<
-  TopHazardUserDto[] | null
->;
-
 /**
- * GET /api/v1/hazards/monthly-users?year=&month= — same row shape as
- * TopHazardUsers, scoped to one calendar month.
+ * Matches backend response for
+ * GET /api/v1/hazards/recognitions?year=&month=&limit= — the Recognition card's
+ * top reporters for one calendar month. Renamed from `monthly-users`; the two
+ * `top-users` routes it used to share a shape with are gone.
  */
-export type GetMonthlyHazardUsersResponseDto = GetTopHazardUsersResponseDto;
+export type GetHazardRecognitionsResponseDto = ApiEnvelopeDto<
+  HazardRecognitionDto[] | null
+>;

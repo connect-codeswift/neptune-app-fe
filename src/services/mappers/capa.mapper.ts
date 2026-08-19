@@ -10,6 +10,7 @@ import type {
   CapaDetailAttachment,
   CapaDetailComment,
   CapaDetailPriority,
+  CapaDetailLifecycleStage,
   CapaDetailRecord,
   CapaDetailTask,
   CapaDetailTaskStatus,
@@ -24,9 +25,11 @@ import type {
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
 import type { CapaAttachmentItemDto } from "@/dtos/res/capa-attachment-response.dto";
 import type { CapaCommentDto } from "@/dtos/res/capa-comment-response.dto";
+import type { CapaLifecycleStageDto } from "@/dtos/res/capa-detail-response.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
+import { buildCapaLifecycleStages } from "@/components/capa/detail/capa-detail-data";
 import {
   CAPA_VERIFICATION_CHECKLIST,
   createCapaVerificationInitialValues,
@@ -103,7 +106,18 @@ function normalizeStatus(dto: CapaDto): CapaItem["status"] {
     .toLowerCase()
     .replace(/[\s_-]+/g, "");
 
-  if (raw === "verified" || raw === "complete" || raw === "completed") {
+  // This panel has one bucket for "work done, not yet closed", so the API's
+  // Completed and Pending Verification both land in it. Splitting them needs a
+  // new union member and copy decisions in the incidents cards — do that with
+  // the send-for-verification work, not here. Without `pendingverification`
+  // listed, that status fell through to the priority guess at the bottom.
+  if (
+    raw === "verified" ||
+    raw === "pendingverification" ||
+    raw === "pending" ||
+    raw === "complete" ||
+    raw === "completed"
+  ) {
     return "Verified";
   }
   if (raw === "closed" || raw === "dropped") {
@@ -469,23 +483,6 @@ export function formatCapaDaysLeftLabel(
   return formatDashboardDueLabel(options?.dueDate);
 }
 
-function lifecycleStepFromStatus(status: string): number {
-  switch (status) {
-    case "Complete":
-    case "Closed":
-      return 4;
-    case "Pending":
-    case "Verified":
-      return 4;
-    case "In Progress":
-      return 3;
-    case "Open":
-      return 0;
-    default:
-      return 2;
-  }
-}
-
 /** Maps GET /api/v1/capas list rows into CAPA dashboard register items. */
 export function mapCapaDtoToDashboardItem(
   dto: CapaDto,
@@ -518,7 +515,6 @@ export function mapCapaDtoToDashboardItem(
     dueLabel,
     priority: dashboardPriority(item.priority),
     daysLeft: dueLabel,
-    lifecycleStep: lifecycleStepFromStatus(status),
     tasks: [],
   };
 }
@@ -1105,22 +1101,23 @@ export function formAttachmentValuesToDtos(
   });
 }
 
-function detailWorkflowStepFromStatus(statusLabel: string): number {
-  switch (statusLabel) {
-    case "Closed":
-    case "Complete":
-      return 6;
-    case "Verified":
-    case "Pending":
-      return 4;
-    case "In Progress":
-      return 3;
-    case "Open":
-    case "Overdue":
-      return 2;
-    default:
-      return 1;
+/**
+ * Prefer the stages the API sent; fall back to deriving them from the status
+ * only when `lifecycleStages` is absent.
+ */
+function toDetailLifecycleStages(
+  stages: readonly CapaLifecycleStageDto[] | undefined,
+  statusLabel: string,
+): readonly CapaDetailLifecycleStage[] {
+  if (!stages || stages.length === 0) {
+    return buildCapaLifecycleStages(statusLabel);
   }
+
+  return stages.map((stage) => ({
+    stage: stage.stage,
+    isCompleted: stage.isCompleted,
+    isCurrent: stage.isCurrent,
+  }));
 }
 
 /**
@@ -1133,6 +1130,7 @@ export function mapCapaApiToDetailRecord(
     currentUserId?: number;
     tasks?: readonly CapaTaskDto[];
     attachments?: readonly CapaAttachmentItemDto[];
+    lifecycleStages?: readonly CapaLifecycleStageDto[];
   }>,
 ): CapaDetailRecord {
   const tasks = options?.tasks ?? [];
@@ -1182,7 +1180,10 @@ export function mapCapaApiToDetailRecord(
         ? `Incident · ${String(dto.incidentId)}`
         : item.controlCategory,
     module: dto.incidentId > 0 ? "Incident" : "CAPA",
-    workflowStep: detailWorkflowStepFromStatus(resolvedStatusLabel),
+    lifecycleStages: toDetailLifecycleStages(
+      options?.lifecycleStages,
+      resolvedStatusLabel,
+    ),
     progress: item.progressPercent,
     problemStatement: description,
     rootCause: "Root cause analysis pending.",
