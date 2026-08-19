@@ -22,6 +22,7 @@ import {
   useInspectionSummaryQuery,
 } from "@/hooks/use-inspection-queries";
 import { mapInspectionDtoToRecord } from "@/lib/map-inspection";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   mapInspectionDetailSummaryToDetail,
   mapSummaryToMetrics,
@@ -70,6 +71,7 @@ export function InspectionsListPageClient() {
     return records.filter((record) => {
       const haystack = [
         record.id,
+        formatRecordDisplayId("I", record.id),
         record.title,
         record.scope,
         record.site,

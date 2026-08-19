@@ -222,6 +222,7 @@ export function PpeCatalogDetailContent(
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       <PpeCatalogDetailHeader
+        id={item.id}
         name={item.name}
         protectionType={item.protectionType}
       />
@@ -398,7 +399,11 @@ export function PpeCatalogNotFound(props: Readonly<PpeCatalogNotFoundProps>) {
 
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
-      <PpeCatalogDetailHeader name="Not found" protectionType="Catalog" />
+      <PpeCatalogDetailHeader
+        id={itemId}
+        name="Not found"
+        protectionType="Catalog"
+      />
       <IncidentGlassCard
         paddingClassName="p-6"
         className="min-w-0"

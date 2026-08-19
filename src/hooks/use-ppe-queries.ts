@@ -16,6 +16,7 @@ import type {
 } from "@/dtos/res/ppe-response.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getAccessToken, isApiError } from "@/lib/axios";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import {
   toPpeAcknowledgementEntries,
   toPpeCatalogDetail,
@@ -68,8 +69,7 @@ function useIsClientReady(): boolean {
 
 /** Route segment as an id the API can address, or null when it isn't one. */
 function toNumericId(idParam: string): number | null {
-  const trimmed = idParam.trim();
-  return /^\d+$/.test(trimmed) ? Number(trimmed) : null;
+  return parseRecordNumericId(idParam);
 }
 
 /**

@@ -13,7 +13,7 @@ import {
   usePpeItemDetailQuery,
   usePpeItemsQuery,
 } from "@/hooks/use-ppe-queries";
-import { toPpeInventoryItems } from "@/lib/map-ppe";
+import { formatPpeDisplayId, toPpeInventoryItems } from "@/lib/map-ppe";
 import { PpeDetailPanel } from "./PpeDetailPanel";
 import { PpeInventoryCard } from "./PpeInventoryCard";
 import { makePpeInventoryColumns } from "./PpeInventoryColumns";
@@ -37,6 +37,8 @@ function matchesSearch(item: PpeInventoryItem, query: string): boolean {
   if (!normalized) return true;
 
   return (
+    formatPpeDisplayId(item.id).toLowerCase().includes(normalized) ||
+    item.id.toLowerCase().includes(normalized) ||
     item.itemName.toLowerCase().includes(normalized) ||
     item.category.toLowerCase().includes(normalized) ||
     (item.protectionType?.toLowerCase().includes(normalized) ?? false) ||
@@ -164,7 +166,7 @@ export function PpeInventorySection() {
         <>
           <PpeSearchBarSkeleton />
           <PpeInventoryCardsSkeleton />
-          <PpeTableSkeleton rows={7} columns={6} />
+          <PpeTableSkeleton rows={7} columns={7} />
         </>
       ) : null}
 
@@ -182,7 +184,7 @@ export function PpeInventorySection() {
           <ModuleSearchBar
             value={query}
             onChange={setQuery}
-            placeholder="Search by category, supplier..."
+            placeholder="Search by ID, category, supplier..."
             aria-label="Search PPE inventory"
             resultLabel={resultLabel}
           />

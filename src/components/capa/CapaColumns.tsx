@@ -4,25 +4,26 @@ import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { CapaDashboardItem } from "@/components/capa/capa-dashboard-data";
+import { CAPA_API_STATUS, formatCapaStatusDisplay } from "@/lib/capa-filters";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const columnHelper = createColumnHelper<CapaDashboardItem>();
 
+/** Keyed on the stored status strings — see `CAPA_API_STATUS`. */
 function statusTone(status: string): IncidentBadgeTone {
-  const normalized = status
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]+/g, "");
-  if (normalized === "overdue") return "danger";
-  if (normalized === "pending" || normalized === "verified") return "warn";
-  if (normalized === "inprogress" || normalized === "open") return "teal";
-  if (
-    normalized === "complete" ||
-    normalized === "closed" ||
-    normalized === "completed"
-  )
-    return "muted";
-  return "muted";
+  switch (formatCapaStatusDisplay(status)) {
+    case CAPA_API_STATUS.overdue:
+      return "danger";
+    case CAPA_API_STATUS.pendingVerification:
+      return "warn";
+    case CAPA_API_STATUS.completed:
+      return "success";
+    case CAPA_API_STATUS.open:
+    case CAPA_API_STATUS.inProgress:
+      return "teal";
+    default:
+      return "muted";
+  }
 }
 
 function priorityTone(priority: string): IncidentBadgeTone {

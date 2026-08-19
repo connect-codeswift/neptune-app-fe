@@ -10,6 +10,14 @@ import type {
   DocumentDto,
   DocumentVersionDto,
 } from "@/dtos/res/document-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
+
+/** Display form of a document id, e.g. `42` → `"DOC-42"`. */
+export function formatDocumentDisplayId(
+  id: string | number | null | undefined,
+): string {
+  return formatRecordDisplayId("DOC", id);
+}
 
 function formatDate(value: string | null | undefined): string {
   if (!value || value.trim() === "") {
@@ -260,7 +268,9 @@ export function mapDocumentDtoToPolicyDocument(
     document.documentKind?.trim() ||
     "SOP";
   const code =
-    document.code?.trim() || document.documentCode?.trim() || `DOC-${idValue}`;
+    document.code?.trim() ||
+    document.documentCode?.trim() ||
+    formatDocumentDisplayId(idValue);
   const updated = formatDate(
     document.updatedAt ?? document.updated ?? document.createdAt,
   );

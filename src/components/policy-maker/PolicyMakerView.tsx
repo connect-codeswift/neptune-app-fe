@@ -35,6 +35,7 @@ import {
 } from "@/hooks/use-document-queries";
 import { SkeletonTable } from "@/components/ui/skeletons";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 
 type CategoryFilter = "all" | LibraryCategoryId;
 
@@ -165,8 +166,8 @@ export function PolicyMakerView() {
     if (selectedListDocument == null) {
       return null;
     }
-    const parsed = Number(selectedListDocument.id);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    const parsed = parseRecordNumericId(selectedListDocument.id);
+    return parsed != null && parsed > 0 ? parsed : null;
   }, [selectedListDocument]);
 
   const selectedDetailQuery = useDocumentByIdQuery({
@@ -274,13 +275,13 @@ export function PolicyMakerView() {
                 setSearchQuery(value);
                 setPageNumber(DEFAULT_DOCUMENTS_PAGE_NUMBER);
               }}
-              placeholder="Search by title, code, owner..."
+              placeholder="Search by ID, title, code, owner..."
               aria-label="Search documents"
               resultLabel={resultLabel}
             />
 
             {showBootLoading || showQueryLoading ? (
-              <SkeletonTable rows={8} columns={5} />
+              <SkeletonTable rows={8} columns={6} />
             ) : (
               <div
                 className={[

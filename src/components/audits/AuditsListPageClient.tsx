@@ -23,6 +23,7 @@ import {
   useAuditSummaryQuery,
 } from "@/hooks/use-audit-queries";
 import { mapAuditDtoToRecord } from "@/lib/map-audit";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   mapAuditDetailSummaryToDetail,
   mapSummaryToMetrics,
@@ -71,6 +72,7 @@ export function AuditsListPageClient() {
     return records.filter((record) => {
       const haystack = [
         record.id,
+        formatRecordDisplayId("A", record.id),
         record.title,
         record.scope,
         record.site,

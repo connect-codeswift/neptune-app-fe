@@ -22,6 +22,7 @@ import type {
   WalkTalkSessionParticipantDto,
   WalkTalkTopFindingDto,
 } from "@/dtos/res/walk-talk-response.dto";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 function asString(value: FormValues[string] | undefined): string {
   return typeof value === "string" ? value : "";
@@ -197,7 +198,7 @@ function toWalkTalkSession(dto: WalkTalkSessionDto): WalkTalkSession {
     : [];
 
   return {
-    id: `WT-${String(dto.id)}`,
+    id: formatRecordDisplayId("WT", dto.id),
     type: "Walk & Talk",
     observer: dto.observer?.trim() || dto.userName?.trim() || "—",
     focusArea: topics.length > 0 ? topics.join(", ") : "—",
@@ -287,7 +288,7 @@ export function toWalkTalkSessionDetail(
   const location = dto.location?.trim() || "—";
 
   return {
-    id: `WT-${String(dto.id)}`,
+    id: formatRecordDisplayId("WT", dto.id),
     observer: dto.observer?.trim() || dto.userName?.trim() || "—",
     date: formatSessionDate(dto.date || ""),
     time: formatSessionTime(dto.createdAt || dto.date || ""),

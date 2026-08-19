@@ -9,6 +9,7 @@ import type {
   AuditDetail,
   AuditRecord,
 } from "@/app/dashboard/audits/audits-data";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 type Segment = Readonly<{ label: string; value: number; color: string }>;
 
@@ -155,7 +156,7 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
 
   const id = detail?.id ?? record?.id ?? "";
   const title = detail?.title ?? record?.title ?? "Audit";
-  const displayCode = detail?.code ?? (id ? `A-${id}` : "—");
+  const displayCode = detail?.code ?? (id ? formatRecordDisplayId("A", id) : "—");
   const progress = detail?.progress ?? record?.progress ?? 0;
   const findingsHref = `/dashboard/audits/findings/${encodeURIComponent(id)}`;
 

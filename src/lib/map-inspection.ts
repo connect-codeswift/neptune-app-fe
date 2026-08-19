@@ -8,6 +8,7 @@ import type {
   InspectionFindingDto,
 } from "@/dtos/res/inspection-response.dto";
 import { formatRunStatus } from "@/lib/audit-inspection-status";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 const SHORT_MONTHS = [
   "Jan",
@@ -112,7 +113,7 @@ export function mapInspectionDetailToChecklist(
     }));
 
   return {
-    inspectionId: `I-${String(dto.id)}`,
+    inspectionId: formatRecordDisplayId("I", dto.id),
     subtitle: dto.inspectionTitle || dto.snapshot?.templateName || "Inspection",
     sections,
   };
@@ -184,7 +185,7 @@ export function buildInspectionReportFromDetail(
     .join(" ");
 
   return {
-    inspectionId: `I-${String(dto.id)}`,
+    inspectionId: formatRecordDisplayId("I", dto.id),
     title: dto.inspectionTitle || "Inspection report",
     scope: [snapshot?.templateName, formatLocation(dto.location ?? "")]
       .filter(Boolean)

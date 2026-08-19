@@ -17,10 +17,12 @@ import {
 import { useComplianceByIdQuery } from "@/hooks/use-compliance-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
-import { toast } from "@/lib/toast";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toUserNameLookup } from "@/lib/map-user";
+import { toast } from "@/lib/toast";
 import {
   buildMarkCompleteSuccessMessage,
+  formatComplianceDisplayId,
   normalizeComplianceUpdateResult,
 } from "@/services/mappers/compliance.mapper";
 import { RegulatoryComplianceDetailBannerCard } from "./RegulatoryComplianceDetailBannerCard";
@@ -31,8 +33,8 @@ export type RegulatoryComplianceDetailViewProps = Readonly<{
 }>;
 
 function parseComplianceId(raw: string): number | null {
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  const parsed = parseRecordNumericId(raw);
+  return parsed != null && parsed > 0 ? parsed : null;
 }
 
 export function RegulatoryComplianceDetailView(
@@ -73,7 +75,7 @@ export function RegulatoryComplianceDetailView(
     if (record.detail.status === "Compliant") {
       toast.info(
         "Already Completed",
-        `Obligation ${record.detail.code} has already been marked as complete.`,
+        `Obligation ${formatComplianceDisplayId(record.detail.id)} has already been marked as complete.`,
       );
       return;
     }
@@ -82,7 +84,7 @@ export function RegulatoryComplianceDetailView(
       onSuccess: (response) => {
         const result = normalizeComplianceUpdateResult(response);
         const message = buildMarkCompleteSuccessMessage(
-          record.detail.code,
+          formatComplianceDisplayId(record.detail.id),
           record.detail.title,
           result,
         );
@@ -106,7 +108,7 @@ export function RegulatoryComplianceDetailView(
       onSuccess: () => {
         toast.success(
           "Compliance obligation deleted",
-          `${detail.code} (${detail.title}) was removed.`,
+          `${formatComplianceDisplayId(detail.id)} (${detail.title}) was removed.`,
         );
         setIsConfirmingDelete(false);
         router.push("/dashboard/regulatory-compliance");
@@ -225,7 +227,7 @@ export function RegulatoryComplianceDetailView(
       <ConfirmDialog
         open={isConfirmingDelete}
         title="Delete compliance obligation?"
-        description={`${detail.code} (${detail.title}) will be permanently removed. This can't be undone.`}
+        description={`${formatComplianceDisplayId(detail.id)} (${detail.title}) will be permanently removed. This can't be undone.`}
         confirmLabel="Delete"
         isConfirming={deleteComplianceMutation.isPending}
         onConfirm={handleConfirmDelete}
