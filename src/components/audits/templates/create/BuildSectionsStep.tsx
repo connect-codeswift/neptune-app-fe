@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
 import {
   SCORE_WEIGHT_OPTIONS,
@@ -20,8 +21,7 @@ import {
   type TemplateSection,
 } from "./template-builder-data";
 
-const labelClass =
-  "text-ehs-muted-text text-sm font-bold tracking-wider uppercase";
+const labelClass = "text9 text-ehs-muted-text";
 
 const inputClass = FIELD_INPUT_LG_CLASS;
 
@@ -38,10 +38,10 @@ function IconButton(
 
   const toneClass =
     tone === "active"
-      ? "bg-ehs-normal-blue text-white"
+      ? "bg-ehs-normal-blue text-ehs-on-accent"
       : tone === "danger"
         ? "text-ehs-red bg-ehs-red/10 hover:bg-ehs-red/20"
-        : "text-ehs-muted-text bg-ehs-light-bg/60 hover:bg-black/5";
+        : "text-ehs-muted-text bg-ehs-light-bg/60 hover:bg-ehs-surface-inverse/5";
 
   return (
     <button
@@ -60,7 +60,8 @@ function IconButton(
 
 const previewClass = FIELD_INPUT_LG_CLASS;
 
-const choiceLabelClass = "flex cursor-pointer items-center gap-2 text-ehs-gray";
+const choiceLabelClass =
+  "text4 flex cursor-pointer items-center gap-2 text-ehs-gray";
 
 const SAMPLE_OPTIONS = ["Option 1", "Option 2", "Option 3"];
 
@@ -73,11 +74,11 @@ function RadioDot(props: Readonly<{ checked: boolean }>) {
         "flex size-5.5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
         props.checked
           ? "border-ehs-normal-blue bg-ehs-normal-blue"
-          : "border-slate-900/25",
+          : "border-ehs-border-ink/25",
       ].join(" ")}
     >
       {props.checked ? (
-        <span className="size-2.5 rounded-full bg-white" />
+        <span className="bg-ehs-surface size-2.5 rounded-full" />
       ) : null}
     </span>
   );
@@ -91,8 +92,8 @@ function CheckBox(props: Readonly<{ checked: boolean }>) {
       className={[
         "flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
         props.checked
-          ? "border-ehs-normal-blue bg-ehs-normal-blue text-white"
-          : "border-slate-900/25",
+          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
+          : "border-ehs-border-strong",
       ].join(" ")}
     >
       {props.checked ? <Icon icon="mdi:check" className="size-3.5" /> : null}
@@ -100,7 +101,7 @@ function CheckBox(props: Readonly<{ checked: boolean }>) {
   );
 }
 
-/** Upload control for Photo / File items; stores the Cloudinary URL as value. */
+/** Upload control for Photo / File items; stores the fileId as value. */
 function ItemUploadControl(
   props: Readonly<{
     value: string;
@@ -121,8 +122,8 @@ function ItemUploadControl(
     setError(null);
     setIsUploading(true);
     try {
-      const result = await uploadFileToCloudinary(file);
-      onValueChange(result.secureUrl);
+      const result = await uploadFile(file, { module: "Audit" });
+      onValueChange(result.fileId);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Upload failed.");
     } finally {
@@ -151,11 +152,10 @@ function ItemUploadControl(
       {value ? (
         <>
           {variant === "image" ? (
-            <div className="relative size-28 overflow-hidden rounded-lg border border-slate-900/10">
-              <Image
-                src={value}
+            <div className="border-ehs-border-ink/10 relative size-28 overflow-hidden rounded-lg border">
+              <ResolvedFileImage
+                fileRef={value}
                 alt="Uploaded preview"
-                fill
                 sizes="112px"
                 className="object-cover"
               />
@@ -165,7 +165,7 @@ function ItemUploadControl(
               href={value}
               target="_blank"
               rel="noreferrer"
-              className="text-ehs-dark-bg flex items-center gap-2 rounded-lg border border-slate-900/10 bg-white px-3 py-2 text-sm"
+              className="text4 text-ehs-dark-bg border-ehs-border-ink/10 bg-ehs-surface flex items-center gap-2 rounded-lg border px-3 py-2"
             >
               <Icon
                 icon="mdi:file-document-outline"
@@ -176,7 +176,7 @@ function ItemUploadControl(
             </a>
           )}
 
-          <div className="flex items-center gap-4 text-xs font-semibold">
+          <div className="text7 flex items-center gap-4">
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
@@ -199,7 +199,7 @@ function ItemUploadControl(
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={isUploading}
-          className="text-ehs-gray hover:border-ehs-normal-blue/60 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-900/15 px-3 py-3 transition-colors disabled:cursor-not-allowed"
+          className="text4 text-ehs-gray hover:border-ehs-normal-blue/60 border-ehs-border-ink/15 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-3 transition-colors disabled:cursor-not-allowed"
         >
           <Icon
             icon={isUploading ? "mdi:loading" : icon}
@@ -212,7 +212,7 @@ function ItemUploadControl(
         </button>
       )}
 
-      {error ? <p className="text-ehs-red text-xs">{error}</p> : null}
+      {error ? <p className="text8 text-ehs-red">{error}</p> : null}
     </div>
   );
 }
@@ -403,13 +403,13 @@ function ItemPreview(
       );
     case "Signature":
       return (
-        <div className="text-ehs-muted-text flex h-14 items-center justify-center rounded-lg border border-dashed border-slate-900/15 text-sm">
+        <div className="text4 text-ehs-muted-text border-ehs-border-ink/15 flex h-14 items-center justify-center rounded-lg border border-dashed">
           Sign-off capture
         </div>
       );
     case "Instruction":
       return (
-        <p className="text-ehs-gray bg-ehs-light-bg/40 rounded-lg px-3 py-2 text-sm">
+        <p className="text4 text-ehs-gray bg-ehs-light-bg/40 rounded-lg px-3 py-2">
           Non-answerable instruction block
         </p>
       );
@@ -454,12 +454,12 @@ function ItemRow(
       onDragOver={onDragOver}
       onDrop={onDrop}
       className={[
-        "overflow-hidden rounded-xl border bg-white transition-opacity",
+        "bg-ehs-surface overflow-hidden rounded-xl border transition-opacity",
         isDragging
           ? "border-ehs-normal-blue opacity-50"
           : invalid
             ? "border-ehs-red/60"
-            : "border-slate-900/10",
+            : "border-ehs-border-ink/10",
       ].join(" ")}
     >
       <div className="flex items-center gap-2.5 p-2.5">
@@ -477,7 +477,7 @@ function ItemRow(
           />
         </span>
 
-        <span className="bg-ehs-normal-blue/12 text-ehs-dark-blue inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold">
+        <span className="bg-ehs-normal-blue/12 text5 text-ehs-dark-blue inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1">
           <Icon
             icon={TEMPLATE_ITEM_ICONS[item.type]}
             className="size-3.5"
@@ -514,7 +514,7 @@ function ItemRow(
       </div>
 
       {isExpanded ? (
-        <div className="bg-ehs-normal-blue-bg-light/30 grid gap-4 border-t border-slate-900/10 p-4 sm:grid-cols-2">
+        <div className="bg-ehs-normal-blue-bg-light/30 border-ehs-border-ink/10 grid gap-4 border-t p-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <span className={labelClass}>Guidance / Hint</span>
             <input
@@ -631,9 +631,9 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
         incidentGlassCardClassName="gap-3 justify-between"
       >
         <div className="flex flex-col gap-1.5">
-          <h3 className={labelClass}>
+          <Text as="h3" className={labelClass}>
             {`Sections (${String(sections.length)})`}
-          </h3>
+          </Text>
 
           <ul className="flex flex-col gap-2">
             {sections.map((section) => {
@@ -646,7 +646,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                       "flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors",
                       isActive
                         ? "border-ehs-normal-blue bg-ehs-normal-blue/8"
-                        : "border-transparent hover:bg-black/5",
+                        : "hover:bg-ehs-surface-inverse/5 border-transparent",
                     ].join(" ")}
                     onClick={() => setActiveSectionId(section.id)}
                   >
@@ -659,13 +659,13 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span
                         className={[
-                          "truncate font-semibold",
+                          "text5 truncate",
                           isActive ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
                         ].join(" ")}
                       >
                         {section.title}
                       </span>
-                      <span className="text-ehs-muted-text text-xs">
+                      <span className="text8 text-ehs-muted-text">
                         {`${String(section.items.length)} items`}
                       </span>
                     </span>
@@ -685,7 +685,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
         <button
           type="button"
           onClick={handleAddSection}
-          className="text-ehs-normal-blue inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-slate-900/10 bg-white px-4 py-2.5 text-sm font-semibold transition-colors"
+          className="text4 text-ehs-normal-blue border-ehs-border-ink/10 bg-ehs-surface inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 transition-colors"
         >
           <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
           Add Section
@@ -751,10 +751,10 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               />
             </div>
 
-            <div className="flex flex-col gap-2.5 border-t border-slate-900/10 pt-4">
-              <h3 className={labelClass}>
+            <div className="border-ehs-border-ink/10 flex flex-col gap-2.5 border-t pt-4">
+              <Text as="h3" className={labelClass}>
                 {`Items (${String(activeSection.items.length)})`}
-              </h3>
+              </Text>
 
               {activeSection.items.length > 0 ? (
                 <ul className="flex flex-col gap-2.5">
@@ -804,7 +804,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                   ))}
                 </ul>
               ) : (
-                <p className="text-ehs-muted-text text-sm">
+                <p className="text4 text-ehs-muted-text">
                   No items yet. Add one to start building this section.
                 </p>
               )}
@@ -813,7 +813,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               <button
                 type="button"
                 onClick={() => setIsAddingItem(true)}
-                className="bg-ehs-normal-blue/12 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+                className="bg-ehs-normal-blue/12 text4 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 transition-colors"
               >
                 <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
                 Add Item
@@ -821,7 +821,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
             </div>
           </>
         ) : (
-          <p className="text-ehs-muted-text text-sm">
+          <p className="text4 text-ehs-muted-text">
             Add a section to start building the template.
           </p>
         )}

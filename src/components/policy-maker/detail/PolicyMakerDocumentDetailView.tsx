@@ -32,7 +32,7 @@ export type PolicyMakerDocumentDetailViewProps = Readonly<{
 
 /** Glass card shell matching Figma 5568:24604 (16px radius, 0.8 border, soft shadow). */
 const detailCardClass =
-  "relative overflow-hidden rounded-4 border-[0.8px] border-[rgba(255,255,255,0.9)] bg-[rgba(255,255,255,0.62)] shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-4 border border-ehs-hairline/90 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:content-['']";
 
 function DetailField(props: Readonly<{ label: string; children: ReactNode }>) {
   const { label, children } = props;
@@ -94,7 +94,7 @@ export function PolicyMakerDocumentDetailView(
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pb-6 pt-4 sm:gap-3.5 sm:px-4 sm:pb-8">
+      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pt-4 pb-6 sm:gap-3.5 sm:px-4 sm:pb-8">
         <PolicyMakerDocumentDetailHeader
           document={document}
           onEdit={onEdit}
@@ -112,9 +112,9 @@ export function PolicyMakerDocumentDetailView(
           <div className="flex min-w-0 flex-col gap-5">
             {/* File preview */}
             <article className={`${detailCardClass} min-w-0`}>
-              <div className="relative z-1 flex flex-col gap-4 p-4 sm:p-[20.2px]">
+              <div className="relative z-1 flex flex-col gap-4 p-4 sm:p-5">
                 <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[rgba(11,19,32,0.14)] sm:size-12">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-ehs-surface-inverse/14 sm:size-12">
                     <Icon
                       icon="mdi:file-document-outline"
                       className="text-ehs-gray size-5 sm:size-6"
@@ -133,7 +133,7 @@ export function PolicyMakerDocumentDetailView(
                 <button
                   type="button"
                   onClick={() => setIsPreviewOpen(true)}
-                  className="text4 rounded-2.5 relative inline-flex h-9.5 w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 bg-[#0891a6] px-4 whitespace-nowrap text-white shadow-[0px_5.838px_17.514px_-5.838px_#0891a6] transition-colors before:pointer-events-none before:absolute before:inset-0 before:rounded-[9.73px] before:shadow-[inset_0px_0.973px_0px_0.973px_rgba(255,255,255,0.25)] before:content-[''] hover:bg-[#078196]"
+                  className="text4 rounded-2.5 before:rounded-2.5 relative inline-flex h-9.5 w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 bg-ehs-normal-blue px-4 whitespace-nowrap text-ehs-on-accent shadow-(--ehs-shadow-button-primary) transition-colors before:pointer-events-none before:absolute before:inset-0 before:content-[''] hover:bg-ehs-normal-blue-hover"
                 >
                   <Icon
                     icon="mdi:eye-outline"
@@ -149,7 +149,7 @@ export function PolicyMakerDocumentDetailView(
 
             {/* Document Details */}
             <article
-              className={`${detailCardClass} flex min-w-0 flex-col gap-4 p-4 sm:px-[20.8px] sm:py-[20.8px]`}
+              className={`${detailCardClass} flex min-w-0 flex-col gap-4 p-4 sm:px-[21px] sm:py-[21px]`}
             >
               <Text as="h2" className="text3 text-ehs-darker relative z-1">
                 Document Details
@@ -166,9 +166,9 @@ export function PolicyMakerDocumentDetailView(
                   </Text>
                 </DetailField>
                 <DetailField label="Status">
-                  <span className="inline-flex h-[21.7px] items-center gap-1.25 rounded-full bg-[rgba(11,19,32,0.14)] px-2.5">
+                  <span className="inline-flex h-[22px] items-center gap-1.25 rounded-full bg-ehs-surface-inverse/14 px-2.5">
                     <span
-                      className="rounded-0.75 size-1.5 shrink-0 bg-[#566072]"
+                      className="rounded-0.75 size-1.5 shrink-0 bg-ehs-gray"
                       aria-hidden="true"
                     />
                     <Text as="span" className="text5 text-ehs-gray">
@@ -211,7 +211,7 @@ export function PolicyMakerDocumentDetailView(
                   </Text>
                 </div>
                 <div
-                  className="h-2 w-full overflow-hidden rounded-full bg-[rgba(11,19,32,0.14)] sm:mt-4"
+                  className="h-2 w-full overflow-hidden rounded-full bg-ehs-surface-inverse/14 sm:mt-4"
                   role="progressbar"
                   aria-valuenow={ackPercent}
                   aria-valuemin={0}
@@ -219,7 +219,7 @@ export function PolicyMakerDocumentDetailView(
                   aria-label="Acknowledgment progress"
                 >
                   <div
-                    className="h-full rounded-full bg-[#566072] transition-[width] duration-300"
+                    className="h-full rounded-full bg-ehs-gray transition-[width] duration-300"
                     style={{ width: `${String(ackPercent)}%` }}
                   />
                 </div>
@@ -228,7 +228,7 @@ export function PolicyMakerDocumentDetailView(
                     type="button"
                     variant="tertiary"
                     onClick={onApprovals}
-                    className="text4 text-ehs-darker rounded-2 h-9 w-45.75 max-w-full border border-[rgba(11,19,32,0.14)] px-2 shadow-none hover:bg-white/80"
+                    className="text4 text-ehs-darker rounded-2 h-9 w-45.75 max-w-full border border-ehs-border-ink/14 px-2 shadow-none hover:bg-ehs-surface/80"
                   >
                     Approvals
                   </Button>

@@ -5,6 +5,7 @@ import {
   type HazcomRiskAssessment,
   type HazcomRiskLevel,
 } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   asBoolean,
   asLeadingNumber,
@@ -85,7 +86,7 @@ function mapRiskAssessmentDtoToHazcomAssessment(
   );
 
   return {
-    id: asString(readProp(record, "id", "Id")),
+    id: formatRecordDisplayId("RA", asString(readProp(record, "id", "Id"))),
     // The write body takes `chemicalId`; a name only appears if the response
     // joins it in, so the id is the fallback label.
     chemical: asString(

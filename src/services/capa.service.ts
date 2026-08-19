@@ -10,7 +10,9 @@ import type { GetCapaOpenedClosedResponseDto } from "@/dtos/res/capa-opened-clos
 import type { GetCapaWorkloadByOwnerResponseDto } from "@/dtos/res/capa-workload-by-owner-response.dto";
 import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
+import type { CapaStatusRequestDto } from "@/dtos/req/capa-status-request.dto";
 import type { CapaTaskRequestDto } from "@/dtos/req/capa-task-request.dto";
+import type { CapaTaskStatusRequestDto } from "@/dtos/req/capa-task-status-request.dto";
 import type { CapaDto } from "@/dtos/res/capa-response.dto";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import http, { getAccessToken, HttpError } from "@/lib/axios";
@@ -20,31 +22,23 @@ import { normalizeCapaLifecycleDto } from "@/services/mappers/capa-lifecycle.map
 import { normalizeCapaOpenedClosedDto } from "@/services/mappers/capa-opened-closed.mapper";
 import { normalizeCapaWorkloadByOwnerDto } from "@/services/mappers/capa-workload-by-owner.mapper";
 
-const CAPA_CREATE_PATH = "/CAPA/Capa";
-const CAPA_BY_ID_PATH = "/CAPA/Capa";
-const CAPA_LIST_PATH = "/CAPA";
-const CAPA_DASHBOARD_KPIS_PATH = "/CAPA/dashboard-kpis";
-const CAPA_LIFECYCLE_PATH = "/CAPA/lifecycle";
-const CAPA_OPENED_CLOSED_PATH = "/CAPA/opened-vs-closed";
-const CAPA_WORKLOAD_BY_OWNER_PATH = "/CAPA/workload-by-owner";
-const CAPA_BY_INCIDENT_PATH = "/CAPA/Incident";
-const CAPA_TASK_PATH = "/CAPA/Task";
-const CAPA_TASK_DROP_PATH = "/CAPA/Task/Drop";
-const CAPA_TASKS_BY_CAPA_PATH = "/CAPA/Tasks";
-const CAPA_VERIFICATION_PATH = "/CAPA/Verification";
-const CAPA_ATTACHMENTS_PATH = "/CAPA/Attachments";
-const CAPA_UPLOAD_ATTACHMENTS_PATH = "/CAPA/UploadCapaAttachments";
-const CAPA_COMMENTS_PATH = "/CAPA/Comments";
-const CAPA_COMMENT_PATH = "/CAPA/Comment";
+const CAPA_PATH = "/capas";
+const CAPA_TASKS_PATH = "/capa-tasks";
+const INCIDENTS_PATH = "/incidents";
+const RCAS_PATH = "/rcas";
+const CAPA_DASHBOARD_KPIS_PATH = "/capas/dashboard-kpis";
+const CAPA_LIFECYCLE_PATH = "/capas/lifecycle";
+const CAPA_OPENED_CLOSED_PATH = "/capas/opened-vs-closed";
+const CAPA_WORKLOAD_BY_OWNER_PATH = "/capas/workload-by-owner";
 
 export type GetCapasRequest = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
+  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
-  assignedId?: number;
 }>;
 
 export type GetCapasResponse = Readonly<{
@@ -161,9 +155,12 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
           "Assignee",
         ),
       ) ?? null,
+    assignedName:
+      asString(readProp(raw, "assignedName", "AssignedName")) ?? null,
     ownerName:
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
+    sourceInfo: asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
@@ -388,6 +385,7 @@ function coerceCapaTaskDto(raw: Record<string, unknown>): CapaTaskDto | null {
     ownerName: asString(readProp(raw, "ownerName", "OwnerName")) ?? null,
     dueDate: normalizeCapaTaskDueDate(dueDateRaw),
     status,
+    priority: asString(readProp(raw, "priority", "Priority")) ?? null,
     createdAt: asString(readProp(raw, "createdAt", "CreatedAt")) ?? null,
   };
 }
@@ -721,7 +719,7 @@ function normalizeCapaVerificationDto(
 }
 
 /**
- * GET /CAPA/dashboard-kpis
+ * GET /api/v1/capas/dashboard-kpis
  * Header: Authorization Bearer (required)
  */
 export async function getCapaDashboardKpis(): Promise<GetCapaDashboardKpisResponseDto> {
@@ -758,7 +756,7 @@ export async function getCapaDashboardKpis(): Promise<GetCapaDashboardKpisRespon
 }
 
 /**
- * GET /CAPA/lifecycle
+ * GET /api/v1/capas/lifecycle
  * Header: Authorization Bearer (required)
  */
 export async function getCapaLifecycle(): Promise<GetCapaLifecycleResponseDto> {
@@ -795,7 +793,7 @@ export async function getCapaLifecycle(): Promise<GetCapaLifecycleResponseDto> {
 }
 
 /**
- * GET /CAPA/opened-vs-closed
+ * GET /api/v1/capas/opened-vs-closed
  * Header: Authorization Bearer (required)
  */
 export async function getCapaOpenedVsClosed(): Promise<GetCapaOpenedClosedResponseDto> {
@@ -832,7 +830,7 @@ export async function getCapaOpenedVsClosed(): Promise<GetCapaOpenedClosedRespon
 }
 
 /**
- * GET /CAPA/workload-by-owner
+ * GET /api/v1/capas/workload-by-owner
  * Header: Authorization Bearer (required)
  */
 export async function getCapaWorkloadByOwner(): Promise<GetCapaWorkloadByOwnerResponseDto> {
@@ -871,8 +869,8 @@ export async function getCapaWorkloadByOwner(): Promise<GetCapaWorkloadByOwnerRe
 /**
  * GET /CAPA
  * Query: PageNumber (default 1), PageSize (default 10),
- * Search?, Status?, CapaType?, Priority?, AssignedId?
- * Header: Authorization Bearer (required)
+ * Search?, Scope?, Status?, CapaType?, Priority?
+ * All / empty = omit the param. Header: Authorization Bearer (required)
  */
 export async function getCapas(
   request: GetCapasRequest = {},
@@ -885,25 +883,20 @@ export async function getCapas(
   const pageNumber = request.pageNumber ?? 1;
   const pageSize = request.pageSize ?? 10;
   const search = request.search?.trim() ?? "";
+  const scope = request.scope?.trim() ?? "";
   const status = request.status?.trim() ?? "";
   const capaType = request.capaType?.trim() ?? "";
   const priority = request.priority?.trim() ?? "";
-  const assignedId =
-    typeof request.assignedId === "number" &&
-    Number.isFinite(request.assignedId) &&
-    request.assignedId > 0
-      ? Math.trunc(request.assignedId)
-      : 0;
 
-  const { data } = await http.get<unknown>(CAPA_LIST_PATH, {
+  const { data } = await http.get<unknown>(CAPA_PATH, {
     params: {
       PageNumber: pageNumber,
       PageSize: pageSize,
       ...(search ? { Search: search } : {}),
+      ...(scope ? { Scope: scope } : {}),
       ...(status ? { Status: status } : {}),
       ...(capaType ? { CapaType: capaType } : {}),
       ...(priority ? { Priority: priority } : {}),
-      ...(assignedId > 0 ? { AssignedId: assignedId } : {}),
     },
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -919,7 +912,7 @@ export async function getCapas(
 }
 
 /**
- * GET /CAPA/Incident/{incidentId}
+ * GET /api/v1/incidents/{incidentId}/capas
  * Returns CAPAs linked to an incident (Bearer auth).
  */
 export async function getCapasByIncidentId(incidentId: number) {
@@ -930,7 +923,7 @@ export async function getCapasByIncidentId(incidentId: number) {
 
   try {
     const { data } = await http.get<unknown>(
-      `${CAPA_BY_INCIDENT_PATH}/${encodeURIComponent(String(incidentId))}`,
+      `${INCIDENTS_PATH}/${encodeURIComponent(String(incidentId))}/capas`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -947,14 +940,14 @@ export async function getCapasByIncidentId(incidentId: number) {
   }
 }
 
-/** POST /CAPA/Capa */
+/** POST /api/v1/capas */
 export async function createCapa(payload: CreateCapaRequestDto) {
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Sign in required to create a CAPA.");
   }
 
-  const { data } = await http.post<unknown>(CAPA_CREATE_PATH, payload, {
+  const { data } = await http.post<unknown>(CAPA_PATH, payload, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -963,7 +956,11 @@ export async function createCapa(payload: CreateCapaRequestDto) {
   return normalizeCapaDto(data);
 }
 
-/** PUT /CAPA/Capa — update an existing linked CAPA */
+/**
+ * PUT /api/v1/capas/{id} — update an existing linked CAPA.
+ * The id moved from the request body to the path in the v1 rename; the body is
+ * otherwise unchanged (the backend now ignores the body `id`).
+ */
 export async function updateCapa(payload: CreateCapaRequestDto) {
   if (!Number.isFinite(payload.id) || payload.id <= 0) {
     throw new Error("CAPA id is required to update.");
@@ -974,16 +971,20 @@ export async function updateCapa(payload: CreateCapaRequestDto) {
     throw new Error("Sign in required to update a CAPA.");
   }
 
-  const { data } = await http.put<unknown>(CAPA_CREATE_PATH, payload, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const { data } = await http.put<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(payload.id))}`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-  });
+  );
 
   return normalizeCapaDto(data);
 }
 
-/** GET /CAPA/Capa/{id} */
+/** GET /api/v1/capas/{id} */
 export async function getCapaById(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {
     return null;
@@ -995,7 +996,7 @@ export async function getCapaById(capaId: number) {
   }
 
   const { data } = await http.get<unknown>(
-    `${CAPA_BY_ID_PATH}/${encodeURIComponent(String(capaId))}`,
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -1005,7 +1006,7 @@ export async function getCapaById(capaId: number) {
   return normalizeCapaDto(data);
 }
 
-/** GET /CAPA/Tasks/{capaId} */
+/** GET /api/v1/capas/{capaId}/tasks */
 export async function getCapaTasksByCapaId(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {
     return [];
@@ -1017,7 +1018,7 @@ export async function getCapaTasksByCapaId(capaId: number) {
   }
 
   const { data } = await http.get<unknown>(
-    `${CAPA_TASKS_BY_CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/tasks`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -1033,7 +1034,7 @@ export type GetCapaCommentsRequest = Readonly<{
   assignedId?: number;
 }>;
 
-/** GET /CAPA/Comments?capaId=&userId=&assignedId= */
+/** GET /api/v1/capas/{capaId}/comments?userId=&assignedId= — capaId moved to the path. */
 export async function getCapaComments(request: GetCapaCommentsRequest) {
   const capaId = request.capaId;
   if (!Number.isFinite(capaId) || capaId <= 0) {
@@ -1058,54 +1059,114 @@ export async function getCapaComments(request: GetCapaCommentsRequest) {
       ? Math.trunc(request.assignedId)
       : 0;
 
-  const { data } = await http.get<unknown>(CAPA_COMMENTS_PATH, {
-    params: {
-      capaId: Math.trunc(capaId),
-      ...(userId > 0 ? { userId } : {}),
-      ...(assignedId > 0 ? { assignedId } : {}),
+  const { data } = await http.get<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(Math.trunc(capaId)))}/comments`,
+    {
+      params: {
+        ...(userId > 0 ? { userId } : {}),
+        ...(assignedId > 0 ? { assignedId } : {}),
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": false,
+      },
     },
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": false,
-    },
-  });
+  );
   return normalizeCapaCommentList(data);
 }
 
-/** POST /CAPA/Comment */
+/** POST /api/v1/capas/{capaId}/comments — capaId moved to the path. */
 export async function createCapaComment(payload: CapaCommentRequestDto) {
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Sign in required to post a CAPA comment.");
   }
 
-  const { data } = await http.post<unknown>(CAPA_COMMENT_PATH, payload, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const { data } = await http.post<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(payload.capaId))}/comments`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-  });
+  );
 
   return normalizeCapaCommentDto(data);
 }
 
-/** POST /CAPA/Task */
+/** POST /api/v1/capas/{capaId}/tasks — capaId moved to the path. */
 export async function createCapaTask(payload: CapaTaskRequestDto) {
   const accessToken = getAccessToken();
   if (!accessToken) {
     throw new Error("Sign in required to create a CAPA task.");
   }
 
-  const { data } = await http.post<unknown>(CAPA_TASK_PATH, payload, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const { data } = await http.post<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(payload.capaId))}/tasks`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-  });
+  );
 
   return normalizeCapaTaskDto(data);
 }
 
-/** PUT /CAPA/Task */
-/** PATCH /CAPA/Task/Drop/{id} — soft-drop a linked task. */
+/**
+ * PUT /api/v1/capa-tasks/{taskId}
+ * The task id moved from the request body to the path; the body is unchanged.
+ */
+export async function updateCapaTask(payload: CapaTaskRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA task.");
+  }
+
+  const { data } = await http.put<unknown>(
+    `${CAPA_TASKS_PATH}/${encodeURIComponent(String(payload.id))}`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaTaskDto(data);
+}
+
+/** PATCH /api/v1/capa-tasks/{taskId}/status — task id moved to the path. */
+export async function updateCapaTaskStatus(payload: CapaTaskStatusRequestDto) {
+  if (!Number.isFinite(payload.id) || payload.id <= 0) {
+    throw new Error("CAPA task id is required to update status.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to update a CAPA task status.");
+  }
+
+  const { data } = await http.patch<unknown>(
+    `${CAPA_TASKS_PATH}/${encodeURIComponent(String(payload.id))}/status`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return normalizeCapaTaskDto(data);
+}
+
+/** DELETE /api/v1/capa-tasks/{id} — soft-drop a linked task (was `PATCH .../Drop/{id}`). */
 export async function deleteCapaTask(taskId: number) {
   if (!Number.isFinite(taskId) || taskId <= 0) {
     throw new Error("CAPA task id is required to delete.");
@@ -1116,9 +1177,8 @@ export async function deleteCapaTask(taskId: number) {
     throw new Error("Sign in required to delete a CAPA task.");
   }
 
-  const { data } = await http.patch<unknown>(
-    `${CAPA_TASK_DROP_PATH}/${encodeURIComponent(String(taskId))}`,
-    null,
+  const { data } = await http.delete<unknown>(
+    `${CAPA_TASKS_PATH}/${encodeURIComponent(String(taskId))}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -1129,9 +1189,44 @@ export async function deleteCapaTask(taskId: number) {
   return data;
 }
 
-/** PATCH /CAPA/Task/Status */
-/** PATCH /CAPA/Drop/{id} — soft-drop a CAPA */
-/** GET /CAPA/Attachments/{capaId} */
+/** DELETE /api/v1/capas/{id} — soft-drop a CAPA (was `PATCH /CAPA/Drop/{id}`). */
+export async function dropCapa(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    throw new Error("CAPA id is required to drop.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to drop a CAPA.");
+  }
+
+  const { data } = await http.delete<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return data;
+}
+
+/*
+ * CAPA reopen is intentionally absent.
+ *
+ * There is no capa-level status write in the backend: `ICapaService` /
+ * `CapaService` have no method behind `PATCH /CAPA/Capa/{id}/status`, and
+ * route-map.md has no row for it — the design doc listed it, the code never
+ * implemented it, so it has been 404ing in production. The only real status
+ * writes are `PATCH /api/v1/capa-tasks/{taskId}/status` and
+ * `POST /api/v1/capas/{id}/request-verification`.
+ *
+ * Restore `reopenCapa` here, and the Reopen button in `CapaDetailHeader`, once
+ * the backend actually serves it.
+ */
+
+/** GET /api/v1/capas/{capaId}/attachments */
 export async function getCapaAttachmentsByCapaId(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {
     return [];
@@ -1143,7 +1238,7 @@ export async function getCapaAttachmentsByCapaId(capaId: number) {
   }
 
   const { data } = await http.get<unknown>(
-    `${CAPA_ATTACHMENTS_PATH}/${encodeURIComponent(String(capaId))}`,
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/attachments`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -1153,7 +1248,7 @@ export async function getCapaAttachmentsByCapaId(capaId: number) {
   return normalizeCapaAttachmentList(data);
 }
 
-/** POST /CAPA/UploadCapaAttachments */
+/** POST /api/v1/capas/{capaId}/attachments — capaId moved to the path. */
 export async function uploadCapaAttachments(payload: CapaAttachmentRequestDto) {
   const accessToken = getAccessToken();
   if (!accessToken) {
@@ -1161,7 +1256,7 @@ export async function uploadCapaAttachments(payload: CapaAttachmentRequestDto) {
   }
 
   const { data } = await http.post<unknown>(
-    CAPA_UPLOAD_ATTACHMENTS_PATH,
+    `${CAPA_PATH}/${encodeURIComponent(String(payload.capaId))}/attachments`,
     payload,
     {
       headers: {
@@ -1191,7 +1286,7 @@ function isNoVerificationFoundError(error: unknown): boolean {
   return message.includes("no verification found");
 }
 
-/** GET /CAPA/Verification/{capaId} */
+/** GET /api/v1/capas/{capaId}/verification */
 export async function getCapaVerificationByCapaId(capaId: number) {
   if (!Number.isFinite(capaId) || capaId <= 0) {
     return null;
@@ -1204,7 +1299,7 @@ export async function getCapaVerificationByCapaId(capaId: number) {
 
   try {
     const { data } = await http.get<unknown>(
-      `${CAPA_VERIFICATION_PATH}/${encodeURIComponent(String(capaId))}`,
+      `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/verification`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -1234,7 +1329,7 @@ export async function getCapaVerificationByCapaId(capaId: number) {
   }
 }
 
-/** POST /CAPA/Verification */
+/** POST /api/v1/capas/{capaId}/verification — capaId moved to the path. */
 export async function submitCapaVerification(
   payload: CapaVerificationRequestDto,
 ) {
@@ -1243,11 +1338,15 @@ export async function submitCapaVerification(
     throw new Error("Sign in required to verify a CAPA.");
   }
 
-  const { data } = await http.post<unknown>(CAPA_VERIFICATION_PATH, payload, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const { data } = await http.post<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(payload.capaId))}/verification`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-  });
+  );
 
   return normalizeCapaVerificationDto(data);
 }

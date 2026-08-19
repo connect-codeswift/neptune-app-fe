@@ -37,7 +37,7 @@ export function NeptuneLoader(props: Readonly<NeptuneLoaderProps>) {
       className={[
         "flex flex-col items-center justify-center gap-4",
         fullScreen
-          ? "bg-ehs-light-bg/85 fixed inset-0 z-100 backdrop-blur-1.5"
+          ? "bg-ehs-light-bg/85 backdrop-blur-1.5 fixed inset-0 z-100"
           : "py-10",
         className,
       ]

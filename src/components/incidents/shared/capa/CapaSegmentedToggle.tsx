@@ -16,7 +16,7 @@ export function CapaSegmentedToggle(props: Readonly<CapaSegmentedToggleProps>) {
       role="radiogroup"
       aria-label={ariaLabel}
       className={[
-        "flex w-full items-stretch rounded-2.5 bg-white p-1 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]",
+        "rounded-2.5 bg-ehs-surface flex w-full items-stretch p-1 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]",
         className,
       ]
         .filter(Boolean)
@@ -33,9 +33,9 @@ export function CapaSegmentedToggle(props: Readonly<CapaSegmentedToggleProps>) {
             aria-checked={isActive}
             onClick={() => onChange(option)}
             className={[
-              "flex min-w-0 flex-1 items-center justify-center rounded-1.5 py-1.5 text-sm leading-5 whitespace-nowrap transition-colors",
+              "rounded-1.5 flex min-w-0 flex-1 items-center justify-center py-1.5 text-sm leading-5 whitespace-nowrap transition-colors",
               isActive
-                ? "bg-ehs-normal-blue text-ehs-light-text"
+                ? "bg-ehs-normal-blue text-ehs-on-accent"
                 : "text-ehs-gray hover:bg-ehs-normal-blue/10",
             ].join(" ")}
           >

@@ -53,10 +53,10 @@ function InventoryStat(
   return (
     <div
       className={[
-        "flex flex-col gap-0.5 rounded-2.5 px-2.5 py-2",
+        "rounded-2.5 flex flex-col gap-0.5 px-2.5 py-2",
         emphasize
           ? "bg-ehs-yellow/15 ring-ehs-yellow/30 ring-1"
-          : "bg-[rgba(15,23,42,0.04)]",
+          : "bg-ehs-surface-inverse/4",
       ].join(" ")}
     >
       <Text
@@ -112,7 +112,7 @@ function IssuanceMobileCard(
     <button
       type="button"
       onClick={() => onOpen(record)}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-white/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)] transition-colors hover:bg-white"
+      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-ehs-surface/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)] transition-colors hover:bg-ehs-surface"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -134,7 +134,7 @@ function IssuanceMobileCard(
           {description}
         </Text>
       ) : null}
-      <div className="h-px w-full bg-[rgba(11,19,32,0.08)]" />
+      <div className="h-px w-full bg-ehs-surface-inverse/8" />
       <div className="flex gap-8">
         <div className="flex flex-col gap-0.5">
           <Text as="span" className="text9 text-ehs-muted-text">
@@ -165,7 +165,7 @@ function CatalogIssuanceTableHeader(
   const { count } = props;
 
   return (
-    <div className="flex h-[50.595px] flex-wrap items-center justify-between gap-3">
+    <div className="flex h-[51px] flex-wrap items-center justify-between gap-3">
       <Text as="h2" className="text3 text-ehs-darker shrink-0">
         {`Currently issued (${String(count)})`}
       </Text>
@@ -279,10 +279,7 @@ export function PpeCatalogDetailContent(
             <MetaField label="Supplier" value={item.supplier} />
             <MetaField label="Unit cost" value={item.unitCost} />
             <MetaField label="Replace after" value={item.replaceAfter} />
-            <MetaField
-              label="Inspection"
-              value={item.inspectionInterval}
-            />
+            <MetaField label="Inspection" value={item.inspectionInterval} />
             <MetaField label="Sizes" value={item.availableSizes} />
           </div>
         </IncidentGlassCard>
@@ -363,10 +360,7 @@ export function PpeCatalogDetailContent(
             <ul className="flex flex-col gap-3">
               {item.issuances.map((record) => (
                 <li key={record.id}>
-                  <IssuanceMobileCard
-                    record={record}
-                    onOpen={openIssuance}
-                  />
+                  <IssuanceMobileCard record={record} onOpen={openIssuance} />
                 </li>
               ))}
             </ul>

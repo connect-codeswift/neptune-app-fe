@@ -76,9 +76,8 @@ export type GetPpeItemsResponseDto = ApiEnvelopeDto<PpeItemDto[] | null>;
 export type GetPpeItemByIdResponseDto = ApiEnvelopeDto<PpeItemDto | null>;
 
 /** Matches backend response for GET /api/ppe/issue/{id}. */
-export type GetPpeIssueByIdResponseDto = ApiEnvelopeDto<
-  PpeIssueDetailDto | null
->;
+export type GetPpeIssueByIdResponseDto =
+  ApiEnvelopeDto<PpeIssueDetailDto | null>;
 
 /** GET /api/ppe/kpi payload. */
 export type PpeKpiDto = {
@@ -105,6 +104,5 @@ export type ReplacePpeRequestResultDto = {
   id?: number;
 };
 
-export type ReplacePpeRequestResponseDto = ApiEnvelopeDto<
-  ReplacePpeRequestResultDto | null
->;
+export type ReplacePpeRequestResponseDto =
+  ApiEnvelopeDto<ReplacePpeRequestResultDto | null>;

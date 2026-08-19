@@ -3,6 +3,7 @@ import type {
   HazcomTrainingSession,
   HazcomTrainingStatus,
 } from "@/components/hazcom/shared";
+import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   asLeadingNumber,
   asNumber,
@@ -19,14 +20,11 @@ import {
  */
 
 /**
- * `status` is server-assigned (the create body has no such field), so it is
- * read when present and inferred from the session date otherwise: a session
- * that has already happened reads as Completed.
+ * `status` is server-assigned (the create body has no such field). Null /
+ * blank stays null so the log can show “No status found” instead of guessing
+ * Completed vs Scheduled from the session date.
  */
-function toTrainingStatus(
-  value: unknown,
-  sessionDate: string,
-): HazcomTrainingStatus {
+function toTrainingStatus(value: unknown): HazcomTrainingStatus | null {
   const lower = asString(value).trim().toLowerCase();
   if (lower === "completed") {
     return "Completed";
@@ -34,16 +32,7 @@ function toTrainingStatus(
   if (lower === "scheduled") {
     return "Scheduled";
   }
-
-  if (sessionDate === "") {
-    return "Scheduled";
-  }
-  const parsed = new Date(sessionDate);
-  if (Number.isNaN(parsed.getTime())) {
-    return "Scheduled";
-  }
-
-  return parsed.getTime() <= Date.now() ? "Completed" : "Scheduled";
+  return null;
 }
 
 function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
@@ -68,15 +57,16 @@ function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
   };
 }
 
-function toTrainingMaterials(value: unknown): readonly HazcomTrainingMaterial[] {
+function toTrainingMaterials(
+  value: unknown,
+): readonly HazcomTrainingMaterial[] {
   if (!Array.isArray(value)) {
     // Legacy single-link responses before materials[] shipped.
     const legacyLink = asString(value);
     if (legacyLink === "") {
       return [];
     }
-    const fileName =
-      legacyLink.split("/").pop()?.trim() || "Training material";
+    const fileName = legacyLink.split("/").pop()?.trim() || "Training material";
     return [{ fileUrl: legacyLink, fileName }];
   }
 
@@ -96,9 +86,7 @@ function toAttendeeCount(record: Record<string, unknown>): number {
   return asLeadingNumber(readProp(record, "attendees", "Attendees"));
 }
 
-function mapTrainingLogDtoToHazcomSession(
-  raw: unknown,
-): HazcomTrainingSession {
+function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
   const record = isRecord(raw) ? raw : {};
   const date = toIsoDate(
     readProp(record, "sessionDate", "SessionDate", "date", "Date"),
@@ -113,7 +101,7 @@ function mapTrainingLogDtoToHazcomSession(
   );
 
   return {
-    id: asString(readProp(record, "id", "Id")),
+    id: formatRecordDisplayId("TR", asString(readProp(record, "id", "Id"))),
     date,
     trainer: asString(readProp(record, "trainer", "Trainer")),
     // The form labels this "Topic / Training Title"; `trainerTitle` is the
@@ -125,7 +113,7 @@ function mapTrainingLogDtoToHazcomSession(
       readProp(record, "chemicalsCovered", "ChemicalsCovered", "chemicals"),
     ),
     attendees: toAttendeeCount(record),
-    status: toTrainingStatus(readProp(record, "status", "Status"), date),
+    status: toTrainingStatus(readProp(record, "status", "Status")),
     materials: toTrainingMaterials(materialsRaw),
     notes: asString(readProp(record, "notes", "Notes")),
   };

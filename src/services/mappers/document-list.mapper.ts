@@ -173,9 +173,7 @@ function mapCategoryToLibraryId(
   return "sops";
 }
 
-function mapDocumentStatus(
-  raw: string | null | undefined,
-): DocumentStatus {
+function mapDocumentStatus(raw: string | null | undefined): DocumentStatus {
   const normalized = (raw ?? "").trim().toLowerCase();
   if (
     normalized.includes("review") ||

@@ -52,9 +52,7 @@ export type ReportStepTwoErrors = Readonly<{
   natureOfInjury: string | null;
 }>;
 
-function getStepTwoErrors(
-  form: ReportIncidentFormState,
-): ReportStepTwoErrors {
+function getStepTwoErrors(form: ReportIncidentFormState): ReportStepTwoErrors {
   return {
     mechanismOfInjury: form.mechanismOfInjury.trim()
       ? null
@@ -81,8 +79,14 @@ export type ReportIncidentStepTwoProps = Readonly<{
 export function ReportIncidentStepTwo(
   props: Readonly<ReportIncidentStepTwoProps>,
 ) {
-  const { form, onChange, onBack, onContinue, showFieldErrors = false, className = "" } =
-    props;
+  const {
+    form,
+    onChange,
+    onBack,
+    onContinue,
+    showFieldErrors = false,
+    className = "",
+  } = props;
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const showErrors = attemptedContinue || showFieldErrors;
@@ -226,7 +230,9 @@ export function ReportIncidentStepTwo(
                   label="Initial Treatment"
                   required
                   value={form.initialTreatment}
-                  onChange={(initialTreatment) => onChange({ initialTreatment })}
+                  onChange={(initialTreatment) =>
+                    onChange({ initialTreatment })
+                  }
                   options={[...INITIAL_TREATMENT_OPTIONS]}
                   customOptions={form.customOptions.initialTreatment}
                   onAddCustomOption={(option) =>
@@ -238,10 +244,7 @@ export function ReportIncidentStepTwo(
               </div>
             ) : null}
             <div
-              className={[
-                "pb-4.5",
-                isFirstAid ? "sm:col-span-2" : "",
-              ]
+              className={["pb-4.5", isFirstAid ? "sm:col-span-2" : ""]
                 .filter(Boolean)
                 .join(" ")}
             >
@@ -519,13 +522,13 @@ export function ReportIncidentStepTwo(
           ) : null}
         </div>
 
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
+        <div className="border-ehs-border-ink/8 border-t pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
               variant="tertiary"
               onClick={onBack}
-              className="text-ehs-slate rounded-2.5 border-[rgba(15,23,42,0.14)] px-3.75 py-2.5 text-sm font-bold"
+              className="text-ehs-slate rounded-2.5 border-ehs-border-ink/14 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -544,7 +547,7 @@ export function ReportIncidentStepTwo(
               type="button"
               variant="primary"
               onClick={handleContinue}
-              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
               Continue
               <Icon

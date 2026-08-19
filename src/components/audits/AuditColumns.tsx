@@ -1,98 +1,238 @@
-import { createColumnHelper } from "@tanstack/react-table";
-import type { TableColumns } from "@/components/ui/table-columns";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
+import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { AuditRecord } from "@/app/dashboard/audits/audits-data";
 
 const columnHelper = createColumnHelper<AuditRecord>();
 
-/** First `count` whitespace-separated words of `text`, trimmed. */
-function firstWords(text: string, count: number): string {
-  return text.trim().split(/\s+/).slice(0, count).join(" ");
+function statusTone(status: string): IncidentBadgeTone {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === "overdue") return "danger";
+  if (normalized === "in progress" || normalized === "inprogress")
+    return "teal";
+  if (
+    normalized === "closed" ||
+    normalized === "completed" ||
+    normalized === "submitted"
+  )
+    return "muted";
+  if (normalized === "cancelled" || normalized === "scheduled") return "warn";
+  return "muted";
 }
 
-/** Teal fill on a flat track, matching the design's progress meter. */
-function ProgressMeter(props: Readonly<{ value: number }>) {
-  const { value } = props;
+function isOverdue(status: string): boolean {
+  return status.trim().toLowerCase() === "overdue";
+}
+
+/**
+ * Compact progress meter.
+ * Note: never use column `size: 150` — Table treats that as “no width”, so the
+ * column swallows leftover space and opens a large gap in the row.
+ */
+function ProgressMeter(props: Readonly<{ value: number; compact?: boolean }>) {
+  const { value, compact = false } = props;
+  const clamped = Math.max(0, Math.min(100, value));
+
+  if (compact) {
+    return (
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
+        {`${String(clamped)}%`}
+      </Text>
+    );
+  }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex min-w-0 items-center gap-2">
       <span
-        className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-[#f3f5f8]"
+        className="bg-ehs-surface-inverse/8 h-1.5 w-16 shrink-0 overflow-hidden rounded-full"
         aria-hidden="true"
       >
         <span
-          className="bg-ehs-normal-blue block h-full rounded-full"
-          style={{ width: `${String(value)}%` }}
+          className={[
+            "block h-full rounded-full",
+            clamped >= 100
+              ? "bg-ehs-green"
+              : clamped >= 50
+                ? "bg-ehs-normal-blue"
+                : "bg-ehs-yellow",
+          ].join(" ")}
+          style={{ width: `${String(clamped)}%` }}
         />
       </span>
-      <span className="text-ehs-gray text-base tabular-nums">
-        {`${String(value)}%`}
-      </span>
+      <Text as="span" className="text4 text-ehs-gray tabular-nums">
+        {`${String(clamped)}%`}
+      </Text>
     </div>
   );
 }
 
-export const auditColumns: TableColumns<AuditRecord> = [
-  columnHelper.accessor("title", {
-    header: "AUDIT",
-    cell: ({ row }) => (
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-ehs-dark-bg text-base font-normal">
-          {firstWords(row.original.title, 2)}
-        </span>
-        <span className="text-ehs-muted-text text-xs">
-          {`A-${row.original.id} · ${firstWords(row.original.scope, 3)}`}
-        </span>
-      </div>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("site", {
-    header: "SITE",
-    size: 110,
-    cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("auditor", {
-    header: "AUDITOR",
-    size: 130,
-    cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal">
-        {info.getValue()?.split(" ").slice(0, 2).join(" ")}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("progress", {
-    header: "PROGRESS",
-    size: 150,
-    cell: (info) => <ProgressMeter value={info.getValue()} />,
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("status", {
-    header: "STATUS",
-    size: 120,
-    cell: (info) => (
-      <IncidentBadge
-        label={info.getValue()}
-        tone="muted"
-        className="w-fit rounded-full px-2.5 py-0.5 text-sm!"
-      />
-    ),
-    meta: { align: "left" as const },
-  }),
-  columnHelper.accessor("dueDate", {
-    header: "DUE",
-    size: 110,
-    cell: (info) => (
-      <span className="text-ehs-gray text-base font-normal tabular-nums">
-        {info.getValue()}
-      </span>
-    ),
-    meta: { align: "left" as const },
-  }),
-];
+export type AuditColumnOptions = Readonly<{
+  selectedId: string | null;
+  onViewMore: (id: string) => void;
+  /** Wider columns when the side detail panel is closed. */
+  expanded?: boolean;
+}>;
+
+export function createAuditColumns(
+  options: AuditColumnOptions,
+): ColumnDef<AuditRecord, unknown>[] {
+  const { selectedId, onViewMore, expanded = true } = options;
+
+  return [
+    columnHelper.accessor("title", {
+      header: "Audit",
+      // No `size` → Table default 150 → no fixed width → this column fills leftover space.
+      minSize: 180,
+      meta: { align: "left" as const },
+      cell: ({ row }) => (
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <Text
+            as="span"
+            className="text4 text-ehs-darker truncate"
+            title={row.original.title}
+          >
+            {row.original.title}
+          </Text>
+          <Text
+            as="span"
+            className="text8 text-ehs-muted-text truncate"
+            title={
+              expanded
+                ? `A-${row.original.id} · ${row.original.scope}`
+                : `A-${row.original.id} · ${row.original.scope} · ${row.original.site}`
+            }
+          >
+            {expanded
+              ? `A-${row.original.id} · ${row.original.scope}`
+              : `A-${row.original.id} · ${row.original.site}`}
+          </Text>
+        </div>
+      ),
+    }),
+    ...(expanded
+      ? [
+          columnHelper.accessor("site", {
+            header: "Site",
+            size: 120,
+            minSize: 90,
+            meta: {
+              align: "left" as const,
+              verticalAlign: "middle" as const,
+            },
+            cell: (info) => (
+              <Text
+                as="span"
+                className="text4 text-ehs-gray truncate"
+                title={info.getValue()}
+              >
+                {info.getValue()}
+              </Text>
+            ),
+          }),
+        ]
+      : []),
+    columnHelper.accessor("auditor", {
+      header: "Auditor",
+      size: expanded ? 140 : 112,
+      minSize: 90,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => (
+        <Text
+          as="span"
+          className="text4 text-ehs-gray truncate"
+          title={info.getValue()}
+        >
+          {info.getValue()?.split(" ").slice(0, 2).join(" ")}
+        </Text>
+      ),
+    }),
+    columnHelper.accessor("progress", {
+      header: "Progress",
+      // Must not be 150 — that value means “unset width” in Table.
+      size: expanded ? 148 : 72,
+      minSize: 64,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => (
+        <ProgressMeter value={info.getValue()} compact={!expanded} />
+      ),
+    }),
+    columnHelper.accessor("status", {
+      header: "Status",
+      size: expanded ? 128 : 112,
+      minSize: 96,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => (
+        <IncidentBadge
+          label={info.getValue()}
+          tone={statusTone(info.getValue())}
+          showDot
+          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+        />
+      ),
+    }),
+    columnHelper.accessor("dueDate", {
+      header: "Due",
+      size: expanded ? 112 : 96,
+      minSize: 84,
+      meta: { align: "left" as const, verticalAlign: "middle" as const },
+      cell: (info) => {
+        const overdue = isOverdue(info.row.original.status);
+        return (
+          <Text
+            as="span"
+            className={[
+              "whitespace-nowrap tabular-nums",
+              overdue ? "text4 text-ehs-red" : "text4 text-ehs-gray",
+            ].join(" ")}
+          >
+            {info.getValue()}
+          </Text>
+        );
+      },
+    }),
+    columnHelper.display({
+      id: "view",
+      header: "",
+      size: 56,
+      minSize: 48,
+      meta: { align: "center" as const, verticalAlign: "middle" as const },
+      cell: ({ row }) => {
+        const isOpen = selectedId === row.original.id;
+
+        return (
+          <button
+            type="button"
+            className={[
+              "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
+              isOpen
+                ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
+            ].join(" ")}
+            aria-label={
+              isOpen
+                ? `Close details for A-${row.original.id}`
+                : `View A-${row.original.id}`
+            }
+            aria-pressed={isOpen}
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewMore(row.original.id);
+            }}
+          >
+            <Icon
+              icon={
+                isOpen
+                  ? "icon-park-outline:preview-close-one"
+                  : "lets-icons:view"
+              }
+              className="size-5"
+              aria-hidden="true"
+            />
+          </button>
+        );
+      },
+    }),
+  ] as ColumnDef<AuditRecord, unknown>[];
+}

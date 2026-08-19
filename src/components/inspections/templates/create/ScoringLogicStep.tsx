@@ -85,13 +85,7 @@ export type ScoringLogicStepProps = Readonly<{
 }>;
 
 export function ScoringLogicStep(props: ScoringLogicStepProps) {
-  const {
-    sections,
-    scoring,
-    onScoringChange,
-    rules,
-    onRulesChange,
-  } = props;
+  const { sections, scoring, onScoringChange, rules, onRulesChange } = props;
 
   const items = sections.flatMap((section) => section.items);
   const shownWeights = items.slice(0, WEIGHTS_PREVIEW_COUNT);
@@ -161,7 +155,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
               {/* Filled bar with an invisible range on top for interaction. */}
               <div className="relative h-3">
                 <div
-                  className="absolute inset-0 overflow-hidden rounded-full bg-[#eef1f6]"
+                  className="bg-ehs-form-classes-bg absolute inset-0 overflow-hidden rounded-full"
                   aria-hidden="true"
                 >
                   <div
@@ -183,23 +177,23 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
               </div>
 
               <div className="mt-2 grid grid-cols-3 gap-2 text-center text-sm font-semibold">
-                <span className="text-ehs-green bg-ehs-dark-bg/6 rounded-lg py-2">
+                <span className="text-ehs-green bg-ehs-surface-inverse/6 rounded-lg py-2">
                   ≥80% Pass
                 </span>
-                <span className="text-ehs-yellow bg-ehs-dark-bg/6 rounded-lg py-2">
+                <span className="text-ehs-yellow bg-ehs-surface-inverse/6 rounded-lg py-2">
                   60-79% Amber
                 </span>
-                <span className="text-ehs-red bg-ehs-dark-bg/6 rounded-lg py-2">
+                <span className="text-ehs-red bg-ehs-surface-inverse/6 rounded-lg py-2">
                   &lt;60% Fail
                 </span>
               </div>
             </div>
 
-            <p className="text-ehs-normal-blue bg-ehs-dark-bg/6 rounded-lg px-4 py-3 text-sm">
+            <p className="text-ehs-normal-blue bg-ehs-surface-inverse/6 rounded-lg px-4 py-3 text-sm">
               (Total Scored ÷ Total Possible) × 100
             </p>
 
-            <div className="flex items-center justify-between gap-3 border-t border-slate-900/10 pt-4">
+            <div className="border-ehs-border-ink/10 flex items-center justify-between gap-3 border-t pt-4">
               <span className="flex flex-col">
                 <span className="text-ehs-dark-bg font-bold">
                   Score Visibility
@@ -217,7 +211,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
               />
             </div>
 
-            <div className="flex flex-col gap-2.5 border-t border-slate-900/10 pt-4">
+            <div className="border-ehs-border-ink/10 flex flex-col gap-2.5 border-t pt-4">
               <h3 className={labelClass}>Item Weights</h3>
 
               {shownWeights.length > 0 ? (
@@ -225,12 +219,12 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
                   {shownWeights.map((item) => (
                     <li
                       key={item.id}
-                      className="flex items-center justify-between gap-3 rounded-lg bg-white p-2"
+                      className="bg-ehs-surface flex items-center justify-between gap-3 rounded-lg p-2"
                     >
                       <span className="text-ehs-gray min-w-0 flex-1 truncate">
                         {itemDisplayName(item)}
                       </span>
-                      <span className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 w-16 shrink-0 rounded-lg border border-slate-900/10 bg-white px-3 py-1.5 text-center text-sm tabular-nums outline-none focus:ring-2">
+                      <span className="focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 border-ehs-border-ink/10 bg-ehs-surface w-16 shrink-0 rounded-lg border px-3 py-1.5 text-center text-sm tabular-nums outline-none focus:ring-2">
                         {item.scoreWeight}
                       </span>
                     </li>
@@ -250,7 +244,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-2 rounded-xl bg-[#0F172A08] px-6 py-8 text-center">
+          <div className="bg-ehs-surface-inverse/3 flex flex-col items-center gap-2 rounded-xl px-6 py-8 text-center">
             <Icon
               icon="mdi:chart-bar"
               className="text-ehs-muted-text/30 size-8"
@@ -292,15 +286,15 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
             {rules.map((rule) => (
               <li
                 key={rule.id}
-                className="bg-ehs-normal-blue-bg-light flex flex-col gap-3 rounded-xl border border-slate-900/10 p-4"
+                className="bg-ehs-normal-blue-bg-light border-ehs-border-ink/10 flex flex-col gap-3 rounded-xl border p-4"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span
                     className={[
-                      "rounded-md px-2 py-0.5 text-2.75 font-bold tracking-wider uppercase",
+                      "text-2.75 rounded-md px-2 py-0.5 font-bold tracking-wider uppercase",
                       rule.active
                         ? "bg-ehs-normal-blue/15 text-ehs-dark-blue"
-                        : "text-ehs-muted-text bg-slate-900/8",
+                        : "text-ehs-muted-text bg-ehs-surface-inverse/8",
                     ].join(" ")}
                   >
                     {rule.active ? "Active" : "Inactive"}
@@ -394,7 +388,7 @@ export function ScoringLogicStep(props: ScoringLogicStepProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-ehs-muted-text rounded-xl border border-dashed border-slate-900/15 px-4 py-6 text-center text-sm">
+          <p className="text-ehs-muted-text border-ehs-border-ink/15 rounded-xl border border-dashed px-4 py-6 text-center text-sm">
             No rules yet. Add one to define conditional behaviour.
           </p>
         )}

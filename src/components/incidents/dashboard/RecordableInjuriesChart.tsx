@@ -80,7 +80,7 @@ function RecordablesLineChart(
         {series.length >= 2 ? (
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[2.5px] text-sm font-bold",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 py-[3px] text-sm font-bold",
               trendImproving
                 ? "bg-ehs-green/14 text-ehs-green"
                 : "bg-ehs-red/14 text-ehs-red",
@@ -127,6 +127,8 @@ function RecordablesLineChart(
           );
         })}
 
+        {/* Pinned literal: the approved wash is #c25555 at 10%, which no token
+            carries, and `fill-ehs-red/10` resolves to a different red. */}
         {areaPath ? <path d={areaPath} fill="rgba(194, 85, 85, 0.1)" /> : null}
 
         {targetY != null ? (
@@ -202,13 +204,13 @@ function RecordablesLineChart(
 
       <div className="mt-3 hidden flex-wrap items-center gap-x-4 gap-y-1 md:flex">
         <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
-          <span className="bg-ehs-red size-2 rounded-0.5" aria-hidden="true" />
+          <span className="bg-ehs-red rounded-0.5 size-2" aria-hidden="true" />
           Recordables
         </span>
         {target != null ? (
           <span className="text-ehs-gray inline-flex items-center gap-1.5 text-sm">
             <span
-              className="bg-ehs-green size-2 rounded-0.5"
+              className="bg-ehs-green rounded-0.5 size-2"
               aria-hidden="true"
             />
             Monthly target
@@ -225,10 +227,7 @@ export function RecordableInjuriesChart(
   const { chart, className = "" } = props;
 
   return (
-    <IncidentGlassCard
-      paddingClassName="p-4 md:p-5.75"
-      className={className}
-    >
+    <IncidentGlassCard paddingClassName="p-4 md:p-5.75" className={className}>
       <RecordablesLineChart chart={chart} />
     </IncidentGlassCard>
   );

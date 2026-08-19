@@ -177,17 +177,17 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
         // pointer-events-auto so clicks land here rather than in the field
         // being rewritten underneath.
         <div
-          className="pointer-events-auto absolute inset-0 z-10 overflow-hidden rounded-2.5 bg-white/35 backdrop-blur-0.25"
+          className="rounded-2.5 backdrop-blur-0.25 bg-ehs-surface/35 pointer-events-auto absolute inset-0 z-10 overflow-hidden"
           aria-hidden="true"
         >
-          <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.9)_42%,rgba(8,145,166,0.4)_58%,transparent_100%)] motion-reduce:animate-none" />
-          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 absolute inset-0 rounded-2.5 ring-1 ring-inset motion-reduce:animate-none" />
+          <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,color-mix(in_oklab,var(--ehs-surface)_90%,transparent)_42%,color-mix(in_oklab,var(--ehs-normal-blue)_40%,transparent)_58%,transparent_100%)] motion-reduce:animate-none" />
+          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 rounded-2.5 absolute inset-0 ring-1 ring-inset motion-reduce:animate-none" />
         </div>
       ) : null}
 
       {justApplied ? (
         <div
-          className="animate-ai-result-flash ring-ehs-normal-blue/50 pointer-events-none absolute inset-0 z-10 rounded-2.5 ring-2 ring-inset"
+          className="animate-ai-result-flash ring-ehs-normal-blue/50 rounded-2.5 pointer-events-none absolute inset-0 z-10 ring-2 ring-inset"
           aria-hidden="true"
         />
       ) : null}
@@ -231,10 +231,10 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
                 }
                 className={[
                   "btn-sweep relative inline-flex size-7 cursor-pointer items-center justify-center rounded-full",
-                  "from-ehs-normal-blue to-ehs-dark-blue bg-linear-to-br text-white",
-                  "shadow-[0px_3px_10px_-2px_rgba(8,145,166,0.65)]",
+                  "from-ehs-normal-blue to-ehs-dark-blue bg-linear-to-br text-ehs-on-accent",
+                  "shadow-[0px_3px_10px_-2px_color-mix(in_oklab,var(--ehs-normal-blue)_65%,transparent)]",
                   "transition-[transform,box-shadow] duration-150 ease-out",
-                  "hover:-translate-y-px hover:shadow-[0px_6px_16px_-3px_rgba(8,145,166,0.8)]",
+                  "hover:-translate-y-px hover:shadow-[0px_6px_16px_-3px_color-mix(in_oklab,var(--ehs-normal-blue)_80%,transparent)]",
                   "active:translate-y-0 active:scale-95",
                   "focus-visible:ring-ehs-normal-blue/30 focus-visible:ring-0.75 focus-visible:outline-none",
                   "disabled:cursor-not-allowed disabled:hover:translate-y-0",
@@ -258,7 +258,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
               {!isBusy ? (
                 <span
                   role="tooltip"
-                  className="bg-ehs-dark-bg pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 text-2.5 font-semibold whitespace-nowrap text-white opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
+                  className="bg-ehs-surface-inverse text-ehs-surface-inverse-text text-2.5 pointer-events-none absolute right-0 bottom-full mb-2 hidden translate-y-1 rounded-md px-2 py-1 font-semibold whitespace-nowrap opacity-0 shadow-[0px_8px_20px_-8px_rgba(15,23,42,0.5)] transition-[opacity,transform] duration-150 group-hover:translate-y-0 group-hover:opacity-100 sm:block"
                 >
                   {copy.label}
                 </span>
@@ -271,7 +271,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
           <button
             type="button"
             onClick={undo}
-            className="text-ehs-gray hover:text-ehs-darker inline-flex cursor-pointer items-center gap-1 rounded-full border border-slate-900/10 bg-white/85 px-2.5 py-1 text-2.75 font-semibold shadow-sm backdrop-blur-sm transition-colors hover:bg-white"
+            className="text-ehs-gray hover:text-ehs-darker text-2.75 border-ehs-border-ink/10 bg-ehs-surface/85 hover:bg-ehs-surface inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-semibold shadow-sm backdrop-blur-sm transition-colors"
           >
             <Icon
               icon="mdi:undo-variant"

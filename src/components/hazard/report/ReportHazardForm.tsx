@@ -27,16 +27,12 @@ import {
 
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
 
-/** Typography-only overrides — do not set fixed input heights. */
+/** Keep FormBuilder on the Inter scale without restyling every nested button/p. */
 const hazardFormFieldClass = [
-  "[&_label]:text8",
-  "[&_label]:font-semibold",
-  "[&_label]:text-ehs-gray",
-  "[&_input]:text4",
-  "[&_select]:text4",
-  "[&_textarea]:text4",
-  "[&_button]:text4",
-  "[&_p]:text8",
+  "[&_label]:text8 [&_label]:text-ehs-muted-text",
+  "[&_input]:text4 [&_input]:text-ehs-darker",
+  "[&_select]:text4 [&_select]:text-ehs-darker",
+  "[&_textarea]:text4 [&_textarea]:text-ehs-darker",
 ].join(" ");
 
 /** Ids are what the schema stores; the model needs the label it was shown. */
@@ -108,7 +104,7 @@ export function ReportHazardForm() {
                     pending={pending}
                     // FormBuilder's textarea skin, not the incident wizard's.
                     fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text4 leading-6"
+                    fieldTextClassName="text4 text-ehs-darker leading-normal"
                     onAccept={(text) => {
                       control.onChange(text);
                       dismiss();
@@ -151,9 +147,9 @@ export function ReportHazardForm() {
   return (
     <IncidentGlassCard
       paddingClassName="p-6 sm:p-8"
-      // Was `min-h-155 max-w-3xl bg-white!`: the forced 620px floor left a
+      // Was `min-h-155 max-w-3xl bg-ehs-surface!`: the forced 620px floor left a
       // block of dead space under the last field, max-w-3xl made the card
-      // narrower than its own page header, and bg-white! overrode the glass so
+      // narrower than its own page header, and bg-ehs-surface! overrode the glass so
       // this was the one opaque slab on the page. Width comes from the page
       // container now, height from the content.
       className="w-full"

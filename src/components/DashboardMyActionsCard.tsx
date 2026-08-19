@@ -16,7 +16,7 @@ export type DashboardMyActionsCardProps = Readonly<{
   className?: string;
 }>;
 
-/** "My Actions" card. Loads GET /api/EHSCommandCenter/GetMyActions. */
+/** "My Actions" card. Loads GET /api/v1/command-center/my-actions. */
 export function DashboardMyActionsCard(
   props: Readonly<DashboardMyActionsCardProps>,
 ) {

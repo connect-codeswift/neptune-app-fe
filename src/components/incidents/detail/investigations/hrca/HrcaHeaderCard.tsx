@@ -20,13 +20,13 @@ function StatBlock(props: Readonly<{ value: number; label: string }>) {
     <div className="flex flex-col gap-1">
       <Text
         as="p"
-        className="text-ehs-dark-bg text-center text1 leading-6.5 font-bold tracking-[-0.52px]"
+        className="text-ehs-dark-bg text1 text-center leading-6.5 font-bold tracking-[-0.52px]"
       >
         {String(value)}
       </Text>
       <Text
         as="p"
-        className="text-ehs-muted-text text-center text8 leading-none font-bold tracking-[0.8px] uppercase"
+        className="text-ehs-muted-text text8 text-center leading-none font-bold tracking-[0.8px] uppercase"
       >
         {label}
       </Text>
@@ -46,12 +46,12 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         className="px-6 py-5"
         style={{
           backgroundImage:
-            "linear-gradient(120.95deg, rgba(8, 145, 166, 0.22) 0%, rgba(8, 145, 166, 0) 60%)",
+            "linear-gradient(120.95deg, color-mix(in oklab, var(--ehs-normal-blue) 22%, transparent) 0%, transparent 60%)",
         }}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <div className="bg-ehs-normal-blue relative flex size-11.5 shrink-0 items-center justify-center rounded-3.25 shadow-[0px_8px_22px_-8px_#0891a6]">
+            <div className="bg-ehs-normal-blue rounded-3.25 relative flex size-11.5 shrink-0 items-center justify-center shadow-[0px_8px_22px_-8px_var(--ehs-normal-blue)]">
               <Icon
                 icon="mdi:lightning-bolt"
                 className="text-ehs-light-text size-5.5"
@@ -62,7 +62,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <Text
                 as="p"
-                className="text8 leading-none font-bold tracking-[1.76px] text-[#056e7e] uppercase"
+                className="text8 text-ehs-dark-blue leading-none font-bold tracking-[1.76px] uppercase"
               >
                 Horizontal Root Cause Analysis
               </Text>
@@ -84,8 +84,8 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 border-t border-[rgba(15,23,42,0.08)] sm:grid-cols-[180px_200px_minmax(0,1fr)]">
-        <div className="border-[rgba(15,23,42,0.08)] sm:border-r">
+      <div className="border-ehs-border-ink/8 grid grid-cols-1 border-t sm:grid-cols-[180px_200px_minmax(0,1fr)]">
+        <div className="border-ehs-border-ink/8 sm:border-r">
           <HrcaMetaField
             icon="mdi:alert-outline"
             label="Type of report"
@@ -95,7 +95,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             valueClassName="text4 leading-3.25 font-normal"
           />
         </div>
-        <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0 sm:border-r">
+        <div className="border-ehs-border-ink/8 border-t sm:border-t-0 sm:border-r">
           <HrcaMetaField
             icon="mdi:calendar-outline"
             label="Date"
@@ -103,7 +103,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
             valueClassName="text4 leading-[17.5px] font-bold"
           />
         </div>
-        <div className="border-t border-[rgba(15,23,42,0.08)] sm:border-t-0">
+        <div className="border-ehs-border-ink/8 border-t sm:border-t-0">
           <HrcaMetaField
             icon="mdi:heart-outline"
             label="Injury"
@@ -113,8 +113,8 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-[rgba(15,23,42,0.08)] px-6 pt-3.75 pb-3.5">
-        <div className="flex size-7.5 shrink-0 items-center justify-center rounded-2 bg-white/62">
+      <div className="border-ehs-border-ink/8 flex items-start gap-3 border-t px-6 pt-3.75 pb-3.5">
+        <div className="rounded-2 bg-ehs-surface/62 flex size-7.5 shrink-0 items-center justify-center">
           <Icon
             icon="mdi:file-document-outline"
             className="text-ehs-gray size-3.75"
@@ -128,7 +128,7 @@ export function HrcaHeaderCard(props: Readonly<HrcaHeaderCardProps>) {
           >
             Incident description
           </Text>
-          <p className="text-ehs-slate mt-0.5 text4 leading-[19.38px] font-normal">
+          <p className="text-ehs-slate text4 mt-0.5 leading-[19.38px] font-normal">
             {meta.description}
           </p>
         </div>

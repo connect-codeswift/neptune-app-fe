@@ -1,4 +1,5 @@
-export type HrcaCellModalKind = "contributingFactor" | "why" | "correctiveAction";
+export type HrcaCellModalKind =
+  "contributingFactor" | "why" | "correctiveAction";
 
 export type HrcaCellModalState = Readonly<{
   kind: HrcaCellModalKind;

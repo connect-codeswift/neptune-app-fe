@@ -6,12 +6,12 @@ import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 
 const CONFETTI_COLORS = [
-  "#0891a6",
-  "#078395",
-  "#067485",
-  "#066d7d",
-  "#b2dde3",
-  "#e6f4f6",
+  "var(--ehs-normal-blue)",
+  "var(--ehs-normal-blue-hover)",
+  "var(--ehs-normal-blue-active)",
+  "var(--ehs-dark-blue)",
+  "var(--ehs-light-blue-active)",
+  "var(--ehs-light-blue)",
 ] as const;
 
 type ConfettiPiece = Readonly<{
@@ -163,7 +163,7 @@ export function SetupCompleteModal(props: Readonly<SetupCompleteModalProps>) {
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="flex w-full max-w-md flex-col items-center overflow-visible rounded-3xl bg-white px-6 py-8 text-center shadow-xl"
+        className="bg-ehs-surface flex w-full max-w-md flex-col items-center overflow-visible rounded-3xl px-6 py-8 text-center shadow-xl"
       >
         <SuccessCheckIcon />
 

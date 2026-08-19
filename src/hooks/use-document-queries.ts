@@ -42,7 +42,7 @@ export type UseDocumentsListQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads documents via POST /api/Document/allDocuments
+ * Loads documents via POST /api/v1/documents/search
  * body: `{ pageNumber, pageSize }`
  */
 export function useDocumentsListQuery(
@@ -75,7 +75,7 @@ export type UseDocumentByIdQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads a single document via GET /api/Document/{id}.
+ * Loads a single document via GET /api/v1/documents/{id}.
  * Returns `null` (not an error) when the backend has nothing for that id.
  */
 export function useDocumentByIdQuery(options: UseDocumentByIdQueryOptions) {
@@ -103,7 +103,7 @@ export type UseDocumentVersionsQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads a document's version history via GET /api/Document/{documentId}/versions.
+ * Loads a document's version history via GET /api/v1/documents/{documentId}/versions.
  */
 export function useDocumentVersionsQuery(
   options: UseDocumentVersionsQueryOptions,
@@ -133,7 +133,7 @@ export type UseDocumentAcknowledgementsQueryOptions = Readonly<{
 
 /**
  * Loads acknowledgement roster for a document version via
- * GET /api/Document/versions/{documentVersionId}/acknowledgements.
+ * GET /api/v1/document-versions/{documentVersionId}/acknowledgements.
  */
 export function useDocumentAcknowledgementsQuery(
   options: UseDocumentAcknowledgementsQueryOptions,
@@ -149,7 +149,12 @@ export function useDocumentAcknowledgementsQuery(
     enabled,
     queryFn: async () => {
       if (documentVersionId == null) {
-        return { records: [], acknowledgedCount: 0, pendingCount: 0, completionRate: 0 };
+        return {
+          records: [],
+          acknowledgedCount: 0,
+          pendingCount: 0,
+          completionRate: 0,
+        };
       }
       const response = await getDocumentAcknowledgements(documentVersionId);
       return mapAcknowledgementsDto(response.dataModel);
@@ -157,7 +162,7 @@ export function useDocumentAcknowledgementsQuery(
   });
 }
 
-/** GET /api/Document/GetAllCategories */
+/** GET /api/v1/document-categories */
 export function useDocumentCategoriesQuery(enabled = true) {
   return useQuery({
     queryKey: documentQueryKeys.categories,
@@ -166,7 +171,7 @@ export function useDocumentCategoriesQuery(enabled = true) {
   });
 }
 
-/** GET /api/Document/GetAllDepartments */
+/** GET /api/v1/departments */
 export function useDocumentDepartmentsQuery(enabled = true) {
   return useQuery({
     queryKey: documentQueryKeys.departments,
@@ -175,7 +180,7 @@ export function useDocumentDepartmentsQuery(enabled = true) {
   });
 }
 
-/** GET /api/Document/dashboard-kpis */
+/** GET /api/v1/documents/dashboard-kpis */
 export function useDocumentDashboardKpisQuery(enabled = true) {
   return useQuery({
     queryKey: documentQueryKeys.dashboardKpis,
@@ -184,4 +189,4 @@ export function useDocumentDashboardKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/Document/category-stats */
+/** GET /api/v1/documents/category-stats */

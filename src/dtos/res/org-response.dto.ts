@@ -1,6 +1,6 @@
 import type { SessionSiteDto } from "@/dtos/res/session-response.dto";
 
-/** GET /Auth/Org/me — organization context for the signed-in tenant session. */
+/** GET /api/v1/organizations/me — organization context for the signed-in tenant session. */
 export type OrgMeResponseDto = Readonly<{
   id: number;
   name: string;

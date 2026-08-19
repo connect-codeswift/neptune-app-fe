@@ -34,7 +34,7 @@ export function AuditReportSkeleton() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-2.5 rounded-xl bg-[rgba(238,241,246,0.7)] p-4">
+        <div className="bg-ehs-form-classes-bg/70 flex flex-col gap-2.5 rounded-xl p-4">
           <Skeleton className="h-3.5 w-40" />
           <Skeleton className="h-2.5 w-full" />
           <Skeleton className="h-2.5 w-full" />

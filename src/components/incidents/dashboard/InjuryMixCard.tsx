@@ -14,7 +14,7 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const injuryMixCardShellClass =
-  "border-white/90 bg-[rgba(255,255,255,0.62)] backdrop-blur-2.5";
+  "border-ehs-hairline/90 bg-ehs-surface/62 backdrop-blur-2.5";
 
 function DonutChart(
   props: Readonly<{ items: readonly InjuryMixItem[]; total: number }>,
@@ -79,6 +79,7 @@ function DonutChart(
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
+            /* Literal: `var()` is not valid in an SVG presentation attribute. */
             stroke="rgba(136, 146, 163, 0.18)"
             strokeWidth={STROKE}
             aria-hidden="true"
@@ -89,13 +90,13 @@ function DonutChart(
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
         <Text
           as="p"
-          className="text-ehs-dark-bg pt-0.5 pb-0.75 text-6.5 leading-normal font-bold tracking-[-0.52px] tabular-nums"
+          className="text-ehs-dark-bg text-6.5 pt-0.5 pb-0.75 leading-normal font-bold tracking-[-0.52px] tabular-nums"
         >
           {new Intl.NumberFormat("en-US").format(total)}
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text py-px text-2.5 leading-normal font-normal tracking-[0.8px] uppercase"
+          className="text-ehs-muted-text text-2.5 py-px leading-normal font-normal tracking-[0.8px] uppercase"
         >
           RECORD.
         </Text>
@@ -121,7 +122,7 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
         </Text>
         <Text
           as="p"
-          className="text-ehs-muted-text py-px text-[10.8px] leading-normal"
+          className="text-ehs-muted-text py-px text-[11px] leading-normal"
         >
           Composition of recordable outcomes
         </Text>
@@ -137,7 +138,7 @@ export function InjuryMixCard(props: Readonly<InjuryMixCardProps>) {
               className="flex h-3.5 min-w-0 items-center gap-2"
             >
               <span
-                className="size-2 shrink-0 rounded-0.5"
+                className="rounded-0.5 size-2 shrink-0"
                 style={{ backgroundColor: item.color }}
                 aria-hidden="true"
               />

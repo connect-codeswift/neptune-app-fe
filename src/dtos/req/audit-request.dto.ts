@@ -10,7 +10,7 @@ export type AuditItemResponseRequestDto = {
   isNA: boolean;
 };
 
-/** Body for POST /api/Audit/{id}/responses — records the audit's answers. */
+/** Body for POST /api/v1/audits/{id}/responses — records the audit's answers. */
 export type SaveAuditResponsesRequestDto = {
   userId: number;
   siteId: number;
@@ -19,7 +19,7 @@ export type SaveAuditResponsesRequestDto = {
   responses: AuditItemResponseRequestDto[];
 };
 
-/** Body for POST /api/Audit — starts (schedules) an audit from a template. */
+/** Body for POST /api/v1/audits — starts (schedules) an audit from a template. */
 export type CreateAuditRequestDto = {
   /** 0 on create; the backend assigns the real id. */
   id: number;

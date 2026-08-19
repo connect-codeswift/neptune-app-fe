@@ -72,9 +72,7 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
     status: formatRunStatus((dto.status ?? "").trim()),
     dueDate: formatInspectionDate(dto.scheduleDate ?? ""),
     findings:
-      (dto.findingCount ?? 0) > 0
-        ? `${String(dto.findingCount)} open`
-        : null,
+      (dto.findingCount ?? 0) > 0 ? `${String(dto.findingCount)} open` : null,
   };
 }
 
@@ -94,7 +92,7 @@ export function mapFindingDtoToFinding(
 
 /** Map an API inspection detail onto the detail panel's donut shape. */
 /**
- * Turn GET /api/Inspection/{id} into a runnable checklist: the template
+ * Turn GET /api/v1/inspections/{id} into a runnable checklist: the template
  * snapshot carries the sections and their items.
  */
 export function mapInspectionDetailToChecklist(
@@ -121,7 +119,7 @@ export function mapInspectionDetailToChecklist(
 }
 
 /**
- * Build the report straight from GET /api/Inspection/{id}, which carries
+ * Build the report straight from GET /api/v1/inspections/{id}, which carries
  * everything it needs: the inspection's metadata, the template snapshot
  * (sections, items and pass threshold) and the recorded responses.
  */

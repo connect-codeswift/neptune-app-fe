@@ -49,7 +49,7 @@ export function ReportIncidentStepThree(
             </Text>
             <Text
               as="h2"
-              className="text-ehs-dark-bg text-[21.8px] font-bold tracking-[-0.44px]"
+              className="text-ehs-dark-bg text-[22px] font-bold tracking-[-0.44px]"
             >
               People & injury
             </Text>
@@ -155,7 +155,7 @@ export function ReportIncidentStepThree(
           </div>
         </div>
 
-        <div className="border-t border-[rgba(15,23,42,0.08)] pt-5.25">
+        <div className="border-ehs-border-ink/8 border-t pt-5.25">
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               type="button"
@@ -180,7 +180,7 @@ export function ReportIncidentStepThree(
               type="button"
               variant="primary"
               onClick={onContinue}
-              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)]"
+              className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
               Continue
               <Icon

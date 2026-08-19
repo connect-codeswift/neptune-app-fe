@@ -30,7 +30,7 @@ export function useCreateDocumentMutation() {
   });
 }
 
-/** PUT /api/Document/document — dedicated update endpoint for Edit. */
+/** PUT /api/v1/documents — dedicated update endpoint for Edit. */
 export function useUpdateDocumentMutation() {
   const queryClient = useQueryClient();
 
@@ -42,7 +42,7 @@ export function useUpdateDocumentMutation() {
   });
 }
 
-/** POST /api/Document/AddCategory — refreshes category options after create. */
+/** POST /api/v1/document-categories — refreshes category options after create. */
 export function useAddDocumentCategoryMutation() {
   const queryClient = useQueryClient();
 
@@ -56,7 +56,7 @@ export function useAddDocumentCategoryMutation() {
   });
 }
 
-/** POST /api/Document/AddDepartment — refreshes department options after create. */
+/** POST /api/v1/departments — refreshes department options after create. */
 export function useAddDocumentDepartmentMutation() {
   const queryClient = useQueryClient();
 
@@ -71,19 +71,20 @@ export function useAddDocumentDepartmentMutation() {
   });
 }
 
-/** PUT /api/Document/DocApproval */
+/** PUT /api/v1/document-versions/{docVersionId}/approval */
 export function useApproveDocumentMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ApproveDocumentRequestDto) => approveDocument(payload),
+    mutationFn: (payload: ApproveDocumentRequestDto) =>
+      approveDocument(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
     },
   });
 }
 
-/** PUT /api/Document/Acknowledgement */
+/** PUT /api/v1/document-versions/{versionId}/acknowledge */
 export function useAcknowledgeDocumentMutation() {
   const queryClient = useQueryClient();
 

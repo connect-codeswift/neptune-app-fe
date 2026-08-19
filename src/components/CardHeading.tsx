@@ -46,7 +46,7 @@ export function CardHeading(props: Readonly<CardHeadingProps>) {
         (viewAllHref ? (
           <Link
             href={viewAllHref}
-            className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex shrink-0 items-center gap-2 rounded-2.5 px-2 py-[4.5px] transition-colors"
+            className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg rounded-2.5 inline-flex shrink-0 items-center gap-2 px-2 py-[5px] transition-colors"
           >
             View all
             <Icon

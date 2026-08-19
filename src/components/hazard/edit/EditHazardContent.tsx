@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { EditHazardForm } from "./EditHazardForm";
 import { EditHazardHeader } from "./EditHazardHeader";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
+import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { canEditHazard, getCurrentUser } from "@/lib/current-user";
 import { mapHazardDtoToRecord, toHazardApiId } from "@/lib/map-hazard";
+import { toUserNameLookup, userNameFor } from "@/lib/map-user";
 
 const HAZARD_LIST_ROUTE = "/dashboard/hazard";
 
@@ -26,8 +27,22 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
     userId,
   });
 
+  const userDropdownQuery = useUserDropdownQuery();
+  const userNames = toUserNameLookup(userDropdownQuery.data?.dataModel ?? []);
+
   const dto = detailQuery.data?.dataModel ?? null;
-  const record = dto ? mapHazardDtoToRecord(dto) : null;
+  const mapped = dto ? mapHazardDtoToRecord(dto) : null;
+  const record = mapped
+    ? {
+        ...mapped,
+        assignedTo:
+          mapped.assignedToId != null && mapped.assignedToId > 0
+            ? userNameFor(userNames, mapped.assignedToId)
+            : mapped.assignedTo,
+      }
+    : null;
+
+  const isPending = detailQuery.isPending || userDropdownQuery.isPending;
 
   const detailRoute = `${HAZARD_LIST_ROUTE}/${encodeURIComponent(hazardId)}`;
 
@@ -49,42 +64,38 @@ export function EditHazardContent(props: Readonly<{ hazardId: string }>) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-2">
-      <DashboardHeader title="Edit Hazard Reporting" />
+    <div className="flex min-h-screen flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
+      {isPending && <SkeletonFormPage fields={8} />}
 
-      <div className="flex w-full flex-col gap-3.5 px-4 pb-8">
-        {detailQuery.isPending && <SkeletonFormPage fields={8} />}
+      {!isPending && detailQuery.isError && (
+        <Text as="p" className="text4 text-ehs-red">
+          {getMutationErrorMessage(
+            detailQuery.error,
+            "Could not load this hazard.",
+          )}
+        </Text>
+      )}
 
-        {detailQuery.isError && (
-          <Text as="p" className="text4 text-ehs-red">
-            {getMutationErrorMessage(
-              detailQuery.error,
-              "Could not load this hazard.",
-            )}
+      {!isPending && !detailQuery.isError && !record && (
+        <div className="flex flex-col items-start gap-2">
+          <Text as="p" className="text4 text-ehs-muted-text">
+            {`No hazard found for id ${hazardId}.`}
           </Text>
-        )}
+          <Link
+            href={HAZARD_LIST_ROUTE}
+            className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
+          >
+            Back to hazard reporting
+          </Link>
+        </div>
+      )}
 
-        {!detailQuery.isPending && !detailQuery.isError && !record && (
-          <div className="flex flex-col items-start gap-2">
-            <Text as="p" className="text4 text-ehs-muted-text">
-              {`No hazard found for id ${hazardId}.`}
-            </Text>
-            <Link
-              href={HAZARD_LIST_ROUTE}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
-            >
-              Back to hazard reporting
-            </Link>
-          </div>
-        )}
-
-        {record && (
-          <>
-            <EditHazardHeader hazardId={record.id} />
-            <EditHazardForm record={record} />
-          </>
-        )}
-      </div>
+      {!isPending && record ? (
+        <>
+          <EditHazardHeader hazardId={record.id} />
+          <EditHazardForm record={record} />
+        </>
+      ) : null}
     </div>
   );
 }

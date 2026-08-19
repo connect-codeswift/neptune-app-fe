@@ -50,7 +50,7 @@ export function PolicyMakerDocumentDetailHeader(
   return (
     <div
       className={[
-        "rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex flex-col gap-1.5 border-b-[0.727px] border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] px-3.5 py-3.5 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)] before:pointer-events-none before:absolute before:inset-0 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
+        "rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex flex-col gap-1.5 border-b border-ehs-border-ink/8 bg-ehs-surface/62 px-3.5 py-3.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
         className,
       ]
         .filter(Boolean)
@@ -63,7 +63,7 @@ export function PolicyMakerDocumentDetailHeader(
         <span className={crumbActive}>Compliance</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-2.75 shrink-0 text-[#8892a3]"
+          className="size-2.75 shrink-0 text-ehs-muted-text"
           aria-hidden="true"
         />
         <Link href="/dashboard/policy-maker" className={crumbMuted}>
@@ -71,7 +71,7 @@ export function PolicyMakerDocumentDetailHeader(
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-2.75 shrink-0 text-[#8892a3]"
+          className="size-2.75 shrink-0 text-ehs-muted-text"
           aria-hidden="true"
         />
         <span className={`${crumbActive} truncate`}>{document.code}</span>
@@ -92,7 +92,7 @@ export function PolicyMakerDocumentDetailHeader(
             type="button"
             variant="tertiary"
             onClick={onEdit}
-            className={`${actionBaseClass} border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none`}
+            className={`${actionBaseClass} border border-ehs-border-ink/14 text-ehs-dark-bg shadow-none`}
           >
             <Icon
               icon="mdi:pencil-outline"
@@ -105,7 +105,7 @@ export function PolicyMakerDocumentDetailHeader(
             type="button"
             variant="tertiary"
             onClick={onVersionHistory}
-            className={`${actionBaseClass} col-span-1 border-[0.8px] border-[rgba(11,19,32,0.14)] text-[#0b1320] shadow-none min-[480px]:col-span-2 sm:col-auto`}
+            className={`${actionBaseClass} col-span-1 border border-ehs-border-ink/14 text-ehs-dark-bg shadow-none min-[480px]:col-span-2 sm:col-auto`}
           >
             Version History
           </Button>
@@ -115,7 +115,7 @@ export function PolicyMakerDocumentDetailHeader(
               variant="tertiary"
               onClick={onApproval}
               disabled={isApproved || isApproving}
-              className={`${actionBaseClass} !bg-ehs-green !text-ehs-light-text hover:!bg-ehs-green/90 !border-transparent !shadow-none disabled:opacity-70`}
+              className={`${actionBaseClass} bg-ehs-green! text-ehs-on-accent! hover:bg-ehs-green/90! border-transparent! shadow-none! disabled:opacity-70`}
             >
               {isApproving
                 ? "Approving…"
@@ -129,7 +129,7 @@ export function PolicyMakerDocumentDetailHeader(
               type="button"
               variant="primary"
               onClick={onAcknowledgment}
-              className={`${actionBaseClass} !bg-ehs-blue !text-ehs-light-text hover:!bg-ehs-blue/90 !border-transparent !shadow-none`}
+              className={`${actionBaseClass} bg-ehs-blue! text-ehs-on-accent! hover:bg-ehs-blue/90! border-transparent! shadow-none!`}
             >
               Acknowledgment
             </Button>

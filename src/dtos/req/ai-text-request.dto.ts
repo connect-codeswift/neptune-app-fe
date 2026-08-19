@@ -1,7 +1,7 @@
 /**
  * Request bodies for the incident AI-assist endpoints.
  *
- * All three are suggest-only: none persists anything, and POST /Incident/incident
+ * All three are suggest-only: none persists anything, and POST /api/v1/incidents
  * is still the only call that saves a record. The API key never touches the
  * browser — we post the reporter's text to our own API and the backend talks to
  * the model.
@@ -12,7 +12,7 @@
  */
 
 /**
- * Body for POST /api/Incident/proofread and POST /api/Incident/paraphrase.
+ * Body for POST /api/v1/incidents/ai/proofread and POST /api/v1/incidents/ai/paraphrase.
  *
  * One type for both because the contract is identical by design — what differs
  * is behaviour, not shape. Proofread corrects spelling, grammar and punctuation
@@ -29,7 +29,7 @@ export type RewriteRequestDto = {
 export type ProofreadRequestDto = RewriteRequestDto;
 
 /**
- * Body for POST /api/Incident/draft-assist.
+ * Body for POST /api/v1/incidents/ai/draft-assist.
  *
  * Every field is optional, but an entirely empty request is a 400. A request
  * carrying only dropdown values and no description is explicitly supported —
@@ -76,7 +76,7 @@ export type IncidentDraftRequestDto = {
 export const AI_TEXT_MAX_CHARS = 8000;
 
 /**
- * Body for POST /api/NearMiss/draft-assist.
+ * Body for POST /api/v1/near-misses/ai/draft-assist.
  *
  * Every field optional, but a request with all of them blank is a 400 — it is
  * rejected before any upstream call, so don't fire one to see what happens.
@@ -95,7 +95,7 @@ export type NearMissDraftRequestDto = {
 };
 
 /**
- * Body for POST /api/Hazard/draft-assist.
+ * Body for POST /api/v1/hazards/ai/draft-assist.
  *
  * `narrative` comes back null unless `potentialConsequence` is given — type and
  * location alone are below the threshold.

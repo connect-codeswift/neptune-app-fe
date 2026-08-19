@@ -12,12 +12,12 @@ import {
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { ReportFieldLabel, ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
-import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
 import {
-  FIELD_INPUT_CLASS,
-  FIELD_INPUT_LG_CLASS,
-} from "@/components/ui/field-styles";
+  ReportFieldLabel,
+  ReportFieldError,
+} from "@/components/incidents/report/shared/ReportFormField";
+import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
+import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import {
   readUserGender,
   type SiteUserDto,
@@ -64,8 +64,8 @@ export type ReportPersonSearchFieldProps = Readonly<{
   onChange: (next: ReportPersonSelection) => void;
   /**
    * Where people are loaded from.
-   * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
-   * - `dropdown`: GET /User/dropdown, filtered client-side
+   * - `site` (default): GET /api/v1/sites/{siteId}/users
+   * - `dropdown`: GET /api/v1/users/dropdown, filtered client-side
    */
   usersSource?: "site" | "dropdown";
   /** Site whose roster is offered when `usersSource` is `site`. `0` = no site claim. */
@@ -147,7 +147,7 @@ function filterUsersByQuery(
  * Affected-person picker: a combobox over the people who belong to the current
  * site, or the org-wide `/User/dropdown` list when `usersSource` is `dropdown`.
  *
- * Site search runs on the backend (`GET /Auth/GetUsersBySiteId/{siteId}?search=`).
+ * Site search runs on the backend (`GET /api/v1/sites/{siteId}/users?search=`).
  * Dropdown mode loads once and filters client-side.
  *
  * Free text is still accepted. The affected person is often a contractor,
@@ -259,7 +259,9 @@ export function ReportPersonSearchField(
   const isSearching =
     open && (usersQuery.isFetching || debouncedQuery !== query);
 
-  const rosterLabel = isDropdown ? "People" : `People at ${siteName ?? "this site"}`;
+  const rosterLabel = isDropdown
+    ? "People"
+    : `People at ${siteName ?? "this site"}`;
   const emptyNoQuery = isDropdown
     ? "No people are listed yet."
     : `No people are listed for ${siteName ?? "this site"} yet.`;
@@ -432,7 +434,7 @@ export function ReportPersonSearchField(
             {[0, 1, 2].map((row) => (
               <span
                 key={row}
-                className="h-10 animate-pulse rounded-lg bg-[rgba(15,23,42,0.06)]"
+                className="bg-ehs-surface-inverse/6 h-10 animate-pulse rounded-lg"
               />
             ))}
           </li>
@@ -441,7 +443,7 @@ export function ReportPersonSearchField(
             {loadErrorMessage}
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text px-2.5 py-3 text-3.25">
+          <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
             {debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
           </li>
         ) : (
@@ -468,13 +470,13 @@ export function ReportPersonSearchField(
                   }}
                   onMouseEnter={() => moveHighlight(index)}
                   className={[
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-2 px-2.5 py-2 text-left transition-colors",
+                    "rounded-2 flex w-full cursor-pointer items-center gap-2.5 px-2.5 py-2 text-left transition-colors",
                     isActive
-                      ? "bg-[rgba(8,145,166,0.1)]"
-                      : "hover:bg-[rgba(15,23,42,0.04)]",
+                      ? "bg-ehs-normal-blue/10"
+                      : "hover:bg-ehs-surface-inverse/4",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue inline-flex size-7 shrink-0 items-center justify-center rounded-full text-2.75 font-bold">
+                  <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
                     {initialsFor(name)}
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
@@ -505,7 +507,7 @@ export function ReportPersonSearchField(
 
   const inlineMenu =
     open && !isEmbedded ? (
-      <div className="animate-popover-in absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]">
+      <div className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
         {listbox}
       </div>
     ) : null;
@@ -520,7 +522,7 @@ export function ReportPersonSearchField(
               left: menuPosition.left,
               width: menuPosition.width,
             }}
-            className="animate-popover-in fixed z-[120] overflow-hidden rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-white shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+            className="animate-popover-in rounded-2.5 border-ehs-border-ink/10 bg-ehs-surface fixed z-120 overflow-hidden border shadow-(--ehs-shadow-popover)"
           >
             {listbox}
           </div>,
@@ -559,7 +561,7 @@ export function ReportPersonSearchField(
         onKeyDown={onKeyDown}
         className={[
           inputClassName || inputClass,
-          "border border-slate-900/10",
+          "border-ehs-border-ink/10 border",
           hasSelection ? "pr-16" : "pr-9",
         ]
           .filter(Boolean)
@@ -609,14 +611,18 @@ export function ReportPersonSearchField(
   if (isEmbedded) {
     return (
       <div
-        className={["flex min-w-0 flex-col", hideLabel ? "" : "gap-1.5", className]
+        className={[
+          "flex min-w-0 flex-col",
+          hideLabel ? "" : "gap-1.5",
+          className,
+        ]
           .filter(Boolean)
           .join(" ")}
       >
         {hideLabel ? null : (
           <label
             htmlFor={fieldId}
-            className="text-slate-70 block text-base leading-[19.5px] font-medium"
+            className="block text-base leading-[19.5px] font-medium"
           >
             {label}
             {required ? <span className="text-ehs-red"> *</span> : null}

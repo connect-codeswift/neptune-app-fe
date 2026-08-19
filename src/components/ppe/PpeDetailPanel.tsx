@@ -86,7 +86,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (isLoading) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -105,7 +105,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (errorMessage) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center gap-2"
       >
@@ -137,7 +137,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
   if (!item) {
     return (
       <IncidentGlassCard
-        paddingClassName="p-[18.49px]"
+        paddingClassName="p-[18px]"
         className={["min-h-60 min-w-0", className].filter(Boolean).join(" ")}
         incidentGlassCardClassName="items-center justify-center"
       >
@@ -164,7 +164,7 @@ export function PpeDetailPanel(props: Readonly<PpeDetailPanelProps>) {
 
           <Link
             href={`${CATALOG_ROUTE}/${encodeURIComponent(item.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text4 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-white px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text4 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

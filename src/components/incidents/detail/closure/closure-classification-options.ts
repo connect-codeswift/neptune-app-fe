@@ -40,7 +40,9 @@ export function incidentTypeLabel(value: string): string {
  * an unrecognised string can never reach the API. Deliberately refuses to guess:
  * an unmatched value becomes "Select option" and the user picks explicitly.
  */
-export function toCanonicalIncidentType(raw: string | null | undefined): string {
+export function toCanonicalIncidentType(
+  raw: string | null | undefined,
+): string {
   const text = raw?.trim();
   if (!text || text === "—") return "Select option";
   if (INCIDENT_TYPE_VALUES.has(text)) return text;

@@ -1,3 +1,10 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "overrides": [
+    {
+      "comment": "Cursor rule files are markdown. Without this, `npm run format` reformats the .claude/skills/*.md mirrors but not their .cursor/rules/*.mdc counterparts, silently desyncing the pairs.",
+      "files": "*.mdc",
+      "options": { "parser": "markdown" }
+    }
+  ]
 }

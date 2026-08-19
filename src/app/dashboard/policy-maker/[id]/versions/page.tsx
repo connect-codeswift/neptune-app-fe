@@ -7,7 +7,5 @@ export default async function PolicyMakerVersionHistoryPage({
 }) {
   const { id } = await params;
 
-  return (
-    <VersionHistoryContent documentIdParam={decodeURIComponent(id)} />
-  );
+  return <VersionHistoryContent documentIdParam={decodeURIComponent(id)} />;
 }

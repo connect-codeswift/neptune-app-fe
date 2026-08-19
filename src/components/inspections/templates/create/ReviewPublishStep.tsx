@@ -36,7 +36,7 @@ function Field(props: Readonly<{ label: string; children: ReactNode }>) {
   const { label, children } = props;
 
   return (
-    <div className="flex min-w-0 flex-col gap-1 rounded-lg bg-white p-3">
+    <div className="bg-ehs-surface flex min-w-0 flex-col gap-1 rounded-lg p-3">
       <span className={labelClass}>{label}</span>
       <span className="text-ehs-dark-bg">{children}</span>
     </div>
@@ -133,7 +133,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             </div>
           </div>
 
-          <ul className="flex flex-col divide-y divide-slate-900/10">
+          <ul className="divide-ehs-border-ink/10 flex flex-col divide-y">
             {sections.map((section) => (
               <li
                 key={section.id}
@@ -210,7 +210,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             type="button"
             onClick={onPublish}
             disabled={isSubmitting}
-            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold text-ehs-on-accent shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Publishing..." : "Publish Template"}
           </button>
@@ -219,7 +219,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             type="button"
             onClick={onSaveDraft}
             disabled={isSubmitting}
-            className="text-ehs-dark-bg -mt-1.5 w-full cursor-pointer rounded-xl border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
+            className="text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 -mt-1.5 w-full cursor-pointer rounded-xl border px-5 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             Save as Draft
           </button>
@@ -230,7 +230,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
           incidentGlassCardClassName="gap-2"
         >
           <h3 className={labelClass}>At a Glance</h3>
-          <div className="flex flex-col divide-y divide-slate-900/10">
+          <div className="divide-ehs-border-ink/10 flex flex-col divide-y">
             <GlanceRow label="Name" value={name || DASH} />
             <GlanceRow label="Sections" value={sections.length} />
             <GlanceRow label="Total items" value={totalItems} />

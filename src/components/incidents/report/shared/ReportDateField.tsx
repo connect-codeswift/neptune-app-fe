@@ -215,8 +215,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     />
   );
 
-  const inlineCalendar =
-    open && !isEmbedded ? calendarPopover : null;
+  const inlineCalendar = open && !isEmbedded ? calendarPopover : null;
 
   const portaledCalendar =
     isEmbedded && mounted && open && menuPosition
@@ -230,7 +229,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
                 width: menuPosition.width,
               } satisfies CSSProperties
             }
-            className="fixed z-[120]"
+            className="fixed z-120"
           >
             <ReportCalendarPopover
               value={selected}
@@ -241,7 +240,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
                 close();
               }}
               onClose={close}
-              className="animate-popover-in w-full rounded-3 border border-[rgba(15,23,42,0.1)] bg-white p-2.5 shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.24)]"
+              className="animate-popover-in rounded-3 border-ehs-border-ink/10 bg-ehs-surface w-full border p-2.5 shadow-(--ehs-shadow-popover)"
             />
           </div>,
           document.body,
@@ -302,10 +301,10 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
               aria-pressed={isActive}
               onClick={() => onChange(formatMmDdYyyy(date))}
               className={[
-                "cursor-pointer rounded-full px-2 py-px text-2.75 font-semibold transition-colors",
+                "text-2.75 cursor-pointer rounded-full px-2 py-px font-semibold transition-colors",
                 isActive
                   ? "bg-ehs-light-blue text-ehs-dark-blue"
-                  : "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg border border-[rgba(15,23,42,0.1)]",
+                  : "text-ehs-muted-text hover:bg-ehs-light-bg hover:text-ehs-dark-bg border-ehs-border-ink/10 border",
               ].join(" ")}
             >
               {QUICK_PICK_LABELS[pick]}
@@ -325,7 +324,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         {hideLabel ? null : (
           <label
             htmlFor={inputId}
-            className="block text-sm leading-[19.5px] text-ehs-gray"
+            className="text-ehs-gray block text-sm leading-[19.5px]"
           >
             {label}
             {required ? <span className="text-ehs-red"> *</span> : null}
@@ -337,7 +336,9 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         </div>
 
         {quickPickButtons}
-        {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
+        {error ? (
+          <ReportFieldError id={errorId}>{error}</ReportFieldError>
+        ) : null}
         {portaledCalendar}
       </div>
     );

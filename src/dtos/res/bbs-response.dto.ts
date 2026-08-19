@@ -41,9 +41,8 @@ export type GetBbsObservationsResponseDto = ApiEnvelopeDto<
 >;
 
 /** Matches backend response for GET /api/bbs/{id}. */
-export type GetBbsObservationByIdResponseDto = ApiEnvelopeDto<
-  BbsObservationDto | null
->;
+export type GetBbsObservationByIdResponseDto =
+  ApiEnvelopeDto<BbsObservationDto | null>;
 
 /** dataModel shape for GET /api/bbs/dashboard-kpi. */
 export type BbsDashboardKpiDto = {
@@ -53,9 +52,8 @@ export type BbsDashboardKpiDto = {
 };
 
 /** Matches backend response for GET /api/bbs/dashboard-kpi. */
-export type GetBbsDashboardKpiResponseDto = ApiEnvelopeDto<
-  BbsDashboardKpiDto | null
->;
+export type GetBbsDashboardKpiResponseDto =
+  ApiEnvelopeDto<BbsDashboardKpiDto | null>;
 
 /** One category count from GET /api/bbs/at-risk-categories. */
 export type BbsAtRiskCategoryDto = {
@@ -71,9 +69,8 @@ export type BbsAtRiskCategoriesDto = {
 };
 
 /** Matches backend response for GET /api/bbs/at-risk-categories. */
-export type GetBbsAtRiskCategoriesResponseDto = ApiEnvelopeDto<
-  BbsAtRiskCategoriesDto | null
->;
+export type GetBbsAtRiskCategoriesResponseDto =
+  ApiEnvelopeDto<BbsAtRiskCategoriesDto | null>;
 
 /** One week bucket from GET /api/bbs/graph. */
 export type BbsGraphPointDto = {

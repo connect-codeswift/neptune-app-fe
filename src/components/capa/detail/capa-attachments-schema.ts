@@ -10,6 +10,7 @@ export const CAPA_ATTACHMENTS_SCHEMA: FormSchema = [
     label: "Attachments",
     hideLabel: true,
     colSpan: 12,
+    fileModule: "Capa",
     accept: "files",
     listVariant: "rows",
     maxFiles: 10,

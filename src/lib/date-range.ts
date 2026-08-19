@@ -16,14 +16,9 @@ function normalizeDateRange(range: DateRange): DateRange {
   return { start: end, end: start };
 }
 
-export function isDateWithinRange(
-  date: Date,
-  range: DateRange,
-): boolean {
+export function isDateWithinRange(date: Date, range: DateRange): boolean {
   const normalized = normalizeDateRange(range);
   const day = startOfDay(date).getTime();
 
-  return (
-    day >= normalized.start.getTime() && day <= normalized.end.getTime()
-  );
+  return day >= normalized.start.getTime() && day <= normalized.end.getTime();
 }

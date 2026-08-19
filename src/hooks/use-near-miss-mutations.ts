@@ -1,21 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
+import type { SaveNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import {
   closeNearMiss,
   createNearMiss,
   deleteNearMiss,
 } from "@/services/near-miss.service";
-import { toast } from "@/lib/toast";
-import { useRouter } from "next/navigation";
-const NEAR_MISS_LIST_ROUTE = "/dashboard/near-miss";
+
+/** Creates a near miss, or updates one when the payload carries an `id`. */
 export function useCreateNearMissMutation() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: CreateNearMissRequestDto) => createNearMiss(payload),
+    mutationFn: (payload: SaveNearMissRequestDto) => createNearMiss(payload),
     onSuccess: () => {
-      toast.success("Near-miss report submitted");
-      router.push(NEAR_MISS_LIST_ROUTE);
       queryClient.invalidateQueries({ queryKey: ["near-miss"] });
     },
   });

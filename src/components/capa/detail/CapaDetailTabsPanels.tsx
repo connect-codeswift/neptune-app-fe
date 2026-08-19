@@ -19,6 +19,8 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaCommentMutation,
   useCreateCapaTaskMutation,
+  useUpdateCapaTaskMutation,
+  useUpdateCapaTaskStatusMutation,
   useUploadCapaAttachmentsMutation,
 } from "@/hooks/use-capa-mutations";
 import {
@@ -34,20 +36,45 @@ import {
   capaAttachmentToFormValue,
   mapCapaCommentDtoToDetailComment,
   mapCapaTaskDtoToDetailTask,
+  toCapaTaskStatusFromDetail,
 } from "@/services/mappers/capa.mapper";
 import { Icon } from "@iconify/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 
+/* Two literals are pinned: the timestamp ink #45556c, between `--ehs-gray` and
+   `--ehs-slate`; and the muted note fill #f6f6f6, a warmer grey than
+   `--ehs-surface-raised` (#f8fafc). */
+
 const TASK_STATUS_CLASS: Record<CapaDetailTaskStatus, string> = {
-  Completed: "bg-[rgba(5,223,114,0.1)] text-[#10b981]",
-  "In Progress": "bg-[rgba(253,199,0,0.1)] text-[#f59e0b]",
-  "Not Started": "bg-[rgba(238,241,246,0.6)] text-[#566072]",
+  Completed: "bg-ehs-green/10 text-ehs-green",
+  "In Progress": "bg-ehs-yellow/10 text-ehs-yellow",
+  "Not Started": "bg-ehs-form-classes-bg/60 text-ehs-gray",
 };
+
+const TASK_STATUS_OPTIONS: readonly CapaDetailTaskStatus[] = [
+  "Not Started",
+  "In Progress",
+  "Completed",
+];
+
+function parseTaskId(id: string): number | null {
+  const parsed = Number.parseInt(id, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
 
 const taskColumnHelper = createColumnHelper<CapaDetailTask>();
 
-function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
+function buildTaskColumns(
+  options: Readonly<{
+    pendingTaskId: number | null;
+    onStatusChange: (
+      task: CapaDetailTask,
+      status: CapaDetailTaskStatus,
+    ) => void;
+    onEdit: (task: CapaDetailTask) => void;
+  }>,
+): ColumnDef<CapaDetailTask, unknown>[] {
   return [
     taskColumnHelper.accessor("label", {
       header: "Task",
@@ -59,13 +86,13 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
         return (
           <div className="flex items-center gap-2">
             <span
-              className="inline-flex size-3.25 shrink-0 rounded-xs border border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.62)]"
+              className="border-ehs-border-ink/12 bg-ehs-surface/62 inline-flex size-3.25 shrink-0 rounded-xs border"
               aria-hidden
             />
             <span
               className={[
                 "text-base leading-5",
-                done ? "text-[#8892a3] line-through" : "text-[#2a3446]",
+                done ? "text-ehs-muted-text line-through" : "text-ehs-slate",
               ].join(" ")}
             >
               {info.getValue()}
@@ -77,9 +104,9 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
     }),
     taskColumnHelper.accessor("owner", {
       header: "Owner",
-      size: 200,
+      size: 160,
       cell: (info) => (
-        <span className="text-base leading-4 text-[#566072]">
+        <span className="text-ehs-gray text-base leading-4">
           {info.getValue()}
         </span>
       ),
@@ -89,7 +116,7 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
       header: "Due Date",
       size: 110,
       cell: (info) => (
-        <span className="text-base leading-4 text-[#566072] tabular-nums">
+        <span className="text-ehs-gray text-base leading-4 tabular-nums">
           {info.getValue()}
         </span>
       ),
@@ -97,18 +124,57 @@ function buildTaskColumns(): ColumnDef<CapaDetailTask, unknown>[] {
     }),
     taskColumnHelper.accessor("status", {
       header: "Status",
-      size: 110,
-      cell: (info) => (
-        <span
-          className={[
-            "inline-flex rounded px-2 py-0.5 text-base leading-4 font-medium",
-            TASK_STATUS_CLASS[info.getValue()],
-          ].join(" ")}
-        >
-          {info.getValue()}
-        </span>
-      ),
+      size: 140,
+      cell: (info) => {
+        const task = info.row.original;
+        const taskId = parseTaskId(task.id);
+        const isPending = taskId != null && options.pendingTaskId === taskId;
+
+        return (
+          <select
+            aria-label={`Status for ${task.label}`}
+            value={task.status}
+            disabled={isPending || options.pendingTaskId != null}
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => {
+              const next = event.target.value as CapaDetailTaskStatus;
+              if (next === task.status) return;
+              options.onStatusChange(task, next);
+            }}
+            className={[
+              "rounded px-2 py-0.5 text-base leading-4 font-medium outline-none",
+              TASK_STATUS_CLASS[task.status],
+              "disabled:cursor-not-allowed disabled:opacity-60",
+            ].join(" ")}
+          >
+            {TASK_STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        );
+      },
       meta: { align: "left" as const },
+    }),
+    taskColumnHelper.display({
+      id: "edit",
+      header: "",
+      size: 44,
+      cell: (info) => (
+        <button
+          type="button"
+          aria-label={`Edit ${info.row.original.label}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            options.onEdit(info.row.original);
+          }}
+          className="text-ehs-gray hover:bg-ehs-normal-blue/8 hover:text-ehs-normal-blue inline-flex size-7 items-center justify-center rounded-lg transition-colors"
+        >
+          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
+        </button>
+      ),
+      meta: { align: "right" as const },
     }),
   ] as ColumnDef<CapaDetailTask, unknown>[];
 }
@@ -124,13 +190,13 @@ function SectionBlock(
     <div className="flex flex-col gap-1.5">
       <Text
         as="h4"
-        className="text-sm font-medium tracking-[0.3px] text-[#0891a6] uppercase"
+        className="text-ehs-normal-blue text-sm font-medium tracking-[0.3px] uppercase"
       >
         {props.title}
       </Text>
       <div
         className={[
-          "text-base leading-[22.75px] text-[#2a3446]",
+          "text-ehs-slate text-base leading-[22.75px]",
           props.muted ? "rounded-2.5 bg-[#f6f6f6] px-3 py-3" : "px-3 py-3",
         ].join(" ")}
       >
@@ -165,15 +231,20 @@ export function CapaDetailDetailsTab(
   );
 }
 
-/** Tasks tab — Figma 1370:3750. Loads GET /api/CAPA/Tasks/{capaId}. */
+/** Tasks tab — Figma 1370:3750. Loads GET /api/v1/capas/{capaId}/tasks. */
 export function CapaDetailTasksTab(
   props: Readonly<{ record: CapaDetailRecord }>,
 ) {
   const { record } = props;
-  const columns = useMemo(() => buildTaskColumns(), []);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<CapaDetailTask | null>(null);
   const createCapaTaskMutation = useCreateCapaTaskMutation();
+  const updateCapaTaskMutation = useUpdateCapaTaskMutation();
+  const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
   const hasToken = useHasAccessToken();
+  const pendingTaskId = updateTaskStatusMutation.isPending
+    ? (updateTaskStatusMutation.variables?.taskId ?? null)
+    : null;
 
   const tasksQuery = useCapaTasksQuery({
     capaId: record.numericId > 0 ? record.numericId : null,
@@ -191,6 +262,43 @@ export function CapaDetailTasksTab(
     [tasksQuery.data, record.owner, record.dueDate],
   );
 
+  async function handleStatusChange(
+    task: CapaDetailTask,
+    status: CapaDetailTaskStatus,
+  ) {
+    const taskId = parseTaskId(task.id);
+    if (!taskId || record.numericId <= 0) {
+      toast.error(
+        "Could not update task status",
+        "This task is missing a server id. Refresh and try again.",
+      );
+      return;
+    }
+
+    try {
+      await updateTaskStatusMutation.mutateAsync({
+        taskId,
+        capaId: record.numericId,
+        incidentId: record.incidentId,
+        status: toCapaTaskStatusFromDetail(status),
+      });
+      toast.success("Task status updated");
+    } catch (error) {
+      toast.error(
+        "Could not update task status",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  }
+
+  const columns = buildTaskColumns({
+    pendingTaskId,
+    onStatusChange: (task, status) => {
+      void handleStatusChange(task, status);
+    },
+    onEdit: setEditingTask,
+  });
+
   const doneCount = tasks.filter((task) => task.status === "Completed").length;
   const isLoading =
     hasToken === true &&
@@ -200,8 +308,8 @@ export function CapaDetailTasksTab(
 
   if (isLoading) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
-        <Text as="p" className="text-sm text-[#8892a3]">
+      <div className="px-5.25 pt-5.25 pb-5">
+        <Text as="p" className="text-ehs-muted-text text-sm">
           Loading tasks…
         </Text>
       </div>
@@ -210,8 +318,8 @@ export function CapaDetailTasksTab(
 
   if (tasksQuery.isError) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
-        <Text as="p" className="text-sm text-[#ef4444]">
+      <div className="px-5.25 pt-5.25 pb-5">
+        <Text as="p" className="text-ehs-red text-sm">
           {getMutationErrorMessage(tasksQuery.error, "Could not load tasks.")}
         </Text>
       </div>
@@ -221,9 +329,9 @@ export function CapaDetailTasksTab(
   return (
     <>
       {tasks.length === 0 ? (
-        <div className="px-[21px] pt-[21px] pb-5">
+        <div className="px-5.25 pt-5.25 pb-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <Text as="p" className="text-base leading-5 text-[#566072]">
+            <Text as="p" className="text-ehs-gray text-base leading-5">
               0 of 0 tasks completed
             </Text>
             <Button
@@ -231,13 +339,13 @@ export function CapaDetailTasksTab(
               variant="secondary"
               onClick={() => setIsAddTaskOpen(true)}
               disabled={createCapaTaskMutation.isPending}
-              className="rounded-xl border border-[rgba(43,127,255,0.3)] bg-transparent px-3 py-2! text-sm font-medium text-[#0891a6]! shadow-none hover:bg-[rgba(8,145,166,0.06)]"
+              className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
             >
               <Icon icon="mdi:plus" className="size-3" aria-hidden />
               Add Task
             </Button>
           </div>
-          <Text as="p" className="py-6 text-center text-sm text-[#8892a3]">
+          <Text as="p" className="text-ehs-muted-text py-6 text-center text-sm">
             No tasks yet.
           </Text>
         </div>
@@ -250,7 +358,7 @@ export function CapaDetailTasksTab(
           containerClassName="!rounded-none !border-0 !bg-transparent !shadow-none !backdrop-blur-none before:!hidden"
           header={
             <div className="flex items-center justify-between gap-3">
-              <Text as="p" className="text-base leading-5 text-[#566072]">
+              <Text as="p" className="text-ehs-gray text-base leading-5">
                 {`${String(doneCount)} of ${String(tasks.length)} tasks completed`}
               </Text>
               <Button
@@ -258,7 +366,7 @@ export function CapaDetailTasksTab(
                 variant="secondary"
                 onClick={() => setIsAddTaskOpen(true)}
                 disabled={createCapaTaskMutation.isPending}
-                className="rounded-xl border border-[rgba(43,127,255,0.3)] bg-transparent px-3 py-2! text-sm font-medium text-[#0891a6]! shadow-none hover:bg-[rgba(8,145,166,0.06)]"
+                className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
               >
                 <Icon icon="mdi:plus" className="size-3" aria-hidden />
                 Add Task
@@ -294,6 +402,54 @@ export function CapaDetailTasksTab(
             } catch (error) {
               toast.error(
                 "Could not add task",
+                getMutationErrorMessage(error, "Please try again."),
+              );
+              throw error;
+            }
+          }}
+        />
+      ) : null}
+
+      {editingTask ? (
+        <CapaDetailAddTaskModal
+          title="Edit Task"
+          confirmLabel="Save Task"
+          initialDraft={{
+            name: editingTask.label,
+            assigneeName: editingTask.owner === "—" ? "" : editingTask.owner,
+            assigneeUserId:
+              editingTask.ownerId != null && editingTask.ownerId > 0
+                ? String(editingTask.ownerId)
+                : "",
+            dueDate: editingTask.dueDateIso || editingTask.dueDate,
+            priority: editingTask.priority || "Medium",
+          }}
+          isSubmitting={updateCapaTaskMutation.isPending}
+          onClose={() => setEditingTask(null)}
+          onAssign={async (draft) => {
+            const taskId = parseTaskId(editingTask.id);
+            if (!taskId || record.numericId <= 0) {
+              toast.error(
+                "Could not update task",
+                "This task is missing a server id. Refresh and try again.",
+              );
+              throw new Error("Missing CAPA task id");
+            }
+
+            try {
+              await updateCapaTaskMutation.mutateAsync({
+                taskId,
+                capaId: record.numericId,
+                incidentId: record.incidentId,
+                task: draft.name,
+                owner: draft.assigneeUserId,
+                dueDate: draft.dueDate,
+                priority: draft.priority,
+              });
+              toast.success("Task updated");
+            } catch (error) {
+              toast.error(
+                "Could not update task",
                 getMutationErrorMessage(error, "Please try again."),
               );
               throw error;
@@ -372,13 +528,13 @@ export function CapaDetailCommentsTab(
   return (
     <div className="flex flex-col gap-4 px-5.25 pt-5.25 pb-5">
       {isLoading ? (
-        <Text as="p" className="py-6 text-center text-sm text-[#8892a3]">
+        <Text as="p" className="text-ehs-muted-text py-6 text-center text-sm">
           Loading comments…
         </Text>
       ) : null}
 
       {!isLoading && commentsQuery.isError ? (
-        <Text as="p" className="py-2 text-center text-sm text-[#ef4444]">
+        <Text as="p" className="text-ehs-red py-2 text-center text-sm">
           {getMutationErrorMessage(
             commentsQuery.error,
             "Could not load comments.",
@@ -387,7 +543,7 @@ export function CapaDetailCommentsTab(
       ) : null}
 
       {!isLoading && !commentsQuery.isError && comments.length === 0 ? (
-        <Text as="p" className="py-6 text-center text-base text-[#8892a3]">
+        <Text as="p" className="text-ehs-muted-text py-6 text-center text-base">
           No comments yet.
         </Text>
       ) : null}
@@ -398,8 +554,8 @@ export function CapaDetailCommentsTab(
           ))
         : null}
 
-      <div className="flex items-start gap-3 border-t border-white/90 pt-2">
-        <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-[#0891a6] text-white">
+      <div className="border-ehs-hairline/90 flex items-start gap-3 border-t pt-2">
+        <span className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-8 shrink-0 items-center justify-center rounded-full">
           <Icon icon="mdi:account" className="size-5" aria-hidden />
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-3.5">
@@ -409,7 +565,7 @@ export function CapaDetailCommentsTab(
             rows={2}
             placeholder="Add a comment or progress update…"
             disabled={createCommentMutation.isPending}
-            className="min-h-14.25 w-full resize-none rounded-2.5 border border-[rgba(15,23,42,0.1)] bg-[#eef1f6] px-3 py-4 text-base leading-5 text-[#0b1320] outline-none placeholder:text-[#8892a3] focus:border-[#0891a6] focus:ring-2 focus:ring-[#0891a6]/20 disabled:opacity-60"
+            className="rounded-2.5 border-ehs-border-ink/10 bg-ehs-form-classes-bg text-ehs-dark-bg placeholder:text-ehs-muted-text focus:border-ehs-normal-blue focus:ring-ehs-normal-blue/20 min-h-14.25 w-full resize-none border px-3 py-4 text-base leading-5 outline-none focus:ring-2 disabled:opacity-60"
           />
           <div className="flex justify-end">
             <Button
@@ -419,7 +575,7 @@ export function CapaDetailCommentsTab(
               onClick={() => {
                 void handlePostComment();
               }}
-              className="rounded-2.5 px-3.5 text-sm font-medium shadow-[0px_6px_18px_-6px_#0891a6]"
+              className="rounded-2.5 px-3.5 text-sm font-medium shadow-(--ehs-shadow-button-primary-flat)"
             >
               {createCommentMutation.isPending ? "Posting…" : "Post Comment"}
             </Button>
@@ -435,20 +591,20 @@ function CommentCard(props: Readonly<{ comment: CapaDetailComment }>) {
 
   return (
     <div className="flex items-start gap-3">
-      <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-[#eef1f6] text-[#8892a3]">
+      <span className="bg-ehs-form-classes-bg text-ehs-muted-text inline-flex size-8 shrink-0 items-center justify-center rounded-full">
         <Icon icon="mdi:account" className="size-5" aria-hidden />
       </span>
-      <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-2xl bg-[rgba(238,241,246,0.7)] px-3 pt-3 pb-3">
+      <div className="bg-ehs-form-classes-bg/70 flex min-w-0 flex-1 flex-col gap-2 rounded-2xl px-3 pt-3 pb-3">
         <div className="flex min-w-0 items-baseline gap-2">
           <Text
             as="span"
-            className="shrink-0 text-base leading-5 font-medium text-[#0b1320]"
+            className="text-ehs-dark-bg shrink-0 text-base leading-5 font-medium"
           >
             {comment.author}
           </Text>
           <Text
             as="span"
-            className="min-w-0 truncate text-sm leading-4 text-[#8892a3]"
+            className="text-ehs-muted-text min-w-0 truncate text-sm leading-4"
           >
             {comment.role}
           </Text>
@@ -459,7 +615,7 @@ function CommentCard(props: Readonly<{ comment: CapaDetailComment }>) {
             {comment.timestamp}
           </Text>
         </div>
-        <Text as="p" className="text-base leading-[22.75px] text-[#2a3446]">
+        <Text as="p" className="text-ehs-slate text-base leading-[22.75px]">
           {comment.body}
         </Text>
       </div>
@@ -526,8 +682,8 @@ export function CapaDetailAttachmentsTab(
 
   if (isLoading) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
-        <Text as="p" className="text-sm text-[#8892a3]">
+      <div className="px-5.25 pt-5.25 pb-5">
+        <Text as="p" className="text-ehs-muted-text text-sm">
           Loading attachments…
         </Text>
       </div>
@@ -536,8 +692,8 @@ export function CapaDetailAttachmentsTab(
 
   if (attachmentsQuery.isError) {
     return (
-      <div className="px-[21px] pt-[21px] pb-5">
-        <Text as="p" className="text-sm text-[#ef4444]">
+      <div className="px-5.25 pt-5.25 pb-5">
+        <Text as="p" className="text-ehs-red text-sm">
           {getMutationErrorMessage(
             attachmentsQuery.error,
             "Could not load attachments.",

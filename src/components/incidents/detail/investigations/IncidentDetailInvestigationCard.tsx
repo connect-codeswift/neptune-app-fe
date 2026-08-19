@@ -52,7 +52,7 @@ export function IncidentDetailInvestigationCard(
       ? "bg-ehs-green-bg-light text-ehs-dark-blue"
       : statusLabel === "In progress"
         ? "bg-ehs-blue/14 text-ehs-blue"
-        : "bg-ehs-dark-bg/10 text-ehs-gray";
+        : "bg-ehs-surface-inverse/10 text-ehs-gray";
 
   const statusDot =
     statusLabel === "Complete"
@@ -67,7 +67,7 @@ export function IncidentDetailInvestigationCard(
     >
       <IncidentGlassCard paddingClassName="p-4.75">
         <div className="flex flex-wrap items-center gap-3.5">
-          <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-11 shrink-0 items-center justify-center rounded-3">
+          <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue rounded-3 flex size-11 shrink-0 items-center justify-center">
             <Icon
               icon="mdi:star-four-points"
               className="size-5"
@@ -89,12 +89,12 @@ export function IncidentDetailInvestigationCard(
 
           <span
             className={[
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 pt-[2.5px] pb-[2.89px] text4 leading-normal font-bold tracking-wide",
+              "text4 inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide",
               statusTone,
             ].join(" ")}
           >
             <span
-              className={["size-1.5 shrink-0 rounded-0.75", statusDot].join(
+              className={["rounded-0.75 size-1.5 shrink-0", statusDot].join(
                 " ",
               )}
             />
@@ -104,7 +104,7 @@ export function IncidentDetailInvestigationCard(
           <button
             type="button"
             onClick={handleOpenHrca}
-            className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex shrink-0 items-center gap-2 rounded-2.5 px-3.75 pt-2.5 pb-[10.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors"
+            className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex shrink-0 items-center gap-2 px-3.75 pt-2.5 pb-[11px] shadow-(--ehs-shadow-button-primary-flat) transition-colors"
           >
             <Icon
               icon="mdi:open-in-new"
@@ -119,7 +119,7 @@ export function IncidentDetailInvestigationCard(
       <IncidentGlassCard
         paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
-        className="bg-white/62"
+        className="bg-ehs-surface/62"
       >
         <div className="flex flex-col gap-0.5">
           <Text as="h3" className="text-ehs-dark-bg text3">
@@ -131,11 +131,11 @@ export function IncidentDetailInvestigationCard(
         </div>
 
         {isLoading ? (
-          <div className="text-ehs-muted-text py-8 text-center text4">
+          <div className="text-ehs-muted-text text4 py-8 text-center">
             Loading RCA analysis…
           </div>
         ) : errorMessage ? (
-          <div className="flex flex-col items-center gap-3 py-8 text-center text4">
+          <div className="text4 flex flex-col items-center gap-3 py-8 text-center">
             <p className="text-ehs-red">{errorMessage}</p>
             {onRetry ? (
               <button
@@ -148,7 +148,7 @@ export function IncidentDetailInvestigationCard(
             ) : null}
           </div>
         ) : whyChain.length === 0 ? (
-          <div className="text-ehs-muted-text py-8 text-center text4">
+          <div className="text-ehs-muted-text text4 py-8 text-center">
             No RCA recorded yet. Open HRCA to document contributing factors,
             whys, and corrective actions.
           </div>
@@ -163,16 +163,16 @@ export function IncidentDetailInvestigationCard(
                   <div className="flex flex-col items-center self-stretch">
                     <div
                       className={[
-                        "rounded-3.5 flex size-7 shrink-0 items-center justify-center text5",
+                        "rounded-3.5 text5 flex size-7 shrink-0 items-center justify-center",
                         isRoot
-                          ? "bg-ehs-normal-blue text-ehs-light-text"
-                          : "text-ehs-gray border border-[rgba(15,23,42,0.14)] bg-[rgba(255,255,255,0.82)]",
+                          ? "bg-ehs-normal-blue text-ehs-on-accent"
+                          : "text-ehs-gray border-ehs-border-strong bg-ehs-surface/82 border",
                       ].join(" ")}
                     >
                       {item.step}
                     </div>
                     {!isLast ? (
-                      <div className="min-h-3.5 w-0.5 flex-1 bg-[rgba(15,23,42,0.08)]" />
+                      <div className="bg-ehs-surface-inverse/8 min-h-3.5 w-0.5 flex-1" />
                     ) : null}
                   </div>
 
@@ -183,15 +183,15 @@ export function IncidentDetailInvestigationCard(
                   >
                     <div
                       className={[
-                        "flex flex-col gap-0.5 rounded-2.5 border px-3.75 py-2.75",
+                        "rounded-2.5 flex flex-col gap-0.5 border px-3.75 py-2.75",
                         isRoot
                           ? "border-ehs-normal-blue bg-ehs-dark-blue-bg-light"
-                          : "border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)]",
+                          : "border-ehs-border-ink/8 bg-ehs-surface/62",
                       ].join(" ")}
                     >
                       <span
                         className={[
-                          "inline-flex items-center gap-1 text8 font-bold tracking-[0.76px] uppercase",
+                          "text8 inline-flex items-center gap-1 font-bold tracking-[0.76px] uppercase",
                           isRoot ? "text-ehs-dark-blue" : "text-ehs-muted-text",
                         ].join(" ")}
                       >
@@ -227,7 +227,7 @@ export function IncidentDetailInvestigationCard(
         <IncidentGlassCard
           paddingClassName="p-5.75"
           incidentGlassCardClassName="gap-3.5"
-          className="bg-white/62"
+          className="bg-ehs-surface/62"
         >
           <Text as="h3" className="text-ehs-dark-bg text3">
             Contributing factors
@@ -237,11 +237,11 @@ export function IncidentDetailInvestigationCard(
             {contributingFactors.map((factor) => (
               <div
                 key={`${factor.category}-${factor.text}`}
-                className="flex items-start gap-3 rounded-2.5 border border-l-0.75 border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.62)] py-3.25 pr-3.25 pl-3.75"
+                className="rounded-2.5 border-l-0.75 border-ehs-border-ink/8 bg-ehs-surface/62 flex items-start gap-3 border py-3.25 pr-3.25 pl-3.75"
                 style={{ borderLeftColor: factor.accent }}
               >
                 <span
-                  className="min-w-21.5 shrink-0 text7 tracking-[0.6px] uppercase"
+                  className="text7 min-w-21.5 shrink-0 tracking-[0.6px] uppercase"
                   style={{ color: factor.accent }}
                 >
                   {factor.category}

@@ -7,10 +7,24 @@ import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 const columnHelper = createColumnHelper<BbsSession>();
 
 function observeTone(type: string): "teal" | "warn" | "muted" {
-  const normalized = type.trim().toLowerCase();
+  const normalized = type
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "safe") return "teal";
-  if (normalized === "at-risk" || normalized === "at risk") return "warn";
+  if (normalized === "atrisk") return "warn";
   return "muted";
+}
+
+/** Keep badge copy consistent even if the API omits the hyphen. */
+function formatObserveLabel(type: string): string {
+  const normalized = type
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+  if (normalized === "safe") return "Safe";
+  if (normalized === "atrisk") return "At-Risk";
+  return type.trim() || "—";
 }
 
 export type BbsSessionColumnOptions = Readonly<{
@@ -20,6 +34,11 @@ export type BbsSessionColumnOptions = Readonly<{
   expanded?: boolean;
 }>;
 
+/**
+ * Note: never use column `size: 150` — Table treats that as “no width”, so the
+ * column absorbs leftover space. Leave Category without `size` so it flexes;
+ * pin the rest to real widths.
+ */
 export function createBbsSessionColumns(
   options: BbsSessionColumnOptions,
 ): ColumnDef<BbsSession, unknown>[] {
@@ -28,7 +47,7 @@ export function createBbsSessionColumns(
   return [
     columnHelper.accessor("id", {
       header: "ID",
-      size: expanded ? 100 : 88,
+      size: expanded ? 96 : 88,
       minSize: 80,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
       cell: (info) => (
@@ -39,8 +58,8 @@ export function createBbsSessionColumns(
     }),
     columnHelper.accessor("behaviors", {
       header: "Category",
-      size: expanded ? 200 : 180,
-      minSize: 140,
+      // No `size` → Table default 150 → no fixed width → fills leftover space.
+      minSize: 160,
       meta: { align: "left" as const },
       cell: (info) => {
         const session = info.row.original;
@@ -68,39 +87,43 @@ export function createBbsSessionColumns(
     }),
     columnHelper.accessor("type", {
       header: "Type",
-      size: expanded ? 110 : 100,
-      minSize: 90,
+      size: expanded ? 108 : 96,
+      minSize: 88,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={observeTone(info.getValue())}
-          showDot
-          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
-        />
-      ),
+      cell: (info) => {
+        const label = formatObserveLabel(info.getValue());
+        return (
+          <IncidentBadge
+            label={label}
+            tone={observeTone(label)}
+            showDot
+            className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+          />
+        );
+      },
     }),
     columnHelper.accessor("observer", {
       header: "Observer",
-      size: expanded ? 150 : 120,
+      // Must not be 150 — that value means “unset width” in Table.
+      size: expanded ? 140 : 112,
       minSize: 90,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
-      cell: (info) => (
-        <Text
-          as="span"
-          className="text4 text-ehs-gray truncate"
-          title={info.getValue()}
-        >
-          {info.getValue()}
-        </Text>
-      ),
+      cell: (info) => {
+        const name = info.getValue()?.trim() || "—";
+        const short = name.split(/\s+/).slice(0, 2).join(" ");
+        return (
+          <Text as="span" className="text4 text-ehs-gray truncate" title={name}>
+            {short}
+          </Text>
+        );
+      },
     }),
     ...(expanded
       ? [
           columnHelper.accessor("location", {
             header: "Location",
-            size: 160,
-            minSize: 110,
+            size: 112,
+            minSize: 88,
             meta: {
               align: "left" as const,
               verticalAlign: "middle" as const,
@@ -111,14 +134,14 @@ export function createBbsSessionColumns(
                 className="text4 text-ehs-gray truncate"
                 title={info.getValue()}
               >
-                {info.getValue()}
+                {info.getValue() || "—"}
               </Text>
             ),
           }),
           columnHelper.accessor("when", {
             header: "When",
-            size: 140,
-            minSize: 110,
+            size: 128,
+            minSize: 108,
             meta: {
               align: "left" as const,
               verticalAlign: "middle" as const,
@@ -126,9 +149,9 @@ export function createBbsSessionColumns(
             cell: (info) => (
               <Text
                 as="span"
-                className="text4 text-ehs-gray whitespace-nowrap"
+                className="text4 text-ehs-gray whitespace-nowrap tabular-nums"
               >
-                {info.getValue()}
+                {info.getValue() || "—"}
               </Text>
             ),
           }),
@@ -150,7 +173,7 @@ export function createBbsSessionColumns(
               "inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors",
               isOpen
                 ? "bg-ehs-normal-blue/12 text-ehs-normal-blue"
-                : "text-ehs-muted-text hover:bg-[rgba(11,19,32,0.06)] hover:text-ehs-dark-bg",
+                : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6",
             ].join(" ")}
             aria-label={
               isOpen

@@ -71,9 +71,7 @@ export function loadAuditAnswers(): AuditItemResponseRequestDto[] | null {
 }
 
 /** Persist (or clear) the submitted answers in localStorage. */
-function saveAuditAnswers(
-  value: AuditItemResponseRequestDto[] | null,
-): void {
+function saveAuditAnswers(value: AuditItemResponseRequestDto[] | null): void {
   if (typeof window === "undefined") return;
   try {
     if (value) {

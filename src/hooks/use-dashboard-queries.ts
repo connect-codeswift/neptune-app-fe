@@ -13,7 +13,7 @@ const dashboardQueryKeys = {
   myActions: ["dashboard", "my-actions"] as const,
 };
 
-/** GET /api/EHSCommandCenter/GetMainDashboardKpis */
+/** GET /api/v1/command-center/dashboard-kpis */
 export function useMainDashboardKpisQuery(enabled = true) {
   return useQuery({
     queryKey: dashboardQueryKeys.mainKpis,
@@ -22,7 +22,7 @@ export function useMainDashboardKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/EHSCommandCenter/GetIncidentTrends */
+/** GET /api/v1/command-center/incident-trends */
 export function useIncidentTrendsQuery(enabled = true) {
   return useQuery({
     queryKey: dashboardQueryKeys.incidentTrends,
@@ -31,7 +31,7 @@ export function useIncidentTrendsQuery(enabled = true) {
   });
 }
 
-/** GET /api/EHSCommandCenter/GetMyActions */
+/** GET /api/v1/command-center/my-actions */
 export function useMyActionsQuery(enabled = true) {
   return useQuery({
     queryKey: dashboardQueryKeys.myActions,

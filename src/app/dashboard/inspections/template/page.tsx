@@ -108,7 +108,7 @@ export default function InspectionTemplatesPage() {
                   type="button"
                   disabled={pageNumber <= 1}
                   onClick={() => setPageNumber((current) => current - 1)}
-                  className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Previous
                 </button>
@@ -119,7 +119,7 @@ export default function InspectionTemplatesPage() {
                   type="button"
                   disabled={pageNumber >= totalPages}
                   onClick={() => setPageNumber((current) => current + 1)}
-                  className="text-ehs-dark-bg cursor-pointer rounded-lg border border-slate-900/12 bg-white px-3 py-1.5 text-sm font-medium transition-colors hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Next
                 </button>

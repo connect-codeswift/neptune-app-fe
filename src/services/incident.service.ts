@@ -17,13 +17,11 @@ import type {
 } from "@/dtos/res/incident-closure-response.dto";
 import http, { getAccessToken } from "@/lib/axios";
 
-const INCIDENT_GET_ALL_PATH = "/Incident/GetAllIncidents";
-const INCIDENT_CREATE_PATH = "/Incident/incident";
-const INCIDENT_GET_BY_ID_PATH = "/Incident/GetIncidentById";
-const INCIDENT_UPDATE_PATH = "/Incident/UpdateIncident";
+const INCIDENT_PATH = "/incidents";
+const INCIDENT_SEARCH_PATH = "/incidents/search";
 
 function incidentClosurePath(incidentId: number): string {
-  return `/Incident/${String(incidentId)}/closure`;
+  return `${INCIDENT_PATH}/${String(incidentId)}/closure`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -418,13 +416,14 @@ export async function getAllIncidents(request: GetAllIncidentsRequestDto) {
     ...(site ? { site } : {}),
   };
 
-  const { data } = await http.post<unknown>(INCIDENT_GET_ALL_PATH, body);
+  const { data } = await http.post<unknown>(INCIDENT_SEARCH_PATH, body);
   return normalizeGetAllIncidentsResponse(data, request);
 }
 
 /**
- * GET /Incident/GetIncidentById
- * Query: `{ id }` — tenant scope is read from the JWT, not the query string.
+ * GET /api/v1/incidents/{id}
+ * The id used to be a query string (`GetIncidentById?id=`); the v1 rename made
+ * it a path segment. Tenant scope is still read from the JWT.
  * Header: `Authorization: Bearer <token>` (required by API security)
  *
  * Requires Incident.View (was Incident.Update), so view-only users can open
@@ -438,26 +437,26 @@ export async function getIncidentById(params: Readonly<{ id: number }>) {
     throw new Error("Sign in required to load this incident.");
   }
 
-  const { data } = await http.get<unknown>(INCIDENT_GET_BY_ID_PATH, {
-    params: {
-      id: params.id,
+  const { data } = await http.get<unknown>(
+    `${INCIDENT_PATH}/${String(params.id)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  );
 
   return normalizeIncidentDto(data);
 }
 
 /**
- * POST /Incident/incident
+ * POST /api/v1/incidents
  *
  * Returns `{ dataModel: { id } }` — the id is real now, where it used to be
  * `""`. Only the id is populated; callers wanting the whole record re-fetch.
  */
 export async function createIncident(payload: CreateIncidentRequestDto) {
-  const { data } = await http.post<unknown>(INCIDENT_CREATE_PATH, payload);
+  const { data } = await http.post<unknown>(INCIDENT_PATH, payload);
   return (
     normalizeIncidentDto(data) ?? (isRecord(data) ? (data as IncidentDto) : {})
   );
@@ -481,7 +480,7 @@ function withoutTenantFields<T extends Partial<IncidentDto>>(
 }
 
 /**
- * PUT /Incident/UpdateIncident/{id}
+ * PUT /api/v1/incidents/{id}
  * Body: incident fields minus tenant context — the server stamps siteId and
  * userId from the JWT.
  * Header: `Authorization: Bearer <token>` (required by API security)
@@ -504,7 +503,7 @@ async function updateIncidentById(
   };
 
   const { data } = await http.put<unknown>(
-    `${INCIDENT_UPDATE_PATH}/${String(id)}`,
+    `${INCIDENT_PATH}/${String(id)}`,
     body,
     {
       headers: {
@@ -520,7 +519,7 @@ async function updateIncidentById(
 }
 
 /**
- * Loads the current incident, merges `patch`, then PUT /Incident/UpdateIncident/{id}.
+ * Loads the current incident, merges `patch`, then PUT /api/v1/incidents/{id}.
  *
  * The read-back is what makes `siteId`/`userId` worth stripping explicitly:
  * GET still *returns* them for display, so a naive spread of the existing
@@ -596,7 +595,7 @@ function coerceLinkedCapaDto(value: unknown): ClosureLinkedCapaItemDto | null {
 }
 
 /**
- * Coerces and normalizes response from GET /api/Incident/{incidentId}/closure
+ * Coerces and normalizes response from GET /api/v1/incidents/{incidentId}/closure
  */
 function normalizeIncidentClosureDto(
   data: unknown,
@@ -744,7 +743,7 @@ function normalizeIncidentClosureDto(
 }
 
 /**
- * GET /api/Incident/{incidentId}/closure
+ * GET /api/v1/incidents/{incidentId}/closure
  * Header: `Authorization: Bearer <token>`
  */
 export async function getIncidentClosure(
@@ -765,7 +764,7 @@ export async function getIncidentClosure(
 }
 
 /**
- * PUT /api/Incident/{incidentId}/closure
+ * PUT /api/v1/incidents/{incidentId}/closure
  * Body: UpdateIncidentClosureRequestDto
  * Header: `Authorization: Bearer <token>`
  */

@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 
 /**
  * Server-side pagination state. The rows in `data` are already the current
@@ -83,9 +84,9 @@ export function Table<TData>(props: TableProps<TData>) {
         <div
           className={[
             isCapa
-              ? "border-b border-white/90 px-4 py-4"
-              : "border-b border-[rgba(15,23,42,0.08)]",
-            isCompliance ? "px-[15.57px] py-0" : isCapa ? "" : "px-4 py-2.5",
+              ? "border-ehs-hairline/90 border-b px-4 py-4"
+              : "border-ehs-border border-b",
+            isCompliance ? "px-[16px] py-0" : isCapa ? "" : "px-4 py-2.5",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -96,7 +97,7 @@ export function Table<TData>(props: TableProps<TData>) {
 
       <div className="w-full min-w-0 overflow-x-auto">
         <table
-          className={["w-full border-collapse text-left text-sm", className]
+          className={["text4 w-full border-collapse text-left", className]
             .filter(Boolean)
             .join(" ")}
         >
@@ -106,16 +107,15 @@ export function Table<TData>(props: TableProps<TData>) {
                 key={headerGroup.id}
                 className={
                   isCapa
-                    ? "border-b border-white/90 bg-[rgba(11,19,32,0.14)]"
+                    ? "border-ehs-hairline/90 bg-ehs-surface-inverse/14 border-b"
                     : isCompliance
-                      ? "border-b border-[rgba(15,23,42,0.08)]"
+                      ? "border-ehs-border-ink/8 border-b"
                       : "border-ehs-border/40 border-b"
                 }
               >
                 {headerGroup.headers.map((header) => {
                   const meta = header.column.columnDef.meta as
-                    | { align?: "left" | "center" | "right" }
-                    | undefined;
+                    { align?: "left" | "center" | "right" } | undefined;
                   const align = meta?.align ?? "left";
                   const alignClass =
                     align === "center"
@@ -138,7 +138,7 @@ export function Table<TData>(props: TableProps<TData>) {
                         isCapa
                           ? "text6 text-ehs-gray px-4 py-2.5 select-none"
                           : isCompliance
-                            ? "text6 text-ehs-muted-text px-[15.57px] py-3 select-none"
+                            ? "text6 text-ehs-muted-text px-[16px] py-3 select-none"
                             : isIncident
                               ? "text6 text-ehs-muted-text px-4 py-3.5 select-none"
                               : "text6 text-ehs-muted-text px-4 py-3.5 select-none",
@@ -160,13 +160,12 @@ export function Table<TData>(props: TableProps<TData>) {
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text4 text-ehs-muted-text px-4 py-12 text-center"
-                >
-                  {isCapa
-                    ? "No tasks yet."
-                    : "No records found matching your filters."}
+                <td colSpan={columns.length} className="px-4 py-12 text-center">
+                  <Text as="p" className="text4 text-ehs-muted-text">
+                    {isCapa
+                      ? "No tasks yet."
+                      : "No records found matching your filters."}
+                  </Text>
                 </td>
               </tr>
             ) : (
@@ -180,17 +179,17 @@ export function Table<TData>(props: TableProps<TData>) {
                     onClick={() => onRowClick?.(row.original)}
                     className={[
                       isCapa
-                        ? "border-b border-[rgba(15,23,42,0.07)] last:border-b-0"
+                        ? "border-ehs-border-ink/7 border-b last:border-b-0"
                         : isCompliance
-                          ? "border-t border-[rgba(15,23,42,0.08)] transition-colors"
+                          ? "border-ehs-border-ink/8 border-t transition-colors"
                           : "border-ehs-border/45 border-b last:border-b-0",
                       onRowClick ? "cursor-pointer" : "",
                       isCapa
-                        ? "hover:bg-[rgba(15,23,42,0.03)]"
+                        ? "hover:bg-ehs-surface-inverse/3"
                         : isCompliance
                           ? isSelected
-                            ? "bg-[rgba(8,145,166,0.18)]"
-                            : "hover:bg-[rgba(8,145,166,0.08)]"
+                            ? "bg-ehs-normal-blue/18"
+                            : "hover:bg-ehs-normal-blue/8"
                           : isSelected
                             ? "bg-ehs-normal-blue/18"
                             : "hover:bg-ehs-normal-blue/18",
@@ -201,8 +200,7 @@ export function Table<TData>(props: TableProps<TData>) {
                   >
                     {row.getVisibleCells().map((cell) => {
                       const meta = cell.column.columnDef.meta as
-                        | { align?: "left" | "center" | "right" }
-                        | undefined;
+                        { align?: "left" | "center" | "right" } | undefined;
                       const align = meta?.align ?? "left";
                       const alignClass =
                         align === "center"
@@ -216,7 +214,7 @@ export function Table<TData>(props: TableProps<TData>) {
                           key={cell.id}
                           className={[
                             isCompliance
-                              ? "px-[15.57px] py-3.5 align-middle"
+                              ? "px-[16px] py-3.5 align-middle"
                               : "text-ehs-darker px-4 py-4 align-middle",
                             alignClass,
                           ].join(" ")}
@@ -244,11 +242,13 @@ export function Table<TData>(props: TableProps<TData>) {
 }
 
 const pageButtonClass =
-  "text8 text-ehs-gray border-ehs-border bg-ehs-light-text hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "text8 text-ehs-gray border-ehs-border bg-ehs-surface hover:bg-ehs-light-bg inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3 py-1.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 function TablePaginationBar(
   props: Readonly<
-    TablePagination & { variant?: "default" | "compliance" | "capa" | "incident" }
+    TablePagination & {
+      variant?: "default" | "compliance" | "capa" | "incident";
+    }
   >,
 ) {
   const {
@@ -279,13 +279,13 @@ function TablePaginationBar(
       className={[
         "flex flex-wrap items-center justify-between gap-3 border-t py-3",
         isCompliance
-          ? "border-[rgba(15,23,42,0.08)] px-[15.57px]"
+          ? "border-ehs-border-ink/8 px-[16px]"
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >
-      <span className="text8 text-ehs-muted-text">
-        {`Showing ${firstRow}-${lastRow} of ${totalRecords}`}
-      </span>
+      <Text as="span" className="text8 text-ehs-muted-text">
+        {`Showing ${String(firstRow)}-${String(lastRow)} of ${String(totalRecords)}`}
+      </Text>
 
       <div className="flex items-center gap-2">
         <button
@@ -297,9 +297,9 @@ function TablePaginationBar(
           Previous
         </button>
 
-        <span className="text8 text-ehs-muted-text px-1 tabular-nums">
-          {`Page ${currentPage} of ${pageCount}`}
-        </span>
+        <Text as="span" className="text8 text-ehs-muted-text px-1 tabular-nums">
+          {`Page ${String(currentPage)} of ${String(pageCount)}`}
+        </Text>
 
         <button
           type="button"

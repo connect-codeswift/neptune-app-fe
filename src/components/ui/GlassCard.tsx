@@ -22,8 +22,8 @@ export type GlassCardProps = Readonly<{
  * rather than a white card. Matches the sidebar and auth card recipe.
  */
 export const GLASS_SURFACE =
-  "rounded-5 border border-white/70 bg-white/50 backdrop-blur-xl " +
-  "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.14),inset_0_1px_0_1px_rgba(255,255,255,0.9)]";
+  "rounded-5 border border-ehs-hairline/70 bg-ehs-surface/50 backdrop-blur-xl " +
+  "shadow-(--ehs-shadow-card)";
 
 export function GlassCard(props: Readonly<GlassCardProps>) {
   const { children, className = "" } = props;

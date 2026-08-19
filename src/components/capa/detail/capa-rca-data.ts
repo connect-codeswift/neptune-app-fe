@@ -45,7 +45,7 @@ export const CAPA_RCA_WORKSHEET: CapaRcaWorksheet = {
     {
       id: "process",
       category: "Process / Procedures",
-      categoryClassName: "bg-[rgba(8,145,166,0.13)]",
+      categoryClassName: "bg-ehs-normal-blue/13",
       accent: "#e6932e",
       accentSoft: "rgba(251,230,211,0.86)",
       accentGlow: "rgba(230,147,46,0.18)",
@@ -76,7 +76,7 @@ export const CAPA_RCA_WORKSHEET: CapaRcaWorksheet = {
     {
       id: "behaviors",
       category: "Behaviors",
-      categoryClassName: "bg-[rgba(8,145,166,0.13)]",
+      categoryClassName: "bg-ehs-normal-blue/13",
       accent: "#e0413b",
       accentSoft: "rgba(254,214,208,0.86)",
       accentGlow: "rgba(224,65,59,0.18)",
@@ -107,7 +107,7 @@ export const CAPA_RCA_WORKSHEET: CapaRcaWorksheet = {
     {
       id: "competency",
       category: "Competency / Skills",
-      categoryClassName: "bg-[rgba(8,145,166,0.13)]",
+      categoryClassName: "bg-ehs-normal-blue/13",
       accent: "#7c8794",
       accentSoft: "rgba(228,232,236,0.86)",
       accentGlow: "rgba(124,135,148,0.18)",
@@ -146,7 +146,7 @@ export const CAPA_RCA_WORKSHEET: CapaRcaWorksheet = {
     {
       id: "equipment",
       category: "Equipment",
-      categoryClassName: "bg-[rgba(8,145,166,0.13)]",
+      categoryClassName: "bg-ehs-normal-blue/13",
       accent: "#2f7fd1",
       accentSoft: "rgba(208,225,246,0.86)",
       accentGlow: "rgba(47,127,209,0.18)",
@@ -181,7 +181,7 @@ export const CAPA_RCA_WORKSHEET: CapaRcaWorksheet = {
     {
       id: "ppe",
       category: "PPE",
-      categoryClassName: "bg-[rgba(8,145,166,0.13)]",
+      categoryClassName: "bg-ehs-normal-blue/13",
       accent: "#d4a017",
       accentSoft: "rgba(245,233,209,0.86)",
       accentGlow: "rgba(212,160,23,0.18)",
@@ -223,7 +223,7 @@ const LANE_STYLE_TEMPLATES = CAPA_RCA_WORKSHEET.lanes.map((lane) => ({
   accentGlow: lane.accentGlow,
 }));
 
-/** Maps GET /api/CAPA/Rca/{rcaId} factors onto the horizontal worksheet lanes. */
+/** Maps GET /api/v1/rcas/{rcaId}/capas factors onto the horizontal worksheet lanes. */
 export function mapRcaFactorsToCapaLanes(
   factors: readonly Readonly<{
     id: number;
@@ -256,7 +256,8 @@ export function mapRcaFactorsToCapaLanes(
 
     return {
       id: String(factor.id),
-      category: factor.rcaCategoryName.trim() || `Category ${String(index + 1)}`,
+      category:
+        factor.rcaCategoryName.trim() || `Category ${String(index + 1)}`,
       categoryClassName: style.categoryClassName,
       accent: style.accent,
       accentSoft: style.accentSoft,

@@ -1,10 +1,12 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { Text } from "@/components/Text";
 import {
   FormBuilder,
   type FormSchema,
   type FormValues,
+  type SelectOption,
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -12,23 +14,24 @@ import {
   hazardLevelClassName,
   type LotoHazardLevel,
   type LotoIsolationStep,
+  type LotoLocationSelection,
+  type LotoPersonnelSelection,
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
+import { LotoLocationSearchField } from "./LotoLocationSearchField";
+import { LotoPersonnelSearchField } from "./LotoPersonnelSearchField";
 import {
   LOTO_EQUIPMENT_FORM_ID,
-  LOTO_PERSONNEL_FORM_ID,
   LOTO_PPE_FORM_ID,
   LOTO_VERIFICATION_FORM_ID,
   fieldString,
   fieldStringArray,
   lotoEquipmentSchema,
-  lotoPersonnelSchema,
-  lotoPpeSchema,
   lotoStepFormId,
   lotoStepSchema,
   lotoVerificationSchema,
+  makeLotoPpeSchema,
   toEquipmentFormValues,
-  toPersonnelFormValues,
   toPpeFormValues,
   toStepFormValues,
   toVerificationFormValues,
@@ -77,7 +80,6 @@ const sidebarFieldClass = [
 
 export type LotoProcedurePreview = Readonly<{
   equipmentName: string;
-  equipmentCode: string;
   location: string;
   hazardLevel: LotoHazardLevel;
   stepCount: number;
@@ -88,8 +90,16 @@ export type LotoProcedureFormProps = Readonly<{
   initial: LotoProcedureFormState;
   steps: readonly LotoIsolationStep[];
   onStepsChange: (steps: LotoIsolationStep[]) => void;
+  location: LotoLocationSelection | null;
+  onLocationChange: (location: LotoLocationSelection | null) => void;
+  personnel: readonly LotoPersonnelSelection[];
+  onPersonnelChange: (personnel: LotoPersonnelSelection[]) => void;
   preview: LotoProcedurePreview;
   onPreviewChange: (patch: Partial<LotoProcedurePreview>) => void;
+  /** Required-PPE chips, from the PPE catalog (GET /api/ppe). */
+  ppeOptions: readonly SelectOption[];
+  /** Shown above the chips while the catalog is loading, empty, or failed. */
+  ppeStatusMessage: string | null;
   onFormValid: (
     schema: FormSchema,
     values: FormValues,
@@ -105,16 +115,19 @@ function SummaryRow(
   }>,
 ) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b border-[rgba(15,23,42,0.08)] py-2">
-      <span className="text6 text-ehs-muted-text">{props.label}</span>
-      <span
+    <div className="flex items-start justify-between gap-3 border-b border-ehs-border-ink/8 py-2">
+      <Text as="span" className="text9 text-ehs-muted-text">
+        {props.label}
+      </Text>
+      <Text
+        as="span"
         className={[
           "text4 text-right",
           props.valueClassName ?? "text-ehs-darker",
         ].join(" ")}
       >
         {props.value}
-      </span>
+      </Text>
     </div>
   );
 }
@@ -124,15 +137,23 @@ function displayOrDash(text: string): string {
 }
 
 /** Create / edit procedure body using FormBuilder — Figma 6912:56200 / 6915:56769. */
-export function LotoProcedureForm(props: LotoProcedureFormProps) {
+export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
   const {
     initial,
     steps,
     onStepsChange,
+    location,
+    onLocationChange,
+    personnel,
+    onPersonnelChange,
     preview,
     onPreviewChange,
     onFormValid,
+    ppeOptions,
+    ppeStatusMessage,
   } = props;
+
+  const ppeSchema = makeLotoPpeSchema(ppeOptions);
 
   const addStep = () => {
     const next = createEmptyIsolationStep();
@@ -154,7 +175,18 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
     <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_363px]">
       <div className="flex min-w-0 flex-col gap-4">
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
-          <h2 className="text3 text-ehs-darker mb-4">Equipment Information</h2>
+          <Text as="h2" className="text3 text-ehs-darker mb-4">
+            Equipment Information
+          </Text>
+          <div className="mb-4 grid grid-cols-1 gap-4">
+            <LotoLocationSearchField
+              value={location}
+              onChange={(next) => {
+                onLocationChange(next);
+                onPreviewChange({ location: next?.name ?? "" });
+              }}
+            />
+          </div>
           <FormBuilder
             formId={LOTO_EQUIPMENT_FORM_ID}
             schema={lotoEquipmentSchema}
@@ -163,8 +195,6 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
             onChange={(values) => {
               onPreviewChange({
                 equipmentName: fieldString(values, "equipmentName"),
-                equipmentCode: fieldString(values, "equipmentCode"),
-                location: fieldString(values, "location"),
                 hazardLevel: fieldString(
                   values,
                   "hazardLevel",
@@ -180,36 +210,41 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 className="text3 text-ehs-darker">Isolation Steps</h2>
+            <Text as="h2" className="text3 text-ehs-darker">
+              Isolation Steps
+            </Text>
             <button
               type="button"
               onClick={addStep}
-              className="text4 text-ehs-normal-blue inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(8,145,166,0.2)] bg-[rgba(8,145,166,0.12)] px-3 font-semibold transition-colors hover:bg-[rgba(8,145,166,0.18)]"
+              className="text4 text-ehs-normal-blue inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-ehs-normal-blue/20 bg-ehs-normal-blue/12 px-3 font-semibold transition-colors hover:bg-ehs-normal-blue/18"
             >
-              <Icon icon="mdi:plus" className="size-3.5" />
+              <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
               Add Step
             </button>
           </div>
-          <p className="text8 text-ehs-muted-text mb-3">
+          <Text as="p" className="text8 text-ehs-muted-text mb-3">
             Document each energy isolation point in the sequence they must be
             performed
-          </p>
+          </Text>
 
           <div className="flex flex-col gap-3">
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className="rounded-3.5 border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.5)] p-4"
+                className="rounded-4 border border-ehs-border-ink/8 bg-ehs-surface/50 p-4"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text5 text-ehs-darker">
-                      Step {String(index + 1)}
-                    </span>
+                    <Text as="span" className="text5 text-ehs-darker">
+                      {`Step ${String(index + 1)}`}
+                    </Text>
                     {step.verified ? (
-                      <span className="text8 rounded-1.25 bg-[rgba(16,185,129,0.1)] px-1.5 py-px font-bold text-[#10b981]">
+                      <Text
+                        as="span"
+                        className="text8 text-ehs-green rounded-lg bg-ehs-green/10 px-1.5 py-px font-bold"
+                      >
                         Verified
-                      </span>
+                      </Text>
                     ) : null}
                   </div>
                   <button
@@ -219,9 +254,13 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
                     onClick={() => {
                       removeStep(step.id);
                     }}
-                    className="rounded-1.75 flex size-6.5 cursor-pointer items-center justify-center text-[#ef4444] transition-colors hover:bg-[rgba(239,68,68,0.08)] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="text-ehs-red flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-ehs-red/8 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <Icon icon="mdi:trash-can-outline" className="size-3" />
+                    <Icon
+                      icon="mdi:trash-can-outline"
+                      className="size-5"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
 
@@ -259,15 +298,13 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
           paddingClassName="px-4.5 py-4.5"
           className="min-w-0 bg-[rgba(255,255,255,0.82)]"
         >
-          <h2 className="text3 text-ehs-darker mb-3">Procedure Summary</h2>
+          <Text as="h2" className="text3 text-ehs-darker mb-3">
+            Procedure Summary
+          </Text>
           <div className="flex flex-col">
             <SummaryRow
               label="Equipment"
               value={displayOrDash(preview.equipmentName)}
-            />
-            <SummaryRow
-              label="ID"
-              value={displayOrDash(preview.equipmentCode)}
             />
             <SummaryRow
               label="Location"
@@ -289,7 +326,7 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_PPE_FORM_ID}
-            schema={lotoPpeSchema}
+            schema={ppeSchema}
             initialValues={toPpeFormValues(initial)}
             hideActions
             onChange={(values) => {
@@ -298,22 +335,19 @@ export function LotoProcedureForm(props: LotoProcedureFormProps) {
               });
             }}
             onSubmit={(values) => {
-              onFormValid(lotoPpeSchema, values);
+              onFormValid(ppeSchema, values);
             }}
             className={sidebarFieldClass}
           />
+          {ppeStatusMessage ? (
+            <p className="text8 text-ehs-muted-text mt-1">{ppeStatusMessage}</p>
+          ) : null}
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
-          <FormBuilder
-            formId={LOTO_PERSONNEL_FORM_ID}
-            schema={lotoPersonnelSchema}
-            initialValues={toPersonnelFormValues(initial)}
-            hideActions
-            onSubmit={(values) => {
-              onFormValid(lotoPersonnelSchema, values);
-            }}
-            className={sidebarFieldClass}
+          <LotoPersonnelSearchField
+            value={personnel}
+            onChange={onPersonnelChange}
           />
         </IncidentGlassCard>
       </aside>
@@ -326,8 +360,7 @@ export function buildProcedurePreview(
 ): LotoProcedurePreview {
   return {
     equipmentName: state.equipmentName,
-    equipmentCode: state.equipmentCode,
-    location: state.location,
+    location: state.location?.name ?? "",
     hazardLevel: state.hazardLevel,
     stepCount: state.steps.length,
     ppeCount: state.selectedPpe.length,

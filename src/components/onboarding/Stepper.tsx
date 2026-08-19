@@ -20,9 +20,9 @@ function getBadgeClass(isCompleted: boolean, isActive: boolean) {
     return "border-ehs-normal-blue/30 bg-ehs-light-blue text-ehs-dark-blue";
   }
   if (isActive) {
-    return "bg-ehs-normal-blue text-ehs-light-text shadow-md shadow-ehs-normal-blue/30";
+    return "bg-ehs-normal-blue text-ehs-on-accent shadow-md shadow-ehs-normal-blue/30";
   }
-  return "border-ehs-border bg-white/70 text-ehs-muted-text";
+  return "border-ehs-border bg-ehs-surface/70 text-ehs-muted-text";
 }
 
 function getTextClass(isActive: boolean) {
@@ -51,10 +51,10 @@ export function Stepper(props: Readonly<StepperProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <ol className="shadow-ehs-normal-blue/15 relative grid grid-cols-3 gap-1 overflow-hidden rounded-full border border-white/70 bg-white/60 p-1.5 shadow-lg backdrop-blur-xl">
+      <ol className="shadow-ehs-normal-blue/15 border-ehs-hairline/70 bg-ehs-surface/60 relative grid grid-cols-3 gap-1 overflow-hidden rounded-full border p-1.5 shadow-lg backdrop-blur-xl">
         <li
           aria-hidden="true"
-          className="shadow-ehs-normal-blue/20 pointer-events-none absolute top-1.5 bottom-1.5 rounded-full border border-white bg-white shadow-md transition-all duration-500 ease-out"
+          className="shadow-ehs-normal-blue/20 border-ehs-hairline bg-ehs-surface pointer-events-none absolute top-1.5 bottom-1.5 rounded-full border shadow-md transition-all duration-500 ease-out"
           style={{
             left: `calc(${(activeIndex * 100) / steps.length}% + 0.375rem)`,
             width: `calc(${100 / steps.length}% - 0.5rem)`,
@@ -76,7 +76,7 @@ export function Stepper(props: Readonly<StepperProps>) {
                 onClick={() => onStepChange?.(stepNumber)}
                 className={[
                   "group focus-visible:ring-ehs-normal-blue/30 flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none",
-                  isActive ? "" : "hover:bg-white/45",
+                  isActive ? "" : "hover:bg-ehs-surface/45",
                 ]
                   .filter(Boolean)
                   .join(" ")}

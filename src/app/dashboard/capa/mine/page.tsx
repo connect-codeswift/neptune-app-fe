@@ -1,12 +1,6 @@
-import { DashboardHeader } from "@/components/DashboardHeader";
-import { MyCapasContent } from "@/components/capa/mine/MyCapasContent";
+import { redirect } from "next/navigation";
 
-/** My CAPAs — Figma 838:3105. */
+/** Scope=AssignedToMe now lives on the CAPA register filters. */
 export default function MyCapasPage() {
-  return (
-    <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-      <DashboardHeader title="My CAPAs" showSiteSwitcher />
-      <MyCapasContent />
-    </div>
-  );
+  redirect("/dashboard/capa");
 }

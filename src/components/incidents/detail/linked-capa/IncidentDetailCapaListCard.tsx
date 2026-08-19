@@ -123,7 +123,7 @@ export function IncidentDetailCapaListCard(
       <IncidentGlassCard
         paddingClassName="p-5.75"
         incidentGlassCardClassName="gap-3.5"
-        className={["bg-white/62", className].filter(Boolean).join(" ")}
+        className={["bg-ehs-surface/62", className].filter(Boolean).join(" ")}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
@@ -142,13 +142,9 @@ export function IncidentDetailCapaListCard(
               type="button"
               onClick={() => setAddModalRequestedLocally(true)}
               disabled={isSubmitting}
-              className="bg-ehs-normal-blue text-ehs-light-text hover:bg-ehs-normal-blue-active inline-flex items-center gap-2 rounded-2.5 px-3 py-[7.5px] text5 shadow-[0px_6px_18px_-6px_var(--ehs-normal-blue)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Icon
-                icon="mdi:plus"
-                className="size-3.25"
-                aria-hidden="true"
-              />
+              <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
               Add CAPA
             </button>
           </div>
@@ -158,7 +154,7 @@ export function IncidentDetailCapaListCard(
           {isLoading ? (
             <SkeletonListRows rows={3} />
           ) : capas.length === 0 ? (
-            <div className="text-ehs-muted-text py-8 text-center text4">
+            <div className="text-ehs-muted-text text4 py-8 text-center">
               No linked CAPA actions found for this incident.
             </div>
           ) : (
@@ -176,21 +172,21 @@ export function IncidentDetailCapaListCard(
                 <div
                   key={item.id}
                   className={[
-                    "flex flex-col gap-1.75 rounded-3 border bg-[rgba(255,255,255,0.82)] p-4.25",
+                    "rounded-3 bg-ehs-surface/82 flex flex-col gap-1.75 border p-4.25",
                     needsReview
                       ? "border-ehs-green/30 ring-ehs-green/20 ring-1"
-                      : "border-[rgba(15,23,42,0.08)]",
+                      : "border-ehs-border-ink/8",
                   ].join(" ")}
                 >
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                     <span className="text-ehs-muted-text text5">
                       {item.code}
                     </span>
-                    <span className="bg-ehs-dark-bg/14 text-ehs-gray inline-flex items-center gap-1.25 rounded-full px-2.25 py-0.75 text7">
-                      <span className="bg-ehs-gray size-1.5 rounded-0.75" />
+                    <span className="bg-ehs-surface-inverse/14 text-ehs-gray text7 inline-flex items-center gap-1.25 rounded-full px-2.25 py-0.75">
+                      <span className="bg-ehs-gray rounded-0.75 size-1.5" />
                       {item.controlCategory}
                     </span>
-                    <span className="bg-ehs-gray/14 text-ehs-gray inline-flex items-center rounded-full px-2.25 py-0.75 text7 leading-3.5">
+                    <span className="bg-ehs-gray/14 text-ehs-gray text7 inline-flex items-center rounded-full px-2.25 py-0.75 leading-3.5">
                       {item.actionType}
                     </span>
 
@@ -199,7 +195,7 @@ export function IncidentDetailCapaListCard(
                         <button
                           type="button"
                           onClick={() => openReview(item)}
-                          className="bg-ehs-green/14 text-ehs-green hover:bg-ehs-green/20 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text7 transition-colors"
+                          className="bg-ehs-green/14 text-ehs-green hover:bg-ehs-green/20 text7 inline-flex items-center gap-1 rounded-full px-2.5 py-1 transition-colors"
                         >
                           <Icon
                             icon="mdi:eye-check-outline"
@@ -211,7 +207,7 @@ export function IncidentDetailCapaListCard(
                       ) : null}
                       <span
                         className={[
-                          "inline-flex items-center rounded-full px-2.25 py-0.75 text7 leading-3.5",
+                          "text7 inline-flex items-center rounded-full px-2.25 py-0.75 leading-3.5",
                           isVerified
                             ? "bg-ehs-green/14 text-ehs-green"
                             : capaTaskStatusBadgeClass(item.taskStatus),
@@ -248,7 +244,7 @@ export function IncidentDetailCapaListCard(
 
                   <div className="flex flex-col gap-2 pt-0.75 sm:flex-row sm:items-center sm:gap-3.5">
                     <div className="flex shrink-0 flex-wrap items-center gap-x-3.5 gap-y-1">
-                      <span className="text-ehs-gray inline-flex items-center gap-1.25 text4">
+                      <span className="text-ehs-gray text4 inline-flex items-center gap-1.25">
                         <Icon
                           icon="mdi:account-arrow-right-outline"
                           className="size-3.5"
@@ -261,7 +257,7 @@ export function IncidentDetailCapaListCard(
                           </span>
                         </span>
                       </span>
-                      <span className="text-ehs-gray inline-flex items-center gap-1.25 text4">
+                      <span className="text-ehs-gray text4 inline-flex items-center gap-1.25">
                         <Icon
                           icon="mdi:calendar-outline"
                           className="size-3"
@@ -304,7 +300,7 @@ export function IncidentDetailCapaListCard(
                           style={{ width: `${String(item.progressPercent)}%` }}
                         />
                       </div>
-                      <span className="text-ehs-muted-text min-w-18 shrink-0 text-right text8 sm:text4">
+                      <span className="text-ehs-muted-text text8 sm:text4 min-w-18 shrink-0 text-right">
                         {isVerified ? "Verified" : taskStatusLabel} ·{" "}
                         {item.progressPercent}%
                       </span>

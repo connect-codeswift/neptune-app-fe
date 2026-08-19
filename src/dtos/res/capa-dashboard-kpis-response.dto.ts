@@ -1,6 +1,7 @@
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 
-export type CapaDashboardKpiStatusDto = "OnTarget" | "OffTarget" | string | null;
+export type CapaDashboardKpiStatusDto =
+  "OnTarget" | "OffTarget" | string | null;
 
 export type CapaDashboardKpiChangeDto = {
   value?: number | null;
@@ -8,7 +9,7 @@ export type CapaDashboardKpiChangeDto = {
   label?: string | null;
 };
 
-/** One KPI card in GET /api/CAPA/dashboard-kpis `dataModel`. */
+/** One KPI card in GET /api/v1/capas/dashboard-kpis `dataModel`. */
 export type CapaDashboardKpiCardDto = {
   value?: number | null;
   unit?: string | null;
@@ -19,7 +20,7 @@ export type CapaDashboardKpiCardDto = {
   change?: CapaDashboardKpiChangeDto | null;
 };
 
-/** dataModel shape for GET /api/CAPA/dashboard-kpis. */
+/** dataModel shape for GET /api/v1/capas/dashboard-kpis. */
 export type CapaDashboardKpisDto = {
   openCapas?: CapaDashboardKpiCardDto | null;
   overdueCapas?: CapaDashboardKpiCardDto | null;

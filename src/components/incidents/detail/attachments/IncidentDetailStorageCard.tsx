@@ -37,14 +37,14 @@ export function IncidentDetailStorageCard(
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="relative h-2 w-full overflow-hidden rounded-full bg-[rgba(15,23,42,0.06)]">
+        <div className="bg-ehs-surface-inverse/6 relative h-2 w-full overflow-hidden rounded-full">
           <div
             className="bg-ehs-normal-blue h-full rounded-full transition-all duration-300"
             style={{ width: `${String(percentage)}%` }}
           />
         </div>
 
-        <div className="text-ehs-muted-text flex items-center justify-between text4 font-semibold">
+        <div className="text-ehs-muted-text text4 flex items-center justify-between font-semibold">
           <span className="text-ehs-gray">
             {usedMB} MB of {maxMB} MB
           </span>

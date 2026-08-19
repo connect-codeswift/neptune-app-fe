@@ -1,6 +1,6 @@
 /**
- * Body for POST /api/CAPA/Capa (create with `id: 0`) and
- * PUT /api/CAPA/Capa (update with existing `id`).
+ * Body for POST /api/v1/capas (create with `id: 0`) and
+ * PUT /api/v1/capas (update with existing `id`).
  */
 export type CreateCapaRequestDto = {
   id: number;

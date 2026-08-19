@@ -23,7 +23,7 @@ function StatusCell(
     <span
       className={[
         "text5",
-        isAcknowledged ? "text-[#10b981]" : "text-[#457b9d]",
+        isAcknowledged ? "text-ehs-green" : "text-[#457b9d]",
       ].join(" ")}
     >
       {status}

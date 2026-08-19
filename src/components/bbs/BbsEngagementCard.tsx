@@ -28,6 +28,8 @@ const BbsEngagementChart = dynamic(
 );
 
 /** Owned here so the legend below and the chart cannot drift apart. */
+/* These reach the chart as `stroke=` / `fill=` on SVG marks, and `var()` is
+   not valid in a presentation attribute, so they stay literal hex. */
 const SAFE_COLOR = "#0891a6";
 const AT_RISK_COLOR = "#ef4444";
 

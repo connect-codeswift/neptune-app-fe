@@ -122,6 +122,8 @@ export function RegulatoryComplianceView() {
       ? null
       : (obligationItems.find((item) => item.id === selectedId) ?? null);
 
+  const activeId = selectedListItem?.id ?? null;
+
   const selectedNumericId = useMemo(() => {
     if (selectedListItem == null) {
       return null;
@@ -135,12 +137,6 @@ export function RegulatoryComplianceView() {
     enabled: queryEnabled && selectedNumericId != null,
     responsibleNameById,
   });
-
-  useEffect(() => {
-    if (selectedId != null && selectedListItem == null) {
-      setSelectedId(null);
-    }
-  }, [selectedId, selectedListItem]);
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
@@ -290,7 +286,7 @@ export function RegulatoryComplianceView() {
         >
           <RegulatoryComplianceRegisterCard
             items={obligationItems}
-            selectedId={selectedId}
+            selectedId={activeId}
             onViewMore={handleToggleDetailPanel}
             isLoading={showRegisterLoading}
             pagination={{

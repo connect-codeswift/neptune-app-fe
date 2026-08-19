@@ -37,14 +37,12 @@ function formatDueBadge(rawDue: unknown): string {
 }
 
 /**
- * Maps one `actions[]` entry from GET /api/EHSCommandCenter/GetMyActions.
+ * Maps one `actions[]` entry from GET /api/v1/command-center/my-actions.
  * The endpoint has only ever returned an empty array so far, so these key
  * candidates are unconfirmed guesses (mirroring CAPA-style naming used
  * elsewhere) — verify and adjust once a populated response is available.
  */
-function mapMyActionToItem(
-  raw: MyActionItemDto,
-): ComplianceDeadlinesItem {
+function mapMyActionToItem(raw: MyActionItemDto): ComplianceDeadlinesItem {
   const title =
     asString(readProp(raw, "title", "Title", "name", "Name")) ??
     "Untitled action";

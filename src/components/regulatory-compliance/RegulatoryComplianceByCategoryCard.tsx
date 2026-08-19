@@ -13,13 +13,13 @@ export type RegulatoryComplianceByCategoryCardProps = Readonly<{
 
 /** Figma 764:1104 — fill colors per category row */
 const CATEGORY_FILL_COLORS: Readonly<Record<string, string>> = {
-  regulatory: "#3b82f6",
-  safety: "#0891a6",
-  health: "#566072",
+  regulatory: "var(--ehs-blue)",
+  safety: "var(--ehs-normal-blue)",
+  health: "var(--ehs-gray)",
 };
 
 const CATEGORY_TRACK_CLASS =
-  "absolute inset-x-0 top-[20.84px] h-[5.838px] overflow-hidden rounded-full bg-[rgba(136,146,163,0.2)]";
+  "absolute inset-x-0 top-[21px] h-[6px] overflow-hidden rounded-full bg-ehs-muted-text/20";
 
 function categoryFillColor(categoryId: string, fallback: string): string {
   return CATEGORY_FILL_COLORS[categoryId.toLowerCase()] ?? fallback;
@@ -44,8 +44,8 @@ function CategoryProgressRow(props: CategoryProgressRowProps) {
   const fillColor = categoryFillColor(category.id, category.colorHex);
 
   return (
-    <div className="relative h-[26.676px] w-full">
-      <div className="flex h-[16.946px] items-center justify-between">
+    <div className="relative h-[27px] w-full">
+      <div className="flex h-[17px] items-center justify-between">
         <Text as="span" className="text5 text-ehs-darker">
           {category.category}
         </Text>
@@ -64,7 +64,7 @@ function CategoryProgressRow(props: CategoryProgressRowProps) {
       >
         {percent > 0 ? (
           <div
-            className="absolute top-0 left-0 h-[5.838px] rounded-full transition-[width] duration-500"
+            className="absolute top-0 left-0 h-[6px] rounded-full transition-[width] duration-500"
             style={{
               width: `${String(percent)}%`,
               backgroundColor: fillColor,
@@ -78,10 +78,12 @@ function CategoryProgressRow(props: CategoryProgressRowProps) {
 
 function CategoryProgressSkeleton() {
   return (
-    <div className="relative h-[26.676px] w-full">
-      <div className="flex h-[16.946px] items-center justify-between">
-        <div className="h-4.25 w-20 animate-pulse rounded-1.5 bg-[#e2e8f6]" />
-        <div className="h-3.5 w-9 animate-pulse rounded-1.5 bg-[#e2e8f6]" />
+    <div className="relative h-[27px] w-full">
+      {/* The skeleton bars are pinned to #e2e8f6, a hair lighter and bluer
+          than --ehs-border (#e5e7eb). */}
+      <div className="flex h-[17px] items-center justify-between">
+        <div className="rounded-1.5 h-4.25 w-20 animate-pulse bg-ehs-skeleton" />
+        <div className="rounded-1.5 h-3.5 w-9 animate-pulse bg-ehs-skeleton" />
       </div>
       <div className={`${CATEGORY_TRACK_CLASS} animate-pulse`} />
     </div>
@@ -95,7 +97,7 @@ export function RegulatoryComplianceByCategoryCard(
 
   return (
     <IncidentGlassCard
-      paddingClassName="p-[17.51px]"
+      paddingClassName="p-[18px]"
       className={[complianceGlassCardClass, className]
         .filter(Boolean)
         .join(" ")}
@@ -111,7 +113,7 @@ export function RegulatoryComplianceByCategoryCard(
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col gap-[11.67px]">
+          <div className="flex flex-col gap-3">
             {Array.from({ length: 3 }, (_, index) => (
               <CategoryProgressSkeleton
                 key={`category-skeleton-${String(index)}`}
@@ -123,7 +125,7 @@ export function RegulatoryComplianceByCategoryCard(
             No category stats available yet.
           </Text>
         ) : (
-          <div className="flex flex-col gap-[11.67px]">
+          <div className="flex flex-col gap-3">
             {categories.map((category) => (
               <CategoryProgressRow key={category.id} category={category} />
             ))}

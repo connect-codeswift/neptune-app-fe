@@ -5,6 +5,7 @@ import {
   getHazardById,
   getHazardKpiCount,
   getHazardHeatMap,
+  getMonthlyHazardUsers,
   getTopHazardUsers,
 } from "@/services/hazard.service";
 
@@ -30,6 +31,16 @@ export function useTopHazardUsersQuery() {
   return useQuery({
     queryKey: ["hazard", "top-users"] as const,
     queryFn: () => getTopHazardUsers(),
+  });
+}
+
+export function useMonthlyHazardUsersQuery(
+  params: Readonly<{ year: number; month: number }>,
+) {
+  return useQuery({
+    queryKey: ["hazard", "monthly-users", params] as const,
+    queryFn: () => getMonthlyHazardUsers(params),
+    enabled: params.year > 0 && params.month >= 1 && params.month <= 12,
   });
 }
 

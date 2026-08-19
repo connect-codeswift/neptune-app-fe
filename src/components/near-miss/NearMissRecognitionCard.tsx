@@ -1,63 +1,46 @@
 "use client";
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { SkeletonListRows } from "@/components/ui/skeletons";
-import { useTopNearMissUsersQuery } from "@/hooks/use-near-miss-queries";
-
-/** "Mian Hamid Ur Rehman" -> "MH". Falls back to "?" for a blank name. */
-function initialsOf(name: string): string {
-  const letters = name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "");
-
-  return letters.join("") || "?";
-}
+import { Text } from "@/components/Text";
 
 export type NearMissRecognitionCardProps = Readonly<{ className?: string }>;
 
+/**
+ * "Recognition" card — top near-miss reporters for the current month.
+ *
+ * The reporter list is NOT wired, deliberately. It used to call
+ * `GET /api/NearMiss/MonthlyNearMissUsers`, which never existed on the backend:
+ * `INearMissService` exposes `GetTopNearMissUsers` and no monthly variant, and
+ * route-map.md has no row for it. That call has been 404ing in production, and
+ * because the card fell back to its empty state on error it displayed
+ * "No reporters yet this month." — which read as a real, empty month rather
+ * than a missing feature.
+ *
+ * Rather than keep firing a request that cannot succeed, the card now states
+ * plainly that the data is unavailable. Restore `getMonthlyNearMissUsers` in
+ * `near-miss.service.ts` and render the list again once the backend serves
+ * `GET /api/v1/near-misses/monthly-users`.
+ */
 export function NearMissRecognitionCard(props: NearMissRecognitionCardProps) {
   const { className = "" } = props;
-
-  const topUsersQuery = useTopNearMissUsersQuery();
-  const reporters = topUsersQuery.data?.dataModel ?? [];
 
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-3 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Recognition</h3>
-        <p className="text4 text-ehs-muted-text">Top reporters this month</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Recognition
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Top reporters this month
+        </Text>
       </header>
 
-      {reporters.length > 0 ? (
-        <ul className="flex flex-col">
-          {reporters.map((reporter) => (
-            <li
-              key={reporter.userId}
-              className="flex items-center gap-2.5 border-t border-slate-900/10 py-4"
-            >
-              <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold">
-                {initialsOf(reporter.userName)}
-              </span>
-              <span className="text5 text-ehs-dark-bg min-w-0 flex-1 truncate">
-                {reporter.userName}
-              </span>
-              <span className="text5 text-ehs-dark-bg tabular-nums">
-                {String(reporter.nearMissCount)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : topUsersQuery.isPending ? (
-        <div className="border-t border-slate-900/10 pt-3">
-          <SkeletonListRows rows={4} />
-        </div>
-      ) : (
-        <p className="text4 text-ehs-muted-text border-t border-slate-900/10 py-2">
-          No reporters yet this month.
-        </p>
-      )}
+      <Text
+        as="p"
+        className="text8 text-ehs-muted-text border-t border-ehs-border-ink/10 py-2"
+      >
+        Monthly reporter rankings are not available yet.
+      </Text>
     </IncidentGlassCard>
   );
 }

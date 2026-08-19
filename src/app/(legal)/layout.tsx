@@ -10,7 +10,7 @@ export default function LegalLayout({
 }>) {
   return (
     <div className="bg-ehs-light-bg min-h-screen">
-      <header className="border-ehs-border border-b bg-white px-6 py-4">
+      <header className="border-ehs-border bg-ehs-surface border-b px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
           <Link href="/" aria-label="Neptune home">
             <Logo />

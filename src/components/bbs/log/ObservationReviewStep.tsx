@@ -12,7 +12,7 @@ function ReviewRow(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
 
   return (
-    <div className="flex items-start gap-4 border-b border-slate-900/10 py-3 last:border-b-0">
+    <div className="border-ehs-border-ink/10 flex items-start gap-4 border-b py-3 last:border-b-0">
       <span className="text-ehs-muted-text w-28 shrink-0">{label}</span>
       <span className="min-w-0 flex-1 wrap-break-word">{value}</span>
     </div>
@@ -66,7 +66,7 @@ export function ObservationReviewStep(props: ObservationReviewStepProps) {
           {photos.map((photo) => (
             <li
               key={photo}
-              className="border-ehs-border flex items-center gap-3 rounded-xl border bg-[rgba(238,241,246,0.7)] p-3"
+              className="border-ehs-border bg-ehs-form-classes-bg/70 flex items-center gap-3 rounded-xl border p-3"
             >
               <span className="relative size-11 shrink-0 overflow-hidden rounded-lg">
                 <Image

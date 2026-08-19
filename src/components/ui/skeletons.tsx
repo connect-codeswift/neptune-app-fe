@@ -29,7 +29,7 @@ function SkeletonCardHeading(props: Readonly<{ action?: boolean }>) {
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-2.5 w-28" />
       </div>
-      {action ? <Skeleton className="h-6 w-16 rounded-2.5" /> : null}
+      {action ? <Skeleton className="rounded-2.5 h-6 w-16" /> : null}
     </div>
   );
 }
@@ -46,7 +46,7 @@ function SkeletonFilterBar(props: Readonly<{ groups?: number }>) {
   const { groups = 3 } = props;
 
   return (
-    <div className="relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border border-white/80 bg-white/60 p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5">
+    <div className="border-ehs-hairline/80 bg-ehs-surface/60 relative flex w-full min-w-0 flex-wrap items-center gap-x-5 gap-y-3.5 rounded-2xl border p-3 shadow-sm backdrop-blur-md sm:px-4 sm:py-3.5">
       <Skeleton className="h-8 w-20 shrink-0 rounded-lg" />
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-3">
         {repeat(groups, (index) => (

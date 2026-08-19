@@ -87,7 +87,7 @@ export function BreadCrumbTab(props: Readonly<BreadCrumbTabProps>) {
   return (
     <div
       className={[
-        "border-ehs-border bg-ehs-light-text flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-6 py-4",
+        "border-ehs-border bg-ehs-surface flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-6 py-4",
         className,
       ]
         .filter(Boolean)

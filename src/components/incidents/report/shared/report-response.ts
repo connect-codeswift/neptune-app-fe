@@ -9,5 +9,5 @@ export const IMMEDIATE_ACTION_OPTIONS = [
 
 // SUGGESTED_FOLLOW_UP_OPTIONS used to live here: three hardcoded items, one of
 // them ("Review SOP for hose inspection") wired to the hose-rupture demo
-// scenario. Follow-ups now come from POST /Incident/draft-assist or from the
+// scenario. Follow-ups now come from POST /api/v1/incidents/ai/draft-assist or from the
 // reporter typing their own, so there is nothing left to hardcode.

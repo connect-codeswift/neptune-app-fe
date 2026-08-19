@@ -19,4 +19,3 @@ export type AuditFindings = Readonly<{
   subtitle: string;
   findings: readonly AuditFinding[];
 }>;
-

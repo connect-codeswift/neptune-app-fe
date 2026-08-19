@@ -10,7 +10,7 @@ export type InspectionItemResponseRequestDto = {
   isNA: boolean;
 };
 
-/** Body for PUT /api/Inspection/{id}/responses — records the answers. */
+/** Body for PUT /api/v1/inspections/{id}/responses — records the answers. */
 export type SaveInspectionResponsesRequestDto = {
   userId: number;
   siteId: number;
@@ -19,7 +19,7 @@ export type SaveInspectionResponsesRequestDto = {
   responses: InspectionItemResponseRequestDto[];
 };
 
-/** Body for POST /api/Inspection — starts (schedules) an inspection. */
+/** Body for POST /api/v1/inspections — starts (schedules) an inspection. */
 export type CreateInspectionRequestDto = {
   /** 0 on create; the backend assigns the real id. */
   id: number;

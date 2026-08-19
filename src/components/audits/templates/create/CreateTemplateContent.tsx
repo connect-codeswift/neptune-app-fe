@@ -54,14 +54,14 @@ function TemplatePreview(
       paddingClassName="p-5"
       incidentGlassCardClassName="gap-3"
     >
-      <h3 className="text-ehs-muted-text text-sm font-bold tracking-wider uppercase">
+      <Text as="h3" className="text9 text-ehs-muted-text">
         Preview
-      </h3>
+      </Text>
 
-      <div className="flex flex-col gap-2 rounded-xl border border-slate-900/10 bg-white p-4">
+      <div className="border-ehs-border-ink/10 bg-ehs-surface flex flex-col gap-2 rounded-xl border p-4">
         <span
           className={
-            name ? "text-ehs-dark-bg font-semibold" : "text-ehs-muted-text"
+            name ? "text5 text-ehs-dark-bg" : "text4 text-ehs-muted-text"
           }
         >
           {name || "Template name…"}
@@ -71,7 +71,7 @@ function TemplatePreview(
           {tags.map((tag) => (
             <span
               key={tag}
-              className="bg-ehs-normal-blue/10 text-ehs-dark-blue rounded-md px-2 py-0.5 text-xs font-medium"
+              className="bg-ehs-normal-blue/10 text-ehs-dark-blue text8 rounded-md px-2 py-0.5"
             >
               {tag}
             </span>
@@ -269,33 +269,30 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* Header */}
-      <div className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
+      <div className="bg-ehs-surface border-ehs-border-ink/8 relative flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
         <div className="flex min-w-0 flex-col gap-1.5">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1">
             <Link
               href={TEMPLATES_ROUTE}
-              className="text-ehs-gray hover:text-ehs-dark-bg text-sm font-medium transition-colors"
+              className="text8 text-ehs-muted-text hover:text-ehs-gray transition-colors"
             >
               Templates
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="text-ehs-muted-text size-4"
+              className="text-ehs-muted-text size-3 shrink-0"
               aria-hidden="true"
             />
-            <span className="text-ehs-muted-text text-sm font-medium">
+            <Text as="span" className="text8 text-ehs-gray">
               {isEdit ? "Edit Template" : "Create Template"}
-            </span>
+            </Text>
           </nav>
 
-          <Text
-            as="h1"
-            className="text-ehs-dark-bg text-2xl font-semibold tracking-[-0.2px]"
-          >
+          <Text as="h1" className="text1 text-ehs-darker">
             {isEdit ? "Edit Audit Template" : "Create Audit Template"}
           </Text>
 
-          <Text as="p" className="text-ehs-muted-text text-sm">
+          <Text as="p" className="text8 text-ehs-muted-text">
             5-step wizard — build, configure, and publish your template
           </Text>
         </div>
@@ -304,7 +301,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           type="button"
           onClick={handleSaveDraft}
           disabled={isSavingTemplate}
-          className="text-ehs-dark-bg inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="text4 text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Icon
             icon="mdi:content-save-outline"
@@ -325,9 +322,9 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
             incidentGlassCardClassName="gap-5"
             className="min-w-0"
           >
-            <h2 className="text-ehs-dark-bg text-lg font-bold">
+            <Text as="h2" className="text3 text-ehs-dark-bg">
               Basic Information
-            </h2>
+            </Text>
 
             {/* Seed from the persisted `values` so re-entering step 1
                 restores what was typed rather than the blank defaults. */}
@@ -388,7 +385,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => router.push(TEMPLATES_ROUTE)}
-            className="text-ehs-dark-bg cursor-pointer rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text4 text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/12 bg-ehs-surface cursor-pointer border px-5 py-2.5 transition-colors"
           >
             Cancel
           </button>
@@ -396,7 +393,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           <button
             type="button"
             onClick={() => setStep(step - 1)}
-            className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-2.5 border border-slate-900/12 bg-white px-5 py-2.5 font-medium transition-colors"
+            className="text4 text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 border px-5 py-2.5 transition-colors"
           >
             <Icon
               icon="mdi:arrow-left"
@@ -413,7 +410,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="text-ehs-dark-bg inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-900/12 bg-white px-4 py-2.5 font-medium transition-colors"
+              className="text4 text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 transition-colors"
             >
               <Icon
                 icon="mdi:content-save-outline"
@@ -428,7 +425,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               type={step === 1 ? "submit" : "button"}
               form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
               onClick={step === 1 ? undefined : handleNext}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active inline-flex cursor-pointer items-center gap-2 rounded-2.5 px-5 py-2.5 text-sm font-semibold text-white shadow-[0px_6px_18px_-6px_#0891a6] transition-colors"
+              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 text-ehs-on-accent shadow-(--ehs-shadow-button-primary-flat) transition-colors"
             >
               <Icon
                 icon="mdi:arrow-right"

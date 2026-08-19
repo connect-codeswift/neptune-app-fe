@@ -51,7 +51,7 @@ const colSpanClass: Record<number, string> = {
 };
 
 const fieldCardClass =
-  "relative overflow-hidden rounded-2xl border border-white/90 bg-white/62 px-5.25 pt-5.25 pb-5 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-[''] sm:col-span-12";
+  "relative overflow-hidden rounded-2xl border border-ehs-hairline/90 bg-ehs-surface/62 px-5.25 pt-5.25 pb-5 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:col-span-12";
 
 function isEmpty(value: FieldValue): boolean {
   return Array.isArray(value) ? value.length === 0 : value.trim() === "";
@@ -61,6 +61,7 @@ function isEmpty(value: FieldValue): boolean {
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
+    if (field.type === "heading") continue;
     if (!field.required) continue;
 
     if (field.type === "person") {
@@ -173,7 +174,7 @@ export function FormBuilder(props: FormBuilderProps) {
             <div className={field.card ? "relative z-1" : undefined}>
               <FieldRenderer
                 field={field}
-                value={values[field.name]}
+                value={values[field.name] ?? ""}
                 values={values}
                 error={errors[field.name]}
                 onChange={(value) => setValue(field.name, value)}
@@ -209,7 +210,7 @@ export function FormBuilder(props: FormBuilderProps) {
           className={[
             "text4 rounded-2.5 px-5 py-2 font-semibold",
             submitVariant === "primary"
-              ? "shadow-[0px_6px_18px_-6px_#0891a6]"
+              ? "shadow-(--ehs-shadow-button-primary-flat)"
               : "",
           ]
             .filter(Boolean)

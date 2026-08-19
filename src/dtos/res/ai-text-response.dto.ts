@@ -1,7 +1,7 @@
 /** Responses from the incident AI-assist endpoints (inside `dataModel`). */
 
 /**
- * POST /api/Incident/proofread and POST /api/Incident/paraphrase.
+ * POST /api/v1/incidents/ai/proofread and POST /api/v1/incidents/ai/paraphrase.
  *
  * Identical shape on purpose — only the path and the behaviour differ. When
  * there is nothing to correct, the text comes back unchanged rather than as an
@@ -15,7 +15,7 @@ export type RewriteResultDto = {
 export type ProofreadResultDto = RewriteResultDto;
 
 /**
- * POST /api/Incident/draft-assist — all three drafts from one call.
+ * POST /api/v1/incidents/ai/draft-assist — all three drafts from one call.
  *
  * `null` on any field is a real answer, not a failure, and each has its own
  * meaning:
@@ -38,7 +38,7 @@ export type IncidentDraftResultDto = {
 };
 
 /**
- * POST /api/NearMiss/draft-assist and POST /api/Hazard/draft-assist.
+ * POST /api/v1/near-misses/ai/draft-assist and POST /api/v1/hazards/ai/draft-assist.
  *
  * One field, not three: these forms have a single narrative box rather than the
  * incident wizard's description / injury / actions split.

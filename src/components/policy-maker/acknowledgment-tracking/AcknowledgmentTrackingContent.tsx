@@ -26,8 +26,8 @@ function parseDocumentId(raw: string): number | null {
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and its acknowledgement roster
- * via GET /api/Document/versions/{documentVersionId}/acknowledgements, then
+ * Loads a document via GET /api/v1/documents/{id} and its acknowledgement roster
+ * via GET /api/v1/document-versions/{documentVersionId}/acknowledgements, then
  * renders the Acknowledgment Tracking view.
  */
 export function AcknowledgmentTrackingContent(

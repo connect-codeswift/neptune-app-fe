@@ -1,8 +1,9 @@
 "use client";
 
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { Text } from "@/components/Text";
 import { SkeletonListRows } from "@/components/ui/skeletons";
-import { useTopHazardUsersQuery } from "@/hooks/use-hazard-queries";
+import { useMonthlyHazardUsersQuery } from "@/hooks/use-hazard-queries";
 
 /** "Mian Hamid Ur Rehman" -> "MH". Falls back to "?" for a blank name. */
 function initialsOf(name: string): string {
@@ -20,14 +21,22 @@ export type HazardRecognitionCardProps = Readonly<{ className?: string }>;
 export function HazardRecognitionCard(props: HazardRecognitionCardProps) {
   const { className = "" } = props;
 
-  const topUsersQuery = useTopHazardUsersQuery();
-  const reporters = topUsersQuery.data?.dataModel ?? [];
+  const now = new Date();
+  const monthlyUsersQuery = useMonthlyHazardUsersQuery({
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  });
+  const reporters = monthlyUsersQuery.data?.dataModel ?? [];
 
   return (
     <IncidentGlassCard className={className}>
       <header className="mb-3 flex flex-col gap-0.5">
-        <h3 className="text3 text-ehs-dark-bg">Recognition</h3>
-        <p className="text4 text-ehs-muted-text">Top reporters this month</p>
+        <Text as="h3" className="text3 text-ehs-darker">
+          Recognition
+        </Text>
+        <Text as="p" className="text8 text-ehs-muted-text">
+          Top reporters this month
+        </Text>
       </header>
 
       {reporters.length > 0 ? (
@@ -35,28 +44,37 @@ export function HazardRecognitionCard(props: HazardRecognitionCardProps) {
           {reporters.map((reporter) => (
             <li
               key={reporter.userId}
-              className="flex items-center gap-2.5 border-t border-slate-900/10 py-3"
+              className="border-ehs-border-ink/10 flex items-center gap-2.5 border-t py-3"
             >
-              <span className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold">
+              <Text
+                as="span"
+                className="text7 bg-ehs-normal-blue/18 text-ehs-dark-blue flex size-7 shrink-0 items-center justify-center rounded-lg font-bold"
+              >
                 {initialsOf(reporter.userName)}
-              </span>
-              <span className="text5 text-ehs-dark-bg min-w-0 flex-1 truncate">
+              </Text>
+              <Text
+                as="span"
+                className="text4 text-ehs-darker min-w-0 flex-1 truncate"
+              >
                 {reporter.userName}
-              </span>
-              <span className="text5 text-ehs-dark-bg tabular-nums">
+              </Text>
+              <Text as="span" className="text4 text-ehs-darker tabular-nums">
                 {String(reporter.hazardCount)}
-              </span>
+              </Text>
             </li>
           ))}
         </ul>
-      ) : topUsersQuery.isPending ? (
-        <div className="border-t border-slate-900/10 pt-3">
+      ) : monthlyUsersQuery.isPending ? (
+        <div className="border-ehs-border-ink/10 border-t pt-3">
           <SkeletonListRows rows={4} />
         </div>
       ) : (
-        <p className="text4 text-ehs-muted-text border-t border-slate-900/10 py-2">
+        <Text
+          as="p"
+          className="text8 text-ehs-muted-text border-ehs-border-ink/10 border-t py-2"
+        >
           No reporters yet this month.
-        </p>
+        </Text>
       )}
     </IncidentGlassCard>
   );

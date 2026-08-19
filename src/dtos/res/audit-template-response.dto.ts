@@ -1,6 +1,6 @@
 import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 
-/** Audit template summary as returned by GET /api/AuditTemplate/GetAll. */
+/** Audit template summary as returned by GET /api/v1/audit-templates. */
 export type AuditTemplateDto = {
   id: number;
   templateName: string;
@@ -27,17 +27,17 @@ export type AuditTemplateDto = {
   allowSites: string;
 };
 
-/** Matches backend response for POST /api/AuditTemplate. */
+/** Matches backend response for POST /api/v1/audit-templates. */
 export type CreateAuditTemplateResponseDto =
   ApiEnvelopeDto<AuditTemplateDto | null>;
 
-/** Matches backend response for GET /api/AuditTemplate/GetAll. */
+/** Matches backend response for GET /api/v1/audit-templates. */
 export type GetAllAuditTemplatesResponseDto = ApiEnvelopeDto<
   PagedDataDto<AuditTemplateDto>
 >;
 
 /**
- * A section row from GET /api/AuditTemplate/GetSectionsByTemplateId/{id}.
+ * A section row from GET /api/v1/audit-templates/{id}/sections.
  * Fields stay optional since the exact response shape isn't pinned down.
  */
 export type AuditTemplateSectionDto = {
@@ -48,7 +48,7 @@ export type AuditTemplateSectionDto = {
   displayOrder?: number;
 };
 
-/** An item row from GET /api/AuditTemplate/GetItemsBySectionId/{id}. */
+/** An item row from GET /api/v1/audit-templates/sections/{id}/items. */
 export type AuditTemplateItemDto = {
   id: number;
   itemType?: string;
@@ -61,7 +61,7 @@ export type AuditTemplateItemDto = {
   templateSectionId?: number;
 };
 
-/** A rule from GET /api/AuditTemplate/GetConditionalLogicsByTemplateId/{id}. */
+/** A rule from GET /api/v1/audit-templates/{id}/conditional-logics. */
 export type AuditTemplateLogicDto = {
   id: number;
   status?: string;

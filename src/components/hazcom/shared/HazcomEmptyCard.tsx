@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react";
 import type { ReactNode } from "react";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard } from "@/components/hazcom/shared/HazcomGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 
 export type HazcomEmptyCardProps = Readonly<{
   /** Iconify name, drawn muted — see the tone note below. */
@@ -25,11 +25,9 @@ export function HazcomEmptyCard(props: Readonly<HazcomEmptyCardProps>) {
   const { icon, title, message, action, className = "" } = props;
 
   return (
-    <HazcomGlassCard
-      className={["min-h-55 text-center", className]
-        .filter(Boolean)
-        .join(" ")}
-      hazcomGlassCardClassName="items-center justify-center gap-3"
+    <IncidentGlassCard
+      className={["min-h-55 text-center", className].filter(Boolean).join(" ")}
+      incidentGlassCardClassName="items-center justify-center gap-3"
     >
       <Icon
         icon={icon}
@@ -43,6 +41,6 @@ export function HazcomEmptyCard(props: Readonly<HazcomEmptyCardProps>) {
         {message}
       </Text>
       {action}
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

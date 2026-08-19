@@ -22,7 +22,7 @@ const inspectionQueryKeys = {
     [...inspectionQueryKeys.all, "findings", inspectionId] as const,
 };
 
-/** Fetches a paged list of inspections from GET /api/Inspection. */
+/** Fetches a paged list of inspections from GET /api/v1/inspections. */
 export function useInspectionsQuery(params: RegisterListParams) {
   return useQuery({
     queryKey: inspectionQueryKeys.list(params),
@@ -31,7 +31,7 @@ export function useInspectionsQuery(params: RegisterListParams) {
   });
 }
 
-/** KPI tiles from GET /api/Inspection/summary — scoped per signed-in user. */
+/** KPI tiles from GET /api/v1/inspections/summary — scoped per signed-in user. */
 export function useInspectionSummaryQuery(
   userId: number | null,
   enabled = true,
@@ -43,7 +43,7 @@ export function useInspectionSummaryQuery(
   });
 }
 
-/** Fetches a single inspection's detail from GET /api/Inspection/{id}. */
+/** Fetches a single inspection's detail from GET /api/v1/inspections/{id}. */
 export function useInspectionDetailQuery(inspectionId: string | null) {
   return useQuery({
     queryKey: inspectionQueryKeys.detail(inspectionId),
@@ -52,7 +52,7 @@ export function useInspectionDetailQuery(inspectionId: string | null) {
   });
 }
 
-/** Donut + top findings from GET /api/Inspection/{id}/detail-summary. */
+/** Donut + top findings from GET /api/v1/inspections/{id}/detail-summary. */
 export function useInspectionDetailSummaryQuery(inspectionId: string | null) {
   return useQuery({
     queryKey: inspectionQueryKeys.detailSummary(inspectionId),
@@ -72,7 +72,7 @@ export function useInspectionDetailSummaryQuery(inspectionId: string | null) {
   });
 }
 
-/** Fetches an inspection's findings from GET /api/Inspection/{id}/findings. */
+/** Fetches an inspection's findings from GET /api/v1/inspections/{id}/findings. */
 export function useInspectionFindingsQuery(inspectionId: string | null) {
   return useQuery({
     queryKey: inspectionQueryKeys.findings(inspectionId),

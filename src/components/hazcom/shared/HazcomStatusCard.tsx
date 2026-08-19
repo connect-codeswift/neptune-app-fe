@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { HazcomGlassCard } from "@/components/hazcom/shared/HazcomGlassCard";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   SkeletonDetailPage,
   SkeletonFormPage,
@@ -58,18 +58,16 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
   const { title, message, onRetry, className = "" } = props;
 
   return (
-    <HazcomGlassCard
-      className={["min-h-45 text-center", className]
-        .filter(Boolean)
-        .join(" ")}
-      hazcomGlassCardClassName="items-center justify-center gap-2"
+    <IncidentGlassCard
+      className={["min-h-45 text-center", className].filter(Boolean).join(" ")}
+      incidentGlassCardClassName="items-center justify-center gap-2"
     >
       <Icon
         icon="mdi:alert-circle-outline"
         className="text-ehs-red size-8"
         aria-hidden="true"
       />
-      <Text as="p" className="text4 text-ehs-darker font-semibold">
+      <Text as="p" className="text5 text-ehs-darker">
         {title}
       </Text>
       <Text as="p" className="text4 text-ehs-muted-text max-w-md">
@@ -79,12 +77,12 @@ export function HazcomErrorCard(props: Readonly<HazcomErrorCardProps>) {
         <button
           type="button"
           onClick={onRetry}
-          className="text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-white px-3 py-1.5 font-medium transition-colors"
+          className="text8 border-ehs-border text-ehs-gray hover:bg-ehs-light-bg mt-1 inline-flex cursor-pointer items-center gap-1 rounded-lg border bg-ehs-surface px-3 py-1.5 font-medium transition-colors"
         >
           <Icon icon="mdi:refresh" className="size-4" aria-hidden="true" />
           Retry
         </button>
       ) : null}
-    </HazcomGlassCard>
+    </IncidentGlassCard>
   );
 }

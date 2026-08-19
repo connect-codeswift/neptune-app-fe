@@ -3,11 +3,7 @@ import type { MetricCardProps } from "@/components/ui/MetricCard";
 /** Figma CAPA Dashboard status filter — node 7123:41912.
  * Prefer `CAPA_STATUS_FILTER_OPTIONS` in `@/lib/capa-filters` for live API filters.
  */
-export const CAPA_DASHBOARD_STATUS_FILTERS = [
-  "All",
-  "Open",
-  "Closed",
-] as const;
+export const CAPA_DASHBOARD_STATUS_FILTERS = ["All", "Open", "Closed"] as const;
 
 export const CAPA_DASHBOARD_TYPE_FILTERS = [
   "All",
@@ -113,6 +109,9 @@ export const CAPA_DASHBOARD_KPIS: readonly MetricCardProps[] = [
 ];
 
 export const CAPA_LIFECYCLE_SLICES: readonly CapaLifecycleSlice[] = [
+  /* `color` is rendered as `stroke={...}` on the donut arcs, an SVG
+     presentation attribute where `var()` is not valid, so these stay
+     literal hex. */
   { label: "Open", value: 1, color: "#0891a6" },
   { label: "In progress", value: 5, color: "#3b82f6" },
   { label: "Overdue", value: 1, color: "#ef4444" },

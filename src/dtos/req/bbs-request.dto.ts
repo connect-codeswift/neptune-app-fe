@@ -7,7 +7,7 @@ export type CreateBbsObservationRequestDto = {
   photoUrl: string;
 };
 
-/** Payload for PUT /api/bbs — id is sent in the body, not the path. */
+/** Payload for PUT /api/v1/bbs/observations/{id}. */
 export type UpdateBbsObservationRequestDto = {
   id: number;
   observe: string;

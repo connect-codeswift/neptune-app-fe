@@ -21,11 +21,9 @@ import {
   type CapaRcaWhyStep,
   type CapaRcaWorksheet,
 } from "@/components/capa/detail/capa-rca-data";
+import { CapaRcaSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { Text } from "@/components/Text";
-import {
-  useCapaDetailQuery,
-  useCapaRcaQuery,
-} from "@/hooks/use-capa-queries";
+import { useCapaDetailQuery, useCapaRcaQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { toast } from "@/lib/toast";
 
@@ -38,10 +36,10 @@ const WHY_SLOTS = 5;
 const CAPA_ROUTE = "/dashboard/capa";
 
 const glassCardClass =
-  "relative overflow-hidden rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white/62 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)] before:content-['']";
+  "relative overflow-hidden rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-['']";
 
 const cellTextareaClass =
-  "min-h-16 w-full resize-none bg-transparent text-sm leading-4.5 text-[#2a3446] outline-none placeholder:text-[#8892a3]";
+  "min-h-16 w-full resize-none bg-transparent text-sm leading-4.5 text-ehs-slate outline-none placeholder:text-ehs-muted-text";
 
 type EditableLane = {
   id: string;
@@ -89,15 +87,12 @@ function newWhyId(): string {
   return `why-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Horizontal RCA worksheet — Figma 5472:19820. GET /api/CAPA/Rca/{rcaId}. */
+/** Horizontal RCA worksheet — Figma 5472:19820. GET /api/v1/rcas/{rcaId}/capas. */
 export function CapaRcaContent(props: CapaRcaContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
   const hasToken = useHasAccessToken();
-  const [lanes, setLanes] = useState<EditableLane[]>(() =>
-    cloneLanes(CAPA_RCA_WORKSHEET.lanes),
-  );
-  const [lanesHydrated, setLanesHydrated] = useState(false);
+  const [editedLanes, setEditedLanes] = useState<EditableLane[] | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
 
   const detailQuery = useCapaDetailQuery({
@@ -112,14 +107,18 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     enabled: hasToken === true && rcaId != null && rcaId > 0,
   });
 
-  useEffect(() => {
-    if (!rcaQuery.isSuccess || lanesHydrated) {
-      return;
-    }
+  // The worksheet is server data until the user touches it, then local edits
+  // win. Deriving it here rather than hydrating state from an effect avoids the
+  // cascading render that `react-hooks/set-state-in-effect` flags.
+  const lanes =
+    editedLanes ??
+    (rcaQuery.isSuccess
+      ? cloneLanes(mapRcaFactorsToCapaLanes(rcaQuery.data ?? []))
+      : cloneLanes(CAPA_RCA_WORKSHEET.lanes));
 
-    setLanes(cloneLanes(mapRcaFactorsToCapaLanes(rcaQuery.data ?? [])));
-    setLanesHydrated(true);
-  }, [lanesHydrated, rcaQuery.data, rcaQuery.isSuccess]);
+  function setLanes(update: (prev: EditableLane[]) => EditableLane[]) {
+    setEditedLanes((prev) => update(prev ?? lanes));
+  }
 
   useEffect(() => {
     if (
@@ -245,13 +244,7 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
   }
 
   if (isBootstrapping || record == null) {
-    return (
-      <div className="flex min-w-0 flex-col gap-3 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          Loading RCA…
-        </Text>
-      </div>
-    );
+    return <CapaRcaSkeleton />;
   }
 
   if (detailQuery.isError) {
@@ -312,7 +305,7 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         actions={actions}
       />
 
-      <p className="flex items-start gap-2 text-sm leading-3.75 text-[#8892a3]">
+      <p className="text-ehs-muted-text flex items-start gap-2 text-sm leading-3.75">
         <Icon
           icon="mdi:information-outline"
           className="mt-px size-4 shrink-0"
@@ -323,8 +316,8 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         the root cause.
       </p>
 
-      <div className={`${glassCardClass} overflow-x-auto`}>
-        <div className="relative z-1 min-w-275 p-4">
+      <div className={`${glassCardClass} max-w-full overflow-x-auto`}>
+        <div className="relative z-1 min-w-max p-3 sm:p-4 md:min-w-275">
           <WorksheetHeader />
           <div className="mt-3 flex flex-col gap-3">
             {lanes.map((lane) => (
@@ -351,28 +344,28 @@ function WorksheetHeader() {
     <div className="grid grid-cols-[136px_minmax(180px,1.15fr)_repeat(5,minmax(180px,1fr))_minmax(200px,1.25fr)] items-center gap-2.5">
       <Text
         as="p"
-        className="px-1 text-xs font-bold tracking-[0.84px] text-[#8892a3] uppercase"
+        className="text-ehs-muted-text px-1 text-xs font-bold tracking-[0.84px] uppercase"
       >
         Category
       </Text>
-      <div className="rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(8,145,166,0.13)] px-3 py-2 text-center text-sm font-bold tracking-[0.23px] text-[#056e7e]">
+      <div className="rounded-2.25 border-ehs-border-ink/8 bg-ehs-normal-blue/13 text-ehs-dark-blue border px-3 py-2 text-center text-sm font-bold tracking-[0.23px]">
         Contributing factor
       </div>
       {Array.from({ length: WHY_SLOTS }, (_, index) => (
         <div
           key={`why-h-${String(index + 1)}`}
-          className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-white/62 px-2 py-2 text-sm font-bold tracking-[0.23px] text-[#566072]"
+          className="rounded-2.25 border-ehs-border-ink/8 bg-ehs-surface/62 text-ehs-gray flex items-center justify-center gap-1.5 border px-2 py-2 text-sm font-bold tracking-[0.23px]"
         >
-          <span className="inline-flex size-5 items-center justify-center rounded-[8.5px] bg-[#2a3446] text-xs font-bold tracking-[0.23px] text-[#f3f5f8]">
+          <span className="bg-ehs-slate text-ehs-light-bg inline-flex size-5 items-center justify-center rounded-[9px] text-xs font-bold tracking-[0.23px]">
             {String(index + 1)}
           </span>
           Why?
         </div>
       ))}
-      <div className="flex items-center justify-center gap-1.5 rounded-2.25 border border-[rgba(15,23,42,0.08)] bg-[rgba(16,185,129,0.14)] px-3 py-2 text-sm font-bold tracking-[0.23px] text-[#10b981]">
+      <div className="rounded-2.25 border-ehs-border-ink/8 bg-ehs-green/14 text-ehs-green flex items-center justify-center gap-1.5 border px-3 py-2 text-sm font-bold tracking-[0.23px]">
         <Icon
           icon="mdi:clipboard-check-outline"
-          className="size-3 text-[#10b981]"
+          className="text-ehs-green size-3"
           aria-hidden
         />
         Corrective actions
@@ -410,7 +403,7 @@ function WorksheetLane(
     <div className="grid grid-cols-[136px_minmax(180px,1.15fr)_repeat(5,minmax(180px,1fr))_minmax(200px,1.25fr)] gap-2.5">
       <div
         className={[
-          "flex min-h-35 items-center justify-center rounded-2.25 border border-[rgba(15,23,42,0.08)] px-3 text-center text-sm font-bold text-[#0b1320]",
+          "rounded-2.25 border-ehs-border-ink/8 text-ehs-dark-bg flex min-h-35 items-center justify-center border px-3 text-center text-sm font-bold",
           lane.categoryClassName,
         ].join(" ")}
       >
@@ -432,7 +425,7 @@ function WorksheetLane(
             onEdit({ kind: "factor", laneId: lane.id });
           }
         }}
-        className="flex min-h-35 cursor-text flex-col gap-1.5 rounded-xl border border-[rgba(11,19,32,0.14)] p-3.5 text-left transition-shadow"
+        className="border-ehs-border-ink/14 flex min-h-35 cursor-text flex-col gap-1.5 rounded-xl border p-3.5 text-left transition-shadow"
         style={
           isEditingFactor
             ? { boxShadow: `0px 0px 0px 3px ${accentGlow}` }
@@ -454,9 +447,11 @@ function WorksheetLane(
             onDone={() => onEdit(null)}
           />
         ) : (
-          <p className="text-sm leading-4.5 font-bold text-[#0b1320]">
+          <p className="text-ehs-dark-bg text-sm leading-4.5 font-bold">
             {lane.contributingFactor || (
-              <span className="font-normal text-[#8892a3]">Click to edit…</span>
+              <span className="text-ehs-muted-text font-normal">
+                Click to edit…
+              </span>
             )}
           </p>
         )}
@@ -599,7 +594,7 @@ function WhyCell(
           onStartEdit();
         }
       }}
-      className="relative flex min-h-35 cursor-text flex-col gap-2 rounded-xl border border-[rgba(11,19,32,0.14)] p-3.5 text-left transition-shadow"
+      className="border-ehs-border-ink/14 relative flex min-h-35 cursor-text flex-col gap-2 rounded-xl border p-3.5 text-left transition-shadow"
       style={
         isRootCause || isEditing
           ? { boxShadow: `0px 0px 0px 3px ${accentGlow}` }
@@ -608,7 +603,7 @@ function WhyCell(
     >
       <div className="flex items-center gap-1.5">
         <span
-          className="inline-flex size-4.75 items-center justify-center rounded-[9.5px] text-[10.5px] font-bold text-white"
+          className="rounded-2.5 inline-flex size-4.75 items-center justify-center text-[11px] font-bold text-white"
           style={{ backgroundColor: accent }}
         >
           {String(step)}
@@ -622,7 +617,7 @@ function WhyCell(
             Root cause
           </span>
         ) : (
-          <span className="text-xs font-bold tracking-[0.54px] text-[#8892a3] uppercase">
+          <span className="text-ehs-muted-text text-xs font-bold tracking-[0.54px] uppercase">
             {`Why ${String(step)}`}
           </span>
         )}
@@ -633,7 +628,7 @@ function WhyCell(
             event.stopPropagation();
             onRemove();
           }}
-          className="ml-auto inline-flex size-4.5 items-center justify-center rounded text-[#8892a3] hover:bg-[rgba(15,23,42,0.06)] hover:text-[#0b1320]"
+          className="text-ehs-muted-text hover:bg-ehs-surface-inverse/6 hover:text-ehs-dark-bg ml-auto inline-flex size-4.5 items-center justify-center rounded"
         >
           <Icon icon="mdi:close" className="size-4" aria-hidden />
         </button>
@@ -646,8 +641,8 @@ function WhyCell(
           onDone={onDone}
         />
       ) : (
-        <p className="text-sm leading-4.5 text-[#2a3446]">
-          {text || <span className="text-[#8892a3]">Click to edit…</span>}
+        <p className="text-ehs-slate text-sm leading-4.5">
+          {text || <span className="text-ehs-muted-text">Click to edit…</span>}
         </p>
       )}
     </div>
@@ -666,10 +661,10 @@ function AddWhyCell(
     <button
       type="button"
       onClick={onAdd}
-      className="flex min-h-35 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-[rgba(15,23,42,0.14)] bg-transparent text-[#8892a3] transition-colors"
+      className="border-ehs-border-ink/14 text-ehs-muted-text flex min-h-35 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed bg-transparent transition-colors"
     >
       <span
-        className="inline-flex size-7 items-center justify-center rounded-3.25"
+        className="rounded-3.25 inline-flex size-7 items-center justify-center"
         style={{ backgroundColor: accentSoft, color: accent }}
       >
         <Icon icon="mdi:plus" className="size-4" aria-hidden />
@@ -681,8 +676,8 @@ function AddWhyCell(
 
 function EmptyWhyCell() {
   return (
-    <div className="flex min-h-35 items-center justify-center rounded-xl border border-dashed border-[rgba(15,23,42,0.14)]">
-      <span className="text-sm text-[#8892a3]">—</span>
+    <div className="border-ehs-border-ink/14 flex min-h-35 items-center justify-center rounded-xl border border-dashed">
+      <span className="text-ehs-muted-text text-sm">—</span>
     </div>
   );
 }
@@ -696,27 +691,27 @@ function ActionsCell(
   const { laneId, actions } = props;
 
   return (
-    <div className="flex min-h-35 flex-col gap-2 rounded-xl border border-[rgba(16,185,129,0.5)] p-3.5">
+    <div className="border-ehs-green/50 flex min-h-35 flex-col gap-2 rounded-xl border p-3.5">
       <Text
         as="p"
-        className="text-xs font-bold tracking-[0.72px] text-[#10b981] uppercase"
+        className="text-ehs-green text-xs font-bold tracking-[0.72px] uppercase"
       >
         Corrective actions
       </Text>
       <div className="flex flex-col gap-2">
         {actions.map((action) => (
           <div key={action.id} className="flex items-start gap-2">
-            <span className="mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center rounded-1.25 text-[#10b981]">
+            <span className="rounded-1.25 text-ehs-green mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center">
               <Icon icon="mdi:check" className="size-4" aria-hidden />
             </span>
-            <p className="min-w-0 flex-1 text-sm leading-[17.4px] text-[#2a3446]">
+            <p className="text-ehs-slate min-w-0 flex-1 text-sm leading-[17.4px]">
               {action.text}
             </p>
             <button
               type="button"
               aria-label="Remove action"
               onClick={() => toast.info("Remove action coming soon")}
-              className="inline-flex size-4 shrink-0 items-center justify-center text-[#8892a3] hover:text-[#0b1320]"
+              className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-4 shrink-0 items-center justify-center"
             >
               <Icon icon="mdi:close" className="size-4" aria-hidden />
             </button>
@@ -725,7 +720,7 @@ function ActionsCell(
         <button
           type="button"
           onClick={() => toast.info(`Add CAPA for ${laneId} coming soon`)}
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#10b981] hover:text-[#059669]"
+          className="text-ehs-green hover:text-ehs-green-hover inline-flex items-center gap-1.5 text-sm font-bold"
         >
           <Icon icon="mdi:plus" className="size-3" aria-hidden />
           Add CAPA

@@ -4,6 +4,8 @@ globs: src/components/**/*.tsx
 alwaysApply: false
 ---
 
+<!-- Mirror of .claude/skills/react-readonly-props/SKILL.md — edit both, keep the bodies identical. -->
+
 # Read-only component props (Sonar S6759)
 
 All React components under `src/components/` must satisfy Sonar rule **typescript:S6759**: props are read-only and must not be mutated inside the component.
@@ -47,7 +49,14 @@ export type EmailInputProps = Readonly<
 
 export function EmailInput(props: Readonly<EmailInputProps>) {
   const { className, autoComplete = "email", ...rest } = props;
-  return <input type="email" autoComplete={autoComplete} className={className} {...rest} />;
+  return (
+    <input
+      type="email"
+      autoComplete={autoComplete}
+      className={className}
+      {...rest}
+    />
+  );
 }
 ```
 

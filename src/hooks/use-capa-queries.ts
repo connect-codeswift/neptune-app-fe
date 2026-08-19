@@ -38,10 +38,10 @@ export const capaQueryKeys = {
     pageNumber: number;
     pageSize: number;
     search: string;
+    scope: string;
     status: string;
     capaType: string;
     priority: string;
-    assignedId: number;
   }) => [...capaQueryKeys.all, "list", params] as const,
   byIncident: (incidentId: number) =>
     [...capaQueryKeys.all, "incident", incidentId] as const,
@@ -61,7 +61,7 @@ export const capaQueryKeys = {
 export const DEFAULT_CAPAS_PAGE_NUMBER = 1;
 export const DEFAULT_CAPAS_PAGE_SIZE = 10;
 
-/** GET /api/CAPA/dashboard-kpis */
+/** GET /api/v1/capas/dashboard-kpis */
 export function useCapaDashboardKpisQuery(enabled = true) {
   return useQuery({
     queryKey: capaQueryKeys.dashboardKpis,
@@ -72,7 +72,7 @@ export function useCapaDashboardKpisQuery(enabled = true) {
   });
 }
 
-/** GET /api/CAPA/lifecycle */
+/** GET /api/v1/capas/lifecycle */
 export function useCapaLifecycleQuery(enabled = true) {
   return useQuery({
     queryKey: capaQueryKeys.lifecycle,
@@ -82,7 +82,7 @@ export function useCapaLifecycleQuery(enabled = true) {
   });
 }
 
-/** GET /api/CAPA/opened-vs-closed */
+/** GET /api/v1/capas/opened-vs-closed */
 export function useCapaOpenedVsClosedQuery(enabled = true) {
   return useQuery({
     queryKey: capaQueryKeys.openedVsClosed,
@@ -92,7 +92,7 @@ export function useCapaOpenedVsClosedQuery(enabled = true) {
   });
 }
 
-/** GET /api/CAPA/workload-by-owner */
+/** GET /api/v1/capas/workload-by-owner */
 export function useCapaWorkloadByOwnerQuery(enabled = true) {
   return useQuery({
     queryKey: capaQueryKeys.workloadByOwner,
@@ -107,33 +107,28 @@ export type UseCapasListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
+  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
-  assignedId?: number;
   /** Parent should enable only after client mount + token check. */
   enabled?: boolean;
 }>;
 
 /**
- * Loads CAPAs via GET /api/CAPA
- * query: PageNumber=1, PageSize=10, Search="", Status="", CapaType="",
- * Priority="", AssignedId omitted when unset
+ * Loads CAPAs via GET /api/v1/capas
+ * query: PageNumber=1, PageSize=10, Search="", Scope="", Status="",
+ * CapaType="", Priority="" — empty = All = omit
  */
 export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
   const pageNumber = options.pageNumber ?? DEFAULT_CAPAS_PAGE_NUMBER;
   const pageSize = options.pageSize ?? DEFAULT_CAPAS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
+  const scope = options.scope?.trim() ?? "";
   const status = options.status?.trim() ?? "";
   const capaType = options.capaType?.trim() ?? "";
   const priority = options.priority?.trim() ?? "";
-  const assignedId =
-    typeof options.assignedId === "number" &&
-    Number.isFinite(options.assignedId) &&
-    options.assignedId > 0
-      ? Math.trunc(options.assignedId)
-      : 0;
 
   const auth = enabled ? getAuthContext() : null;
 
@@ -142,10 +137,10 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
       pageNumber,
       pageSize,
       search,
+      scope,
       status,
       capaType,
       priority,
-      assignedId,
     }),
     enabled,
     placeholderData: keepPreviousData,
@@ -154,10 +149,10 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
         pageNumber,
         pageSize,
         search,
+        scope,
         status,
         capaType,
         priority,
-        ...(assignedId > 0 ? { assignedId } : {}),
       });
       return {
         ...response,
@@ -176,7 +171,7 @@ export type UseCapasByIncidentQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads CAPAs for an incident via GET /api/CAPA/Incident/{incidentId}.
+ * Loads CAPAs for an incident via GET /api/v1/incidents/{incidentId}/capas.
  */
 export function useCapasByIncidentQuery(
   options: UseCapasByIncidentQueryOptions,
@@ -223,7 +218,7 @@ export type UseCapaTasksQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** Loads action tasks for a CAPA via GET /api/CAPA/Tasks/{capaId}. */
+/** Loads action tasks for a CAPA via GET /api/v1/capas/{capaId}/tasks. */
 export function useCapaTasksQuery(options: UseCapaTasksQueryOptions) {
   const capaId = options.capaId;
   const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
@@ -248,7 +243,7 @@ export type UseCapaCommentsQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** Loads CAPA comments via GET /api/CAPA/Comments. */
+/** Loads CAPA comments via GET /api/v1/capas/{capaId}/comments. */
 export function useCapaCommentsQuery(options: UseCapaCommentsQueryOptions) {
   const capaId = options.capaId;
   const userId =
@@ -291,7 +286,7 @@ export type UseCapaAttachmentsQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** Loads CAPA attachments via GET /api/CAPA/Attachments/{capaId}. */
+/** Loads CAPA attachments via GET /api/v1/capas/{capaId}/attachments. */
 export function useCapaAttachmentsQuery(
   options: UseCapaAttachmentsQueryOptions,
 ) {
@@ -316,7 +311,7 @@ export type UseCapaVerificationQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** Loads CAPA verification via GET /api/CAPA/Verification/{capaId}. */
+/** Loads CAPA verification via GET /api/v1/capas/{capaId}/verification. */
 export function useCapaVerificationQuery(
   options: UseCapaVerificationQueryOptions,
 ) {
@@ -341,7 +336,7 @@ export type UseCapaRcaQueryOptions = Readonly<{
   enabled?: boolean;
 }>;
 
-/** Loads RCA worksheet data via GET /api/CAPA/Rca/{rcaId}. */
+/** Loads RCA worksheet data via GET /api/v1/rcas/{rcaId}/capas. */
 export function useCapaRcaQuery(options: UseCapaRcaQueryOptions) {
   const rcaId = options.rcaId;
   const enabled = (options.enabled ?? false) && rcaId != null && rcaId > 0;
@@ -395,7 +390,7 @@ export type UseCapaDetailQueryOptions = Readonly<{
 }>;
 
 /**
- * Loads GET /api/CAPA/Capa/{id} for the detail page.
+ * Loads GET /api/v1/capas/{id} for the detail page.
  */
 export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
   const capaId = options.capaId;

@@ -1,7 +1,12 @@
 import type { MetricCardProps } from "@/components/ui/MetricCard";
 
 /** A KPI card in the incident list header, keyed by a stable id. */
-export type IncidentListKpiMetric = MetricCardProps & Readonly<{ id: string }>;
+export type IncidentListKpiMetric = MetricCardProps &
+  Readonly<{
+    id: string;
+    /** Weeks spanned by `delta`. 1 = week-over-week. */
+    deltaWeeks?: number;
+  }>;
 
 export type IncidentSeverity =
   | "Lost Time"

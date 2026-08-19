@@ -17,6 +17,12 @@ import {
   type AccessWindowState,
 } from "@/lib/access-window";
 
+/* The amber warning tile is pinned: `amber-300/50` on `amber-50/70` with an
+   `amber-700` title, one step darker than the `amber-600` icon. That icon/title
+   split is the point of it, and no token carries #b45309.
+   The skeleton bars use `--ehs-border-strong` at 40% == the slate-300/40 they
+   had, which is deliberately lighter than the `--ehs-border` body bars. */
+
 export type SidebarProps = Readonly<{
   className?: string;
   /**
@@ -53,7 +59,7 @@ function SidebarNavLinkPending() {
 
   return (
     <span
-      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-[1.5px] motion-reduce:animate-none"
+      className="border-ehs-normal-blue/30 border-t-ehs-normal-blue size-3.5 shrink-0 animate-spin rounded-full border-2 motion-reduce:animate-none"
       aria-hidden="true"
     />
   );
@@ -82,7 +88,7 @@ function SidebarNavLink(
             // arbitrarily-coloured page instead of the desktop rail's calm
             // ground, and ehs-gray washed out against it. ehs-slate is the
             // designed one-step-darker companion, so this stays on palette.
-            "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-white/35",
+            "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
       ].join(" ")}
     >
       <Icon
@@ -96,9 +102,7 @@ function SidebarNavLink(
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text7 text-ehs-muted-text shrink-0">
-          {item.badge}
-        </span>
+        <span className="text7 text-ehs-muted-text shrink-0">{item.badge}</span>
       )}
     </Link>
   );
@@ -109,11 +113,11 @@ function SidebarNavSkeleton() {
     <div className="flex flex-col gap-6 px-4 py-5">
       {Array.from({ length: 4 }).map((_, groupIndex) => (
         <div key={groupIndex} className="flex flex-col gap-2">
-          <div className="mx-3 h-2.5 w-16 animate-pulse rounded bg-slate-300/40" />
+          <div className="bg-ehs-border-strong/40 mx-3 h-2.5 w-16 animate-pulse rounded" />
           {Array.from({ length: 3 }).map((__, itemIndex) => (
             <div
               key={itemIndex}
-              className="mx-2 h-9 animate-pulse rounded-lg bg-slate-300/40"
+              className="bg-ehs-border-strong/40 mx-2 h-9 animate-pulse rounded-lg"
             />
           ))}
         </div>
@@ -126,12 +130,12 @@ function SidebarUserSkeleton() {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2">
       <div
-        className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-300/40"
+        className="bg-ehs-border-strong/40 h-9 w-9 shrink-0 animate-pulse rounded-lg"
         aria-hidden="true"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="h-3.5 w-24 animate-pulse rounded bg-slate-300/40" />
-        <div className="h-3 w-32 animate-pulse rounded bg-slate-300/40" />
+        <div className="bg-ehs-border-strong/40 h-3.5 w-24 animate-pulse rounded" />
+        <div className="bg-ehs-border-strong/40 h-3 w-32 animate-pulse rounded" />
       </div>
     </div>
   );
@@ -165,7 +169,7 @@ function SidebarAccessWindow(
     : isUrgent
       ? {
           box: "border-amber-300/50 bg-amber-50/70",
-          icon: "text-amber-600",
+          icon: "text-ehs-yellow-ink-soft",
           title: "text-amber-700",
         }
       : {
@@ -229,7 +233,7 @@ function SidebarUserFooter(
         </div>
       ) : (
         <div
-          className="bg-ehs-normal-blue text-ehs-light-text text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+          className="bg-ehs-normal-blue text-ehs-on-accent text7 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
           {initials}
@@ -271,7 +275,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         // sheet. min-h-0 lets the nav below actually scroll instead of
         // pushing the footer off the bottom.
         "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border",
-        "border-ehs-border bg-white lg:border-white/60 lg:bg-white/45 lg:backdrop-blur-2xl",
+        "border-ehs-border bg-ehs-surface lg:border-ehs-hairline/60 lg:bg-ehs-surface/45 lg:backdrop-blur-2xl",
         "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]",
         className,
       ]
@@ -279,7 +283,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         .join(" ")}
     >
       <div className="shrink-0 px-5 pt-5">
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex items-center justify-between lg:justify-center">
           <Logo />
           {onClose ? (
             <button
@@ -297,7 +301,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             rule reads as a smudge. On the solid sheet it is the inverse: a
             white rule on white is no rule at all. */}
         <div
-          className="border-ehs-border mt-4 w-full border-t lg:border-white/60"
+          className="border-ehs-border lg:border-ehs-hairline/60 mt-4 w-full border-t"
           aria-hidden="true"
         />
       </div>
@@ -316,10 +320,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           ) : (
             navGroups.map((group) => (
               <div key={group.title} className="flex flex-col gap-1">
-                <Text
-                  as="p"
-                  className="text6 text-ehs-muted-text px-3 pb-1"
-                >
+                <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
                   {group.title}
                 </Text>
                 <div className="flex flex-col gap-0.5">
@@ -337,7 +338,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
           )}
         </nav>
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-linear-to-t from-white to-transparent lg:from-white/70"
+          className="from-ehs-surface lg:from-ehs-surface/70 pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-linear-to-t to-transparent"
           aria-hidden="true"
         />
       </div>
@@ -346,7 +347,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         <SidebarAccessWindow accessWindow={accessWindow} />
       ) : null}
 
-      <div className="border-ehs-border shrink-0 border-t px-4 py-4 lg:border-white/40">
+      <div className="border-ehs-border lg:border-ehs-hairline/40 shrink-0 border-t px-4 py-4">
         <div className="flex items-center gap-1">
           {isUserReady ? (
             <Link
@@ -356,7 +357,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                 "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
                 profileActive
                   ? "bg-ehs-light-blue text-ehs-darker"
-                  : "hover:bg-ehs-light-bg lg:hover:bg-white/35",
+                  : "hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
               ].join(" ")}
               aria-current={profileActive ? "page" : undefined}
             >
@@ -377,7 +378,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
             disabled={isLoggingOut || !isUserReady}
             aria-label={isLoggingOut ? "Signing out" : "Log out"}
             title={isLoggingOut ? "Signing out…" : "Log out"}
-            className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50 lg:hover:bg-white/50"
+            className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/50 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Icon
               icon={isLoggingOut ? "mdi:loading" : "mdi:logout"}

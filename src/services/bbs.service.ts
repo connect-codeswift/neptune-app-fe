@@ -15,9 +15,9 @@ import type {
 } from "@/dtos/res/bbs-response.dto";
 import http from "@/lib/axios";
 
-const BBS_PATH = "/bbs";
+const BBS_PATH = "/bbs/observations";
 const BEHAVIOR_CATEGORIES_PATH = "/bbs/behavior-categories";
-const BBS_DASHBOARD_KPI_PATH = "/bbs/dashboard-kpi";
+const BBS_DASHBOARD_KPI_PATH = "/bbs/dashboard-kpis";
 const BBS_AT_RISK_CATEGORIES_PATH = "/bbs/at-risk-categories";
 const BBS_GRAPH_PATH = "/bbs/graph";
 const DEFAULT_BBS_GRAPH_WEEKS = 12;
@@ -93,12 +93,18 @@ export async function createBbsObservation(
   return data;
 }
 
-/** Updates one BBS observation via PUT /api/bbs (id in body). */
+/**
+ * PUT /api/v1/bbs/observations/{id}
+ *
+ * Was a second `POST /api/bbs` with the id in the body — the v1 rename split
+ * create and update so edits are gated on `Bbs.Update`. The id moves to the
+ * path; the body is otherwise unchanged.
+ */
 export async function updateBbsObservation(
   payload: UpdateBbsObservationRequestDto,
 ) {
-  const { data } = await http.post<UpdateBbsObservationResponseDto>(
-    BBS_PATH,
+  const { data } = await http.put<UpdateBbsObservationResponseDto>(
+    `${BBS_PATH}/${encodeURIComponent(String(payload.id))}`,
     payload,
   );
 

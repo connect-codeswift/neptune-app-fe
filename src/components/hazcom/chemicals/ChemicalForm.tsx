@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/Button";
 import {
   HAZCOM_FIELD_LABEL_CLASS,
   HAZCOM_PICTOGRAMS,
-  HazcomGlassCard,
   HazcomPictogramChip,
   HazcomSelectField,
   HazcomTextField,
@@ -18,11 +17,13 @@ import {
   type HazcomPictogram,
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
+import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
+import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 
 export type ChemicalFormProps = Readonly<{
@@ -32,7 +33,6 @@ export type ChemicalFormProps = Readonly<{
 }>;
 
 const STATUS_OPTIONS = [
-  { value: "", label: "Select status" },
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
 ] as const;
@@ -52,6 +52,8 @@ const HAZARD_CATEGORY_OPTIONS = [
 ] as const;
 
 const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
+const SIGNAL_WORDS = ["Danger", "Warning"] as const;
+const actionClass = "text4 h-9.5 rounded-2.5 px-4 sm:px-5";
 
 /**
  * Rows saved before this field became a category list hold a hazard *type*
@@ -115,10 +117,7 @@ function firstMissingRequiredField(values: ChemicalFormValues): string | null {
 
 /** Row id as a number, or null when it isn't one the API can address. */
 function toNumericId(id: string | undefined): number | null {
-  if (id === undefined || !/^\d+$/.test(id.trim())) {
-    return null;
-  }
-  return Number(id.trim());
+  return parseRecordNumericId(id);
 }
 
 /**
@@ -155,6 +154,32 @@ function toChemicalRequest(
   };
 }
 
+function FormSection(
+  props: Readonly<{
+    title: string;
+    description?: string;
+    children: ReactNode;
+  }>,
+) {
+  const { title, description, children } = props;
+
+  return (
+    <section className="flex flex-col gap-3.5">
+      <div className="flex flex-col gap-0.5">
+        <Text as="h3" className="text3 text-ehs-darker">
+          {title}
+        </Text>
+        {description ? (
+          <Text as="p" className="text8 text-ehs-muted-text">
+            {description}
+          </Text>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const { mode, chemical, className = "" } = props;
   const router = useRouter();
@@ -176,7 +201,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
     chemical?.signalWord ?? "Danger",
   );
   const [sdsLink, setSdsLink] = useState(chemical?.sdsFileName ?? "");
-  const [status, setStatus] = useState(chemical?.status ?? "");
+  const [status, setStatus] = useState(chemical?.status ?? "Active");
   const [pictograms, setPictograms] = useState<readonly HazcomPictogram[]>(
     chemical?.pictograms ?? [],
   );
@@ -261,107 +286,154 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
     });
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    save(false);
+  }
+
+  const pictogramCount = pictograms.length;
+
   return (
-    <HazcomGlassCard
-      paddingClassName="p-6"
+    <IncidentGlassCard
+      paddingClassName="p-0 overflow-hidden"
       className={["w-full min-w-0", className].filter(Boolean).join(" ")}
     >
-      <div className="flex flex-col gap-6">
-        <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
-          <HazcomTextField
-            label="Chemical / Substance Name"
-            required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="e.g. Hydrochloric Acid"
-            className="sm:col-span-2"
-          />
-
-          <HazcomTextField
-            label="CAS Number"
-            value={casNumber}
-            onChange={(event) => setCasNumber(event.target.value)}
-            placeholder="e.g. 7647-01-0"
-          />
-          <HazcomSelectField
-            label="Hazard Class"
-            required
-            hint="GHS severity level — the hazard type comes from the pictograms below"
-            value={hazardClass}
-            onChange={(event) => setHazardClass(event.target.value)}
-            options={hazardCategoryOptions(hazardClass)}
-          />
-
-          <HazcomTextField
-            label="Location / Work Area"
-            required
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            placeholder="e.g. Lab 1 - Room 131"
-          />
-          <HazcomTextField
-            label="Dispose Location"
-            trailingHint="Optional — max 250 chars"
-            value={disposeLocation}
-            onChange={(event) => setDisposeLocation(event.target.value)}
-            placeholder="e.g. Hazardous waste drum — Bay 3"
-            maxLength={250}
-          />
-          <QuantityField
-            amount={quantityAmount}
-            unit={quantityUnit}
-            onAmountChange={setQuantityAmount}
-            onUnitChange={setQuantityUnit}
-          />
-
-          <SignalWordField value={signalWord} onChange={setSignalWord} />
-          <HazcomTextField
-            label="Link to SDS Record"
-            value={sdsLink}
-            onChange={(event) => setSdsLink(event.target.value)}
-            placeholder="e.g. SDS_Hydrochloric_Acid_Rev2026.pdf"
-          />
-
-          <HazcomSelectField
-            label="Status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
-            options={STATUS_OPTIONS}
-          />
-
-          <div className="flex flex-col gap-2.5 sm:col-span-2">
-            <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
-              GHS Pictograms
-            </Text>
-            <div className="flex flex-wrap gap-2">
-              {HAZCOM_PICTOGRAMS.map((pictogram) => (
-                <HazcomPictogramChip
-                  key={pictogram}
-                  pictogram={pictogram}
-                  selected={pictograms.includes(pictogram)}
-                  onToggle={() => togglePictogram(pictogram)}
-                />
-              ))}
+      <form onSubmit={handleSubmit} className="flex flex-col">
+        <div className="flex flex-col gap-6 p-4 sm:p-5">
+          <FormSection
+            title="Identity"
+            description="Name and identifiers used across the inventory."
+          >
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+              <HazcomTextField
+                label="Chemical / Substance Name"
+                required
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="e.g. Hydrochloric Acid"
+                className="sm:col-span-2"
+              />
+              <HazcomTextField
+                label="CAS Number"
+                value={casNumber}
+                onChange={(event) => setCasNumber(event.target.value)}
+                placeholder="e.g. 7647-01-0"
+              />
+              <HazcomTextField
+                label="Link to SDS Record"
+                value={sdsLink}
+                onChange={(event) => setSdsLink(event.target.value)}
+                placeholder="e.g. SDS_Hydrochloric_Acid_Rev2026.pdf"
+              />
             </div>
-          </div>
+          </FormSection>
 
-          <HazcomTextareaField
-            label="Additional Notes"
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder="Storage conditions, special handling instructions, etc."
-            className="sm:col-span-2"
-          />
+          <div className="border-ehs-border border-t" />
+
+          <FormSection
+            title="Inventory & location"
+            description="Where it is stored and how much is on hand."
+          >
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+              <HazcomTextField
+                label="Location / Work Area"
+                required
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                placeholder="e.g. Lab 1 - Room 131"
+              />
+              <HazcomTextField
+                label="Dispose Location"
+                trailingHint="Optional"
+                value={disposeLocation}
+                onChange={(event) => setDisposeLocation(event.target.value)}
+                placeholder="e.g. Hazardous waste drum — Bay 3"
+                maxLength={250}
+              />
+              <QuantityField
+                amount={quantityAmount}
+                unit={quantityUnit}
+                onAmountChange={setQuantityAmount}
+                onUnitChange={setQuantityUnit}
+              />
+              <StatusField
+                value={status}
+                onChange={(value) => {
+                  setStatus(value as "Active" | "Inactive");
+                }}
+              />
+            </div>
+          </FormSection>
+
+          <div className="border-ehs-border border-t" />
+
+          <FormSection
+            title="GHS classification"
+            description="Signal word, severity category, and pictograms."
+          >
+            <div className="grid grid-cols-1 items-start gap-x-4 gap-y-4 sm:grid-cols-2">
+              <SignalWordField value={signalWord} onChange={setSignalWord} />
+              <HazcomSelectField
+                label="Hazard Class"
+                required
+                trailingHint="Severity level"
+                value={hazardClass}
+                onChange={(event) => setHazardClass(event.target.value)}
+                options={hazardCategoryOptions(hazardClass)}
+              />
+
+              <div className="flex flex-col gap-2 sm:col-span-2">
+                <div className="flex min-h-7 flex-wrap items-end justify-between gap-2">
+                  <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
+                    GHS Pictograms
+                  </Text>
+                  <Text as="span" className="text8 text-ehs-muted-text">
+                    {pictogramCount === 0
+                      ? "None selected"
+                      : `${String(pictogramCount)} selected`}
+                  </Text>
+                </div>
+                <div className="border-ehs-border bg-ehs-light-bg/35 rounded-2.5 flex flex-wrap gap-2 border border-dashed p-3">
+                  {HAZCOM_PICTOGRAMS.map((pictogram) => (
+                    <HazcomPictogramChip
+                      key={pictogram}
+                      pictogram={pictogram}
+                      selected={pictograms.includes(pictogram)}
+                      onToggle={() => togglePictogram(pictogram)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </FormSection>
+
+          <div className="border-ehs-border border-t" />
+
+          <FormSection
+            title="Storage & notes"
+            description="Handling instructions and any extra context for this record."
+          >
+            <HazcomTextareaField
+              label="Additional Notes"
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Storage conditions, special handling instructions, etc."
+            />
+          </FormSection>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(15,23,42,0.08)] pt-5">
+        <div className="border-ehs-border sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t bg-ehs-surface/40 px-4 py-3.5 backdrop-blur-xl sm:px-5">
           <Link href={cancelHref}>
             <Button
               type="button"
               variant="tertiary"
-              className="text4 rounded-lg px-4 py-2"
+              className={`${actionClass} border border-ehs-border-ink/14 text-ehs-dark-bg shadow-none`}
             >
-              <Icon icon="mdi:arrow-left" className="size-4" aria-hidden="true" />
+              <Icon
+                icon="mdi:arrow-left"
+                className="size-4"
+                aria-hidden="true"
+              />
               Cancel
             </Button>
           </Link>
@@ -370,27 +442,60 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             <Button
               type="button"
               variant="secondary"
-              className="text4 rounded-lg px-4 py-2"
+              className={actionClass}
               disabled={saveChemical.isPending}
               onClick={() => save(true)}
             >
               Save as Draft
             </Button>
             <Button
-              type="button"
+              type="submit"
               variant="primary"
-              className="text4 rounded-lg px-5 py-2"
+              className={actionClass}
               isLoading={saveChemical.isPending}
-              onClick={() => save(false)}
             >
               {saveChemical.isPending ? "Saving..." : primaryLabel}
             </Button>
           </div>
         </div>
-      </div>
-    </HazcomGlassCard>
+      </form>
+    </IncidentGlassCard>
   );
 }
+
+/** Shared label row so paired columns keep the same control baseline. */
+function FieldLabelRow(
+  props: Readonly<{
+    label: string;
+    required?: boolean;
+    trailing?: ReactNode;
+  }>,
+) {
+  const { label, required = false, trailing } = props;
+
+  return (
+    <div className="flex h-7 min-h-7 items-end gap-1.5">
+      <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
+        {label}
+      </Text>
+      {required ? (
+        <Text as="span" className="text8 text-ehs-red">
+          *
+        </Text>
+      ) : null}
+      {trailing ? <span className="ml-auto shrink-0">{trailing}</span> : null}
+    </div>
+  );
+}
+
+/**
+ * Matches `FIELD_INPUT_CLASS` control height (`p-3`) so toggles line up with
+ * text inputs / selects in the same row.
+ */
+const choiceButtonBaseClass =
+  "text5 flex-1 rounded-2.5 border px-3 py-3 tracking-normal transition-colors";
+const choiceButtonIdleClass =
+  "border-ehs-border bg-ehs-surface/55 text-ehs-gray hover:border-ehs-normal-blue/40 hover:bg-ehs-surface/78";
 
 type QuantityFieldProps = Readonly<{
   amount: string;
@@ -403,21 +508,13 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
   const { amount, unit, onAmountChange, onUnitChange } = props;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex min-h-7 items-end gap-1.5">
-        <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
-          Current Quantity
-        </Text>
-        <Text as="span" className="text8 text-ehs-red">
-          *
-        </Text>
-      </div>
+    <div className="flex w-full min-w-0 flex-col gap-1.5">
+      <FieldLabelRow label="Current Quantity" required />
       {/*
-        Both inputs carry `w-full` from `FIELD_INPUT_CLASS`, so sizing is
-        set via flex-basis — it beats `width` for flex items and avoids a
-        `w-full` vs `w-24` conflict that collapsed the amount box to 0px.
+        Override `w-full` from FIELD_INPUT_CLASS inside the flex row so amount
+        fills leftover space and unit keeps a stable share of the column.
       */}
-      <div className="flex gap-2">
+      <div className="flex w-full min-w-0 gap-2">
         <input
           type="number"
           min="0"
@@ -425,7 +522,7 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onAmountChange(event.target.value)}
           placeholder="0"
           aria-label="Quantity amount"
-          className={`${FIELD_INPUT_CLASS} min-w-0 grow basis-0`}
+          className={`${FIELD_INPUT_CLASS} w-auto! min-w-0 flex-1`}
         />
         <input
           type="text"
@@ -433,8 +530,47 @@ function QuantityField(props: Readonly<QuantityFieldProps>) {
           onChange={(event) => onUnitChange(event.target.value)}
           placeholder="Unit"
           aria-label="Quantity unit"
-          className={`${FIELD_INPUT_CLASS} shrink-0 grow-0 basis-24`}
+          className={`${FIELD_INPUT_CLASS} w-28! shrink-0`}
         />
+      </div>
+    </div>
+  );
+}
+
+type ChoiceFieldProps = Readonly<{
+  value: string;
+  onChange: (value: string) => void;
+}>;
+
+function StatusField(props: Readonly<ChoiceFieldProps>) {
+  const { value, onChange } = props;
+
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-1.5">
+      <FieldLabelRow label="Status" />
+      <div className="flex w-full gap-2">
+        {STATUS_OPTIONS.map((option) => {
+          const isSelected = value === option.value;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => onChange(option.value)}
+              className={[
+                choiceButtonBaseClass,
+                isSelected
+                  ? option.value === "Active"
+                    ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue"
+                    : "border-ehs-muted-text/50 bg-ehs-surface-inverse/8 text-ehs-gray"
+                  : choiceButtonIdleClass,
+              ].join(" ")}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -445,17 +581,13 @@ type SignalWordFieldProps = Readonly<{
   onChange: (value: HazcomSignalWord) => void;
 }>;
 
-const SIGNAL_WORDS = ["Danger", "Warning"] as const;
-
 function SignalWordField(props: Readonly<SignalWordFieldProps>) {
   const { value, onChange } = props;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <Text as="span" className={HAZCOM_FIELD_LABEL_CLASS}>
-        GHS Signal Word
-      </Text>
-      <div className="flex gap-2">
+    <div className="flex w-full min-w-0 flex-col gap-1.5">
+      <FieldLabelRow label="GHS Signal Word" />
+      <div className="flex w-full gap-2">
         {SIGNAL_WORDS.map((word) => {
           const isSelected = value === word;
           const isDanger = word === "Danger";
@@ -467,12 +599,13 @@ function SignalWordField(props: Readonly<SignalWordFieldProps>) {
               aria-pressed={isSelected}
               onClick={() => onChange(word)}
               className={[
-                "text5 h-9 flex-1 rounded-2.5 border tracking-wide uppercase transition-colors",
+                choiceButtonBaseClass,
+                "tracking-wide uppercase",
                 isSelected
                   ? isDanger
-                    ? "border-ehs-red text-ehs-red bg-ehs-red/5"
-                    : "border-ehs-yellow text-ehs-yellow bg-ehs-yellow/10"
-                  : "border-ehs-border text-ehs-gray hover:border-ehs-normal-blue/40 bg-white/60",
+                    ? "border-ehs-red bg-ehs-red/5 text-ehs-red"
+                    : "border-ehs-yellow bg-ehs-yellow/10 text-ehs-yellow"
+                  : choiceButtonIdleClass,
               ].join(" ")}
             >
               {word}

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { FileModule } from "@/dtos/req/files-request.dto";
 
 /**
  * Schema-driven form types for the reusable {@link FormBuilder}.
@@ -167,26 +168,34 @@ export type CheckboxGroupFieldConfig = BaseField &
     requireAll?: boolean;
   }>;
 
-/** Image / file upload field. Files go straight to Cloudinary and the field
- * value is the list of resulting secure URLs. */
+/** Image / file upload field. Default storage is files-API `fileId`s;
+ * `storage: "cloudinary"` stores the Cloudinary secure URL instead. */
 export type PhotoFieldConfig = BaseField &
   Readonly<{
     type: "photo";
     /** Headline shown inside the drop zone. */
     placeholder?: string;
-    /** Maximum number of files. Defaults to {@link CLOUDINARY_MAX_FILES}. */
+    /** Maximum number of files. Defaults to {@link FILE_MAX_FILES}. */
     maxFiles?: number;
     /**
      * `image` (default) = photos only, thumbnail grid.
      * `files` = images + PDF/DOC, Figma-style row list.
+     * `pdf` = PDF only (SDS sheets).
      */
-    accept?: "image" | "files";
+    accept?: "image" | "files" | "pdf";
     /** List presentation. Defaults to `grid` for images, `rows` for files. */
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */
     hideLabel?: boolean;
-    /** Override the default Cloudinary byte limit for this field. */
+    /** Override the module size limit for this field. */
     maxBytes?: number;
+    /** Files API module. Defaults to `Document`. Ignored when {@link storage} is `cloudinary`. */
+    fileModule?: FileModule;
+    /**
+     * `files` (default) = POST /api/files/upload-intent.
+     * `cloudinary` = unsigned client upload; the field value is the secure URL.
+     */
+    storage?: "files" | "cloudinary";
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */
@@ -226,6 +235,12 @@ export type SwitchFieldConfig = BaseField &
     type: "switch";
   }>;
 
+/** Non-input section title spanning the form grid (no stored value). */
+export type HeadingFieldConfig = BaseField &
+  Readonly<{
+    type: "heading";
+  }>;
+
 /**
  * Site roster person picker (search + avatar list).
  * Field value is the selected user id. Display name is kept in
@@ -239,8 +254,8 @@ export type PersonFieldConfig = BaseField &
     trailingHint?: string;
     /**
      * Where the picker loads people from.
-     * - `site` (default): GET /Auth/GetUsersBySiteId/{siteId}
-     * - `dropdown`: GET /User/dropdown (client-filtered)
+     * - `site` (default): GET /api/v1/sites/{siteId}/users
+     * - `dropdown`: GET /api/v1/users/dropdown (client-filtered)
      */
     usersSource?: "site" | "dropdown";
     /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
@@ -263,6 +278,7 @@ export type FieldConfig =
   | PhotoFieldConfig
   | TilesFieldConfig
   | SwitchFieldConfig
+  | HeadingFieldConfig
   | PersonFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
@@ -271,6 +287,8 @@ export type FormSchema = readonly FieldConfig[];
 export function createInitialValues(schema: FormSchema): FormValues {
   const values: FormValues = {};
   for (const field of schema) {
+    if (field.type === "heading") continue;
+
     const isMultiValue =
       field.type === "checkbox-group" ||
       field.type === "photo" ||

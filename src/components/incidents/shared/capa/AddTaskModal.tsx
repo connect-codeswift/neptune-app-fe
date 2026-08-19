@@ -102,7 +102,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
       }
     >
       <div className="flex flex-col gap-4.5">
-        <div className="flex items-start gap-3 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/70 p-4">
+        <div className="border-ehs-border-ink/8 bg-ehs-surface/70 flex items-start gap-3 rounded-xl border p-4">
           <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
             <Icon
               icon="mdi:clipboard-check-outline"

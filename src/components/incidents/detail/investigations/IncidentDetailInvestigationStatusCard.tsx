@@ -37,25 +37,25 @@ export function IncidentDetailInvestigationStatusCard(
     <IncidentGlassCard
       paddingClassName="p-4.5"
       incidentGlassCardClassName="gap-0"
-      className={["bg-white/62", className].filter(Boolean).join(" ")}
+      className={["bg-ehs-surface/62", className].filter(Boolean).join(" ")}
     >
-      <Text as="h3" className="text-ehs-dark-bg pb-3.5 text3">
+      <Text as="h3" className="text-ehs-dark-bg text3 pb-3.5">
         Investigation status
       </Text>
 
       <div className="flex flex-col">
         {isLoading ? (
-          <p className="text-ehs-muted-text py-4 text4">
+          <p className="text-ehs-muted-text text4 py-4">
             Loading investigation progress…
           </p>
         ) : (
           steps.map((step) => (
             <div
               key={step.label}
-              className="flex items-center gap-2.5 border-t border-[rgba(15,23,42,0.08)] pt-2.5 pb-2.25"
+              className="border-ehs-border-ink/8 flex items-center gap-2.5 border-t pt-2.5 pb-2.25"
             >
               {step.completed ? (
-                <div className="bg-ehs-green text-ehs-light-text flex size-4.5 shrink-0 items-center justify-center rounded-2.25">
+                <div className="bg-ehs-green text-ehs-on-accent rounded-2.25 flex size-4.5 shrink-0 items-center justify-center">
                   <Icon
                     icon="mdi:check"
                     className="size-2.75"
@@ -63,7 +63,7 @@ export function IncidentDetailInvestigationStatusCard(
                   />
                 </div>
               ) : (
-                <div className="size-4.5 shrink-0 rounded-2.25 border border-[rgba(15,23,42,0.14)] bg-transparent" />
+                <div className="rounded-2.25 border-ehs-border-ink/14 size-4.5 shrink-0 border bg-transparent" />
               )}
               <span
                 className={[

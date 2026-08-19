@@ -30,7 +30,7 @@ function parseDocumentId(raw: string): number | null {
 }
 
 /**
- * Loads a document via GET /api/Document/{id} and renders the detail view.
+ * Loads a document via GET /api/v1/documents/{id} and renders the detail view.
  */
 export function PolicyMakerDocumentDetailContent(
   props: Readonly<PolicyMakerDocumentDetailContentProps>,

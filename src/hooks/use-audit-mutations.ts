@@ -5,7 +5,7 @@ import type {
 } from "@/dtos/req/audit-request.dto";
 import { createAudit, saveAuditResponses } from "@/services/audit.service";
 
-/** Records an audit's answers via POST /api/Audit/{id}/responses. */
+/** Records an audit's answers via POST /api/v1/audits/{id}/responses. */
 export function useSaveAuditResponsesMutation() {
   const queryClient = useQueryClient();
 
@@ -21,7 +21,7 @@ export function useSaveAuditResponsesMutation() {
   });
 }
 
-/** Starts (schedules) an audit from a template via POST /api/Audit. */
+/** Starts (schedules) an audit from a template via POST /api/v1/audits. */
 export function useCreateAuditMutation() {
   const queryClient = useQueryClient();
 

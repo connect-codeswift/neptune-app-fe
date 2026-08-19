@@ -12,29 +12,24 @@ import { UploadDocumentDropzone } from "@/components/policy-maker";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
-import { withAttachmentDisplayName } from "@/lib/attachment-url";
-import {
-  CLOUDINARY_MAX_BYTES,
-  isCloudinaryPublicConfigReady,
-  isPdfMimeType,
-} from "@/lib/cloudinary-constants";
+import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
 import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
-import { uploadFileToCloudinary } from "@/lib/upload-to-cloudinary";
+import { uploadFile } from "@/lib/upload-file";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
 
 const fieldLabelClass = "block text8 font-semibold text-ehs-gray";
 const fieldWrapperClass = "flex w-full min-w-0 flex-col gap-1";
 const fieldShellClass =
-  "text4 !min-w-0 !rounded-2.5 !border !border-[rgba(15,23,42,0.1)] !bg-[#eef1f6] !px-3 !py-2 !shadow-none focus:!border-[#0891a6] focus:!ring-2 focus:!ring-[#0891a6]/20";
+  "text4 !min-w-0 !rounded-2.5 !border !border-ehs-border-ink/10 !bg-ehs-form-classes-bg !px-3 !py-2 !shadow-none focus:!border-ehs-normal-blue focus:!ring-2 focus:!ring-ehs-normal-blue/20";
 const textFieldClass = [
   fieldShellClass,
-  "!text-[#0b1320] placeholder:!text-[#8892a3]",
+  "!text-ehs-dark-bg placeholder:!text-ehs-muted-text",
 ].join(" ");
 const selectFieldClass = [fieldShellClass, "!h-9"].join(" ");
 const dateFieldClass = [
   fieldShellClass,
-  "!h-[37.6px] !w-full appearance-none pr-10",
+  "!h-[38px] !w-full appearance-none pr-10",
   "[&::-webkit-calendar-picker-indicator]:hidden",
   "[&::-webkit-datetime-edit]:text-inherit",
   "[&::-webkit-datetime-edit-fields-wrapper]:text-inherit",
@@ -45,11 +40,11 @@ const dateFieldClass = [
 ].join(" ");
 const titleFieldClass = [
   fieldShellClass,
-  "!h-[37.6px] !text-[#0b1320] placeholder:!text-[#8892a3]",
+  "!h-[38px] !text-ehs-dark-bg placeholder:!text-ehs-muted-text",
 ].join(" ");
 
 const formCardClass =
-  "relative w-full rounded-4 border-[0.8px] border-white/90 bg-[rgba(255,255,255,0.62)] p-6 shadow-[0px_1px_2px_0px_rgba(15,23,42,0.04),0px_12px_32px_0px_rgba(15,23,42,0.14)] backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4 before:shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.9)]";
+  "relative w-full rounded-4 border border-ehs-hairline/90 bg-ehs-surface/62 p-6 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4";
 
 /** Figma EHSS-Web node 3326:20854 — stash:data-date */
 function openDatePicker(input: HTMLInputElement | null) {
@@ -168,17 +163,9 @@ export function AddObligationForm() {
       return;
     }
 
-    if (next.size > CLOUDINARY_MAX_BYTES) {
+    if (next.size > getFileMaxBytes("Document")) {
       clearPdf();
       setFileError("File must be 50MB or smaller.");
-      return;
-    }
-
-    if (!isCloudinaryPublicConfigReady()) {
-      clearPdf();
-      setFileError(
-        "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
-      );
       return;
     }
 
@@ -186,26 +173,20 @@ export function AddObligationForm() {
     setPdfSecureUrl(null);
     setFileError(null);
     setIsUploadingPdf(true);
-    toast.info("Uploading PDF…", "Transferring to Cloudinary server.");
+    toast.info("Uploading PDF…", "Transferring to secure storage.");
 
     try {
-      const result = await uploadFileToCloudinary(next);
+      const result = await uploadFile(next, { module: "Document" });
       if (result.kind !== "pdf" && !next.name.toLowerCase().endsWith(".pdf")) {
         throw new Error("Only PDF documents can be uploaded.");
       }
       const originalName = next.name.trim() || result.name;
-      const secureUrl = withAttachmentDisplayName(
-        result.secureUrl,
-        originalName,
-      );
-      setPdfSecureUrl(secureUrl);
+      setPdfSecureUrl(result.fileId);
       toast.success("PDF uploaded", `"${originalName}" is ready to submit.`);
     } catch (error: unknown) {
       clearPdf();
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to upload PDF to Cloudinary.";
+        error instanceof Error ? error.message : "Failed to upload PDF.";
       setFileError(message);
       toast.error("Upload failed", message);
     } finally {
@@ -348,7 +329,7 @@ export function AddObligationForm() {
                   disabled={busy}
                   className={[
                     dateFieldClass,
-                    dueDate ? "!text-[#0b1320]" : "!text-[#8892a3]",
+                    dueDate ? "!text-ehs-dark-bg" : "!text-ehs-muted-text",
                   ].join(" ")}
                 />
                 <button
@@ -445,14 +426,14 @@ export function AddObligationForm() {
               type="button"
               onClick={handleCancel}
               disabled={busy}
-              className="text4 cursor-pointer text-center text-[#566072] transition-colors hover:text-[#0b1320] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 cursor-pointer text-center text-ehs-gray transition-colors hover:text-ehs-dark-bg disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy || !pdfSecureUrl}
-              className="text4 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center rounded-2.5 bg-[#0891a6] px-4 text-white shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_rgba(8,145,166,0.1)] transition-colors hover:bg-[#056e7e] disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 rounded-2.5 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center bg-ehs-normal-blue px-4 text-ehs-on-accent shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_color-mix(in_oklab,var(--ehs-normal-blue)_10%,transparent)] transition-colors hover:bg-ehs-dark-blue disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

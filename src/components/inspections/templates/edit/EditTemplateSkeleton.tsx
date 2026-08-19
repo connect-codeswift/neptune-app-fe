@@ -9,7 +9,7 @@ export function EditTemplateSkeleton() {
   return (
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
+      <div className="bg-ehs-surface border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-6 py-4 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.14),0px_1px_2px_0px_rgba(15,23,42,0.04)]">
         <div className="flex min-w-0 flex-col gap-1.5">
           <Skeleton className="h-2.5 w-48" />
           <Skeleton className="h-6 w-72" />
@@ -43,7 +43,7 @@ export function EditTemplateSkeleton() {
               <Skeleton className="h-11 w-full rounded-lg" />
             </div>
           ))}
-          <Skeleton className="h-28 w-full rounded-2.5" />
+          <Skeleton className="rounded-2.5 h-28 w-full" />
         </IncidentGlassCard>
 
         <IncidentGlassCard
@@ -51,7 +51,7 @@ export function EditTemplateSkeleton() {
           incidentGlassCardClassName="gap-3"
         >
           <Skeleton className="h-2.5 w-20" />
-          <div className="flex flex-col gap-2 rounded-xl border border-slate-900/10 bg-white p-4">
+          <div className="border-ehs-border-ink/10 bg-ehs-surface flex flex-col gap-2 rounded-xl border p-4">
             <Skeleton className="h-3.5 w-40" />
             <div className="flex gap-1.5">
               <Skeleton className="h-5 w-14 rounded-md" />
