@@ -1,13 +1,13 @@
 /**
- * Sample content for the Neptune AI surfaces.
+ * The chat surfaces' shared vocabulary.
  *
- * Every string here is placeholder. The assistant has no API yet, so both the popup and the
- * full page render this and say so on screen — a chat that answers convincingly from a hardcoded
- * script is worse than an empty one, because nobody can tell which replies were real.
+ * A reply is plain text plus any number of typed blocks — result cards, a bar chart, a table, an
+ * insights list, or an in-flight analyzing checklist. These types mirror the backend's
+ * `AssistantMessageDto` field for field, so a reply from `/api/v1/assistant` becomes a
+ * `ChatMessage` without a mapping layer.
  *
- * The shapes below are the UI's contract: a reply is plain text plus any number of typed
- * blocks — result cards, a bar chart, a table, an insights list, or an in-flight analyzing
- * checklist. Wire the transport to produce these and the components need no changes.
+ * Everything here used to be hardcoded sample content, rendered behind a "not connected" badge.
+ * The transport is real now; what remains is the shape and the two lists of starter prompts.
  */
 
 export type ChatAuthor = "ai" | "user";
@@ -33,20 +33,31 @@ export type ChatChart = Readonly<{
   bars: readonly ChatChartBar[];
 }>;
 
-export type ChatTableSeverity = "High" | "Medium" | "Low";
-export type ChatTableStatus = "Unresolved" | "In Progress" | "Resolved";
+/**
+ * How a cell should read, not what colour it should be.
+ *
+ * The assistant is asked whether a value is bad, watch-it or fine — never asked to pick red.
+ * Naming colours on the wire would put this palette in the API contract and mean a theme change
+ * had to be negotiated with a prompt.
+ */
+export type ChatCellTone = "critical" | "warning" | "ok" | "neutral";
 
-export type ChatTableRow = Readonly<{
-  category: string;
-  count: number;
-  severity: ChatTableSeverity;
-  status: ChatTableStatus;
+export type ChatCell = Readonly<{
+  text: string;
+  tone?: ChatCellTone | null;
 }>;
 
-/** A titled data table with a (decorative, for now) CSV export affordance. */
+/**
+ * A titled data table with whatever columns the answer needs.
+ *
+ * The first cut of this type fixed the columns at category/count/severity/status, which fits
+ * exactly one question — "open CAPAs by owner and due date" could not be expressed in it. The
+ * backend guarantees every row has as many cells as there are columns.
+ */
 export type ChatTable = Readonly<{
   title: string;
-  rows: readonly ChatTableRow[];
+  columns: readonly string[];
+  rows: readonly (readonly ChatCell[])[];
 }>;
 
 export type ChatInsights = Readonly<{
@@ -78,38 +89,32 @@ export type ChatConversation = Readonly<{
   suggestions?: readonly string[];
 }>;
 
-/** The compact popup opens on this — a greeting and one worked example. */
-export const POPUP_MESSAGES: readonly ChatMessage[] = [
-  {
-    id: "p1",
-    author: "ai",
-    authorName: "Neptune AI",
-    body: "Hello! I am Neptune, your EHS assistant. I can fetch incident summaries, track audits, or find corrective action status.",
-  },
-  {
-    id: "p2",
-    author: "user",
-    authorName: "You",
-    body: "Show active chemical hazards in Warehouse 3",
-  },
-  {
-    id: "p3",
-    author: "ai",
-    authorName: "Neptune AI",
-    body: "Found 2 active chemical hazards in Warehouse 3:",
-    results: [
-      {
-        id: "H-2041",
-        title: "H-2041: Acid storage leak risk",
-        detail: "SOP requires secondary containment inspect.",
-      },
-      {
-        id: "H-2044",
-        title: "H-2044: Solvent drum ventilation",
-        detail: "Extraction check overdue by 4 days.",
-      },
-    ],
-  },
+/**
+ * The opening line in the compact popup, shown before anything has been asked.
+ *
+ * Local rather than fetched: the greeting is the same every time and waiting on a round trip to
+ * say hello would make the panel feel slower than it is.
+ */
+export const POPUP_GREETING: ChatMessage = {
+  id: "greeting",
+  author: "ai",
+  authorName: "Neptune AI",
+  body: "Hello! I am Neptune, your EHS assistant. I can fetch incident summaries, track audits, or find corrective action status.",
+};
+
+/**
+ * The steps shown while an answer is in flight.
+ *
+ * Fixed, and honestly so. The backend answers in one request rather than streaming its progress,
+ * so these describe the shape of the work rather than reporting it — the checklist advances on a
+ * timer, not on anything the server said. Replace this with real events if the endpoint ever
+ * streams them.
+ */
+export const ANALYZING_STEPS: readonly string[] = [
+  "Reading your question",
+  "Gathering your site's data",
+  "Checking the numbers",
+  "Writing the answer",
 ];
 
 /** Quick prompts under the popup's message list. */
@@ -118,197 +123,74 @@ export const POPUP_SUGGESTIONS: readonly string[] = [
   "My pending actions",
 ];
 
-/** Default quick prompts on the full page, used when a thread has no contextual ones. */
+/** Default quick prompts on the full page. */
 export const PAGE_SUGGESTIONS: readonly string[] = [
   "Summarize today's incidents",
   "Show compliance deadlines",
   "Analyze hazard trends",
-  "Training recommendations",
+  "What are my open actions?",
 ];
 
-export const SAMPLE_CONVERSATIONS: readonly ChatConversation[] = [
-  {
-    id: "q3-safety-analysis",
-    title: "Q3 Safety Analysis",
-    timestamp: "10:24 AM",
-    preview: "Incident analysis for Q3 shows high ergonomics risks in line 4…",
-    suggestions: [
-      "Export this table to PDF",
-      "Breakdown by shift team",
-      "Show root causes",
-    ],
-    messages: [
-      {
-        id: "m1",
-        author: "user",
-        authorName: "You",
-        body: "Show me the incident trends and give me a full breakdown for warehouse operations.",
-      },
-      {
-        id: "m2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "Here is the comprehensive EHS performance analysis for Warehouse Operations over the trailing Q3 period, showcasing core incident metrics, categorization distributions, and recommendations:",
-        chart: {
-          title: "Monthly Incident Count (May - Oct)",
-          bars: [
-            { label: "May", value: 10 },
-            { label: "Jun", value: 15 },
-            { label: "Jul", value: 24 },
-            { label: "Aug", value: 18 },
-            { label: "Sep", value: 22 },
-            { label: "Oct", value: 14 },
-          ],
-        },
-        table: {
-          title: "Incident Category Distribution",
-          rows: [
-            {
-              category: "Mechanical",
-              count: 14,
-              severity: "High",
-              status: "Unresolved",
-            },
-            {
-              category: "Ergonomics",
-              count: 23,
-              severity: "Medium",
-              status: "In Progress",
-            },
-            {
-              category: "Slip & Fall",
-              count: 18,
-              severity: "Medium",
-              status: "Resolved",
-            },
-            {
-              category: "Electrical",
-              count: 8,
-              severity: "High",
-              status: "Unresolved",
-            },
-          ],
-        },
-        insights: {
-          title: "Core Insights:",
-          points: [
-            "Mechanical and ergonomics categories comprise over 55% of all active tickets.",
-            "Urgent focus is required on the backlog of Unresolved High severity issues in conveyor belt maintenance workflows.",
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: "warehouse-risk-assessment",
-    title: "Warehouse Risk Assessment",
-    timestamp: "10:12 AM",
-    preview:
-      "Generating a comprehensive risk assessment for warehouse operations…",
-    suggestions: [
-      "Stop generation",
-      "Exclude contractor reports",
-      "Focus on Plant A only",
-    ],
-    messages: [
-      {
-        id: "r1",
-        author: "user",
-        authorName: "You",
-        body: "Generate a comprehensive risk assessment for all warehouse operations this quarter.",
-      },
-      {
-        id: "r2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "",
-        analyzing: {
-          doneSteps: ["Gathering incident data", "Analyzing risk factors"],
-          activeStep: "Generating assessment...",
-        },
-      },
-    ],
-  },
-  {
-    id: "compliance-review",
-    title: "Compliance Review",
-    timestamp: "Yesterday",
-    preview:
-      "Compliance deadline review for fire marshal permits and safety checklists…",
-    messages: [
-      {
-        id: "c1",
-        author: "user",
-        authorName: "You",
-        body: "Which compliance deadlines land in the next two weeks?",
-      },
-      {
-        id: "c2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "Four obligations fall due before the end of the month. Fire marshal permits for Buildings A and C renew first, followed by two quarterly safety checklists.",
-      },
-    ],
-  },
-  {
-    id: "hazard-trends",
-    title: "Hazard Trends",
-    timestamp: "Oct 24",
-    preview:
-      "Hazard trend report shows mechanical hazards down 14% this month…",
-    messages: [
-      {
-        id: "h1",
-        author: "user",
-        authorName: "You",
-        body: "How are hazard trends moving quarter on quarter?",
-      },
-      {
-        id: "h2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "Mechanical hazards are down 14% against last month, driven by the conveyor guarding programme. Chemical hazards are flat, and ergonomic reports rose 6% in packaging.",
-      },
-    ],
-  },
-  {
-    id: "loto-training-check",
-    title: "LOTO Training Check",
-    timestamp: "Oct 22",
-    preview: "Training compliance is currently sitting at 82% overall…",
-    messages: [
-      {
-        id: "l1",
-        author: "user",
-        authorName: "You",
-        body: "Where does lockout/tagout training compliance stand?",
-      },
-      {
-        id: "l2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "Overall completion is 82%. Maintenance is fully certified; the gap sits with contractors on the night shift, where 11 people are outstanding.",
-      },
-    ],
-  },
-  {
-    id: "ppe-inventory-audit",
-    title: "PPE Inventory Audit",
-    timestamp: "Oct 18",
-    preview: "Status update on emergency respiratory protection kit shipments…",
-    messages: [
-      {
-        id: "p1",
-        author: "user",
-        authorName: "You",
-        body: "Any gaps in the emergency respiratory kits?",
-      },
-      {
-        id: "p2",
-        author: "ai",
-        authorName: "Neptune AI",
-        body: "Two of nine stations are below the minimum stock line. Replacement cartridges are on order with delivery expected within the week.",
-      },
-    ],
-  },
-];
+/**
+ * One API turn as the renderers want it.
+ *
+ * The block fields already match, so this is mostly a null-to-undefined pass: the backend sends
+ * `null` for a block it did not use, and the optional properties here read better as absent.
+ */
+export function toChatMessage(message: {
+  id: number;
+  author: "ai" | "user";
+  authorName?: string;
+  body: string;
+  results?: readonly ChatResultCard[] | null;
+  chart?: ChatChart | null;
+  table?: ChatTable | null;
+  insights?: ChatInsights | null;
+}): ChatMessage {
+  return {
+    id: String(message.id),
+    author: message.author,
+    authorName:
+      message.authorName ?? (message.author === "user" ? "You" : "Neptune AI"),
+    body: message.body,
+    results: message.results ?? undefined,
+    chart: message.chart ?? undefined,
+    table: message.table ?? undefined,
+    insights: message.insights ?? undefined,
+  };
+}
+
+/** A clock time for today, a short date for anything older — the rail's right-hand column. */
+export function formatConversationTimestamp(iso: string): string {
+  const when = new Date(iso);
+
+  if (Number.isNaN(when.getTime())) {
+    return "";
+  }
+
+  const now = new Date();
+  const isToday =
+    when.getFullYear() === now.getFullYear() &&
+    when.getMonth() === now.getMonth() &&
+    when.getDate() === now.getDate();
+
+  if (isToday) {
+    return when.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+
+  if (
+    when.getFullYear() === yesterday.getFullYear() &&
+    when.getMonth() === yesterday.getMonth() &&
+    when.getDate() === yesterday.getDate()
+  ) {
+    return "Yesterday";
+  }
+
+  return when.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}

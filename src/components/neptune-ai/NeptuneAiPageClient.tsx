@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LOGO_MARK_RING_RADIUS,
   LOGO_MARK_RING_WIDTH,
@@ -13,29 +13,38 @@ import {
 import { Text } from "@/components/Text";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
+  ANALYZING_STEPS,
   PAGE_SUGGESTIONS,
-  SAMPLE_CONVERSATIONS,
+  formatConversationTimestamp,
+  toChatMessage,
   type ChatChart,
-  type ChatConversation,
   type ChatMessage,
   type ChatTable,
-  type ChatTableSeverity,
-  type ChatTableStatus,
+  type ChatCell,
+  type ChatCellTone,
 } from "@/components/neptune-ai/neptune-ai-data";
 import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
+import {
+  useAskAssistantMutation,
+  useAssistantConversationQuery,
+  useAssistantConversationsQuery,
+} from "@/hooks/use-assistant";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 
-/** Severity pill and status ink, matching the design's red/amber/green reading. */
-const SEVERITY_PILL: Readonly<Record<ChatTableSeverity, string>> = {
-  High: "bg-ehs-red/12 text-ehs-red",
-  Medium: "bg-ehs-yellow/15 text-ehs-yellow-ink-soft",
-  Low: "bg-ehs-green/12 text-ehs-green",
-};
-
-const STATUS_INK: Readonly<Record<ChatTableStatus, string>> = {
-  Unresolved: "text-ehs-red",
-  "In Progress": "text-ehs-yellow-ink-soft",
-  Resolved: "text-ehs-green",
+/**
+ * The red/amber/green reading, keyed by tone rather than by column.
+ *
+ * The design drew severity as a filled pill and status as coloured ink. Both collapse to the
+ * pill here: with arbitrary columns there is no longer a "severity column" to give one treatment
+ * and a "status column" to give the other, and picking a treatment by position would be guessing.
+ * One rule means every coloured value carries the same weight, which is the honest reading when
+ * the backend only tells us the value is bad, not what kind of bad.
+ */
+const TONE_PILL: Readonly<Record<ChatCellTone, string>> = {
+  critical: "bg-ehs-red/12 text-ehs-red",
+  warning: "bg-ehs-yellow/15 text-ehs-yellow-ink-soft",
+  ok: "bg-ehs-green/12 text-ehs-green",
+  neutral: "",
 };
 
 /** 2πr of the monogram's ring, so the arc below is a true quarter turn of it. */
@@ -88,7 +97,11 @@ function AnalyzingMark(props: Readonly<{ className?: string }>) {
 /** The rail entry for one saved conversation. */
 function ConversationRow(
   props: Readonly<{
-    conversation: ChatConversation;
+    conversation: Readonly<{
+      title: string;
+      timestamp: string;
+      preview: string;
+    }>;
     isActive: boolean;
     onSelect: () => void;
   }>,
@@ -185,6 +198,37 @@ function ReplyChart(props: Readonly<{ chart: ChatChart }>) {
   );
 }
 
+/** True for a cell the assistant returned as a bare number, so figures line up in a column. */
+function isNumeric(text: string): boolean {
+  return text.trim() !== "" && !Number.isNaN(Number(text.replace(/[,%]/g, "")));
+}
+
+/** One table cell: a tinted pill when the backend gave it a tone, plain text otherwise. */
+function TableCell(props: Readonly<{ cell: ChatCell }>) {
+  const { cell } = props;
+  const pill = cell.tone ? TONE_PILL[cell.tone] : "";
+
+  if (pill) {
+    return (
+      <td className="px-2.5 py-2.5">
+        <span
+          className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${pill}`}
+        >
+          {cell.text}
+        </span>
+      </td>
+    );
+  }
+
+  return (
+    <td
+      className={`text-ehs-darker px-2.5 py-2.5 text-xs ${isNumeric(cell.text) ? "tabular-nums" : ""}`}
+    >
+      {cell.text}
+    </td>
+  );
+}
+
 /** The data table inside a reply, with its (not yet wired) CSV affordance. */
 function ReplyTable(props: Readonly<{ table: ChatTable }>) {
   const { table } = props;
@@ -209,9 +253,9 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
         <table className="w-full min-w-72 border-collapse text-left">
           <thead>
             <tr className="bg-ehs-surface-raised">
-              {["Category", "Count", "Severity", "Status"].map((heading) => (
+              {table.columns.map((heading, column) => (
                 <th
-                  key={heading}
+                  key={`${heading}-${String(column)}`}
                   scope="col"
                   className="text-ehs-darker px-2.5 py-2 text-[11px] font-bold first:rounded-l-md last:rounded-r-md"
                 >
@@ -221,29 +265,16 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
             </tr>
           </thead>
           <tbody>
-            {table.rows.map((row) => (
+            {table.rows.map((row, rowIndex) => (
+              // Index keys: rows carry no id, and two rows of an assistant's answer can be
+              // identical. The list is rendered once and never reordered or edited in place.
               <tr
-                key={row.category}
+                key={rowIndex}
                 className="border-ehs-border-ink/6 border-b last:border-0"
               >
-                <td className="text-ehs-darker px-2.5 py-2.5 text-xs">
-                  {row.category}
-                </td>
-                <td className="text-ehs-darker px-2.5 py-2.5 text-xs tabular-nums">
-                  {String(row.count)}
-                </td>
-                <td className="px-2.5 py-2.5">
-                  <span
-                    className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${SEVERITY_PILL[row.severity]}`}
-                  >
-                    {row.severity}
-                  </span>
-                </td>
-                <td
-                  className={`px-2.5 py-2.5 text-xs font-semibold ${STATUS_INK[row.status]}`}
-                >
-                  {row.status}
-                </td>
+                {row.map((cell, cellIndex) => (
+                  <TableCell key={cellIndex} cell={cell} />
+                ))}
               </tr>
             ))}
           </tbody>
@@ -427,18 +458,105 @@ function EmptyRail() {
 /**
  * The full Neptune AI workspace: saved conversations on the left, the active thread on the right.
  *
- * "New chat" deselects into the empty state rather than creating anything — there is no API to
- * create against yet, and the empty screen is a designed state worth being able to reach.
+ * "New chat" deselects rather than creating anything — the thread is created by the backend when
+ * the first question is answered, and its id comes back on the reply. There is nothing to create
+ * up front, and creating an empty thread on every click would litter the rail.
+ *
+ * The pending question and its analyzing card are held in local state rather than written into
+ * the query cache. An answer takes seconds and can fail; a cache write would leave a question
+ * sitting in the thread with no answer and no way to retry it.
  */
 export function NeptuneAiPageClient() {
   const { user } = useSessionBootstrap();
-  const [activeId, setActiveId] = useState<string | null>(
-    SAMPLE_CONVERSATIONS[0]!.id,
-  );
 
-  const active =
-    SAMPLE_CONVERSATIONS.find((entry) => entry.id === activeId) ?? null;
-  const suggestions = active?.suggestions ?? PAGE_SUGGESTIONS;
+  const [activeId, setActiveId] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+
+  const conversations = useAssistantConversationsQuery();
+  const thread = useAssistantConversationQuery(activeId);
+  const ask = useAskAssistantMutation();
+
+  const rows = conversations.data ?? [];
+  const isBusy = ask.isPending;
+
+  const messages = useMemo<ChatMessage[]>(() => {
+    const stored = (thread.data?.messages ?? []).map(toChatMessage);
+
+    if (pendingQuestion === null) {
+      return stored;
+    }
+
+    // The question is echoed straight away and the analyzing card sits under it, so the wait
+    // happens where the answer will appear rather than somewhere else on the page.
+    return [
+      ...stored,
+      {
+        id: "pending-question",
+        author: "user" as const,
+        authorName: "You",
+        body: pendingQuestion,
+      },
+      {
+        id: "pending-answer",
+        author: "ai" as const,
+        authorName: "Neptune AI",
+        body: "",
+        analyzing: {
+          doneSteps: [],
+          activeStep: ANALYZING_STEPS[0]!,
+        },
+      },
+    ];
+  }, [thread.data, pendingQuestion]);
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
+
+  function send(question: string) {
+    const trimmed = question.trim();
+
+    // Two questions at once would race into the same thread and come back out of order.
+    if (trimmed === "" || isBusy) {
+      return;
+    }
+
+    setFailure(null);
+    setDraft("");
+    setPendingQuestion(trimmed);
+
+    ask.mutate(
+      {
+        payload: { message: trimmed },
+        conversationId: activeId ?? undefined,
+      },
+      {
+        onSuccess: async (reply) => {
+          setPendingQuestion(null);
+
+          if (!reply) {
+            setFailure("The assistant did not return an answer. Try again.");
+            return;
+          }
+
+          // Selecting the new thread is what makes its stored turns — question and answer
+          // both — become the rendered list, which is why the pending pair can be dropped.
+          setActiveId(reply.conversationId);
+          await thread.refetch();
+        },
+        onError: () => {
+          setPendingQuestion(null);
+          setFailure(
+            "The assistant could not answer that right now. Your question was not saved — try again.",
+          );
+        },
+      },
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
@@ -454,12 +572,6 @@ export function NeptuneAiPageClient() {
           >
             Neptune AI
           </Text>
-          <Text
-            as="span"
-            className="border-ehs-warning-border bg-ehs-warning-surface text-ehs-warning-ink ml-2 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase"
-          >
-            Preview — not connected
-          </Text>
         </header>
 
         <div className="grid min-w-0 flex-1 gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
@@ -470,7 +582,10 @@ export function NeptuneAiPageClient() {
               </Text>
               <button
                 type="button"
-                onClick={() => setActiveId(null)}
+                onClick={() => {
+                  setActiveId(null);
+                  setFailure(null);
+                }}
                 aria-label="Start a new chat"
                 className="bg-ehs-normal-blue/12 text-ehs-normal-blue hover:bg-ehs-normal-blue/20 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
               >
@@ -478,16 +593,25 @@ export function NeptuneAiPageClient() {
               </button>
             </div>
 
-            {SAMPLE_CONVERSATIONS.length === 0 ? (
+            {rows.length === 0 ? (
               <EmptyRail />
             ) : (
               <div className="flex flex-col gap-1">
-                {SAMPLE_CONVERSATIONS.map((conversation) => (
+                {rows.map((conversation) => (
                   <ConversationRow
                     key={conversation.id}
-                    conversation={conversation}
+                    conversation={{
+                      title: conversation.title,
+                      timestamp: formatConversationTimestamp(
+                        conversation.lastMessageAt,
+                      ),
+                      preview: conversation.preview ?? "",
+                    }}
                     isActive={conversation.id === activeId}
-                    onSelect={() => setActiveId(conversation.id)}
+                    onSelect={() => {
+                      setActiveId(conversation.id);
+                      setFailure(null);
+                    }}
                   />
                 ))}
               </div>
@@ -495,9 +619,9 @@ export function NeptuneAiPageClient() {
           </GlassCard>
 
           <GlassCard className="min-w-0 justify-between gap-4">
-            {active ? (
+            {messages.length > 0 ? (
               <div className="flex min-w-0 flex-col gap-5">
-                {active.messages.map((message) => (
+                {messages.map((message) => (
                   <PageMessage
                     key={message.id}
                     message={message}
@@ -506,51 +630,71 @@ export function NeptuneAiPageClient() {
                     profileUrl={user.profileUrl}
                   />
                 ))}
+                <div ref={bottomRef} />
               </div>
             ) : (
               <EmptyThread />
             )}
 
             <div className="flex flex-col gap-3">
+              {failure ? (
+                <Text
+                  as="p"
+                  role="alert"
+                  className="text-ehs-red text-xs font-semibold"
+                >
+                  {failure}
+                </Text>
+              ) : null}
+
               <div className="flex scrollbar-none gap-2 overflow-x-auto">
-                {suggestions.map((suggestion) => (
+                {PAGE_SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"
-                    disabled
-                    className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray shrink-0 cursor-not-allowed rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap"
+                    disabled={isBusy}
+                    onClick={() => {
+                      send(suggestion);
+                    }}
+                    className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray hover:bg-ehs-surface-inverse/4 shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {suggestion}
                   </button>
                 ))}
               </div>
 
-              <div className="border-ehs-border-ink/8 bg-ehs-surface flex items-center gap-3 rounded-full border px-4 py-2.5">
-                <Icon
-                  icon="mdi:paperclip"
-                  className="text-ehs-muted-text size-4 shrink-0"
-                  aria-hidden="true"
-                />
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  send(draft);
+                }}
+                className="border-ehs-border-ink/8 bg-ehs-surface flex items-center gap-3 rounded-full border px-4 py-2.5"
+              >
                 <input
                   type="text"
-                  disabled
+                  value={draft}
+                  onChange={(event) => {
+                    setDraft(event.target.value);
+                  }}
+                  disabled={isBusy}
+                  maxLength={2000}
                   placeholder="Ask Neptune AI anything about EHS..."
                   aria-label="Ask Neptune AI"
                   className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-[13px] outline-none disabled:cursor-not-allowed"
                 />
                 <button
-                  type="button"
-                  disabled
+                  type="submit"
+                  disabled={isBusy || draft.trim() === ""}
                   aria-label="Send message"
-                  className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-9 shrink-0 cursor-not-allowed items-center justify-center rounded-full opacity-60"
+                  className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Icon
-                    icon="mdi:arrow-up"
-                    className="size-4"
+                    icon={isBusy ? "mdi:loading" : "mdi:arrow-up"}
+                    className={`size-4 ${isBusy ? "animate-spin motion-reduce:animate-none" : ""}`}
                     aria-hidden="true"
                   />
                 </button>
-              </div>
+              </form>
             </div>
           </GlassCard>
         </div>
