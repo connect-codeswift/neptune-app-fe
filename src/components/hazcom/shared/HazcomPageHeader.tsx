@@ -31,7 +31,7 @@ export function HazcomPageHeader(props: Readonly<HazcomPageHeaderProps>) {
   const crumbs = breadcrumb.map(normalizeCrumb);
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
+    <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-wrap items-start justify-between gap-3 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6">
       <div className="relative z-1 flex min-w-0 flex-1 flex-col gap-1.5">
         {crumbs.length > 0 ? (
           <nav
@@ -50,7 +50,7 @@ export function HazcomPageHeader(props: Readonly<HazcomPageHeaderProps>) {
                   {index > 0 ? (
                     <Icon
                       icon="mdi:chevron-right"
-                      className="size-3 shrink-0 text-ehs-muted-text"
+                      className="text-ehs-muted-text size-3 shrink-0"
                       aria-hidden="true"
                     />
                   ) : null}

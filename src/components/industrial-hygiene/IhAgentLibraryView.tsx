@@ -44,10 +44,10 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     header: "Agent Name",
     cell: ({ row }) => (
       <div className="min-w-36 py-1">
-        <Text as="p" className="text-base font-semibold text-ehs-dark-bg">
+        <Text as="p" className="text-ehs-dark-bg text-base font-semibold">
           {row.original.name}
         </Text>
-        <Text as="p" className="text-sm text-ehs-placeholder">
+        <Text as="p" className="text-ehs-placeholder text-sm">
           {row.original.code}
         </Text>
       </div>
@@ -58,14 +58,14 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     header: "Type",
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
-        <span className="inline-flex size-6 items-center justify-center rounded-md bg-ehs-gray/9">
+        <span className="bg-ehs-gray/9 inline-flex size-6 items-center justify-center rounded-md">
           <Icon
             icon={row.original.typeIcon}
-            className="size-4 text-ehs-gray"
+            className="text-ehs-gray size-4"
             aria-hidden
           />
         </span>
-        <Text as="span" className="text-base text-ehs-gray">
+        <Text as="span" className="text-ehs-gray text-base">
           {row.original.type}
         </Text>
       </div>
@@ -75,7 +75,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "unit",
     header: "Unit",
     cell: ({ row }) => (
-      <Text as="span" className="text-base text-ehs-gray">
+      <Text as="span" className="text-ehs-gray text-base">
         {row.original.unit}
       </Text>
     ),
@@ -84,7 +84,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "osha",
     header: "OSHA PEL",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-ehs-slate">
+      <Text as="span" className="text-ehs-slate text-base font-semibold">
         {row.original.oshaPel}
       </Text>
     ),
@@ -93,7 +93,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "acgih",
     header: "ACGIH TLV",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-ehs-slate">
+      <Text as="span" className="text-ehs-slate text-base font-semibold">
         {row.original.acgihTlv}
       </Text>
     ),
@@ -102,7 +102,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "niosh",
     header: "NIOSH REL",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-semibold text-ehs-slate">
+      <Text as="span" className="text-ehs-slate text-base font-semibold">
         {row.original.nioshRel}
       </Text>
     ),
@@ -111,7 +111,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
     id: "internal",
     header: "Internal Limit",
     cell: ({ row }) => (
-      <Text as="span" className="text-base font-bold text-ehs-normal-blue">
+      <Text as="span" className="text-ehs-normal-blue text-base font-bold">
         {row.original.internalLimit}
       </Text>
     ),
@@ -123,12 +123,12 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
       row.original.sdsLink ? (
         <button
           type="button"
-          className="text-base text-ehs-normal-blue hover:underline"
+          className="text-ehs-normal-blue text-base hover:underline"
         >
           {row.original.sdsLink}
         </button>
       ) : (
-        <Text as="span" className="text-base text-ehs-placeholder">
+        <Text as="span" className="text-ehs-placeholder text-base">
           —
         </Text>
       ),
@@ -145,7 +145,7 @@ const AGENT_COLUMNS: ColumnDef<IhAgentRow, unknown>[] = [
       <Link
         href={ihEditAgentPath(row.original.id)}
         aria-label={`Edit ${row.original.name}`}
-        className="inline-flex size-7 items-center justify-center rounded-md bg-ehs-gray/14 text-ehs-gray transition-colors hover:bg-ehs-gray/22"
+        className="bg-ehs-gray/14 text-ehs-gray hover:bg-ehs-gray/22 inline-flex size-7 items-center justify-center rounded-md transition-colors"
       >
         <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
       </Link>

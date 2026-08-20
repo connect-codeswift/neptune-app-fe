@@ -77,17 +77,31 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
   };
 }
 
-/** Map an API finding onto the findings page card shape. */
+/**
+ * Map an API finding onto the findings page's card shape.
+ *
+ * Every field below exists on the projection, so nothing is guessed. Two things
+ * this deliberately does not do any more:
+ *
+ * - `title` is no longer collapsed into `description`. It is the finding, it is
+ *   required server-side, and folding it into a fallback chain meant a finding
+ *   with both fields showed only its detail and one with only a title showed
+ *   that title as if it were the detail.
+ * - there is no `capaCreated`. Nothing in the backend links a finding to a CAPA,
+ *   so the flag could only ever be false and the badge it drove never rendered.
+ */
 export function mapFindingDtoToFinding(
   dto: InspectionFindingDto,
 ): InspectionFinding {
   return {
     id: String(dto.id),
-    severity: dto.severity ?? dto.findingSeverity ?? "—",
-    category: dto.category ?? dto.findingCategory ?? "General",
-    description: dto.description ?? dto.title ?? dto.question ?? "",
-    status: dto.status ?? "Open",
-    capaCreated: dto.capaCreated ?? dto.isCapaCreated ?? false,
+    title: dto.title,
+    severity: dto.severity,
+    category: dto.category ?? "",
+    description: dto.description ?? "",
+    status: dto.status,
+    isAutoRaised: dto.isAutoRaised,
+    dueDate: dto.dueDate ? formatInspectionDate(dto.dueDate) : "",
   };
 }
 

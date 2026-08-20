@@ -11,10 +11,8 @@ import { PolicyMakerDocumentDetailView } from "@/components/policy-maker/detail/
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useApproveDocumentMutation } from "@/hooks/use-document-mutations";
-import {
-  useDocumentByIdQuery,
-  useDocumentDepartmentsQuery,
-} from "@/hooks/use-document-queries";
+import { useDocumentByIdQuery } from "@/hooks/use-document-queries";
+import { useDepartmentsQuery } from "@/hooks/use-department-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthContext } from "@/lib/auth-context";
 import { parseRecordNumericId } from "@/lib/format-record-id";
@@ -44,9 +42,7 @@ export function PolicyMakerDocumentDetailContent(
 
   const numericId = parseDocumentId(documentIdParam);
 
-  const departmentsQuery = useDocumentDepartmentsQuery(
-    isClientReady && hasToken,
-  );
+  const departmentsQuery = useDepartmentsQuery(isClientReady && hasToken);
   const departmentNameById = useMemo(
     () => toDepartmentNameLookup(departmentsQuery.data ?? []),
     [departmentsQuery.data],

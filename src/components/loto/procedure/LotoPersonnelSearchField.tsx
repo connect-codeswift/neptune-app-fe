@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -175,12 +177,16 @@ export function LotoPersonnelSearchField(
                   </Text>
                 </li>
               ) : users.length === 0 ? (
-                <li className="px-2.5 py-3">
-                  <Text as="p" className="text8 text-ehs-muted-text">
-                    {debouncedQuery.trim()
-                      ? `No one matches "${debouncedQuery.trim()}".`
-                      : "No one else is available to add."}
-                  </Text>
+                <li className="p-1.5">
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:account-off-outline"
+                    title={
+                      debouncedQuery.trim()
+                        ? `No one matches "${debouncedQuery.trim()}"`
+                        : "No one else is available to add"
+                    }
+                  />
                 </li>
               ) : (
                 users.map((user) => (

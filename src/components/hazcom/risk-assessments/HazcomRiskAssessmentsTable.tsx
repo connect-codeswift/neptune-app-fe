@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import {
@@ -268,9 +270,7 @@ export function HazcomRiskAssessmentsTable(
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       {header ? (
-        <div className="border-b border-ehs-border-ink/8 px-4">
-          {header}
-        </div>
+        <div className="border-ehs-border-ink/8 border-b px-4">{header}</div>
       ) : null}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
@@ -318,11 +318,14 @@ export function HazcomRiskAssessmentsTable(
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="border-t border-ehs-border-ink/8 px-4 py-10 text-center"
+                  className="border-ehs-border-ink/8 border-t"
                 >
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No risk assessments match your search.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:clipboard-alert-outline"
+                    title="No risk assessments found"
+                    message="Try clearing the search or filters."
+                  />
                 </td>
               </tr>
             ) : (
@@ -333,8 +336,10 @@ export function HazcomRiskAssessmentsTable(
                   <tr
                     key={row.id}
                     className={[
-                      "border-t border-ehs-border-ink/8 transition-colors",
-                      isSelected ? "bg-ehs-normal-blue/6" : "hover:bg-ehs-surface-inverse/2",
+                      "border-ehs-border-ink/8 border-t transition-colors",
+                      isSelected
+                        ? "bg-ehs-normal-blue/6"
+                        : "hover:bg-ehs-surface-inverse/2",
                     ].join(" ")}
                   >
                     {row.getVisibleCells().map((cell) => {

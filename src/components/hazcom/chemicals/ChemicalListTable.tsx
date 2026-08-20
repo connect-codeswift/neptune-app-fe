@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import {
@@ -21,6 +23,7 @@ import {
 } from "@/components/hazcom/shared";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 function signalTone(signalWord: string): IncidentBadgeTone {
   return signalWord.trim().toLowerCase() === "danger" ? "danger" : "warn";
@@ -65,7 +68,7 @@ function createChemicalListColumns(
 ): ColumnDef<HazcomChemical, unknown>[] {
   const { selectedId, onViewMore } = options;
 
-  return [
+  const columns = [
     columnHelper.display({
       id: "displayId",
       header: "ID",
@@ -248,6 +251,12 @@ function createChemicalListColumns(
       },
     }),
   ] as ColumnDef<HazcomChemical, unknown>[];
+
+  return withManageAction(columns, {
+    getHref: (row) =>
+      `/dashboard/hazcom/chemicals/${encodeURIComponent(row.id)}`,
+    getAriaLabel: (row) => `Manage chemical ${row.name}`,
+  }) as ColumnDef<HazcomChemical, unknown>[];
 }
 
 function columnWidthStyle(size: number, totalSize: number) {
@@ -297,9 +306,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       {header ? (
-        <div className="border-b border-ehs-border-ink/8 px-4">
-          {header}
-        </div>
+        <div className="border-ehs-border-ink/8 border-b px-4">{header}</div>
       ) : null}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
@@ -346,11 +353,14 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="border-t border-ehs-border-ink/8 px-4 py-10 text-center"
+                  className="border-ehs-border-ink/8 border-t"
                 >
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No chemicals match your search.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:flask-empty-outline"
+                    title="No chemicals found"
+                    message="Try clearing the search or filters."
+                  />
                 </td>
               </tr>
             ) : (
@@ -361,7 +371,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                   <tr
                     key={row.id}
                     className={[
-                      "border-t border-ehs-border-ink/8 transition-colors",
+                      "border-ehs-border-ink/8 border-t transition-colors",
                       isSelected
                         ? "bg-ehs-light-blue/35"
                         : "hover:bg-ehs-light-bg/70",

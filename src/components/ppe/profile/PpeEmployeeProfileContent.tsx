@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
@@ -241,7 +243,12 @@ export function PpeEmployeeProfileContent(
         <div className="flex flex-col gap-2.5 md:hidden">
           <p className="text6 text-ehs-muted-text">Full Issuance History</p>
           {profile.history.length === 0 ? (
-            <p className="text4 text-ehs-muted-text">No history yet.</p>
+            <EmptyState
+              variant="plain"
+              icon="mdi:history"
+              title="No issuance history"
+              message="PPE issued to this employee appears here."
+            />
           ) : (
             <ul className="flex flex-col gap-3">
               {profile.history.map((record) => (

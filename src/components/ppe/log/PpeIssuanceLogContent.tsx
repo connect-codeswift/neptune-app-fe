@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
@@ -23,6 +25,7 @@ import { buildPpeIssuanceLogColumns } from "./PpeIssuanceLogColumns";
 import { PpeIssuanceLogHeader } from "./PpeIssuanceLogHeader";
 import { exportIssuanceLogToCsv } from "./export-issuance-log-csv";
 import { PpeIssuanceLogSkeleton } from "../PpeSkeletons";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 
@@ -106,10 +109,10 @@ function IssuanceLogMobileCard(
     <button
       type="button"
       onClick={onOpen}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-ehs-surface/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
+      className="border-ehs-border bg-ehs-surface/80 flex w-full cursor-pointer flex-col gap-3 rounded-2xl border p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)]"
     >
       <div className="flex items-center gap-2">
-        <span className="text7 text-ehs-gray rounded-full bg-ehs-surface-inverse/6 px-2 py-0.5">
+        <span className="text7 text-ehs-gray bg-ehs-surface-inverse/6 rounded-full px-2 py-0.5">
           {entry.issueId}
         </span>
         <span className="text4 text-ehs-darker min-w-0 flex-1 truncate">
@@ -133,10 +136,10 @@ function IssuanceLogMobileCard(
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-ehs-border-ink/8 pt-3">
+      <div className="border-ehs-border-ink/8 flex items-center justify-between gap-2 border-t pt-3">
         <p className="text4 text-ehs-muted-text">
           Condition:{" "}
-          <span className="text7 text-ehs-gray rounded-full bg-ehs-surface-inverse/6 px-2 py-0.5">
+          <span className="text7 text-ehs-gray bg-ehs-surface-inverse/6 rounded-full px-2 py-0.5">
             {entry.condition}
           </span>
         </p>
@@ -177,7 +180,14 @@ export function PpeIssuanceLogContent(
     [entries, query, statusFilter],
   );
 
-  const columns = useMemo(() => buildPpeIssuanceLogColumns(), []);
+  const columns = useMemo(
+    () =>
+      withManageAction(buildPpeIssuanceLogColumns(), {
+        getHref: (row) => `${PROFILE_ROUTE}/${encodeURIComponent(row.id)}`,
+        getAriaLabel: (row) => `Manage issuance for ${row.employee}`,
+      }),
+    [],
+  );
 
   const resultLabel = `${String(filtered.length)} ${
     filtered.length === 1 ? "issuance" : "issuances"
@@ -276,7 +286,7 @@ export function PpeIssuanceLogContent(
                     "text8 rounded-5 shrink-0 cursor-pointer px-3 py-1.5 whitespace-nowrap transition-colors",
                     isActive
                       ? "bg-ehs-normal-blue text-ehs-on-accent"
-                      : "border-ehs-border text-ehs-muted-text border bg-ehs-surface",
+                      : "border-ehs-border text-ehs-muted-text bg-ehs-surface border",
                   ].join(" ")}
                 >
                   {chip.label}
@@ -289,7 +299,12 @@ export function PpeIssuanceLogContent(
           <div className="flex flex-col gap-3 md:hidden">
             {tableHeader}
             {filtered.length === 0 ? (
-              <p className="text4 text-ehs-muted-text">No issuances found.</p>
+              <EmptyState
+                variant="plain"
+                icon="mdi:clipboard-list-outline"
+                title="No issuances found"
+                message="Try clearing the search or filters."
+              />
             ) : (
               <ul className="flex flex-col gap-3">
                 {filtered.map((entry) => (

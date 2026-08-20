@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -180,11 +182,13 @@ function PlanDetailBody(props: Readonly<{ detail: IhPlanDetail }>) {
             <tbody>
               {detail.samples.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="text-ehs-muted-text px-4 py-8 text-center text-sm"
-                  >
-                    No sample results yet.
+                  <td colSpan={5}>
+                    <EmptyState
+                      variant="plain"
+                      icon="mdi:test-tube"
+                      title="No sample results yet"
+                      message="Results appear here once samples are analysed."
+                    />
                   </td>
                 </tr>
               ) : (

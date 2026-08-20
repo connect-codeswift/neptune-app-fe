@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,8 +24,10 @@ import {
   PpeSearchBarSkeleton,
   PpeTableSkeleton,
 } from "./PpeSkeletons";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
+const CATALOG_ROUTE = "/dashboard/ppe-management/catalog";
 
 type PpeCategoryFilter = "all" | string;
 
@@ -133,10 +136,16 @@ export function PpeInventorySection() {
 
   const columns = useMemo(
     () =>
-      makePpeInventoryColumns({
-        selectedId: activeId,
-        onViewMore: handleToggleDetailPanel,
-      }),
+      withManageAction(
+        makePpeInventoryColumns({
+          selectedId: activeId,
+          onViewMore: handleToggleDetailPanel,
+        }),
+        {
+          getHref: (row) => `${CATALOG_ROUTE}/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage PPE item ${row.itemName}`,
+        },
+      ),
     [activeId, handleToggleDetailPanel],
   );
 
@@ -202,7 +211,12 @@ export function PpeInventorySection() {
               <div className="flex flex-col gap-3 md:hidden">
                 {header}
                 {filtered.length === 0 ? (
-                  <p className="text4 text-ehs-muted-text">No items found.</p>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:package-variant-closed"
+                    title="No PPE items found"
+                    message="Try clearing the search or filters."
+                  />
                 ) : (
                   <ul className="flex flex-col gap-3">
                     {filtered.map((item) => (

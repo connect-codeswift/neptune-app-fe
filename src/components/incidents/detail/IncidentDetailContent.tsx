@@ -793,7 +793,6 @@ export function IncidentDetailContent(
             capaId: capa.numericId,
             incidentId: detail.numericId,
             task: payload.task,
-            owner: payload.owner,
             dueDate: payload.dueDate,
             priority: payload.priority,
           });

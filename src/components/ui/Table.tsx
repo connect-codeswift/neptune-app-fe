@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import type { EmptyStateProps } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 
 /**
@@ -40,6 +42,14 @@ export type TableProps<TData> = {
   header?: ReactNode;
   /** Visual variant for domain-specific table styling. */
   variant?: "default" | "compliance" | "capa" | "incident";
+  /**
+   * What this table shows when it has no rows. Every table should pass one —
+   * "No records found matching your filters" is a fallback, not a good answer,
+   * because it cannot say what is missing or how to fix it. The copy used to be
+   * chosen by sniffing `variant === "capa"`, which meant a new table could only
+   * ever get the generic line.
+   */
+  emptyState?: EmptyStateProps;
 };
 
 export function Table<TData>(props: TableProps<TData>) {
@@ -56,6 +66,7 @@ export function Table<TData>(props: TableProps<TData>) {
     pagination,
     header,
     variant = "default",
+    emptyState,
   } = props;
 
   const isCompliance = variant === "compliance";
@@ -160,12 +171,17 @@ export function Table<TData>(props: TableProps<TData>) {
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center">
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    {isCapa
-                      ? "No tasks yet."
-                      : "No records found matching your filters."}
-                  </Text>
+                <td colSpan={columns.length}>
+                  <EmptyState
+                    variant="plain"
+                    icon={emptyState?.icon ?? "mdi:table-search"}
+                    title={emptyState?.title ?? "No records found"}
+                    message={
+                      emptyState?.message ??
+                      "Try clearing the search or filters."
+                    }
+                    action={emptyState?.action}
+                  />
                 </td>
               </tr>
             ) : (
@@ -274,20 +290,28 @@ function TablePaginationBar(
   const canGoBack = currentPage > 1 && !isLoading;
   const canGoForward = currentPage < pageCount && !isLoading;
 
+  // Three columns rather than `justify-between`: the page controls sat against the
+  // right edge, where the floating AI activator button overlaps them and swallows
+  // the click. The two 1fr columns are equal, so the auto column between them is
+  // centred on the bar no matter how wide the "Showing…" text runs. Single column
+  // below `sm`, where everything stacks and centres anyway.
   return (
     <div
       className={[
-        "flex flex-wrap items-center justify-between gap-3 border-t py-3",
+        "grid grid-cols-1 items-center gap-3 border-t py-3 sm:grid-cols-[1fr_auto_1fr]",
         isCompliance
           ? "border-ehs-border-ink/8 px-[16px]"
           : "border-ehs-border/45 px-4",
       ].join(" ")}
     >
-      <Text as="span" className="text8 text-ehs-muted-text">
+      <Text
+        as="span"
+        className="text8 text-ehs-muted-text justify-self-center sm:justify-self-start"
+      >
         {`Showing ${String(firstRow)}-${String(lastRow)} of ${String(totalRecords)}`}
       </Text>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 justify-self-center">
         <button
           type="button"
           className={pageButtonClass}

@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -83,9 +84,12 @@ export function BbsAtRiskBehaviorsCard(props: BbsAtRiskBehaviorsCardProps) {
       {atRiskQuery.isPending ? (
         <p className="text-ehs-muted-text text-sm">Loading…</p>
       ) : categories.length === 0 ? (
-        <p className="text-ehs-muted-text text-sm">
-          No at-risk behaviors observed.
-        </p>
+        <EmptyState
+          variant="plain"
+          icon="mdi:shield-check-outline"
+          title="No at-risk behaviors observed"
+          message="Behaviors flagged during observations appear here."
+        />
       ) : (
         <ul className="flex flex-col gap-4">
           {categories.map((category) => (

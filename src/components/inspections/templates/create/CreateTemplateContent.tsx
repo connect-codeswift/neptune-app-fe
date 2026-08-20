@@ -369,7 +369,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               onSubmit={handleBasicInfoSubmit}
               onChange={setValues}
               formId={BASIC_INFO_FORM_ID}
-              className="fields-white"
+              className="fields-solid"
               hideActions
             />
           </IncidentGlassCard>
@@ -464,7 +464,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               type={step === 1 ? "submit" : "button"}
               form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
               onClick={step === 1 ? undefined : handleNext}
-              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold text-ehs-on-accent shadow-(--ehs-shadow-button-primary-flat) transition-colors"
+              className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 text-ehs-on-accent inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat) transition-colors"
             >
               <Icon
                 icon="mdi:arrow-right"

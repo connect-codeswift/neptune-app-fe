@@ -208,7 +208,7 @@ function LotoApplyLockoutForm(
           </IncidentGlassCard>
 
           {!context.canApply ? (
-            <p className="text4 border-ehs-yellow/30 bg-ehs-yellow/8 rounded-xl border px-4.5 py-3 font-medium text-ehs-warning-ink">
+            <p className="text4 border-ehs-yellow/30 bg-ehs-yellow/8 text-ehs-warning-ink rounded-xl border px-4.5 py-3 font-medium">
               {context.cannotApplyReason ??
                 "This equipment cannot be locked out right now."}
             </p>

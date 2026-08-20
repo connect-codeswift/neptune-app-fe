@@ -15,6 +15,7 @@ export type UserDropdownItemDto = {
   userName?: string;
   label?: string;
   email?: string;
+  profileUrl?: string;
 };
 
 /** Matches backend response for GET /api/v1/users/dropdown. */
@@ -35,6 +36,18 @@ export type SiteUserDto = {
   id: number;
   fullName?: string | null;
   email?: string | null;
+  /**
+   * The person's profile photo, when their record carries one. Same value the
+   * profile screen uploads via POST /users/me/avatar — a stored file id, a
+   * legacy public URL, or a plain remote URL, so render it through
+   * `UserAvatar` rather than dropping it straight into an `<img>`.
+   *
+   * Absent from `GET /api/v1/sites/{siteId}/users` until the backend adds
+   * `ProfileUrl` to that projection (it is on the `User` entity and already
+   * served by `GET /api/Auth/GetUserById/{id}`). Optional so the pickers fall
+   * back to initials rather than breaking while that ships.
+   */
+  profileUrl?: string | null;
   organizationId?: number | null;
   siteId?: number | null;
   roleId?: number | null;
@@ -65,6 +78,24 @@ export function readUserGender(user: SiteUserDto): string {
   const record = user as unknown as Record<string, unknown>;
 
   for (const key of ["gender", "Gender", "sex", "Sex"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
+/**
+ * Pulls a profile photo off a user row whatever the backend spells it. Mirrors
+ * `readUserGender`: ASP.NET serializes camelCase and PascalCase inconsistently,
+ * sometimes within one payload.
+ */
+export function readUserProfileUrl(user: SiteUserDto): string {
+  const record = user as unknown as Record<string, unknown>;
+
+  for (const key of ["profileUrl", "ProfileUrl", "profileURL"]) {
     const value = record[key];
     if (typeof value === "string" && value.trim()) {
       return value.trim();

@@ -35,7 +35,7 @@ export function PpeEmployeeProfileHeader(
   const { name, role, onRequestReplacement } = props;
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] md:px-5.5">
+    <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] md:px-5.5">
       <div className="relative z-1 flex min-w-0 flex-col gap-1.5">
         <nav
           aria-label="Breadcrumb"

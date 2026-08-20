@@ -43,10 +43,10 @@ function DetailStatusBadge(props: Readonly<{ status: IhMonitoringStatus }>) {
 function InfoField(props: Readonly<{ label: string; value: string }>) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <Text as="span" className="text-xs font-medium text-ehs-muted-text">
+      <Text as="span" className="text-ehs-muted-text text-xs font-medium">
         {props.label}
       </Text>
-      <Text as="p" className="text-sm font-semibold text-ehs-dark-bg">
+      <Text as="p" className="text-ehs-dark-bg text-sm font-semibold">
         {props.value}
       </Text>
     </div>
@@ -66,12 +66,12 @@ function ResultSummaryCard(props: Readonly<{ detail: IhMonitoringDetail }>) {
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col">
-          <Text as="span" className="text-xs text-ehs-muted-text">
+          <Text as="span" className="text-ehs-muted-text text-xs">
             Result
           </Text>
-          <p className="pt-1 text-4xl leading-none font-black tracking-tight text-ehs-normal-blue">
+          <p className="text-ehs-normal-blue pt-1 text-4xl leading-none font-black tracking-tight">
             {`${detail.resultValue} `}
-            <span className="text-lg font-normal text-ehs-muted-text">
+            <span className="text-ehs-muted-text text-lg font-normal">
               {detail.resultUnit}
             </span>
           </p>
@@ -80,18 +80,18 @@ function ResultSummaryCard(props: Readonly<{ detail: IhMonitoringDetail }>) {
       </div>
 
       <div className="mt-4 flex flex-col gap-1.5">
-        <div className="flex items-start justify-between gap-2 text-xs text-ehs-muted-text">
+        <div className="text-ehs-muted-text flex items-start justify-between gap-2 text-xs">
           <span>{`0 ${detail.resultUnit}`}</span>
           <span>{`Action Level (${detail.actionLevel})`}</span>
           <span>{`OEL (${detail.oelLimit} ${detail.resultUnit})`}</span>
         </div>
-        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-ehs-surface-inverse/8">
+        <div className="bg-ehs-surface-inverse/8 relative h-2.5 w-full overflow-hidden rounded-full">
           <div
-            className="absolute inset-y-0 left-0 bg-ehs-surface-inverse/14"
+            className="bg-ehs-surface-inverse/14 absolute inset-y-0 left-0"
             style={{ width: `${String(actionPercent)}%` }}
           />
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-ehs-normal-blue"
+            className="bg-ehs-normal-blue absolute inset-y-0 left-0 rounded-full"
             style={{ width: `${String(resultPercent)}%` }}
           />
         </div>
@@ -122,7 +122,7 @@ function SampleInformationCard(
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-3.5"
     >
-      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-sm font-bold">
         Sample Information
       </Text>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -147,18 +147,18 @@ function OelReferenceCard(props: Readonly<{ detail: IhMonitoringDetail }>) {
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-3.5"
     >
-      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-sm font-bold">
         {`OEL Reference — ${detail.agent}`}
       </Text>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-140 border-collapse text-left">
           <thead>
-            <tr className="border-b border-ehs-border-ink/8">
+            <tr className="border-ehs-border-ink/8 border-b">
               {["Standard", "Limit", "Unit", "% of Limit"].map((heading) => (
                 <th
                   key={heading}
-                  className="px-3 py-2 text-xs font-semibold tracking-wide text-ehs-muted-text uppercase"
+                  className="text-ehs-muted-text px-3 py-2 text-xs font-semibold tracking-wide uppercase"
                 >
                   {heading}
                 </th>
@@ -169,15 +169,17 @@ function OelReferenceCard(props: Readonly<{ detail: IhMonitoringDetail }>) {
             {detail.oelRows.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-ehs-border-ink/8 last:border-b-0"
+                className="border-ehs-border-ink/8 border-b last:border-b-0"
               >
-                <td className="px-3 py-2 text-xs text-ehs-slate">
+                <td className="text-ehs-slate px-3 py-2 text-xs">
                   {row.standard}
                 </td>
-                <td className="px-3 py-2 text-xs font-bold text-ehs-dark-bg">
+                <td className="text-ehs-dark-bg px-3 py-2 text-xs font-bold">
                   {row.limit}
                 </td>
-                <td className="px-3 py-2 text-xs text-ehs-muted-text">{row.unit}</td>
+                <td className="text-ehs-muted-text px-3 py-2 text-xs">
+                  {row.unit}
+                </td>
                 <td
                   className={[
                     "px-3 py-2 text-xs font-bold",
@@ -204,21 +206,21 @@ function AttachmentsCard() {
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-3"
     >
-      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-sm font-bold">
         Attachments
       </Text>
-      <div className="flex flex-col items-center gap-1.5 rounded-xl border border-dashed border-ehs-border-ink/14 bg-ehs-surface-inverse/2 px-4 py-6 text-center">
+      <div className="border-ehs-border-ink/14 bg-ehs-surface-inverse/2 flex flex-col items-center gap-1.5 rounded-xl border border-dashed px-4 py-6 text-center">
         <Icon
           icon="mdi:paperclip"
-          className="size-5 text-ehs-muted-text"
+          className="text-ehs-muted-text size-5"
           aria-hidden
         />
-        <Text as="p" className="text-xs text-ehs-muted-text">
+        <Text as="p" className="text-ehs-muted-text text-xs">
           No attachments yet
         </Text>
         <button
           type="button"
-          className="text-xs font-semibold text-ehs-normal-blue hover:underline"
+          className="text-ehs-normal-blue text-xs font-semibold hover:underline"
         >
           Upload lab report
         </button>
@@ -234,10 +236,10 @@ function LinkedCapaCard(props: Readonly<{ message: string }>) {
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-2"
     >
-      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-sm font-bold">
         Linked CAPA
       </Text>
-      <Text as="p" className="text-sm text-ehs-muted-text">
+      <Text as="p" className="text-ehs-muted-text text-sm">
         {props.message}
       </Text>
     </IncidentGlassCard>
@@ -266,10 +268,10 @@ export function IhMonitoringRecordDetailView() {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="items-center gap-3 text-center"
           >
-            <Text as="h1" className="text-lg font-bold text-ehs-dark-bg">
+            <Text as="h1" className="text-ehs-dark-bg text-lg font-bold">
               Record not found
             </Text>
-            <Text as="p" className="text-sm text-ehs-muted-text">
+            <Text as="p" className="text-ehs-muted-text text-sm">
               This monitoring record could not be loaded.
             </Text>
             <Button
@@ -308,7 +310,7 @@ export function IhMonitoringRecordDetailView() {
             <Button
               type="button"
               variant="tertiary"
-              className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
+              className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

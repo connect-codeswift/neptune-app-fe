@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -146,12 +148,16 @@ export function LotoLocationSearchField(
                 </Text>
               </li>
             ) : locations.length === 0 ? (
-              <li className="px-2.5 py-3">
-                <Text as="p" className="text8 text-ehs-muted-text">
-                  {debouncedQuery.trim()
-                    ? `No location matches “${debouncedQuery.trim()}”.`
-                    : "No locations are registered for this site yet."}
-                </Text>
+              <li className="p-1.5">
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:map-marker-off-outline"
+                  title={
+                    debouncedQuery.trim()
+                      ? `No location matches “${debouncedQuery.trim()}”`
+                      : "No locations registered for this site yet"
+                  }
+                />
               </li>
             ) : (
               locations.map((location) => (

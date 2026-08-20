@@ -1,15 +1,18 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LogoIcon } from "@/components/LogoIcon";
 import { LogoMark } from "@/components/LogoMark";
 import { Text } from "@/components/Text";
 import {
-  POPUP_MESSAGES,
+  ANALYZING_STEPS,
+  POPUP_GREETING,
   POPUP_SUGGESTIONS,
+  toChatMessage,
   type ChatMessage,
 } from "@/components/neptune-ai/neptune-ai-data";
+import { useAskAssistantMutation } from "@/hooks/use-assistant";
 
 export type NeptuneChatPanelProps = Readonly<{
   open: boolean;
@@ -47,9 +50,30 @@ function MessageRow(props: Readonly<{ message: ChatMessage }>) {
       <LogoMark className="text-ehs-normal-blue size-7 shrink-0" decorative />
 
       <div className="rounded-tl-0.5 rounded-tr-3.5 rounded-b-3.5 border-ehs-normal-blue/8 bg-ehs-normal-blue/14 flex max-w-82.5 flex-col gap-2 border p-3">
-        <Text as="p" className="text-ehs-dark-bg text-[13px] leading-[18px]">
-          {message.body}
-        </Text>
+        {message.analyzing ? (
+          // Three dots rather than the page's step checklist. The panel is 30rem wide and the
+          // answer usually lands in a few seconds; a four-item progress list would be taller
+          // than the reply it is standing in for.
+          <span
+            className="flex items-center gap-1 py-1"
+            role="status"
+            aria-label="Neptune AI is thinking"
+          >
+            {[0, 150, 300].map((delay) => (
+              <span
+                key={delay}
+                className="bg-ehs-normal-blue/60 size-1.5 animate-pulse rounded-full motion-reduce:animate-none"
+                style={{ animationDelay: `${String(delay)}ms` }}
+              />
+            ))}
+          </span>
+        ) : null}
+
+        {message.body ? (
+          <Text as="p" className="text-ehs-dark-bg text-[13px] leading-[18px]">
+            {message.body}
+          </Text>
+        ) : null}
 
         {message.results?.map((result) => (
           <div
@@ -80,6 +104,89 @@ function MessageRow(props: Readonly<{ message: ChatMessage }>) {
  */
 export function NeptuneChatPanel(props: Readonly<NeptuneChatPanelProps>) {
   const { open, onClose, returnFocusRef } = props;
+
+  // The popup keeps its own short thread rather than sharing the full page's. It is for asking
+  // about what you are looking at, and carrying a long history into a 30rem panel would bury the
+  // one exchange you opened it for. The thread it creates is still saved, and shows up in the
+  // page's rail.
+  const [messages, setMessages] = useState<ChatMessage[]>([POPUP_GREETING]);
+  const [conversationId, setConversationId] = useState<number | undefined>(
+    undefined,
+  );
+  const [draft, setDraft] = useState("");
+  const ask = useAskAssistantMutation();
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
+
+  function send(question: string) {
+    const trimmed = question.trim();
+
+    if (trimmed === "" || ask.isPending) {
+      return;
+    }
+
+    setDraft("");
+    setMessages((current) => [
+      ...current,
+      {
+        id: `q-${String(current.length)}`,
+        author: "user",
+        authorName: "You",
+        body: trimmed,
+      },
+      {
+        id: "pending",
+        author: "ai",
+        authorName: "Neptune AI",
+        body: "",
+        analyzing: { doneSteps: [], activeStep: ANALYZING_STEPS[0]! },
+      },
+    ]);
+
+    ask.mutate(
+      { payload: { message: trimmed }, conversationId },
+      {
+        onSuccess: (reply) => {
+          setMessages((current) => {
+            // Drop the analyzing placeholder, keep everything before it.
+            const settled = current.filter((entry) => entry.id !== "pending");
+
+            if (!reply) {
+              return [
+                ...settled,
+                {
+                  id: `e-${String(settled.length)}`,
+                  author: "ai" as const,
+                  authorName: "Neptune AI",
+                  body: "I could not put an answer together. Try asking again.",
+                },
+              ];
+            }
+
+            return [...settled, toChatMessage(reply.message)];
+          });
+
+          if (reply) {
+            setConversationId(reply.conversationId);
+          }
+        },
+        onError: () => {
+          setMessages((current) => [
+            ...current.filter((entry) => entry.id !== "pending"),
+            {
+              id: `e-${String(current.length)}`,
+              author: "ai",
+              authorName: "Neptune AI",
+              body: "I could not reach the assistant just now. Please try again.",
+            },
+          ]);
+        },
+      },
+    );
+  }
 
   useEffect(() => {
     if (!open) {
@@ -128,18 +235,10 @@ export function NeptuneChatPanel(props: Readonly<NeptuneChatPanelProps>) {
       </header>
 
       <div className="bg-ehs-surface-raised flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-        {POPUP_MESSAGES.map((message) => (
+        {messages.map((message) => (
           <MessageRow key={message.id} message={message} />
         ))}
-
-        {/* Not in the Figma frame: one quiet line so nobody mistakes the sample replies for a
-            live assistant. Styled as meta text, not a banner, so it stays out of the design. */}
-        <Text
-          as="p"
-          className="text-ehs-muted-text mt-auto pt-2 text-center text-[11px]"
-        >
-          Preview — the assistant is not connected yet.
-        </Text>
+        <div ref={bottomRef} />
       </div>
 
       <div className="border-ehs-border-ink/8 bg-ehs-surface flex shrink-0 scrollbar-none gap-2 overflow-x-auto border-t px-4 py-2">
@@ -147,39 +246,52 @@ export function NeptuneChatPanel(props: Readonly<NeptuneChatPanelProps>) {
           <button
             key={suggestion}
             type="button"
-            disabled
-            className="border-ehs-border-ink/8 bg-ehs-light-bg text-ehs-gray shrink-0 cursor-not-allowed rounded border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap"
+            disabled={ask.isPending}
+            onClick={() => {
+              send(suggestion);
+            }}
+            className="border-ehs-border-ink/8 bg-ehs-light-bg text-ehs-gray hover:bg-ehs-surface-inverse/4 shrink-0 cursor-pointer rounded border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             {suggestion}
           </button>
         ))}
       </div>
 
-      <div className="border-ehs-border-ink/8 bg-ehs-surface flex shrink-0 items-center gap-2.5 border-t p-3.5">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          send(draft);
+        }}
+        className="border-ehs-border-ink/8 bg-ehs-surface flex shrink-0 items-center gap-2.5 border-t p-3.5"
+      >
         <div className="border-ehs-border-ink/8 bg-ehs-light-bg rounded-5 flex h-10 min-w-0 flex-1 items-center justify-between gap-2 border px-3 py-2">
           <input
             type="text"
-            disabled
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+            }}
+            disabled={ask.isPending}
+            maxLength={2000}
             placeholder="Type a message..."
             aria-label="Message Neptune AI"
             className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-[13px] outline-none disabled:cursor-not-allowed"
           />
-          <Icon
-            icon="mdi:paperclip"
-            className="text-ehs-muted-text size-4 shrink-0"
-            aria-hidden="true"
-          />
         </div>
 
         <button
-          type="button"
-          disabled
+          type="submit"
+          disabled={ask.isPending || draft.trim() === ""}
           aria-label="Send message"
-          className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-10 shrink-0 cursor-not-allowed items-center justify-center rounded-full opacity-60"
+          className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <Icon icon="mdi:send" className="size-3.5" aria-hidden="true" />
+          <Icon
+            icon={ask.isPending ? "mdi:loading" : "mdi:send"}
+            className={`size-3.5 ${ask.isPending ? "animate-spin motion-reduce:animate-none" : ""}`}
+            aria-hidden="true"
+          />
         </button>
-      </div>
+      </form>
     </div>
   );
 }

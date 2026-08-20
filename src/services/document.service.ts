@@ -1,7 +1,6 @@
 import type {
   AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
-  AddDocDepartmentRequestDto,
   ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
   GetAllDocumentsRequestDto,
@@ -9,7 +8,6 @@ import type {
 } from "@/dtos/req/document-request.dto";
 import type {
   DocCategoryDto,
-  DocDepartmentDto,
   DocumentDto,
   DocumentVersionDto,
   GetAllDocumentsResultDto,
@@ -23,7 +21,6 @@ const DOCUMENT_SEARCH_PATH = "/documents/search";
 const DOCUMENT_PATH = "/documents";
 const DOCUMENT_VERSIONS_PATH = "/document-versions";
 const DOCUMENT_CATEGORIES_PATH = "/document-categories";
-const DEPARTMENTS_PATH = "/departments";
 const DOCUMENT_DASHBOARD_KPIS_PATH = "/documents/dashboard-kpis";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -515,18 +512,6 @@ function coerceCategoryDto(raw: Record<string, unknown>): DocCategoryDto {
   };
 }
 
-function coerceDepartmentDto(raw: Record<string, unknown>): DocDepartmentDto {
-  return {
-    id: asNumber(readProp(raw, "id", "Id")),
-    departmentId: asNumber(readProp(raw, "departmentId", "DepartmentId")),
-    departmentName:
-      asString(
-        readProp(raw, "departmentName", "DepartmentName", "name", "Name"),
-      ) ?? null,
-    name: asString(readProp(raw, "name", "Name")) ?? null,
-  };
-}
-
 /** GET /api/v1/document-categories */
 export async function getAllDocCategories(): Promise<DocCategoryDto[]> {
   const { data } = await http.get<unknown>(DOCUMENT_CATEGORIES_PATH);
@@ -544,27 +529,6 @@ export async function getAllDocCategories(): Promise<DocCategoryDto[]> {
 export async function addDocCategory(payload: AddDocCategoryRequestDto) {
   const { data } = await http.post<unknown>(DOCUMENT_CATEGORIES_PATH, {
     categorytName: payload.categorytName.trim(),
-  });
-  return data;
-}
-
-/** GET /api/v1/departments */
-export async function getAllDocDepartments(): Promise<DocDepartmentDto[]> {
-  const { data } = await http.get<unknown>(DEPARTMENTS_PATH);
-  const list = unwrapListPayload(data);
-  if (!Array.isArray(list)) {
-    return [];
-  }
-  return list.filter(isRecord).map(coerceDepartmentDto);
-}
-
-/**
- * POST /api/v1/departments
- * body: `{ departmentName }`
- */
-export async function addDocDepartment(payload: AddDocDepartmentRequestDto) {
-  const { data } = await http.post<unknown>(DEPARTMENTS_PATH, {
-    departmentName: payload.departmentName.trim(),
   });
   return data;
 }

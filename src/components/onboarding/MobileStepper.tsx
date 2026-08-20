@@ -56,7 +56,7 @@ function MobileStepSlot(props: Readonly<MobileStepSlotProps>) {
       >
         <span
           aria-hidden="true"
-          className="bg-ehs-green shadow-ehs-green/40 flex size-8 items-center justify-center rounded-full text-ehs-on-accent shadow-md"
+          className="bg-ehs-green shadow-ehs-green/40 text-ehs-on-accent flex size-8 items-center justify-center rounded-full shadow-md"
         >
           <Icon icon="mdi:check" className="text-base" />
         </span>

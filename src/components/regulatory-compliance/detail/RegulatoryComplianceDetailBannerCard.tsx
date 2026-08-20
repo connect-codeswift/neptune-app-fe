@@ -52,7 +52,7 @@ export function RegulatoryComplianceDetailBannerCard(
   return (
     <div
       className={[
-        "backdrop-blur-2.5 relative flex flex-col justify-center gap-1.5 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6",
+        "backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-col justify-center gap-1.5 rounded-2xl border px-4 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-[''] sm:px-6",
         className,
       ]
         .filter(Boolean)
@@ -65,7 +65,7 @@ export function RegulatoryComplianceDetailBannerCard(
         <span className={crumbMuted}>Safety</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-ehs-muted-text"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <Link href="/dashboard/regulatory-compliance" className={crumbLink}>
@@ -73,7 +73,7 @@ export function RegulatoryComplianceDetailBannerCard(
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-3 shrink-0 text-ehs-muted-text"
+          className="text-ehs-muted-text size-3 shrink-0"
           aria-hidden="true"
         />
         <span className={`${crumbMuted} truncate`}>

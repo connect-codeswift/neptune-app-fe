@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -154,9 +156,12 @@ export function IncidentDetailCapaListCard(
           {isLoading ? (
             <SkeletonListRows rows={3} />
           ) : capas.length === 0 ? (
-            <div className="text-ehs-muted-text text4 py-8 text-center">
-              No linked CAPA actions found for this incident.
-            </div>
+            <EmptyState
+              variant="plain"
+              icon="mdi:link-variant"
+              title="No linked CAPA actions"
+              message="Corrective actions raised from this incident appear here."
+            />
           ) : (
             capas.map((item) => {
               const taskStatusLabel = formatCapaTaskStatusLabel(

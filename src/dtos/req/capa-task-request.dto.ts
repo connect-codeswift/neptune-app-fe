@@ -4,7 +4,6 @@ export type CapaTaskRequestDto = {
   capaId: number;
   task: string;
   priority?: "Low" | "Medium" | "High" | string | null;
-  ownerId?: number | null;
   dueDate?: string | null;
   userId: number;
 };

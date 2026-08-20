@@ -46,7 +46,7 @@ export function AcknowledgeActionsCard(
             variant="tertiary"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="text4 text-ehs-gray rounded-2.5 h-9.5 w-full border border-ehs-border-ink/12 bg-transparent px-3.75 shadow-none hover:bg-ehs-surface/60 sm:w-auto sm:min-w-16.5"
+            className="text4 text-ehs-gray rounded-2.5 border-ehs-border-ink/12 hover:bg-ehs-surface/60 h-9.5 w-full border bg-transparent px-3.75 shadow-none sm:w-auto sm:min-w-16.5"
           >
             Cancel
           </Button>
@@ -56,7 +56,7 @@ export function AcknowledgeActionsCard(
             onClick={onApprove}
             isLoading={isSubmitting}
             disabled={!canApprove}
-            className="text4 rounded-2.5 h-9.5 w-full bg-ehs-normal-blue px-[15px] whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] hover:bg-ehs-normal-blue-hover disabled:opacity-50 sm:w-auto"
+            className="text4 rounded-2.5 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover h-9.5 w-full px-[15px] whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] disabled:opacity-50 sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "I Approve"}
           </Button>

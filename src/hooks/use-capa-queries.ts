@@ -1,9 +1,12 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import type { CapaAwaitingReviewRow } from "@/components/capa/capa-dashboard-data";
 import { getAuthContext } from "@/lib/auth-context";
+import { CAPA_API_STATUS } from "@/lib/capa-filters";
 import {
   getCapaAttachmentsByCapaId,
+  getCapaAwaitingEffectivenessReview,
   getCapaById,
   getCapaComments,
   getCapaDashboardKpis,
@@ -24,6 +27,10 @@ import {
   mapCapaDtosToDashboardItems,
   mapCapaDtosToLinkedView,
 } from "@/services/mappers/capa.mapper";
+import {
+  mapCapaAwaitingReviewToRows,
+  mapCompletedCapaDtosToReviewRows,
+} from "@/services/mappers/capa-awaiting-review.mapper";
 import { mapCapaDashboardKpisToMetrics } from "@/services/mappers/capa-dashboard-kpis.mapper";
 import { mapCapaLifecycleToView } from "@/services/mappers/capa-lifecycle.mapper";
 import { mapCapaOpenedClosedToView } from "@/services/mappers/capa-opened-closed.mapper";
@@ -35,6 +42,7 @@ export const capaQueryKeys = {
   lifecycle: ["capas", "lifecycle"] as const,
   openedVsClosed: ["capas", "opened-vs-closed"] as const,
   workloadByOwner: ["capas", "workload-by-owner"] as const,
+  awaitingReview: ["capas", "awaiting-review"] as const,
   list: (params: {
     pageNumber: number;
     pageSize: number;
@@ -101,6 +109,63 @@ export function useCapaWorkloadByOwnerQuery(enabled = true) {
     enabled,
     select: (response) =>
       mapCapaWorkloadByOwnerToView(response.dataModel ?? null),
+  });
+}
+
+/** One page is plenty for a dashboard card; the badge uses the server totals. */
+const AWAITING_REVIEW_COMPLETED_PAGE_SIZE = 50;
+
+export type CapaAwaitingReviewViewModel = Readonly<{
+  rows: readonly CapaAwaitingReviewRow[];
+  /** Server-side totals, not the trimmed preview length. */
+  pendingVerificationCount: number;
+  completedCount: number;
+}>;
+
+/**
+ * The "Awaiting Effectiveness Review" queue.
+ *
+ * Two calls because no single endpoint covers both halves:
+ * `GET /api/v1/capas/awaiting-effectiveness-review` returns every
+ * `Pending Verification` CAPA and nothing else — by design — while the
+ * `Completed` ones (tasks done, review not yet requested) come from the paged
+ * list. The backend accepts a verification from either status, so the card
+ * shows both. `allSettled`, not `all`: a Supervisor may read the pending queue
+ * but 403 on the list, and half a queue beats an empty card.
+ */
+export function useCapaAwaitingReviewQuery(enabled = true) {
+  return useQuery({
+    queryKey: capaQueryKeys.awaitingReview,
+    enabled,
+    queryFn: async (): Promise<CapaAwaitingReviewViewModel> => {
+      const [pending, completed] = await Promise.allSettled([
+        getCapaAwaitingEffectivenessReview(),
+        getCapas({
+          pageNumber: 1,
+          pageSize: AWAITING_REVIEW_COMPLETED_PAGE_SIZE,
+          status: CAPA_API_STATUS.completed,
+        }),
+      ]);
+
+      const pendingDto =
+        pending.status === "fulfilled" ? pending.value.dataModel : null;
+      const pendingRows = mapCapaAwaitingReviewToRows(pendingDto);
+
+      const completedDtos =
+        completed.status === "fulfilled" ? completed.value.items : [];
+      const completedRows = mapCompletedCapaDtosToReviewRows(completedDtos);
+
+      return {
+        // Pending Verification first: those are already waiting on a reviewer.
+        rows: [...pendingRows, ...completedRows],
+        pendingVerificationCount:
+          pendingDto?.totalPending ?? pendingRows.length,
+        completedCount:
+          completed.status === "fulfilled"
+            ? completed.value.totalCount || completedRows.length
+            : 0,
+      };
+    },
   });
 }
 

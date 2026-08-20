@@ -110,7 +110,7 @@ export function buildLotoEquipmentColumns(
           <div className="flex items-center justify-center gap-0.5">
             <button
               type="button"
-              className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-ehs-surface-inverse/6"
+              className="text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
               aria-label={`View ${item.name}`}
               onClick={(event) => {
                 event.stopPropagation();
@@ -130,7 +130,7 @@ export function buildLotoEquipmentColumns(
                 "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
                 isLockedOut
                   ? "text-ehs-red cursor-default"
-                  : "text-ehs-muted-text hover:text-ehs-dark-bg cursor-pointer hover:bg-ehs-surface-inverse/6",
+                  : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6 cursor-pointer",
               ].join(" ")}
               aria-label={
                 isLockedOut

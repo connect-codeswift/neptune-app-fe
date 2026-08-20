@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { TimelineEvent } from "@/components/incidents/detail/incident-detail-types";
@@ -72,9 +74,12 @@ export function IncidentDetailTimelineCard(
       </div>
 
       {events.length === 0 ? (
-        <div className="text-ehs-muted-text text4 py-10 text-center">
-          No activity recorded for this incident yet.
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:timeline-clock-outline"
+          title="No activity yet"
+          message="Events are added to the timeline as the incident progresses."
+        />
       ) : (
         <div className="relative pl-1">
           <div

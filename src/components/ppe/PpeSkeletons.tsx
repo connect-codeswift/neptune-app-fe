@@ -93,7 +93,7 @@ export function PpeInventoryCardsSkeleton(props: Readonly<{ rows?: number }>) {
       <ul className="flex flex-col gap-3">
         {repeat(rows, (index) => (
           <li key={`ppe-inv-card-${String(index)}`}>
-            <div className="border-ehs-border flex flex-col gap-3 rounded-xl border bg-ehs-surface p-3.5">
+            <div className="border-ehs-border bg-ehs-surface flex flex-col gap-3 rounded-xl border p-3.5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <Skeleton className="h-4 w-[70%]" />
@@ -125,13 +125,13 @@ export function PpeTableSkeleton(
       paddingClassName="overflow-hidden p-0"
       className="hidden md:block"
     >
-      <div className="border-b border-ehs-border-ink/8 px-4 py-3.5">
+      <div className="border-ehs-border-ink/8 border-b px-4 py-3.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Skeleton className="h-9 w-40 rounded-xl" />
           <Skeleton className="rounded-2.5 h-9 w-28" />
         </div>
       </div>
-      <div className="border-b border-ehs-border-ink/6 px-4 py-3">
+      <div className="border-ehs-border-ink/6 border-b px-4 py-3">
         <div className="flex gap-4">
           {repeat(columns, (index) => (
             <Skeleton key={`ppe-th-${String(index)}`} className="h-3 flex-1" />
@@ -142,7 +142,7 @@ export function PpeTableSkeleton(
         {repeat(rows, (rowIndex) => (
           <div
             key={`ppe-tr-${String(rowIndex)}`}
-            className="flex gap-4 border-b border-ehs-border-ink/5 px-4 py-3.5 last:border-b-0"
+            className="border-ehs-border-ink/5 flex gap-4 border-b px-4 py-3.5 last:border-b-0"
           >
             {repeat(columns, (cellIndex) => (
               <Skeleton
@@ -201,7 +201,7 @@ export function PpeCatalogDetailSkeleton() {
                 {repeat(6, (index) => (
                   <div
                     key={`ppe-meta-${String(index)}`}
-                    className="rounded-2.5 flex flex-col gap-1.5 bg-ehs-surface-inverse/4 px-3 py-2.5"
+                    className="rounded-2.5 bg-ehs-surface-inverse/4 flex flex-col gap-1.5 px-3 py-2.5"
                   >
                     <Skeleton className="h-2.5 w-16" />
                     <Skeleton className="h-3.5 w-20" />
@@ -219,7 +219,7 @@ export function PpeCatalogDetailSkeleton() {
                   {repeat(4, (index) => (
                     <div
                       key={`ppe-inv-stat-${String(index)}`}
-                      className="flex flex-col gap-2 rounded-lg bg-ehs-surface-raised p-3"
+                      className="bg-ehs-surface-raised flex flex-col gap-2 rounded-lg p-3"
                     >
                       <Skeleton className="h-7 w-12" />
                       <Skeleton className="h-3 w-16" />
@@ -235,7 +235,7 @@ export function PpeCatalogDetailSkeleton() {
             {repeat(3, (index) => (
               <div
                 key={`ppe-issue-card-${String(index)}`}
-                className="border-ehs-border flex flex-col gap-3 rounded-2xl border bg-ehs-surface p-4"
+                className="border-ehs-border bg-ehs-surface flex flex-col gap-3 rounded-2xl border p-4"
               >
                 <div className="flex justify-between gap-3">
                   <div className="flex flex-col gap-1.5">
@@ -264,7 +264,7 @@ export function PpeCatalogDetailSkeleton() {
                 {repeat(4, (index) => (
                   <div
                     key={`ppe-side-stat-${String(index)}`}
-                    className="rounded-2.5 flex flex-col items-center gap-1 bg-ehs-surface-inverse/4 px-2.5 py-2.5"
+                    className="rounded-2.5 bg-ehs-surface-inverse/4 flex flex-col items-center gap-1 px-2.5 py-2.5"
                   >
                     <Skeleton className="h-5 w-10" />
                     <Skeleton className="h-3 w-14" />
@@ -315,7 +315,7 @@ export function PpeEmployeeProfileSkeleton() {
           {repeat(2, (index) => (
             <div
               key={`ppe-active-card-${String(index)}`}
-              className="border-ehs-border flex flex-col gap-3 rounded-xl border bg-ehs-surface p-3.5"
+              className="border-ehs-border bg-ehs-surface flex flex-col gap-3 rounded-xl border p-3.5"
             >
               <Skeleton className="h-3.5 w-[60%]" />
               <Skeleton className="h-3 w-full" />
@@ -329,13 +329,13 @@ export function PpeEmployeeProfileSkeleton() {
           paddingClassName="overflow-hidden p-0"
           className="hidden md:block"
         >
-          <div className="border-b border-ehs-border-ink/8 px-4.5 py-3.5">
+          <div className="border-ehs-border-ink/8 border-b px-4.5 py-3.5">
             <Skeleton className="h-4 w-32" />
           </div>
           {repeat(3, (index) => (
             <div
               key={`ppe-active-row-${String(index)}`}
-              className="flex items-center justify-between gap-3 border-b border-ehs-border-ink/8 px-4.5 py-3.5 last:border-b-0"
+              className="border-ehs-border-ink/8 flex items-center justify-between gap-3 border-b px-4.5 py-3.5 last:border-b-0"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <Skeleton className="h-4 w-[55%]" />
@@ -351,7 +351,7 @@ export function PpeEmployeeProfileSkeleton() {
           {repeat(2, (index) => (
             <div
               key={`ppe-hist-card-${String(index)}`}
-              className="border-ehs-border rounded-2.5 flex flex-col gap-3 border bg-ehs-surface p-3.5"
+              className="border-ehs-border rounded-2.5 bg-ehs-surface flex flex-col gap-3 border p-3.5"
             >
               <div className="flex justify-between gap-3">
                 <Skeleton className="h-3.5 w-[50%]" />
@@ -389,7 +389,7 @@ export function PpeIssuanceLogSkeleton() {
       <ul className="flex flex-col gap-3 md:hidden">
         {repeat(4, (index) => (
           <li key={`ppe-log-card-${String(index)}`}>
-            <div className="border-ehs-border flex flex-col gap-3 rounded-xl border bg-ehs-surface p-3.5">
+            <div className="border-ehs-border bg-ehs-surface flex flex-col gap-3 rounded-xl border p-3.5">
               <div className="flex items-center gap-2">
                 <Skeleton className="h-5 w-16 rounded-full" />
                 <Skeleton className="h-3.5 flex-1" />

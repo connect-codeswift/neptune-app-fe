@@ -1,7 +1,9 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   LOGO_MARK_RING_RADIUS,
   LOGO_MARK_RING_WIDTH,
@@ -9,31 +11,44 @@ import {
   NEPTUNE_N_PATH,
 } from "@/components/LogoMark";
 import { Text } from "@/components/Text";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
+  ANALYZING_STEPS,
   PAGE_SUGGESTIONS,
-  SAMPLE_CONVERSATIONS,
+  formatConversationTimestamp,
+  toChatMessage,
   type ChatChart,
-  type ChatConversation,
   type ChatMessage,
   type ChatTable,
-  type ChatTableSeverity,
-  type ChatTableStatus,
+  type ChatCell,
+  type ChatCellTone,
 } from "@/components/neptune-ai/neptune-ai-data";
 import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
+import type { AssistantReplyDto } from "@/dtos/res/assistant-response.dto";
+import {
+  useAskAssistantMutation,
+  useAssistantConversationQuery,
+  useAssistantConversationsQuery,
+  useDropAssistantConversationMutation,
+} from "@/hooks/use-assistant";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 
-/** Severity pill and status ink, matching the design's red/amber/green reading. */
-const SEVERITY_PILL: Readonly<Record<ChatTableSeverity, string>> = {
-  High: "bg-ehs-red/12 text-ehs-red",
-  Medium: "bg-ehs-yellow/15 text-ehs-yellow-ink-soft",
-  Low: "bg-ehs-green/12 text-ehs-green",
-};
-
-const STATUS_INK: Readonly<Record<ChatTableStatus, string>> = {
-  Unresolved: "text-ehs-red",
-  "In Progress": "text-ehs-yellow-ink-soft",
-  Resolved: "text-ehs-green",
+/**
+ * The red/amber/green reading, keyed by tone rather than by column.
+ *
+ * The design drew severity as a filled pill and status as coloured ink. Both collapse to the
+ * pill here: with arbitrary columns there is no longer a "severity column" to give one treatment
+ * and a "status column" to give the other, and picking a treatment by position would be guessing.
+ * One rule means every coloured value carries the same weight, which is the honest reading when
+ * the backend only tells us the value is bad, not what kind of bad.
+ */
+const TONE_PILL: Readonly<Record<ChatCellTone, string>> = {
+  critical: "bg-ehs-red/12 text-ehs-red",
+  warning: "bg-ehs-yellow/15 text-ehs-yellow-ink-soft",
+  ok: "bg-ehs-green/12 text-ehs-green",
+  neutral: "",
 };
 
 /** 2πr of the monogram's ring, so the arc below is a true quarter turn of it. */
@@ -83,57 +98,95 @@ function AnalyzingMark(props: Readonly<{ className?: string }>) {
   );
 }
 
-/** The rail entry for one saved conversation. */
+/**
+ * The rail entry for one saved conversation.
+ *
+ * A div wrapping two sibling buttons rather than one button, because the
+ * delete control cannot legally nest inside the select control. Delete is
+ * always visible — behind a confirm dialog it costs nothing to show, and a
+ * hover-revealed control is a control most people never find. Below lg the
+ * row renders as a fixed-width chip in a horizontal strip with the preview
+ * hidden.
+ */
 function ConversationRow(
   props: Readonly<{
-    conversation: ChatConversation;
+    conversation: Readonly<{
+      title: string;
+      timestamp: string;
+      preview: string;
+    }>;
     isActive: boolean;
     onSelect: () => void;
+    onDelete: () => void;
   }>,
 ) {
-  const { conversation, isActive, onSelect } = props;
+  const { conversation, isActive, onSelect, onDelete } = props;
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-current={isActive ? "true" : undefined}
+    // The border, fill and hover live on this wrapper rather than the select
+    // button so the always-visible delete sits inside the same card. Deleting
+    // is guarded by the confirm dialog, so a permanent control is safe.
+    <div
       className={[
-        "rounded-2.5 flex w-full cursor-pointer flex-col gap-1 border p-3 text-left transition-colors",
+        "rounded-2.5 flex items-start border transition-colors max-lg:w-48 max-lg:shrink-0",
         isActive
           ? "border-ehs-normal-blue/30 bg-ehs-normal-blue/10"
           : "hover:bg-ehs-surface-inverse/3 border-transparent",
       ].join(" ")}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-1.5">
-          <Icon
-            icon="mdi:message-outline"
-            className={[
-              "size-3.5 shrink-0",
-              isActive ? "text-ehs-normal-blue" : "text-ehs-muted-text",
-            ].join(" ")}
-            aria-hidden="true"
-          />
-          <Text
-            as="span"
-            className={[
-              "truncate text-[13px] font-bold",
-              isActive ? "text-ehs-normal-blue" : "text-ehs-darker",
-            ].join(" ")}
-          >
-            {conversation.title}
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-current={isActive ? "true" : undefined}
+        className="flex min-w-0 flex-1 cursor-pointer flex-col gap-1 p-3 pr-1.5 text-left"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <Icon
+              icon="mdi:message-outline"
+              className={[
+                "size-3.5 shrink-0",
+                isActive ? "text-ehs-normal-blue" : "text-ehs-muted-text",
+              ].join(" ")}
+              aria-hidden="true"
+            />
+            <Text
+              as="span"
+              className={[
+                "truncate text-[13px] font-bold",
+                isActive ? "text-ehs-normal-blue" : "text-ehs-darker",
+              ].join(" ")}
+            >
+              {conversation.title}
+            </Text>
+          </span>
+          <Text as="span" className="text-ehs-muted-text shrink-0 text-[11px]">
+            {conversation.timestamp}
           </Text>
-        </span>
-        <Text as="span" className="text-ehs-muted-text shrink-0 text-[11px]">
-          {conversation.timestamp}
-        </Text>
-      </div>
+        </div>
 
-      <Text as="p" className="text-ehs-gray line-clamp-2 text-[11px] leading-4">
-        {conversation.preview}
-      </Text>
-    </button>
+        <Text
+          as="p"
+          className="text-ehs-gray line-clamp-2 text-[11px] leading-4 max-lg:hidden"
+        >
+          {conversation.preview}
+        </Text>
+      </button>
+
+      {/* mt-2 lines the trash up with the title row's cap height. */}
+      <button
+        type="button"
+        onClick={onDelete}
+        aria-label={`Delete conversation "${conversation.title}"`}
+        className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg mt-2 mr-1.5 inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors"
+      >
+        <Icon
+          icon="mdi:trash-can-outline"
+          className="size-3.5"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -183,6 +236,80 @@ function ReplyChart(props: Readonly<{ chart: ChatChart }>) {
   );
 }
 
+/** True for a cell the assistant returned as a bare number, so figures line up in a column. */
+function isNumeric(text: string): boolean {
+  return text.trim() !== "" && !Number.isNaN(Number(text.replace(/[,%]/g, "")));
+}
+
+function tableToCsv(table: ChatTable): string {
+  const escapeCell = (text: string) => `"${text.replaceAll('"', '""')}"`;
+
+  return [
+    table.columns.map(escapeCell).join(","),
+    ...table.rows.map((row) =>
+      row.map((cell) => escapeCell(cell.text)).join(","),
+    ),
+  ].join("\r\n");
+}
+
+/** Client-side CSV download — the table is already fully in hand. */
+function downloadTableAsCsv(table: ChatTable) {
+  const slug =
+    table.title
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, "-")
+      .replaceAll(/^-+|-+$/g, "") || "table";
+
+  // The BOM is for Excel, which otherwise reads UTF-8 as the local codepage.
+  const blob = new Blob([`\uFEFF${tableToCsv(table)}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${slug}.csv`;
+  anchor.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * One table cell: a tinted pill when the backend gave it a tone, plain text otherwise.
+ *
+ * Short values must not wrap — "August 1, 2026, at 19:00 UTC" split over five
+ * lines is what made these tables unreadable. The columns are arbitrary, so
+ * length is the only tell: anything under ~32 characters stays on one line,
+ * and genuinely long prose (descriptions) wraps with a width floor so its
+ * nowrap neighbours cannot crush it.
+ */
+function TableCell(props: Readonly<{ cell: ChatCell }>) {
+  const { cell } = props;
+  const pill = cell.tone ? TONE_PILL[cell.tone] : "";
+  const wrapClass =
+    cell.text.length <= 32 ? "whitespace-nowrap" : "min-w-44 leading-4.5";
+
+  if (pill) {
+    return (
+      <td className="px-2.5 py-2.5 align-top">
+        <span
+          className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${pill}`}
+        >
+          {cell.text}
+        </span>
+      </td>
+    );
+  }
+
+  return (
+    <td
+      className={`text-ehs-darker px-2.5 py-2.5 align-top text-xs ${wrapClass} ${isNumeric(cell.text) ? "tabular-nums" : ""}`}
+    >
+      {cell.text}
+    </td>
+  );
+}
+
 /** The data table inside a reply, with its (not yet wired) CSV affordance. */
 function ReplyTable(props: Readonly<{ table: ChatTable }>) {
   const { table } = props;
@@ -195,8 +322,10 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
         </Text>
         <button
           type="button"
-          disabled
-          className="text-ehs-normal-blue inline-flex cursor-not-allowed items-center gap-1 text-xs font-semibold opacity-80"
+          onClick={() => {
+            downloadTableAsCsv(table);
+          }}
+          className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex cursor-pointer items-center gap-1 text-xs font-semibold transition-colors"
         >
           <Icon icon="mdi:download" className="size-3.5" aria-hidden="true" />
           Download as CSV
@@ -207,11 +336,11 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
         <table className="w-full min-w-72 border-collapse text-left">
           <thead>
             <tr className="bg-ehs-surface-raised">
-              {["Category", "Count", "Severity", "Status"].map((heading) => (
+              {table.columns.map((heading, column) => (
                 <th
-                  key={heading}
+                  key={`${heading}-${String(column)}`}
                   scope="col"
-                  className="text-ehs-darker px-2.5 py-2 text-[11px] font-bold first:rounded-l-md last:rounded-r-md"
+                  className="text-ehs-darker px-2.5 py-2 text-[11px] font-bold whitespace-nowrap first:rounded-l-md last:rounded-r-md"
                 >
                   {heading}
                 </th>
@@ -219,29 +348,16 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
             </tr>
           </thead>
           <tbody>
-            {table.rows.map((row) => (
+            {table.rows.map((row, rowIndex) => (
+              // Index keys: rows carry no id, and two rows of an assistant's answer can be
+              // identical. The list is rendered once and never reordered or edited in place.
               <tr
-                key={row.category}
-                className="border-ehs-border-ink/6 border-b last:border-0"
+                key={rowIndex}
+                className="border-ehs-border-ink/6 hover:bg-ehs-surface-raised/50 border-b transition-colors last:border-0"
               >
-                <td className="text-ehs-darker px-2.5 py-2.5 text-xs">
-                  {row.category}
-                </td>
-                <td className="text-ehs-darker px-2.5 py-2.5 text-xs tabular-nums">
-                  {String(row.count)}
-                </td>
-                <td className="px-2.5 py-2.5">
-                  <span
-                    className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${SEVERITY_PILL[row.severity]}`}
-                  >
-                    {row.severity}
-                  </span>
-                </td>
-                <td
-                  className={`px-2.5 py-2.5 text-xs font-semibold ${STATUS_INK[row.status]}`}
-                >
-                  {row.status}
-                </td>
+                {row.map((cell, cellIndex) => (
+                  <TableCell key={cellIndex} cell={cell} />
+                ))}
               </tr>
             ))}
           </tbody>
@@ -287,6 +403,16 @@ function PageMessage(
 
   const isAnalyzing = Boolean(message.analyzing);
 
+  // Prose keeps a bubble's measure; a reply carrying data blocks becomes a
+  // full-width panel instead. Capping an eight-column table at bubble width
+  // strangled every cell while most of the card sat empty.
+  const hasBlocks = Boolean(
+    message.chart ??
+    message.table ??
+    message.insights ??
+    (message.results && message.results.length > 0 ? message.results : null),
+  );
+
   return (
     <div className="flex w-full items-start gap-3">
       {isAnalyzing ? (
@@ -295,7 +421,12 @@ function PageMessage(
         <LogoMark className="text-ehs-normal-blue size-9 shrink-0" decorative />
       )}
 
-      <div className="rounded-3 border-ehs-normal-blue/10 bg-ehs-normal-blue/10 flex max-w-150 min-w-0 flex-col gap-2.5 border p-3.5">
+      <div
+        className={[
+          "rounded-3 border-ehs-normal-blue/10 bg-ehs-normal-blue/10 flex min-w-0 flex-col gap-2.5 border p-3.5",
+          hasBlocks ? "max-w-full flex-1" : "max-w-150",
+        ].join(" ")}
+      >
         {message.analyzing ? (
           <>
             <div className="flex items-center gap-2">
@@ -413,66 +544,356 @@ function EmptyThread() {
 /** The rail before any conversations exist (reached from "new chat"). */
 function EmptyRail() {
   return (
-    <div className="flex flex-col items-center gap-2 px-4 py-16 text-center">
+    <EmptyState
+      variant="plain"
+      icon="mdi:message-outline"
+      title="No recent conversations"
+      message="Ask Neptune AI something to start one."
+    />
+  );
+}
+
+/**
+ * Ghost bubbles while an opened conversation loads. Before this, the loading
+ * gap rendered `EmptyThread` — "Start a conversation" flashing over a thread
+ * that very much exists.
+ */
+function ThreadSkeleton() {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden">
+      <div className="flex justify-end">
+        <Skeleton className="rounded-3 h-16 w-3/5" />
+      </div>
+      <div className="flex items-start gap-3">
+        <Skeleton className="size-9 shrink-0 rounded-full" />
+        <Skeleton className="rounded-3 h-28 w-3/4" />
+      </div>
+      <div className="flex justify-end">
+        <Skeleton className="rounded-3 h-12 w-2/5" />
+      </div>
+    </div>
+  );
+}
+
+/** A failed thread load, with the retry where the thread would be. */
+function ThreadError(props: Readonly<{ onRetry: () => void }>) {
+  const { onRetry } = props;
+
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
       <Icon
-        icon="mdi:message-outline"
-        className="text-ehs-muted-text size-6"
+        icon="mdi:alert-circle-outline"
+        className="text-ehs-red size-8"
         aria-hidden="true"
       />
-      <Text as="p" className="text-ehs-muted-text text-[11px]">
-        No recent conversations
+      <Text as="p" className="text-ehs-darker text-sm font-bold">
+        Couldn&apos;t load this conversation
       </Text>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray hover:bg-ehs-surface-inverse/4 cursor-pointer rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors"
+      >
+        Try again
+      </button>
     </div>
   );
 }
 
 /**
+ * One question and, once it lands, its answer — held locally until the
+ * refetched thread carries the stored copy. Holding the reply (rather than
+ * dropping the pending pair the moment it arrives) is what keeps the landing
+ * seamless: the old flow cleared the pair first and refetched after, so the
+ * thread flashed empty and the answer then popped in wholesale.
+ */
+type PendingExchange = Readonly<{
+  question: string;
+  reply: AssistantReplyDto | null;
+}>;
+
+/**
  * The full Neptune AI workspace: saved conversations on the left, the active thread on the right.
  *
- * "New chat" deselects into the empty state rather than creating anything — there is no API to
- * create against yet, and the empty screen is a designed state worth being able to reach.
+ * "New chat" deselects rather than creating anything — the thread is created by the backend when
+ * the first question is answered, and its id comes back on the reply. There is nothing to create
+ * up front, and creating an empty thread on every click would litter the rail.
+ *
+ * The pending question and its analyzing card are held in local state rather than written into
+ * the query cache. An answer takes seconds and can fail; a cache write would leave a question
+ * sitting in the thread with no answer and no way to retry it.
  */
 export function NeptuneAiPageClient() {
   const { user } = useSessionBootstrap();
-  const [activeId, setActiveId] = useState<string | null>(
-    SAMPLE_CONVERSATIONS[0]!.id,
-  );
 
-  const active =
-    SAMPLE_CONVERSATIONS.find((entry) => entry.id === activeId) ?? null;
-  const suggestions = active?.suggestions ?? PAGE_SUGGESTIONS;
+  const [activeId, setActiveId] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+  const [pending, setPending] = useState<PendingExchange | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [analyzingStepIndex, setAnalyzingStepIndex] = useState(0);
+  const [confirmDelete, setConfirmDelete] = useState<Readonly<{
+    id: number;
+    title: string;
+  }> | null>(null);
+
+  const conversations = useAssistantConversationsQuery();
+  const thread = useAssistantConversationQuery(activeId);
+  const ask = useAskAssistantMutation();
+  const drop = useDropAssistantConversationMutation();
+
+  const rows = conversations.data ?? [];
+  const isBusy = ask.isPending;
+
+  // An answer can take up to 120 seconds; a card frozen on "Reading your
+  // question" the whole time reads as stuck. The steps walk forward on a
+  // timer and the last one holds until the reply lands.
+  useEffect(() => {
+    if (!isBusy) {
+      return;
+    }
+
+    const timer = globalThis.setInterval(() => {
+      setAnalyzingStepIndex((index) =>
+        Math.min(index + 1, ANALYZING_STEPS.length - 1),
+      );
+    }, 2600);
+
+    return () => {
+      globalThis.clearInterval(timer);
+    };
+  }, [isBusy]);
+
+  const messages = useMemo<ChatMessage[]>(() => {
+    const stored = (thread.data?.messages ?? []).map(toChatMessage);
+
+    if (pending === null) {
+      return stored;
+    }
+
+    // Once the refetched thread carries the reply, the stored copy takes over
+    // and the pending pair stops rendering. Content and keys are identical
+    // (the reply keeps its real message id), so the handover is invisible.
+    const replyMessage = pending.reply?.message ?? null;
+    if (
+      replyMessage !== null &&
+      stored.some((message) => message.id === String(replyMessage.id))
+    ) {
+      return stored;
+    }
+
+    // The question is echoed straight away and the analyzing card sits under it, so the wait
+    // happens where the answer will appear rather than somewhere else on the page.
+    return [
+      ...stored,
+      {
+        id: "pending-question",
+        author: "user" as const,
+        authorName: "You",
+        body: pending.question,
+      },
+      replyMessage !== null
+        ? toChatMessage(replyMessage)
+        : {
+            id: "pending-answer",
+            author: "ai" as const,
+            authorName: "Neptune AI",
+            body: "",
+            analyzing: {
+              doneSteps: ANALYZING_STEPS.slice(0, analyzingStepIndex),
+              activeStep:
+                ANALYZING_STEPS[analyzingStepIndex] ?? ANALYZING_STEPS.at(-1)!,
+            },
+          },
+    ];
+  }, [thread.data, pending, analyzingStepIndex]);
+
+  const threadRef = useRef<HTMLDivElement | null>(null);
+
+  // Whether the reader is at (or near) the bottom. Auto-scroll only applies
+  // while this holds — someone scrolled up reading an old answer must not be
+  // yanked down when a new one lands. Sending your own question re-pins it.
+  const stickToBottomRef = useRef(true);
+
+  // The thread is its own scroll container, so pin it to the bottom directly.
+  // `scrollIntoView` walked up to the document instead, which is what pushed
+  // the whole page down as a conversation grew.
+  //
+  // Body length is a dependency as well as message count: when an answer
+  // lands it replaces the pending placeholder rather than appending, so the
+  // count alone never changes and the reply would arrive off-screen.
+  const lastMessage = messages.at(-1);
+  const lastMessageLength = lastMessage?.body.length ?? 0;
+  const lastIsAnalyzing = Boolean(lastMessage?.analyzing);
+
+  useEffect(() => {
+    const container = threadRef.current;
+    if (!container || !stickToBottomRef.current) {
+      return;
+    }
+
+    const reduceMotion = globalThis.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      // Smooth only for the short hop after sending (the echoed question and
+      // its analyzing card). A full answer or a switched thread can move the
+      // scroll a long way, and animating that distance is the lurch the page
+      // used to make — those land instantly.
+      behavior: !reduceMotion && lastIsAnalyzing ? "smooth" : "auto",
+    });
+  }, [
+    messages.length,
+    lastMessageLength,
+    lastIsAnalyzing,
+    analyzingStepIndex,
+    activeId,
+  ]);
+
+  function send(question: string) {
+    const trimmed = question.trim();
+
+    // Two questions at once would race into the same thread and come back out of order.
+    if (trimmed === "" || isBusy) {
+      return;
+    }
+
+    setFailure(null);
+    setDraft("");
+    setAnalyzingStepIndex(0);
+    stickToBottomRef.current = true;
+    setPending({ question: trimmed, reply: null });
+
+    ask.mutate(
+      {
+        payload: { message: trimmed },
+        conversationId: activeId ?? undefined,
+      },
+      {
+        onSuccess: (reply) => {
+          if (!reply) {
+            setPending(null);
+            setDraft((current) => (current === "" ? trimmed : current));
+            setFailure("The assistant did not return an answer. Try again.");
+            return;
+          }
+
+          // The reply renders right here, replacing the analyzing card in
+          // place; the pending pair is dropped only once the refetched thread
+          // (invalidated by the mutation hook) carries the stored copy. The
+          // old flow — clear pending, then refetch — flashed the thread empty
+          // and popped the answer in wholesale.
+          stickToBottomRef.current = true;
+          setPending({ question: trimmed, reply });
+          setActiveId(reply.conversationId);
+        },
+        onError: () => {
+          setPending(null);
+          // The question goes back into the composer, ready to retry, unless
+          // something new has been typed there since.
+          setDraft((current) => (current === "" ? trimmed : current));
+          setFailure(
+            "The assistant could not answer that right now. Your question was not saved — try again.",
+          );
+        },
+      },
+    );
+  }
+
+  // Assigned across an if/else chain rather than chained ternaries in the JSX
+  // (Sonar S3358). The pending guard matters: right after asking in a fresh
+  // chat the new thread is still loading, and the skeleton must not cover the
+  // live question and answer.
+  let threadBody: ReactNode;
+  const isOpeningStoredThread = activeId !== null && pending === null;
+
+  if (isOpeningStoredThread && thread.isLoading) {
+    threadBody = <ThreadSkeleton />;
+  } else if (isOpeningStoredThread && thread.isError) {
+    threadBody = (
+      <ThreadError
+        onRetry={() => {
+          void thread.refetch();
+        }}
+      />
+    );
+  } else if (messages.length > 0) {
+    threadBody = (
+      // The one scroller on the page. tabIndex makes it reachable by
+      // keyboard, since a scroll region with no focusable child cannot
+      // otherwise be scrolled without a pointer; role="log" has new turns
+      // announced politely by screen readers.
+      <div
+        ref={threadRef}
+        role="log"
+        tabIndex={0}
+        aria-label="Conversation"
+        aria-busy={isBusy}
+        onScroll={(event) => {
+          const el = event.currentTarget;
+          stickToBottomRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+        }}
+        className="flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-1 focus-visible:outline-none"
+      >
+        {messages.map((message) => (
+          <PageMessage
+            key={message.id}
+            message={message}
+            displayName={user.displayName}
+            initials={user.initials}
+            profileUrl={user.profileUrl}
+          />
+        ))}
+      </div>
+    );
+  } else {
+    threadBody = <EmptyThread />;
+  }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
-        <header className="flex flex-wrap items-center gap-2">
-          <LogoMark
-            className="text-ehs-normal-blue size-8 shrink-0"
-            decorative
-          />
-          <Text
-            as="h1"
-            className="text-ehs-normal-blue text-[26px] font-bold tracking-[-0.52px]"
-          >
-            Neptune AI
-          </Text>
-          <Text
-            as="span"
-            className="border-ehs-warning-border bg-ehs-warning-surface text-ehs-warning-ink ml-2 rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase"
-          >
-            Preview — not connected
-          </Text>
-        </header>
+    // min-h-0 rather than min-h-screen: this page fills the height AppShell
+    // gives it and no more, so the document itself never scrolls. Every
+    // descendant down to the thread repeats `min-h-0`, because a flex child
+    // defaults to min-height:auto and would otherwise refuse to shrink below
+    // its content — which is what turns an inner scroller into a taller page.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-4">
+        {/* No visual header — the sidebar already says where you are, and the
+            row spent chat height on a label. The h1 stays for screen readers
+            and the page outline. */}
+        <Text as="h1" className="sr-only">
+          Neptune AI
+        </Text>
 
-        <div className="grid min-w-0 flex-1 gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
-          <GlassCard className="h-fit gap-3">
-            <div className="flex items-center justify-between gap-2">
+        {/* Stacked on mobile — the rail is a slim chip strip and the chat
+            takes the rest; side by side from lg. */}
+        <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-rows-1">
+          {/* h-fit so a short list still hugs its content; max-h caps it so a
+              long one scrolls inside the card rather than stretching the page.
+              With nothing to list, the card vanishes below lg instead of
+              spending a third of a phone screen announcing it is empty — the
+              composer is the call to action there. */}
+          <GlassCard
+            className={[
+              "h-fit max-h-full min-h-0 gap-3",
+              rows.length === 0 ? "max-lg:hidden" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <div className="flex shrink-0 items-center justify-between gap-2">
               <Text as="h2" className="text3 text-ehs-darker">
                 Recent Chats
               </Text>
               <button
                 type="button"
-                onClick={() => setActiveId(null)}
+                onClick={() => {
+                  setActiveId(null);
+                  setPending(null);
+                  setFailure(null);
+                }}
                 aria-label="Start a new chat"
                 className="bg-ehs-normal-blue/12 text-ehs-normal-blue hover:bg-ehs-normal-blue/20 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
               >
@@ -480,83 +901,147 @@ export function NeptuneAiPageClient() {
               </button>
             </div>
 
-            {SAMPLE_CONVERSATIONS.length === 0 ? (
+            {rows.length === 0 ? (
               <EmptyRail />
             ) : (
-              <div className="flex flex-col gap-1">
-                {SAMPLE_CONVERSATIONS.map((conversation) => (
+              // A vertical list from lg; a horizontal chip strip below it,
+              // where a stacked list would spend half the screen before the
+              // chat starts.
+              <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain max-lg:scrollbar-none max-lg:flex-row max-lg:gap-2 max-lg:overflow-x-auto max-lg:overflow-y-visible">
+                {rows.map((conversation) => (
                   <ConversationRow
                     key={conversation.id}
-                    conversation={conversation}
+                    conversation={{
+                      title: conversation.title,
+                      timestamp: formatConversationTimestamp(
+                        conversation.lastMessageAt,
+                      ),
+                      preview: conversation.preview ?? "",
+                    }}
                     isActive={conversation.id === activeId}
-                    onSelect={() => setActiveId(conversation.id)}
+                    onSelect={() => {
+                      stickToBottomRef.current = true;
+                      setActiveId(conversation.id);
+                      setPending(null);
+                      setFailure(null);
+                    }}
+                    onDelete={() => {
+                      setConfirmDelete({
+                        id: conversation.id,
+                        title: conversation.title,
+                      });
+                    }}
                   />
                 ))}
               </div>
             )}
           </GlassCard>
 
-          <GlassCard className="min-w-0 justify-between gap-4">
-            {active ? (
-              <div className="flex min-w-0 flex-col gap-5">
-                {active.messages.map((message) => (
-                  <PageMessage
-                    key={message.id}
-                    message={message}
-                    displayName={user.displayName}
-                    initials={user.initials}
-                    profileUrl={user.profileUrl}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyThread />
-            )}
+          <GlassCard className="min-h-0 min-w-0 justify-between gap-4 overflow-hidden">
+            {threadBody}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex shrink-0 flex-col gap-3">
+              {failure ? (
+                <Text
+                  as="p"
+                  role="alert"
+                  className="text-ehs-red text-xs font-semibold"
+                >
+                  {failure}
+                </Text>
+              ) : null}
+
               <div className="flex scrollbar-none gap-2 overflow-x-auto">
-                {suggestions.map((suggestion) => (
+                {PAGE_SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion}
                     type="button"
-                    disabled
-                    className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray shrink-0 cursor-not-allowed rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap"
+                    disabled={isBusy}
+                    onClick={() => {
+                      send(suggestion);
+                    }}
+                    className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray hover:bg-ehs-surface-inverse/4 shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {suggestion}
                   </button>
                 ))}
               </div>
 
-              <div className="border-ehs-border-ink/8 bg-ehs-surface flex items-center gap-3 rounded-full border px-4 py-2.5">
-                <Icon
-                  icon="mdi:paperclip"
-                  className="text-ehs-muted-text size-4 shrink-0"
-                  aria-hidden="true"
-                />
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  send(draft);
+                }}
+                className="border-ehs-border-ink/8 bg-ehs-surface flex items-center gap-3 rounded-full border px-4 py-2.5"
+              >
+                {/* Typable while an answer is in flight — send() blocks the
+                    race, and a disabled input would throw the keyboard away
+                    for up to two minutes. text-base below lg: iOS zooms the
+                    whole page into any focused input under 16px. */}
                 <input
                   type="text"
-                  disabled
+                  value={draft}
+                  onChange={(event) => {
+                    setDraft(event.target.value);
+                  }}
+                  maxLength={2000}
                   placeholder="Ask Neptune AI anything about EHS..."
                   aria-label="Ask Neptune AI"
-                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-[13px] outline-none disabled:cursor-not-allowed"
+                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-base outline-none lg:text-[13px]"
                 />
                 <button
-                  type="button"
-                  disabled
+                  type="submit"
+                  disabled={isBusy || draft.trim() === ""}
                   aria-label="Send message"
-                  className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-9 shrink-0 cursor-not-allowed items-center justify-center rounded-full opacity-60"
+                  className="bg-ehs-normal-blue text-ehs-on-accent inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Icon
-                    icon="mdi:arrow-up"
-                    className="size-4"
+                    icon={isBusy ? "mdi:loading" : "mdi:arrow-up"}
+                    className={`size-4 ${isBusy ? "animate-spin motion-reduce:animate-none" : ""}`}
                     aria-hidden="true"
                   />
                 </button>
-              </div>
+              </form>
             </div>
           </GlassCard>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        title="Remove this chat?"
+        description={
+          confirmDelete
+            ? `"${confirmDelete.title}" and its messages will be removed from your history.`
+            : undefined
+        }
+        confirmLabel="Remove"
+        isConfirming={drop.isPending}
+        onCancel={() => {
+          setConfirmDelete(null);
+        }}
+        onConfirm={() => {
+          if (!confirmDelete) {
+            return;
+          }
+
+          drop.mutate(confirmDelete.id, {
+            onSuccess: () => {
+              // Deleting the open thread leaves nothing to show — fall back
+              // to the fresh-chat state rather than a dead id.
+              if (activeId === confirmDelete.id) {
+                setActiveId(null);
+                setPending(null);
+              }
+              setConfirmDelete(null);
+            },
+            onError: () => {
+              setConfirmDelete(null);
+              setFailure("Couldn't delete that conversation. Try again.");
+            },
+          });
+        }}
+      />
     </div>
   );
 }

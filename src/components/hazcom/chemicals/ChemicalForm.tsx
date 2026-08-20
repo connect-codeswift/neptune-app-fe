@@ -422,12 +422,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           </FormSection>
         </div>
 
-        <div className="border-ehs-border sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t bg-ehs-surface/40 px-4 py-3.5 backdrop-blur-xl sm:px-5">
+        <div className="border-ehs-border bg-ehs-surface/40 sticky bottom-0 flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3.5 backdrop-blur-xl sm:px-5">
           <Link href={cancelHref}>
             <Button
               type="button"
               variant="tertiary"
-              className={`${actionClass} border border-ehs-border-ink/14 text-ehs-dark-bg shadow-none`}
+              className={`${actionClass} border-ehs-border-ink/14 text-ehs-dark-bg border shadow-none`}
             >
               <Icon
                 icon="mdi:arrow-left"

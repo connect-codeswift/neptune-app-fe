@@ -5794,19 +5794,7 @@
         }
       }
     },
-    "/api/v1/hazards/top-users": {
-      "get": {
-        "tags": [
-          "Hazard"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/v1/hazards/monthly-users": {
+    "/api/v1/hazards/recognitions": {
       "get": {
         "tags": [
           "Hazard"
@@ -5822,6 +5810,14 @@
           },
           {
             "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -8634,10 +8630,36 @@
         }
       }
     },
-    "/api/v1/near-misses/top-users": {
+    "/api/v1/near-misses/recognitions": {
       "get": {
         "tags": [
           "NearMiss"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {

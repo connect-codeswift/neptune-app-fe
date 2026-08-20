@@ -231,7 +231,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
                 }
                 className={[
                   "btn-sweep relative inline-flex size-7 cursor-pointer items-center justify-center rounded-full",
-                  "from-ehs-normal-blue to-ehs-dark-blue bg-linear-to-br text-ehs-on-accent",
+                  "from-ehs-normal-blue to-ehs-dark-blue text-ehs-on-accent bg-linear-to-br",
                   "shadow-[0px_3px_10px_-2px_color-mix(in_oklab,var(--ehs-normal-blue)_65%,transparent)]",
                   "transition-[transform,box-shadow] duration-150 ease-out",
                   "hover:-translate-y-px hover:shadow-[0px_6px_16px_-3px_color-mix(in_oklab,var(--ehs-normal-blue)_80%,transparent)]",

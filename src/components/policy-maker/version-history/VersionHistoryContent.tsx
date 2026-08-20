@@ -11,9 +11,9 @@ import { SkeletonTable } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useDocumentByIdQuery,
-  useDocumentDepartmentsQuery,
   useDocumentVersionsQuery,
 } from "@/hooks/use-document-queries";
+import { useDepartmentsQuery } from "@/hooks/use-department-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
@@ -41,9 +41,7 @@ export function VersionHistoryContent(
 
   const numericId = parseDocumentId(documentIdParam);
 
-  const departmentsQuery = useDocumentDepartmentsQuery(
-    isClientReady && hasToken,
-  );
+  const departmentsQuery = useDepartmentsQuery(isClientReady && hasToken);
   const departmentNameById = useMemo(
     () => toDepartmentNameLookup(departmentsQuery.data ?? []),
     [departmentsQuery.data],

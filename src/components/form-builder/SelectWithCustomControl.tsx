@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
@@ -123,7 +125,7 @@ function AddCustomForm(
           type="button"
           onClick={submit}
           disabled={!canAdd}
-          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover cursor-pointer rounded-lg px-3 py-1 font-semibold text-ehs-on-accent transition-colors disabled:opacity-40"
+          className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent cursor-pointer rounded-lg px-3 py-1 font-semibold transition-colors disabled:opacity-40"
         >
           Add
         </button>
@@ -264,7 +266,7 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
         {field.variant === "search" ? (
           // Reads as a search box whose menu opens from the round add button.
           <span
-            className="bg-ehs-normal-blue flex size-7 shrink-0 items-center justify-center rounded-full text-ehs-on-accent"
+            className="bg-ehs-normal-blue text-ehs-on-accent flex size-7 shrink-0 items-center justify-center rounded-full"
             aria-hidden="true"
           >
             <Icon icon="mdi:plus" className="size-4" />
@@ -298,8 +300,14 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
             className="max-h-64 overflow-y-auto py-1"
           >
             {options.length === 0 ? (
-              <li className="text4 text-ehs-muted-text px-3 py-2.5">
-                {field.pagination?.isLoading ? "Loading…" : "No options"}
+              <li className="p-1.5">
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:playlist-remove"
+                  title={
+                    field.pagination?.isLoading ? "Loading…" : "No options"
+                  }
+                />
               </li>
             ) : (
               options.map((option) => (

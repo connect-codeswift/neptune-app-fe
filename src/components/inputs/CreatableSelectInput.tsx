@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   useEffect,
   useId,
@@ -198,8 +200,12 @@ export function CreatableSelectInput(
               className="max-h-52 overflow-y-auto p-1"
             >
               {options.length === 0 ? (
-                <li className="text-3.25 text-ehs-muted-text px-2.5 py-2">
-                  No options yet
+                <li className="p-1.5">
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:playlist-remove"
+                    title="No options yet"
+                  />
                 </li>
               ) : (
                 options.map((option) => {
@@ -277,7 +283,7 @@ export function CreatableSelectInput(
                       onClick={() => {
                         void submitCreate();
                       }}
-                      className="text-3.25 bg-ehs-normal-blue hover:bg-ehs-dark-blue cursor-pointer rounded-lg px-3 py-1 font-semibold text-ehs-on-accent transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                      className="text-3.25 bg-ehs-normal-blue hover:bg-ehs-dark-blue text-ehs-on-accent cursor-pointer rounded-lg px-3 py-1 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {isCreating ? "Adding…" : "Add"}
                     </button>

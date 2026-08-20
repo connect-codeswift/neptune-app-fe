@@ -32,7 +32,7 @@ export function IhSearchToolbar(props: Readonly<IhSearchToolbarProps>) {
         <div className="relative min-w-0 flex-1 sm:max-w-lg">
           <Icon
             icon="mdi:magnify"
-            className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-ehs-muted-text"
+            className="text-ehs-muted-text pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2"
             aria-hidden
           />
           <input
@@ -43,10 +43,10 @@ export function IhSearchToolbar(props: Readonly<IhSearchToolbarProps>) {
             }}
             placeholder={placeholder}
             aria-label={ariaLabel}
-            className="focus:border-ehs-normal-blue/40 h-9 w-full rounded-lg border border-ehs-border-ink/10 bg-ehs-surface/62 py-2 pr-3 pl-8 text-base text-ehs-dark-bg outline-none placeholder:text-ehs-muted-text"
+            className="focus:border-ehs-normal-blue/40 border-ehs-border-ink/10 bg-ehs-surface/62 text-ehs-dark-bg placeholder:text-ehs-muted-text h-9 w-full rounded-lg border py-2 pr-3 pl-8 text-base outline-none"
           />
         </div>
-        <Text as="span" className="shrink-0 text-sm text-ehs-muted-text">
+        <Text as="span" className="text-ehs-muted-text shrink-0 text-sm">
           {resultLabel}
         </Text>
       </div>

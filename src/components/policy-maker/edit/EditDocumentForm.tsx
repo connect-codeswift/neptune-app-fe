@@ -14,13 +14,11 @@ import type { PolicyDocument } from "@/components/policy-maker/policy-maker-type
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useAddDocumentCategoryMutation,
-  useAddDocumentDepartmentMutation,
   useUpdateDocumentMutation,
 } from "@/hooks/use-document-mutations";
-import {
-  useDocumentCategoriesQuery,
-  useDocumentDepartmentsQuery,
-} from "@/hooks/use-document-queries";
+import { useDocumentCategoriesQuery } from "@/hooks/use-document-queries";
+import { useDepartmentsQuery } from "@/hooks/use-department-queries";
+import { useAddDepartmentMutation } from "@/hooks/use-department-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import {
   categoryOptionLabel,
@@ -71,9 +69,9 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
 
   const updateDocumentMutation = useUpdateDocumentMutation();
   const addCategoryMutation = useAddDocumentCategoryMutation();
-  const addDepartmentMutation = useAddDocumentDepartmentMutation();
+  const addDepartmentMutation = useAddDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
-  const departmentsQuery = useDocumentDepartmentsQuery();
+  const departmentsQuery = useDepartmentsQuery();
   const usersQuery = useUserDropdownQuery();
 
   const [file, setFile] = useState<File | null>(null);
@@ -118,15 +116,10 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
 
   const departmentOptions = useMemo(
     () =>
-      (departmentsQuery.data ?? []).flatMap((department) => {
-        const id = department.departmentId ?? department.id;
-        if (id == null) {
-          return [];
-        }
-        return [
-          { value: String(id), label: departmentOptionLabel(department) },
-        ];
-      }),
+      (departmentsQuery.data ?? []).map((department) => ({
+        value: String(department.id),
+        label: departmentOptionLabel(department),
+      })),
     [departmentsQuery.data],
   );
 
@@ -213,16 +206,15 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
     }
 
     try {
-      await addDepartmentMutation.mutateAsync({ departmentName: trimmed });
+      await addDepartmentMutation.mutateAsync({ name: trimmed });
       toast.success("Department added", `"${trimmed}" is available to select.`);
       const refreshed = await departmentsQuery.refetch();
       const match = (refreshed.data ?? []).find((department) => {
         const label = departmentOptionLabel(department);
         return label.toLowerCase() === trimmed.toLowerCase();
       });
-      const id = match?.departmentId ?? match?.id;
-      if (id != null) {
-        setDepartmentId(String(id));
+      if (match) {
+        setDepartmentId(String(match.id));
       }
     } catch (error: unknown) {
       toast.error(
@@ -388,7 +380,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
                 readOnly
                 disabled={busy}
                 aria-readonly="true"
-                className={`${controlClass} text-ehs-gray cursor-not-allowed! bg-ehs-form-classes-bg! pr-9! italic`}
+                className={`${controlClass} text-ehs-gray bg-ehs-form-classes-bg! cursor-not-allowed! pr-9! italic`}
               />
               <Icon
                 icon="mdi:lock-outline"
@@ -521,7 +513,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="tertiary"
             onClick={handleCancel}
             disabled={busy}
-            className="text4 text-ehs-gray h-auto w-full rounded-lg border border-ehs-border-ink/10 bg-ehs-surface px-5 py-2.5 shadow-none hover:bg-ehs-form-classes-bg sm:w-auto"
+            className="text4 text-ehs-gray border-ehs-border-ink/10 bg-ehs-surface hover:bg-ehs-form-classes-bg h-auto w-full rounded-lg border px-5 py-2.5 shadow-none sm:w-auto"
           >
             Cancel
           </Button>
@@ -530,7 +522,7 @@ export function EditDocumentForm(props: Readonly<EditDocumentFormProps>) {
             variant="primary"
             isLoading={isSubmitting}
             disabled={busy || lookupsLoading}
-            className="text4 h-auto w-full rounded-lg bg-ehs-normal-blue px-6 py-2.5 whitespace-nowrap shadow-none hover:bg-ehs-normal-blue-hover sm:w-auto"
+            className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover h-auto w-full rounded-lg px-6 py-2.5 whitespace-nowrap shadow-none sm:w-auto"
           >
             {isSubmitting ? "Saving…" : "Save Changes"}
           </Button>

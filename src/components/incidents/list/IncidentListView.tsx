@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
@@ -391,22 +392,11 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
           ].join(" ")}
         >
           {filteredIncidents.length === 0 ? (
-            <IncidentGlassCard
-              className="min-h-60 text-center"
-              incidentGlassCardClassName="items-center justify-center gap-2"
-            >
-              <Icon
-                icon="mdi:clipboard-text-off-outline"
-                className="text-ehs-muted-text size-8"
-                aria-hidden="true"
-              />
-              <Text as="p" className="text-ehs-darker text-sm font-semibold">
-                No incidents found
-              </Text>
-              <Text as="p" className="text-ehs-muted-text max-w-md text-sm">
-                Try adjusting filters, or report a new incident to get started.
-              </Text>
-            </IncidentGlassCard>
+            <EmptyState
+              icon="mdi:clipboard-text-off-outline"
+              title="No incidents found"
+              message="Try adjusting filters, or report a new incident to get started."
+            />
           ) : (
             <>
               <div className="flex min-w-0 flex-col gap-3">
@@ -418,8 +408,13 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                   className="min-w-0"
                 />
 
-                <div className="border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-                  <Text as="p" className="text-ehs-muted-text text-sm">
+                {/* Centred controls: the floating AI activator button overlaps
+                    the right edge of the bar and eats the Next click. */}
+                <div className="border-ehs-border-ink/8 grid grid-cols-1 items-center gap-3 border-t pt-3 sm:grid-cols-[1fr_auto_1fr]">
+                  <Text
+                    as="p"
+                    className="text-ehs-muted-text justify-self-center text-sm sm:justify-self-start"
+                  >
                     {[
                       `Page ${String(pageNumber)} of ${String(totalPages)}`,
                       totalCount > 0 ? `${String(totalCount)} total` : null,
@@ -429,7 +424,7 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
                       .join(" · ")}
                   </Text>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 justify-self-center">
                     <Button
                       type="button"
                       variant="tertiary"

@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
@@ -271,16 +273,11 @@ export function WalkTalkDetailContent(props: WalkTalkDetailContentProps) {
             <section>
               <SectionTitle>Participants</SectionTitle>
               {detail.participants.length === 0 ? (
-                <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
-                  <Icon
-                    icon="mdi:account-outline"
-                    className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No participants listed.
-                  </Text>
-                </div>
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:account-outline"
+                  title="No participants listed"
+                />
               ) : (
                 <ul className="flex flex-col">
                   {detail.participants.map((participant, index) => (

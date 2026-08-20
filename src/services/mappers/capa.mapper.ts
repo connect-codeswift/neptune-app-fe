@@ -692,7 +692,6 @@ export function buildUpdateCapaRequest(input: {
 export function buildCreateCapaTaskRequest(input: {
   capaId: number;
   task: string;
-  owner: string;
   dueDate: string;
   priority?: string;
 }): CapaTaskRequestDto {
@@ -709,7 +708,6 @@ export function buildCreateCapaTaskRequest(input: {
     priority: input.priority?.trim()
       ? normalizePriority(input.priority)
       : "Medium",
-    ownerId: parseOptionalUserId(input.owner),
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : null,
     userId,
   };
@@ -719,7 +717,6 @@ export function buildUpdateCapaTaskRequest(input: {
   id: number;
   capaId: number;
   task: string;
-  owner: string;
   dueDate: string;
   priority?: string;
 }): CapaTaskRequestDto {
@@ -727,7 +724,6 @@ export function buildUpdateCapaTaskRequest(input: {
     ...buildCreateCapaTaskRequest({
       capaId: input.capaId,
       task: input.task,
-      owner: input.owner,
       dueDate: input.dueDate,
       priority: input.priority,
     }),

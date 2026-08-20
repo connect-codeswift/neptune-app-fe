@@ -1,4 +1,5 @@
 import { Icon } from "@iconify/react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -136,9 +137,11 @@ export function HazcomRiskLevelOutput(
         </Text>
 
         {ppe.length === 0 ? (
-          <Text as="p" className="text8 text-ehs-muted-text mt-2">
-            None selected
-          </Text>
+          <EmptyState
+            variant="inline"
+            icon="mdi:hard-hat"
+            title="No PPE selected"
+          />
         ) : (
           <ul className="mt-2.5 flex flex-col gap-1.5">
             {ppe.map((item) => (

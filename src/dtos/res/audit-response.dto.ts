@@ -118,21 +118,35 @@ export type AuditDetailDto = {
 export type GetAuditByIdResponseDto = ApiEnvelopeDto<AuditDetailDto | null>;
 
 /**
- * A finding raised against an audit. Fields stay optional and duplicated across
- * likely names since the exact response shape isn't pinned down yet.
+ * A finding raised against an audit run — the exact shape of
+ * `AuditRepository.MapFinding`, which is what `GET /{auditId}/findings` returns.
+ *
+ * These were previously optional and duplicated across guessed names
+ * (`findingSeverity`, `findingCategory`, `question`, `isCapaCreated`) because the
+ * response shape "wasn't pinned down yet". It is pinned down: only the fields
+ * marked nullable below are ever absent.
+ *
+ * There is no CAPA field, and that is not an omission in the projection — no
+ * entity in the backend links a finding to a CAPA at all.
  */
 export type AuditFindingDto = {
   id: number;
-  severity?: string;
-  findingSeverity?: string;
-  category?: string;
-  findingCategory?: string;
-  description?: string;
-  title?: string;
-  question?: string;
-  status?: string;
-  capaCreated?: boolean;
-  isCapaCreated?: boolean;
+  auditId: number;
+  templateItemId: number | null;
+  title: string;
+  description: string | null;
+  /** `Low` | `Medium` | `High` | `Critical`. An unrecognised value is rejected on write. */
+  severity: string;
+  category: string | null;
+  /** `Open` | `InProgress` | `Closed`. */
+  status: string;
+  assigneeId: number | null;
+  /** ISO-8601 with an explicit offset, or null. */
+  dueDate: string | null;
+  /** True when submitting the run raised it automatically — a critical fail or a CreateFinding rule. */
+  isAutoRaised: boolean;
+  createdDate: string;
+  updatedDate: string | null;
 };
 
 /** Matches the backend response for GET /api/v1/audits/{id}/findings. */
