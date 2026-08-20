@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getAllAuditTemplates,
-  getConditionalLogicsByTemplateId,
   getItemsBySectionId,
   getSectionsByTemplateId,
 } from "@/services/audit-template.service";
 import type {
   AuditTemplateDto,
   AuditTemplateItemDto,
-  AuditTemplateLogicDto,
   AuditTemplateSectionDto,
 } from "@/dtos/res/audit-template-response.dto";
 
@@ -31,11 +29,10 @@ export type AuditTemplateDetail = Readonly<{
   summary: AuditTemplateDto | null;
   sections: AuditTemplateSectionDto[];
   itemsBySection: Record<string, AuditTemplateItemDto[]>;
-  logics: AuditTemplateLogicDto[];
 }>;
 
 /**
- * Loads a template's sections, each section's items, and conditional logics.
+ * Loads a template's sections and each section's items.
  *
  * The `summary` (basic info) is passed in — the list already fetched it and
  * stashed it in the store on Edit — so this doesn't refetch the whole list.
@@ -48,12 +45,8 @@ export function useAuditTemplateDetailQuery(
     queryKey: ["audit-template", "detail", templateId] as const,
     enabled: templateId !== "",
     queryFn: async (): Promise<AuditTemplateDetail> => {
-      const [sectionsRes, logicsRes] = await Promise.all([
-        getSectionsByTemplateId(templateId),
-        getConditionalLogicsByTemplateId(templateId),
-      ]);
+      const sectionsRes = await getSectionsByTemplateId(templateId);
       const sections = sectionsRes.dataModel ?? [];
-      const logics = logicsRes.dataModel ?? [];
       const itemResults = await Promise.all(
         sections.map((section) => getItemsBySectionId(String(section.id))),
       );
@@ -61,7 +54,7 @@ export function useAuditTemplateDetailQuery(
       sections.forEach((section, index) => {
         itemsBySection[String(section.id)] = itemResults[index].dataModel ?? [];
       });
-      return { summary, sections, itemsBySection, logics };
+      return { summary, sections, itemsBySection };
     },
   });
 }

@@ -6,10 +6,8 @@ import type {
 import type { InspectionTemplateDetail } from "@/hooks/use-inspection-template-queries";
 import {
   TEMPLATE_ITEM_TYPES,
-  type ScoringConfig,
   type TemplateItem,
   type TemplateItemType,
-  type TemplateRule,
   type TemplateSection,
   type WizardState,
 } from "@/components/inspections/templates/create/template-builder-data";
@@ -67,7 +65,6 @@ function mapItem(dto: InspectionTemplateItemDto): TemplateItem {
     type,
     label: "",
     guidance: dto.hint ?? "",
-    scoreWeight: dto.scoreWeight ?? dto.itemWeight ?? 0,
     required: dto.isRequired ?? true,
     value,
   };
@@ -97,17 +94,9 @@ export function mapDetailToWizardState(
     description: summary?.description ?? "",
   };
 
-  const scoring: ScoringConfig = {
-    enabled: summary?.isScoringEnable ?? true,
-    method: "Percentage",
-    passThreshold: summary?.passThreshold ?? 80,
-    showScoreToUser: summary?.isScoreVisibility ?? false,
-  };
-
-  // Guard the spreads: an unexpected response shape would otherwise throw
+  // Guard the spread: an unexpected response shape would otherwise throw
   // "not iterable" here rather than degrading to an empty wizard.
   const detailSections = Array.isArray(detail.sections) ? detail.sections : [];
-  const detailLogics = Array.isArray(detail.logics) ? detail.logics : [];
 
   const sections: TemplateSection[] = [...detailSections]
     .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
@@ -124,15 +113,5 @@ export function mapDetailToWizardState(
       };
     });
 
-  const rules: TemplateRule[] = detailLogics.map((logic) => ({
-    id: String(logic.id),
-    active: (logic.status ?? "").toLowerCase() === "active",
-    ifQuestion: logic.if ?? "",
-    ifOperator: logic.condition ?? logic.operator ?? "",
-    ifValue: logic.conditionValue ?? "",
-    thenAction: logic.then ?? logic.action ?? "",
-    thenValue: logic.result ?? "",
-  }));
-
-  return { values, sections, scoring, rules };
+  return { values, sections };
 }

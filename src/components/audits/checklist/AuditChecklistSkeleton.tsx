@@ -34,8 +34,9 @@ function SectionCardSkeleton(props: Readonly<{ rows: number }>) {
 }
 
 /**
- * Loading placeholder for the audit checklist — header, score summary and the
- * section cards, so the swap to real content doesn't shift the page around.
+ * Loading placeholder for the audit checklist — header, progress summary and
+ * the section cards, so the swap to real content doesn't shift the page
+ * around.
  */
 export function AuditChecklistSkeleton() {
   return (
@@ -49,7 +50,7 @@ export function AuditChecklistSkeleton() {
         </div>
       </div>
 
-      {/* Score summary */}
+      {/* Progress summary */}
       <IncidentGlassCard paddingClassName="px-5 py-4" className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Skeleton className="h-4 w-24" />

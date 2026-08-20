@@ -1,19 +1,12 @@
 import type { FormValues } from "@/components/form-builder";
 import type { CreateAuditTemplateRequestDto } from "@/dtos/req/audit-template-request.dto";
 import { getCurrentUser } from "@/lib/current-user";
-import {
-  itemDisplayName,
-  type ScoringConfig,
-  type TemplateRule,
-  type TemplateSection,
-} from "./template-builder-data";
+import { itemDisplayName, type TemplateSection } from "./template-builder-data";
 
-/** Everything the 4-step wizard collects. */
+/** Everything the 3-step wizard collects. */
 export type TemplateDraft = Readonly<{
   values: FormValues;
   sections: TemplateSection[];
-  scoring: ScoringConfig;
-  rules: TemplateRule[];
 }>;
 
 /**
@@ -38,7 +31,7 @@ export function toAuditTemplatePayload(
   draft: TemplateDraft,
   options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateAuditTemplateRequestDto {
-  const { values, sections, scoring, rules } = draft;
+  const { values, sections } = draft;
   const { userId, siteId } = getCurrentUser();
 
   const isPublished = options.publish;
@@ -54,10 +47,6 @@ export function toAuditTemplatePayload(
     templateType: String(values.templateType ?? "Audit"),
     templateTags: tags.join(","),
     description: String(values.description ?? "").trim(),
-
-    isScoringEnable: scoring.enabled,
-    passThreshold: scoring.passThreshold,
-    isScoreVisibility: scoring.showScoreToUser,
 
     isDraft,
     isPublished,
@@ -93,8 +82,6 @@ export function toAuditTemplatePayload(
           itemType: item.type,
           question: itemDisplayName(item),
           hint: item.guidance,
-          scoreWeight: item.scoreWeight,
-          itemWeight: item.scoreWeight,
           responseSetId: null,
           isCritical: false,
           allowNA: true,
@@ -110,26 +97,5 @@ export function toAuditTemplatePayload(
         })),
       };
     }),
-
-    conditionalLogics: rules.map((rule) => ({
-      id: toBackendId(rule.id),
-      status: rule.active ? "Active" : "Inactive",
-      if: rule.ifQuestion,
-      condition: rule.ifOperator,
-      then: rule.thenAction,
-      result: rule.thenValue,
-      sourceItemId: null,
-      operator: rule.ifOperator,
-      conditionValue: rule.ifValue,
-      action: rule.thenAction,
-      targetItemId: null,
-      findingSeverity: "",
-      findingCategory: "",
-      isDraft,
-      isPublished,
-      userId,
-      siteId,
-      auditTemplateId,
-    })),
   };
 }

@@ -13,7 +13,6 @@ export type AuditDto = {
   scheduleDate: string;
   status: string;
   progressPct: number | null;
-  score: number | null;
   answeredCount: number;
   findingCount: number;
   hasCriticalFailure: boolean;
@@ -28,7 +27,6 @@ export type AuditResponsesResultDto = {
   id: number;
   status: string;
   progressPct: number | null;
-  runningScore: number | null;
   hasCriticalFailure: boolean;
   requiredItemIds: number[];
   visibleItemIds: number[];
@@ -48,8 +46,6 @@ export type AuditSnapshotItemDto = {
   /** Carries the item's value/answer text (mirrors the template item). */
   question: string;
   hint: string;
-  scoreWeight: number;
-  itemWeight: number;
   isCritical: boolean;
   isRequired: boolean;
   allowNA: boolean;
@@ -75,11 +71,7 @@ export type AuditSnapshotDto = {
   description: string;
   kind: string;
   versionNo: number;
-  passThreshold: number;
-  isScoringEnable: boolean;
-  isScoreVisibility: boolean;
   responseSets: unknown[];
-  rules: unknown[];
   sections: AuditSnapshotSectionDto[];
 };
 
@@ -103,7 +95,6 @@ export type AuditDetailDto = {
   auditorName: string;
   scheduleDate: string;
   status: string;
-  score: number | null;
   hasCriticalFailure: boolean;
   startedAt: string | null;
   submittedAt: string | null;

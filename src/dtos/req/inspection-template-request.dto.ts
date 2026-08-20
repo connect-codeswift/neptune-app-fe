@@ -4,8 +4,6 @@ export type InspectionTemplateItemRequestDto = {
   itemType: string;
   question: string;
   hint: string;
-  scoreWeight: number;
-  itemWeight: number;
   /** Null until a response set is chosen — 0 would be a dangling FK. */
   responseSetId: number | null;
   isCritical: boolean;
@@ -37,29 +35,6 @@ export type InspectionTemplateSectionRequestDto = {
   items: InspectionTemplateItemRequestDto[];
 };
 
-/** One IF/THEN conditional-logic rule. */
-export type InspectionTemplateLogicRequestDto = {
-  id: number;
-  status: string;
-  if: string;
-  condition: string;
-  then: string;
-  result: string;
-  /** Null until the rule points at a saved item — 0 would be a dangling FK. */
-  sourceItemId: number | null;
-  operator: string;
-  conditionValue: string;
-  action: string;
-  targetItemId: number | null;
-  findingSeverity: string;
-  findingCategory: string;
-  isDraft: boolean;
-  isPublished: boolean;
-  userId: number;
-  siteId: number;
-  inspectionTemplateId: number;
-};
-
 /** An item on the update body — the FK fields differ from the create shape. */
 export type UpdateInspectionTemplateItemRequestDto = Omit<
   InspectionTemplateItemRequestDto,
@@ -85,9 +60,6 @@ export type CreateInspectionTemplateRequestDto = {
   templateType: string;
   templateTags: string;
   description: string;
-  isScoringEnable: boolean;
-  passThreshold: number;
-  isScoreVisibility: boolean;
   isDraft: boolean;
   isPublished: boolean;
   /** Null until an assignee is chosen — 0 would be a dangling FK. */
@@ -100,7 +72,6 @@ export type CreateInspectionTemplateRequestDto = {
   userId: number;
   siteId: number;
   sections: InspectionTemplateSectionRequestDto[];
-  conditionalLogics: InspectionTemplateLogicRequestDto[];
 };
 
 /**

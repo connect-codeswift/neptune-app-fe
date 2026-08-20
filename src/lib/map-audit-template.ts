@@ -6,10 +6,8 @@ import type {
 import type { AuditTemplateDetail } from "@/hooks/use-audit-template-queries";
 import {
   TEMPLATE_ITEM_TYPES,
-  type ScoringConfig,
   type TemplateItem,
   type TemplateItemType,
-  type TemplateRule,
   type TemplateSection,
   type WizardState,
 } from "@/components/audits/templates/create/template-builder-data";
@@ -68,7 +66,6 @@ function mapItem(dto: AuditTemplateItemDto): TemplateItem {
     type,
     label: "",
     guidance: dto.hint ?? "",
-    scoreWeight: dto.scoreWeight ?? dto.itemWeight ?? 0,
     required: dto.isRequired ?? true,
     value,
   };
@@ -123,13 +120,6 @@ export function mapDetailToWizardState(
     description: summary?.description ?? "",
   };
 
-  const scoring: ScoringConfig = {
-    enabled: summary?.isScoringEnable ?? true,
-    method: "Percentage",
-    passThreshold: summary?.passThreshold ?? 80,
-    showScoreToUser: summary?.isScoreVisibility ?? false,
-  };
-
   const sections: TemplateSection[] = detail.sections.map((section) => ({
     id: String(section.id),
     title: section.sectionTitle ?? section.title ?? "",
@@ -137,15 +127,5 @@ export function mapDetailToWizardState(
     items: (detail.itemsBySection[String(section.id)] ?? []).map(mapItem),
   }));
 
-  const rules: TemplateRule[] = detail.logics.map((logic) => ({
-    id: String(logic.id),
-    active: (logic.status ?? "").toLowerCase() === "active",
-    ifQuestion: logic.if ?? "",
-    ifOperator: logic.condition ?? logic.operator ?? "",
-    ifValue: logic.conditionValue ?? "",
-    thenAction: logic.then ?? logic.action ?? "",
-    thenValue: logic.result ?? "",
-  }));
-
-  return { values, sections, scoring, rules };
+  return { values, sections };
 }
