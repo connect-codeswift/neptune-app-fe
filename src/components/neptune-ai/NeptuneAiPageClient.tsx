@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   LOGO_MARK_RING_RADIUS,
   LOGO_MARK_RING_WIDTH,
@@ -11,7 +11,9 @@ import {
   NEPTUNE_N_PATH,
 } from "@/components/LogoMark";
 import { Text } from "@/components/Text";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
   ANALYZING_STEPS,
   PAGE_SUGGESTIONS,
@@ -24,10 +26,12 @@ import {
   type ChatCellTone,
 } from "@/components/neptune-ai/neptune-ai-data";
 import { AvatarPreview } from "@/components/profile/ProfileAvatarUpload";
+import type { AssistantReplyDto } from "@/dtos/res/assistant-response.dto";
 import {
   useAskAssistantMutation,
   useAssistantConversationQuery,
   useAssistantConversationsQuery,
+  useDropAssistantConversationMutation,
 } from "@/hooks/use-assistant";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
 
@@ -94,7 +98,16 @@ function AnalyzingMark(props: Readonly<{ className?: string }>) {
   );
 }
 
-/** The rail entry for one saved conversation. */
+/**
+ * The rail entry for one saved conversation.
+ *
+ * A div wrapping two sibling buttons rather than one button, because the
+ * delete control cannot legally nest inside the select control. Delete is
+ * always visible — behind a confirm dialog it costs nothing to show, and a
+ * hover-revealed control is a control most people never find. Below lg the
+ * row renders as a fixed-width chip in a horizontal strip with the preview
+ * hidden.
+ */
 function ConversationRow(
   props: Readonly<{
     conversation: Readonly<{
@@ -104,51 +117,76 @@ function ConversationRow(
     }>;
     isActive: boolean;
     onSelect: () => void;
+    onDelete: () => void;
   }>,
 ) {
-  const { conversation, isActive, onSelect } = props;
+  const { conversation, isActive, onSelect, onDelete } = props;
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-current={isActive ? "true" : undefined}
+    // The border, fill and hover live on this wrapper rather than the select
+    // button so the always-visible delete sits inside the same card. Deleting
+    // is guarded by the confirm dialog, so a permanent control is safe.
+    <div
       className={[
-        "rounded-2.5 flex w-full cursor-pointer flex-col gap-1 border p-3 text-left transition-colors",
+        "rounded-2.5 flex items-start border transition-colors max-lg:w-48 max-lg:shrink-0",
         isActive
           ? "border-ehs-normal-blue/30 bg-ehs-normal-blue/10"
           : "hover:bg-ehs-surface-inverse/3 border-transparent",
       ].join(" ")}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-1.5">
-          <Icon
-            icon="mdi:message-outline"
-            className={[
-              "size-3.5 shrink-0",
-              isActive ? "text-ehs-normal-blue" : "text-ehs-muted-text",
-            ].join(" ")}
-            aria-hidden="true"
-          />
-          <Text
-            as="span"
-            className={[
-              "truncate text-[13px] font-bold",
-              isActive ? "text-ehs-normal-blue" : "text-ehs-darker",
-            ].join(" ")}
-          >
-            {conversation.title}
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-current={isActive ? "true" : undefined}
+        className="flex min-w-0 flex-1 cursor-pointer flex-col gap-1 p-3 pr-1.5 text-left"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <Icon
+              icon="mdi:message-outline"
+              className={[
+                "size-3.5 shrink-0",
+                isActive ? "text-ehs-normal-blue" : "text-ehs-muted-text",
+              ].join(" ")}
+              aria-hidden="true"
+            />
+            <Text
+              as="span"
+              className={[
+                "truncate text-[13px] font-bold",
+                isActive ? "text-ehs-normal-blue" : "text-ehs-darker",
+              ].join(" ")}
+            >
+              {conversation.title}
+            </Text>
+          </span>
+          <Text as="span" className="text-ehs-muted-text shrink-0 text-[11px]">
+            {conversation.timestamp}
           </Text>
-        </span>
-        <Text as="span" className="text-ehs-muted-text shrink-0 text-[11px]">
-          {conversation.timestamp}
-        </Text>
-      </div>
+        </div>
 
-      <Text as="p" className="text-ehs-gray line-clamp-2 text-[11px] leading-4">
-        {conversation.preview}
-      </Text>
-    </button>
+        <Text
+          as="p"
+          className="text-ehs-gray line-clamp-2 text-[11px] leading-4 max-lg:hidden"
+        >
+          {conversation.preview}
+        </Text>
+      </button>
+
+      {/* mt-2 lines the trash up with the title row's cap height. */}
+      <button
+        type="button"
+        onClick={onDelete}
+        aria-label={`Delete conversation "${conversation.title}"`}
+        className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-light-bg mt-2 mr-1.5 inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors"
+      >
+        <Icon
+          icon="mdi:trash-can-outline"
+          className="size-3.5"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -456,6 +494,65 @@ function EmptyRail() {
 }
 
 /**
+ * Ghost bubbles while an opened conversation loads. Before this, the loading
+ * gap rendered `EmptyThread` — "Start a conversation" flashing over a thread
+ * that very much exists.
+ */
+function ThreadSkeleton() {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-hidden">
+      <div className="flex justify-end">
+        <Skeleton className="rounded-3 h-16 w-3/5" />
+      </div>
+      <div className="flex items-start gap-3">
+        <Skeleton className="size-9 shrink-0 rounded-full" />
+        <Skeleton className="rounded-3 h-28 w-3/4" />
+      </div>
+      <div className="flex justify-end">
+        <Skeleton className="rounded-3 h-12 w-2/5" />
+      </div>
+    </div>
+  );
+}
+
+/** A failed thread load, with the retry where the thread would be. */
+function ThreadError(props: Readonly<{ onRetry: () => void }>) {
+  const { onRetry } = props;
+
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+      <Icon
+        icon="mdi:alert-circle-outline"
+        className="text-ehs-red size-8"
+        aria-hidden="true"
+      />
+      <Text as="p" className="text-ehs-darker text-sm font-bold">
+        Couldn&apos;t load this conversation
+      </Text>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="border-ehs-border-ink/8 bg-ehs-surface text-ehs-gray hover:bg-ehs-surface-inverse/4 cursor-pointer rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
+/**
+ * One question and, once it lands, its answer — held locally until the
+ * refetched thread carries the stored copy. Holding the reply (rather than
+ * dropping the pending pair the moment it arrives) is what keeps the landing
+ * seamless: the old flow cleared the pair first and refetched after, so the
+ * thread flashed empty and the answer then popped in wholesale.
+ */
+type PendingExchange = Readonly<{
+  question: string;
+  reply: AssistantReplyDto | null;
+}>;
+
+/**
  * The full Neptune AI workspace: saved conversations on the left, the active thread on the right.
  *
  * "New chat" deselects rather than creating anything — the thread is created by the backend when
@@ -471,20 +568,56 @@ export function NeptuneAiPageClient() {
 
   const [activeId, setActiveId] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
-  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingExchange | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const [analyzingStepIndex, setAnalyzingStepIndex] = useState(0);
+  const [confirmDelete, setConfirmDelete] = useState<Readonly<{
+    id: number;
+    title: string;
+  }> | null>(null);
 
   const conversations = useAssistantConversationsQuery();
   const thread = useAssistantConversationQuery(activeId);
   const ask = useAskAssistantMutation();
+  const drop = useDropAssistantConversationMutation();
 
   const rows = conversations.data ?? [];
   const isBusy = ask.isPending;
 
+  // An answer can take up to 120 seconds; a card frozen on "Reading your
+  // question" the whole time reads as stuck. The steps walk forward on a
+  // timer and the last one holds until the reply lands.
+  useEffect(() => {
+    if (!isBusy) {
+      return;
+    }
+
+    const timer = globalThis.setInterval(() => {
+      setAnalyzingStepIndex((index) =>
+        Math.min(index + 1, ANALYZING_STEPS.length - 1),
+      );
+    }, 2600);
+
+    return () => {
+      globalThis.clearInterval(timer);
+    };
+  }, [isBusy]);
+
   const messages = useMemo<ChatMessage[]>(() => {
     const stored = (thread.data?.messages ?? []).map(toChatMessage);
 
-    if (pendingQuestion === null) {
+    if (pending === null) {
+      return stored;
+    }
+
+    // Once the refetched thread carries the reply, the stored copy takes over
+    // and the pending pair stops rendering. Content and keys are identical
+    // (the reply keeps its real message id), so the handover is invisible.
+    const replyMessage = pending.reply?.message ?? null;
+    if (
+      replyMessage !== null &&
+      stored.some((message) => message.id === String(replyMessage.id))
+    ) {
       return stored;
     }
 
@@ -496,26 +629,67 @@ export function NeptuneAiPageClient() {
         id: "pending-question",
         author: "user" as const,
         authorName: "You",
-        body: pendingQuestion,
+        body: pending.question,
       },
-      {
-        id: "pending-answer",
-        author: "ai" as const,
-        authorName: "Neptune AI",
-        body: "",
-        analyzing: {
-          doneSteps: [],
-          activeStep: ANALYZING_STEPS[0]!,
-        },
-      },
+      replyMessage !== null
+        ? toChatMessage(replyMessage)
+        : {
+            id: "pending-answer",
+            author: "ai" as const,
+            authorName: "Neptune AI",
+            body: "",
+            analyzing: {
+              doneSteps: ANALYZING_STEPS.slice(0, analyzingStepIndex),
+              activeStep:
+                ANALYZING_STEPS[analyzingStepIndex] ?? ANALYZING_STEPS.at(-1)!,
+            },
+          },
     ];
-  }, [thread.data, pendingQuestion]);
+  }, [thread.data, pending, analyzingStepIndex]);
 
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const threadRef = useRef<HTMLDivElement | null>(null);
+
+  // Whether the reader is at (or near) the bottom. Auto-scroll only applies
+  // while this holds — someone scrolled up reading an old answer must not be
+  // yanked down when a new one lands. Sending your own question re-pins it.
+  const stickToBottomRef = useRef(true);
+
+  // The thread is its own scroll container, so pin it to the bottom directly.
+  // `scrollIntoView` walked up to the document instead, which is what pushed
+  // the whole page down as a conversation grew.
+  //
+  // Body length is a dependency as well as message count: when an answer
+  // lands it replaces the pending placeholder rather than appending, so the
+  // count alone never changes and the reply would arrive off-screen.
+  const lastMessage = messages.at(-1);
+  const lastMessageLength = lastMessage?.body.length ?? 0;
+  const lastIsAnalyzing = Boolean(lastMessage?.analyzing);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
+    const container = threadRef.current;
+    if (!container || !stickToBottomRef.current) {
+      return;
+    }
+
+    const reduceMotion = globalThis.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      // Smooth only for the short hop after sending (the echoed question and
+      // its analyzing card). A full answer or a switched thread can move the
+      // scroll a long way, and animating that distance is the lurch the page
+      // used to make — those land instantly.
+      behavior: !reduceMotion && lastIsAnalyzing ? "smooth" : "auto",
+    });
+  }, [
+    messages.length,
+    lastMessageLength,
+    lastIsAnalyzing,
+    analyzingStepIndex,
+    activeId,
+  ]);
 
   function send(question: string) {
     const trimmed = question.trim();
@@ -527,7 +701,9 @@ export function NeptuneAiPageClient() {
 
     setFailure(null);
     setDraft("");
-    setPendingQuestion(trimmed);
+    setAnalyzingStepIndex(0);
+    stickToBottomRef.current = true;
+    setPending({ question: trimmed, reply: null });
 
     ask.mutate(
       {
@@ -535,21 +711,28 @@ export function NeptuneAiPageClient() {
         conversationId: activeId ?? undefined,
       },
       {
-        onSuccess: async (reply) => {
-          setPendingQuestion(null);
-
+        onSuccess: (reply) => {
           if (!reply) {
+            setPending(null);
+            setDraft((current) => (current === "" ? trimmed : current));
             setFailure("The assistant did not return an answer. Try again.");
             return;
           }
 
-          // Selecting the new thread is what makes its stored turns — question and answer
-          // both — become the rendered list, which is why the pending pair can be dropped.
+          // The reply renders right here, replacing the analyzing card in
+          // place; the pending pair is dropped only once the refetched thread
+          // (invalidated by the mutation hook) carries the stored copy. The
+          // old flow — clear pending, then refetch — flashed the thread empty
+          // and popped the answer in wholesale.
+          stickToBottomRef.current = true;
+          setPending({ question: trimmed, reply });
           setActiveId(reply.conversationId);
-          await thread.refetch();
         },
         onError: () => {
-          setPendingQuestion(null);
+          setPending(null);
+          // The question goes back into the composer, ready to retry, unless
+          // something new has been typed there since.
+          setDraft((current) => (current === "" ? trimmed : current));
           setFailure(
             "The assistant could not answer that right now. Your question was not saved — try again.",
           );
@@ -558,25 +741,89 @@ export function NeptuneAiPageClient() {
     );
   }
 
-  return (
-    <div className="flex min-h-screen flex-1 flex-col">
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-8">
-        <header className="flex flex-wrap items-center gap-2">
-          <LogoMark
-            className="text-ehs-normal-blue size-8 shrink-0"
-            decorative
-          />
-          <Text
-            as="h1"
-            className="text-ehs-normal-blue text-[26px] font-bold tracking-[-0.52px]"
-          >
-            Neptune AI
-          </Text>
-        </header>
+  // Assigned across an if/else chain rather than chained ternaries in the JSX
+  // (Sonar S3358). The pending guard matters: right after asking in a fresh
+  // chat the new thread is still loading, and the skeleton must not cover the
+  // live question and answer.
+  let threadBody: ReactNode;
+  const isOpeningStoredThread = activeId !== null && pending === null;
 
-        <div className="grid min-w-0 flex-1 gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
-          <GlassCard className="h-fit gap-3">
-            <div className="flex items-center justify-between gap-2">
+  if (isOpeningStoredThread && thread.isLoading) {
+    threadBody = <ThreadSkeleton />;
+  } else if (isOpeningStoredThread && thread.isError) {
+    threadBody = (
+      <ThreadError
+        onRetry={() => {
+          void thread.refetch();
+        }}
+      />
+    );
+  } else if (messages.length > 0) {
+    threadBody = (
+      // The one scroller on the page. tabIndex makes it reachable by
+      // keyboard, since a scroll region with no focusable child cannot
+      // otherwise be scrolled without a pointer; role="log" has new turns
+      // announced politely by screen readers.
+      <div
+        ref={threadRef}
+        role="log"
+        tabIndex={0}
+        aria-label="Conversation"
+        aria-busy={isBusy}
+        onScroll={(event) => {
+          const el = event.currentTarget;
+          stickToBottomRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 96;
+        }}
+        className="flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain pr-1 focus-visible:outline-none"
+      >
+        {messages.map((message) => (
+          <PageMessage
+            key={message.id}
+            message={message}
+            displayName={user.displayName}
+            initials={user.initials}
+            profileUrl={user.profileUrl}
+          />
+        ))}
+      </div>
+    );
+  } else {
+    threadBody = <EmptyThread />;
+  }
+
+  return (
+    // min-h-0 rather than min-h-screen: this page fills the height AppShell
+    // gives it and no more, so the document itself never scrolls. Every
+    // descendant down to the thread repeats `min-h-0`, because a flex child
+    // defaults to min-height:auto and would otherwise refuse to shrink below
+    // its content — which is what turns an inner scroller into a taller page.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-4">
+        {/* No visual header — the sidebar already says where you are, and the
+            row spent chat height on a label. The h1 stays for screen readers
+            and the page outline. */}
+        <Text as="h1" className="sr-only">
+          Neptune AI
+        </Text>
+
+        {/* Stacked on mobile — the rail is a slim chip strip and the chat
+            takes the rest; side by side from lg. */}
+        <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-rows-1">
+          {/* h-fit so a short list still hugs its content; max-h caps it so a
+              long one scrolls inside the card rather than stretching the page.
+              With nothing to list, the card vanishes below lg instead of
+              spending a third of a phone screen announcing it is empty — the
+              composer is the call to action there. */}
+          <GlassCard
+            className={[
+              "h-fit max-h-full min-h-0 gap-3",
+              rows.length === 0 ? "max-lg:hidden" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <div className="flex shrink-0 items-center justify-between gap-2">
               <Text as="h2" className="text3 text-ehs-darker">
                 Recent Chats
               </Text>
@@ -584,6 +831,7 @@ export function NeptuneAiPageClient() {
                 type="button"
                 onClick={() => {
                   setActiveId(null);
+                  setPending(null);
                   setFailure(null);
                 }}
                 aria-label="Start a new chat"
@@ -596,7 +844,10 @@ export function NeptuneAiPageClient() {
             {rows.length === 0 ? (
               <EmptyRail />
             ) : (
-              <div className="flex flex-col gap-1">
+              // A vertical list from lg; a horizontal chip strip below it,
+              // where a stacked list would spend half the screen before the
+              // chat starts.
+              <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain max-lg:scrollbar-none max-lg:flex-row max-lg:gap-2 max-lg:overflow-x-auto max-lg:overflow-y-visible">
                 {rows.map((conversation) => (
                   <ConversationRow
                     key={conversation.id}
@@ -609,8 +860,16 @@ export function NeptuneAiPageClient() {
                     }}
                     isActive={conversation.id === activeId}
                     onSelect={() => {
+                      stickToBottomRef.current = true;
                       setActiveId(conversation.id);
+                      setPending(null);
                       setFailure(null);
+                    }}
+                    onDelete={() => {
+                      setConfirmDelete({
+                        id: conversation.id,
+                        title: conversation.title,
+                      });
                     }}
                   />
                 ))}
@@ -618,25 +877,10 @@ export function NeptuneAiPageClient() {
             )}
           </GlassCard>
 
-          <GlassCard className="min-w-0 justify-between gap-4">
-            {messages.length > 0 ? (
-              <div className="flex min-w-0 flex-col gap-5">
-                {messages.map((message) => (
-                  <PageMessage
-                    key={message.id}
-                    message={message}
-                    displayName={user.displayName}
-                    initials={user.initials}
-                    profileUrl={user.profileUrl}
-                  />
-                ))}
-                <div ref={bottomRef} />
-              </div>
-            ) : (
-              <EmptyThread />
-            )}
+          <GlassCard className="min-h-0 min-w-0 justify-between gap-4 overflow-hidden">
+            {threadBody}
 
-            <div className="flex flex-col gap-3">
+            <div className="flex shrink-0 flex-col gap-3">
               {failure ? (
                 <Text
                   as="p"
@@ -670,17 +914,20 @@ export function NeptuneAiPageClient() {
                 }}
                 className="border-ehs-border-ink/8 bg-ehs-surface flex items-center gap-3 rounded-full border px-4 py-2.5"
               >
+                {/* Typable while an answer is in flight — send() blocks the
+                    race, and a disabled input would throw the keyboard away
+                    for up to two minutes. text-base below lg: iOS zooms the
+                    whole page into any focused input under 16px. */}
                 <input
                   type="text"
                   value={draft}
                   onChange={(event) => {
                     setDraft(event.target.value);
                   }}
-                  disabled={isBusy}
                   maxLength={2000}
                   placeholder="Ask Neptune AI anything about EHS..."
                   aria-label="Ask Neptune AI"
-                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-[13px] outline-none disabled:cursor-not-allowed"
+                  className="text-ehs-dark-bg placeholder:text-ehs-muted-text min-w-0 flex-1 bg-transparent text-base outline-none lg:text-[13px]"
                 />
                 <button
                   type="submit"
@@ -699,6 +946,42 @@ export function NeptuneAiPageClient() {
           </GlassCard>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        title="Delete this conversation?"
+        description={
+          confirmDelete
+            ? `"${confirmDelete.title}" and its messages will be removed. This cannot be undone.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        isConfirming={drop.isPending}
+        onCancel={() => {
+          setConfirmDelete(null);
+        }}
+        onConfirm={() => {
+          if (!confirmDelete) {
+            return;
+          }
+
+          drop.mutate(confirmDelete.id, {
+            onSuccess: () => {
+              // Deleting the open thread leaves nothing to show — fall back
+              // to the fresh-chat state rather than a dead id.
+              if (activeId === confirmDelete.id) {
+                setActiveId(null);
+                setPending(null);
+              }
+              setConfirmDelete(null);
+            },
+            onError: () => {
+              setConfirmDelete(null);
+              setFailure("Couldn't delete that conversation. Try again.");
+            },
+          });
+        }}
+      />
     </div>
   );
 }
