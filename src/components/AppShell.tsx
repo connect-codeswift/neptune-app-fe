@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,79 @@ import { Icon } from "@iconify/react";
 /* The mobile drawer scrim is pinned to `bg-black/40`. `--ehs-overlay` is slate
    at the same alpha, not black, and no token carries black at 0.4. */
 
+/* Whether the desktop rail is collapsed to its icon-only mini form. Persisted
+   because a rail you closed that reopens on the next route change is worse
+   than no button at all. Desktop only — below lg the rail is already an
+   off-canvas drawer with its own open/close, and this preference is ignored.
+
+   localStorage is an external store, so it is read through
+   `useSyncExternalStore` rather than copied into state by an effect: that keeps
+   the server and hydration snapshots explicit, and syncs the rail across tabs
+   for free. */
+const SIDEBAR_COLLAPSED_KEY = "neptune-sidebar-collapsed";
+
+const collapsedListeners = new Set<() => void>();
+let cachedCollapsed: boolean | null = null;
+
+function readStoredCollapsed(): boolean {
+  if (globalThis.window === undefined) {
+    return false;
+  }
+
+  try {
+    return globalThis.localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+  } catch {
+    // Storage blocked (private mode, locked-down profile). The toggle still
+    // works for this session; it just isn't remembered.
+    return false;
+  }
+}
+
+/** Called on every render, so the read is cached rather than hitting storage. */
+function getCollapsedSnapshot(): boolean {
+  cachedCollapsed ??= readStoredCollapsed();
+  return cachedCollapsed;
+}
+
+/** The rail is always expanded in server HTML — there is no request-time hint. */
+function getCollapsedServerSnapshot(): boolean {
+  return false;
+}
+
+function subscribeCollapsed(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    // A null key means the whole store was cleared (e.g. logout).
+    if (event.key !== null && event.key !== SIDEBAR_COLLAPSED_KEY) {
+      return;
+    }
+
+    cachedCollapsed = null;
+    onStoreChange();
+  };
+
+  collapsedListeners.add(onStoreChange);
+  globalThis.addEventListener("storage", onStorage);
+
+  return () => {
+    collapsedListeners.delete(onStoreChange);
+    globalThis.removeEventListener("storage", onStorage);
+  };
+}
+
+function setStoredCollapsed(collapsed: boolean) {
+  cachedCollapsed = collapsed;
+
+  try {
+    globalThis.localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(collapsed));
+  } catch {
+    // As above — session-only is an acceptable degradation.
+  }
+
+  for (const listener of collapsedListeners) {
+    listener();
+  }
+}
+
 export type AppShellProps = Readonly<{
   children: ReactNode;
 }>;
@@ -30,6 +104,15 @@ export function AppShell(props: Readonly<AppShellProps>) {
   // Drives `inert` on the off-canvas drawer. Starts false so the server and
   // the first client render agree; the media query resolves on mount.
   const [isDesktop, setIsDesktop] = useState(false);
+  const isCollapsed = useSyncExternalStore(
+    subscribeCollapsed,
+    getCollapsedSnapshot,
+    getCollapsedServerSnapshot,
+  );
+  // Transitions are off until the user has actually pressed the button, so a
+  // rail restored to collapsed on load is simply already closed rather than
+  // sweeping shut in front of them. Set from an event handler, never an effect.
+  const [hasToggled, setHasToggled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   // The access window now lives in the sidebar under the nav, not across
@@ -40,6 +123,43 @@ export function AppShell(props: Readonly<AppShellProps>) {
     setSidebarOpen(false);
     menuButtonRef.current?.focus();
   }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setHasToggled(true);
+    setStoredCollapsed(!getCollapsedSnapshot());
+  }, []);
+
+  // The mobile drawer always animates — that slide predates the collapse
+  // button and must survive it. On desktop, movement animates only after an
+  // explicit toggle, so a rail restored to collapsed on load is simply already
+  // closed rather than sweeping shut across the first paint.
+  const railAnimates = hasToggled || !isDesktop;
+
+  // Ctrl/Cmd+B, the shortcut every editor-shaped app uses for this. Desktop
+  // only: below lg the rail is a drawer, and a keyboard is unlikely anyway.
+  useEffect(() => {
+    if (!isDesktop) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        !(event.ctrlKey || event.metaKey) ||
+        event.key.toLowerCase() !== "b"
+      ) {
+        return;
+      }
+
+      // Firefox opens its bookmarks sidebar on this chord.
+      event.preventDefault();
+      toggleCollapsed();
+    };
+
+    globalThis.document.addEventListener("keydown", onKeyDown);
+    return () => {
+      globalThis.document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isDesktop, toggleCollapsed]);
 
   useEffect(() => {
     if (!getAccessToken()) {
@@ -93,7 +213,20 @@ export function AppShell(props: Readonly<AppShellProps>) {
   }, [sidebarOpen, closeSidebar]);
 
   return (
-    <div className="flex min-h-dvh min-w-0 flex-col lg:ml-68 lg:flex-row">
+    <div
+      className={[
+        "flex min-h-dvh min-w-0 flex-col lg:flex-row",
+        // Only ever one margin class, never `lg:ml-68` plus an override —
+        // two utilities at equal specificity would be settled by stylesheet
+        // order rather than by intent.
+        isCollapsed ? "lg:ml-24" : "lg:ml-68",
+        hasToggled
+          ? "transition-[margin] duration-300 motion-reduce:transition-none"
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {/* Ambient ground for the whole app: the body is flat ehs-light-bg, and
           glass surfaces only read as glass with colour behind them to blur.
           Fixed so it doesn't scroll with content; z-0 with content above. */}
@@ -141,25 +274,64 @@ export function AppShell(props: Readonly<AppShellProps>) {
       <div
         id="app-sidebar"
         ref={sidebarRef}
+        // Mobile-only: the collapsed desktop rail is a working icon strip,
+        // not a hidden one, so its links stay in the tab order there.
         inert={!isDesktop && !sidebarOpen}
         className={[
-          "fixed top-0 left-0 z-50 h-dvh w-68 max-w-[calc(100%-3rem)] p-2 transition-transform duration-300 lg:max-w-none lg:translate-x-0 lg:p-4 lg:pr-0",
+          "fixed top-0 left-0 z-50 h-dvh max-w-[calc(100%-3rem)] p-2 lg:max-w-none lg:translate-x-0 lg:p-4 lg:pr-0",
+          railAnimates
+            ? "transition-[width,transform] duration-300 motion-reduce:transition-none"
+            : "",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
-        ].join(" ")}
+          // Collapsing narrows the rail to an icon strip rather than sliding
+          // it away — navigation stays one click deep. Width is lg-only in
+          // effect: below lg the drawer is off-canvas either way.
+          isCollapsed ? "w-68 lg:w-24" : "w-68",
+        ]
+          .filter(Boolean)
+          .join(" ")}
       >
         {/* lg only: these exist purely as colour for the glass rail to
             refract. The mobile sheet is opaque, so below lg they are three
             full-size blur-3xl layers painting every frame behind something
-            you cannot see through. */}
+            you cannot see through.
+
+            Two geometries, one palette: the sizes and offsets are tuned to
+            the 17rem rail, and clipped to the 6rem mini rail they mostly fall
+            outside the strip — leaving the glass with nothing to refract, so
+            the closed rail read flat white while the open one read tinted.
+            The collapsed set is the same three colours scaled and re-anchored
+            onto the strip. */}
         <div
           className="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block"
           aria-hidden="true"
         >
-          <div className="bg-ehs-normal-blue/20 absolute -top-16 -left-12 size-56 rounded-full blur-3xl" />
-          <div className="absolute top-[38%] -right-16 size-56 rounded-full bg-cyan-300/25 blur-3xl" />
-          <div className="bg-ehs-normal-blue/15 absolute -bottom-12 left-[10%] size-56 rounded-full blur-3xl" />
+          <div
+            className={[
+              "bg-ehs-normal-blue/20 absolute rounded-full blur-3xl",
+              isCollapsed
+                ? "-top-10 -left-8 size-32"
+                : "-top-16 -left-12 size-56",
+            ].join(" ")}
+          />
+          <div
+            className={[
+              "absolute rounded-full bg-cyan-300/25 blur-3xl",
+              isCollapsed
+                ? "top-[38%] -right-8 size-32"
+                : "top-[38%] -right-16 size-56",
+            ].join(" ")}
+          />
+          <div
+            className={[
+              "bg-ehs-normal-blue/15 absolute rounded-full blur-3xl",
+              isCollapsed
+                ? "-bottom-8 -left-6 size-32"
+                : "-bottom-12 left-[10%] size-56",
+            ].join(" ")}
+          />
         </div>
-        <DashboardSidebar onClose={closeSidebar} />
+        <DashboardSidebar onClose={closeSidebar} collapsed={isCollapsed} />
       </div>
 
       {/* `relative` so the content column stacks above the fixed ambient
@@ -176,6 +348,38 @@ export function AppShell(props: Readonly<AppShellProps>) {
         ) : null}
         {children}
       </div>
+
+      {/* The rail toggle. One button rather than a close-here / reopen-there
+          pair: it stays mounted across both states, so keyboard focus never
+          gets dropped, and there is only one control to find. Sits outside
+          the sliding wrapper and straddles the rail's right edge in both
+          states — 17rem expanded, 6rem for the icon rail. */}
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
+        aria-expanded={!isCollapsed}
+        aria-controls="app-sidebar"
+        title={`${isCollapsed ? "Expand" : "Collapse"} navigation (Ctrl+B)`}
+        className={[
+          "border-ehs-hairline/60 bg-ehs-surface/70 text-ehs-muted-text hover:text-ehs-darker hover:bg-ehs-surface focus-visible:ring-ehs-normal-blue/40 fixed top-1/2 z-50 hidden size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border shadow-(--ehs-shadow-card) backdrop-blur-xl focus-visible:ring-2 focus-visible:outline-none lg:inline-flex",
+          isCollapsed ? "left-20" : "left-64",
+          // One transition-property utility at a time: stacking
+          // `transition-colors` with the arbitrary list would leave stylesheet
+          // order to decide which wins, and the `left` slide could lose.
+          hasToggled
+            ? "transition-[left,color,background-color] duration-300 motion-reduce:transition-none"
+            : "transition-colors",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <Icon
+          icon={isCollapsed ? "mdi:chevron-right" : "mdi:chevron-left"}
+          className="size-5"
+          aria-hidden="true"
+        />
+      </button>
 
       {/* Fixed to the viewport, so it stays put while the content column scrolls. */}
       <AskNeptuneAiButton />
