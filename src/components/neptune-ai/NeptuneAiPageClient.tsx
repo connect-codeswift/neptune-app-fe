@@ -241,16 +241,59 @@ function isNumeric(text: string): boolean {
   return text.trim() !== "" && !Number.isNaN(Number(text.replace(/[,%]/g, "")));
 }
 
-/** One table cell: a tinted pill when the backend gave it a tone, plain text otherwise. */
+function tableToCsv(table: ChatTable): string {
+  const escapeCell = (text: string) => `"${text.replaceAll('"', '""')}"`;
+
+  return [
+    table.columns.map(escapeCell).join(","),
+    ...table.rows.map((row) =>
+      row.map((cell) => escapeCell(cell.text)).join(","),
+    ),
+  ].join("\r\n");
+}
+
+/** Client-side CSV download — the table is already fully in hand. */
+function downloadTableAsCsv(table: ChatTable) {
+  const slug =
+    table.title
+      .toLowerCase()
+      .replaceAll(/[^a-z0-9]+/g, "-")
+      .replaceAll(/^-+|-+$/g, "") || "table";
+
+  // The BOM is for Excel, which otherwise reads UTF-8 as the local codepage.
+  const blob = new Blob([`\uFEFF${tableToCsv(table)}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${slug}.csv`;
+  anchor.click();
+
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * One table cell: a tinted pill when the backend gave it a tone, plain text otherwise.
+ *
+ * Short values must not wrap — "August 1, 2026, at 19:00 UTC" split over five
+ * lines is what made these tables unreadable. The columns are arbitrary, so
+ * length is the only tell: anything under ~32 characters stays on one line,
+ * and genuinely long prose (descriptions) wraps with a width floor so its
+ * nowrap neighbours cannot crush it.
+ */
 function TableCell(props: Readonly<{ cell: ChatCell }>) {
   const { cell } = props;
   const pill = cell.tone ? TONE_PILL[cell.tone] : "";
+  const wrapClass =
+    cell.text.length <= 32 ? "whitespace-nowrap" : "min-w-44 leading-4.5";
 
   if (pill) {
     return (
-      <td className="px-2.5 py-2.5">
+      <td className="px-2.5 py-2.5 align-top">
         <span
-          className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ${pill}`}
+          className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${pill}`}
         >
           {cell.text}
         </span>
@@ -260,7 +303,7 @@ function TableCell(props: Readonly<{ cell: ChatCell }>) {
 
   return (
     <td
-      className={`text-ehs-darker px-2.5 py-2.5 text-xs ${isNumeric(cell.text) ? "tabular-nums" : ""}`}
+      className={`text-ehs-darker px-2.5 py-2.5 align-top text-xs ${wrapClass} ${isNumeric(cell.text) ? "tabular-nums" : ""}`}
     >
       {cell.text}
     </td>
@@ -279,8 +322,10 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
         </Text>
         <button
           type="button"
-          disabled
-          className="text-ehs-normal-blue inline-flex cursor-not-allowed items-center gap-1 text-xs font-semibold opacity-80"
+          onClick={() => {
+            downloadTableAsCsv(table);
+          }}
+          className="text-ehs-normal-blue hover:text-ehs-dark-blue inline-flex cursor-pointer items-center gap-1 text-xs font-semibold transition-colors"
         >
           <Icon icon="mdi:download" className="size-3.5" aria-hidden="true" />
           Download as CSV
@@ -295,7 +340,7 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
                 <th
                   key={`${heading}-${String(column)}`}
                   scope="col"
-                  className="text-ehs-darker px-2.5 py-2 text-[11px] font-bold first:rounded-l-md last:rounded-r-md"
+                  className="text-ehs-darker px-2.5 py-2 text-[11px] font-bold whitespace-nowrap first:rounded-l-md last:rounded-r-md"
                 >
                   {heading}
                 </th>
@@ -308,7 +353,7 @@ function ReplyTable(props: Readonly<{ table: ChatTable }>) {
               // identical. The list is rendered once and never reordered or edited in place.
               <tr
                 key={rowIndex}
-                className="border-ehs-border-ink/6 border-b last:border-0"
+                className="border-ehs-border-ink/6 hover:bg-ehs-surface-raised/50 border-b transition-colors last:border-0"
               >
                 {row.map((cell, cellIndex) => (
                   <TableCell key={cellIndex} cell={cell} />
@@ -358,6 +403,16 @@ function PageMessage(
 
   const isAnalyzing = Boolean(message.analyzing);
 
+  // Prose keeps a bubble's measure; a reply carrying data blocks becomes a
+  // full-width panel instead. Capping an eight-column table at bubble width
+  // strangled every cell while most of the card sat empty.
+  const hasBlocks = Boolean(
+    message.chart ??
+    message.table ??
+    message.insights ??
+    (message.results && message.results.length > 0 ? message.results : null),
+  );
+
   return (
     <div className="flex w-full items-start gap-3">
       {isAnalyzing ? (
@@ -366,7 +421,12 @@ function PageMessage(
         <LogoMark className="text-ehs-normal-blue size-9 shrink-0" decorative />
       )}
 
-      <div className="rounded-3 border-ehs-normal-blue/10 bg-ehs-normal-blue/10 flex max-w-150 min-w-0 flex-col gap-2.5 border p-3.5">
+      <div
+        className={[
+          "rounded-3 border-ehs-normal-blue/10 bg-ehs-normal-blue/10 flex min-w-0 flex-col gap-2.5 border p-3.5",
+          hasBlocks ? "max-w-full flex-1" : "max-w-150",
+        ].join(" ")}
+      >
         {message.analyzing ? (
           <>
             <div className="flex items-center gap-2">
@@ -949,13 +1009,13 @@ export function NeptuneAiPageClient() {
 
       <ConfirmDialog
         open={confirmDelete !== null}
-        title="Delete this conversation?"
+        title="Remove this chat?"
         description={
           confirmDelete
-            ? `"${confirmDelete.title}" and its messages will be removed. This cannot be undone.`
+            ? `"${confirmDelete.title}" and its messages will be removed from your history.`
             : undefined
         }
-        confirmLabel="Delete"
+        confirmLabel="Remove"
         isConfirming={drop.isPending}
         onCancel={() => {
           setConfirmDelete(null);
