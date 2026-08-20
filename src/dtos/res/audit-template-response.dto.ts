@@ -10,8 +10,6 @@ export type AuditTemplateDto = {
   isScoringEnable: boolean;
   passThreshold: number;
   isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   isArchived: boolean;
@@ -23,8 +21,6 @@ export type AuditTemplateDto = {
   updatedDate: string;
   lastUsedDate: string;
   frequency: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
 };
 
 /** Matches backend response for POST /api/v1/audit-templates. */
