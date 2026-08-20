@@ -20,12 +20,6 @@ export function normalizeSummaryDto(
 ): AuditInspectionSummaryDto | null {
   if (!isRecord(raw)) return null;
 
-  const averageScoreRaw = readProp(raw, "averageScore", "AverageScore");
-  const averageScore =
-    averageScoreRaw === null || averageScoreRaw === undefined
-      ? null
-      : (asNumber(averageScoreRaw) ?? null);
-
   return {
     total: asNumber(readProp(raw, "total", "Total")) ?? 0,
     scheduled: asNumber(readProp(raw, "scheduled", "Scheduled")) ?? 0,
@@ -35,7 +29,6 @@ export function normalizeSummaryDto(
     overdue: asNumber(readProp(raw, "overdue", "Overdue")) ?? 0,
     completionRate:
       asNumber(readProp(raw, "completionRate", "CompletionRate")) ?? 0,
-    averageScore,
     auditsYtd: asNumber(readProp(raw, "auditsYtd", "AuditsYtd")) ?? undefined,
     inspectionsYtd:
       asNumber(readProp(raw, "inspectionsYtd", "InspectionsYtd")) ?? undefined,
@@ -195,5 +188,3 @@ export function mapInspectionDetailSummaryToDetail(
     topFindings: dto.topFindings,
   };
 }
-
-/** Format average score for display; null → em dash. */

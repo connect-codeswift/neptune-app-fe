@@ -76,8 +76,6 @@ export type TemplateItem = {
   type: TemplateItemType;
   label: string;
   guidance: string;
-  /** Contribution to the section score; 0 means unscored. */
-  scoreWeight: number;
   /** Auditors must answer this item. New items default to required. */
   required: boolean;
   /** Captured value for the item's control: a string, or string[] for
@@ -91,8 +89,6 @@ export type TemplateSection = {
   description: string;
   items: TemplateItem[];
 };
-
-export const SCORE_WEIGHT_OPTIONS = [0, 1, 2, 3, 5, 10] as const;
 
 let idCounter = 0;
 
@@ -108,7 +104,6 @@ export function createItem(type: TemplateItemType): TemplateItem {
     type,
     label: "",
     guidance: "",
-    scoreWeight: 0,
     required: true,
     value: type === "Multi Choice" ? [] : "",
   };
@@ -137,9 +132,8 @@ export function itemValueText(item: TemplateItem): string {
 }
 
 /**
- * Display name for an item: its label, else its entered value, else its type —
- * so the scoring/rules screens show what the auditor filled in. Long values are
- * ellipsised so they don't stretch dropdowns and lists.
+ * Display name for an item: its label, else its entered value, else its type.
+ * Long values are ellipsised so they don't stretch dropdowns and lists.
  */
 export function itemDisplayName(item: TemplateItem): string {
   const name = item.label.trim() || itemValueText(item) || item.type;
@@ -186,112 +180,6 @@ export function createSection(index: number): TemplateSection {
   };
 }
 
-/* ---- Step 3: Scoring & Logic ---- */
-
-export const SCORING_METHODS = ["Percentage", "Points", "Weighted"] as const;
-export type ScoringMethod = (typeof SCORING_METHODS)[number];
-
-export type ScoringConfig = {
-  enabled: boolean;
-  method: ScoringMethod;
-  /** Pass mark as a percentage, 0-100. */
-  passThreshold: number;
-  /** Show the running score to the auditor while they fill the form. */
-  showScoreToUser: boolean;
-};
-
-export function createScoringConfig(): ScoringConfig {
-  return {
-    enabled: true,
-    method: "Percentage",
-    passThreshold: 80,
-    showScoreToUser: false,
-  };
-}
-
-/** IF/THEN rule for conditional logic: IF <question> <operator> <value>. */
-export type TemplateRule = {
-  id: string;
-  active: boolean;
-  ifQuestion: string;
-  ifOperator: string;
-  ifValue: string;
-  thenAction: string;
-  thenValue: string;
-};
-
-export const RULE_OPERATORS = [
-  "Equals",
-  "Not Equals",
-  "Is Answered",
-  "Is Empty",
-] as const;
-
-/** Comparison values for the IF clause, matching the checklist answers. */
-export const RULE_VALUES = ["Yes", "No", "N/A", "Partial"] as const;
-
-export const RULE_ACTIONS = [
-  "Show Item",
-  "Hide Item",
-  "Require Item",
-  "Show Section",
-  "Hide Section",
-] as const;
-
-export function createRule(): TemplateRule {
-  return {
-    id: nextId("rule"),
-    active: true,
-    ifQuestion: "",
-    ifOperator: "",
-    ifValue: "",
-    thenAction: "",
-    thenValue: "",
-  };
-}
-
-/** The backend rejects a template whose rules lack any of these three. */
-export function isRuleComplete(rule: TemplateRule): boolean {
-  return (
-    rule.ifQuestion.trim() !== "" &&
-    rule.ifOperator.trim() !== "" &&
-    rule.thenAction.trim() !== ""
-  );
-}
-
-/* ---- Step 4: Settings ---- */
-
-export const ACCESS_LEVELS = [
-  "All Users",
-  "Specific Roles",
-  "Specific Users / Teams",
-] as const;
-export type AccessLevel = (typeof ACCESS_LEVELS)[number];
-
-export const SITE_OPTIONS = [
-  "All Sites",
-  "HQ - Main Facility",
-  "Plant B",
-  "Warehouse A",
-] as const;
-
-export type TemplateSettings = {
-  accessLevel: AccessLevel;
-  /** Selected site labels; the design defaults to "All Sites". */
-  sites: string[];
-  allowDuplication: boolean;
-  allowEditing: boolean;
-};
-
-export function createSettings(): TemplateSettings {
-  return {
-    accessLevel: "All Users",
-    sites: ["All Sites"],
-    allowDuplication: true,
-    allowEditing: false,
-  };
-}
-
 /** Starting content, matching the design's two seeded sections. */
 export function createInitialSections(): TemplateSection[] {
   return [
@@ -315,11 +203,8 @@ export function createInitialSections(): TemplateSection[] {
   ];
 }
 
-/** The full set of data the 5-step wizard edits. */
+/** The full set of data the 3-step wizard edits. */
 export type WizardState = {
   values: FormValues;
   sections: TemplateSection[];
-  scoring: ScoringConfig;
-  rules: TemplateRule[];
-  settings: TemplateSettings;
 };

@@ -101,16 +101,7 @@ export function mapFindingDtoToFinding(dto: AuditFindingDto): AuditFinding {
   };
 }
 
-/**
- * Drop a numbering prefix from a section title, so the template's
- * "Section 1: Basic Information" reads as just "Basic Information".
- * A title without the separator is left alone.
- */
-function stripSectionPrefix(title: string): string {
-  return title.replace(/^\s*section\s*\d*\s*[:.\-–—]\s*/i, "").trim() || title;
-}
-
-/** Just enough of a template section to score it. */
+/** Just enough of a template section to report on it. */
 export type ReportSection = Readonly<{
   title: string;
   items: readonly Readonly<{ id: string }>[];
@@ -118,46 +109,19 @@ export type ReportSection = Readonly<{
 
 /**
  * Build the report straight from GET /api/v1/audits/{id}, which carries everything
- * it needs: the audit's metadata, the template snapshot (sections, items and
- * pass threshold) and the recorded responses.
+ * it needs: the audit's metadata, the template snapshot (sections and items)
+ * and the recorded responses.
  */
 export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
   const snapshot = dto.snapshot;
-  const passThreshold = snapshot?.passThreshold ?? 0;
-
-  const answerByItemId = new Map(
-    (dto.responses ?? []).map((answer) => [answer.templateItemId, answer]),
-  );
-
-  /** "Yes" over everything scorable; N/A items don't count either way. */
-  const scoreOf = (itemIds: readonly number[]): number | null => {
-    const scorable = itemIds
-      .map((id) => answerByItemId.get(id))
-      .filter((answer) => answer !== undefined)
-      .filter((answer) => !answer.isNA);
-    if (scorable.length === 0) return null;
-
-    const passed = scorable.filter(
-      (answer) => answer.valueText.trim().toLowerCase() === "yes",
-    ).length;
-    return Math.round((passed / scorable.length) * 100);
-  };
 
   const sections = [...(snapshot?.sections ?? [])].sort(
     (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
   );
 
-  const sectionScores = sections.flatMap((section) => {
-    const score = scoreOf((section.items ?? []).map((item) => item.id));
-    return score === null
-      ? []
-      : [{ section: stripSectionPrefix(section.sectionTitle ?? ""), score }];
-  });
-
   const allItemIds = sections.flatMap((section) =>
     (section.items ?? []).map((item) => item.id),
   );
-  const overall = dto.score ?? scoreOf(allItemIds) ?? 0;
 
   const failed = (dto.responses ?? []).filter(
     (answer) => !answer.isNA && answer.valueText.trim().toLowerCase() === "no",
@@ -165,7 +129,6 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
 
   const executiveSummary = [
     `${dto.auditTitle || "This audit"} covered ${String(allItemIds.length)} items across ${String(sections.length)} sections.`,
-    `It scored ${String(overall)}%, ${overall >= passThreshold ? "meeting" : "below"} the ${String(passThreshold)}% pass threshold.`,
     failed > 0
       ? `${String(failed)} item${failed === 1 ? "" : "s"} did not pass and may need corrective action.`
       : "No items failed.",
@@ -182,7 +145,6 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
     scope: [snapshot?.templateName, formatLocation(dto.location ?? "")]
       .filter(Boolean)
       .join(" · "),
-    score: overall,
     auditor: dto.auditorName || "Unassigned",
     date:
       (dto.scheduleDate || dto.startedAt || dto.submittedAt || "").slice(
@@ -190,9 +152,7 @@ export function buildAuditReportFromDetail(dto: AuditDetailDto): AuditReport {
         10,
       ) || "—",
     status: dto.status || "—",
-    passThreshold,
     executiveSummary,
-    sectionScores,
   };
 }
 

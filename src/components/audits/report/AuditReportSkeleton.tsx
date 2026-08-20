@@ -2,8 +2,8 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
- * Loading placeholder for the report body: the summary card (title, score,
- * meta, executive summary) and the per-section score bars.
+ * Loading placeholder for the report body: the summary card (title, meta,
+ * executive summary).
  */
 export function AuditReportSkeleton() {
   return (
@@ -17,11 +17,6 @@ export function AuditReportSkeleton() {
           <div className="flex min-w-0 flex-col gap-2">
             <Skeleton className="h-6 w-64" />
             <Skeleton className="h-3 w-48" />
-          </div>
-
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-2.5 w-24" />
           </div>
         </div>
 
@@ -39,26 +34,6 @@ export function AuditReportSkeleton() {
           <Skeleton className="h-2.5 w-full" />
           <Skeleton className="h-2.5 w-full" />
           <Skeleton className="h-2.5 w-3/4" />
-        </div>
-      </IncidentGlassCard>
-
-      {/* Per-section scores */}
-      <IncidentGlassCard
-        paddingClassName="p-6"
-        incidentGlassCardClassName="gap-4"
-      >
-        <Skeleton className="h-4 w-44" />
-
-        <div className="flex flex-col gap-4">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between gap-3">
-                <Skeleton className="h-3 w-40" />
-                <Skeleton className="h-3 w-10" />
-              </div>
-              <Skeleton className="h-2.5 w-full rounded-full" />
-            </div>
-          ))}
         </div>
       </IncidentGlassCard>
     </div>

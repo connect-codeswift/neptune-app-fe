@@ -4,12 +4,10 @@ import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
-import { GlassSelect } from "@/components/ui/GlassSelect";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import { uploadFile } from "@/lib/upload-file";
 import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
 import {
-  SCORE_WEIGHT_OPTIONS,
   TEMPLATE_ITEM_ICONS,
   createItem,
   createSection,
@@ -521,21 +519,6 @@ function ItemRow(
               placeholder="Optional helper text"
               onChange={(event) => onChange({ guidance: event.target.value })}
               className={inputClass}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={labelClass}>Score Weight</span>
-            <GlassSelect
-              options={SCORE_WEIGHT_OPTIONS.map((weight) => ({
-                value: String(weight),
-                label: String(weight),
-              }))}
-              value={String(item.scoreWeight)}
-              onChange={(value) => {
-                onChange({ scoreWeight: Number(value) });
-              }}
-              aria-label="Score weight"
             />
           </div>
         </div>

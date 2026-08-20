@@ -145,14 +145,7 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
   // A fresh audit run starts with nothing answered.
   const [answers, setAnswers] = useState<AnswerMap>({});
 
-  // Score counts "Yes" against everything scorable — N/A items don't apply.
   const answered = items.filter((item) => answers[item.id] !== undefined);
-  const scorable = answered.filter((item) => answers[item.id] !== "N/A");
-  const passed = scorable.filter((item) => answers[item.id] === "Yes");
-  const score =
-    scorable.length > 0
-      ? Math.round((passed.length / scorable.length) * 100)
-      : 0;
   const completion =
     items.length > 0 ? (answered.length / items.length) * 100 : 0;
 
@@ -187,14 +180,14 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
     saveResponses.mutate(
       {
         auditId: String(audit.id),
-        payload: { userId, siteId, score, responses },
+        payload: { userId, siteId, responses },
       },
       {
         onSuccess: (response) => {
           toast.success(response.message || "Audit submitted");
 
           // Stash the result and the answers behind it so the report page can
-          // render the summary and per-section scores, then open it.
+          // render the summary, then open it.
           const result = response.dataModel;
           if (result) dispatch(setAuditResult(result));
           dispatch(setAuditAnswers(responses));
@@ -245,16 +238,9 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
         // }
       />
 
-      {/* Score summary */}
+      {/* Progress summary */}
       <IncidentGlassCard paddingClassName="px-5 py-4" className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="text4 text-ehs-gray">
-            Score:{" "}
-            <span className="text5 text-ehs-darker tabular-nums">
-              {`${String(score)}%`}
-            </span>
-          </p>
-
           <p className="text4 text-ehs-gray">
             Items:{" "}
             <span className="text5 text-ehs-darker tabular-nums">

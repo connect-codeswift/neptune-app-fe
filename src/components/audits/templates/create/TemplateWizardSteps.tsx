@@ -5,8 +5,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 export const TEMPLATE_WIZARD_STEPS = [
   "Basic Info",
   "Build Sections",
-  "Scoring & Logic",
-  "Settings",
   "Review & Publish",
 ] as const;
 

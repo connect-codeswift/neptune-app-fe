@@ -7,11 +7,6 @@ export type AuditTemplateDto = {
   templateType: string;
   templateTags: string;
   description: string;
-  isScoringEnable: boolean;
-  passThreshold: number;
-  isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   isArchived: boolean;
@@ -23,8 +18,6 @@ export type AuditTemplateDto = {
   updatedDate: string;
   lastUsedDate: string;
   frequency: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
 };
 
 /** Matches backend response for POST /api/v1/audit-templates. */
@@ -54,24 +47,9 @@ export type AuditTemplateItemDto = {
   itemType?: string;
   question?: string;
   hint?: string;
-  scoreWeight?: number;
-  itemWeight?: number;
   isRequired?: boolean;
   displayOrder?: number;
   templateSectionId?: number;
-};
-
-/** A rule from GET /api/v1/audit-templates/{id}/conditional-logics. */
-export type AuditTemplateLogicDto = {
-  id: number;
-  status?: string;
-  if?: string;
-  condition?: string;
-  then?: string;
-  result?: string;
-  operator?: string;
-  conditionValue?: string;
-  action?: string;
 };
 
 export type GetTemplateSectionsResponseDto = ApiEnvelopeDto<
@@ -80,8 +58,4 @@ export type GetTemplateSectionsResponseDto = ApiEnvelopeDto<
 
 export type GetTemplateItemsResponseDto = ApiEnvelopeDto<
   AuditTemplateItemDto[] | null
->;
-
-export type GetTemplateLogicsResponseDto = ApiEnvelopeDto<
-  AuditTemplateLogicDto[] | null
 >;
