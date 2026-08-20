@@ -21,6 +21,7 @@ import {
   HazcomPictogramIcon,
   type HazcomSdsRecord,
 } from "@/components/hazcom/shared";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 export type SdsLibraryTableProps = Readonly<{
   records: readonly HazcomSdsRecord[];
@@ -78,7 +79,7 @@ function createSdsLibraryColumns(
 ): ColumnDef<HazcomSdsRecord, unknown>[] {
   const { selectedId, onViewMore, expanded = true } = options;
 
-  return [
+  const columns = [
     columnHelper.accessor("id", {
       header: "ID",
       size: expanded ? 96 : 72,
@@ -259,6 +260,11 @@ function createSdsLibraryColumns(
       },
     }),
   ] as ColumnDef<HazcomSdsRecord, unknown>[];
+
+  return withManageAction(columns, {
+    getHref: (row) => `/dashboard/hazcom/sds/${encodeURIComponent(row.id)}`,
+    getAriaLabel: (row) => `Manage SDS record ${row.chemicalName}`,
+  }) as ColumnDef<HazcomSdsRecord, unknown>[];
 }
 
 function columnWidthStyle(size: number, totalSize: number) {

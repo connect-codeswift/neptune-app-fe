@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Table } from "@/components/ui/Table";
+import { withManageAction } from "@/components/ui/table-manage-column";
 import { createCapaColumns } from "@/components/capa/CapaColumns";
 import { CapaRegisterHeader } from "@/components/capa/CapaRegisterHeader";
 import type { CapaDashboardItem } from "@/components/capa/capa-dashboard-data";
@@ -36,11 +37,17 @@ export function CapaRegisterTable(props: Readonly<CapaRegisterTableProps>) {
   } = props;
   const columns = useMemo(
     () =>
-      createCapaColumns({
-        selectedId,
-        onViewMore: onToggleDetail,
-        expanded,
-      }),
+      withManageAction(
+        createCapaColumns({
+          selectedId,
+          onViewMore: onToggleDetail,
+          expanded,
+        }),
+        {
+          getHref: (row) => `/dashboard/capa/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage CAPA ${row.title}`,
+        },
+      ),
     [selectedId, onToggleDetail, expanded],
   );
 

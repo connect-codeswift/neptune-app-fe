@@ -31,7 +31,6 @@ import { capaQueryKeys } from "@/hooks/use-capa-queries";
 
 export type CreateCapaTaskDraftInput = Readonly<{
   task: string;
-  owner: string;
   dueDate: string;
   priority?: string;
 }>;
@@ -57,7 +56,6 @@ export type CreateCapaTaskInput = Readonly<{
   /** Used for cache invalidation; optional for standalone CAPA detail. */
   incidentId?: number;
   task: string;
-  owner: string;
   dueDate: string;
   priority?: string;
 }>;
@@ -93,7 +91,6 @@ export type UpdateCapaTaskInput = Readonly<{
   capaId: number;
   incidentId?: number;
   task: string;
-  owner: string;
   dueDate: string;
   priority?: string;
 }>;
@@ -199,7 +196,6 @@ export function useCreateCapaTaskMutation() {
         buildCreateCapaTaskRequest({
           capaId: input.capaId,
           task: input.task,
-          owner: input.owner,
           dueDate: input.dueDate,
           priority: input.priority,
         }),
@@ -301,7 +297,6 @@ export function useUpdateCapaTaskMutation() {
           id: input.taskId,
           capaId: input.capaId,
           task: input.task,
-          owner: input.owner,
           dueDate: input.dueDate,
           priority: input.priority,
         }),
@@ -369,7 +364,6 @@ export function useCreateCapaMutation() {
             buildCreateCapaTaskRequest({
               capaId: capa.id,
               task: trimmedTask,
-              owner: task.owner,
               dueDate: task.dueDate,
               priority: task.priority,
             }),

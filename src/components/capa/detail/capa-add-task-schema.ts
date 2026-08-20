@@ -8,8 +8,6 @@ export const CAPA_ADD_TASK_FORM_ID = "capa-add-task-form";
 
 export type CapaAddTaskInitialDraft = Readonly<{
   name?: string;
-  assigneeName?: string;
-  assigneeUserId?: string;
   dueDate?: string;
   priority?: string;
 }>;
@@ -26,21 +24,11 @@ export function buildCapaAddTaskSchema(): FormSchema {
       placeholder: "Describe the task action...",
     },
     {
-      type: "person",
-      name: "assigned",
-      label: "Assigned To",
-      required: true,
-      colSpan: 6,
-      usersSource: "dropdown",
-      displayNameField: "assignedName",
-      placeholder: "Select assignee",
-    },
-    {
       type: "date",
       name: "dueDate",
       label: "Due Date",
       required: true,
-      colSpan: 6,
+      colSpan: 12,
       placeholder: "MM/DD/YYYY",
     },
     {
@@ -65,8 +53,6 @@ export function createCapaAddTaskInitialValues(
   return {
     ...createInitialValues(schema),
     name: draft?.name ?? "",
-    assigned: draft?.assigneeUserId ?? "",
-    assignedName: draft?.assigneeName ?? "",
     dueDate: draft?.dueDate ?? "",
     priority: draft?.priority || "Medium",
   };

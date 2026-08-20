@@ -22,6 +22,8 @@ import {
   useBehaviorCategoriesQuery,
 } from "@/hooks/use-bbs-queries";
 import { toObservationDetail } from "@/lib/map-bbs";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 import { BbsDetailPanel } from "./BbsDetailPanel";
 import { BbsObservationCard } from "./BbsObservationCard";
 import { createBbsSessionColumns } from "./BbsSessionColumns";
@@ -121,11 +123,18 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   const columns = useMemo(
     () =>
-      createBbsSessionColumns({
-        selectedId: activeSessionId,
-        onViewMore: handleToggleDetailPanel,
-        expanded: !isPanelOpen,
-      }),
+      withManageAction<BbsSession>(
+        createBbsSessionColumns({
+          selectedId: activeSessionId,
+          onViewMore: handleToggleDetailPanel,
+          expanded: !isPanelOpen,
+        }),
+        {
+          getHref: (session) =>
+            `/dashboard/bbs/observation?id=${encodeURIComponent(session.id)}`,
+          getAriaLabel: (session) => `Manage BBS session ${session.id}`,
+        },
+      ),
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
   );
 

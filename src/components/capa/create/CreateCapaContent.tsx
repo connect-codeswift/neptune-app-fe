@@ -110,6 +110,15 @@ export function CreateCapaContent() {
     const assigned = fieldString(values, "assigned");
     const dueDate = fieldString(values, "dueDate").trim();
 
+    const assignedId = parseAssignedId(assigned);
+    if (assignedId > 0 && assignedId === auth.userId) {
+      toast.error(
+        "Could not create CAPA",
+        "A CAPA cannot be assigned to yourself. Pick a different owner.",
+      );
+      return;
+    }
+
     try {
       await createCapaMutation.mutateAsync({
         payload: {
@@ -122,13 +131,12 @@ export function CreateCapaContent() {
           userId: auth.userId,
           incidentId: 0,
           rcaId: 0,
-          assignedId: parseAssignedId(assigned),
+          assignedId,
           dueDate,
           isDrop: false,
         },
         tasks: tasks.map((task) => ({
           task: task.name,
-          owner: task.assigneeUserId || assigned,
           dueDate: task.dueDate,
           priority: task.priority,
         })),
@@ -249,10 +257,9 @@ export function CreateCapaContent() {
                             <p className="text-3.25 leading-[19.5px] text-[#475569]">
                               {task.name}
                             </p>
-                            {task.assigneeName ? (
+                            {task.dueDate ? (
                               <p className="mt-0.5 text-xs text-[#94a3b8]">
-                                {task.assigneeName}
-                                {task.dueDate ? ` · ${task.dueDate}` : ""}
+                                {task.dueDate}
                               </p>
                             ) : null}
                           </div>

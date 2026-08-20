@@ -12,6 +12,8 @@ import { HazardHeatmapCard } from "@/components/hazard/HazardHeatmapCard";
 import { HazardRecognitionCard } from "@/components/hazard/HazardRecognitionCard";
 import { HazardDetailPanel } from "@/components/hazard/HazardDetailPanel";
 import { makeHazardColumns } from "@/components/hazard/HazardColumns";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 import {
   formatHazardDisplayId,
   mapHazardDtoToRecord,
@@ -97,15 +99,23 @@ export function HazardListPageClient() {
 
   const columns = useMemo(
     () =>
-      makeHazardColumns({
-        userNames,
-        selectedId: activeSelectedId,
-        onView: (record) => {
-          setSelectedId((current) =>
-            current === record.id ? null : record.id,
-          );
+      withManageAction<HazardRecord>(
+        makeHazardColumns({
+          userNames,
+          selectedId: activeSelectedId,
+          onView: (record) => {
+            setSelectedId((current) =>
+              current === record.id ? null : record.id,
+            );
+          },
+        }),
+        {
+          getHref: (record) =>
+            `/dashboard/hazard/${encodeURIComponent(record.id)}`,
+          getAriaLabel: (record) =>
+            `Manage hazard ${formatHazardDisplayId(record.id)}`,
         },
-      }),
+      ),
     [userNames, activeSelectedId],
   );
 

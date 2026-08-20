@@ -19,6 +19,7 @@ import {
 } from "@/components/incidents/list/IncidentBadge";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import { IncidentListTableHeader } from "@/components/incidents/list/IncidentListTableHeader";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 export type IncidentListTableProps<
   TData extends { id: string } = IncidentRecord,
@@ -84,7 +85,7 @@ function createIncidentColumns(
 ): ColumnDef<IncidentRecord, unknown>[] {
   const { selectedId, onViewMore } = options;
 
-  return [
+  const columns = [
     columnHelper.accessor("id", {
       header: "ID",
       size: expanded ? 120 : 100,
@@ -200,6 +201,14 @@ function createIncidentColumns(
       },
     }),
   ] as ColumnDef<IncidentRecord, unknown>[];
+
+  return withManageAction(columns, {
+    getHref: (row) =>
+      row.numericId > 0
+        ? `/dashboard/incidents/${String(row.numericId)}`
+        : null,
+    getAriaLabel: (row) => `Manage incident ${row.id}`,
+  }) as ColumnDef<IncidentRecord, unknown>[];
 }
 
 function columnWidthStyle(size: number, totalSize: number) {

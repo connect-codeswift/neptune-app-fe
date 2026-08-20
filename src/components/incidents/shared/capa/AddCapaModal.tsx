@@ -26,6 +26,8 @@ import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
 import { useCurrentSite } from "@/hooks/use-current-site";
+import { getAuthContext } from "@/lib/auth-context";
+import { toast } from "@/lib/toast";
 import { toSelectorControlLevel } from "@/services/mappers/capa.mapper";
 
 export type { CapaTaskFormPayload };
@@ -124,6 +126,10 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   const isEditMode = capaToEdit != null;
   const descriptionFieldId = useId();
   const site = useCurrentSite();
+  const auth = getAuthContext();
+  const currentUserId = auth && auth.userId > 0 ? auth.userId : null;
+  const excludeUserIds =
+    currentUserId != null ? [String(currentUserId)] : undefined;
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(() =>
     capaToEdit ? toSelectorControlLevel(capaToEdit.controlCategory) : null,
@@ -151,6 +157,22 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
       return;
     }
 
+    const resolvedOwnerId = Number(ownerUserId.trim());
+    if (
+      currentUserId != null &&
+      Number.isFinite(resolvedOwnerId) &&
+      resolvedOwnerId === currentUserId
+    ) {
+      const title = isEditMode
+        ? "Could not save CAPA"
+        : "Could not create CAPA";
+      toast.error(
+        title,
+        "A CAPA cannot be assigned to yourself. Pick a different owner.",
+      );
+      return;
+    }
+
     setIsLocalSubmitting(true);
     try {
       await onSubmit?.({
@@ -164,8 +186,6 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
           ? undefined
           : stagedTasks.map((task) => ({
               task: task.task,
-              owner: task.owner,
-              ownerName: task.ownerName,
               dueDate: task.dueDate,
               priority: task.priority,
             })),
@@ -291,6 +311,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 siteId={site.id}
                 siteName={site.name}
                 placeholder="e.g. M. Torres"
+                excludeUserIds={excludeUserIds}
               />
 
               <ReportDateField

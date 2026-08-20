@@ -25,6 +25,7 @@ import { buildPpeIssuanceLogColumns } from "./PpeIssuanceLogColumns";
 import { PpeIssuanceLogHeader } from "./PpeIssuanceLogHeader";
 import { exportIssuanceLogToCsv } from "./export-issuance-log-csv";
 import { PpeIssuanceLogSkeleton } from "../PpeSkeletons";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 const PROFILE_ROUTE = "/dashboard/ppe-management/profile";
 
@@ -179,7 +180,14 @@ export function PpeIssuanceLogContent(
     [entries, query, statusFilter],
   );
 
-  const columns = useMemo(() => buildPpeIssuanceLogColumns(), []);
+  const columns = useMemo(
+    () =>
+      withManageAction(buildPpeIssuanceLogColumns(), {
+        getHref: (row) => `${PROFILE_ROUTE}/${encodeURIComponent(row.id)}`,
+        getAriaLabel: (row) => `Manage issuance for ${row.employee}`,
+      }),
+    [],
+  );
 
   const resultLabel = `${String(filtered.length)} ${
     filtered.length === 1 ? "issuance" : "issuances"

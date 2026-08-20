@@ -24,8 +24,10 @@ import {
   PpeSearchBarSkeleton,
   PpeTableSkeleton,
 } from "./PpeSkeletons";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 const ISSUE_ROUTE = "/dashboard/ppe-management/issue";
+const CATALOG_ROUTE = "/dashboard/ppe-management/catalog";
 
 type PpeCategoryFilter = "all" | string;
 
@@ -134,10 +136,16 @@ export function PpeInventorySection() {
 
   const columns = useMemo(
     () =>
-      makePpeInventoryColumns({
-        selectedId: activeId,
-        onViewMore: handleToggleDetailPanel,
-      }),
+      withManageAction(
+        makePpeInventoryColumns({
+          selectedId: activeId,
+          onViewMore: handleToggleDetailPanel,
+        }),
+        {
+          getHref: (row) => `${CATALOG_ROUTE}/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage PPE item ${row.itemName}`,
+        },
+      ),
     [activeId, handleToggleDetailPanel],
   );
 
