@@ -119,7 +119,6 @@
      fails AA outright. Dark ink on the same fill is about 9:1. */
   --ehs-on-accent: #ffffff;
 
-
   /* Menus, select popovers and dropdowns: they float above the page rather
      than sitting in it, so they carry a deeper drop than a card and no edge
      highlight. */
@@ -589,6 +588,17 @@ body {
 */
 
 /* Page title — DashboardHeader */
+/* Hide a scroll container's scrollbar while leaving it scrollable. Several
+   surfaces (the sidebar nav, the chat suggestion chips) already carried this
+   class on the strength of its name — it was never actually defined, so their
+   "hidden" scrollbars were visible all along. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility text1 {
   @apply text-[1.25rem] leading-7 font-bold tracking-tight sm:text-[1.5rem] sm:leading-8;
 }

@@ -40,9 +40,9 @@ export function useAssistantConversationQuery(
 /**
  * Asks a question.
  *
- * Only the rail is invalidated on success, not the thread. The reply is already in hand and the
- * component has appended it — refetching the thread here would swap the rendered answer for an
- * identical one fetched again, and make a slow call slower for no visible change.
+ * Invalidates the rail and the answered thread. The page keeps rendering the reply it already
+ * holds and drops it only once the refetched thread contains the stored copy, so the refetch
+ * never causes a visible swap — it just brings the cache back in line.
  */
 export function useAskAssistantMutation() {
   const queryClient = useQueryClient();
@@ -52,10 +52,16 @@ export function useAskAssistantMutation() {
       payload: AskAssistantRequestDto;
       conversationId?: number;
     }) => askAssistant(vars.payload, vars.conversationId),
-    onSuccess: async () => {
+    onSuccess: async (reply) => {
       await queryClient.invalidateQueries({
         queryKey: assistantQueryKeys.conversations(),
       });
+
+      if (reply) {
+        await queryClient.invalidateQueries({
+          queryKey: assistantQueryKeys.conversation(reply.conversationId),
+        });
+      }
     },
   });
 }
