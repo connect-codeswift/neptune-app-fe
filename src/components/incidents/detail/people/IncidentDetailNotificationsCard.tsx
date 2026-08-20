@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -33,9 +35,13 @@ export function IncidentDetailNotificationsCard(
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t pt-2.5 pb-2.25">
-          No notifications recorded for this incident.
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:bell-outline"
+          title="No notifications"
+          message="Notifications sent for this incident appear here."
+          className="border-ehs-border-ink/8 border-t"
+        />
       ) : null}
 
       {notifications.map((notif, index) => (

@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Text } from "@/components/Text";
 import type { MetricRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -28,9 +30,13 @@ export function IncidentDetailResponseMetricsCard(
       </div>
 
       {metrics.length === 0 ? (
-        <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t pt-2.75 pb-2.5">
-          No response metrics recorded for this incident.
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:speedometer"
+          title="No response metrics"
+          message="Timing metrics appear once the incident response is logged."
+          className="border-ehs-border-ink/8 border-t"
+        />
       ) : (
         metrics.map((metric) => (
           <div

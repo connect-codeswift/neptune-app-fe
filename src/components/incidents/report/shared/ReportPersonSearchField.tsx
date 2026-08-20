@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   useEffect,
   useId,
@@ -443,8 +445,12 @@ export function ReportPersonSearchField(
             {loadErrorMessage}
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
-            {debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
+          <li className="p-1.5">
+            <EmptyState
+              variant="inline"
+              icon="mdi:account-off-outline"
+              title={debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
+            />
           </li>
         ) : (
           users.map((user, index) => {

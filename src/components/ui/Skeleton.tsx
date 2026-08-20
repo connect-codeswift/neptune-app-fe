@@ -24,7 +24,7 @@ export function Skeleton(props: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={["skeleton-sweep rounded bg-ehs-skeleton", className]
+      className={["skeleton-sweep bg-ehs-skeleton rounded", className]
         .filter(Boolean)
         .join(" ")}
     />

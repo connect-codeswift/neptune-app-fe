@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { SignOffRow } from "@/components/incidents/detail/incident-detail-types";
@@ -37,9 +39,12 @@ export function IncidentDetailSignOffCard(
       </Text>
 
       {signoffs.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text text4 mt-4.5">
-          No sign-offs recorded for this investigation.
-        </Text>
+        <EmptyState
+          variant="plain"
+          icon="mdi:draw-pen"
+          title="No sign-offs recorded"
+          message="Approvals for this investigation appear here once given."
+        />
       ) : (
         <div className="mt-4.5 flex flex-col">
           {signoffs.map((person, index) => (

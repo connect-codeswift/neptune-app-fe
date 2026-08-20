@@ -20,7 +20,7 @@ function Bar(props: BarProps) {
   return (
     <div
       aria-hidden="true"
-      className={["rounded-1.5 animate-pulse bg-ehs-border", className]
+      className={["rounded-1.5 bg-ehs-border animate-pulse", className]
         .filter(Boolean)
         .join(" ")}
       style={{ opacity }}
@@ -38,7 +38,7 @@ function GlassPanel(props: GlassPanelProps) {
   return (
     <div
       className={[
-        "rounded-5 backdrop-blur-2.5 border border-ehs-hairline/90 bg-ehs-surface/62 shadow-[0px_12px_32px_0px_rgba(15,23,42,0.08)]",
+        "rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 border shadow-[0px_12px_32px_0px_rgba(15,23,42,0.08)]",
         className,
       ]
         .filter(Boolean)
@@ -51,7 +51,7 @@ function GlassPanel(props: GlassPanelProps) {
 
 function TableHeaderSkeleton() {
   return (
-    <div className="flex items-start gap-2.5 bg-ehs-surface-inverse/2 px-3.5 py-3.5">
+    <div className="bg-ehs-surface-inverse/2 flex items-start gap-2.5 px-3.5 py-3.5">
       <Bar className="h-2.5 w-15" />
       <Bar className="h-2.5 w-30" />
       <Bar className="h-2.5 w-20" />
@@ -64,7 +64,7 @@ function TableHeaderSkeleton() {
 function TableRowSkeleton(props: Readonly<{ muted?: boolean }>) {
   const { muted = false } = props;
   return (
-    <div className="flex items-start gap-2.5 border-b border-ehs-border-ink/5 px-3.5 py-3.5">
+    <div className="border-ehs-border-ink/5 flex items-start gap-2.5 border-b px-3.5 py-3.5">
       <Bar className="h-2.5 w-12.5" opacity={muted ? 0.6 : 1} />
       <Bar className="h-2.5 w-35" opacity={muted ? 0.8 : 1} />
       <Bar className="h-2.5 w-17.5" opacity={muted ? 0.6 : 1} />
@@ -102,11 +102,11 @@ export function RegulatoryCompliancePageSkeleton() {
         </div>
 
         <div className="flex items-start gap-2">
-          <div className="rounded-2.5 flex items-start border border-ehs-hairline/90 bg-ehs-surface/62 px-3.5 py-2">
+          <div className="rounded-2.5 border-ehs-hairline/90 bg-ehs-surface/62 flex items-start border px-3.5 py-2">
             <Bar className="h-3 w-27.5" />
           </div>
-          <div className="rounded-2.5 flex items-start bg-ehs-normal-blue px-3.5 py-2">
-            <Bar className="h-3 w-20 bg-ehs-surface/90" />
+          <div className="rounded-2.5 bg-ehs-normal-blue flex items-start px-3.5 py-2">
+            <Bar className="bg-ehs-surface/90 h-3 w-20" />
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function RegulatoryCompliancePageSkeleton() {
       {/* TablePane — Figma 4818:19289 */}
       <GlassPanel className="min-w-0 overflow-hidden p-px">
         <div className="flex flex-col">
-          <div className="flex items-center justify-between border-b border-ehs-border-ink/8 p-4.5">
+          <div className="border-ehs-border-ink/8 flex items-center justify-between border-b p-4.5">
             <Bar className="h-3.5 w-30" />
             <div className="flex items-start gap-2">
               <Bar className="h-2.5 w-15" />

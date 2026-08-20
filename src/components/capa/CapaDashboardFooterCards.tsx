@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import { Button } from "@/components/ui/Button";
@@ -72,9 +74,12 @@ export function CapaDashboardFooterCards() {
         {showWorkloadSkeleton ? (
           <WorkloadListSkeleton />
         ) : previewOwners.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            No open CAPAs assigned
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:account-check-outline"
+            title="No open CAPAs assigned"
+            message="Owners with open actions appear here."
+          />
         ) : (
           <ul className="flex flex-col gap-4">
             {previewOwners.map((owner) => (

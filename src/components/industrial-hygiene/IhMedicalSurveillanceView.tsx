@@ -16,11 +16,11 @@ import { Text } from "@/components/Text";
 
 function MetricBox(props: Readonly<{ value: number; label: string }>) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg border border-ehs-border-ink/8 bg-ehs-surface/62 px-2.5 py-2">
-      <Text as="span" className="text-xl leading-5 font-bold text-ehs-dark-bg">
+    <div className="border-ehs-border-ink/8 bg-ehs-surface/62 flex min-w-0 flex-1 flex-col gap-0.5 rounded-lg border px-2.5 py-2">
+      <Text as="span" className="text-ehs-dark-bg text-xl leading-5 font-bold">
         {String(props.value)}
       </Text>
-      <Text as="span" className="font-mono text-sm text-ehs-muted-text">
+      <Text as="span" className="text-ehs-muted-text font-mono text-sm">
         {props.label}
       </Text>
     </div>
@@ -38,21 +38,24 @@ function SurveillanceCard(props: Readonly<{ program: IhSurveillanceProgram }>) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Text as="p" className="text-sm font-bold text-ehs-normal-blue">
+          <Text as="p" className="text-ehs-normal-blue text-sm font-bold">
             {program.code}
           </Text>
           <Text
             as="h2"
-            className="mt-0.5 text-base leading-5 font-bold text-ehs-dark-bg"
+            className="text-ehs-dark-bg mt-0.5 text-base leading-5 font-bold"
           >
             {program.title}
           </Text>
-          <Text as="p" className="mt-0.5 text-sm text-ehs-muted-text">
+          <Text as="p" className="text-ehs-muted-text mt-0.5 text-sm">
             {program.regulation}
           </Text>
         </div>
         {program.overdueLabel ? (
-          <Text as="span" className="shrink-0 text-sm font-bold text-ehs-muted-text">
+          <Text
+            as="span"
+            className="text-ehs-muted-text shrink-0 text-sm font-bold"
+          >
             {program.overdueLabel}
           </Text>
         ) : null}
@@ -65,13 +68,13 @@ function SurveillanceCard(props: Readonly<{ program: IhSurveillanceProgram }>) {
       </div>
 
       <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-ehs-muted-text">
+        <p className="text-ehs-muted-text text-sm">
           Frequency:{" "}
-          <span className="font-bold text-ehs-gray">{program.frequency}</span>
+          <span className="text-ehs-gray font-bold">{program.frequency}</span>
         </p>
-        <p className="text-sm text-ehs-muted-text">
+        <p className="text-ehs-muted-text text-sm">
           Last reviewed:{" "}
-          <span className="font-bold text-ehs-gray">
+          <span className="text-ehs-gray font-bold">
             {program.lastReviewed}
           </span>
         </p>
@@ -84,7 +87,7 @@ function SurveillanceCard(props: Readonly<{ program: IhSurveillanceProgram }>) {
         <Button
           type="button"
           variant="tertiary"
-          className="w-full justify-center rounded-lg px-3.5 py-2 text-base! font-semibold text-ehs-slate"
+          className="text-ehs-slate w-full justify-center rounded-lg px-3.5 py-2 text-base! font-semibold"
         >
           {/* Figma 5348:38193 — users icon, 12×12 */}
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
@@ -65,9 +67,12 @@ function PhotosContent(
       </div>
 
       {displayItems.length === 0 ? (
-        <div className="text-ehs-muted-text text4 py-8 text-center">
-          No media files uploaded.
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:image-outline"
+          title="No media uploaded"
+          message="Photos and video attached to this incident appear here."
+        />
       ) : (
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
           {displayItems.map((item, index) => {

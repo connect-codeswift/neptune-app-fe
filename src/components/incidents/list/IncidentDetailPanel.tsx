@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -220,9 +222,12 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
             Could not load linked CAPAs.
           </Text>
         ) : capas.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            No linked CAPAs yet.
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:link-variant"
+            title="No linked CAPAs"
+            message="Corrective actions raised from this incident appear here."
+          />
         ) : (
           <div className="flex flex-col gap-2.5">
             {capas.map((capa) => (

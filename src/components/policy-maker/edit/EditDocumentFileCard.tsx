@@ -32,14 +32,14 @@ export function EditDocumentFileCard(
   return (
     <div
       className={[
-        "rounded-3 flex w-full min-w-0 flex-col gap-3 border-2 border-dashed border-ehs-border-ink/10 bg-ehs-form-classes-bg/45 p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
+        "rounded-3 border-ehs-border-ink/10 bg-ehs-form-classes-bg/45 flex w-full min-w-0 flex-col gap-3 border-2 border-dashed p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flex shrink-0 items-start rounded-lg bg-ehs-surface-inverse/10 p-2">
+        <div className="bg-ehs-surface-inverse/10 flex shrink-0 items-start rounded-lg p-2">
           <Icon
             icon="mdi:file-document-outline"
             className="text-ehs-gray size-6"
@@ -67,7 +67,7 @@ export function EditDocumentFileCard(
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="text4 text-ehs-normal-blue inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-ehs-border-ink/10 bg-ehs-surface px-4 whitespace-nowrap transition-colors hover:bg-ehs-normal-blue/6"
+        className="text4 text-ehs-normal-blue border-ehs-border-ink/10 bg-ehs-surface hover:bg-ehs-normal-blue/6 inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border px-4 whitespace-nowrap transition-colors"
       >
         Replace File
       </button>

@@ -91,7 +91,7 @@ export function RegulatoryComplianceObligationDetailsCard(
     <IncidentGlassCard
       paddingClassName="p-0 overflow-hidden"
       className={[
-        "backdrop-blur-2.5 w-full max-w-175 bg-ehs-surface/62",
+        "backdrop-blur-2.5 bg-ehs-surface/62 w-full max-w-175",
         className,
       ]
         .filter(Boolean)
@@ -110,7 +110,7 @@ export function RegulatoryComplianceObligationDetailsCard(
               onClick={onDelete}
               disabled={busy}
               isLoading={isDeleting}
-              className={`${actionClass} border-ehs-border text-ehs-gray border bg-ehs-surface/80 shadow-none`}
+              className={`${actionClass} border-ehs-border text-ehs-gray bg-ehs-surface/80 border shadow-none`}
             >
               <Icon
                 icon="mdi:trash-can-outline"
@@ -174,7 +174,7 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
         </section>
 
-        <div className="h-px w-full bg-ehs-surface-inverse/8" />
+        <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
         <section>
           <SectionTitle>Schedule</SectionTitle>
@@ -194,7 +194,7 @@ export function RegulatoryComplianceObligationDetailsCard(
           </div>
         </section>
 
-        <div className="h-px w-full bg-ehs-surface-inverse/8" />
+        <div className="bg-ehs-surface-inverse/8 h-px w-full" />
 
         <section>
           <SectionTitle>Completion</SectionTitle>
@@ -210,7 +210,7 @@ export function RegulatoryComplianceObligationDetailsCard(
               />
             </div>
           ) : (
-            <div className="flex items-start gap-2 rounded-xl bg-ehs-surface-inverse/4 px-3 py-2.5">
+            <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
               <Icon
                 icon="mdi:clock-outline"
                 className="text-ehs-muted-text mt-0.5 size-4 shrink-0"

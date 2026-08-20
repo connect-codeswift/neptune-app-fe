@@ -40,7 +40,7 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
   const submitIcon = isCreate ? "mdi:plus" : "mdi:content-save-outline";
 
   return (
-    <div className="backdrop-blur-2.5 relative flex flex-col justify-center gap-3 rounded-2xl border border-ehs-border-ink/8 bg-ehs-surface/62 px-5.5 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl  before:content-['']">
+    <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-col justify-center gap-3 rounded-2xl border px-5.5 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-['']">
       <div className="relative z-1 flex min-w-0 flex-col gap-3">
         <nav
           aria-label="Breadcrumb"
@@ -72,7 +72,7 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
             <Link
               href={LOTO_ROUTE}
               aria-label="Back to Lockout / Tagout"
-              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-ehs-surface transition-colors hover:bg-ehs-surface-raised md:hidden"
+              className="border-ehs-border text-ehs-dark-bg rounded-2.5 bg-ehs-surface hover:bg-ehs-surface-raised flex size-8 shrink-0 items-center justify-center border transition-colors md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>

@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -513,10 +515,12 @@ export function IncidentDetailHrcaBoard(
             </button>
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-ehs-muted-text rounded-5 text4 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 border px-4 py-10 text-center">
-            No HRCA lanes are configured. Seeded RCA categories (ids 1–5) are
-            required to render the worksheet.
-          </div>
+          <EmptyState
+            variant="card"
+            icon="mdi:sitemap-outline"
+            title="No HRCA lanes configured"
+            message="Seeded RCA categories (ids 1-5) are required to render the worksheet."
+          />
         ) : (
           <HrcaTable rows={rows} handlers={handlers} />
         )}

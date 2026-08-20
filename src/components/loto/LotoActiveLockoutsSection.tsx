@@ -90,6 +90,8 @@ export function LotoActiveLockoutsSection() {
       {lockouts.length === 0 ? (
         <LotoQueryStatus
           state="empty"
+          icon="mdi:lock-open-variant-outline"
+          title="No active lockouts"
           message="No equipment is locked out at this site right now."
         />
       ) : (

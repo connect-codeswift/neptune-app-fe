@@ -88,7 +88,7 @@ function DayTasksPanel(
       aria-label={`Tasks for ${state.heading}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="border-ehs-border fixed z-100 flex max-h-[min(320px,70vh)] w-70 flex-col overflow-hidden rounded-xl border bg-ehs-surface shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.22)]"
+      className="border-ehs-border bg-ehs-surface fixed z-100 flex max-h-[min(320px,70vh)] w-70 flex-col overflow-hidden rounded-xl border shadow-[0px_12px_32px_-8px_rgba(15,23,42,0.22)]"
       style={{ top: state.top, left: state.left }}
     >
       <div className="border-ehs-border shrink-0 border-b px-3 py-2.5">
@@ -248,15 +248,12 @@ export function RegulatoryComplianceCalendarGrid(
   return (
     <IncidentGlassCard
       paddingClassName="p-6"
-      className={[
-        "backdrop-blur-2.5 relative bg-ehs-surface/62",
-        className,
-      ]
+      className={["backdrop-blur-2.5 bg-ehs-surface/62 relative", className]
         .filter(Boolean)
         .join(" ")}
     >
       {isLoading ? (
-        <div className="rounded-5 backdrop-blur-0.25 pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-ehs-surface/45">
+        <div className="rounded-5 backdrop-blur-0.25 bg-ehs-surface/45 pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
           <Text as="span" className="text8 text-ehs-muted-text">
             Loading calendar…
           </Text>
@@ -363,7 +360,10 @@ export function RegulatoryComplianceCalendarGrid(
         }
         .custom-react-calendar .react-calendar__tile:enabled:hover,
         .custom-react-calendar .react-calendar__tile:enabled:focus {
-          background-color: var(--ehs-light-text) !important;
+          /* --ehs-surface-raised, not --ehs-light-text: the latter is white in
+             both themes (it is the ink for filled buttons), so hovering a day
+             used to flash a white tile in dark mode. */
+          background-color: var(--ehs-surface-raised) !important;
         }
         .custom-react-calendar .react-calendar__tile--active,
         .custom-react-calendar .react-calendar__tile.is-selected-day {

@@ -40,7 +40,7 @@ export function IhPageHeader(props: Readonly<IhPageHeaderProps>) {
                     {index > 0 ? (
                       <Icon
                         icon="mdi:chevron-right"
-                        className="size-3 text-ehs-placeholder"
+                        className="text-ehs-placeholder size-3"
                         aria-hidden
                       />
                     ) : null}
@@ -61,13 +61,13 @@ export function IhPageHeader(props: Readonly<IhPageHeaderProps>) {
 
           <Text
             as="h1"
-            className="text-xl leading-8 font-bold tracking-tight text-ehs-dark-bg"
+            className="text-ehs-dark-bg text-xl leading-8 font-bold tracking-tight"
           >
             {title}
           </Text>
 
           {subtitle ? (
-            <Text as="p" className="text-base text-ehs-muted-text">
+            <Text as="p" className="text-ehs-muted-text text-base">
               {subtitle}
             </Text>
           ) : null}

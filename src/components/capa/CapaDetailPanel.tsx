@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo } from "react";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -171,9 +173,11 @@ export function CapaDetailPanel(props: Readonly<CapaDetailPanelProps>) {
           </Text>
         ) : null}
         {!isTasksLoading && !tasksQuery.isError && tasks.length === 0 ? (
-          <Text as="p" className="text8 text-ehs-muted-text">
-            No tasks yet.
-          </Text>
+          <EmptyState
+            variant="inline"
+            icon="mdi:format-list-checks"
+            title="No tasks yet"
+          />
         ) : null}
         {!isTasksLoading && !tasksQuery.isError && tasks.length > 0 ? (
           <ul className="flex flex-col gap-1.5">

@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   AcknowledgeDocumentRequestDto,
   AddDocCategoryRequestDto,
-  AddDocDepartmentRequestDto,
   ApproveDocumentRequestDto,
   CreateDocumentRequestDto,
   UpdateDocumentRequestDto,
@@ -13,7 +12,6 @@ import { documentQueryKeys } from "@/hooks/use-document-queries";
 import {
   acknowledgeDocument,
   addDocCategory,
-  addDocDepartment,
   approveDocument,
   createDocument,
   updateDocument,
@@ -51,21 +49,6 @@ export function useAddDocumentCategoryMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: documentQueryKeys.categories,
-      });
-    },
-  });
-}
-
-/** POST /api/v1/departments — refreshes department options after create. */
-export function useAddDocumentDepartmentMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: AddDocDepartmentRequestDto) =>
-      addDocDepartment(payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: documentQueryKeys.departments,
       });
     },
   });

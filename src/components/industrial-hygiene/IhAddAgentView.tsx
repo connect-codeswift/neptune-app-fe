@@ -57,12 +57,12 @@ export function IhAddAgentView() {
               className="gap-4.5"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
+            <div className="border-ehs-border-ink/8 mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
+                className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel

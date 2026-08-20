@@ -33,7 +33,7 @@ export function HazcomNewRiskAssessmentPageClient() {
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-3.5 px-3 pt-4 pb-6 sm:gap-5 sm:px-4 sm:pb-8">
-        <div className="rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex w-full min-w-0 flex-col gap-1.5 border-b border-ehs-border-ink/8 bg-ehs-surface/62 px-3.5 py-3.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-[''] sm:px-5.5">
+        <div className="rounded-4 backdrop-blur-2.5 before:rounded-4 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex w-full min-w-0 flex-col gap-1.5 border-b px-3.5 py-3.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-[''] sm:px-5.5">
           <nav
             aria-label="Breadcrumb"
             className="relative z-1 hidden min-w-0 flex-wrap items-center gap-1 md:flex"
@@ -41,7 +41,7 @@ export function HazcomNewRiskAssessmentPageClient() {
             <span className={crumbMuted}>Safety</span>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Link href="/dashboard/hazcom/overview" className={crumbLink}>
@@ -49,7 +49,7 @@ export function HazcomNewRiskAssessmentPageClient() {
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Link href={ASSESSMENTS_HREF} className={crumbLink}>
@@ -57,7 +57,7 @@ export function HazcomNewRiskAssessmentPageClient() {
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <span className={crumbMuted}>New</span>
@@ -67,7 +67,7 @@ export function HazcomNewRiskAssessmentPageClient() {
             <Link
               href={ASSESSMENTS_HREF}
               aria-label="Back to Reports"
-              className="border-ehs-border text-ehs-dark-bg rounded-2.5 flex size-8 shrink-0 items-center justify-center border bg-ehs-surface transition-colors hover:bg-ehs-surface-raised md:hidden"
+              className="border-ehs-border text-ehs-dark-bg rounded-2.5 bg-ehs-surface hover:bg-ehs-surface-raised flex size-8 shrink-0 items-center justify-center border transition-colors md:hidden"
             >
               <Icon icon="mdi:chevron-left" className="size-3.5" />
             </Link>

@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { Icon } from "@iconify/react";
@@ -176,6 +177,9 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
   const resultLabel = `${String(filteredRows.length)} ${
     filteredRows.length === 1 ? "CAPA" : "CAPAs"
   }`;
+  // "nothing here yet" and "your filters match nothing" send the reader to
+  // different next actions, so the empty state distinguishes them.
+  const hasNoCapasAtAll = rows.length === 0;
   const summary = useMemo(() => summariseCapaRows(rows), [rows]);
 
   const columns = useMemo<ColumnDef<CapaListRow, unknown>[]>(
@@ -361,24 +365,20 @@ export function CapaListView(props: Readonly<CapaListViewProps>) {
       />
 
       {filteredRows.length === 0 ? (
-        <GlassCard className="min-h-60 items-center justify-center gap-2 text-center">
-          <Icon
-            icon="mdi:clipboard-text-off-outline"
-            className="text-ehs-muted-text size-8"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text-ehs-darker text-sm font-semibold">
-            {rows.length === 0
-              ? "No CAPAs yet"
-              : "No CAPAs match these filters"}
-          </Text>
-          <Text as="p" className="text-ehs-muted-text max-w-sm text-sm">
-            {rows.length === 0
+        <EmptyState
+          icon="mdi:clipboard-text-off-outline"
+          title={
+            hasNoCapasAtAll ? "No CAPAs yet" : "No CAPAs match these filters"
+          }
+          message={
+            hasNoCapasAtAll
               ? "Corrective and preventive actions raised from incidents will appear here."
-              : "Try widening the state, priority, type, or search."}
-          </Text>
-          {rows.length === 0 ? <CreateCapaButton className="mt-2" /> : null}
-        </GlassCard>
+              : "Try widening the state, priority, type, or search."
+          }
+          action={
+            hasNoCapasAtAll ? <CreateCapaButton className="mt-2" /> : null
+          }
+        />
       ) : (
         <Table
           data={filteredRows}

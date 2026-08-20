@@ -14,7 +14,7 @@ const AcknowledgePdfDocument = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="rounded-5 backdrop-blur-2.5 relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden border border-ehs-hairline/90 bg-ehs-surface/62 shadow-(--ehs-shadow-card-flat) lg:min-h-180.5">
+      <div className="rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden border shadow-(--ehs-shadow-card-flat) lg:min-h-180.5">
         <div className="text4 text-ehs-gray flex flex-col items-center justify-center gap-2">
           <Icon
             icon="mdi:loading"
@@ -49,7 +49,7 @@ export function AcknowledgeDocumentViewer(
     return (
       <div
         className={[
-          "rounded-5 backdrop-blur-2.5 relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden border border-ehs-hairline/90 bg-ehs-surface/62 px-6 text-center shadow-(--ehs-shadow-card-flat) lg:min-h-180.5",
+          "rounded-5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 relative flex min-h-105 w-full min-w-0 flex-col items-center justify-center overflow-hidden border px-6 text-center shadow-(--ehs-shadow-card-flat) lg:min-h-180.5",
           className,
         ]
           .filter(Boolean)

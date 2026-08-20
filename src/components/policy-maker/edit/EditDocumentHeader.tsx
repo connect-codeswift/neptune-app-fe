@@ -21,7 +21,7 @@ export function EditDocumentHeader(props: Readonly<EditDocumentHeaderProps>) {
   return (
     <div
       className={[
-        "rounded-4 backdrop-blur-2.5 before:rounded-4 relative flex w-full min-w-0 flex-col gap-1.5 border-b border-ehs-border-ink/8 bg-ehs-surface/62 px-3.5 py-3.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
+        "rounded-4 backdrop-blur-2.5 before:rounded-4 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex w-full min-w-0 flex-col gap-1.5 border-b px-3.5 py-3.5 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:content-[''] sm:px-5.5 sm:pt-3.5 sm:pb-3.5",
         className,
       ]
         .filter(Boolean)
@@ -34,7 +34,7 @@ export function EditDocumentHeader(props: Readonly<EditDocumentHeaderProps>) {
         <span className={crumbActive}>Compliance</span>
         <Icon
           icon="mdi:chevron-right"
-          className="size-2.75 shrink-0 text-ehs-muted-text"
+          className="text-ehs-muted-text size-2.75 shrink-0"
           aria-hidden="true"
         />
         <Link href="/dashboard/policy-maker" className={crumbMuted}>
@@ -42,7 +42,7 @@ export function EditDocumentHeader(props: Readonly<EditDocumentHeaderProps>) {
         </Link>
         <Icon
           icon="mdi:chevron-right"
-          className="size-2.75 shrink-0 text-ehs-muted-text"
+          className="text-ehs-muted-text size-2.75 shrink-0"
           aria-hidden="true"
         />
         <span className={crumbActive}>Edit</span>

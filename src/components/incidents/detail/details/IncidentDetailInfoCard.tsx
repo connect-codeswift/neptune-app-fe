@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Text } from "@/components/Text";
 import type {
   IncidentDetailInfoItem,
@@ -53,9 +55,13 @@ export function IncidentDetailInfoCard(
 
       <div className="grid grid-cols-1 gap-x-4.5 gap-y-4.5 sm:grid-cols-2">
         {items.length === 0 ? (
-          <div className="text-ehs-muted-text text4 col-span-full py-6 text-center">
-            No incident detail fields returned by the API.
-          </div>
+          <EmptyState
+            variant="plain"
+            icon="mdi:information-outline"
+            title="No detail fields"
+            message="Fields recorded for this incident appear here."
+            className="col-span-full"
+          />
         ) : (
           items.map((item) => {
             const kind = item.kind ?? "text";

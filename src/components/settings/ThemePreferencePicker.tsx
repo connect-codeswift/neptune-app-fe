@@ -67,7 +67,10 @@ function ThemeSwatch(props: Readonly<{ option: ThemeOption }>) {
     <span
       aria-hidden="true"
       className="relative block h-20 w-full overflow-hidden rounded-lg"
-      style={{ backgroundColor: swatch.page, border: `1px solid ${swatch.line}` }}
+      style={{
+        backgroundColor: swatch.page,
+        border: `1px solid ${swatch.line}`,
+      }}
     >
       {/* "System" is drawn split down the middle — the only honest way to show a choice whose
           appearance depends on something outside the app. */}

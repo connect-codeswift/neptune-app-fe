@@ -93,20 +93,8 @@ export type DocCategoryDto = {
   name?: string | null;
 };
 
-/** Department row from GET /api/v1/departments. */
-export type DocDepartmentDto = {
-  id?: number;
-  departmentId?: number;
-  departmentName?: string | null;
-  name?: string | null;
-};
-
 export type GetAllDocCategoriesResponseDto = ApiEnvelopeDto<
   DocCategoryDto[] | null
->;
-
-export type GetAllDocDepartmentsResponseDto = ApiEnvelopeDto<
-  DocDepartmentDto[] | null
 >;
 
 export type CreateDocumentResponseDto = ApiEnvelopeDto<DocumentDto | null>;

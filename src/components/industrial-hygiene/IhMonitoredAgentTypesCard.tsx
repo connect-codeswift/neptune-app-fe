@@ -13,7 +13,7 @@ export function IhMonitoredAgentTypesCard() {
       className="min-w-0"
       incidentGlassCardClassName="gap-3"
     >
-      <Text as="h2" className="text-base font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
         Monitored Agent Types
       </Text>
 

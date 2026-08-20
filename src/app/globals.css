@@ -651,11 +651,23 @@ body {
 
 /* Whitens the background of form controls within — overrides the FormBuilder's
    default tinted fields (e.g. the Create Template wizard). */
-@utility fields-white {
+/*
+ * Opts a form out of the translucent field fill, for a card that already sits on
+ * enough glass that another 55% layer reads as muddy. The template wizard is the
+ * only caller.
+ *
+ * It used to paint `--ehs-light-text`, which is white in BOTH themes by design
+ * (it is the ink for filled buttons, not a surface). So these fields stayed
+ * white in dark mode — and because it overrode only the background, the text
+ * kept `--ehs-dark-bg`, which is #e8eef5 in dark: near-white type on a white
+ * field. `--ehs-surface` is the same white in light and #111c2b in dark, so the
+ * intent survives and the theme works.
+ */
+@utility fields-solid {
   & input,
   & textarea,
   & select {
-    background-color: var(--ehs-light-text);
+    background-color: var(--ehs-surface);
   }
 }
 

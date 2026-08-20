@@ -43,7 +43,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "code",
     header: "ID",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm font-bold text-ehs-normal-blue">
+      <Text as="span" className="text-ehs-normal-blue text-sm font-bold">
         {row.original.code}
       </Text>
     ),
@@ -53,10 +53,10 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     header: "Agent",
     cell: ({ row }) => (
       <div className="min-w-36 py-1">
-        <Text as="p" className="text-sm font-semibold text-ehs-dark-bg">
+        <Text as="p" className="text-ehs-dark-bg text-sm font-semibold">
           {row.original.agent}
         </Text>
-        <Text as="p" className="text-sm text-ehs-placeholder">
+        <Text as="p" className="text-ehs-placeholder text-sm">
           {row.original.sampleType}
         </Text>
       </div>
@@ -66,7 +66,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "employee",
     header: "Employee / Group",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-ehs-slate">
+      <Text as="span" className="text-ehs-slate text-sm">
         {row.original.employee}
       </Text>
     ),
@@ -75,7 +75,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "workArea",
     header: "Work Area",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-ehs-gray">
+      <Text as="span" className="text-ehs-gray text-sm">
         {row.original.workArea}
       </Text>
     ),
@@ -84,7 +84,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "method",
     header: "Method",
     cell: ({ row }) => (
-      <Text as="span" className="text-sm text-ehs-gray">
+      <Text as="span" className="text-ehs-gray text-sm">
         {row.original.method}
       </Text>
     ),
@@ -94,10 +94,10 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     header: "Result",
     cell: ({ row }) => (
       <div className="flex items-baseline gap-1">
-        <Text as="span" className="text-sm font-extrabold text-ehs-gray">
+        <Text as="span" className="text-ehs-gray text-sm font-extrabold">
           {row.original.resultValue}
         </Text>
-        <Text as="span" className="text-sm text-ehs-muted-text">
+        <Text as="span" className="text-ehs-muted-text text-sm">
           {row.original.resultUnit}
         </Text>
       </div>
@@ -107,7 +107,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "oel",
     header: "OEL",
     cell: ({ row }) => (
-      <Text as="span" className="font-mono text-sm text-ehs-gray">
+      <Text as="span" className="text-ehs-gray font-mono text-sm">
         {row.original.oel}
       </Text>
     ),
@@ -121,7 +121,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
     id: "date",
     header: "Date",
     cell: ({ row }) => (
-      <Text as="span" className="text-xs text-ehs-gray">
+      <Text as="span" className="text-ehs-gray text-xs">
         {row.original.date}
       </Text>
     ),
@@ -133,7 +133,7 @@ const MONITORING_COLUMNS: ColumnDef<IhMonitoringRow, unknown>[] = [
       <Link
         href={ihMonitoringRecordPath(row.original.id)}
         aria-label={`View ${row.original.code}`}
-        className="inline-flex size-7 items-center justify-center rounded-md bg-ehs-gray/14 text-ehs-gray transition-colors hover:bg-ehs-gray/22"
+        className="bg-ehs-gray/14 text-ehs-gray hover:bg-ehs-gray/22 inline-flex size-7 items-center justify-center rounded-md transition-colors"
       >
         <Icon icon="mdi:eye-outline" className="size-4" aria-hidden />
       </Link>

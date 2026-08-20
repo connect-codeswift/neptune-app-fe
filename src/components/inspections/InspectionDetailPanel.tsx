@@ -156,7 +156,8 @@ export function InspectionDetailPanel(props: InspectionDetailPanelProps) {
 
   const id = detail?.id ?? record?.id ?? "";
   const title = detail?.title ?? record?.title ?? "Inspection";
-  const displayCode = detail?.code ?? (id ? formatRecordDisplayId("I", id) : "—");
+  const displayCode =
+    detail?.code ?? (id ? formatRecordDisplayId("I", id) : "—");
   const progress = detail?.progress ?? record?.progress ?? 0;
   const findingsHref = `/dashboard/inspections/findings/${encodeURIComponent(id)}`;
 

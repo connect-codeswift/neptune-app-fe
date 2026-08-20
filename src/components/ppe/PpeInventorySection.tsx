@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -202,7 +203,12 @@ export function PpeInventorySection() {
               <div className="flex flex-col gap-3 md:hidden">
                 {header}
                 {filtered.length === 0 ? (
-                  <p className="text4 text-ehs-muted-text">No items found.</p>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:package-variant-closed"
+                    title="No PPE items found"
+                    message="Try clearing the search or filters."
+                  />
                 ) : (
                   <ul className="flex flex-col gap-3">
                     {filtered.map((item) => (

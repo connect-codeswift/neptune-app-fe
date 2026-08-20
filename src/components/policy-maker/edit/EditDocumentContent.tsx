@@ -9,10 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { EditDocumentView } from "@/components/policy-maker/edit/EditDocumentView";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import {
-  useDocumentByIdQuery,
-  useDocumentDepartmentsQuery,
-} from "@/hooks/use-document-queries";
+import { useDocumentByIdQuery } from "@/hooks/use-document-queries";
+import { useDepartmentsQuery } from "@/hooks/use-department-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toDepartmentNameLookup } from "@/services/mappers/document-list.mapper";
@@ -37,9 +35,7 @@ export function EditDocumentContent(props: Readonly<EditDocumentContentProps>) {
 
   const numericId = parseDocumentId(documentIdParam);
 
-  const departmentsQuery = useDocumentDepartmentsQuery(
-    isClientReady && hasToken,
-  );
+  const departmentsQuery = useDepartmentsQuery(isClientReady && hasToken);
   const departmentNameById = useMemo(
     () => toDepartmentNameLookup(departmentsQuery.data ?? []),
     [departmentsQuery.data],

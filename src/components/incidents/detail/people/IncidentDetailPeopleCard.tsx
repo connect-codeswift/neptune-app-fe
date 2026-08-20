@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Text } from "@/components/Text";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -217,9 +219,13 @@ export function IncidentDetailPeopleCard(
         </div>
 
         {responders.length === 0 ? (
-          <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
-            No responders returned by the API.
-          </div>
+          <EmptyState
+            variant="plain"
+            icon="mdi:account-group-outline"
+            title="No responders"
+            message="People who responded to this incident appear here."
+            className="border-ehs-border-ink/8 border-t"
+          />
         ) : (
           responders.map((person, index) => (
             <div

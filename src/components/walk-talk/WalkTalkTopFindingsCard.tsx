@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -87,9 +88,12 @@ export function WalkTalkTopFindingsCard(props: WalkTalkTopFindingsCardProps) {
           Loading…
         </Text>
       ) : findings.length === 0 ? (
-        <Text as="p" className="text8 text-ehs-muted-text">
-          No findings recorded.
-        </Text>
+        <EmptyState
+          variant="plain"
+          icon="mdi:clipboard-check-outline"
+          title="No findings recorded"
+          message="Findings raised during walk & talk sessions appear here."
+        />
       ) : (
         <ul className="flex flex-col gap-3.5">
           {findings.map((finding) => (

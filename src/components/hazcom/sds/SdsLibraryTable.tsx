@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, type ReactNode } from "react";
 import {
   createColumnHelper,
@@ -309,9 +311,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
       className={["h-fit w-full min-w-0", className].filter(Boolean).join(" ")}
     >
       {header ? (
-        <div className="border-b border-ehs-border-ink/8 px-4">
-          {header}
-        </div>
+        <div className="border-ehs-border-ink/8 border-b px-4">{header}</div>
       ) : null}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
@@ -359,11 +359,14 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="border-t border-ehs-border-ink/8 px-4 py-10 text-center"
+                  className="border-ehs-border-ink/8 border-t"
                 >
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No SDS records match your search.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:file-document-outline"
+                    title="No safety data sheets found"
+                    message="Try clearing the search or filters."
+                  />
                 </td>
               </tr>
             ) : (
@@ -374,7 +377,7 @@ export function SdsLibraryTable(props: Readonly<SdsLibraryTableProps>) {
                   <tr
                     key={row.id}
                     className={[
-                      "border-t border-ehs-border-ink/8 transition-colors",
+                      "border-ehs-border-ink/8 border-t transition-colors",
                       isSelected
                         ? "bg-ehs-light-blue/35"
                         : "hover:bg-ehs-light-bg/70",

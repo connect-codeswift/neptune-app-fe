@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -57,9 +59,13 @@ export function IncidentDetailLinkedCard(
       {isLoading ? (
         <SkeletonListRows rows={2} />
       ) : linkedItems.length === 0 ? (
-        <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
-          No CAPAs linked to this incident yet.
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:link-variant"
+          title="No CAPAs linked"
+          message="Corrective actions raised from this incident appear here."
+          className="border-ehs-border-ink/8 border-t"
+        />
       ) : (
         linkedItems.map((item, index) => (
           <button

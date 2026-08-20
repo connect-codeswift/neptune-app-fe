@@ -17,12 +17,12 @@ export function IhRecentExceedancesCard() {
       incidentGlassCardClassName="gap-1"
     >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <Text as="h2" className="text-base font-bold text-ehs-dark-bg">
+        <Text as="h2" className="text-ehs-dark-bg text-base font-bold">
           Recent Exceedances
         </Text>
         <Link
           href={`${IH_BASE_PATH}/monitoring-records`}
-          className="hover:text-ehs-normal-blue text-sm text-ehs-dark-bg transition-colors"
+          className="hover:text-ehs-normal-blue text-ehs-dark-bg text-sm transition-colors"
         >
           View all →
         </Link>
@@ -32,7 +32,7 @@ export function IhRecentExceedancesCard() {
         {IH_RECENT_EXCEEDANCES.map((item) => (
           <li
             key={item.id}
-            className="flex items-start gap-3 border-b border-ehs-border-ink/6 py-3 last:border-b-0 last:pb-0"
+            className="border-ehs-border-ink/6 flex items-start gap-3 border-b py-3 last:border-b-0 last:pb-0"
           >
             <span
               className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg"
@@ -51,11 +51,14 @@ export function IhRecentExceedancesCard() {
             <div className="min-w-0 flex-1">
               <Text
                 as="p"
-                className="text-base leading-5 font-semibold text-ehs-dark-bg"
+                className="text-ehs-dark-bg text-base leading-5 font-semibold"
               >
                 {item.title}
               </Text>
-              <Text as="p" className="mt-1 text-sm leading-4 text-ehs-muted-text">
+              <Text
+                as="p"
+                className="text-ehs-muted-text mt-1 text-sm leading-4"
+              >
                 {item.detail}
               </Text>
             </div>

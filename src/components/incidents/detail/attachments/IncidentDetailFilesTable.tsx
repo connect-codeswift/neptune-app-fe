@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -77,9 +78,14 @@ function FilesContent(
               <tr>
                 <td
                   colSpan={columnCount}
-                  className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-8 text-center"
+                  className="border-ehs-border-ink/8 border-t"
                 >
-                  No files uploaded.
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:file-outline"
+                    title="No files uploaded"
+                    message="Documents attached to this incident appear here."
+                  />
                 </td>
               </tr>
             ) : (

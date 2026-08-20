@@ -54,10 +54,10 @@ export function IhEditAgentView() {
             className="min-w-0 rounded-2xl"
             incidentGlassCardClassName="items-center gap-3 text-center"
           >
-            <Text as="h1" className="text-lg font-bold text-ehs-dark-bg">
+            <Text as="h1" className="text-ehs-dark-bg text-lg font-bold">
               Agent not found
             </Text>
-            <Text as="p" className="text-sm text-ehs-muted-text">
+            <Text as="p" className="text-ehs-muted-text text-sm">
               This hazard agent could not be loaded.
             </Text>
             <Button
@@ -102,12 +102,12 @@ export function IhEditAgentView() {
               className="gap-4.5"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
+            <div className="border-ehs-border-ink/8 mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
+                className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { AuditTemplateCard } from "@/components/audits/templates/AuditTemplateCard";
 import { AuditTemplatesSkeleton } from "@/components/audits/templates/AuditTemplatesSkeleton";
 import {
@@ -67,11 +68,11 @@ export default function AuditTemplatesPage() {
           </Text>
         </div>
       ) : templates.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center">
-          <Text as="p" className="text4 text-ehs-muted-text">
-            {`No ${status.toLowerCase()} audit templates yet.`}
-          </Text>
-        </div>
+        <EmptyState
+          icon="mdi:clipboard-text-outline"
+          title={`No ${status.toLowerCase()} audit templates`}
+          message="Templates you create appear here, ready to start an audit from."
+        />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

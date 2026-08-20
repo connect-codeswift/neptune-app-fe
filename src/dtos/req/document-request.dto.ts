@@ -93,11 +93,3 @@ export type ApproveDocumentRequestDto = {
 export type AddDocCategoryRequestDto = {
   categorytName: string;
 };
-
-/**
- * POST /api/v1/departments
- * Swagger: AddDocDepartmentDto
- */
-export type AddDocDepartmentRequestDto = {
-  departmentName: string;
-};

@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useCallback, useMemo, type ReactNode } from "react";
 import {
@@ -353,11 +354,14 @@ export function IncidentListTable<
               <tr>
                 <td
                   colSpan={Math.max(columns.length, 1)}
-                  className="border-ehs-border-ink/8 border-t px-4 py-10 text-center"
+                  className="border-ehs-border-ink/8 border-t"
                 >
-                  <Text as="p" className="text-ehs-muted-text text-sm">
-                    No rows to display.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:clipboard-text-off-outline"
+                    title="No incidents found"
+                    message="Try clearing the search or filters."
+                  />
                 </td>
               </tr>
             ) : (

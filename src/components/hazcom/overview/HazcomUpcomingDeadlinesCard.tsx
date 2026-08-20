@@ -1,12 +1,10 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { Text } from "@/components/Text";
-import {
-  HazcomBadge,
-  type HazcomBadgeTone,
-} from "@/components/hazcom/shared";
+import { HazcomBadge, type HazcomBadgeTone } from "@/components/hazcom/shared";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { HazcomOverviewState } from "@/hooks/use-hazcom-overview";
 
@@ -59,16 +57,13 @@ export function HazcomUpcomingDeadlinesCard(
       </Text>
 
       {upcomingDeadlines.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
-          <Icon
-            icon="mdi:calendar-blank-outline"
-            className="text-ehs-muted-text size-8"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text4 text-ehs-muted-text">
-            No upcoming deadlines.
-          </Text>
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:calendar-blank-outline"
+          title="No upcoming deadlines"
+          message="Training and review dates appear here as they approach."
+          className="flex-1"
+        />
       ) : (
         <div className="divide-ehs-border mt-4 flex flex-col divide-y">
           {upcomingDeadlines.map((deadline) => {

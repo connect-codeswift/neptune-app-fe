@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo } from "react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -114,11 +116,12 @@ export function PpeAcknowledgementsContent() {
           <ul className="flex flex-col gap-3 md:hidden">
             {entries.length === 0 ? (
               <li>
-                <IncidentGlassCard paddingClassName="p-6" className="min-w-0">
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No PPE items assigned to you right now.
-                  </Text>
-                </IncidentGlassCard>
+                <EmptyState
+                  variant="card"
+                  icon="mdi:hard-hat"
+                  title="No PPE assigned"
+                  message="PPE issued to you appears here for acknowledgement."
+                />
               </li>
             ) : (
               entries.map((entry) => (

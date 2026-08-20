@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
@@ -37,9 +39,12 @@ export function IncidentDetailResponseCard(
       </div>
 
       {actions.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text text4">
-          No on-scene actions recorded for this incident.
-        </Text>
+        <EmptyState
+          variant="plain"
+          icon="mdi:medical-bag"
+          title="No on-scene actions"
+          message="Immediate actions taken at the scene appear here."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {actions.map((action) => (

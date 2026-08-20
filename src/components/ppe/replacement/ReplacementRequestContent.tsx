@@ -278,7 +278,7 @@ export function ReplacementRequestContent() {
                 className={fieldLabelClass}
               />
 
-              <div className="flex flex-col-reverse gap-2.5 border-t border-ehs-border-ink/8 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:border-0 md:pt-0">
+              <div className="border-ehs-border-ink/8 flex flex-col-reverse gap-2.5 border-t pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between md:border-0 md:pt-0">
                 <Button
                   type="button"
                   variant="tertiary"
