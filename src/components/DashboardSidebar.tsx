@@ -7,6 +7,7 @@ import Link, { useLinkStatus } from "next/link";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { LogoMark } from "@/components/LogoMark";
 import { Text } from "@/components/Text";
 import { NeptuneLoader } from "@/components/ui/NeptuneLoader";
 import { useLogout } from "@/hooks/use-logout";
@@ -349,7 +350,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         // pushing the footer off the bottom.
         "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl border",
         "border-ehs-border bg-ehs-surface lg:border-ehs-hairline/60 lg:bg-ehs-surface/45 lg:backdrop-blur-2xl",
-        "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]",
+        "shadow-(--ehs-shadow-shell)",
         className,
       ]
         .filter(Boolean)
@@ -366,14 +367,15 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
               breakpoint prefix picks which one shows. */}
           <Logo className={collapsed ? "lg:hidden" : ""} />
           {collapsed ? (
-            <span className="hidden h-6 items-center lg:flex">
-              <Image
-                src="/favicon-black.png"
-                alt="Neptune"
-                width={22}
-                height={22}
-                className="size-5.5 object-contain"
-              />
+            <span
+              className="hidden h-6 items-center lg:flex"
+              role="img"
+              aria-label="Neptune"
+            >
+              {/* The vector mark, not the favicon bitmap: it draws with
+                  currentColor, so it follows the theme the same way the
+                  wordmark does — the black PNG vanished on a dark rail. */}
+              <LogoMark className="text-ehs-dark-bg size-5.5" decorative />
             </span>
           ) : null}
           {onClose ? (

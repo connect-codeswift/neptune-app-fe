@@ -213,6 +213,14 @@
     0 1px 2px 0 rgb(15 23 42 / 0.05), 0 18px 40px -14px rgb(15 23 42 / 0.2),
     inset 0 1px 0 1px rgb(255 255 255 / 0.9);
 
+  /* The app-shell surfaces - the sidebar rail and the auth panel. Same family
+     as --ehs-shadow-card but with the deeper 48px drop those two full-height
+     panes carry. Tokenized so dark mode can drop the white inset seam, which
+     both components used to hardcode. */
+  --ehs-shadow-shell:
+    0 1px 2px 0 rgb(15 23 42 / 0.04), 0 24px 48px -16px rgb(15 23 42 / 0.18),
+    inset 0 1px 0 1px rgb(255 255 255 / 0.85);
+
   /* The module-card elevation, which is NOT the same as --ehs-shadow-card.
 
      Two card shadows have always existed in this app: GlassCard's, with a
@@ -412,6 +420,11 @@
     0 1px 2px 0 rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.55);
   --ehs-shadow-card-hover:
     0 1px 2px 0 rgb(0 0 0 / 0.45), 0 18px 40px -14px rgb(0 0 0 / 0.65);
+
+  /* Drops only, like the cards: on a near-black ground the white inset ring
+     read as a solid outline around the whole rail. */
+  --ehs-shadow-shell:
+    0 1px 2px 0 rgb(0 0 0 / 0.4), 0 24px 48px -16px rgb(0 0 0 / 0.55);
 
   /* The two light card shadows converge here: their difference is a spread on
      a translucent black pool, which is invisible over a near-black page. What
