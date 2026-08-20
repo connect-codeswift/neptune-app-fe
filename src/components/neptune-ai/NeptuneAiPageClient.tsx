@@ -853,12 +853,19 @@ export function NeptuneAiPageClient() {
   }
 
   return (
-    // min-h-0 rather than min-h-screen: this page fills the height AppShell
-    // gives it and no more, so the document itself never scrolls. Every
-    // descendant down to the thread repeats `min-h-0`, because a flex child
-    // defaults to min-height:auto and would otherwise refuse to shrink below
-    // its content — which is what turns an inner scroller into a taller page.
-    <div className="flex min-h-0 flex-1 flex-col">
+    // The max-h is what actually pins this page to the viewport. AppShell's
+    // content column has only a MIN-height, so it grows with its content —
+    // and `flex-1 min-h-0` alone cannot stop a flex child from growing an
+    // auto-height parent; the whole document just got taller with the thread.
+    // A max-height caps the page's contribution to that auto height, which is
+    // the moment the thread's own scrollbar finally has something to do.
+    // The numbers mirror AppShell: 3.5rem mobile header + 1rem column
+    // padding-top; from lg only the padding. (The org-limits banner, when one
+    // shows, adds its height as document scroll — a known, bounded slip.)
+    // Every descendant down to the thread still repeats `min-h-0`, because a
+    // flex child defaults to min-height:auto and would otherwise refuse to
+    // shrink below its content.
+    <div className="flex max-h-[calc(100dvh-4.5rem)] min-h-0 flex-1 flex-col lg:max-h-[calc(100dvh-1rem)]">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-4">
         {/* No visual header — the sidebar already says where you are, and the
             row spent chat height on a label. The h1 stays for screen readers
