@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useId, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -219,9 +221,11 @@ export function CapaCompletionReviewModal(
                 </h3>
               </div>
               {attachments.length === 0 ? (
-                <p className="text-ehs-muted-text text-sm">
-                  No attachments were uploaded for this CAPA.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:paperclip"
+                  title="No attachments uploaded"
+                />
               ) : (
                 <ul className="flex flex-col gap-2">
                   {attachments.map((file) => {

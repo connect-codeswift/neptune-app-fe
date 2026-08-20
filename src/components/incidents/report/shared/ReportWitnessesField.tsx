@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   useEffect,
   useId,
@@ -361,10 +363,16 @@ export function ReportWitnessesField(
                   typed name, or try again in a moment.
                 </li>
               ) : users.length === 0 ? (
-                <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
-                  {debouncedQuery.trim()
-                    ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Press Enter to keep that name.`
-                    : `No people are listed for ${siteName ?? "this site"} yet.`}
+                <li className="p-1.5">
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:account-off-outline"
+                    title={
+                      debouncedQuery.trim()
+                        ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Press Enter to keep that name.`
+                        : `No people are listed for ${siteName ?? "this site"} yet.`
+                    }
+                  />
                 </li>
               ) : (
                 users.map((user, index) => {

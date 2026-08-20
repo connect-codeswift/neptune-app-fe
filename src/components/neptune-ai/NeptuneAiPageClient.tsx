@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import {
@@ -413,16 +415,12 @@ function EmptyThread() {
 /** The rail before any conversations exist (reached from "new chat"). */
 function EmptyRail() {
   return (
-    <div className="flex flex-col items-center gap-2 px-4 py-16 text-center">
-      <Icon
-        icon="mdi:message-outline"
-        className="text-ehs-muted-text size-6"
-        aria-hidden="true"
-      />
-      <Text as="p" className="text-ehs-muted-text text-[11px]">
-        No recent conversations
-      </Text>
-    </div>
+    <EmptyState
+      variant="plain"
+      icon="mdi:message-outline"
+      title="No recent conversations"
+      message="Ask Neptune AI something to start one."
+    />
   );
 }
 

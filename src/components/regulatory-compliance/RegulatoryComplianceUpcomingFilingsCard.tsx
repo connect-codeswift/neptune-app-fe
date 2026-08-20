@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import type { UpcomingFilingItem } from "./regulatory-compliance-types";
@@ -38,26 +40,29 @@ export function RegulatoryComplianceUpcomingFilingsCard(
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`filing-skeleton-${String(index)}`}
-                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
+                className="border-ehs-border-ink/8 flex h-[37px] items-center justify-between gap-3 border-t"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <div className="rounded-1.5 h-3.5 w-10 animate-pulse bg-ehs-border" />
-                  <div className="rounded-1.5 h-4.25 min-w-0 flex-1 animate-pulse bg-ehs-border" />
+                  <div className="rounded-1.5 bg-ehs-border h-3.5 w-10 animate-pulse" />
+                  <div className="rounded-1.5 bg-ehs-border h-4.25 min-w-0 flex-1 animate-pulse" />
                 </div>
-                <div className="h-5 w-14 animate-pulse rounded-full bg-ehs-border" />
+                <div className="bg-ehs-border h-5 w-14 animate-pulse rounded-full" />
               </div>
             ))}
           </div>
         ) : filings.length === 0 ? (
-          <Text as="p" className="text8 text-ehs-muted-text mt-4.5 pt-4.5">
-            No upcoming filings in the next 90 days.
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:calendar-check-outline"
+            title="No upcoming filings"
+            message="Nothing is due in the next 90 days."
+          />
         ) : (
           <div className="mt-4.5 flex flex-col">
             {filings.map((item) => (
               <div
                 key={item.id}
-                className="flex h-[37px] items-center justify-between gap-3 border-t border-ehs-border-ink/8"
+                className="border-ehs-border-ink/8 flex h-[37px] items-center justify-between gap-3 border-t"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Text

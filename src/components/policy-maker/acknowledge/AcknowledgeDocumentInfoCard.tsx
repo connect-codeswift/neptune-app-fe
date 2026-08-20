@@ -30,7 +30,7 @@ export function AcknowledgeDocumentInfoCard(
   return (
     <div className={[glassCardClass, className].filter(Boolean).join(" ")}>
       <div className="relative z-1 flex min-w-0 items-center gap-2.75 px-4 py-3.5 sm:px-5.5 sm:py-3.5">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-ehs-surface-inverse/14 px-3">
+        <div className="bg-ehs-surface-inverse/14 flex size-12 shrink-0 items-center justify-center rounded-2xl px-3">
           <Icon
             icon="mdi:file-document-outline"
             className="text-ehs-gray size-6"

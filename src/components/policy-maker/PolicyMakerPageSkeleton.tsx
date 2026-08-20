@@ -67,7 +67,7 @@ function DocumentRowSkeleton(props: Readonly<{ selected?: boolean }>) {
       <div className="flex w-40 shrink-0 items-center gap-2">
         <Bar className="bg-ehs-border size-6 shrink-0" />
         <div className="flex flex-col gap-1">
-          <Bar className="h-2.5 w-25 bg-ehs-skeleton-strong" />
+          <Bar className="bg-ehs-skeleton-strong h-2.5 w-25" />
           <Bar className="bg-ehs-muted-text/45 h-2 w-15" />
         </div>
       </div>
@@ -87,7 +87,7 @@ export function PolicyMakerPageSkeleton() {
     <div className="flex flex-1 flex-col gap-3.5 px-4 pb-8">
       {/* Header — Figma 4818:18878 (h-52) */}
       <div className="flex h-13 w-full items-center justify-between">
-        <Bar className="h-5 w-45 bg-ehs-skeleton-strong" />
+        <Bar className="bg-ehs-skeleton-strong h-5 w-45" />
         <div className="flex items-center gap-3">
           <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex h-8.75 w-70 items-center border px-3">
             <Bar className="bg-ehs-border size-3.5 shrink-0" />
@@ -117,7 +117,7 @@ export function PolicyMakerPageSkeleton() {
         {/* TablePane — Figma 4818:18932: gap 48px between header / columns / rows */}
         <div className="border-ehs-hairline/90 bg-ehs-surface/62 flex min-h-151 w-full flex-col gap-12 overflow-hidden rounded-[19px] border backdrop-blur-[10px]">
           <div className="border-ehs-border-ink/8 flex h-12 items-center justify-between border-b px-4">
-            <Bar className="h-3 w-25 bg-ehs-skeleton-strong" />
+            <Bar className="bg-ehs-skeleton-strong h-3 w-25" />
             <Bar className="bg-ehs-border h-6 w-30 rounded-lg" />
           </div>
 

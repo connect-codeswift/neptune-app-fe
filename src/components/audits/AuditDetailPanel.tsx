@@ -156,7 +156,8 @@ export function AuditDetailPanel(props: AuditDetailPanelProps) {
 
   const id = detail?.id ?? record?.id ?? "";
   const title = detail?.title ?? record?.title ?? "Audit";
-  const displayCode = detail?.code ?? (id ? formatRecordDisplayId("A", id) : "—");
+  const displayCode =
+    detail?.code ?? (id ? formatRecordDisplayId("A", id) : "—");
   const progress = detail?.progress ?? record?.progress ?? 0;
   const findingsHref = `/dashboard/audits/findings/${encodeURIComponent(id)}`;
 

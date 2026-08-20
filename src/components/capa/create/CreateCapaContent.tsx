@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -224,9 +226,13 @@ export function CreateCapaContent() {
                   </div>
 
                   {tasks.length === 0 ? (
-                    <div className="rounded-2.5 border-ehs-border bg-ehs-surface/70 border border-dashed px-4 py-5 text-center text-sm text-[#94a3b8]">
-                      No tasks yet. Add checklist items for the assignee.
-                    </div>
+                    <EmptyState
+                      variant="plain"
+                      icon="mdi:format-list-checks"
+                      title="No tasks yet"
+                      message="Add checklist items for the assignee."
+                      className="rounded-2.5 border-ehs-border bg-ehs-surface/70 border border-dashed"
+                    />
                   ) : (
                     <ul className="rounded-2.5 border-ehs-border overflow-hidden border">
                       {tasks.map((task, index) => (

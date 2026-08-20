@@ -210,7 +210,7 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             type="button"
             onClick={onPublish}
             disabled={isSubmitting}
-            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold text-ehs-on-accent shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active text-ehs-on-accent w-full cursor-pointer rounded-xl px-5 py-2.5 font-semibold shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Publishing..." : "Publish Template"}
           </button>

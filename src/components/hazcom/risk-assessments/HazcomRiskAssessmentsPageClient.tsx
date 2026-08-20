@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useCallback, useMemo, useState } from "react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
@@ -234,9 +236,11 @@ export function HazcomRiskAssessmentsPageClient() {
                     Recommended PPE
                   </Text>
                   {selectedAssessment.ppe.length === 0 ? (
-                    <Text as="p" className="text4 text-ehs-muted-text">
-                      None recorded.
-                    </Text>
+                    <EmptyState
+                      variant="inline"
+                      icon="mdi:hard-hat"
+                      title="No PPE recorded"
+                    />
                   ) : (
                     <Text as="p" className="text4 text-ehs-darker">
                       {selectedAssessment.ppe.join(", ")}

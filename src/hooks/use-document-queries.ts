@@ -3,7 +3,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   getAllDocCategories,
-  getAllDocDepartments,
   getAllDocuments,
   getDocumentAcknowledgements,
   getDocumentById,
@@ -27,7 +26,6 @@ export const documentQueryKeys = {
   acknowledgements: (documentVersionId: number) =>
     [...documentQueryKeys.all, "acknowledgements", documentVersionId] as const,
   categories: ["documents", "categories"] as const,
-  departments: ["documents", "departments"] as const,
   dashboardKpis: ["documents", "dashboard-kpis"] as const,
 };
 
@@ -167,15 +165,6 @@ export function useDocumentCategoriesQuery(enabled = true) {
   return useQuery({
     queryKey: documentQueryKeys.categories,
     queryFn: () => getAllDocCategories(),
-    enabled,
-  });
-}
-
-/** GET /api/v1/departments */
-export function useDocumentDepartmentsQuery(enabled = true) {
-  return useQuery({
-    queryKey: documentQueryKeys.departments,
-    queryFn: () => getAllDocDepartments(),
     enabled,
   });
 }

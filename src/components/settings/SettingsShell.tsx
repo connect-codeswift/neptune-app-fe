@@ -122,7 +122,7 @@ function SettingsSectionNav(
       aria-label="Settings sections"
       /* An inset track rather than a raised bar: the tabs are what lift out of it, so the
          container reads as a groove and the active pill as the thing sitting in it. */
-      className="border-ehs-border bg-ehs-surface-inverse/4 scrollbar-none inline-flex max-w-full gap-1 self-start overflow-x-auto rounded-3 border p-1"
+      className="border-ehs-border bg-ehs-surface-inverse/4 rounded-3 inline-flex max-w-full scrollbar-none gap-1 self-start overflow-x-auto border p-1"
     >
       {getVisibleSettingsSections(isAdmin).map((section) => (
         <SettingsTab
@@ -174,10 +174,7 @@ export function SettingsShell(props: Readonly<SettingsShellProps>) {
             ) : null}
           </div>
 
-          <SettingsSectionNav
-            activeSection={activeSection}
-            isAdmin={isAdmin}
-          />
+          <SettingsSectionNav activeSection={activeSection} isAdmin={isAdmin} />
         </header>
 
         {children}

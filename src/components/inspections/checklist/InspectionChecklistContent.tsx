@@ -263,7 +263,7 @@ export function InspectionChecklistContent(
           type="button"
           onClick={handleSubmit}
           disabled={saveResponses.isPending}
-          className="bg-ehs-green hover:bg-ehs-green/90 rounded-2.5 cursor-pointer px-5 py-2.5 font-medium text-ehs-on-accent transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-ehs-green hover:bg-ehs-green/90 rounded-2.5 text-ehs-on-accent cursor-pointer px-5 py-2.5 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saveResponses.isPending ? "Submitting…" : "Submit Inspection"}
         </button>

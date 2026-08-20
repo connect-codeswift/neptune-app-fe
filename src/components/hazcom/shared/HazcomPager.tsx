@@ -36,20 +36,25 @@ export function HazcomPager(props: Readonly<HazcomPagerProps>) {
 
   const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
 
+  // Centred, not right-aligned: the floating AI activator button covers the right
+  // edge of the bar. Same three-column grid as the shared Table pager.
   return (
     <div
       className={[
-        "flex flex-wrap items-center justify-between gap-3",
+        "grid grid-cols-1 items-center gap-3 sm:grid-cols-[1fr_auto_1fr]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <Text as="span" className="text8 text-ehs-muted-text">
+      <Text
+        as="span"
+        className="text8 text-ehs-muted-text justify-self-center sm:justify-self-start"
+      >
         {`Page ${String(pageNumber)} of ${String(totalPages)}`}
       </Text>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 justify-self-center">
         <button
           type="button"
           className={pageButtonClass}

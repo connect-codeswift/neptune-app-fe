@@ -25,7 +25,7 @@ export function HazcomModuleTabs(props: Readonly<HazcomModuleTabsProps>) {
   return (
     <div
       className={[
-        "flex gap-6 overflow-x-auto border-b border-ehs-border-ink/8 px-1 whitespace-nowrap",
+        "border-ehs-border-ink/8 flex gap-6 overflow-x-auto border-b px-1 whitespace-nowrap",
         className,
       ]
         .filter(Boolean)

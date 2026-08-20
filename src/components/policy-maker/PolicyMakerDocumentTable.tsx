@@ -89,7 +89,7 @@ function createDocumentColumns(
         const doc = row.original;
         return (
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded border border-ehs-border-ink/8 bg-linear-to-b from-ehs-surface/82 to-ehs-surface/62">
+            <div className="border-ehs-border-ink/8 from-ehs-surface/82 to-ehs-surface/62 flex size-7 shrink-0 items-center justify-center rounded border bg-linear-to-b">
               <Icon
                 icon="mdi:file-document-outline"
                 className="text-ehs-gray size-3.5"

@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -67,11 +68,17 @@ export function IncidentDetailWitnessesCard(
       </div>
 
       {witnesses.length === 0 ? (
-        <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
-          {isEditing
-            ? "No witnesses yet. Click Add to include one."
-            : "No witnesses logged."}
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:account-eye-outline"
+          title="No witnesses logged"
+          message={
+            isEditing
+              ? "Click Add to include someone who saw what happened."
+              : "Witnesses recorded for this incident appear here."
+          }
+          className="border-ehs-border-ink/8 border-t"
+        />
       ) : (
         witnesses.map((witness, index) => (
           <div

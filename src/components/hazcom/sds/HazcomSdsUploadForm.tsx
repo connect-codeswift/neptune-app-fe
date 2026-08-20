@@ -102,7 +102,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
         className="gap-4.5"
       />
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-ehs-border-ink/8 pt-5">
+      <div className="border-ehs-border-ink/8 mt-6 flex flex-wrap items-center justify-between gap-2 border-t pt-5">
         <Button
           type="button"
           variant="tertiary"

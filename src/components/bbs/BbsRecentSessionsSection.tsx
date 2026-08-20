@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -242,12 +244,12 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
               </div>
               <div className="flex flex-col gap-3 p-3.5">
                 {filtered.length === 0 ? (
-                  <Text
-                    as="p"
-                    className="text4 text-ehs-muted-text py-8 text-center"
-                  >
-                    No sessions found matching your filters.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:eye-outline"
+                    title="No sessions found"
+                    message="Try clearing the search or filters."
+                  />
                 ) : (
                   <ul className="flex flex-col gap-3">
                     {filtered.map((session) => (

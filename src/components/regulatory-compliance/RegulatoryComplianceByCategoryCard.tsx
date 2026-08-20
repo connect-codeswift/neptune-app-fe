@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import type { ComplianceCategoryProgress } from "./regulatory-compliance-types";
@@ -82,8 +84,8 @@ function CategoryProgressSkeleton() {
       {/* The skeleton bars are pinned to #e2e8f6, a hair lighter and bluer
           than --ehs-border (#e5e7eb). */}
       <div className="flex h-[17px] items-center justify-between">
-        <div className="rounded-1.5 h-4.25 w-20 animate-pulse bg-ehs-skeleton" />
-        <div className="rounded-1.5 h-3.5 w-9 animate-pulse bg-ehs-skeleton" />
+        <div className="rounded-1.5 bg-ehs-skeleton h-4.25 w-20 animate-pulse" />
+        <div className="rounded-1.5 bg-ehs-skeleton h-3.5 w-9 animate-pulse" />
       </div>
       <div className={`${CATEGORY_TRACK_CLASS} animate-pulse`} />
     </div>
@@ -121,9 +123,12 @@ export function RegulatoryComplianceByCategoryCard(
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <Text as="p" className="text8 text-ehs-muted-text">
-            No category stats available yet.
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:chart-donut"
+            title="No category stats yet"
+            message="Compliance items appear here grouped by category."
+          />
         ) : (
           <div className="flex flex-col gap-3">
             {categories.map((category) => (

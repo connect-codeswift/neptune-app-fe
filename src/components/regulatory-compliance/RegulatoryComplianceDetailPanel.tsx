@@ -121,7 +121,7 @@ export function RegulatoryComplianceDetailPanel(
 
           <Link
             href={`/dashboard/regulatory-compliance/${encodeURIComponent(detail.id)}`}
-            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-ehs-surface px-2.5 py-1.5 transition-colors"
+            className="border-ehs-border text-ehs-normal-blue hover:bg-ehs-light-blue/40 text5 bg-ehs-surface inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-colors"
           >
             Open details
             <Icon

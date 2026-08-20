@@ -341,10 +341,7 @@ export function ProfileSettingsClient() {
                a Save that is always present invites a save that writes nothing. */
             <div className="border-ehs-border mt-2 flex flex-wrap items-center justify-end gap-3 border-t pt-4">
               {isDirty ? null : (
-                <Text
-                  as="p"
-                  className="text8 text-ehs-muted-text mr-auto"
-                >
+                <Text as="p" className="text8 text-ehs-muted-text mr-auto">
                   Nothing changed yet.
                 </Text>
               )}

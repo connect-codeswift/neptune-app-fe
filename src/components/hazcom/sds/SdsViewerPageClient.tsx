@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
@@ -77,9 +79,11 @@ function SdsViewerBody(
             {showsStatements ? (
               <div className="flex flex-col gap-2.5">
                 {statements.length === 0 ? (
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No GHS statements recorded on this sheet.
-                  </Text>
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:alert-octagon-outline"
+                    title="No GHS statements recorded"
+                  />
                 ) : (
                   statements.map((statement) => (
                     <div
@@ -245,7 +249,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             </Text>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Link
@@ -256,7 +260,7 @@ export function SdsViewerPageClient(props: Readonly<SdsViewerPageClientProps>) {
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Text as="span" className="text8 text-ehs-muted-text">

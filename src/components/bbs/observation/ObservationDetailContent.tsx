@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -197,16 +199,11 @@ export function ObservationDetailContent(props: ObservationDetailContentProps) {
             <section>
               <SectionTitle>Photo Evidence</SectionTitle>
               {detail.photos.length === 0 ? (
-                <div className="bg-ehs-surface-inverse/4 flex items-start gap-2 rounded-xl px-3 py-2.5">
-                  <Icon
-                    icon="mdi:image-outline"
-                    className="text-ehs-muted-text mt-0.5 size-4 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <Text as="p" className="text4 text-ehs-muted-text">
-                    No photos attached.
-                  </Text>
-                </div>
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:image-outline"
+                  title="No photos attached"
+                />
               ) : (
                 <ul className="flex flex-col gap-3">
                   {detail.photos.map((photo) => (
