@@ -57,10 +57,21 @@ export type CapaOwnerWorkload = Readonly<{
   openCount: number;
 }>;
 
-export type CapaPendingReview = Readonly<{
-  id: string;
+/**
+ * One row in the "Awaiting Effectiveness Review" queue — a CAPA in `Completed`
+ * or `Pending Verification`. Both statuses open the same verification form;
+ * only Ehs_Director / Ehs_Lead / Ehs_Manager may sign one off, and never on a
+ * CAPA assigned to themselves.
+ */
+export type CapaAwaitingReviewRow = Readonly<{
+  capaId: number;
+  code: string;
   title: string;
-  meta: string;
+  owner: string;
+  assignedId: number | null;
+  /** Stored status, spelled as the API spells it — see `CAPA_API_STATUS`. */
+  status: string;
+  dueLabel: string;
 }>;
 
 /** KPI tiles — Figma 7123:41940. */
@@ -132,14 +143,6 @@ export const CAPA_OWNER_WORKLOAD: readonly CapaOwnerWorkload[] = [
   { name: "D. Park", openCount: 2 },
   { name: "P. Mehra", openCount: 2 },
   { name: "J. Merrick", openCount: 1 },
-];
-
-export const CAPA_PENDING_REVIEWS: readonly CapaPendingReview[] = [
-  {
-    id: "CAPA-0419",
-    title: "Update SOP & retrain on chemical splash response",
-    meta: "CAPA-0419 · closed by S. Mitchell",
-  },
 ];
 
 const HOSE_TASKS: readonly CapaDashboardTask[] = [

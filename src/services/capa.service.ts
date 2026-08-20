@@ -7,6 +7,7 @@ import type { CapaCommentDto } from "@/dtos/res/capa-comment-response.dto";
 import type { GetCapaDashboardKpisResponseDto } from "@/dtos/res/capa-dashboard-kpis-response.dto";
 import type { GetCapaLifecycleResponseDto } from "@/dtos/res/capa-lifecycle-response.dto";
 import type { GetCapaOpenedClosedResponseDto } from "@/dtos/res/capa-opened-closed-response.dto";
+import type { GetCapaAwaitingReviewResponseDto } from "@/dtos/res/capa-awaiting-review-response.dto";
 import type { GetCapaWorkloadByOwnerResponseDto } from "@/dtos/res/capa-workload-by-owner-response.dto";
 import type { CapaVerificationDto } from "@/dtos/res/capa-verification-response.dto";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
@@ -23,6 +24,7 @@ import { parseCapaApiDate } from "@/lib/parse-capa-api-date";
 import { normalizeCapaDashboardKpisDto } from "@/services/mappers/capa-dashboard-kpis.mapper";
 import { normalizeCapaLifecycleDto } from "@/services/mappers/capa-lifecycle.mapper";
 import { normalizeCapaOpenedClosedDto } from "@/services/mappers/capa-opened-closed.mapper";
+import { normalizeCapaAwaitingReviewDto } from "@/services/mappers/capa-awaiting-review.mapper";
 import { normalizeCapaWorkloadByOwnerDto } from "@/services/mappers/capa-workload-by-owner.mapper";
 
 const CAPA_PATH = "/capas";
@@ -33,6 +35,7 @@ const CAPA_DASHBOARD_KPIS_PATH = "/capas/dashboard-kpis";
 const CAPA_LIFECYCLE_PATH = "/capas/lifecycle";
 const CAPA_OPENED_CLOSED_PATH = "/capas/opened-vs-closed";
 const CAPA_WORKLOAD_BY_OWNER_PATH = "/capas/workload-by-owner";
+const CAPA_AWAITING_REVIEW_PATH = "/capas/awaiting-effectiveness-review";
 
 export type GetCapasRequest = Readonly<{
   pageNumber?: number;
@@ -865,6 +868,44 @@ export async function getCapaWorkloadByOwner(): Promise<GetCapaWorkloadByOwnerRe
         ? envelope.message
         : "CAPA workload by owner data fetched successfully",
     dataModel: normalizeCapaWorkloadByOwnerDto(rawModel),
+    errorDetails: envelope.errorDetails ?? null,
+  };
+}
+
+/**
+ * GET /api/v1/capas/awaiting-effectiveness-review
+ * Every CAPA sitting in `Pending Verification` — no paging, oldest first.
+ * Roles: Ehs_Director, Ehs_Lead, Ehs_Manager, Supervisor. Permission: CAPA.Dashboard.View.
+ */
+export async function getCapaAwaitingEffectivenessReview(): Promise<GetCapaAwaitingReviewResponseDto> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load CAPAs awaiting review.");
+  }
+
+  const { data } = await http.get<unknown>(CAPA_AWAITING_REVIEW_PATH, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": false,
+    },
+  });
+
+  const rawModel = isRecord(data)
+    ? (data.dataModel ?? data.DataModel ?? data)
+    : data;
+
+  const envelope = isRecord(data) ? data : {};
+
+  return {
+    isError: Boolean(envelope.isError ?? false),
+    success: Boolean(envelope.success ?? true),
+    statusCode:
+      typeof envelope.statusCode === "number" ? envelope.statusCode : 200,
+    message:
+      typeof envelope.message === "string"
+        ? envelope.message
+        : "CAPAs awaiting effectiveness review fetched successfully",
+    dataModel: normalizeCapaAwaitingReviewDto(rawModel),
     errorDetails: envelope.errorDetails ?? null,
   };
 }
