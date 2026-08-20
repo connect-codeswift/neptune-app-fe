@@ -2,11 +2,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Text } from "@/components/Text";
 import type { AuditReport } from "@/app/dashboard/audits/report/audit-report-data";
 
-/** Scores at or above the template's pass mark are green, the rest red. */
-function scoreColor(score: number, passThreshold: number): string {
-  return score >= passThreshold ? "var(--ehs-green)" : "var(--ehs-red)";
-}
-
 function MetaField(props: Readonly<{ label: string; value: string }>) {
   const { label, value } = props;
 
@@ -43,19 +38,6 @@ export function AuditReportView(props: AuditReportViewProps) {
               {report.scope}
             </Text>
           </div>
-
-          <div className="flex shrink-0 flex-col items-end">
-            <Text
-              as="span"
-              className="text2 tabular-nums"
-              style={{ color: scoreColor(report.score, report.passThreshold) }}
-            >
-              {`${String(report.score)}%`}
-            </Text>
-            <Text as="span" className="text8 text-ehs-muted-text">
-              Audit Score
-            </Text>
-          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -73,57 +55,6 @@ export function AuditReportView(props: AuditReportViewProps) {
           </Text>
         </div>
       </IncidentGlassCard>
-
-      {report.sectionScores.length > 0 ? (
-        <IncidentGlassCard
-          paddingClassName="p-5 sm:p-6"
-          className="backdrop-blur-2.5 bg-ehs-surface/62"
-          incidentGlassCardClassName="gap-4"
-        >
-          <Text as="h3" className="text3 text-ehs-darker">
-            Score by Section
-          </Text>
-
-          <ul className="flex flex-col gap-4">
-            {report.sectionScores.map((entry) => {
-              const color = scoreColor(entry.score, report.passThreshold);
-
-              return (
-                <li key={entry.section} className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <Text
-                      as="span"
-                      className="text4 text-ehs-gray min-w-0 truncate"
-                    >
-                      {entry.section}
-                    </Text>
-                    <Text
-                      as="span"
-                      className="text4 shrink-0 tabular-nums"
-                      style={{ color }}
-                    >
-                      {`${String(entry.score)}%`}
-                    </Text>
-                  </div>
-
-                  <span
-                    className="bg-ehs-form-classes-bg h-2.5 w-full overflow-hidden rounded-full"
-                    aria-hidden="true"
-                  >
-                    <span
-                      className="block h-full rounded-full"
-                      style={{
-                        width: `${String(entry.score)}%`,
-                        backgroundColor: color,
-                      }}
-                    />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </IncidentGlassCard>
-      ) : null}
     </div>
   );
 }

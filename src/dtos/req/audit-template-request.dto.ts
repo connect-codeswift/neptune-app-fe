@@ -4,8 +4,6 @@ export type AuditTemplateItemRequestDto = {
   itemType: string;
   question: string;
   hint: string;
-  scoreWeight: number;
-  itemWeight: number;
   /** Null until a response set is chosen — 0 would be a dangling FK. */
   responseSetId: number | null;
   isCritical: boolean;
@@ -37,47 +35,17 @@ export type AuditTemplateSectionRequestDto = {
   items: AuditTemplateItemRequestDto[];
 };
 
-/** One IF/THEN conditional-logic rule. */
-export type AuditTemplateLogicRequestDto = {
-  id: number;
-  status: string;
-  if: string;
-  condition: string;
-  then: string;
-  result: string;
-  /** Null until the rule points at a saved item — 0 would be a dangling FK. */
-  sourceItemId: number | null;
-  operator: string;
-  conditionValue: string;
-  action: string;
-  targetItemId: number | null;
-  findingSeverity: string;
-  findingCategory: string;
-  isDraft: boolean;
-  isPublished: boolean;
-  userId: number;
-  siteId: number;
-  auditTemplateId: number;
-};
-
 /** Matches the backend body for creating an audit template. */
 export type CreateAuditTemplateRequestDto = {
   templateName: string;
   templateType: string;
   templateTags: string;
   description: string;
-  isScoringEnable: boolean;
-  passThreshold: number;
-  isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   /** Null until an assignee is chosen — 0 would be a dangling FK. */
   defaultAssigneeId: number | null;
   defaultLocation: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
   frequency: string;
   scheduleStartDate: string;
   dueWindowDays: number;
@@ -85,7 +53,6 @@ export type CreateAuditTemplateRequestDto = {
   userId: number;
   siteId: number;
   sections: AuditTemplateSectionRequestDto[];
-  conditionalLogics: AuditTemplateLogicRequestDto[];
 };
 
 /**

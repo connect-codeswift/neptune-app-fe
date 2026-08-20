@@ -9,7 +9,6 @@ export type AuditInspectionSummaryDto = {
   completed: number;
   overdue: number;
   completionRate: number;
-  averageScore: number | null;
   /** Audit module — year-to-date count. */
   auditsYtd?: number;
   /** Inspection module — year-to-date count. */

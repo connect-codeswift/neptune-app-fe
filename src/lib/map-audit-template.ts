@@ -6,12 +6,9 @@ import type {
 import type { AuditTemplateDetail } from "@/hooks/use-audit-template-queries";
 import {
   TEMPLATE_ITEM_TYPES,
-  type ScoringConfig,
   type TemplateItem,
   type TemplateItemType,
-  type TemplateRule,
   type TemplateSection,
-  type TemplateSettings,
   type WizardState,
 } from "@/components/audits/templates/create/template-builder-data";
 import type { AuditTemplate } from "@/app/dashboard/audits/template/audit-templates-data";
@@ -69,7 +66,6 @@ function mapItem(dto: AuditTemplateItemDto): TemplateItem {
     type,
     label: "",
     guidance: dto.hint ?? "",
-    scoreWeight: dto.scoreWeight ?? dto.itemWeight ?? 0,
     required: dto.isRequired ?? true,
     value,
   };
@@ -116,32 +112,12 @@ export function mapDetailToWizardState(
     .map((tag) => tag.trim())
     .filter((tag) => tag !== "");
 
-  // The API stores sites comma-separated; the Settings step wants a list.
-  const sites = (summary?.allowSites ?? "")
-    .split(",")
-    .map((site) => site.trim())
-    .filter((site) => site !== "");
-
   const values: FormValues = {
     templateName: summary?.templateName ?? "",
     templateType: summary?.templateType ?? "Audit",
     tags,
     frequency: summary?.frequency ?? "",
     description: summary?.description ?? "",
-  };
-
-  const scoring: ScoringConfig = {
-    enabled: summary?.isScoringEnable ?? true,
-    method: "Percentage",
-    passThreshold: summary?.passThreshold ?? 80,
-    showScoreToUser: summary?.isScoreVisibility ?? false,
-  };
-
-  const settings: TemplateSettings = {
-    accessLevel: "All Users",
-    sites: sites.length > 0 ? sites : ["All Sites"],
-    allowDuplication: summary?.isTemplateDuplicationAllow ?? true,
-    allowEditing: summary?.isAllowEditing ?? false,
   };
 
   const sections: TemplateSection[] = detail.sections.map((section) => ({
@@ -151,15 +127,5 @@ export function mapDetailToWizardState(
     items: (detail.itemsBySection[String(section.id)] ?? []).map(mapItem),
   }));
 
-  const rules: TemplateRule[] = detail.logics.map((logic) => ({
-    id: String(logic.id),
-    active: (logic.status ?? "").toLowerCase() === "active",
-    ifQuestion: logic.if ?? "",
-    ifOperator: logic.condition ?? logic.operator ?? "",
-    ifValue: logic.conditionValue ?? "",
-    thenAction: logic.then ?? logic.action ?? "",
-    thenValue: logic.result ?? "",
-  }));
-
-  return { values, sections, scoring, rules, settings };
+  return { values, sections };
 }

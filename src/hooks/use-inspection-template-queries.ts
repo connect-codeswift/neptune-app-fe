@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   getAllInspectionTemplates,
-  getConditionalLogicsByTemplateId,
   getInspectionTemplateById,
   getItemsBySectionId,
   getSectionsByTemplateId,
@@ -9,7 +8,6 @@ import {
 import type {
   InspectionTemplateDto,
   InspectionTemplateItemDto,
-  InspectionTemplateLogicDto,
   InspectionTemplateSectionDto,
 } from "@/dtos/res/inspection-template-response.dto";
 
@@ -36,11 +34,10 @@ export type InspectionTemplateDetail = Readonly<{
   summary: InspectionTemplateDto | null;
   sections: InspectionTemplateSectionDto[];
   itemsBySection: Record<string, InspectionTemplateItemDto[]>;
-  logics: InspectionTemplateLogicDto[];
 }>;
 
 /**
- * Loads a template's sections, each section's items, and conditional logics.
+ * Loads a template's sections and each section's items.
  *
  * The `summary` (basic info) is passed in — the list already fetched it and
  * stashed it in the store on Edit — so this doesn't refetch the whole list.
@@ -53,15 +50,11 @@ export function useInspectionTemplateDetailQuery(
     queryKey: ["inspection-template", "detail", templateId] as const,
     enabled: templateId !== "",
     queryFn: async (): Promise<InspectionTemplateDetail> => {
-      const [sectionsRes, logicsRes] = await Promise.all([
-        getSectionsByTemplateId(templateId),
-        getConditionalLogicsByTemplateId(templateId),
-      ]);
+      const sectionsRes = await getSectionsByTemplateId(templateId);
 
       const sections = toList<InspectionTemplateSectionDto>(
         sectionsRes.dataModel,
       );
-      const logics = toList<InspectionTemplateLogicDto>(logicsRes.dataModel);
 
       const itemResults = await Promise.all(
         sections.map((section) => getItemsBySectionId(String(section.id))),
@@ -73,7 +66,7 @@ export function useInspectionTemplateDetailQuery(
         );
       });
 
-      return { summary, sections, itemsBySection, logics };
+      return { summary, sections, itemsBySection };
     },
   });
 }

@@ -11,7 +11,7 @@ import { ShadeBall } from "@/components/ShadeBall";
  */
 const authGlassClass =
   "rounded-3xl border border-ehs-hairline/60 bg-ehs-surface/45 backdrop-blur-2xl " +
-  "shadow-[0_1px_2px_0_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18),inset_0_1px_0_1px_rgba(255,255,255,0.85)]";
+  "shadow-(--ehs-shadow-shell)";
 
 export type AuthFormPanelProps = Readonly<{
   title: string;

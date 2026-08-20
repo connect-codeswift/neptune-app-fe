@@ -14,8 +14,6 @@ export type AuditItemResponseRequestDto = {
 export type SaveAuditResponsesRequestDto = {
   userId: number;
   siteId: number;
-  /** The run's score as a percentage, 0-100. */
-  score: number;
   responses: AuditItemResponseRequestDto[];
 };
 

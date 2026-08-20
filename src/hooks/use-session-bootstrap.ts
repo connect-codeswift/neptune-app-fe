@@ -127,9 +127,6 @@ export function useSessionBootstrap() {
     [session?.activatedModules],
   );
 
-  // Org/me drives the sidebar from licensed modules only — no JWT permission gate.
-  const moduleOnlyGating = Boolean(session?.activatedModules?.trim());
-
   const permissions = useMemo(() => {
     if (hasToken !== true) {
       return new Set<string>();
@@ -149,14 +146,8 @@ export function useSessionBootstrap() {
 
   const navGroups = useMemo(
     () =>
-      getVisibleNavGroups(
-        APP_NAV_GROUPS,
-        activatedModules,
-        permissions,
-        role,
-        moduleOnlyGating,
-      ),
-    [activatedModules, permissions, role, moduleOnlyGating],
+      getVisibleNavGroups(APP_NAV_GROUPS, activatedModules, permissions, role),
+    [activatedModules, permissions, role],
   );
 
   const displayName =
@@ -200,7 +191,6 @@ export function useSessionBootstrap() {
     },
     activatedModules,
     permissions,
-    moduleOnlyGating,
     accessWindow,
     organizationLimits,
   };

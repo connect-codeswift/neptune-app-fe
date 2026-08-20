@@ -3,12 +3,7 @@
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { FormValues } from "@/components/form-builder";
-import type {
-  ScoringConfig,
-  TemplateRule,
-  TemplateSection,
-  TemplateSettings,
-} from "./template-builder-data";
+import type { TemplateSection } from "./template-builder-data";
 
 const labelClass =
   "text-ehs-muted-text text-sm font-bold tracking-wider uppercase";
@@ -57,9 +52,6 @@ function GlanceRow(props: Readonly<{ label: string; value: ReactNode }>) {
 export type ReviewPublishStepProps = Readonly<{
   values: FormValues;
   sections: TemplateSection[];
-  scoring: ScoringConfig;
-  rules: TemplateRule[];
-  settings: TemplateSettings;
   /** True while a publish/draft request is in flight. */
   isSubmitting?: boolean;
   onEditStep: (step: number) => void;
@@ -71,9 +63,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
   const {
     values,
     sections,
-    scoring,
-    rules,
-    settings,
     isSubmitting = false,
     onEditStep,
     onPublish,
@@ -90,7 +79,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
     (sum, section) => sum + section.items.length,
     0,
   );
-  const activeRules = rules.filter((rule) => rule.active).length;
 
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -149,47 +137,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             ))}
           </ul>
         </IncidentGlassCard>
-
-        <IncidentGlassCard
-          paddingClassName="p-6"
-          incidentGlassCardClassName="gap-4"
-        >
-          <CardHeader title="Scoring & Logic" onEdit={() => onEditStep(3)} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Scoring">
-              {scoring.enabled ? "Enabled" : "Disabled"}
-            </Field>
-            <Field label="Method">
-              {scoring.enabled ? scoring.method : DASH}
-            </Field>
-            <Field label="Pass Threshold">
-              {scoring.enabled ? `${String(scoring.passThreshold)}%` : DASH}
-            </Field>
-            <Field label="Logic Rules">{`${String(activeRules)} active`}</Field>
-            <Field label="Score Visibility">
-              {scoring.showScoreToUser ? "Visible" : "Hidden"}
-            </Field>
-          </div>
-        </IncidentGlassCard>
-
-        <IncidentGlassCard
-          paddingClassName="p-6"
-          incidentGlassCardClassName="gap-4"
-        >
-          <CardHeader title="Settings & Access" onEdit={() => onEditStep(4)} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Access Level">{settings.accessLevel}</Field>
-            <Field label="Sites">
-              {settings.sites.length > 0 ? settings.sites.join(", ") : DASH}
-            </Field>
-            <Field label="Allow Duplicate">
-              {settings.allowDuplication ? "Yes" : "No"}
-            </Field>
-            <Field label="Allow Editing">
-              {settings.allowEditing ? "Yes" : "No"}
-            </Field>
-          </div>
-        </IncidentGlassCard>
       </div>
 
       {/* Publish + summary */}
@@ -234,8 +181,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             <GlanceRow label="Name" value={name || DASH} />
             <GlanceRow label="Sections" value={sections.length} />
             <GlanceRow label="Total items" value={totalItems} />
-            <GlanceRow label="Scoring" value={scoring.enabled ? "On" : "Off"} />
-            <GlanceRow label="Rules" value={rules.length} />
           </div>
         </IncidentGlassCard>
       </div>
