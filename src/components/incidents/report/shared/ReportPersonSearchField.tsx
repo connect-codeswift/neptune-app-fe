@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   useEffect,
   useId,
@@ -20,9 +22,11 @@ import { normalizeGender } from "@/components/incidents/report/shared/report-inj
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import {
   readUserGender,
+  readUserProfileUrl,
   type SiteUserDto,
   type UserDropdownItemDto,
 } from "@/dtos/res/user-response.dto";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   useSiteUsersQuery,
@@ -79,6 +83,8 @@ export type ReportPersonSearchFieldProps = Readonly<{
   hideLabel?: boolean;
   /** Extra classes merged onto the input control. */
   inputClassName?: string;
+  /** User ids to hide from the option list. Default: hide nobody. */
+  excludeUserIds?: readonly string[];
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -92,18 +98,6 @@ function secondaryLineFor(user: SiteUserDto): string {
   const role = user.roleName?.trim().replaceAll("_", " ");
 
   return [email, role].filter(Boolean).join(" · ");
-}
-
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) {
-    return "?";
-  }
-  if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
-  }
-
-  return `${parts[0]!.charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
 }
 
 function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
@@ -124,6 +118,7 @@ function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
     id: Math.trunc(id),
     fullName,
     email: item.email?.trim() || null,
+    profileUrl: item.profileUrl?.trim() || null,
   };
 }
 
@@ -176,6 +171,7 @@ export function ReportPersonSearchField(
     variant = "report",
     hideLabel = false,
     inputClassName = "",
+    excludeUserIds,
   } = props;
 
   const isDropdown = usersSource === "dropdown";
@@ -233,12 +229,22 @@ export function ReportPersonSearchField(
   }, [isDropdown, dropdownUsersQuery.data?.dataModel]);
 
   const users = useMemo(() => {
-    if (isDropdown) {
-      return filterUsersByQuery(dropdownUsers, debouncedQuery);
+    const base = isDropdown
+      ? filterUsersByQuery(dropdownUsers, debouncedQuery)
+      : (siteUsersQuery.data ?? []);
+
+    if (!excludeUserIds || excludeUserIds.length === 0) {
+      return base;
     }
 
-    return siteUsersQuery.data ?? [];
-  }, [isDropdown, dropdownUsers, debouncedQuery, siteUsersQuery.data]);
+    return base.filter((user) => !excludeUserIds.includes(String(user.id)));
+  }, [
+    isDropdown,
+    dropdownUsers,
+    debouncedQuery,
+    siteUsersQuery.data,
+    excludeUserIds,
+  ]);
 
   const usersQuery = isDropdown
     ? {
@@ -443,8 +449,12 @@ export function ReportPersonSearchField(
             {loadErrorMessage}
           </li>
         ) : users.length === 0 ? (
-          <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
-            {debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
+          <li className="p-1.5">
+            <EmptyState
+              variant="inline"
+              icon="mdi:account-off-outline"
+              title={debouncedQuery.trim() ? emptyWithQuery : emptyNoQuery}
+            />
           </li>
         ) : (
           users.map((user, index) => {
@@ -476,9 +486,10 @@ export function ReportPersonSearchField(
                       : "hover:bg-ehs-surface-inverse/4",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
-                    {initialsFor(name)}
-                  </span>
+                  <UserAvatar
+                    name={name}
+                    profileUrl={readUserProfileUrl(user)}
+                  />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-ehs-dark-bg truncate text-base font-semibold">
                       {name}

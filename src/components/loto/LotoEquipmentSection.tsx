@@ -19,6 +19,8 @@ import {
   useLotoEquipmentQuery,
 } from "@/hooks/use-loto-queries";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { LotoEquipmentItem } from "@/app/dashboard/lockout-tagout/loto-data";
 import { buildLotoEquipmentColumns } from "./LotoEquipmentColumns";
 import { LotoQueryStatus } from "./LotoQueryStatus";
 import { LotoRegisterHeader } from "./LotoRegisterHeader";
@@ -74,14 +76,21 @@ export function LotoEquipmentSection(
 
   const columns = useMemo(
     () =>
-      buildLotoEquipmentColumns({
-        onView: (item) => {
-          router.push(lotoEquipmentDetailRoute(item.id));
+      withManageAction<LotoEquipmentItem>(
+        buildLotoEquipmentColumns({
+          onView: (item) => {
+            router.push(lotoEquipmentDetailRoute(item.id));
+          },
+          onLock: (item) => {
+            router.push(lotoApplyLockoutRoute(item.id));
+          },
+        }),
+        {
+          getHref: (item) => lotoEquipmentDetailRoute(item.id),
+          getAriaLabel: (item) =>
+            `Manage equipment ${item.equipmentCode} — ${item.name}`,
         },
-        onLock: (item) => {
-          router.push(lotoApplyLockoutRoute(item.id));
-        },
-      }),
+      ),
     [router],
   );
 

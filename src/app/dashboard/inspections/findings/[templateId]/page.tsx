@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { InspectionFindingCard } from "@/components/inspections/findings/InspectionFindingCard";
 import { InspectionFindingsHeader } from "@/components/inspections/findings/InspectionFindingsHeader";
@@ -87,28 +88,19 @@ export default function InspectionFindingsPage() {
             </Button>
           </IncidentGlassCard>
         ) : findings.length === 0 ? (
-          <IncidentGlassCard
-            className="min-h-45 text-center"
-            incidentGlassCardClassName="items-center justify-center gap-2"
-          >
-            <Icon
-              icon="mdi:clipboard-check-outline"
-              className="text-ehs-muted-text size-8"
-              aria-hidden="true"
-            />
-            <Text as="p" className="text4 text-ehs-darker">
-              No findings raised
-            </Text>
-            <Text as="p" className="text8 text-ehs-muted-text">
-              No findings were raised on this inspection.
-            </Text>
-            <Link
-              href="/dashboard/inspections"
-              className="text4 text-ehs-normal-blue hover:underline"
-            >
-              Back to Inspections
-            </Link>
-          </IncidentGlassCard>
+          <EmptyState
+            icon="mdi:clipboard-check-outline"
+            title="No findings raised"
+            message="No findings were raised on this inspection."
+            action={
+              <Link
+                href="/dashboard/inspections"
+                className="text4 text-ehs-normal-blue hover:underline"
+              >
+                Back to Inspections
+              </Link>
+            }
+          />
         ) : (
           findings.map((finding) => (
             <InspectionFindingCard key={finding.id} finding={finding} />

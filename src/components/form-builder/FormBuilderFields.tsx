@@ -23,6 +23,7 @@ import type {
   TimeFieldConfig,
 } from "./types";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { getAuthContext } from "@/lib/auth-context";
 import {
   FIELD_INPUT_CLASS,
   FIELD_TEXTAREA_CLASS,
@@ -273,7 +274,7 @@ function TextSuggestions(
         onClick={() => {
           setIsOpen((open) => !open);
         }}
-        className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover absolute top-1/2 right-3 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-ehs-on-accent transition-colors"
+        className="bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent absolute top-1/2 right-3 flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full transition-colors"
       >
         <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
       </button>
@@ -662,7 +663,7 @@ function SegmentedFillTilesControl(
             className={[
               "text4 rounded-1.5 flex min-w-0 flex-1 cursor-pointer items-center justify-center py-2 leading-normal transition-colors",
               isSelected
-                ? "bg-ehs-normal-blue font-semibold text-ehs-on-accent"
+                ? "bg-ehs-normal-blue text-ehs-on-accent font-semibold"
                 : "text-ehs-gray hover:bg-ehs-surface/70 font-medium",
             ].join(" ")}
           >
@@ -938,6 +939,9 @@ function PersonControl(
 ) {
   const { field, userId, displayName, error, onPatchValues } = props;
   const nameKey = personDisplayNameKey(field);
+  const excludeSelfId = field.excludeSelf ? (getAuthContext()?.userId ?? 0) : 0;
+  const excludeUserIds =
+    excludeSelfId > 0 ? [String(excludeSelfId)] : undefined;
 
   if (field.disabled) {
     return (
@@ -977,6 +981,7 @@ function PersonControl(
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
+        excludeUserIds={excludeUserIds}
       />
     </FieldShell>
   );

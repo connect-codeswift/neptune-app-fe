@@ -32,6 +32,12 @@ export type SidebarProps = Readonly<{
    * on screen and has nothing to close.
    */
   onClose?: () => void;
+  /**
+   * Desktop mini-rail mode: icons only, labels and headings hidden. Every
+   * style this flag changes is `lg:`-prefixed, so the mobile drawer renders
+   * the full sidebar regardless — below lg "closed" already means off-canvas.
+   */
+  collapsed?: boolean;
 }>;
 
 function isActivePath(pathname: string, href: string) {
@@ -72,9 +78,10 @@ function SidebarNavLink(
     item: AppNavItem;
     active: boolean;
     onNavigate?: () => void;
+    collapsed?: boolean;
   }>,
 ) {
-  const { item, active, onNavigate } = props;
+  const { item, active, onNavigate, collapsed = false } = props;
 
   // The Chat entry lights up in the assistant's own teal wash rather than the route-active
   // pill — per its design node, and so the one brand entry reads differently from modules.
@@ -87,10 +94,16 @@ function SidebarNavLink(
     <Link
       href={item.href}
       onClick={onNavigate}
+      // On the mini rail the label is display:none, which drops it from the
+      // accessibility tree too — so the link carries its name explicitly, and
+      // `title` gives sighted users the hover tooltip in its place.
+      aria-label={collapsed ? item.label : undefined}
+      title={collapsed ? item.label : undefined}
       className={[
         // py-2.5 on touch so the row clears a comfortable tap target; the
         // desktop rail is pointed at with a cursor and can stay compact.
         "text4 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors lg:py-2",
+        collapsed ? "lg:justify-center lg:px-0 lg:py-2.5" : "",
         active
           ? activeClass
           : // Darker on the mobile sheet: there it sits over a blurred,
@@ -98,20 +111,40 @@ function SidebarNavLink(
             // ground, and ehs-gray washed out against it. ehs-slate is the
             // designed one-step-darker companion, so this stays on palette.
             "text-ehs-slate lg:text-ehs-gray hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
-      ].join(" ")}
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <Icon
         icon={item.icon}
         className={[
           "size-4.5 shrink-0",
+          collapsed ? "lg:size-5" : "",
           active ? "text-ehs-normal-blue" : "text-ehs-muted-text",
-        ].join(" ")}
+        ]
+          .filter(Boolean)
+          .join(" ")}
         aria-hidden="true"
       />
-      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      <span
+        className={["min-w-0 flex-1 truncate", collapsed ? "lg:hidden" : ""]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {item.label}
+      </span>
       <SidebarNavLinkPending />
       {item.badge === undefined ? null : (
-        <span className="text7 text-ehs-muted-text shrink-0">{item.badge}</span>
+        <span
+          className={[
+            "text7 text-ehs-muted-text shrink-0",
+            collapsed ? "lg:hidden" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {item.badge}
+        </span>
       )}
     </Link>
   );
@@ -254,9 +287,10 @@ function SidebarUserFooter(
     initials: string;
     profileUrl: string | null;
     email: string | null;
+    collapsed?: boolean;
   }>,
 ) {
-  const { displayName, initials, profileUrl, email } = props;
+  const { displayName, initials, profileUrl, email, collapsed = false } = props;
 
   return (
     <>
@@ -278,7 +312,7 @@ function SidebarUserFooter(
           {initials}
         </div>
       )}
-      <div className="min-w-0">
+      <div className={collapsed ? "min-w-0 lg:hidden" : "min-w-0"}>
         <Text as="p" className="text4 text-ehs-darker truncate">
           {displayName}
         </Text>
@@ -291,7 +325,7 @@ function SidebarUserFooter(
 }
 
 export function DashboardSidebar(props: Readonly<SidebarProps>) {
-  const { className = "", onClose } = props;
+  const { className = "", onClose, collapsed = false } = props;
   const pathname = usePathname();
   const { navGroups, isLoading, isUserReady, user, accessWindow } =
     useSessionBootstrap();
@@ -321,9 +355,27 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="shrink-0 px-5 pt-5">
+      <div
+        className={["shrink-0 px-5 pt-5", collapsed ? "lg:px-3" : ""]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <div className="relative flex items-center justify-between lg:justify-center">
-          <Logo />
+          {/* The wordmark cannot fit the mini rail, so it shows the trident
+              mark alone - same asset the favicon uses. Both stay mounted; the
+              breakpoint prefix picks which one shows. */}
+          <Logo className={collapsed ? "lg:hidden" : ""} />
+          {collapsed ? (
+            <span className="hidden h-6 items-center lg:flex">
+              <Image
+                src="/favicon-black.png"
+                alt="Neptune"
+                width={22}
+                height={22}
+                className="size-5.5 object-contain"
+              />
+            </span>
+          ) : null}
           {onClose ? (
             <button
               type="button"
@@ -352,7 +404,12 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
       <div className="relative flex min-h-0 flex-1 flex-col">
         <nav
           aria-label="Main"
-          className="flex min-h-0 flex-1 scrollbar-none flex-col gap-6 overflow-y-auto overscroll-contain px-4 py-5"
+          className={[
+            "flex min-h-0 flex-1 scrollbar-none flex-col gap-6 overflow-y-auto overscroll-contain px-4 py-5",
+            collapsed ? "lg:gap-3 lg:px-2" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {isLoading ? (
             <SidebarNavSkeleton />
@@ -363,7 +420,24 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                 key={`${group.title}-${String(groupIndex)}`}
                 className="flex flex-col gap-1"
               >
-                <Text as="p" className="text6 text-ehs-muted-text px-3 pb-1">
+                {/* On the mini rail a heading has no room, but the grouping
+                    still earns its keep - a hairline where each heading was
+                    keeps Safety from bleeding into Compliance. */}
+                {collapsed && groupIndex > 0 ? (
+                  <div
+                    className="border-ehs-hairline/60 mx-2 mb-2 hidden border-t lg:block"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <Text
+                  as="p"
+                  className={[
+                    "text6 text-ehs-muted-text px-3 pb-1",
+                    collapsed ? "lg:hidden" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
                   {group.title}
                 </Text>
                 <div className="flex flex-col gap-0.5">
@@ -373,6 +447,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                       item={item}
                       active={isActivePath(pathname, item.href)}
                       onNavigate={onClose}
+                      collapsed={collapsed}
                     />
                   ))}
                 </div>
@@ -386,22 +461,46 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
         />
       </div>
 
+      {/* Hidden on the mini rail rather than shrunk: reduced to a bare icon
+          the countdown loses the one thing it exists to say. It returns the
+          moment the rail expands. */}
       {accessWindow ? (
-        <SidebarAccessWindow accessWindow={accessWindow} />
+        <div className={collapsed ? "contents lg:hidden" : "contents"}>
+          <SidebarAccessWindow accessWindow={accessWindow} />
+        </div>
       ) : null}
 
-      <div className="border-ehs-border lg:border-ehs-hairline/40 shrink-0 border-t px-4 py-4">
-        <div className="flex items-center gap-1">
+      <div
+        className={[
+          "border-ehs-border lg:border-ehs-hairline/40 shrink-0 border-t px-4 py-4",
+          collapsed ? "lg:px-2 lg:py-3" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <div
+          className={[
+            "flex items-center gap-1",
+            collapsed ? "lg:flex-col lg:gap-2" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           {isUserReady ? (
             <Link
               href="/dashboard/my-profile"
               onClick={onClose}
+              aria-label={collapsed ? "My profile" : undefined}
+              title={collapsed ? user.displayName : undefined}
               className={[
                 "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 transition-colors",
+                collapsed ? "lg:flex-initial lg:justify-center lg:p-1.5" : "",
                 profileActive
                   ? "bg-ehs-light-blue text-ehs-darker"
                   : "hover:bg-ehs-light-bg lg:hover:bg-ehs-surface/35",
-              ].join(" ")}
+              ]
+                .filter(Boolean)
+                .join(" ")}
               aria-current={profileActive ? "page" : undefined}
             >
               <SidebarUserFooter
@@ -409,6 +508,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                 initials={user.initials}
                 profileUrl={user.profileUrl}
                 email={user.email}
+                collapsed={collapsed}
               />
             </Link>
           ) : (

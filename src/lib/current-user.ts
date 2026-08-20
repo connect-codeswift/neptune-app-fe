@@ -225,3 +225,45 @@ export function canViewHazardInsights(): boolean {
 export function canManagePpeInventory(): boolean {
   return hasElevatedRole();
 }
+
+/**
+ * Roles the backend lets sign off a CAPA verification — `CAPARepository.IsLeadership()`
+ * matches `Ehs_Director`, `Ehs_Lead` and `Ehs_Manager` on POST
+ * /api/v1/capas/{capaId}/verification. Both the `Ehs_`-prefixed claim and the bare
+ * `Lead` label are listed because tenants seeded before the role rename still emit
+ * the short form — the same reason `ELEVATED_ROLES` above carries it.
+ */
+const CAPA_VERIFIER_ROLES: readonly string[] = [
+  "ehs director",
+  "ehs lead",
+  "ehs manager",
+  "lead",
+];
+
+/**
+ * True when the signed-in user may verify and close a CAPA. Supervisors and
+ * Workers can see the review queue but never sign one off.
+ *
+ * This is a UX affordance only — the API enforces the same rule, plus
+ * "verifier must be different from the action owner" (see {@link isCapaOwnedByCurrentUser}).
+ */
+export function canVerifyCapa(): boolean {
+  const { role } = getCurrentUser();
+  return role !== null && CAPA_VERIFIER_ROLES.includes(normalizeRole(role));
+}
+
+/**
+ * True when the CAPA is assigned to the signed-in user. The backend rejects a
+ * self-verification ("Verifier must be different from the action owner"), so the
+ * UI must not offer the action.
+ */
+export function isCapaOwnedByCurrentUser(
+  assignedId: number | null | undefined,
+): boolean {
+  if (assignedId == null || assignedId <= 0) {
+    return false;
+  }
+
+  const { userId } = getCurrentUser();
+  return userId > 0 && userId === assignedId;
+}

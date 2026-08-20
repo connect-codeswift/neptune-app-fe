@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type {
@@ -148,10 +150,12 @@ export function IncidentDetailInvestigationCard(
             ) : null}
           </div>
         ) : whyChain.length === 0 ? (
-          <div className="text-ehs-muted-text text4 py-8 text-center">
-            No RCA recorded yet. Open HRCA to document contributing factors,
-            whys, and corrective actions.
-          </div>
+          <EmptyState
+            variant="plain"
+            icon="mdi:sitemap-outline"
+            title="No root cause analysis yet"
+            message="Open HRCA to document contributing factors, whys, and corrective actions."
+          />
         ) : (
           <div className="flex flex-col">
             {whyChain.map((item, index) => {

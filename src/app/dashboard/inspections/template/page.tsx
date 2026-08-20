@@ -1,4 +1,5 @@
 ﻿"use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -70,11 +71,11 @@ export default function InspectionTemplatesPage() {
             </p>
           </div>
         ) : templates.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-ehs-muted-text">
-              {`No ${status.toLowerCase()} inspection templates yet.`}
-            </p>
-          </div>
+          <EmptyState
+            icon="mdi:clipboard-text-outline"
+            title={`No ${status.toLowerCase()} inspection templates`}
+            message="Templates you create appear here, ready to start an inspection from."
+          />
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

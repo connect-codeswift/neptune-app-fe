@@ -58,7 +58,7 @@ export function RegulatoryComplianceHeader(
           type="button"
           variant="tertiary"
           onClick={onSecondaryAction}
-          className="text4 text-ehs-gray rounded-2.5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 px-3.5 py-2 shadow-sm hover:bg-ehs-surface"
+          className="text4 text-ehs-gray rounded-2.5 backdrop-blur-2.5 border-ehs-hairline/90 bg-ehs-surface/62 hover:bg-ehs-surface px-3.5 py-2 shadow-sm"
         >
           <Icon icon="mdi:tune" className="size-4" aria-hidden="true" />
           {secondaryActionLabel}
@@ -68,7 +68,7 @@ export function RegulatoryComplianceHeader(
           type="button"
           variant="primary"
           onClick={onPrimaryAction}
-          className="text4 rounded-2.5 bg-ehs-normal-blue px-3.5 py-2 shadow-md shadow-ehs-normal-blue/40"
+          className="text4 rounded-2.5 bg-ehs-normal-blue shadow-ehs-normal-blue/40 px-3.5 py-2 shadow-md"
         >
           <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
           {primaryActionLabel}

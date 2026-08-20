@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   useEffect,
   useId,
@@ -11,7 +13,11 @@ import {
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
-import type { SiteUserDto } from "@/dtos/res/user-response.dto";
+import {
+  readUserProfileUrl,
+  type SiteUserDto,
+} from "@/dtos/res/user-response.dto";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import { useSiteUsersQuery } from "@/hooks/use-user-queries";
 
@@ -41,18 +47,6 @@ function secondaryLineFor(user: SiteUserDto): string {
   const role = user.roleName?.trim().replaceAll("_", " ");
 
   return [email, role].filter(Boolean).join(" · ");
-}
-
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) {
-    return "?";
-  }
-  if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
-  }
-
-  return `${parts[0]!.charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
 }
 
 function parseWitnessNames(value: string): string[] {
@@ -361,10 +355,16 @@ export function ReportWitnessesField(
                   typed name, or try again in a moment.
                 </li>
               ) : users.length === 0 ? (
-                <li className="text-ehs-muted-text text-3.25 px-2.5 py-3">
-                  {debouncedQuery.trim()
-                    ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Press Enter to keep that name.`
-                    : `No people are listed for ${siteName ?? "this site"} yet.`}
+                <li className="p-1.5">
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:account-off-outline"
+                    title={
+                      debouncedQuery.trim()
+                        ? `No one at ${siteName ?? "this site"} matches “${debouncedQuery.trim()}”. Press Enter to keep that name.`
+                        : `No people are listed for ${siteName ?? "this site"} yet.`
+                    }
+                  />
                 </li>
               ) : (
                 users.map((user, index) => {
@@ -402,9 +402,10 @@ export function ReportWitnessesField(
                             : "",
                         ].join(" ")}
                       >
-                        <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
-                          {initialsFor(name)}
-                        </span>
+                        <UserAvatar
+                          name={name}
+                          profileUrl={readUserProfileUrl(user)}
+                        />
                         <span className="flex min-w-0 flex-1 flex-col">
                           <span className="text-ehs-dark-bg truncate text-[14px] font-semibold">
                             {name}

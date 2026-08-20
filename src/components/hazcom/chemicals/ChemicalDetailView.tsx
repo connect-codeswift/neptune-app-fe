@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -99,9 +101,11 @@ function StatementsCard(
       </Text>
       <div className="flex flex-col gap-2.5">
         {statements.length === 0 ? (
-          <Text as="p" className="text4 text-ehs-muted-text">
-            None recorded for this chemical.
-          </Text>
+          <EmptyState
+            variant="inline"
+            icon="mdi:alert-octagon-outline"
+            title="No hazard statements recorded"
+          />
         ) : null}
         {statements.map((statement) => (
           <div key={statement.code} className="flex items-start gap-2.5">
@@ -171,9 +175,11 @@ function ChemicalDetailBody(props: Readonly<{ chemical: HazcomChemical }>) {
             </Text>
             <div className="flex flex-wrap gap-2">
               {chemical.pictograms.length === 0 ? (
-                <Text as="p" className="text4 text-ehs-muted-text">
-                  No pictograms recorded.
-                </Text>
+                <EmptyState
+                  variant="inline"
+                  icon="mdi:hazard-lights"
+                  title="No pictograms recorded"
+                />
               ) : (
                 chemical.pictograms.map((pictogram) => (
                   <HazcomPictogramChip
@@ -284,7 +290,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
             </Text>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Link
@@ -295,7 +301,7 @@ export function ChemicalDetailView(props: Readonly<ChemicalDetailViewProps>) {
             </Link>
             <Icon
               icon="mdi:chevron-right"
-              className="size-2.75 shrink-0 text-ehs-muted-text"
+              className="text-ehs-muted-text size-2.75 shrink-0"
               aria-hidden="true"
             />
             <Text as="span" className="text8 text-ehs-muted-text">

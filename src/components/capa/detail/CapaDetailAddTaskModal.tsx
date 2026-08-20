@@ -15,8 +15,6 @@ import { Text } from "@/components/Text";
 
 export type CapaDetailAddTaskDraft = Readonly<{
   name: string;
-  assigneeName: string;
-  assigneeUserId: string;
   dueDate: string;
   priority: string;
 }>;
@@ -73,8 +71,6 @@ export function CapaDetailAddTaskModal(
     try {
       await onAssign?.({
         name: fieldString(values, "name").trim(),
-        assigneeName: fieldString(values, "assignedName").trim(),
-        assigneeUserId: fieldString(values, "assigned").trim(),
         dueDate: fieldString(values, "dueDate"),
         priority: fieldString(values, "priority") || "Medium",
       });

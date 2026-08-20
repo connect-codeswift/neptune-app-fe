@@ -112,7 +112,7 @@ function IssuanceMobileCard(
     <button
       type="button"
       onClick={() => onOpen(record)}
-      className="border-ehs-border flex w-full cursor-pointer flex-col gap-3 rounded-2xl border bg-ehs-surface/80 p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)] transition-colors hover:bg-ehs-surface"
+      className="border-ehs-border bg-ehs-surface/80 hover:bg-ehs-surface flex w-full cursor-pointer flex-col gap-3 rounded-2xl border p-3.5 text-left shadow-[0px_4px_6px_rgba(15,23,42,0.02)] transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
@@ -134,7 +134,7 @@ function IssuanceMobileCard(
           {description}
         </Text>
       ) : null}
-      <div className="h-px w-full bg-ehs-surface-inverse/8" />
+      <div className="bg-ehs-surface-inverse/8 h-px w-full" />
       <div className="flex gap-8">
         <div className="flex flex-col gap-0.5">
           <Text as="span" className="text9 text-ehs-muted-text">

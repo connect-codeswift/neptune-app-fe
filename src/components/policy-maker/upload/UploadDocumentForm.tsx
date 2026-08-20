@@ -11,13 +11,11 @@ import { UploadDocumentDropzone } from "@/components/policy-maker/upload/UploadD
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useAddDocumentCategoryMutation,
-  useAddDocumentDepartmentMutation,
   useCreateDocumentMutation,
 } from "@/hooks/use-document-mutations";
-import {
-  useDocumentCategoriesQuery,
-  useDocumentDepartmentsQuery,
-} from "@/hooks/use-document-queries";
+import { useDocumentCategoriesQuery } from "@/hooks/use-document-queries";
+import { useDepartmentsQuery } from "@/hooks/use-department-queries";
+import { useAddDepartmentMutation } from "@/hooks/use-department-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import {
   categoryOptionLabel,
@@ -55,9 +53,9 @@ export function UploadDocumentForm() {
   const router = useRouter();
   const createDocumentMutation = useCreateDocumentMutation();
   const addCategoryMutation = useAddDocumentCategoryMutation();
-  const addDepartmentMutation = useAddDocumentDepartmentMutation();
+  const addDepartmentMutation = useAddDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
-  const departmentsQuery = useDocumentDepartmentsQuery();
+  const departmentsQuery = useDepartmentsQuery();
   const usersQuery = useUserDropdownQuery();
 
   const [file, setFile] = useState<File | null>(null);
@@ -85,15 +83,10 @@ export function UploadDocumentForm() {
 
   const departmentOptions = useMemo(
     () =>
-      (departmentsQuery.data ?? []).flatMap((department) => {
-        const id = department.departmentId ?? department.id;
-        if (id == null) {
-          return [];
-        }
-        return [
-          { value: String(id), label: departmentOptionLabel(department) },
-        ];
-      }),
+      (departmentsQuery.data ?? []).map((department) => ({
+        value: String(department.id),
+        label: departmentOptionLabel(department),
+      })),
     [departmentsQuery.data],
   );
 
@@ -180,16 +173,15 @@ export function UploadDocumentForm() {
     }
 
     try {
-      await addDepartmentMutation.mutateAsync({ departmentName: trimmed });
+      await addDepartmentMutation.mutateAsync({ name: trimmed });
       toast.success("Department added", `"${trimmed}" is available to select.`);
       const refreshed = await departmentsQuery.refetch();
       const match = (refreshed.data ?? []).find((department) => {
         const label = departmentOptionLabel(department);
         return label.toLowerCase() === trimmed.toLowerCase();
       });
-      const id = match?.departmentId ?? match?.id;
-      if (id != null) {
-        setDepartmentId(String(id));
+      if (match) {
+        setDepartmentId(String(match.id));
       }
     } catch (error: unknown) {
       toast.error(
@@ -454,7 +446,7 @@ export function UploadDocumentForm() {
               variant="tertiary"
               onClick={handleCancel}
               disabled={busy}
-              className="text4 text-ehs-dark-bg rounded-2.5 h-9 w-full border border-ehs-border-ink/14 px-4 shadow-none sm:w-auto"
+              className="text4 text-ehs-dark-bg rounded-2.5 border-ehs-border-ink/14 h-9 w-full border px-4 shadow-none sm:w-auto"
             >
               Cancel
             </Button>
@@ -463,7 +455,7 @@ export function UploadDocumentForm() {
               variant="primary"
               isLoading={isSubmitting}
               disabled={busy || !pdfSecureUrl || lookupsLoading}
-              className="text4 rounded-2.5 h-9.5 w-full bg-ehs-normal-blue px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] hover:bg-ehs-normal-blue-hover sm:w-auto sm:min-w-52"
+              className="text4 rounded-2.5 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover h-9.5 w-full px-4 whitespace-nowrap shadow-[0px_5.838px_17.514px_-5.838px_var(--ehs-normal-blue)] sm:w-auto sm:min-w-52"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"

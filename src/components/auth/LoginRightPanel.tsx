@@ -147,7 +147,8 @@ export default function LoginRightPanel() {
 
     if (!parsed.success) {
       setFormError(
-        parsed.error.issues[0]?.message ?? "Enter the 6-digit code to continue.",
+        parsed.error.issues[0]?.message ??
+          "Enter the 6-digit code to continue.",
       );
       return;
     }

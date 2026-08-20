@@ -38,6 +38,7 @@ export function buildCreateCapaSchema(): FormSchema {
       usersSource: "dropdown",
       displayNameField: "assignedName",
       placeholder: "e.g. M. Torres",
+      excludeSelf: true,
     },
     {
       type: "date",

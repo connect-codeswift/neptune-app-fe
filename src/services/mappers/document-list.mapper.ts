@@ -6,10 +6,10 @@ import type {
 } from "@/components/policy-maker/policy-maker-types";
 import type {
   DocCategoryDto,
-  DocDepartmentDto,
   DocumentDto,
   DocumentVersionDto,
 } from "@/dtos/res/document-response.dto";
+import type { DepartmentDto } from "@/dtos/res/department-response.dto";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 
 /** Display form of a document id, e.g. `42` → `"DOC-42"`. */
@@ -207,12 +207,8 @@ export function categoryOptionLabel(category: DocCategoryDto): string {
 }
 
 /** Display label for a department dropdown option (Upload/Edit forms). */
-export function departmentOptionLabel(department: DocDepartmentDto): string {
-  return (
-    department.departmentName?.trim() ||
-    department.name?.trim() ||
-    `Department ${String(department.departmentId ?? department.id ?? "")}`
-  );
+export function departmentOptionLabel(department: DepartmentDto): string {
+  return department.name.trim() || `Department ${String(department.id)}`;
 }
 
 /**
@@ -220,16 +216,12 @@ export function departmentOptionLabel(department: DocDepartmentDto): string {
  * detail responses that don't include a department name field at all.
  */
 export function toDepartmentNameLookup(
-  departments: readonly DocDepartmentDto[],
+  departments: readonly DepartmentDto[],
 ): ReadonlyMap<string, string> {
   const lookup = new Map<string, string>();
   for (const department of departments) {
-    const name = department.departmentName?.trim() || department.name?.trim();
-    if (!name) continue;
-
-    for (const id of [department.departmentId, department.id]) {
-      if (id != null) lookup.set(String(id), name);
-    }
+    const name = department.name.trim();
+    if (name) lookup.set(String(department.id), name);
   }
   return lookup;
 }

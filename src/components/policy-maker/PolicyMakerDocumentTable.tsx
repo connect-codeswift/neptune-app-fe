@@ -6,6 +6,7 @@ import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table, type TablePagination } from "@/components/ui/Table";
+import { withManageAction } from "@/components/ui/table-manage-column";
 import {
   CompliancePill,
   complianceGlassCardClass,
@@ -89,7 +90,7 @@ function createDocumentColumns(
         const doc = row.original;
         return (
           <div className="flex items-center gap-2.5">
-            <div className="flex size-7 shrink-0 items-center justify-center rounded border border-ehs-border-ink/8 bg-linear-to-b from-ehs-surface/82 to-ehs-surface/62">
+            <div className="border-ehs-border-ink/8 from-ehs-surface/82 to-ehs-surface/62 flex size-7 shrink-0 items-center justify-center rounded border bg-linear-to-b">
               <Icon
                 icon="mdi:file-document-outline"
                 className="text-ehs-gray size-3.5"
@@ -203,7 +204,15 @@ export function PolicyMakerDocumentTable(
   } = props;
 
   const columns = useMemo(
-    () => createDocumentColumns(expanded, { selectedId, onViewMore }),
+    () =>
+      withManageAction(
+        createDocumentColumns(expanded, { selectedId, onViewMore }),
+        {
+          getHref: (row) =>
+            `/dashboard/policy-maker/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage document ${row.title}`,
+        },
+      ),
     [expanded, selectedId, onViewMore],
   );
 

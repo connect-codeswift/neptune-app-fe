@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { Text } from "@/components/Text";
 import type { IncidentRoutingMember } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -27,9 +29,13 @@ export function IncidentDetailRoutingCard(
 
       <div className="flex flex-col">
         {members.length === 0 ? (
-          <div className="text-ehs-muted-text text4 border-ehs-border-ink/8 border-t py-6 text-center">
-            No routing assignments returned by the API.
-          </div>
+          <EmptyState
+            variant="plain"
+            icon="mdi:call-split"
+            title="No routing assignments"
+            message="People this incident was routed to appear here."
+            className="border-ehs-border-ink/8 border-t"
+          />
         ) : null}
         {members.map((member) => (
           <div

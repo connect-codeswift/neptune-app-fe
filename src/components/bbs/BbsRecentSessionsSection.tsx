@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
@@ -20,6 +22,8 @@ import {
   useBehaviorCategoriesQuery,
 } from "@/hooks/use-bbs-queries";
 import { toObservationDetail } from "@/lib/map-bbs";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { BbsSession } from "@/app/dashboard/bbs/bbs-data";
 import { BbsDetailPanel } from "./BbsDetailPanel";
 import { BbsObservationCard } from "./BbsObservationCard";
 import { createBbsSessionColumns } from "./BbsSessionColumns";
@@ -119,11 +123,18 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
 
   const columns = useMemo(
     () =>
-      createBbsSessionColumns({
-        selectedId: activeSessionId,
-        onViewMore: handleToggleDetailPanel,
-        expanded: !isPanelOpen,
-      }),
+      withManageAction<BbsSession>(
+        createBbsSessionColumns({
+          selectedId: activeSessionId,
+          onViewMore: handleToggleDetailPanel,
+          expanded: !isPanelOpen,
+        }),
+        {
+          getHref: (session) =>
+            `/dashboard/bbs/observation?id=${encodeURIComponent(session.id)}`,
+          getAriaLabel: (session) => `Manage BBS session ${session.id}`,
+        },
+      ),
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
   );
 
@@ -242,12 +253,12 @@ export function BbsRecentSessionsSection(props: BbsRecentSessionsSectionProps) {
               </div>
               <div className="flex flex-col gap-3 p-3.5">
                 {filtered.length === 0 ? (
-                  <Text
-                    as="p"
-                    className="text4 text-ehs-muted-text py-8 text-center"
-                  >
-                    No sessions found matching your filters.
-                  </Text>
+                  <EmptyState
+                    variant="plain"
+                    icon="mdi:eye-outline"
+                    title="No sessions found"
+                    message="Try clearing the search or filters."
+                  />
                 ) : (
                   <ul className="flex flex-col gap-3">
                     {filtered.map((session) => (

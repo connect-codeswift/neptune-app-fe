@@ -31,13 +31,13 @@ function OelReferenceRow(
     <div
       className={[
         "flex items-center justify-between gap-3 py-1.5",
-        props.isLast ? "" : "border-b border-ehs-border-ink/8",
+        props.isLast ? "" : "border-ehs-border-ink/8 border-b",
       ].join(" ")}
     >
-      <Text as="span" className="text-xs text-ehs-gray">
+      <Text as="span" className="text-ehs-gray text-xs">
         {props.label}
       </Text>
-      <Text as="span" className="text-xs font-bold text-ehs-dark-bg">
+      <Text as="span" className="text-ehs-dark-bg text-xs font-bold">
         {props.value}
       </Text>
     </div>
@@ -57,17 +57,17 @@ function OelComparisonCard(
     >
       <Text
         as="p"
-        className="text-center text-xs font-semibold tracking-wider text-ehs-muted-text uppercase"
+        className="text-ehs-muted-text text-center text-xs font-semibold tracking-wider uppercase"
       >
         OEL Comparison
       </Text>
 
       {comparison ? (
         <div className="flex flex-col items-center gap-2 pt-1">
-          <Text as="p" className="text-2xl font-bold text-ehs-dark-bg">
+          <Text as="p" className="text-ehs-dark-bg text-2xl font-bold">
             {comparison.resultLabel}
           </Text>
-          <Text as="p" className="text-sm text-ehs-gray">
+          <Text as="p" className="text-ehs-gray text-sm">
             {`${String(comparison.percentOfInternal)}% of internal limit (${comparison.limitLabel})`}
           </Text>
           <span
@@ -82,7 +82,10 @@ function OelComparisonCard(
           </span>
         </div>
       ) : (
-        <Text as="p" className="pt-2.5 text-center text-sm text-ehs-placeholder">
+        <Text
+          as="p"
+          className="text-ehs-placeholder pt-2.5 text-center text-sm"
+        >
           Enter a result value to see OEL comparison
         </Text>
       )}
@@ -119,7 +122,7 @@ function OelReferenceCard(props: Readonly<{ agent: IhAgentOelRef | null }>) {
       className="min-w-0 rounded-2xl"
       incidentGlassCardClassName="gap-0"
     >
-      <Text as="h2" className="text-sm font-bold text-ehs-dark-bg">
+      <Text as="h2" className="text-ehs-dark-bg text-sm font-bold">
         OEL Reference
       </Text>
       <div className="mt-2.5 flex flex-col">
@@ -196,12 +199,12 @@ export function IhLogResultView() {
               className="gap-4"
             />
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-5">
+            <div className="border-ehs-border-ink/8 mt-6 flex flex-wrap items-center justify-between gap-3 border-t pt-5">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={goBack}
-                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ehs-slate"
+                className="text-ehs-slate rounded-lg px-3.5 py-2 text-sm font-semibold"
               >
                 <Icon icon="mdi:arrow-left" className="size-3.5" aria-hidden />
                 Cancel

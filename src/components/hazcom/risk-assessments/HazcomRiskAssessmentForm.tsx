@@ -253,7 +253,7 @@ export function HazcomRiskAssessmentForm(
           onChange={(event) => onChange({ controls: event.target.value })}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ehs-border-ink/8 pt-4 sm:pt-5">
+        <div className="border-ehs-border-ink/8 flex flex-wrap items-center justify-between gap-3 border-t pt-4 sm:pt-5">
           <Link href={ASSESSMENTS_ROUTE}>
             <Button
               type="button"

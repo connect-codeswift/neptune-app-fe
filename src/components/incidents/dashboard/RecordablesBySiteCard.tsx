@@ -1,6 +1,7 @@
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { SiteRecordable } from "@/components/incidents/dashboard/incident-kpis-data";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export type RecordablesBySiteCardProps = Readonly<{
   sites: readonly SiteRecordable[];
@@ -37,9 +38,12 @@ export function RecordablesBySiteCard(
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-3">
         {sites.length === 0 ? (
-          <Text as="p" className="text-ehs-muted-text text-sm">
-            No recordables by site returned.
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:office-building-outline"
+            title="No recordables by site"
+            message="Recordable incidents appear here once logged."
+          />
         ) : (
           sites.map((item) => {
             const widthPercent = (item.count / maxCount) * 100;

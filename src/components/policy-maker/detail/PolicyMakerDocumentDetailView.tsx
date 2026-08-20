@@ -115,7 +115,7 @@ export function PolicyMakerDocumentDetailView(
             <article className={`${detailCardClass} min-w-0`}>
               <div className="relative z-1 flex flex-col gap-4 p-4 sm:p-5">
                 <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-ehs-surface-inverse/14 sm:size-12">
+                  <div className="bg-ehs-surface-inverse/14 flex size-11 shrink-0 items-center justify-center rounded-2xl sm:size-12">
                     <Icon
                       icon="mdi:file-document-outline"
                       className="text-ehs-gray size-5 sm:size-6"
@@ -134,7 +134,7 @@ export function PolicyMakerDocumentDetailView(
                 <button
                   type="button"
                   onClick={() => setIsPreviewOpen(true)}
-                  className="text4 rounded-2.5 before:rounded-2.5 relative inline-flex h-9.5 w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 bg-ehs-normal-blue px-4 whitespace-nowrap text-ehs-on-accent shadow-(--ehs-shadow-button-primary) transition-colors before:pointer-events-none before:absolute before:inset-0 before:content-[''] hover:bg-ehs-normal-blue-hover"
+                  className="text4 rounded-2.5 before:rounded-2.5 bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-hover relative inline-flex h-9.5 w-fit max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 px-4 whitespace-nowrap shadow-(--ehs-shadow-button-primary) transition-colors before:pointer-events-none before:absolute before:inset-0 before:content-['']"
                 >
                   <Icon
                     icon="mdi:eye-outline"
@@ -172,9 +172,9 @@ export function PolicyMakerDocumentDetailView(
                   </Text>
                 </DetailField>
                 <DetailField label="Status">
-                  <span className="inline-flex h-[22px] items-center gap-1.25 rounded-full bg-ehs-surface-inverse/14 px-2.5">
+                  <span className="bg-ehs-surface-inverse/14 inline-flex h-[22px] items-center gap-1.25 rounded-full px-2.5">
                     <span
-                      className="rounded-0.75 size-1.5 shrink-0 bg-ehs-gray"
+                      className="rounded-0.75 bg-ehs-gray size-1.5 shrink-0"
                       aria-hidden="true"
                     />
                     <Text as="span" className="text5 text-ehs-gray">
@@ -217,7 +217,7 @@ export function PolicyMakerDocumentDetailView(
                   </Text>
                 </div>
                 <div
-                  className="h-2 w-full overflow-hidden rounded-full bg-ehs-surface-inverse/14 sm:mt-4"
+                  className="bg-ehs-surface-inverse/14 h-2 w-full overflow-hidden rounded-full sm:mt-4"
                   role="progressbar"
                   aria-valuenow={ackPercent}
                   aria-valuemin={0}
@@ -225,7 +225,7 @@ export function PolicyMakerDocumentDetailView(
                   aria-label="Acknowledgment progress"
                 >
                   <div
-                    className="h-full rounded-full bg-ehs-gray transition-[width] duration-300"
+                    className="bg-ehs-gray h-full rounded-full transition-[width] duration-300"
                     style={{ width: `${String(ackPercent)}%` }}
                   />
                 </div>
@@ -234,7 +234,7 @@ export function PolicyMakerDocumentDetailView(
                     type="button"
                     variant="tertiary"
                     onClick={onApprovals}
-                    className="text4 text-ehs-darker rounded-2 h-9 w-45.75 max-w-full border border-ehs-border-ink/14 px-2 shadow-none hover:bg-ehs-surface/80"
+                    className="text4 text-ehs-darker rounded-2 border-ehs-border-ink/14 hover:bg-ehs-surface/80 h-9 w-45.75 max-w-full border px-2 shadow-none"
                   >
                     Approvals
                   </Button>

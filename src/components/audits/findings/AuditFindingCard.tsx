@@ -52,20 +52,33 @@ export function AuditFindingCard(props: AuditFindingCardProps) {
             className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
           />
 
-          {finding.capaCreated ? (
+          {finding.isAutoRaised ? (
             <Text
               as="span"
               className="bg-ehs-surface-inverse/8 text5 text-ehs-gray rounded-md px-2.5 py-0.5 whitespace-nowrap"
+              title="Raised automatically when the run was submitted"
             >
-              CAPA Created
+              Auto-raised
             </Text>
           ) : null}
         </div>
       </div>
 
-      <Text as="p" className="text4 text-ehs-darker">
-        {finding.description}
+      <Text as="p" className="text4 text-ehs-darker font-medium">
+        {finding.title}
       </Text>
+
+      {finding.description ? (
+        <Text as="p" className="text8 text-ehs-muted-text">
+          {finding.description}
+        </Text>
+      ) : null}
+
+      {finding.dueDate ? (
+        <Text as="p" className="text5 text-ehs-muted-text">
+          {`Due ${finding.dueDate}`}
+        </Text>
+      ) : null}
     </IncidentGlassCard>
   );
 }

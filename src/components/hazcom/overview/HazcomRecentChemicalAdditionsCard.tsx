@@ -1,4 +1,5 @@
 "use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
 import Link from "next/link";
@@ -56,22 +57,21 @@ export function HazcomRecentChemicalAdditionsCard(
       </div>
 
       {recentChemicals.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
-          <Icon
-            icon="mdi:flask-empty-outline"
-            className="text-ehs-muted-text size-8"
-            aria-hidden="true"
-          />
-          <Text as="p" className="text4 text-ehs-muted-text">
-            No chemicals on the inventory yet.
-          </Text>
-          <Link
-            href="/dashboard/hazcom/chemicals/new"
-            className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover"
-          >
-            Add the first chemical
-          </Link>
-        </div>
+        <EmptyState
+          variant="plain"
+          icon="mdi:flask-empty-outline"
+          title="No chemicals yet"
+          message="Chemicals added to the inventory appear here."
+          className="flex-1"
+          action={
+            <Link
+              href="/dashboard/hazcom/chemicals/new"
+              className="text7 text-ehs-normal-blue hover:text-ehs-normal-blue-hover"
+            >
+              Add the first chemical
+            </Link>
+          }
+        />
       ) : (
         <div className="divide-ehs-border mt-4 flex flex-col divide-y">
           {recentChemicals.map((chemical) => (

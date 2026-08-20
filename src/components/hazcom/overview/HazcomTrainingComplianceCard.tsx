@@ -85,10 +85,14 @@ export function HazcomTrainingComplianceCard(
         </Text>
         <Link
           href="/dashboard/hazcom/training"
-          className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg inline-flex items-center gap-2 rounded-2.5 px-2 py-1 transition-colors"
+          className="text7 text-ehs-gray hover:bg-ehs-light-bg hover:text-ehs-dark-bg rounded-2.5 inline-flex items-center gap-2 px-2 py-1 transition-colors"
         >
           View all
-          <Icon icon="mdi:arrow-right" className="size-3 shrink-0" aria-hidden />
+          <Icon
+            icon="mdi:arrow-right"
+            className="size-3 shrink-0"
+            aria-hidden
+          />
         </Link>
       </div>
 

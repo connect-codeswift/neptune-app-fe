@@ -155,7 +155,6 @@ export function MyProfilePageClient() {
                   </div>
                 </div>
               </div>
-
             </div>
           </GlassCard>
         )}

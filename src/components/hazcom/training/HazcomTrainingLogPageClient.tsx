@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import { useCallback, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
@@ -217,9 +219,11 @@ export function HazcomTrainingLogPageClient() {
                     Materials
                   </Text>
                   {selectedSession.materials.length === 0 ? (
-                    <Text as="p" className="text4 text-ehs-muted-text">
-                      No materials attached.
-                    </Text>
+                    <EmptyState
+                      variant="inline"
+                      icon="mdi:paperclip"
+                      title="No materials attached"
+                    />
                   ) : (
                     <ul className="flex flex-col gap-2">
                       {selectedSession.materials.map((material) => (

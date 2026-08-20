@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   CAPA_ATTACHMENTS_FORM_ID,
   CAPA_ATTACHMENTS_SCHEMA,
@@ -343,9 +345,12 @@ export function CapaDetailTasksTab(
               Add Task
             </Button>
           </div>
-          <Text as="p" className="text-ehs-muted-text py-6 text-center text-sm">
-            No tasks yet.
-          </Text>
+          <EmptyState
+            variant="plain"
+            icon="mdi:format-list-checks"
+            title="No tasks yet"
+            message="Add checklist items for the assignee to work through."
+          />
         </div>
       ) : (
         <Table
@@ -353,6 +358,11 @@ export function CapaDetailTasksTab(
           columns={columns}
           getRowId={(row) => row.id}
           variant="capa"
+          emptyState={{
+            icon: "mdi:format-list-checks",
+            title: "No tasks yet",
+            message: "Tasks added to this CAPA appear here.",
+          }}
           containerClassName="!rounded-none !border-0 !bg-transparent !shadow-none !backdrop-blur-none before:!hidden"
           header={
             <div className="flex items-center justify-between gap-3">
@@ -392,7 +402,6 @@ export function CapaDetailTasksTab(
                 capaId: record.numericId,
                 incidentId: record.incidentId,
                 task: draft.name,
-                owner: draft.assigneeUserId,
                 dueDate: draft.dueDate,
                 priority: draft.priority,
               });
@@ -414,11 +423,6 @@ export function CapaDetailTasksTab(
           confirmLabel="Save Task"
           initialDraft={{
             name: editingTask.label,
-            assigneeName: editingTask.owner === "—" ? "" : editingTask.owner,
-            assigneeUserId:
-              editingTask.ownerId != null && editingTask.ownerId > 0
-                ? String(editingTask.ownerId)
-                : "",
             dueDate: editingTask.dueDateIso || editingTask.dueDate,
             priority: editingTask.priority || "Medium",
           }}
@@ -440,7 +444,6 @@ export function CapaDetailTasksTab(
                 capaId: record.numericId,
                 incidentId: record.incidentId,
                 task: draft.name,
-                owner: draft.assigneeUserId,
                 dueDate: draft.dueDate,
                 priority: draft.priority,
               });
@@ -541,9 +544,12 @@ export function CapaDetailCommentsTab(
       ) : null}
 
       {!isLoading && !commentsQuery.isError && comments.length === 0 ? (
-        <Text as="p" className="text-ehs-muted-text py-6 text-center text-base">
-          No comments yet.
-        </Text>
+        <EmptyState
+          variant="plain"
+          icon="mdi:comment-outline"
+          title="No comments yet"
+          message="Comments added to this CAPA appear here."
+        />
       ) : null}
 
       {!isLoading && !commentsQuery.isError

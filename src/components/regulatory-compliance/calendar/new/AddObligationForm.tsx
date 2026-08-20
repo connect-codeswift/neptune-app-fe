@@ -426,14 +426,14 @@ export function AddObligationForm() {
               type="button"
               onClick={handleCancel}
               disabled={busy}
-              className="text4 cursor-pointer text-center text-ehs-gray transition-colors hover:text-ehs-dark-bg disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 text-ehs-gray hover:text-ehs-dark-bg cursor-pointer text-center transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy || !pdfSecureUrl}
-              className="text4 rounded-2.5 inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center bg-ehs-normal-blue px-4 text-ehs-on-accent shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_color-mix(in_oklab,var(--ehs-normal-blue)_10%,transparent)] transition-colors hover:bg-ehs-dark-blue disabled:cursor-not-allowed disabled:opacity-50"
+              className="text4 rounded-2.5 bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-dark-blue inline-flex h-9 min-w-49.25 cursor-pointer items-center justify-center px-4 shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,0.25)] drop-shadow-[0px_6px_9px_color-mix(in_oklab,var(--ehs-normal-blue)_10%,transparent)] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploadingPdf
                 ? "Uploading PDF…"
