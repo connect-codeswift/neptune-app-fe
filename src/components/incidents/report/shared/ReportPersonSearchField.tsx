@@ -22,9 +22,11 @@ import { normalizeGender } from "@/components/incidents/report/shared/report-inj
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import {
   readUserGender,
+  readUserProfileUrl,
   type SiteUserDto,
   type UserDropdownItemDto,
 } from "@/dtos/res/user-response.dto";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   useSiteUsersQuery,
@@ -96,18 +98,6 @@ function secondaryLineFor(user: SiteUserDto): string {
   return [email, role].filter(Boolean).join(" · ");
 }
 
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) {
-    return "?";
-  }
-  if (parts.length === 1) {
-    return parts[0]!.slice(0, 2).toUpperCase();
-  }
-
-  return `${parts[0]!.charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
-}
-
 function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
   const rawId = item.id ?? item.userId ?? item.value;
   const id = typeof rawId === "number" ? rawId : Number(rawId);
@@ -126,6 +116,7 @@ function toSiteUserFromDropdown(item: UserDropdownItemDto): SiteUserDto | null {
     id: Math.trunc(id),
     fullName,
     email: item.email?.trim() || null,
+    profileUrl: item.profileUrl?.trim() || null,
   };
 }
 
@@ -482,9 +473,10 @@ export function ReportPersonSearchField(
                       : "hover:bg-ehs-surface-inverse/4",
                   ].join(" ")}
                 >
-                  <span className="bg-ehs-light-blue text-ehs-dark-blue text-2.75 inline-flex size-7 shrink-0 items-center justify-center rounded-full font-bold">
-                    {initialsFor(name)}
-                  </span>
+                  <UserAvatar
+                    name={name}
+                    profileUrl={readUserProfileUrl(user)}
+                  />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-ehs-dark-bg truncate text-base font-semibold">
                       {name}
