@@ -259,39 +259,6 @@ export function isRuleComplete(rule: TemplateRule): boolean {
   );
 }
 
-/* ---- Step 4: Settings ---- */
-
-export const ACCESS_LEVELS = [
-  "All Users",
-  "Specific Roles",
-  "Specific Users / Teams",
-] as const;
-export type AccessLevel = (typeof ACCESS_LEVELS)[number];
-
-export const SITE_OPTIONS = [
-  "All Sites",
-  "HQ - Main Facility",
-  "Plant B",
-  "Warehouse A",
-] as const;
-
-export type TemplateSettings = {
-  accessLevel: AccessLevel;
-  /** Selected site labels; the design defaults to "All Sites". */
-  sites: string[];
-  allowDuplication: boolean;
-  allowEditing: boolean;
-};
-
-export function createSettings(): TemplateSettings {
-  return {
-    accessLevel: "All Users",
-    sites: ["All Sites"],
-    allowDuplication: true,
-    allowEditing: false,
-  };
-}
-
 /** Starting content, matching the design's two seeded sections. */
 export function createInitialSections(): TemplateSection[] {
   return [
@@ -315,11 +282,10 @@ export function createInitialSections(): TemplateSection[] {
   ];
 }
 
-/** The full set of data the 5-step wizard edits. */
+/** The full set of data the 4-step wizard edits. */
 export type WizardState = {
   values: FormValues;
   sections: TemplateSection[];
   scoring: ScoringConfig;
   rules: TemplateRule[];
-  settings: TemplateSettings;
 };

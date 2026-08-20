@@ -9,16 +9,14 @@ import {
   type ScoringConfig,
   type TemplateRule,
   type TemplateSection,
-  type TemplateSettings,
 } from "./template-builder-data";
 
-/** Everything the 5-step wizard collects. */
+/** Everything the 4-step wizard collects. */
 export type TemplateDraft = Readonly<{
   values: FormValues;
   sections: TemplateSection[];
   scoring: ScoringConfig;
   rules: TemplateRule[];
-  settings: TemplateSettings;
 }>;
 
 /**
@@ -43,7 +41,7 @@ export function toInspectionTemplatePayload(
   draft: TemplateDraft,
   options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateInspectionTemplateRequestDto {
-  const { values, sections, scoring, rules, settings } = draft;
+  const { values, sections, scoring, rules } = draft;
   const { userId, siteId } = getCurrentUser();
 
   const isPublished = options.publish;
@@ -64,8 +62,6 @@ export function toInspectionTemplatePayload(
     passThreshold: scoring.passThreshold,
     isScoreVisibility: scoring.showScoreToUser,
 
-    isTemplateDuplicationAllow: settings.allowDuplication,
-    isAllowEditing: settings.allowEditing,
     isDraft,
     isPublished,
 
@@ -74,9 +70,7 @@ export function toInspectionTemplatePayload(
     // Not captured by the wizard yet — sent as defaults. Foreign keys go out
     // as null rather than 0, which would point at a non-existent row.
     defaultAssigneeId: null,
-    // The wizard picks sites, not a single default location.
     defaultLocation: "",
-    allowSites: settings.sites.join(","),
     scheduleStartDate: new Date().toISOString(),
     dueWindowDays: 0,
     notifyAssignee: true,

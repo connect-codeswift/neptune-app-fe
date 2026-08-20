@@ -11,7 +11,6 @@ import {
   type TemplateItemType,
   type TemplateRule,
   type TemplateSection,
-  type TemplateSettings,
   type WizardState,
 } from "@/components/inspections/templates/create/template-builder-data";
 import type { InspectionTemplate } from "@/app/dashboard/inspections/template/inspection-templates-data";
@@ -90,12 +89,6 @@ export function mapDetailToWizardState(
     .map((tag) => tag.trim())
     .filter((tag) => tag !== "");
 
-  // The API stores sites comma-separated; the Settings step wants a list.
-  const sites = (summary?.allowSites ?? "")
-    .split(",")
-    .map((site) => site.trim())
-    .filter((site) => site !== "");
-
   const values: FormValues = {
     templateName: summary?.templateName ?? "",
     templateType: summary?.templateType ?? "Inspection",
@@ -109,13 +102,6 @@ export function mapDetailToWizardState(
     method: "Percentage",
     passThreshold: summary?.passThreshold ?? 80,
     showScoreToUser: summary?.isScoreVisibility ?? false,
-  };
-
-  const settings: TemplateSettings = {
-    accessLevel: "All Users",
-    sites: sites.length > 0 ? sites : ["All Sites"],
-    allowDuplication: summary?.isTemplateDuplicationAllow ?? true,
-    allowEditing: summary?.isAllowEditing ?? false,
   };
 
   // Guard the spreads: an unexpected response shape would otherwise throw
@@ -148,5 +134,5 @@ export function mapDetailToWizardState(
     thenValue: logic.result ?? "",
   }));
 
-  return { values, sections, scoring, rules, settings };
+  return { values, sections, scoring, rules };
 }

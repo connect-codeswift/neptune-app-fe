@@ -18,7 +18,6 @@ import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
 import { ScoringLogicStep } from "./ScoringLogicStep";
-import { SettingsStep } from "./SettingsStep";
 import {
   TemplateWizardProgress,
   TemplateWizardStepList,
@@ -26,13 +25,11 @@ import {
 import {
   createInitialSections,
   createScoringConfig,
-  createSettings,
   isItemValueFilled,
   isRuleComplete,
   type ScoringConfig,
   type TemplateRule,
   type TemplateSection,
-  type TemplateSettings,
   type WizardState,
 } from "./template-builder-data";
 import {
@@ -116,9 +113,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   const [rules, setRules] = useState<TemplateRule[]>(
     () => initialState?.rules ?? [],
   );
-  const [settings, setSettings] = useState<TemplateSettings>(
-    () => initialState?.settings ?? createSettings(),
-  );
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
   // Items present when editing began — these are exempt from the "must fill a
@@ -160,7 +154,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
       return;
     }
 
-    const draft = { values, sections, scoring, rules, settings };
+    const draft = { values, sections, scoring, rules };
 
     const handlePublishSuccess = () => {
       toast.success(
@@ -292,14 +286,12 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   const handleNext = () => {
     if (step === 2) handleBuildSectionsNext();
     else if (step === 3) handleScoringLogicNext();
-    else if (step === 4) setStep(5);
   };
 
   const NEXT_LABEL: Record<number, string> = {
     1: "Next: Build Sections",
     2: "Next: Scoring & Logic",
-    3: "Next: Settings",
-    4: "Next: Review & Publish",
+    3: "Next: Review & Publish",
   };
 
   return (
@@ -329,7 +321,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           </Text>
 
           <Text as="p" className="text8 text-ehs-muted-text">
-            5-step wizard — build, configure, and publish your template
+            4-step wizard — build, configure, and publish your template
           </Text>
         </div>
 
@@ -398,15 +390,12 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           rules={rules}
           onRulesChange={setRules}
         />
-      ) : step === 4 ? (
-        <SettingsStep settings={settings} onSettingsChange={setSettings} />
       ) : (
         <ReviewPublishStep
           values={values}
           sections={sections}
           scoring={scoring}
           rules={rules}
-          settings={settings}
           isSubmitting={
             createTemplate.isPending ||
             updateTemplate.isPending ||
@@ -444,7 +433,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         )}
 
         {/* The final step carries its own Publish / Save actions in the panel. */}
-        {step < 5 ? (
+        {step < 4 ? (
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"

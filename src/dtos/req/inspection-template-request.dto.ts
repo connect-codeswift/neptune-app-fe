@@ -88,15 +88,11 @@ export type CreateInspectionTemplateRequestDto = {
   isScoringEnable: boolean;
   passThreshold: number;
   isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   /** Null until an assignee is chosen — 0 would be a dangling FK. */
   defaultAssigneeId: number | null;
   defaultLocation: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
   frequency: string;
   scheduleStartDate: string;
   dueWindowDays: number;

@@ -7,7 +7,6 @@ import type {
   ScoringConfig,
   TemplateRule,
   TemplateSection,
-  TemplateSettings,
 } from "./template-builder-data";
 
 const labelClass =
@@ -59,7 +58,6 @@ export type ReviewPublishStepProps = Readonly<{
   sections: TemplateSection[];
   scoring: ScoringConfig;
   rules: TemplateRule[];
-  settings: TemplateSettings;
   /** True while a publish/draft request is in flight. */
   isSubmitting?: boolean;
   onEditStep: (step: number) => void;
@@ -73,7 +71,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
     sections,
     scoring,
     rules,
-    settings,
     isSubmitting = false,
     onEditStep,
     onPublish,
@@ -168,25 +165,6 @@ export function ReviewPublishStep(props: ReviewPublishStepProps) {
             <Field label="Logic Rules">{`${String(activeRules)} active`}</Field>
             <Field label="Score Visibility">
               {scoring.showScoreToUser ? "Visible" : "Hidden"}
-            </Field>
-          </div>
-        </IncidentGlassCard>
-
-        <IncidentGlassCard
-          paddingClassName="p-6"
-          incidentGlassCardClassName="gap-4"
-        >
-          <CardHeader title="Settings & Access" onEdit={() => onEditStep(4)} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Access Level">{settings.accessLevel}</Field>
-            <Field label="Sites">
-              {settings.sites.length > 0 ? settings.sites.join(", ") : DASH}
-            </Field>
-            <Field label="Allow Duplicate">
-              {settings.allowDuplication ? "Yes" : "No"}
-            </Field>
-            <Field label="Allow Editing">
-              {settings.allowEditing ? "Yes" : "No"}
             </Field>
           </div>
         </IncidentGlassCard>

@@ -10,8 +10,6 @@ export type InspectionTemplateDto = {
   isScoringEnable: boolean;
   passThreshold: number;
   isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   isArchived: boolean;
@@ -24,8 +22,6 @@ export type InspectionTemplateDto = {
   updatedDate: string;
   lastUsedDate: string;
   frequency: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
 };
 
 /** Matches backend response for POST /api/v1/inspection-templates. */
