@@ -53,14 +53,6 @@ function formatLocation(location: string): string {
   return known[location] ?? location;
 }
 
-/**
- * Drop a numbering prefix from a section title, so the template's
- * "Section 1: Basic Information" reads as just "Basic Information".
- */
-function stripSectionPrefix(title: string): string {
-  return title.replace(/^\s*section\s*\d*\s*[:.\-–—]\s*/i, "").trim() || title;
-}
-
 /** Map an API inspection row onto the register table's record shape. */
 export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
   return {
@@ -136,50 +128,20 @@ export function mapInspectionDetailToChecklist(
 /**
  * Build the report straight from GET /api/v1/inspections/{id}, which carries
  * everything it needs: the inspection's metadata, the template snapshot
- * (sections, items and pass threshold) and the recorded responses.
+ * (sections and items) and the recorded responses.
  */
 export function buildInspectionReportFromDetail(
   dto: InspectionDetailDto,
 ): InspectionReport {
   const snapshot = dto.snapshot;
-  const passThreshold = snapshot?.passThreshold ?? 0;
-
-  // The write side sends `inspectionItemId`; accept either name on read.
-  const answerByItemId = new Map(
-    (dto.responses ?? []).map((answer) => [
-      answer.inspectionItemId ?? answer.templateItemId,
-      answer,
-    ]),
-  );
-
-  /** "Yes" over everything scorable; N/A items don't count either way. */
-  const scoreOf = (itemIds: readonly number[]): number | null => {
-    const scorable = itemIds
-      .map((id) => answerByItemId.get(id))
-      .filter((answer) => answer !== undefined)
-      .filter((answer) => !answer.isNA);
-    if (scorable.length === 0) return null;
-
-    const passed = scorable.filter(
-      (answer) => answer.valueText.trim().toLowerCase() === "yes",
-    ).length;
-    return Math.round((passed / scorable.length) * 100);
-  };
 
   const sections = [...(snapshot?.sections ?? [])].sort(
     (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
   );
 
-  // Every section is listed — an unanswered one reads 0% rather than vanishing.
-  const sectionScores = sections.map((section) => ({
-    section: stripSectionPrefix(section.sectionTitle ?? ""),
-    score: scoreOf((section.items ?? []).map((item) => item.id)) ?? 0,
-  }));
-
   const allItemIds = sections.flatMap((section) =>
     (section.items ?? []).map((item) => item.id),
   );
-  const overall = dto.score ?? scoreOf(allItemIds) ?? 0;
 
   const failed = (dto.responses ?? []).filter(
     (answer) => !answer.isNA && answer.valueText.trim().toLowerCase() === "no",
@@ -187,7 +149,6 @@ export function buildInspectionReportFromDetail(
 
   const executiveSummary = [
     `${dto.inspectionTitle || "This inspection"} covered ${String(allItemIds.length)} items across ${String(sections.length)} sections.`,
-    `It scored ${String(overall)}%, ${overall >= passThreshold ? "meeting" : "below"} the ${String(passThreshold)}% pass threshold.`,
     failed > 0
       ? `${String(failed)} item${failed === 1 ? "" : "s"} did not pass and may need corrective action.`
       : "No items failed.",
@@ -204,7 +165,6 @@ export function buildInspectionReportFromDetail(
     scope: [snapshot?.templateName, formatLocation(dto.location ?? "")]
       .filter(Boolean)
       .join(" · "),
-    score: overall,
     inspector: dto.inspectorName || "Unassigned",
     date:
       (dto.submittedAt || dto.startedAt || dto.scheduleDate || "").slice(
@@ -212,8 +172,6 @@ export function buildInspectionReportFromDetail(
         10,
       ) || "—",
     status: dto.status || "—",
-    passThreshold,
     executiveSummary,
-    sectionScores,
   };
 }

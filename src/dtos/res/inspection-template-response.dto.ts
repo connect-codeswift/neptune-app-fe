@@ -7,11 +7,6 @@ export type InspectionTemplateDto = {
   templateType: string;
   templateTags: string;
   description: string;
-  isScoringEnable: boolean;
-  passThreshold: number;
-  isScoreVisibility: boolean;
-  isTemplateDuplicationAllow: boolean;
-  isAllowEditing: boolean;
   isDraft: boolean;
   isPublished: boolean;
   isArchived: boolean;
@@ -24,8 +19,6 @@ export type InspectionTemplateDto = {
   updatedDate: string;
   lastUsedDate: string;
   frequency: string;
-  /** Sites this template may be run against, comma-separated. */
-  allowSites: string;
 };
 
 /** Matches backend response for POST /api/v1/inspection-templates. */
@@ -61,24 +54,9 @@ export type InspectionTemplateItemDto = {
   itemType?: string;
   question?: string;
   hint?: string;
-  scoreWeight?: number;
-  itemWeight?: number;
   isRequired?: boolean;
   displayOrder?: number;
   templateSectionId?: number;
-};
-
-/** A rule from GET /api/v1/inspection-templates/{id}/conditional-logics. */
-export type InspectionTemplateLogicDto = {
-  id: number;
-  status?: string;
-  if?: string;
-  condition?: string;
-  then?: string;
-  result?: string;
-  operator?: string;
-  conditionValue?: string;
-  action?: string;
 };
 
 export type GetInspectionTemplateSectionsResponseDto = ApiEnvelopeDto<
@@ -87,8 +65,4 @@ export type GetInspectionTemplateSectionsResponseDto = ApiEnvelopeDto<
 
 export type GetInspectionTemplateItemsResponseDto = ApiEnvelopeDto<
   InspectionTemplateItemDto[] | null
->;
-
-export type GetInspectionTemplateLogicsResponseDto = ApiEnvelopeDto<
-  InspectionTemplateLogicDto[] | null
 >;

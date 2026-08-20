@@ -16,22 +16,14 @@ import {
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
-import { ScoringLogicStep } from "./ScoringLogicStep";
-import { SettingsStep } from "./SettingsStep";
 import {
   TemplateWizardProgress,
   TemplateWizardStepList,
 } from "./TemplateWizardSteps";
 import {
   createInitialSections,
-  createScoringConfig,
-  createSettings,
   isItemValueFilled,
-  isRuleComplete,
-  type ScoringConfig,
-  type TemplateRule,
   type TemplateSection,
-  type TemplateSettings,
   type WizardState,
 } from "./template-builder-data";
 import {
@@ -114,15 +106,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   const [sections, setSections] = useState<TemplateSection[]>(
     () => initialState?.sections ?? createInitialSections(),
   );
-  const [scoring, setScoring] = useState<ScoringConfig>(
-    () => initialState?.scoring ?? createScoringConfig(),
-  );
-  const [rules, setRules] = useState<TemplateRule[]>(
-    () => initialState?.rules ?? [],
-  );
-  const [settings, setSettings] = useState<TemplateSettings>(
-    () => initialState?.settings ?? createSettings(),
-  );
   const [showUnfilledItems, setShowUnfilledItems] = useState(false);
 
   // Items present when editing began — these are exempt from the "must fill a
@@ -147,16 +130,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   /** Persist the wizard state as a draft or a published template. In edit mode
    * with a known id this PUTs an update; otherwise it POSTs a new template. */
   const submitTemplate = (publish: boolean) => {
-    // The backend rejects the whole template if any rule is half-filled.
-    if (rules.some((rule) => !isRuleComplete(rule))) {
-      toast.error(
-        "Every rule needs a question, a condition and an action — complete or remove it.",
-      );
-      setStep(3);
-      return;
-    }
-
-    const draft = { values, sections, scoring, rules, settings };
+    const draft = { values, sections };
     const isUpdate = isEdit && Boolean(templateId);
     // On update, existing sections/items/logics keep their ids so the backend
     // updates those rows instead of creating duplicates.
@@ -240,30 +214,14 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
     submitTemplate(true);
   };
 
-  /** Step 3's Next: catch half-filled rules here rather than at publish. */
-  const handleScoringLogicNext = () => {
-    if (rules.some((rule) => !isRuleComplete(rule))) {
-      toast.error(
-        "Every rule needs a question, a condition and an action — complete or remove it.",
-      );
-      return;
-    }
-
-    setStep(4);
-  };
-
   /** Advance/finish depending on the current step. */
   const handleNext = () => {
     if (step === 2) handleBuildSectionsNext();
-    else if (step === 3) handleScoringLogicNext();
-    else if (step === 4) setStep(5);
   };
 
   const NEXT_LABEL: Record<number, string> = {
     1: "Next: Build Sections",
-    2: "Next: Scoring & Logic",
-    3: "Next: Settings",
-    4: "Next: Review & Publish",
+    2: "Next: Review & Publish",
   };
 
   return (
@@ -293,7 +251,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           </Text>
 
           <Text as="p" className="text8 text-ehs-muted-text">
-            5-step wizard — build, configure, and publish your template
+            3-step wizard — build, configure, and publish your template
           </Text>
         </div>
 
@@ -354,24 +312,10 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           highlightUnfilled={showUnfilledItems}
           exemptItemIds={initialItemIds}
         />
-      ) : step === 3 ? (
-        <ScoringLogicStep
-          sections={sections}
-          onSectionsChange={setSections}
-          scoring={scoring}
-          onScoringChange={setScoring}
-          rules={rules}
-          onRulesChange={setRules}
-        />
-      ) : step === 4 ? (
-        <SettingsStep settings={settings} onSettingsChange={setSettings} />
       ) : (
         <ReviewPublishStep
           values={values}
           sections={sections}
-          scoring={scoring}
-          rules={rules}
-          settings={settings}
           isSubmitting={isSavingTemplate}
           onEditStep={setStep}
           onPublish={handlePublish}
@@ -405,7 +349,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         )}
 
         {/* The final step carries its own Publish / Save actions in the panel. */}
-        {step < 5 ? (
+        {step < 3 ? (
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"

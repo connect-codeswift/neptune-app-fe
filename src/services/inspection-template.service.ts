@@ -6,7 +6,6 @@ import type {
   CreateInspectionTemplateResponseDto,
   GetAllInspectionTemplatesResponseDto,
   GetInspectionTemplateItemsResponseDto,
-  GetInspectionTemplateLogicsResponseDto,
   GetInspectionTemplateSectionsResponseDto,
 } from "@/dtos/res/inspection-template-response.dto";
 import http from "@/lib/axios";
@@ -71,14 +70,6 @@ export async function getSectionsByTemplateId(templateId: string) {
 export async function getItemsBySectionId(sectionId: string) {
   const { data } = await http.get<GetInspectionTemplateItemsResponseDto>(
     `${INSPECTION_TEMPLATE_PATH}/sections/${encodeURIComponent(sectionId)}/items`,
-  );
-
-  return data;
-}
-
-export async function getConditionalLogicsByTemplateId(templateId: string) {
-  const { data } = await http.get<GetInspectionTemplateLogicsResponseDto>(
-    `${INSPECTION_TEMPLATE_PATH}/${encodeURIComponent(templateId)}/conditional-logics`,
   );
 
   return data;

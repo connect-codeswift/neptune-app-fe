@@ -13,7 +13,6 @@ export type InspectionDto = {
   scheduleDate?: string;
   status?: string;
   progressPct?: number | null;
-  score?: number | null;
   answeredCount?: number;
   findingCount?: number;
   hasCriticalFailure?: boolean;
@@ -35,8 +34,6 @@ export type InspectionSnapshotItemDto = {
   /** Carries the item's value/answer text (mirrors the template item). */
   question: string;
   hint: string;
-  scoreWeight: number;
-  itemWeight: number;
   isCritical: boolean;
   isRequired: boolean;
   allowNA: boolean;
@@ -61,11 +58,7 @@ export type InspectionSnapshotDto = {
   templateName: string;
   description: string;
   versionNo: number;
-  passThreshold: number;
-  isScoringEnable: boolean;
-  isScoreVisibility: boolean;
   responseSets: unknown[];
-  rules: unknown[];
   sections: InspectionSnapshotSectionDto[];
 };
 
@@ -96,7 +89,6 @@ export type InspectionDetailDto = {
   inspectorName: string;
   scheduleDate: string;
   status?: string;
-  score: number | null;
   hasCriticalFailure: boolean;
   startedAt?: string | null;
   submittedAt?: string | null;
@@ -114,7 +106,6 @@ export type InspectionResponsesResultDto = {
   id: number;
   status?: string;
   progressPct?: number | null;
-  runningScore?: number | null;
   hasCriticalFailure?: boolean;
   requiredItemIds?: number[];
   visibleItemIds?: number[];

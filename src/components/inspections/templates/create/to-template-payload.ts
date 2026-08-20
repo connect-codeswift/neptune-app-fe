@@ -4,21 +4,12 @@ import type {
   UpdateInspectionTemplateRequestDto,
 } from "@/dtos/req/inspection-template-request.dto";
 import { getCurrentUser } from "@/lib/current-user";
-import {
-  itemDisplayName,
-  type ScoringConfig,
-  type TemplateRule,
-  type TemplateSection,
-  type TemplateSettings,
-} from "./template-builder-data";
+import { itemDisplayName, type TemplateSection } from "./template-builder-data";
 
-/** Everything the 5-step wizard collects. */
+/** Everything the 3-step wizard collects. */
 export type TemplateDraft = Readonly<{
   values: FormValues;
   sections: TemplateSection[];
-  scoring: ScoringConfig;
-  rules: TemplateRule[];
-  settings: TemplateSettings;
 }>;
 
 /**
@@ -43,7 +34,7 @@ export function toInspectionTemplatePayload(
   draft: TemplateDraft,
   options: Readonly<{ publish: boolean; templateId?: string }>,
 ): CreateInspectionTemplateRequestDto {
-  const { values, sections, scoring, rules, settings } = draft;
+  const { values, sections } = draft;
   const { userId, siteId } = getCurrentUser();
 
   const isPublished = options.publish;
@@ -60,12 +51,6 @@ export function toInspectionTemplatePayload(
     templateTags: tags.join(","),
     description: String(values.description ?? "").trim(),
 
-    isScoringEnable: scoring.enabled,
-    passThreshold: scoring.passThreshold,
-    isScoreVisibility: scoring.showScoreToUser,
-
-    isTemplateDuplicationAllow: settings.allowDuplication,
-    isAllowEditing: settings.allowEditing,
     isDraft,
     isPublished,
 
@@ -74,9 +59,7 @@ export function toInspectionTemplatePayload(
     // Not captured by the wizard yet — sent as defaults. Foreign keys go out
     // as null rather than 0, which would point at a non-existent row.
     defaultAssigneeId: null,
-    // The wizard picks sites, not a single default location.
     defaultLocation: "",
-    allowSites: settings.sites.join(","),
     scheduleStartDate: new Date().toISOString(),
     dueWindowDays: 0,
     notifyAssignee: true,
@@ -102,8 +85,6 @@ export function toInspectionTemplatePayload(
           itemType: item.type,
           question: itemDisplayName(item),
           hint: item.guidance,
-          scoreWeight: item.scoreWeight,
-          itemWeight: item.scoreWeight,
           responseSetId: null,
           isCritical: false,
           allowNA: true,
@@ -119,27 +100,6 @@ export function toInspectionTemplatePayload(
         })),
       };
     }),
-
-    conditionalLogics: rules.map((rule) => ({
-      id: toBackendId(rule.id),
-      status: rule.active ? "Active" : "Inactive",
-      if: rule.ifQuestion,
-      condition: rule.ifOperator,
-      then: rule.thenAction,
-      result: rule.thenValue,
-      sourceItemId: null,
-      operator: rule.ifOperator,
-      conditionValue: rule.ifValue,
-      action: rule.thenAction,
-      targetItemId: null,
-      findingSeverity: "",
-      findingCategory: "",
-      isDraft,
-      isPublished,
-      userId,
-      siteId,
-      inspectionTemplateId,
-    })),
   };
 }
 
