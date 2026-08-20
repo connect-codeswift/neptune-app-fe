@@ -23,6 +23,7 @@ import type {
   TimeFieldConfig,
 } from "./types";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { getAuthContext } from "@/lib/auth-context";
 import {
   FIELD_INPUT_CLASS,
   FIELD_TEXTAREA_CLASS,
@@ -938,6 +939,9 @@ function PersonControl(
 ) {
   const { field, userId, displayName, error, onPatchValues } = props;
   const nameKey = personDisplayNameKey(field);
+  const excludeSelfId = field.excludeSelf ? (getAuthContext()?.userId ?? 0) : 0;
+  const excludeUserIds =
+    excludeSelfId > 0 ? [String(excludeSelfId)] : undefined;
 
   if (field.disabled) {
     return (
@@ -977,6 +981,7 @@ function PersonControl(
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
+        excludeUserIds={excludeUserIds}
       />
     </FieldShell>
   );

@@ -265,6 +265,8 @@ export type PersonFieldConfig = BaseField &
     displayNameField?: string;
     /** Lock the control — show the current display name, no search. */
     disabled?: boolean;
+    /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
+    excludeSelf?: boolean;
   }>;
 
 /**

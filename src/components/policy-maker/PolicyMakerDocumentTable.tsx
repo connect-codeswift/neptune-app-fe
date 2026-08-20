@@ -6,6 +6,7 @@ import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table, type TablePagination } from "@/components/ui/Table";
+import { withManageAction } from "@/components/ui/table-manage-column";
 import {
   CompliancePill,
   complianceGlassCardClass,
@@ -203,7 +204,15 @@ export function PolicyMakerDocumentTable(
   } = props;
 
   const columns = useMemo(
-    () => createDocumentColumns(expanded, { selectedId, onViewMore }),
+    () =>
+      withManageAction(
+        createDocumentColumns(expanded, { selectedId, onViewMore }),
+        {
+          getHref: (row) =>
+            `/dashboard/policy-maker/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage document ${row.title}`,
+        },
+      ),
     [expanded, selectedId, onViewMore],
   );
 

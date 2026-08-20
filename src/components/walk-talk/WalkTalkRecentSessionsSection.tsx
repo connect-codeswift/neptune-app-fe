@@ -22,6 +22,8 @@ import {
 } from "@/hooks/use-walk-talk-queries";
 import { toWalkTalkSessionDetail } from "@/lib/map-walk-talk";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { WalkTalkSession } from "@/app/dashboard/walk-talk/walk-talk-data";
 import { WalkTalkDetailPanel } from "./WalkTalkDetailPanel";
 import { WalkTalkSessionCard } from "./WalkTalkSessionCard";
 import { createWalkTalkSessionColumns } from "./WalkTalkSessionColumns";
@@ -121,11 +123,19 @@ export function WalkTalkRecentSessionsSection(
 
   const columns = useMemo(
     () =>
-      createWalkTalkSessionColumns({
-        selectedId: activeSessionId,
-        onViewMore: handleToggleDetailPanel,
-        expanded: !isPanelOpen,
-      }),
+      withManageAction<WalkTalkSession>(
+        createWalkTalkSessionColumns({
+          selectedId: activeSessionId,
+          onViewMore: handleToggleDetailPanel,
+          expanded: !isPanelOpen,
+        }),
+        {
+          getHref: (session) =>
+            `/dashboard/walk-talk/session?id=${encodeURIComponent(session.id)}`,
+          getAriaLabel: (session) =>
+            `Manage walk & talk session ${formatRecordDisplayId("WT", session.id)}`,
+        },
+      ),
     [activeSessionId, handleToggleDetailPanel, isPanelOpen],
   );
 

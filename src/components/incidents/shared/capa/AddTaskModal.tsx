@@ -12,14 +12,10 @@ import {
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
-import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
 import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
-import { useCurrentSite } from "@/hooks/use-current-site";
 
 export type CapaTaskFormPayload = Readonly<{
   task: string;
-  owner: string;
-  ownerName?: string;
   dueDate: string;
   priority?: string;
 }>;
@@ -46,11 +42,8 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   } = props;
 
   const taskFieldId = useId();
-  const site = useCurrentSite();
 
   const [task, setTask] = useState("");
-  const [owner, setOwner] = useState("");
-  const [ownerUserId, setOwnerUserId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<string>(PRIORITY_OPTIONS[1]);
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
@@ -67,8 +60,6 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
     try {
       await onSubmit?.({
         task: task.trim(),
-        owner: ownerUserId.trim() || owner.trim(),
-        ownerName: owner.trim() || undefined,
         dueDate,
         priority,
       });
@@ -122,7 +113,8 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
               className="text-ehs-muted-text mt-0.5 text-sm leading-[19.5px]"
             >
               Tasks appear on the assignee&apos;s list and drive progress on the
-              linked CAPA card.
+              linked CAPA card. The task owner is set automatically to the
+              CAPA&apos;s assignee.
             </Text>
           </div>
         </div>
@@ -144,21 +136,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
           </div>
         </div>
 
-        <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2">
-          <ReportPersonSearchField
-            variant="embedded"
-            label="Assigned"
-            value={owner}
-            selectedUserId={ownerUserId}
-            onChange={({ name, userId }) => {
-              setOwner(name);
-              setOwnerUserId(userId);
-            }}
-            siteId={site.id}
-            siteName={site.name}
-            placeholder="Start typing a name…"
-          />
-
+        <div className="grid min-w-0 grid-cols-1">
           <ReportDateField
             variant="embedded"
             label="Due date"

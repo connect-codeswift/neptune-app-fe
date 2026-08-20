@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Table } from "@/components/ui/Table";
+import { withManageAction } from "@/components/ui/table-manage-column";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { MetricCardsRow } from "@/components/ui/MetricCard";
@@ -117,11 +118,18 @@ export function AuditsListPageClient() {
 
   const columns = useMemo(
     () =>
-      createAuditColumns({
-        selectedId: activeSelectedId,
-        onViewMore: handleToggleDetailPanel,
-        expanded: !isPanelOpen,
-      }),
+      withManageAction(
+        createAuditColumns({
+          selectedId: activeSelectedId,
+          onViewMore: handleToggleDetailPanel,
+          expanded: !isPanelOpen,
+        }),
+        {
+          getHref: (row) =>
+            `/dashboard/audits/findings/${encodeURIComponent(row.id)}`,
+          getAriaLabel: (row) => `Manage audit ${row.title}`,
+        },
+      ),
     [activeSelectedId, handleToggleDetailPanel, isPanelOpen],
   );
 

@@ -12,6 +12,8 @@ import { NearMissHeatmapCard } from "@/components/near-miss/NearMissHeatmapCard"
 import { NearMissRecognitionCard } from "@/components/near-miss/NearMissRecognitionCard";
 import { NearMissDetailPanel } from "@/components/near-miss/NearMissDetailPanel";
 import { makeNearMissColumns } from "@/components/near-miss/NearMissColumns";
+import { withManageAction } from "@/components/ui/table-manage-column";
+import type { NearMissRecord } from "@/app/dashboard/near-miss/near-miss-data";
 import {
   formatNearMissDisplayId,
   mapNearMissDtoToRecord,
@@ -93,15 +95,23 @@ export function NearMissListPageClient() {
 
   const columns = useMemo(
     () =>
-      makeNearMissColumns({
-        userNames,
-        selectedId: activeSelectedId,
-        onView: (record) => {
-          setSelectedId((current) =>
-            current === record.id ? null : record.id,
-          );
+      withManageAction<NearMissRecord>(
+        makeNearMissColumns({
+          userNames,
+          selectedId: activeSelectedId,
+          onView: (record) => {
+            setSelectedId((current) =>
+              current === record.id ? null : record.id,
+            );
+          },
+        }),
+        {
+          getHref: (record) =>
+            `/dashboard/near-miss/${encodeURIComponent(record.id)}`,
+          getAriaLabel: (record) =>
+            `Manage near miss ${formatNearMissDisplayId(record.id)}`,
         },
-      }),
+      ),
     [userNames, activeSelectedId],
   );
 

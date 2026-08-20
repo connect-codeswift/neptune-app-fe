@@ -402,7 +402,6 @@ export function CapaDetailTasksTab(
                 capaId: record.numericId,
                 incidentId: record.incidentId,
                 task: draft.name,
-                owner: draft.assigneeUserId,
                 dueDate: draft.dueDate,
                 priority: draft.priority,
               });
@@ -424,11 +423,6 @@ export function CapaDetailTasksTab(
           confirmLabel="Save Task"
           initialDraft={{
             name: editingTask.label,
-            assigneeName: editingTask.owner === "—" ? "" : editingTask.owner,
-            assigneeUserId:
-              editingTask.ownerId != null && editingTask.ownerId > 0
-                ? String(editingTask.ownerId)
-                : "",
             dueDate: editingTask.dueDateIso || editingTask.dueDate,
             priority: editingTask.priority || "Medium",
           }}
@@ -450,7 +444,6 @@ export function CapaDetailTasksTab(
                 capaId: record.numericId,
                 incidentId: record.incidentId,
                 task: draft.name,
-                owner: draft.assigneeUserId,
                 dueDate: draft.dueDate,
                 priority: draft.priority,
               });

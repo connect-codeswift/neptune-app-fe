@@ -23,6 +23,7 @@ import {
 } from "@/components/hazcom/shared";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
+import { withManageAction } from "@/components/ui/table-manage-column";
 
 function signalTone(signalWord: string): IncidentBadgeTone {
   return signalWord.trim().toLowerCase() === "danger" ? "danger" : "warn";
@@ -67,7 +68,7 @@ function createChemicalListColumns(
 ): ColumnDef<HazcomChemical, unknown>[] {
   const { selectedId, onViewMore } = options;
 
-  return [
+  const columns = [
     columnHelper.display({
       id: "displayId",
       header: "ID",
@@ -250,6 +251,12 @@ function createChemicalListColumns(
       },
     }),
   ] as ColumnDef<HazcomChemical, unknown>[];
+
+  return withManageAction(columns, {
+    getHref: (row) =>
+      `/dashboard/hazcom/chemicals/${encodeURIComponent(row.id)}`,
+    getAriaLabel: (row) => `Manage chemical ${row.name}`,
+  }) as ColumnDef<HazcomChemical, unknown>[];
 }
 
 function columnWidthStyle(size: number, totalSize: number) {

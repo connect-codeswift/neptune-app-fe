@@ -81,6 +81,8 @@ export type ReportPersonSearchFieldProps = Readonly<{
   hideLabel?: boolean;
   /** Extra classes merged onto the input control. */
   inputClassName?: string;
+  /** User ids to hide from the option list. Default: hide nobody. */
+  excludeUserIds?: readonly string[];
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -178,6 +180,7 @@ export function ReportPersonSearchField(
     variant = "report",
     hideLabel = false,
     inputClassName = "",
+    excludeUserIds,
   } = props;
 
   const isDropdown = usersSource === "dropdown";
@@ -235,12 +238,22 @@ export function ReportPersonSearchField(
   }, [isDropdown, dropdownUsersQuery.data?.dataModel]);
 
   const users = useMemo(() => {
-    if (isDropdown) {
-      return filterUsersByQuery(dropdownUsers, debouncedQuery);
+    const base = isDropdown
+      ? filterUsersByQuery(dropdownUsers, debouncedQuery)
+      : (siteUsersQuery.data ?? []);
+
+    if (!excludeUserIds || excludeUserIds.length === 0) {
+      return base;
     }
 
-    return siteUsersQuery.data ?? [];
-  }, [isDropdown, dropdownUsers, debouncedQuery, siteUsersQuery.data]);
+    return base.filter((user) => !excludeUserIds.includes(String(user.id)));
+  }, [
+    isDropdown,
+    dropdownUsers,
+    debouncedQuery,
+    siteUsersQuery.data,
+    excludeUserIds,
+  ]);
 
   const usersQuery = isDropdown
     ? {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { Table, type TablePagination } from "@/components/ui/Table";
+import { withManageAction } from "@/components/ui/table-manage-column";
 import { Text } from "@/components/Text";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -162,7 +163,12 @@ export function RegulatoryComplianceRegisterCard(
   } = props;
 
   const columns = useMemo(
-    () => createObligationColumns({ selectedId, onViewMore }),
+    () =>
+      withManageAction(createObligationColumns({ selectedId, onViewMore }), {
+        getHref: (row) =>
+          `/dashboard/regulatory-compliance/${encodeURIComponent(row.id)}`,
+        getAriaLabel: (row) => `Manage obligation ${row.obligation}`,
+      }),
     [selectedId, onViewMore],
   );
 
