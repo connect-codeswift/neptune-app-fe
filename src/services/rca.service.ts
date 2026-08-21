@@ -33,6 +33,7 @@ import http, { HttpError } from "@/lib/axios";
 const RCA_CATEGORIES_PATH = "/rca-categories";
 const INCIDENTS_PATH = "/incidents";
 const RCAS_PATH = "/rcas";
+const CAPAS_PATH = "/capas";
 const RCA_CONTRIBUTING_FACTORS_PATH = "/rca-contributing-factors";
 const RCA_WHYS_PATH = "/rca-whys";
 const RCA_CORRECTIVE_ACTIONS_PATH = "/rca-corrective-actions";
@@ -640,6 +641,24 @@ export async function getRcaByIncidentId(
 ): Promise<RcaContributingFactorDto[]> {
   const { data } = await http.get<unknown>(
     `${INCIDENTS_PATH}/${String(incidentId)}/rca`,
+  );
+  return parseRcaIncidentEnvelope(data).dataModel;
+}
+
+/**
+ * GET /api/v1/capas/{capaId}/rca
+ *
+ * The same analysis as the incident route, parented by a CAPA. Every CAPA that did not come from
+ * an incident — audit findings, inspections, hazards, and one raised on its own — can now have an
+ * RCA; before, `ContributingFactor.IncidentId` was non-nullable so none of them could. The
+ * response shape is identical (the backend shares one projection), with `capaId` populated and
+ * `incidentId` null.
+ */
+export async function getRcaByCapaId(
+  capaId: number,
+): Promise<RcaContributingFactorDto[]> {
+  const { data } = await http.get<unknown>(
+    `${CAPAS_PATH}/${encodeURIComponent(String(capaId))}/rca`,
   );
   return parseRcaIncidentEnvelope(data).dataModel;
 }
