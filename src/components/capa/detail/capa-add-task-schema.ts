@@ -30,6 +30,8 @@ export function buildCapaAddTaskSchema(): FormSchema {
       required: true,
       colSpan: 12,
       placeholder: "MM/DD/YYYY",
+      // Same rule the API enforces on AddTask — a task cannot open overdue.
+      limit: "not-past",
     },
     {
       type: "tiles",

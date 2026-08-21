@@ -134,12 +134,16 @@ export const createSamplingPlanSchema: FormSchema = [
     name: "startDate",
     label: "Start Date",
     colSpan: 6,
+    // A sampling plan is being scheduled here, so both ends of its window are
+    // ahead of the person filling the form in.
+    limit: "not-past",
   },
   {
     type: "date",
     name: "endDate",
     label: "End Date",
     colSpan: 6,
+    limit: "not-past",
   },
   {
     type: "textarea",

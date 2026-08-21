@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
+import { dateFieldMax, dateFieldMin } from "./types";
 import type {
   CheckboxGroupFieldConfig,
   ChipsFieldConfig,
@@ -319,6 +320,8 @@ function DateControl(
       name={field.name}
       type="date"
       value={value}
+      min={dateFieldMin(field)}
+      max={dateFieldMax(field)}
       onChange={(event) => onChange(event.target.value)}
       className={[inputClass, error ? errorRingClass : ""]
         .filter(Boolean)
@@ -343,6 +346,8 @@ function TimeControl(
       type="time"
       value={value}
       placeholder={field.placeholder}
+      min={field.min}
+      max={field.max}
       onChange={(event) => onChange(event.target.value)}
       className={[inputClass, error ? errorRingClass : ""]
         .filter(Boolean)

@@ -217,6 +217,12 @@ export function AddObligationForm() {
       toast.error("Missing due date", "Select a due date.");
       return;
     }
+    // The form is noValidate, so `min` on the input only greys the calendar
+    // out — a typed or pasted date still reaches here.
+    if (dueDate < todayInputValue()) {
+      toast.error("Due date in the past", "Pick today or a later date.");
+      return;
+    }
     if (!responsiblePerson) {
       toast.error(
         "Missing responsible person",
@@ -324,6 +330,9 @@ export function AddObligationForm() {
                   id="obligation-due-date"
                   type="date"
                   value={dueDate}
+                  // An obligation is a deadline, so today is the earliest one
+                  // that means anything — POST /api/Compliance rejects the rest.
+                  min={todayInputValue()}
                   onChange={(event) => setDueDate(event.target.value)}
                   required
                   disabled={busy}

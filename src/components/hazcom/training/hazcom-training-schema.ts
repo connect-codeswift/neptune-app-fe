@@ -41,6 +41,8 @@ export function buildTrainingSessionSchema(
       label: "Session Date",
       required: true,
       colSpan: 6,
+      // The screen logs a session that has been delivered, not one being booked.
+      limit: "not-future",
     },
     {
       type: "person",

@@ -89,6 +89,8 @@ export function buildStartInspectionSchema(
       label: "Scheduled Date",
       required: true,
       colSpan: 6,
+      // Scheduled, not recorded — same rule as Start Audit.
+      limit: "not-past",
     },
   ];
 }

@@ -46,6 +46,9 @@ export function buildCreateCapaSchema(): FormSchema {
       label: "Due date",
       colSpan: 6,
       placeholder: "mm/dd/yyyy",
+      // POST /api/Capa/AddCapa rejects a past due date; match it here so the
+      // calendar never offers one.
+      limit: "not-past",
     },
     {
       type: "tiles",
