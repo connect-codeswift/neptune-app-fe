@@ -230,12 +230,14 @@ export function AuditChecklistContent(props: AuditChecklistContentProps) {
           audit ? formatRecordDisplayId("A", audit.id) : checklist.auditId
         }
         subtitle={audit?.auditTitle || checklist.subtitle}
-        // Findings aren't wired up yet — re-enable once that flow is ready.
-        // onViewFindings={() =>
-        //   router.push(
-        //     `/dashboard/audits/findings/${encodeURIComponent(templateId)}`,
-        //   )
-        // }
+        onViewFindings={
+          audit
+            ? () =>
+                router.push(
+                  `/dashboard/audits/${encodeURIComponent(String(audit.id))}`,
+                )
+            : undefined
+        }
       />
 
       {/* Progress summary */}
