@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
 import { Button } from "@/components/ui/Button";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -30,20 +31,24 @@ export function BbsSessionsHeader(props: BbsSessionsHeaderProps) {
         ) : null}
       </div>
 
-      <Button
-        type="button"
-        variant="primary"
-        onClick={onLogObservation}
-        className={TABLE_HEADER_ACTION_CLASS}
-      >
-        <Icon
-          icon="mdi:plus"
-          className={TABLE_HEADER_ACTION_ICON_CLASS}
-          aria-hidden="true"
-        />
-        <span className="sm:hidden">Log</span>
-        <span className="hidden sm:inline">Log Observation</span>
-      </Button>
+      {/* Hidden without Bbs.Create. The API refuses the call regardless, so
+          rendering the button only offers a dead end. */}
+      <Can do="Bbs.Create">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={onLogObservation}
+          className={TABLE_HEADER_ACTION_CLASS}
+        >
+          <Icon
+            icon="mdi:plus"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
+          <span className="sm:hidden">Log</span>
+          <span className="hidden sm:inline">Log Observation</span>
+        </Button>
+      </Can>
     </div>
   );
 }

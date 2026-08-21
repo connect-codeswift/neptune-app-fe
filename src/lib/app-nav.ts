@@ -1,6 +1,5 @@
 import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import type { EhsModuleCode } from "@/lib/ehs-modules";
-import { isAdminRole } from "@/lib/jwt-permissions";
 
 export type AppNavItem = Readonly<{
   label: string;
@@ -9,6 +8,17 @@ export type AppNavItem = Readonly<{
   badge?: number;
   /** When set, the org must have this EHSS module licensed. */
   moduleCode?: EhsModuleCode;
+  /**
+   * The capability that makes this item visible — `Incident.View`.
+   *
+   * Stated per item rather than derived from the href. The href-derived
+   * `page:` scheme meant a third catalogue of permissions that had to be
+   * regenerated from route slugs whenever a route moved, and it expressed the
+   * same fact the API gate already expressed: `page:hazard-id-edit` and
+   * `Hazard.Update` were one capability written twice. There is one vocabulary
+   * now, and this is where a route declares which word of it it needs.
+   */
+  capability?: string;
   /** Shown even when org module list is the only gate (e.g. home dashboard). */
   alwaysVisible?: boolean;
   /**
@@ -60,41 +70,49 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       {
         label: "Incidents",
         href: "/dashboard/incidents",
+        capability: "Incident.View",
         icon: "mdi:alert-outline",
         moduleCode: "INCIDENT",
       },
       {
         label: "Near Miss",
         href: "/dashboard/near-miss",
+        capability: "NearMiss.View",
         icon: "mdi:eye-outline",
         moduleCode: "NEAR_MISS",
       },
       {
         label: "Hazard",
         href: "/dashboard/hazard",
+        capability: "Hazard.View",
         icon: "mdi:alert-octagon-outline",
         moduleCode: "HAZARD",
       },
       {
         label: "Lockout/Tagout",
         href: "/dashboard/lockout-tagout",
+        capability: "Loto.View",
         icon: "mdi:lock-outline",
         moduleCode: "LOCKOUT_TAGOUT",
       },
       {
         label: "Fleet Management",
         href: "/dashboard/fleet-management",
+        capability: "FleetManagement.View",
+        moduleCode: "FLEET_MANAGEMENT",
         icon: "mdi:steering",
       },
       {
         label: "CAPA",
         href: "/dashboard/capa",
+        capability: "CAPA.View",
         icon: "mdi:refresh",
         moduleCode: "CAPA",
       },
       {
         label: "HazCom",
         href: "/dashboard/hazcom",
+        capability: "HazCom.View",
         icon: "healthicons:chemical-burn",
         moduleCode: "HAZCOM",
       },
@@ -106,42 +124,49 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       {
         label: "Audits",
         href: "/dashboard/audits",
+        capability: "Audit.View",
         icon: "mdi:shield-check-outline",
         moduleCode: "AUDITS",
       },
       {
         label: "Inspections",
         href: "/dashboard/inspections",
+        capability: "Inspection.View",
         icon: "mdi:clipboard-text-outline",
         moduleCode: "INSPECTIONS",
       },
       {
         label: "BBS",
         href: "/dashboard/bbs",
+        capability: "Bbs.View",
         icon: "mdi:clipboard-outline",
         moduleCode: "BEHAVIOUR_BASED_SAFETY",
       },
       {
         label: "Walk & Talk",
         href: "/dashboard/walk-talk",
+        capability: "WalkTalk.View",
         icon: "mdi:account-multiple-outline",
         moduleCode: "WALK_AND_TALKS",
       },
       {
         label: "Regulatory Compliance",
         href: "/dashboard/regulatory-compliance",
+        capability: "Compliance.View",
         icon: "mdi:file-document-outline",
         moduleCode: "REGULATORY_COMPLIANCE",
       },
       {
         label: "PPE Management",
         href: "/dashboard/ppe-management",
+        capability: "PPE.View",
         icon: "mdi:tshirt-crew-outline",
         moduleCode: "PPE_MANAGEMENT",
       },
       {
         label: "Policy Maker",
         href: "/dashboard/policy-maker",
+        capability: "Document.View",
         icon: "mdi:folder-outline",
         moduleCode: "POLICY_MAKER",
       },
@@ -153,11 +178,15 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       {
         label: "Analytics",
         href: "/dashboard/analytics",
+        capability: "Analytics.View",
+        moduleCode: "ANALYTICS",
         icon: "mdi:chart-line",
       },
       {
         label: "Reports",
         href: "/dashboard/reports",
+        capability: "Reports.View",
+        moduleCode: "REPORTS",
         icon: "mdi:file-chart-outline",
       },
     ],
@@ -168,6 +197,8 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       {
         label: "Emissions",
         href: "/dashboard/emissions",
+        capability: "Emissions.View",
+        moduleCode: "EMISSIONS",
         icon: "mdi:leaf",
       },
     ],
@@ -178,6 +209,7 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       {
         label: "Industrial Hygiene",
         href: "/dashboard/industrial-hygiene",
+        capability: "IndustrialHygiene.View",
         icon: "mdi:flask-outline",
         moduleCode: "INDUSTRIAL_HYGIENE",
       },
@@ -216,40 +248,15 @@ function matchesRole(role: string | null, expected: string): boolean {
 }
 
 /**
- * The `page:*` permission an item is gated on, derived from its href.
- *
- * `/dashboard/hazcom` -> `page:hazcom`. Deriving it beats a per-item field: the catalogue
- * is generated from these same routes, so a new page cannot drift out of sync with a list
- * someone forgot to update.
- */
-function pagePermission(href: string): string {
-  const slug = href.replace(/^\/dashboard\/?/, "");
-  return slug ? `page:${slug}` : "page:dashboard";
-}
-
-/**
- * Does the caller hold this item's page permission?
- *
- * Exact match, deliberately. This used to accept anything under the prefix as well, so a
- * role still holding `page:hazcom-sds` kept HazCom in the sidebar after an admin unticked
- * `page:hazcom` — unticking the module row did nothing, and actually hiding HazCom meant
- * clearing all thirteen of its child rows without missing one. Every sidebar entry now has
- * a module-level row of its own (`SeedModulePagePermissions`), so the exact string is
- * always there to untick and one box hides one module.
- *
- * The child rows still matter — they gate the routes inside the module, not the nav entry.
- */
-function hasPagePermission(href: string, permissions: Set<string>): boolean {
-  return permissions.has(pagePermission(href));
-}
-
-/**
  * The org's plan gate. An item naming a `moduleCode` needs that module licensed.
  *
- * An item without one — Analytics, Reports, Emissions, Fleet Management — is not a licensed
- * EHSS module and is left to its page permission alone. This used to require `alwaysVisible`
- * here, which hid those four from every role including Ehs_Director, even though all four
- * have a `page:` row in the catalogue.
+ * Every EHS entry names one now, including the four that used to be exempt because they
+ * had no module to name — Analytics, Reports, Emissions and Fleet Management are
+ * licensable modules in their own right, sold like any other and shipped switched off
+ * until their backends exist.
+ *
+ * Items with no `moduleCode` are the ones outside the catalogue entirely: Chat, Dashboard
+ * and Settings.
  */
 function passesModuleLicenseGate(
   item: AppNavItem,
@@ -268,12 +275,15 @@ function isNavItemVisible(
   userPermissions: Set<string>,
   role: string | null,
 ): boolean {
+  // The licence is the outermost gate and nothing below can widen it. It bounds
+  // Ehs_Director too: the backend applies the same rule when it mints the token, so a
+  // module the company has not bought carries no claims for anyone.
   if (!passesModuleLicenseGate(item, activatedModules)) {
     return false;
   }
 
-  // First, and deliberately ahead of the bypass below: an allowedRoles list is a
-  // restriction, and a restriction that any later rule can widen is not one.
+  // An allowedRoles list is a restriction, and a restriction any later rule can widen is
+  // not one.
   if (
     item.allowedRoles &&
     !item.allowedRoles.some((r) => matchesRole(role, r))
@@ -281,32 +291,37 @@ function isNavItemVisible(
     return false;
   }
 
-  if (isAdminRole(role)) {
-    return true;
-  }
-
-  // alwaysVisible items sit outside the page catalogue — the AI chat and Settings have no
-  // `page:` row of their own, and every user needs Settings to reach their own account, so
-  // the page gate must not hide them. The company-wide tab inside Settings does its own
-  // role check.
+  // Chat, Dashboard and Settings sit outside the module catalogue and have no capability
+  // to check. Every user needs Settings to reach their own account. The company-wide tab
+  // inside Settings does its own role check.
   if (item.alwaysVisible === true) {
     return true;
   }
 
   // The gate, and the point of the whole thing: a licensed module appears only for a role
-  // granted its module-level page permission — exactly the box an admin unticks in Roles &
-  // Rights.
+  // granted its View — exactly the box an admin ticks in Roles & Rights.
   //
-  // There is deliberately no fallback for a caller carrying no `page:` claims. There used
-  // to be one, and it is what made "untick every page" show the entire sidebar instead of
-  // none of it: a role holding nothing read as "claims unreadable" and fell through to the
-  // licence being the only gate. Claims are minted at login, so anyone still on a token
-  // from before these rows existed sees only Chat, Dashboard and Settings until they log
-  // out and back in.
+  // There used to be an `isAdminRole(role)` bypass here that returned true for
+  // Ehs_Director before any capability was consulted. It has been removed. The backend
+  // deliberately has no such bypass — PermissionHandler says so outright — so the two
+  // layers disagreed, and the practical cost was that nobody could ever see what a
+  // director actually sees. Ehs_Director holds every capability as real grants, so the
+  // ordinary check below already returns true for them; it now does so for a reason that
+  // is testable.
   //
-  // Hiding a nav item is not access control. The route still has to refuse anyone who types
+  // There is deliberately no fallback for a caller carrying no claims. There used to be
+  // one, and it is what made "untick everything" show the entire sidebar instead of none
+  // of it: a role holding nothing read as "claims unreadable" and fell through to the
+  // licence being the only gate. Claims are refreshed on the next token refresh, and the
+  // org/me payload carries the same set for the UI in the meantime.
+  //
+  // Hiding a nav item is not access control. `requireCapability` refuses anyone who types
   // the URL, and the API refuses them regardless of either.
-  return hasPagePermission(item.href, userPermissions);
+  if (!item.capability) {
+    return false;
+  }
+
+  return userPermissions.has(item.capability);
 }
 
 export function getVisibleNavGroups(
@@ -323,4 +338,24 @@ export function getVisibleNavGroups(
       ),
     }))
     .filter((group) => group.items.length > 0);
+}
+
+/** Every nav item, flattened. */
+export function getAllNavItems(): AppNavItem[] {
+  return APP_NAV_GROUPS.flatMap((group) => [...group.items]);
+}
+
+/**
+ * The nav entry a route belongs to, by longest matching href.
+ *
+ * Longest wins so `/dashboard/hazcom/sds/12` resolves to HazCom rather than to Dashboard,
+ * which every `/dashboard/*` path would otherwise prefix-match.
+ */
+export function findNavItemForPath(pathname: string): AppNavItem | undefined {
+  return getAllNavItems()
+    .filter(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    )
+    .toSorted((left, right) => right.href.length - left.href.length)
+    .at(0);
 }
