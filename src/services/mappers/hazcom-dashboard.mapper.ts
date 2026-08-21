@@ -1,4 +1,6 @@
 import type {
+  HazcomDashboardKpis,
+  HazcomSdsStatusOverview,
   HazcomTrainingCompliance,
   HazcomUpcomingDeadline,
 } from "@/components/hazcom/shared";
@@ -9,6 +11,70 @@ import {
   readProp,
   toIsoDate,
 } from "@/services/mappers/record-readers";
+
+function emptyDashboardKpis(): HazcomDashboardKpis {
+  return {
+    totalChemicals: 0,
+    missingSds: 0,
+    trainingOverdue: 0,
+    pendingAssessments: 0,
+    chemicalsExpiringWithin90Days: 0,
+  };
+}
+
+/** Maps GET /api/hazcom/dashboard/kpis onto the KPI cards. */
+export function mapDashboardKpisDto(raw: unknown): HazcomDashboardKpis {
+  if (!isRecord(raw)) {
+    return emptyDashboardKpis();
+  }
+
+  return {
+    totalChemicals: asNumber(readProp(raw, "totalChemicals", "TotalChemicals")),
+    missingSds: asNumber(readProp(raw, "missingSds", "MissingSds")),
+    trainingOverdue: asNumber(
+      readProp(raw, "trainingOverdue", "TrainingOverdue"),
+    ),
+    pendingAssessments: asNumber(
+      readProp(raw, "pendingAssessments", "PendingAssessments"),
+    ),
+    chemicalsExpiringWithin90Days: asNumber(
+      readProp(
+        raw,
+        "chemicalsExpiringWithin90Days",
+        "ChemicalsExpiringWithin90Days",
+      ),
+    ),
+  };
+}
+
+function emptySdsStatusOverview(): HazcomSdsStatusOverview {
+  return {
+    currentAndCompliant: 0,
+    expiringWithin90Days: 0,
+    overdueOrExpired: 0,
+    missingSds: 0,
+  };
+}
+
+/** Maps GET /api/hazcom/dashboard/sds-status onto the SDS Status Overview card. */
+export function mapSdsStatusOverviewDto(raw: unknown): HazcomSdsStatusOverview {
+  if (!isRecord(raw)) {
+    return emptySdsStatusOverview();
+  }
+
+  return {
+    currentAndCompliant: asNumber(
+      readProp(raw, "currentAndCompliant", "CurrentAndCompliant"),
+    ),
+    expiringWithin90Days: asNumber(
+      readProp(raw, "expiringWithin90Days", "ExpiringWithin90Days"),
+    ),
+    overdueOrExpired: asNumber(
+      readProp(raw, "overdueOrExpired", "OverdueOrExpired"),
+    ),
+    missingSds: asNumber(readProp(raw, "missingSds", "MissingSds")),
+  };
+}
 
 function toDaysLeft(value: unknown): number | null {
   if (value === undefined || value === null || value === "") {
@@ -39,9 +105,7 @@ function toDaysLeftLabel(daysLeft: number | null): string {
   return `${String(daysLeft)} days left`;
 }
 
-function mapUpcomingDeadlineDto(
-  raw: unknown,
-): HazcomUpcomingDeadline | null {
+function mapUpcomingDeadlineDto(raw: unknown): HazcomUpcomingDeadline | null {
   if (!isRecord(raw)) {
     return null;
   }
@@ -150,13 +214,7 @@ export function mapTrainingComplianceDto(
 
   const hasCounts =
     hasComplianceCount(raw, "compliant", "Compliant", "compliantCount") ||
-    hasComplianceCount(
-      raw,
-      "dueSoon",
-      "DueSoon",
-      "dueSoonCount",
-      "due_soon",
-    ) ||
+    hasComplianceCount(raw, "dueSoon", "DueSoon", "dueSoonCount", "due_soon") ||
     hasComplianceCount(raw, "overdue", "Overdue", "overdueCount") ||
     hasComplianceCount(
       raw,

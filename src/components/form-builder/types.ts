@@ -111,6 +111,16 @@ export type SelectFieldConfig = BaseField &
      * reads as a search box that opens its menu from the button.
      */
     variant?: "default" | "search";
+    /**
+     * Side effect fired after this field's own value is set — e.g. selecting
+     * a chemical autofilling the CAS number, hazard class, etc. from that
+     * chemical's record. Not restricted to synchronous updates: fetch first,
+     * then call `patchValues`.
+     */
+    onSelectChange?: (
+      value: string,
+      patchValues: (patch: FormValues) => void,
+    ) => void;
   }>;
 
 /** What a textarea hands its assistant so the assistant can write back. */
@@ -151,6 +161,27 @@ export type ChipsFieldConfig = BaseField &
     /** Show an input for appending tags that aren't in {@link options}. */
     allowCustom?: boolean;
     addCustomPlaceholder?: string;
+    /** Render every chip non-interactive (e.g. locked after autofill). */
+    disabled?: boolean;
+  }>;
+
+/**
+ * Multi-person picker: a searchable dropdown (same listbox look as
+ * {@link SelectFieldConfig}) for choosing several people from `options`,
+ * with each pick rendered as a small removable badge below the trigger —
+ * the compact alternative to {@link ChipsFieldConfig} for a roster that can
+ * be long (e.g. training attendees), where showing every option as an
+ * always-visible toggle pill doesn't scale.
+ */
+export type PersonMultiFieldConfig = BaseField &
+  Readonly<{
+    type: "person-multi";
+    options: readonly SelectOption[];
+    placeholder?: string;
+    /** Render the control read-only — the current selection is fixed. */
+    disabled?: boolean;
+    /** Muted note shown beside a disabled value, e.g. "(auto-filled)". */
+    note?: string;
   }>;
 
 export type CheckboxGroupFieldConfig = BaseField &
@@ -227,6 +258,8 @@ export type TilesFieldConfig = BaseField &
      * "assessment" = large equal cards (CAPA effectiveness).
      */
     variant?: "cards" | "segmented" | "segmented-fill" | "assessment";
+    /** Render every tile non-interactive (e.g. locked after autofill). */
+    disabled?: boolean;
   }>;
 
 /** Boolean toggle stored as `"true"` / `"false"` string values. */
@@ -267,6 +300,13 @@ export type PersonFieldConfig = BaseField &
     disabled?: boolean;
     /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
     excludeSelf?: boolean;
+    /**
+     * Require a picked person — on blur, a typed name with no matching
+     * selection is cleared rather than kept as free text. Opt-in; defaults to
+     * false, which is the affected-person behaviour (contractors/visitors
+     * with no account still need to be recorded by name).
+     */
+    selectionOnly?: boolean;
   }>;
 
 /**
@@ -294,7 +334,8 @@ export type FieldConfig =
   | SwitchFieldConfig
   | HeadingFieldConfig
   | CustomFieldConfig
-  | PersonFieldConfig;
+  | PersonFieldConfig
+  | PersonMultiFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
 
@@ -307,7 +348,8 @@ export function createInitialValues(schema: FormSchema): FormValues {
     const isMultiValue =
       field.type === "checkbox-group" ||
       field.type === "photo" ||
-      field.type === "chips";
+      field.type === "chips" ||
+      field.type === "person-multi";
 
     if (field.type === "switch") {
       values[field.name] = "false";

@@ -218,8 +218,12 @@ function createRiskAssessmentColumns(
   ] as ColumnDef<HazcomRiskAssessment, unknown>[];
 }
 
-function columnWidthStyle(size: number, totalSize: number) {
-  return { width: `${(size / totalSize) * 100}%` };
+// Percentage widths on a `table-fixed w-full` table always fill the
+// container exactly, so `overflow-x-auto` never triggers — the columns just
+// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
+// `<table>` equal to their sum) let the table actually exceed its container.
+function columnWidthStyle(size: number) {
+  return { width: `${size}px` };
 }
 
 function alignClass(align: "left" | "center" | "right" | undefined) {
@@ -274,13 +278,13 @@ export function HazcomRiskAssessmentsTable(
       ) : null}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-        <table className="w-full table-fixed border-collapse text-left">
+        <table
+          className="border-collapse text-left"
+          style={{ minWidth: `${totalSize}px` }}
+        >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col
-                key={column.id}
-                style={columnWidthStyle(column.getSize(), totalSize)}
-              />
+              <col key={column.id} style={columnWidthStyle(column.getSize())} />
             ))}
           </colgroup>
 
@@ -293,7 +297,7 @@ export function HazcomRiskAssessmentsTable(
                   return (
                     <th
                       key={headerCell.id}
-                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
+                      style={columnWidthStyle(headerCell.getSize())}
                       className={[
                         "text6 text-ehs-muted-text py-3 select-none",
                         cellPad,
@@ -348,10 +352,7 @@ export function HazcomRiskAssessmentsTable(
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(
-                            cell.column.getSize(),
-                            totalSize,
-                          )}
+                          style={columnWidthStyle(cell.column.getSize())}
                           className={[
                             "py-3 align-middle",
                             cellPad,

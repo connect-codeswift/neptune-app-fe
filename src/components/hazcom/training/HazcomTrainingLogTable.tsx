@@ -17,7 +17,10 @@ import {
   type IncidentBadgeTone,
 } from "@/components/near-miss/IncidentBadge";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import type { HazcomTrainingSession } from "@/components/hazcom/shared";
+import type {
+  HazcomTrainingSession,
+  HazcomTrainingStatus,
+} from "@/components/hazcom/shared";
 
 export type HazcomTrainingLogTableProps = Readonly<{
   sessions: readonly HazcomTrainingSession[];
@@ -43,9 +46,16 @@ function statusLabel(status: string | null): string {
   return status ?? NO_STATUS_LABEL;
 }
 
+const STATUS_TONE: Readonly<Record<HazcomTrainingStatus, IncidentBadgeTone>> = {
+  Scheduled: "warn",
+  InProgress: "teal",
+  Completed: "success",
+  Cancelled: "muted",
+};
+
 function statusTone(status: string | null): IncidentBadgeTone {
   if (status == null) return "muted";
-  return status.trim().toLowerCase() === "completed" ? "teal" : "warn";
+  return STATUS_TONE[status as HazcomTrainingStatus] ?? "warn";
 }
 
 export type TrainingLogColumnOptions = Readonly<{
@@ -207,8 +217,18 @@ function createTrainingLogColumns(
   ] as ColumnDef<HazcomTrainingSession, unknown>[];
 }
 
-function columnWidthStyle(size: number, totalSize: number) {
-  return { width: `${(size / totalSize) * 100}%` };
+// Percentage widths on a `table-fixed w-full` table always fill the
+// container exactly, so `overflow-x-auto` never triggers — the columns just
+// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
+// `<table>` equal to their sum) let the table actually exceed its container.
+//
+// This is applied to a `<col>` element, which only honours `width` — a
+// browser silently ignores `min-width`/`max-width` set on `<col>` — so this
+// stays a `width`, not a `minWidth`, even though it functions as a floor
+// here (the table's own `min-width` plus `overflow-x-auto` mean a column
+// can only grow from this size, never shrink below it).
+function columnWidthStyle(size: number) {
+  return { width: `${size}px` };
 }
 
 function alignClass(align: "left" | "center" | "right" | undefined) {
@@ -263,13 +283,13 @@ export function HazcomTrainingLogTable(
       ) : null}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-        <table className="w-full table-fixed border-collapse text-left">
+        <table
+          className="border-collapse text-left"
+          style={{ minWidth: `${totalSize}px` }}
+        >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col
-                key={column.id}
-                style={columnWidthStyle(column.getSize(), totalSize)}
-              />
+              <col key={column.id} style={columnWidthStyle(column.getSize())} />
             ))}
           </colgroup>
 
@@ -282,7 +302,7 @@ export function HazcomTrainingLogTable(
                   return (
                     <th
                       key={headerCell.id}
-                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
+                      style={columnWidthStyle(headerCell.getSize())}
                       className={[
                         "text6 text-ehs-muted-text py-3 select-none",
                         cellPad,
@@ -337,10 +357,7 @@ export function HazcomTrainingLogTable(
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(
-                            cell.column.getSize(),
-                            totalSize,
-                          )}
+                          style={columnWidthStyle(cell.column.getSize())}
                           className={[
                             "h-14 min-w-0 align-middle",
                             cellPad,

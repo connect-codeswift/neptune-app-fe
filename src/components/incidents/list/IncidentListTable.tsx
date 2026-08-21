@@ -211,10 +211,12 @@ function createIncidentColumns(
   }) as ColumnDef<IncidentRecord, unknown>[];
 }
 
-function columnWidthStyle(size: number, totalSize: number) {
-  return {
-    width: `${(size / totalSize) * 100}%`,
-  };
+// Percentage widths on a `table-fixed w-full` table always fill the
+// container exactly, so `overflow-x-auto` never triggers — the columns just
+// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
+// `<table>` equal to their sum) let the table actually exceed its container.
+function columnWidthStyle(size: number) {
+  return { width: `${size}px` };
 }
 
 function alignClass(align: "left" | "center" | "right" | undefined) {
@@ -319,13 +321,13 @@ export function IncidentListTable<
       {toolbar ?? (isIncidentTable ? <IncidentListTableHeader /> : null)}
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-        <table className="w-full table-fixed border-collapse text-left text-sm">
+        <table
+          className="border-collapse text-left text-sm"
+          style={{ minWidth: `${totalSize}px` }}
+        >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col
-                key={column.id}
-                style={columnWidthStyle(column.getSize(), totalSize)}
-              />
+              <col key={column.id} style={columnWidthStyle(column.getSize())} />
             ))}
           </colgroup>
 
@@ -338,7 +340,7 @@ export function IncidentListTable<
                   return (
                     <th
                       key={header.id}
-                      style={columnWidthStyle(header.getSize(), totalSize)}
+                      style={columnWidthStyle(header.getSize())}
                       className={[
                         "text6 text-ehs-muted-text",
                         headerPadClass,
@@ -419,10 +421,7 @@ export function IncidentListTable<
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(
-                            cell.column.getSize(),
-                            totalSize,
-                          )}
+                          style={columnWidthStyle(cell.column.getSize())}
                           className={[
                             "min-w-0",
                             cellVerticalAlignClass(align, verticalAlign),

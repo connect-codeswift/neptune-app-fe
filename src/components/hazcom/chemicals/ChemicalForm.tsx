@@ -4,6 +4,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
@@ -17,14 +18,17 @@ import {
   type HazcomPictogram,
   type HazcomSignalWord,
 } from "@/components/hazcom/shared";
+import { HazcomSdsAutofillPicker } from "@/components/hazcom/sds/HazcomSdsAutofillPicker";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
+import { fetchSdsLabel, hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
+import type { HazcomSdsSearchResult } from "@/services/mappers/hazcom-sds.mapper";
 
 export type ChemicalFormProps = Readonly<{
   mode: "add" | "edit";
@@ -183,7 +187,9 @@ function FormSection(
 export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const { mode, chemical, className = "" } = props;
   const router = useRouter();
+  const queryClient = useQueryClient();
   const saveChemical = useCreateChemicalMutation();
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const initialQuantity = chemical
     ? splitQuantity(chemical.quantity)
     : { amount: "", unit: "" };
@@ -213,6 +219,40 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
         ? current.filter((item) => item !== pictogram)
         : [...current, pictogram],
     );
+  }
+
+  /**
+   * Picking a search result is one deliberate action, not a state to keep in
+   * sync — fetched imperatively rather than through a `useQuery` hook, same
+   * pattern the affected-person gender lookup uses.
+   */
+  async function handleSdsAutofill(result: HazcomSdsSearchResult) {
+    setIsAutofilling(true);
+    try {
+      const label = await queryClient.fetchQuery({
+        queryKey: hazcomQueryKeys.sdsLabel(result.id),
+        queryFn: () => fetchSdsLabel(result.id),
+        staleTime: Infinity,
+      });
+
+      if (!label) {
+        toast.error("Could not load that SDS. Please try again.");
+        return;
+      }
+
+      if (label.casNumber) setCasNumber(label.casNumber);
+      if (label.hazardClass) setHazardClass(label.hazardClass);
+      if (label.disposeLocation) setDisposeLocation(label.disposeLocation);
+      setSignalWord(label.signalWord);
+      if (label.pictograms.length > 0) setPictograms(label.pictograms);
+      setSdsLink(result.productName);
+
+      toast.success(`Autofilled from “${result.productName}”`);
+    } catch {
+      toast.error("Could not load that SDS. Please try again.");
+    } finally {
+      setIsAutofilling(false);
+    }
   }
 
   const cancelHref =
@@ -304,6 +344,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
             title="Identity"
             description="Name and identifiers used across the inventory."
           >
+            <HazcomSdsAutofillPicker
+              onPick={(result) => void handleSdsAutofill(result)}
+              disabled={isAutofilling}
+            />
             <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
               <HazcomTextField
                 label="Chemical / Substance Name"
