@@ -16,10 +16,7 @@ import {
 import { toast } from "@/lib/toast";
 import { BuildSectionsStep } from "./BuildSectionsStep";
 import { ReviewPublishStep } from "./ReviewPublishStep";
-import {
-  TemplateWizardProgress,
-  TemplateWizardStepList,
-} from "./TemplateWizardSteps";
+import { TemplateWizardProgress } from "./TemplateWizardSteps";
 import {
   createInitialSections,
   isItemValueFilled,
@@ -34,45 +31,6 @@ import { toAuditTemplatePayload } from "./to-template-payload";
 
 const TEMPLATES_ROUTE = "/dashboard/audits/template";
 const BASIC_INFO_FORM_ID = "create-template-basic-info";
-
-/** Live preview of how the template will present in the templates grid. */
-function TemplatePreview(
-  props: Readonly<{ name: string; tags: readonly string[] }>,
-) {
-  const { name, tags } = props;
-
-  return (
-    <IncidentGlassCard
-      paddingClassName="p-5"
-      incidentGlassCardClassName="gap-3"
-    >
-      <Text as="h3" className="text9 text-ehs-muted-text">
-        Preview
-      </Text>
-
-      <div className="border-ehs-border-ink/10 bg-ehs-surface flex flex-col gap-2 rounded-xl border p-4">
-        <span
-          className={
-            name ? "text5 text-ehs-dark-bg" : "text4 text-ehs-muted-text"
-          }
-        >
-          {name || "Template name…"}
-        </span>
-
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="bg-ehs-normal-blue/10 text-ehs-dark-blue text8 rounded-md px-2 py-0.5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </IncidentGlassCard>
-  );
-}
 
 export type CreateTemplateContentProps = Readonly<{
   /** Seed all steps from an existing template (edit mode). */

@@ -160,6 +160,13 @@ export function StartAuditForm() {
         ? parsedDate.toISOString()
         : new Date().toISOString();
 
+    // Due Date is optional — only sent when the auditor set one.
+    const parsedDueDate = audit.dueDate ? new Date(audit.dueDate) : null;
+    const dueDate =
+      parsedDueDate && !Number.isNaN(parsedDueDate.getTime())
+        ? parsedDueDate.toISOString()
+        : undefined;
+
     createAudit.mutate(
       {
         id: 0,
@@ -169,12 +176,13 @@ export function StartAuditForm() {
         // A custom (external) auditor has no directory id, so it goes out as 0.
         auditorId: Number(audit.auditor) || 0,
         scheduleDate,
+        dueDate,
         userId,
         siteId,
       },
       {
         onSuccess: (response) => {
-          toast.success("Audit created");
+          toast.success("Audit scheduled");
           // Stash the created audit so the checklist can label its header
           // without waiting on the list to refetch.
           const created = response.dataModel;
@@ -192,7 +200,7 @@ export function StartAuditForm() {
           toast.error(
             getMutationErrorMessage(
               error,
-              "Could not start the audit. Please try again.",
+              "Could not schedule the audit. Please try again.",
             ),
           );
         },
@@ -211,7 +219,7 @@ export function StartAuditForm() {
         key={activeTemplateId || "blank"}
         schema={schema}
         initialValues={initialValues}
-        submitLabel={createAudit.isPending ? "Starting…" : "Begin Audit"}
+        submitLabel={createAudit.isPending ? "Scheduling…" : "Schedule Audit"}
         cancelLabel="Cancel"
         isSubmitting={createAudit.isPending}
         onSubmit={handleSubmit}
