@@ -70,7 +70,8 @@ export function mapAuditDtoToRecord(dto: AuditDto): AuditRecord {
     auditor: dto.auditorName || "Unassigned",
     progress: dto.progressPct ?? 0,
     status: toAuditStatus(dto.status ?? ""),
-    dueDate: formatAuditDate(dto.scheduleDate ?? ""),
+    // Falls back to the schedule date until the backend persists a real due date.
+    dueDate: formatAuditDate(dto.dueDate || dto.scheduleDate || ""),
     findings: dto.findingCount > 0 ? `${String(dto.findingCount)} open` : null,
   };
 }

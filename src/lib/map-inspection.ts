@@ -63,7 +63,8 @@ export function mapInspectionDtoToRecord(dto: InspectionDto): InspectionRecord {
     inspector: dto.inspectorName || "Unassigned",
     progress: dto.progressPct ?? 0,
     status: formatRunStatus((dto.status ?? "").trim()),
-    dueDate: formatInspectionDate(dto.scheduleDate ?? ""),
+    // Falls back to the schedule date until the backend persists a real due date.
+    dueDate: formatInspectionDate(dto.dueDate || dto.scheduleDate || ""),
     findings:
       (dto.findingCount ?? 0) > 0 ? `${String(dto.findingCount)} open` : null,
   };

@@ -11,13 +11,13 @@ const crumbLink =
 
 const actionClass = "text4 h-9 rounded-2.5 px-3 sm:h-9.5";
 
-export type AuditFindingsHeaderProps = Readonly<{
+export type AuditDetailHeaderProps = Readonly<{
   auditId: string;
   subtitle: string;
   onGenerateReport?: () => void;
 }>;
 
-export function AuditFindingsHeader(props: AuditFindingsHeaderProps) {
+export function AuditDetailHeader(props: AuditDetailHeaderProps) {
   const { auditId, subtitle, onGenerateReport } = props;
 
   return (
@@ -41,18 +41,12 @@ export function AuditFindingsHeader(props: AuditFindingsHeaderProps) {
           aria-hidden="true"
         />
         <span className={`${crumbMuted} truncate`}>{auditId}</span>
-        <Icon
-          icon="mdi:chevron-right"
-          className="text-ehs-muted-text size-3 shrink-0"
-          aria-hidden="true"
-        />
-        <span className={crumbMuted}>Findings</span>
       </nav>
 
       <div className="relative z-1 flex min-w-0 flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
           <Text as="h1" className="text1 text-ehs-darker break-words">
-            Audit Findings
+            {auditId}
           </Text>
           {subtitle ? (
             <Text as="p" className="text8 text-ehs-muted-text">

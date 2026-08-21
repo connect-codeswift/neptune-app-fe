@@ -21,7 +21,7 @@ export default function AuditChecklistPage() {
   return (
     <div className="flex min-h-screen flex-1 flex-col gap-3.5">
       <DashboardHeader
-        actionLabel="Start Audit"
+        actionLabel="Schedule Audit"
         onActionClick={() => router.push(START_AUDIT_ROUTE)}
       />
 

@@ -43,14 +43,19 @@ export type IncidentDto = {
   treatmentProvidedBy?: string | null;
   treatmentLocation?: string | null;
   isFitForFullDuty?: string | boolean | null;
+  /**
+   * First Aid medical question ("Case closed - no further actions",
+   * "Monitor / follow up", …). **Not** a lifecycle field — an incident is only
+   * closed when the closure wizard writes an `IncidentClosures` row.
+   */
   caseDisposition?: string | null;
-  /** Some list/detail payloads expose lifecycle directly (near-miss style). */
-  status?: string | null;
-  /** Grid rows may expose Open/Closed as `state`. */
-  state?: string | null;
-  /** Present when closure summary is included on the incident payload. */
-  closureStatus?: string | null;
-  isClosed?: boolean | null;
+  /**
+   * The only lifecycle signal the API emits: `New` | `Investigating` |
+   * `Corrective` | `Closed`, computed server-side from the closure record and
+   * linked CAPAs. Grid rows always carry it; detail only since the backend
+   * added it to `IncidentDto`, so treat it as absent rather than "not closed".
+   */
+  stage?: string | null;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;
   people?: PersonDto[] | null;

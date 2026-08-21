@@ -121,8 +121,10 @@ function coercePerson(value: unknown): PersonDto | null {
 }
 
 /**
- * Some grid endpoints wrap the incident DTO and attach lifecycle fields at the
- * row level. Merge those onto the nested incident before coercion.
+ * Some grid endpoints wrap the incident DTO and attach the computed lifecycle
+ * fields at the row level. Merge those onto the nested incident before
+ * coercion, otherwise the row-level `stage` is lost and the UI has nothing left
+ * to derive Open/Closed from.
  */
 function unwrapIncidentRaw(
   raw: Record<string, unknown>,
@@ -134,10 +136,7 @@ function unwrapIncidentRaw(
 
   const merged: Record<string, unknown> = { ...nested };
   for (const [camel, pascal] of [
-    ["status", "Status"],
-    ["state", "State"],
-    ["closureStatus", "ClosureStatus"],
-    ["isClosed", "IsClosed"],
+    ["stage", "Stage"],
     ["caseDisposition", "CaseDisposition"],
   ] as const) {
     const topLevel = readProp(raw, camel, pascal);
@@ -261,11 +260,7 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
         : (asString(fitRaw) ?? null),
     caseDisposition:
       asString(readProp(source, "caseDisposition", "CaseDisposition")) ?? null,
-    status: asString(readProp(source, "status", "Status")) ?? null,
-    state: asString(readProp(source, "state", "State")) ?? null,
-    closureStatus:
-      asString(readProp(source, "closureStatus", "ClosureStatus")) ?? null,
-    isClosed: asBoolean(readProp(source, "isClosed", "IsClosed")) ?? null,
+    stage: asString(readProp(source, "stage", "Stage")) ?? null,
     furtherMedicalRecommendations: asBoolean(
       readProp(
         source,
@@ -633,8 +628,7 @@ function normalizeIncidentClosureDto(
       asNumber(readProp(root, "incidentId", "IncidentId")) ?? undefined,
     currentStep:
       asNumber(readProp(root, "currentStep", "CurrentStep")) ?? undefined,
-    closureStatus:
-      asString(readProp(root, "closureStatus", "ClosureStatus")) ?? undefined,
+    isDraft: asBoolean(readProp(root, "isDraft", "IsDraft")) ?? undefined,
     closedAt: asString(readProp(root, "closedAt", "ClosedAt")) ?? undefined,
     closedBy: asString(readProp(root, "closedBy", "ClosedBy")) ?? undefined,
     closedByRole:

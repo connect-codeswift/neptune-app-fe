@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
 import { Button } from "@/components/ui/Button";
 import {
   TABLE_HEADER_ACTION_CLASS,
@@ -30,20 +31,24 @@ export function WalkTalkSessionsHeader(props: WalkTalkSessionsHeaderProps) {
         ) : null}
       </div>
 
-      <Button
-        type="button"
-        variant="primary"
-        onClick={onStartWalkTalk}
-        className={TABLE_HEADER_ACTION_CLASS}
-      >
-        <Icon
-          icon="mdi:plus"
-          className={TABLE_HEADER_ACTION_ICON_CLASS}
-          aria-hidden="true"
-        />
-        <span className="sm:hidden">Log Session</span>
-        <span className="hidden sm:inline">Log Walk & Talk</span>
-      </Button>
+      {/* Hidden without WalkTalk.Create. The API refuses the call regardless, so
+          rendering the button only offers a dead end. */}
+      <Can do="WalkTalk.Create">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={onStartWalkTalk}
+          className={TABLE_HEADER_ACTION_CLASS}
+        >
+          <Icon
+            icon="mdi:plus"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
+          <span className="sm:hidden">Log Session</span>
+          <span className="hidden sm:inline">Log Walk & Talk</span>
+        </Button>
+      </Can>
     </div>
   );
 }

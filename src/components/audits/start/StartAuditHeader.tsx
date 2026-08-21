@@ -34,7 +34,7 @@ export function StartAuditHeader() {
 
       <div className="relative z-1 flex min-w-0 flex-col gap-0.5">
         <Text as="h1" className="text1 text-ehs-darker">
-          Start Audit
+          Schedule Audit
         </Text>
         <Text as="p" className="text8 text-ehs-muted-text">
           Configure a new audit

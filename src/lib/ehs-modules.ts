@@ -16,7 +16,13 @@ export type EhsModuleCode =
   | "WALK_AND_TALKS"
   | "PPE_MANAGEMENT"
   | "INDUSTRIAL_HYGIENE"
-  | "HAZCOM";
+  | "HAZCOM"
+  // Licensable but not yet built. They have a Modules row and a View permission
+  // so the sidebar entry can be gated at all; their pages are still stubs.
+  | "FLEET_MANAGEMENT"
+  | "ANALYTICS"
+  | "REPORTS"
+  | "EMISSIONS";
 
 const ALL_MODULE_CODES: readonly EhsModuleCode[] = [
   "INCIDENT",
@@ -33,6 +39,10 @@ const ALL_MODULE_CODES: readonly EhsModuleCode[] = [
   "PPE_MANAGEMENT",
   "INDUSTRIAL_HYGIENE",
   "HAZCOM",
+  "FLEET_MANAGEMENT",
+  "ANALYTICS",
+  "REPORTS",
+  "EMISSIONS",
 ];
 
 /** Backend API tokens that differ from our canonical nav module codes. */

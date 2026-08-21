@@ -11,6 +11,8 @@ export type AuditDto = {
   auditorId: number;
   auditorName: string;
   scheduleDate: string;
+  /** ISO date-time string. Optional until the backend persists it. */
+  dueDate?: string | null;
   status: string;
   progressPct: number | null;
   answeredCount: number;
@@ -94,6 +96,8 @@ export type AuditDetailDto = {
   auditorId: number;
   auditorName: string;
   scheduleDate: string;
+  /** ISO date-time string. Optional until the backend persists it. */
+  dueDate?: string | null;
   status: string;
   hasCriticalFailure: boolean;
   startedAt: string | null;
