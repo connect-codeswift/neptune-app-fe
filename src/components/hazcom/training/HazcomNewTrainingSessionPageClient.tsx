@@ -3,7 +3,7 @@
 import { HazcomFormLayout, HazcomPageHeader } from "@/components/hazcom/shared";
 import { HazcomNewTrainingSessionForm } from "@/components/hazcom/training/HazcomNewTrainingSessionForm";
 
-/** Log Training Session — POST /api/hazcom/training. */
+/** Schedule Training — POST /api/v1/hazcom/trainings. */
 export function HazcomNewTrainingSessionPageClient() {
   return (
     <HazcomFormLayout>
@@ -11,11 +11,11 @@ export function HazcomNewTrainingSessionPageClient() {
         breadcrumb={[
           "Safety",
           { label: "HazCom", href: "/dashboard/hazcom/overview" },
-          { label: "Training Log", href: "/dashboard/hazcom/training" },
+          { label: "Schedule Training", href: "/dashboard/hazcom/training" },
           "New",
         ]}
-        title="Log Training Session"
-        subtitle="Record the trainer, attendees, and chemicals covered for a completed session"
+        title="Schedule Training"
+        subtitle="Assign a trainer and attendees, and pick the chemicals a session will cover"
       />
 
       <HazcomNewTrainingSessionForm />

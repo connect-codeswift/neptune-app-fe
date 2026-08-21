@@ -4,8 +4,10 @@ import { useSyncExternalStore } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type {
   HazcomChemical,
+  HazcomDashboardKpis,
   HazcomRiskAssessment,
   HazcomSdsRecord,
+  HazcomSdsStatusOverview,
   HazcomStatementCode,
   HazcomTrainingCompliance,
   HazcomTrainingSession,
@@ -21,12 +23,16 @@ import {
   getAllTrainingLogs,
   getChemicalById,
   getChemicalNames,
+  getDashboardKpis,
   getHazardHCodes,
   getPrecautionaryCodes,
   getSafetyDataSheetById,
+  getSdsLabel,
   getSdsStatements,
+  getSdsStatusOverview,
   getTrainingCompliance,
   getUpcomingDeadlines,
+  searchSafetyDataSheets,
 } from "@/services/hazcom.service";
 import {
   mapChemicalDtoToHazcomChemical,
@@ -39,10 +45,16 @@ import {
   mapGhsCodeDtos,
   mapSdsDtoToHazcomSdsDetail,
   mapSdsDtosToHazcomSdsRecords,
+  mapSdsLabelDto,
+  mapSdsSearchResultDtos,
   mapSdsStatementsDto,
   type HazcomSdsDetail,
+  type HazcomSdsLabel,
+  type HazcomSdsSearchResult,
 } from "@/services/mappers/hazcom-sds.mapper";
 import {
+  mapDashboardKpisDto,
+  mapSdsStatusOverviewDto,
   mapTrainingComplianceDto,
   mapUpcomingDeadlineDtos,
 } from "@/services/mappers/hazcom-dashboard.mapper";
@@ -61,6 +73,10 @@ export const hazcomQueryKeys = {
   sds: (id: number) => [...hazcomQueryKeys.all, "sds", id] as const,
   sdsStatements: (id: number) =>
     [...hazcomQueryKeys.all, "sds", id, "statements"] as const,
+  sdsSearch: (query: string) =>
+    [...hazcomQueryKeys.all, "sds", "search", query] as const,
+  sdsLabel: (id: number) =>
+    [...hazcomQueryKeys.all, "sds", id, "label"] as const,
   hazardHCodes: () => [...hazcomQueryKeys.all, "hazard-hcodes"] as const,
   precautionaryCodes: () =>
     [...hazcomQueryKeys.all, "precautionary-codes"] as const,
@@ -68,6 +84,9 @@ export const hazcomQueryKeys = {
     [...hazcomQueryKeys.all, "training", params] as const,
   riskAssessments: (params: PageParams) =>
     [...hazcomQueryKeys.all, "risk-assessments", params] as const,
+  dashboardKpis: () => [...hazcomQueryKeys.all, "dashboard", "kpis"] as const,
+  sdsStatusOverview: () =>
+    [...hazcomQueryKeys.all, "dashboard", "sds-status"] as const,
   upcomingDeadlines: () =>
     [...hazcomQueryKeys.all, "dashboard", "upcoming-deadlines"] as const,
   trainingCompliance: () =>
@@ -285,6 +304,55 @@ export function useSdsListQuery(
   );
 }
 
+/**
+ * GET /api/v1/hazcom/sds/search?query= — typeahead behind the chemical form's
+ * "autofill from SDS" picker. Disabled for a blank query so opening the
+ * picker doesn't fire a request before the user has typed anything.
+ */
+export function useSdsSearchQuery(
+  query: string,
+  enabled: boolean,
+): Readonly<{
+  results: readonly HazcomSdsSearchResult[];
+  isLoading: boolean;
+  isFetching: boolean;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+  const trimmed = query.trim();
+
+  const searchQuery = useQuery({
+    queryKey: hazcomQueryKeys.sdsSearch(trimmed),
+    enabled: enabled && hasToken && trimmed !== "",
+    queryFn: async () => {
+      const response = await searchSafetyDataSheets(trimmed);
+
+      return mapSdsSearchResultDtos(response.dataModel ?? []);
+    },
+  });
+
+  return {
+    results: searchQuery.data ?? [],
+    isLoading: enabled && trimmed !== "" && searchQuery.isLoading,
+    isFetching: searchQuery.isFetching,
+  };
+}
+
+/**
+ * GET /api/v1/hazcom/sds/{id}/label — the autofill payload for one picked
+ * SDS. Fetched imperatively (`queryClient.fetchQuery(sdsLabelQueryKey(id), …)`)
+ * from the chemical form in response to picking an SDS, the same "one
+ * deliberate action, not a state to keep in sync" pattern the affected-person
+ * gender lookup uses — not wrapped in a `useQuery` hook of its own.
+ */
+export async function fetchSdsLabel(
+  id: number,
+): Promise<HazcomSdsLabel | null> {
+  const response = await getSdsLabel(id);
+
+  return mapSdsLabelDto(response.dataModel);
+}
+
 /** GET /api/hazcom/training?pageNumber&pageSize */
 export function useTrainingLogsQuery(
   options: HazcomListOptions = {},
@@ -366,6 +434,75 @@ export function useChemicalNamesQuery(): Readonly<{
           "Failed to load the chemical list.",
         )
       : null,
+  };
+}
+
+/** GET /api/hazcom/dashboard/kpis — top KPI cards. */
+export function useDashboardKpisQuery(): Readonly<{
+  kpis: HazcomDashboardKpis | null;
+  isLoading: boolean;
+  errorMessage: string | null;
+  refetch: () => void;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: hazcomQueryKeys.dashboardKpis(),
+    enabled: hasToken,
+    queryFn: async () => {
+      const response = await getDashboardKpis();
+
+      return mapDashboardKpisDto(response.dataModel);
+    },
+  });
+
+  const isNotFound = isApiError(query.error) && query.error.status === 404;
+
+  return {
+    kpis: isNotFound ? null : (query.data ?? null),
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(query.error, "Failed to load HazCom KPIs.")
+        : null,
+    refetch: () => void query.refetch(),
+  };
+}
+
+/** GET /api/hazcom/dashboard/sds-status — SDS Status Overview card. */
+export function useSdsStatusOverviewQuery(): Readonly<{
+  status: HazcomSdsStatusOverview | null;
+  isLoading: boolean;
+  errorMessage: string | null;
+  refetch: () => void;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: hazcomQueryKeys.sdsStatusOverview(),
+    enabled: hasToken,
+    queryFn: async () => {
+      const response = await getSdsStatusOverview();
+
+      return mapSdsStatusOverviewDto(response.dataModel);
+    },
+  });
+
+  const isNotFound = isApiError(query.error) && query.error.status === 404;
+
+  return {
+    status: isNotFound ? null : (query.data ?? null),
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+    errorMessage:
+      query.isError && !isNotFound
+        ? getMutationErrorMessage(
+            query.error,
+            "Failed to load the SDS status overview.",
+          )
+        : null,
+    refetch: () => void query.refetch(),
   };
 }
 
