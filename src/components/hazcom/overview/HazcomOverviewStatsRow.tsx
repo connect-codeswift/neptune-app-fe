@@ -23,12 +23,7 @@ export function HazcomOverviewStatsRow(
   props: Readonly<HazcomOverviewStatsRowProps>,
 ) {
   const { overview, className = "" } = props;
-  const { sds } = overview;
-
-  // A count taken from one page can only be a floor when more rows exist.
-  const sampledCaption = overview.isSampled
-    ? "In the most recent records"
-    : "Across the inventory";
+  const { sds, trainingCompliance } = overview;
 
   return (
     <div
@@ -65,17 +60,17 @@ export function HazcomOverviewStatsRow(
         }
       />
       <MetricCard
-        title="SDS Expiring Soon"
-        value={sds.dueSoon}
-        icon="mdi:clock-alert-outline"
-        isMorePositive={false}
-        description={sampledCaption}
-      />
-      <MetricCard
         title="Training Sessions"
         value={overview.totalTrainingSessions}
         icon="mdi:account-school-outline"
         description="Logged to date"
+      />
+      <MetricCard
+        title="Never Trained"
+        value={trainingCompliance?.neverTrained ?? 0}
+        icon="mdi:account-alert-outline"
+        isMorePositive={false}
+        description="No training on record"
       />
     </div>
   );

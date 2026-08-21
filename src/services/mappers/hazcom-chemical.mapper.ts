@@ -12,6 +12,7 @@ import {
   isRecord,
   readProp,
   toIsoDate,
+  toStringList,
 } from "@/services/mappers/record-readers";
 
 /**
@@ -61,7 +62,7 @@ export function toHazcomPictograms(value: unknown): HazcomPictogram[] {
     .filter((item): item is HazcomPictogram => item !== undefined);
 }
 
-function toSignalWord(value: unknown): HazcomSignalWord {
+export function toSignalWord(value: unknown): HazcomSignalWord {
   return asString(value).trim().toLowerCase() === "danger"
     ? "Danger"
     : "Warning";
@@ -104,25 +105,30 @@ function toQuantity(raw: Record<string, unknown>): string {
   return [amount, unit].filter((part) => part !== "").join(" ");
 }
 
-/** Statement lists may arrive as objects, as bare codes, or not at all. */
+/**
+ * `GET /chemicals/{id}` joins in `hazardStatement`/`precautionaryStatement`
+ * (singular) from the chemical's latest linked SDS — a single comma-separated
+ * code string, exactly like the SDS entity's own fields, not a list of
+ * pre-shaped code rows. `null` when the chemical has no SDS on file.
+ */
 function toStatementCodes(value: unknown): HazcomStatementCode[] {
-  if (!Array.isArray(value)) {
-    return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (isRecord(item)) {
+          return {
+            code: asString(readProp(item, "code", "Code")),
+            text: asString(
+              readProp(item, "statement", "Statement", "text", "Text"),
+            ),
+          };
+        }
+        return { code: asString(item), text: "" };
+      })
+      .filter((item) => item.code !== "");
   }
 
-  return value
-    .map((item) => {
-      if (isRecord(item)) {
-        return {
-          code: asString(readProp(item, "code", "Code")),
-          text: asString(
-            readProp(item, "statement", "Statement", "text", "Text"),
-          ),
-        };
-      }
-      return { code: asString(item), text: "" };
-    })
-    .filter((item) => item.code !== "");
+  return toStringList(value).map((code) => ({ code, text: "" }));
 }
 
 export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
@@ -202,15 +208,10 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
       readProp(record, "storageNotes", "StorageNotes", "notes", "Notes"),
     ),
     hazardStatements: toStatementCodes(
-      readProp(record, "hazardStatements", "HazardStatements", "hazardHCodes"),
+      readProp(record, "hazardStatement", "HazardStatement"),
     ),
     precautionaryStatements: toStatementCodes(
-      readProp(
-        record,
-        "precautionaryStatements",
-        "PrecautionaryStatements",
-        "precautionaryCodes",
-      ),
+      readProp(record, "precautionaryStatement", "PrecautionaryStatement"),
     ),
     addedOn: toIsoDate(
       readProp(record, "createdAt", "CreatedAt", "createdDate", "addedOn"),

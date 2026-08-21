@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   FormBuilder,
   type FormValues,
@@ -19,8 +20,24 @@ import {
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateSdsMutation } from "@/hooks/use-hazcom-mutations";
-import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
+import {
+  hazcomQueryKeys,
+  useChemicalNamesQuery,
+  useSdsListQuery,
+} from "@/hooks/use-hazcom-queries";
+import { getChemicalById } from "@/services/hazcom.service";
+import { mapChemicalDtoToHazcomChemical } from "@/services/mappers/hazcom-chemical.mapper";
 import { toast } from "@/lib/toast";
+
+/**
+ * Large enough to cover the SDS library in one page for every real org
+ * today. The FK lives on the SDS side (`SafetyDataSheet.ChemicalId`) —
+ * `Chemical` itself carries no back-reference — so this is what backs the
+ * "hide chemicals that already have an SDS" filter below. A true
+ * set-difference would need a dedicated backend filter if the library ever
+ * outgrows one page.
+ */
+const SDS_LIST_PAGE_SIZE = 500;
 
 export type HazcomSdsUploadFormProps = Readonly<{
   className?: string;
@@ -29,27 +46,125 @@ export type HazcomSdsUploadFormProps = Readonly<{
 export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
   const { className = "" } = props;
   const router = useRouter();
+  const queryClient = useQueryClient();
   const createSds = useCreateSdsMutation();
   const saveAsDraftRef = useRef(false);
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
+  const { items: sdsRecords, isLoading: isLoadingSdsRecords } = useSdsListQuery(
+    { pageSize: SDS_LIST_PAGE_SIZE },
+  );
+  const [lockedFields, setLockedFields] = useState<ReadonlySet<string>>(
+    new Set(),
+  );
+
+  // Chemical:SDS is 1:1 — once a chemical has an SDS on file, it can't take
+  // another, so don't offer it here.
+  const chemicalIdsWithSds = useMemo(
+    () =>
+      new Set(
+        sdsRecords
+          .map((sds) => sds.chemicalId)
+          .filter((id): id is number => id !== null),
+      ),
+    [sdsRecords],
+  );
 
   const chemicalOptions: readonly SelectOption[] = useMemo(
     () =>
-      chemicals.map((chemical) => ({
-        value: String(chemical.id),
-        label: chemical.name,
-      })),
-    [chemicals],
+      chemicals
+        .filter((chemical) => !chemicalIdsWithSds.has(chemical.id))
+        .map((chemical) => ({
+          value: String(chemical.id),
+          label: chemical.name,
+        })),
+    [chemicals, chemicalIdsWithSds],
   );
+
+  /**
+   * `GET /chemicals/names` (the dropdown's own source) only carries
+   * `{ id, name }` — the richer fields autofilled here (CAS #, hazard class,
+   * dispose location, signal word, pictograms) need the chemical's full
+   * detail, so it's fetched on selection rather than pre-loaded for every
+   * option in the list.
+   */
+  const handleChemicalChange = (
+    chemicalId: string,
+    patchValues: (patch: FormValues) => void,
+  ) => {
+    const id = Number(chemicalId);
+    if (!Number.isFinite(id) || id <= 0) {
+      return;
+    }
+
+    void queryClient
+      .fetchQuery({
+        queryKey: hazcomQueryKeys.chemical(id),
+        queryFn: async () => {
+          const response = await getChemicalById(id);
+          return response.dataModel === null
+            ? null
+            : mapChemicalDtoToHazcomChemical(response.dataModel);
+        },
+      })
+      .then((chemical) => {
+        if (!chemical) {
+          return;
+        }
+
+        const patch: FormValues = {};
+        if (chemical.name) patch.productName = chemical.name;
+        if (chemical.casNumber) patch.casNumber = chemical.casNumber;
+        if (chemical.hazardClass) patch.hazardClass = chemical.hazardClass;
+        if (chemical.disposeLocation) {
+          patch.disposeLocation = chemical.disposeLocation;
+        }
+        if (chemical.signalWord) patch.signalWord = chemical.signalWord;
+        if (chemical.pictograms.length > 0) {
+          patch.ghsPictograms = [...chemical.pictograms];
+        }
+        // The chemical's hazard/precautionary statements are themselves
+        // joined in from its latest SDS on file — carrying them back onto a
+        // new SDS record for the same chemical is the other half of that
+        // relationship, a starting draft the uploader can still edit.
+        if (chemical.hazardStatements.length > 0) {
+          patch.hazardStatement = chemical.hazardStatements
+            .map((statement) => statement.code)
+            .join(", ");
+        }
+        if (chemical.precautionaryStatements.length > 0) {
+          patch.precautionaryStatement = chemical.precautionaryStatements
+            .map((statement) => statement.code)
+            .join(", ");
+        }
+
+        if (Object.keys(patch).length > 0) {
+          patchValues(patch);
+          // Locks for the rest of the session — a picked chemical is the
+          // source of truth for these fields, so a mistyped edit can't
+          // silently drift from the record it came from.
+          setLockedFields(
+            (current) => new Set([...current, ...Object.keys(patch)]),
+          );
+        }
+      })
+      .catch(() => {
+        // Silent: autofill is a convenience, not required to submit the form.
+      });
+  };
+
+  const isLoadingChemicalOptions = isLoadingChemicals || isLoadingSdsRecords;
 
   const schema = useMemo(
     () =>
       buildSdsUploadSchema({
-        chemicalOptions: isLoadingChemicals
+        chemicalOptions: isLoadingChemicalOptions
           ? [{ value: "", label: "Loading chemicals…" }]
           : chemicalOptions,
+        onChemicalChange: handleChemicalChange,
+        lockedFields,
       }),
-    [chemicalOptions, isLoadingChemicals],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleChemicalChange is stable enough (queryClient identity doesn't change) and including it would rebuild the schema (and reset field focus) on every render.
+    [chemicalOptions, isLoadingChemicalOptions, lockedFields],
   );
 
   const goBack = () => {

@@ -64,6 +64,13 @@ export type ChemicalDto = PersistedEntityDto & {
   isDraft: boolean;
   /** Soft delete. Every read already filters `!IsDrop`, so this is always false. */
   isDrop: boolean;
+  /**
+   * `GET /chemicals/{id}` only — joined in read-side from the chemical's most
+   * recently revised, non-draft linked SDS. `null` with no SDS on file. Not
+   * present on the list rows from `GET /chemicals`.
+   */
+  hazardStatement?: string | null;
+  precautionaryStatement?: string | null;
 };
 
 /** POST /api/hazcom/chemical — acknowledgement only, no row returned. */
@@ -160,25 +167,47 @@ export type SdsStatementDto = {
 export type GetSdsStatementsResponseDto = ApiEnvelopeDto<SdsStatementDto>;
 
 /**
- * GET /api/hazcom/sds/{id}/label — projected for the GHS label generator.
- * `chemicalName` falls back to the sheet's own `ProductName` when no chemical
- * is linked. Every code field is a string, not an array.
+ * GET /api/v1/hazcom/sds/{id}/label — the autofill/label endpoint.
+ *
+ * Fixed in the FEGuide pass: used to return an anonymous shape with renamed
+ * fields (`cas`, `signal`, `pictograms`, `hazardCode`, `precautionCode`) and
+ * silently dropped `hazardClass` and `disposeLocation` — two of the five
+ * fields the chemical-form autofill needs. Now a stable shape whose keys
+ * match `SafetyDataSheetDto`/the entity exactly. `chemicalName` falls back to
+ * the sheet's own `ProductName` when no chemical is linked.
  */
 export type SdsLabelDto = {
   sdsId: number;
   chemicalName: string;
   manufacturer: string | null;
-  cas: string | null;
-  signal: string | null;
-  pictograms: string | null;
-  hazardCode: string;
-  precautionCode: string;
-  subCompId: number;
+  casNumber: string | null;
+  hazardClass: string | null;
+  disposeLocation: string | null;
+  signalWord: string | null;
+  ghsPictograms: string | null;
+  hazardStatement: string;
+  precautionaryStatement: string;
+  siteId: number;
   userId: number;
 };
 
-/** GET /api/hazcom/sds/{id}/label */
+/** GET /api/v1/hazcom/sds/{id}/label */
 export type GetSdsLabelResponseDto = ApiEnvelopeDto<SdsLabelDto>;
+
+/**
+ * One row of GET /api/v1/hazcom/sds/search?query=&pageSize=10 — typeahead
+ * matching `productName` or `casNumber` (case-insensitive substring). Backs
+ * an id-based SDS picker for the chemical form's autofill flow.
+ */
+export type SdsSearchResultDto = {
+  id: number;
+  productName: string;
+  manufacturer: string | null;
+  casNumber: string | null;
+};
+
+/** GET /api/v1/hazcom/sds/search?query=&pageSize=10 */
+export type GetSdsSearchResponseDto = ApiEnvelopeDto<SdsSearchResultDto[]>;
 
 /* -------------------------------------------------------------------------- */
 /* GHS code libraries                                                         */
@@ -231,39 +260,58 @@ export type TrainingMaterialDto = {
   fileType?: string | null;
 };
 
-/** The `TrainingLog` entity, serialised raw. Has no `IsDrop` column. */
+/**
+ * "Scheduled Training" — the `TrainingLog` entity, `GET /trainings/{id}` and
+ * `GET /trainings` shape (`FEGuides/HazCom.md` §5).
+ *
+ * `trainerId`/`attendeeIds` are the fields the client now sends; `trainer`
+ * (legacy string, pre-FK rows only) and `trainerName`/`attendees`/
+ * `attendeesCount` are read-only display projections. `status` always starts
+ * `"Scheduled"` on create — no longer nullable in practice, but the type
+ * stays nullable in case a legacy row still carries none.
+ */
 export type TrainingLogDto = PersistedEntityDto & {
   chemicalId: number | null;
+  chemicalName?: string | null;
   /** Navigation property. Never `Include`d, so it serialises as null. */
   chemical: ChemicalDto | null;
   sessionDate: string;
-  trainer: string;
+  trainerId: number | null;
+  /** Assigned user's `FullName`; falls back to the legacy `trainer` string. */
+  trainerName?: string | null;
+  /** Legacy free-text trainer name, pre-FK rows only. */
+  trainer?: string | null;
   trainerTitle: string | null;
   /** Comma-separated chemical names. */
   chemicalsCovered: string | null;
-  /** A string column even though the UI collects a head count. */
+  /** FKs to Users — the real roster. */
+  attendeeIds?: number[] | null;
+  /** Comma-joined attendee names, derived from `attendeeIds` for display. */
   attendees: string | null;
-  /** Server-derived head count when provided; read-only on responses. */
+  /** Derived head count; read-only on responses. */
   attendeesCount?: number | null;
   materials: TrainingMaterialDto[] | null;
   notes: string | null;
-  /** Nullable: the create body carries no status, so new rows have none. */
   status: string | null;
 };
 
-/** POST /api/hazcom/training — returns the new id only. */
+/** POST /api/v1/hazcom/trainings — returns the new id only. */
 export type CreateTrainingLogResponseDto = ApiEnvelopeDto<CreatedIdDto>;
 
-/** GET /api/hazcom/training */
+/** GET /api/v1/hazcom/trainings */
 export type GetAllTrainingLogsResponseDto = ApiEnvelopeDto<
   PagedDataDto<TrainingLogDto>
 >;
 
-/** GET /api/hazcom/training/{id} — 404s rather than returning null. */
+/** GET /api/v1/hazcom/trainings/{id} — 404s rather than returning null. */
 export type GetTrainingLogByIdResponseDto = ApiEnvelopeDto<TrainingLogDto>;
 
-/** PUT /api/hazcom/training/{id} — acknowledgement only, no row returned. */
+/** PUT /api/v1/hazcom/trainings/{id} — acknowledgement only, no row returned. */
 export type UpdateTrainingLogResponseDto =
+  ApiEnvelopeDto<SaveAcknowledgementDto>;
+
+/** PUT /api/v1/hazcom/trainings/{id}/status — acknowledgement only. */
+export type UpdateTrainingStatusResponseDto =
   ApiEnvelopeDto<SaveAcknowledgementDto>;
 
 /* -------------------------------------------------------------------------- */
@@ -321,6 +369,37 @@ export type UpdateChemicalRiskAssessmentResponseDto =
 /* -------------------------------------------------------------------------- */
 /* Dashboard                                                                  */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * GET /api/hazcom/dashboard/kpis.
+ * Top KPI cards: Total Chemicals, Missing SDS, Training Overdue, Pending
+ * Assessments, Chemicals Expiring Within 90 Days.
+ */
+export type HazcomDashboardKpiDto = {
+  totalChemicals: number;
+  missingSds: number;
+  trainingOverdue: number;
+  pendingAssessments: number;
+  chemicalsExpiringWithin90Days: number;
+};
+
+/** GET /api/hazcom/dashboard/kpis */
+export type GetHazcomDashboardKpisResponseDto =
+  ApiEnvelopeDto<HazcomDashboardKpiDto>;
+
+/**
+ * GET /api/hazcom/dashboard/sds-status.
+ * SDS Status Overview card: Current & Compliant, Expiring, Overdue, Missing.
+ */
+export type HazcomSdsStatusDto = {
+  currentAndCompliant: number;
+  expiringWithin90Days: number;
+  overdueOrExpired: number;
+  missingSds: number;
+};
+
+/** GET /api/hazcom/dashboard/sds-status */
+export type GetHazcomSdsStatusResponseDto = ApiEnvelopeDto<HazcomSdsStatusDto>;
 
 /**
  * One row of GET /api/hazcom/dashboard/upcoming-deadlines.

@@ -6,6 +6,8 @@ import type {
   ChemicalRiskAssessmentRequestDto,
   SafetyDataSheetRequestDto,
   TrainingLogRequestDto,
+  UpdateTrainingLogRequestDto,
+  UpdateTrainingStatusRequestDto,
 } from "@/dtos/req/hazcom-request.dto";
 import { hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
 import {
@@ -13,6 +15,8 @@ import {
   createChemicalRiskAssessment,
   createSafetyDataSheet,
   createTrainingLog,
+  updateTrainingLog,
+  updateTrainingStatus,
 } from "@/services/hazcom.service";
 
 /**
@@ -55,12 +59,36 @@ export function useCreateSdsMutation() {
   });
 }
 
-/** POST /api/hazcom/training */
+/** POST /api/v1/hazcom/trainings — schedule a new training. */
 export function useCreateTrainingLogMutation() {
   const invalidate = useHazcomInvalidator();
 
   return useMutation({
     mutationFn: (payload: TrainingLogRequestDto) => createTrainingLog(payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** PUT /api/v1/hazcom/trainings/{id} — full edit. */
+export function useUpdateTrainingLogMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (args: { id: number; payload: UpdateTrainingLogRequestDto }) =>
+      updateTrainingLog(args.id, args.payload),
+    onSuccess: invalidate,
+  });
+}
+
+/** PUT /api/v1/hazcom/trainings/{id}/status — status-only transition. */
+export function useUpdateTrainingStatusMutation() {
+  const invalidate = useHazcomInvalidator();
+
+  return useMutation({
+    mutationFn: (args: {
+      id: number;
+      payload: UpdateTrainingStatusRequestDto;
+    }) => updateTrainingStatus(args.id, args.payload),
     onSuccess: invalidate,
   });
 }

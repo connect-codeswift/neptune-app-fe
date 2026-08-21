@@ -1,4 +1,5 @@
 import type {
+  HazcomPictogram,
   HazcomSdsRecord,
   HazcomSdsStatus,
   HazcomSignalWord,
@@ -6,6 +7,7 @@ import type {
 } from "@/components/hazcom/shared";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
+  asNumber,
   asString,
   isRecord,
   readProp,
@@ -66,9 +68,11 @@ function mapSdsDtoToHazcomSdsRecord(raw: unknown): HazcomSdsRecord {
   const revisedOn = toIsoDate(
     readProp(record, "revisionDate", "RevisionDate", "revisedOn", "RevisedOn"),
   );
+  const chemicalId = asNumber(readProp(record, "chemicalId", "ChemicalId"));
 
   return {
     id: formatRecordDisplayId("SDS", asString(readProp(record, "id", "Id"))),
+    chemicalId: chemicalId > 0 ? chemicalId : null,
     chemicalName: asString(
       readProp(
         record,
@@ -186,4 +190,83 @@ export function mapSdsStatementsDto(raw: unknown): HazcomStatementCode[] {
   ]
     .map((code) => ({ code, text: "" }))
     .filter((item) => item.code !== "");
+}
+
+/** One row of GET /api/v1/hazcom/sds/search?query= — the autofill picker's typeahead. */
+export type HazcomSdsSearchResult = Readonly<{
+  id: number;
+  productName: string;
+  manufacturer: string;
+  casNumber: string;
+}>;
+
+export function mapSdsSearchResultDtos(
+  rows: readonly unknown[],
+): HazcomSdsSearchResult[] {
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return rows
+    .map((raw) => {
+      const record = isRecord(raw) ? raw : {};
+      return {
+        id: asNumber(readProp(record, "id", "Id")),
+        productName: asString(readProp(record, "productName", "ProductName")),
+        manufacturer: asString(
+          readProp(record, "manufacturer", "Manufacturer"),
+        ),
+        casNumber: asString(readProp(record, "casNumber", "CasNumber")),
+      };
+    })
+    .filter((item) => item.id > 0 && item.productName !== "");
+}
+
+/**
+ * GET /api/v1/hazcom/sds/{id}/label — the five fields the chemical form
+ * autofills, plus the two statement strings, once an SDS has been picked.
+ */
+export type HazcomSdsLabel = Readonly<{
+  sdsId: number;
+  chemicalName: string;
+  manufacturer: string;
+  casNumber: string;
+  hazardClass: string;
+  disposeLocation: string;
+  signalWord: HazcomSignalWord;
+  pictograms: readonly HazcomPictogram[];
+  hazardStatements: readonly HazcomStatementCode[];
+  precautionaryStatements: readonly HazcomStatementCode[];
+}>;
+
+export function mapSdsLabelDto(raw: unknown): HazcomSdsLabel | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+
+  const sdsId = asNumber(readProp(raw, "sdsId", "SdsId"));
+  if (sdsId <= 0) {
+    return null;
+  }
+
+  return {
+    sdsId,
+    chemicalName: asString(readProp(raw, "chemicalName", "ChemicalName")),
+    manufacturer: asString(readProp(raw, "manufacturer", "Manufacturer")),
+    casNumber: asString(readProp(raw, "casNumber", "CasNumber")),
+    hazardClass: asString(readProp(raw, "hazardClass", "HazardClass")),
+    disposeLocation: asString(
+      readProp(raw, "disposeLocation", "DisposeLocation"),
+    ),
+    signalWord: toSignalWord(readProp(raw, "signalWord", "SignalWord")),
+    pictograms: toHazcomPictograms(
+      readProp(raw, "ghsPictograms", "GhsPictograms"),
+    ),
+    hazardStatements: toStringList(
+      readProp(raw, "hazardStatement", "HazardStatement"),
+    ).map((code) => ({ code, text: "" })),
+    precautionaryStatements: toStringList(
+      readProp(raw, "precautionaryStatement", "PrecautionaryStatement"),
+    ).map((code) => ({ code, text: "" })),
+  };
 }

@@ -103,35 +103,42 @@ export type TrainingMaterialRequestDto = {
 };
 
 /**
- * Swagger `TrainingLogDto` — body for POST /api/hazcom/training.
+ * Body for POST /api/v1/hazcom/trainings — "Schedule Training".
  *
- * Carries no `status`: the create route assigns one. Materials upload to
- * Cloudinary first; only the `secureUrl` is sent as `fileUrl` on this body.
+ * `trainerId`/`attendeeIds` are FKs to Users, replacing the old free-text
+ * `trainer` string and CSV `attendees` string (see `FEGuides/HazCom.md` §5).
+ * Carries no `status`: every new training starts at `"Scheduled"`. Materials
+ * upload to Cloudinary first; only the `secureUrl` is sent as `fileUrl`.
  */
 export type TrainingLogRequestDto = {
   chemicalId?: number | null;
   /** Required by the API. ISO date-time with offset. */
   sessionDate: string;
-  /** Required by the API. */
-  trainer: string;
+  /** Required by the API — FK to Users. */
+  trainerId: number;
   /** Trainer job title, e.g. "Safety Officer". */
   trainerTitle?: string | null;
   /** Comma-separated chemical names / topics covered. */
   chemicalsCovered?: string | null;
-  /** Comma-separated attendee names. */
-  attendees?: string | null;
+  /** FKs to Users — a full replacement set on update, same as `materials`. */
+  attendeeIds?: number[] | null;
   /** Full materials list — PUT must send the entire array, not a patch. */
   materials?: TrainingMaterialRequestDto[] | null;
   notes?: string | null;
 };
 
 /**
- * Swagger `UpdateTrainingLogDto` — body for PUT /api/hazcom/training/{id}.
- * Identical to the create body plus a required `status`; the id travels in
- * the path.
+ * Body for PUT /api/v1/hazcom/trainings/{id} — full edit. Identical to the
+ * create body plus a required `status`; the id travels in the path.
  */
 export type UpdateTrainingLogRequestDto = TrainingLogRequestDto & {
-  /** "Completed" | "Scheduled" */
+  /** "Scheduled" | "InProgress" | "Completed" | "Cancelled" */
+  status: string;
+};
+
+/** Body for PUT /api/v1/hazcom/trainings/{id}/status — status-only transition. */
+export type UpdateTrainingStatusRequestDto = {
+  /** "Scheduled" | "InProgress" | "Completed" | "Cancelled" */
   status: string;
 };
 
