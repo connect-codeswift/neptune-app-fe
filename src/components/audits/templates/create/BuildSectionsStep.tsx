@@ -1,21 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
-import { uploadFile } from "@/lib/upload-file";
-import { ChooseItemTypeDialog } from "./ChooseItemTypeDialog";
 import {
-  TEMPLATE_ITEM_ICONS,
   createItem,
   createSection,
   isItemValueFilled,
   nextId,
   type TemplateItem,
-  type TemplateItemType,
   type TemplateSection,
 } from "./template-builder-data";
 
@@ -29,10 +24,11 @@ function IconButton(
     icon: string;
     label: string;
     tone?: "default" | "active" | "danger";
+    disabled?: boolean;
     onClick: () => void;
   }>,
 ) {
-  const { icon, label, tone = "default", onClick } = props;
+  const { icon, label, tone = "default", disabled = false, onClick } = props;
 
   const toneClass =
     tone === "active"
@@ -46,9 +42,11 @@ function IconButton(
       type="button"
       aria-label={label}
       onClick={onClick}
+      disabled={disabled}
       className={[
         "inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors",
         toneClass,
+        disabled ? "cursor-not-allowed opacity-40" : "",
       ].join(" ")}
     >
       <Icon icon={icon} className="size-4" aria-hidden="true" />
@@ -58,166 +56,10 @@ function IconButton(
 
 const previewClass = FIELD_INPUT_LG_CLASS;
 
-const choiceLabelClass =
-  "text4 flex cursor-pointer items-center gap-2 text-ehs-gray";
-
-const SAMPLE_OPTIONS = ["Option 1", "Option 2", "Option 3"];
-
-/** Teal donut radio indicator, paired with an sr-only native input. */
-function RadioDot(props: Readonly<{ checked: boolean }>) {
-  return (
-    <span
-      aria-hidden="true"
-      className={[
-        "flex size-5.5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-        props.checked
-          ? "border-ehs-normal-blue bg-ehs-normal-blue"
-          : "border-ehs-border-ink/25",
-      ].join(" ")}
-    >
-      {props.checked ? (
-        <span className="bg-ehs-surface size-2.5 rounded-full" />
-      ) : null}
-    </span>
-  );
-}
-
-/** Teal checkbox indicator, paired with an sr-only native input. */
-function CheckBox(props: Readonly<{ checked: boolean }>) {
-  return (
-    <span
-      aria-hidden="true"
-      className={[
-        "flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
-        props.checked
-          ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
-          : "border-ehs-border-strong",
-      ].join(" ")}
-    >
-      {props.checked ? <Icon icon="mdi:check" className="size-3.5" /> : null}
-    </span>
-  );
-}
-
-/** Upload control for Photo / File items; stores the fileId as value. */
-function ItemUploadControl(
-  props: Readonly<{
-    value: string;
-    accept: string;
-    icon: string;
-    label: string;
-    variant: "image" | "file";
-    onValueChange: (value: string) => void;
-  }>,
-) {
-  const { value, accept, icon, label, variant, onValueChange } = props;
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const upload = async (file: File | undefined) => {
-    if (!file) return;
-    setError(null);
-    setIsUploading(true);
-    try {
-      const result = await uploadFile(file, { module: "Audit" });
-      onValueChange(result.fileId);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Upload failed.");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const fileName = value
-    ? decodeURIComponent(value.split("/").pop() ?? "file")
-    : "";
-
-  return (
-    <div className="flex flex-col gap-2">
-      {/* Hidden native picker, shared by the empty and uploaded states. */}
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        className="hidden"
-        onChange={(event) => {
-          void upload(event.target.files?.[0]);
-          event.target.value = "";
-        }}
-      />
-
-      {value ? (
-        <>
-          {variant === "image" ? (
-            <div className="border-ehs-border-ink/10 relative size-28 overflow-hidden rounded-lg border">
-              <ResolvedFileImage
-                fileRef={value}
-                alt="Uploaded preview"
-                sizes="112px"
-                className="object-cover"
-              />
-            </div>
-          ) : (
-            <a
-              href={value}
-              target="_blank"
-              rel="noreferrer"
-              className="text4 text-ehs-dark-bg border-ehs-border-ink/10 bg-ehs-surface flex items-center gap-2 rounded-lg border px-3 py-2"
-            >
-              <Icon
-                icon="mdi:file-document-outline"
-                className="text-ehs-normal-blue size-5 shrink-0"
-                aria-hidden="true"
-              />
-              <span className="min-w-0 flex-1 truncate">{fileName}</span>
-            </a>
-          )}
-
-          <div className="text7 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              disabled={isUploading}
-              className="text-ehs-normal-blue cursor-pointer disabled:opacity-50"
-            >
-              {isUploading ? "Uploading..." : "Replace"}
-            </button>
-            <button
-              type="button"
-              onClick={() => onValueChange("")}
-              className="text-ehs-red cursor-pointer"
-            >
-              Remove
-            </button>
-          </div>
-        </>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={isUploading}
-          className="text4 text-ehs-gray hover:border-ehs-normal-blue/60 border-ehs-border-ink/15 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-3 transition-colors disabled:cursor-not-allowed"
-        >
-          <Icon
-            icon={isUploading ? "mdi:loading" : icon}
-            className={["size-4", isUploading ? "animate-spin" : ""]
-              .filter(Boolean)
-              .join(" ")}
-            aria-hidden="true"
-          />
-          {isUploading ? "Uploading..." : label}
-        </button>
-      )}
-
-      {error ? <p className="text8 text-ehs-red">{error}</p> : null}
-    </div>
-  );
-}
-
 /**
  * Interactive control for an item, bound to `item.value`. The chosen answer is
- * saved onto the item so it survives step navigation.
+ * saved onto the item so it survives step navigation. Every item is a free-text
+ * answer — there is no type picker any more.
  */
 function ItemPreview(
   props: Readonly<{
@@ -228,204 +70,27 @@ function ItemPreview(
   const { item, onValueChange } = props;
   const value = item.value;
   const single = typeof value === "string" ? value : "";
-  const many = Array.isArray(value) ? value : [];
 
-  const toggleMany = (option: string) => {
-    onValueChange(
-      many.includes(option)
-        ? many.filter((entry) => entry !== option)
-        : [...many, option],
-    );
-  };
-
-  switch (item.type) {
-    case "Text":
-      return (
-        <input
-          value={single}
-          placeholder="Short text answer"
-          aria-label="Text answer"
-          onChange={(event) => onValueChange(event.target.value)}
-          className={previewClass}
-        />
-      );
-    case "Number":
-      return (
-        <input
-          type="number"
-          value={single}
-          placeholder="0"
-          aria-label="Number answer"
-          onChange={(event) => onValueChange(event.target.value)}
-          className={previewClass}
-        />
-      );
-    case "Location":
-      return (
-        <input
-          value={single}
-          placeholder="GPS or address"
-          aria-label="Location"
-          onChange={(event) => onValueChange(event.target.value)}
-          className={previewClass}
-        />
-      );
-    case "Date / Time":
-      return (
-        <input
-          type="date"
-          value={single}
-          aria-label="Date"
-          onChange={(event) => onValueChange(event.target.value)}
-          className={previewClass}
-        />
-      );
-    case "Yes / No":
-      return (
-        <div className="flex gap-5">
-          {["Yes", "No"].map((option) => (
-            <label key={option} className={choiceLabelClass}>
-              <input
-                type="radio"
-                name={item.id}
-                checked={single === option}
-                onChange={() => onValueChange(option)}
-                className="sr-only"
-              />
-              <RadioDot checked={single === option} />
-              {option}
-            </label>
-          ))}
-        </div>
-      );
-    case "Single Choice":
-      return (
-        <div className="flex flex-col gap-1.5">
-          {SAMPLE_OPTIONS.map((option) => (
-            <label key={option} className={choiceLabelClass}>
-              <input
-                type="radio"
-                name={item.id}
-                checked={single === option}
-                onChange={() => onValueChange(option)}
-                className="sr-only"
-              />
-              <RadioDot checked={single === option} />
-              {option}
-            </label>
-          ))}
-        </div>
-      );
-    case "Multi Choice":
-      return (
-        <div className="flex flex-col gap-1.5">
-          {SAMPLE_OPTIONS.map((option) => (
-            <label key={option} className={choiceLabelClass}>
-              <input
-                type="checkbox"
-                checked={many.includes(option)}
-                onChange={() => toggleMany(option)}
-                className="sr-only"
-              />
-              <CheckBox checked={many.includes(option)} />
-              {option}
-            </label>
-          ))}
-        </div>
-      );
-    case "Checkbox":
-      return (
-        <label className={choiceLabelClass}>
-          <input
-            type="checkbox"
-            checked={single === "checked"}
-            onChange={(event) =>
-              onValueChange(event.target.checked ? "checked" : "")
-            }
-            className="sr-only"
-          />
-          <CheckBox checked={single === "checked"} />I acknowledge this item
-        </label>
-      );
-    case "Score / Rating": {
-      const rating = Number(single) || 0;
-
-      return (
-        <div className="flex items-center gap-1">
-          {Array.from({ length: 10 }).map((_, index) => {
-            const score = index + 1;
-
-            return (
-              <button
-                key={score}
-                type="button"
-                aria-label={`Rate ${String(score)}`}
-                onClick={() => onValueChange(String(score))}
-                className="cursor-pointer"
-              >
-                <Icon
-                  icon={score <= rating ? "mdi:star" : "mdi:star-outline"}
-                  className={
-                    score <= rating
-                      ? "text-ehs-yellow size-5"
-                      : "text-ehs-muted-text size-5"
-                  }
-                />
-              </button>
-            );
-          })}
-        </div>
-      );
-    }
-    case "Photo / Media":
-      return (
-        <ItemUploadControl
-          value={single}
-          accept="image/*"
-          icon="mdi:camera-outline"
-          label="Attach photo evidence"
-          variant="image"
-          onValueChange={onValueChange}
-        />
-      );
-    case "File Attachment":
-      return (
-        <ItemUploadControl
-          value={single}
-          accept="*/*"
-          icon="mdi:paperclip"
-          label="Upload document"
-          variant="file"
-          onValueChange={onValueChange}
-        />
-      );
-    case "Signature":
-      return (
-        <div className="text4 text-ehs-muted-text border-ehs-border-ink/15 flex h-14 items-center justify-center rounded-lg border border-dashed">
-          Sign-off capture
-        </div>
-      );
-    case "Instruction":
-      return (
-        <p className="text4 text-ehs-gray bg-ehs-light-bg/40 rounded-lg px-3 py-2">
-          Non-answerable instruction block
-        </p>
-      );
-    default:
-      return null;
-  }
+  return (
+    <input
+      value={single}
+      placeholder="Enter question"
+      aria-label="Question"
+      onChange={(event) => onValueChange(event.target.value)}
+      className={previewClass}
+    />
+  );
 }
 
 function ItemRow(
   props: Readonly<{
     item: TemplateItem;
-    isExpanded: boolean;
     isDragging: boolean;
     invalid: boolean;
-    onToggleSettings: () => void;
     onChange: (patch: Partial<TemplateItem>) => void;
     onDuplicate: () => void;
     onDelete: () => void;
+    deleteDisabled: boolean;
     onDragStart: () => void;
     onDragOver: (event: React.DragEvent) => void;
     onDrop: () => void;
@@ -434,13 +99,12 @@ function ItemRow(
 ) {
   const {
     item,
-    isExpanded,
     isDragging,
     invalid,
-    onToggleSettings,
     onChange,
     onDuplicate,
     onDelete,
+    deleteDisabled,
     onDragStart,
     onDragOver,
     onDrop,
@@ -475,16 +139,7 @@ function ItemRow(
           />
         </span>
 
-        <span className="bg-ehs-normal-blue/12 text5 text-ehs-dark-blue inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1">
-          <Icon
-            icon={TEMPLATE_ITEM_ICONS[item.type]}
-            className="size-3.5"
-            aria-hidden="true"
-          />
-          {item.type}
-        </span>
-
-        {/* The proper answer field for the selected type */}
+        {/* The question text for this item */}
         <div className="min-w-0 flex-1">
           <ItemPreview
             item={item}
@@ -492,12 +147,6 @@ function ItemRow(
           />
         </div>
 
-        <IconButton
-          icon="mdi:cog-outline"
-          label="Item settings"
-          tone={isExpanded ? "active" : "default"}
-          onClick={onToggleSettings}
-        />
         <IconButton
           icon="mdi:content-copy"
           label="Duplicate item"
@@ -507,23 +156,10 @@ function ItemRow(
           icon="mdi:trash-can-outline"
           label="Delete item"
           tone="danger"
+          disabled={deleteDisabled}
           onClick={onDelete}
         />
       </div>
-
-      {isExpanded ? (
-        <div className="bg-ehs-normal-blue-bg-light/30 border-ehs-border-ink/10 grid gap-4 border-t p-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <span className={labelClass}>Guidance / Hint</span>
-            <input
-              value={item.guidance}
-              placeholder="Optional helper text"
-              onChange={(event) => onChange({ guidance: event.target.value })}
-              className={inputClass}
-            />
-          </div>
-        </div>
-      ) : null}
     </li>
   );
 }
@@ -548,10 +184,6 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
   const [activeSectionId, setActiveSectionId] = useState(
     () => sections[0]?.id ?? "",
   );
-  const [expandedItemId, setExpandedItemId] = useState<string | null>(
-    () => sections[0]?.items[0]?.id ?? null,
-  );
-  const [isAddingItem, setIsAddingItem] = useState(false);
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
 
   const activeSection =
@@ -570,12 +202,14 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
   };
 
   const handleAddSection = () => {
-    const section = createSection(sections.length + 1);
+    const section = createSection();
     onSectionsChange([...sections, section]);
     setActiveSectionId(section.id);
   };
 
   const handleDeleteSection = (sectionId: string) => {
+    if (sections.length <= 1) return;
+
     const remaining = sections.filter((section) => section.id !== sectionId);
     onSectionsChange(remaining);
 
@@ -584,11 +218,14 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
     }
   };
 
-  const handleAddItem = (type: TemplateItemType) => {
-    const item = createItem(type);
-    patchItems([...activeSection.items, item]);
-    setExpandedItemId(item.id);
-    setIsAddingItem(false);
+  const handleAddItem = () => {
+    patchItems([...activeSection.items, createItem("Text")]);
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    if (activeSection.items.length <= 1) return;
+
+    patchItems(activeSection.items.filter((entry) => entry.id !== itemId));
   };
 
   /** Move the dragged item to the drop target's position within the section. */
@@ -646,7 +283,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                           isActive ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
                         ].join(" ")}
                       >
-                        {section.title}
+                        {section.title || "Untitled"}
                       </span>
                       <span className="text8 text-ehs-muted-text">
                         {`${String(section.items.length)} items`}
@@ -655,7 +292,8 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
 
                     <IconButton
                       icon="mdi:trash-can-outline"
-                      label={`Delete ${section.title}`}
+                      label={`Delete ${section.title || "Untitled"}`}
+                      disabled={sections.length <= 1}
                       onClick={() => handleDeleteSection(section.id)}
                     />
                   </div>
@@ -690,6 +328,7 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               <div className="flex items-center gap-2.5">
                 <input
                   value={activeSection.title}
+                  placeholder="Untitled"
                   aria-label="Section title"
                   onChange={(event) => {
                     patchActiveSection({ title: event.target.value });
@@ -716,24 +355,6 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <span className={labelClass}>
-                Description{" "}
-                <span className="text-ehs-muted-text normal-case">
-                  (optional)
-                </span>
-              </span>
-              <input
-                value={activeSection.description}
-                placeholder="Optional guidance text for the auditor"
-                aria-label="Section description"
-                onChange={(event) => {
-                  patchActiveSection({ description: event.target.value });
-                }}
-                className={inputClass}
-              />
-            </div>
-
             <div className="border-ehs-border-ink/10 flex flex-col gap-2.5 border-t pt-4">
               <Text as="h3" className={labelClass}>
                 {`Items (${String(activeSection.items.length)})`}
@@ -745,18 +366,12 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                     <ItemRow
                       key={item.id}
                       item={item}
-                      isExpanded={expandedItemId === item.id}
                       isDragging={draggingItemId === item.id}
                       invalid={
                         highlightUnfilled &&
                         !exemptItemIds?.has(item.id) &&
                         !isItemValueFilled(item)
                       }
-                      onToggleSettings={() => {
-                        setExpandedItemId(
-                          expandedItemId === item.id ? null : item.id,
-                        );
-                      }}
                       onChange={(patch) => {
                         patchItems(
                           activeSection.items.map((entry) =>
@@ -772,13 +387,8 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                           { ...item, id: nextId("item") },
                         ]);
                       }}
-                      onDelete={() => {
-                        patchItems(
-                          activeSection.items.filter(
-                            (entry) => entry.id !== item.id,
-                          ),
-                        );
-                      }}
+                      onDelete={() => handleDeleteItem(item.id)}
+                      deleteDisabled={activeSection.items.length <= 1}
                       onDragStart={() => setDraggingItemId(item.id)}
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={() => handleItemDrop(item.id)}
@@ -792,10 +402,10 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
                 </p>
               )}
 
-              {/* Add item — opens the "Choose item type" dialog */}
+              {/* Add item — appends a new text item directly, no type picker */}
               <button
                 type="button"
-                onClick={() => setIsAddingItem(true)}
+                onClick={handleAddItem}
                 className="bg-ehs-normal-blue/12 text4 text-ehs-dark-blue hover:bg-ehs-normal-blue/20 inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 transition-colors"
               >
                 <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
@@ -809,12 +419,6 @@ export function BuildSectionsStep(props: BuildSectionsStepProps) {
           </p>
         )}
       </IncidentGlassCard>
-
-      <ChooseItemTypeDialog
-        open={isAddingItem}
-        onSelect={handleAddItem}
-        onClose={() => setIsAddingItem(false)}
-      />
     </div>
   );
 }
