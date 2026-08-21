@@ -1,4 +1,5 @@
 import { getAccessToken } from "@/lib/axios";
+import { getCurrentUserPermissions } from "@/lib/jwt-permissions";
 
 /**
  * Reads identity claims from the stored `neptune-access-token` JWT.
@@ -160,70 +161,85 @@ export function getCurrentUser(): CurrentUser {
   };
 }
 
-/** Normalize a role label for comparison: lowercase, single-spaced. */
-function normalizeRole(role: string): string {
-  return role.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
-}
-
-/** Roles trusted with elevated safety actions. */
-const ELEVATED_ROLES: readonly string[] = [
-  "ehs manager",
-  "ehs director",
-  "lead",
-];
-
-/** True when the signed-in user holds one of {@link ELEVATED_ROLES}. */
-function hasElevatedRole(): boolean {
-  const { role } = getCurrentUser();
-  return role !== null && ELEVATED_ROLES.includes(normalizeRole(role));
+/**
+ * Does the caller hold this grant?
+ *
+ * These gates used to be one `hasElevatedRole()` check against a hardcoded list of three role
+ * names, which was wrong in both directions. The API gates every one of these actions on a
+ * permission — `[HasPermission("NearMiss.View")]` and friends — and allows all five roles on the
+ * role list, so the UI was strictly narrower than what the caller could actually do: a Supervisor
+ * holding `NearMiss.View` got a 200 from `/api/v1/near-miss/kpis` and an empty screen, because the
+ * frontend refused to render what the backend had already returned.
+ *
+ * It also silently excluded `Ehs_Lead`. The list held `"lead"`, but a role normalizes to
+ * `"ehs lead"`, so the one role the comment named as elevated never matched.
+ *
+ * Reading the permission instead means the two agree by construction — an admin ticks a box in
+ * Roles & Rights and the UI follows, with no role special-cases to keep in step. Deliberately no
+ * admin bypass: `Ehs_Director` holds every permission through the preset grant matrix, so it
+ * passes on merit rather than on its name.
+ *
+ * Still a UX affordance, not a security boundary — the API enforces the same grant regardless.
+ */
+function holds(permission: string): boolean {
+  return getCurrentUserPermissions().has(permission);
 }
 
 /**
- * True when the signed-in user's role may convert a near-miss to an incident
- * (EHS Manager, EHS Director, or Lead).
+ * True when the signed-in user may convert a near-miss to an incident.
+ *
+ * `NearMiss.Update` — the same grant the API's `POST {id}/convert-to-incident` requires.
  */
 export function canConvertNearMissToIncident(): boolean {
-  return hasElevatedRole();
+  return holds("NearMiss.Update");
 }
 
-/** True when the signed-in user's role may close a near miss — same roles. */
+/** True when the signed-in user may close a near miss — `POST {id}/close`. */
 export function canCloseNearMiss(): boolean {
-  return hasElevatedRole();
+  return holds("NearMiss.Update");
 }
 
-/** True when the signed-in user's role may edit a hazard — same roles. */
+/** True when the signed-in user may edit a hazard. */
 export function canEditHazard(): boolean {
-  return hasElevatedRole();
+  return holds("Hazard.Update");
 }
 
-/** True when the signed-in user's role may edit a near miss — same roles. */
+/** True when the signed-in user may edit a near miss. */
 export function canEditNearMiss(): boolean {
-  return hasElevatedRole();
+  return holds("NearMiss.Update");
 }
 
-/** True when the signed-in user's role may close a hazard — same roles. */
+/** True when the signed-in user may close a hazard — `POST {id}/close`. */
 export function canCloseHazard(): boolean {
-  return hasElevatedRole();
+  return holds("Hazard.Update");
 }
 
 /**
- * True when the signed-in user may see the near-miss insight widgets (KPIs,
- * heatmap, recognition) — same roles.
+ * True when the signed-in user may see the near-miss insight widgets (KPIs, heatmap,
+ * recognition).
+ *
+ * `NearMiss.View`, matching the three endpoints that feed them. Note this is the same grant that
+ * opens the register itself, so the tiles cannot currently be hidden from someone who can read
+ * near misses at all — separating them needs a `NearMiss.Insights.View` on the backend.
  */
 export function canViewNearMissInsights(): boolean {
-  return hasElevatedRole();
+  return holds("NearMiss.View");
 }
+
+/** True when the signed-in user may see the hazard insight widgets. Same caveat as above. */
 export function canViewHazardInsights(): boolean {
-  return hasElevatedRole();
+  return holds("Hazard.View");
 }
 
 /**
- * True when the signed-in user may manage PPE inventory (catalog, View Issues)
- * — EHS Manager, EHS Director, or Lead. Non-elevated users see the issuance log
- * on the PPE Management home instead.
+ * True when the signed-in user may manage PPE inventory (catalog, View Issues).
+ *
+ * `PPE.Create` — what `POST /api/v1/ppe/items` requires. Deliberately not `PPE.Issue`, which
+ * Supervisor holds: issuing from the catalogue is not the same trust as editing it. Users without
+ * it see the issuance log on the PPE Management home instead.
  */
 export function canManagePpeInventory(): boolean {
-  return hasElevatedRole();
+  return holds("PPE.Create");
 }
 
 /**

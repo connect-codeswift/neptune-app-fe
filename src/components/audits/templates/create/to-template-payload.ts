@@ -69,7 +69,7 @@ export function toAuditTemplatePayload(
 
       return {
         id: sectionId,
-        sectionTitle: section.title,
+        sectionTitle: section.title.trim() || "Untitled",
         description: section.description,
         displayOrder: sectionIndex + 1,
         isDraft,
@@ -81,12 +81,12 @@ export function toAuditTemplatePayload(
           id: toBackendId(item.id),
           itemType: item.type,
           question: itemDisplayName(item),
-          hint: item.guidance,
+          hint: "",
           responseSetId: null,
           isCritical: false,
           allowNA: true,
           requireNote: false,
-          requirePhoto: item.type === "Photo / Media",
+          requirePhoto: false,
           isRequired: item.required,
           displayOrder: itemIndex + 1,
           isDraft,

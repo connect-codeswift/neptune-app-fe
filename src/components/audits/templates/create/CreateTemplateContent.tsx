@@ -217,11 +217,18 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
   /** Advance/finish depending on the current step. */
   const handleNext = () => {
     if (step === 2) handleBuildSectionsNext();
+    else if (step === 3) handlePublish();
   };
 
-  const NEXT_LABEL: Record<number, string> = {
+  const PRIMARY_LABEL: Record<number, string> = {
     1: "Next: Build Sections",
     2: "Next: Review & Publish",
+    3: isSavingTemplate ? "Publishing..." : "Publish Template",
+  };
+  const PRIMARY_ICON: Record<number, string> = {
+    1: "mdi:arrow-right",
+    2: "mdi:arrow-right",
+    3: "mdi:check-circle-outline",
   };
 
   return (
@@ -254,27 +261,13 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
             3-step wizard — build, configure, and publish your template
           </Text>
         </div>
-
-        <button
-          type="button"
-          onClick={handleSaveDraft}
-          disabled={isSavingTemplate}
-          className="text4 text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Icon
-            icon="mdi:content-save-outline"
-            className="size-5 shrink-0"
-            aria-hidden="true"
-          />
-          Save as Draft
-        </button>
       </div>
 
       <TemplateWizardProgress currentStep={step} />
 
       {step === 1 ? (
         /* Step 1 body + side rail */
-        <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="grid min-w-0 items-start gap-3.5">
           <IncidentGlassCard
             paddingClassName="p-6"
             incidentGlassCardClassName="gap-5"
@@ -296,14 +289,6 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
               hideActions
             />
           </IncidentGlassCard>
-
-          <div className="flex min-w-0 flex-col gap-3.5">
-            <TemplatePreview
-              name={String(values.templateName ?? "")}
-              tags={(values.tags as string[] | undefined) ?? []}
-            />
-            <TemplateWizardStepList currentStep={step} />
-          </div>
         </div>
       ) : step === 2 ? (
         <BuildSectionsStep
@@ -316,10 +301,7 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
         <ReviewPublishStep
           values={values}
           sections={sections}
-          isSubmitting={isSavingTemplate}
           onEditStep={setStep}
-          onPublish={handlePublish}
-          onSaveDraft={handleSaveDraft}
         />
       )}
 
@@ -348,38 +330,37 @@ export function CreateTemplateContent(props: CreateTemplateContentProps) {
           </button>
         )}
 
-        {/* The final step carries its own Publish / Save actions in the panel. */}
-        {step < 3 ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              className="text4 text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 transition-colors"
-            >
-              <Icon
-                icon="mdi:content-save-outline"
-                className="size-5 shrink-0"
-                aria-hidden="true"
-              />
-              Save as Draft
-            </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSaveDraft}
+            disabled={isSavingTemplate}
+            className="text4 text-ehs-dark-bg border-ehs-border-ink/12 bg-ehs-surface inline-flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2.5 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Icon
+              icon="mdi:content-save-outline"
+              className="size-5 shrink-0"
+              aria-hidden="true"
+            />
+            Save as Draft
+          </button>
 
-            {/* Step 1 submits the form so its validation runs first. */}
-            <button
-              type={step === 1 ? "submit" : "button"}
-              form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
-              onClick={step === 1 ? undefined : handleNext}
-              className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 text-ehs-on-accent inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 shadow-(--ehs-shadow-button-primary-flat) transition-colors"
-            >
-              <Icon
-                icon="mdi:arrow-right"
-                className="size-4 shrink-0"
-                aria-hidden="true"
-              />
-              {NEXT_LABEL[step]}
-            </button>
-          </div>
-        ) : null}
+          {/* Step 1 submits the form so its validation runs first. */}
+          <button
+            type={step === 1 ? "submit" : "button"}
+            form={step === 1 ? BASIC_INFO_FORM_ID : undefined}
+            onClick={step === 1 ? undefined : handleNext}
+            disabled={isSavingTemplate}
+            className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover active:bg-ehs-normal-blue-active rounded-2.5 text-ehs-on-accent inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Icon
+              icon={PRIMARY_ICON[step]}
+              className="size-4 shrink-0"
+              aria-hidden="true"
+            />
+            {PRIMARY_LABEL[step]}
+          </button>
+        </div>
       </div>
     </div>
   );
