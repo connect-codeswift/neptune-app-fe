@@ -9,15 +9,17 @@ import {
   TABLE_HEADER_SECONDARY_ACTION_CLASS,
 } from "@/components/ui/table-header-action";
 
-export type AuditsRegisterHeaderProps = Readonly<{
-  auditCount?: number;
+export type InspectionsRegisterHeaderProps = Readonly<{
+  inspectionCount?: number;
   onTemplates?: () => void;
-  onScheduleAudit?: () => void;
+  onScheduleInspection?: () => void;
 }>;
 
-/** Card header for the audits register table: title + count + actions. */
-export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
-  const { auditCount, onTemplates, onScheduleAudit } = props;
+/** Card header for the inspections register table: title + count + actions. */
+export function InspectionsRegisterHeader(
+  props: InspectionsRegisterHeaderProps,
+) {
+  const { inspectionCount, onTemplates, onScheduleInspection } = props;
 
   return (
     <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
@@ -25,9 +27,11 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
         <Text as="h2" className="text3 text-ehs-darker shrink-0">
           Register
         </Text>
-        {auditCount != null ? (
+        {inspectionCount != null ? (
           <Text as="p" className="text8 text-ehs-muted-text">
-            {`${String(auditCount)} ${auditCount === 1 ? "audit" : "audits"}`}
+            {`${String(inspectionCount)} ${
+              inspectionCount === 1 ? "inspection" : "inspections"
+            }`}
           </Text>
         ) : null}
       </div>
@@ -49,11 +53,11 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
           </Button>
         ) : null}
 
-        {onScheduleAudit ? (
+        {onScheduleInspection ? (
           <Button
             type="button"
             variant="primary"
-            onClick={onScheduleAudit}
+            onClick={onScheduleInspection}
             className={TABLE_HEADER_ACTION_CLASS}
           >
             <Icon
@@ -62,7 +66,7 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
               aria-hidden="true"
             />
             <span className="sm:hidden">Schedule</span>
-            <span className="hidden sm:inline">Schedule Audit</span>
+            <span className="hidden sm:inline">Schedule Inspection</span>
           </Button>
         ) : null}
       </div>

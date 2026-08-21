@@ -238,7 +238,7 @@ export function AuditsListPageClient() {
                   onTemplates={() => {
                     router.push("/dashboard/audits/template");
                   }}
-                  onStartAudit={() => {
+                  onScheduleAudit={() => {
                     router.push("/dashboard/audits/start");
                   }}
                 />

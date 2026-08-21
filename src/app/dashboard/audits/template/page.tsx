@@ -81,7 +81,7 @@ export default function AuditTemplatesPage() {
                 key={template.id}
                 template={template}
                 onUse={(used) => {
-                  // Stash the template so Start Audit can label the
+                  // Stash the template so Schedule Audit can label the
                   // preselected option before its page loads.
                   const dto = (page?.data ?? []).find(
                     (row) => String(row.id) === used.id,

@@ -17,6 +17,7 @@ import { complianceGlassCardClass } from "@/components/regulatory-compliance/com
 import { createInspectionColumns } from "@/components/inspections/InspectionColumns";
 import { InspectionDetailPanel } from "@/components/inspections/InspectionDetailPanel";
 import { InspectionPageSkeleton } from "@/components/inspections/InspectionPageSkeleton";
+import { InspectionsRegisterHeader } from "@/components/inspections/InspectionsRegisterHeader";
 import {
   useInspectionDetailSummaryQuery,
   useInspectionsQuery,
@@ -175,13 +176,6 @@ export function InspectionsListPageClient() {
               },
             },
           ]}
-          action={{
-            label: "Templates",
-            icon: "mdi:file-document-outline",
-            onClick: () => {
-              router.push("/dashboard/inspections/template");
-            },
-          }}
         />
 
         <ModuleSearchBar
@@ -239,6 +233,17 @@ export function InspectionsListPageClient() {
               containerClassName={[complianceGlassCardClass, "min-w-0"].join(
                 " ",
               )}
+              header={
+                <InspectionsRegisterHeader
+                  inspectionCount={page?.totalRecords ?? 0}
+                  onTemplates={() => {
+                    router.push("/dashboard/inspections/template");
+                  }}
+                  onScheduleInspection={() => {
+                    router.push("/dashboard/inspections/start");
+                  }}
+                />
+              }
               pagination={{
                 pageNumber,
                 pageSize: PAGE_SIZE,
