@@ -47,6 +47,9 @@ export const nearMissReportSchema: FormSchema = [
     label: "Date of Event",
     required: true,
     colSpan: 6,
+    // A near miss is reported after it happens; nothing can have nearly
+    // happened next week.
+    limit: "not-future",
   },
   {
     type: "select",

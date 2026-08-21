@@ -164,6 +164,8 @@ export function createLogResultSchema(agentId: string): FormSchema {
       label: "Sample Date",
       required: true,
       colSpan: 6,
+      // Logging a result means the sample has already been taken.
+      limit: "not-future",
     },
     {
       type: "text",

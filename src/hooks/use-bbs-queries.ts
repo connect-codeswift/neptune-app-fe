@@ -114,10 +114,15 @@ export function useBbsGraphQuery(weeks = DEFAULT_BBS_GRAPH_WEEKS) {
   });
 }
 
-/** Fetches GET /api/bbs with observe / categoryId / paging filters. */
+/**
+ * Fetches GET /api/bbs/observations. Every filter is the server's job — type,
+ * search, category and paging all go over the wire, so a filtered result is the
+ * whole matching set rather than whatever survived on the page already loaded.
+ */
 export function useBbsObservationsQuery(
   params: Readonly<{
     observe?: string;
+    search?: string;
     categoryId?: number;
     pageNumber?: number;
     pageSize?: number;
@@ -125,6 +130,7 @@ export function useBbsObservationsQuery(
 ) {
   const request: GetBbsObservationsParams = {
     observe: params.observe ?? "",
+    ...(params.search ? { search: params.search } : {}),
     ...(params.categoryId !== undefined
       ? { categoryId: params.categoryId }
       : {}),

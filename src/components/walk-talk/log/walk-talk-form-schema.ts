@@ -45,6 +45,9 @@ export const walkTalkDetailsSchema: FormSchema = [
     label: "Date",
     required: true,
     colSpan: 6,
+    // The form logs a walk that has already been done, so a future date is a
+    // typo rather than a plan.
+    limit: "not-future",
   },
   {
     type: "select",
@@ -112,6 +115,8 @@ export function buildWalkTalkFollowUpSchema(
       name: "dueDate",
       label: "Due date",
       colSpan: 6,
+      // A follow-up is work still to do — unlike the walk it came out of.
+      limit: "not-past",
     },
     {
       type: "text",

@@ -66,12 +66,41 @@ export type DateFieldConfig = BaseField &
   Readonly<{
     type: "date";
     placeholder?: string;
+    /**
+     * Earliest / latest selectable date, as `YYYY-MM-DD`. Left unset the field
+     * accepts any date, which is right for a field recording when something
+     * happened and wrong for one scheduling something: a scheduled date sets
+     * `min` to today, a date being recalled sets `max`.
+     */
+    min?: string;
+    max?: string;
+    /**
+     * The same bound expressed against today, resolved at render rather than
+     * baked into the schema — a schema declared as a module constant would
+     * otherwise pin whatever "today" was when the bundle first evaluated, and a
+     * tab left open overnight would keep yesterday's limit.
+     *
+     * - `"not-past"` — today or later. Deadlines and schedules: a due date
+     *   created in the past is born overdue.
+     * - `"not-future"` — today or earlier. Records of something that already
+     *   happened: an observation cannot be dated next week.
+     *
+     * An explicit {@link min} / {@link max} wins over this.
+     */
+    limit?: "not-past" | "not-future";
   }>;
 
 export type TimeFieldConfig = BaseField &
   Readonly<{
     type: "time";
     placeholder?: string;
+    /**
+     * Earliest / latest selectable time, as `HH:MM`. A time carries no date, so
+     * a bound here only means anything once the day is already fixed — pair it
+     * with the sibling date field rather than setting it alone.
+     */
+    min?: string;
+    max?: string;
   }>;
 
 /** Paging controls for an option list fetched one page at a time from an API. */
@@ -338,6 +367,29 @@ export type FieldConfig =
   | PersonMultiFieldConfig;
 
 export type FormSchema = readonly FieldConfig[];
+
+/**
+ * Today as `YYYY-MM-DD`, in local time — the shape and the calendar
+ * `<input type="date">` compares its value against.
+ */
+export function todayIsoDate(): string {
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${String(now.getFullYear())}-${mm}-${dd}`;
+}
+
+/** Earliest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
+export function dateFieldMin(field: DateFieldConfig): string | undefined {
+  if (field.min) return field.min;
+  return field.limit === "not-past" ? todayIsoDate() : undefined;
+}
+
+/** Latest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
+export function dateFieldMax(field: DateFieldConfig): string | undefined {
+  if (field.max) return field.max;
+  return field.limit === "not-future" ? todayIsoDate() : undefined;
+}
 
 /** Build the initial (empty) value map for a schema. */
 export function createInitialValues(schema: FormSchema): FormValues {

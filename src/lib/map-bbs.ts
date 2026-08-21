@@ -68,9 +68,17 @@ function formatSessionWhen(iso: string): string {
 }
 
 function toSessionTypeLabel(observe: string): string {
-  const normalized = observe.trim().toLowerCase();
+  // The column stores "AtRisk" with no separator, so matching only the
+  // hyphenated spellings let the real value fall through to the raw-value
+  // branch — which is what put a literal "AtRisk" on the mobile card and, until
+  // the list moved to server-side filtering, made the At-Risk chip match
+  // nothing. Strip separators the same way the badge column does.
+  const normalized = observe
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
   if (normalized === "safe") return "Safe";
-  if (normalized === "at-risk" || normalized === "at risk") return "At-Risk";
+  if (normalized === "atrisk") return "At-Risk";
   return observe.trim() || "Observation";
 }
 

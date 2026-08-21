@@ -104,6 +104,9 @@ export function buildStartAuditSchema(
       label: "Scheduled Date",
       required: true,
       colSpan: 6,
+      // An audit is scheduled, not recorded: a past date lands it in the
+      // overdue bucket the moment it is created.
+      limit: "not-past",
     },
     {
       type: "date",

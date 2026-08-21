@@ -5,6 +5,9 @@ import { Button, type ButtonProps } from "@/components/ui/Button";
 import { FieldRenderer } from "./FormBuilderFields";
 import {
   createInitialValues,
+  dateFieldMax,
+  dateFieldMin,
+  type DateFieldConfig,
   type FieldValue,
   type FormErrors,
   type FormSchema,
@@ -57,13 +60,54 @@ function isEmpty(value: FieldValue): boolean {
   return Array.isArray(value) ? value.length === 0 : value.trim() === "";
 }
 
-/** Validate required fields; returns an error map (empty when valid). */
+/**
+ * Message for a date outside its bounds, or `null` when it is in range.
+ *
+ * `min` / `max` on the input only grey the calendar out — the form is
+ * `noValidate`, and every browser still lets a typed or pasted value through —
+ * so submit is where an out-of-range date is actually caught. ISO `YYYY-MM-DD`
+ * sorts chronologically as text, which is why these compare as strings.
+ */
+function dateRangeError(field: DateFieldConfig, value: string): string | null {
+  const selected = value.trim();
+  if (selected === "") return null;
+
+  const min = dateFieldMin(field);
+  if (min && selected < min) {
+    if (field.limit === "not-past") return `${field.label} cannot be in the past`;
+    return `${field.label} cannot be before ${min}`;
+  }
+
+  const max = dateFieldMax(field);
+  if (max && selected > max) {
+    if (field.limit === "not-future") {
+      return `${field.label} cannot be in the future`;
+    }
+    return `${field.label} cannot be after ${max}`;
+  }
+
+  return null;
+}
+
+/** Validate required fields and date bounds; returns an error map (empty when valid). */
 function validate(schema: FormSchema, values: FormValues): FormErrors {
   const errors: FormErrors = {};
   for (const field of schema) {
     // Neither holds a value: headings are decoration, and a custom field's
     // node owns its own value and error outside the form.
     if (field.type === "heading" || field.type === "custom") continue;
+
+    // Before the required check, because the bound applies to optional dates
+    // too: leaving a due date blank is allowed, back-dating it is not.
+    if (field.type === "date") {
+      const raw = values[field.name];
+      const message = dateRangeError(field, typeof raw === "string" ? raw : "");
+      if (message) {
+        errors[field.name] = message;
+        continue;
+      }
+    }
+
     if (!field.required) continue;
 
     if (field.type === "person") {
@@ -119,8 +163,19 @@ export function FormBuilder(props: FormBuilderProps) {
     setValues(next);
     onChange?.(next);
 
-    // Clear a field's error as soon as the user edits it.
+    // A date input only ever hands back a complete value — a half-typed one
+    // reads as "" — so an out-of-range date is worth flagging the moment it is
+    // entered rather than holding it back until submit. Every other field only
+    // clears here: arguing with half-written text is what makes live validation
+    // hostile, and a date has no half-written state to argue with.
+    const edited = schema.find((entry) => entry.name === name);
+    const dateError =
+      edited?.type === "date" && typeof value === "string"
+        ? dateRangeError(edited, value)
+        : null;
+
     setErrors((prev) => {
+      if (dateError) return { ...prev, [name]: dateError };
       if (!prev[name]) return prev;
       const cleared = { ...prev };
       delete cleared[name];
