@@ -23,18 +23,16 @@ function parseStepNumber(raw: number | null | undefined): 1 | 2 | 3 | 4 | null {
   return null;
 }
 
-function parseClosureStatus(
-  raw: string | null | undefined,
-): IncidentClosureData["closureStatus"] | null {
-  if (
-    raw === "Pending Checklist" ||
-    raw === "Ready for Closure" ||
-    raw === "Closed" ||
-    raw === "Under Review"
-  ) {
-    return raw;
-  }
-  return null;
+/**
+ * True once the wizard has been submitted. The API has no closure status
+ * string — `GET /closure` answers with `IsDraft` and `ClosedAt`, and
+ * `POST /closure/submit` is what flips them — so this pair is the closed
+ * signal, both here and anywhere else that needs to know.
+ */
+export function isClosureFinalized(
+  dto: IncidentClosureResponseDto | null | undefined,
+): boolean {
+  return dto?.isDraft === false && Boolean(dto.closedAt);
 }
 
 function parseSifClassification(raw: string | null | undefined): string {
@@ -117,8 +115,9 @@ export function mapIncidentClosureDtoToData(
     currentStep,
     fallback.maxAccessibleStep ?? 1,
   ) as IncidentClosureData["maxAccessibleStep"];
-  const closureStatus =
-    parseClosureStatus(dto.closureStatus) ?? fallback.closureStatus;
+  const closureStatus = isClosureFinalized(dto)
+    ? "Closed"
+    : fallback.closureStatus;
 
   const verificationChecklist: readonly ClosureChecklistItem[] =
     dto.verificationChecklist && dto.verificationChecklist.length > 0
