@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
@@ -31,20 +32,24 @@ export function CapaRegisterHeader(props: CapaRegisterHeaderProps) {
       </div>
 
       {onNewCapa ? (
-        <Button
-          type="button"
-          variant="primary"
-          onClick={onNewCapa}
-          className={TABLE_HEADER_ACTION_CLASS}
-        >
-          <Icon
-            icon="mdi:plus"
-            className={TABLE_HEADER_ACTION_ICON_CLASS}
-            aria-hidden="true"
-          />
-          <span className="sm:hidden">New</span>
-          <span className="hidden sm:inline">New CAPA</span>
-        </Button>
+        // Hidden without CAPA.Create. The API refuses the call regardless, so
+        // rendering the button only offers a dead end.
+        <Can do="CAPA.Create">
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onNewCapa}
+            className={TABLE_HEADER_ACTION_CLASS}
+          >
+            <Icon
+              icon="mdi:plus"
+              className={TABLE_HEADER_ACTION_ICON_CLASS}
+              aria-hidden="true"
+            />
+            <span className="sm:hidden">New</span>
+            <span className="hidden sm:inline">New CAPA</span>
+          </Button>
+        </Can>
       ) : null}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import {
@@ -39,21 +40,25 @@ export function IncidentListTableHeader(
         {title}
       </Text>
 
-      <Button
-        type="button"
-        variant="primary"
-        onClick={() => {
-          router.push(REPORT_ROUTE);
-        }}
-        className={TABLE_HEADER_ACTION_CLASS}
-      >
-        <Icon
-          icon="mdi:plus"
-          className={TABLE_HEADER_ACTION_ICON_CLASS}
-          aria-hidden="true"
-        />
-        Report incident
-      </Button>
+      {/* Hidden for a role without Incident.Create rather than shown and refused on
+          submit. The API is what actually enforces it — this only removes the dead end. */}
+      <Can do="Incident.Create">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => {
+            router.push(REPORT_ROUTE);
+          }}
+          className={TABLE_HEADER_ACTION_CLASS}
+        >
+          <Icon
+            icon="mdi:plus"
+            className={TABLE_HEADER_ACTION_ICON_CLASS}
+            aria-hidden="true"
+          />
+          Report incident
+        </Button>
+      </Can>
     </div>
   );
 }

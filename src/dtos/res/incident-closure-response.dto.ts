@@ -22,7 +22,12 @@ export type IncidentClosureResponseDto = {
   closureId?: string | null;
   incidentId?: number | null;
   currentStep?: number | null;
-  closureStatus?: string | null;
+  /**
+   * The wizard's own lifecycle: `true` while the closure is still being filled
+   * in, `false` once `/closure/submit` finalises it. Paired with `closedAt`
+   * this is what "Closed" actually means — the API sends no status string.
+   */
+  isDraft?: boolean | null;
   closedAt?: string | null;
   closedBy?: string | null;
   closedByRole?: string | null;

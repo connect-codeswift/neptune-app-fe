@@ -1156,6 +1156,9 @@ export function mapIncidentDtoToDetailView(
     meaningfulText(incident.whatTreatmentWasGiven) ||
     meaningfulText(incident.initialTreatment) ||
     "None required";
+  // Comes from `stage`, the backend's computed lifecycle value. Older backends
+  // omit it on the single-incident read; withDetailClosedState below is how the
+  // detail screen fills that gap from the closure record it already loads.
   const isClosed = listRecord.state === "Closed";
   const responseActions = parseResponseActions(incident.actionTaken);
   const uploadedBy = options?.uploadedBy?.trim() || "You";
@@ -1247,6 +1250,30 @@ export function mapIncidentDtoToDetailView(
     reporter: listRecord.reporter,
     isClosed,
   };
+}
+
+/**
+ * Overlays a closed verdict the incident payload could not supply.
+ *
+ * `GET /incidents/{id}` predates the closure wizard and returns no lifecycle
+ * field on older backends, so a view model built from it alone reads Open even
+ * for a finalised incident — which is what let the closure wizard be re-entered
+ * after it had already run. The detail screen loads the closure record anyway,
+ * so it can answer the question the incident payload cannot.
+ *
+ * Only the two lifecycle fields are patched; the narrative parts of the model
+ * (timeline, metrics, investigation) still follow `stage`, so a backend that
+ * returns it stays the single source for the whole model.
+ */
+export function withDetailClosedState(
+  detail: IncidentDetailViewModel | null,
+  isClosed: boolean,
+): IncidentDetailViewModel | null {
+  if (!detail || !isClosed || detail.isClosed) {
+    return detail;
+  }
+
+  return { ...detail, isClosed: true, state: "Closed" };
 }
 
 /** Accepts route param like `42` or `INC-42`. */

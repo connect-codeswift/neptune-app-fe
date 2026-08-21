@@ -27,6 +27,8 @@ export type CreateAuditRequestDto = {
   auditorId: number;
   /** ISO date-time string. */
   scheduleDate: string;
+  /** ISO date-time string. Optional until the backend persists it. */
+  dueDate?: string;
   userId: number;
   siteId: number;
 };
