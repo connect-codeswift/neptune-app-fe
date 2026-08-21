@@ -14,6 +14,7 @@ import {
   type SettingsSectionId,
 } from "@/components/settings/settings-nav";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
+import { useCapabilities } from "@/lib/capabilities";
 import { isAdminRole } from "@/lib/jwt-permissions";
 
 export type SettingsShellProps = Readonly<{
@@ -150,7 +151,8 @@ function SettingsSectionNav(
 export function SettingsShell(props: Readonly<SettingsShellProps>) {
   const { activeSection, children, actions } = props;
   const { user } = useSessionBootstrap();
-  const isAdmin = isAdminRole(user.role);
+  const { can } = useCapabilities();
+  const isAdmin = isAdminRole(user.role) || can("Incident.ManageWorkHours");
   const section = getSettingsSection(activeSection) ?? SETTINGS_SECTIONS[0]!;
 
   return (
