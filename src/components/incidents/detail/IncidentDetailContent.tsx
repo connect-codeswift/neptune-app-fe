@@ -53,8 +53,12 @@ import {
 import {
   EMPTY_INCIDENT_INVESTIGATION,
   parseIncidentRouteId,
+  withDetailClosedState,
 } from "@/services/mappers/incident-detail.mapper";
-import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
+import {
+  isClosureFinalized,
+  mapIncidentClosureDtoToData,
+} from "@/services/mappers/incident-closure.mapper";
 import { buildRcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
@@ -136,23 +140,31 @@ export function IncidentDetailContent(
   const deleteCapaTaskMutation = useDeleteCapaTaskMutation();
   const verifyCapaMutation = useVerifyCapaMutation();
 
-  const detail = detailQuery.data?.detail ?? null;
+  const loadedDetail = detailQuery.data?.detail ?? null;
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
-    incidentId: detail?.numericId ?? numericId,
+    incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
       hasToken &&
-      (detail?.numericId != null || numericId != null),
+      (loadedDetail?.numericId != null || numericId != null),
   });
   const closureQuery = useIncidentClosureQuery({
-    incidentId: detail?.numericId ?? numericId,
+    incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
       hasToken &&
-      (detail?.numericId != null || numericId != null),
+      (loadedDetail?.numericId != null || numericId != null),
   });
+  // The incident payload alone cannot say whether this incident is closed on a
+  // backend that predates `stage` on the single-incident read, and answering
+  // "no" there is what let a finalised incident be walked through the closure
+  // wizard a second time. The closure record loaded above settles it.
+  const detail = withDetailClosedState(
+    loadedDetail,
+    isClosureFinalized(closureQuery.data),
+  );
   const rcaIncidentId = detail?.numericId ?? numericId;
   const rcaQueryEnabled =
     isClientReady &&

@@ -40,6 +40,7 @@ import {
 } from "@/hooks/use-incident-queries";
 import type { DateRange } from "@/lib/date-range";
 import { toast } from "@/lib/toast";
+import { isClosureFinalized } from "@/services/mappers/incident-closure.mapper";
 import { mapIncidentDtoToListRecord } from "@/services/mappers/incident-list.mapper";
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import {
@@ -57,6 +58,12 @@ export type IncidentListViewProps = Readonly<{
 /** Search is typed live — settle before hitting the paged endpoint. */
 const SEARCH_DEBOUNCE_MS = 300;
 
+/**
+ * Stamps Closed onto a record whose own payload could not say so — the preview
+ * panel merges a list row (which carries the server's `stage`) with the
+ * single-incident read (which may not), and the closed answer has to survive
+ * that merge.
+ */
 function withClosedState(
   record: IncidentRecord,
   closed: boolean,
@@ -199,23 +206,27 @@ export function IncidentListView(props: Readonly<IncidentListViewProps>) {
   });
 
   const selectedDetailDto = selectedDetailQuery.data?.dto;
-  const selectedClosureStatus = selectedClosureQuery.data?.closureStatus;
+  const isSelectedClosureFinalized = isClosureFinalized(
+    selectedClosureQuery.data,
+  );
 
   const selectedIncident = useMemo(() => {
-    if (selectedDetailDto != null) {
-      return mapIncidentDtoToListRecord(selectedDetailDto);
-    }
+    const base =
+      selectedDetailDto == null
+        ? selectedListIncident
+        : mapIncidentDtoToListRecord(selectedDetailDto);
 
-    if (!selectedListIncident) {
+    if (!base) {
       return null;
     }
 
-    const closureClosed =
-      selectedClosureStatus?.trim().toLowerCase() === "closed";
-    return closureClosed
-      ? withClosedState(selectedListIncident, true)
-      : selectedListIncident;
-  }, [selectedDetailDto, selectedListIncident, selectedClosureStatus]);
+    // The row already knows the stage the server computed; GetIncidentById on
+    // an older backend does not, so re-deriving from it alone would show a
+    // closed incident as Open the moment the panel finishes loading.
+    const closed =
+      selectedListIncident?.state === "Closed" || isSelectedClosureFinalized;
+    return withClosedState(base, closed);
+  }, [selectedDetailDto, selectedListIncident, isSelectedClosureFinalized]);
 
   const handleToggleDetailPanel = useCallback((id: string) => {
     setSelectedId((current) => (current === id ? null : id));
