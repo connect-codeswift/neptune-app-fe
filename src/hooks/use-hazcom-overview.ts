@@ -8,18 +8,18 @@ import type {
 } from "@/components/hazcom/shared/hazcom-types";
 import {
   useChemicalsListQuery,
-  useSdsListQuery,
+  useDashboardKpisQuery,
+  useSdsStatusOverviewQuery,
   useTrainingComplianceQuery,
   useTrainingLogsQuery,
   useUpcomingDeadlinesQuery,
 } from "@/hooks/use-hazcom-queries";
 
 /**
- * Neither the chemical nor the SDS endpoint aggregates, and neither takes a
- * filter — so the counts below are computed from a page of rows. One large page
- * stands in for the whole set, the same stand-in the label generator's picker
- * makes. When a site holds more rows than this, `isSampled` goes true and the
- * panels say so rather than presenting a partial count as a census.
+ * The "recent additions" strip only needs a page to sort/slice from — it is
+ * not a source of truth for any count. The counts themselves come from the
+ * dashboard's own aggregation endpoints (`dashboard/kpis`,
+ * `dashboard/sds-status`), not from sampling a page of the list endpoints.
  */
 const OVERVIEW_PAGE_SIZE = 200;
 
@@ -34,16 +34,15 @@ export type HazcomOverviewSdsCounts = Readonly<{
 }>;
 
 export type HazcomOverviewState = Readonly<{
-  /** Authoritative — the endpoint's own total, not a row count. */
+  /** Authoritative — the dashboard KPI endpoint's own total, not a row count. */
   totalChemicals: number;
   totalTrainingSessions: number;
+  /** Authoritative — from `dashboard/sds-status`, not sampled from a page. */
   sds: HazcomOverviewSdsCounts;
   recentChemicals: readonly HazcomChemical[];
   upcomingDeadlines: readonly HazcomUpcomingDeadline[];
   /** `null` when the dashboard endpoint has no compliance row. */
   trainingCompliance: HazcomTrainingCompliance | null;
-  /** True when either list holds more rows than one page could load. */
-  isSampled: boolean;
   isLoading: boolean;
   errorMessage: string | null;
   refetch: () => void;
@@ -65,36 +64,25 @@ export function useHazcomOverview(): HazcomOverviewState {
     pageNumber: 1,
     pageSize: OVERVIEW_PAGE_SIZE,
   });
-  const sdsQuery = useSdsListQuery({
-    pageNumber: 1,
-    pageSize: OVERVIEW_PAGE_SIZE,
-  });
   const trainingQuery = useTrainingLogsQuery({
     pageNumber: 1,
     pageSize: 1,
   });
+  const kpisQuery = useDashboardKpisQuery();
+  const sdsStatusQuery = useSdsStatusOverviewQuery();
   const deadlinesQuery = useUpcomingDeadlinesQuery();
   const complianceQuery = useTrainingComplianceQuery();
 
   const sds = useMemo<HazcomOverviewSdsCounts>(() => {
-    // "Compliant" / "Due Soon" / "Overdue" are derived from each sheet's
-    // revision date by the SDS mapper — see hazcom-sds.mapper.
-    let compliant = 0;
-    let dueSoon = 0;
-    let overdue = 0;
+    const status = sdsStatusQuery.status;
 
-    for (const record of sdsQuery.items) {
-      if (record.status === "Compliant") compliant += 1;
-      else if (record.status === "Due Soon") dueSoon += 1;
-      else overdue += 1;
-    }
-
-    const missing = chemicalsQuery.items.filter(
-      (chemical) => chemical.sdsRecordId === null,
-    ).length;
-
-    return { compliant, dueSoon, overdue, missing };
-  }, [sdsQuery.items, chemicalsQuery.items]);
+    return {
+      compliant: status?.currentAndCompliant ?? 0,
+      dueSoon: status?.expiringWithin90Days ?? 0,
+      overdue: status?.overdueOrExpired ?? 0,
+      missing: status?.missingSds ?? 0,
+    };
+  }, [sdsStatusQuery.status]);
 
   const recentChemicals = useMemo(
     () =>
@@ -105,31 +93,32 @@ export function useHazcomOverview(): HazcomOverviewState {
   );
 
   return {
-    totalChemicals: chemicalsQuery.totalRecords,
+    totalChemicals:
+      kpisQuery.kpis?.totalChemicals ?? chemicalsQuery.totalRecords,
     totalTrainingSessions: trainingQuery.totalRecords,
     sds,
     recentChemicals,
     upcomingDeadlines: deadlinesQuery.deadlines,
     trainingCompliance: complianceQuery.compliance,
-    isSampled:
-      chemicalsQuery.totalRecords > chemicalsQuery.items.length ||
-      sdsQuery.totalRecords > sdsQuery.items.length,
     isLoading:
       chemicalsQuery.isLoading ||
-      sdsQuery.isLoading ||
       trainingQuery.isLoading ||
+      kpisQuery.isLoading ||
+      sdsStatusQuery.isLoading ||
       deadlinesQuery.isLoading ||
       complianceQuery.isLoading,
     errorMessage:
       chemicalsQuery.errorMessage ??
-      sdsQuery.errorMessage ??
       trainingQuery.errorMessage ??
+      kpisQuery.errorMessage ??
+      sdsStatusQuery.errorMessage ??
       deadlinesQuery.errorMessage ??
       complianceQuery.errorMessage,
     refetch: () => {
       chemicalsQuery.refetch();
-      sdsQuery.refetch();
       trainingQuery.refetch();
+      kpisQuery.refetch();
+      sdsStatusQuery.refetch();
       deadlinesQuery.refetch();
       complianceQuery.refetch();
     },

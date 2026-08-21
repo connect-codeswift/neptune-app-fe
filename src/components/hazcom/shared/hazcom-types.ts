@@ -41,6 +41,8 @@ export type HazcomSdsStatus = "Compliant" | "Due Soon" | "Overdue";
 
 export type HazcomSdsRecord = Readonly<{
   id: string; // "SDS-12"
+  /** The chemical this sheet is linked to, or null when it stands alone. */
+  chemicalId: number | null;
   chemicalName: string;
   manufacturer: string; // "Sigma-Aldrich"
   casNumber: string;
@@ -65,19 +67,44 @@ export type HazcomTrainingMaterial = Readonly<{
   fileType?: string | null;
 }>;
 
-export type HazcomTrainingStatus = "Completed" | "Scheduled";
+export type HazcomTrainingStatus =
+  "Scheduled" | "InProgress" | "Completed" | "Cancelled";
 
 export type HazcomTrainingSession = Readonly<{
   id: string; // "TR-12"
   date: string; // ISO
-  trainer: string; // "TBD" when scheduled
+  chemicalId: number | null;
+  chemicalName: string;
+  trainerId: number | null;
+  /** Assigned user's `FullName`; legacy string for pre-FK rows. "TBD" when neither is set. */
+  trainer: string;
   topic: string;
   chemicals: readonly string[];
+  attendeeIds: readonly number[];
+  /** Comma-joined attendee names, for display. */
+  attendeeNames: string;
   attendees: number;
-  /** Server-assigned; `null` when the API has not set a status. */
+  /** Server-assigned; `null` only for a legacy row written before the status field existed. */
   status: HazcomTrainingStatus | null;
   materials: readonly HazcomTrainingMaterial[];
   notes: string;
+}>;
+
+/** GET /api/hazcom/dashboard/kpis — top KPI cards. */
+export type HazcomDashboardKpis = Readonly<{
+  totalChemicals: number;
+  missingSds: number;
+  trainingOverdue: number;
+  pendingAssessments: number;
+  chemicalsExpiringWithin90Days: number;
+}>;
+
+/** GET /api/hazcom/dashboard/sds-status — SDS Status Overview card. */
+export type HazcomSdsStatusOverview = Readonly<{
+  currentAndCompliant: number;
+  expiringWithin90Days: number;
+  overdueOrExpired: number;
+  missingSds: number;
 }>;
 
 /** One row of GET /api/hazcom/dashboard/upcoming-deadlines. */

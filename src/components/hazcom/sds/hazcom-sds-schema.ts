@@ -16,14 +16,31 @@ const PICTOGRAM_OPTIONS: readonly SelectOption[] = HAZCOM_PICTOGRAMS.map(
   (pictogram) => ({ value: pictogram, label: pictogram }),
 );
 
+const AUTOFILL_NOTE = "(auto-filled)";
+
 export type BuildSdsUploadSchemaArgs = Readonly<{
   chemicalOptions: readonly SelectOption[];
+  /** Fired after `chemicalId` changes, to autofill from that chemical's record. */
+  onChemicalChange?: (
+    chemicalId: string,
+    patchValues: (patch: FormValues) => void,
+  ) => void;
+  /**
+   * Field names that were just autofilled from a picked chemical — those
+   * fields lock for the rest of the session rather than staying editable, so
+   * a mistyped value can't silently drift from the chemical record it came
+   * from. Empty until a chemical is picked.
+   */
+  lockedFields?: ReadonlySet<string>;
 }>;
 
 /** Upload SDS — POST /api/hazcom/sds. */
 export function buildSdsUploadSchema(
   args: BuildSdsUploadSchemaArgs,
 ): FormSchema {
+  const lockedFields = args.lockedFields ?? new Set<string>();
+  const isLocked = (name: string) => lockedFields.has(name);
+
   return [
     {
       type: "photo",
@@ -52,6 +69,7 @@ export function buildSdsUploadSchema(
       colSpan: 6,
       placeholder: "Select a chemical…",
       options: args.chemicalOptions,
+      onSelectChange: args.onChemicalChange,
     },
     {
       type: "text",
@@ -60,6 +78,8 @@ export function buildSdsUploadSchema(
       required: true,
       colSpan: 6,
       placeholder: "e.g. Acetone SDS",
+      readOnly: isLocked("productName"),
+      note: isLocked("productName") ? AUTOFILL_NOTE : undefined,
     },
     {
       type: "text",
@@ -74,6 +94,8 @@ export function buildSdsUploadSchema(
       label: "CAS Number",
       colSpan: 6,
       placeholder: "e.g. 67-64-1",
+      readOnly: isLocked("casNumber"),
+      note: isLocked("casNumber") ? AUTOFILL_NOTE : undefined,
     },
     {
       type: "text",
@@ -81,6 +103,8 @@ export function buildSdsUploadSchema(
       label: "Hazard Class",
       colSpan: 6,
       placeholder: "e.g. Flammable",
+      readOnly: isLocked("hazardClass"),
+      note: isLocked("hazardClass") ? AUTOFILL_NOTE : undefined,
     },
     {
       type: "text",
@@ -89,6 +113,8 @@ export function buildSdsUploadSchema(
       colSpan: 6,
       maxLength: 250,
       placeholder: "e.g. Hazmat disposal",
+      readOnly: isLocked("disposeLocation"),
+      note: isLocked("disposeLocation") ? AUTOFILL_NOTE : undefined,
     },
     {
       type: "tiles",
@@ -100,6 +126,7 @@ export function buildSdsUploadSchema(
         { value: "Danger", label: "Danger" },
         { value: "Warning", label: "Warning" },
       ],
+      disabled: isLocked("signalWord"),
     },
     {
       type: "date",
@@ -120,6 +147,7 @@ export function buildSdsUploadSchema(
       label: "GHS Pictograms",
       colSpan: 12,
       options: PICTOGRAM_OPTIONS,
+      disabled: isLocked("ghsPictograms"),
     },
     {
       type: "textarea",

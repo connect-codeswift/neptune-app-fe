@@ -111,6 +111,7 @@ export function Table<TData>(props: TableProps<TData>) {
           className={["text4 w-full border-collapse text-left", className]
             .filter(Boolean)
             .join(" ")}
+          style={{ minWidth: `${String(table.getTotalSize())}px` }}
         >
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -140,10 +141,12 @@ export function Table<TData>(props: TableProps<TData>) {
                       key={header.id}
                       colSpan={header.colSpan}
                       style={{
-                        width:
-                          header.getSize() !== 150
-                            ? `${header.getSize()}px`
-                            : undefined,
+                        // Never a fixed `width` — only a floor, so a column
+                        // set narrow on purpose (an icon/checkbox column)
+                        // still grows for its own content, and one left at
+                        // TanStack's 150 default can't be squeezed thinner
+                        // than that when the table is short on room.
+                        minWidth: `${String(header.getSize())}px`,
                       }}
                       className={[
                         isCapa
@@ -228,6 +231,9 @@ export function Table<TData>(props: TableProps<TData>) {
                       return (
                         <td
                           key={cell.id}
+                          style={{
+                            minWidth: `${String(cell.column.getSize())}px`,
+                          }}
                           className={[
                             isCompliance
                               ? "px-[16px] py-3.5 align-middle"

@@ -4,6 +4,8 @@ import type {
   HazcomPageQueryDto,
   SafetyDataSheetRequestDto,
   TrainingLogRequestDto,
+  UpdateTrainingLogRequestDto,
+  UpdateTrainingStatusRequestDto,
 } from "@/dtos/req/hazcom-request.dto";
 import type {
   CreateChemicalResponseDto,
@@ -17,11 +19,18 @@ import type {
   GetChemicalByIdResponseDto,
   GetChemicalNamesResponseDto,
   GetHazardHCodesResponseDto,
+  GetHazcomDashboardKpisResponseDto,
+  GetHazcomSdsStatusResponseDto,
   GetHazcomTrainingComplianceResponseDto,
   GetHazcomUpcomingDeadlinesResponseDto,
   GetPrecautionaryCodesResponseDto,
+  GetSdsLabelResponseDto,
+  GetSdsSearchResponseDto,
   GetSdsStatementsResponseDto,
   GetSafetyDataSheetByIdResponseDto,
+  GetTrainingLogByIdResponseDto,
+  UpdateTrainingLogResponseDto,
+  UpdateTrainingStatusResponseDto,
 } from "@/dtos/res/hazcom-response.dto";
 import http from "@/lib/axios";
 
@@ -37,6 +46,8 @@ const RISK_ASSESSMENT_PATH = "/hazcom/risk-assessments";
 // The `/hazcom/dashboard/*` sub-tree keeps its paths under v1 (route-map.md,
 // HazCom section). NOTE: `training-compliance` arrived on `dev` after the map
 // was generated and has no row in it — flagged in the handoff report.
+const DASHBOARD_KPIS_PATH = "/hazcom/dashboard/kpis";
+const SDS_STATUS_PATH = "/hazcom/dashboard/sds-status";
 const UPCOMING_DEADLINES_PATH = "/hazcom/dashboard/upcoming-deadlines";
 const TRAINING_COMPLIANCE_PATH = "/hazcom/dashboard/training-compliance";
 
@@ -158,6 +169,31 @@ export async function getSdsStatements(id: number) {
   return data;
 }
 
+/**
+ * GET /api/v1/hazcom/sds/search?query=&pageSize=10 — typeahead for the
+ * autofill picker, matches productName or casNumber.
+ */
+export async function searchSafetyDataSheets(query: string, pageSize = 10) {
+  const { data } = await http.get<GetSdsSearchResponseDto>(
+    `${SDS_PATH}/search`,
+    { params: { query, pageSize } },
+  );
+
+  return data;
+}
+
+/**
+ * GET /api/v1/hazcom/sds/{id}/label — the five autofill fields plus
+ * statements, for the chemical form's "autofill from SDS" flow.
+ */
+export async function getSdsLabel(id: number) {
+  const { data } = await http.get<GetSdsLabelResponseDto>(
+    `${SDS_PATH}/${String(id)}/label`,
+  );
+
+  return data;
+}
+
 /* -------------------------------------------------------------------------- */
 /* GHS code libraries                                                         */
 /* -------------------------------------------------------------------------- */
@@ -204,6 +240,41 @@ export async function getAllTrainingLogs(
   return data;
 }
 
+/** GET /api/v1/hazcom/trainings/{id} */
+export async function getTrainingLogById(id: number) {
+  const { data } = await http.get<GetTrainingLogByIdResponseDto>(
+    `${TRAINING_PATH}/${String(id)}`,
+  );
+
+  return data;
+}
+
+/** PUT /api/v1/hazcom/trainings/{id} — full edit, requires `status`. */
+export async function updateTrainingLog(
+  id: number,
+  payload: UpdateTrainingLogRequestDto,
+) {
+  const { data } = await http.put<UpdateTrainingLogResponseDto>(
+    `${TRAINING_PATH}/${String(id)}`,
+    payload,
+  );
+
+  return data;
+}
+
+/** PUT /api/v1/hazcom/trainings/{id}/status — status-only transition. */
+export async function updateTrainingStatus(
+  id: number,
+  payload: UpdateTrainingStatusRequestDto,
+) {
+  const { data } = await http.put<UpdateTrainingStatusResponseDto>(
+    `${TRAINING_PATH}/${String(id)}/status`,
+    payload,
+  );
+
+  return data;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Risk assessments                                                           */
 /* -------------------------------------------------------------------------- */
@@ -235,6 +306,22 @@ export async function getAllChemicalRiskAssessments(
 /* -------------------------------------------------------------------------- */
 /* Dashboard                                                                  */
 /* -------------------------------------------------------------------------- */
+
+/** GET /api/hazcom/dashboard/kpis */
+export async function getDashboardKpis() {
+  const { data } =
+    await http.get<GetHazcomDashboardKpisResponseDto>(DASHBOARD_KPIS_PATH);
+
+  return data;
+}
+
+/** GET /api/hazcom/dashboard/sds-status */
+export async function getSdsStatusOverview() {
+  const { data } =
+    await http.get<GetHazcomSdsStatusResponseDto>(SDS_STATUS_PATH);
+
+  return data;
+}
 
 /** GET /api/hazcom/dashboard/upcoming-deadlines */
 export async function getUpcomingDeadlines() {
