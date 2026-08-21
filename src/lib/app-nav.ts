@@ -82,11 +82,6 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         moduleCode: "LOCKOUT_TAGOUT",
       },
       {
-        label: "Fleet Management",
-        href: "/dashboard/fleet-management",
-        icon: "mdi:steering",
-      },
-      {
         label: "CAPA",
         href: "/dashboard/capa",
         icon: "mdi:refresh",
@@ -147,42 +142,42 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       },
     ],
   },
-  {
-    title: "Insights",
-    items: [
-      {
-        label: "Analytics",
-        href: "/dashboard/analytics",
-        icon: "mdi:chart-line",
-      },
-      {
-        label: "Reports",
-        href: "/dashboard/reports",
-        icon: "mdi:file-chart-outline",
-      },
-    ],
-  },
-  {
-    title: "Environment",
-    items: [
-      {
-        label: "Emissions",
-        href: "/dashboard/emissions",
-        icon: "mdi:leaf",
-      },
-    ],
-  },
-  {
-    title: "Health",
-    items: [
-      {
-        label: "Industrial Hygiene",
-        href: "/dashboard/industrial-hygiene",
-        icon: "mdi:flask-outline",
-        moduleCode: "INDUSTRIAL_HYGIENE",
-      },
-    ],
-  },
+  // {
+  //   title: "Insights",
+  //   items: [
+  //     {
+  //       label: "Analytics",
+  //       href: "/dashboard/analytics",
+  //       icon: "mdi:chart-line",
+  //     },
+  //     {
+  //       label: "Reports",
+  //       href: "/dashboard/reports",
+  //       icon: "mdi:file-chart-outline",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Environment",
+  //   items: [
+  //     {
+  //       label: "Emissions",
+  //       href: "/dashboard/emissions",
+  //       icon: "mdi:leaf",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Health",
+  //   items: [
+  //     {
+  //       label: "Industrial Hygiene",
+  //       href: "/dashboard/industrial-hygiene",
+  //       icon: "mdi:flask-outline",
+  //       moduleCode: "INDUSTRIAL_HYGIENE",
+  //     },
+  //   ],
+  // },
   {
     title: "System",
     items: [
