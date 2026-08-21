@@ -42,7 +42,7 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
     // The assistant's single sidebar home: one heading, one entry. "Chat" routes to the full
     // workspace page; the floating launcher covers the quick popup from anywhere. No module
     // code — the assistant is not a licensed EHS module — and alwaysVisible, because it has
-    // no `page:` row in the catalogue for the page gate to check.
+    // no capability behind it for the gate to check.
     title: "Neptune AI",
     items: [
       {
@@ -94,13 +94,6 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
         capability: "Loto.View",
         icon: "mdi:lock-outline",
         moduleCode: "LOCKOUT_TAGOUT",
-      },
-      {
-        label: "Fleet Management",
-        href: "/dashboard/fleet-management",
-        capability: "FleetManagement.View",
-        moduleCode: "FLEET_MANAGEMENT",
-        icon: "mdi:steering",
       },
       {
         label: "CAPA",
@@ -172,49 +165,47 @@ export const APP_NAV_GROUPS: readonly AppNavGroup[] = [
       },
     ],
   },
-  {
-    title: "Insights",
-    items: [
-      {
-        label: "Analytics",
-        href: "/dashboard/analytics",
-        capability: "Analytics.View",
-        moduleCode: "ANALYTICS",
-        icon: "mdi:chart-line",
-      },
-      {
-        label: "Reports",
-        href: "/dashboard/reports",
-        capability: "Reports.View",
-        moduleCode: "REPORTS",
-        icon: "mdi:file-chart-outline",
-      },
-    ],
-  },
-  {
-    title: "Environment",
-    items: [
-      {
-        label: "Emissions",
-        href: "/dashboard/emissions",
-        capability: "Emissions.View",
-        moduleCode: "EMISSIONS",
-        icon: "mdi:leaf",
-      },
-    ],
-  },
-  {
-    title: "Health",
-    items: [
-      {
-        label: "Industrial Hygiene",
-        href: "/dashboard/industrial-hygiene",
-        capability: "IndustrialHygiene.View",
-        icon: "mdi:flask-outline",
-        moduleCode: "INDUSTRIAL_HYGIENE",
-      },
-    ],
-  },
+  // Analytics, Reports, Emissions and Industrial Hygiene are commented out because their
+  // backends do not exist yet. Left as-is deliberately: they are now licensable modules that
+  // ship switched off, so passesModuleLicenseGate would hide them anyway and this block can
+  // simply be uncommented — with a `capability` added to each entry — when the APIs land.
+  // Fleet Management was removed on dev for the same reason and is likewise not restored here.
+  // {
+  //   title: "Insights",
+  //   items: [
+  //     {
+  //       label: "Analytics",
+  //       href: "/dashboard/analytics",
+  //       icon: "mdi:chart-line",
+  //     },
+  //     {
+  //       label: "Reports",
+  //       href: "/dashboard/reports",
+  //       icon: "mdi:file-chart-outline",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Environment",
+  //   items: [
+  //     {
+  //       label: "Emissions",
+  //       href: "/dashboard/emissions",
+  //       icon: "mdi:leaf",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Health",
+  //   items: [
+  //     {
+  //       label: "Industrial Hygiene",
+  //       href: "/dashboard/industrial-hygiene",
+  //       icon: "mdi:flask-outline",
+  //       moduleCode: "INDUSTRIAL_HYGIENE",
+  //     },
+  //   ],
+  // },
   {
     title: "System",
     items: [

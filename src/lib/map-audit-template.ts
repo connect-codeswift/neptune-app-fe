@@ -52,22 +52,12 @@ function mapItem(dto: AuditTemplateItemDto): TemplateItem {
 
   // On create the entered value was published as `question`, so restore it into
   // `value` — that's what the Build Sections control renders and displays.
-  const question = dto.question ?? "";
-  const value: string | string[] =
-    type === "Multi Choice"
-      ? question
-          .split(",")
-          .map((entry) => entry.trim())
-          .filter((entry) => entry !== "")
-      : question;
-
   return {
     id: String(dto.id),
     type,
     label: "",
-    guidance: dto.hint ?? "",
     required: dto.isRequired ?? true,
-    value,
+    value: dto.question ?? "",
   };
 }
 
