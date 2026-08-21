@@ -242,12 +242,21 @@ export function canManagePpeInventory(): boolean {
   return holds("PPE.Create");
 }
 
+/** Normalize a role label for comparison: lowercase, single-spaced. */
+function normalizeRole(role: string): string {
+  return role.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
+}
+
 /**
  * Roles the backend lets sign off a CAPA verification — `CAPARepository.IsLeadership()`
  * matches `Ehs_Director`, `Ehs_Lead` and `Ehs_Manager` on POST
  * /api/v1/capas/{capaId}/verification. Both the `Ehs_`-prefixed claim and the bare
  * `Lead` label are listed because tenants seeded before the role rename still emit
- * the short form — the same reason `ELEVATED_ROLES` above carries it.
+ * the short form.
+ *
+ * This one stays a role check on purpose, unlike the permission gates above: the API's
+ * rule here really is a role list (`IsLeadership()`), not a `[HasPermission]`, so
+ * mirroring it with `holds()` would gate on something the backend never consults.
  */
 const CAPA_VERIFIER_ROLES: readonly string[] = [
   "ehs director",
