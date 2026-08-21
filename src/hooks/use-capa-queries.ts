@@ -19,7 +19,7 @@ import {
   getCapaTasksByCapaId,
   getCapaVerificationByCapaId,
 } from "@/services/capa.service";
-import { getCapaRcaById } from "@/services/rca.service";
+import { getRcaByCapaId } from "@/services/rca.service";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import {
   EMPTY_LINKED_CAPA_VIEW,
@@ -61,7 +61,7 @@ export const capaQueryKeys = {
     [...capaQueryKeys.all, "attachments", capaId] as const,
   verification: (capaId: number) =>
     [...capaQueryKeys.all, "verification", capaId] as const,
-  rca: (rcaId: number) => [...capaQueryKeys.all, "rca", rcaId] as const,
+  rca: (capaId: number) => [...capaQueryKeys.all, "rca", capaId] as const,
   byId: (capaId: number) => [...capaQueryKeys.all, "by-id", capaId] as const,
   review: (capaId: number) => [...capaQueryKeys.all, "review", capaId] as const,
 };
@@ -398,24 +398,32 @@ export function useCapaVerificationQuery(
 }
 
 export type UseCapaRcaQueryOptions = Readonly<{
-  rcaId: number | null;
+  capaId: number | null;
   enabled?: boolean;
 }>;
 
-/** Loads RCA worksheet data via GET /api/v1/rcas/{rcaId}/capas. */
+/**
+ * Loads RCA worksheet data via GET /api/v1/capas/{capaId}/rca.
+ *
+ * Was a two-step lookup: read the CAPA, take its `rcaId`, fetch by that id. `Capa.RcaId` is only
+ * populated for a CAPA raised from an incident, so every other CAPA — audit findings, inspections,
+ * hazards, and one raised on its own — dead-ended on a null and the screen said no RCA was linked.
+ * The backend now parents a contributing factor by CAPA as well as by incident, so the CAPA id is
+ * enough on its own.
+ */
 export function useCapaRcaQuery(options: UseCapaRcaQueryOptions) {
-  const rcaId = options.rcaId;
-  const enabled = (options.enabled ?? false) && rcaId != null && rcaId > 0;
+  const capaId = options.capaId;
+  const enabled = (options.enabled ?? false) && capaId != null && capaId > 0;
 
   return useQuery({
-    queryKey: capaQueryKeys.rca(rcaId ?? 0),
+    queryKey: capaQueryKeys.rca(capaId ?? 0),
     enabled,
     queryFn: async () => {
-      if (rcaId == null || rcaId <= 0) {
+      if (capaId == null || capaId <= 0) {
         return [];
       }
 
-      return getCapaRcaById(rcaId);
+      return getRcaByCapaId(capaId);
     },
   });
 }
