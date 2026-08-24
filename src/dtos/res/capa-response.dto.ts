@@ -19,6 +19,8 @@ export type CapaDto = {
   status?: string | null;
   /** Remaining days until due; negative when overdue (list API). */
   daysLeft?: number | null;
+  /** Derived server-side: past `dueDate` and not Closed. Never a stored status. */
+  isOverdue?: boolean | null;
   progressPercent?: number | null;
   progress?: number | null;
   progressPercentage?: number | null;

@@ -35,6 +35,11 @@ export type CapaDashboardItem = Readonly<{
   status: string;
   dueDate: string;
   dueLabel: string;
+  /**
+   * Past due and not Closed, decided by the API rather than re-derived here - the register
+   * filters on the same flag, so a locally computed one could disagree with the chip.
+   */
+  isOverdue: boolean;
   priority: "high" | "medium" | "low";
   daysLeft: string;
   tasks: readonly CapaDashboardTask[];
@@ -192,6 +197,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "In Progress",
     dueDate: "2026-05-08",
     dueLabel: "14d left",
+    isOverdue: false,
     priority: "high",
     daysLeft: "14d",
     tasks: HOSE_TASKS,
@@ -208,6 +214,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -224,6 +231,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "Overdue",
     dueDate: "2026-04-20",
     dueLabel: "Overdue",
+    isOverdue: true,
     priority: "high",
     daysLeft: "0d",
     tasks: [],
@@ -240,6 +248,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -256,6 +265,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "high",
     daysLeft: "21d",
     tasks: [],
@@ -272,6 +282,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "Open",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "low",
     daysLeft: "21d",
     tasks: [],
@@ -288,6 +299,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "Pending Verification",
     dueDate: "2026-04-10",
     dueLabel: "Closed",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "0d",
     tasks: [],
@@ -304,6 +316,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -320,6 +333,7 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     status: "Pending Verification",
     dueDate: "2026-04-01",
     dueLabel: "Closed",
+    isOverdue: false,
     priority: "low",
     daysLeft: "0d",
     tasks: [],

@@ -48,10 +48,19 @@ function formatPriorityLabel(priority: string): string {
 }
 
 function isOverdue(item: CapaDashboardItem): boolean {
-  return (
-    item.status.trim().toLowerCase() === "overdue" ||
-    item.dueLabel.trim().toLowerCase() === "overdue"
-  );
+  return item.isOverdue;
+}
+
+/**
+ * What the badge says. Overdue is not a stored status - a CAPA is Open or In Progress and
+ * also past its date - but it is the more urgent fact, so it wins the badge. Closed never
+ * reads Overdue: the API stops counting one once it is closed, and so does this.
+ */
+function statusLabel(item: CapaDashboardItem): string {
+  if (item.isOverdue) {
+    return CAPA_API_STATUS.overdue;
+  }
+  return item.status;
 }
 
 function shortName(value: string): string {
@@ -215,14 +224,17 @@ export function createCapaColumns(
       size: expanded ? 128 : 112,
       minSize: 96,
       meta: { align: "left" as const, verticalAlign: "middle" as const },
-      cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={statusTone(info.getValue())}
-          showDot
-          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
-        />
-      ),
+      cell: (info) => {
+        const label = statusLabel(info.row.original);
+        return (
+          <IncidentBadge
+            label={label}
+            tone={statusTone(label)}
+            showDot
+            className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+          />
+        );
+      },
     }),
     columnHelper.accessor("dueDate", {
       header: "Due",

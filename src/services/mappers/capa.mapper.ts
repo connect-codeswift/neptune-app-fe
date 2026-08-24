@@ -513,6 +513,7 @@ export function mapCapaDtoToDashboardItem(
     status,
     dueDate: item.dueDate,
     dueLabel,
+    isOverdue: dto.isOverdue === true,
     priority: dashboardPriority(item.priority),
     daysLeft: dueLabel,
     tasks: [],
@@ -581,7 +582,8 @@ function parseOptionalUserId(value: string): number | null {
   return Math.trunc(parsed);
 }
 
-function normalizePriority(value: string): string {
+/** Priority as the API spells it. Anything unrecognised becomes Medium. */
+export function normalizePriority(value: string): string {
   const lower = value.trim().toLowerCase();
   if (lower === "high") return "High";
   if (lower === "low") return "Low";
