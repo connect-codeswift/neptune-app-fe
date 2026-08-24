@@ -16,6 +16,7 @@ import {
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { Can } from "@/components/auth/Can";
 import { Table } from "@/components/ui/Table";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
@@ -334,16 +335,18 @@ export function CapaDetailTasksTab(
             <Text as="p" className="text-ehs-gray text-base leading-5">
               0 of 0 tasks completed
             </Text>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsAddTaskOpen(true)}
-              disabled={createCapaTaskMutation.isPending}
-              className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
-            >
-              <Icon icon="mdi:plus" className="size-3" aria-hidden />
-              Add Task
-            </Button>
+            <Can do="CAPA.Manage">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsAddTaskOpen(true)}
+                disabled={createCapaTaskMutation.isPending}
+                className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
+              >
+                <Icon icon="mdi:plus" className="size-3" aria-hidden />
+                Add Task
+              </Button>
+            </Can>
           </div>
           <EmptyState
             variant="plain"
@@ -369,16 +372,18 @@ export function CapaDetailTasksTab(
               <Text as="p" className="text-ehs-gray text-base leading-5">
                 {`${String(doneCount)} of ${String(tasks.length)} tasks completed`}
               </Text>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsAddTaskOpen(true)}
-                disabled={createCapaTaskMutation.isPending}
-                className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
-              >
-                <Icon icon="mdi:plus" className="size-3" aria-hidden />
-                Add Task
-              </Button>
+              <Can do="CAPA.Manage">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsAddTaskOpen(true)}
+                  disabled={createCapaTaskMutation.isPending}
+                  className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
+                >
+                  <Icon icon="mdi:plus" className="size-3" aria-hidden />
+                  Add Task
+                </Button>
+              </Can>
             </div>
           }
         />

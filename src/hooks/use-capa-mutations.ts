@@ -12,6 +12,7 @@ import {
   createCapaTask,
   deleteCapaTask,
   dropCapa,
+  requestCapaVerification,
   submitCapaVerification,
   updateCapa,
   updateCapaTask,
@@ -333,6 +334,33 @@ export function useDropCapaMutation() {
       }
 
       return dropCapa(input.capaId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
+export type RequestCapaVerificationInput = Readonly<{ capaId: number }>;
+
+/**
+ * Hands a `Completed` CAPA to a verifier — `POST /capas/{id}/request-verification`.
+ *
+ * Invalidates the whole CAPA cache rather than one key: the call moves the record to
+ * `Pending Verification`, which changes its badge in the register, its position in the
+ * Awaiting Effectiveness Review card, and the buttons on its own detail page.
+ */
+export function useRequestCapaVerificationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: RequestCapaVerificationInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to request verification.");
+      }
+
+      return requestCapaVerification(input.capaId);
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });

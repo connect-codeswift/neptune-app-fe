@@ -16,6 +16,7 @@ import {
   FIELD_INPUT_LG_CLASS,
   FIELD_TEXTAREA_CLASS,
 } from "@/components/ui/field-styles";
+import { capaStatusPillClass } from "@/lib/capa-filters";
 
 export type IncidentClosureStepPreventiveProps = Readonly<{
   data: IncidentClosureData;
@@ -27,16 +28,13 @@ export type IncidentClosureStepPreventiveProps = Readonly<{
   onLinkAdditionalCapa?: () => void;
 }>;
 
+/**
+ * One source of truth for how a CAPA status looks, shared with the register and the CAPA
+ * detail page. This used to be a local switch over a three-value union, so a CAPA that came
+ * back `Pending Verification` fell through to the neutral "Planning" style.
+ */
 function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
-  switch (status) {
-    case "Completed":
-      return "bg-ehs-light-blue text-ehs-normal-blue";
-    case "In Progress":
-      return "bg-ehs-blue/10 text-ehs-purple";
-    case "Planning":
-    default:
-      return "bg-ehs-light-bg text-ehs-gray";
-  }
+  return capaStatusPillClass(status);
 }
 
 type LinkCapaModalProps = Readonly<{

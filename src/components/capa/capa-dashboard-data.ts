@@ -122,7 +122,7 @@ export const CAPA_LIFECYCLE_SLICES: readonly CapaLifecycleSlice[] = [
   { label: "Open", value: 1, color: "#0891a6" },
   { label: "In progress", value: 5, color: "#3b82f6" },
   { label: "Overdue", value: 1, color: "#ef4444" },
-  { label: "Verified", value: 2, color: "#10b981" },
+  { label: "Completed", value: 2, color: "#10b981" },
 ];
 
 export const CAPA_OPENED_CLOSED_TREND: readonly CapaTrendPoint[] = [

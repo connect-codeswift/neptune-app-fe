@@ -41,7 +41,6 @@ export type GetCapasRequest = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
-  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
@@ -913,7 +912,7 @@ export async function getCapaAwaitingEffectivenessReview(): Promise<GetCapaAwait
 /**
  * GET /CAPA
  * Query: PageNumber (default 1), PageSize (default 10),
- * Search?, Scope?, Status?, CapaType?, Priority?
+ * Search?, Status?, CapaType?, Priority?
  * All / empty = omit the param. Header: Authorization Bearer (required)
  */
 export async function getCapas(
@@ -927,7 +926,6 @@ export async function getCapas(
   const pageNumber = request.pageNumber ?? 1;
   const pageSize = request.pageSize ?? 10;
   const search = request.search?.trim() ?? "";
-  const scope = request.scope?.trim() ?? "";
   const status = request.status?.trim() ?? "";
   const capaType = request.capaType?.trim() ?? "";
   const priority = request.priority?.trim() ?? "";
@@ -937,7 +935,6 @@ export async function getCapas(
       PageNumber: pageNumber,
       PageSize: pageSize,
       ...(search ? { Search: search } : {}),
-      ...(scope ? { Scope: scope } : {}),
       ...(status ? { Status: status } : {}),
       ...(capaType ? { CapaType: capaType } : {}),
       ...(priority ? { Priority: priority } : {}),
@@ -1322,6 +1319,38 @@ export async function dropCapa(capaId: number) {
 
   const { data } = await http.delete<unknown>(
     `${CAPA_PATH}/${encodeURIComponent(String(capaId))}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  return data;
+}
+
+/**
+ * POST /api/v1/capas/{capaId}/request-verification — hands a finished CAPA to whoever
+ * signs it off, moving it from `Completed` to `Pending Verification`.
+ *
+ * This is the path for someone who does the work but cannot close it: the API accepts it
+ * on `CAPA.Update`, which a Worker holds, while `Verify & Close` needs `CAPA.Verify`,
+ * which they do not. Rejected with 400 from any status other than `Completed`, so the
+ * button must only appear once every task is done.
+ */
+export async function requestCapaVerification(capaId: number) {
+  if (!Number.isFinite(capaId) || capaId <= 0) {
+    throw new Error("CAPA id is required to request verification.");
+  }
+
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to request verification.");
+  }
+
+  const { data } = await http.post<unknown>(
+    `${CAPA_PATH}/${encodeURIComponent(String(capaId))}/request-verification`,
+    undefined,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

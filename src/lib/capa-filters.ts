@@ -5,13 +5,9 @@ import type { ModuleFilterOption } from "@/components/ui/ModuleFilterBar";
 
 /**
  * Backend CAPA list filters — GET /api/v1/capas
- * Query: Scope?, Status?, CapaType?, Priority?, Search?, PageNumber, PageSize
+ * Query: Status?, CapaType?, Priority?, Search?, PageNumber, PageSize
  * Empty string = All = omit the param.
  */
-
-export const CAPA_API_SCOPE = {
-  assignedToMe: "AssignedToMe",
-} as const;
 
 /**
  * The stored status values, exactly as the API spells them. OpenAPI pins the
@@ -42,11 +38,6 @@ export const CAPA_LIFECYCLE_STAGES = [
   CAPA_API_STATUS.completed,
   CAPA_API_STATUS.pendingVerification,
   CAPA_API_STATUS.closed,
-] as const;
-
-export const CAPA_SCOPE_FILTER_OPTIONS: readonly ModuleFilterOption[] = [
-  { value: "", label: "All" },
-  { value: CAPA_API_SCOPE.assignedToMe, label: "Assigned to me" },
 ] as const;
 
 /** Chip value and label are the same string — the API owns both. */

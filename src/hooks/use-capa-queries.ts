@@ -47,7 +47,6 @@ export const capaQueryKeys = {
     pageNumber: number;
     pageSize: number;
     search: string;
-    scope: string;
     status: string;
     capaType: string;
     priority: string;
@@ -173,7 +172,6 @@ export type UseCapasListQueryOptions = Readonly<{
   pageNumber?: number;
   pageSize?: number;
   search?: string;
-  scope?: string;
   status?: string;
   capaType?: string;
   priority?: string;
@@ -183,7 +181,7 @@ export type UseCapasListQueryOptions = Readonly<{
 
 /**
  * Loads CAPAs via GET /api/v1/capas
- * query: PageNumber=1, PageSize=10, Search="", Scope="", Status="",
+ * query: PageNumber=1, PageSize=10, Search="", Status="",
  * CapaType="", Priority="" — empty = All = omit
  */
 export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
@@ -191,7 +189,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
   const pageSize = options.pageSize ?? DEFAULT_CAPAS_PAGE_SIZE;
   const enabled = options.enabled ?? false;
   const search = options.search?.trim() ?? "";
-  const scope = options.scope?.trim() ?? "";
   const status = options.status?.trim() ?? "";
   const capaType = options.capaType?.trim() ?? "";
   const priority = options.priority?.trim() ?? "";
@@ -203,7 +200,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
       pageNumber,
       pageSize,
       search,
-      scope,
       status,
       capaType,
       priority,
@@ -215,7 +211,6 @@ export function useCapasListQuery(options: UseCapasListQueryOptions = {}) {
         pageNumber,
         pageSize,
         search,
-        scope,
         status,
         capaType,
         priority,
