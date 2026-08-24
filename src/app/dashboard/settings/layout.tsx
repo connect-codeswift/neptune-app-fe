@@ -10,6 +10,7 @@ import {
   SETTINGS_SECTIONS,
 } from "@/components/settings/settings-nav";
 import { useSessionBootstrap } from "@/hooks/use-session-bootstrap";
+import { useCapabilities } from "@/lib/capabilities";
 import { isAdminRole } from "@/lib/jwt-permissions";
 
 /**
@@ -32,10 +33,16 @@ export default function SettingsLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, isUserReady } = useSessionBootstrap();
+  const { can } = useCapabilities();
 
   // user.role falls back to the string "User" when the session has none, which isAdminRole
   // correctly rejects.
-  const isAdmin = isAdminRole(user.role);
+  //
+  // isAdminRole is a permission BYPASS for the company owner, not the allowlist. Incident
+  // rates is the only adminOnly section, and its writes are gated on Incident.ManageWorkHours
+  // — which Lead and Manager hold too. Checking the role alone bounced both off a screen the
+  // API would have accepted their writes on.
+  const isAdmin = isAdminRole(user.role) || can("Incident.ManageWorkHours");
 
   const activeSection = SETTINGS_SECTIONS.find((section) =>
     isSettingsSectionActive(pathname, section.href),
