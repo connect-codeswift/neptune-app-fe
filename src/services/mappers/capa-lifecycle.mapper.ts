@@ -39,8 +39,11 @@ export function normalizeCapaLifecycleDto(
   return {
     open: asCount(readProp(raw, "open", "Open")),
     inProgress: asCount(readProp(raw, "inProgress", "InProgress")),
+    completed: asCount(readProp(raw, "completed", "Completed")),
+    pendingVerification: asCount(
+      readProp(raw, "pendingVerification", "PendingVerification"),
+    ),
     overdue: asCount(readProp(raw, "overdue", "Overdue")),
-    verified: asCount(readProp(raw, "verified", "Verified")),
     total: asCount(readProp(raw, "total", "Total")),
   };
 }
@@ -53,8 +56,8 @@ export type CapaLifecycleViewModel = Readonly<{
 const SLICE_COLORS = {
   open: "#0891a6",
   inProgress: "#3b82f6",
-  overdue: "#ef4444",
-  verified: "#10b981",
+  completed: "#10b981",
+  pendingVerification: "#f59e0b",
 } as const;
 
 /** Maps GET /api/v1/capas/lifecycle into donut slices + total. */
@@ -69,6 +72,17 @@ export function mapCapaLifecycleToView(
     return { slices: CAPA_LIFECYCLE_SLICES, total };
   }
 
+  // The four active stages, in lifecycle order. They are mutually exclusive and sum to
+  // `total`, which is what makes a donut readable.
+  //
+  // Two things this deliberately does not draw. `Verified` was a slice reading a field the
+  // API has never sent, so it showed 0 forever - and it hid the fact that `completed` and
+  // `pendingVerification` were being dropped on the floor. And `overdue` is not a stage: a
+  // CAPA is Open or In Progress *and also* past its date, so drawing it as a fifth slice
+  // double-counts rows that are already in one of these four.
+  //
+  // Closed is absent because the endpoint is about active work - `total` counts non-closed
+  // CAPAs, so adding Closed here would make every percentage wrong.
   const slices: readonly CapaLifecycleSlice[] = [
     {
       label: "Open",
@@ -81,14 +95,14 @@ export function mapCapaLifecycleToView(
       color: SLICE_COLORS.inProgress,
     },
     {
-      label: "Overdue",
-      value: dto.overdue ?? 0,
-      color: SLICE_COLORS.overdue,
+      label: "Completed",
+      value: dto.completed ?? 0,
+      color: SLICE_COLORS.completed,
     },
     {
-      label: "Verified",
-      value: dto.verified ?? 0,
-      color: SLICE_COLORS.verified,
+      label: "Pending Verification",
+      value: dto.pendingVerification ?? 0,
+      color: SLICE_COLORS.pendingVerification,
     },
   ];
 

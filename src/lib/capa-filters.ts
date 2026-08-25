@@ -45,13 +45,13 @@ export const CAPA_STATUS_FILTER_OPTIONS: readonly ModuleFilterOption[] = [
   { value: "", label: "All" },
   { value: CAPA_API_STATUS.open, label: "Open" },
   { value: CAPA_API_STATUS.inProgress, label: "In Progress" },
+  { value: CAPA_API_STATUS.overdue, label: "Overdue" },
   { value: CAPA_API_STATUS.completed, label: "Completed" },
   {
     value: CAPA_API_STATUS.pendingVerification,
     label: "Pending Verification",
   },
   { value: CAPA_API_STATUS.closed, label: "Closed" },
-  { value: CAPA_API_STATUS.overdue, label: "Overdue" },
 ] as const;
 
 export const CAPA_TYPE_FILTER_OPTIONS: readonly ModuleFilterOption[] = [

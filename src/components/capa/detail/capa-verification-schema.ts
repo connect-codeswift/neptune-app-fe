@@ -41,7 +41,10 @@ export const CAPA_VERIFICATION_SCHEMA: FormSchema = [
     card: true,
     columns: 1,
     variant: "rows",
-    requireAll: true,
+    // One tick, not all of them - the same floor the API enforces
+    // ("Tick at least one verification check before closing"). Which checks matter is the
+    // verifier's judgement; requiring every box turned a judgement into a formality.
+    requireAll: false,
     options: [...CAPA_VERIFICATION_CHECKLIST],
   },
   {

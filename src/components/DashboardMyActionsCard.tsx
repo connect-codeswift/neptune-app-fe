@@ -6,6 +6,7 @@ import { ListItemRow } from "@/components/ComplianceDeadlinesCard";
 import { ListCardSkeleton } from "@/components/DashboardSkeletons";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { useCapabilities } from "@/lib/capabilities";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useMyActionsQuery } from "@/hooks/use-dashboard-queries";
@@ -25,7 +26,15 @@ export function DashboardMyActionsCard(
   const isClientReady = accessTokenState !== null;
   const hasToken = accessTokenState === true;
 
-  const actionsQuery = useMyActionsQuery(isClientReady && hasToken);
+  // Both command-center reads require CommandCenter.View, which a Worker does not hold.
+  // Rendered anyway they fetch, 403 and print the failure on the dashboard - the same defect
+  // as the trends card beside them. Hiding is a UX affordance; the API still refuses.
+  const { can, isReady } = useCapabilities();
+  const isPermitted = !isReady || can("CommandCenter.View");
+
+  const actionsQuery = useMyActionsQuery(
+    isClientReady && hasToken && isPermitted,
+  );
 
   const dto = actionsQuery.data?.dataModel ?? null;
   const items = mapMyActionsToItems(dto?.actions);
@@ -41,6 +50,11 @@ export function DashboardMyActionsCard(
     !actionsQuery.isLoading &&
     !actionsQuery.isError &&
     items.length === 0;
+
+  // After every hook, so the hook count stays stable when isReady flips.
+  if (!isPermitted) {
+    return null;
+  }
 
   return (
     <GlassCard className={className}>

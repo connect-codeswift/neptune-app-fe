@@ -21,6 +21,14 @@ export type CapaDto = {
   daysLeft?: number | null;
   /** Derived server-side: past `dueDate` and not Closed. Never a stored status. */
   isOverdue?: boolean | null;
+  /** Where it came from: Incident | Rca | Hazard | NearMiss, or null for standalone. */
+  sourceType?: string | null;
+  /** Id within `sourceType` — what the Source link routes to. */
+  sourceId?: number | null;
+  /** Who raised it, as opposed to who owns it. */
+  createdByName?: string | null;
+  /** Who signed it off. Null until the CAPA is closed. */
+  verifiedByName?: string | null;
   progressPercent?: number | null;
   progress?: number | null;
   progressPercentage?: number | null;

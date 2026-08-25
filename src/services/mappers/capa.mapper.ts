@@ -36,7 +36,10 @@ import {
 } from "@/components/capa/detail/capa-verification-schema";
 import type { FormValues } from "@/components/form-builder";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import { formatCapaStatusDisplay } from "@/lib/capa-filters";
+import {
+  CAPA_API_STATUS,
+  formatCapaStatusDisplay,
+} from "@/lib/capa-filters";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   formatCapaApiDateForDisplay,
@@ -509,6 +512,7 @@ export function mapCapaDtoToDashboardItem(
         : item.controlCategory),
     control: item.controlCategory,
     owner: item.assignee,
+    assignedBy: dto.createdByName?.trim() || "—",
     progress: item.progressPercent,
     status,
     dueDate: item.dueDate,
@@ -580,6 +584,78 @@ function parseOptionalUserId(value: string): number | null {
     return null;
   }
   return Math.trunc(parsed);
+}
+
+/**
+ * What the Verifier row says.
+ *
+ * A name once someone has signed the CAPA off, and before that the reason there is no name
+ * yet - the row used to be a hardcoded em dash, which read as missing data rather than as a
+ * step that has not happened.
+ */
+export function capaVerifierLabel(
+  verifiedByName: string | null | undefined,
+  status: string | null | undefined,
+): string {
+  const name = verifiedByName?.trim();
+  if (name) {
+    return name;
+  }
+
+  const stage = formatCapaStatusDisplay(status ?? "");
+  if (stage === CAPA_API_STATUS.pendingVerification) {
+    return "Awaiting verification";
+  }
+  if (stage === CAPA_API_STATUS.completed) {
+    return "Ready to verify";
+  }
+  // Open or In Progress - the work is not finished, so there is nothing to verify yet.
+  return "Not yet verified";
+}
+
+/** Which module a CAPA came from, for the Module row. */
+export function capaSourceModuleLabel(
+  sourceType: string | null | undefined,
+): string {
+  switch (sourceType?.trim()) {
+    case "Incident":
+      return "Incidents";
+    case "Rca":
+      return "RCA";
+    case "Hazard":
+      return "Hazard";
+    case "NearMiss":
+      return "Near Miss";
+    default:
+      return "CAPA";
+  }
+}
+
+/**
+ * Where the Source link goes. Null when there is nothing to open - a standalone CAPA, or a
+ * source type this build does not know how to route, which is better than a dead link.
+ */
+export function capaSourceHref(
+  sourceType: string | null | undefined,
+  sourceId: number | null | undefined,
+): string | null {
+  if (!sourceId || sourceId <= 0) {
+    return null;
+  }
+
+  switch (sourceType?.trim()) {
+    case "Incident":
+      return `/dashboard/incidents/${String(sourceId)}`;
+    case "Hazard":
+      return `/dashboard/hazard/${String(sourceId)}`;
+    case "NearMiss":
+      return `/dashboard/near-miss/${String(sourceId)}`;
+    // An RCA is a row inside an incident rather than a page of its own, so there is no
+    // route to send anyone to. Shown as text.
+    case "Rca":
+    default:
+      return null;
+  }
 }
 
 /** Priority as the API spells it. Anything unrecognised becomes Medium. */
@@ -1167,17 +1243,20 @@ export function mapCapaApiToDetailRecord(
     typeLabel: `${item.actionType} Action`,
     statusLabel: resolvedStatusLabel,
     owner: item.assignee,
-    verifier: "—",
+    verifier: capaVerifierLabel(dto.verifiedByName, dto.status),
     dueDate: item.dueDate,
     daysLeftLabel: formatCapaDaysLeftLabel(dto.daysLeft, {
       dueDate: dto.dueDate,
       status: dto.status,
     }),
-    source:
-      dto.incidentId > 0
-        ? `Incident · ${String(dto.incidentId)}`
-        : item.controlCategory,
-    module: dto.incidentId > 0 ? "Incident" : "CAPA",
+    // The API builds this label - "From INC-12 · Line 1", "From HAZ-1", "Standalone".
+    // It used to fall back to the control level, so a standalone CAPA read "Source: PPE",
+    // which is a control, not a source.
+    source: dto.sourceInfo?.trim() || "Standalone",
+    sourceType: dto.sourceType?.trim() || null,
+    sourceId: dto.sourceId ?? null,
+    assignedBy: dto.createdByName?.trim() || "—",
+    module: capaSourceModuleLabel(dto.sourceType),
     lifecycleStages: toDetailLifecycleStages(
       options?.lifecycleStages,
       resolvedStatusLabel,

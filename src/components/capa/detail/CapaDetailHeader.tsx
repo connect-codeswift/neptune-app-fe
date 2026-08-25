@@ -63,7 +63,8 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   // The API refuses a self-verification ("Verifier must be different from the action
   // owner"), so holding CAPA.Verify is not enough - the owner of this CAPA has to hand it
   // on like anyone else, and sees the request button instead.
-  const mayVerify = canVerifyCapa() && !isCapaOwnedByCurrentUser(record.assignedId);
+  const mayVerify =
+    canVerifyCapa() && !isCapaOwnedByCurrentUser(record.assignedId);
 
   // Verify & Close takes a CAPA from Completed or Pending Verification. Send for
   // verification only makes sense from Completed - the API returns 400 from anywhere else.
@@ -82,8 +83,13 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
       return;
     }
     try {
-      await requestVerificationMutation.mutateAsync({ capaId: record.numericId });
-      toast.success("Sent for verification", `${record.code} is awaiting sign-off.`);
+      await requestVerificationMutation.mutateAsync({
+        capaId: record.numericId,
+      });
+      toast.success(
+        "Sent for verification",
+        `${record.code} is awaiting sign-off.`,
+      );
       router.refresh();
     } catch (error) {
       toast.error(

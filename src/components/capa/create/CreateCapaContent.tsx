@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import {
@@ -88,6 +88,12 @@ function getSubmitHint(
 
 export function CreateCapaContent() {
   const router = useRouter();
+
+  // ?sourceType=Hazard&sourceId=12 - set by the "Add CAPA" link on a hazard or near miss.
+  // Absent on the plain New CAPA route, which is how a standalone CAPA is raised.
+  const searchParams = useSearchParams();
+  const sourceType = searchParams.get("sourceType")?.trim() ?? "";
+  const sourceId = Number(searchParams.get("sourceId") ?? 0);
   const createCapaMutation = useCreateCapaMutation();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
@@ -103,6 +109,9 @@ export function CreateCapaContent() {
   );
 
   const description = fieldString(formValues ?? initialValues, "description");
+  // Read live so the task picker follows the CAPA date as it is being chosen, rather than
+  // capping against whatever it was when the modal first opened.
+  const capaDueDate = fieldString(formValues ?? initialValues, "dueDate");
   const isSubmitting = createCapaMutation.isPending;
 
   // A CAPA with no tasks is a dead end: status is derived from its tasks, so it can never
@@ -161,6 +170,10 @@ export function CreateCapaContent() {
           userId: auth.userId,
           incidentId: 0,
           rcaId: 0,
+          // Carried from ?sourceType=&sourceId= so a CAPA raised from a hazard or a near
+          // miss links back to it. Without these it saved as Standalone, and the record it
+          // came from showed no CAPA at all.
+          ...(sourceType && sourceId > 0 ? { sourceType, sourceId } : {}),
           assignedId,
           dueDate,
           isDrop: false,
@@ -349,6 +362,7 @@ export function CreateCapaContent() {
 
       {addTaskOpen ? (
         <CapaDetailAddTaskModal
+          capaDueDate={capaDueDate}
           confirmLabel="Add Task"
           onClose={() => setAddTaskOpen(false)}
           onAssign={handleAddTask}

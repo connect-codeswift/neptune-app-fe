@@ -52,15 +52,19 @@ function isOverdue(item: CapaDashboardItem): boolean {
 }
 
 /**
- * What the badge says. Overdue is not a stored status - a CAPA is Open or In Progress and
- * also past its date - but it is the more urgent fact, so it wins the badge. Closed never
- * reads Overdue: the API stops counting one once it is closed, and so does this.
+ * What the badge says, which is not always the stored status.
+ *
+ * Overdue wins whenever the API flags it. That is not a style choice - it is what keeps the
+ * filter and the column honest. The Overdue filter is "past due and not Closed", so a
+ * Pending Verification CAPA that is late is *in* those results; letting the stage win the
+ * badge meant filtering by Overdue returned a row labelled "Pending Verification", and a
+ * filter that disagrees with what it returns is worse than no filter.
+ *
+ * Closed never reads Overdue - the API stops counting one the moment it closes, so
+ * `isOverdue` is already false by then and this needs no special case for it.
  */
 function statusLabel(item: CapaDashboardItem): string {
-  if (item.isOverdue) {
-    return CAPA_API_STATUS.overdue;
-  }
-  return item.status;
+  return item.isOverdue ? CAPA_API_STATUS.overdue : item.status;
 }
 
 function shortName(value: string): string {

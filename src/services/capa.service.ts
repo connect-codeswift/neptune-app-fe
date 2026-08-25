@@ -166,6 +166,15 @@ function coerceCapaDto(raw: Record<string, unknown>): CapaDto | null {
       asString(readProp(raw, "ownerName", "OwnerName", "owner", "Owner")) ??
       null,
     sourceInfo: asString(readProp(raw, "sourceInfo", "SourceInfo")) ?? null,
+    // The routing pair behind the Source link, and who raised it. Read here rather than
+    // derived: the API owns which record a CAPA came from.
+    sourceType: asString(readProp(raw, "sourceType", "SourceType")) ?? null,
+    sourceId: asNumber(readProp(raw, "sourceId", "SourceId")) ?? null,
+    createdByName:
+      asString(readProp(raw, "createdByName", "CreatedByName")) ?? null,
+    verifiedByName:
+      asString(readProp(raw, "verifiedByName", "VerifiedByName")) ?? null,
+    isOverdue: asBoolean(readProp(raw, "isOverdue", "IsOverdue")) ?? false,
     code: asString(readProp(raw, "code", "Code")) ?? null,
     capaCode: asString(readProp(raw, "capaCode", "CapaCode")) ?? null,
   };
@@ -1151,7 +1160,14 @@ export type GetCapaCommentsRequest = Readonly<{
   assignedId?: number;
 }>;
 
-/** GET /api/v1/capas/{capaId}/comments?userId=&assignedId= — capaId moved to the path. */
+/**
+ * GET /api/v1/capas/{capaId}/comments
+ *
+ * No userId / assignedId. Those narrowed the read to a two-party thread, so a comment only
+ * came back to the exact pair who exchanged it - which is why a director's comment never
+ * appeared for anyone else. The endpoint returns the CAPA's whole feed now, scoped by who
+ * can see the CAPA.
+ */
 export async function getCapaComments(request: GetCapaCommentsRequest) {
   const capaId = request.capaId;
   if (!Number.isFinite(capaId) || capaId <= 0) {
@@ -1163,26 +1179,9 @@ export async function getCapaComments(request: GetCapaCommentsRequest) {
     throw new Error("Sign in required to load CAPA comments.");
   }
 
-  const userId =
-    typeof request.userId === "number" &&
-    Number.isFinite(request.userId) &&
-    request.userId > 0
-      ? Math.trunc(request.userId)
-      : 0;
-  const assignedId =
-    typeof request.assignedId === "number" &&
-    Number.isFinite(request.assignedId) &&
-    request.assignedId > 0
-      ? Math.trunc(request.assignedId)
-      : 0;
-
   const { data } = await http.get<unknown>(
     `${CAPA_PATH}/${encodeURIComponent(String(Math.trunc(capaId)))}/comments`,
     {
-      params: {
-        ...(userId > 0 ? { userId } : {}),
-        ...(assignedId > 0 ? { assignedId } : {}),
-      },
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": false,
