@@ -10,9 +10,17 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
 import { capaQueryKeys } from "@/hooks/use-capa-queries";
-import { useDropCapaMutation } from "@/hooks/use-capa-mutations";
+import {
+  useDropCapaMutation,
+  useRequestCapaVerificationMutation,
+} from "@/hooks/use-capa-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { isCapaStatusClosed } from "@/lib/capa-filters";
+import {
+  isCapaStatusClosed,
+  isCapaStatusCompleted,
+  isCapaStatusPendingVerification,
+} from "@/lib/capa-filters";
+import { canVerifyCapa, isCapaOwnedByCurrentUser } from "@/lib/current-user";
 import { getCapaVerificationByCapaId } from "@/services/capa.service";
 import { getCapaRcaById } from "@/services/rca.service";
 import { toast } from "@/lib/toast";
@@ -46,9 +54,50 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   const [isOpeningRca, setIsOpeningRca] = useState(false);
   const [isConfirmingDrop, setIsConfirmingDrop] = useState(false);
   const dropCapaMutation = useDropCapaMutation();
+  const requestVerificationMutation = useRequestCapaVerificationMutation();
 
   const isClosed = isCapaStatusClosed(record.statusLabel);
-  const isBusy = isOpeningRca || isOpeningVerify || dropCapaMutation.isPending;
+  const isCompleted = isCapaStatusCompleted(record.statusLabel);
+  const isPending = isCapaStatusPendingVerification(record.statusLabel);
+
+  // The API refuses a self-verification ("Verifier must be different from the action
+  // owner"), so holding CAPA.Verify is not enough - the owner of this CAPA has to hand it
+  // on like anyone else, and sees the request button instead.
+  const mayVerify =
+    canVerifyCapa() && !isCapaOwnedByCurrentUser(record.assignedId);
+
+  // Verify & Close takes a CAPA from Completed or Pending Verification. Send for
+  // verification only makes sense from Completed - the API returns 400 from anywhere else.
+  // Both are hidden on Open, In Progress and Closed, so neither offers a dead end.
+  const showVerifyAndClose = (isCompleted || isPending) && mayVerify;
+  const showRequestVerification = isCompleted && !mayVerify;
+
+  const isBusy =
+    isOpeningRca ||
+    isOpeningVerify ||
+    dropCapaMutation.isPending ||
+    requestVerificationMutation.isPending;
+
+  async function handleRequestVerification() {
+    if (record.numericId <= 0) {
+      return;
+    }
+    try {
+      await requestVerificationMutation.mutateAsync({
+        capaId: record.numericId,
+      });
+      toast.success(
+        "Sent for verification",
+        `${record.code} is awaiting sign-off.`,
+      );
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        "Could not send for verification",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
+  }
 
   const verifyHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/verify`;
   const rcaHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/rca`;
@@ -189,7 +238,21 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
               >
                 RCA
               </Button>
-              {isClosed ? null : (
+              {showRequestVerification ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  isLoading={requestVerificationMutation.isPending}
+                  disabled={isBusy}
+                  onClick={() => {
+                    void handleRequestVerification();
+                  }}
+                  className="rounded-2.5 px-3 py-0 font-medium"
+                >
+                  Send for verification
+                </Button>
+              ) : null}
+              {showVerifyAndClose ? (
                 <Button
                   type="button"
                   variant="primary"
@@ -200,9 +263,9 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
                   }}
                   className="rounded-2.5 px-3 py-0 font-medium"
                 >
-                  Verify & Close
+                  Verify &amp; Close
                 </Button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useIncidentTrendsQuery } from "@/hooks/use-dashboard-queries";
+import { useCapabilities } from "@/lib/capabilities";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 
 type SeriesKey = "incidents" | "nearMisses" | "hazards";
@@ -266,12 +267,24 @@ export type IncidentTrendsCardProps = Readonly<{
  */
 export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
   const { className = "" } = props;
+
+  // GET /command-center/incident-trends requires CommandCenter.View, which a Worker does not
+  // hold. Without this the card mounted, fired the request and rendered "Could not load
+  // incident trends - 403" on their dashboard, which reads as a broken page rather than as a
+  // section that is not theirs. Hiding a control is not access control; the API still refuses.
+  //
+  // Read here but acted on after every hook has run: returning early from this point would
+  // change the hook count the moment isReady flips from false to true.
+  const { can, isReady } = useCapabilities();
+  const isPermitted = !isReady || can("CommandCenter.View");
   const [filter, setFilter] = useState<TrendFilter>("All");
   const accessTokenState = useHasAccessToken();
   const isClientReady = accessTokenState !== null;
   const hasToken = accessTokenState === true;
 
-  const trendsQuery = useIncidentTrendsQuery(isClientReady && hasToken);
+  const trendsQuery = useIncidentTrendsQuery(
+    isClientReady && hasToken && isPermitted,
+  );
 
   const dto = trendsQuery.data?.dataModel ?? null;
   const trends = dto?.trends ?? [];
@@ -308,6 +321,11 @@ export function IncidentTrendsCard(props: Readonly<IncidentTrendsCardProps>) {
     !trendsQuery.isLoading &&
     !trendsQuery.isError &&
     trends.length === 0;
+
+  // Every hook above has run, so returning here keeps the hook count stable.
+  if (!isPermitted) {
+    return null;
+  }
 
   return (
     <GlassCard className={className}>

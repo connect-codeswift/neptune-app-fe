@@ -87,8 +87,7 @@ function formatDueLabel(rawDue: unknown): string {
  */
 function mapActionToCapaRow(raw: MyActionItemDto, index: number): CapaListRow {
   const id =
-    asString(readProp(raw, "id", "Id", "capaId", "CapaId")) ??
-    String(index);
+    asString(readProp(raw, "id", "Id", "capaId", "CapaId")) ?? String(index);
 
   const code = formatRecordDisplayId("CAPA", id);
 

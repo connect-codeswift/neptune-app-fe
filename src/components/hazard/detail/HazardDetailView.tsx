@@ -45,6 +45,11 @@ function DetailValue(props: Readonly<{ value: string }>) {
 export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
   const { record } = props;
 
+  // The record id the API knows, dug out of the display id ("HZ-12" -> 12). Both records
+  // carry their id already formatted for the header, and re-fetching just to recover the
+  // number would be a request to learn something the string already says.
+  const hazardSourceId = Number(record.id.replace(/^\D+/, "")) || 0;
+
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
       <div className="flex min-w-0 flex-col gap-3.5">
@@ -87,7 +92,7 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
               Related CAPAs
             </Text>
             <Link
-              href={CAPA_NEW_ROUTE}
+              href={`${CAPA_NEW_ROUTE}?sourceType=Hazard&sourceId=${String(hazardSourceId)}`}
               className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
             >
               Add CAPA

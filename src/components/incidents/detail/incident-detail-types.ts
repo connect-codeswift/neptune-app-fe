@@ -106,7 +106,12 @@ export type ClosureLinkedCapaItem = Readonly<{
   title: string;
   subtitle: string;
   progressPercent: number;
-  status: "Completed" | "In Progress" | "Planning";
+  /**
+   * The CAPA's stored status, exactly as the API spells it - see `CAPA_API_STATUS`.
+   * Was a three-value union of its own (`Planning` / `In Progress` / `Completed`), which
+   * meant a status the API stopped sending still type-checked and simply rendered wrong.
+   */
+  status: string;
 }>;
 
 export type IncidentClosureData = Readonly<{

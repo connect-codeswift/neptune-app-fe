@@ -34,7 +34,6 @@ export function CapaDashboardView() {
   const isClientReady = hasToken !== null;
 
   /** Empty string = All (matches ModuleFilterBar / GET /api/v1/capas omit). */
-  const [scope, setScope] = useState("");
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");
   const [priority, setPriority] = useState("");
@@ -46,7 +45,6 @@ export function CapaDashboardView() {
     pageNumber,
     pageSize: DEFAULT_CAPAS_PAGE_SIZE,
     search: toCapaListFilterParam(searchQuery),
-    scope: toCapaListFilterParam(scope),
     status: toCapaListFilterParam(status),
     capaType: toCapaListFilterParam(type),
     priority: toCapaListFilterParam(priority),
@@ -110,14 +108,9 @@ export function CapaDashboardView() {
       <CapaDashboardFooterCards />
 
       <CapaDashboardFilters
-        scope={scope}
         status={status}
         type={type}
         priority={priority}
-        onScopeChange={(value) => {
-          setScope(value);
-          resetToFirstPage();
-        }}
         onStatusChange={(value) => {
           setStatus(value);
           resetToFirstPage();

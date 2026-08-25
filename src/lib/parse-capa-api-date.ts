@@ -1,50 +1,32 @@
 /**
- * Normalizes CAPA API date strings (often DD-MM-YYYY, e.g. "17-08-2026 0:00")
- * to ISO YYYY-MM-DD for display and form fields.
+ * Normalizes a CAPA API date to `YYYY-MM-DD` for display and for date inputs.
+ *
+ * The API sends ISO-8601 with an offset — `2026-09-01T00:00:00Z`. It used to send
+ * `dd-MM-yyyy H:mm` out of an `nvarchar` column, which this file existed to untangle:
+ * it guessed which half was the day by checking whether either number exceeded 12, and
+ * fell back to assuming day-first when both were ambiguous. `DueDate` is a real date
+ * column now, so that guessing is gone rather than merely unused.
+ *
+ * The date part is taken verbatim off the front of the ISO string instead of going
+ * through `new Date()`. Parsing and re-formatting would shift the calendar day for any
+ * viewer whose timezone is behind UTC — a due date of `2026-09-01T00:00:00Z` renders as
+ * 31 August in New York, which is the wrong day on a compliance record.
  */
 export function parseCapaApiDate(
   value: string | null | undefined,
 ): string | null {
-  if (!value?.trim()) {
+  const raw = value?.trim();
+  if (!raw) {
     return null;
   }
 
-  const raw = value.trim();
-  const dashMatch = /^(\d{1,2})-(\d{1,2})-(\d{4})/.exec(raw);
-  if (dashMatch) {
-    const [, a, b, year] = dashMatch;
-    const n1 = Number(a);
-    const n2 = Number(b);
-    let day: string;
-    let month: string;
-
-    if (n1 > 12) {
-      day = a;
-      month = b;
-    } else if (n2 > 12) {
-      month = a;
-      day = b;
-    } else {
-      // Backend uses DD-MM-YYYY for values like 08-09-2026 and 17-08-2026.
-      day = a;
-      month = b;
-    }
-
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  const isoDate = /^(\d{4}-\d{2}-\d{2})/.exec(raw);
+  if (isoDate) {
+    return isoDate[1];
   }
 
-  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
-    return raw.slice(0, 10);
-  }
-
-  const parsed = new Date(raw);
-  if (!Number.isNaN(parsed.getTime())) {
-    const y = parsed.getFullYear();
-    const m = String(parsed.getMonth() + 1).padStart(2, "0");
-    const d = String(parsed.getDate()).padStart(2, "0");
-    return `${String(y)}-${m}-${d}`;
-  }
-
+  // Anything else is unexpected. Return it unchanged rather than inventing a date:
+  // a visibly odd string is easier to trace than a plausible wrong one.
   return raw;
 }
 

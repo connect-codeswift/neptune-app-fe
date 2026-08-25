@@ -284,11 +284,9 @@ export function IncidentDetailContent(
       subtitle: c.title || c.controlCategory || "",
       progressPercent:
         typeof c.progressPercent === "number" ? c.progressPercent : 0,
-      status: (c.status === "Closed" || c.status === "Verified"
-        ? "Completed"
-        : c.status === "Planning"
-          ? "Planning"
-          : "In Progress") as "Completed" | "In Progress" | "Planning",
+      // Passed through untouched. The old mapping folded five statuses into three and
+      // named two - Verified and Planning - that the API no longer has.
+      status: c.status,
     }));
     setClosureData((prev) => ({
       ...prev,
