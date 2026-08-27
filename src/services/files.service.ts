@@ -131,7 +131,7 @@ export async function putFileToSignedUrl(
   });
   if (!response.ok) {
     throw new HttpError({
-      message: "Upload was not completed",
+      message: `Upload was not completed (HTTP ${String(response.status)})`,
       status: response.status,
     });
   }

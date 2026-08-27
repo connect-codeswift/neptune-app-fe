@@ -96,12 +96,32 @@ export function isBlobUrl(value: string | null | undefined): boolean {
   return Boolean(value?.startsWith("blob:"));
 }
 
+/**
+ * The content type an upload should travel under.
+ *
+ * Browsers on some Windows and Android setups report a .jpg as `image/jpg`,
+ * which is not a registered type and is not on the backend's allowlist — the
+ * upload intent was refused before a byte was sent. It is a JPEG either way, so
+ * it goes up as one.
+ *
+ * Normalised in one place because the same string has to reach both the intent
+ * and the PUT: the presigned url signs the content type, so the browser sending
+ * anything else is a 403 from the bucket rather than a validation message.
+ */
+export function normaliseContentType(type: string): string {
+  const trimmed = type.trim();
+  if (!trimmed) {
+    return "application/octet-stream";
+  }
+  return trimmed.toLowerCase() === "image/jpg" ? "image/jpeg" : trimmed;
+}
+
 export function validateFileForModule(
   file: File,
   module: FileModule,
 ): string | null {
-  const contentType = file.type.trim() || "application/octet-stream";
-  if (!isAllowedMimeType(contentType) && contentType !== "image/jpg") {
+  const contentType = normaliseContentType(file.type);
+  if (!isAllowedMimeType(contentType)) {
     return `Files of type '${contentType}' are not allowed`;
   }
 
