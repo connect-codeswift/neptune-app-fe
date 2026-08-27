@@ -16,6 +16,7 @@ import {
   getCapaWorkloadByOwner,
   getCapas,
   getCapasByIncidentId,
+  getCapasBySource,
   getCapaTasksByCapaId,
   getCapaVerificationByCapaId,
 } from "@/services/capa.service";
@@ -43,6 +44,8 @@ export const capaQueryKeys = {
   openedVsClosed: ["capas", "opened-vs-closed"] as const,
   workloadByOwner: ["capas", "workload-by-owner"] as const,
   awaitingReview: ["capas", "awaiting-review"] as const,
+  bySource: (sourceType: string, sourceId: number) =>
+    ["capas", "by-source", sourceType, sourceId] as const,
   list: (params: {
     pageNumber: number;
     pageSize: number;
@@ -487,5 +490,24 @@ export function useCapaDetailQuery(options: UseCapaDetailQueryOptions) {
         lifecycleStages: detail.lifecycleStages,
       });
     },
+  });
+}
+
+/**
+ * CAPAs raised from one record — the Related CAPAs panel on a hazard or near miss, and the
+ * check that gates closing one. Both read the same query, so the panel always shows exactly
+ * what the gate is counting.
+ */
+export function useCapasBySourceQuery(params: {
+  sourceType: string;
+  sourceId: number;
+  enabled?: boolean;
+}) {
+  const { sourceType, sourceId, enabled = true } = params;
+
+  return useQuery({
+    queryKey: capaQueryKeys.bySource(sourceType, sourceId),
+    queryFn: () => getCapasBySource(sourceType, sourceId),
+    enabled: enabled && sourceType.trim().length > 0 && sourceId > 0,
   });
 }
