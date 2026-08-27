@@ -408,6 +408,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   affectedName={
                     isEditingPeople ? affectedName : detail.affectedName
                   }
+                  hasAffectedPerson={detail.hasAffectedPerson}
                   affectedRole={detail.affectedRole}
                   affectedEmpId={
                     isEditingPeople ? affectedEmpId : detail.affectedEmpId

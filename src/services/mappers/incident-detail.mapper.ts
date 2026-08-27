@@ -75,6 +75,8 @@ export type IncidentDetailViewModel = Readonly<{
   responseActions: readonly IncidentDetailResponseAction[];
   responseNotes: string;
   affectedName: string;
+  /** True when the incident records an affected person, named or not. */
+  hasAffectedPerson: boolean;
   affectedRole: string;
   affectedEmpId: string;
   affectedInitials: string;
@@ -187,8 +189,12 @@ function isAffected(person: PersonDto): boolean {
 /** Resolve affected person without mistaking a witness/reporter for the injured party. */
 function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
   const people = incident.people ?? [];
+  // Returned whether or not it carries a name. The row is the record of who was
+  // hurt — injury level, body part, the description — and requiring a name to
+  // accept it threw all of that away for an incident logged without one, which
+  // is exactly what the wizard sends when the person picker resolves no name.
   const byRole = people.find(isAffected);
-  if (byRole?.name?.trim()) {
+  if (byRole) {
     return byRole;
   }
 
@@ -1220,9 +1226,19 @@ export function mapIncidentDtoToDetailView(
   // existed only because the name *was* the id. With that fallback gone the two
   // cannot collide, and suppressing the id was the wrong half to drop.
   const affectedEmpId = affectedId || "—";
+  // Whether the incident records an affected person at all — a row, an id, or
+  // any injury detail. Carried explicitly because the card used to decide it by
+  // comparing the name against the placeholder it had just been handed, so a
+  // record with injury data but no name read as nobody at all.
+  const hasAffectedPerson =
+    affected !== null ||
+    affectedId !== "" ||
+    Boolean(incident.natureOfInjury?.trim());
   const affectedDisplayName =
     affectedName ||
-    (affectedId ? AFFECTED_NAME_UNKNOWN_LABEL : NO_AFFECTED_PERSON_LABEL);
+    (hasAffectedPerson
+      ? AFFECTED_NAME_UNKNOWN_LABEL
+      : NO_AFFECTED_PERSON_LABEL);
   const affectedInjuryLabel =
     affected?.injuryLevel?.trim() ||
     incident.natureOfInjury?.trim() ||
@@ -1239,6 +1255,7 @@ export function mapIncidentDtoToDetailView(
     responseNotes:
       incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
     affectedName: affectedDisplayName,
+    hasAffectedPerson,
     affectedRole: [
       affected?.role?.trim() || "Affected person",
       listRecord.site !== "—" ? listRecord.site : null,
