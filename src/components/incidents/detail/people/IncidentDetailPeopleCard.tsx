@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Text } from "@/components/Text";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 
@@ -68,10 +69,12 @@ export function IncidentDetailPeopleCard(
     className = "",
   } = props;
 
-  const hasAffected =
-    isEditing ||
-    (Boolean(affectedName.trim()) &&
-      affectedName !== "No affected person logged");
+  // A real name, or an employee id on its own — an incident that records only
+  // an id still has something to show, and hiding the card would hide it.
+  const hasRecordedName =
+    Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
+  const hasEmployeeId = Boolean(affectedEmpId.trim()) && affectedEmpId !== "—";
+  const hasAffected = isEditing || hasRecordedName || hasEmployeeId;
 
   return (
     <div
@@ -98,9 +101,7 @@ export function IncidentDetailPeopleCard(
                     <input
                       type="text"
                       value={editableDisplayValue(
-                        affectedName === "No affected person logged"
-                          ? ""
-                          : affectedName,
+                        hasRecordedName ? affectedName : "",
                       )}
                       onChange={(event) =>
                         onChangeAffectedName?.(event.target.value)

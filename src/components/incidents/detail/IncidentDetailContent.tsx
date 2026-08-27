@@ -10,6 +10,7 @@ import type {
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import {
@@ -241,9 +242,7 @@ export function IncidentDetailContent(
     setWitnesses(detail.witnesses);
     setResponders(detail.responders);
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
@@ -458,9 +457,7 @@ export function IncidentDetailContent(
     }
     setActiveTab("people");
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
