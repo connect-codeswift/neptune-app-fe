@@ -4,7 +4,10 @@ import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
-import { useResolvedFileUrl } from "@/hooks/use-file-queries";
+import {
+  canPreviewResolvedFile,
+  useResolvedFileUrl,
+} from "@/hooks/use-file-queries";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
   FILE_ALLOWED_MIME_TYPES,
@@ -75,6 +78,35 @@ function photoRowRef(entry: string): string | null {
   const parts = raw.split("|||");
   const last = parts[parts.length - 1]?.trim() ?? "";
   return isLegacyPublicUrl(last) || isStoredFileId(last) ? last : null;
+}
+
+/**
+ * Row thumbnail: the picture itself, a PDF's generated first page, or the generic icon.
+ * Gated on mime type — a .docx has no thumbnail, and feeding one to `next/image` renders
+ * a broken frame rather than a document.
+ */
+function PhotoRowThumb(props: Readonly<{ entry: string }>) {
+  const ref = photoRowRef(props.entry);
+  const { thumbnailUrl, mimeType } = useResolvedFileUrl(ref);
+
+  if (ref && canPreviewResolvedFile(mimeType, thumbnailUrl)) {
+    return (
+      <span className="rounded-2.5 relative size-9 shrink-0 overflow-hidden">
+        <ResolvedFileImage
+          fileRef={ref}
+          alt=""
+          sizes="36px"
+          className="object-cover"
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
+      <Icon icon="mdi:file-document-outline" className="size-5" aria-hidden />
+    </span>
+  );
 }
 
 /**
@@ -379,13 +411,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 key={`${entry}-${String(index)}`}
                 className="group rounded-2.5 bg-ehs-form-classes-bg/70 flex items-center gap-3 py-3 pr-3 pl-3"
               >
-                <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
-                  <Icon
-                    icon="mdi:file-document-outline"
-                    className="size-5"
-                    aria-hidden
-                  />
-                </span>
+                <PhotoRowThumb entry={entry} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <PhotoRowFileName entry={entry} name={name} />
                   {subtitle ? (
