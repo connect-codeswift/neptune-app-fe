@@ -453,9 +453,18 @@ function buildTimelineEvents(
     });
   }
 
-  const actionText = incident.actionTaken?.toLowerCase() ?? "";
+  // Read the same way the Immediate response card reads it. This was the second
+  // whole-string substring scan and it was left behind when the card's was
+  // fixed, so the timeline still recorded "First aid administered" as an event
+  // off the back of a note saying it was not.
+  const { actionLabels } = splitActionTaken(incident.actionTaken);
   for (const option of IMMEDIATE_ACTION_OPTIONS) {
-    if (!actionText.includes(option.label.toLowerCase())) continue;
+    if (
+      !actionLabels.some(
+        (label) => label.toLowerCase() === option.label.toLowerCase(),
+      )
+    )
+      continue;
     push(reportedAt, {
       title: option.label,
       description: "Immediate response action recorded.",
