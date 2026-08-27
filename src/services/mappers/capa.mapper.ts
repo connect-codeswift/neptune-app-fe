@@ -35,6 +35,7 @@ import {
   createCapaVerificationInitialValues,
 } from "@/components/capa/detail/capa-verification-schema";
 import type { FormValues } from "@/components/form-builder";
+import { isLegacyPublicUrl, isStoredFileId } from "@/lib/files";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import {
   CAPA_API_STATUS,
@@ -1077,7 +1078,11 @@ export function mapCapaAttachmentDtoToDetailAttachment(
   };
 }
 
-/** FormBuilder photo value: `title|||Uploaded by Name|||url` (or bare URL). */
+/**
+ * FormBuilder photo value: `title|||Uploaded by Name|||ref`, where `ref` is a files-API
+ * id or a legacy public URL. Emitting it only for `http(s)` dropped every id the private
+ * bucket returns, so the row came back as `title|||Attachment` pointing at nothing.
+ */
 export function capaAttachmentToFormValue(
   file: CapaAttachmentItemDto,
   userNames?: ReadonlyMap<string, string>,
@@ -1085,7 +1090,7 @@ export function capaAttachmentToFormValue(
   const url = file.attachmentUrl.trim();
   const title =
     file.attachmentTitle.trim() ||
-    (url ? attachmentFileNameFromUrl(url) : "") ||
+    (isLegacyPublicUrl(url) ? attachmentFileNameFromUrl(url) : "") ||
     "File";
 
   const uploader =
@@ -1097,7 +1102,7 @@ export function capaAttachmentToFormValue(
     ? `Uploaded by ${uploader}`
     : file.size?.trim() || "";
 
-  if (/^https?:\/\//i.test(url)) {
+  if (isLegacyPublicUrl(url) || isStoredFileId(url)) {
     return `${title}|||${subtitle}|||${url}`;
   }
 
@@ -1114,7 +1119,34 @@ function attachmentFileNameFromUrl(url: string): string {
   }
 }
 
-/** Maps FormBuilder photo values into POST /UploadCapaAttachments items. */
+/** `formatFileSize` output — "227 KB", "1.4 MB", "812 B". */
+const FILE_SIZE_LABEL = /^\d+(\.\d+)?\s*(B|KB|MB|GB)$/i;
+
+/**
+ * The reference inside a FormBuilder photo value — a files-API id or a legacy public
+ * URL — whether the value is bare or `title|||subtitle|||ref`. Null when it is neither.
+ */
+export function capaAttachmentRefFromFormValue(entry: string): string | null {
+  const raw = entry.trim();
+  if (!raw) {
+    return null;
+  }
+
+  if (isLegacyPublicUrl(raw) || isStoredFileId(raw)) {
+    return raw;
+  }
+
+  const parts = raw.split("|||");
+  const last = parts[parts.length - 1]?.trim() ?? "";
+  return isLegacyPublicUrl(last) || isStoredFileId(last) ? last : null;
+}
+
+/**
+ * Maps FormBuilder photo values into POST /UploadCapaAttachments items. Requiring
+ * `http(s)` held while uploads returned a Cloudinary URL; the private bucket returns a
+ * uuid, so every entry fell to `[]` and the save was refused before it left the browser.
+ * Legacy URLs still map, so a CAPA holding both kinds saves either.
+ */
 export function formAttachmentValuesToDtos(
   value: unknown,
 ): CapaAttachmentItemDto[] {
@@ -1123,55 +1155,30 @@ export function formAttachmentValuesToDtos(
   }
 
   return value.flatMap((entry) => {
-    if (typeof entry !== "string" || !entry.trim()) {
+    if (typeof entry !== "string") {
       return [];
     }
 
-    const raw = entry.trim();
-
-    if (/^https?:\/\//i.test(raw)) {
-      return [
-        {
-          attachmentUrl: raw,
-          attachmentTitle: attachmentFileNameFromUrl(raw),
-          size: null,
-        },
-      ];
+    const ref = capaAttachmentRefFromFormValue(entry);
+    if (!ref) {
+      return [];
     }
 
-    const parts = raw.split("|||");
-    if (parts.length >= 3) {
-      const url = parts[parts.length - 1]?.trim() ?? "";
-      const title =
-        parts[0]?.trim() ||
-        (url ? attachmentFileNameFromUrl(url) : "") ||
-        "File";
-      if (/^https?:\/\//i.test(url)) {
-        return [
-          {
-            attachmentUrl: url,
-            attachmentTitle: title,
-            size: null,
-          },
-        ];
-      }
-    }
+    const parts = entry.trim().split("|||");
+    const encoded =
+      parts.length >= 2 && parts[parts.length - 1]?.trim() === ref;
+    const middle = encoded ? (parts.slice(1, -1).join("|||").trim() ?? "") : "";
 
-    if (parts.length === 2) {
-      const title = parts[0]?.trim() || "File";
-      const meta = parts[1]?.trim() ?? "";
-      if (/^https?:\/\//i.test(meta)) {
-        return [
-          {
-            attachmentUrl: meta,
-            attachmentTitle: title,
-            size: null,
-          },
-        ];
-      }
-    }
+    // The middle segment is the size on a fresh upload and "Uploaded by Name" on a row
+    // read back from the API. Only the former belongs in the Size column.
+    const size = FILE_SIZE_LABEL.test(middle) ? middle : null;
 
-    return [];
+    const title =
+      (encoded ? parts[0]?.trim() : "") ||
+      (isLegacyPublicUrl(ref) ? attachmentFileNameFromUrl(ref) : "") ||
+      "File";
+
+    return [{ attachmentUrl: ref, attachmentTitle: title, size }];
   });
 }
 
