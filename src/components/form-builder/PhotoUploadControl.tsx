@@ -4,6 +4,10 @@ import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
+import {
+  canPreviewResolvedFile,
+  useResolvedFileUrl,
+} from "@/hooks/use-file-queries";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
   FILE_ALLOWED_MIME_TYPES,
@@ -62,6 +66,72 @@ function fileNameFromUrl(url: string): string {
   } catch {
     return url.split("/").pop()?.split("?")[0] || "file";
   }
+}
+
+/** The files-API id or public URL inside a row value, or null when it holds neither. */
+function photoRowRef(entry: string): string | null {
+  const raw = entry.trim();
+  if (isLegacyPublicUrl(raw) || isStoredFileId(raw)) {
+    return raw;
+  }
+
+  const parts = raw.split("|||");
+  const last = parts[parts.length - 1]?.trim() ?? "";
+  return isLegacyPublicUrl(last) || isStoredFileId(last) ? last : null;
+}
+
+/**
+ * Row thumbnail: the picture itself, a PDF's generated first page, or the generic icon.
+ * Gated on mime type — a .docx has no thumbnail, and feeding one to `next/image` renders
+ * a broken frame rather than a document.
+ */
+function PhotoRowThumb(props: Readonly<{ entry: string }>) {
+  const ref = photoRowRef(props.entry);
+  const { thumbnailUrl, mimeType } = useResolvedFileUrl(ref);
+
+  if (ref && canPreviewResolvedFile(mimeType, thumbnailUrl)) {
+    return (
+      <span className="rounded-2.5 relative size-9 shrink-0 overflow-hidden">
+        <ResolvedFileImage
+          fileRef={ref}
+          alt=""
+          sizes="36px"
+          className="object-cover"
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
+      <Icon icon="mdi:file-document-outline" className="size-5" aria-hidden />
+    </span>
+  );
+}
+
+/**
+ * Filename, linked to the file when the row holds a reference. Resolved at render because a
+ * signed url lasts 15 minutes — it is never stored. Its own component so the hook is not
+ * called inside the list `map`.
+ */
+function PhotoRowFileName(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const { url } = useResolvedFileUrl(photoRowRef(entry));
+
+  if (!url) {
+    return <p className="text4 text-ehs-slate truncate leading-5">{name}</p>;
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover truncate leading-5 transition-colors"
+    >
+      {name}
+    </a>
+  );
 }
 
 /** Parse a photo row value: URL, `title|||subtitle`, or `title|||subtitle|||url`. */
@@ -341,17 +411,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 key={`${entry}-${String(index)}`}
                 className="group rounded-2.5 bg-ehs-form-classes-bg/70 flex items-center gap-3 py-3 pr-3 pl-3"
               >
-                <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
-                  <Icon
-                    icon="mdi:file-document-outline"
-                    className="size-5"
-                    aria-hidden
-                  />
-                </span>
+                <PhotoRowThumb entry={entry} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="text4 text-ehs-slate truncate leading-5">
-                    {name}
-                  </p>
+                  <PhotoRowFileName entry={entry} name={name} />
                   {subtitle ? (
                     <p className="text8 text-ehs-muted-text truncate leading-4">
                       {subtitle}
