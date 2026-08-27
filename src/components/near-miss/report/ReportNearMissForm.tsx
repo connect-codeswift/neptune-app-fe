@@ -105,14 +105,15 @@ export function ReportNearMissForm() {
     [values.dateOfEvent, values.hazardType, values.location, factorLabels],
   );
 
-  const { draft, pending, dismiss } = useNarrativeDraft({
-    module: "nearMiss",
-    input: draftInput,
-    // At least one contributing factor, or the backend returns null anyway.
-    // Never while the reporter has written their own account — the request
-    // carries no field for it and their words are the record.
-    enabled: factorLabels.length > 0 && narrative.trim() === "",
-  });
+  const { draft, pending, dismiss, regenerate, canRegenerate } =
+    useNarrativeDraft({
+      module: "nearMiss",
+      input: draftInput,
+      // At least one contributing factor, or the backend returns null anyway.
+      // Never while the reporter has written their own account — the request
+      // carries no field for it and their words are the record.
+      enabled: factorLabels.length > 0 && narrative.trim() === "",
+    });
 
   const showsDraft = pending || draft !== null;
 
@@ -130,6 +131,7 @@ export function ReportNearMissForm() {
                   <AiInFieldDraft
                     draft={draft}
                     pending={pending}
+                    onRegenerate={canRegenerate ? regenerate : undefined}
                     // FormBuilder's textarea is a different skin from the
                     // incident wizard's — 16px text, 12px padding — and the
                     // ghost has to sit exactly on the caret.
@@ -146,12 +148,13 @@ export function ReportNearMissForm() {
                     module="nearMiss"
                     value={control.value}
                     onApply={control.onChange}
+                    onRegenerateDraft={canRegenerate ? regenerate : undefined}
                   />
                 ),
             }
           : field,
       ),
-    [showsDraft, draft, pending, dismiss],
+    [showsDraft, draft, pending, dismiss, regenerate, canRegenerate],
   );
 
   const handleSubmit = (values: FormValues) => {
