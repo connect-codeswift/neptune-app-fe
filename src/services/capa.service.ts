@@ -1498,3 +1498,23 @@ export async function submitCapaVerification(
 
   return normalizeCapaVerificationDto(data);
 }
+
+/**
+ * GET /api/v1/capas/by-source?sourceType=&sourceId=
+ *
+ * Every CAPA raised from one record. Returns 200 with an empty list when there are none,
+ * so an empty Related CAPAs panel is a real answer rather than a swallowed error.
+ */
+export async function getCapasBySource(sourceType: string, sourceId: number) {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load related CAPAs.");
+  }
+
+  const { data } = await http.get<unknown>(`${CAPA_PATH}/by-source`, {
+    params: { sourceType, sourceId },
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  return normalizeCapaList(data);
+}

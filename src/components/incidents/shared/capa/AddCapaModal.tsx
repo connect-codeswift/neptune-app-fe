@@ -103,6 +103,7 @@ type CapaModalFormProps = Readonly<{
   isDeletingTask: boolean;
   onClose: () => void;
   onSubmit?: (payload: CapaFormPayload) => void | Promise<void>;
+  onDueDateChange?: (dueDate: string) => void;
 }>;
 
 function StepBadge(props: Readonly<{ step: string }>) {
@@ -141,6 +142,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
     isDeletingTask,
     onClose,
     onSubmit,
+    onDueDateChange,
   } = props;
 
   const isEditMode = capaToEdit != null;
@@ -346,7 +348,12 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 variant="embedded"
                 label="Due date"
                 value={dueDate}
-                onChange={setDueDate}
+                onChange={(next) => {
+                  setDueDate(next);
+                  // The Add Task modal is a sibling, so it needs this pushed up to cap its
+                  // own date picker against it.
+                  onDueDateChange?.(next);
+                }}
                 placeholder="MM/DD/YYYY"
               />
             </div>
@@ -436,6 +443,9 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
   const initialDueDate =
     capaToEdit?.dueDate && capaToEdit.dueDate !== "—" ? capaToEdit.dueDate : "";
 
+  // Mirrored from the form below so Add Task can cap its picker at the CAPA's own date.
+  const [capaDueDate, setCapaDueDate] = useState(initialDueDate);
+
   return (
     <>
       <CapaModalForm
@@ -462,6 +472,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         isDeletingTask={isDeletingTask}
         onClose={onClose}
         onSubmit={onSubmit}
+        onDueDateChange={setCapaDueDate}
       />
 
       {isAddTaskOpen ? (
@@ -469,6 +480,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
           sourceLabel={sourceLabel}
           sourceTitle={sourceTitle}
           capaCode={addTaskCapaCode}
+          capaDueDate={capaDueDate}
           isSubmitting={isCreatingTask}
           onClose={() => setIsAddTaskOpen(false)}
           onSubmit={handleAddTask}
