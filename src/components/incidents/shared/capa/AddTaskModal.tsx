@@ -21,8 +21,8 @@ export type CapaTaskFormPayload = Readonly<{
 }>;
 
 export type AddTaskModalProps = Readonly<{
-  incidentId: string;
-  incidentTitle: string;
+  sourceLabel: string;
+  sourceTitle: string;
   capaCode: string;
   isSubmitting?: boolean;
   onClose: () => void;
@@ -33,8 +33,8 @@ const PRIORITY_OPTIONS = ["High", "Medium", "Low"] as const;
 
 export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   const {
-    incidentId,
-    incidentTitle,
+    sourceLabel,
+    sourceTitle,
     capaCode,
     isSubmitting = false,
     onClose,
@@ -74,7 +74,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   return (
     <IncidentModalShell
       title="Add Task"
-      subtitle={`${incidentId} · ${incidentTitle} · ${capaCode}`}
+      subtitle={`${sourceLabel} · ${sourceTitle} · ${capaCode}`}
       onClose={onClose}
       maxWidthClassName="max-w-140"
       overlayClassName="z-[110]"

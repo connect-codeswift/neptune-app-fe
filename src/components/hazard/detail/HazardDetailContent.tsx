@@ -9,7 +9,13 @@ import { Button } from "@/components/ui/Button";
 import { HazardDetailHeader } from "./HazardDetailHeader";
 import { HazardDetailView } from "./HazardDetailView";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
+import {
+  AddCapaModal,
+  type CapaFormPayload,
+} from "@/components/incidents/shared/capa/AddCapaModal";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
+import { buildCreateCapaRequest } from "@/services/mappers/capa.mapper";
 import { useCloseHazardMutation } from "@/hooks/use-hazard-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
@@ -58,6 +64,42 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
 
   const closeMutation = useCloseHazardMutation();
   const isClosed = record?.status === "Closed";
+
+  const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
+  const createCapaMutation = useCreateCapaMutation();
+
+  // Same modal and same payload the incident module uses; only the source pair differs, so
+  // the CAPA links back to this hazard rather than saving as Standalone.
+  const handleSubmitCapa = async (payload: CapaFormPayload) => {
+    try {
+      await createCapaMutation.mutateAsync({
+        payload: buildCreateCapaRequest({
+          sourceType: "Hazard",
+          // toHazardApiId strips the "HZ-" prefix but returns a string; the source pair is
+          // numeric on the wire.
+          sourceId: Number(toHazardApiId(hazardId)) || 0,
+          controlLevel: payload.controlLevel,
+          description: payload.description,
+          type: payload.type,
+          owner: payload.owner,
+          dueDate: payload.dueDate,
+          priority: payload.priority,
+        }),
+        tasks: payload.tasks,
+      });
+      const taskCount = payload.tasks?.length ?? 0;
+      toast.success(
+        "CAPA created",
+        `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`,
+      );
+    } catch (error) {
+      toast.error(
+        "Could not create CAPA",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+      throw error;
+    }
+  };
 
   const handleClose = () => {
     closeMutation.mutate(toHazardApiId(hazardId), {
@@ -139,7 +181,20 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
               ) : null
             }
           />
-          <HazardDetailView record={record} />
+          <HazardDetailView
+            record={record}
+            onAddCapa={() => setIsAddCapaOpen(true)}
+          />
+
+          {isAddCapaOpen ? (
+            <AddCapaModal
+              sourceLabel={record.id}
+              sourceTitle={record.hazardType}
+              isSubmitting={createCapaMutation.isPending}
+              onClose={() => setIsAddCapaOpen(false)}
+              onSubmit={handleSubmitCapa}
+            />
+          ) : null}
         </>
       ) : null}
     </div>
