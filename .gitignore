@@ -45,3 +45,10 @@ next-env.d.ts
 # Must use forward slashes — git does not treat "\" as a path separator, so the
 # backslash form this tool writes by default never matches anything.
 testsprite_tests/tmp/
+
+# Everyone keeps their own agent instruction files locally — not shared via git.
+/AGENTS.md
+/CLAUDE.md
+/.docs/
+/.cursor/
+/.claude/
