@@ -12,6 +12,13 @@ export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
+  /**
+   * Whether the incident records an affected person at all. Decided by the
+   * mapper, which has the record; this was inferred here by comparing the name
+   * against the placeholder the mapper had just supplied, so an incident with
+   * injury details but no name rendered as though nobody was involved.
+   */
+  hasAffectedPerson?: boolean;
   affectedRole?: string;
   affectedEmpId?: string;
   affectedInitials?: string;
@@ -51,6 +58,7 @@ export function IncidentDetailPeopleCard(
 ) {
   const {
     affectedName = "",
+    hasAffectedPerson = false,
     affectedRole = "Affected person",
     affectedEmpId = "—",
     affectedInitials = "—",
@@ -69,12 +77,11 @@ export function IncidentDetailPeopleCard(
     className = "",
   } = props;
 
-  // A real name, or an employee id on its own — an incident that records only
-  // an id still has something to show, and hiding the card would hide it.
+  // A real name still counts on its own, so a caller that predates the flag
+  // does not lose the card.
   const hasRecordedName =
     Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
-  const hasEmployeeId = Boolean(affectedEmpId.trim()) && affectedEmpId !== "—";
-  const hasAffected = isEditing || hasRecordedName || hasEmployeeId;
+  const hasAffected = isEditing || hasAffectedPerson || hasRecordedName;
 
   return (
     <div
