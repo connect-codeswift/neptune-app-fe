@@ -13,6 +13,10 @@ import type {
   WhyChainItem,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import {
+  AFFECTED_NAME_UNKNOWN_LABEL,
+  NO_AFFECTED_PERSON_LABEL,
+} from "@/components/incidents/detail/incident-detail-types";
 import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 import {
   IMMEDIATE_ACTION_OPTIONS,
@@ -198,17 +202,10 @@ function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
     return nonRouting;
   }
 
-  const affectedId = incident.affectedPersonId?.trim();
-  if (affectedId) {
-    return {
-      name: affectedId,
-      role: "Affected person",
-      injuryLevel: null,
-      bodyPartAffected: null,
-      injuryDescription: null,
-    };
-  }
-
+  // No fallback to affectedPersonId. It used to return one shaped like a person
+  // with the raw id as its name, so the People tab showed "3" as the affected
+  // person and "3" in the avatar. An id is not a name; it is surfaced as the
+  // employee id by the caller instead.
   return null;
 }
 
@@ -1219,11 +1216,13 @@ export function mapIncidentDtoToDetailView(
   const responders = buildResponders(incident, listRecord.reporter);
   const affectedName = affected?.name?.trim() || "";
   const affectedId = incident.affectedPersonId?.trim() || "";
-  const affectedEmpId =
-    affectedId &&
-    (!affectedName || affectedId.toLowerCase() !== affectedName.toLowerCase())
-      ? affectedId
-      : "—";
+  // The dedupe this used to do — blank the id whenever it matched the name —
+  // existed only because the name *was* the id. With that fallback gone the two
+  // cannot collide, and suppressing the id was the wrong half to drop.
+  const affectedEmpId = affectedId || "—";
+  const affectedDisplayName =
+    affectedName ||
+    (affectedId ? AFFECTED_NAME_UNKNOWN_LABEL : NO_AFFECTED_PERSON_LABEL);
   const affectedInjuryLabel =
     affected?.injuryLevel?.trim() ||
     incident.natureOfInjury?.trim() ||
@@ -1239,7 +1238,7 @@ export function mapIncidentDtoToDetailView(
     responseActions,
     responseNotes:
       incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
-    affectedName: affectedName || "No affected person logged",
+    affectedName: affectedDisplayName,
     affectedRole: [
       affected?.role?.trim() || "Affected person",
       listRecord.site !== "—" ? listRecord.site : null,
