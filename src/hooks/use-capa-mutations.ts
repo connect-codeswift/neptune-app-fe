@@ -12,6 +12,7 @@ import {
   createCapaTask,
   deleteCapaTask,
   dropCapa,
+  requestCapaVerification,
   submitCapaVerification,
   updateCapa,
   updateCapaTask,
@@ -20,6 +21,7 @@ import {
 } from "@/services/capa.service";
 import {
   buildCreateCapaTaskRequest,
+  normalizePriority,
   buildCapaVerificationRequest,
   buildUpdateCapaRequest,
   buildUpdateCapaTaskRequest,
@@ -340,6 +342,33 @@ export function useDropCapaMutation() {
   });
 }
 
+export type RequestCapaVerificationInput = Readonly<{ capaId: number }>;
+
+/**
+ * Hands a `Completed` CAPA to a verifier — `POST /capas/{id}/request-verification`.
+ *
+ * Invalidates the whole CAPA cache rather than one key: the call moves the record to
+ * `Pending Verification`, which changes its badge in the register, its position in the
+ * Awaiting Effectiveness Review card, and the buttons on its own detail page.
+ */
+export function useRequestCapaVerificationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: RequestCapaVerificationInput) => {
+      const auth = getAuthContext();
+      if (!auth) {
+        throw new Error("Sign in required to request verification.");
+      }
+
+      return requestCapaVerification(input.capaId);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+    },
+  });
+}
+
 export function useCreateCapaMutation() {
   const queryClient = useQueryClient();
 
@@ -350,28 +379,23 @@ export function useCreateCapaMutation() {
         throw new Error("Sign in required to create a CAPA.");
       }
 
-      const capa = await createCapa(input.payload);
-      console.log("capa", capa);
+      // One request, one transaction. This used to create the CAPA and then POST each
+      // task in a loop, so any task that failed left a saved CAPA missing part of its
+      // checklist - and a CAPA with no tasks can never reach Completed, so it could not
+      // be verified or closed either. The API takes them in the create body for exactly
+      // this reason.
+      const tasks = (input.tasks ?? [])
+        .map((task) => ({
+          task: task.task.trim(),
+          dueDate: task.dueDate,
+          priority: task.priority?.trim() ? normalizePriority(task.priority) : "Medium",
+        }))
+        .filter((task) => task.task.length > 0 && task.dueDate.trim().length > 0);
 
-      if (capa?.id) {
-        for (const task of input.tasks ?? []) {
-          const trimmedTask = task.task.trim();
-          if (!trimmedTask) {
-            continue;
-          }
-
-          await createCapaTask(
-            buildCreateCapaTaskRequest({
-              capaId: capa.id,
-              task: trimmedTask,
-              dueDate: task.dueDate,
-              priority: task.priority,
-            }),
-          );
-        }
-      }
-
-      return capa;
+      return createCapa({
+        ...input.payload,
+        ...(tasks.length > 0 ? { tasks } : {}),
+      });
     },
     onSuccess: async (result, variables) => {
       const incidentId = variables.payload.incidentId ?? 0;

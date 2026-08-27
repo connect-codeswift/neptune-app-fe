@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents";
 import {
@@ -64,8 +64,36 @@ function StepBadge(props: Readonly<{ step: string }>) {
 }
 
 /** Create CAPA page — Figma 7123:41554. */
+/**
+ * What is still missing, one thing at a time. Early returns rather than a ternary chain
+ * (Sonar S3358), and it names the blocker instead of saying "complete the form" - a
+ * disabled button with no reason is the thing people file bugs about.
+ */
+function getSubmitHint(
+  controlLevel: ControlLevel | null,
+  description: string,
+  hasAtLeastOneTask: boolean,
+): string {
+  if (controlLevel == null) {
+    return "Select a control level to continue";
+  }
+  if (description.trim().length === 0) {
+    return "Describe the action to continue";
+  }
+  if (!hasAtLeastOneTask) {
+    return "Add at least one task to continue";
+  }
+  return `${controlLevel} selected`;
+}
+
 export function CreateCapaContent() {
   const router = useRouter();
+
+  // ?sourceType=Hazard&sourceId=12 - set by the "Add CAPA" link on a hazard or near miss.
+  // Absent on the plain New CAPA route, which is how a standalone CAPA is raised.
+  const searchParams = useSearchParams();
+  const sourceType = searchParams.get("sourceType")?.trim() ?? "";
+  const sourceId = Number(searchParams.get("sourceId") ?? 0);
   const createCapaMutation = useCreateCapaMutation();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
@@ -81,9 +109,20 @@ export function CreateCapaContent() {
   );
 
   const description = fieldString(formValues ?? initialValues, "description");
+  // Read live so the task picker follows the CAPA date as it is being chosen, rather than
+  // capping against whatever it was when the modal first opened.
+  const capaDueDate = fieldString(formValues ?? initialValues, "dueDate");
   const isSubmitting = createCapaMutation.isPending;
+
+  // A CAPA with no tasks is a dead end: status is derived from its tasks, so it can never
+  // leave Open - not Completed, so never Pending Verification, and never Closed. The only
+  // thing anyone could do with it afterwards is drop it. Require one up front instead.
+  const hasAtLeastOneTask = tasks.length > 0;
   const canSubmit =
-    controlLevel != null && description.trim().length > 0 && !isSubmitting;
+    controlLevel != null &&
+    description.trim().length > 0 &&
+    hasAtLeastOneTask &&
+    !isSubmitting;
 
   const handleCancel = () => {
     router.push(CAPA_ROUTE);
@@ -131,6 +170,10 @@ export function CreateCapaContent() {
           userId: auth.userId,
           incidentId: 0,
           rcaId: 0,
+          // Carried from ?sourceType=&sourceId= so a CAPA raised from a hazard or a near
+          // miss links back to it. Without these it saved as Standalone, and the record it
+          // came from showed no CAPA at all.
+          ...(sourceType && sourceId > 0 ? { sourceType, sourceId } : {}),
           assignedId,
           dueDate,
           isDrop: false,
@@ -291,9 +334,7 @@ export function CreateCapaContent() {
 
         <div className="border-ehs-border flex flex-col gap-3 border-t px-4 py-5 sm:px-6 md:flex-row md:flex-wrap md:items-center md:justify-between md:px-8">
           <p className="text-sm leading-[19.5px] text-[#94a3b8]">
-            {controlLevel
-              ? `${controlLevel} selected`
-              : "Select a control level to continue"}
+            {getSubmitHint(controlLevel, description, hasAtLeastOneTask)}
           </p>
           <div className="flex w-full flex-wrap items-center gap-3 md:w-auto">
             <Button
@@ -321,6 +362,7 @@ export function CreateCapaContent() {
 
       {addTaskOpen ? (
         <CapaDetailAddTaskModal
+          capaDueDate={capaDueDate}
           confirmLabel="Add Task"
           onClose={() => setAddTaskOpen(false)}
           onAssign={handleAddTask}

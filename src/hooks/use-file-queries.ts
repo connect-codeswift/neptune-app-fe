@@ -4,6 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { isBlobUrl, isLegacyPublicUrl, isStoredFileId } from "@/lib/files";
 import { getStoredFile } from "@/services/files.service";
 
+/** Last path segment of a public url, so a legacy row still reads like a file listing. */
+function fileNameFromUrl(url: string): string {
+  const withoutQuery = url.split("?")[0] ?? url;
+  return withoutQuery.split("/").pop() || "file";
+}
+
 export const fileQueryKeys = {
   all: ["files"] as const,
   detail: (fileId: string) => [...fileQueryKeys.all, fileId] as const,
@@ -36,20 +42,55 @@ export function useResolvedFileUrl(ref: string | null | undefined) {
   const query = useStoredFileQuery(storedId);
 
   if (!trimmed) {
-    return { url: undefined, thumbnailUrl: undefined, isLoading: false };
+    return {
+      url: undefined,
+      previewUrl: undefined,
+      thumbnailUrl: undefined,
+      fileName: undefined,
+      mimeType: undefined,
+      isLoading: false,
+    };
   }
 
   if (isBlobUrl(trimmed) || isLegacyPublicUrl(trimmed)) {
-    return { url: trimmed, thumbnailUrl: undefined, isLoading: false };
+    // A public url is already viewable, so it serves as its own preview.
+    return {
+      url: trimmed,
+      previewUrl: trimmed,
+      thumbnailUrl: undefined,
+      fileName: fileNameFromUrl(trimmed),
+      mimeType: undefined,
+      isLoading: false,
+    };
   }
 
   if (storedId) {
     return {
       url: query.data?.downloadUrl,
+      previewUrl: query.data?.previewUrl ?? undefined,
       thumbnailUrl: query.data?.thumbnailUrl ?? undefined,
+      // The stored name is the only place a files-API ref carries one — the ref itself
+      // is a bare uuid, which is what review screens were showing as the filename.
+      fileName: query.data?.fileName,
+      mimeType: query.data?.mimeType,
       isLoading: query.isLoading,
     };
   }
 
-  return { url: trimmed, thumbnailUrl: undefined, isLoading: false };
+  return {
+    url: trimmed,
+    previewUrl: trimmed,
+    thumbnailUrl: undefined,
+    fileName: undefined,
+    mimeType: undefined,
+    isLoading: false,
+  };
+}
+
+/** True when the resolved file can be shown as an image: a picture, or a PDF's thumbnail. */
+export function canPreviewResolvedFile(
+  mimeType: string | undefined,
+  thumbnailUrl: string | undefined,
+): boolean {
+  return Boolean(thumbnailUrl) || Boolean(mimeType?.startsWith("image/"));
 }

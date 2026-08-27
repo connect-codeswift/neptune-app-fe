@@ -5,6 +5,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
+import {
+  canPreviewResolvedFile,
+  useResolvedFileUrl,
+} from "@/hooks/use-file-queries";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
@@ -65,18 +70,28 @@ function TypeBadge(props: Readonly<{ type: ObservationDetail["type"] }>) {
   );
 }
 
+/**
+ * One evidence file. `photo.url` is a files-API id since the move to the private bucket, so
+ * it was going straight into an `<img src>` — a broken frame — and `photo.name` was showing
+ * the raw uuid. Both come from resolving the ref instead.
+ */
 function PhotoRow(props: Readonly<{ photo: ObservationPhoto }>) {
   const { photo } = props;
+  const ref = photo.url?.trim() || "";
+  const { url, thumbnailUrl, fileName, mimeType } = useResolvedFileUrl(ref);
+  const name = fileName?.trim() || photo.name;
 
   return (
     <li className="border-ehs-border bg-ehs-surface/80 flex items-center gap-3 rounded-xl border p-3">
-      {photo.url ? (
-        // eslint-disable-next-line @next/next/no-img-element -- remote evidence URLs from API
-        <img
-          src={photo.url}
-          alt={photo.name}
-          className="size-12 shrink-0 rounded-lg object-cover"
-        />
+      {ref && canPreviewResolvedFile(mimeType, thumbnailUrl) ? (
+        <span className="relative size-12 shrink-0 overflow-hidden rounded-lg">
+          <ResolvedFileImage
+            fileRef={ref}
+            alt={name}
+            sizes="48px"
+            className="object-cover"
+          />
+        </span>
       ) : (
         <span
           className="bg-ehs-normal-blue/10 flex size-9 shrink-0 items-center justify-center rounded-lg"
@@ -87,9 +102,20 @@ function PhotoRow(props: Readonly<{ photo: ObservationPhoto }>) {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <Text as="span" className="text4 text-ehs-darker min-w-0 truncate">
-          {photo.name}
-        </Text>
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover min-w-0 truncate transition-colors"
+          >
+            {name}
+          </a>
+        ) : (
+          <Text as="span" className="text4 text-ehs-darker min-w-0 truncate">
+            {name}
+          </Text>
+        )}
         <Text as="span" className="text8 text-ehs-muted-text">
           {photo.size}
         </Text>

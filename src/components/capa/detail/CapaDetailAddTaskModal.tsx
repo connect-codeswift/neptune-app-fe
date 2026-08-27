@@ -26,6 +26,8 @@ export type CapaDetailAddTaskModalProps = Readonly<{
   confirmLabel?: string;
   title?: string;
   initialDraft?: CapaAddTaskInitialDraft;
+  /** ISO `yyyy-mm-dd`. Caps the task picker so a task cannot outlive its CAPA. */
+  capaDueDate?: string;
   onAssign?: (task: CapaDetailAddTaskDraft) => void | Promise<void>;
 }>;
 
@@ -40,11 +42,15 @@ export function CapaDetailAddTaskModal(
     confirmLabel = "Assign Task",
     title = "Add New Task",
     initialDraft,
+    capaDueDate,
   } = props;
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
   const busy = isSubmitting || isLocalSubmitting;
 
-  const schema = useMemo(() => buildCapaAddTaskSchema(), []);
+  const schema = useMemo(
+    () => buildCapaAddTaskSchema(capaDueDate),
+    [capaDueDate],
+  );
   const [initialValues] = useState(() =>
     createCapaAddTaskInitialValues(schema, initialDraft),
   );

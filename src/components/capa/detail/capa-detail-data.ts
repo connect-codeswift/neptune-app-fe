@@ -10,7 +10,7 @@ import {
 
 /**
  * One node of the detail-page lifecycle stepper. Mirrors
- * `CapaLifecycleStageDto` — the backend decides the stages and which one is
+ * `CapaLifecycleStageDto` â the backend decides the stages and which one is
  * current, so nothing here is derived from a hardcoded sequence.
  */
 export type CapaDetailLifecycleStage = Readonly<{
@@ -20,7 +20,7 @@ export type CapaDetailLifecycleStage = Readonly<{
 }>;
 
 /**
- * Stepper to fall back on when a response carries no `lifecycleStages` — the
+ * Stepper to fall back on when a response carries no `lifecycleStages` â the
  * five stored statuses, with everything before the current one ticked.
  * `Closed` ticks the whole track.
  */
@@ -99,6 +99,11 @@ export type CapaDetailRecord = Readonly<{
   /** Formatted remaining / overdue label from API `daysLeft`. */
   daysLeftLabel: string;
   source: string;
+  /** Drives the Source link. Null for a standalone CAPA, which links nowhere. */
+  sourceType: string | null;
+  sourceId: number | null;
+  /** Who raised the CAPA, shown beside the owner, who is a different person. */
+  assignedBy: string;
   module: string;
   /** Lifecycle stepper from GET /api/v1/capas/{id}/detail. */
   lifecycleStages: readonly CapaDetailLifecycleStage[];
@@ -164,7 +169,7 @@ const FIGMA_COMMENTS: readonly CapaDetailComment[] = [
     author: "Sarah Mitchell",
     role: "EHS Manager",
     timestamp: "2026-05-13 16:45",
-    body: "Good progress. Please ensure the plant-wide inspection covers Presses #4 and #5 as well — they are the same model.",
+    body: "Good progress. Please ensure the plant-wide inspection covers Presses #4 and #5 as well â they are the same model.",
   },
   {
     id: "c3",
@@ -186,22 +191,22 @@ export const CAPA_FIGMA_ATTACHMENTS: readonly CapaDetailAttachment[] = [
   {
     id: "a1",
     name: "Before - cracked bracket.jpg",
-    meta: "1.2 MB · Uploaded by Tom Bradley · 2026-05-14",
+    meta: "1.2 MB Â· Uploaded by Tom Bradley Â· 2026-05-14",
   },
   {
     id: "a2",
     name: "After - new bracket installed.jpg",
-    meta: "980 KB · Uploaded by Tom Bradley · 2026-05-14",
+    meta: "980 KB Â· Uploaded by Tom Bradley Â· 2026-05-14",
   },
   {
     id: "a3",
     name: "PM Checklist draft v2.pdf",
-    meta: "340 KB · Uploaded by Emily Ross · 2026-05-12",
+    meta: "340 KB Â· Uploaded by Emily Ross Â· 2026-05-12",
   },
   {
     id: "a4",
     name: "RCA - 5 Whys Report.pdf",
-    meta: "215 KB · Uploaded by Sarah Mitchell · 2026-05-10",
+    meta: "215 KB Â· Uploaded by Sarah Mitchell Â· 2026-05-10",
   },
 ];
 
@@ -212,7 +217,7 @@ function parseCapaNumericId(idOrCode: string): number {
   return Number.parseInt(match[1], 10) || 0;
 }
 
-/** Full Figma CAPA detail — node 1366:2947 / 1370:*. */
+/** Full Figma CAPA detail â node 1366:2947 / 1370:*. */
 const FIGMA_DETAIL: Omit<
   CapaDetailRecord,
   | "id"
@@ -234,6 +239,9 @@ const FIGMA_DETAIL: Omit<
   statusLabel: "In Progress",
   controlLevel: "Engineering Controls",
   verifier: "Sarah Mitchell",
+  sourceType: null,
+  sourceId: null,
+  assignedBy: "—",
   module: "Incident",
   lifecycleStages: buildCapaLifecycleStages("In Progress"),
   problemStatement:
@@ -285,7 +293,7 @@ function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
       daysLeftLabel: item.dueLabel,
       progress: item.progress,
       source:
-        item.source.replace(/^From\s+/i, "").split(" · ")[0] ?? item.source,
+        item.source.replace(/^From\s+/i, "").split(" Â· ")[0] ?? item.source,
     };
   }
 
@@ -306,7 +314,11 @@ function synthesizeFromDashboard(item: CapaDashboardItem): CapaDetailRecord {
     verifier: "Sarah Mitchell",
     dueDate: item.dueDate,
     daysLeftLabel: item.dueLabel,
-    source: item.source.replace(/^From\s+/i, "").split(" · ")[0] ?? item.source,
+    source:
+      item.source.replace(/^From\s+/i, "").split(" Â· ")[0] ?? item.source,
+    sourceType: null,
+    sourceId: null,
+    assignedBy: "—",
     module: "Incident",
     lifecycleStages: buildCapaLifecycleStages(statusFromDashboard(item.status)),
     progress: item.progress,
