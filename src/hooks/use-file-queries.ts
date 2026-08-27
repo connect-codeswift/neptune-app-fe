@@ -44,6 +44,7 @@ export function useResolvedFileUrl(ref: string | null | undefined) {
   if (!trimmed) {
     return {
       url: undefined,
+      previewUrl: undefined,
       thumbnailUrl: undefined,
       fileName: undefined,
       mimeType: undefined,
@@ -52,8 +53,10 @@ export function useResolvedFileUrl(ref: string | null | undefined) {
   }
 
   if (isBlobUrl(trimmed) || isLegacyPublicUrl(trimmed)) {
+    // A public url is already viewable, so it serves as its own preview.
     return {
       url: trimmed,
+      previewUrl: trimmed,
       thumbnailUrl: undefined,
       fileName: fileNameFromUrl(trimmed),
       mimeType: undefined,
@@ -64,6 +67,7 @@ export function useResolvedFileUrl(ref: string | null | undefined) {
   if (storedId) {
     return {
       url: query.data?.downloadUrl,
+      previewUrl: query.data?.previewUrl ?? undefined,
       thumbnailUrl: query.data?.thumbnailUrl ?? undefined,
       // The stored name is the only place a files-API ref carries one — the ref itself
       // is a bare uuid, which is what review screens were showing as the filename.
@@ -75,6 +79,7 @@ export function useResolvedFileUrl(ref: string | null | undefined) {
 
   return {
     url: trimmed,
+    previewUrl: trimmed,
     thumbnailUrl: undefined,
     fileName: undefined,
     mimeType: undefined,

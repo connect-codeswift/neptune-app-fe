@@ -85,27 +85,67 @@ function photoRowRef(entry: string): string | null {
  * Gated on mime type — a .docx has no thumbnail, and feeding one to `next/image` renders
  * a broken frame rather than a document.
  */
-function PhotoRowThumb(props: Readonly<{ entry: string }>) {
-  const ref = photoRowRef(props.entry);
-  const { thumbnailUrl, mimeType } = useResolvedFileUrl(ref);
+function PhotoRowThumb(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const ref = photoRowRef(entry);
+  const { previewUrl, thumbnailUrl, mimeType } = useResolvedFileUrl(ref);
 
-  if (ref && canPreviewResolvedFile(mimeType, thumbnailUrl)) {
+  if (!ref || !canPreviewResolvedFile(mimeType, thumbnailUrl)) {
+    return (
+      <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
+        <Icon icon="mdi:file-document-outline" className="size-5" aria-hidden />
+      </span>
+    );
+  }
+
+  const thumb = (
+    <ResolvedFileImage
+      fileRef={ref}
+      alt=""
+      sizes="36px"
+      className="object-cover"
+    />
+  );
+
+  if (!previewUrl) {
     return (
       <span className="rounded-2.5 relative size-9 shrink-0 overflow-hidden">
-        <ResolvedFileImage
-          fileRef={ref}
-          alt=""
-          sizes="36px"
-          className="object-cover"
-        />
+        {thumb}
       </span>
     );
   }
 
   return (
-    <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
-      <Icon icon="mdi:file-document-outline" className="size-5" aria-hidden />
-    </span>
+    <a
+      href={previewUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Preview ${name}`}
+      className="rounded-2.5 relative size-9 shrink-0 overflow-hidden"
+    >
+      {thumb}
+    </a>
+  );
+}
+
+/** Saves the file. Separate from the preview link because the disposition is signed into
+ *  the url — the browser ignores a `download` attribute across origins. */
+function PhotoRowDownload(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const { url } = useResolvedFileUrl(photoRowRef(entry));
+
+  if (!url) {
+    return null;
+  }
+
+  return (
+    <a
+      href={url}
+      aria-label={`Download ${name}`}
+      className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+    >
+      <Icon icon="mdi:tray-arrow-down" className="size-4" aria-hidden />
+    </a>
   );
 }
 
@@ -116,7 +156,12 @@ function PhotoRowThumb(props: Readonly<{ entry: string }>) {
  */
 function PhotoRowFileName(props: Readonly<{ entry: string; name: string }>) {
   const { entry, name } = props;
-  const { url } = useResolvedFileUrl(photoRowRef(entry));
+  const { previewUrl, url: downloadUrl } = useResolvedFileUrl(
+    photoRowRef(entry),
+  );
+  // Prefer the inline url so the name opens a viewer; a type with no viewer falls back to
+  // saving, which is the only thing a browser can do with it anyway.
+  const url = previewUrl ?? downloadUrl;
 
   if (!url) {
     return <p className="text4 text-ehs-slate truncate leading-5">{name}</p>;
@@ -411,7 +456,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 key={`${entry}-${String(index)}`}
                 className="group rounded-2.5 bg-ehs-form-classes-bg/70 flex items-center gap-3 py-3 pr-3 pl-3"
               >
-                <PhotoRowThumb entry={entry} />
+                <PhotoRowThumb entry={entry} name={name} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <PhotoRowFileName entry={entry} name={name} />
                   {subtitle ? (
@@ -420,6 +465,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                     </p>
                   ) : null}
                 </div>
+                <PhotoRowDownload entry={entry} name={name} />
                 <button
                   type="button"
                   onClick={() => removeAt(index)}
