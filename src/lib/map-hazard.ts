@@ -169,6 +169,8 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     dateReported: dto.createdDate.slice(0, 10),
     location,
     image: dto.image,
+    closedById: dto.closedById ?? undefined,
+    closedAt: dto.closedAt?.slice(0, 10),
     relatedCapas: [],
   };
 }

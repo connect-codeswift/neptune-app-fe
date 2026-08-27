@@ -48,7 +48,14 @@ export function NearMissDetailContent(
 
   const mapped = dto ? mapNearMissDtoToRecord(dto) : null;
   const record = mapped
-    ? { ...mapped, reporter: userNameFor(userNames, mapped.reporterId ?? "") }
+    ? {
+        ...mapped,
+        reporter: userNameFor(userNames, mapped.reporterId ?? ""),
+        closedBy:
+          mapped.closedById != null
+            ? userNameFor(userNames, mapped.closedById)
+            : undefined,
+      }
     : null;
 
   const [canConvert, setCanConvert] = useState(false);
@@ -80,6 +87,7 @@ export function NearMissDetailContent(
   const hasOpenCapas = openCapas.length > 0;
   const relatedCapaRows = relatedCapas.map((capa) => ({
     id: capa.code?.trim() || `CAPA-${String(capa.id)}`,
+    numericId: capa.id,
     title: capa.title?.trim() || "Untitled CAPA",
   }));
 
@@ -154,7 +162,7 @@ export function NearMissDetailContent(
         <>
           <NearMissDetailHeader
             record={record}
-            canEdit={canEdit}
+            canEdit={canEdit && !isClosed}
             editHref={`${NEAR_MISS_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
             action={
               <>

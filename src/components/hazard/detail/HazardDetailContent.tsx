@@ -52,6 +52,10 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     ? {
         ...mapped,
         reporter: userNameFor(userNames, mapped.reporterId ?? ""),
+        closedBy:
+          mapped.closedById != null
+            ? userNameFor(userNames, mapped.closedById)
+            : undefined,
       }
     : null;
 
@@ -76,8 +80,14 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
     sourceType: "Hazard",
     sourceId: hazardApiId,
   });
-  const relatedCapaRows = (relatedCapasQuery.data ?? []).map((capa) => ({
+  const relatedCapas = relatedCapasQuery.data ?? [];
+  const openCapas = relatedCapas.filter(
+    (capa) => (capa.status ?? "").trim().toLowerCase() !== "closed",
+  );
+  const hasOpenCapas = openCapas.length > 0;
+  const relatedCapaRows = relatedCapas.map((capa) => ({
     id: capa.code?.trim() || `CAPA-${String(capa.id)}`,
+    numericId: capa.id,
     title: capa.title?.trim() || "Untitled CAPA",
     status: capa.status?.trim() || "Open",
   }));
@@ -161,14 +171,14 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
         <>
           <HazardDetailHeader
             record={record}
-            canEdit={canEdit}
+            canEdit={canEdit && !isClosed}
             editHref={`${HAZARD_LIST_ROUTE}/${encodeURIComponent(record.id)}/edit`}
             action={
               canClose ? (
                 <Button
                   type="button"
                   variant="primary"
-                  disabled={isClosed || closeMutation.isPending}
+                  disabled={isClosed || hasOpenCapas || closeMutation.isPending}
                   onClick={handleClose}
                   className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                 >
@@ -193,6 +203,12 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
               ) : null
             }
           />
+          {hasOpenCapas && !isClosed ? (
+            <Text as="p" className="text8 text-ehs-yellow">
+              {`${String(openCapas.length)} related CAPA${openCapas.length === 1 ? " is" : "s are"} not closed yet. Close ${openCapas.length === 1 ? "it" : "them"} before closing this hazard.`}
+            </Text>
+          ) : null}
+
           <HazardDetailView
             record={{ ...record, relatedCapas: relatedCapaRows }}
             onAddCapa={() => setIsAddCapaOpen(true)}

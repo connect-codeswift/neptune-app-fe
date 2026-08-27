@@ -10,6 +10,9 @@ export type HazardDto = CreateHazardRequestDto & {
   status: string;
   createdDate: string;
   updatedAt: string | null;
+  /** Who closed it and when; both null while it is open. */
+  closedById: number | null;
+  closedAt: string | null;
 };
 
 /** Matches backend response for POST /api/v1/hazards/search. */
