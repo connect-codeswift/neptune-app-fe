@@ -19,7 +19,10 @@ import {
   TREATMENT_PROVIDER_OPTIONS,
   WHAT_TREATMENT_GIVEN_OPTIONS,
 } from "@/components/incidents/report/shared/report-treatment";
-import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
+import {
+  IMMEDIATE_ACTION_OPTIONS,
+  buildActionTaken as buildStoredActionTaken,
+} from "@/components/incidents/report/shared/report-response";
 import type { PersonDto } from "@/dtos/res/incident-response.dto";
 import type { IncidentWritePayloadDto } from "@/dtos/req/incident-request.dto";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
@@ -198,16 +201,9 @@ function buildActionTaken(form: ReportIncidentFormState): string {
     )
     .filter(Boolean);
 
-  const notes = form.actionNotes.trim();
-  if (labels.length === 0) {
-    return notes;
-  }
-
-  if (!notes) {
-    return labels.join("; ");
-  }
-
-  return `${labels.join("; ")}\n${notes}`;
+  // Same shape as before — the detail screen reads it back through
+  // splitActionTaken, so the two ends share one definition of the format.
+  return buildStoredActionTaken(labels, form.actionNotes);
 }
 
 function buildOtherNotes(form: ReportIncidentFormState): string {
