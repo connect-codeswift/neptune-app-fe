@@ -679,6 +679,8 @@ function buildCapaMutationPayload(input: {
   type: string;
   dueDate: string;
   priority: string;
+  sourceType?: string;
+  sourceId?: number;
 }): CreateCapaRequestDto {
   const description = input.description.trim();
 
@@ -698,12 +700,20 @@ function buildCapaMutationPayload(input: {
     assignedId: input.assignedId ?? 0,
     dueDate: input.dueDate.trim() ? input.dueDate.trim() : "",
     isDrop: input.isDrop,
+    // Omitted rather than sent empty when there is no source: the API reads the pair as
+    // "raised from this record", and a blank type with an id is not a record.
+    ...(input.sourceType && input.sourceId && input.sourceId > 0
+      ? { sourceType: input.sourceType, sourceId: input.sourceId }
+      : {}),
   };
 }
 
 export function buildCreateCapaRequest(input: {
   incidentId?: number;
   rcaId?: number | null;
+  /** Where the CAPA was raised from — see CapaSourceType. Omit for a standalone CAPA. */
+  sourceType?: string;
+  sourceId?: number;
   controlLevel: string;
   description: string;
   type: string;
@@ -739,6 +749,8 @@ export function buildCreateCapaRequest(input: {
     type: input.type,
     dueDate: input.dueDate,
     priority: input.priority,
+    sourceType: input.sourceType,
+    sourceId: input.sourceId,
   });
 }
 

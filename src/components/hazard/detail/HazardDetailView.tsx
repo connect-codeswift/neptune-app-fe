@@ -42,8 +42,10 @@ function DetailValue(props: Readonly<{ value: string }>) {
   );
 }
 
-export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
-  const { record } = props;
+export function HazardDetailView(
+  props: Readonly<{ record: HazardRecord; onAddCapa?: () => void }>,
+) {
+  const { record, onAddCapa } = props;
 
   // The record id the API knows, dug out of the display id ("HZ-12" -> 12). Both records
   // carry their id already formatted for the header, and re-fetching just to recover the
@@ -91,12 +93,25 @@ export function HazardDetailView(props: Readonly<{ record: HazardRecord }>) {
             <Text as="h3" className={sectionHeadingClass}>
               Related CAPAs
             </Text>
-            <Link
-              href={`${CAPA_NEW_ROUTE}?sourceType=Hazard&sourceId=${String(hazardSourceId)}`}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
-            >
-              Add CAPA
-            </Link>
+            {/* A modal, not a link to /capa/new: raising a CAPA from a hazard should not
+                leave the hazard, which is how the incident module already works. The link
+                is kept as the fallback for a container that has not wired the modal. */}
+            {onAddCapa ? (
+              <button
+                type="button"
+                onClick={onAddCapa}
+                className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
+              >
+                Add CAPA
+              </button>
+            ) : (
+              <Link
+                href={`${CAPA_NEW_ROUTE}?sourceType=Hazard&sourceId=${String(hazardSourceId)}`}
+                className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
+              >
+                Add CAPA
+              </Link>
+            )}
           </div>
 
           {record.relatedCapas.length > 0 ? (

@@ -48,8 +48,8 @@ export type StagedCapaTask = CapaTaskFormPayload &
   }>;
 
 export type AddCapaModalProps = Readonly<{
-  incidentId: string;
-  incidentTitle: string;
+  sourceLabel: string;
+  sourceTitle: string;
   capaId?: string;
   capaToEdit?: CapaItem;
   isSubmitting?: boolean;
@@ -64,9 +64,29 @@ export type AddCapaModalProps = Readonly<{
 const TYPE_OPTIONS = ["Corrective", "Preventive"] as const;
 const PRIORITY_OPTIONS = ["High", "Medium", "Low"] as const;
 
+/** Names the one thing still missing, in the order the form is filled. */
+function resolveFooterHint(
+  state: Readonly<{
+    controlLevel: string | null;
+    description: string;
+    hasAtLeastOneTask: boolean;
+  }>,
+): string {
+  if (!state.controlLevel) {
+    return "Select a control level to continue";
+  }
+  if (state.description.trim().length === 0) {
+    return "Describe the action to continue";
+  }
+  if (!state.hasAtLeastOneTask) {
+    return "Add at least one task to continue";
+  }
+  return `${state.controlLevel} selected`;
+}
+
 type CapaModalFormProps = Readonly<{
-  incidentId: string;
-  incidentTitle: string;
+  sourceLabel: string;
+  sourceTitle: string;
   capaId: string;
   capaToEdit?: CapaItem;
   isSubmitting: boolean;
@@ -103,8 +123,8 @@ function FieldLabel(
 
 function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   const {
-    incidentId,
-    incidentTitle,
+    sourceLabel,
+    sourceTitle,
     capaId,
     capaToEdit,
     isSubmitting,
@@ -148,8 +168,16 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
 
   const busy =
     isSubmitting || isLocalSubmitting || isCreatingTask || isDeletingTask;
+  // A CAPA's status is derived from its tasks, so one with none can never leave Open. The
+  // standalone create screen has always refused to submit without a task; this modal did not,
+  // so the same rule depended on which route you came in through. Editing is exempt: the tasks
+  // already exist and are managed on the detail page.
+  const hasAtLeastOneTask = isEditMode || stagedTasks.length > 0;
   const canSubmit =
-    controlLevel != null && description.trim().length > 0 && !busy;
+    controlLevel != null &&
+    description.trim().length > 0 &&
+    hasAtLeastOneTask &&
+    !busy;
   const modalCapaId = capaToEdit?.code ?? capaId;
 
   const handleSubmit = async () => {
@@ -201,13 +229,13 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   return (
     <IncidentModalShell
       title={isEditMode ? "Edit CAPA" : "Create CAPA"}
-      subtitle={`${incidentId} · ${incidentTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
+      subtitle={`${sourceLabel} · ${sourceTitle} · ${isEditMode ? modalCapaId : `new ${capaId}`}`}
       onClose={onClose}
-      footerHint={
-        controlLevel
-          ? `${controlLevel} selected`
-          : "Select a control level to continue"
-      }
+      footerHint={resolveFooterHint({
+        controlLevel,
+        description,
+        hasAtLeastOneTask,
+      })}
       footerActions={
         <>
           <IncidentModalCancelButton onClick={onClose} />
@@ -352,8 +380,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
 
 export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
   const {
-    incidentId,
-    incidentTitle,
+    sourceLabel,
+    sourceTitle,
     capaId = "CAPA-0423",
     capaToEdit,
     isSubmitting = false,
@@ -416,8 +444,8 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
             ? `edit-${capaToEdit.id}-${String(savedTasks.length)}`
             : "add"
         }
-        incidentId={incidentId}
-        incidentTitle={incidentTitle}
+        sourceLabel={sourceLabel}
+        sourceTitle={sourceTitle}
         capaId={capaId}
         capaToEdit={capaToEdit}
         isSubmitting={isSubmitting}
@@ -438,8 +466,8 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
 
       {isAddTaskOpen ? (
         <AddTaskModal
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={sourceLabel}
+          sourceTitle={sourceTitle}
           capaCode={addTaskCapaCode}
           isSubmitting={isCreatingTask}
           onClose={() => setIsAddTaskOpen(false)}
