@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
+import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
 import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Button } from "@/components/ui/Button";
@@ -109,7 +110,77 @@ export function ReportIncidentStepTwo(
     form.description.trim() === "" &&
     !form.descriptionDraft.dismissed &&
     !form.descriptionDraft.pending &&
+    !form.descriptionDraft.drafted &&
     draftKey !== form.descriptionDraft.source;
+
+  // Read at the moment a response lands, not at the moment the call was fired.
+  // `onChange` takes a patch and cannot read the newest state, so a reporter
+  // who dismissed the ghost mid-flight used to have it reopened by the reply.
+  const dismissedRef = useRef(form.descriptionDraft.dismissed);
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    dismissedRef.current = form.descriptionDraft.dismissed;
+    onChangeRef.current = onChange;
+  });
+
+  /** Fires the call and writes whatever comes back into `descriptionDraft`. */
+  const runDraft = (requestKey: string, request: IncidentDraftRequestDto) => {
+    onChangeRef.current({
+      descriptionDraft: {
+        text: null,
+        pending: true,
+        source: requestKey,
+        dismissed: false,
+        drafted: form.descriptionDraft.drafted,
+      },
+    });
+
+    draftAssist
+      .mutateAsync(request)
+      .then((drafts) => {
+        // A null description is an answer, not a failure — it means the
+        // reporter already wrote one, so there is nothing to offer.
+        onChangeRef.current({
+          descriptionDraft: {
+            text: dismissedRef.current ? null : drafts.description,
+            pending: false,
+            source: requestKey,
+            dismissed: dismissedRef.current,
+            drafted: true,
+          },
+        });
+      })
+      .catch((error: unknown) => {
+        // Additive feature: no ghost text, no toast, field behaves exactly as
+        // it does without the assistant. Also the path taken wherever
+        // `Ai__ApiKey` is unset and the endpoint is inert.
+        logAiAssistFailure("draft-assist", error);
+        // `drafted` is set on failure too: the call still spent a slot out of
+        // the 20-per-minute budget, and retrying it on the reporter's next
+        // answer would spend the rest of them the same way.
+        onChangeRef.current({
+          descriptionDraft: {
+            text: null,
+            pending: false,
+            source: requestKey,
+            dismissed: dismissedRef.current,
+            drafted: true,
+          },
+        });
+      });
+  };
+
+  // Only once the automatic pass has run — before that the draft is still
+  // coming on its own — and never over words the reporter has written.
+  const canRegenerateDraft =
+    form.descriptionDraft.drafted &&
+    !form.descriptionDraft.pending &&
+    form.description.trim() === "" &&
+    canDraftDescription(form);
+
+  const regenerateDraft = () => {
+    runDraft(draftKey, draftInput);
+  };
 
   /**
    * Drafts the description once the answers above it are substantial enough to
@@ -119,6 +190,11 @@ export function ReportIncidentStepTwo(
    * intermediate state would otherwise cost a call out of the 20-per-minute
    * budget shared with both rewrite buttons. Keyed on the request itself, so
    * re-picking the same option costs nothing.
+   *
+   * Runs once. The debounce only ever coalesced changes made inside its
+   * window, so a reporter who paused to think between two answers bought a
+   * draft for each of them. `drafted` closes that: afterwards the ghost stays
+   * put and `regenerateDraft` is the reporter's to press.
    */
   useEffect(() => {
     if (!wantsDraft) {
@@ -126,42 +202,7 @@ export function ReportIncidentStepTwo(
     }
 
     const timer = globalThis.setTimeout(() => {
-      onChange({
-        descriptionDraft: {
-          ...form.descriptionDraft,
-          pending: true,
-          source: draftKey,
-        },
-      });
-
-      draftAssist
-        .mutateAsync(draftInput)
-        .then((drafts) => {
-          // A null description is an answer, not a failure — it means the
-          // reporter already wrote one, so there is nothing to offer.
-          onChange({
-            descriptionDraft: {
-              text: drafts.description,
-              pending: false,
-              source: draftKey,
-              dismissed: false,
-            },
-          });
-        })
-        .catch((error: unknown) => {
-          // Additive feature: no ghost text, no toast, field behaves exactly as
-          // it does without the assistant. Also the path taken wherever
-          // `Ai__ApiKey` is unset and the endpoint is inert.
-          logAiAssistFailure("draft-assist", error);
-          onChange({
-            descriptionDraft: {
-              text: null,
-              pending: false,
-              source: draftKey,
-              dismissed: false,
-            },
-          });
-        });
+      runDraft(draftKey, draftInput);
     }, DRAFT_DEBOUNCE_MS);
 
     return () => {
@@ -443,6 +484,9 @@ export function ReportIncidentStepTwo(
                 <AiInFieldDraft
                   draft={form.descriptionDraft.text}
                   pending={form.descriptionDraft.pending}
+                  onRegenerate={
+                    canRegenerateDraft ? regenerateDraft : undefined
+                  }
                   onAccept={(text) =>
                     onChange({
                       description: text,
@@ -473,6 +517,9 @@ export function ReportIncidentStepTwo(
                 <AiTextAssistant
                   module="incident"
                   value={form.description}
+                  onRegenerateDraft={
+                    canRegenerateDraft ? regenerateDraft : undefined
+                  }
                   onApply={(description) => {
                     onChange({ description });
                   }}

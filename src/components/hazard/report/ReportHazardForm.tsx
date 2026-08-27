@@ -78,13 +78,14 @@ export function ReportHazardForm() {
     [values.hazardType, values.location, consequence],
   );
 
-  const { draft, pending, dismiss } = useNarrativeDraft({
-    module: "hazard",
-    input: draftInput,
-    // The consequence is the backend's threshold — type and location alone
-    // return null. Never while the reporter has written their own account.
-    enabled: consequence !== "" && description.trim() === "",
-  });
+  const { draft, pending, dismiss, regenerate, canRegenerate } =
+    useNarrativeDraft({
+      module: "hazard",
+      input: draftInput,
+      // The consequence is the backend's threshold — type and location alone
+      // return null. Never while the reporter has written their own account.
+      enabled: consequence !== "" && description.trim() === "",
+    });
 
   const showsDraft = pending || draft !== null;
 
@@ -100,6 +101,7 @@ export function ReportHazardForm() {
                   <AiInFieldDraft
                     draft={draft}
                     pending={pending}
+                    onRegenerate={canRegenerate ? regenerate : undefined}
                     // FormBuilder's textarea skin, not the incident wizard's.
                     fieldPaddingClassName="px-3 pt-2.5"
                     fieldTextClassName="text4 text-ehs-darker leading-normal"
@@ -114,12 +116,13 @@ export function ReportHazardForm() {
                     module="hazard"
                     value={control.value}
                     onApply={control.onChange}
+                    onRegenerateDraft={canRegenerate ? regenerate : undefined}
                   />
                 ),
             }
           : field,
       ),
-    [showsDraft, draft, pending, dismiss],
+    [showsDraft, draft, pending, dismiss, regenerate, canRegenerate],
   );
 
   const handleSubmit = (values: FormValues) => {

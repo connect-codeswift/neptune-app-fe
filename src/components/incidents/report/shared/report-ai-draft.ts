@@ -25,6 +25,14 @@ export type ReportDescriptionDraft = Readonly<{
   source: string;
   /** Set once the reporter declines it or starts writing their own. */
   dismissed: boolean;
+  /**
+   * A draft has been fetched for this report; the automatic pass is spent.
+   *
+   * Without it the draft was re-fetched every time an answer above it changed,
+   * and each of those drafts but the last was discarded before the reporter
+   * ever saw it. Redrafting is now theirs to ask for.
+   */
+  drafted: boolean;
 }>;
 
 export const EMPTY_DESCRIPTION_DRAFT: ReportDescriptionDraft = {
@@ -32,6 +40,7 @@ export const EMPTY_DESCRIPTION_DRAFT: ReportDescriptionDraft = {
   pending: false,
   source: "",
   dismissed: false,
+  drafted: false,
 };
 
 function optionLabel(

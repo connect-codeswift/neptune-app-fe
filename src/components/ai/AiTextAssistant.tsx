@@ -40,6 +40,14 @@ export type AiTextAssistantProps = Readonly<{
   onApply: (next: string) => void;
   /** Called when a rewrite is accepted, so the caller can record provenance. */
   onAssisted?: () => void;
+  /**
+   * Offers a fresh auto-draft for an empty field, next to the rewrite buttons.
+   *
+   * Passed only by the report forms, and only once their automatic draft has
+   * already run and been dismissed — the rewrite buttons need words to work on,
+   * so without this an empty field's controls do nothing at all.
+   */
+  onRegenerateDraft?: () => void;
   disabled?: boolean;
   className?: string;
 }>;
@@ -81,6 +89,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
     value,
     onApply,
     onAssisted,
+    onRegenerateDraft,
     disabled = false,
     className = "",
   } = props;
@@ -266,6 +275,22 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
             </span>
           );
         })}
+
+        {onRegenerateDraft && !isBusy ? (
+          <button
+            type="button"
+            onClick={onRegenerateDraft}
+            disabled={disabled}
+            className="text-ehs-gray hover:text-ehs-dark-blue text-2.75 border-ehs-border-ink/10 bg-ehs-surface/85 hover:bg-ehs-surface inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-semibold shadow-sm backdrop-blur-sm transition-colors disabled:cursor-not-allowed"
+          >
+            <Icon
+              icon="mdi:creation-outline"
+              className="size-3.25 shrink-0"
+              aria-hidden="true"
+            />
+            AI draft
+          </button>
+        ) : null}
 
         {canUndo && !isBusy ? (
           <button
