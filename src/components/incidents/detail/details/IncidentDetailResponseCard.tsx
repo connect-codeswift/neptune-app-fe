@@ -58,7 +58,11 @@ export function IncidentDetailResponseCard(
     <IncidentGlassCard
       paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
-      className={className}
+      // Same edit ring as the Summary and Info cards above it. Without it this
+      // was the one card on the tab that turned editable without looking it.
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="flex flex-col gap-0.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
