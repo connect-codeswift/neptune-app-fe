@@ -15,6 +15,7 @@ import {
 } from "@/components/incidents/shared/capa/AddCapaModal";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
+import { useCapasBySourceQuery } from "@/hooks/use-capa-queries";
 import { buildCreateCapaRequest } from "@/services/mappers/capa.mapper";
 import { useCloseHazardMutation } from "@/hooks/use-hazard-mutations";
 import { useHazardDetailQuery } from "@/hooks/use-hazard-queries";
@@ -68,6 +69,19 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
   const [isAddCapaOpen, setIsAddCapaOpen] = useState(false);
   const createCapaMutation = useCreateCapaMutation();
 
+  // The record mapper has no CAPA data, so the panel read an empty array and never showed
+  // anything. GET /capas/by-source is the same read the near miss uses.
+  const hazardApiId = Number(toHazardApiId(hazardId)) || 0;
+  const relatedCapasQuery = useCapasBySourceQuery({
+    sourceType: "Hazard",
+    sourceId: hazardApiId,
+  });
+  const relatedCapaRows = (relatedCapasQuery.data ?? []).map((capa) => ({
+    id: capa.code?.trim() || `CAPA-${String(capa.id)}`,
+    title: capa.title?.trim() || "Untitled CAPA",
+    status: capa.status?.trim() || "Open",
+  }));
+
   // Same modal and same payload the incident module uses; only the source pair differs, so
   // the CAPA links back to this hazard rather than saving as Standalone.
   const handleSubmitCapa = async (payload: CapaFormPayload) => {
@@ -75,9 +89,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
       await createCapaMutation.mutateAsync({
         payload: buildCreateCapaRequest({
           sourceType: "Hazard",
-          // toHazardApiId strips the "HZ-" prefix but returns a string; the source pair is
-          // numeric on the wire.
-          sourceId: Number(toHazardApiId(hazardId)) || 0,
+          sourceId: hazardApiId,
           controlLevel: payload.controlLevel,
           description: payload.description,
           type: payload.type,
@@ -182,7 +194,7 @@ export function HazardDetailContent(props: HazardDetailContentProps) {
             }
           />
           <HazardDetailView
-            record={record}
+            record={{ ...record, relatedCapas: relatedCapaRows }}
             onAddCapa={() => setIsAddCapaOpen(true)}
           />
 
