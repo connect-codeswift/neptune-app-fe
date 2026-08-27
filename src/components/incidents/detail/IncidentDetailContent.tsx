@@ -5,6 +5,7 @@ import type {
   AttachmentItem,
   IncidentClosureData,
   IncidentDetailInfoItem,
+  IncidentDetailResponseAction,
   ResponderMember,
   TimelineEvent,
   WitnessRow,
@@ -109,6 +110,9 @@ export function IncidentDetailContent(
   >([]);
   const [summaryText, setSummaryText] = useState("");
   const [responseNotes, setResponseNotes] = useState("");
+  const [responseActions, setResponseActions] = useState<
+    readonly IncidentDetailResponseAction[]
+  >([]);
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
@@ -248,6 +252,7 @@ export function IncidentDetailContent(
     setTimelineEvents(detail.timelineEvents);
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
   }
 
@@ -434,8 +439,17 @@ export function IncidentDetailContent(
     setActiveTab("details");
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
     setEditScope("details");
+  };
+
+  const toggleResponseAction = (id: string) => {
+    setResponseActions((prev) =>
+      prev.map((action) =>
+        action.id === id ? { ...action, completed: !action.completed } : action,
+      ),
+    );
   };
 
   const beginEditPeople = () => {
@@ -498,6 +512,7 @@ export function IncidentDetailContent(
         const patch = applyDetailEditDraft(incidentDto, {
           summary: summaryText,
           responseNotes,
+          responseActions,
           infoItems,
         });
 
@@ -650,6 +665,8 @@ export function IncidentDetailContent(
       summaryText={summaryText}
       onChangeSummary={setSummaryText}
       responseNotes={responseNotes}
+      responseActions={responseActions}
+      onToggleResponseAction={toggleResponseAction}
       onChangeResponseNotes={setResponseNotes}
       infoItems={infoItems}
       onChangeInfoItem={(key, value) => {

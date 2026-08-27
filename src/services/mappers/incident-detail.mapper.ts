@@ -14,7 +14,10 @@ import type {
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
 import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
+import {
+  IMMEDIATE_ACTION_OPTIONS,
+  splitActionTaken,
+} from "@/components/incidents/report/shared/report-response";
 import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {
   fileNameFromAttachmentUrl,
@@ -212,12 +215,18 @@ function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
 function parseResponseActions(
   actionTaken: string | null | undefined,
 ): readonly IncidentDetailResponseAction[] {
-  const text = actionTaken?.toLowerCase() ?? "";
+  // Only the actions line is matched against, and each of its segments has to
+  // equal a label outright. Scanning the whole string for a substring let the
+  // free-text notes tick an action: "no first aid administered" asserted that
+  // first aid was administered.
+  const { actionLabels } = splitActionTaken(actionTaken);
 
   return IMMEDIATE_ACTION_OPTIONS.map((option) => ({
     id: option.id,
     label: option.label,
-    completed: text.includes(option.label.toLowerCase()),
+    completed: actionLabels.some(
+      (label) => label.toLowerCase() === option.label.toLowerCase(),
+    ),
   }));
 }
 
