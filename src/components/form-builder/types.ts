@@ -256,6 +256,12 @@ export type PhotoFieldConfig = BaseField &
      * `cloudinary` = unsigned client upload; the field value is the secure URL.
      */
     storage?: "files" | "cloudinary";
+    /**
+     * Store `name|||sizeLabel|||ref` instead of a bare ref, so the filename survives
+     * submit — a files-API ref is a bare uuid and the name is otherwise local state.
+     * Opt-in: Hazard sends `photos[0]` straight to its endpoint and wants the ref.
+     */
+    storeFileName?: boolean;
   }>;
 
 /** Colour family for a tile — drives its tint, border and icon. */

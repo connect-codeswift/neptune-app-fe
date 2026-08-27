@@ -40,6 +40,7 @@ import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
+  capaAttachmentRefFromFormValue,
   capaAttachmentToFormValue,
   mapCapaCommentDtoToDetailComment,
   mapCapaTaskDtoToDetailTask,
@@ -703,10 +704,30 @@ export function CapaDetailAttachmentsTab(
       return;
     }
 
+    // The endpoint appends rows rather than replacing the set, and the form is seeded with
+    // what is already saved — posting the whole list back duplicates every existing row.
+    const alreadySaved = new Set(
+      (attachmentsQuery.data ?? [])
+        .map((file) => file.attachmentUrl.trim())
+        .filter(Boolean),
+    );
+    const added = (
+      Array.isArray(values.attachments) ? values.attachments : []
+    ).filter((entry): entry is string => {
+      if (typeof entry !== "string") return false;
+      const ref = capaAttachmentRefFromFormValue(entry);
+      return ref != null && !alreadySaved.has(ref);
+    });
+
+    if (added.length === 0) {
+      toast.info("Nothing to save", "These attachments are already saved.");
+      return;
+    }
+
     try {
       await uploadAttachmentsMutation.mutateAsync({
         capaId: record.numericId,
-        attachments: values.attachments,
+        attachments: added,
       });
       toast.success("Attachments saved");
     } catch (error) {

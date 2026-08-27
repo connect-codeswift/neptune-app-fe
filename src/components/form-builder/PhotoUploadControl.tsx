@@ -79,9 +79,13 @@ function parsePhotoRowEntry(
 
   const parts = entry.split("|||");
   if (parts.length >= 3) {
-    const url = parts[parts.length - 1]?.trim() ?? "";
-    if (/^https?:\/\//i.test(url)) {
-      const title = parts[0]?.trim() || fileNameFromUrl(url);
+    const ref = parts[parts.length - 1]?.trim() ?? "";
+    // Testing only for http dropped an encoded id to the bare branch below, which renders
+    // the whole "name|||size|||uuid" string as the filename.
+    if (isLegacyPublicUrl(ref) || isStoredFileId(ref)) {
+      const title =
+        parts[0]?.trim() ||
+        (isStoredFileId(ref) ? "File" : fileNameFromUrl(ref));
       const subtitle = parts.slice(1, -1).join("|||").trim();
       return { name: title, subtitle: subtitle || null };
     }
@@ -117,6 +121,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const listVariant = field.listVariant ?? (isFileLike ? "rows" : "grid");
   const fileModule: FileModule = field.fileModule ?? "Document";
   const useCloudinary = field.storage === "cloudinary";
+  const storeFileName = field.storeFileName === true;
   const maxFiles = field.maxFiles ?? FILE_MAX_FILES;
   const maxBytes = field.maxBytes ?? getFileMaxBytes(fileModule);
   const isUploading = pendingCount > 0;
@@ -189,7 +194,11 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
     const uploaded = results.flatMap((result) => {
       if (result.status !== "fulfilled") return [];
       const item = result.value;
-      const storedId = "secureUrl" in item ? item.secureUrl : item.fileId;
+      const ref = "secureUrl" in item ? item.secureUrl : item.fileId;
+      // metaByUrl below is local state and is lost on submit, so the name rides along.
+      const storedId = storeFileName
+        ? `${item.name}|||${item.sizeLabel}|||${ref}`
+        : ref;
       return [{ storedId, name: item.name, sizeLabel: item.sizeLabel }];
     });
     const failure = results.find((result) => result.status === "rejected");
