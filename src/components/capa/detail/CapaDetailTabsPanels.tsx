@@ -17,6 +17,7 @@ import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { Can } from "@/components/auth/Can";
+import { useCapabilities } from "@/lib/capabilities";
 import {
   isCapaStatusClosed,
   isCapaStatusPendingVerification,
@@ -255,6 +256,11 @@ export function CapaDetailTasksTab(
     isCapaStatusClosed(record.statusLabel) ||
     isCapaStatusPendingVerification(record.statusLabel);
 
+  // Editing a task is CAPA.Manage, which a Worker does not hold — Add Task beside it is
+  // already wrapped in <Can>, but the row pencil was gated on the lock alone, so a Worker
+  // was offered an edit the API refuses.
+  const { can } = useCapabilities();
+
   const createCapaTaskMutation = useCreateCapaTaskMutation();
   const updateCapaTaskMutation = useUpdateCapaTaskMutation();
   const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
@@ -320,7 +326,7 @@ export function CapaDetailTasksTab(
       void handleStatusChange(task, status);
     },
     onEdit: setEditingTask,
-    canEditTasks: !isLocked,
+    canEditTasks: !isLocked && can("CAPA.Manage"),
   });
 
   const doneCount = tasks.filter((task) => task.status === "Completed").length;
