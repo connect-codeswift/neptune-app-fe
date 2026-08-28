@@ -41,6 +41,9 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
+import { getStoredFile } from "@/services/files.service";
+import { useIncidentActivityQuery } from "@/hooks/use-incident-queries";
+import { mapIncidentActivityToTimelineEvents } from "@/services/mappers/incident-activity.mapper";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import {
@@ -93,6 +96,40 @@ function initialsFromName(name: string): string {
  * Detail page orchestrator (near-miss DetailContent pattern).
  * Owns queries, mutations, and editable local state; renders IncidentDetailView.
  */
+/**
+ * A stored attachment is a bare file id since the move to R2, not a public URL. The
+ * HEAD/Range probe therefore resolved it against this app's own origin and always failed,
+ * which is why every file since the move showed no size and no upload time, and the
+ * Storage card sat at 0 MB. `GET /files/{id}` already answers both.
+ *
+ * Older records still hold full Cloudinary URLs, so the probe stays for those.
+ */
+const FILE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function readAttachmentMeta(
+  value: string,
+): Promise<{ bytes: number | null; lastModified: Date | null }> {
+  // The display name rides along as a query param; the id is what identifies the file.
+  const id = value.split("?")[0]?.trim() ?? "";
+
+  if (FILE_ID_PATTERN.test(id)) {
+    try {
+      const file = await getStoredFile(id);
+      const created = file.createdDate ? new Date(file.createdDate) : null;
+      return {
+        bytes: file.sizeBytes > 0 ? file.sizeBytes : null,
+        lastModified:
+          created && !Number.isNaN(created.getTime()) ? created : null,
+      };
+    } catch {
+      // Deleted, or not ours. Fall through to the probe rather than failing the row.
+    }
+  }
+
+  return fetchRemoteFileMeta(value);
+}
+
 export function IncidentDetailContent(
   props: Readonly<IncidentDetailContentProps>,
 ) {
@@ -114,8 +151,13 @@ export function IncidentDetailContent(
   const [affectedInjuryLabel, setAffectedInjuryLabel] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [treatment, setTreatment] = useState("");
-  // Days away is not on the incident payload — it lives on the closure record,
-  // so it is held as a string here and written through the closure mutation.
+  // Held as a string because the input is text-shaped: "" is "not recorded" and must stay
+  // distinct from "0", which is a measured zero days away.
+  //
+  // It now also lives per person on the incident payload, not only on the closure record —
+  // OSHA 300 is a per-person log and a multi-casualty incident has a different count for
+  // each of them. The closure field remains as the fallback the lost-day KPI reads for
+  // incidents recorded before that existed.
   const [daysAway, setDaysAway] = useState("");
   // Witnesses come from the incident report module. Rows already on the record
   // when the edit began are locked; only rows appended here may be changed.
@@ -166,6 +208,13 @@ export function IncidentDetailContent(
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
+    incidentId: loadedDetail?.numericId ?? numericId,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      (loadedDetail?.numericId != null || numericId != null),
+  });
+  const activityQuery = useIncidentActivityQuery({
     incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
@@ -228,14 +277,21 @@ export function IncidentDetailContent(
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
 
-  // Days away is carried by the closure record, not the incident payload, so
-  // `detail.daysAway` is only ever the "—" placeholder. Read the real number
-  // back from closure once that record exists, otherwise a value saved from
-  // the People tab would never appear anywhere.
+  // Per person first, closure second. Days away used to live only on the closure record,
+  // so `detail.daysAway` was always the "—" placeholder and the number had to be read back
+  // from closure. It is now carried per person on the incident payload — OSHA 300 is a
+  // per-person log — and the closure figure is the fallback for incidents recorded before
+  // that. Reading closure first would mask the per-person value on every incident that has
+  // both.
+  const perPersonDaysAway =
+    detail?.daysAway != null && detail.daysAway !== "—"
+      ? String(detail.daysAway)
+      : "";
   const daysAwayDisplay =
-    closureQuery.data == null
+    perPersonDaysAway ||
+    (closureQuery.data == null
       ? (detail?.daysAway ?? "—")
-      : String(closureData.daysAwayFromWork);
+      : String(closureData.daysAwayFromWork));
 
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
     null,
@@ -274,6 +330,7 @@ export function IncidentDetailContent(
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
     setBodyPart(detail.bodyPart);
     setTreatment(detail.treatment);
+    setDaysAway(detail.daysAway === "—" ? "" : String(detail.daysAway));
     setTimelineEvents(detail.timelineEvents);
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
@@ -350,7 +407,7 @@ export function IncidentDetailContent(
     void (async () => {
       const updates = await Promise.all(
         pending.map(async (item) => {
-          const meta = await fetchRemoteFileMeta(item.url);
+          const meta = await readAttachmentMeta(item.url);
           const sizeUpdate =
             item.needsSize && meta.bytes != null
               ? {
@@ -422,14 +479,22 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
-  if (detail?.isClosed && activeTab === "closure") {
-    setActiveTab("details");
-  }
+  /**
+   * Real history wins. The rows are written when the change happens, so their times are the
+   * times — the derived set below stamps almost everything with the report time.
+   *
+   * Incidents predating the activity log have no rows and keep the derived timeline rather
+   * than showing an empty tab. That derived set is the one with invented timestamps, and it
+   * should go once the log has covered the backlog.
+   */
+  const resolvedTimelineEvents = useMemo(() => {
+    const rows = activityQuery.data ?? [];
+    return rows.length > 0
+      ? mapIncidentActivityToTimelineEvents(rows)
+      : timelineEvents;
+  }, [activityQuery.data, timelineEvents]);
 
   const handleTabChange = (tab: TabId) => {
-    if (tab === "closure" && detail?.isClosed) {
-      return;
-    }
     if (
       (editScope === "details" && tab !== "details") ||
       (editScope === "people" && tab !== "people") ||
@@ -491,9 +556,15 @@ export function IncidentDetailContent(
     setTreatment(detail.treatment);
     setResponders(detail.responders);
     setWitnesses(detail.witnesses);
-    // Seeded from closure, the only record that carries the number. Every
-    // witness present now is pre-existing, so all of them start locked.
-    setDaysAway(String(closureData.daysAwayFromWork));
+    // Per person first, closure second. The incident payload now carries days away on the
+    // affected person, and the closure figure is what incidents recorded before that still
+    // have. Seeding from closure unconditionally overwrote the per-person value, so opening
+    // the editor discarded it and saving wrote the closure number back over it.
+    {
+      const perPerson = detail.daysAway === "—" ? "" : String(detail.daysAway);
+      setDaysAway(perPerson || String(closureData.daysAwayFromWork));
+    }
+    // Every witness present now is pre-existing, so all of them start locked.
     setLockedWitnessCount(detail.witnesses.length);
     setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
     setEditScope("people");
@@ -573,6 +644,7 @@ export function IncidentDetailContent(
           affectedInjuryLabel,
           bodyPart,
           treatment,
+          daysAway,
           responders,
           witnesses,
         });
@@ -635,32 +707,6 @@ export function IncidentDetailContent(
       setAttachments((prev) => prev.filter((entry) => entry.id !== item.id));
       throw error;
     }
-  };
-
-  const handleAddTimelinePost = (text: string) => {
-    const now = new Date();
-    const month = now.toLocaleString("en-US", { month: "short" });
-    const day = String(now.getDate());
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-
-    setTimelineEvents((prev) => [
-      ...prev,
-      {
-        id: `local-${String(now.getTime())}`,
-        title: "Status update",
-        description: text.trim(),
-        time: `${month} ${day} · ${hh}:${min}`,
-        actorName: "You",
-        actorInitials: "YO",
-        actorRole: "Update",
-        icon: "mdi:message-text-outline",
-      },
-    ]);
-    toast.success(
-      "Update posted",
-      "Your status update has been added to the timeline.",
-    );
   };
 
   const usedBytes = attachments.reduce((sum, item) => sum + item.bytes, 0);
@@ -732,8 +778,7 @@ export function IncidentDetailContent(
           prev.map((item) => (item.key === key ? { ...item, value } : item)),
         );
       }}
-      timelineEvents={timelineEvents}
-      onAddTimelinePost={handleAddTimelinePost}
+      timelineEvents={resolvedTimelineEvents}
       affectedName={affectedName}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}

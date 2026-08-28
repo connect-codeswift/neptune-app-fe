@@ -1,3 +1,10 @@
+/**
+ * Accepted year window for every typed date field. Narrow enough to catch a slipped
+ * digit, wide enough that a genuine forward-dated schedule still parses.
+ */
+const MIN_YEAR = 2000;
+const MAX_YEAR = 2100;
+
 /** Digits-only → `MM/DD/YYYY` while typing. */
 export function maskMmDdYyyy(raw: string): string {
   const digits = raw.replace(/\D/g, "").slice(0, 8);
@@ -15,6 +22,11 @@ function mmDdYyyyToIsoDate(value: string): string {
   const day = Number(dd);
   const year = Number(yyyy);
   if (month < 1 || month > 12 || day < 1 || day > 31) return "";
+  // A 4-digit mask happily accepts 0007 or 9999, and a typo'd year sails through the
+  // round-trip check below because it is a perfectly real date. The window is
+  // deliberately wide rather than "no future dates": schedules legitimately run into
+  // next year and beyond, so this rejects nonsense without judging intent.
+  if (year < MIN_YEAR || year > MAX_YEAR) return "";
   const date = new Date(year, month - 1, day);
   if (
     date.getFullYear() !== year ||

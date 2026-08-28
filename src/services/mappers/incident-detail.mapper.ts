@@ -1173,10 +1173,13 @@ export function mapIncidentDtoToDetailView(
     affected?.bodyPartAffected?.trim() ||
     incident.injuredBodyPart?.trim() ||
     "—";
+  // Reads the same field the edit path writes. It used to prefer
+  // `whatTreatmentWasGiven`, so the tile could display one field while editing it wrote
+  // another, and an edit looked like it had done nothing. `whatTreatmentWasGiven` is a
+  // separate answer with its own vocabulary and is surfaced by the treatment summary
+  // above, not here.
   const treatment =
-    meaningfulText(incident.whatTreatmentWasGiven) ||
-    meaningfulText(incident.initialTreatment) ||
-    "None required";
+    meaningfulText(incident.initialTreatment) || "None required";
   // Comes from `stage`, the backend's computed lifecycle value. Older backends
   // omit it on the single-incident read; withDetailClosedState below is how the
   // detail screen fills that gap from the closure record it already loads.
@@ -1196,15 +1199,19 @@ export function mapIncidentDtoToDetailView(
     completedActionCount: responseActions.filter((action) => action.completed)
       .length,
   });
-  const mappedWitnesses = witnesses.map((person, index) => {
+  const mappedWitnesses = witnesses.map((person) => {
     const name = person.name?.trim() || "Unknown";
-    const hasStatement = index === 0;
     return {
       name,
       role: person.role?.trim() || "Witness",
       initials: initialsFromName(name),
-      badgeLabel: hasStatement ? "Statement" : "Pending",
-      badgeTone: hasStatement ? ("green" as const) : ("gray" as const),
+      // Always "Pending". Whether a witness has given a statement is a real thing to
+      // track, but nothing records it: the Witness entity carries a name and nothing
+      // else. This used to read `index === 0`, so the first witness on every incident
+      // was shown as having given a statement purely for being first in the array —
+      // an investigator reading that badge was being told something untrue.
+      badgeLabel: "Pending",
+      badgeTone: "gray" as const,
     };
   });
   const investigation = buildInvestigationView(incident, {
@@ -1267,9 +1274,10 @@ export function mapIncidentDtoToDetailView(
     affectedInjuryLabel,
     bodyPart,
     treatment,
-    // GetIncidentById carries no days-away field, so there is nothing to map.
-    // "—" rather than 0, which would read as a measured zero days away.
-    daysAway: "—",
+    // Now carried per person on the payload. Still "—" rather than 0 when the API sends
+    // null: null is "not recorded" and 0 is a measured zero days away, and showing the
+    // second for the first would invent a fact about someone's injury.
+    daysAway: affected?.daysAwayFromWork ?? "—",
     responders,
     witnesses: mappedWitnesses,
     attachments,

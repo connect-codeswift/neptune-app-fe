@@ -8,6 +8,7 @@ import type { ResponderMember } from "@/components/incidents/detail/incident-det
 import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { INITIAL_TREATMENT_OPTIONS } from "@/forms/incident-module/treatment";
 
 export type { ResponderMember };
 
@@ -86,6 +87,29 @@ export function IncidentDetailPeopleCard(
     daysAwayError = null,
     className = "",
   } = props;
+
+  /**
+   * The wizard writes this field from a fixed vocabulary (`first-aid-on-site`,
+   * `emergency`, and so on) while this card offered a free text box, so the same
+   * treatment could be stored three different ways and nothing downstream could group
+   * it. A stored value that is not in the list — a custom option added in the wizard,
+   * or free text typed here before this change — is kept as its own option so editing
+   * an unrelated field cannot silently discard it.
+   */
+  const treatmentSelectValue = editableDisplayValue(treatment);
+  const treatmentOptions = (() => {
+    const base = INITIAL_TREATMENT_OPTIONS.map((option) => ({
+      value: option.value,
+      label: option.label,
+    }));
+
+    const known = new Set(base.map((option) => option.value.toLowerCase()));
+    const current = treatmentSelectValue.trim();
+
+    return current && !known.has(current.toLowerCase())
+      ? [...base, { value: current, label: current }]
+      : base;
+  })();
 
   // Identity fields come from the incident report module and stay read-only in
   // this scope — the People tab edits the injury outcome, not who was involved.
@@ -182,21 +206,33 @@ export function IncidentDetailPeopleCard(
                 )}
               </div>
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
-                <span className="text-ehs-muted-text text6">Treatment</span>
+                <span className="text-ehs-muted-text text6">
+                  Initial treatment
+                </span>
                 {isEditing ? (
                   <>
-                    <input
-                      type="text"
-                      value={editableDisplayValue(treatment)}
+                    {/*
+                      A select, not the free text box dev grew here. The wizard writes this
+                      field from a fixed vocabulary, so free text let the same treatment be
+                      stored three different ways with nothing downstream able to group it.
+                      The error rendering from dev is kept.
+                    */}
+                    <select
+                      value={treatmentSelectValue}
                       onChange={(event) =>
                         onChangeTreatment?.(event.target.value)
                       }
-                      placeholder="e.g. First aid on site"
                       className={fieldInputClass}
-                      aria-label="Treatment"
+                      aria-label="Initial treatment"
                       aria-invalid={treatmentError != null}
                       required
-                    />
+                    >
+                      {treatmentOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                     <FieldError message={treatmentError} />
                   </>
                 ) : (
@@ -209,6 +245,10 @@ export function IncidentDetailPeopleCard(
                 <span className="text-ehs-muted-text text6">Days away</span>
                 {isEditing ? (
                   <>
+                    {/*
+                      Empty is a real state, not zero: it means nobody has recorded a figure
+                      yet, which the API stores as null and the card shows as a dash.
+                    */}
                     <input
                       type="number"
                       inputMode="numeric"

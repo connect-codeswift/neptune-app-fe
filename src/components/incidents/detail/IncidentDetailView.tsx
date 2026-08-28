@@ -27,6 +27,7 @@ import type {
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
+import { IncidentClosureSummaryCard } from "@/components/incidents/detail/closure";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
@@ -40,7 +41,6 @@ import { IncidentDetailWitnessesCard } from "@/components/incidents/detail/peopl
 import type { PeopleEditErrors } from "@/components/incidents/detail/people/people-edit-validation";
 import { IncidentDetailHeader } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
-import { IncidentDetailAddTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailAddTimelineCard";
 import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail/timeline/IncidentDetailResponseMetricsCard";
 import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailTimelineCard";
 import { Text } from "@/components/Text";
@@ -96,7 +96,6 @@ export type IncidentDetailViewProps = Readonly<{
   onChangeInfoItem: (key: string, value: string) => void;
 
   timelineEvents: readonly TimelineEvent[];
-  onAddTimelinePost: (text: string) => void;
 
   affectedName: string;
   affectedEmpId: string;
@@ -210,7 +209,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     infoItems,
     onChangeInfoItem,
     timelineEvents,
-    onAddTimelinePost,
     affectedName,
     affectedEmpId,
     affectedInjuryLabel,
@@ -272,11 +270,17 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
           isEditing={isEditing}
           isSaving={isSaving}
           hideIncidentChrome={showHrca}
-          closureTabDisabled={detail?.isClosed ?? false}
+          // No longer disabled once closed: the tab now opens the read-only summary
+          // instead of the wizard, so there is nothing to re-submit by reaching it.
+          closureTabDisabled={false}
           readOnly={
-            activeTab !== "details" &&
-            activeTab !== "people" &&
-            activeTab !== "attachments"
+            // A closed incident is read-only on every tab, not just the tabs that
+            // never had an editor. The backend refuses the write either way now, so
+            // leaving the button visible would only offer an action that 400s.
+            (detail?.isClosed ?? false) ||
+            (activeTab !== "details" &&
+              activeTab !== "people" &&
+              activeTab !== "attachments")
           }
         />
 
@@ -378,8 +382,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     })}
                     totalLinkedCount={linkedCapa.summary.totalCount}
                     isLoading={isCapaLoading}
-                    onAddCapa={() =>
-                      onNavigateToLinkedCapa({ openAddModal: true })
+                    // Withholding the handler is this card's own way of disabling the
+                    // button (see `disabled={!onAddCapa || isLoading}`), so a closed
+                    // incident simply stops offering one.
+                    onAddCapa={
+                      detail.isClosed
+                        ? undefined
+                        : () => onNavigateToLinkedCapa({ openAddModal: true })
                     }
                     onViewAll={() => onNavigateToLinkedCapa()}
                     onSelectItem={() => onNavigateToLinkedCapa()}
@@ -398,9 +407,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailResponseMetricsCard
                     metrics={detail.responseMetrics}
-                  />
-                  <IncidentDetailAddTimelineCard
-                    onAddPost={onAddTimelinePost}
                   />
                 </div>
               </div>
@@ -554,6 +560,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   capas={linkedCapa.items}
                   isLoading={isCapaLoading}
                   isSubmitting={isCapaSubmitting}
+                  isIncidentClosed={detail.isClosed}
                   openAddModal={openAddCapaOnLinkedTab}
                   onAddModalOpened={onAddCapaModalOpened}
                   onSubmitCapa={onSubmitCapa}
@@ -582,18 +589,21 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "closure" && (
-              <IncidentDetailClosureCard
-                data={closureData}
-                onSelectStep={onSelectClosureStep}
-                onChangeField={onChangeClosureField}
-                onToggleCheckItem={onToggleClosureCheckItem}
-                onSaveAsDraft={onSaveClosureDraft}
-                onFinalizeClosure={onFinalizeClosure}
-                onCancel={onCancelClosure}
-                isSubmitting={isClosureSubmitting}
-              />
-            )}
+            {activeTab === "closure" &&
+              (detail.isClosed ? (
+                <IncidentClosureSummaryCard data={closureData} />
+              ) : (
+                <IncidentDetailClosureCard
+                  data={closureData}
+                  onSelectStep={onSelectClosureStep}
+                  onChangeField={onChangeClosureField}
+                  onToggleCheckItem={onToggleClosureCheckItem}
+                  onSaveAsDraft={onSaveClosureDraft}
+                  onFinalizeClosure={onFinalizeClosure}
+                  onCancel={onCancelClosure}
+                  isSubmitting={isClosureSubmitting}
+                />
+              ))}
           </>
         ) : null}
       </div>

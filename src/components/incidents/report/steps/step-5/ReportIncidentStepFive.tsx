@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ReportStepId } from "@/forms/incident-module/steps";
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +28,8 @@ export type ReportIncidentStepFiveProps = Readonly<{
   onChange: (next: Partial<ReportIncidentFormState>) => void;
   onBack?: () => void;
   onContinue?: () => void;
+  /** Jumps back to a step so a summarised answer can be corrected in place. */
+  onGoToStep?: (step: ReportStepId) => void;
   className?: string;
 }>;
 
@@ -99,7 +102,7 @@ function previewTitle(form: ReportIncidentFormState): string {
 export function ReportIncidentStepFive(
   props: Readonly<ReportIncidentStepFiveProps>,
 ) {
-  const { form, onBack, className = "" } = props;
+  const { form, onBack, onGoToStep, className = "" } = props;
   const router = useRouter();
   const createIncidentMutation = useCreateIncidentMutation();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
@@ -176,7 +179,11 @@ export function ReportIncidentStepFive(
       form.bodyPartSides,
     ) || "—";
   const affectedPersonLabel = form.affectedPerson.trim() || "—";
-  const witnessesLabel = form.witnesses.trim() || "None";
+  const witnessesLabel =
+    form.witnesses
+      .map((witness) => witness.name.trim())
+      .filter(Boolean)
+      .join(", ") || "None";
 
   const actionsLabel =
     form.immediateActions
@@ -260,6 +267,7 @@ export function ReportIncidentStepFive(
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
             <ReportReviewDetailCard
               title="Where & when"
+              onEdit={onGoToStep ? () => onGoToStep(1) : undefined}
               rows={[
                 { label: "Site", value: site },
                 { label: "Area", value: incidentAreasLabel },
@@ -269,25 +277,38 @@ export function ReportIncidentStepFive(
                 submitErrors?.location ?? submitErrors?.incidentDate ?? null
               }
             />
+            {/*
+              Regrouped so every card maps to exactly one step. Witnesses and Photos are
+              both answered on step 2 but sat under People and Response, so a single edit
+              button per card could only ever send the reporter to the wrong place for one
+              of its rows.
+            */}
             <ReportReviewDetailCard
-              title="People"
+              title="People & injury"
+              onEdit={onGoToStep ? () => onGoToStep(3) : undefined}
               rows={[
                 { label: "Affected", value: affectedPersonLabel },
                 { label: "Injury", value: injuryLevelLabel },
                 { label: "Body part", value: bodyPartsLabel },
+              ]}
+            />
+            <ReportReviewDetailCard
+              title="Details"
+              onEdit={onGoToStep ? () => onGoToStep(2) : undefined}
+              rows={[
                 { label: "Witnesses", value: witnessesLabel },
+                { label: "Photos", value: photosCountLabel },
               ]}
             />
             <ReportReviewDetailCard
               title="Response"
-              rows={[
-                { label: "Actions", value: actionsLabel },
-                { label: "Photos", value: photosCountLabel },
-              ]}
+              onEdit={onGoToStep ? () => onGoToStep(4) : undefined}
+              rows={[{ label: "Actions", value: actionsLabel }]}
             />
 
             <ReportReviewDetailCard
               title="Reporter"
+              onEdit={onGoToStep ? () => onGoToStep(1) : undefined}
               paddingClassName="px-3.75 pt-3.75 pb-7.25"
               rows={[
                 { label: "Reported by", value: reporterName },

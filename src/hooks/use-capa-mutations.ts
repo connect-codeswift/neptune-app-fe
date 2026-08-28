@@ -402,7 +402,8 @@ export function useCreateCapaMutation() {
       // checklist - and a CAPA with no tasks can never reach Completed, so it could not
       // be verified or closed either. The API takes them in the create body for exactly
       // this reason.
-      const tasks = (input.tasks ?? [])
+      const staged = input.tasks ?? [];
+      const tasks = staged
         .map((task) => ({
           task: task.task.trim(),
           dueDate: task.dueDate,
@@ -413,6 +414,14 @@ export function useCreateCapaMutation() {
         .filter(
           (task) => task.task.length > 0 && task.dueDate.trim().length > 0,
         );
+
+      // Dropping an incomplete task silently is how a CAPA ended up created with none at
+      // all: the filter removed the only staged row and the spread below then omitted the
+      // key entirely. Such a CAPA can never leave Open, because its status is derived from
+      // its tasks. Refusing is recoverable; a dead CAPA is not.
+      if (tasks.length !== staged.length) {
+        throw new Error("Every task needs a name and a due date.");
+      }
 
       return createCapa({
         ...input.payload,

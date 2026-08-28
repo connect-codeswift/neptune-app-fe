@@ -103,6 +103,7 @@ type CapaModalFormProps = Readonly<{
   stagedTasks: readonly StagedCapaTask[];
   onOpenAddTask: () => void;
   onRemoveStagedTask: (localId: string) => void;
+  onEditStagedTask: (localId: string) => void;
   onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   isCreatingTask: boolean;
   isDeletingTask: boolean;
@@ -142,6 +143,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
     stagedTasks,
     onOpenAddTask,
     onRemoveStagedTask,
+    onEditStagedTask,
     onDeleteSavedTask,
     isCreatingTask,
     isDeletingTask,
@@ -355,6 +357,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 allowFreeText
                 siteId={site.id}
                 siteName={site.name}
+                showRosterHeading={false}
+                emptyRosterMessage="Ask admin to register more users."
                 placeholder="e.g. M. Torres"
                 excludeUserIds={excludeUserIds}
               />
@@ -394,6 +398,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
               busy={busy}
               onOpenAddTask={onOpenAddTask}
               onRemoveStagedTask={onRemoveStagedTask}
+              onEditStagedTask={onEditStagedTask}
               onDeleteSavedTask={onDeleteSavedTask}
               capaPriority={capaToEdit?.priority ?? priority}
             />
@@ -421,6 +426,10 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
 
   const isEditMode = capaToEdit != null;
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  // Which staged row the task modal is correcting. Null means it is adding a new one.
+  const [editingTaskLocalId, setEditingTaskLocalId] = useState<string | null>(
+    null,
+  );
   const [stagedTasks, setStagedTasks] = useState<readonly StagedCapaTask[]>([]);
   const tasksQuery = useCapaTasksQuery({
     capaId: capaToEdit?.numericId ?? null,
@@ -433,6 +442,17 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
       return;
     }
 
+    if (editingTaskLocalId !== null) {
+      setStagedTasks((previous) =>
+        previous.map((task) =>
+          task.localId === editingTaskLocalId
+            ? { ...payload, localId: task.localId }
+            : task,
+        ),
+      );
+      return;
+    }
+
     setStagedTasks((previous) => [
       ...previous,
       {
@@ -440,6 +460,16 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         localId: crypto.randomUUID(),
       },
     ]);
+  };
+
+  const handleEditStagedTask = (localId: string) => {
+    setEditingTaskLocalId(localId);
+    setIsAddTaskOpen(true);
+  };
+
+  const closeTaskModal = () => {
+    setIsAddTaskOpen(false);
+    setEditingTaskLocalId(null);
   };
 
   const handleRemoveStagedTask = (localId: string) => {
@@ -484,8 +514,22 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         initialDueDate={initialDueDate}
         savedTasks={savedTasks}
         stagedTasks={stagedTasks}
-        onOpenAddTask={() => setIsAddTaskOpen(true)}
+        onOpenAddTask={() => {
+          // The task modal caps its own date picker against the CAPA's due date, so
+          // opening it before one is set offers an uncapped picker and lets a task be
+          // dated past its parent. The due date is required now, so this is only ever
+          // asking for it in the order the form already needs it.
+          if (capaDueDate.trim().length === 0) {
+            toast.error(
+              "Set the CAPA due date first",
+              "Tasks are scheduled against it, so it has to be chosen before adding one.",
+            );
+            return;
+          }
+          setIsAddTaskOpen(true);
+        }}
         onRemoveStagedTask={handleRemoveStagedTask}
+        onEditStagedTask={handleEditStagedTask}
         onDeleteSavedTask={isEditMode ? handleDeleteSavedTask : undefined}
         isCreatingTask={isCreatingTask}
         isDeletingTask={isDeletingTask}
@@ -494,14 +538,18 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         onDueDateChange={setCapaDueDate}
       />
 
-      {isAddTaskOpen ? (
+      {isAddTaskOpen && capaDueDate.trim().length > 0 ? (
         <AddTaskModal
           sourceLabel={sourceLabel}
           sourceTitle={sourceTitle}
           capaCode={addTaskCapaCode}
           capaDueDate={capaDueDate}
           isSubmitting={isCreatingTask}
-          onClose={() => setIsAddTaskOpen(false)}
+          initialValues={
+            stagedTasks.find((task) => task.localId === editingTaskLocalId) ??
+            undefined
+          }
+          onClose={closeTaskModal}
           onSubmit={handleAddTask}
         />
       ) : null}

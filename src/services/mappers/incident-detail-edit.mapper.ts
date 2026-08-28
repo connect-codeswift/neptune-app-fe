@@ -190,6 +190,8 @@ export type IncidentPeopleEditDraft = Readonly<{
   affectedInjuryLabel: string;
   bodyPart: string;
   treatment: string;
+  /** Raw input text. "" means not recorded and is sent as null, not 0. */
+  daysAway: string;
   responders: readonly ResponderMember[];
   witnesses: readonly WitnessRow[];
 }>;
@@ -201,6 +203,17 @@ function roleIncludes(person: PersonDto, needle: string): boolean {
 function isReporterResponder(member: ResponderMember): boolean {
   const role = member.role.trim().toLowerCase();
   return member.badgeLabel === "Reporter" || role.includes("reporter");
+}
+
+/** "" and anything non-numeric are "not recorded" (null), never 0. */
+function parseDaysAway(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
 }
 
 function isTreatmentResponder(member: ResponderMember): boolean {
@@ -244,6 +257,9 @@ export function applyPeopleEditDraft(
     people.push({
       name: affectedName,
       role: "Affected person",
+      // Parsed rather than coerced: "" and a non-numeric value both mean "not recorded",
+      // and Number("") is 0, which would silently claim the person lost no days.
+      daysAwayFromWork: parseDaysAway(draft.daysAway),
       injuryLevel: editableText(draft.affectedInjuryLabel),
       bodyPartAffected: editableText(draft.bodyPart),
       injuryDescription: existingAffected?.injuryDescription ?? null,
@@ -298,7 +314,11 @@ export function applyPeopleEditDraft(
     affectedPersonId: affectedEmpId ?? affectedName,
     injuredBodyPart: bodyPart,
     natureOfInjury: injuryLabel,
-    whatTreatmentWasGiven: treatment,
+    // Only `initialTreatment`. These are two different answers with two different
+    // option sets — the level of care sought (first aid, clinic, ER) versus what was
+    // actually done (wound cleaning, bandaging, ice pack) — and writing one value into
+    // both collapsed the distinction on every edit. `whatTreatmentWasGiven` belongs to
+    // the First Aid step of the wizard and is not edited from this card.
     initialTreatment: treatment,
     treatmentProvidedBy:
       editableText(treatmentProvider?.name ?? "") ??

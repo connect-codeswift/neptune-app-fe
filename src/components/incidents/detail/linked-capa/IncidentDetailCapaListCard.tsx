@@ -28,6 +28,13 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   isLoading?: boolean;
   isSubmitting?: boolean;
   isVerifying?: boolean;
+  /**
+   * A finalised incident takes no new CAPAs — the backend refuses them outright — so
+   * the card stops offering the action rather than surfacing a button that 400s.
+   * Existing CAPAs stay fully interactive: completing and verifying them is exactly
+   * what still has to happen after closure.
+   */
+  isIncidentClosed?: boolean;
   openAddModal?: boolean;
   onAddModalOpened?: () => void;
   onSubmitCapa?: (payload: CapaFormPayload) => void | Promise<void>;
@@ -63,6 +70,7 @@ export function IncidentDetailCapaListCard(
     isLoading = false,
     isSubmitting = false,
     isVerifying = false,
+    isIncidentClosed = false,
     openAddModal = false,
     onAddModalOpened,
     onSubmitCapa,
@@ -81,7 +89,12 @@ export function IncidentDetailCapaListCard(
   const [reviewCapa, setReviewCapa] = useState<CapaItem | null>(null);
   const autoPromptedRef = useRef<ReadonlySet<string>>(new Set());
 
-  const isAddCapaOpen = addModalRequestedLocally || openAddModal;
+  // Gated here rather than only on the button so a stale `openAddModal` request —
+  // for instance a "add CAPA" deep link followed while the incident was being closed —
+  // cannot pop the modal on a closed incident.
+  const canAddCapa = !isIncidentClosed;
+  const isAddCapaOpen =
+    canAddCapa && (addModalRequestedLocally || openAddModal);
 
   const handleCloseAddModal = () => {
     setAddModalRequestedLocally(false);
@@ -140,15 +153,21 @@ export function IncidentDetailCapaListCard(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setAddModalRequestedLocally(true)}
-              disabled={isSubmitting}
-              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
-              Add CAPA
-            </button>
+            {canAddCapa ? (
+              <button
+                type="button"
+                onClick={() => setAddModalRequestedLocally(true)}
+                disabled={isSubmitting}
+                className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Icon
+                  icon="mdi:plus"
+                  className="size-3.25"
+                  aria-hidden="true"
+                />
+                Add CAPA
+              </button>
+            ) : null}
           </div>
         </div>
 

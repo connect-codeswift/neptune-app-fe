@@ -5,6 +5,7 @@ import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import {
   getAllIncidents,
   getIncidentById,
+  getIncidentActivity,
   getIncidentClosure,
 } from "@/services/incident.service";
 import { mapIncidentDtoToDetailView } from "@/services/mappers/incident-detail.mapper";
@@ -25,6 +26,7 @@ export const incidentQueryKeys = {
   detail: (id: number) =>
     [...incidentQueryKeys.all, "detail", "v8", id] as const,
   closure: (id: number) => [...incidentQueryKeys.all, "closure", id] as const,
+  activity: (id: number) => [...incidentQueryKeys.all, "activity", id] as const,
 };
 
 /**
@@ -191,5 +193,25 @@ export function useIncidentClosureQuery(
       }
       return getIncidentClosure(incidentId);
     },
+  });
+}
+
+/**
+ * GET /incidents/{id}/activity — the incident's real history.
+ *
+ * An empty list is a real answer, not a loading state: incidents predating the activity log
+ * have no rows, and the caller falls back to the one event it can still state truthfully.
+ */
+export function useIncidentActivityQuery(params: {
+  incidentId: number | null;
+  enabled: boolean;
+}) {
+  const { incidentId, enabled } = params;
+
+  return useQuery({
+    queryKey: incidentQueryKeys.activity(incidentId ?? 0),
+    queryFn: () => getIncidentActivity(incidentId!),
+    enabled: enabled && incidentId != null && incidentId > 0,
+    retry: shouldRetryIncidentRequest,
   });
 }

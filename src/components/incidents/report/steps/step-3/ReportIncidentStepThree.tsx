@@ -66,15 +66,11 @@ export function ReportIncidentStepThree(
             bodyParts={form.bodyParts ?? []}
             bodyPartSides={form.bodyPartSides ?? {}}
             bodySide={form.bodySide ?? "Left"}
-            multiSelect={form.bodyMultiSelect ?? false}
             onBodyPartsChange={(bodyParts) => onChange({ bodyParts })}
             onBodyPartSidesChange={(bodyPartSides) =>
               onChange({ bodyPartSides })
             }
             onBodySideChange={(bodySide) => onChange({ bodySide })}
-            onMultiSelectChange={(bodyMultiSelect) =>
-              onChange({ bodyMultiSelect })
-            }
             customBodyParts={form.customBodyParts ?? []}
             onCustomBodyPartsChange={(customBodyParts) =>
               onChange({ customBodyParts })

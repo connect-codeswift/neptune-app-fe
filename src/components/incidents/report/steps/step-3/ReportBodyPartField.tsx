@@ -18,11 +18,9 @@ export type ReportBodyPartFieldProps = Readonly<{
   bodyParts: readonly BodyPartId[];
   bodyPartSides: BodyPartSideMap;
   bodySide: BodySide;
-  multiSelect: boolean;
   onBodyPartsChange: (parts: readonly BodyPartId[]) => void;
   onBodyPartSidesChange: (sides: BodyPartSideMap) => void;
   onBodySideChange: (side: BodySide) => void;
-  onMultiSelectChange: (enabled: boolean) => void;
   /** Free-text parts the reporter added; see `customBodyParts` on form state. */
   customBodyParts: readonly string[];
   onCustomBodyPartsChange: (parts: readonly string[]) => void;
@@ -43,11 +41,9 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
     bodyParts,
     bodyPartSides,
     bodySide,
-    multiSelect,
     onBodyPartsChange,
     onBodyPartSidesChange,
     onBodySideChange,
-    onMultiSelectChange,
     customBodyParts,
     onCustomBodyPartsChange,
     className = "",
@@ -90,11 +86,17 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
 
   const [activeTab, setActiveTab] = useState<"front" | "back">("front");
 
+  /**
+   * Always multi-select. The toggle that used to sit beside "Switch side" defaulted to
+   * off, so a reporter recording a second injured body part silently replaced the first,
+   * and only the sided-selection paths below ever behaved as the formatter downstream
+   * (formatBodyPartSelection, bodyPartSides) already assumed. One behaviour, no toggle.
+   */
   const selectPart = (part: BodyPartId, side?: BodySide) => {
     const sided = isBodyPartSided(part);
     const effectiveSide = sided ? (side ?? bodySide) : undefined;
 
-    if (multiSelect) {
+    {
       const alreadySelected = bodyParts.includes(part);
 
       if (alreadySelected) {
@@ -133,15 +135,6 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
         onBodySideChange(effectiveSide);
       }
       return;
-    }
-
-    // Single-select: replace selection.
-    onBodyPartsChange([part]);
-    if (effectiveSide) {
-      onBodyPartSidesChange({ [part]: effectiveSide });
-      onBodySideChange(effectiveSide);
-    } else {
-      onBodyPartSidesChange({});
     }
   };
 
@@ -259,19 +252,6 @@ export function ReportBodyPartField(props: Readonly<ReportBodyPartFieldProps>) {
                     aria-hidden="true"
                   />
                   Switch side
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onMultiSelectChange(!multiSelect)}
-                  aria-pressed={multiSelect}
-                  className={[
-                    "rounded-2.5 inline-flex h-7 min-w-21 items-center justify-center border px-3 py-1 text-sm font-bold transition-colors",
-                    multiSelect
-                      ? "border-ehs-normal-blue bg-ehs-normal-blue/14 text-ehs-dark-blue"
-                      : "text-ehs-slate border-ehs-border-ink/14 hover:border-ehs-border-ink/22 hover:bg-ehs-surface/70",
-                  ].join(" ")}
-                >
-                  Multi-select
                 </button>
               </div>
             </div>
