@@ -63,8 +63,10 @@ function isSelected(locations: readonly string[], value: string): boolean {
 }
 
 /**
- * Multi-select location picker: choose from the site list or add a custom area.
- * Kept separate from the auto-assigned plant / site field above it.
+ * Single-select location picker: choose one place from the site list or add a
+ * custom area. An incident happens in exactly one location, so picking another
+ * replaces the current choice. Kept separate from the auto-assigned plant /
+ * site field above it.
  */
 export function ReportLocationsField(
   props: Readonly<ReportLocationsFieldProps>,
@@ -118,28 +120,19 @@ export function ReportLocationsField(
     ];
   }, [customLocations, locations]);
 
-  const toggleLocation = (value: string) => {
+  const selectLocation = (value: string) => {
     const normalized = normalizeLocationEntry(value);
     if (!normalized) {
       return;
     }
 
-    if (isSelected(locations, normalized)) {
-      onChange(
-        locations.filter(
-          (entry) => locationKey(entry) !== locationKey(normalized),
-        ),
-      );
-      return;
-    }
-
-    onChange(dedupeLocations([...locations, normalized]));
+    // Re-picking the current value clears it; picking anything else replaces it.
+    onChange(isSelected(locations, normalized) ? [] : [normalized]);
+    setOpen(false);
   };
 
-  const removeLocation = (target: string) => {
-    onChange(
-      locations.filter((entry) => locationKey(entry) !== locationKey(target)),
-    );
+  const removeLocation = () => {
+    onChange([]);
   };
 
   const commitCustom = () => {
@@ -153,27 +146,19 @@ export function ReportLocationsField(
       (option) => locationKey(option.label) === locationKey(trimmed),
     );
 
-    if (exists && isSelected(locations, trimmed)) {
-      setAddError("That location is already selected.");
-      return;
-    }
-
     if (!exists) {
       onCustomLocationsChange(dedupeLocations([...customLocations, trimmed]));
     }
 
-    onChange(dedupeLocations([...locations, trimmed]));
+    onChange([trimmed]);
     setDraft("");
     setAddError(null);
     setIsAdding(false);
+    setOpen(false);
   };
 
-  const summary =
-    locations.length === 0
-      ? placeholder
-      : locations.length === 1
-        ? locations[0]
-        : `${String(locations.length)} locations selected`;
+  const selected = locations[0] ?? null;
+  const summary = selected ?? placeholder;
 
   return (
     <div
@@ -185,9 +170,9 @@ export function ReportLocationsField(
     >
       <ReportFieldLabel label={label} required={required} hint={hint} />
 
-      {locations.length > 0 ? (
+      {selected !== null ? (
         <div className="flex flex-wrap gap-1.5">
-          {locations.map((entry) => (
+          {[selected].map((entry) => (
             <span
               key={locationKey(entry)}
               className="border-ehs-border bg-ehs-light-bg text-ehs-darker text-3.25 inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 font-medium"
@@ -200,7 +185,7 @@ export function ReportLocationsField(
               <span className="truncate">{entry}</span>
               <button
                 type="button"
-                onClick={() => removeLocation(entry)}
+                onClick={removeLocation}
                 aria-label={`Remove location ${entry}`}
                 className="text-ehs-muted-text hover:text-ehs-darker inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
               >
@@ -233,7 +218,7 @@ export function ReportLocationsField(
             open
               ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-0.75"
               : "",
-            locations.length > 0 ? "" : "text-ehs-muted-text",
+            selected === null ? "text-ehs-muted-text" : "",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -261,22 +246,25 @@ export function ReportLocationsField(
               id={listboxId}
               role="listbox"
               aria-label={label}
-              aria-multiselectable="true"
               className="max-h-52 overflow-y-auto p-1"
             >
               {dropdownOptions.map((option) => {
-                const selected = isSelected(locations, option.label);
+                const isCurrent = isSelected(locations, option.label);
 
                 return (
-                  <li key={option.value} role="option" aria-selected={selected}>
+                  <li
+                    key={option.value}
+                    role="option"
+                    aria-selected={isCurrent}
+                  >
                     <button
                       type="button"
                       tabIndex={-1}
                       onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => toggleLocation(option.label)}
+                      onClick={() => selectLocation(option.label)}
                       className={[
                         "rounded-2 flex w-full cursor-pointer items-center gap-2 px-2.5 py-2 text-left text-[14px] transition-colors",
-                        selected
+                        isCurrent
                           ? "text-ehs-dark-blue bg-ehs-normal-blue/10 font-semibold"
                           : "text-ehs-dark-bg hover:bg-ehs-normal-blue/6",
                       ].join(" ")}
@@ -284,7 +272,7 @@ export function ReportLocationsField(
                       <span className="min-w-0 flex-1 truncate">
                         {option.label}
                       </span>
-                      {selected ? (
+                      {isCurrent ? (
                         <Icon
                           icon="mdi:check"
                           className="size-4 shrink-0"
@@ -361,7 +349,7 @@ export function ReportLocationsField(
       </div>
 
       <p className="text-ehs-muted-text text-xs">
-        Select one or more locations from the list, or add your own.
+        Select a location from the list, or add your own.
       </p>
 
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
