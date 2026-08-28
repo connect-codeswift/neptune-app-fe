@@ -15,6 +15,7 @@ import type {
   ClosureLinkedCapaItemDto,
   IncidentClosureResponseDto,
 } from "@/dtos/res/incident-closure-response.dto";
+import type { IncidentActivityDto } from "@/dtos/res/incident-activity-response.dto";
 import http, { getAccessToken } from "@/lib/axios";
 
 const INCIDENT_PATH = "/incidents";
@@ -22,6 +23,10 @@ const INCIDENT_SEARCH_PATH = "/incidents/search";
 
 function incidentClosurePath(incidentId: number): string {
   return `${INCIDENT_PATH}/${String(incidentId)}/closure`;
+}
+
+function incidentActivityPath(incidentId: number): string {
+  return `${INCIDENT_PATH}/${String(incidentId)}/activity`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -755,6 +760,31 @@ export async function getIncidentClosure(
   });
 
   return normalizeIncidentClosureDto(data);
+}
+
+/**
+ * GET /api/v1/incidents/{incidentId}/activity
+ *
+ * An empty list is a real answer: incidents predating the activity log have no rows, and so
+ * does one nothing has happened to. Neither is worth inventing entries for.
+ */
+export async function getIncidentActivity(
+  incidentId: number,
+): Promise<IncidentActivityDto[]> {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    throw new Error("Sign in required to load incident activity.");
+  }
+
+  const { data } = await http.get<unknown>(incidentActivityPath(incidentId), {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  const payload = isRecord(data)
+    ? ((data.dataModel ?? data.DataModel) as unknown)
+    : data;
+
+  return Array.isArray(payload) ? (payload as IncidentActivityDto[]) : [];
 }
 
 /**

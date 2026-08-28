@@ -42,6 +42,8 @@ import { getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { getStoredFile } from "@/services/files.service";
+import { useIncidentActivityQuery } from "@/hooks/use-incident-queries";
+import { mapIncidentActivityToTimelineEvents } from "@/services/mappers/incident-activity.mapper";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import {
@@ -187,6 +189,13 @@ export function IncidentDetailContent(
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
+    incidentId: loadedDetail?.numericId ?? numericId,
+    enabled:
+      isClientReady &&
+      hasToken &&
+      (loadedDetail?.numericId != null || numericId != null),
+  });
+  const activityQuery = useIncidentActivityQuery({
     incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
@@ -435,6 +444,21 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
+  /**
+   * Real history wins. The rows are written when the change happens, so their times are the
+   * times — the derived set below stamps almost everything with the report time.
+   *
+   * Incidents predating the activity log have no rows and keep the derived timeline rather
+   * than showing an empty tab. That derived set is the one with invented timestamps, and it
+   * should go once the log has covered the backlog.
+   */
+  const resolvedTimelineEvents = useMemo(() => {
+    const rows = activityQuery.data ?? [];
+    return rows.length > 0
+      ? mapIncidentActivityToTimelineEvents(rows)
+      : timelineEvents;
+  }, [activityQuery.data, timelineEvents]);
+
   const handleTabChange = (tab: TabId) => {
     if (
       (editScope === "details" && tab !== "details") ||
@@ -679,7 +703,7 @@ export function IncidentDetailContent(
           prev.map((item) => (item.key === key ? { ...item, value } : item)),
         );
       }}
-      timelineEvents={timelineEvents}
+      timelineEvents={resolvedTimelineEvents}
       affectedName={affectedName}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}
