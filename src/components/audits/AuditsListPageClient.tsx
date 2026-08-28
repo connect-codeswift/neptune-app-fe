@@ -182,7 +182,7 @@ export function AuditsListPageClient() {
             setSearchQuery(value);
             setSelectedId(null);
           }}
-          placeholder="Search by title, site, auditor..."
+          placeholder="Search by title, scope, auditor..."
           aria-label="Search audits"
           resultLabel={resultLabel}
         />
