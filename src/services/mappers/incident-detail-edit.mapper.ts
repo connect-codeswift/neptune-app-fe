@@ -80,6 +80,24 @@ function editableText(value: string): string | null {
 }
 
 /**
+ * A cleared value for a column the database declares NOT NULL.
+ *
+ * `Incident` on the backend declares almost every string non-nullable — only
+ * `Title` and `AiAssistedFields` take a `?`. Clearing one of the others sent a
+ * JSON `null`, the update assigned it straight onto the tracked entity, and
+ * `SaveChangesAsync` failed with "An error occurred while saving the entity
+ * changes", which surfaced here as an unexplained save failure with the real
+ * cause only in the server's inner exception.
+ *
+ * So a cleared field travels as `""`. This is the same rule the create path
+ * documents as EMPTY_NOT_NULL in `report-incident.mapper.ts`; it was never
+ * carried across to the edit mappers.
+ */
+function editableTextNotNull(value: string): string {
+  return editableText(value) ?? "";
+}
+
+/**
  * Merges Details-tab draft edits into an existing GetById incident payload.
  */
 export function applyDetailEditDraft(
@@ -177,7 +195,8 @@ export function applyDetailEditDraft(
     if (value !== null) {
       (patch as Record<string, unknown>)[field] = value;
     } else if (byKey.has(key)) {
-      (patch as Record<string, unknown>)[field] = null;
+      // `""`, not null — every field in this list is NOT NULL on the entity.
+      (patch as Record<string, unknown>)[field] = "";
     }
   }
 
@@ -304,14 +323,15 @@ export function applyPeopleEditDraft(
       ? reporterEmpId
       : editableText(existing.incidentReporterEmail ?? "");
 
-  const treatment = editableText(draft.treatment);
-  const bodyPart = editableText(draft.bodyPart);
-  const injuryLabel = editableText(draft.affectedInjuryLabel);
+  // Cleared values travel as `""`: these are all NOT NULL columns.
+  const treatment = editableTextNotNull(draft.treatment);
+  const bodyPart = editableTextNotNull(draft.bodyPart);
+  const injuryLabel = editableTextNotNull(draft.affectedInjuryLabel);
   const affectedEmpId = editableText(draft.affectedEmpId);
 
   return {
     people,
-    affectedPersonId: affectedEmpId ?? affectedName,
+    affectedPersonId: affectedEmpId ?? affectedName ?? "",
     injuredBodyPart: bodyPart,
     natureOfInjury: injuryLabel,
     // Only `initialTreatment`. These are two different answers with two different
@@ -323,8 +343,8 @@ export function applyPeopleEditDraft(
     treatmentProvidedBy:
       editableText(treatmentProvider?.name ?? "") ??
       existing.treatmentProvidedBy ??
-      null,
-    incidentReporterEmail: reporterEmail,
+      "",
+    incidentReporterEmail: reporterEmail ?? "",
   };
 }
 

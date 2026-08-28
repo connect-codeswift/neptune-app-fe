@@ -480,6 +480,52 @@ function withoutTenantFields<T extends Partial<IncidentDto>>(
 }
 
 /**
+ * Incident columns the database declares NOT NULL.
+ *
+ * `Incident` on the backend declares every string non-nullable except `Title`
+ * and `AiAssistedFields`. The update assigns each one straight onto the tracked
+ * entity, so a JSON `null` reaches `SaveChangesAsync` and fails the whole write
+ * with "An error occurred while saving the entity changes" — a message that
+ * names no field and travels without the inner exception, so the save simply
+ * looked broken from here.
+ *
+ * Kept beside the write rather than in one mapper because all three edit scopes
+ * and any future one share the same PUT: a cleared field has to travel as `""`
+ * whichever screen cleared it.
+ */
+const INCIDENT_NOT_NULL_TEXT_FIELDS = [
+  "severity",
+  "site",
+  "location",
+  "description",
+  "initialTreatment",
+  "mechanismOfInjury",
+  "natureOfInjury",
+  "objectInvolved",
+  "affectedPersonId",
+  "injuredBodyPart",
+  "injuryDescription",
+  "incidentReporterEmail",
+  "whatTreatmentWasGiven",
+  "treatmentProvidedBy",
+  "treatmentLocation",
+  "isFitForFullDuty",
+  "caseDisposition",
+] as const;
+
+function withNotNullText<T extends Record<string, unknown>>(payload: T): T {
+  const next: Record<string, unknown> = { ...payload };
+
+  for (const field of INCIDENT_NOT_NULL_TEXT_FIELDS) {
+    if (next[field] === null || next[field] === undefined) {
+      next[field] = "";
+    }
+  }
+
+  return next as T;
+}
+
+/**
  * PUT /api/v1/incidents/{id}
  * Body: incident fields minus tenant context — the server stamps siteId and
  * userId from the JWT.
@@ -528,7 +574,7 @@ async function updateIncidentById(
 export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
   const existing = await getIncidentById({ id });
 
-  const payload: UpdateIncidentRequestDto = {
+  const payload: UpdateIncidentRequestDto = withNotNullText({
     ...withoutTenantFields(existing ?? {}),
     ...withoutTenantFields(patch),
     id,
@@ -537,7 +583,7 @@ export async function updateIncident(id: number, patch: Partial<IncidentDto>) {
     reportedById:
       patch.reportedById ?? existing?.reportedById ?? getAuthContext()?.userId,
     isDrop: false,
-  };
+  });
 
   return updateIncidentById(id, payload);
 }
