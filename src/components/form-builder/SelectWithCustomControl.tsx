@@ -2,7 +2,15 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { FIELD_INPUT_LG_CLASS } from "@/components/ui/field-styles";
 import type { SelectFieldConfig, SelectOption } from "./types";
@@ -142,9 +150,16 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
   const { field, value, invalid, onChange, triggerClassName } = props;
 
   const [isOpen, setIsOpen] = useState(false);
+  // The menu is portaled to <body>. Each form card sets its own stacking
+  // context (backdrop-filter does that), so a menu rendered inside one is
+  // painted under the card that follows it however high its z-index goes —
+  // which is what put Isolation Method's options behind Verification Method.
+  const [mounted, setMounted] = useState(false);
+  const [menuRect, setMenuRect] = useState<CSSProperties | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [customOptions, setCustomOptions] = useState<SelectOption[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const listboxId = useId();
 
@@ -160,6 +175,41 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
     setIsAdding(false);
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- portals need a client mount
+    setMounted(true);
+  }, []);
+
+  // Tracked while open: the trigger moves with scroll and resize, and a menu
+  // fixed to a stale rectangle detaches from the field it belongs to. Nothing
+  // is cleared on close — the menu only renders while open, and the next open
+  // measures before paint.
+  useLayoutEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const update = () => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      setMenuRect({
+        top: rect.bottom + 6,
+        left: rect.left,
+        width: rect.width,
+      });
+    };
+
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [isOpen]);
+
   // Close on outside click; keyboard on the list: Escape closes, arrows move
   // through the option buttons, Home/End jump. Native selects give arrow
   // traversal for free, so the custom listbox has to match it before it can
@@ -168,7 +218,15 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
     if (!isOpen) return;
 
     const onPointerDown = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) close();
+      const target = event.target as Node;
+      // The menu no longer lives inside the container, so both have to be
+      // checked or the first click on an option would close before it lands.
+      if (
+        !containerRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
+        close();
+      }
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -285,98 +343,109 @@ export function SelectWithCustomControl(props: SelectWithCustomControlProps) {
         )}
       </button>
 
-      {isOpen ? (
-        // Near-opaque (96%) on purpose. At 85% the content underneath read
-        // straight through the menu — checkbox labels behind it were legible
-        // through the option rows. A floating menu has to win against
-        // whatever it covers, so the blur and hairline carry the material
-        // here and the fill stays high.
-        <div className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border shadow-(--ehs-shadow-popover) backdrop-blur-xl">
-          <ul
-            ref={listRef}
-            id={listboxId}
-            role="listbox"
-            aria-label={field.label}
-            className="max-h-64 overflow-y-auto py-1"
-          >
-            {options.length === 0 ? (
-              <li className="p-1.5">
-                <EmptyState
-                  variant="inline"
-                  icon="mdi:playlist-remove"
-                  title={
-                    field.pagination?.isLoading ? "Loading…" : "No options"
-                  }
-                />
-              </li>
-            ) : (
-              options.map((option) => (
-                <OptionRow
-                  key={option.value}
-                  option={option}
-                  selected={option.value === value}
-                  onSelect={() => {
-                    onChange(option.value);
-                    close();
-                  }}
-                />
-              ))
-            )}
-          </ul>
-
-          {field.pagination && field.pagination.totalPages > 1 ? (
-            <div className="border-ehs-border-ink/10 flex items-center justify-between gap-2 border-t px-3 py-2">
-              <button
-                type="button"
-                disabled={field.pagination.pageNumber <= 1}
-                onClick={() => field.pagination?.onPrev()}
-                className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+      {isOpen && mounted && menuRect
+        ? createPortal(
+            // Near-opaque (96%) on purpose. At 85% the content underneath read
+            // straight through the menu — checkbox labels behind it were legible
+            // through the option rows. A floating menu has to win against
+            // whatever it covers, so the blur and hairline carry the material
+            // here and the fill stays high.
+            <div
+              ref={menuRef}
+              style={menuRect}
+              className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 fixed z-120 overflow-hidden rounded-xl border shadow-(--ehs-shadow-popover) backdrop-blur-xl"
+            >
+              <ul
+                ref={listRef}
+                id={listboxId}
+                role="listbox"
+                aria-label={field.label}
+                className="max-h-64 overflow-y-auto py-1"
               >
-                Prev
-              </button>
-              <span className="text8 text-ehs-gray tabular-nums">
-                {field.pagination.isLoading
-                  ? "Loading…"
-                  : `Page ${String(field.pagination.pageNumber)} of ${String(field.pagination.totalPages)}`}
-              </span>
-              <button
-                type="button"
-                disabled={
-                  field.pagination.pageNumber >= field.pagination.totalPages
-                }
-                onClick={() => field.pagination?.onNext()}
-                className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          ) : null}
+                {options.length === 0 ? (
+                  <li className="p-1.5">
+                    <EmptyState
+                      variant="inline"
+                      icon="mdi:playlist-remove"
+                      title={
+                        field.pagination?.isLoading ? "Loading…" : "No options"
+                      }
+                    />
+                  </li>
+                ) : (
+                  options.map((option) => (
+                    <OptionRow
+                      key={option.value}
+                      option={option}
+                      selected={option.value === value}
+                      onSelect={() => {
+                        onChange(option.value);
+                        close();
+                      }}
+                    />
+                  ))
+                )}
+              </ul>
 
-          {field.allowCustom ? (
-            <div className="border-ehs-border-ink/10 border-t">
-              {isAdding ? (
-                <AddCustomForm
-                  placeholder={
-                    field.addCustomPlaceholder ?? `Add a ${field.label}`
-                  }
-                  inputLabel={`Custom ${field.label}`}
-                  onAdd={addCustomOption}
-                  onCancel={() => setIsAdding(false)}
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsAdding(true)}
-                  className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
-                >
-                  <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
-                  {field.addCustomLabel ?? "Add custom option"}
-                </button>
-              )}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+              {field.pagination && field.pagination.totalPages > 1 ? (
+                <div className="border-ehs-border-ink/10 flex items-center justify-between gap-2 border-t px-3 py-2">
+                  <button
+                    type="button"
+                    disabled={field.pagination.pageNumber <= 1}
+                    onClick={() => field.pagination?.onPrev()}
+                    className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Prev
+                  </button>
+                  <span className="text8 text-ehs-gray tabular-nums">
+                    {field.pagination.isLoading
+                      ? "Loading…"
+                      : `Page ${String(field.pagination.pageNumber)} of ${String(field.pagination.totalPages)}`}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={
+                      field.pagination.pageNumber >= field.pagination.totalPages
+                    }
+                    onClick={() => field.pagination?.onNext()}
+                    className="text8 text-ehs-darker border-ehs-border-ink/12 bg-ehs-surface hover:bg-ehs-surface-inverse/5 cursor-pointer rounded-lg border px-2.5 py-1 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              ) : null}
+
+              {field.allowCustom ? (
+                <div className="border-ehs-border-ink/10 border-t">
+                  {isAdding ? (
+                    <AddCustomForm
+                      placeholder={
+                        field.addCustomPlaceholder ?? `Add a ${field.label}`
+                      }
+                      inputLabel={`Custom ${field.label}`}
+                      onAdd={addCustomOption}
+                      onCancel={() => setIsAdding(false)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsAdding(true)}
+                      className="text4 text-ehs-normal-blue hover:bg-ehs-light-bg/50 flex w-full cursor-pointer items-center gap-2 p-3 font-semibold transition-colors"
+                    >
+                      <Icon
+                        icon="mdi:plus"
+                        className="size-4"
+                        aria-hidden="true"
+                      />
+                      {field.addCustomLabel ?? "Add custom option"}
+                    </button>
+                  )}
+                </div>
+              ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
 
       {/* Keeps the value in the DOM for native form semantics. */}
       <input type="hidden" name={field.name} value={value} />

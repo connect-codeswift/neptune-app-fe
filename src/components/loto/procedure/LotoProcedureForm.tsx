@@ -211,6 +211,38 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
+          <Text as="h2" className="text3 text-ehs-darker mb-1">
+            Authorized Personnel
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text mb-3">
+            Only these users can perform this LOTO procedure
+          </Text>
+          <MultipleUsersPickerInput
+            label="Authorized Personnel"
+            hideLabel
+            required
+            placeholder="Search people at this site…"
+            value={personnel.map((person) => ({
+              userId: String(person.userId),
+              name: person.name,
+            }))}
+            onChange={(next) => {
+              onPersonnelChange(
+                next.map((entry) => ({
+                  userId: Number(entry.userId),
+                  name: entry.name,
+                })),
+              );
+            }}
+            siteId={getCurrentUser().siteId}
+            // Any registered, active user on the site is eligible — but an
+            // outstanding invitation or a soft-deleted account is not a person
+            // who can be authorized on a lockout.
+            filter={(user) => !user.isInvited && !user.isDrop}
+          />
+        </IncidentGlassCard>
+
+        <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <div className="mb-2 flex items-center justify-between gap-3">
             <Text as="h2" className="text3 text-ehs-darker">
               Isolation Steps
@@ -344,33 +376,6 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
           {ppeStatusMessage ? (
             <p className="text8 text-ehs-muted-text mt-1">{ppeStatusMessage}</p>
           ) : null}
-        </IncidentGlassCard>
-
-        <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
-          <Text as="p" className="text8 text-ehs-muted-text mb-1.5">
-            Only these users can perform this LOTO procedure
-          </Text>
-          <MultipleUsersPickerInput
-            label="Authorized Personnel"
-            placeholder="Search people at this site…"
-            value={personnel.map((person) => ({
-              userId: String(person.userId),
-              name: person.name,
-            }))}
-            onChange={(next) => {
-              onPersonnelChange(
-                next.map((entry) => ({
-                  userId: Number(entry.userId),
-                  name: entry.name,
-                })),
-              );
-            }}
-            siteId={getCurrentUser().siteId}
-            // Any registered, active user on the site is eligible — but an
-            // outstanding invitation or a soft-deleted account is not a person
-            // who can be authorized on a lockout.
-            filter={(user) => !user.isInvited && !user.isDrop}
-          />
         </IncidentGlassCard>
       </aside>
     </div>
