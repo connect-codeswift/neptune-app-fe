@@ -1,5 +1,9 @@
 "use client";
 import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  columnWidthStyle,
+  tableMinWidthStyle,
+} from "@/components/ui/table-width";
 
 import { useCallback, useMemo, type ReactNode } from "react";
 import {
@@ -211,14 +215,6 @@ function createIncidentColumns(
   }) as ColumnDef<IncidentRecord, unknown>[];
 }
 
-// Percentage widths on a `table-fixed w-full` table always fill the
-// container exactly, so `overflow-x-auto` never triggers — the columns just
-// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
-// `<table>` equal to their sum) let the table actually exceed its container.
-function columnWidthStyle(size: number) {
-  return { width: `${size}px` };
-}
-
 function alignClass(align: "left" | "center" | "right" | undefined) {
   if (align === "center") return "text-center";
   if (align === "right") return "text-right";
@@ -322,12 +318,15 @@ export function IncidentListTable<
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table
-          className="border-collapse text-left text-sm"
-          style={{ minWidth: `${totalSize}px` }}
+          className="w-full table-fixed border-collapse text-left text-sm"
+          style={tableMinWidthStyle(totalSize)}
         >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col key={column.id} style={columnWidthStyle(column.getSize())} />
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
             ))}
           </colgroup>
 
@@ -340,7 +339,7 @@ export function IncidentListTable<
                   return (
                     <th
                       key={header.id}
-                      style={columnWidthStyle(header.getSize())}
+                      style={columnWidthStyle(header.getSize(), totalSize)}
                       className={[
                         "text6 text-ehs-muted-text",
                         headerPadClass,
@@ -421,7 +420,10 @@ export function IncidentListTable<
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize())}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "min-w-0",
                             cellVerticalAlignClass(align, verticalAlign),

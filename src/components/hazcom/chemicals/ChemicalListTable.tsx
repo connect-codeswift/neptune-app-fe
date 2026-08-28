@@ -1,6 +1,10 @@
 "use client";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  columnWidthStyle,
+  tableMinWidthStyle,
+} from "@/components/ui/table-width";
 
 import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
@@ -259,14 +263,6 @@ function createChemicalListColumns(
   }) as ColumnDef<HazcomChemical, unknown>[];
 }
 
-// Percentage widths on a `table-fixed w-full` table always fill the
-// container exactly, so `overflow-x-auto` never triggers — the columns just
-// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
-// `<table>` equal to their sum) let the table actually exceed its container.
-function columnWidthStyle(size: number) {
-  return { width: `${size}px` };
-}
-
 function alignClass(align: "left" | "center" | "right" | undefined) {
   if (align === "center") return "text-center";
   if (align === "right") return "text-right";
@@ -315,12 +311,15 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table
-          className="border-collapse text-left"
-          style={{ minWidth: `${totalSize}px` }}
+          className="w-full table-fixed border-collapse text-left"
+          style={tableMinWidthStyle(totalSize)}
         >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col key={column.id} style={columnWidthStyle(column.getSize())} />
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
             ))}
           </colgroup>
 
@@ -333,7 +332,7 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                   return (
                     <th
                       key={headerCell.id}
-                      style={columnWidthStyle(headerCell.getSize())}
+                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
                       className={[
                         "text6 text-ehs-muted-text px-4 py-3 select-none",
                         alignClass(align),
@@ -387,7 +386,10 @@ export function ChemicalListTable(props: Readonly<ChemicalListTableProps>) {
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize())}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "h-14 min-w-0 px-4 align-middle",
                             alignClass(align),
