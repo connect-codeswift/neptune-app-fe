@@ -11,7 +11,7 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { DateInput } from "@/components/inputs/DateInput";
 import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 
 export type CapaTaskFormPayload = Readonly<{
@@ -163,7 +163,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
         </div>
 
         <div className="grid min-w-0 grid-cols-1">
-          <ReportDateField
+          <DateInput
             variant="embedded"
             label="Due date"
             value={dueDate}

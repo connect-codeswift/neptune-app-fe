@@ -7,7 +7,7 @@ import {
   ReportFieldHint,
   ReportFieldLabel,
 } from "./ReportFormField";
-import { INCIDENT_LOCATION_OPTIONS } from "./report-locations";
+import { INCIDENT_LOCATION_OPTIONS } from "@/forms/incident-module/locations";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 

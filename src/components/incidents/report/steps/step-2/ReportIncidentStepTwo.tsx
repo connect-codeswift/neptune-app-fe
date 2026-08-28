@@ -22,7 +22,7 @@ import {
   markAiAssisted,
   type CustomOptionField,
   type ReportIncidentFormState,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import {
   ReportSelectField,
   ReportTextareaField,

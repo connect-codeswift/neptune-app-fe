@@ -13,7 +13,7 @@ import {
   markAiAssisted,
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 
 export type ReportIncidentStepFourProps = Readonly<{
   form: ReportIncidentFormState;

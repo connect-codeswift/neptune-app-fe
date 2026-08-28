@@ -18,7 +18,7 @@ import {
   ReportFieldError,
   ReportFieldHint,
 } from "@/components/incidents/report/shared/ReportFormField";
-import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
+import { normalizeGender } from "@/forms/incident-module/injury-level";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import {
   readUserGender,

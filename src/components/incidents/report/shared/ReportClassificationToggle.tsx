@@ -5,7 +5,7 @@ import {
   ReportFieldError,
   ReportFieldHint,
 } from "./ReportFormField";
-import type { ClassificationValue } from "./report-classification";
+import type { ClassificationValue } from "@/forms/incident-module/classification";
 
 export type ClassificationToggleOption = Readonly<{
   value: string;
@@ -94,8 +94,9 @@ export function ReportClassificationToggle(
     usesSeverityColors && hasSelection
       ? SIA_SIP_SIF_STYLES[resolvedValue as SiaSipSifValue]
       : undefined;
-  const isPrimarySelected =
-    hasSelection && selectedIndex === 0 && !usesSeverityColors;
+  // Any answer on a Yes/No toggle gets the accent pane, not just the first
+  // option — a picked "No" looked unanswered next to a picked "Yes".
+  const isPrimarySelected = hasSelection && !usesSeverityColors;
 
   return (
     <div
@@ -152,7 +153,7 @@ export function ReportClassificationToggle(
                 active
                   ? optionStyle
                     ? optionStyle.activeText
-                    : isPrimarySelected && index === 0
+                    : isPrimarySelected
                       ? "text-ehs-on-accent"
                       : "text-ehs-slate"
                   : "text-ehs-muted-text hover:text-ehs-slate",

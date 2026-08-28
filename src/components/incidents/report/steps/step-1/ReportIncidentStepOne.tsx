@@ -17,9 +17,9 @@ import {
   usesSiaSipToggle,
   type ReportIncidentFormState,
   type SeverityId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportClassificationToggle } from "@/components/incidents/report/shared/ReportClassificationToggle";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { DateInput } from "@/components/inputs/DateInput";
 import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
 import {
   ReportPersonSearchField,
@@ -35,7 +35,7 @@ import {
   startOfDay,
   today,
   todayMmDdYyyy,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { useCurrentSite } from "@/hooks/use-current-site";
 import { userGenderQueryKey } from "@/hooks/use-user-queries";
@@ -520,7 +520,7 @@ export function ReportIncidentStepOne(
           />
 
           <div className="grid grid-cols-1 items-start gap-3 pt-3 sm:grid-cols-3 sm:gap-x-3">
-            <ReportDateField
+            <DateInput
               label="Date of Incident"
               required
               value={form.incidentDate}
@@ -540,7 +540,7 @@ export function ReportIncidentStepOne(
               error={fieldErrors?.incidentTime ?? timing.incidentTime}
               className="pb-1.5 sm:pb-4.5"
             />
-            <ReportDateField
+            <DateInput
               label="Report Date"
               required
               value={form.reportDate}
