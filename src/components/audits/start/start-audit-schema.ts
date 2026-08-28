@@ -114,6 +114,8 @@ export function buildStartAuditSchema(
       label: "Due Date",
       required: false,
       colSpan: 6,
+      // Same rule as scheduledDate above — a due date cannot open overdue.
+      limit: "not-past",
     },
   ];
 }
