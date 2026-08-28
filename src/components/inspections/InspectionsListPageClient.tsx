@@ -184,7 +184,7 @@ export function InspectionsListPageClient() {
             setSearchQuery(value);
             setSelectedId(null);
           }}
-          placeholder="Search by title, site, inspector..."
+          placeholder="Search by title, scope, inspector..."
           aria-label="Search inspections"
           resultLabel={resultLabel}
         />

@@ -85,7 +85,7 @@ export function buildTrainingSessionSchema(
       colSpan: 6,
       displayNameField: "trainer",
       placeholder: "Select a trainer…",
-      trailingHint: "Search people at your site.",
+      trailingHint: "Search people.",
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,

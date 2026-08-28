@@ -223,7 +223,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
               label="Authorized Personnel"
               hideLabel
               required
-              placeholder="Search people at this site…"
+              placeholder="Search people…"
               value={personnel.map((person) => ({
                 userId: String(person.userId),
                 name: person.name,

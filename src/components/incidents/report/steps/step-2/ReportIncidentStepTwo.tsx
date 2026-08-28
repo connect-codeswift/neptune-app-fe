@@ -556,8 +556,8 @@ export function ReportIncidentStepTwo(
           <MultipleUsersPickerInput
             className="pt-4.5"
             label="Witnesses"
-            trailingHint="Search people at your site."
-            placeholder="Search people at your site…"
+            trailingHint="Search people."
+            placeholder="Search people…"
             value={[...form.witnesses]}
             onChange={(witnesses) => {
               onChange({
