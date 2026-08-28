@@ -240,20 +240,6 @@ export function IncidentClosureStepPreventive(
         Preventive Measures & CAPAs
       </Text>
 
-      {/* Actions Taken */}
-      <div className="flex flex-col">
-        <label className="text-ehs-muted-text text8 mb-2 font-bold tracking-[0.5px] uppercase">
-          ACTIONS TAKEN
-        </label>
-        <textarea
-          value={data.actionsTaken}
-          onChange={(e) => onChangeField("actionsTaken", e.target.value)}
-          rows={3}
-          placeholder="Detail preventive actions taken..."
-          className={FIELD_TEXTAREA_CLASS}
-        />
-      </div>
-
       {/* Linked CAPAs */}
       <div className="flex flex-col">
         <label className="text-ehs-muted-text text8 mb-2.5 font-bold tracking-[0.5px] uppercase">
@@ -261,6 +247,14 @@ export function IncidentClosureStepPreventive(
         </label>
 
         <div className="flex flex-col gap-3">
+          {linkedCapas.length === 0 ? (
+            <Text
+              as="p"
+              className="text-ehs-muted-text text4 rounded-3.5 border-ehs-border bg-ehs-surface border border-dashed px-4 py-3.5 font-normal"
+            >
+              No CAPAs are linked to this incident yet.
+            </Text>
+          ) : null}
           {linkedCapas.map((capa) => (
             <div
               key={capa.id}
@@ -311,6 +305,23 @@ export function IncidentClosureStepPreventive(
           <Icon icon="mdi:plus" className="size-4" />
           <span>Link additional CAPA or Action Item</span>
         </button>
+      </div>
+
+      {/* Notes. Still persisted as `actionsTaken` (the backend column is unchanged),
+          but presented last and labelled Notes: the CAPAs listed above already are
+          the action items, so a separate "actions taken" box above them invited the
+          same content twice. */}
+      <div className="flex flex-col">
+        <label className="text-ehs-muted-text text8 mb-2 font-bold tracking-[0.5px] uppercase">
+          NOTES
+        </label>
+        <textarea
+          value={data.actionsTaken}
+          onChange={(e) => onChangeField("actionsTaken", e.target.value)}
+          rows={3}
+          placeholder="Add any closing notes for this incident..."
+          className={FIELD_TEXTAREA_CLASS}
+        />
       </div>
 
       {/* Link CAPA Modal — mounted only while open, so each open starts from
