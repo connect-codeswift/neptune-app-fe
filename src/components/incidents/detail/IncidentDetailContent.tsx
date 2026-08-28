@@ -50,6 +50,7 @@ import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { getStoredFile } from "@/services/files.service";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useIncidentActivityQuery } from "@/hooks/use-incident-queries";
 import { mapIncidentActivityToTimelineEvents } from "@/services/mappers/incident-activity.mapper";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
@@ -176,6 +177,8 @@ export function IncidentDetailContent(
   const [peopleErrors, setPeopleErrors] = useState<PeopleEditErrors>(
     NO_PEOPLE_EDIT_ERRORS,
   );
+  const [pendingAttachmentDelete, setPendingAttachmentDelete] =
+    useState<AttachmentItem | null>(null);
   const [timelineEvents, setTimelineEvents] = useState<
     readonly TimelineEvent[]
   >([]);
@@ -633,9 +636,60 @@ export function IncidentDetailContent(
     setEditScope("attachments");
   };
 
+  /**
+   * Removing an attachment while viewing, rather than only inside the attachments editor.
+   *
+   * <p>The editor's own delete stages a removal that the Save button then writes. This one has
+   * no Save to wait for, so it persists immediately — dropping the row from local state alone
+   * would put the file back on the next refetch and read as a delete that silently failed.</p>
+   *
+   * <p>The incident update replaces the evidence list wholesale, so the request carries the
+   * attachments that remain rather than the one being removed.</p>
+   */
   const handleDeleteAttachment = (file: AttachmentItem) => {
-    setAttachments((prev) => prev.filter((item) => item.id !== file.id));
-    setPreviewFile((current) => (current?.id === file.id ? null : current));
+    setPendingAttachmentDelete(file);
+  };
+
+  const confirmDeleteAttachment = async () => {
+    const file = pendingAttachmentDelete;
+    if (!file || !detail) {
+      return;
+    }
+
+    const remaining = attachments.filter((item) => item.id !== file.id);
+
+    // Staged edits are written by Save; deleting from inside the editor must not also fire a
+    // request here, or one of the two writes lands on a stale evidence list.
+    if (isEditingAttachments) {
+      setAttachments(remaining);
+      setPreviewFile((current) => (current?.id === file.id ? null : current));
+      setPendingAttachmentDelete(null);
+      return;
+    }
+
+    try {
+      await updateIncidentMutation.mutateAsync({
+        incidentId: detail.numericId,
+        patch: applyAttachmentsEditDraft(remaining),
+      });
+
+      setAttachments(remaining);
+      setPreviewFile((current) => (current?.id === file.id ? null : current));
+      setPendingAttachmentDelete(null);
+      toast.success(
+        "Attachment removed",
+        `${file.name} is no longer on this incident.`,
+      );
+      await detailQuery.refetch();
+    } catch (error) {
+      // Left in place on failure. Removing it from the list after the write was refused
+      // would show the file as gone while it is still on the record.
+      setPendingAttachmentDelete(null);
+      toast.error(
+        "Could not remove attachment",
+        getMutationErrorMessage(error, "Please try again."),
+      );
+    }
   };
 
   const handleEditOrSave = async () => {
@@ -787,350 +841,370 @@ export function IncidentDetailContent(
             : null;
 
   return (
-    <IncidentDetailView
-      displayId={displayId}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      onEditOrSave={() => {
-        void handleEditOrSave();
-      }}
-      isEditing={isEditing}
-      isSaving={updateIncidentMutation.isPending}
-      errorMessage={errorMessage}
-      showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
-      hasToken={hasToken}
-      canRetry={numericId != null}
-      onRetry={() => {
-        void detailQuery.refetch();
-      }}
-      detail={detail}
-      investigation={investigation}
-      rcaInvestigationPreview={rcaInvestigationPreview}
-      isRcaInvestigationLoading={
-        rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
-      }
-      rcaInvestigationError={rcaInvestigationError}
-      onRetryRca={() => {
-        void rcaQuery.refetch();
-      }}
-      incidentNumericId={rcaIncidentId}
-      hrcaQueryEnabled={rcaQueryEnabled}
-      showHrca={showHrca}
-      onOpenHrca={() => setShowHrca(true)}
-      onCloseHrca={() => setShowHrca(false)}
-      isEditingDetails={isEditingDetails}
-      isEditingPeople={isEditingPeople}
-      isEditingAttachments={isEditingAttachments}
-      summaryText={summaryText}
-      onChangeSummary={setSummaryText}
-      responseNotes={responseNotes}
-      responseActions={responseActions}
-      onToggleResponseAction={toggleResponseAction}
-      onChangeResponseNotes={setResponseNotes}
-      infoItems={infoItems}
-      onChangeInfoItem={(key, value) => {
-        setInfoItems((prev) =>
-          prev.map((item) => (item.key === key ? { ...item, value } : item)),
-        );
-      }}
-      timelineEvents={resolvedTimelineEvents}
-      affectedName={affectedName}
-      affectedDisplayName={affectedDisplayName}
-      affectedProfileUrl={affectedProfileUrl}
-      peoplePhotos={peoplePhotos}
-      affectedEmpId={affectedEmpId}
-      affectedInjuryLabel={affectedInjuryLabel}
-      affectedInitials={initialsFromName(affectedName)}
-      bodyPart={bodyPart}
-      treatment={treatment}
-      responders={responders}
-      witnesses={witnesses}
-      daysAway={daysAway}
-      daysAwayDisplay={daysAwayDisplay}
-      onChangeBodyPart={setBodyPart}
-      onChangeTreatment={setTreatment}
-      onChangeDaysAway={setDaysAway}
-      lockedWitnessCount={lockedWitnessCount}
-      peopleErrors={peopleErrors}
-      onAddWitness={() => {
-        setWitnesses((prev) => [
-          ...prev,
-          {
-            name: "",
-            role: "Witness",
-            initials: "—",
-            badgeLabel: "Pending",
-            badgeTone: "gray",
-          },
-        ]);
-      }}
-      onChangeWitness={(index, patch) => {
-        // Locked rows belong to the incident report module and are read-only
-        // in this scope; the card does not render inputs for them either.
-        if (index < lockedWitnessCount) {
-          return;
+    <>
+      <IncidentDetailView
+        displayId={displayId}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onEditOrSave={() => {
+          void handleEditOrSave();
+        }}
+        isEditing={isEditing}
+        isSaving={updateIncidentMutation.isPending}
+        errorMessage={errorMessage}
+        showLoading={(showBootLoading || showQueryLoading) && !errorMessage}
+        hasToken={hasToken}
+        canRetry={numericId != null}
+        onRetry={() => {
+          void detailQuery.refetch();
+        }}
+        detail={detail}
+        investigation={investigation}
+        rcaInvestigationPreview={rcaInvestigationPreview}
+        isRcaInvestigationLoading={
+          rcaQueryEnabled && rcaQuery.isLoading && !rcaQuery.data
         }
-        setWitnesses((prev) =>
-          prev.map((witness, witnessIndex) => {
-            if (witnessIndex !== index) {
-              return witness;
-            }
-            const name = patch.name ?? witness.name;
-            return {
-              ...witness,
-              ...patch,
-              name,
-              initials: initialsFromName(name),
-            };
-          }),
-        );
-      }}
-      onRemoveWitness={(index) => {
-        // Only rows appended during this edit can be dropped — removing a
-        // pre-existing witness would delete it from the incident record.
-        if (index < lockedWitnessCount) {
-          return;
+        rcaInvestigationError={rcaInvestigationError}
+        onRetryRca={() => {
+          void rcaQuery.refetch();
+        }}
+        incidentNumericId={rcaIncidentId}
+        hrcaQueryEnabled={rcaQueryEnabled}
+        showHrca={showHrca}
+        onOpenHrca={() => setShowHrca(true)}
+        onCloseHrca={() => setShowHrca(false)}
+        isEditingDetails={isEditingDetails}
+        isEditingPeople={isEditingPeople}
+        isEditingAttachments={isEditingAttachments}
+        summaryText={summaryText}
+        onChangeSummary={setSummaryText}
+        responseNotes={responseNotes}
+        responseActions={responseActions}
+        onToggleResponseAction={toggleResponseAction}
+        onChangeResponseNotes={setResponseNotes}
+        infoItems={infoItems}
+        onChangeInfoItem={(key, value) => {
+          setInfoItems((prev) =>
+            prev.map((item) => (item.key === key ? { ...item, value } : item)),
+          );
+        }}
+        timelineEvents={resolvedTimelineEvents}
+        affectedName={affectedName}
+        affectedDisplayName={affectedDisplayName}
+        affectedProfileUrl={affectedProfileUrl}
+        peoplePhotos={peoplePhotos}
+        affectedEmpId={affectedEmpId}
+        affectedInjuryLabel={affectedInjuryLabel}
+        affectedInitials={initialsFromName(affectedName)}
+        bodyPart={bodyPart}
+        treatment={treatment}
+        responders={responders}
+        witnesses={witnesses}
+        daysAway={daysAway}
+        daysAwayDisplay={daysAwayDisplay}
+        onChangeBodyPart={setBodyPart}
+        onChangeTreatment={setTreatment}
+        onChangeDaysAway={setDaysAway}
+        lockedWitnessCount={lockedWitnessCount}
+        peopleErrors={peopleErrors}
+        onAddWitness={() => {
+          setWitnesses((prev) => [
+            ...prev,
+            {
+              name: "",
+              role: "Witness",
+              initials: "—",
+              badgeLabel: "Pending",
+              badgeTone: "gray",
+            },
+          ]);
+        }}
+        onChangeWitness={(index, patch) => {
+          // Locked rows belong to the incident report module and are read-only
+          // in this scope; the card does not render inputs for them either.
+          if (index < lockedWitnessCount) {
+            return;
+          }
+          setWitnesses((prev) =>
+            prev.map((witness, witnessIndex) => {
+              if (witnessIndex !== index) {
+                return witness;
+              }
+              const name = patch.name ?? witness.name;
+              return {
+                ...witness,
+                ...patch,
+                name,
+                initials: initialsFromName(name),
+              };
+            }),
+          );
+        }}
+        onRemoveWitness={(index) => {
+          // Only rows appended during this edit can be dropped — removing a
+          // pre-existing witness would delete it from the incident record.
+          if (index < lockedWitnessCount) {
+            return;
+          }
+          setWitnesses((prev) =>
+            prev.filter((_, witnessIndex) => witnessIndex !== index),
+          );
+        }}
+        attachments={attachments}
+        usedBytes={usedBytes}
+        onSelectFile={setPreviewFile}
+        onAddFile={() => openUploadPickerRef.current?.()}
+        onDeleteFile={handleDeleteAttachment}
+        onUploadSuccess={handleUploadSuccess}
+        onRegisterUploadOpen={registerUploadOpen}
+        linkedCapa={linkedCapa}
+        isCapaLoading={capaQuery.isPending}
+        isCapaSubmitting={
+          createCapaMutation.isPending ||
+          updateCapaMutation.isPending ||
+          createCapaTaskMutation.isPending ||
+          deleteCapaTaskMutation.isPending ||
+          verifyCapaMutation.isPending
         }
-        setWitnesses((prev) =>
-          prev.filter((_, witnessIndex) => witnessIndex !== index),
-        );
-      }}
-      attachments={attachments}
-      usedBytes={usedBytes}
-      onSelectFile={setPreviewFile}
-      onAddFile={() => openUploadPickerRef.current?.()}
-      onDeleteFile={handleDeleteAttachment}
-      onUploadSuccess={handleUploadSuccess}
-      onRegisterUploadOpen={registerUploadOpen}
-      linkedCapa={linkedCapa}
-      isCapaLoading={capaQuery.isPending}
-      isCapaSubmitting={
-        createCapaMutation.isPending ||
-        updateCapaMutation.isPending ||
-        createCapaTaskMutation.isPending ||
-        deleteCapaTaskMutation.isPending ||
-        verifyCapaMutation.isPending
-      }
-      openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
-      onAddCapaModalOpened={handleAddCapaModalOpened}
-      onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
-      onSubmitCapa={async (payload) => {
-        if (!detail) {
-          return;
-        }
-        try {
-          await createCapaMutation.mutateAsync({
-            payload: buildCreateCapaRequest({
-              incidentId: detail.numericId,
+        openAddCapaOnLinkedTab={openAddCapaOnLinkedTab}
+        onAddCapaModalOpened={handleAddCapaModalOpened}
+        onNavigateToLinkedCapa={handleNavigateToLinkedCapa}
+        onSubmitCapa={async (payload) => {
+          if (!detail) {
+            return;
+          }
+          try {
+            await createCapaMutation.mutateAsync({
+              payload: buildCreateCapaRequest({
+                incidentId: detail.numericId,
+                controlLevel: payload.controlLevel,
+                description: payload.description,
+                type: payload.type,
+                owner: payload.owner,
+                dueDate: payload.dueDate,
+                priority: payload.priority,
+              }),
+              tasks: payload.tasks,
+            });
+            const taskCount = payload.tasks?.length ?? 0;
+            toast.success(
+              "CAPA created",
+              taskCount > 0
+                ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
+                : `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
+            );
+          } catch (error) {
+            toast.error(
+              "Could not create CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        onUpdateCapa={async (capa, payload) => {
+          try {
+            await updateCapaMutation.mutateAsync({
+              capa,
               controlLevel: payload.controlLevel,
               description: payload.description,
               type: payload.type,
               owner: payload.owner,
               dueDate: payload.dueDate,
               priority: payload.priority,
-            }),
-            tasks: payload.tasks,
-          });
-          const taskCount = payload.tasks?.length ?? 0;
-          toast.success(
-            "CAPA created",
-            taskCount > 0
-              ? `Added ${payload.type.toLowerCase()} action with ${String(taskCount)} task${taskCount === 1 ? "" : "s"}.`
-              : `Added ${payload.type.toLowerCase()} action for ${displayId}.`,
-          );
-        } catch (error) {
-          toast.error(
-            "Could not create CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      onUpdateCapa={async (capa, payload) => {
-        try {
-          await updateCapaMutation.mutateAsync({
-            capa,
-            controlLevel: payload.controlLevel,
-            description: payload.description,
-            type: payload.type,
-            owner: payload.owner,
-            dueDate: payload.dueDate,
-            priority: payload.priority,
-          });
-          toast.success("CAPA updated", `${capa.code} was saved.`);
-        } catch (error) {
-          toast.error(
-            "Could not update CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isCreatingCapaTask={createCapaTaskMutation.isPending}
-      onCreateCapaTask={async (capa, payload) => {
-        if (!detail) {
-          return;
-        }
+            });
+            toast.success("CAPA updated", `${capa.code} was saved.`);
+          } catch (error) {
+            toast.error(
+              "Could not update CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isCreatingCapaTask={createCapaTaskMutation.isPending}
+        onCreateCapaTask={async (capa, payload) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await createCapaTaskMutation.mutateAsync({
-            capaId: capa.numericId,
-            incidentId: detail.numericId,
-            task: payload.task,
-            dueDate: payload.dueDate,
-            priority: payload.priority,
-          });
-          toast.success("Task added", `New task linked to ${capa.code}.`);
-        } catch (error) {
-          toast.error(
-            "Could not add task",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isDeletingCapaTask={deleteCapaTaskMutation.isPending}
-      onDeleteCapaTask={async (capa, taskId) => {
-        if (!detail) {
-          return;
-        }
+          try {
+            await createCapaTaskMutation.mutateAsync({
+              capaId: capa.numericId,
+              incidentId: detail.numericId,
+              task: payload.task,
+              dueDate: payload.dueDate,
+              priority: payload.priority,
+            });
+            toast.success("Task added", `New task linked to ${capa.code}.`);
+          } catch (error) {
+            toast.error(
+              "Could not add task",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isDeletingCapaTask={deleteCapaTaskMutation.isPending}
+        onDeleteCapaTask={async (capa, taskId) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await deleteCapaTaskMutation.mutateAsync({
-            taskId,
-            capaId: capa.numericId,
-            incidentId: detail.numericId,
-          });
-          toast.success("Task removed", `Task deleted from ${capa.code}.`);
-        } catch (error) {
-          toast.error(
-            "Could not delete task",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
-        }
-      }}
-      isVerifyingCapa={verifyCapaMutation.isPending}
-      onVerifyCapa={async (capa, input) => {
-        if (!detail) {
-          return;
-        }
+          try {
+            await deleteCapaTaskMutation.mutateAsync({
+              taskId,
+              capaId: capa.numericId,
+              incidentId: detail.numericId,
+            });
+            toast.success("Task removed", `Task deleted from ${capa.code}.`);
+          } catch (error) {
+            toast.error(
+              "Could not delete task",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        isVerifyingCapa={verifyCapaMutation.isPending}
+        onVerifyCapa={async (capa, input) => {
+          if (!detail) {
+            return;
+          }
 
-        try {
-          await verifyCapaMutation.mutateAsync({
-            capa,
-            incidentId: detail.numericId,
-            effectiveness: input.effectiveness,
-            notes: input.notes,
-          });
-          toast.success(
-            "CAPA verified",
-            `${capa.code} has been verified and closed.`,
-          );
-        } catch (error) {
-          toast.error(
-            "Could not verify CAPA",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-          throw error;
+          try {
+            await verifyCapaMutation.mutateAsync({
+              capa,
+              incidentId: detail.numericId,
+              effectiveness: input.effectiveness,
+              notes: input.notes,
+            });
+            toast.success(
+              "CAPA verified",
+              `${capa.code} has been verified and closed.`,
+            );
+          } catch (error) {
+            toast.error(
+              "Could not verify CAPA",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+            throw error;
+          }
+        }}
+        previewFile={previewFile}
+        onClosePreview={() => setPreviewFile(null)}
+        closureData={closureData}
+        isClosureSubmitting={
+          updateClosureMutation.isPending || closeIncidentMutation.isPending
         }
-      }}
-      previewFile={previewFile}
-      onClosePreview={() => setPreviewFile(null)}
-      closureData={closureData}
-      isClosureSubmitting={
-        updateClosureMutation.isPending || closeIncidentMutation.isPending
-      }
-      onSelectClosureStep={(step) => {
-        setClosureData((prev) => ({ ...prev, currentStep: step }));
-      }}
-      onChangeClosureField={(field, value) => {
-        setClosureData((prev) => ({ ...prev, [field]: value }));
-      }}
-      onToggleClosureCheckItem={(itemId) => {
-        setClosureData((prev) => ({
-          ...prev,
-          verificationChecklist: prev.verificationChecklist.map((item) =>
-            item.id === itemId
-              ? {
-                  ...item,
-                  completed: !item.completed,
-                  completedAt: !item.completed
-                    ? formatShortDateTime(new Date())
-                    : undefined,
-                  completedBy: !item.completed ? "Current User" : undefined,
-                }
-              : item,
-          ),
-        }));
-      }}
-      onCancelClosure={() => {
-        const intakeType = detail?.infoItems?.find((item) =>
-          item.key.toLowerCase().includes("type"),
-        )?.value;
-
-        setClosureData((prev) =>
-          resetClosureWizardFields(prev, {
-            finalIncidentType: toCanonicalIncidentType(intakeType),
-          }),
-        );
-      }}
-      onSaveClosureDraft={async () => {
-        const targetId = detail?.numericId ?? numericId;
-        if (!targetId) return;
-        try {
-          await updateClosureMutation.mutateAsync({
-            incidentId: targetId,
-            data: closureData,
-          });
-          toast.success(
-            "Draft Saved",
-            "Incident closure draft saved successfully.",
-          );
-        } catch (error) {
-          toast.error(
-            "Failed to Save Draft",
-            getMutationErrorMessage(
-              error,
-              "Please check your network or try again.",
+        onSelectClosureStep={(step) => {
+          setClosureData((prev) => ({ ...prev, currentStep: step }));
+        }}
+        onChangeClosureField={(field, value) => {
+          setClosureData((prev) => ({ ...prev, [field]: value }));
+        }}
+        onToggleClosureCheckItem={(itemId) => {
+          setClosureData((prev) => ({
+            ...prev,
+            verificationChecklist: prev.verificationChecklist.map((item) =>
+              item.id === itemId
+                ? {
+                    ...item,
+                    completed: !item.completed,
+                    completedAt: !item.completed
+                      ? formatShortDateTime(new Date())
+                      : undefined,
+                    completedBy: !item.completed ? "Current User" : undefined,
+                  }
+                : item,
             ),
+          }));
+        }}
+        onCancelClosure={() => {
+          const intakeType = detail?.infoItems?.find((item) =>
+            item.key.toLowerCase().includes("type"),
+          )?.value;
+
+          setClosureData((prev) =>
+            resetClosureWizardFields(prev, {
+              finalIncidentType: toCanonicalIncidentType(intakeType),
+            }),
           );
+        }}
+        onSaveClosureDraft={async () => {
+          const targetId = detail?.numericId ?? numericId;
+          if (!targetId) return;
+          try {
+            await updateClosureMutation.mutateAsync({
+              incidentId: targetId,
+              data: closureData,
+            });
+            toast.success(
+              "Draft Saved",
+              "Incident closure draft saved successfully.",
+            );
+          } catch (error) {
+            toast.error(
+              "Failed to Save Draft",
+              getMutationErrorMessage(
+                error,
+                "Please check your network or try again.",
+              ),
+            );
+          }
+        }}
+        onFinalizeClosure={async () => {
+          const targetId = detail?.numericId ?? numericId;
+          if (!targetId) return;
+
+          const updatedData: IncidentClosureData = {
+            ...closureData,
+            closureStatus: "Closed",
+            closureId: closureData.closureId ?? `CLS-${displayId}`,
+            closedAt: formatShortDateTime(new Date()),
+            closedBy: closureData.approverName || closureData.closedBy,
+            isApproved: true,
+          };
+
+          setClosureData(updatedData);
+
+          try {
+            await updateClosureMutation.mutateAsync({
+              incidentId: targetId,
+              data: updatedData,
+            });
+            await closeIncidentMutation.mutateAsync(targetId);
+            await closureQuery.refetch();
+            toast.success(
+              "Incident Officially Closed",
+              `Incident ${displayId} has been successfully closed and verified.`,
+            );
+            await detailQuery.refetch();
+          } catch (error) {
+            toast.error(
+              "Failed to Finalize Closure",
+              getMutationErrorMessage(error, "Please try again."),
+            );
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={pendingAttachmentDelete != null}
+        title="Remove attachment?"
+        description={
+          pendingAttachmentDelete
+            ? `${pendingAttachmentDelete.name} will be removed from this incident. This can't be undone.`
+            : undefined
         }
-      }}
-      onFinalizeClosure={async () => {
-        const targetId = detail?.numericId ?? numericId;
-        if (!targetId) return;
-
-        const updatedData: IncidentClosureData = {
-          ...closureData,
-          closureStatus: "Closed",
-          closureId: closureData.closureId ?? `CLS-${displayId}`,
-          closedAt: formatShortDateTime(new Date()),
-          closedBy: closureData.approverName || closureData.closedBy,
-          isApproved: true,
-        };
-
-        setClosureData(updatedData);
-
-        try {
-          await updateClosureMutation.mutateAsync({
-            incidentId: targetId,
-            data: updatedData,
-          });
-          await closeIncidentMutation.mutateAsync(targetId);
-          await closureQuery.refetch();
-          toast.success(
-            "Incident Officially Closed",
-            `Incident ${displayId} has been successfully closed and verified.`,
-          );
-          await detailQuery.refetch();
-        } catch (error) {
-          toast.error(
-            "Failed to Finalize Closure",
-            getMutationErrorMessage(error, "Please try again."),
-          );
-        }
-      }}
-    />
+        confirmLabel="Remove"
+        isConfirming={updateIncidentMutation.isPending}
+        onConfirm={() => void confirmDeleteAttachment()}
+        onCancel={() => {
+          if (!updateIncidentMutation.isPending) {
+            setPendingAttachmentDelete(null);
+          }
+        }}
+      />
+    </>
   );
 }

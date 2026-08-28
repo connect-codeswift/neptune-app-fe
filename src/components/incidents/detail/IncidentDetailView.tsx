@@ -489,6 +489,10 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddFile={onAddFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
+                    // Removable while simply viewing, not only inside the editor. A closed
+                    // incident is exempt: the API refuses to update it at all, so offering the
+                    // control would only produce a failed request.
+                    canDelete={!(detail.isClosed ?? false)}
                     embedded
                   />
                   <IncidentDetailFilesTable
@@ -496,6 +500,10 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onSelectFile={onSelectFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
+                    // Removable while simply viewing, not only inside the editor. A closed
+                    // incident is exempt: the API refuses to update it at all, so offering the
+                    // control would only produce a failed request.
+                    canDelete={!(detail.isClosed ?? false)}
                     embedded
                   />
                 </IncidentGlassCard>
