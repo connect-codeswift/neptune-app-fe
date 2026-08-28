@@ -284,6 +284,17 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       }
     }
 
+    // A procedure nobody is authorized to perform cannot be applied — the
+    // Apply screen refuses it — so saving one produces a machine that looks
+    // ready and is not. The API enforces the same rule.
+    if (personnel.length === 0) {
+      toast.error(
+        "Authorize at least one person",
+        "Only listed personnel can perform this LOTO procedure.",
+      );
+      return;
+    }
+
     const payload: UpsertLotoEquipmentRequestDto = {
       name: equipmentName.trim(),
       locationId: location.id,
