@@ -10,7 +10,7 @@ export type ClosureChecklistItemDto = {
 };
 
 export type ClosureLinkedCapaItemDto = {
-  id?: string | null;
+  id?: number | string | null;
   title?: string | null;
   subtitle?: string | null;
   progressPercent?: number | null;
@@ -31,6 +31,14 @@ export type IncidentClosureResponseDto = {
   closedAt?: string | null;
   closedBy?: string | null;
   closedByRole?: string | null;
+  /**
+   * What the API actually sends. `IncidentClosureResponseDto` on the backend exposes
+   * `ClosedByUserName` / `ClosedByRoleName`, which camel-case to these — the shorter
+   * `closedBy` / `closedByRole` above were never on the wire, so the signature block
+   * read "Not recorded" on every genuinely closed incident.
+   */
+  closedByUserName?: string | null;
+  closedByRoleName?: string | null;
   closureDate?: string | null;
   durationOpen?: string | null;
   finalIncidentType?: string | null;
@@ -46,6 +54,7 @@ export type IncidentClosureResponseDto = {
   rootCauseSummary?: string | null;
   primaryRootCauseCategoryId?: number | null;
   primaryRootCauseCategoryIds?: number[] | null;
+  primaryRootCauseCategoryName?: string | null;
   contributingFactorTags?: string[] | null;
   rootCauseDescription?: string | null;
   attestationConfirmed?: boolean | null;
@@ -55,6 +64,13 @@ export type IncidentClosureResponseDto = {
   actionsTaken?: string | null;
   preventiveActionSummary?: string | null;
   closureLinkedCapas?: ClosureLinkedCapaItemDto[] | null;
+  /**
+   * The wire name for the same list. The backend reads these live off `Capa.IncidentId`
+   * and returns them as `LinkedCapas`; nothing has ever sent `closureLinkedCapas`, so
+   * the wizard's LINKED CAPAS panel silently showed local fallback data instead of the
+   * incident's real CAPAs.
+   */
+  linkedCapas?: ClosureLinkedCapaItemDto[] | null;
   capasVerified?: boolean | null;
   mfaSigned?: boolean | null;
   isEhsConfirmed?: boolean | null;

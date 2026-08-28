@@ -396,14 +396,7 @@ export function IncidentDetailContent(
     };
   }, [detail]);
 
-  if (detail?.isClosed && activeTab === "closure") {
-    setActiveTab("details");
-  }
-
   const handleTabChange = (tab: TabId) => {
-    if (tab === "closure" && detail?.isClosed) {
-      return;
-    }
     if (
       (editScope === "details" && tab !== "details") ||
       (editScope === "people" && tab !== "people") ||

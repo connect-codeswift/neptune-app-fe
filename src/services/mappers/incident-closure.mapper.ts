@@ -67,6 +67,12 @@ function parseCapaStatus(
   if (raw === "Completed" || raw === "In Progress" || raw === "Planning") {
     return raw;
   }
+  // The API speaks CapaStatus, not the three labels this view model uses. A settled
+  // CAPA arriving as "Closed" or "Verified" used to fall through to "In Progress",
+  // which showed finished work as outstanding on the closure summary.
+  if (raw === "Closed" || raw === "Verified") {
+    return "Completed";
+  }
   return "In Progress";
 }
 
@@ -89,7 +95,7 @@ function mapLinkedCapaItemDto(
   index: number,
 ): ClosureLinkedCapaItem {
   return {
-    id: item.id ?? `capa-${index + 1}`,
+    id: item.id != null ? String(item.id) : `capa-${index + 1}`,
     title: item.title ?? `CAPA-${String(index + 1).padStart(3, "0")}`,
     subtitle: item.subtitle ?? "",
     progressPercent:
@@ -124,10 +130,14 @@ export function mapIncidentClosureDtoToData(
       ? dto.verificationChecklist.map(mapChecklistItemDto)
       : fallback.verificationChecklist;
 
-  const closureLinkedCapas: readonly ClosureLinkedCapaItem[] =
-    dto.closureLinkedCapas && dto.closureLinkedCapas.length > 0
-      ? dto.closureLinkedCapas.map(mapLinkedCapaItemDto)
-      : fallback.closureLinkedCapas;
+  // `linkedCapas` is the wire name; `closureLinkedCapas` is kept first only so any
+  // caller already shaping that key keeps working. An empty array from the API is a
+  // real answer ("this incident has no CAPAs") and must not fall back to placeholders,
+  // so presence is tested rather than length.
+  const linkedCapaDtos = dto.closureLinkedCapas ?? dto.linkedCapas;
+  const closureLinkedCapas: readonly ClosureLinkedCapaItem[] = linkedCapaDtos
+    ? linkedCapaDtos.map(mapLinkedCapaItemDto)
+    : fallback.closureLinkedCapas;
 
   return {
     currentStep,
@@ -135,9 +145,13 @@ export function mapIncidentClosureDtoToData(
     closureStatus,
     closureId: dto.closureId ?? dto.id?.toString() ?? fallback.closureId,
     closedAt: dto.closedAt ?? fallback.closedAt,
-    closedBy: dto.closedBy ?? fallback.closedBy,
-    closedByRole: dto.closedByRole ?? fallback.closedByRole,
-    closureDate: dto.closureDate ?? fallback.closureDate,
+    closedBy: dto.closedBy ?? dto.closedByUserName ?? fallback.closedBy,
+    closedByRole:
+      dto.closedByRole ?? dto.closedByRoleName ?? fallback.closedByRole,
+    // The API has no closureDate of its own; closedAt is the same instant and is the
+    // only date a genuinely closed incident carries, so the sign-off block shows it
+    // rather than falling back to a placeholder.
+    closureDate: dto.closureDate ?? dto.closedAt ?? fallback.closureDate,
     durationOpen: dto.durationOpen ?? fallback.durationOpen,
     finalIncidentType: dto.finalIncidentType ?? fallback.finalIncidentType,
     sifClassification: parseSifClassification(
