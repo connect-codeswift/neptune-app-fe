@@ -181,7 +181,6 @@ export function UserPickerInput(props: Readonly<UserPickerInputProps>) {
       variant={variant}
       anchorRef={anchorRef}
       menuRef={menuRef}
-      contentKey={`${options.resultsKey}:${String(options.users.length)}`}
     >
       <UserOptionList
         listboxId={listboxId}
