@@ -12,12 +12,12 @@ import {
 export type AuditsRegisterHeaderProps = Readonly<{
   auditCount?: number;
   onTemplates?: () => void;
-  onStartAudit?: () => void;
+  onScheduleAudit?: () => void;
 }>;
 
 /** Card header for the audits register table: title + count + actions. */
 export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
-  const { auditCount, onTemplates, onStartAudit } = props;
+  const { auditCount, onTemplates, onScheduleAudit } = props;
 
   return (
     <div className="flex h-12.5 flex-wrap items-center justify-between gap-3">
@@ -49,11 +49,11 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
           </Button>
         ) : null}
 
-        {onStartAudit ? (
+        {onScheduleAudit ? (
           <Button
             type="button"
             variant="primary"
-            onClick={onStartAudit}
+            onClick={onScheduleAudit}
             className={TABLE_HEADER_ACTION_CLASS}
           >
             <Icon
@@ -61,8 +61,8 @@ export function AuditsRegisterHeader(props: AuditsRegisterHeaderProps) {
               className={TABLE_HEADER_ACTION_ICON_CLASS}
               aria-hidden="true"
             />
-            <span className="sm:hidden">Start</span>
-            <span className="hidden sm:inline">Start Audit</span>
+            <span className="sm:hidden">Schedule</span>
+            <span className="hidden sm:inline">Schedule Audit</span>
           </Button>
         ) : null}
       </div>

@@ -113,6 +113,15 @@ export function StartInspectionForm() {
         ? parsedDate.toISOString()
         : new Date().toISOString();
 
+    // Due Date is optional — only sent when the inspector set one.
+    const parsedDueDate = inspection.dueDate
+      ? new Date(inspection.dueDate)
+      : null;
+    const dueDate =
+      parsedDueDate && !Number.isNaN(parsedDueDate.getTime())
+        ? parsedDueDate.toISOString()
+        : undefined;
+
     createInspection.mutate(
       {
         id: 0,
@@ -122,12 +131,13 @@ export function StartInspectionForm() {
         // A custom (external) inspector has no directory id, so it goes out as 0.
         inspectorId: Number(inspection.inspector) || 0,
         scheduleDate,
+        dueDate,
         userId,
         siteId,
       },
       {
         onSuccess: (response) => {
-          toast.success(response.message || "Inspection created");
+          toast.success(response.message || "Inspection scheduled");
 
           // Open the checklist for the inspection run the backend just created.
           const createdId = response.dataModel?.id;
@@ -141,7 +151,7 @@ export function StartInspectionForm() {
           toast.error(
             getMutationErrorMessage(
               error,
-              "Could not start the inspection. Please try again.",
+              "Could not schedule the inspection. Please try again.",
             ),
           );
         },
@@ -158,7 +168,7 @@ export function StartInspectionForm() {
         schema={schema}
         initialValues={initialValues}
         submitLabel={
-          createInspection.isPending ? "Starting…" : "Begin Inspection"
+          createInspection.isPending ? "Scheduling…" : "Schedule Inspection"
         }
         cancelLabel="Cancel"
         isSubmitting={createInspection.isPending}

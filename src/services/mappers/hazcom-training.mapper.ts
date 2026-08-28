@@ -19,20 +19,24 @@ import {
  * `HazcomTrainingSession` shape the log table renders.
  */
 
+const STATUS_BY_LOWER: Readonly<Record<string, HazcomTrainingStatus>> = {
+  scheduled: "Scheduled",
+  inprogress: "InProgress",
+  "in-progress": "InProgress",
+  "in progress": "InProgress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  canceled: "Cancelled",
+};
+
 /**
- * `status` is server-assigned (the create body has no such field). Null /
- * blank stays null so the log can show “No status found” instead of guessing
- * Completed vs Scheduled from the session date.
+ * `status` is server-assigned and always starts `"Scheduled"` on create.
+ * Null/blank only happens for a legacy row written before the status field
+ * existed, and still falls back to "No status found" rather than guessing.
  */
 function toTrainingStatus(value: unknown): HazcomTrainingStatus | null {
   const lower = asString(value).trim().toLowerCase();
-  if (lower === "completed") {
-    return "Completed";
-  }
-  if (lower === "scheduled") {
-    return "Scheduled";
-  }
-  return null;
+  return STATUS_BY_LOWER[lower] ?? null;
 }
 
 function mapTrainingMaterial(raw: unknown): HazcomTrainingMaterial | null {
@@ -86,6 +90,19 @@ function toAttendeeCount(record: Record<string, unknown>): number {
   return asLeadingNumber(readProp(record, "attendees", "Attendees"));
 }
 
+function toAttendeeIds(value: unknown): readonly number[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => asNumber(item)).filter((id) => id > 0);
+}
+
+function toOptionalId(value: unknown): number | null {
+  const id = asNumber(value, Number.NaN);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
 function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
   const record = isRecord(raw) ? raw : {};
   const date = toIsoDate(
@@ -100,10 +117,21 @@ function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
     "MaterialsLink",
   );
 
+  // `trainerName` (assigned user's FullName) is the current field; legacy
+  // rows written before the FK existed fall back to the free-text `trainer`
+  // string. "TBD" only when neither is present.
+  const trainer =
+    asString(readProp(record, "trainerName", "TrainerName")) ||
+    asString(readProp(record, "trainer", "Trainer")) ||
+    "TBD";
+
   return {
     id: formatRecordDisplayId("TR", asString(readProp(record, "id", "Id"))),
     date,
-    trainer: asString(readProp(record, "trainer", "Trainer")),
+    chemicalId: toOptionalId(readProp(record, "chemicalId", "ChemicalId")),
+    chemicalName: asString(readProp(record, "chemicalName", "ChemicalName")),
+    trainerId: toOptionalId(readProp(record, "trainerId", "TrainerId")),
+    trainer,
     // The form labels this "Topic / Training Title"; `trainerTitle` is the
     // only field on the wire it can land in.
     topic: asString(
@@ -112,6 +140,8 @@ function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
     chemicals: toStringList(
       readProp(record, "chemicalsCovered", "ChemicalsCovered", "chemicals"),
     ),
+    attendeeIds: toAttendeeIds(readProp(record, "attendeeIds", "AttendeeIds")),
+    attendeeNames: asString(readProp(record, "attendees", "Attendees")),
     attendees: toAttendeeCount(record),
     status: toTrainingStatus(readProp(record, "status", "Status")),
     materials: toTrainingMaterials(materialsRaw),

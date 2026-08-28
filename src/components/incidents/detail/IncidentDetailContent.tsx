@@ -51,10 +51,22 @@ import {
   applyPeopleEditDraft,
 } from "@/services/mappers/incident-detail-edit.mapper";
 import {
+  firstPeopleEditError,
+  hasPeopleEditErrors,
+  NO_PEOPLE_EDIT_ERRORS,
+  parseDaysAway,
+  validatePeopleEditDraft,
+  type PeopleEditErrors,
+} from "@/components/incidents/detail/people/people-edit-validation";
+import {
   EMPTY_INCIDENT_INVESTIGATION,
   parseIncidentRouteId,
+  withDetailClosedState,
 } from "@/services/mappers/incident-detail.mapper";
-import { mapIncidentClosureDtoToData } from "@/services/mappers/incident-closure.mapper";
+import {
+  isClosureFinalized,
+  mapIncidentClosureDtoToData,
+} from "@/services/mappers/incident-closure.mapper";
 import { buildRcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailContentProps = Readonly<{
@@ -100,6 +112,15 @@ export function IncidentDetailContent(
   const [affectedInjuryLabel, setAffectedInjuryLabel] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [treatment, setTreatment] = useState("");
+  // Days away is not on the incident payload — it lives on the closure record,
+  // so it is held as a string here and written through the closure mutation.
+  const [daysAway, setDaysAway] = useState("");
+  // Witnesses come from the incident report module. Rows already on the record
+  // when the edit began are locked; only rows appended here may be changed.
+  const [lockedWitnessCount, setLockedWitnessCount] = useState(0);
+  const [peopleErrors, setPeopleErrors] = useState<PeopleEditErrors>(
+    NO_PEOPLE_EDIT_ERRORS,
+  );
   const [timelineEvents, setTimelineEvents] = useState<
     readonly TimelineEvent[]
   >([]);
@@ -136,23 +157,31 @@ export function IncidentDetailContent(
   const deleteCapaTaskMutation = useDeleteCapaTaskMutation();
   const verifyCapaMutation = useVerifyCapaMutation();
 
-  const detail = detailQuery.data?.detail ?? null;
+  const loadedDetail = detailQuery.data?.detail ?? null;
   const incidentDto = detailQuery.data?.dto ?? null;
 
   const capaQuery = useCapasByIncidentQuery({
-    incidentId: detail?.numericId ?? numericId,
+    incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
       hasToken &&
-      (detail?.numericId != null || numericId != null),
+      (loadedDetail?.numericId != null || numericId != null),
   });
   const closureQuery = useIncidentClosureQuery({
-    incidentId: detail?.numericId ?? numericId,
+    incidentId: loadedDetail?.numericId ?? numericId,
     enabled:
       isClientReady &&
       hasToken &&
-      (detail?.numericId != null || numericId != null),
+      (loadedDetail?.numericId != null || numericId != null),
   });
+  // The incident payload alone cannot say whether this incident is closed on a
+  // backend that predates `stage` on the single-incident read, and answering
+  // "no" there is what let a finalised incident be walked through the closure
+  // wizard a second time. The closure record loaded above settles it.
+  const detail = withDetailClosedState(
+    loadedDetail,
+    isClosureFinalized(closureQuery.data),
+  );
   const rcaIncidentId = detail?.numericId ?? numericId;
   const rcaQueryEnabled =
     isClientReady &&
@@ -193,6 +222,15 @@ export function IncidentDetailContent(
   const displayId =
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
+
+  // Days away is carried by the closure record, not the incident payload, so
+  // `detail.daysAway` is only ever the "—" placeholder. Read the real number
+  // back from closure once that record exists, otherwise a value saved from
+  // the People tab would never appear anywhere.
+  const daysAwayDisplay =
+    closureQuery.data == null
+      ? (detail?.daysAway ?? "—")
+      : String(closureData.daysAwayFromWork);
 
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
     null,
@@ -444,6 +482,11 @@ export function IncidentDetailContent(
     setTreatment(detail.treatment);
     setResponders(detail.responders);
     setWitnesses(detail.witnesses);
+    // Seeded from closure, the only record that carries the number. Every
+    // witness present now is pre-existing, so all of them start locked.
+    setDaysAway(String(closureData.daysAwayFromWork));
+    setLockedWitnessCount(detail.witnesses.length);
+    setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
     setEditScope("people");
   };
 
@@ -496,6 +539,24 @@ export function IncidentDetailContent(
           patch,
         });
       } else if (editScope === "people") {
+        const errors = validatePeopleEditDraft({
+          bodyPart,
+          treatment,
+          daysAway,
+          witnesses,
+          lockedWitnessCount,
+        });
+        setPeopleErrors(errors);
+        if (hasPeopleEditErrors(errors)) {
+          toast.error(
+            "Check the highlighted fields",
+            firstPeopleEditError(errors) ?? "Some required fields are missing.",
+          );
+          return;
+        }
+
+        // Identity fields are locked in this scope, so they pass straight back
+        // through unchanged — the mapper still rebuilds the whole people array.
         const patch = applyPeopleEditDraft(incidentDto, {
           affectedName,
           affectedEmpId,
@@ -510,6 +571,17 @@ export function IncidentDetailContent(
           incidentId: detail.numericId,
           patch,
         });
+
+        // Days away is not part of the incident payload. Write it only when it
+        // actually changed, so a People edit does not touch a closure record
+        // that no one asked to modify.
+        const nextDaysAway = parseDaysAway(daysAway);
+        if (nextDaysAway !== closureData.daysAwayFromWork) {
+          await updateClosureMutation.mutateAsync({
+            incidentId: detail.numericId,
+            data: { ...closureData, daysAwayFromWork: nextDaysAway },
+          });
+        }
       } else {
         const patch = applyAttachmentsEditDraft(attachments);
 
@@ -520,6 +592,7 @@ export function IncidentDetailContent(
       }
 
       setEditScope(null);
+      setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
       toast.success(
         "Incident updated",
         "Your changes were saved to this incident.",
@@ -657,27 +730,13 @@ export function IncidentDetailContent(
       treatment={treatment}
       responders={responders}
       witnesses={witnesses}
-      onChangeAffectedName={setAffectedName}
-      onChangeAffectedEmpId={setAffectedEmpId}
-      onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
+      daysAway={daysAway}
+      daysAwayDisplay={daysAwayDisplay}
       onChangeBodyPart={setBodyPart}
       onChangeTreatment={setTreatment}
-      onChangeResponder={(index, patch) => {
-        setResponders((prev) =>
-          prev.map((member, memberIndex) => {
-            if (memberIndex !== index) {
-              return member;
-            }
-            const name = patch.name ?? member.name;
-            return {
-              ...member,
-              ...patch,
-              name,
-              initials: initialsFromName(name),
-            };
-          }),
-        );
-      }}
+      onChangeDaysAway={setDaysAway}
+      lockedWitnessCount={lockedWitnessCount}
+      peopleErrors={peopleErrors}
       onAddWitness={() => {
         setWitnesses((prev) => [
           ...prev,
@@ -691,6 +750,11 @@ export function IncidentDetailContent(
         ]);
       }}
       onChangeWitness={(index, patch) => {
+        // Locked rows belong to the incident report module and are read-only
+        // in this scope; the card does not render inputs for them either.
+        if (index < lockedWitnessCount) {
+          return;
+        }
         setWitnesses((prev) =>
           prev.map((witness, witnessIndex) => {
             if (witnessIndex !== index) {
@@ -707,6 +771,11 @@ export function IncidentDetailContent(
         );
       }}
       onRemoveWitness={(index) => {
+        // Only rows appended during this edit can be dropped — removing a
+        // pre-existing witness would delete it from the incident record.
+        if (index < lockedWitnessCount) {
+          return;
+        }
         setWitnesses((prev) =>
           prev.filter((_, witnessIndex) => witnessIndex !== index),
         );

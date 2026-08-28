@@ -11,6 +11,7 @@ export {
   type FormValues,
   type HeadingFieldConfig,
   type PersonFieldConfig,
+  type PersonMultiFieldConfig,
   type PhotoFieldConfig,
   type SelectFieldConfig,
   type SelectOption,

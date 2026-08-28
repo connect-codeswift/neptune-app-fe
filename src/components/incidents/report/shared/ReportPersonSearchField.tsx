@@ -85,6 +85,11 @@ export type ReportPersonSearchFieldProps = Readonly<{
   inputClassName?: string;
   /** User ids to hide from the option list. Default: hide nobody. */
   excludeUserIds?: readonly string[];
+  /**
+   * Require a picked person — on blur, a typed name with no matching
+   * selection is cleared rather than kept as free text. Default: false.
+   */
+  selectionOnly?: boolean;
 }>;
 
 function displayNameFor(user: SiteUserDto): string {
@@ -172,6 +177,7 @@ export function ReportPersonSearchField(
     hideLabel = false,
     inputClassName = "",
     excludeUserIds,
+    selectionOnly = false,
   } = props;
 
   const isDropdown = usersSource === "dropdown";
@@ -569,6 +575,12 @@ export function ReportPersonSearchField(
           onChange({ name: text, userId: "", gender: "" });
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => {
+          if (selectionOnly && selectedUserId === "" && value !== "") {
+            onChange({ name: "", userId: "", gender: "" });
+            setQuery("");
+          }
+        }}
         onKeyDown={onKeyDown}
         className={[
           inputClassName || inputClass,

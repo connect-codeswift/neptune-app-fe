@@ -125,8 +125,7 @@ export function AuditsListPageClient() {
           expanded: !isPanelOpen,
         }),
         {
-          getHref: (row) =>
-            `/dashboard/audits/findings/${encodeURIComponent(row.id)}`,
+          getHref: (row) => `/dashboard/audits/${encodeURIComponent(row.id)}`,
           getAriaLabel: (row) => `Manage audit ${row.title}`,
         },
       ),
@@ -238,7 +237,7 @@ export function AuditsListPageClient() {
                   onTemplates={() => {
                     router.push("/dashboard/audits/template");
                   }}
-                  onStartAudit={() => {
+                  onScheduleAudit={() => {
                     router.push("/dashboard/audits/start");
                   }}
                 />

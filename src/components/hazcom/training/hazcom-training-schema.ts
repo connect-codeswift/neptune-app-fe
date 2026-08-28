@@ -6,22 +6,34 @@ import type {
 import type {
   TrainingLogRequestDto,
   TrainingMaterialRequestDto,
+  UpdateTrainingLogRequestDto,
 } from "@/dtos/req/hazcom-request.dto";
+import type { HazcomTrainingStatus } from "@/components/hazcom/shared";
 import { getFileMaxBytes, isLegacyPublicUrl } from "@/lib/files";
 
-export const HAZCOM_TRAINING_FORM_ID = "hazcom-log-training-session";
+export const HAZCOM_TRAINING_FORM_ID = "hazcom-schedule-training-session";
 export const HAZCOM_TRAINING_LOG_ROUTE = "/dashboard/hazcom/training";
+
+/** Allowed status values everywhere a training's status is read or written. */
+export const HAZCOM_TRAINING_STATUSES: readonly HazcomTrainingStatus[] = [
+  "Scheduled",
+  "InProgress",
+  "Completed",
+  "Cancelled",
+];
 
 const TRAINING_MAX_BYTES = getFileMaxBytes("HazCom");
 
 export type BuildTrainingSessionSchemaArgs = Readonly<{
   chemicalOptions: readonly SelectOption[];
+  /** Employees available to pick as attendees — value is the user's id, label their name. */
+  attendeeOptions: readonly SelectOption[];
   siteId: number;
   siteName: string | null;
   usersSource: "site" | "dropdown";
 }>;
 
-/** Log Training Session — POST /api/hazcom/training. */
+/** Schedule Training — POST /api/v1/hazcom/trainings. */
 export function buildTrainingSessionSchema(
   args: BuildTrainingSessionSchemaArgs,
 ): FormSchema {
@@ -29,7 +41,7 @@ export function buildTrainingSessionSchema(
     {
       type: "select",
       name: "chemicalId",
-      label: "Chemical",
+      label: "Chemical Covered",
       required: true,
       colSpan: 6,
       placeholder: "Select chemical…",
@@ -51,11 +63,13 @@ export function buildTrainingSessionSchema(
       required: true,
       colSpan: 6,
       displayNameField: "trainer",
-      placeholder: "Start typing a name…",
+      placeholder: "Select a trainer…",
       trailingHint: "Search people at your site.",
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,
+      // Must be a picked person, not free text.
+      selectionOnly: true,
     },
     {
       type: "text",
@@ -65,18 +79,14 @@ export function buildTrainingSessionSchema(
       placeholder: "e.g. Safety Officer",
     },
     {
-      type: "text",
-      name: "chemicalsCovered",
-      label: "Chemicals Covered",
-      colSpan: 12,
-      placeholder: "e.g. Acetone handling",
-    },
-    {
-      type: "text",
+      type: "person-multi",
       name: "attendees",
       label: "Attendees",
       colSpan: 12,
-      placeholder: "e.g. Alice, Bob",
+      placeholder: "Select attendees…",
+      options: args.attendeeOptions,
+      // The API takes `attendeeIds` (a real FK array), so picks are limited
+      // to real users — no free-typed name to fall back to.
     },
     {
       type: "photo",
@@ -109,8 +119,7 @@ export const HAZCOM_TRAINING_INITIAL_VALUES: FormValues = {
   trainerId: "",
   trainer: "",
   trainerTitle: "",
-  chemicalsCovered: "",
-  attendees: "",
+  attendees: [],
   materials: [],
   notes: "",
 };
@@ -150,7 +159,25 @@ function toIsoSessionDate(date: string): string | null {
   return parsed.toISOString();
 }
 
-export function toTrainingLogRequest(
+function toMaterials(values: FormValues): TrainingMaterialRequestDto[] {
+  const materialUrls = Array.isArray(values.materials) ? values.materials : [];
+
+  return materialUrls.map((fileUrl, index) => ({
+    id: 0,
+    fileUrl,
+    fileName: fileNameFromStored(fileUrl, index),
+    fileType: fileTypeFromStored(fileUrl),
+  }));
+}
+
+function toAttendeeIds(values: FormValues): number[] {
+  const raw = Array.isArray(values.attendees) ? values.attendees : [];
+
+  return raw.map(Number).filter((id) => Number.isFinite(id) && id > 0);
+}
+
+/** Shared fields + validation for both create and update requests. */
+function toTrainingLogFields(
   values: FormValues,
 ): TrainingLogRequestDto | { error: string } {
   const chemicalId = Number(String(values.chemicalId ?? "").trim());
@@ -163,34 +190,53 @@ export function toTrainingLogRequest(
     return { error: "Session Date is required" };
   }
 
-  const trainer = String(values.trainer ?? "").trim();
-  if (!trainer) {
+  // `trainerId` is populated by the person picker's `selectionOnly` guard —
+  // a typed-but-unmatched name is cleared on blur, so a non-empty value here
+  // is always a real picked user.
+  const trainerId = Number(String(values.trainerId ?? "").trim());
+  if (!Number.isFinite(trainerId) || trainerId <= 0) {
     return { error: "Trainer is required" };
   }
 
-  const materialUrls = Array.isArray(values.materials) ? values.materials : [];
-  const materials: TrainingMaterialRequestDto[] = materialUrls.map(
-    (fileUrl, index) => ({
-      id: 0,
-      fileUrl,
-      fileName: fileNameFromStored(fileUrl, index),
-      fileType: fileTypeFromStored(fileUrl),
-    }),
-  );
-
   const trainerTitle = String(values.trainerTitle ?? "").trim();
-  const chemicalsCovered = String(values.chemicalsCovered ?? "").trim();
-  const attendees = String(values.attendees ?? "").trim();
+  const attendeeIds = toAttendeeIds(values);
+  const materials = toMaterials(values);
   const notes = String(values.notes ?? "").trim();
 
   return {
     chemicalId,
     sessionDate,
-    trainer,
+    trainerId,
     trainerTitle: trainerTitle || null,
-    chemicalsCovered: chemicalsCovered || null,
-    attendees: attendees || null,
+    // Chemical Covered (the select above) supersedes this free-text field —
+    // no longer collected in the form, always sent null on create.
+    chemicalsCovered: null,
+    attendeeIds: attendeeIds.length > 0 ? attendeeIds : null,
     materials: materials.length > 0 ? materials : null,
     notes: notes || null,
   };
+}
+
+/** POST /api/v1/hazcom/trainings — schedule a new training. */
+export function toTrainingLogRequest(
+  values: FormValues,
+): TrainingLogRequestDto | { error: string } {
+  return toTrainingLogFields(values);
+}
+
+/** PUT /api/v1/hazcom/trainings/{id} — full edit, requires `status`. */
+export function toUpdateTrainingLogRequest(
+  values: FormValues,
+): UpdateTrainingLogRequestDto | { error: string } {
+  const fields = toTrainingLogFields(values);
+  if ("error" in fields) {
+    return fields;
+  }
+
+  const status = String(values.status ?? "").trim();
+  if (!HAZCOM_TRAINING_STATUSES.includes(status as HazcomTrainingStatus)) {
+    return { error: "Status is required" };
+  }
+
+  return { ...fields, status };
 }

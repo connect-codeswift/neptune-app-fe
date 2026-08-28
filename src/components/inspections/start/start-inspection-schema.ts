@@ -8,13 +8,14 @@ const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "warehouse-1", label: "Warehouse 1" },
 ];
 
-/** Shape of a submitted Start Inspection form, keyed by the schema field names. */
+/** Shape of a submitted Schedule Inspection form, keyed by the schema field names. */
 export type StartInspectionValues = {
   inspectionTitle: string;
   template: string;
   location: string;
   inspector: string;
   scheduledDate: string;
+  dueDate: string;
 };
 
 export type StartInspectionSchemaOptions = Readonly<{
@@ -53,7 +54,7 @@ export function buildStartInspectionSchema(
       name: "template",
       label: "Template",
       required: true,
-      colSpan: 6,
+      colSpan: 12,
       placeholder: "Select template",
       options: templateOptions,
       disabled: isTemplateLocked,
@@ -91,6 +92,13 @@ export function buildStartInspectionSchema(
       colSpan: 6,
       // Scheduled, not recorded — same rule as Start Audit.
       limit: "not-past",
+    },
+    {
+      type: "date",
+      name: "dueDate",
+      label: "Due Date",
+      required: false,
+      colSpan: 6,
     },
   ];
 }

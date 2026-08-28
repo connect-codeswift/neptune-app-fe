@@ -36,6 +36,7 @@ import { IncidentDetailCapaSummaryCard } from "@/components/incidents/detail/lin
 import { IncidentDetailNotificationsCard } from "@/components/incidents/detail/people/IncidentDetailNotificationsCard";
 import { IncidentDetailPeopleCard } from "@/components/incidents/detail/people/IncidentDetailPeopleCard";
 import { IncidentDetailWitnessesCard } from "@/components/incidents/detail/people/IncidentDetailWitnessesCard";
+import type { PeopleEditErrors } from "@/components/incidents/detail/people/people-edit-validation";
 import { IncidentDetailHeader } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import { IncidentDetailAddTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailAddTimelineCard";
@@ -100,17 +101,20 @@ export type IncidentDetailViewProps = Readonly<{
   affectedInitials: string;
   bodyPart: string;
   treatment: string;
+  daysAway: string;
+  /** Read-only days-away value, sourced from the closure record. */
+  daysAwayDisplay: string | number;
   responders: readonly ResponderMember[];
   witnesses: readonly WitnessRow[];
-  onChangeAffectedName: (value: string) => void;
-  onChangeAffectedEmpId: (value: string) => void;
-  onChangeAffectedInjuryLabel: (value: string) => void;
   onChangeBodyPart: (value: string) => void;
   onChangeTreatment: (value: string) => void;
-  onChangeResponder: (index: number, patch: Partial<ResponderMember>) => void;
+  onChangeDaysAway: (value: string) => void;
   onAddWitness: () => void;
   onChangeWitness: (index: number, patch: Partial<WitnessRow>) => void;
   onRemoveWitness: (index: number) => void;
+  /** Leading witnesses already on the record; locked against editing. */
+  lockedWitnessCount: number;
+  peopleErrors: PeopleEditErrors;
 
   attachments: readonly AttachmentItem[];
   usedBytes: number;
@@ -208,17 +212,18 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     affectedInitials,
     bodyPart,
     treatment,
+    daysAway,
+    daysAwayDisplay,
     responders,
     witnesses,
-    onChangeAffectedName,
-    onChangeAffectedEmpId,
-    onChangeAffectedInjuryLabel,
     onChangeBodyPart,
     onChangeTreatment,
-    onChangeResponder,
+    onChangeDaysAway,
     onAddWitness,
     onChangeWitness,
     onRemoveWitness,
+    lockedWitnessCount,
+    peopleErrors,
     attachments,
     usedBytes,
     onSelectFile,
@@ -405,9 +410,10 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   affectedEmpId={
                     isEditingPeople ? affectedEmpId : detail.affectedEmpId
                   }
-                  affectedInitials={
-                    isEditingPeople ? affectedInitials : detail.affectedInitials
-                  }
+                  // Identity is locked in this scope, so the avatar always
+                  // comes from the mapper — which shows a bare employee number
+                  // whole rather than slicing it to two characters.
+                  affectedInitials={detail.affectedInitials}
                   affectedInjuryLabel={
                     isEditingPeople
                       ? affectedInjuryLabel
@@ -415,15 +421,15 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   }
                   bodyPart={isEditingPeople ? bodyPart : detail.bodyPart}
                   treatment={isEditingPeople ? treatment : detail.treatment}
-                  daysAway={detail.daysAway}
+                  daysAway={isEditingPeople ? daysAway : daysAwayDisplay}
                   responders={isEditingPeople ? responders : detail.responders}
                   isEditing={isEditingPeople}
-                  onChangeAffectedName={onChangeAffectedName}
-                  onChangeAffectedEmpId={onChangeAffectedEmpId}
-                  onChangeAffectedInjuryLabel={onChangeAffectedInjuryLabel}
                   onChangeBodyPart={onChangeBodyPart}
                   onChangeTreatment={onChangeTreatment}
-                  onChangeResponder={onChangeResponder}
+                  onChangeDaysAway={onChangeDaysAway}
+                  bodyPartError={peopleErrors.bodyPart}
+                  treatmentError={peopleErrors.treatment}
+                  daysAwayError={peopleErrors.daysAway}
                 />
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailWitnessesCard
@@ -432,6 +438,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddWitness={onAddWitness}
                     onChangeWitness={onChangeWitness}
                     onRemoveWitness={onRemoveWitness}
+                    lockedCount={lockedWitnessCount}
+                    witnessErrors={peopleErrors.witnesses}
                   />
                   <IncidentDetailNotificationsCard />
                 </div>

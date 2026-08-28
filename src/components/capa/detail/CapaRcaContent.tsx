@@ -87,7 +87,7 @@ function newWhyId(): string {
   return `why-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Horizontal RCA worksheet — Figma 5472:19820. GET /api/v1/rcas/{rcaId}/capas. */
+/** Horizontal RCA worksheet — Figma 5472:19820. GET /api/v1/capas/{capaId}/rca. */
 export function CapaRcaContent(props: CapaRcaContentProps) {
   const { capaId: capaIdParam } = props;
   const numericId = parseRouteCapaId(capaIdParam);
@@ -100,11 +100,10 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     enabled: hasToken === true && numericId != null,
   });
   const record = detailQuery.data;
-  const rcaId = record?.rcaId ?? null;
 
   const rcaQuery = useCapaRcaQuery({
-    rcaId,
-    enabled: hasToken === true && rcaId != null && rcaId > 0,
+    capaId: numericId,
+    enabled: hasToken === true && numericId != null,
   });
 
   // The worksheet is server data until the user touches it, then local edits
@@ -119,16 +118,6 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
   function setLanes(update: (prev: EditableLane[]) => EditableLane[]) {
     setEditedLanes((prev) => update(prev ?? lanes));
   }
-
-  useEffect(() => {
-    if (
-      detailQuery.isSuccess &&
-      record != null &&
-      (record.rcaId == null || record.rcaId <= 0)
-    ) {
-      toast.error("RCA is null", "No RCA is linked to this CAPA.");
-    }
-  }, [detailQuery.isSuccess, record]);
 
   const worksheet: CapaRcaWorksheet = {
     ...CAPA_RCA_WORKSHEET,
@@ -147,9 +136,7 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     (hasToken === true &&
       numericId != null &&
       ((detailQuery.isLoading && detailQuery.data === undefined) ||
-        (rcaId != null &&
-          rcaId > 0 &&
-          rcaQuery.isLoading &&
+        (rcaQuery.isLoading &&
           rcaQuery.data === undefined &&
           !rcaQuery.isFetched)));
 
@@ -255,22 +242,6 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         </Text>
         <Link
           href={CAPA_ROUTE}
-          className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
-        >
-          Back to CAPA
-        </Link>
-      </div>
-    );
-  }
-
-  if (rcaId == null || rcaId <= 0) {
-    return (
-      <div className="flex min-w-0 flex-col gap-2 px-4 pb-8">
-        <Text as="p" className="text-ehs-muted-text text-sm">
-          RCA is null — no RCA is linked to this CAPA.
-        </Text>
-        <Link
-          href={detailHref}
           className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text-sm transition-colors"
         >
           Back to CAPA

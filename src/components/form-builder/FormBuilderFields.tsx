@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
@@ -15,7 +16,9 @@ import type {
   FieldValue,
   FormValues,
   PersonFieldConfig,
+  PersonMultiFieldConfig,
   SelectFieldConfig,
+  SelectOption,
   SwitchFieldConfig,
   TextFieldConfig,
   TextareaFieldConfig,
@@ -482,6 +485,7 @@ function ChipsControl(
 ) {
   const { field, value, onChange } = props;
   const [draft, setDraft] = useState("");
+  const disabled = field.disabled ?? false;
 
   // Custom tags aren't in `options`, so surface them alongside the presets.
   const optionValues = new Set(field.options.map((option) => option.value));
@@ -492,6 +496,7 @@ function ChipsControl(
   ];
 
   const toggle = (tag: string) => {
+    if (disabled) return;
     onChange(
       value.includes(tag)
         ? value.filter((entry) => entry !== tag)
@@ -517,9 +522,11 @@ function ChipsControl(
               key={option.value}
               type="button"
               aria-pressed={isSelected}
+              disabled={disabled}
               onClick={() => toggle(option.value)}
               className={[
-                "text4 cursor-pointer rounded-lg border px-3 py-1.5 transition-colors",
+                "text4 rounded-lg border px-3 py-1.5 transition-colors",
+                disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
                 isSelected
                   ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-dark-blue font-semibold"
                   : "text-ehs-gray border-ehs-border-ink/10 bg-ehs-surface hover:bg-ehs-surface-inverse/5",
@@ -531,7 +538,7 @@ function ChipsControl(
         })}
       </div>
 
-      {field.allowCustom ? (
+      {field.allowCustom && !disabled ? (
         <div className="flex items-center gap-2">
           <input
             value={draft}
@@ -554,6 +561,226 @@ function ChipsControl(
           >
             Add
           </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Small removable badge for one pick inside {@link PersonMultiControl}. */
+function PersonMultiBadge(
+  props: Readonly<{
+    option: SelectOption;
+    disabled: boolean;
+    onRemove: () => void;
+  }>,
+) {
+  const { option, disabled, onRemove } = props;
+
+  return (
+    <span className="text8 border-ehs-normal-blue/25 bg-ehs-normal-blue/10 text-ehs-dark-blue inline-flex items-center gap-1 rounded-full border py-1 pr-1.5 pl-2.5 font-medium">
+      {option.label}
+      {disabled ? null : (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${option.label}`}
+          className="hover:bg-ehs-normal-blue/20 flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
+        >
+          <Icon icon="mdi:close" className="size-3" aria-hidden="true" />
+        </button>
+      )}
+    </span>
+  );
+}
+
+/**
+ * Searchable multi-select dropdown for picking several people — same glass
+ * listbox as {@link SelectWithCustomControl}, but toggling a row keeps the
+ * menu open and every pick renders as a small badge underneath the trigger
+ * instead of filling the trigger itself.
+ */
+function PersonMultiControl(
+  props: Readonly<{
+    field: PersonMultiFieldConfig;
+    value: string[];
+    onChange: (v: string[]) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+  const disabled = field.disabled ?? false;
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+
+  const close = () => {
+    setIsOpen(false);
+    setQuery("");
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) close();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen]);
+
+  const selectedOptions = value
+    .map((id) => field.options.find((option) => option.value === id))
+    .filter((option): option is SelectOption => option !== undefined);
+
+  const needle = query.trim().toLowerCase();
+  const filteredOptions = needle
+    ? field.options.filter((option) =>
+        option.label.toLowerCase().includes(needle),
+      )
+    : field.options;
+
+  const toggle = (id: string) => {
+    if (disabled) return;
+    onChange(
+      value.includes(id)
+        ? value.filter((entry) => entry !== id)
+        : [...value, id],
+    );
+  };
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
+        <button
+          type="button"
+          id={field.name}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? listboxId : undefined}
+          aria-haspopup="listbox"
+          disabled={disabled}
+          onClick={() => (isOpen ? close() : setIsOpen(true))}
+          className={[
+            inputClass,
+            "flex items-center gap-2 text-left",
+            disabled ? "cursor-not-allowed opacity-70" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <span
+            className={[
+              "min-w-0 flex-1 truncate",
+              selectedOptions.length > 0
+                ? "text-ehs-dark-bg"
+                : "text-ehs-muted-text",
+            ].join(" ")}
+          >
+            {selectedOptions.length > 0
+              ? `${String(selectedOptions.length)} selected`
+              : (field.placeholder ?? "Select people…")}
+          </span>
+          {disabled ? null : (
+            <Icon
+              icon="mdi:chevron-down"
+              className={[
+                "text-ehs-muted-text size-4 shrink-0 transition-transform",
+                isOpen ? "rotate-180" : "",
+              ].join(" ")}
+              aria-hidden="true"
+            />
+          )}
+        </button>
+
+        {isOpen ? (
+          <div className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border shadow-(--ehs-shadow-popover) backdrop-blur-xl">
+            <div className="border-ehs-border-ink/10 border-b p-2">
+              <input
+                autoFocus
+                value={query}
+                placeholder="Search people…"
+                aria-label={`Search ${field.label}`}
+                onChange={(event) => setQuery(event.target.value)}
+                className="text4 text-ehs-dark-bg placeholder:text-ehs-muted-text w-full bg-transparent px-1 py-1 outline-none"
+              />
+            </div>
+            <ul
+              id={listboxId}
+              role="listbox"
+              aria-multiselectable="true"
+              aria-label={field.label}
+              className="max-h-64 overflow-y-auto py-1"
+            >
+              {filteredOptions.length === 0 ? (
+                <li className="p-1.5">
+                  <EmptyState
+                    variant="inline"
+                    icon="mdi:playlist-remove"
+                    title="No people found"
+                  />
+                </li>
+              ) : (
+                filteredOptions.map((option) => {
+                  const isSelected = value.includes(option.value);
+                  return (
+                    <li key={option.value}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => toggle(option.value)}
+                        className={[
+                          "text4 flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
+                          isSelected
+                            ? "bg-ehs-light-bg/70"
+                            : "hover:bg-ehs-light-bg/50",
+                        ].join(" ")}
+                      >
+                        <span
+                          className={[
+                            "min-w-0 flex-1",
+                            isSelected
+                              ? "text-ehs-darker font-semibold"
+                              : "text-ehs-darker",
+                          ].join(" ")}
+                        >
+                          {option.label}
+                        </span>
+                        {isSelected ? (
+                          <Icon
+                            icon="mdi:check"
+                            className="text-ehs-normal-blue size-4 shrink-0"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+
+      {selectedOptions.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {selectedOptions.map((option) => (
+            <PersonMultiBadge
+              key={option.value}
+              option={option}
+              disabled={disabled}
+              onRemove={() => toggle(option.value)}
+            />
+          ))}
         </div>
       ) : null}
     </div>
@@ -596,6 +823,7 @@ function SegmentedTilesControl(
   }>,
 ) {
   const { field, value, onChange } = props;
+  const disabled = field.disabled ?? false;
 
   return (
     <div
@@ -612,11 +840,13 @@ function SegmentedTilesControl(
             type="button"
             role="radio"
             aria-checked={isSelected}
+            disabled={disabled}
             onClick={() => {
               onChange(option.value);
             }}
             className={[
-              "text4 flex h-full flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-4 font-bold transition-colors",
+              "text4 flex h-full flex-1 items-center justify-center gap-2 rounded-lg border px-4 font-bold transition-colors",
+              disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
               isSelected
                 ? "border-ehs-normal-blue bg-ehs-normal-blue/10 text-ehs-normal-blue"
                 : "border-ehs-border-ink/8 bg-ehs-surface/40 text-ehs-gray",
@@ -987,6 +1217,7 @@ function PersonControl(
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
         excludeUserIds={excludeUserIds}
+        selectionOnly={field.selectionOnly}
       />
     </FieldShell>
   );
@@ -1047,7 +1278,10 @@ export function FieldRenderer(props: FieldRendererProps) {
             field={field}
             value={value as string}
             error={error}
-            onChange={onChange}
+            onChange={(next) => {
+              onChange(next);
+              field.onSelectChange?.(next, onPatchValues);
+            }}
           />
         </FieldShell>
       );
@@ -1077,6 +1311,16 @@ export function FieldRenderer(props: FieldRendererProps) {
       return (
         <FieldShell field={field} error={error}>
           <ChipsControl
+            field={field}
+            value={value as string[]}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "person-multi":
+      return (
+        <FieldShell field={field} error={error}>
+          <PersonMultiControl
             field={field}
             value={value as string[]}
             onChange={onChange}

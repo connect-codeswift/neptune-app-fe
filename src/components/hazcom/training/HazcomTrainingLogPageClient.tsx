@@ -7,10 +7,6 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
-  IncidentBadge,
-  type IncidentBadgeTone,
-} from "@/components/near-miss/IncidentBadge";
-import {
   HazcomDetailPanel,
   HazcomErrorCard,
   HazcomLoadingCard,
@@ -19,13 +15,19 @@ import {
   HazcomPager,
   HazcomRegisterHeader,
   type HazcomTrainingSession,
+  type HazcomTrainingStatus,
 } from "@/components/hazcom/shared";
 import { HazcomTrainingLogTable } from "@/components/hazcom/training/HazcomTrainingLogTable";
+import { HAZCOM_TRAINING_STATUSES } from "@/components/hazcom/training/hazcom-training-schema";
 import {
   DEFAULT_HAZCOM_PAGE_NUMBER,
   DEFAULT_HAZCOM_PAGE_SIZE,
   useTrainingLogsQuery,
 } from "@/hooks/use-hazcom-queries";
+import { useUpdateTrainingStatusMutation } from "@/hooks/use-hazcom-mutations";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { parseRecordNumericId } from "@/lib/format-record-id";
+import { toast } from "@/lib/toast";
 
 function trainingMatchesSearch(
   session: HazcomTrainingSession,
@@ -49,13 +51,138 @@ function trainingMatchesSearch(
 
 const NO_STATUS_LABEL = "No status found";
 
-function statusLabel(status: string | null): string {
-  return status ?? NO_STATUS_LABEL;
+const STATUS_SELECT_CLASS: Readonly<Record<HazcomTrainingStatus, string>> = {
+  Scheduled: "bg-ehs-yellow/10 text-ehs-yellow",
+  InProgress: "bg-ehs-normal-blue/10 text-ehs-dark-blue",
+  Completed: "bg-ehs-green/10 text-ehs-green",
+  Cancelled: "bg-ehs-gray/15 text-ehs-gray",
+};
+
+/**
+ * `PUT /trainings/{id}/status` — a status-only transition, no need to resend
+ * the whole form. A single styled `<select>` standing in for the status
+ * badge, rather than a badge with a hidden control layered underneath.
+ */
+function TrainingStatusControl(
+  props: Readonly<{ session: HazcomTrainingSession }>,
+) {
+  const { session } = props;
+  const updateStatus = useUpdateTrainingStatusMutation();
+  const numericId = parseRecordNumericId(session.id);
+  const toneClass = session.status
+    ? STATUS_SELECT_CLASS[session.status]
+    : "bg-ehs-gray/15 text-ehs-gray";
+
+  const handleChange = (next: string) => {
+    if (numericId === null || next === session.status) {
+      return;
+    }
+
+    updateStatus.mutate(
+      { id: numericId, payload: { status: next } },
+      {
+        onSuccess: () => {
+          toast.success(`Status changed to ${next}`);
+        },
+        onError: (error) => {
+          toast.error(
+            getMutationErrorMessage(
+              error,
+              "Could not update the status. Please try again.",
+            ),
+          );
+        },
+      },
+    );
+  };
+
+  return (
+    <select
+      aria-label="Training status"
+      value={session.status ?? ""}
+      disabled={numericId === null || updateStatus.isPending}
+      onChange={(event) => handleChange(event.target.value)}
+      className={[
+        "text5 w-fit cursor-pointer appearance-none rounded-md px-2 py-0.5 tracking-normal",
+        "disabled:cursor-not-allowed disabled:opacity-60",
+        toneClass,
+      ].join(" ")}
+    >
+      {session.status === null ? (
+        <option value="">{NO_STATUS_LABEL}</option>
+      ) : null}
+      {HAZCOM_TRAINING_STATUSES.map((status) => (
+        <option key={status} value={status}>
+          {status}
+        </option>
+      ))}
+    </select>
+  );
 }
 
-function statusTone(status: string | null): IncidentBadgeTone {
-  if (status == null) return "muted";
-  return status.trim().toLowerCase() === "completed" ? "teal" : "warn";
+/**
+ * Guided status action, below Materials: `Scheduled` gets "Start Before
+ * Schedule" (→ InProgress), `InProgress` gets "Training Completed" (→
+ * Completed). A due `Scheduled` session already reads as `InProgress` by the
+ * time it's fetched — the backend self-promotes it on read — so this needs
+ * no date math of its own, just the two status values. Nothing renders once
+ * a session is `Completed`/`Cancelled`.
+ */
+function TrainingStatusAction(
+  props: Readonly<{ session: HazcomTrainingSession }>,
+) {
+  const { session } = props;
+  const updateStatus = useUpdateTrainingStatusMutation();
+  const numericId = parseRecordNumericId(session.id);
+
+  if (session.status !== "Scheduled" && session.status !== "InProgress") {
+    return null;
+  }
+
+  const next = session.status === "Scheduled" ? "InProgress" : "Completed";
+  const label =
+    session.status === "Scheduled"
+      ? "Start Before Schedule"
+      : "Training Completed";
+  const icon =
+    session.status === "Scheduled"
+      ? "mdi:play-circle-outline"
+      : "mdi:check-circle-outline";
+
+  const handleClick = () => {
+    if (numericId === null) return;
+
+    updateStatus.mutate(
+      { id: numericId, payload: { status: next } },
+      {
+        onSuccess: () => {
+          toast.success(`Status changed to ${next}`);
+        },
+        onError: (error) => {
+          toast.error(
+            getMutationErrorMessage(
+              error,
+              "Could not update the status. Please try again.",
+            ),
+          );
+        },
+      },
+    );
+  };
+
+  return (
+    <div className="px-5 py-3.5">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={numericId === null || updateStatus.isPending}
+        className="text4 bg-ehs-normal-blue hover:bg-ehs-normal-blue-hover text-ehs-on-accent flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <Icon icon={icon} className="size-4" aria-hidden="true" />
+        {label}
+      </button>
+    </div>
+  );
 }
 
 export function HazcomTrainingLogPageClient() {
@@ -110,10 +237,10 @@ export function HazcomTrainingLogPageClient() {
         breadcrumb={[
           { label: "Safety" },
           { label: "HazCom", href: "/dashboard/hazcom/overview" },
-          { label: "Training Log" },
+          { label: "Schedule Training" },
         ]}
-        title="Training Log"
-        subtitle="Record training sessions, attendees, chemicals covered, and materials"
+        title="Schedule Training"
+        subtitle="Schedule, assign, and track HazCom training sessions through completion"
       />
 
       <ModuleSearchBar
@@ -153,12 +280,12 @@ export function HazcomTrainingLogPageClient() {
               expanded={!isPanelOpen}
               header={
                 <HazcomRegisterHeader
-                  title="Sessions"
+                  title="Scheduled Trainings"
                   count={totalRecords}
                   countNoun="session"
                   primaryHref="/dashboard/hazcom/training/new"
-                  primaryLabel="Log Training Session"
-                  primaryShortLabel="Log"
+                  primaryLabel="Schedule Training"
+                  primaryShortLabel="Schedule"
                 />
               }
               className="min-w-0"
@@ -175,12 +302,7 @@ export function HazcomTrainingLogPageClient() {
                 }}
                 emptyMessage="Select a training session to view details."
                 headerAside={
-                  <IncidentBadge
-                    label={statusLabel(selectedSession.status)}
-                    tone={statusTone(selectedSession.status)}
-                    showDot
-                    className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
-                  />
+                  <TrainingStatusControl session={selectedSession} />
                 }
                 metaFields={[
                   {
@@ -192,7 +314,9 @@ export function HazcomTrainingLogPageClient() {
                   },
                   {
                     label: "Attendees",
-                    value: String(selectedSession.attendees),
+                    value:
+                      selectedSession.attendeeNames ||
+                      String(selectedSession.attendees),
                   },
                 ]}
                 className="min-w-0 xl:sticky xl:top-4"
@@ -248,6 +372,8 @@ export function HazcomTrainingLogPageClient() {
                     </ul>
                   )}
                 </div>
+
+                <TrainingStatusAction session={selectedSession} />
               </HazcomDetailPanel>
             ) : null}
           </div>

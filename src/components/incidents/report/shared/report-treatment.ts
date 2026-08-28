@@ -70,20 +70,17 @@ export const CASE_DISPOSITION_OPTIONS = [
   { value: "open", label: "Remains open" },
 ] as const;
 
-/** Form value for "Case closed - no further actions" — hides further-medical UI. */
+/**
+ * Form value for "Case closed - no further actions" — hides further-medical UI.
+ *
+ * This says the medical case needs no follow-up; it does not close the
+ * incident. Closing is the wizard's job and lives in `IncidentClosures`. The
+ * status derivation used to match this label with `includes("close")`, which
+ * marked every such first-aid report Closed at intake — see
+ * `deriveIncidentState`, which now reads the backend's `stage` instead.
+ */
 export const CASE_CLOSED_NO_FURTHER_VALUE = "case-closed-no-further" as const;
 
-/**
- *
- * It is the *label* of the `case-closed-no-further` option, not its value,
- * because `mapReportFormToIncidentDto` persists `optionLabel(...)` — so stored
- * `caseDisposition` values already look like "Case closed - no further actions".
- * Staying on the label keeps closed-from-UI records identical to closed-at-intake
- * records, and it satisfies the `includes("close")` "is closed?" derivation in
- * `incident-list-data.ts` and `incident-list.mapper.ts`.
- *
- * Derived from the option list so a label edit can never silently break closing.
- */
 export const FIT_FOR_DUTY_OPTIONS = [
   { value: "", label: "Select…" },
   { value: "Yes", label: "Yes" },

@@ -12,13 +12,14 @@ const LOCATION_OPTIONS: readonly SelectOption[] = [
   { value: "warehouse-1", label: "Warehouse 1" },
 ];
 
-/** Shape of a submitted Start Audit form, keyed by the schema field names. */
+/** Shape of a submitted Schedule Audit form, keyed by the schema field names. */
 export type StartAuditValues = {
   auditTitle: string;
   template: string;
   location: string;
   auditor: string;
   scheduledDate: string;
+  dueDate: string;
 };
 
 export type StartAuditSchemaOptions = Readonly<{
@@ -64,7 +65,7 @@ export function buildStartAuditSchema(
       name: "template",
       label: "Template",
       required: true,
-      colSpan: 6,
+      colSpan: 12,
       placeholder: "Select template",
       options: templateOptions,
       // A locked field has nothing to page through or reveal.
@@ -106,6 +107,13 @@ export function buildStartAuditSchema(
       // An audit is scheduled, not recorded: a past date lands it in the
       // overdue bucket the moment it is created.
       limit: "not-past",
+    },
+    {
+      type: "date",
+      name: "dueDate",
+      label: "Due Date",
+      required: false,
+      colSpan: 6,
     },
   ];
 }
