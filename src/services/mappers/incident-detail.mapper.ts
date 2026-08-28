@@ -1199,15 +1199,19 @@ export function mapIncidentDtoToDetailView(
     completedActionCount: responseActions.filter((action) => action.completed)
       .length,
   });
-  const mappedWitnesses = witnesses.map((person, index) => {
+  const mappedWitnesses = witnesses.map((person) => {
     const name = person.name?.trim() || "Unknown";
-    const hasStatement = index === 0;
     return {
       name,
       role: person.role?.trim() || "Witness",
       initials: initialsFromName(name),
-      badgeLabel: hasStatement ? "Statement" : "Pending",
-      badgeTone: hasStatement ? ("green" as const) : ("gray" as const),
+      // Always "Pending". Whether a witness has given a statement is a real thing to
+      // track, but nothing records it: the Witness entity carries a name and nothing
+      // else. This used to read `index === 0`, so the first witness on every incident
+      // was shown as having given a statement purely for being first in the array —
+      // an investigator reading that badge was being told something untrue.
+      badgeLabel: "Pending",
+      badgeTone: "gray" as const,
     };
   });
   const investigation = buildInvestigationView(incident, {

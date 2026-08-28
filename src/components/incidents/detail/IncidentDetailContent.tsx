@@ -41,6 +41,7 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
+import { getStoredFile } from "@/services/files.service";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import {
@@ -85,6 +86,40 @@ function initialsFromName(name: string): string {
  * Detail page orchestrator (near-miss DetailContent pattern).
  * Owns queries, mutations, and editable local state; renders IncidentDetailView.
  */
+/**
+ * A stored attachment is a bare file id since the move to R2, not a public URL. The
+ * HEAD/Range probe therefore resolved it against this app's own origin and always failed,
+ * which is why every file since the move showed no size and no upload time, and the
+ * Storage card sat at 0 MB. `GET /files/{id}` already answers both.
+ *
+ * Older records still hold full Cloudinary URLs, so the probe stays for those.
+ */
+const FILE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function readAttachmentMeta(
+  value: string,
+): Promise<{ bytes: number | null; lastModified: Date | null }> {
+  // The display name rides along as a query param; the id is what identifies the file.
+  const id = value.split("?")[0]?.trim() ?? "";
+
+  if (FILE_ID_PATTERN.test(id)) {
+    try {
+      const file = await getStoredFile(id);
+      const created = file.createdDate ? new Date(file.createdDate) : null;
+      return {
+        bytes: file.sizeBytes > 0 ? file.sizeBytes : null,
+        lastModified:
+          created && !Number.isNaN(created.getTime()) ? created : null,
+      };
+    } catch {
+      // Deleted, or not ours. Fall through to the probe rather than failing the row.
+    }
+  }
+
+  return fetchRemoteFileMeta(value);
+}
+
 export function IncidentDetailContent(
   props: Readonly<IncidentDetailContentProps>,
 ) {
@@ -328,7 +363,7 @@ export function IncidentDetailContent(
     void (async () => {
       const updates = await Promise.all(
         pending.map(async (item) => {
-          const meta = await fetchRemoteFileMeta(item.url);
+          const meta = await readAttachmentMeta(item.url);
           const sizeUpdate =
             item.needsSize && meta.bytes != null
               ? {
