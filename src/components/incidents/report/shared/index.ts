@@ -21,11 +21,6 @@ export type {
   ReportTextFieldProps,
   ReportTextareaFieldProps,
 } from "./ReportFormField";
-export {
-  joinWitnessNames,
-  parseWitnessNames,
-  toWitnessValues,
-} from "./witness-names";
 export { ReportSelectWithAdd } from "./ReportSelectWithAdd";
 export type { ReportSelectWithAddProps } from "./ReportSelectWithAdd";
 export { ReportSiteField } from "./ReportSiteField";

@@ -176,7 +176,11 @@ export function ReportIncidentStepFive(
       form.bodyPartSides,
     ) || "—";
   const affectedPersonLabel = form.affectedPerson.trim() || "—";
-  const witnessesLabel = form.witnesses.trim() || "None";
+  const witnessesLabel =
+    form.witnesses
+      .map((witness) => witness.name.trim())
+      .filter(Boolean)
+      .join(", ") || "None";
 
   const actionsLabel =
     form.immediateActions

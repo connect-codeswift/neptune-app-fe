@@ -11,6 +11,11 @@ export type PersonDto = {
    */
   daysAwayFromWork?: number | null;
   daysOnRestrictedDuty?: number | null;
+  /**
+   * This person's own account. Required for a witness on create — a witness has to be
+   * someone in the system, not a free-typed name. Null on records predating that rule.
+   */
+  userId?: number | null;
 };
 
 /** Matches backend `IncidentDto` from GET/POST Incident APIs */

@@ -32,10 +32,6 @@ import { ReportSelectWithAdd } from "@/components/incidents/report/shared/Report
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
 import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
 import {
-  joinWitnessNames,
-  toWitnessValues,
-} from "@/components/incidents/report/shared/witness-names";
-import {
   buildDraftAssistInput,
   canDraftDescription,
   draftInputKey,
@@ -560,17 +556,19 @@ export function ReportIncidentStepTwo(
           <MultipleUsersPickerInput
             className="pt-4.5"
             label="Witnesses"
-            trailingHint="Search people at your site, or press Enter to add a name."
+            trailingHint="Search people at your site."
             placeholder="Search people at your site…"
-            value={toWitnessValues(form.witnesses)}
+            value={[...form.witnesses]}
             onChange={(witnesses) => {
-              onChange({ witnesses: joinWitnessNames(witnesses) });
+              onChange({
+                witnesses: witnesses.map((entry) => ({
+                  userId: entry.userId,
+                  name: entry.name,
+                })),
+              });
             }}
             siteId={site.id}
             siteName={site.name}
-            // Visitors and contractors don't appear on the roster, and a
-            // witness who isn't an employee is still a witness.
-            allowFreeText
             // Nobody witnesses their own incident — the affected person is
             // dropped from the roster and refused as a typed name.
             excludeUserIds={

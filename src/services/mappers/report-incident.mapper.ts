@@ -209,8 +209,12 @@ function buildActionTaken(form: ReportIncidentFormState): string {
 function buildOtherNotes(form: ReportIncidentFormState): string {
   const parts: string[] = [];
 
-  if (form.witnesses.trim()) {
-    parts.push(`Witnesses: ${form.witnesses.trim()}`);
+  const witnessNames = form.witnesses
+    .map((witness) => witness.name.trim())
+    .filter(Boolean)
+    .join(", ");
+  if (witnessNames) {
+    parts.push(`Witnesses: ${witnessNames}`);
   }
 
   if (form.gender.trim()) {
@@ -282,15 +286,20 @@ function buildPeople(form: ReportIncidentFormState): PersonDto[] {
     });
   }
 
-  const witnesses = form.witnesses
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  for (const witness of form.witnesses) {
+    const name = witness.name.trim();
+    if (!name) {
+      continue;
+    }
 
-  for (const witness of witnesses) {
+    const userId = Number(witness.userId);
+
     people.push({
-      name: witness,
+      name,
       role: "Witness",
+      // The account is what makes a witness contactable. Sent as null rather than 0
+      // when absent, so the API refuses it instead of filing a witness against user 0.
+      userId: Number.isInteger(userId) && userId > 0 ? userId : null,
       injuryLevel: null,
       bodyPartAffected: null,
       injuryDescription: null,

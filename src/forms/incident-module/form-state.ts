@@ -19,6 +19,13 @@ import {
 } from "@/components/incidents/report/shared/report-ai-draft";
 
 /** Step 2 dropdowns the reporter can extend with their own options. */
+/**
+ * A witness has to be someone in the system, so the account id travels with the name.
+ * This was a single comma-joined string of names, which had nowhere to keep an id — the
+ * backend now requires one on create, and a name alone cannot be resolved to an employee.
+ */
+export type WitnessEntry = Readonly<{ userId: string; name: string }>;
+
 export type CustomOptionField =
   "initialTreatment" | "mechanismOfInjury" | "natureOfInjury";
 
@@ -105,7 +112,7 @@ export type ReportIncidentFormState = Readonly<{
   customOptions: Readonly<Record<CustomOptionField, readonly string[]>>;
   objectInvolved: string;
   oshaNotificationRequired: "Yes" | "No";
-  witnesses: string;
+  witnesses: readonly WitnessEntry[];
   photos: readonly ReportPhotoFile[];
   injuryLevel: InjuryLevelId;
   gender: string;
@@ -215,7 +222,7 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     customOptions: EMPTY_CUSTOM_OPTIONS,
     objectInvolved: "",
     oshaNotificationRequired: "No",
-    witnesses: "",
+    witnesses: [],
     photos: DEFAULT_REPORT_PHOTOS,
     injuryLevel: "no-injury",
     gender: "",
