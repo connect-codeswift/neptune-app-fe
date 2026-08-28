@@ -189,7 +189,9 @@ export function ReportOptionCards<T extends string>(
           );
         })}
       </div>
-      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );

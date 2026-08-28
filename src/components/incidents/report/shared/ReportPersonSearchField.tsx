@@ -13,10 +13,10 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
 import {
   ReportFieldLabel,
   ReportFieldError,
+  ReportFieldHint,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { normalizeGender } from "@/components/incidents/report/shared/report-injury-level";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
@@ -672,10 +672,8 @@ export function ReportPersonSearchField(
 
       {inputControl}
 
-      {trailingHint ? (
-        <Text as="p" className="text-ehs-muted-text text-xs">
-          {trailingHint}
-        </Text>
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
       ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>

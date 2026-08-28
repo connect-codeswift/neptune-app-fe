@@ -358,7 +358,9 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
 
       {quickPickButtons}
 
-      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );

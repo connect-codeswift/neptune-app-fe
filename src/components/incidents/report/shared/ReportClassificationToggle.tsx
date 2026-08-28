@@ -163,7 +163,9 @@ export function ReportClassificationToggle(
           );
         })}
       </div>
-      {hint ? <ReportFieldHint withIcon>{hint}</ReportFieldHint> : null}
+      {hint && !error ? (
+        <ReportFieldHint withIcon>{hint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
