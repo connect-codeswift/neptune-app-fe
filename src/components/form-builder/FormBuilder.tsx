@@ -1,5 +1,6 @@
 "use client";
 
+import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
 import { useState, type ReactNode } from "react";
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { FieldRenderer } from "./FormBuilderFields";
@@ -72,17 +73,21 @@ function dateRangeError(field: DateFieldConfig, value: string): string | null {
   const selected = value.trim();
   if (selected === "") return null;
 
+  if (field.limit === "not-past") {
+    return cantBePast(selected, field.label).error;
+  }
+
+  if (field.limit === "not-future") {
+    return cantBeFuture(selected, field.label).error;
+  }
+
   const min = dateFieldMin(field);
   if (min && selected < min) {
-    if (field.limit === "not-past") return `${field.label} cannot be in the past`;
     return `${field.label} cannot be before ${min}`;
   }
 
   const max = dateFieldMax(field);
   if (max && selected > max) {
-    if (field.limit === "not-future") {
-      return `${field.label} cannot be in the future`;
-    }
     return `${field.label} cannot be after ${max}`;
   }
 

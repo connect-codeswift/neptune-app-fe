@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/Text";
 import { ReportIncidentView } from "@/components/incidents/report";
 import { INCIDENT_LOCATION_OPTIONS } from "@/components/incidents/report/shared/report-locations";
-import { formatMmDdYyyy } from "@/components/incidents/report/shared/report-date-time";
+import { formatMmDdYyyy } from "@/lib/date-time-field";
 import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-data";
 import { SkeletonFormPage } from "@/components/ui/skeletons";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
