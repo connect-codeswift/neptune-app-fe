@@ -8,7 +8,6 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { useCreateWalkTalkMutation } from "@/hooks/use-walk-talk-mutations";
 import { toCreateWalkTalkRequest } from "@/lib/map-walk-talk";
 import { toast } from "@/lib/toast";
@@ -70,23 +69,10 @@ export function LogWalkTalkContent() {
   // while the push to the list is still in flight. A click in that gap logged
   // a duplicate.
   const submitLock = useSubmitLock();
-  const usersQuery = useUserDropdownQuery();
-
-  const assigneeOptions = useMemo(
-    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
-    [usersQuery.data?.dataModel],
-  );
-  const followUpSchema = useMemo(
-    () => buildWalkTalkFollowUpSchema(assigneeOptions),
-    [assigneeOptions],
-  );
-  const assigneeLookup = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const option of assigneeOptions) {
-      map.set(option.value, option.label);
-    }
-    return map;
-  }, [assigneeOptions]);
+  // The follow-up's "Assigned to" is a `person` field now, so it fetches its
+  // own roster and writes the display name into `assignedToName` — this screen
+  // no longer loads a user list or keeps an id-to-name map of its own.
+  const followUpSchema = useMemo(() => buildWalkTalkFollowUpSchema(), []);
 
   const valuesRef = useRef<FormValues | null>(null);
   if (valuesRef.current === null) {
