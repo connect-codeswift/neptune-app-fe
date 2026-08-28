@@ -2,6 +2,7 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
@@ -28,15 +29,12 @@ export type IncidentDetailPeopleCardProps = Readonly<{
   daysAway?: string | number;
   responders?: readonly ResponderMember[];
   isEditing?: boolean;
-  onChangeAffectedName?: (value: string) => void;
-  onChangeAffectedEmpId?: (value: string) => void;
-  onChangeAffectedInjuryLabel?: (value: string) => void;
   onChangeBodyPart?: (value: string) => void;
   onChangeTreatment?: (value: string) => void;
-  onChangeResponder?: (
-    index: number,
-    patch: Partial<Pick<ResponderMember, "name" | "role" | "empId">>,
-  ) => void;
+  onChangeDaysAway?: (value: string) => void;
+  bodyPartError?: string | null;
+  treatmentError?: string | null;
+  daysAwayError?: string | null;
   className?: string;
 }>;
 
@@ -51,6 +49,18 @@ function responderBadgeClass(tone: ResponderMember["badgeTone"]): string {
 
 function editableDisplayValue(value: string): string {
   return value === "—" ? "" : value;
+}
+
+function FieldError(props: Readonly<{ message?: string | null }>) {
+  const { message } = props;
+  if (!message) {
+    return null;
+  }
+  return (
+    <span className="text-ehs-red text6 leading-normal" role="alert">
+      {message}
+    </span>
+  );
 }
 
 export function IncidentDetailPeopleCard(
@@ -68,20 +78,38 @@ export function IncidentDetailPeopleCard(
     daysAway = "—",
     responders = [],
     isEditing = false,
-    onChangeAffectedName,
-    onChangeAffectedEmpId,
-    onChangeAffectedInjuryLabel,
     onChangeBodyPart,
     onChangeTreatment,
-    onChangeResponder,
+    onChangeDaysAway,
+    bodyPartError = null,
+    treatmentError = null,
+    daysAwayError = null,
     className = "",
   } = props;
 
-  // A real name still counts on its own, so a caller that predates the flag
-  // does not lose the card.
+  // Identity fields come from the incident report module and stay read-only in
+  // this scope — the People tab edits the injury outcome, not who was involved.
+  // While editing the card must render regardless: body part, treatment and
+  // days away are editable even on a record that carries no person name.
+  //
+  // A real name still counts on its own, so a caller that predates the
+  // `hasAffectedPerson` flag does not lose the card.
   const hasRecordedName =
     Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
   const hasAffected = isEditing || hasAffectedPerson || hasRecordedName;
+
+  // When the record identifies the person by number rather than by name, the
+  // avatar has no initials to draw and repeating the number there would print
+  // it twice on one row. Show a person glyph and let the number appear once,
+  // on the identity line.
+  const hasInitials = /\p{L}/u.test(affectedInitials);
+  // The mapper no longer falls the name back to the id, so the two should not
+  // collide — this stays as a guard against an empty dash row and against a
+  // caller still supplying the old shape.
+  const showEmpIdRow =
+    affectedEmpId.trim().length > 0 &&
+    affectedEmpId !== "—" &&
+    affectedEmpId.trim().toLowerCase() !== affectedName.trim().toLowerCase();
 
   return (
     <div
@@ -100,80 +128,53 @@ export function IncidentDetailPeopleCard(
           <>
             <div className="flex items-center gap-3.5">
               <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 flex size-12 shrink-0 items-center justify-center rounded-[14px]">
-                {affectedInitials}
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                {isEditing ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editableDisplayValue(
-                        hasRecordedName ? affectedName : "",
-                      )}
-                      onChange={(event) =>
-                        onChangeAffectedName?.(event.target.value)
-                      }
-                      placeholder="Affected person name"
-                      className={fieldInputClass}
-                      aria-label="Affected person name"
-                    />
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {affectedRole}
-                    </span>
-                    <input
-                      type="text"
-                      value={editableDisplayValue(affectedEmpId)}
-                      onChange={(event) =>
-                        onChangeAffectedEmpId?.(event.target.value)
-                      }
-                      placeholder="Employee / person ID"
-                      className={fieldInputClass}
-                      aria-label="Employee ID"
-                    />
-                  </>
+                {hasInitials ? (
+                  affectedInitials
                 ) : (
-                  <>
-                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
-                      {affectedName}
-                    </span>
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {affectedRole}
-                    </span>
-                    <span className="text-ehs-muted-text text4 leading-normal">
-                      {affectedEmpId}
-                    </span>
-                  </>
+                  <Icon
+                    icon="mdi:account-outline"
+                    className="size-6"
+                    aria-hidden="true"
+                  />
                 )}
               </div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editableDisplayValue(affectedInjuryLabel)}
-                  onChange={(event) =>
-                    onChangeAffectedInjuryLabel?.(event.target.value)
-                  }
-                  placeholder="Injury"
-                  className={`${fieldInputClass} max-w-35 shrink-0`}
-                  aria-label="Injury level"
-                />
-              ) : (
-                <span className="bg-ehs-surface-inverse/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
-                  {affectedInjuryLabel}
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-ehs-dark-bg text4 leading-normal font-bold">
+                  {affectedName}
                 </span>
-              )}
+                <span className="text-ehs-gray text4 truncate leading-normal">
+                  {affectedRole}
+                </span>
+                {showEmpIdRow ? (
+                  <span className="text-ehs-muted-text text4 leading-normal">
+                    {affectedEmpId}
+                  </span>
+                ) : null}
+              </div>
+              <span className="bg-ehs-surface-inverse/14 text-ehs-gray text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide">
+                {affectedInjuryLabel}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-3">
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Body part</span>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    value={editableDisplayValue(bodyPart)}
-                    onChange={(event) => onChangeBodyPart?.(event.target.value)}
-                    className={fieldInputClass}
-                    aria-label="Body part"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      value={editableDisplayValue(bodyPart)}
+                      onChange={(event) =>
+                        onChangeBodyPart?.(event.target.value)
+                      }
+                      placeholder="e.g. Head / face"
+                      className={fieldInputClass}
+                      aria-label="Body part"
+                      aria-invalid={bodyPartError != null}
+                      required
+                    />
+                    <FieldError message={bodyPartError} />
+                  </>
                 ) : (
                   <span className="text-ehs-dark-bg text4 leading-normal">
                     {bodyPart}
@@ -183,15 +184,21 @@ export function IncidentDetailPeopleCard(
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Treatment</span>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    value={editableDisplayValue(treatment)}
-                    onChange={(event) =>
-                      onChangeTreatment?.(event.target.value)
-                    }
-                    className={fieldInputClass}
-                    aria-label="Treatment"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      value={editableDisplayValue(treatment)}
+                      onChange={(event) =>
+                        onChangeTreatment?.(event.target.value)
+                      }
+                      placeholder="e.g. First aid on site"
+                      className={fieldInputClass}
+                      aria-label="Treatment"
+                      aria-invalid={treatmentError != null}
+                      required
+                    />
+                    <FieldError message={treatmentError} />
+                  </>
                 ) : (
                   <span className="text-ehs-dark-bg text4 leading-normal">
                     {treatment}
@@ -200,9 +207,30 @@ export function IncidentDetailPeopleCard(
               </div>
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Days away</span>
-                <span className="text-ehs-dark-bg text4 leading-normal">
-                  {daysAway}
-                </span>
+                {isEditing ? (
+                  <>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      value={editableDisplayValue(String(daysAway))}
+                      onChange={(event) =>
+                        onChangeDaysAway?.(event.target.value)
+                      }
+                      placeholder="0"
+                      className={fieldInputClass}
+                      aria-label="Days away from work"
+                      aria-invalid={daysAwayError != null}
+                      required
+                    />
+                    <FieldError message={daysAwayError} />
+                  </>
+                ) : (
+                  <span className="text-ehs-dark-bg text4 leading-normal">
+                    {daysAway}
+                  </span>
+                )}
               </div>
             </div>
           </>
@@ -237,10 +265,9 @@ export function IncidentDetailPeopleCard(
         ) : (
           responders.map((person, index) => (
             <div
-              // Index, not the person's fields: `name` is edited in place here,
-              // so keying on it remounted the row and dropped the caret on
-              // every keystroke. ResponderMember carries no stable id, and the
-              // list is not reordered or filtered while editing.
+              // ResponderMember carries no stable id and the list is never
+              // reordered or filtered, so the index is the key. Rows are
+              // read-only now, so there is no caret to lose on a remount.
               key={index}
               className="border-ehs-border-ink/8 flex items-center gap-3 border-t pt-3.25 pb-3"
             >
@@ -248,58 +275,16 @@ export function IncidentDetailPeopleCard(
                 {person.initials}
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-px">
-                {isEditing ? (
-                  <>
-                    <input
-                      type="text"
-                      value={person.name}
-                      onChange={(event) =>
-                        onChangeResponder?.(index, {
-                          name: event.target.value,
-                        })
-                      }
-                      className={fieldInputClass}
-                      aria-label={`${person.role} name`}
-                    />
-                    <input
-                      type="text"
-                      value={person.role}
-                      onChange={(event) =>
-                        onChangeResponder?.(index, {
-                          role: event.target.value,
-                        })
-                      }
-                      className={`${fieldInputClass} text4 mt-1`}
-                      aria-label="Role"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <span className="text-ehs-dark-bg text4 leading-normal font-bold">
-                      {person.name}
-                    </span>
-                    <span className="text-ehs-gray text4 truncate leading-normal">
-                      {person.role}
-                    </span>
-                  </>
-                )}
-              </div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editableDisplayValue(person.empId)}
-                  onChange={(event) =>
-                    onChangeResponder?.(index, { empId: event.target.value })
-                  }
-                  placeholder="ID / email"
-                  className={`${fieldInputClass} text4 max-w-35 shrink-0`}
-                  aria-label="Employee ID or email"
-                />
-              ) : (
-                <span className="text-ehs-muted-text text4 shrink-0 leading-normal">
-                  {person.empId}
+                <span className="text-ehs-dark-bg text4 leading-normal font-bold">
+                  {person.name}
                 </span>
-              )}
+                <span className="text-ehs-gray text4 truncate leading-normal">
+                  {person.role}
+                </span>
+              </div>
+              <span className="text-ehs-muted-text text4 shrink-0 leading-normal">
+                {person.empId}
+              </span>
               <span
                 className={[
                   "text4 shrink-0 rounded-full px-2.25 pt-[3px] pb-[3px] leading-normal font-bold tracking-wide",

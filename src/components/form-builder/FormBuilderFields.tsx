@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
