@@ -35,6 +35,12 @@ export type ReportWitnessesFieldProps = Readonly<{
   onChange: (witnesses: string) => void;
   siteId: number;
   siteName?: string | null;
+  /**
+   * The affected person, hidden from the roster and refused as a typed name —
+   * nobody witnesses their own incident. `id` matches a roster row; `name`
+   * covers a person who was typed in rather than picked.
+   */
+  excludePerson?: Readonly<{ id?: string; name?: string }>;
   className?: string;
 }>;
 
@@ -93,8 +99,16 @@ export function ReportWitnessesField(
     onChange,
     siteId,
     siteName,
+    excludePerson,
     className = "",
   } = props;
+
+  const excludedId = excludePerson?.id?.trim() ?? "";
+  const excludedName = excludePerson?.name?.trim().toLowerCase() ?? "";
+
+  function isExcluded(name: string): boolean {
+    return excludedName !== "" && name.trim().toLowerCase() === excludedName;
+  }
 
   const selectedNames = useMemo(() => parseWitnessNames(value), [value]);
 
@@ -126,7 +140,13 @@ export function ReportWitnessesField(
     { search: debouncedQuery },
     open,
   );
-  const users = usersQuery.data ?? [];
+  // Filtered before anything else reads it — the keyboard highlight indexes
+  // into this list, so a row removed downstream would shift Enter onto the
+  // wrong person.
+  const users = (usersQuery.data ?? []).filter(
+    (user) =>
+      String(user.id) !== excludedId && !isExcluded(displayNameFor(user)),
+  );
 
   const isSearching =
     open && (usersQuery.isFetching || debouncedQuery !== query);
@@ -143,7 +163,7 @@ export function ReportWitnessesField(
 
   function addWitness(name: string) {
     const trimmed = name.trim();
-    if (!trimmed) {
+    if (!trimmed || isExcluded(trimmed)) {
       return;
     }
 

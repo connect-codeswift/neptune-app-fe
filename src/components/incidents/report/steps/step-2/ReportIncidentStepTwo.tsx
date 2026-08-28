@@ -549,6 +549,12 @@ export function ReportIncidentStepTwo(
             onChange={(witnesses) => onChange({ witnesses })}
             siteId={site.id}
             siteName={site.name}
+            // Nobody witnesses their own incident — the affected person is
+            // dropped from the roster and refused as a typed name.
+            excludePerson={{
+              id: form.affectedPersonId,
+              name: form.affectedPerson,
+            }}
           />
 
           {isFirstAid ? (
