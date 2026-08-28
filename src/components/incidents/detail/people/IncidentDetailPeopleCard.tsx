@@ -34,6 +34,7 @@ export type IncidentDetailPeopleCardProps = Readonly<{
   onChangeAffectedInjuryLabel?: (value: string) => void;
   onChangeBodyPart?: (value: string) => void;
   onChangeTreatment?: (value: string) => void;
+  onChangeDaysAway?: (value: string) => void;
   onChangeResponder?: (
     index: number,
     patch: Partial<Pick<ResponderMember, "name" | "role" | "empId">>,
@@ -74,6 +75,7 @@ export function IncidentDetailPeopleCard(
     onChangeAffectedInjuryLabel,
     onChangeBodyPart,
     onChangeTreatment,
+    onChangeDaysAway,
     onChangeResponder,
     className = "",
   } = props;
@@ -231,9 +233,22 @@ export function IncidentDetailPeopleCard(
               </div>
               <div className="rounded-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 flex flex-col gap-0.75 border p-3.25">
                 <span className="text-ehs-muted-text text6">Days away</span>
-                <span className="text-ehs-dark-bg text4 leading-normal">
-                  {daysAway}
-                </span>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    min={0}
+                    // Empty is a real state, not zero: it means nobody has recorded a
+                    // figure yet, which the API stores as null and the card shows as a dash.
+                    value={daysAway === "—" ? "" : String(daysAway)}
+                    onChange={(event) => onChangeDaysAway?.(event.target.value)}
+                    className={fieldInputClass}
+                    aria-label="Days away from work"
+                  />
+                ) : (
+                  <span className="text-ehs-dark-bg text4 leading-normal">
+                    {daysAway}
+                  </span>
+                )}
               </div>
             </div>
           </>

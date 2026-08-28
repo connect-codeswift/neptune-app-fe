@@ -109,6 +109,9 @@ export type IncidentDetailViewProps = Readonly<{
   onChangeAffectedInjuryLabel: (value: string) => void;
   onChangeBodyPart: (value: string) => void;
   onChangeTreatment: (value: string) => void;
+  onChangeDaysAway: (value: string) => void;
+  /** Draft value while the People tab is in edit mode; `detail.daysAway` is the saved one. */
+  daysAwayDraft: string;
   onChangeResponder: (index: number, patch: Partial<ResponderMember>) => void;
   onAddWitness: () => void;
   onChangeWitness: (index: number, patch: Partial<WitnessRow>) => void;
@@ -218,6 +221,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onChangeAffectedInjuryLabel,
     onChangeBodyPart,
     onChangeTreatment,
+    onChangeDaysAway,
+    daysAwayDraft,
     onChangeResponder,
     onAddWitness,
     onChangeWitness,
@@ -429,7 +434,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   }
                   bodyPart={isEditingPeople ? bodyPart : detail.bodyPart}
                   treatment={isEditingPeople ? treatment : detail.treatment}
-                  daysAway={detail.daysAway}
+                  daysAway={isEditingPeople ? daysAwayDraft : detail.daysAway}
                   responders={isEditingPeople ? responders : detail.responders}
                   isEditing={isEditingPeople}
                   onChangeAffectedName={onChangeAffectedName}
@@ -437,6 +442,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   onChangeAffectedInjuryLabel={onChangeAffectedInjuryLabel}
                   onChangeBodyPart={onChangeBodyPart}
                   onChangeTreatment={onChangeTreatment}
+                  onChangeDaysAway={onChangeDaysAway}
                   onChangeResponder={onChangeResponder}
                 />
                 <div className="flex flex-col gap-3.5">

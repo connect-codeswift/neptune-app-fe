@@ -106,6 +106,9 @@ export function IncidentDetailContent(
   const [affectedInjuryLabel, setAffectedInjuryLabel] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [treatment, setTreatment] = useState("");
+  // Kept as a string because the input is text-shaped: "" is "not recorded" and must stay
+  // distinct from "0", which is a measured zero days away.
+  const [daysAway, setDaysAway] = useState("");
   const [timelineEvents, setTimelineEvents] = useState<
     readonly TimelineEvent[]
   >([]);
@@ -248,6 +251,7 @@ export function IncidentDetailContent(
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
     setBodyPart(detail.bodyPart);
     setTreatment(detail.treatment);
+    setDaysAway(detail.daysAway === "—" ? "" : String(detail.daysAway));
     setTimelineEvents(detail.timelineEvents);
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
@@ -456,6 +460,7 @@ export function IncidentDetailContent(
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
     setBodyPart(detail.bodyPart);
     setTreatment(detail.treatment);
+    setDaysAway(detail.daysAway === "—" ? "" : String(detail.daysAway));
     setResponders(detail.responders);
     setWitnesses(detail.witnesses);
     setEditScope("people");
@@ -517,6 +522,7 @@ export function IncidentDetailContent(
           affectedInjuryLabel,
           bodyPart,
           treatment,
+          daysAway,
           responders,
           witnesses,
         });
@@ -652,6 +658,8 @@ export function IncidentDetailContent(
       onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
       onChangeBodyPart={setBodyPart}
       onChangeTreatment={setTreatment}
+      onChangeDaysAway={setDaysAway}
+      daysAwayDraft={daysAway}
       onChangeResponder={(index, patch) => {
         setResponders((prev) =>
           prev.map((member, memberIndex) => {

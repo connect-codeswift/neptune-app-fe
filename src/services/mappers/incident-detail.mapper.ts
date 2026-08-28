@@ -1270,9 +1270,10 @@ export function mapIncidentDtoToDetailView(
     affectedInjuryLabel,
     bodyPart,
     treatment,
-    // GetIncidentById carries no days-away field, so there is nothing to map.
-    // "—" rather than 0, which would read as a measured zero days away.
-    daysAway: "—",
+    // Now carried per person on the payload. Still "—" rather than 0 when the API sends
+    // null: null is "not recorded" and 0 is a measured zero days away, and showing the
+    // second for the first would invent a fact about someone's injury.
+    daysAway: affected?.daysAwayFromWork ?? "—",
     responders,
     witnesses: mappedWitnesses,
     attachments,
