@@ -30,11 +30,18 @@ export type CapaDashboardItem = Readonly<{
   /** Hierarchy of controls level (e.g. Administrative Controls). */
   control: string;
   owner: string;
+  /** Who raised the CAPA, as opposed to who owns it. */
+  assignedBy: string;
   progress: number;
   /** Stored status, spelled as the API spells it — see `CAPA_API_STATUS`. */
   status: string;
   dueDate: string;
   dueLabel: string;
+  /**
+   * Past due and not Closed, decided by the API rather than re-derived here - the register
+   * filters on the same flag, so a locally computed one could disagree with the chip.
+   */
+  isOverdue: boolean;
   priority: "high" | "medium" | "low";
   daysLeft: string;
   tasks: readonly CapaDashboardTask[];
@@ -122,7 +129,7 @@ export const CAPA_LIFECYCLE_SLICES: readonly CapaLifecycleSlice[] = [
   { label: "Open", value: 1, color: "#0891a6" },
   { label: "In progress", value: 5, color: "#3b82f6" },
   { label: "Overdue", value: 1, color: "#ef4444" },
-  { label: "Verified", value: 2, color: "#10b981" },
+  { label: "Completed", value: 2, color: "#10b981" },
 ];
 
 export const CAPA_OPENED_CLOSED_TREND: readonly CapaTrendPoint[] = [
@@ -188,10 +195,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2207 · Plant A",
     control: "Administrative Controls",
     owner: "M. Torres",
+    assignedBy: "-",
     progress: 62,
     status: "In Progress",
     dueDate: "2026-05-08",
     dueLabel: "14d left",
+    isOverdue: false,
     priority: "high",
     daysLeft: "14d",
     tasks: HOSE_TASKS,
@@ -204,10 +213,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2206 · Warehouse 1",
     control: "Administrative Controls",
     owner: "A. Chen",
+    assignedBy: "-",
     progress: 35,
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -220,10 +231,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2205 · Plant A",
     control: "Administrative Controls",
     owner: "S. Mitchell",
+    assignedBy: "-",
     progress: 80,
     status: "Overdue",
     dueDate: "2026-04-20",
     dueLabel: "Overdue",
+    isOverdue: true,
     priority: "high",
     daysLeft: "0d",
     tasks: [],
@@ -236,10 +249,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2204 · Warehouse 2",
     control: "Administrative Controls",
     owner: "R. Patel",
+    assignedBy: "-",
     progress: 18,
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -252,10 +267,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2203 · Plant B",
     control: "Administrative Controls",
     owner: "D. Park",
+    assignedBy: "-",
     progress: 48,
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "high",
     daysLeft: "21d",
     tasks: [],
@@ -268,10 +285,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2202 · All sites",
     control: "Administrative Controls",
     owner: "J. Merrick",
+    assignedBy: "-",
     progress: 8,
     status: "Open",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "low",
     daysLeft: "21d",
     tasks: [],
@@ -284,10 +303,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2201 · Plant A",
     control: "Administrative Controls",
     owner: "A. Osei",
+    assignedBy: "-",
     progress: 100,
     status: "Pending Verification",
     dueDate: "2026-04-10",
     dueLabel: "Closed",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "0d",
     tasks: [],
@@ -300,10 +321,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2200 · Plant B",
     control: "Administrative Controls",
     owner: "P. Mehra",
+    assignedBy: "-",
     progress: 55,
     status: "In Progress",
     dueDate: "2026-05-15",
     dueLabel: "21d left",
+    isOverdue: false,
     priority: "medium",
     daysLeft: "21d",
     tasks: [],
@@ -316,10 +339,12 @@ export const CAPA_DASHBOARD_ITEMS: readonly CapaDashboardItem[] = [
     source: "From INC-2199 · All sites",
     control: "Administrative Controls",
     owner: "J. Bell",
+    assignedBy: "-",
     progress: 100,
     status: "Pending Verification",
     dueDate: "2026-04-01",
     dueLabel: "Closed",
+    isOverdue: false,
     priority: "low",
     daysLeft: "0d",
     tasks: [],

@@ -18,31 +18,11 @@ import {
 } from "@/components/hazcom/training/hazcom-training-schema";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
-import {
-  useSiteUsersQuery,
-  useUserDropdownQuery,
-} from "@/hooks/use-user-queries";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
-
-/** A person's id + display name, whichever fields the row carries them under. */
-function attendeeFrom(
-  user: Readonly<Record<string, unknown>>,
-): Readonly<{ id: number; name: string }> | null {
-  const rawId = user.id ?? user.userId ?? user.value;
-  const id = typeof rawId === "number" ? rawId : Number(rawId);
-  if (!Number.isFinite(id) || id <= 0) {
-    return null;
-  }
-
-  const rawName =
-    user.fullName ?? user.name ?? user.userName ?? user.label ?? user.email;
-  const name = typeof rawName === "string" ? rawName.trim() : "";
-
-  return { id: Math.trunc(id), name: name || `User ${String(Math.trunc(id))}` };
-}
 
 export type HazcomNewTrainingSessionFormProps = Readonly<{
   className?: string;
@@ -54,15 +34,17 @@ export function HazcomNewTrainingSessionForm(
   const { className = "" } = props;
   const router = useRouter();
   const createTrainingLog = useCreateTrainingLogMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
 
   const auth = useMemo(() => getAuthContext(), []);
   const siteId = auth?.siteId ?? 0;
   const siteName = auth?.siteName ?? null;
-  const usersSource = siteId > 0 ? "site" : "dropdown";
-
-  const siteUsersQuery = useSiteUsersQuery(siteId, {}, usersSource === "site");
-  const dropdownUsersQuery = useUserDropdownQuery(usersSource === "dropdown");
+  // Both people fields fetch for themselves; the form only says where from.
+  const usersSource = siteId > 0 ? "site" : "org";
 
   const chemicalOptions: readonly SelectOption[] = useMemo(
     () =>
@@ -73,42 +55,17 @@ export function HazcomNewTrainingSessionForm(
     [chemicals],
   );
 
-  const attendeeOptions: readonly SelectOption[] = useMemo(() => {
-    const rows: readonly Readonly<Record<string, unknown>>[] =
-      usersSource === "site"
-        ? (siteUsersQuery.data ?? [])
-        : (dropdownUsersQuery.data?.dataModel ?? []);
-
-    const byId = new Map<number, string>();
-    for (const row of rows) {
-      const attendee = attendeeFrom(row);
-      if (attendee) byId.set(attendee.id, attendee.name);
-    }
-
-    return [...byId.entries()]
-      .sort((a, b) => a[1].localeCompare(b[1]))
-      .map(([id, name]) => ({ value: String(id), label: name }));
-  }, [usersSource, siteUsersQuery.data, dropdownUsersQuery.data?.dataModel]);
-
   const schema = useMemo(
     () =>
       buildTrainingSessionSchema({
         chemicalOptions: isLoadingChemicals
           ? [{ value: "", label: "Loading chemicals…" }]
           : chemicalOptions,
-        attendeeOptions,
         siteId,
         siteName,
         usersSource,
       }),
-    [
-      chemicalOptions,
-      attendeeOptions,
-      isLoadingChemicals,
-      siteId,
-      siteName,
-      usersSource,
-    ],
+    [chemicalOptions, isLoadingChemicals, siteId, siteName, usersSource],
   );
 
   const goBack = () => {
@@ -122,12 +79,17 @@ export function HazcomNewTrainingSessionForm(
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createTrainingLog.mutate(payload, {
       onSuccess: () => {
         toast.success("Training session logged");
         goBack();
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -160,7 +122,7 @@ export function HazcomNewTrainingSessionForm(
           type="button"
           variant="tertiary"
           onClick={goBack}
-          disabled={createTrainingLog.isPending}
+          disabled={submitLock.isLocked}
           className="rounded-lg px-3.5 py-2 text-sm font-semibold"
         >
           Cancel
@@ -169,7 +131,7 @@ export function HazcomNewTrainingSessionForm(
           type="submit"
           form={HAZCOM_TRAINING_FORM_ID}
           variant="primary"
-          isLoading={createTrainingLog.isPending}
+          isLoading={submitLock.isLocked}
           className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
         >
           <Icon icon="mdi:check" className="size-4" aria-hidden />

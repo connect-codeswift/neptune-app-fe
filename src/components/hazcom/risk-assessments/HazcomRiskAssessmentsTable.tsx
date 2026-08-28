@@ -1,6 +1,10 @@
 "use client";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  columnWidthStyle,
+  tableMinWidthStyle,
+} from "@/components/ui/table-width";
 
 import { useMemo, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
@@ -218,14 +222,6 @@ function createRiskAssessmentColumns(
   ] as ColumnDef<HazcomRiskAssessment, unknown>[];
 }
 
-// Percentage widths on a `table-fixed w-full` table always fill the
-// container exactly, so `overflow-x-auto` never triggers — the columns just
-// compress instead of scrolling. Fixed px widths (plus a `min-width` on the
-// `<table>` equal to their sum) let the table actually exceed its container.
-function columnWidthStyle(size: number) {
-  return { width: `${size}px` };
-}
-
 function alignClass(align: "left" | "center" | "right" | undefined) {
   if (align === "center") return "text-center";
   if (align === "right") return "text-right";
@@ -279,12 +275,15 @@ export function HazcomRiskAssessmentsTable(
 
       <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
         <table
-          className="border-collapse text-left"
-          style={{ minWidth: `${totalSize}px` }}
+          className="w-full table-fixed border-collapse text-left"
+          style={tableMinWidthStyle(totalSize)}
         >
           <colgroup>
             {table.getAllLeafColumns().map((column) => (
-              <col key={column.id} style={columnWidthStyle(column.getSize())} />
+              <col
+                key={column.id}
+                style={columnWidthStyle(column.getSize(), totalSize)}
+              />
             ))}
           </colgroup>
 
@@ -297,7 +296,7 @@ export function HazcomRiskAssessmentsTable(
                   return (
                     <th
                       key={headerCell.id}
-                      style={columnWidthStyle(headerCell.getSize())}
+                      style={columnWidthStyle(headerCell.getSize(), totalSize)}
                       className={[
                         "text6 text-ehs-muted-text py-3 select-none",
                         cellPad,
@@ -352,7 +351,10 @@ export function HazcomRiskAssessmentsTable(
                       return (
                         <td
                           key={cell.id}
-                          style={columnWidthStyle(cell.column.getSize())}
+                          style={columnWidthStyle(
+                            cell.column.getSize(),
+                            totalSize,
+                          )}
                           className={[
                             "py-3 align-middle",
                             cellPad,

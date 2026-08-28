@@ -11,7 +11,7 @@ import {
   type BodyPartSideMap,
   type BodyPartSideValue,
   type BodySide,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportBodyMapFigure } from "@/components/incidents/report/steps/step-3/ReportBodyMapFigure";
 
 export type ReportBodyPartFieldProps = Readonly<{

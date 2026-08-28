@@ -4,6 +4,10 @@ import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
+import {
+  canPreviewResolvedFile,
+  useResolvedFileUrl,
+} from "@/hooks/use-file-queries";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
   FILE_ALLOWED_MIME_TYPES,
@@ -64,6 +68,117 @@ function fileNameFromUrl(url: string): string {
   }
 }
 
+/** The files-API id or public URL inside a row value, or null when it holds neither. */
+function photoRowRef(entry: string): string | null {
+  const raw = entry.trim();
+  if (isLegacyPublicUrl(raw) || isStoredFileId(raw)) {
+    return raw;
+  }
+
+  const parts = raw.split("|||");
+  const last = parts[parts.length - 1]?.trim() ?? "";
+  return isLegacyPublicUrl(last) || isStoredFileId(last) ? last : null;
+}
+
+/**
+ * Row thumbnail: the picture itself, a PDF's generated first page, or the generic icon.
+ * Gated on mime type — a .docx has no thumbnail, and feeding one to `next/image` renders
+ * a broken frame rather than a document.
+ */
+function PhotoRowThumb(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const ref = photoRowRef(entry);
+  const { previewUrl, thumbnailUrl, mimeType } = useResolvedFileUrl(ref);
+
+  if (!ref || !canPreviewResolvedFile(mimeType, thumbnailUrl)) {
+    return (
+      <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
+        <Icon icon="mdi:file-document-outline" className="size-5" aria-hidden />
+      </span>
+    );
+  }
+
+  const thumb = (
+    <ResolvedFileImage
+      fileRef={ref}
+      alt=""
+      sizes="36px"
+      className="object-cover"
+    />
+  );
+
+  if (!previewUrl) {
+    return (
+      <span className="rounded-2.5 relative size-9 shrink-0 overflow-hidden">
+        {thumb}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={previewUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Preview ${name}`}
+      className="rounded-2.5 relative size-9 shrink-0 overflow-hidden"
+    >
+      {thumb}
+    </a>
+  );
+}
+
+/** Saves the file. Separate from the preview link because the disposition is signed into
+ *  the url — the browser ignores a `download` attribute across origins. */
+function PhotoRowDownload(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const { url } = useResolvedFileUrl(photoRowRef(entry));
+
+  if (!url) {
+    return null;
+  }
+
+  return (
+    <a
+      href={url}
+      aria-label={`Download ${name}`}
+      className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors"
+    >
+      <Icon icon="mdi:tray-arrow-down" className="size-4" aria-hidden />
+    </a>
+  );
+}
+
+/**
+ * Filename, linked to the file when the row holds a reference. Resolved at render because a
+ * signed url lasts 15 minutes — it is never stored. Its own component so the hook is not
+ * called inside the list `map`.
+ */
+function PhotoRowFileName(props: Readonly<{ entry: string; name: string }>) {
+  const { entry, name } = props;
+  const { previewUrl, url: downloadUrl } = useResolvedFileUrl(
+    photoRowRef(entry),
+  );
+  // Prefer the inline url so the name opens a viewer; a type with no viewer falls back to
+  // saving, which is the only thing a browser can do with it anyway.
+  const url = previewUrl ?? downloadUrl;
+
+  if (!url) {
+    return <p className="text4 text-ehs-slate truncate leading-5">{name}</p>;
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover truncate leading-5 transition-colors"
+    >
+      {name}
+    </a>
+  );
+}
+
 /** Parse a photo row value: URL, `title|||subtitle`, or `title|||subtitle|||url`. */
 function parsePhotoRowEntry(
   entry: string,
@@ -79,9 +194,13 @@ function parsePhotoRowEntry(
 
   const parts = entry.split("|||");
   if (parts.length >= 3) {
-    const url = parts[parts.length - 1]?.trim() ?? "";
-    if (/^https?:\/\//i.test(url)) {
-      const title = parts[0]?.trim() || fileNameFromUrl(url);
+    const ref = parts[parts.length - 1]?.trim() ?? "";
+    // Testing only for http dropped an encoded id to the bare branch below, which renders
+    // the whole "name|||size|||uuid" string as the filename.
+    if (isLegacyPublicUrl(ref) || isStoredFileId(ref)) {
+      const title =
+        parts[0]?.trim() ||
+        (isStoredFileId(ref) ? "File" : fileNameFromUrl(ref));
       const subtitle = parts.slice(1, -1).join("|||").trim();
       return { name: title, subtitle: subtitle || null };
     }
@@ -113,10 +232,12 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const acceptMode = field.accept ?? "image";
   const isPdf = acceptMode === "pdf";
   const isFiles = acceptMode === "files";
+  const isMedia = acceptMode === "media";
   const isFileLike = isFiles || isPdf;
   const listVariant = field.listVariant ?? (isFileLike ? "rows" : "grid");
   const fileModule: FileModule = field.fileModule ?? "Document";
   const useCloudinary = field.storage === "cloudinary";
+  const storeFileName = field.storeFileName === true;
   const maxFiles = field.maxFiles ?? FILE_MAX_FILES;
   const maxBytes = field.maxBytes ?? getFileMaxBytes(fileModule);
   const isUploading = pendingCount > 0;
@@ -189,7 +310,11 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
     const uploaded = results.flatMap((result) => {
       if (result.status !== "fulfilled") return [];
       const item = result.value;
-      const storedId = "secureUrl" in item ? item.secureUrl : item.fileId;
+      const ref = "secureUrl" in item ? item.secureUrl : item.fileId;
+      // metaByUrl below is local state and is lost on submit, so the name rides along.
+      const storedId = storeFileName
+        ? `${item.name}|||${item.sizeLabel}|||${ref}`
+        : ref;
       return [{ storedId, name: item.name, sizeLabel: item.sizeLabel }];
     });
     const failure = results.find((result) => result.status === "rejected");
@@ -232,13 +357,15 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   };
 
   const message = error ?? uploadError;
-  const acceptAttr = isPdf
-    ? "application/pdf"
-    : isFiles
-      ? useCloudinary
-        ? "image/*,application/pdf,.doc,.docx,.ppt,.pptx,video/mp4,video/quicktime,video/webm"
-        : "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      : "image/*";
+  const acceptAttr = isMedia
+    ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
+    : isPdf
+      ? "application/pdf"
+      : isFiles
+        ? useCloudinary
+          ? "image/*,application/pdf,.doc,.docx,.ppt,.pptx,video/mp4,video/quicktime,video/webm"
+          : "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        : "image/*";
 
   return (
     <div className="flex flex-col gap-4">
@@ -332,23 +459,16 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
                 key={`${entry}-${String(index)}`}
                 className="group rounded-2.5 bg-ehs-form-classes-bg/70 flex items-center gap-3 py-3 pr-3 pl-3"
               >
-                <span className="rounded-2.5 text-ehs-normal-blue bg-ehs-normal-blue/20 inline-flex size-9 shrink-0 items-center justify-center">
-                  <Icon
-                    icon="mdi:file-document-outline"
-                    className="size-5"
-                    aria-hidden
-                  />
-                </span>
+                <PhotoRowThumb entry={entry} name={name} />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <p className="text4 text-ehs-slate truncate leading-5">
-                    {name}
-                  </p>
+                  <PhotoRowFileName entry={entry} name={name} />
                   {subtitle ? (
                     <p className="text8 text-ehs-muted-text truncate leading-4">
                       {subtitle}
                     </p>
                   ) : null}
                 </div>
+                <PhotoRowDownload entry={entry} name={name} />
                 <button
                   type="button"
                   onClick={() => removeAt(index)}

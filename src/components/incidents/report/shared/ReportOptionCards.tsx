@@ -2,7 +2,10 @@
 
 import { useRef } from "react";
 import { Text } from "@/components/Text";
-import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
+import {
+  ReportFieldError,
+  ReportFieldHint,
+} from "@/components/incidents/report/shared/ReportFormField";
 
 export type ReportOptionCardOption<T extends string = string> = Readonly<{
   id: T;
@@ -104,11 +107,6 @@ export function ReportOptionCards<T extends string>(
             *
           </Text>
         ) : null}
-        {trailingHint ? (
-          <Text as="span" className="text-ehs-muted-text ml-auto text-xs">
-            {trailingHint}
-          </Text>
-        ) : null}
       </div>
 
       <div
@@ -191,6 +189,9 @@ export function ReportOptionCards<T extends string>(
           );
         })}
       </div>
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );

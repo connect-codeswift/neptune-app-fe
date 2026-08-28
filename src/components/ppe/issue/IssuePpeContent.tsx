@@ -6,6 +6,7 @@ import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useIssuePpeMutation } from "@/hooks/use-ppe-mutations";
 import { usePpeItemsQuery } from "@/hooks/use-ppe-queries";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
@@ -45,6 +46,10 @@ const issuePpeFormFieldClass = [
 export function IssuePpeContent() {
   const router = useRouter();
   const issuePpe = useIssuePpeMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
   const ppeItemsQuery = usePpeItemsQuery();
   const [selectedPpeItemId, setSelectedPpeItemId] = useState("");
   const [formSeed, setFormSeed] = useState<FormValues | null>(null);
@@ -147,6 +152,10 @@ export function IssuePpeContent() {
     const shouldAcknowledge =
       isElevated && isEmployeeAcknowledged(formValues.employeeAcknowledgement);
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     issuePpe.mutate(payload, {
       onSuccess: (response) => {
         const afterIssueRoute = isElevated ? ISSUANCE_LOG_ROUTE : PPE_ROUTE;
@@ -211,6 +220,7 @@ export function IssuePpeContent() {
           });
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -246,9 +256,9 @@ export function IssuePpeContent() {
         onChange={handleFormChange}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        submitLabel={issuePpe.isPending ? "Confirming..." : "Confirm Issuance"}
+        submitLabel={submitLock.isLocked ? "Confirming..." : "Confirm Issuance"}
         cancelLabel="Cancel"
-        isSubmitting={issuePpe.isPending}
+        isSubmitting={submitLock.isLocked}
         className={issuePpeFormFieldClass}
       />
     </IncidentGlassCard>

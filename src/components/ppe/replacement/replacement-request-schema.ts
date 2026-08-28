@@ -27,19 +27,21 @@ export type ReplacementRequestFormValues = FormValues & {
 };
 
 export function buildReplacementRequestSchema(
-  employeeOptions: readonly SelectOption[],
   itemOptions: readonly SelectOption[],
 ): FormSchema {
   return [
     {
-      type: "select",
+      // Locked: the request is filed against whoever the PPE was issued to,
+      // which the issue profile already answers. `disabled` renders the name
+      // as read-only text, so no roster is fetched for it at all.
+      type: "person",
       name: "employeeId",
       label: "Your Name",
       required: true,
       colSpan: 12,
       disabled: true,
-      options: employeeOptions,
-      placeholder: employeeOptions.length === 0 ? "Select employee" : undefined,
+      displayNameField: "employeeName",
+      usersSource: "org",
     },
     {
       type: "select",
@@ -99,12 +101,14 @@ export function createReplacementRequestValues(
   schema: FormSchema,
   options: Readonly<{
     employeeId: string;
+    employeeName: string;
     issuePpeId?: string;
   }>,
 ): FormValues {
   return {
     ...createInitialValues(schema),
     employeeId: options.employeeId,
+    employeeName: options.employeeName,
     issuePpeId: options.issuePpeId ?? "",
     urgency: "Normal",
   };

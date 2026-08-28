@@ -44,9 +44,18 @@ export function useAddComplianceMutation() {
   return useMutation({
     mutationFn: (payload: AddComplianceRequestDto) => addCompliance(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: complianceQueryKeys.all,
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: complianceQueryKeys.all,
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }

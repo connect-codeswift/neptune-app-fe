@@ -6,7 +6,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { getAuthDisplayName } from "@/lib/auth-context";
-import { isAllowedMimeType } from "@/lib/files";
+import { isAllowedMimeType, normaliseContentType } from "@/lib/files";
 import { formatShortDateTime } from "@/lib/format-short-date-time";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
@@ -40,7 +40,7 @@ export function IncidentDetailUploadCard(
   }, [onRegisterOpen]);
 
   const handleUploadFile = async (file: File) => {
-    if (!isAllowedMimeType(file.type)) {
+    if (!isAllowedMimeType(normaliseContentType(file.type))) {
       toast.error(
         "Unsupported file",
         "Please upload JPG, PNG, WEBP, GIF, MP4, or PDF.",

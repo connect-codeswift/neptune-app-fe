@@ -10,6 +10,7 @@ import { IncidentDetailAiCard } from "@/components/incidents/detail/details/Inci
 import { IncidentDetailInfoCard } from "@/components/incidents/detail/details/IncidentDetailInfoCard";
 import { IncidentDetailLinkedCard } from "@/components/incidents/detail/details/IncidentDetailLinkedCard";
 import { IncidentDetailResponseCard } from "@/components/incidents/detail/details/IncidentDetailResponseCard";
+import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailRoutingCard } from "@/components/incidents/detail/details/IncidentDetailRoutingCard";
 import { IncidentDetailSummaryCard } from "@/components/incidents/detail/details/IncidentDetailSummaryCard";
 import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
@@ -89,6 +90,8 @@ export type IncidentDetailViewProps = Readonly<{
   onChangeSummary: (value: string) => void;
   responseNotes: string;
   onChangeResponseNotes: (value: string) => void;
+  responseActions: readonly IncidentDetailResponseAction[];
+  onToggleResponseAction: (id: string) => void;
   infoItems: readonly IncidentDetailInfoItem[];
   onChangeInfoItem: (key: string, value: string) => void;
 
@@ -202,6 +205,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     onChangeSummary,
     responseNotes,
     onChangeResponseNotes,
+    responseActions,
+    onToggleResponseAction,
     infoItems,
     onChangeInfoItem,
     timelineEvents,
@@ -329,7 +334,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onChangeItem={onChangeInfoItem}
                   />
                   <IncidentDetailResponseCard
-                    actions={detail.responseActions}
+                    actions={responseActions}
+                    isEditing={isEditingDetails}
+                    onToggleAction={onToggleResponseAction}
                   />
                   {responseNotes || isEditingDetails ? (
                     <IncidentGlassCard
@@ -406,6 +413,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   affectedName={
                     isEditingPeople ? affectedName : detail.affectedName
                   }
+                  hasAffectedPerson={detail.hasAffectedPerson}
                   affectedRole={detail.affectedRole}
                   affectedEmpId={
                     isEditingPeople ? affectedEmpId : detail.affectedEmpId

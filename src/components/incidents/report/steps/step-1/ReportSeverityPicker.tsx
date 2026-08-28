@@ -3,7 +3,7 @@
 import {
   SEVERITY_OPTIONS,
   type SeverityId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import {
   ReportOptionCards,
   type ReportOptionCardOption,
@@ -48,18 +48,11 @@ export function ReportSeverityPicker<T extends string = SeverityId>(
     (options as readonly ReportOptionCardOption<T>[] | undefined) ??
     (DEFAULT_SEVERITY_OPTIONS as unknown as readonly ReportOptionCardOption<T>[]);
 
-  const resolvedHint =
-    trailingHint !== undefined
-      ? trailingHint
-      : variant === "chip"
-        ? "Drives routing & recordability. You can change it later."
-        : undefined;
-
   return (
     <ReportOptionCards
       label={label}
       required={required}
-      trailingHint={resolvedHint}
+      trailingHint={trailingHint}
       error={error}
       options={resolvedOptions}
       value={value}

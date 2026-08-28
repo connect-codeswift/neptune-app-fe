@@ -10,6 +10,7 @@ import {
 import type { ReactNode } from "react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { tableMinWidthStyle } from "@/components/ui/table-width";
 import type { EmptyStateProps } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 
@@ -106,12 +107,17 @@ export function Table<TData>(props: TableProps<TData>) {
         </div>
       ) : null}
 
+      {/* `w-full` on the table plus its `min-width` floor means the columns
+          fill the card whenever there is room and scroll here when there
+          isn't. This table keeps auto layout rather than the proportional
+          `columnWidthStyle` the list tables use: its columns carry per-cell
+          `minWidth` only, so content still decides how the surplus is shared. */}
       <div className="w-full min-w-0 overflow-x-auto">
         <table
           className={["text4 w-full border-collapse text-left", className]
             .filter(Boolean)
             .join(" ")}
-          style={{ minWidth: `${String(table.getTotalSize())}px` }}
+          style={tableMinWidthStyle(table.getTotalSize())}
         >
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (

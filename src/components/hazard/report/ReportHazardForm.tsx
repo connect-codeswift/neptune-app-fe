@@ -14,6 +14,7 @@ import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
@@ -50,8 +51,10 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
     type: report.hazardType,
     location: report.location,
     description: report.description,
-    // The endpoint takes a single URL; the field is capped at one photo.
+    // Both are sent: `attachments` is the list the endpoint stores, `image` keeps the first so an
+    // older reader still finds a photo where it expects one.
     image: report.photos[0] ?? "",
+    attachments: report.photos,
     userId,
     siteId,
     isDrop: false,
@@ -61,6 +64,10 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
 export function ReportHazardForm() {
   const router = useRouter();
   const createHazard = useCreateHazardMutation();
+  // Held past the response: `isPending` drops as soon as the record is
+  // created, while the push to the list is still in flight, and a click in
+  // that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
   const [values, setValues] = useState<FormValues>({});
 
   const description = String(values.description ?? "");
@@ -78,13 +85,14 @@ export function ReportHazardForm() {
     [values.hazardType, values.location, consequence],
   );
 
-  const { draft, pending, dismiss } = useNarrativeDraft({
-    module: "hazard",
-    input: draftInput,
-    // The consequence is the backend's threshold — type and location alone
-    // return null. Never while the reporter has written their own account.
-    enabled: consequence !== "" && description.trim() === "",
-  });
+  const { draft, pending, dismiss, regenerate, canRegenerate } =
+    useNarrativeDraft({
+      module: "hazard",
+      input: draftInput,
+      // The consequence is the backend's threshold — type and location alone
+      // return null. Never while the reporter has written their own account.
+      enabled: consequence !== "" && description.trim() === "",
+    });
 
   const showsDraft = pending || draft !== null;
 
@@ -100,6 +108,7 @@ export function ReportHazardForm() {
                   <AiInFieldDraft
                     draft={draft}
                     pending={pending}
+                    onRegenerate={canRegenerate ? regenerate : undefined}
                     // FormBuilder's textarea skin, not the incident wizard's.
                     fieldPaddingClassName="px-3 pt-2.5"
                     fieldTextClassName="text4 text-ehs-darker leading-normal"
@@ -114,17 +123,22 @@ export function ReportHazardForm() {
                     module="hazard"
                     value={control.value}
                     onApply={control.onChange}
+                    onRegenerateDraft={canRegenerate ? regenerate : undefined}
                   />
                 ),
             }
           : field,
       ),
-    [showsDraft, draft, pending, dismiss],
+    [showsDraft, draft, pending, dismiss, regenerate, canRegenerate],
   );
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching HazardReportValues.
     const payload = toCreateRequest(values as HazardReportValues);
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     createHazard.mutate(payload, {
       onSuccess: () => {
@@ -132,6 +146,7 @@ export function ReportHazardForm() {
         router.push(HAZARD_LIST_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -157,10 +172,10 @@ export function ReportHazardForm() {
         onChange={setValues}
         className={hazardFormFieldClass}
         submitLabel={
-          createHazard.isPending ? "Submitting..." : "Submit Hazard Report"
+          submitLock.isLocked ? "Submitting..." : "Submit Hazard Report"
         }
         cancelLabel="Cancel"
-        isSubmitting={createHazard.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(HAZARD_LIST_ROUTE)}
       />

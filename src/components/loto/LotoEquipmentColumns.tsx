@@ -129,7 +129,7 @@ export function buildLotoEquipmentColumns(
               className={[
                 "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
                 isLockedOut
-                  ? "text-ehs-red cursor-default"
+                  ? "text-ehs-red cursor-not-allowed"
                   : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6 cursor-pointer",
               ].join(" ")}
               aria-label={

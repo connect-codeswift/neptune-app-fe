@@ -4,10 +4,7 @@ import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import {
-  REPORT_STEPS,
-  type ReportStepId,
-} from "@/components/incidents/report/shared/report-incident-data";
+import { REPORT_STEPS, type ReportStepId } from "@/forms/incident-module/index";
 
 export type ReportComingSoonStepProps = Readonly<{
   step: ReportStepId;

@@ -13,8 +13,15 @@ import type {
   WhyChainItem,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import {
+  AFFECTED_NAME_UNKNOWN_LABEL,
+  NO_AFFECTED_PERSON_LABEL,
+} from "@/components/incidents/detail/incident-detail-types";
 import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
-import { IMMEDIATE_ACTION_OPTIONS } from "@/components/incidents/report/shared/report-response";
+import {
+  IMMEDIATE_ACTION_OPTIONS,
+  splitActionTaken,
+} from "@/forms/incident-module/immediate-response";
 import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {
   fileNameFromAttachmentUrl,
@@ -68,6 +75,8 @@ export type IncidentDetailViewModel = Readonly<{
   responseActions: readonly IncidentDetailResponseAction[];
   responseNotes: string;
   affectedName: string;
+  /** True when the incident records an affected person, named or not. */
+  hasAffectedPerson: boolean;
   affectedRole: string;
   affectedEmpId: string;
   affectedInitials: string;
@@ -162,24 +171,6 @@ function initialsFromName(name: string): string {
   return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
-/**
- * Avatar text for the affected person.
- *
- * Intake sometimes records only an employee number and stores it in the name
- * slot, so `initialsFromName` treated it as a one-word name and sliced it to
- * two characters — "9005" rendered as "90", which means nothing. A value
- * carrying no letters is an identifier, so show it whole.
- */
-function affectedAvatarText(name: string): string {
-  if (!name) {
-    return "—";
-  }
-  if (!/\p{L}/u.test(name)) {
-    return name;
-  }
-  return initialsFromName(name);
-}
-
 function isWitness(person: PersonDto): boolean {
   const role = person.role?.trim().toLowerCase() ?? "";
   return role.includes("witness");
@@ -198,8 +189,12 @@ function isAffected(person: PersonDto): boolean {
 /** Resolve affected person without mistaking a witness/reporter for the injured party. */
 function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
   const people = incident.people ?? [];
+  // Returned whether or not it carries a name. The row is the record of who was
+  // hurt — injury level, body part, the description — and requiring a name to
+  // accept it threw all of that away for an incident logged without one, which
+  // is exactly what the wizard sends when the person picker resolves no name.
   const byRole = people.find(isAffected);
-  if (byRole?.name?.trim()) {
+  if (byRole) {
     return byRole;
   }
 
@@ -213,29 +208,28 @@ function resolveAffectedPerson(incident: IncidentDto): PersonDto | null {
     return nonRouting;
   }
 
-  const affectedId = incident.affectedPersonId?.trim();
-  if (affectedId) {
-    return {
-      name: affectedId,
-      role: "Affected person",
-      injuryLevel: null,
-      bodyPartAffected: null,
-      injuryDescription: null,
-    };
-  }
-
+  // No fallback to affectedPersonId. It used to return one shaped like a person
+  // with the raw id as its name, so the People tab showed "3" as the affected
+  // person and "3" in the avatar. An id is not a name; it is surfaced as the
+  // employee id by the caller instead.
   return null;
 }
 
 function parseResponseActions(
   actionTaken: string | null | undefined,
 ): readonly IncidentDetailResponseAction[] {
-  const text = actionTaken?.toLowerCase() ?? "";
+  // Only the actions line is matched against, and each of its segments has to
+  // equal a label outright. Scanning the whole string for a substring let the
+  // free-text notes tick an action: "no first aid administered" asserted that
+  // first aid was administered.
+  const { actionLabels } = splitActionTaken(actionTaken);
 
   return IMMEDIATE_ACTION_OPTIONS.map((option) => ({
     id: option.id,
     label: option.label,
-    completed: text.includes(option.label.toLowerCase()),
+    completed: actionLabels.some(
+      (label) => label.toLowerCase() === option.label.toLowerCase(),
+    ),
   }));
 }
 
@@ -462,9 +456,18 @@ function buildTimelineEvents(
     });
   }
 
-  const actionText = incident.actionTaken?.toLowerCase() ?? "";
+  // Read the same way the Immediate response card reads it. This was the second
+  // whole-string substring scan and it was left behind when the card's was
+  // fixed, so the timeline still recorded "First aid administered" as an event
+  // off the back of a note saying it was not.
+  const { actionLabels } = splitActionTaken(incident.actionTaken);
   for (const option of IMMEDIATE_ACTION_OPTIONS) {
-    if (!actionText.includes(option.label.toLowerCase())) continue;
+    if (
+      !actionLabels.some(
+        (label) => label.toLowerCase() === option.label.toLowerCase(),
+      )
+    )
+      continue;
     push(reportedAt, {
       title: option.label,
       description: "Immediate response action recorded.",
@@ -1219,16 +1222,23 @@ export function mapIncidentDtoToDetailView(
   const responders = buildResponders(incident, listRecord.reporter);
   const affectedName = affected?.name?.trim() || "";
   const affectedId = incident.affectedPersonId?.trim() || "";
-  // Intake writes the same text into both `name` and `affectedPersonId` when
-  // the reporter enters an employee number rather than picking from the roster
-  // (`parseAffectedPerson`), so the two carry one value. Showing it in both
-  // slots printed the number twice over; the id row stays empty when it would
-  // only repeat the name, and the card drops the row entirely.
-  const affectedEmpId =
-    affectedId &&
-    (!affectedName || affectedId.toLowerCase() !== affectedName.toLowerCase())
-      ? affectedId
-      : "—";
+  // The dedupe this used to do — blank the id whenever it matched the name —
+  // existed only because the name *was* the id. With that fallback gone the two
+  // cannot collide, and suppressing the id was the wrong half to drop.
+  const affectedEmpId = affectedId || "—";
+  // Whether the incident records an affected person at all — a row, an id, or
+  // any injury detail. Carried explicitly because the card used to decide it by
+  // comparing the name against the placeholder it had just been handed, so a
+  // record with injury data but no name read as nobody at all.
+  const hasAffectedPerson =
+    affected !== null ||
+    affectedId !== "" ||
+    Boolean(incident.natureOfInjury?.trim());
+  const affectedDisplayName =
+    affectedName ||
+    (hasAffectedPerson
+      ? AFFECTED_NAME_UNKNOWN_LABEL
+      : NO_AFFECTED_PERSON_LABEL);
   const affectedInjuryLabel =
     affected?.injuryLevel?.trim() ||
     incident.natureOfInjury?.trim() ||
@@ -1244,7 +1254,8 @@ export function mapIncidentDtoToDetailView(
     responseActions,
     responseNotes:
       incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
-    affectedName: affectedName || "No affected person logged",
+    affectedName: affectedDisplayName,
+    hasAffectedPerson,
     affectedRole: [
       affected?.role?.trim() || "Affected person",
       listRecord.site !== "—" ? listRecord.site : null,
@@ -1252,7 +1263,7 @@ export function mapIncidentDtoToDetailView(
       .filter(Boolean)
       .join(" · "),
     affectedEmpId,
-    affectedInitials: affectedAvatarText(affectedName),
+    affectedInitials: affectedName ? initialsFromName(affectedName) : "—",
     affectedInjuryLabel,
     bodyPart,
     treatment,

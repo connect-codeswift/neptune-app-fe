@@ -1,15 +1,15 @@
 import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
-import type { ReportIncidentFormState } from "./report-incident-state";
-import { seriousIncidentLabelForDraft } from "./report-classification";
+import type { ReportIncidentFormState } from "@/forms/incident-module/form-state";
+import { seriousIncidentLabelForDraft } from "@/forms/incident-module/classification";
 import { formatIncidentLocationsLabel } from "./ReportLocationsField";
-import { SEVERITY_OPTIONS } from "./report-severity";
-import { INJURY_LEVEL_OPTIONS } from "./report-injury-level";
-import { BODY_PART_OPTIONS } from "./report-body-parts";
+import { SEVERITY_OPTIONS } from "@/forms/incident-module/severity";
+import { INJURY_LEVEL_OPTIONS } from "@/forms/incident-module/injury-level";
+import { BODY_PART_OPTIONS } from "@/forms/incident-module/body-parts";
 import {
   INITIAL_TREATMENT_OPTIONS,
   MECHANISM_OPTIONS,
   NATURE_OF_INJURY_OPTIONS,
-} from "./report-treatment";
+} from "@/forms/incident-module/treatment";
 import { parseReportDateTime } from "@/services/mappers/report-incident.mapper";
 
 /**
@@ -25,6 +25,14 @@ export type ReportDescriptionDraft = Readonly<{
   source: string;
   /** Set once the reporter declines it or starts writing their own. */
   dismissed: boolean;
+  /**
+   * A draft has been fetched for this report; the automatic pass is spent.
+   *
+   * Without it the draft was re-fetched every time an answer above it changed,
+   * and each of those drafts but the last was discarded before the reporter
+   * ever saw it. Redrafting is now theirs to ask for.
+   */
+  drafted: boolean;
 }>;
 
 export const EMPTY_DESCRIPTION_DRAFT: ReportDescriptionDraft = {
@@ -32,6 +40,7 @@ export const EMPTY_DESCRIPTION_DRAFT: ReportDescriptionDraft = {
   pending: false,
   source: "",
   dismissed: false,
+  drafted: false,
 };
 
 function optionLabel(

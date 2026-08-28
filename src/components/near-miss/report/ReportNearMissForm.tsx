@@ -14,6 +14,7 @@ import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateNearMissMutation } from "@/hooks/use-near-miss-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
@@ -72,6 +73,7 @@ function toCreateRequest(
     location: report.location,
     whatHappened: report.whatHappened,
     contributingFactor: report.contributingFactors,
+    attachments: report.photos,
     isDrop: false,
     userId,
     siteId,
@@ -81,6 +83,10 @@ function toCreateRequest(
 export function ReportNearMissForm() {
   const router = useRouter();
   const createNearMiss = useCreateNearMissMutation();
+  // Held past the response: `isPending` drops as soon as the record is
+  // created, while the push to the list is still in flight, and a click in
+  // that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
   const [values, setValues] = useState<FormValues>({});
 
   const narrative = String(values.whatHappened ?? "");
@@ -105,14 +111,15 @@ export function ReportNearMissForm() {
     [values.dateOfEvent, values.hazardType, values.location, factorLabels],
   );
 
-  const { draft, pending, dismiss } = useNarrativeDraft({
-    module: "nearMiss",
-    input: draftInput,
-    // At least one contributing factor, or the backend returns null anyway.
-    // Never while the reporter has written their own account — the request
-    // carries no field for it and their words are the record.
-    enabled: factorLabels.length > 0 && narrative.trim() === "",
-  });
+  const { draft, pending, dismiss, regenerate, canRegenerate } =
+    useNarrativeDraft({
+      module: "nearMiss",
+      input: draftInput,
+      // At least one contributing factor, or the backend returns null anyway.
+      // Never while the reporter has written their own account — the request
+      // carries no field for it and their words are the record.
+      enabled: factorLabels.length > 0 && narrative.trim() === "",
+    });
 
   const showsDraft = pending || draft !== null;
 
@@ -130,6 +137,7 @@ export function ReportNearMissForm() {
                   <AiInFieldDraft
                     draft={draft}
                     pending={pending}
+                    onRegenerate={canRegenerate ? regenerate : undefined}
                     // FormBuilder's textarea is a different skin from the
                     // incident wizard's — 16px text, 12px padding — and the
                     // ghost has to sit exactly on the caret.
@@ -146,17 +154,22 @@ export function ReportNearMissForm() {
                     module="nearMiss"
                     value={control.value}
                     onApply={control.onChange}
+                    onRegenerateDraft={canRegenerate ? regenerate : undefined}
                   />
                 ),
             }
           : field,
       ),
-    [showsDraft, draft, pending, dismiss],
+    [showsDraft, draft, pending, dismiss, regenerate, canRegenerate],
   );
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching NearMissReportValues.
     const payload = toCreateRequest(values as NearMissReportValues);
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     createNearMiss.mutate(payload, {
       onSuccess: () => {
@@ -164,6 +177,7 @@ export function ReportNearMissForm() {
         router.push(NEAR_MISS_LIST_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -187,10 +201,10 @@ export function ReportNearMissForm() {
         onChange={setValues}
         className={nearMissFormFieldClass}
         submitLabel={
-          createNearMiss.isPending ? "Submitting..." : "Submit Near-Miss Report"
+          submitLock.isLocked ? "Submitting..." : "Submit Near-Miss Report"
         }
         cancelLabel="Cancel"
-        isSubmitting={createNearMiss.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(NEAR_MISS_LIST_ROUTE)}
       />

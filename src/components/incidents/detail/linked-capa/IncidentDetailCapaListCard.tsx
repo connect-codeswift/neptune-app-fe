@@ -321,8 +321,8 @@ export function IncidentDetailCapaListCard(
       {isAddCapaOpen ? (
         <AddCapaModal
           key="add-capa"
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={incidentId}
+          sourceTitle={incidentTitle}
           isSubmitting={isSubmitting}
           onClose={handleCloseAddModal}
           onSubmit={onSubmitCapa}
@@ -332,8 +332,8 @@ export function IncidentDetailCapaListCard(
       {editingCapa ? (
         <AddCapaModal
           key={`edit-capa-${editingCapa.id}`}
-          incidentId={incidentId}
-          incidentTitle={incidentTitle}
+          sourceLabel={incidentId}
+          sourceTitle={incidentTitle}
           capaToEdit={editingCapa}
           isSubmitting={isSubmitting}
           isCreatingTask={isCreatingCapaTask}

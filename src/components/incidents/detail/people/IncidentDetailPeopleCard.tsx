@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 
@@ -12,6 +13,13 @@ export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
+  /**
+   * Whether the incident records an affected person at all. Decided by the
+   * mapper, which has the record; this was inferred here by comparing the name
+   * against the placeholder the mapper had just supplied, so an incident with
+   * injury details but no name rendered as though nobody was involved.
+   */
+  hasAffectedPerson?: boolean;
   affectedRole?: string;
   affectedEmpId?: string;
   affectedInitials?: string;
@@ -60,6 +68,7 @@ export function IncidentDetailPeopleCard(
 ) {
   const {
     affectedName = "",
+    hasAffectedPerson = false,
     affectedRole = "Affected person",
     affectedEmpId = "—",
     affectedInitials = "—",
@@ -82,17 +91,21 @@ export function IncidentDetailPeopleCard(
   // this scope — the People tab edits the injury outcome, not who was involved.
   // While editing the card must render regardless: body part, treatment and
   // days away are editable even on a record that carries no person name.
-  const hasAffected =
-    isEditing ||
-    (Boolean(affectedName.trim()) &&
-      affectedName !== "No affected person logged");
+  //
+  // A real name still counts on its own, so a caller that predates the
+  // `hasAffectedPerson` flag does not lose the card.
+  const hasRecordedName =
+    Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
+  const hasAffected = isEditing || hasAffectedPerson || hasRecordedName;
 
   // When the record identifies the person by number rather than by name, the
   // avatar has no initials to draw and repeating the number there would print
   // it twice on one row. Show a person glyph and let the number appear once,
   // on the identity line.
   const hasInitials = /\p{L}/u.test(affectedInitials);
-  // A distinct id earns its own row; one that merely repeats the name does not.
+  // The mapper no longer falls the name back to the id, so the two should not
+  // collide — this stays as a guard against an empty dash row and against a
+  // caller still supplying the old shape.
   const showEmpIdRow =
     affectedEmpId.trim().length > 0 &&
     affectedEmpId !== "—" &&

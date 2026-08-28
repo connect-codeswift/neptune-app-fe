@@ -2,7 +2,7 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 
-import { Icon } from "@iconify/react";
+import { CheckboxInput } from "@/components/inputs/CheckboxInput";
 import { Text } from "@/components/Text";
 import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -11,6 +11,13 @@ export type { IncidentDetailResponseAction };
 
 export type IncidentDetailResponseCardProps = Readonly<{
   actions?: readonly IncidentDetailResponseAction[];
+  /**
+   * Turns the tiles into toggles. Every action is shown while editing, ticked
+   * or not — an unticked one has to be reachable to be ticked, and the empty
+   * state would otherwise hide all six on an incident where nothing was logged.
+   */
+  isEditing?: boolean;
+  onToggleAction?: (id: string) => void;
   className?: string;
 }>;
 
@@ -21,13 +28,23 @@ export function IncidentDetailResponseCard(
   // "Equipment locked out (LOTO)", "Spill contained" — and the previous
   // fallback asserted them even when the API returned an explicitly empty
   // list, turning "nothing was done" into "these things were done".
-  const { actions = [], className = "" } = props;
+  const {
+    actions = [],
+    isEditing = false,
+    onToggleAction,
+    className = "",
+  } = props;
+  const isInteractive = isEditing && onToggleAction !== undefined;
 
   return (
     <IncidentGlassCard
       paddingClassName="p-5.75"
       incidentGlassCardClassName="gap-3.5"
-      className={className}
+      // Same edit ring as the Summary and Info cards above it. Without it this
+      // was the one card on the tab that turned editable without looking it.
+      className={[className, isEditing ? "ring-ehs-normal-blue/25 ring-1" : ""]
+        .filter(Boolean)
+        .join(" ")}
     >
       <div className="flex flex-col gap-0.5">
         <Text as="h3" className="text-ehs-dark-bg text3">
@@ -38,7 +55,7 @@ export function IncidentDetailResponseCard(
         </span>
       </div>
 
-      {actions.length === 0 ? (
+      {actions.length === 0 && !isInteractive ? (
         <EmptyState
           variant="plain"
           icon="mdi:medical-bag"
@@ -48,30 +65,20 @@ export function IncidentDetailResponseCard(
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {actions.map((action) => (
-            <div
+            <CheckboxInput
               key={action.id}
-              className={[
-                "flex h-9.5 items-center gap-2.5 rounded-lg border px-3.25 py-2.75",
-                action.completed
-                  ? "border-ehs-green bg-ehs-green-bg-light"
-                  : "border-ehs-border-ink/8 bg-ehs-surface/62",
-              ].join(" ")}
-            >
-              {action.completed ? (
-                <div className="bg-ehs-green text-ehs-on-accent flex size-4 shrink-0 items-center justify-center rounded">
-                  <Icon
-                    icon="mdi:check"
-                    className="size-2.75"
-                    aria-hidden="true"
-                  />
-                </div>
-              ) : (
-                <div className="border-ehs-border-ink/14 size-4 shrink-0 rounded border bg-transparent" />
-              )}
-              <span className="text-ehs-dark-bg text4 truncate leading-normal">
-                {action.label}
-              </span>
-            </div>
+              variant="tile"
+              tone="green"
+              size="sm"
+              label={action.label}
+              checked={action.completed}
+              // No handler while the card is read-only: the tile then renders
+              // as the record it is, rather than as a control that ignores you.
+              onChange={
+                isInteractive ? () => onToggleAction(action.id) : undefined
+              }
+              className="h-9.5 min-h-0 rounded-lg px-3.25 py-2.75"
+            />
           ))}
         </div>
       )}

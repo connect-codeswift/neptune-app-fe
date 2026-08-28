@@ -12,6 +12,8 @@ export type CreateNearMissRequestDto = {
   location: string;
   whatHappened: string;
   contributingFactor: string[];
+  /** Attached photo evidence, up to 10. */
+  attachments: string[];
   isDrop: boolean;
   userId: number;
   siteId: number;

@@ -5,17 +5,19 @@ import type {
   AttachmentItem,
   IncidentClosureData,
   IncidentDetailInfoItem,
+  IncidentDetailResponseAction,
   ResponderMember,
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentDetailView } from "@/components/incidents/detail/IncidentDetailView";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import {
   createInitialClosureData,
   resetClosureWizardFields,
 } from "@/components/incidents/detail/closure/closure-form-state";
-import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/closure-classification-options";
+import { toCanonicalIncidentType } from "@/forms/incident-module/closure-classification";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaMutation,
@@ -126,6 +128,9 @@ export function IncidentDetailContent(
   >([]);
   const [summaryText, setSummaryText] = useState("");
   const [responseNotes, setResponseNotes] = useState("");
+  const [responseActions, setResponseActions] = useState<
+    readonly IncidentDetailResponseAction[]
+  >([]);
   const [infoItems, setInfoItems] = useState<readonly IncidentDetailInfoItem[]>(
     [],
   );
@@ -263,9 +268,7 @@ export function IncidentDetailContent(
     setWitnesses(detail.witnesses);
     setResponders(detail.responders);
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
@@ -274,6 +277,7 @@ export function IncidentDetailContent(
     setTimelineEvents(detail.timelineEvents);
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
   }
 
@@ -310,11 +314,9 @@ export function IncidentDetailContent(
       subtitle: c.title || c.controlCategory || "",
       progressPercent:
         typeof c.progressPercent === "number" ? c.progressPercent : 0,
-      status: (c.status === "Closed" || c.status === "Verified"
-        ? "Completed"
-        : c.status === "Planning"
-          ? "Planning"
-          : "In Progress") as "Completed" | "In Progress" | "Planning",
+      // Passed through untouched. The old mapping folded five statuses into three and
+      // named two - Verified and Planning - that the API no longer has.
+      status: c.status,
     }));
     setClosureData((prev) => ({
       ...prev,
@@ -462,8 +464,17 @@ export function IncidentDetailContent(
     setActiveTab("details");
     setSummaryText(detail.summaryText);
     setResponseNotes(detail.responseNotes);
+    setResponseActions(detail.responseActions);
     setInfoItems(detail.infoItems);
     setEditScope("details");
+  };
+
+  const toggleResponseAction = (id: string) => {
+    setResponseActions((prev) =>
+      prev.map((action) =>
+        action.id === id ? { ...action, completed: !action.completed } : action,
+      ),
+    );
   };
 
   const beginEditPeople = () => {
@@ -472,9 +483,7 @@ export function IncidentDetailContent(
     }
     setActiveTab("people");
     setAffectedName(
-      detail.affectedName === "No affected person logged"
-        ? ""
-        : detail.affectedName,
+      isAffectedNamePlaceholder(detail.affectedName) ? "" : detail.affectedName,
     );
     setAffectedEmpId(detail.affectedEmpId);
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
@@ -531,6 +540,7 @@ export function IncidentDetailContent(
         const patch = applyDetailEditDraft(incidentDto, {
           summary: summaryText,
           responseNotes,
+          responseActions,
           infoItems,
         });
 
@@ -713,6 +723,8 @@ export function IncidentDetailContent(
       summaryText={summaryText}
       onChangeSummary={setSummaryText}
       responseNotes={responseNotes}
+      responseActions={responseActions}
+      onToggleResponseAction={toggleResponseAction}
       onChangeResponseNotes={setResponseNotes}
       infoItems={infoItems}
       onChangeInfoItem={(key, value) => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import { CheckboxInput } from "@/components/inputs/CheckboxInput";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -13,7 +14,7 @@ import {
   markAiAssisted,
   type ReportIncidentFormState,
   IMMEDIATE_ACTION_OPTIONS,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 
 export type ReportIncidentStepFourProps = Readonly<{
   form: ReportIncidentFormState;
@@ -79,43 +80,15 @@ export function ReportIncidentStepFour(
               }
             />
             <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {IMMEDIATE_ACTION_OPTIONS.map((action) => {
-                const isChecked = form.immediateActions.includes(action.id);
-                return (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onClick={() => toggleAction(action.id)}
-                    className={[
-                      "rounded-2.5 flex min-h-13 cursor-pointer items-center gap-3 border px-4 py-3 text-left transition-all duration-200",
-                      isChecked
-                        ? "border-ehs-normal-blue/40 bg-ehs-normal-blue/8 shadow-[0_0_0_1px_color-mix(in_oklab,var(--ehs-normal-blue)_6%,transparent)]"
-                        : "border-ehs-border bg-ehs-surface/62 hover:border-ehs-border-strong hover:bg-ehs-surface/80",
-                    ].join(" ")}
-                  >
-                    <div
-                      className={[
-                        "rounded-1 flex size-5 shrink-0 items-center justify-center border transition-colors",
-                        isChecked
-                          ? "bg-ehs-normal-blue border-ehs-normal-blue text-ehs-on-accent"
-                          : "border-ehs-border-strong bg-ehs-surface",
-                      ].join(" ")}
-                    >
-                      {isChecked && (
-                        <Icon icon="mdi:check" className="size-3.5" />
-                      )}
-                    </div>
-                    <span
-                      className={[
-                        "text-sm leading-normal font-semibold",
-                        isChecked ? "text-ehs-dark-blue" : "text-ehs-dark-bg",
-                      ].join(" ")}
-                    >
-                      {action.label}
-                    </span>
-                  </button>
-                );
-              })}
+              {IMMEDIATE_ACTION_OPTIONS.map((action) => (
+                <CheckboxInput
+                  key={action.id}
+                  variant="tile"
+                  label={action.label}
+                  checked={form.immediateActions.includes(action.id)}
+                  onChange={() => toggleAction(action.id)}
+                />
+              ))}
             </div>
           </div>
 

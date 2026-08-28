@@ -16,6 +16,12 @@ import {
 import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { Can } from "@/components/auth/Can";
+import { useCapabilities } from "@/lib/capabilities";
+import {
+  isCapaStatusClosed,
+  isCapaStatusPendingVerification,
+} from "@/lib/capa-filters";
 import { Table } from "@/components/ui/Table";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
@@ -35,6 +41,7 @@ import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toUserNameLookup } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
+  capaAttachmentRefFromFormValue,
   capaAttachmentToFormValue,
   mapCapaCommentDtoToDetailComment,
   mapCapaTaskDtoToDetailTask,
@@ -71,6 +78,8 @@ function buildTaskColumns(
       status: CapaDetailTaskStatus,
     ) => void;
     onEdit: (task: CapaDetailTask) => void;
+    /** False once the CAPA is locked - the API refuses the write, so do not offer it. */
+    canEditTasks: boolean;
   }>,
 ): ColumnDef<CapaDetailTask, unknown>[] {
   return [
@@ -159,19 +168,20 @@ function buildTaskColumns(
       id: "edit",
       header: "",
       size: 44,
-      cell: (info) => (
-        <button
-          type="button"
-          aria-label={`Edit ${info.row.original.label}`}
-          onClick={(event) => {
-            event.stopPropagation();
-            options.onEdit(info.row.original);
-          }}
-          className="text-ehs-gray hover:bg-ehs-normal-blue/8 hover:text-ehs-normal-blue inline-flex size-7 items-center justify-center rounded-lg transition-colors"
-        >
-          <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
-        </button>
-      ),
+      cell: (info) =>
+        options.canEditTasks ? (
+          <button
+            type="button"
+            aria-label={`Edit ${info.row.original.label}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              options.onEdit(info.row.original);
+            }}
+            className="text-ehs-gray hover:bg-ehs-normal-blue/8 hover:text-ehs-normal-blue inline-flex size-7 items-center justify-center rounded-lg transition-colors"
+          >
+            <Icon icon="mdi:pencil-outline" className="size-4" aria-hidden />
+          </button>
+        ) : null,
       meta: { align: "right" as const },
     }),
   ] as ColumnDef<CapaDetailTask, unknown>[];
@@ -238,6 +248,19 @@ export function CapaDetailTasksTab(
   const { record } = props;
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<CapaDetailTask | null>(null);
+
+  // Pending Verification and Closed are both locked server-side - IsLocked() refuses every
+  // task write with "CAPA cannot be updated in its current status". Offering the controls
+  // anyway turns a settled record into a series of 400s.
+  const isLocked =
+    isCapaStatusClosed(record.statusLabel) ||
+    isCapaStatusPendingVerification(record.statusLabel);
+
+  // Editing a task is CAPA.Manage, which a Worker does not hold — Add Task beside it is
+  // already wrapped in <Can>, but the row pencil was gated on the lock alone, so a Worker
+  // was offered an edit the API refuses.
+  const { can } = useCapabilities();
+
   const createCapaTaskMutation = useCreateCapaTaskMutation();
   const updateCapaTaskMutation = useUpdateCapaTaskMutation();
   const updateTaskStatusMutation = useUpdateCapaTaskStatusMutation();
@@ -261,6 +284,12 @@ export function CapaDetailTasksTab(
       ),
     [tasksQuery.data, record.owner, record.dueDate],
   );
+
+  // Nothing left to plan once every task is done - the CAPA is Completed and its next move is
+  // verification, not more work. Adding one here would drag it back to In Progress.
+  const allTasksDone =
+    tasks.length > 0 && tasks.every((task) => task.status === "Completed");
+  const canAddTask = !isLocked && !allTasksDone;
 
   async function handleStatusChange(
     task: CapaDetailTask,
@@ -297,6 +326,7 @@ export function CapaDetailTasksTab(
       void handleStatusChange(task, status);
     },
     onEdit: setEditingTask,
+    canEditTasks: !isLocked && can("CAPA.Manage"),
   });
 
   const doneCount = tasks.filter((task) => task.status === "Completed").length;
@@ -334,16 +364,20 @@ export function CapaDetailTasksTab(
             <Text as="p" className="text-ehs-gray text-base leading-5">
               0 of 0 tasks completed
             </Text>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsAddTaskOpen(true)}
-              disabled={createCapaTaskMutation.isPending}
-              className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
-            >
-              <Icon icon="mdi:plus" className="size-3" aria-hidden />
-              Add Task
-            </Button>
+            {canAddTask ? (
+              <Can do="CAPA.Manage">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsAddTaskOpen(true)}
+                  disabled={createCapaTaskMutation.isPending}
+                  className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
+                >
+                  <Icon icon="mdi:plus" className="size-3" aria-hidden />
+                  Add Task
+                </Button>
+              </Can>
+            ) : null}
           </div>
           <EmptyState
             variant="plain"
@@ -369,16 +403,20 @@ export function CapaDetailTasksTab(
               <Text as="p" className="text-ehs-gray text-base leading-5">
                 {`${String(doneCount)} of ${String(tasks.length)} tasks completed`}
               </Text>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsAddTaskOpen(true)}
-                disabled={createCapaTaskMutation.isPending}
-                className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
-              >
-                <Icon icon="mdi:plus" className="size-3" aria-hidden />
-                Add Task
-              </Button>
+              {canAddTask ? (
+                <Can do="CAPA.Manage">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setIsAddTaskOpen(true)}
+                    disabled={createCapaTaskMutation.isPending}
+                    className="border-ehs-blue/30 text-ehs-normal-blue! hover:bg-ehs-normal-blue/6 rounded-xl border bg-transparent px-3 py-2! text-sm font-medium shadow-none"
+                  >
+                    <Icon icon="mdi:plus" className="size-3" aria-hidden />
+                    Add Task
+                  </Button>
+                </Can>
+              ) : null}
             </div>
           }
         />
@@ -386,6 +424,7 @@ export function CapaDetailTasksTab(
 
       {isAddTaskOpen ? (
         <CapaDetailAddTaskModal
+          capaDueDate={record.dueDate}
           onClose={() => setIsAddTaskOpen(false)}
           isSubmitting={createCapaTaskMutation.isPending}
           onAssign={async (draft) => {
@@ -419,6 +458,7 @@ export function CapaDetailTasksTab(
 
       {editingTask ? (
         <CapaDetailAddTaskModal
+          capaDueDate={record.dueDate}
           title="Edit Task"
           confirmLabel="Save Task"
           initialDraft={{
@@ -670,10 +710,30 @@ export function CapaDetailAttachmentsTab(
       return;
     }
 
+    // The endpoint appends rows rather than replacing the set, and the form is seeded with
+    // what is already saved — posting the whole list back duplicates every existing row.
+    const alreadySaved = new Set(
+      (attachmentsQuery.data ?? [])
+        .map((file) => file.attachmentUrl.trim())
+        .filter(Boolean),
+    );
+    const added = (
+      Array.isArray(values.attachments) ? values.attachments : []
+    ).filter((entry): entry is string => {
+      if (typeof entry !== "string") return false;
+      const ref = capaAttachmentRefFromFormValue(entry);
+      return ref != null && !alreadySaved.has(ref);
+    });
+
+    if (added.length === 0) {
+      toast.info("Nothing to save", "These attachments are already saved.");
+      return;
+    }
+
     try {
       await uploadAttachmentsMutation.mutateAsync({
         capaId: record.numericId,
-        attachments: values.attachments,
+        attachments: added,
       });
       toast.success("Attachments saved");
     } catch (error) {
@@ -707,20 +767,35 @@ export function CapaDetailAttachmentsTab(
     );
   }
 
+  // A settled CAPA takes no new evidence. Comments stay open on a Closed CAPA - they are the
+  // audit trail, and people still need to record what happened afterwards - but attachments
+  // are evidence-gathering, and gathering is over. The API refuses the write either way.
+  const isLocked =
+    isCapaStatusClosed(record.statusLabel) ||
+    isCapaStatusPendingVerification(record.statusLabel);
+
   return (
     <div className="px-5.25 pt-5.25 pb-5">
-      <FormBuilder
-        key={`${record.id}-${String(attachmentsQuery.dataUpdatedAt)}-${String(userNames.size)}`}
-        formId={CAPA_ATTACHMENTS_FORM_ID}
-        schema={CAPA_ATTACHMENTS_SCHEMA}
-        initialValues={initialValues}
-        submitLabel="Save Attachments"
-        isSubmitting={uploadAttachmentsMutation.isPending}
-        className="gap-5!"
-        onSubmit={(values) => {
-          void handleSubmit(values);
-        }}
-      />
+      {isLocked ? (
+        <Text as="p" className="text-ehs-muted-text text-base">
+          {initialValues.attachments && Array.isArray(initialValues.attachments)
+            ? "This CAPA is closed to new attachments. The files above are kept as its record."
+            : "No attachments were added before this CAPA was closed."}
+        </Text>
+      ) : (
+        <FormBuilder
+          key={`${record.id}-${String(attachmentsQuery.dataUpdatedAt)}-${String(userNames.size)}`}
+          formId={CAPA_ATTACHMENTS_FORM_ID}
+          schema={CAPA_ATTACHMENTS_SCHEMA}
+          initialValues={initialValues}
+          submitLabel="Save Attachments"
+          isSubmitting={uploadAttachmentsMutation.isPending}
+          className="gap-5!"
+          onSubmit={(values) => {
+            void handleSubmit(values);
+          }}
+        />
+      )}
     </div>
   );
 }

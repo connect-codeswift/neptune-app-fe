@@ -1,19 +1,25 @@
 "use client";
 
-import { Icon } from "@iconify/react";
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   SelectInput,
   type SelectOption,
 } from "@/components/inputs/SelectInput";
 import { TextInput } from "@/components/inputs/TextInput";
+import { DateInput } from "@/components/inputs/DateInput";
+import {
+  cantBePast,
+  isoToMmDdYyyy,
+  mmDdYyyyToIso,
+  todayIsoDate,
+} from "@/lib/date-time-field";
 import { UploadDocumentDropzone } from "@/components/policy-maker";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { UserPickerInput } from "@/components/inputs/UserPickerInput";
 import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
@@ -27,17 +33,6 @@ const textFieldClass = [
   "!text-ehs-dark-bg placeholder:!text-ehs-muted-text",
 ].join(" ");
 const selectFieldClass = [fieldShellClass, "!h-9"].join(" ");
-const dateFieldClass = [
-  fieldShellClass,
-  "!h-[38px] !w-full appearance-none pr-10",
-  "[&::-webkit-calendar-picker-indicator]:hidden",
-  "[&::-webkit-datetime-edit]:text-inherit",
-  "[&::-webkit-datetime-edit-fields-wrapper]:text-inherit",
-  "[&::-webkit-datetime-edit-text]:text-inherit",
-  "[&::-webkit-datetime-edit-month-field]:text-inherit",
-  "[&::-webkit-datetime-edit-day-field]:text-inherit",
-  "[&::-webkit-datetime-edit-year-field]:text-inherit",
-].join(" ");
 const titleFieldClass = [
   fieldShellClass,
   "!h-[38px] !text-ehs-dark-bg placeholder:!text-ehs-muted-text",
@@ -45,25 +40,6 @@ const titleFieldClass = [
 
 const formCardClass =
   "relative w-full rounded-4 border border-ehs-hairline/90 bg-ehs-surface/62 p-6 shadow-(--ehs-shadow-panel) backdrop-blur-2.5 before:pointer-events-none before:absolute before:inset-0 before:rounded-4";
-
-/** Figma EHSS-Web node 3326:20854 — stash:data-date */
-function openDatePicker(input: HTMLInputElement | null) {
-  if (!input || input.disabled) {
-    return;
-  }
-
-  if (typeof input.showPicker === "function") {
-    try {
-      input.showPicker();
-      return;
-    } catch {
-      // Fall through when showPicker is blocked.
-    }
-  }
-
-  input.focus();
-  input.click();
-}
 
 const CATEGORY_OPTIONS: readonly SelectOption[] = [
   { value: "Regulatory", label: "Regulatory" },
@@ -100,13 +76,6 @@ const JURISDICTION_OPTIONS: readonly SelectOption[] = [
   { value: "Local", label: "Local" },
 ];
 
-function todayInputValue(): string {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${String(now.getFullYear())}-${month}-${day}`;
-}
-
 function isPdfFile(file: File): boolean {
   return isPdfMimeType(file.type) || file.name.toLowerCase().endsWith(".pdf");
 }
@@ -117,16 +86,21 @@ function optionLabel(options: readonly SelectOption[], value: string): string {
 
 export function AddObligationForm() {
   const router = useRouter();
-  const dueDateInputRef = useRef<HTMLInputElement>(null);
-  const usersQuery = useUserDropdownQuery();
   const addComplianceMutation = useAddComplianceMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [regulatoryBody, setRegulatoryBody] = useState("");
-  const [dueDate, setDueDate] = useState(todayInputValue());
+  const [dueDate, setDueDate] = useState(todayIsoDate());
   const [recurrence, setRecurrence] = useState("");
-  const [responsiblePerson, setResponsiblePerson] = useState("");
+  const [responsiblePerson, setResponsiblePerson] = useState({
+    userId: "",
+    name: "",
+  });
   const [priority, setPriority] = useState("");
   const [jurisdiction, setJurisdiction] = useState("");
   const [code, setCode] = useState("");
@@ -135,11 +109,6 @@ export function AddObligationForm() {
   const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
-
-  const userOptions = useMemo(
-    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
-    [usersQuery.data?.dataModel],
-  );
 
   const handleCancel = () => {
     router.push("/dashboard/regulatory-compliance/calendar");
@@ -217,13 +186,14 @@ export function AddObligationForm() {
       toast.error("Missing due date", "Select a due date.");
       return;
     }
-    // The form is noValidate, so `min` on the input only greys the calendar
-    // out — a typed or pasted date still reaches here.
-    if (dueDate < todayInputValue()) {
-      toast.error("Due date in the past", "Pick today or a later date.");
+    // The form is noValidate, so the bound only greys the calendar out — a
+    // typed or pasted date still reaches here.
+    const dueDateCheck = cantBePast(dueDate, "Due date");
+    if (dueDateCheck.error) {
+      toast.error(dueDateCheck.error, "Pick today or a later date.");
       return;
     }
-    if (!responsiblePerson) {
+    if (!responsiblePerson.userId) {
       toast.error(
         "Missing responsible person",
         "Select who owns this obligation.",
@@ -231,12 +201,16 @@ export function AddObligationForm() {
       return;
     }
 
-    const responsiblePersonId = Number(responsiblePerson);
+    const responsiblePersonId = Number(responsiblePerson.userId);
     if (!Number.isFinite(responsiblePersonId) || responsiblePersonId <= 0) {
       toast.error(
         "Invalid responsible person",
         "Select a valid user from the list.",
       );
+      return;
+    }
+
+    if (!submitLock.acquire()) {
       return;
     }
 
@@ -262,6 +236,7 @@ export function AddObligationForm() {
           router.push("/dashboard/regulatory-compliance/calendar");
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             "Could not save compliance item",
             getMutationErrorMessage(error, "Please try again."),
@@ -271,7 +246,7 @@ export function AddObligationForm() {
     );
   };
 
-  const isSubmitting = addComplianceMutation.isPending;
+  const isSubmitting = submitLock.isLocked;
   const busy = isSubmitting || isUploadingPdf;
 
   return (
@@ -321,40 +296,18 @@ export function AddObligationForm() {
             />
 
             <div className={fieldWrapperClass}>
-              <label htmlFor="obligation-due-date" className={fieldLabelClass}>
-                Due Date *
-              </label>
-              <div className="relative w-full">
-                <input
-                  ref={dueDateInputRef}
-                  id="obligation-due-date"
-                  type="date"
-                  value={dueDate}
-                  // An obligation is a deadline, so today is the earliest one
-                  // that means anything — POST /api/Compliance rejects the rest.
-                  min={todayInputValue()}
-                  onChange={(event) => setDueDate(event.target.value)}
-                  required
-                  disabled={busy}
-                  className={[
-                    dateFieldClass,
-                    dueDate ? "!text-ehs-dark-bg" : "!text-ehs-muted-text",
-                  ].join(" ")}
-                />
-                <button
-                  type="button"
-                  onClick={() => openDatePicker(dueDateInputRef.current)}
-                  disabled={busy}
-                  aria-label="Open calendar"
-                  className="absolute top-1/2 right-2 size-6 -translate-y-1/2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Icon
-                    icon="stash:data-date"
-                    className="text-ehs-gray size-6"
-                    aria-hidden="true"
-                  />
-                </button>
-              </div>
+              <DateInput
+                id="obligation-due-date"
+                label="Due Date"
+                required
+                variant="embedded"
+                value={isoToMmDdYyyy(dueDate)}
+                onChange={(next) => setDueDate(mmDdYyyyToIso(next))}
+                // An obligation is a deadline, so today is the earliest one
+                // that means anything — POST /api/Compliance rejects the rest.
+                minDate={isoToMmDdYyyy(cantBePast().bound)}
+                quickPicks={["today"]}
+              />
             </div>
 
             <SelectInput
@@ -369,19 +322,14 @@ export function AddObligationForm() {
               className={selectFieldClass}
             />
 
-            <SelectInput
-              label="Responsible Person *"
-              placeholder={
-                usersQuery.isLoading ? "Loading users…" : "Select an option ()"
-              }
-              options={userOptions}
-              value={responsiblePerson}
-              onChange={(event) => setResponsiblePerson(event.target.value)}
+            <UserPickerInput
+              label="Responsible Person"
               required
-              disabled={busy || usersQuery.isLoading}
-              labelClassName={fieldLabelClass}
-              wrapperClassName={fieldWrapperClass}
-              className={selectFieldClass}
+              placeholder="Search people…"
+              source="org"
+              value={responsiblePerson}
+              onChange={setResponsiblePerson}
+              disabled={busy}
             />
 
             <SelectInput

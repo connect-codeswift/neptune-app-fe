@@ -10,7 +10,6 @@ import {
   type ReactNode,
   type TextareaHTMLAttributes,
 } from "react";
-import { Text } from "@/components/Text";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import {
   FIELD_INPUT_CLASS,
@@ -20,65 +19,22 @@ import {
 
 const fieldInputClass = FIELD_INPUT_CLASS;
 
-export type ReportFieldLabelProps = Readonly<{
-  label: string;
-  required?: boolean;
-  hint?: string;
-  trailing?: ReactNode;
-}>;
+export {
+  FieldLabel as ReportFieldLabel,
+  FieldHint as ReportFieldHint,
+  FieldError as ReportFieldError,
+} from "@/components/ui/field-primitives";
+export type {
+  FieldLabelProps as ReportFieldLabelProps,
+  FieldHintProps as ReportFieldHintProps,
+  FieldErrorProps as ReportFieldErrorProps,
+} from "@/components/ui/field-primitives";
 
-export function ReportFieldLabel(props: Readonly<ReportFieldLabelProps>) {
-  const { label, required = false, hint, trailing } = props;
-
-  return (
-    <div className="flex min-h-7 flex-wrap items-end gap-1.5">
-      <Text as="span" className="text-ehs-slate text-sm font-bold">
-        {label}
-      </Text>
-      {required ? (
-        <Text as="span" className="text-ehs-red text-sm">
-          *
-        </Text>
-      ) : null}
-      {hint ? (
-        <span className="text-ehs-muted-text inline-flex items-center gap-1 text-xs">
-          <Icon
-            icon="mdi:information-outline"
-            className="size-3"
-            aria-hidden="true"
-          />
-          {hint}
-        </span>
-      ) : null}
-      {trailing ? <span className="ml-auto">{trailing}</span> : null}
-    </div>
-  );
-}
-
-export type ReportFieldErrorProps = Readonly<{
-  id?: string;
-  children: string;
-}>;
-
-/**
- * Inline validation message under a field. Pair it with `aria-invalid` and an
- * `aria-describedby` pointing at this `id` — the red text alone says nothing to
- * a screen reader, and `FIELD_BASE` already styles the border off `aria-invalid`.
- */
-export function ReportFieldError(props: Readonly<ReportFieldErrorProps>) {
-  const { id, children } = props;
-
-  return (
-    <p id={id} className="text-ehs-red text-2.75 flex items-start gap-1">
-      <Icon
-        icon="mdi:alert-circle-outline"
-        className="mt-px size-3 shrink-0"
-        aria-hidden="true"
-      />
-      <span className="min-w-0">{children}</span>
-    </p>
-  );
-}
+import {
+  FieldLabel as ReportFieldLabel,
+  FieldHint as ReportFieldHint,
+  FieldError as ReportFieldError,
+} from "@/components/ui/field-primitives";
 
 export type ReportTextFieldProps = Readonly<
   Omit<InputHTMLAttributes<HTMLInputElement>, "className"> & {
@@ -107,17 +63,7 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
-      />
+      <ReportFieldLabel label={label} required={required} />
       <div className="relative">
         <input
           id={id}
@@ -132,11 +78,8 @@ export function ReportTextField(props: Readonly<ReportTextFieldProps>) {
           />
         ) : null}
       </div>
-      {helperText ? (
-        <Text as="p" className="text-ehs-muted-text text-xs">
-          {helperText}
-        </Text>
-      ) : null}
+      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
+      {helperText ? <ReportFieldHint>{helperText}</ReportFieldHint> : null}
     </div>
   );
 }
@@ -279,19 +222,7 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        hint={hint}
-        trailing={
-          trailing ??
-          (trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
-              {trailingHint}
-            </Text>
-          ) : undefined)
-        }
-      />
+      <ReportFieldLabel label={label} required={required} trailing={trailing} />
 
       <div className="relative">
         <button
@@ -384,6 +315,12 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           </ul>
         ) : null}
       </div>
+      {hint && !error ? (
+        <ReportFieldHint withIcon>{hint}</ReportFieldHint>
+      ) : null}
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );
@@ -419,17 +356,7 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
-      />
+      <ReportFieldLabel label={label} required={required} />
       <div className="relative z-0">
         <textarea
           id={id}
@@ -442,6 +369,7 @@ export function ReportTextareaField(props: Readonly<ReportTextareaFieldProps>) {
         />
         {assistant}
       </div>
+      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
     </div>
   );
 }

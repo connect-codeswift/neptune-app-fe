@@ -30,7 +30,7 @@ export type BuildTrainingSessionSchemaArgs = Readonly<{
   attendeeOptions: readonly SelectOption[];
   siteId: number;
   siteName: string | null;
-  usersSource: "site" | "dropdown";
+  usersSource: "site" | "org";
 }>;
 
 /** Schedule Training — POST /api/v1/hazcom/trainings. */
@@ -68,8 +68,7 @@ export function buildTrainingSessionSchema(
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,
-      // Must be a picked person, not free text.
-      selectionOnly: true,
+      // Must be a picked person, not free text — `allowFreeText` stays off.
     },
     {
       type: "text",
@@ -84,9 +83,11 @@ export function buildTrainingSessionSchema(
       label: "Attendees",
       colSpan: 12,
       placeholder: "Select attendees…",
-      options: args.attendeeOptions,
+      usersSource: args.usersSource,
+      siteId: args.siteId,
+      siteName: args.siteName,
       // The API takes `attendeeIds` (a real FK array), so picks are limited
-      // to real users — no free-typed name to fall back to.
+      // to real users — `allowFreeText` stays off.
     },
     {
       type: "photo",
@@ -190,7 +191,7 @@ function toTrainingLogFields(
     return { error: "Session Date is required" };
   }
 
-  // `trainerId` is populated by the person picker's `selectionOnly` guard —
+  // `trainerId` is populated by the person picker's `allowFreeText` guard —
   // a typed-but-unmatched name is cleared on blur, so a non-empty value here
   // is always a real picked user.
   const trainerId = Number(String(values.trainerId ?? "").trim());

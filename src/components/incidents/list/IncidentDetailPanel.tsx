@@ -280,8 +280,8 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
 
       {isAddCapaOpen ? (
         <AddCapaModal
-          incidentId={incident.id}
-          incidentTitle={incident.title}
+          sourceLabel={incident.id}
+          sourceTitle={incident.title}
           isSubmitting={createCapaMutation.isPending}
           onClose={() => setIsAddCapaOpen(false)}
           onSubmit={handleSubmitCapa}

@@ -12,11 +12,12 @@ import {
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
   formatBodyPartSelection,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateIncidentMutation } from "@/hooks/use-incident-mutations";
 import { getAccessToken } from "@/lib/axios";
 import { toast } from "@/lib/toast";
@@ -104,6 +105,11 @@ export function ReportIncidentStepFive(
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const submitErrors = attemptedSubmit ? getReportFormErrors(form) : null;
 
+  // Held past the response, not just the request: `isPending` drops the
+  // instant the incident is created while `router.push` is still fetching the
+  // next route, and a click in that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
+
   const handleSubmit = async () => {
     if (!getAccessToken()) {
       toast.error("Sign in required", "Please sign in to submit an incident.");
@@ -114,6 +120,10 @@ export function ReportIncidentStepFive(
     const errors = getReportFormErrors(form);
     if (hasReportFormErrors(errors)) {
       setAttemptedSubmit(true);
+      return;
+    }
+
+    if (!submitLock.acquire()) {
       return;
     }
 
@@ -133,6 +143,7 @@ export function ReportIncidentStepFive(
 
       router.push("/dashboard/incidents/list");
     } catch (error) {
+      submitLock.release();
       toast.error(
         "Submit failed",
         getMutationErrorMessage(
@@ -344,7 +355,7 @@ export function ReportIncidentStepFive(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              disabled={createIncidentMutation.isPending}
+              disabled={submitLock.isLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
@@ -364,10 +375,10 @@ export function ReportIncidentStepFive(
               type="button"
               variant="primary"
               onClick={() => void handleSubmit()}
-              disabled={createIncidentMutation.isPending}
+              disabled={submitLock.isLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
-              {createIncidentMutation.isPending ? (
+              {submitLock.isLocked ? (
                 <>
                   Submitting…
                   <Icon

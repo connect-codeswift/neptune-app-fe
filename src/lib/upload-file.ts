@@ -2,6 +2,7 @@ import type { FileModule } from "@/dtos/req/files-request.dto";
 import {
   formatFileSize,
   isPdfMimeType,
+  normaliseContentType,
   validateFileForModule,
 } from "@/lib/files";
 import {
@@ -46,7 +47,7 @@ export async function uploadFile(
   file: File,
   options: UploadFileOptions,
 ): Promise<FileUploadResult> {
-  const contentType = file.type.trim() || "application/octet-stream";
+  const contentType = normaliseContentType(file.type);
   const validationError = validateFileForModule(file, options.module);
   if (validationError) {
     throw new Error(validationError);
@@ -73,8 +74,14 @@ export async function uploadFile(
     if (thumbnail && intent.thumbnailUploadUrl) {
       await putObject(intent.thumbnailUploadUrl, thumbnail, "image/jpeg");
     }
-  } catch {
-    throw new Error("Upload was not completed");
+  } catch (error) {
+    // Rethrown as it arrived. The bucket's status is the whole diagnosis — 403
+    // for a signature or a missing CORS rule, a TypeError for a blocked
+    // preflight — and flattening all of it into one sentence left "images are
+    // failing" as the most anyone reporting this could say.
+    throw error instanceof Error
+      ? error
+      : new Error("Upload was not completed");
   }
 
   const fileId = await commitFile(intent.fileId);

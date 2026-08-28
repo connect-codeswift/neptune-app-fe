@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type {
@@ -41,9 +42,14 @@ function DetailValue(props: Readonly<{ value: string }>) {
 }
 
 export function NearMissDetailView(
-  props: Readonly<{ record: NearMissRecord }>,
+  props: Readonly<{ record: NearMissRecord; onAddCapa?: () => void }>,
 ) {
-  const { record } = props;
+  const { record, onAddCapa } = props;
+
+  // The record id the API knows, dug out of the display id ("HZ-12" -> 12). Both records
+  // carry their id already formatted for the header, and re-fetching just to recover the
+  // number would be a request to learn something the string already says.
+  const nearMissSourceId = Number(record.id.replace(/^\D+/, "")) || 0;
 
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
@@ -55,6 +61,11 @@ export function NearMissDetailView(
           <DetailField label="What happened">
             <DetailValue value={record.description || "—"} />
           </DetailField>
+          {record.attachments.length > 0 ? (
+            <DetailField label="Attachments">
+              <PhotoEvidence refs={record.attachments} />
+            </DetailField>
+          ) : null}
           <DetailField label="Contributing Factors">
             {record.contributingFactors.length > 0 ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -93,6 +104,17 @@ export function NearMissDetailView(
             <DetailField label="Reporter">
               <DetailValue value={record.reporter} />
             </DetailField>
+            {record.status === "Closed" ? (
+              <DetailField label="Closed by">
+                <DetailValue
+                  value={
+                    record.closedAt
+                      ? `${record.closedBy ?? "—"} · ${record.closedAt}`
+                      : (record.closedBy ?? "—")
+                  }
+                />
+              </DetailField>
+            ) : null}
           </div>
         </IncidentGlassCard>
       </div>
@@ -103,12 +125,18 @@ export function NearMissDetailView(
             <Text as="h3" className={sectionHeadingClass}>
               Related CAPAs
             </Text>
-            <Link
-              href={CAPA_NEW_ROUTE}
-              className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover transition-colors"
-            >
-              Add CAPA
-            </Link>
+            {/* A modal rather than a link to /capa/new, so raising a CAPA does not leave the
+                near miss. Hidden once closed: the API refuses a CAPA against a closed record,
+                and closing already requires every related CAPA to be closed. */}
+            {onAddCapa && record.status !== "Closed" ? (
+              <button
+                type="button"
+                onClick={onAddCapa}
+                className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
+              >
+                Add CAPA
+              </button>
+            ) : null}
           </div>
 
           {record.relatedCapas.length > 0 ? (
@@ -116,7 +144,7 @@ export function NearMissDetailView(
               {record.relatedCapas.map((capa) => (
                 <Link
                   key={capa.id}
-                  href="/dashboard/capa"
+                  href={`/dashboard/capa/${String(capa.numericId)}`}
                   className="bg-ehs-form-classes-bg/70 hover:bg-ehs-form-classes-bg/95 flex flex-col gap-0.5 rounded-lg p-2.5 transition-colors"
                 >
                   <Text as="span" className="text7 text-ehs-normal-blue">

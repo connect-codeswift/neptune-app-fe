@@ -15,6 +15,7 @@ import {
   useCapaWorkloadByOwnerQuery,
 } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useCapabilities } from "@/lib/capabilities";
 import { capaStatusPillClass } from "@/lib/capa-filters";
 import { canVerifyCapa, isCapaOwnedByCurrentUser } from "@/lib/current-user";
 import { ehsButtonBaseClass, ehsButtonSecondaryClass } from "@/lib/ehs-classes";
@@ -248,7 +249,16 @@ function AwaitingReviewList(props: AwaitingReviewListProps) {
 /** Workload + awaiting effectiveness review — Figma 7123:42581. */
 export function CapaDashboardFooterCards() {
   const hasToken = useHasAccessToken();
-  const workloadQuery = useCapaWorkloadByOwnerQuery(hasToken === true);
+
+  // Both cards read endpoints requiring CAPA.Dashboard.View, which a Worker does not hold.
+  // Rendered anyway they 403 and settle into their empty state, so a Worker was shown an
+  // "Awaiting Effectiveness Review" queue reading 0 for work they cannot review at all.
+  const { can, isReady } = useCapabilities();
+  const isPermitted = !isReady || can("CAPA.Dashboard.View");
+
+  const workloadQuery = useCapaWorkloadByOwnerQuery(
+    hasToken === true && isPermitted,
+  );
 
   const showWorkloadSkeleton =
     hasToken === null ||
@@ -258,6 +268,11 @@ export function CapaDashboardFooterCards() {
     workloadQuery.data?.owners ?? mapCapaWorkloadByOwnerToView(null).owners;
   const previewOwners = owners.slice(0, WORKLOAD_PREVIEW_LIMIT);
   const maxOpen = Math.max(...previewOwners.map((owner) => owner.openCount), 1);
+
+  // After the hooks above, never before them.
+  if (isReady && !isPermitted) {
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">

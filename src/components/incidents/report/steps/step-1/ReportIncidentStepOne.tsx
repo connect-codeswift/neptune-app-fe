@@ -8,7 +8,6 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   classificationFieldsForStepOne,
-  GENDER_OPTIONS,
   normalizeGender,
   oshaRecordableForSeverity,
   seriousFieldLabelForSeverity,
@@ -17,15 +16,14 @@ import {
   usesSiaSipToggle,
   type ReportIncidentFormState,
   type SeverityId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportClassificationToggle } from "@/components/incidents/report/shared/ReportClassificationToggle";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
-import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
+import { DateInput } from "@/components/inputs/DateInput";
 import {
-  ReportPersonSearchField,
-  type ReportPersonSelection,
-} from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { ReportSiteField } from "@/components/incidents/report/shared/ReportSiteField";
+  UserPickerInput,
+  type UserPickerValue,
+} from "@/components/inputs/UserPickerInput";
+import type { UserOption } from "@/components/inputs/user-option";
 import { ReportLocationsField } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportTimeField } from "@/components/incidents/report/shared/ReportTimeField";
 import {
@@ -35,7 +33,7 @@ import {
   startOfDay,
   today,
   todayMmDdYyyy,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 import { ReportSeverityPicker } from "@/components/incidents/report/steps/step-1/ReportSeverityPicker";
 import { useCurrentSite } from "@/hooks/use-current-site";
 import { userGenderQueryKey } from "@/hooks/use-user-queries";
@@ -90,31 +88,30 @@ function validateTiming(form: ReportIncidentFormState): ReportTimingErrors {
   const reportDate = parseMmDdYyyy(form.reportDate);
   const incidentTime = parseTimeInput(form.incidentTime);
 
-  // The incident date is deliberately unbounded — only its shape is checked.
-  // Backdating and forward-dating are both legitimate here, so the only thing
-  // that can be wrong with it is not being a date.
-  const incidentDateError =
-    isComplete(form.incidentDate) && !incidentDate
-      ? "That isn't a real date — try 03/14/2026."
-      : null;
+  // An incident is a record of something that already happened, so today is the
+  // ceiling. The calendar greys later days out, but the field also accepts
+  // typed input — this is the check that actually holds.
+  let incidentDateError: string | null = null;
+  if (isComplete(form.incidentDate) && !incidentDate) {
+    incidentDateError = "That isn't a real date — try 03/14/2026.";
+  } else if (incidentDate && incidentDate > todayDate) {
+    incidentDateError = "The incident date can't be in the future.";
+  }
 
   const incidentTimeError =
     form.incidentTime.trim() && !incidentTime ? "Try 14:30 or 2:30 PM." : null;
 
-  // Like the incident date, the report date is unbounded in both directions —
-  // only its shape is checked, plus the one rule below that relates it to the
-  // incident.
+  // Same ceiling as the incident date — a report is filed on or after the day
+  // it describes, never before either of them has happened.
   let reportDateError: string | null = null;
   if (isComplete(form.reportDate) && !reportDate) {
     reportDateError = "That isn't a real date — try 03/14/2026.";
+  } else if (reportDate && reportDate > todayDate) {
+    reportDateError = "The report date can't be in the future.";
   } else if (
     reportDate &&
     incidentDate &&
     !incidentDateError &&
-    // Only meaningful for an incident that has already happened. A
-    // forward-dated one is reported before it occurs by definition, so this
-    // rule would fire on a perfectly valid entry.
-    incidentDate <= todayDate &&
     reportDate < startOfDay(incidentDate)
   ) {
     reportDateError = "A report can't predate the incident it describes.";
@@ -236,9 +233,10 @@ export function ReportIncidentStepOne(
   // before the first lookup lands must not let the slower answer win.
   const genderRequestRef = useRef("");
 
-  // Plant / Location is the reporter's own site, not a question. Stamped here
-  // rather than in the initial form state because the site name arrives with
-  // the session query, which resolves after this form first renders.
+  // The site is the reporter's own and was never a question — the field only
+  // ever displayed it, so it is gone from the form. The value is still stamped
+  // here, because the record needs it: the site name arrives with the session
+  // query, which resolves after this form first renders.
   useEffect(() => {
     if (!site.name || form.location === site.name) {
       return;
@@ -271,9 +269,10 @@ export function ReportIncidentStepOne(
   }, [form.reportedBy, form.reporterEmail, form.reportDate, onChange]);
 
   const timing = validateTiming(form);
-  // The report date floor tracks the incident date, but only when that is a
-  // real date in the past: an unparseable one would disable the whole calendar,
-  // and a forward-dated incident is reported before it happens by definition.
+  // Both date fields are capped at today. The report date additionally floors
+  // at the incident date, but only when that parses and is itself in range —
+  // an unreadable or forward-dated one would otherwise disable the calendar.
+  const maxDate = todayMmDdYyyy();
   const incidentDate = parseMmDdYyyy(form.incidentDate);
   const minReportDate =
     incidentDate && incidentDate <= today()
@@ -281,16 +280,19 @@ export function ReportIncidentStepOne(
       : undefined;
 
   /**
-   * The affected person's own record answers the Gender question, so it isn't
-   * asked twice.
+   * The affected person's own record answers the Gender question, so the form
+   * no longer asks it — the field was cosmetic, sitting beside the very picker
+   * that fills it. The value is still resolved here and still reaches the API;
+   * it is only the input that is gone.
    *
    * Changing the person invalidates a gender that was read off the previous
    * one — it describes somebody else, and leaving it would quietly attribute
-   * one colleague's gender to another on a regulated record. An answer the
-   * reporter chose themselves is theirs and survives: that is the whole reason
-   * `genderFromProfile` tracks where the value came from.
+   * one colleague's gender to another on a regulated record.
    */
-  const handlePersonChange = (person: ReportPersonSelection) => {
+  const handlePersonChange = (
+    person: UserPickerValue,
+    user: UserOption | null,
+  ) => {
     const identity = {
       affectedPerson: person.name,
       affectedPersonId: person.userId,
@@ -298,9 +300,10 @@ export function ReportIncidentStepOne(
 
     // The roster row already knows — no lookup needed. This is the path taken
     // once `GET /api/v1/sites/{siteId}/users` projects `gender`.
-    if (person.gender) {
+    const genderFromRow = normalizeGender(user?.gender ?? "");
+    if (genderFromRow) {
       genderRequestRef.current = person.userId;
-      onChange({ ...identity, gender: person.gender, genderFromProfile: true });
+      onChange({ ...identity, gender: genderFromRow, genderFromProfile: true });
       return;
     }
 
@@ -450,64 +453,25 @@ export function ReportIncidentStepOne(
         />
 
         <div className="flex flex-col pt-4.5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
-            <ReportSelectField
-              label="Gender"
-              required
-              // Says why the field answered itself, because a value that
-              // appears without being typed reads as a bug otherwise. An icon
-              // rather than the words "From their profile": this column is
-              // 180px, and the text wrapped onto a second line, which grew the
-              // label and dropped this input below Affected person's.
-              trailing={
-                form.genderFromProfile ? (
-                  <span
-                    title="Filled from this person's profile"
-                    className="text-ehs-dark-blue inline-flex items-center"
-                  >
-                    <Icon
-                      icon="mdi:account-check-outline"
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">
-                      Filled from this person&apos;s profile
-                    </span>
-                  </span>
-                ) : undefined
-              }
-              value={form.gender}
-              onChange={(gender) => {
-                // Their answer wins over any lookup still in flight.
-                genderRequestRef.current = "";
-                onChange({ gender, genderFromProfile: false });
-              }}
-              options={[...GENDER_OPTIONS]}
-            />
-
-            <ReportPersonSearchField
+          <div className="grid grid-cols-1 gap-3">
+            <UserPickerInput
               label="Affected person"
               required
-              value={form.affectedPerson}
-              selectedUserId={form.affectedPersonId}
+              value={{
+                userId: form.affectedPersonId,
+                name: form.affectedPerson,
+              }}
               onChange={handlePersonChange}
               siteId={site.id}
               siteName={site.name}
               trailingHint="Search people at your site."
               placeholder="Start typing a name…"
+              // A contractor, agency worker or visitor with no account is
+              // exactly the person you most need on the record.
+              allowFreeText
               error={fieldErrors?.affectedPerson ?? null}
             />
           </div>
-
-          <ReportSiteField
-            label="Plant / Location"
-            required
-            value={form.location}
-            onChange={(location) => onChange({ location })}
-            siteName={site.name}
-            isLoading={site.isLoading}
-            className="pt-3"
-          />
 
           <ReportLocationsField
             locations={form.incidentLocations ?? []}
@@ -520,13 +484,13 @@ export function ReportIncidentStepOne(
           />
 
           <div className="grid grid-cols-1 items-start gap-3 pt-3 sm:grid-cols-3 sm:gap-x-3">
-            <ReportDateField
+            <DateInput
               label="Date of Incident"
               required
               value={form.incidentDate}
               onChange={(incidentDate) => onChange({ incidentDate })}
-              // Intentionally unbounded: the calendar opens on any date, past
-              // or future.
+              // Capped at today — an incident can only have already happened.
+              maxDate={maxDate}
               quickPicks={["today", "yesterday"]}
               error={fieldErrors?.incidentDate ?? timing.incidentDate}
               className="pb-1.5 sm:pb-4.5"
@@ -540,14 +504,15 @@ export function ReportIncidentStepOne(
               error={fieldErrors?.incidentTime ?? timing.incidentTime}
               className="pb-1.5 sm:pb-4.5"
             />
-            <ReportDateField
+            <DateInput
               label="Report Date"
               required
               value={form.reportDate}
               onChange={(reportDate) => onChange({ reportDate })}
-              // Floored at the incident date when that is in the past, and
-              // otherwise unbounded — a report can be dated forward.
+              // Floored at the incident date when there is one, capped at
+              // today either way.
               minDate={minReportDate}
+              maxDate={maxDate}
               quickPicks={["today"]}
               error={fieldErrors?.reportDate ?? timing.reportDate}
               className="pb-1.5 sm:pb-4.5"

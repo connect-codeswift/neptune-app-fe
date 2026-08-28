@@ -242,39 +242,34 @@ export function canManagePpeInventory(): boolean {
   return holds("PPE.Create");
 }
 
-/** Normalize a role label for comparison: lowercase, single-spaced. */
-function normalizeRole(role: string): string {
-  return role.trim().toLowerCase().replace(/[-_]+/g, " ").replace(/\s+/g, " ");
+/**
+ * True when the signed-in user may verify and close a CAPA.
+ *
+ * `CAPA.Verify` — the grant `POST /api/v1/capas/{capaId}/verification` requires. This used
+ * to be a hardcoded role list mirroring `CAPARepository.IsLeadership()`. That function no
+ * longer exists: the repository now asks for this same permission, because
+ * `PermissionSatisfiesRoleHandler` makes the permission the real gate on every endpoint,
+ * and a custom role built in Roles & Rights can never match a list compiled from `AppRole`.
+ *
+ * It is its own grant rather than `CAPA.Update` for one reason: Supervisor holds Update, so
+ * gating on that would have let a Supervisor sign off their own site's CAPAs.
+ *
+ * A UX affordance only — the API enforces the same grant, plus "verifier must be different
+ * from the action owner" (see {@link isCapaOwnedByCurrentUser}).
+ */
+export function canVerifyCapa(): boolean {
+  return holds("CAPA.Verify");
 }
 
 /**
- * Roles the backend lets sign off a CAPA verification — `CAPARepository.IsLeadership()`
- * matches `Ehs_Director`, `Ehs_Lead` and `Ehs_Manager` on POST
- * /api/v1/capas/{capaId}/verification. Both the `Ehs_`-prefixed claim and the bare
- * `Lead` label are listed because tenants seeded before the role rename still emit
- * the short form.
+ * True when the signed-in user may add, edit or remove a CAPA's tasks.
  *
- * This one stays a role check on purpose, unlike the permission gates above: the API's
- * rule here really is a role list (`IsLeadership()`), not a `[HasPermission]`, so
- * mirroring it with `holds()` would gate on something the backend never consults.
+ * `CAPA.Manage` — the supervisory tier. Worker holds `CAPA.Update` and keeps the task
+ * status dropdown, but not this: tasks are set by whoever plans the action, not by whoever
+ * works it.
  */
-const CAPA_VERIFIER_ROLES: readonly string[] = [
-  "ehs director",
-  "ehs lead",
-  "ehs manager",
-  "lead",
-];
-
-/**
- * True when the signed-in user may verify and close a CAPA. Supervisors and
- * Workers can see the review queue but never sign one off.
- *
- * This is a UX affordance only — the API enforces the same rule, plus
- * "verifier must be different from the action owner" (see {@link isCapaOwnedByCurrentUser}).
- */
-export function canVerifyCapa(): boolean {
-  const { role } = getCurrentUser();
-  return role !== null && CAPA_VERIFIER_ROLES.includes(normalizeRole(role));
+export function canManageCapaTasks(): boolean {
+  return holds("CAPA.Manage");
 }
 
 /**

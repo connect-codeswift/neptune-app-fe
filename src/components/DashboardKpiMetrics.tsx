@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/MetricCard";
 import { useMainDashboardKpisQuery } from "@/hooks/use-dashboard-queries";
 import { getAccessToken } from "@/lib/axios";
+import { useCapabilities } from "@/lib/capabilities";
 import {
   DEFAULT_DASHBOARD_KPIS,
   mapDashboardKpisToMetrics,
@@ -29,10 +30,20 @@ export function DashboardKpiMetrics() {
     () => null,
   );
 
-  const kpisQuery = useMainDashboardKpisQuery(hasToken === true);
+  // Both command-center reads require CommandCenter.View, which a Worker does not hold.
+  // Rendered anyway they fetch, 403 and print the failure on the dashboard - the same defect
+  // as the trends card beside them. Hiding is a UX affordance; the API still refuses.
+  const { can, isReady } = useCapabilities();
+  const isPermitted = !isReady || can("CommandCenter.View");
 
-  if (hasToken === null || (hasToken && kpisQuery.isLoading)) {
+  const kpisQuery = useMainDashboardKpisQuery(hasToken === true && isPermitted);
+
+  if (hasToken === null || (hasToken && isPermitted && kpisQuery.isLoading)) {
     return <MetricCardsRowSkeleton />;
+  }
+
+  if (!isPermitted) {
+    return null;
   }
 
   const metrics = kpisQuery.data?.dataModel

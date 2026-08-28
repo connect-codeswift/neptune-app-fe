@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateBbsObservationMutation } from "@/hooks/use-bbs-mutations";
 import { useBehaviorCategoriesQuery } from "@/hooks/use-bbs-queries";
 import { toCreateBbsObservationRequest } from "@/lib/map-bbs";
@@ -45,6 +46,10 @@ function toObservationFormValues(
 export function LogObservationContent() {
   const router = useRouter();
   const createObservation = useCreateBbsObservationMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the list is still in flight. A click in that gap logged
+  // a duplicate.
+  const submitLock = useSubmitLock();
   const categoriesQuery = useBehaviorCategoriesQuery();
   const [step, setStep] = useState(1);
 
@@ -87,12 +92,17 @@ export function LogObservationContent() {
       setStep(1);
       return;
     }
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createObservation.mutate(payload, {
       onSuccess: () => {
         toast.success("Observation logged");
         router.push(BBS_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -157,13 +167,11 @@ export function LogObservationContent() {
               <Button
                 type="button"
                 variant="primary"
-                isLoading={createObservation.isPending}
+                isLoading={submitLock.isLocked}
                 onClick={handleSubmit}
                 className="rounded-2.5 h-11 flex-1 px-4 py-2.5 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat) md:h-auto md:flex-none md:px-5 md:text-base"
               >
-                {createObservation.isPending
-                  ? "Submitting..."
-                  : "Submit Observation"}
+                {submitLock.isLocked ? "Submitting..." : "Submit Observation"}
               </Button>
             ) : (
               /* Submits the step's form so its required-field validation runs. */

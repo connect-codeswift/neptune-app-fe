@@ -4,11 +4,17 @@ import type {
   ResponderMember,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
+import {
+  buildActionTaken,
+  splitActionTaken,
+} from "@/forms/incident-module/immediate-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 
 export type IncidentDetailEditDraft = Readonly<{
   summary: string;
   responseNotes: string;
+  responseActions: readonly IncidentDetailResponseAction[];
   infoItems: readonly IncidentDetailInfoItem[];
 }>;
 
@@ -80,9 +86,21 @@ export function applyDetailEditDraft(
   existing: IncidentDto,
   draft: IncidentDetailEditDraft,
 ): Partial<IncidentDto> {
+  // The notes already stored under the actions line are carried across
+  // untouched: they are edited through the Response notes box, not this card,
+  // and rebuilding from the ticks alone would delete them.
+  const { notes: storedActionNotes } = splitActionTaken(existing.actionTaken);
+  const actionTaken = buildActionTaken(
+    draft.responseActions
+      .filter((action) => action.completed)
+      .map((action) => action.label),
+    storedActionNotes,
+  );
+
   const patch: Partial<IncidentDto> = {
     description: draft.summary.trim() || existing.description,
     otherNotes: draft.responseNotes.trim() || null,
+    actionTaken: actionTaken || null,
   };
 
   const byKey = new Map(draft.infoItems.map((item) => [item.key, item.value]));

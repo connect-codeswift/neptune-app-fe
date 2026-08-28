@@ -82,6 +82,9 @@ export function mapNearMissDtoToRecord(
     contributingFactors: dto.contributingFactor.map((factor) =>
       labelFor(CONTRIBUTING_FACTOR_OPTIONS, factor),
     ),
+    attachments: dto.attachments ?? [],
+    closedById: dto.closedById ?? undefined,
+    closedAt: dto.closedAt?.slice(0, 10),
     relatedCapas: [],
   };
 }

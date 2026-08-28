@@ -169,6 +169,14 @@ export function mapHazardDtoToRecord(dto: HazardDto): HazardRecord {
     dateReported: dto.createdDate.slice(0, 10),
     location,
     image: dto.image,
+    // The API sends the list; an older row only has the single column, so it stands in.
+    attachments: dto.attachments?.length
+      ? dto.attachments
+      : dto.image
+        ? [dto.image]
+        : [],
+    closedById: dto.closedById ?? undefined,
+    closedAt: dto.closedAt?.slice(0, 10),
     relatedCapas: [],
   };
 }
