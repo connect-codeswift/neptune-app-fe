@@ -26,6 +26,7 @@ export function chemicalMatchesSearch(
     chemical.status,
     chemical.sdsRecordId ?? "",
     chemical.sdsFileName ?? "",
+    chemical.expiryDate ?? "",
   ]
     .join(" ")
     .toLowerCase();
@@ -80,6 +81,7 @@ const CSV_HEADER = [
   "Hazard Class",
   "Signal Word",
   "Status",
+  "Expiry Date",
 ] as const;
 
 function csvCell(value: string): string {
@@ -97,6 +99,7 @@ function buildChemicalsCsv(chemicals: readonly HazcomChemical[]): string {
       chemical.hazardClass,
       chemical.signalWord,
       chemical.status,
+      chemical.expiryDate ?? "",
     ]
       .map(csvCell)
       .join(","),

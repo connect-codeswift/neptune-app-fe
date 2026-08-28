@@ -21,6 +21,7 @@ import {
   type ChemicalStatusFilter,
 } from "@/components/hazcom/chemicals/chemical-utils";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { isoToMmDdYyyy } from "@/lib/date-time-field";
 import {
   DEFAULT_CHEMICALS_PAGE_NUMBER,
   DEFAULT_CHEMICALS_PAGE_SIZE,
@@ -103,6 +104,12 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         {
           label: "Added",
           value: selectedChemical.addedOn || "—",
+        },
+        {
+          label: "Expiry date",
+          value: selectedChemical.expiryDate
+            ? isoToMmDdYyyy(selectedChemical.expiryDate)
+            : "None recorded",
         },
         {
           label: "SDS file",

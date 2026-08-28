@@ -47,6 +47,12 @@ export type ChemicalRequestDto = {
   /** One string, not a list — the UI joins its selections with ", ". */
   ghsPictograms?: string | null;
   notes?: string | null;
+  /**
+   * When the stock goes out of date. ISO-8601 with an offset, as everywhere
+   * else on the wire. The HazCom dashboard's expiring-soon counts read this
+   * column, so a chemical saved without one never appears in them.
+   */
+  expiryDate?: string | null;
   /** Drives the /drafts vs /published split. */
   isDraft: boolean;
 };
