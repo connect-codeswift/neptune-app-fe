@@ -128,7 +128,6 @@ export type ReportIncidentFormState = Readonly<{
   bodySide: BodySide;
   /** Side chosen per body part (allows Left foot + Right hand together). */
   bodyPartSides: BodyPartSideMap;
-  bodyMultiSelect: boolean;
   injuryDescription: string;
   immediateActions: readonly string[];
   actionNotes: string;
@@ -225,7 +224,6 @@ export function createInitialReportFormState(): ReportIncidentFormState {
     customBodyParts: [],
     bodySide: "Left",
     bodyPartSides: {},
-    bodyMultiSelect: false,
     injuryDescription: "",
     immediateActions: [],
     actionNotes: "",

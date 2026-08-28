@@ -103,6 +103,7 @@ type CapaModalFormProps = Readonly<{
   stagedTasks: readonly StagedCapaTask[];
   onOpenAddTask: () => void;
   onRemoveStagedTask: (localId: string) => void;
+  onEditStagedTask: (localId: string) => void;
   onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   isCreatingTask: boolean;
   isDeletingTask: boolean;
@@ -142,6 +143,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
     stagedTasks,
     onOpenAddTask,
     onRemoveStagedTask,
+    onEditStagedTask,
     onDeleteSavedTask,
     isCreatingTask,
     isDeletingTask,
@@ -396,6 +398,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
               busy={busy}
               onOpenAddTask={onOpenAddTask}
               onRemoveStagedTask={onRemoveStagedTask}
+              onEditStagedTask={onEditStagedTask}
               onDeleteSavedTask={onDeleteSavedTask}
               capaPriority={capaToEdit?.priority ?? priority}
             />
@@ -423,6 +426,10 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
 
   const isEditMode = capaToEdit != null;
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  // Which staged row the task modal is correcting. Null means it is adding a new one.
+  const [editingTaskLocalId, setEditingTaskLocalId] = useState<string | null>(
+    null,
+  );
   const [stagedTasks, setStagedTasks] = useState<readonly StagedCapaTask[]>([]);
   const tasksQuery = useCapaTasksQuery({
     capaId: capaToEdit?.numericId ?? null,
@@ -435,6 +442,17 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
       return;
     }
 
+    if (editingTaskLocalId !== null) {
+      setStagedTasks((previous) =>
+        previous.map((task) =>
+          task.localId === editingTaskLocalId
+            ? { ...payload, localId: task.localId }
+            : task,
+        ),
+      );
+      return;
+    }
+
     setStagedTasks((previous) => [
       ...previous,
       {
@@ -442,6 +460,16 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         localId: crypto.randomUUID(),
       },
     ]);
+  };
+
+  const handleEditStagedTask = (localId: string) => {
+    setEditingTaskLocalId(localId);
+    setIsAddTaskOpen(true);
+  };
+
+  const closeTaskModal = () => {
+    setIsAddTaskOpen(false);
+    setEditingTaskLocalId(null);
   };
 
   const handleRemoveStagedTask = (localId: string) => {
@@ -501,6 +529,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
           setIsAddTaskOpen(true);
         }}
         onRemoveStagedTask={handleRemoveStagedTask}
+        onEditStagedTask={handleEditStagedTask}
         onDeleteSavedTask={isEditMode ? handleDeleteSavedTask : undefined}
         isCreatingTask={isCreatingTask}
         isDeletingTask={isDeletingTask}
@@ -516,7 +545,11 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
           capaCode={addTaskCapaCode}
           capaDueDate={capaDueDate}
           isSubmitting={isCreatingTask}
-          onClose={() => setIsAddTaskOpen(false)}
+          initialValues={
+            stagedTasks.find((task) => task.localId === editingTaskLocalId) ??
+            undefined
+          }
+          onClose={closeTaskModal}
           onSubmit={handleAddTask}
         />
       ) : null}

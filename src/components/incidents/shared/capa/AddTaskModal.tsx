@@ -32,6 +32,12 @@ export type AddTaskModalProps = Readonly<{
   /** The CAPA's own due date. A task cannot fall due after the action that contains it. */
   capaDueDate?: string;
   isSubmitting?: boolean;
+  /**
+   * Present when an already-staged task is being corrected rather than a new one added.
+   * The modal is mounted only while open, so these seed the fields once on mount and no
+   * effect is needed to keep them in step.
+   */
+  initialValues?: CapaTaskFormPayload;
   onClose: () => void;
   onSubmit?: (payload: CapaTaskFormPayload) => void | Promise<void>;
 }>;
@@ -67,15 +73,19 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
     capaCode,
     capaDueDate,
     isSubmitting = false,
+    initialValues,
     onClose,
     onSubmit,
   } = props;
 
   const taskFieldId = useId();
 
-  const [task, setTask] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [priority, setPriority] = useState<string>(PRIORITY_OPTIONS[1]);
+  const isEditingTask = initialValues != null;
+  const [task, setTask] = useState(initialValues?.task ?? "");
+  const [dueDate, setDueDate] = useState(initialValues?.dueDate ?? "");
+  const [priority, setPriority] = useState<string>(
+    initialValues?.priority ?? PRIORITY_OPTIONS[1],
+  );
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
 
   const busy = isSubmitting || isLocalSubmitting;
@@ -130,7 +140,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
 
   return (
     <IncidentModalShell
-      title="Add Task"
+      title={isEditingTask ? "Edit Task" : "Add Task"}
       subtitle={`${sourceLabel} · ${sourceTitle} · ${capaCode}`}
       onClose={onClose}
       maxWidthClassName="max-w-140"
@@ -144,7 +154,15 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
               void handleSubmit();
             }}
             disabled={!canSubmit}
-            label={busy ? "Adding…" : "Add Task"}
+            label={
+              busy
+                ? isEditingTask
+                  ? "Saving…"
+                  : "Adding…"
+                : isEditingTask
+                  ? "Save Task"
+                  : "Add Task"
+            }
           />
         </>
       }
