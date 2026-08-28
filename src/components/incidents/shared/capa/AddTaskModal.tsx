@@ -83,8 +83,16 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   // rule is checked here as well — otherwise a task could be dated past the CAPA by typing it.
   const isDueDateTooLate = exceedsCapaDueDate(dueDate, capaDueDate);
   const isDueDateTooEarly = isDueDateInPast(dueDate);
+  // The due date is required, not merely range-checked. Without this a task saved with an
+  // empty date passed both rules above, and the create mutation then filtered it out for
+  // having no date — so the CAPA was created with no tasks at all, which it can never
+  // recover from because its status is derived from them.
   const canSubmit =
-    task.trim().length > 0 && !isDueDateTooLate && !isDueDateTooEarly && !busy;
+    task.trim().length > 0 &&
+    dueDate.trim().length > 0 &&
+    !isDueDateTooLate &&
+    !isDueDateTooEarly &&
+    !busy;
 
   // A lookup rather than a ternary chain: two independent date rules share the
   // one hint slot (no-nested-ternaries).

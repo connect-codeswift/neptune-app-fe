@@ -72,6 +72,18 @@ function hasStepTwoErrors(errors: ReportStepTwoErrors): boolean {
   return Boolean(errors.mechanismOfInjury || errors.natureOfInjury);
 }
 
+/**
+ * The same rules the Continue button applies, in the shape the stepper needs.
+ *
+ * <p>Exported so a forward jump from the left-hand stepper cannot walk past answers
+ * that Continue would have stopped on. The two paths out of this step disagreeing is
+ * what made the step skippable.</p>
+ */
+export function validateStepTwo(form: ReportIncidentFormState): string | null {
+  const errors = getStepTwoErrors(form);
+  return errors.mechanismOfInjury ?? errors.natureOfInjury;
+}
+
 export type ReportIncidentStepTwoProps = Readonly<{
   form: ReportIncidentFormState;
   onChange: (next: Partial<ReportIncidentFormState>) => void;

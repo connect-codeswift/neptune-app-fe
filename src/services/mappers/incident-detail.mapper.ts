@@ -1173,10 +1173,13 @@ export function mapIncidentDtoToDetailView(
     affected?.bodyPartAffected?.trim() ||
     incident.injuredBodyPart?.trim() ||
     "—";
+  // Reads the same field the edit path writes. It used to prefer
+  // `whatTreatmentWasGiven`, so the tile could display one field while editing it wrote
+  // another, and an edit looked like it had done nothing. `whatTreatmentWasGiven` is a
+  // separate answer with its own vocabulary and is surfaced by the treatment summary
+  // above, not here.
   const treatment =
-    meaningfulText(incident.whatTreatmentWasGiven) ||
-    meaningfulText(incident.initialTreatment) ||
-    "None required";
+    meaningfulText(incident.initialTreatment) || "None required";
   // Comes from `stage`, the backend's computed lifecycle value. Older backends
   // omit it on the single-incident read; withDetailClosedState below is how the
   // detail screen fills that gap from the closure record it already loads.

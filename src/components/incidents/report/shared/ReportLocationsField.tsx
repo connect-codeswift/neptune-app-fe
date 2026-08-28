@@ -7,7 +7,7 @@ import {
   ReportFieldHint,
   ReportFieldLabel,
 } from "./ReportFormField";
-import { INCIDENT_LOCATION_OPTIONS } from "@/forms/incident-module/locations";
+import { useLocationsQuery } from "@/hooks/use-location-queries";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 
@@ -107,22 +107,36 @@ export function ReportLocationsField(
     setAddError(null);
   });
 
+  // The site's own location register, not a hardcoded set of plant areas. The old
+  // constant listed "Line 1", "Press #4" and friends, so the locations a site actually
+  // configured and the ones an incident could be filed against were unrelated lists.
+  const locationsQuery = useLocationsQuery();
+
   const dropdownOptions = useMemo(() => {
-    const seedLabels = new Set(
-      INCIDENT_LOCATION_OPTIONS.map((option) => option.label.toLowerCase()),
+    const registerOptions = (locationsQuery.data ?? []).map((location) => ({
+      value: location.name,
+      label: location.name,
+    }));
+
+    const registerLabels = new Set(
+      registerOptions.map((option) => option.label.toLowerCase()),
     );
+
+    // Anything already on this report that the register does not list stays offered —
+    // a custom entry the reporter typed, or a location retired since the report was
+    // started. Dropping it would silently clear a selection they already made.
     const extras = [...customLocations, ...locations].filter(
-      (entry) => !seedLabels.has(entry.toLowerCase()),
+      (entry) => !registerLabels.has(entry.toLowerCase()),
     );
 
     return [
-      ...INCIDENT_LOCATION_OPTIONS,
+      ...registerOptions,
       ...dedupeLocations(extras).map((entry) => ({
         value: entry,
         label: entry,
       })),
     ];
-  }, [customLocations, locations]);
+  }, [customLocations, locations, locationsQuery.data]);
 
   const selectLocation = (value: string) => {
     const normalized = normalizeLocationEntry(value);

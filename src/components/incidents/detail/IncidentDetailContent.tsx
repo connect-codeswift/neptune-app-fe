@@ -576,32 +576,6 @@ export function IncidentDetailContent(
     }
   };
 
-  const handleAddTimelinePost = (text: string) => {
-    const now = new Date();
-    const month = now.toLocaleString("en-US", { month: "short" });
-    const day = String(now.getDate());
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-
-    setTimelineEvents((prev) => [
-      ...prev,
-      {
-        id: `local-${String(now.getTime())}`,
-        title: "Status update",
-        description: text.trim(),
-        time: `${month} ${day} · ${hh}:${min}`,
-        actorName: "You",
-        actorInitials: "YO",
-        actorRole: "Update",
-        icon: "mdi:message-text-outline",
-      },
-    ]);
-    toast.success(
-      "Update posted",
-      "Your status update has been added to the timeline.",
-    );
-  };
-
   const usedBytes = attachments.reduce((sum, item) => sum + item.bytes, 0);
 
   const showBootLoading = !isClientReady;
@@ -672,7 +646,6 @@ export function IncidentDetailContent(
         );
       }}
       timelineEvents={timelineEvents}
-      onAddTimelinePost={handleAddTimelinePost}
       affectedName={affectedName}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}

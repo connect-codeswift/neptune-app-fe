@@ -39,7 +39,6 @@ import { IncidentDetailPeopleCard } from "@/components/incidents/detail/people/I
 import { IncidentDetailWitnessesCard } from "@/components/incidents/detail/people/IncidentDetailWitnessesCard";
 import { IncidentDetailHeader } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
-import { IncidentDetailAddTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailAddTimelineCard";
 import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail/timeline/IncidentDetailResponseMetricsCard";
 import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailTimelineCard";
 import { Text } from "@/components/Text";
@@ -95,7 +94,6 @@ export type IncidentDetailViewProps = Readonly<{
   onChangeInfoItem: (key: string, value: string) => void;
 
   timelineEvents: readonly TimelineEvent[];
-  onAddTimelinePost: (text: string) => void;
 
   affectedName: string;
   affectedEmpId: string;
@@ -206,7 +204,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     infoItems,
     onChangeInfoItem,
     timelineEvents,
-    onAddTimelinePost,
     affectedName,
     affectedEmpId,
     affectedInjuryLabel,
@@ -394,9 +391,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailResponseMetricsCard
                     metrics={detail.responseMetrics}
-                  />
-                  <IncidentDetailAddTimelineCard
-                    onAddPost={onAddTimelinePost}
                   />
                 </div>
               </div>

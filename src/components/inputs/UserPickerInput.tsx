@@ -49,6 +49,20 @@ export type UserPickerInputProps = Readonly<{
   source?: UserOptionsSource;
   siteId?: number;
   siteName?: string | null;
+  /**
+   * Show the "People at <site>" header above the roster. On by default: in the incident
+   * report it tells a reporter which roster they are searching. The CAPA assignee field
+   * turns it off — the modal already names the site, so the header only repeats it, and
+   * on a tenant whose site is named something odd it reads as a bug.
+   */
+  showRosterHeading?: boolean;
+  /**
+   * Replaces the "no people are listed" copy when the roster is genuinely empty. Opt-in
+   * per usage on purpose: telling someone to ask an admin to register more users is right
+   * for a CAPA assignee, who must be a real account, and wrong for the incident report's
+   * affected-person field, where a contractor or visitor with no account is expected.
+   */
+  emptyRosterMessage?: string;
   required?: boolean;
   placeholder?: string;
   trailingHint?: string;
@@ -87,6 +101,8 @@ export function UserPickerInput(props: Readonly<UserPickerInputProps>) {
     source = "site",
     siteId = 0,
     siteName,
+    showRosterHeading = true,
+    emptyRosterMessage,
     required = false,
     placeholder,
     trailingHint,
@@ -170,7 +186,11 @@ export function UserPickerInput(props: Readonly<UserPickerInputProps>) {
       <UserOptionList
         listboxId={listboxId}
         label={isOrg ? "People" : `People at ${rosterName}`}
-        heading={isOrg || !siteName ? null : `People at ${siteName}`}
+        heading={
+          isOrg || !siteName || !showRosterHeading
+            ? null
+            : `People at ${siteName}`
+        }
         users={options.users}
         selectedIds={hasSelection ? [value.userId] : []}
         activeIndex={activeIndex}
@@ -180,7 +200,12 @@ export function UserPickerInput(props: Readonly<UserPickerInputProps>) {
         isError={options.isError}
         hasNoSite={options.hasNoSite}
         query={options.debouncedQuery}
-        messages={singleSelectMessages(isOrg, rosterName, allowFreeText)}
+        messages={singleSelectMessages(
+          isOrg,
+          rosterName,
+          allowFreeText,
+          emptyRosterMessage,
+        )}
       />
     </UserPickerMenu>
   );
@@ -334,6 +359,7 @@ function singleSelectMessages(
   isOrg: boolean,
   rosterName: string,
   allowFreeText: boolean,
+  emptyRosterMessage?: string,
 ) {
   const keptOrNot = allowFreeText
     ? "Your typed name is kept as-is."
@@ -344,9 +370,11 @@ function singleSelectMessages(
     noSite:
       "Your sign-in isn't linked to a site, so there's no roster to search.",
     loadError: `Couldn't load people${where}. Try again in a moment.`,
-    emptyNoQuery: isOrg
-      ? "No people are listed yet."
-      : `No people are listed for ${rosterName} yet.`,
+    emptyNoQuery:
+      emptyRosterMessage ??
+      (isOrg
+        ? "No people are listed yet."
+        : `No people are listed for ${rosterName} yet.`),
     emptyWithQuery: (query: string) =>
       `No one${where} matches “${query}”. ${keptOrNot}`,
   };

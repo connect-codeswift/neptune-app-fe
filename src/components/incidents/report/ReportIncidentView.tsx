@@ -29,8 +29,23 @@ import {
   ReportIncidentStepThree,
   ReportIncidentStepTwo,
   validateStepOne,
+  validateStepTwo,
 } from "@/components/incidents/report/steps";
 import { logAiAssistFailure } from "@/services/ai-text.service";
+
+/**
+ * Per-step gate for forward navigation, keyed by the step being left.
+ *
+ * Each entry is the step's own validator, so the stepper and that step's Continue
+ * button apply one set of rules rather than two that can drift apart. A step with no
+ * entry is one with no required answers, and is legitimately skippable.
+ */
+const STEP_VALIDATORS: Partial<
+  Record<ReportStepId, (form: ReportIncidentFormState) => string | null>
+> = {
+  1: validateStepOne,
+  2: validateStepTwo,
+};
 
 function renderStepForm(
   currentStep: ReportStepId,
@@ -155,13 +170,20 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
 
   /**
    * The left-hand stepper is a shortcut, not an escape hatch: jumping forward
-   * out of Step 1 has to clear the same check the Continue button does.
+   * out of a step has to clear the same check its Continue button does.
    * Going back is always allowed, so a reporter can review earlier answers.
+   *
+   * Steps 3 and 4 have no entry yet because they define no required answers;
+   * adding one here is all that is needed once they do.
    */
   const goToStep = (step: ReportStepId) => {
-    if (step > currentStep && currentStep === 1) {
-      if (validateStepOne(normalizedForm)) {
-        setShowStepFieldErrors((current) => ({ ...current, 1: true }));
+    if (step > currentStep) {
+      const validateCurrentStep = STEP_VALIDATORS[currentStep];
+      if (validateCurrentStep?.(normalizedForm)) {
+        setShowStepFieldErrors((current) => ({
+          ...current,
+          [currentStep]: true,
+        }));
         return;
       }
     }

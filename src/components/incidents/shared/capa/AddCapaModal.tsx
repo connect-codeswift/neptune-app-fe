@@ -355,6 +355,8 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 allowFreeText
                 siteId={site.id}
                 siteName={site.name}
+                showRosterHeading={false}
+                emptyRosterMessage="Ask admin to register more users."
                 placeholder="e.g. M. Torres"
                 excludeUserIds={excludeUserIds}
               />
@@ -484,7 +486,20 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         initialDueDate={initialDueDate}
         savedTasks={savedTasks}
         stagedTasks={stagedTasks}
-        onOpenAddTask={() => setIsAddTaskOpen(true)}
+        onOpenAddTask={() => {
+          // The task modal caps its own date picker against the CAPA's due date, so
+          // opening it before one is set offers an uncapped picker and lets a task be
+          // dated past its parent. The due date is required now, so this is only ever
+          // asking for it in the order the form already needs it.
+          if (capaDueDate.trim().length === 0) {
+            toast.error(
+              "Set the CAPA due date first",
+              "Tasks are scheduled against it, so it has to be chosen before adding one.",
+            );
+            return;
+          }
+          setIsAddTaskOpen(true);
+        }}
         onRemoveStagedTask={handleRemoveStagedTask}
         onDeleteSavedTask={isEditMode ? handleDeleteSavedTask : undefined}
         isCreatingTask={isCreatingTask}
@@ -494,7 +509,7 @@ export function AddCapaModal(props: Readonly<AddCapaModalProps>) {
         onDueDateChange={setCapaDueDate}
       />
 
-      {isAddTaskOpen ? (
+      {isAddTaskOpen && capaDueDate.trim().length > 0 ? (
         <AddTaskModal
           sourceLabel={sourceLabel}
           sourceTitle={sourceTitle}

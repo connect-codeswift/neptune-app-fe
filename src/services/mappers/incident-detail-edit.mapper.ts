@@ -298,7 +298,11 @@ export function applyPeopleEditDraft(
     affectedPersonId: affectedEmpId ?? affectedName,
     injuredBodyPart: bodyPart,
     natureOfInjury: injuryLabel,
-    whatTreatmentWasGiven: treatment,
+    // Only `initialTreatment`. These are two different answers with two different
+    // option sets — the level of care sought (first aid, clinic, ER) versus what was
+    // actually done (wound cleaning, bandaging, ice pack) — and writing one value into
+    // both collapsed the distinction on every edit. `whatTreatmentWasGiven` belongs to
+    // the First Aid step of the wizard and is not edited from this card.
     initialTreatment: treatment,
     treatmentProvidedBy:
       editableText(treatmentProvider?.name ?? "") ??
