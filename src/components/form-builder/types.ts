@@ -206,7 +206,20 @@ export type ChipsFieldConfig = BaseField &
 export type PersonMultiFieldConfig = BaseField &
   Readonly<{
     type: "person-multi";
-    options: readonly SelectOption[];
+    /** Where people are loaded from. Mirrors {@link PersonFieldConfig}. */
+    usersSource?: "site" | "org";
+    /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
+    siteId?: number;
+    siteName?: string | null;
+    /** Form value key for the display names. Defaults to `${name}Names`. */
+    displayNamesField?: string;
+    /** User ids to hide from the option list. */
+    excludeUserIds?: readonly string[];
+    /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
+    excludeSelf?: boolean;
+    /** Accept a typed name that matches nobody. Opt-in; defaults to false. */
+    allowFreeText?: boolean;
+    maxSelected?: number;
     placeholder?: string;
     /** Render the control read-only — the current selection is fixed. */
     disabled?: boolean;
@@ -325,9 +338,9 @@ export type PersonFieldConfig = BaseField &
     /**
      * Where the picker loads people from.
      * - `site` (default): GET /api/v1/sites/{siteId}/users
-     * - `dropdown`: GET /api/v1/users/dropdown (client-filtered)
+     * - `org`: GET /api/v1/users/dropdown (client-filtered)
      */
-    usersSource?: "site" | "dropdown";
+    usersSource?: "site" | "org";
     /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
     siteId?: number;
     siteName?: string | null;
@@ -338,12 +351,12 @@ export type PersonFieldConfig = BaseField &
     /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
     excludeSelf?: boolean;
     /**
-     * Require a picked person — on blur, a typed name with no matching
-     * selection is cleared rather than kept as free text. Opt-in; defaults to
-     * false, which is the affected-person behaviour (contractors/visitors
-     * with no account still need to be recorded by name).
+     * Keep a typed name that matches nobody, rather than clearing it on blur.
+     * Opt-in, because most fields file a `userId` the backend needs; the
+     * incident report turns it on so a contractor or visitor with no account
+     * can still be recorded by name.
      */
-    selectionOnly?: boolean;
+    allowFreeText?: boolean;
   }>;
 
 /**

@@ -23,8 +23,6 @@ export type StartAuditValues = {
 };
 
 export type StartAuditSchemaOptions = Readonly<{
-  /** Auditors from GET /api/v1/users/dropdown. */
-  auditorOptions: readonly SelectOption[];
   /** Templates for the current page of GET /api/v1/audit-templates. */
   templateOptions: readonly SelectOption[];
   /** Prev/next paging for the template dropdown, when more than one page. */
@@ -37,14 +35,13 @@ export type StartAuditSchemaOptions = Readonly<{
 }>;
 
 /**
- * Auditors and templates come from APIs, so the schema is built per render
- * rather than declared as a module constant.
+ * Templates come from an API, so the schema is built per render rather than
+ * declared as a module constant. The auditor field fetches its own people.
  */
 export function buildStartAuditSchema(
   options: StartAuditSchemaOptions,
 ): FormSchema {
   const {
-    auditorOptions,
     templateOptions,
     templatePagination,
     selectedTemplateOption,
@@ -86,17 +83,16 @@ export function buildStartAuditSchema(
       addCustomPlaceholder: "e.g. Plant C · Loading Dock 2",
     },
     {
-      type: "select",
+      type: "person",
       name: "auditor",
       label: "Auditor",
       required: true,
       colSpan: 6,
-      placeholder: "Select auditor",
-      options: auditorOptions,
-      // External auditors aren't in the user directory.
-      // allowCustom: true,
-      // addCustomLabel: "Add external auditor",
-      // addCustomPlaceholder: "e.g. NFPA · Beacon",
+      placeholder: "Search for an auditor…",
+      // Org-wide: an auditor is often from another site.
+      usersSource: "org",
+      // External auditors aren't in the user directory, and the payload files
+      // an id, so this stays a picked person.
     },
     {
       type: "date",

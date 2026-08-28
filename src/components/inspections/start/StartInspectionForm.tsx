@@ -15,9 +15,7 @@ import {
   useInspectionTemplateQuery,
   useInspectionTemplatesQuery,
 } from "@/hooks/use-inspection-template-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { getCurrentUser } from "@/lib/current-user";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import {
   buildStartInspectionSchema,
@@ -43,9 +41,6 @@ export function StartInspectionForm() {
   );
   const activeTemplateId = hydrated ? preselectedTemplateId : "";
   const isTemplateLocked = activeTemplateId !== "";
-
-  const userDropdownQuery = useUserDropdownQuery();
-  const users = userDropdownQuery.data?.dataModel;
 
   // Only published templates can start an inspection. Skipped entirely when a
   // template is already chosen — that one is fetched by id instead.
@@ -81,11 +76,10 @@ export function StartInspectionForm() {
   const schema = useMemo(
     () =>
       buildStartInspectionSchema({
-        inspectorOptions: toAssigneeOptions(users ?? []),
         templateOptions,
         isTemplateLocked,
       }),
-    [users, templateOptions, isTemplateLocked],
+    [templateOptions, isTemplateLocked],
   );
 
   // Seed the template value from the query param. Deferred to post-hydration

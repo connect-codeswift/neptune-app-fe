@@ -30,7 +30,11 @@ import {
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
-import { ReportWitnessesField } from "@/components/incidents/report/shared/ReportWitnessesField";
+import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import {
+  joinWitnessNames,
+  toWitnessValues,
+} from "@/components/incidents/report/shared/witness-names";
 import {
   buildDraftAssistInput,
   canDraftDescription,
@@ -541,20 +545,28 @@ export function ReportIncidentStepTwo(
             onChange={(nextPhotos) => onChange({ photos: nextPhotos })}
           />
 
-          <ReportWitnessesField
+          <MultipleUsersPickerInput
             className="pt-4.5"
             label="Witnesses"
             trailingHint="Search people at your site, or press Enter to add a name."
-            value={form.witnesses}
-            onChange={(witnesses) => onChange({ witnesses })}
+            placeholder="Search people at your site…"
+            value={toWitnessValues(form.witnesses)}
+            onChange={(witnesses) => {
+              onChange({ witnesses: joinWitnessNames(witnesses) });
+            }}
             siteId={site.id}
             siteName={site.name}
+            // Visitors and contractors don't appear on the roster, and a
+            // witness who isn't an employee is still a witness.
+            allowFreeText
             // Nobody witnesses their own incident — the affected person is
             // dropped from the roster and refused as a typed name.
-            excludePerson={{
-              id: form.affectedPersonId,
-              name: form.affectedPerson,
-            }}
+            excludeUserIds={
+              form.affectedPersonId ? [form.affectedPersonId] : undefined
+            }
+            excludeNames={
+              form.affectedPerson ? [form.affectedPerson] : undefined
+            }
           />
 
           {isFirstAid ? (

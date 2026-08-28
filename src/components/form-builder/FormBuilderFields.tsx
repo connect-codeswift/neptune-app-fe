@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
@@ -28,7 +27,9 @@ import type {
   TileTone,
   TimeFieldConfig,
 } from "./types";
-import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { UserPickerInput } from "@/components/inputs/UserPickerInput";
+import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import { useUserOptions } from "@/hooks/use-user-options";
 import { getAuthContext } from "@/lib/auth-context";
 import {
   FIELD_INPUT_CLASS,
@@ -574,222 +575,81 @@ function ChipsControl(
 }
 
 /** Small removable badge for one pick inside {@link PersonMultiControl}. */
-function PersonMultiBadge(
-  props: Readonly<{
-    option: SelectOption;
-    disabled: boolean;
-    onRemove: () => void;
-  }>,
-) {
-  const { option, disabled, onRemove } = props;
-
-  return (
-    <span className="text8 border-ehs-normal-blue/25 bg-ehs-normal-blue/10 text-ehs-dark-blue inline-flex items-center gap-1 rounded-full border py-1 pr-1.5 pl-2.5 font-medium">
-      {option.label}
-      {disabled ? null : (
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label={`Remove ${option.label}`}
-          className="hover:bg-ehs-normal-blue/20 flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors"
-        >
-          <Icon icon="mdi:close" className="size-3" aria-hidden="true" />
-        </button>
-      )}
-    </span>
-  );
-}
-
 /**
  * Searchable multi-select dropdown for picking several people — same glass
  * listbox as {@link SelectWithCustomControl}, but toggling a row keeps the
  * menu open and every pick renders as a small badge underneath the trigger
  * instead of filling the trigger itself.
  */
+function personMultiDisplayNamesKey(field: PersonMultiFieldConfig): string {
+  return field.displayNamesField ?? `${field.name}Names`;
+}
+
+/**
+ * The `person-multi` field: several people, stored as an array of user ids.
+ *
+ * Names are kept alongside the ids under `${name}Names` so a chip can be
+ * labelled without a lookup. A form opened for editing usually arrives with ids
+ * and no names — the mapper had no reason to carry them — so any id still
+ * missing a name is resolved against the roster once, and the chip falls back
+ * to "User 42" only if that fails too.
+ */
 function PersonMultiControl(
   props: Readonly<{
     field: PersonMultiFieldConfig;
     value: string[];
-    onChange: (v: string[]) => void;
+    names: string[];
+    onPatchValues: (patch: FormValues) => void;
   }>,
 ) {
-  const { field, value, onChange } = props;
-  const disabled = field.disabled ?? false;
+  const { field, value, names, onPatchValues } = props;
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const containerRef = useRef<HTMLDivElement>(null);
-  const listboxId = useId();
+  const namesKey = personMultiDisplayNamesKey(field);
+  const source = field.usersSource ?? "site";
+  const excludeSelfId = field.excludeSelf ? (getAuthContext()?.userId ?? 0) : 0;
+  const excludeUserIds = [
+    ...(field.excludeUserIds ?? []),
+    ...(excludeSelfId > 0 ? [String(excludeSelfId)] : []),
+  ];
 
-  const close = () => {
-    setIsOpen(false);
-    setQuery("");
-  };
+  const unresolved = value.filter((id, index) => !names[index]);
+  const lookup = useUserOptions({
+    source,
+    siteId: field.siteId ?? 0,
+    query: "",
+    enabled: unresolved.length > 0,
+  });
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onPointerDown = (event: MouseEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) close();
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isOpen]);
-
-  const selectedOptions = value
-    .map((id) => field.options.find((option) => option.value === id))
-    .filter((option): option is SelectOption => option !== undefined);
-
-  const needle = query.trim().toLowerCase();
-  const filteredOptions = needle
-    ? field.options.filter((option) =>
-        option.label.toLowerCase().includes(needle),
-      )
-    : field.options;
-
-  const toggle = (id: string) => {
-    if (disabled) return;
-    onChange(
-      value.includes(id)
-        ? value.filter((entry) => entry !== id)
-        : [...value, id],
-    );
-  };
+  const selected = value.map((id, index) => ({
+    userId: id,
+    name:
+      names[index] ||
+      lookup.users.find((user) => user.id === id)?.name ||
+      `User ${id}`,
+  }));
 
   return (
-    <div className="flex flex-col gap-2.5">
-      <div ref={containerRef} className={isOpen ? "relative z-50" : "relative"}>
-        <button
-          type="button"
-          id={field.name}
-          role="combobox"
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? listboxId : undefined}
-          aria-haspopup="listbox"
-          disabled={disabled}
-          onClick={() => (isOpen ? close() : setIsOpen(true))}
-          className={[
-            inputClass,
-            "flex items-center gap-2 text-left",
-            disabled ? "cursor-not-allowed opacity-70" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-        >
-          <span
-            className={[
-              "min-w-0 flex-1 truncate",
-              selectedOptions.length > 0
-                ? "text-ehs-dark-bg"
-                : "text-ehs-muted-text",
-            ].join(" ")}
-          >
-            {selectedOptions.length > 0
-              ? `${String(selectedOptions.length)} selected`
-              : (field.placeholder ?? "Select people…")}
-          </span>
-          {disabled ? null : (
-            <Icon
-              icon="mdi:chevron-down"
-              className={[
-                "text-ehs-muted-text size-4 shrink-0 transition-transform",
-                isOpen ? "rotate-180" : "",
-              ].join(" ")}
-              aria-hidden="true"
-            />
-          )}
-        </button>
-
-        {isOpen ? (
-          <div className="animate-popover-in border-ehs-hairline/70 bg-ehs-surface/96 absolute z-20 mt-1.5 w-full overflow-hidden rounded-xl border shadow-(--ehs-shadow-popover) backdrop-blur-xl">
-            <div className="border-ehs-border-ink/10 border-b p-2">
-              <input
-                autoFocus
-                value={query}
-                placeholder="Search people…"
-                aria-label={`Search ${field.label}`}
-                onChange={(event) => setQuery(event.target.value)}
-                className="text4 text-ehs-dark-bg placeholder:text-ehs-muted-text w-full bg-transparent px-1 py-1 outline-none"
-              />
-            </div>
-            <ul
-              id={listboxId}
-              role="listbox"
-              aria-multiselectable="true"
-              aria-label={field.label}
-              className="max-h-64 overflow-y-auto py-1"
-            >
-              {filteredOptions.length === 0 ? (
-                <li className="p-1.5">
-                  <EmptyState
-                    variant="inline"
-                    icon="mdi:playlist-remove"
-                    title="No people found"
-                  />
-                </li>
-              ) : (
-                filteredOptions.map((option) => {
-                  const isSelected = value.includes(option.value);
-                  return (
-                    <li key={option.value}>
-                      <button
-                        type="button"
-                        role="option"
-                        aria-selected={isSelected}
-                        onClick={() => toggle(option.value)}
-                        className={[
-                          "text4 flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left transition-colors",
-                          isSelected
-                            ? "bg-ehs-light-bg/70"
-                            : "hover:bg-ehs-light-bg/50",
-                        ].join(" ")}
-                      >
-                        <span
-                          className={[
-                            "min-w-0 flex-1",
-                            isSelected
-                              ? "text-ehs-darker font-semibold"
-                              : "text-ehs-darker",
-                          ].join(" ")}
-                        >
-                          {option.label}
-                        </span>
-                        {isSelected ? (
-                          <Icon
-                            icon="mdi:check"
-                            className="text-ehs-normal-blue size-4 shrink-0"
-                            aria-hidden="true"
-                          />
-                        ) : null}
-                      </button>
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-          </div>
-        ) : null}
-      </div>
-
-      {selectedOptions.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-1.5">
-          {selectedOptions.map((option) => (
-            <PersonMultiBadge
-              key={option.value}
-              option={option}
-              disabled={disabled}
-              onRemove={() => toggle(option.value)}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
+    <MultipleUsersPickerInput
+      label={field.label}
+      required={field.required}
+      hideLabel
+      value={selected}
+      onChange={(next) => {
+        onPatchValues({
+          [field.name]: next.map((entry) => entry.userId),
+          [namesKey]: next.map((entry) => entry.name),
+        });
+      }}
+      source={source}
+      siteId={field.siteId ?? 0}
+      siteName={field.siteName}
+      placeholder={field.placeholder ?? "Select people…"}
+      allowFreeText={field.allowFreeText}
+      excludeUserIds={excludeUserIds}
+      maxSelected={field.maxSelected}
+      disabled={field.disabled}
+      variant="embedded"
+    />
   );
 }
 
@@ -1204,26 +1064,25 @@ function PersonControl(
 
   return (
     <FieldShell field={field} error={error} showMessages>
-      <ReportPersonSearchField
+      <UserPickerInput
         label={field.label}
         required={field.required}
         hideLabel
-        value={displayName}
-        selectedUserId={userId}
+        value={{ userId, name: displayName }}
         onChange={(next) => {
           onPatchValues({
             [field.name]: next.userId,
             [nameKey]: next.name,
           });
         }}
-        usersSource={field.usersSource ?? "site"}
+        source={field.usersSource ?? "site"}
         siteId={field.siteId ?? 0}
         siteName={field.siteName}
         trailingHint={field.trailingHint}
         placeholder={field.placeholder ?? "Start typing a name…"}
         variant="embedded"
         excludeUserIds={excludeUserIds}
-        selectionOnly={field.selectionOnly}
+        allowFreeText={field.allowFreeText}
       />
     </FieldShell>
   );
@@ -1323,16 +1182,19 @@ export function FieldRenderer(props: FieldRendererProps) {
           />
         </FieldShell>
       );
-    case "person-multi":
+    case "person-multi": {
+      const namesKey = personMultiDisplayNamesKey(field);
       return (
         <FieldShell field={field} error={error}>
           <PersonMultiControl
             field={field}
             value={value as string[]}
-            onChange={onChange}
+            names={(values[namesKey] as string[] | undefined) ?? []}
+            onPatchValues={onPatchValues}
           />
         </FieldShell>
       );
+    }
     case "photo":
       return (
         <FieldShell

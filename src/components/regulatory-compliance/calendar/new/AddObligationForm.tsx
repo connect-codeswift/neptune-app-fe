@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   SelectInput,
@@ -17,9 +17,8 @@ import {
 import { UploadDocumentDropzone } from "@/components/policy-maker";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
+import { UserPickerInput } from "@/components/inputs/UserPickerInput";
 import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { uploadFile } from "@/lib/upload-file";
 import { buildAddComplianceRequest } from "@/services/mappers/compliance.mapper";
@@ -86,7 +85,6 @@ function optionLabel(options: readonly SelectOption[], value: string): string {
 
 export function AddObligationForm() {
   const router = useRouter();
-  const usersQuery = useUserDropdownQuery();
   const addComplianceMutation = useAddComplianceMutation();
 
   const [title, setTitle] = useState("");
@@ -94,7 +92,10 @@ export function AddObligationForm() {
   const [regulatoryBody, setRegulatoryBody] = useState("");
   const [dueDate, setDueDate] = useState(todayIsoDate());
   const [recurrence, setRecurrence] = useState("");
-  const [responsiblePerson, setResponsiblePerson] = useState("");
+  const [responsiblePerson, setResponsiblePerson] = useState({
+    userId: "",
+    name: "",
+  });
   const [priority, setPriority] = useState("");
   const [jurisdiction, setJurisdiction] = useState("");
   const [code, setCode] = useState("");
@@ -103,11 +104,6 @@ export function AddObligationForm() {
   const [pdfSecureUrl, setPdfSecureUrl] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
-
-  const userOptions = useMemo(
-    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
-    [usersQuery.data?.dataModel],
-  );
 
   const handleCancel = () => {
     router.push("/dashboard/regulatory-compliance/calendar");
@@ -192,7 +188,7 @@ export function AddObligationForm() {
       toast.error(dueDateCheck.error, "Pick today or a later date.");
       return;
     }
-    if (!responsiblePerson) {
+    if (!responsiblePerson.userId) {
       toast.error(
         "Missing responsible person",
         "Select who owns this obligation.",
@@ -200,7 +196,7 @@ export function AddObligationForm() {
       return;
     }
 
-    const responsiblePersonId = Number(responsiblePerson);
+    const responsiblePersonId = Number(responsiblePerson.userId);
     if (!Number.isFinite(responsiblePersonId) || responsiblePersonId <= 0) {
       toast.error(
         "Invalid responsible person",
@@ -316,19 +312,14 @@ export function AddObligationForm() {
               className={selectFieldClass}
             />
 
-            <SelectInput
-              label="Responsible Person *"
-              placeholder={
-                usersQuery.isLoading ? "Loading users…" : "Select an option ()"
-              }
-              options={userOptions}
-              value={responsiblePerson}
-              onChange={(event) => setResponsiblePerson(event.target.value)}
+            <UserPickerInput
+              label="Responsible Person"
               required
-              disabled={busy || usersQuery.isLoading}
-              labelClassName={fieldLabelClass}
-              wrapperClassName={fieldWrapperClass}
-              className={selectFieldClass}
+              placeholder="Search people…"
+              source="org"
+              value={responsiblePerson}
+              onChange={setResponsiblePerson}
+              disabled={busy}
             />
 
             <SelectInput

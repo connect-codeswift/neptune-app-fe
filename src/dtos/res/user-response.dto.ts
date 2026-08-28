@@ -3,7 +3,8 @@ import type { ApiEnvelopeDto, PagedDataDto } from "@/dtos/res/api-envelope.dto";
 /**
  * One entry of GET /api/v1/users/dropdown. The backend's exact key names aren't
  * pinned down yet, so the common spellings are all optional here and
- * `toAssigneeOptions` picks whichever is present.
+ * `fromDropdownItem` in `components/inputs/user-option.ts` picks whichever is
+ * present.
  */
 export type UserDropdownItemDto = {
   id?: number | string;
