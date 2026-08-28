@@ -62,6 +62,14 @@ const STATUS_SELECT_CLASS: Readonly<Record<HazcomTrainingStatus, string>> = {
  * `PUT /trainings/{id}/status` — a status-only transition, no need to resend
  * the whole form. A single styled `<select>` standing in for the status
  * badge, rather than a badge with a hidden control layered underneath.
+ *
+ * `Completed` is the end of the line. A completed training is the evidence
+ * that these people were trained on this chemical on that date, so moving it
+ * back to Scheduled or InProgress — or to Cancelled, denying a session that
+ * happened — would retract the evidence while keeping the record. The API
+ * refuses the transition; this stops the control from offering it. The guided
+ * action below already stopped at Completed, so this select was the only way
+ * to do it.
  */
 function TrainingStatusControl(
   props: Readonly<{ session: HazcomTrainingSession }>,
@@ -69,6 +77,7 @@ function TrainingStatusControl(
   const { session } = props;
   const updateStatus = useUpdateTrainingStatusMutation();
   const numericId = parseRecordNumericId(session.id);
+  const isFinal = session.status === "Completed";
   const toneClass = session.status
     ? STATUS_SELECT_CLASS[session.status]
     : "bg-ehs-gray/15 text-ehs-gray";
@@ -100,11 +109,20 @@ function TrainingStatusControl(
     <select
       aria-label="Training status"
       value={session.status ?? ""}
-      disabled={numericId === null || updateStatus.isPending}
+      disabled={numericId === null || updateStatus.isPending || isFinal}
+      title={
+        isFinal
+          ? "A completed training is a compliance record. Its status is final."
+          : undefined
+      }
       onChange={(event) => handleChange(event.target.value)}
       className={[
-        "text5 w-fit cursor-pointer appearance-none rounded-md px-2 py-0.5 tracking-normal",
-        "disabled:cursor-not-allowed disabled:opacity-60",
+        "text5 w-fit appearance-none rounded-md px-2 py-0.5 tracking-normal",
+        // A settled record reads as settled, not as a control mid-request:
+        // the dimming is for the transient disabled states only.
+        isFinal
+          ? "cursor-default"
+          : "cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
         toneClass,
       ].join(" ")}
     >
