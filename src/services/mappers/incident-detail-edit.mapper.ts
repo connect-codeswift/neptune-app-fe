@@ -8,7 +8,7 @@ import type { IncidentDetailResponseAction } from "@/components/incidents/detail
 import {
   buildActionTaken,
   splitActionTaken,
-} from "@/components/incidents/report/shared/report-response";
+} from "@/forms/incident-module/immediate-response";
 import type { IncidentDto, PersonDto } from "@/dtos/res/incident-response.dto";
 
 export type IncidentDetailEditDraft = Readonly<{

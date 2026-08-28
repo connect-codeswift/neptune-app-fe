@@ -15,7 +15,7 @@ import {
   isSeverityPicked,
   type ReportIncidentFormState,
   type ReportStepId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";

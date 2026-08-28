@@ -7,7 +7,7 @@ import {
   SITE_STATS,
   STEP_TIPS,
   type ReportStepId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 
 export type ReportIncidentAsideProps = Readonly<{
   severityBadge: string;

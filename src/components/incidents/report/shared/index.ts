@@ -43,4 +43,4 @@ export { ReportIncidentSteps } from "./ReportIncidentSteps";
 export type { ReportIncidentStepsProps } from "./ReportIncidentSteps";
 export { ReportIncidentToolbar } from "./ReportIncidentToolbar";
 export type { ReportIncidentToolbarProps } from "./ReportIncidentToolbar";
-export * from "./report-incident-data";
+export * from "@/forms/incident-module/index";

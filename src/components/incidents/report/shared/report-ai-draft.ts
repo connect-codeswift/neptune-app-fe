@@ -1,15 +1,15 @@
 import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
-import type { ReportIncidentFormState } from "./report-incident-state";
-import { seriousIncidentLabelForDraft } from "./report-classification";
+import type { ReportIncidentFormState } from "@/forms/incident-module/form-state";
+import { seriousIncidentLabelForDraft } from "@/forms/incident-module/classification";
 import { formatIncidentLocationsLabel } from "./ReportLocationsField";
-import { SEVERITY_OPTIONS } from "./report-severity";
-import { INJURY_LEVEL_OPTIONS } from "./report-injury-level";
-import { BODY_PART_OPTIONS } from "./report-body-parts";
+import { SEVERITY_OPTIONS } from "@/forms/incident-module/severity";
+import { INJURY_LEVEL_OPTIONS } from "@/forms/incident-module/injury-level";
+import { BODY_PART_OPTIONS } from "@/forms/incident-module/body-parts";
 import {
   INITIAL_TREATMENT_OPTIONS,
   MECHANISM_OPTIONS,
   NATURE_OF_INJURY_OPTIONS,
-} from "./report-treatment";
+} from "@/forms/incident-module/treatment";
 import { parseReportDateTime } from "@/services/mappers/report-incident.mapper";
 
 /**

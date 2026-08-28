@@ -17,7 +17,7 @@ import {
   usesSiaSipToggle,
   type ReportIncidentFormState,
   type SeverityId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportClassificationToggle } from "@/components/incidents/report/shared/ReportClassificationToggle";
 import { DateInput } from "@/components/inputs/DateInput";
 import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
