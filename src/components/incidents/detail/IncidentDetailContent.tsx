@@ -42,7 +42,10 @@ import {
   useSiteUsersQuery,
   useUserSummaryQuery,
 } from "@/hooks/use-user-queries";
-import { buildPeoplePhotoIndex } from "@/components/incidents/detail/people/people-photos";
+import {
+  buildPeoplePhotoIndex,
+  lookupPeoplePerson,
+} from "@/components/incidents/detail/people/people-photos";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
@@ -301,24 +304,10 @@ export function IncidentDetailContent(
       ? (detail?.daysAway ?? "—")
       : String(closureData.daysAwayFromWork));
 
-  // The incident stores who was hurt as an id, not a name — the roster picker
-  // files `affectedPersonId` and the record keeps nothing else about them. Look
-  // the person up so the card can show who they actually are, with their photo.
-  // A non-numeric id is free text from an older record and matches nobody, so it
-  // is not worth a request.
-  const affectedUserId = /^\d+$/.test(detail?.affectedEmpId.trim() ?? "")
-    ? Number(detail?.affectedEmpId.trim())
-    : null;
-  const affectedUserQuery = useUserSummaryQuery(
-    affectedUserId,
-    isClientReady && hasToken,
-  );
-  const affectedUser = affectedUserQuery.data ?? null;
-
-  // Everyone else on this page — responders, witnesses, routing, sign-off — is
-  // stored by name only, so one roster fetch covers them all rather than a
-  // request each. Scoped to the incident's own site, falling back to the
-  // viewer's when the payload predates `siteId`.
+  // The incident names its people by id (the affected person) or by name alone
+  // (responders, witnesses, routing, sign-off), so one roster fetch resolves
+  // the whole page rather than a request per person. Scoped to the incident's
+  // own site, falling back to the viewer's when the payload predates `siteId`.
   const rosterSiteId = incidentDto?.siteId ?? getAuthContext()?.siteId ?? 0;
   const siteRosterQuery = useSiteUsersQuery(
     rosterSiteId,
@@ -329,11 +318,34 @@ export function IncidentDetailContent(
     () => buildPeoplePhotoIndex(siteRosterQuery.data ?? []),
     [siteRosterQuery.data],
   );
-  // The looked-up name wins over the mapper's placeholder, but never over a real
-  // name already on the record.
+
+  const affectedIdKey = detail?.affectedEmpId.trim() ?? "";
+  const affectedFromRoster = lookupPeoplePerson(peoplePhotos, affectedIdKey);
+
+  // `GET /users/{id}` is restricted to Ehs_Director, Ehs_Lead and Ehs_Manager,
+  // so it is only worth asking when the roster came up empty — a Supervisor or
+  // Worker gets a 403 there, and relying on it left exactly those roles seeing
+  // "Name not recorded" on incidents everyone else could read. Kept as a
+  // fallback for the case the roster cannot cover: someone recorded against a
+  // different site than this incident's.
+  const affectedUserId = /^\d+$/.test(affectedIdKey)
+    ? Number(affectedIdKey)
+    : null;
+  const affectedUserQuery = useUserSummaryQuery(
+    affectedUserId,
+    isClientReady && hasToken && affectedFromRoster == null,
+  );
+  const affectedUser = affectedUserQuery.data ?? null;
+  const affectedProfileUrl =
+    affectedFromRoster?.photoUrl ?? affectedUser?.profileUrl ?? null;
+
+  // A resolved name replaces the mapper's placeholder, but never a real name
+  // already on the record.
+  const affectedResolvedName =
+    affectedFromRoster?.name || (affectedUser?.fullName ?? "");
   const affectedDisplayName =
     detail && isAffectedNamePlaceholder(detail.affectedName)
-      ? (affectedUser?.fullName ?? detail.affectedName)
+      ? affectedResolvedName || detail.affectedName
       : (detail?.affectedName ?? "");
 
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
@@ -824,7 +836,7 @@ export function IncidentDetailContent(
       timelineEvents={resolvedTimelineEvents}
       affectedName={affectedName}
       affectedDisplayName={affectedDisplayName}
-      affectedProfileUrl={affectedUser?.profileUrl ?? null}
+      affectedProfileUrl={affectedProfileUrl}
       peoplePhotos={peoplePhotos}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}
