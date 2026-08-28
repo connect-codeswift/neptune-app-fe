@@ -39,6 +39,7 @@ import { IncidentDetailNotificationsCard } from "@/components/incidents/detail/p
 import { IncidentDetailPeopleCard } from "@/components/incidents/detail/people/IncidentDetailPeopleCard";
 import { IncidentDetailWitnessesCard } from "@/components/incidents/detail/people/IncidentDetailWitnessesCard";
 import type { PeopleEditErrors } from "@/components/incidents/detail/people/people-edit-validation";
+import type { PeoplePhotoIndex } from "@/components/incidents/detail/people/people-photos";
 import { IncidentDetailHeader } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import type { TabId } from "@/components/incidents/detail/shared/IncidentDetailHeader";
 import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail/timeline/IncidentDetailResponseMetricsCard";
@@ -102,6 +103,8 @@ export type IncidentDetailViewProps = Readonly<{
   affectedDisplayName: string;
   /** Their profile photo, when their user record carries one. */
   affectedProfileUrl: string | null;
+  /** Roster photos for everyone else named on the incident, keyed by name. */
+  peoplePhotos: PeoplePhotoIndex;
   affectedEmpId: string;
   affectedInjuryLabel: string;
   affectedInitials: string;
@@ -216,6 +219,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     affectedName,
     affectedDisplayName,
     affectedProfileUrl,
+    peoplePhotos,
     affectedEmpId,
     affectedInjuryLabel,
     bodyPart,
@@ -381,7 +385,10 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 </div>
 
                 <div className="flex flex-col gap-3.5">
-                  <IncidentDetailRoutingCard members={detail.routingMembers} />
+                  <IncidentDetailRoutingCard
+                    peoplePhotos={peoplePhotos}
+                    members={detail.routingMembers}
+                  />
                   <IncidentDetailLinkedCard
                     linkedItems={mapCapaItemsToLinkedItems(linkedCapa.items, {
                       limit: 3,
@@ -428,6 +435,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     isEditingPeople ? affectedName : affectedDisplayName
                   }
                   affectedProfileUrl={affectedProfileUrl}
+                  peoplePhotos={peoplePhotos}
                   hasAffectedPerson={detail.hasAffectedPerson}
                   affectedRole={detail.affectedRole}
                   affectedEmpId={
@@ -457,6 +465,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddWitness={onAddWitness}
                     onChangeWitness={onChangeWitness}
                     onRemoveWitness={onRemoveWitness}
+                    peoplePhotos={peoplePhotos}
                     lockedCount={lockedWitnessCount}
                     witnessErrors={peopleErrors.witnesses}
                   />
@@ -552,6 +561,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                       isLoading={isRcaInvestigationLoading}
                     />
                     <IncidentDetailSignOffCard
+                      peoplePhotos={peoplePhotos}
                       signoffs={investigation.signoffs}
                     />
                   </div>

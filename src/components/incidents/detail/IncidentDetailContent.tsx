@@ -38,8 +38,12 @@ import {
 } from "@/hooks/use-incident-queries";
 import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
-import { useUserSummaryQuery } from "@/hooks/use-user-queries";
-import { getAuthDisplayName } from "@/lib/auth-context";
+import {
+  useSiteUsersQuery,
+  useUserSummaryQuery,
+} from "@/hooks/use-user-queries";
+import { buildPeoplePhotoIndex } from "@/components/incidents/detail/people/people-photos";
+import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
 import { getStoredFile } from "@/services/files.service";
@@ -81,6 +85,9 @@ export type IncidentDetailContentProps = Readonly<{
 }>;
 
 type EditScope = "details" | "people" | "attachments";
+
+/** One page of roster covers a site's people; incidents rarely name more. */
+const ROSTER_PAGE_SIZE = 200;
 
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -307,6 +314,21 @@ export function IncidentDetailContent(
     isClientReady && hasToken,
   );
   const affectedUser = affectedUserQuery.data ?? null;
+
+  // Everyone else on this page — responders, witnesses, routing, sign-off — is
+  // stored by name only, so one roster fetch covers them all rather than a
+  // request each. Scoped to the incident's own site, falling back to the
+  // viewer's when the payload predates `siteId`.
+  const rosterSiteId = incidentDto?.siteId ?? getAuthContext()?.siteId ?? 0;
+  const siteRosterQuery = useSiteUsersQuery(
+    rosterSiteId,
+    { pageSize: ROSTER_PAGE_SIZE },
+    isClientReady && hasToken && rosterSiteId > 0,
+  );
+  const peoplePhotos = useMemo(
+    () => buildPeoplePhotoIndex(siteRosterQuery.data ?? []),
+    [siteRosterQuery.data],
+  );
   // The looked-up name wins over the mapper's placeholder, but never over a real
   // name already on the record.
   const affectedDisplayName =
@@ -803,6 +825,7 @@ export function IncidentDetailContent(
       affectedName={affectedName}
       affectedDisplayName={affectedDisplayName}
       affectedProfileUrl={affectedUser?.profileUrl ?? null}
+      peoplePhotos={peoplePhotos}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}
       affectedInitials={initialsFromName(affectedName)}
