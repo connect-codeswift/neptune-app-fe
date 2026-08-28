@@ -8,6 +8,7 @@ import { TextInput } from "@/components/inputs/TextInput";
 import { SelectInput } from "@/components/inputs/SelectInput";
 import { UploadDocumentDropzone } from "@/components/policy-maker/upload/UploadDocumentDropzone";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   useAddDocumentCategoryMutation,
   useCreateDocumentMutation,
@@ -51,6 +52,10 @@ function isPdfFile(file: File): boolean {
 export function UploadDocumentForm() {
   const router = useRouter();
   const createDocumentMutation = useCreateDocumentMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
   const addCategoryMutation = useAddDocumentCategoryMutation();
   const addDepartmentMutation = useAddDepartmentMutation();
   const categoriesQuery = useDocumentCategoriesQuery();
@@ -280,6 +285,10 @@ export function UploadDocumentForm() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createDocumentMutation.mutate(
       {
         id: 1,
@@ -303,6 +312,7 @@ export function UploadDocumentForm() {
           router.push("/dashboard/policy-maker");
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             "Could not upload document",
             getMutationErrorMessage(error, "Please try again."),
@@ -312,7 +322,7 @@ export function UploadDocumentForm() {
     );
   };
 
-  const isSubmitting = createDocumentMutation.isPending;
+  const isSubmitting = submitLock.isLocked;
   const isAddingCategory = addCategoryMutation.isPending;
   const isAddingDepartment = addDepartmentMutation.isPending;
   const busy =

@@ -14,6 +14,7 @@ import { useNarrativeDraft } from "@/hooks/use-narrative-draft";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { CreateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateNearMissMutation } from "@/hooks/use-near-miss-mutations";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
@@ -82,6 +83,10 @@ function toCreateRequest(
 export function ReportNearMissForm() {
   const router = useRouter();
   const createNearMiss = useCreateNearMissMutation();
+  // Held past the response: `isPending` drops as soon as the record is
+  // created, while the push to the list is still in flight, and a click in
+  // that gap filed a duplicate report.
+  const submitLock = useSubmitLock();
   const [values, setValues] = useState<FormValues>({});
 
   const narrative = String(values.whatHappened ?? "");
@@ -162,12 +167,17 @@ export function ReportNearMissForm() {
     // Values are keyed by the schema field names, matching NearMissReportValues.
     const payload = toCreateRequest(values as NearMissReportValues);
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createNearMiss.mutate(payload, {
       onSuccess: () => {
         toast.success("Near-miss report submitted");
         router.push(NEAR_MISS_LIST_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -191,10 +201,10 @@ export function ReportNearMissForm() {
         onChange={setValues}
         className={nearMissFormFieldClass}
         submitLabel={
-          createNearMiss.isPending ? "Submitting..." : "Submit Near-Miss Report"
+          submitLock.isLocked ? "Submitting..." : "Submit Near-Miss Report"
         }
         cancelLabel="Cancel"
-        isSubmitting={createNearMiss.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(NEAR_MISS_LIST_ROUTE)}
       />

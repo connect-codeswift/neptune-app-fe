@@ -20,6 +20,7 @@ import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoEquipmentDetailQuery } from "@/hooks/use-loto-queries";
 import { useApplyLotoLockoutMutation } from "@/hooks/use-loto-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   withLockPrefix,
   withEquipmentPrefix,
@@ -140,8 +141,12 @@ function LotoApplyLockoutForm(
   const schema = useMemo(() => buildApplyLockoutSchema(), []);
   const [confirmed, setConfirmed] = useState(false);
   const applyMutation = useApplyLotoLockoutMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
 
-  const canSubmit = confirmed && context.canApply && !applyMutation.isPending;
+  const canSubmit = confirmed && context.canApply && !submitLock.isLocked;
 
   const handleValid = (values: FormValues) => {
     if (!confirmed) {
@@ -156,6 +161,10 @@ function LotoApplyLockoutForm(
     }
 
     const expectedCompletion = fieldString(values, "expectedCompletion").trim();
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     applyMutation.mutate(
       {
@@ -176,6 +185,7 @@ function LotoApplyLockoutForm(
           router.push(`${LOTO_ROUTE}?tab=active-lockouts`);
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             getMutationErrorMessage(error, "Failed to apply the lockout."),
           );
@@ -254,9 +264,7 @@ function LotoApplyLockoutForm(
               className="text4 rounded-2.5 gap-1.75 px-4 py-2.5 font-semibold shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)] disabled:opacity-50"
             >
               <Icon icon="mdi:lock-outline" className="size-3.5 shrink-0" />
-              {applyMutation.isPending
-                ? "Applying…"
-                : "Confirm Lockout Applied"}
+              {submitLock.isLocked ? "Applying…" : "Confirm Lockout Applied"}
             </Button>
           </div>
         </div>

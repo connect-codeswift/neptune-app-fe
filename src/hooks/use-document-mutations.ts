@@ -23,7 +23,18 @@ export function useCreateDocumentMutation() {
   return useMutation({
     mutationFn: (payload: CreateDocumentRequestDto) => createDocument(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: documentQueryKeys.all,
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -47,9 +58,18 @@ export function useAddDocumentCategoryMutation() {
   return useMutation({
     mutationFn: (payload: AddDocCategoryRequestDto) => addDocCategory(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: documentQueryKeys.categories,
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: documentQueryKeys.categories,
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -75,7 +95,18 @@ export function useAcknowledgeDocumentMutation() {
     mutationFn: (payload: AcknowledgeDocumentRequestDto) =>
       acknowledgeDocument(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: documentQueryKeys.all });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: documentQueryKeys.all,
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }

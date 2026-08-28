@@ -25,6 +25,7 @@ import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
@@ -95,6 +96,10 @@ export function CreateCapaContent() {
   const sourceType = searchParams.get("sourceType")?.trim() ?? "";
   const sourceId = Number(searchParams.get("sourceId") ?? 0);
   const createCapaMutation = useCreateCapaMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
 
   const [controlLevel, setControlLevel] = useState<ControlLevel | null>(null);
   const [formValues, setFormValues] = useState<FormValues | null>(null);
@@ -112,7 +117,7 @@ export function CreateCapaContent() {
   // Read live so the task picker follows the CAPA date as it is being chosen, rather than
   // capping against whatever it was when the modal first opened.
   const capaDueDate = fieldString(formValues ?? initialValues, "dueDate");
-  const isSubmitting = createCapaMutation.isPending;
+  const isSubmitting = submitLock.isLocked;
 
   // A CAPA with no tasks is a dead end: status is derived from its tasks, so it can never
   // leave Open - not Completed, so never Pending Verification, and never Closed. The only
@@ -158,6 +163,10 @@ export function CreateCapaContent() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     try {
       await createCapaMutation.mutateAsync({
         payload: {
@@ -194,6 +203,7 @@ export function CreateCapaContent() {
       );
       router.push(CAPA_ROUTE);
     } catch (error) {
+      submitLock.release();
       toast.error(
         "Could not create CAPA",
         getMutationErrorMessage(error, "Please try again."),

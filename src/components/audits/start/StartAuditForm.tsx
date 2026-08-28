@@ -10,6 +10,7 @@ import {
 } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateAuditMutation } from "@/hooks/use-audit-mutations";
 import { useAuditTemplatesQuery } from "@/hooks/use-audit-template-queries";
 import { getCurrentUser } from "@/lib/current-user";
@@ -138,6 +139,10 @@ export function StartAuditForm() {
   }, [activeTemplateId]);
 
   const createAudit = useCreateAuditMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching StartAuditValues.
@@ -159,6 +164,10 @@ export function StartAuditForm() {
       parsedDueDate && !Number.isNaN(parsedDueDate.getTime())
         ? parsedDueDate.toISOString()
         : undefined;
+
+    if (!submitLock.acquire()) {
+      return;
+    }
 
     createAudit.mutate(
       {
@@ -190,6 +199,7 @@ export function StartAuditForm() {
           );
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             getMutationErrorMessage(
               error,
@@ -212,9 +222,9 @@ export function StartAuditForm() {
         key={activeTemplateId || "blank"}
         schema={schema}
         initialValues={initialValues}
-        submitLabel={createAudit.isPending ? "Scheduling…" : "Schedule Audit"}
+        submitLabel={submitLock.isLocked ? "Scheduling…" : "Schedule Audit"}
         cancelLabel="Cancel"
-        isSubmitting={createAudit.isPending}
+        isSubmitting={submitLock.isLocked}
         onSubmit={handleSubmit}
         onCancel={() => router.push(AUDIT_LIST_ROUTE)}
       />
