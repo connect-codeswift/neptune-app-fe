@@ -6,11 +6,19 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { SignOffRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import {
+  EMPTY_PEOPLE_PHOTO_INDEX,
+  lookupPeoplePhoto,
+  type PeoplePhotoIndex,
+} from "@/components/incidents/detail/people/people-photos";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export type { SignOffRow };
 
 export type IncidentDetailSignOffCardProps = Readonly<{
   signoffs?: readonly SignOffRow[];
+  /** Roster photos, keyed by name. */
+  peoplePhotos?: PeoplePhotoIndex;
   onRequestApproval?: () => void;
   className?: string;
 }>;
@@ -21,7 +29,12 @@ export function IncidentDetailSignOffCard(
   // No placeholder signatories: this card is the investigation's sign-off
   // record, and named people with a "Signed" badge are indistinguishable from
   // real approvals.
-  const { signoffs = [], onRequestApproval, className = "" } = props;
+  const {
+    signoffs = [],
+    peoplePhotos = EMPTY_PEOPLE_PHOTO_INDEX,
+    onRequestApproval,
+    className = "",
+  } = props;
 
   // No caller supplies onRequestApproval yet, and the previous fallback
   // toasted "notifications dispatched" without sending anything. Until there
@@ -57,16 +70,12 @@ export function IncidentDetailSignOffCard(
                   : "border-ehs-border-ink/8 border-t pt-3.25 pb-1",
               ].join(" ")}
             >
-              <div
-                className={[
-                  "text8 rounded-2.5 flex size-8 shrink-0 items-center justify-center font-bold",
-                  index === 0
-                    ? "bg-ehs-dark-blue-bg-light text-ehs-dark-blue"
-                    : "text-ehs-gray bg-ehs-surface/82",
-                ].join(" ")}
-              >
-                {person.initials}
-              </div>
+              <UserAvatar
+                name={person.name}
+                profileUrl={lookupPeoplePhoto(peoplePhotos, person.name)}
+                sizeClassName="rounded-2.5 size-8"
+                sizes="32px"
+              />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                   {person.name}

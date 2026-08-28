@@ -6,6 +6,12 @@ import { Text } from "@/components/Text";
 import type { WitnessRow } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import {
+  EMPTY_PEOPLE_PHOTO_INDEX,
+  lookupPeoplePhoto,
+  type PeoplePhotoIndex,
+} from "@/components/incidents/detail/people/people-photos";
 
 export type { WitnessRow };
 
@@ -28,6 +34,8 @@ export type IncidentDetailWitnessesCardProps = Readonly<{
   lockedCount?: number;
   /** Indexed to match `witnesses`; `null` where the row is valid. */
   witnessErrors?: readonly (string | null)[];
+  /** Roster photos for the witnesses, keyed by name. */
+  peoplePhotos?: PeoplePhotoIndex;
   className?: string;
 }>;
 
@@ -51,6 +59,7 @@ export function IncidentDetailWitnessesCard(
     readOnly = false,
     lockedCount = 0,
     witnessErrors = [],
+    peoplePhotos = EMPTY_PEOPLE_PHOTO_INDEX,
     className = "",
   } = props;
 
@@ -117,9 +126,12 @@ export function IncidentDetailWitnessesCard(
               key={index}
               className="border-ehs-border-ink/8 flex items-center gap-2.5 border-t pt-2.75 pb-2.5"
             >
-              <div className="text-ehs-gray rounded-2.25 text7 bg-ehs-surface/82 flex size-7.5 shrink-0 items-center justify-center">
-                {witness.initials}
-              </div>
+              <UserAvatar
+                name={witness.name}
+                profileUrl={lookupPeoplePhoto(peoplePhotos, witness.name)}
+                sizeClassName="rounded-2.25 size-7.5"
+                sizes="30px"
+              />
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 {isRowEditable ? (
                   <>

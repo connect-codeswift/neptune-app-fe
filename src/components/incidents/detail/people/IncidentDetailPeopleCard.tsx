@@ -5,6 +5,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import {
+  EMPTY_PEOPLE_PHOTO_INDEX,
+  lookupPeoplePhoto,
+  type PeoplePhotoIndex,
+} from "@/components/incidents/detail/people/people-photos";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -16,6 +21,8 @@ export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
   /** The affected person's profile photo, when their user record carries one. */
   affectedProfileUrl?: string | null;
+  /** Roster photos for the responders, keyed by name. */
+  peoplePhotos?: PeoplePhotoIndex;
   /**
    * Whether the incident records an affected person at all. Decided by the
    * mapper, which has the record; this was inferred here by comparing the name
@@ -71,6 +78,7 @@ export function IncidentDetailPeopleCard(
   const {
     affectedName = "",
     affectedProfileUrl = null,
+    peoplePhotos = EMPTY_PEOPLE_PHOTO_INDEX,
     hasAffectedPerson = false,
     affectedRole = "Affected person",
     affectedEmpId = "—",
@@ -279,9 +287,16 @@ export function IncidentDetailPeopleCard(
               key={index}
               className="border-ehs-border-ink/8 flex items-center gap-3 border-t pt-3.25 pb-3"
             >
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 rounded-2.5 flex size-8.5 shrink-0 items-center justify-center">
-                {person.initials}
-              </div>
+              <UserAvatar
+                name={person.name}
+                profileUrl={lookupPeoplePhoto(
+                  peoplePhotos,
+                  person.name,
+                  person.empId,
+                )}
+                sizeClassName="rounded-2.5 size-8.5"
+                sizes="34px"
+              />
               <div className="flex min-w-0 flex-1 flex-col gap-px">
                 <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                   {person.name}
