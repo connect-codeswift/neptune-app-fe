@@ -208,38 +208,41 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
             }}
             className={equipmentFieldClass}
           />
-        </IncidentGlassCard>
 
-        <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
-          <Text as="h2" className="text3 text-ehs-darker mb-1">
-            Authorized Personnel
-          </Text>
-          <Text as="p" className="text8 text-ehs-muted-text mb-3">
-            Only these users can perform this LOTO procedure
-          </Text>
-          <MultipleUsersPickerInput
-            label="Authorized Personnel"
-            hideLabel
-            required
-            placeholder="Search people at this site…"
-            value={personnel.map((person) => ({
-              userId: String(person.userId),
-              name: person.name,
-            }))}
-            onChange={(next) => {
-              onPersonnelChange(
-                next.map((entry) => ({
-                  userId: Number(entry.userId),
-                  name: entry.name,
-                })),
-              );
-            }}
-            siteId={getCurrentUser().siteId}
-            // Any registered, active user on the site is eligible — but an
-            // outstanding invitation or a soft-deleted account is not a person
-            // who can be authorized on a lockout.
-            filter={(user) => !user.isInvited && !user.isDrop}
-          />
+          {/* Part of Equipment Information, under Description: a procedure
+              nobody is authorized to perform cannot be applied, so this belongs
+              with the machine's own details rather than in a card of its own. */}
+          <div className="border-ehs-border-ink/8 mt-4 border-t pt-4">
+            <Text as="h3" className="text4 text-ehs-darker mb-1 font-semibold">
+              Authorized Personnel
+            </Text>
+            <Text as="p" className="text8 text-ehs-muted-text mb-2.5">
+              Only these users can perform this LOTO procedure
+            </Text>
+            <MultipleUsersPickerInput
+              label="Authorized Personnel"
+              hideLabel
+              required
+              placeholder="Search people at this site…"
+              value={personnel.map((person) => ({
+                userId: String(person.userId),
+                name: person.name,
+              }))}
+              onChange={(next) => {
+                onPersonnelChange(
+                  next.map((entry) => ({
+                    userId: Number(entry.userId),
+                    name: entry.name,
+                  })),
+                );
+              }}
+              siteId={getCurrentUser().siteId}
+              // Any registered, active user on the site is eligible — but an
+              // outstanding invitation or a soft-deleted account is not a person
+              // who can be authorized on a lockout.
+              filter={(user) => !user.isInvited && !user.isDrop}
+            />
+          </div>
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
