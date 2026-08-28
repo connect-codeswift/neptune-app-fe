@@ -14,6 +14,8 @@ export type IncidentDetailPhotosCardProps = Readonly<{
   onAddFile?: () => void;
   onDeleteFile?: (file: AttachmentItem) => void;
   isEditing?: boolean;
+  /** Defaults to `isEditing`. See IncidentDetailFilesTable for why the two are separate. */
+  canDelete?: boolean;
   readOnly?: boolean;
   /** When true, renders section content without an outer glass card. */
   embedded?: boolean;
@@ -27,6 +29,7 @@ function PhotosContent(
     onAddFile?: () => void;
     onDeleteFile?: (file: AttachmentItem) => void;
     isEditing: boolean;
+    canDelete: boolean;
     readOnly: boolean;
   }>,
 ) {
@@ -36,6 +39,7 @@ function PhotosContent(
     onAddFile,
     onDeleteFile,
     isEditing,
+    canDelete,
     readOnly,
   } = props;
   // Always show every attachment — do not hide PDFs when images exist.
@@ -148,7 +152,7 @@ function PhotosContent(
                   </div>
                 </button>
 
-                {isEditing ? (
+                {canDelete ? (
                   <button
                     type="button"
                     onClick={(event) => {
@@ -183,6 +187,7 @@ export function IncidentDetailPhotosCard(
     onAddFile,
     onDeleteFile,
     isEditing = false,
+    canDelete,
     readOnly = false,
     embedded = false,
     className = "",
@@ -194,6 +199,7 @@ export function IncidentDetailPhotosCard(
       onSelectFile={onSelectFile}
       onAddFile={onAddFile}
       onDeleteFile={onDeleteFile}
+      canDelete={canDelete ?? isEditing}
       isEditing={isEditing}
       readOnly={readOnly}
     />

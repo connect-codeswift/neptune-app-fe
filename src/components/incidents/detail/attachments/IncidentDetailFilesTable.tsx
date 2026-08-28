@@ -11,6 +11,8 @@ export type IncidentDetailFilesTableProps = Readonly<{
   onSelectFile?: (file: AttachmentItem) => void;
   onDeleteFile?: (file: AttachmentItem) => void;
   isEditing?: boolean;
+  /** Defaults to `isEditing`, so callers that only stage deletes are unchanged. */
+  canDelete?: boolean;
   /** When true, renders section content without an outer glass card. */
   embedded?: boolean;
   className?: string;
@@ -29,10 +31,16 @@ function FilesContent(
     onSelectFile?: (file: AttachmentItem) => void;
     onDeleteFile?: (file: AttachmentItem) => void;
     isEditing: boolean;
+    /**
+     * Whether the delete column shows. Separate from `isEditing` because an attachment can be
+     * removed while simply viewing the incident; editing additionally suppresses row clicks.
+     */
+    canDelete: boolean;
   }>,
 ) {
-  const { attachments, onSelectFile, onDeleteFile, isEditing } = props;
-  const columnCount = isEditing ? 6 : 5;
+  const { attachments, onSelectFile, onDeleteFile, isEditing, canDelete } =
+    props;
+  const columnCount = canDelete ? 6 : 5;
 
   return (
     <>
@@ -56,7 +64,7 @@ function FilesContent(
                   { label: "Size", align: "left" as const },
                   { label: "Added by", align: "left" as const },
                   { label: "Time", align: "right" as const },
-                  ...(isEditing
+                  ...(canDelete
                     ? [{ label: "", align: "right" as const }]
                     : []),
                 ] as const
@@ -130,7 +138,7 @@ function FilesContent(
                   <td className="text-ehs-muted-text text4 py-3.5 text-right leading-normal whitespace-nowrap">
                     {item.time}
                   </td>
-                  {isEditing ? (
+                  {canDelete ? (
                     <td className="py-3.5 pl-2 text-right">
                       <button
                         type="button"
@@ -167,6 +175,7 @@ export function IncidentDetailFilesTable(
     onSelectFile,
     onDeleteFile,
     isEditing = false,
+    canDelete,
     embedded = false,
     className = "",
   } = props;
@@ -177,6 +186,7 @@ export function IncidentDetailFilesTable(
       onSelectFile={onSelectFile}
       onDeleteFile={onDeleteFile}
       isEditing={isEditing}
+      canDelete={canDelete ?? isEditing}
     />
   );
 
