@@ -130,6 +130,12 @@ function mapTrainingLogDtoToHazcomSession(raw: unknown): HazcomTrainingSession {
     date,
     chemicalId: toOptionalId(readProp(record, "chemicalId", "ChemicalId")),
     chemicalName: asString(readProp(record, "chemicalName", "ChemicalName")),
+    chemicalIds: toAttendeeIds(readProp(record, "chemicalIds", "ChemicalIds")),
+    // The resolved names of every chemical the session covered. Falls back to
+    // the single `chemicalName` for rows written before the join table.
+    chemicalNames: toStringList(
+      readProp(record, "chemicalNames", "ChemicalNames"),
+    ),
     trainerId: toOptionalId(readProp(record, "trainerId", "TrainerId")),
     trainer,
     // The form labels this "Topic / Training Title"; `trainerTitle` is the

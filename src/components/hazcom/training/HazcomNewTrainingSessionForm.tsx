@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import {
@@ -39,6 +39,14 @@ export function HazcomNewTrainingSessionForm(
   // duplicate.
   const submitLock = useSubmitLock();
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
+  // The form owns its own state, so the one value the schema depends on is
+  // mirrored here. Only `trainerId` is read back out — keeping the memo keyed
+  // on that string rather than the whole map means typing in Notes does not
+  // rebuild the schema.
+  const [formValues, setFormValues] = useState<FormValues>(
+    HAZCOM_TRAINING_INITIAL_VALUES,
+  );
+  const trainerId = String(formValues.trainerId ?? "");
 
   const auth = useMemo(() => getAuthContext(), []);
   const siteId = auth?.siteId ?? 0;
@@ -64,8 +72,16 @@ export function HazcomNewTrainingSessionForm(
         siteId,
         siteName,
         usersSource,
+        trainerId,
       }),
-    [chemicalOptions, isLoadingChemicals, siteId, siteName, usersSource],
+    [
+      chemicalOptions,
+      isLoadingChemicals,
+      siteId,
+      siteName,
+      usersSource,
+      trainerId,
+    ],
   );
 
   const goBack = () => {
@@ -112,6 +128,7 @@ export function HazcomNewTrainingSessionForm(
         formId={HAZCOM_TRAINING_FORM_ID}
         schema={schema}
         initialValues={HAZCOM_TRAINING_INITIAL_VALUES}
+        onChange={setFormValues}
         onSubmit={handleSubmit}
         hideActions
         className="gap-4.5"

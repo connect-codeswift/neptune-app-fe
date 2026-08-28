@@ -18,6 +18,7 @@ import type {
   FormValues,
   PersonFieldConfig,
   PersonMultiFieldConfig,
+  SelectMultiFieldConfig,
   SelectFieldConfig,
   SwitchFieldConfig,
   TextFieldConfig,
@@ -28,6 +29,7 @@ import type {
 } from "./types";
 import { UserPickerInput } from "@/components/inputs/UserPickerInput";
 import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import { MultiSelectInput } from "@/components/inputs/MultiSelectInput";
 import { useUserOptions } from "@/hooks/use-user-options";
 import { getAuthContext } from "@/lib/auth-context";
 import {
@@ -593,6 +595,34 @@ function personMultiDisplayNamesKey(field: PersonMultiFieldConfig): string {
  * missing a name is resolved against the roster once, and the chip falls back
  * to "User 42" only if that fails too.
  */
+/**
+ * Multi-select over a fixed option list. `MultiSelectInput` supplies the
+ * dropdown and the removable chips; `FieldShell` already renders the label and
+ * error, so both are suppressed here as the other controls do.
+ */
+function SelectMultiControl(
+  props: Readonly<{
+    field: SelectMultiFieldConfig;
+    value: string[];
+    onChange: (v: string[]) => void;
+  }>,
+) {
+  const { field, value, onChange } = props;
+
+  return (
+    <MultiSelectInput
+      id={field.name}
+      options={field.options}
+      value={value}
+      onChange={onChange}
+      placeholder={field.placeholder ?? "Select…"}
+      disabled={field.disabled}
+      wrapperClassName=""
+      labelClassName="sr-only"
+    />
+  );
+}
+
 function PersonMultiControl(
   props: Readonly<{
     field: PersonMultiFieldConfig;
@@ -619,13 +649,21 @@ function PersonMultiControl(
     enabled: unresolved.length > 0,
   });
 
-  const selected = value.map((id, index) => ({
-    userId: id,
-    name:
-      names[index] ||
-      lookup.users.find((user) => user.id === id)?.name ||
-      `User ${id}`,
-  }));
+  // `excludeUserIds` means "may not be in this list", not merely "may not be
+  // offered in the dropdown". The excluded person can be chosen elsewhere
+  // *after* they were picked here — the training trainer is exactly that — and
+  // a rule that only filtered the options would leave them standing as a
+  // selected chip. Filtering the rendered selection drops them the moment they
+  // become excluded, and puts them back if that changes.
+  const selected = value
+    .map((id, index) => ({
+      userId: id,
+      name:
+        names[index] ||
+        lookup.users.find((user) => user.id === id)?.name ||
+        `User ${id}`,
+    }))
+    .filter((entry) => !excludeUserIds.includes(entry.userId));
 
   return (
     <MultipleUsersPickerInput
@@ -1167,6 +1205,16 @@ export function FieldRenderer(props: FieldRendererProps) {
             field={field}
             value={value as string}
             error={error}
+            onChange={onChange}
+          />
+        </FieldShell>
+      );
+    case "select-multi":
+      return (
+        <FieldShell field={field} error={error}>
+          <SelectMultiControl
+            field={field}
+            value={value as string[]}
             onChange={onChange}
           />
         </FieldShell>
