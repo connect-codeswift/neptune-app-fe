@@ -11,8 +11,10 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Icon } from "@iconify/react";
-import { Text } from "@/components/Text";
-import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
+import {
+  ReportFieldLabel,
+  ReportFieldHint,
+} from "@/components/incidents/report/shared/ReportFormField";
 import {
   readUserProfileUrl,
   type SiteUserDto,
@@ -226,16 +228,7 @@ export function ReportWitnessesField(
         .filter(Boolean)
         .join(" ")}
     >
-      <ReportFieldLabel
-        label={label}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
-      />
+      <ReportFieldLabel label={label} />
 
       <div className="relative">
         <div
@@ -432,6 +425,8 @@ export function ReportWitnessesField(
           </div>
         ) : null}
       </div>
+
+      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
     </div>
   );
 }

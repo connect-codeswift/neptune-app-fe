@@ -9,6 +9,7 @@ export { ReportDateField } from "./ReportDateField";
 export type { ReportDateFieldProps } from "./ReportDateField";
 export {
   ReportFieldError,
+  ReportFieldHint,
   ReportFieldLabel,
   ReportSelectField,
   ReportTextField,
@@ -16,6 +17,7 @@ export {
 } from "./ReportFormField";
 export type {
   ReportFieldErrorProps,
+  ReportFieldHintProps,
   ReportFieldLabelProps,
   ReportSelectFieldProps,
   ReportTextFieldProps,

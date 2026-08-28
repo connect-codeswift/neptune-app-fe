@@ -1,6 +1,10 @@
 "use client";
 
-import { ReportFieldLabel, ReportFieldError } from "./ReportFormField";
+import {
+  ReportFieldLabel,
+  ReportFieldError,
+  ReportFieldHint,
+} from "./ReportFormField";
 import type { ClassificationValue } from "./report-classification";
 
 export type ClassificationToggleOption = Readonly<{
@@ -98,7 +102,7 @@ export function ReportClassificationToggle(
       className="flex flex-col gap-1.5"
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel label={label} required={required} hint={hint} />
+      <ReportFieldLabel label={label} required={required} />
       <div
         role="group"
         aria-label={label}
@@ -159,6 +163,7 @@ export function ReportClassificationToggle(
           );
         })}
       </div>
+      {hint ? <ReportFieldHint withIcon>{hint}</ReportFieldHint> : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );
