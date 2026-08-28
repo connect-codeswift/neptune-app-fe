@@ -22,6 +22,11 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
 import { DateInput } from "@/components/inputs/DateInput";
+import {
+  cantBePast,
+  mmDdYyyyToIso,
+  todayMmDdYyyy,
+} from "@/lib/date-time-field";
 import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
@@ -175,10 +180,18 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
   // so the same rule depended on which route you came in through. Editing is exempt: the tasks
   // already exist and are managed on the detail page.
   const hasAtLeastOneTask = isEditMode || stagedTasks.length > 0;
+  // minDate only greys the calendar out — the field still accepts typed input,
+  // so the rule is re-checked here. An already-saved past date is left alone:
+  // editing an old CAPA must not be blocked by a deadline that has since passed.
+  const isDueDateUnchanged = dueDate === initialDueDate;
+  const dueDateError = isDueDateUnchanged
+    ? null
+    : cantBePast(mmDdYyyyToIso(dueDate), "Due date").error;
   const canSubmit =
     controlLevel != null &&
     description.trim().length > 0 &&
     hasAtLeastOneTask &&
+    dueDateError === null &&
     !busy;
   const modalCapaId = capaToEdit?.code ?? capaId;
 
@@ -347,6 +360,10 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
               <DateInput
                 variant="embedded"
                 label="Due date"
+                // POST /api/Capa/AddCapa rejects a past due date, same as the
+                // schema-driven create form.
+                minDate={todayMmDdYyyy()}
+                error={dueDateError}
                 value={dueDate}
                 onChange={(next) => {
                   setDueDate(next);
