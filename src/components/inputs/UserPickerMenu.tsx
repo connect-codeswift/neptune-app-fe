@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  useLayoutEffect,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
+import { type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
+import { useAnchoredMenu } from "@/hooks/use-anchored-menu";
 
 export type UserPickerVariant = "form" | "embedded";
-
-type MenuPosition = Readonly<{
-  top: number;
-  left: number;
-  width: number;
-}>;
 
 export type UserPickerMenuProps = Readonly<{
   open: boolean;
@@ -23,11 +13,6 @@ export type UserPickerMenuProps = Readonly<{
   anchorRef: RefObject<HTMLElement | null>;
   /** Set on the portaled menu so an outside-click handler can spare it. */
   menuRef: RefObject<HTMLDivElement | null>;
-  /**
-   * Changes whenever the menu's content changes height — the position is
-   * recomputed then, so a list that grows doesn't hang off the bottom of a modal.
-   */
-  contentKey: string;
   children: ReactNode;
 }>;
 
@@ -47,46 +32,14 @@ const MENU_SHELL_CLASS =
  * nearest card is the last thing on the page and nothing can overlap it.
  */
 export function UserPickerMenu(props: Readonly<UserPickerMenuProps>) {
-  const { open, variant, anchorRef, menuRef, contentKey, children } = props;
+  const { open, variant, anchorRef, menuRef, children } = props;
 
-  const [position, setPosition] = useState<MenuPosition | null>(null);
   const isEmbedded = variant === "embedded";
-
-  useLayoutEffect(() => {
-    if (!isEmbedded || !open) {
-      return;
-    }
-
-    const updatePosition = () => {
-      const rect = anchorRef.current?.getBoundingClientRect();
-      if (!rect) {
-        return;
-      }
-
-      const menuHeight = menuRef.current?.offsetHeight ?? 240;
-      const gap = 6;
-      const spaceBelow = window.innerHeight - rect.bottom - gap;
-      const openUpward = spaceBelow < menuHeight && rect.top > spaceBelow;
-
-      setPosition({
-        top: openUpward
-          ? Math.max(8, rect.top - menuHeight - gap)
-          : rect.bottom + gap,
-        left: rect.left,
-        width: rect.width,
-      });
-    };
-
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    // Capture phase: a scroll inside a modal body doesn't bubble to window.
-    window.addEventListener("scroll", updatePosition, true);
-
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [isEmbedded, open, contentKey, anchorRef, menuRef]);
+  const menuStyle = useAnchoredMenu({
+    open: open && isEmbedded,
+    anchorRef,
+    menuRef,
+  });
 
   if (!open) {
     return null;
@@ -104,15 +57,15 @@ export function UserPickerMenu(props: Readonly<UserPickerMenuProps>) {
 
   // `open` is only ever true after an interaction, so there is no server render
   // to guard against beyond the document check itself.
-  if (typeof document === "undefined" || !position) {
+  if (typeof document === "undefined") {
     return null;
   }
 
   return createPortal(
     <div
       ref={menuRef}
-      style={{ top: position.top, left: position.left, width: position.width }}
-      className={`${MENU_SHELL_CLASS} fixed z-120`}
+      style={menuStyle}
+      className={`${MENU_SHELL_CLASS} z-120`}
     >
       {children}
     </div>,

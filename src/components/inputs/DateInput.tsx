@@ -1,15 +1,9 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useAnchoredMenu } from "@/hooks/use-anchored-menu";
 import {
   FieldError,
   FieldLabel,
@@ -31,12 +25,6 @@ import {
 } from "@/lib/date-time-field";
 
 const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
-
-type MenuPosition = Readonly<{
-  top: number;
-  left: number;
-  width: number;
-}>;
 
 export type DateInputQuickPick = "today" | "yesterday";
 
@@ -99,7 +87,15 @@ export function DateInput(props: Readonly<DateInputProps>) {
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
+  const menuStyle = useAnchoredMenu({
+    open: open && isEmbedded,
+    anchorRef: inputWrapperRef,
+    menuRef,
+    // The calendar grid has a width of its own, and is centred on the field
+    // rather than left-aligned to it because it is usually the wider of the two.
+    minWidth: 260,
+    align: "center",
+  });
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -117,46 +113,6 @@ export function DateInput(props: Readonly<DateInputProps>) {
   const max = maxDate ? parseMmDdYyyy(maxDate) : null;
 
   useDismissOnOutsideClick(rootRef, open && !isEmbedded, () => setOpen(false));
-
-  useLayoutEffect(() => {
-    if (!isEmbedded || !open || !inputWrapperRef.current) {
-      return;
-    }
-
-    const updatePosition = () => {
-      const rect = inputWrapperRef.current?.getBoundingClientRect();
-      if (!rect) {
-        return;
-      }
-
-      const menuWidth = Math.max(260, rect.width);
-      const menuHeight = menuRef.current?.offsetHeight ?? 320;
-      const gap = 6;
-      const spaceBelow = window.innerHeight - rect.bottom - gap;
-      const openUpward = spaceBelow < menuHeight && rect.top > spaceBelow;
-      const top = openUpward
-        ? Math.max(8, rect.top - menuHeight - gap)
-        : rect.bottom + gap;
-      const left = Math.min(
-        Math.max(8, rect.left + rect.width / 2 - menuWidth / 2),
-        window.innerWidth - menuWidth - 8,
-      );
-
-      setMenuPosition({
-        top,
-        left,
-        width: menuWidth,
-      });
-    };
-
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [isEmbedded, open, value, minDate, maxDate]);
 
   useEffect(() => {
     if (!isEmbedded || !open) {
@@ -218,19 +174,9 @@ export function DateInput(props: Readonly<DateInputProps>) {
   const inlineCalendar = open && !isEmbedded ? calendarPopover : null;
 
   const portaledCalendar =
-    isEmbedded && mounted && open && menuPosition
+    isEmbedded && mounted && open
       ? createPortal(
-          <div
-            ref={menuRef}
-            style={
-              {
-                top: menuPosition.top,
-                left: menuPosition.left,
-                width: menuPosition.width,
-              } satisfies CSSProperties
-            }
-            className="fixed z-120"
-          >
+          <div ref={menuRef} style={menuStyle} className="z-120">
             <CalendarPopover
               value={selected}
               minDate={min}
