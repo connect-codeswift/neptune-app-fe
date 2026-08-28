@@ -214,7 +214,6 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     affectedName,
     affectedEmpId,
     affectedInjuryLabel,
-    affectedInitials,
     bodyPart,
     treatment,
     daysAway,

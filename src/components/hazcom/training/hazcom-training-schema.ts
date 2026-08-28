@@ -26,8 +26,6 @@ const TRAINING_MAX_BYTES = getFileMaxBytes("HazCom");
 
 export type BuildTrainingSessionSchemaArgs = Readonly<{
   chemicalOptions: readonly SelectOption[];
-  /** Employees available to pick as attendees — value is the user's id, label their name. */
-  attendeeOptions: readonly SelectOption[];
   siteId: number;
   siteName: string | null;
   usersSource: "site" | "org";
