@@ -168,8 +168,8 @@ function FollowUpList(props: Readonly<{ rows: readonly WalkTalkFollowUp[] }>) {
         ))}
       </ul>
 
-      <div className="border-ehs-border hidden overflow-hidden rounded-xl border sm:block">
-        <table className="w-full border-collapse text-left">
+      <div className="border-ehs-border hidden overflow-x-auto rounded-xl border sm:block">
+        <table className="w-full min-w-140 border-collapse text-left">
           <thead>
             <tr className="bg-ehs-surface-inverse/6">
               {["Action", "Assigned To", "Due Date", "Status"].map(
