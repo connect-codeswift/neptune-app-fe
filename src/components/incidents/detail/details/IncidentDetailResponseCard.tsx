@@ -2,7 +2,7 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 
-import { Icon } from "@iconify/react";
+import { CheckboxInput } from "@/components/inputs/CheckboxInput";
 import { Text } from "@/components/Text";
 import type { IncidentDetailResponseAction } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -20,24 +20,6 @@ export type IncidentDetailResponseCardProps = Readonly<{
   onToggleAction?: (id: string) => void;
   className?: string;
 }>;
-
-/**
- * The tile is a button while editing and a plain div otherwise. One element
- * with the markup written once, rather than the same eleven lines twice.
- */
-function Tile(
-  props: Readonly<{
-    as: "button" | "div";
-    className: string;
-    children: React.ReactNode;
-    type?: "button";
-    onClick?: () => void;
-    "aria-pressed"?: boolean;
-  }>,
-) {
-  const { as: Element, ...rest } = props;
-  return <Element {...rest} />;
-}
 
 export function IncidentDetailResponseCard(
   props: Readonly<IncidentDetailResponseCardProps>,
@@ -83,41 +65,20 @@ export function IncidentDetailResponseCard(
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {actions.map((action) => (
-            <Tile
+            <CheckboxInput
               key={action.id}
-              as={isInteractive ? "button" : "div"}
-              type={isInteractive ? "button" : undefined}
-              onClick={
+              variant="tile"
+              tone="green"
+              size="sm"
+              label={action.label}
+              checked={action.completed}
+              // No handler while the card is read-only: the tile then renders
+              // as the record it is, rather than as a control that ignores you.
+              onChange={
                 isInteractive ? () => onToggleAction(action.id) : undefined
               }
-              aria-pressed={isInteractive ? action.completed : undefined}
-              className={[
-                "flex h-9.5 items-center gap-2.5 rounded-lg border px-3.25 py-2.75 text-left",
-                action.completed
-                  ? "border-ehs-green bg-ehs-green-bg-light"
-                  : "border-ehs-border-ink/8 bg-ehs-surface/62",
-                isInteractive
-                  ? "hover:border-ehs-border-strong focus-visible:ring-ehs-normal-blue/30 w-full cursor-pointer transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                  : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              {action.completed ? (
-                <div className="bg-ehs-green text-ehs-on-accent flex size-4 shrink-0 items-center justify-center rounded">
-                  <Icon
-                    icon="mdi:check"
-                    className="size-2.75"
-                    aria-hidden="true"
-                  />
-                </div>
-              ) : (
-                <div className="border-ehs-border-ink/14 size-4 shrink-0 rounded border bg-transparent" />
-              )}
-              <span className="text-ehs-dark-bg text4 truncate leading-normal">
-                {action.label}
-              </span>
-            </Tile>
+              className="h-9.5 min-h-0 rounded-lg px-3.25 py-2.75"
+            />
           ))}
         </div>
       )}

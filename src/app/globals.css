@@ -468,6 +468,43 @@
    blend mode. Colour belongs in the tokens above. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Tailwind's preflight resets every button to `cursor: default`, so each
+   control had to remember `cursor-pointer` and dozens of them did not — tabs,
+   chips, checkboxes and toggles all looked inert under the mouse. Declaring it
+   once here means anything clickable points by default. Base-layer rules lose
+   to utilities, so a control that genuinely should not point (a settled value,
+   a read-only field) still says so with `cursor-default` on the element. */
+@layer base {
+  button,
+  summary,
+  label:has(input[type="checkbox"], input[type="radio"]),
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  input[type="file"],
+  select,
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  [role="radio"],
+  [role="checkbox"],
+  [role="switch"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  [role="combobox"],
+  [role="link"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 @theme inline {
   --color-ehs-light-bg: var(--ehs-light-bg);
   --color-ehs-dark-bg: var(--ehs-dark-bg);

@@ -214,7 +214,7 @@ export function IncidentDetailClosureCard(
                 className={[
                   "rounded-2.5 text4 text-ehs-light-text px-5 py-2.5 font-bold transition-all",
                   data.closureStatus === "Closed" && currentStep === 4
-                    ? "bg-ehs-green-hover cursor-default"
+                    ? "bg-ehs-green-hover cursor-not-allowed"
                     : "bg-ehs-normal-blue hover:bg-ehs-normal-blue-active active:scale-[0.99]",
                 ].join(" ")}
               >
