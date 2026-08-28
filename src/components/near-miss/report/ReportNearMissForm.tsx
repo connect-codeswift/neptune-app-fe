@@ -73,6 +73,7 @@ function toCreateRequest(
     location: report.location,
     whatHappened: report.whatHappened,
     contributingFactor: report.contributingFactors,
+    attachments: report.photos,
     isDrop: false,
     userId,
     siteId,

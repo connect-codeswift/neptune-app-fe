@@ -37,10 +37,7 @@ import {
 import type { FormValues } from "@/components/form-builder";
 import { isLegacyPublicUrl, isStoredFileId } from "@/lib/files";
 import { getAuthContext, getAuthDisplayName } from "@/lib/auth-context";
-import {
-  CAPA_API_STATUS,
-  formatCapaStatusDisplay,
-} from "@/lib/capa-filters";
+import { CAPA_API_STATUS, formatCapaStatusDisplay } from "@/lib/capa-filters";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 import {
   formatCapaApiDateForDisplay,

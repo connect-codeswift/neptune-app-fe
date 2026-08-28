@@ -3,7 +3,7 @@
 import {
   SEVERITY_OPTIONS,
   type SeverityId,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import {
   ReportOptionCards,
   type ReportOptionCardOption,

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Text } from "@/components/Text";
 import { ResolvedFileImage } from "@/components/files/ResolvedFileImage";
 import { ReportFieldLabel } from "@/components/incidents/report/shared/ReportFormField";
-import type { ReportPhotoFile } from "@/components/incidents/report/shared/report-incident-data";
+import type { ReportPhotoFile } from "@/forms/incident-module/index";
 import {
   FILE_MAX_FILES,
   getFileMaxBytes,

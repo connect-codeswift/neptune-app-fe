@@ -38,6 +38,8 @@ export type NearMissReportValues = {
   location: string;
   whatHappened: string;
   contributingFactors: string[];
+  /** File references for the attached photo evidence; optional, up to 10. */
+  photos: string[];
 };
 
 export const nearMissReportSchema: FormSchema = [
@@ -94,5 +96,16 @@ export const nearMissReportSchema: FormSchema = [
     rows: 4,
     placeholder:
       "Describe what almost happened and what conditions were present...",
+  },
+  {
+    type: "photo",
+    name: "photos",
+    label: "Photo / Video Evidence",
+    colSpan: 12,
+    accept: "media",
+    fileModule: "NearMiss",
+    maxFiles: 10,
+    placeholder: "Attach photos or videos",
+    helperText: "Optional. Photos or videos, up to 10.",
   },
 ];

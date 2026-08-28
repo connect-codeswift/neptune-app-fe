@@ -1,7 +1,7 @@
 import type { IncidentRecord } from "@/components/incidents/list/incident-list-types";
 import type { DateRange } from "@/lib/date-range";
 import { isDateWithinRange } from "@/lib/date-range";
-import { startOfDay } from "@/components/incidents/report/shared/report-date-time";
+import { startOfDay } from "@/lib/date-time-field";
 
 export const STATE_FILTERS = ["All", "Open", "Closed"] as const;
 export const SEVERITY_FILTERS = [

@@ -232,6 +232,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const acceptMode = field.accept ?? "image";
   const isPdf = acceptMode === "pdf";
   const isFiles = acceptMode === "files";
+  const isMedia = acceptMode === "media";
   const isFileLike = isFiles || isPdf;
   const listVariant = field.listVariant ?? (isFileLike ? "rows" : "grid");
   const fileModule: FileModule = field.fileModule ?? "Document";
@@ -356,13 +357,15 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   };
 
   const message = error ?? uploadError;
-  const acceptAttr = isPdf
-    ? "application/pdf"
-    : isFiles
-      ? useCloudinary
-        ? "image/*,application/pdf,.doc,.docx,.ppt,.pptx,video/mp4,video/quicktime,video/webm"
-        : "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      : "image/*";
+  const acceptAttr = isMedia
+    ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
+    : isPdf
+      ? "application/pdf"
+      : isFiles
+        ? useCloudinary
+          ? "image/*,application/pdf,.doc,.docx,.ppt,.pptx,video/mp4,video/quicktime,video/webm"
+          : "image/jpeg,image/png,image/webp,image/gif,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        : "image/*";
 
   return (
     <div className="flex flex-col gap-4">

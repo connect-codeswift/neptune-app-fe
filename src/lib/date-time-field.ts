@@ -197,3 +197,79 @@ export function isSameDay(a: Date, b: Date): boolean {
 export function today(): Date {
   return startOfDay(new Date());
 }
+
+/**
+ * The date field speaks `MM/DD/YYYY`; the API and native inputs speak
+ * `YYYY-MM-DD`. These two convert at that boundary — a caller holding ISO
+ * state keeps it and translates on the way in and out.
+ */
+export function isoToMmDdYyyy(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) {
+    return "";
+  }
+
+  const [, year, month, day] = match;
+  return `${month}/${day}/${year}`;
+}
+
+export function mmDdYyyyToIso(value: string): string {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  if (!match) {
+    return "";
+  }
+
+  const [, month, day, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Today as `YYYY-MM-DD`, in local time — the shape a date input, the form
+ * schema and the API all compare against.
+ */
+export function todayIsoDate(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${String(now.getFullYear())}-${month}-${day}`;
+}
+
+export type DateBoundCheck = Readonly<{
+  /** ISO bound to hand a date input, so the calendar greys the rest out. */
+  bound: string;
+  /** Message for a value outside it, or null when the value is fine. */
+  error: string | null;
+}>;
+
+/**
+ * "Today or later" — deadlines, due dates, scheduled work.
+ *
+ * One helper rather than a bound here and a hand-written comparison there: the
+ * input's `min` only greys the calendar out, so every caller has to re-check the
+ * typed value, and each one used to word the refusal differently.
+ *
+ * `value` is ISO (`YYYY-MM-DD`); an empty one is not an error — that is what
+ * `required` is for.
+ */
+export function cantBePast(value = "", label = "Date"): DateBoundCheck {
+  const bound = todayIsoDate();
+  const selected = value.trim();
+  const isBefore = selected !== "" && selected < bound;
+
+  return {
+    bound,
+    error: isBefore ? `${label} cannot be in the past` : null,
+  };
+}
+
+/** "Today or earlier" — records of something that already happened. */
+export function cantBeFuture(value = "", label = "Date"): DateBoundCheck {
+  const bound = todayIsoDate();
+  const selected = value.trim();
+  const isAfter = selected !== "" && selected > bound;
+
+  return {
+    bound,
+    error: isAfter ? `${label} cannot be in the future` : null,
+  };
+}

@@ -2,12 +2,7 @@
 
 import { useState, type KeyboardEvent } from "react";
 import { Icon } from "@iconify/react";
-import {
-  addDays,
-  isSameDay,
-  startOfDay,
-  today,
-} from "@/components/incidents/report/shared/report-date-time";
+import { addDays, isSameDay, startOfDay, today } from "@/lib/date-time-field";
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
 
@@ -26,7 +21,7 @@ const MONTHS = [
   "December",
 ] as const;
 
-export type ReportCalendarPopoverProps = Readonly<{
+export type CalendarPopoverProps = Readonly<{
   /** Currently selected day, or `null` when the field is empty. */
   value: Date | null;
   onSelect: (date: Date) => void;
@@ -47,9 +42,7 @@ export type ReportCalendarPopoverProps = Readonly<{
  * first. This also gets `minDate` / `maxDate` for free, which is what stops an
  * incident being dated next Tuesday.
  */
-export function ReportCalendarPopover(
-  props: Readonly<ReportCalendarPopoverProps>,
-) {
+export function CalendarPopover(props: Readonly<CalendarPopoverProps>) {
   const { value, onSelect, onClose, minDate, maxDate, labelledBy, className } =
     props;
 

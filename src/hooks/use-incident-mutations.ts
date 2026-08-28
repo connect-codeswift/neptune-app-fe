@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ReportIncidentFormState } from "@/components/incidents/report/shared/report-incident-state";
+import type { ReportIncidentFormState } from "@/forms/incident-module/form-state";
 import { getAuthContext } from "@/lib/auth-context";
 import type { IncidentDto } from "@/dtos/res/incident-response.dto";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";

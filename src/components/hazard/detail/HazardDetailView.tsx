@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 import type { HazardRecord } from "@/app/dashboard/hazard/hazard-data";
 
-const CAPA_NEW_ROUTE = "/dashboard/capa/new";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 function statusTone(status: string): IncidentBadgeTone {
@@ -62,6 +62,11 @@ export function HazardDetailView(
           <DetailField label="Description">
             <DetailValue value={record.description || "—"} />
           </DetailField>
+          {record.attachments.length > 0 ? (
+            <DetailField label="Attachments">
+              <PhotoEvidence refs={record.attachments} />
+            </DetailField>
+          ) : null}
           <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
             <DetailField label="Type">
               <DetailValue value={record.hazardType} />

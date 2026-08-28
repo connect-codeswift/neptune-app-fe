@@ -406,9 +406,13 @@ export function useCreateCapaMutation() {
         .map((task) => ({
           task: task.task.trim(),
           dueDate: task.dueDate,
-          priority: task.priority?.trim() ? normalizePriority(task.priority) : "Medium",
+          priority: task.priority?.trim()
+            ? normalizePriority(task.priority)
+            : "Medium",
         }))
-        .filter((task) => task.task.length > 0 && task.dueDate.trim().length > 0);
+        .filter(
+          (task) => task.task.length > 0 && task.dueDate.trim().length > 0,
+        );
 
       return createCapa({
         ...input.payload,

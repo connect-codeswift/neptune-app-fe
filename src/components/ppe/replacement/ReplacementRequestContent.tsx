@@ -17,9 +17,7 @@ import {
   usePpeIssueProfileQuery,
   usePpeItemsQuery,
 } from "@/hooks/use-ppe-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { toPpeItemOptions } from "@/lib/map-ppe";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { PpeFormPageSkeleton } from "../PpeSkeletons";
 import { ReplacementRequestHeader } from "./ReplacementRequestHeader";
@@ -52,7 +50,6 @@ export function ReplacementRequestContent() {
   const issueProfileQuery = usePpeIssueProfileQuery(
     /^\d+$/.test(issueIdParam) ? issueIdParam : "",
   );
-  const userDropdownQuery = useUserDropdownQuery();
   const ppeItemsQuery = usePpeItemsQuery();
   const replaceRequest = useReplacePpeRequestMutation();
   // Held past the response: `isPending` drops when the record is created,
@@ -62,63 +59,6 @@ export function ReplacementRequestContent() {
 
   const employeeId = issueProfileQuery.profile?.id?.trim() ?? "";
   const employeeName = issueProfileQuery.profile?.name?.trim() ?? "";
-
-  const employeeOptions = useMemo((): SelectOption[] => {
-    const fromUsers = toAssigneeOptions(
-      userDropdownQuery.data?.dataModel ?? [],
-    );
-
-    // Prefer an exact user-dropdown match; fall back to the issue profile name
-    // so the disabled field always shows who the PPE was issued to.
-    const matched =
-      (employeeId
-        ? fromUsers.find((option) => option.value === employeeId)
-        : undefined) ??
-      (employeeName
-        ? fromUsers.find(
-            (option) =>
-              option.label.trim().toLowerCase() === employeeName.toLowerCase(),
-          )
-        : undefined);
-
-    if (matched) {
-      return [
-        matched,
-        ...fromUsers.filter((option) => option.value !== matched.value),
-      ];
-    }
-
-    if (employeeName) {
-      return [
-        {
-          value: employeeId || employeeName,
-          label: employeeName,
-        },
-        ...fromUsers,
-      ];
-    }
-
-    return fromUsers;
-  }, [userDropdownQuery.data?.dataModel, employeeId, employeeName]);
-
-  const selectedEmployeeValue = useMemo(() => {
-    if (!employeeOptions.length) return "";
-    if (employeeId) {
-      const byId = employeeOptions.find(
-        (option) => option.value === employeeId,
-      );
-      if (byId) return byId.value;
-    }
-    if (employeeName) {
-      const byName = employeeOptions.find(
-        (option) =>
-          option.label.trim().toLowerCase() === employeeName.toLowerCase() ||
-          option.value === employeeName,
-      );
-      if (byName) return byName.value;
-    }
-    return employeeOptions[0]?.value ?? "";
-  }, [employeeOptions, employeeId, employeeName]);
 
   const itemOptions = useMemo((): SelectOption[] => {
     const catalogue = toPpeItemOptions(ppeItemsQuery.data ?? []);
@@ -153,17 +93,18 @@ export function ReplacementRequestContent() {
   ]);
 
   const schema = useMemo(
-    () => buildReplacementRequestSchema(employeeOptions, itemOptions),
-    [employeeOptions, itemOptions],
+    () => buildReplacementRequestSchema(itemOptions),
+    [itemOptions],
   );
 
   const initialValues = useMemo(
     () =>
       createReplacementRequestValues(schema, {
-        employeeId: selectedEmployeeValue,
+        employeeId,
+        employeeName,
         issuePpeId: issueIdParam,
       }),
-    [schema, selectedEmployeeValue, issueIdParam],
+    [schema, employeeId, employeeName, issueIdParam],
   );
 
   const isLoading =
@@ -172,7 +113,6 @@ export function ReplacementRequestContent() {
         (!issueProfileQuery.profile &&
           !issueProfileQuery.errorMessage &&
           !issueProfileQuery.isNotFound))) ||
-    userDropdownQuery.isPending ||
     ppeItemsQuery.isPending;
 
   const handleCancel = () => {
@@ -228,12 +168,6 @@ export function ReplacementRequestContent() {
 
   const loadError =
     (Boolean(issueIdParam) && issueProfileQuery.errorMessage) ||
-    (userDropdownQuery.isError
-      ? getMutationErrorMessage(
-          userDropdownQuery.error,
-          "Could not load employees.",
-        )
-      : null) ||
     (ppeItemsQuery.isError
       ? getMutationErrorMessage(
           ppeItemsQuery.error,
@@ -260,7 +194,6 @@ export function ReplacementRequestContent() {
               className="mt-4"
               onClick={() => {
                 if (issueIdParam) void issueProfileQuery.refetch();
-                void userDropdownQuery.refetch();
                 void ppeItemsQuery.refetch();
               }}
             >
@@ -279,7 +212,7 @@ export function ReplacementRequestContent() {
                 // change. itemOptions was in this key too, so the form was
                 // wiped mid-typing when the items query resolved — unnecessary,
                 // since options reach the fields through `schema` on re-render.
-                key={`${selectedEmployeeValue}-${issueIdParam}`}
+                key={`${employeeId}-${issueIdParam}`}
                 formId={REPLACEMENT_REQUEST_FORM_ID}
                 schema={schema}
                 initialValues={initialValues}
