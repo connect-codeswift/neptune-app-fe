@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { Text } from "@/components/Text";
 import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
@@ -20,7 +19,6 @@ import type {
   PersonFieldConfig,
   PersonMultiFieldConfig,
   SelectFieldConfig,
-  SelectOption,
   SwitchFieldConfig,
   TextFieldConfig,
   TextareaFieldConfig,
