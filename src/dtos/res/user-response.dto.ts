@@ -106,6 +106,23 @@ export function readUserProfileUrl(user: SiteUserDto): string {
   return "";
 }
 
+/**
+ * One person, as `GET /api/v1/users/{id}` projects them.
+ *
+ * The endpoint used to hand back the whole `User` entity — `PasswordHash`,
+ * `TotpSecret`, `ResetOtp` — for any id a caller cared to type. It now selects
+ * into a summary (`AuthRepository.GetUserById`), so it is safe to read and to
+ * hold in a query cache. Anything not on this list is not returned.
+ */
+export type UserSummaryDto = {
+  id: number;
+  fullName: string;
+  email: string;
+  profileUrl: string | null;
+  jobTitle: string | null;
+  roleName: string | null;
+};
+
 /** Matches backend response for GET /api/v1/sites/{siteId}/users. */
 export type GetUsersBySiteIdResponseDto =
   ApiEnvelopeDto<PagedDataDto<SiteUserDto> | null>;
