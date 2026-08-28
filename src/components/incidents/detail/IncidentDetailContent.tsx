@@ -56,6 +56,14 @@ import {
   applyPeopleEditDraft,
 } from "@/services/mappers/incident-detail-edit.mapper";
 import {
+  firstPeopleEditError,
+  hasPeopleEditErrors,
+  NO_PEOPLE_EDIT_ERRORS,
+  parseDaysAway,
+  validatePeopleEditDraft,
+  type PeopleEditErrors,
+} from "@/components/incidents/detail/people/people-edit-validation";
+import {
   EMPTY_INCIDENT_INVESTIGATION,
   parseIncidentRouteId,
   withDetailClosedState,
@@ -143,9 +151,20 @@ export function IncidentDetailContent(
   const [affectedInjuryLabel, setAffectedInjuryLabel] = useState("");
   const [bodyPart, setBodyPart] = useState("");
   const [treatment, setTreatment] = useState("");
-  // Kept as a string because the input is text-shaped: "" is "not recorded" and must stay
+  // Held as a string because the input is text-shaped: "" is "not recorded" and must stay
   // distinct from "0", which is a measured zero days away.
+  //
+  // It now also lives per person on the incident payload, not only on the closure record —
+  // OSHA 300 is a per-person log and a multi-casualty incident has a different count for
+  // each of them. The closure field remains as the fallback the lost-day KPI reads for
+  // incidents recorded before that existed.
   const [daysAway, setDaysAway] = useState("");
+  // Witnesses come from the incident report module. Rows already on the record
+  // when the edit began are locked; only rows appended here may be changed.
+  const [lockedWitnessCount, setLockedWitnessCount] = useState(0);
+  const [peopleErrors, setPeopleErrors] = useState<PeopleEditErrors>(
+    NO_PEOPLE_EDIT_ERRORS,
+  );
   const [timelineEvents, setTimelineEvents] = useState<
     readonly TimelineEvent[]
   >([]);
@@ -257,6 +276,22 @@ export function IncidentDetailContent(
   const displayId =
     detail?.displayId ??
     (numericId != null ? `INC-${String(numericId)}` : incidentIdParam);
+
+  // Per person first, closure second. Days away used to live only on the closure record,
+  // so `detail.daysAway` was always the "—" placeholder and the number had to be read back
+  // from closure. It is now carried per person on the incident payload — OSHA 300 is a
+  // per-person log — and the closure figure is the fallback for incidents recorded before
+  // that. Reading closure first would mask the per-person value on every incident that has
+  // both.
+  const perPersonDaysAway =
+    detail?.daysAway != null && detail.daysAway !== "—"
+      ? String(detail.daysAway)
+      : "";
+  const daysAwayDisplay =
+    perPersonDaysAway ||
+    (closureQuery.data == null
+      ? (detail?.daysAway ?? "—")
+      : String(closureData.daysAwayFromWork));
 
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
     null,
@@ -519,9 +554,19 @@ export function IncidentDetailContent(
     setAffectedInjuryLabel(detail.affectedInjuryLabel);
     setBodyPart(detail.bodyPart);
     setTreatment(detail.treatment);
-    setDaysAway(detail.daysAway === "—" ? "" : String(detail.daysAway));
     setResponders(detail.responders);
     setWitnesses(detail.witnesses);
+    // Per person first, closure second. The incident payload now carries days away on the
+    // affected person, and the closure figure is what incidents recorded before that still
+    // have. Seeding from closure unconditionally overwrote the per-person value, so opening
+    // the editor discarded it and saving wrote the closure number back over it.
+    {
+      const perPerson = detail.daysAway === "—" ? "" : String(detail.daysAway);
+      setDaysAway(perPerson || String(closureData.daysAwayFromWork));
+    }
+    // Every witness present now is pre-existing, so all of them start locked.
+    setLockedWitnessCount(detail.witnesses.length);
+    setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
     setEditScope("people");
   };
 
@@ -575,6 +620,24 @@ export function IncidentDetailContent(
           patch,
         });
       } else if (editScope === "people") {
+        const errors = validatePeopleEditDraft({
+          bodyPart,
+          treatment,
+          daysAway,
+          witnesses,
+          lockedWitnessCount,
+        });
+        setPeopleErrors(errors);
+        if (hasPeopleEditErrors(errors)) {
+          toast.error(
+            "Check the highlighted fields",
+            firstPeopleEditError(errors) ?? "Some required fields are missing.",
+          );
+          return;
+        }
+
+        // Identity fields are locked in this scope, so they pass straight back
+        // through unchanged — the mapper still rebuilds the whole people array.
         const patch = applyPeopleEditDraft(incidentDto, {
           affectedName,
           affectedEmpId,
@@ -590,6 +653,17 @@ export function IncidentDetailContent(
           incidentId: detail.numericId,
           patch,
         });
+
+        // Days away is not part of the incident payload. Write it only when it
+        // actually changed, so a People edit does not touch a closure record
+        // that no one asked to modify.
+        const nextDaysAway = parseDaysAway(daysAway);
+        if (nextDaysAway !== closureData.daysAwayFromWork) {
+          await updateClosureMutation.mutateAsync({
+            incidentId: detail.numericId,
+            data: { ...closureData, daysAwayFromWork: nextDaysAway },
+          });
+        }
       } else {
         const patch = applyAttachmentsEditDraft(attachments);
 
@@ -600,6 +674,7 @@ export function IncidentDetailContent(
       }
 
       setEditScope(null);
+      setPeopleErrors(NO_PEOPLE_EDIT_ERRORS);
       toast.success(
         "Incident updated",
         "Your changes were saved to this incident.",
@@ -712,29 +787,13 @@ export function IncidentDetailContent(
       treatment={treatment}
       responders={responders}
       witnesses={witnesses}
-      onChangeAffectedName={setAffectedName}
-      onChangeAffectedEmpId={setAffectedEmpId}
-      onChangeAffectedInjuryLabel={setAffectedInjuryLabel}
+      daysAway={daysAway}
+      daysAwayDisplay={daysAwayDisplay}
       onChangeBodyPart={setBodyPart}
       onChangeTreatment={setTreatment}
       onChangeDaysAway={setDaysAway}
-      daysAwayDraft={daysAway}
-      onChangeResponder={(index, patch) => {
-        setResponders((prev) =>
-          prev.map((member, memberIndex) => {
-            if (memberIndex !== index) {
-              return member;
-            }
-            const name = patch.name ?? member.name;
-            return {
-              ...member,
-              ...patch,
-              name,
-              initials: initialsFromName(name),
-            };
-          }),
-        );
-      }}
+      lockedWitnessCount={lockedWitnessCount}
+      peopleErrors={peopleErrors}
       onAddWitness={() => {
         setWitnesses((prev) => [
           ...prev,
@@ -748,6 +807,11 @@ export function IncidentDetailContent(
         ]);
       }}
       onChangeWitness={(index, patch) => {
+        // Locked rows belong to the incident report module and are read-only
+        // in this scope; the card does not render inputs for them either.
+        if (index < lockedWitnessCount) {
+          return;
+        }
         setWitnesses((prev) =>
           prev.map((witness, witnessIndex) => {
             if (witnessIndex !== index) {
@@ -764,6 +828,11 @@ export function IncidentDetailContent(
         );
       }}
       onRemoveWitness={(index) => {
+        // Only rows appended during this edit can be dropped — removing a
+        // pre-existing witness would delete it from the incident record.
+        if (index < lockedWitnessCount) {
+          return;
+        }
         setWitnesses((prev) =>
           prev.filter((_, witnessIndex) => witnessIndex !== index),
         );

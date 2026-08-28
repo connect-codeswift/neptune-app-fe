@@ -66,6 +66,7 @@ export function buildTrainingSessionSchema(
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,
+      // Must be a picked person, not free text — `allowFreeText` stays off.
     },
     {
       type: "text",
@@ -188,7 +189,7 @@ function toTrainingLogFields(
     return { error: "Session Date is required" };
   }
 
-  // `trainerId` is populated by the person picker's `selectionOnly` guard —
+  // `trainerId` is populated by the person picker's `allowFreeText` guard —
   // a typed-but-unmatched name is cleared on blur, so a non-empty value here
   // is always a real picked user.
   const trainerId = Number(String(values.trainerId ?? "").trim());

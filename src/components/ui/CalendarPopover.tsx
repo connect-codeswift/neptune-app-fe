@@ -141,13 +141,14 @@ export function CalendarPopover(props: Readonly<CalendarPopoverProps>) {
       aria-label={labelledBy ? undefined : "Choose a date"}
       aria-labelledby={labelledBy}
       onKeyDown={onKeyDown}
-      // Centred on the field rather than edge-aligned: these sit in a
-      // three-column grid, so anchoring left would push the last column's
-      // popover off the card and anchoring right would do the same to the
-      // first. Centring keeps all three inside it.
+      // Pinned to both edges of the field, so the calendar is exactly as wide
+      // as the input it belongs to — the portaled variant already sizes itself
+      // that way, and a fixed 260px popover floating under a wide field read
+      // as a different control. `min-w-65` keeps it usable in a narrow grid
+      // column, where it grows past the field rather than squashing the grid.
       className={
         className ??
-        "animate-popover-in rounded-3 border-ehs-border-ink/10 bg-ehs-surface absolute top-full left-1/2 z-40 mt-1.5 w-65 -translate-x-1/2 border p-2.5 shadow-(--ehs-shadow-popover)"
+        "animate-popover-in rounded-3 border-ehs-border-ink/10 bg-ehs-surface absolute top-full right-0 left-0 z-40 mt-1.5 min-w-65 border p-2.5 shadow-(--ehs-shadow-popover)"
       }
     >
       <div className="flex items-center justify-between pb-2">

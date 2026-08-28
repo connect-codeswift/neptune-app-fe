@@ -16,6 +16,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { Text } from "@/components/Text";
+import { cantBePast, isoToMmDdYyyy } from "@/lib/date-time-field";
 import {
   IncidentBadge,
   type IncidentBadgeTone,
@@ -197,6 +198,27 @@ function createChemicalListColumns(
             tone={signalTone(value)}
             className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
           />
+        );
+      },
+    }),
+    columnHelper.accessor("expiryDate", {
+      header: "Expiry",
+      size: 108,
+      minSize: 92,
+      cell: (info) => {
+        const value = info.getValue();
+        if (!value) {
+          return <span className="text-ehs-muted-text">—</span>;
+        }
+
+        // Expired stock is the one thing on this row that needs acting on
+        // today, so it is called out rather than left as plain text.
+        const isExpired = cantBePast(value).error !== null;
+
+        return (
+          <span className={isExpired ? "text-ehs-red font-semibold" : ""}>
+            {isoToMmDdYyyy(value)}
+          </span>
         );
       },
     }),

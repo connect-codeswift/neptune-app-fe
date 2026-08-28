@@ -19,7 +19,6 @@ import type {
   PersonFieldConfig,
   PersonMultiFieldConfig,
   SelectFieldConfig,
-  SelectOption,
   SwitchFieldConfig,
   TextFieldConfig,
   TextareaFieldConfig,

@@ -14,9 +14,14 @@ import {
 import { ChemicalListTable } from "@/components/hazcom/chemicals/ChemicalListTable";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import {
+  CHEMICAL_STATUS_FILTER_OPTIONS,
   chemicalMatchesSearch,
+  chemicalMatchesStatus,
   exportChemicalsToCsv,
+  type ChemicalStatusFilter,
 } from "@/components/hazcom/chemicals/chemical-utils";
+import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
+import { isoToMmDdYyyy } from "@/lib/date-time-field";
 import {
   DEFAULT_CHEMICALS_PAGE_NUMBER,
   DEFAULT_CHEMICALS_PAGE_SIZE,
@@ -30,6 +35,7 @@ export type ChemicalListViewProps = Readonly<{
 export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
   const { className = "" } = props;
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ChemicalStatusFilter>("All");
   const [pageNumber, setPageNumber] = useState(DEFAULT_CHEMICALS_PAGE_NUMBER);
   const [pageSize] = useState(DEFAULT_CHEMICALS_PAGE_SIZE);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -50,10 +56,12 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
    */
   const filteredChemicals = useMemo(
     () =>
-      chemicals.filter((chemical) =>
-        chemicalMatchesSearch(chemical, searchQuery),
+      chemicals.filter(
+        (chemical) =>
+          chemicalMatchesStatus(chemical, statusFilter) &&
+          chemicalMatchesSearch(chemical, searchQuery),
       ),
-    [chemicals, searchQuery],
+    [chemicals, searchQuery, statusFilter],
   );
 
   const selectedChemical = useMemo(
@@ -98,6 +106,12 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
           value: selectedChemical.addedOn || "—",
         },
         {
+          label: "Expiry date",
+          value: selectedChemical.expiryDate
+            ? isoToMmDdYyyy(selectedChemical.expiryDate)
+            : "None recorded",
+        },
+        {
           label: "SDS file",
           value: selectedChemical.sdsFileName ?? "Not linked",
         },
@@ -134,10 +148,24 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
         subtitle="All hazardous chemicals on-site — quantities, locations, and SDS links"
       />
 
+      <ModuleFilterBar
+        segments={[
+          {
+            label: "Status",
+            options: [...CHEMICAL_STATUS_FILTER_OPTIONS],
+            value: statusFilter,
+            onChange: (next) => {
+              setStatusFilter(next as ChemicalStatusFilter);
+              setSelectedId(null);
+            },
+          },
+        ]}
+      />
+
       <ModuleSearchBar
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder="Search by ID, name, CAS#, location..."
+        placeholder="Search by ID, name, CAS#, location, hazard..."
         aria-label="Search chemicals"
         resultLabel={resultLabel}
       />
