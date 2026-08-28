@@ -242,8 +242,9 @@ export type PhotoFieldConfig = BaseField &
      * `image` (default) = photos only, thumbnail grid.
      * `files` = images + PDF/DOC, Figma-style row list.
      * `pdf` = PDF only (SDS sheets).
+     * `media` = photos and videos, nothing else.
      */
-    accept?: "image" | "files" | "pdf";
+    accept?: "image" | "files" | "pdf" | "media";
     /** List presentation. Defaults to `grid` for images, `rows` for files. */
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */

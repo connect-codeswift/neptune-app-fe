@@ -232,6 +232,7 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   const acceptMode = field.accept ?? "image";
   const isPdf = acceptMode === "pdf";
   const isFiles = acceptMode === "files";
+  const isMedia = acceptMode === "media";
   const isFileLike = isFiles || isPdf;
   const listVariant = field.listVariant ?? (isFileLike ? "rows" : "grid");
   const fileModule: FileModule = field.fileModule ?? "Document";
@@ -356,7 +357,9 @@ export function PhotoUploadControl(props: PhotoUploadControlProps) {
   };
 
   const message = error ?? uploadError;
-  const acceptAttr = isPdf
+  const acceptAttr = isMedia
+    ? "image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm"
+    : isPdf
     ? "application/pdf"
     : isFiles
       ? useCloudinary
