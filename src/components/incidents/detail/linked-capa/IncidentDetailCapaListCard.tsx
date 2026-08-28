@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
@@ -140,15 +141,20 @@ export function IncidentDetailCapaListCard(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setAddModalRequestedLocally(true)}
-              disabled={isSubmitting}
-              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
-              Add CAPA
-            </button>
+            {/* POST /api/v1/capas is CAPA.Create, which a Worker does not hold — ungated, this
+                offered them the whole create modal only to 403 on save. The CAPA register
+                already gates its own create the same way. */}
+            <Can do="CAPA.Create">
+              <button
+                type="button"
+                onClick={() => setAddModalRequestedLocally(true)}
+                disabled={isSubmitting}
+                className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Icon icon="mdi:plus" className="size-3.25" aria-hidden="true" />
+                Add CAPA
+              </button>
+            </Can>
           </div>
         </div>
 
