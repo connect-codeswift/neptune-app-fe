@@ -9,7 +9,7 @@ import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportTextareaField } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportBodyPartField } from "@/components/incidents/report/steps/step-3/ReportBodyPartField";
 

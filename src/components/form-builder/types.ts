@@ -1,3 +1,4 @@
+import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
 import type { ReactNode } from "react";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 
@@ -205,7 +206,20 @@ export type ChipsFieldConfig = BaseField &
 export type PersonMultiFieldConfig = BaseField &
   Readonly<{
     type: "person-multi";
-    options: readonly SelectOption[];
+    /** Where people are loaded from. Mirrors {@link PersonFieldConfig}. */
+    usersSource?: "site" | "org";
+    /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
+    siteId?: number;
+    siteName?: string | null;
+    /** Form value key for the display names. Defaults to `${name}Names`. */
+    displayNamesField?: string;
+    /** User ids to hide from the option list. */
+    excludeUserIds?: readonly string[];
+    /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
+    excludeSelf?: boolean;
+    /** Accept a typed name that matches nobody. Opt-in; defaults to false. */
+    allowFreeText?: boolean;
+    maxSelected?: number;
     placeholder?: string;
     /** Render the control read-only — the current selection is fixed. */
     disabled?: boolean;
@@ -241,8 +255,9 @@ export type PhotoFieldConfig = BaseField &
      * `image` (default) = photos only, thumbnail grid.
      * `files` = images + PDF/DOC, Figma-style row list.
      * `pdf` = PDF only (SDS sheets).
+     * `media` = photos and videos, nothing else.
      */
-    accept?: "image" | "files" | "pdf";
+    accept?: "image" | "files" | "pdf" | "media";
     /** List presentation. Defaults to `grid` for images, `rows` for files. */
     listVariant?: "grid" | "rows";
     /** Hide the field label (e.g. tab already titles the section). */
@@ -323,9 +338,9 @@ export type PersonFieldConfig = BaseField &
     /**
      * Where the picker loads people from.
      * - `site` (default): GET /api/v1/sites/{siteId}/users
-     * - `dropdown`: GET /api/v1/users/dropdown (client-filtered)
+     * - `org`: GET /api/v1/users/dropdown (client-filtered)
      */
-    usersSource?: "site" | "dropdown";
+    usersSource?: "site" | "org";
     /** Site whose roster is searched when `usersSource` is `site`. `0` disables. */
     siteId?: number;
     siteName?: string | null;
@@ -336,12 +351,12 @@ export type PersonFieldConfig = BaseField &
     /** Hide the signed-in user from the option list. Opt-in; defaults to false. */
     excludeSelf?: boolean;
     /**
-     * Require a picked person — on blur, a typed name with no matching
-     * selection is cleared rather than kept as free text. Opt-in; defaults to
-     * false, which is the affected-person behaviour (contractors/visitors
-     * with no account still need to be recorded by name).
+     * Keep a typed name that matches nobody, rather than clearing it on blur.
+     * Opt-in, because most fields file a `userId` the backend needs; the
+     * incident report turns it on so a contractor or visitor with no account
+     * can still be recorded by name.
      */
-    selectionOnly?: boolean;
+    allowFreeText?: boolean;
   }>;
 
 /**
@@ -374,27 +389,16 @@ export type FieldConfig =
 
 export type FormSchema = readonly FieldConfig[];
 
-/**
- * Today as `YYYY-MM-DD`, in local time — the shape and the calendar
- * `<input type="date">` compares its value against.
- */
-export function todayIsoDate(): string {
-  const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  return `${String(now.getFullYear())}-${mm}-${dd}`;
-}
-
 /** Earliest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
 export function dateFieldMin(field: DateFieldConfig): string | undefined {
   if (field.min) return field.min;
-  return field.limit === "not-past" ? todayIsoDate() : undefined;
+  return field.limit === "not-past" ? cantBePast().bound : undefined;
 }
 
 /** Latest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
 export function dateFieldMax(field: DateFieldConfig): string | undefined {
   if (field.max) return field.max;
-  return field.limit === "not-future" ? todayIsoDate() : undefined;
+  return field.limit === "not-future" ? cantBeFuture().bound : undefined;
 }
 
 /** Build the initial (empty) value map for a schema. */

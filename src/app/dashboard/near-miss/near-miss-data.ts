@@ -26,6 +26,8 @@ export type NearMissRecord = Readonly<{
   /** ISO date of the event, shown as "Date" on the detail view. */
   dateOfEvent: string;
   contributingFactors: readonly string[];
+  /** Every attached photo; empty when none were uploaded. */
+  attachments: readonly string[];
   /** Raw user id of whoever closed it; resolved to a name via /User/dropdown. */
   closedById?: number;
   /** Resolved display name behind {@link closedById}. */

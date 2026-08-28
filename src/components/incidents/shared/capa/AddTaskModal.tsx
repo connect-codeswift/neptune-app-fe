@@ -11,7 +11,12 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { DateInput } from "@/components/inputs/DateInput";
+import {
+  cantBePast,
+  mmDdYyyyToIso,
+  todayMmDdYyyy,
+} from "@/lib/date-time-field";
 import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 
 export type CapaTaskFormPayload = Readonly<{
@@ -40,6 +45,12 @@ function toComparableDate(value: string): number | null {
     return null;
   }
   return Number(`${parts[3]}${parts[1]}${parts[2]}`);
+}
+
+/** True when a task is dated before today — the API rejects it, as does the
+ * schema-driven Add Task form. */
+function isDueDateInPast(taskDue: string): boolean {
+  return cantBePast(mmDdYyyyToIso(taskDue)).error !== null;
 }
 
 /** True when a task would fall due after the CAPA that contains it. */
@@ -71,7 +82,23 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
   // maxDate greys the day out in the calendar but the field also accepts typed input, so the
   // rule is checked here as well — otherwise a task could be dated past the CAPA by typing it.
   const isDueDateTooLate = exceedsCapaDueDate(dueDate, capaDueDate);
-  const canSubmit = task.trim().length > 0 && !isDueDateTooLate && !busy;
+  const isDueDateTooEarly = isDueDateInPast(dueDate);
+  const canSubmit =
+    task.trim().length > 0 && !isDueDateTooLate && !isDueDateTooEarly && !busy;
+
+  // A lookup rather than a ternary chain: two independent date rules share the
+  // one hint slot (no-nested-ternaries).
+  function resolveDueDateHint(): string {
+    if (isDueDateTooLate) {
+      return `A task cannot be due after the CAPA (${capaDueDate ?? ""}).`;
+    }
+    if (isDueDateTooEarly) {
+      return "A task cannot be due in the past.";
+    }
+    return "Assign a clear action the assignee can complete and track.";
+  }
+
+  const dueDateHint = resolveDueDateHint();
 
   const handleSubmit = async () => {
     if (!canSubmit) {
@@ -100,11 +127,7 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
       onClose={onClose}
       maxWidthClassName="max-w-140"
       overlayClassName="z-[110]"
-      footerHint={
-        isDueDateTooLate
-          ? `A task cannot be due after the CAPA (${capaDueDate ?? ""}).`
-          : "Assign a clear action the assignee can complete and track."
-      }
+      footerHint={dueDateHint}
       footerActions={
         <>
           <IncidentModalCancelButton onClick={onClose} />
@@ -163,11 +186,12 @@ export function AddTaskModal(props: Readonly<AddTaskModalProps>) {
         </div>
 
         <div className="grid min-w-0 grid-cols-1">
-          <ReportDateField
+          <DateInput
             variant="embedded"
             label="Due date"
             value={dueDate}
             onChange={setDueDate}
+            minDate={todayMmDdYyyy()}
             maxDate={capaDueDate}
             placeholder="MM/DD/YYYY"
           />

@@ -61,8 +61,10 @@ export type AssistantReplyDto = {
   message: AssistantMessageDto;
 };
 
-export type GetAssistantConversationsResponseDto = ApiEnvelopeDto<PagedDataDto<AssistantConversationSummaryDto> | null>;
+export type GetAssistantConversationsResponseDto =
+  ApiEnvelopeDto<PagedDataDto<AssistantConversationSummaryDto> | null>;
 
-export type GetAssistantConversationResponseDto = ApiEnvelopeDto<AssistantConversationDto | null>;
+export type GetAssistantConversationResponseDto =
+  ApiEnvelopeDto<AssistantConversationDto | null>;
 
 export type AskAssistantResponseDto = ApiEnvelopeDto<AssistantReplyDto | null>;

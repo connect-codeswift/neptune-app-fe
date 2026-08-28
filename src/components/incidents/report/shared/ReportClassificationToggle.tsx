@@ -5,7 +5,7 @@ import {
   ReportFieldError,
   ReportFieldHint,
 } from "./ReportFormField";
-import type { ClassificationValue } from "./report-classification";
+import type { ClassificationValue } from "@/forms/incident-module/classification";
 
 export type ClassificationToggleOption = Readonly<{
   value: string;

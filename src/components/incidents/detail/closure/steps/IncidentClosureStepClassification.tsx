@@ -4,7 +4,7 @@ import {
   INCIDENT_TYPE_OPTIONS,
   SIF_CLASSIFICATION_OPTIONS,
   incidentTypeLabel,
-} from "@/components/incidents/detail/closure/closure-classification-options";
+} from "@/forms/incident-module/closure-classification";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 import { GlassSelect } from "@/components/ui/GlassSelect";
 

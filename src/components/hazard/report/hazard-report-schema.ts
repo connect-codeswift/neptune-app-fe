@@ -116,12 +116,13 @@ export const hazardReportSchema: FormSchema = [
   {
     type: "photo",
     name: "photos",
-    label: "Photo Evidence",
+    label: "Photo / Video Evidence",
     colSpan: 12,
+    accept: "media",
     fileModule: "Hazard",
-    // The create endpoint stores a single image URL.
-    maxFiles: 1,
-    placeholder: "Attach Photo Evidence",
-    helperText: "Photos greatly improve resolution speed",
+    // Matches the API cap and the other modules; the endpoint stores the whole list.
+    maxFiles: 10,
+    placeholder: "Attach photos or videos",
+    helperText: "Photos or videos greatly improve resolution speed. Up to 10.",
   },
 ];

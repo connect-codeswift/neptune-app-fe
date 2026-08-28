@@ -35,7 +35,7 @@ export function buildCreateCapaSchema(): FormSchema {
       name: "assigned",
       label: "Assigned",
       colSpan: 6,
-      usersSource: "dropdown",
+      usersSource: "org",
       displayNameField: "assignedName",
       placeholder: "e.g. M. Torres",
       excludeSelf: true,

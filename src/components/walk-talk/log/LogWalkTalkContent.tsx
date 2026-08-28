@@ -10,7 +10,6 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { useCreateWalkTalkMutation } from "@/hooks/use-walk-talk-mutations";
-import { toAssigneeOptions, userNameFor } from "@/lib/map-user";
 import { toCreateWalkTalkRequest } from "@/lib/map-walk-talk";
 import { toast } from "@/lib/toast";
 import { LogWalkTalkHeader } from "./LogWalkTalkHeader";
@@ -50,6 +49,7 @@ function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
 function followUpFromValues(values: FormValues): FollowUpAction {
   return {
     assignedTo: String(values.assignedTo ?? ""),
+    assignedToName: String(values.assignedToName ?? ""),
     dueDate: String(values.dueDate ?? ""),
     action: String(values.action ?? ""),
   };
@@ -168,6 +168,7 @@ export function LogWalkTalkContent() {
     const cleared: FormValues = {
       ...(valuesRef.current ?? values),
       assignedTo: "",
+      assignedToName: "",
       dueDate: "",
       action: "",
     };
@@ -286,9 +287,7 @@ export function LogWalkTalkContent() {
                     </span>
                     <span className="text8 text-ehs-muted-text">
                       {[
-                        entry.assignedTo
-                          ? userNameFor(assigneeLookup, entry.assignedTo)
-                          : "Unassigned",
+                        entry.assignedToName || "Unassigned",
                         entry.dueDate || "No due date",
                       ]
                         .filter(Boolean)
@@ -317,10 +316,11 @@ export function LogWalkTalkContent() {
           ) : null}
 
           <FormBuilder
-            key={`follow-up-${String(savedActions.length)}-${String(assigneeOptions.length)}`}
+            key={`follow-up-${String(savedActions.length)}`}
             schema={followUpSchema}
             initialValues={{
               assignedTo: values.assignedTo,
+              assignedToName: values.assignedToName,
               dueDate: values.dueDate,
               action: values.action,
             }}

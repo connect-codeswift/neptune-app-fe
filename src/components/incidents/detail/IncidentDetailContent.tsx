@@ -17,7 +17,7 @@ import {
   createInitialClosureData,
   resetClosureWizardFields,
 } from "@/components/incidents/detail/closure/closure-form-state";
-import { toCanonicalIncidentType } from "@/components/incidents/detail/closure/closure-classification-options";
+import { toCanonicalIncidentType } from "@/forms/incident-module/closure-classification";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
   useCreateCapaMutation,

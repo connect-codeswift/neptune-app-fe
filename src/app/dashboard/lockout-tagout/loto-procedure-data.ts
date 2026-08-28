@@ -64,7 +64,7 @@ export const LOTO_ISOLATION_METHODS = [
   "Verify Zero Energy",
 ] as const;
 
-let stepSeq = 0;
+const stepSeq = 0;
 
 export function createEmptyIsolationStep(
   overrides: Partial<LotoIsolationStep> = {},

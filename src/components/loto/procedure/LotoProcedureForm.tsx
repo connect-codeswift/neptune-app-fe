@@ -19,7 +19,8 @@ import {
   type LotoProcedureFormState,
 } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { LotoLocationSearchField } from "./LotoLocationSearchField";
-import { LotoPersonnelSearchField } from "./LotoPersonnelSearchField";
+import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
+import { getCurrentUser } from "@/lib/current-user";
 import {
   LOTO_EQUIPMENT_FORM_ID,
   LOTO_PPE_FORM_ID,
@@ -346,9 +347,29 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-4.5" className="min-w-0">
-          <LotoPersonnelSearchField
-            value={personnel}
-            onChange={onPersonnelChange}
+          <Text as="p" className="text8 text-ehs-muted-text mb-1.5">
+            Only these users can perform this LOTO procedure
+          </Text>
+          <MultipleUsersPickerInput
+            label="Authorized Personnel"
+            placeholder="Search people at this site…"
+            value={personnel.map((person) => ({
+              userId: String(person.userId),
+              name: person.name,
+            }))}
+            onChange={(next) => {
+              onPersonnelChange(
+                next.map((entry) => ({
+                  userId: Number(entry.userId),
+                  name: entry.name,
+                })),
+              );
+            }}
+            siteId={getCurrentUser().siteId}
+            // Any registered, active user on the site is eligible — but an
+            // outstanding invitation or a soft-deleted account is not a person
+            // who can be authorized on a lockout.
+            filter={(user) => !user.isInvited && !user.isDrop}
           />
         </IncidentGlassCard>
       </aside>

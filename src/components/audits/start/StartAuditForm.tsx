@@ -13,9 +13,7 @@ import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateAuditMutation } from "@/hooks/use-audit-mutations";
 import { useAuditTemplatesQuery } from "@/hooks/use-audit-template-queries";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { getCurrentUser } from "@/lib/current-user";
-import { toAssigneeOptions } from "@/lib/map-user";
 import { toast } from "@/lib/toast";
 import { setSelectedAudit } from "@/store/audit-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -47,9 +45,6 @@ export function StartAuditForm() {
     () => false,
   );
   const activeTemplateId = hydrated ? preselectedTemplateId : "";
-
-  const userDropdownQuery = useUserDropdownQuery();
-  const users = userDropdownQuery.data?.dataModel;
 
   const templatesQuery = useAuditTemplatesQuery({
     pageNumber: templatePage,
@@ -111,7 +106,6 @@ export function StartAuditForm() {
   const schema = useMemo(
     () =>
       buildStartAuditSchema({
-        auditorOptions: toAssigneeOptions(users ?? []),
         templateOptions: lockedOption ? [lockedOption] : templateOptions,
         templatePagination: {
           pageNumber: templatePage,
@@ -125,7 +119,6 @@ export function StartAuditForm() {
         isTemplateLocked,
       }),
     [
-      users,
       templateOptions,
       templatePage,
       totalPages,
