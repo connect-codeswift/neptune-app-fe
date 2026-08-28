@@ -32,6 +32,8 @@ export type HazcomChemical = Readonly<{
   sdsRecordId: string | null; // "SDS-12"
   sdsFileName: string | null; // "SDS_Hydrochloric_Acid_Rev2026.pdf"
   storageNotes: string;
+  /** ISO "2026-03-14", or null when none is recorded. */
+  expiryDate: string | null;
   hazardStatements: readonly HazcomStatementCode[];
   precautionaryStatements: readonly HazcomStatementCode[];
   addedOn: string; // ISO "2026-03-14"

@@ -23,6 +23,8 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
+import { DateInput } from "@/components/inputs/DateInput";
+import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
@@ -95,6 +97,8 @@ type ChemicalFormValues = Readonly<{
   signalWord: HazcomSignalWord;
   sdsLink: string;
   status: string;
+  /** `MM/DD/YYYY` from the picker; converted on the way out. */
+  expiryDate: string;
   pictograms: readonly HazcomPictogram[];
   notes: string;
 }>;
@@ -154,6 +158,11 @@ function toChemicalRequest(
     // otherwise.
     status: values.status === "" ? "Active" : values.status,
     notes: values.notes.trim(),
+    // Midnight UTC, not the local moment: an expiry is a day, and a local
+    // offset would file a 1 Jan expiry as 31 Dec for anyone west of UTC.
+    expiryDate: values.expiryDate.trim()
+      ? `${mmDdYyyyToIso(values.expiryDate)}T00:00:00.000Z`
+      : null,
     linkToSdsRecord: values.sdsLink.trim(),
     isDraft: options.isDraft,
   };
@@ -217,6 +226,9 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
     chemical?.pictograms ?? [],
   );
   const [notes, setNotes] = useState(chemical?.storageNotes ?? "");
+  const [expiryDate, setExpiryDate] = useState(
+    isoToMmDdYyyy(chemical?.expiryDate ?? ""),
+  );
 
   function togglePictogram(pictogram: HazcomPictogram) {
     setPictograms((current) =>
@@ -284,6 +296,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       signalWord,
       sdsLink,
       status,
+      expiryDate,
       pictograms,
       notes,
     };
@@ -415,6 +428,13 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 onChange={(value) => {
                   setStatus(value as "Active" | "Inactive");
                 }}
+              />
+              <DateInput
+                label="Expiry Date"
+                trailingHint="Optional"
+                value={expiryDate}
+                onChange={setExpiryDate}
+                placeholder="MM/DD/YYYY"
               />
             </div>
           </FormSection>

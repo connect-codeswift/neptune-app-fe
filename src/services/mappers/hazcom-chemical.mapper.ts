@@ -207,6 +207,11 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
     storageNotes: asString(
       readProp(record, "storageNotes", "StorageNotes", "notes", "Notes"),
     ),
+    // Date only: the column is a DateTime, but an expiry is a day, and the
+    // time half would otherwise shift it across midnight on display.
+    expiryDate:
+      asString(readProp(record, "expiryDate", "ExpiryDate")).slice(0, 10) ||
+      null,
     hazardStatements: toStatementCodes(
       readProp(record, "hazardStatement", "HazardStatement"),
     ),
