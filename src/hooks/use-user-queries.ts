@@ -2,9 +2,30 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getUserById,
   getUserDropdown,
+  getUserSummaryById,
   getUsersBySiteId,
   type SiteUsersParams,
 } from "@/services/user.service";
+
+export function userSummaryQueryKey(userId: number) {
+  return ["user", "summary", userId] as const;
+}
+
+/**
+ * One person's name and photo, for records that store only their id.
+ *
+ * A person's name and avatar change rarely, so this is cached for the session
+ * rather than refetched per view — several cards can ask for the same id while
+ * one request is in flight and share it.
+ */
+export function useUserSummaryQuery(userId: number | null, enabled = true) {
+  return useQuery({
+    queryKey: userSummaryQueryKey(userId ?? 0),
+    queryFn: () => getUserSummaryById(userId ?? 0),
+    enabled: enabled && userId != null && userId > 0,
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function useUserDropdownQuery(enabled = true) {
   return useQuery({

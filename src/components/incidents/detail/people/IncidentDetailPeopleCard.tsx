@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import type { ResponderMember } from "@/components/incidents/detail/incident-detail-types";
 import { isAffectedNamePlaceholder } from "@/components/incidents/detail/incident-detail-types";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -13,6 +14,8 @@ export type { ResponderMember };
 
 export type IncidentDetailPeopleCardProps = Readonly<{
   affectedName?: string;
+  /** The affected person's profile photo, when their user record carries one. */
+  affectedProfileUrl?: string | null;
   /**
    * Whether the incident records an affected person at all. Decided by the
    * mapper, which has the record; this was inferred here by comparing the name
@@ -22,7 +25,6 @@ export type IncidentDetailPeopleCardProps = Readonly<{
   hasAffectedPerson?: boolean;
   affectedRole?: string;
   affectedEmpId?: string;
-  affectedInitials?: string;
   affectedInjuryLabel?: string;
   bodyPart?: string;
   treatment?: string;
@@ -68,10 +70,10 @@ export function IncidentDetailPeopleCard(
 ) {
   const {
     affectedName = "",
+    affectedProfileUrl = null,
     hasAffectedPerson = false,
     affectedRole = "Affected person",
     affectedEmpId = "—",
-    affectedInitials = "—",
     affectedInjuryLabel = "—",
     bodyPart = "—",
     treatment = "None required",
@@ -98,11 +100,12 @@ export function IncidentDetailPeopleCard(
     Boolean(affectedName.trim()) && !isAffectedNamePlaceholder(affectedName);
   const hasAffected = isEditing || hasAffectedPerson || hasRecordedName;
 
-  // When the record identifies the person by number rather than by name, the
-  // avatar has no initials to draw and repeating the number there would print
-  // it twice on one row. Show a person glyph and let the number appear once,
-  // on the identity line.
-  const hasInitials = /\p{L}/u.test(affectedInitials);
+  // A photo always wins. Failing that, initials need a name with letters in it
+  // — an employee number has none, and "90" sliced off "9005" says nothing, so
+  // that case falls through to the person glyph instead.
+  const hasPhotoOrInitials =
+    Boolean(affectedProfileUrl?.trim()) ||
+    (/\p{L}/u.test(affectedName) && !isAffectedNamePlaceholder(affectedName));
   // The mapper no longer falls the name back to the id, so the two should not
   // collide — this stays as a guard against an empty dash row and against a
   // caller still supplying the old shape.
@@ -127,17 +130,22 @@ export function IncidentDetailPeopleCard(
         {hasAffected ? (
           <>
             <div className="flex items-center gap-3.5">
-              <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue text5 flex size-12 shrink-0 items-center justify-center rounded-[14px]">
-                {hasInitials ? (
-                  affectedInitials
-                ) : (
+              {hasPhotoOrInitials ? (
+                <UserAvatar
+                  name={affectedName}
+                  profileUrl={affectedProfileUrl}
+                  sizeClassName="size-12 rounded-[14px]"
+                  sizes="48px"
+                />
+              ) : (
+                <div className="bg-ehs-dark-blue-bg-light text-ehs-dark-blue flex size-12 shrink-0 items-center justify-center rounded-[14px]">
                   <Icon
                     icon="mdi:account-outline"
                     className="size-6"
                     aria-hidden="true"
                   />
-                )}
-              </div>
+                </div>
+              )}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="text-ehs-dark-bg text4 leading-normal font-bold">
                   {affectedName}

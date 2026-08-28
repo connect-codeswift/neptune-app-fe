@@ -3,6 +3,7 @@ import type {
   GetUserDropdownResponseDto,
   GetUsersBySiteIdResponseDto,
   SiteUserDto,
+  UserSummaryDto,
 } from "@/dtos/res/user-response.dto";
 import type { ApiEnvelopeDto } from "@/dtos/res/api-envelope.dto";
 import {
@@ -112,6 +113,77 @@ export async function getUserGenderById(userId: number): Promise<string> {
   }
 
   return "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/** ASP.NET serializes camelCase and PascalCase inconsistently, even in one payload. */
+function readProp(
+  source: Record<string, unknown>,
+  ...keys: readonly string[]
+): unknown {
+  for (const key of keys) {
+    if (source[key] !== undefined) {
+      return source[key];
+    }
+  }
+  return undefined;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/**
+ * One person by id, for showing who someone is — a name and a photo.
+ *
+ * Distinct from {@link getUserById}, which normalizes the same endpoint into a
+ * session shape for the Org/me fallback. This returns the person as a person.
+ * The endpoint projects to a summary server-side, so no credential fields come
+ * back with it.
+ *
+ * Returns `null` rather than throwing when the id matches nobody: the caller is
+ * decorating a record that already exists, and a missing person should degrade
+ * to initials, not fail the page.
+ *
+ * GET /api/v1/users/{id}
+ */
+export async function getUserSummaryById(
+  userId: number,
+): Promise<UserSummaryDto | null> {
+  if (!Number.isFinite(userId) || userId <= 0) {
+    return null;
+  }
+
+  try {
+    const { data } = await http.get<ApiEnvelopeDto<unknown>>(
+      `${USERS_PATH}/${String(userId)}`,
+    );
+
+    const model = data.dataModel;
+    if (!isRecord(model)) {
+      return null;
+    }
+
+    const id = Number(readProp(model, "id", "Id") ?? 0);
+    const fullName = asString(readProp(model, "fullName", "FullName"));
+    if (!Number.isFinite(id) || id <= 0) {
+      return null;
+    }
+
+    return {
+      id,
+      fullName,
+      email: asString(readProp(model, "email", "Email")),
+      profileUrl: asString(readProp(model, "profileUrl", "ProfileUrl")) || null,
+      jobTitle: asString(readProp(model, "jobTitle", "JobTitle")) || null,
+      roleName: asString(readProp(model, "roleName", "RoleName")) || null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 /** GET /api/v1/users/{id} — fallback when Org/me is unavailable. */

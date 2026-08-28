@@ -38,6 +38,7 @@ import {
 } from "@/hooks/use-incident-queries";
 import { useRcaByIncidentQuery } from "@/hooks/use-rca-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useUserSummaryQuery } from "@/hooks/use-user-queries";
 import { getAuthDisplayName } from "@/lib/auth-context";
 import { formatFileSize } from "@/lib/cloudinary-constants";
 import { fetchRemoteFileMeta } from "@/lib/fetch-remote-file-bytes";
@@ -236,6 +237,26 @@ export function IncidentDetailContent(
     closureQuery.data == null
       ? (detail?.daysAway ?? "—")
       : String(closureData.daysAwayFromWork);
+
+  // The incident stores who was hurt as an id, not a name — the roster picker
+  // files `affectedPersonId` and the record keeps nothing else about them. Look
+  // the person up so the card can show who they actually are, with their photo.
+  // A non-numeric id is free text from an older record and matches nobody, so it
+  // is not worth a request.
+  const affectedUserId = /^\d+$/.test(detail?.affectedEmpId.trim() ?? "")
+    ? Number(detail?.affectedEmpId.trim())
+    : null;
+  const affectedUserQuery = useUserSummaryQuery(
+    affectedUserId,
+    isClientReady && hasToken,
+  );
+  const affectedUser = affectedUserQuery.data ?? null;
+  // The looked-up name wins over the mapper's placeholder, but never over a real
+  // name already on the record.
+  const affectedDisplayName =
+    detail && isAffectedNamePlaceholder(detail.affectedName)
+      ? (affectedUser?.fullName ?? detail.affectedName)
+      : (detail?.affectedName ?? "");
 
   const [hydratedDetailKey, setHydratedDetailKey] = useState<string | null>(
     null,
@@ -735,6 +756,8 @@ export function IncidentDetailContent(
       timelineEvents={timelineEvents}
       onAddTimelinePost={handleAddTimelinePost}
       affectedName={affectedName}
+      affectedDisplayName={affectedDisplayName}
+      affectedProfileUrl={affectedUser?.profileUrl ?? null}
       affectedEmpId={affectedEmpId}
       affectedInjuryLabel={affectedInjuryLabel}
       affectedInitials={initialsFromName(affectedName)}

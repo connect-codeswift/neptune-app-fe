@@ -99,6 +99,10 @@ export type IncidentDetailViewProps = Readonly<{
   onAddTimelinePost: (text: string) => void;
 
   affectedName: string;
+  /** Resolved from the affected person's user record; falls back to the mapper's label. */
+  affectedDisplayName: string;
+  /** Their profile photo, when their user record carries one. */
+  affectedProfileUrl: string | null;
   affectedEmpId: string;
   affectedInjuryLabel: string;
   affectedInitials: string;
@@ -212,6 +216,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     timelineEvents,
     onAddTimelinePost,
     affectedName,
+    affectedDisplayName,
+    affectedProfileUrl,
     affectedEmpId,
     affectedInjuryLabel,
     bodyPart,
@@ -409,18 +415,18 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             {activeTab === "people" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailPeopleCard
+                  // The record stores only an id, so the person's real name is
+                  // looked up and shown here; the mapper's placeholder is the
+                  // fallback when that lookup finds nobody.
                   affectedName={
-                    isEditingPeople ? affectedName : detail.affectedName
+                    isEditingPeople ? affectedName : affectedDisplayName
                   }
+                  affectedProfileUrl={affectedProfileUrl}
                   hasAffectedPerson={detail.hasAffectedPerson}
                   affectedRole={detail.affectedRole}
                   affectedEmpId={
                     isEditingPeople ? affectedEmpId : detail.affectedEmpId
                   }
-                  // Identity is locked in this scope, so the avatar always
-                  // comes from the mapper — which shows a bare employee number
-                  // whole rather than slicing it to two characters.
-                  affectedInitials={detail.affectedInitials}
                   affectedInjuryLabel={
                     isEditingPeople
                       ? affectedInjuryLabel
