@@ -334,9 +334,11 @@ export function ReportLocationsField(
         ) : null}
       </div>
 
-      <ReportFieldHint>
-        {hint ?? "Select a location from the list, or add your own."}
-      </ReportFieldHint>
+      {error ? null : (
+        <ReportFieldHint>
+          {hint ?? "Select a location from the list, or add your own."}
+        </ReportFieldHint>
+      )}
 
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>

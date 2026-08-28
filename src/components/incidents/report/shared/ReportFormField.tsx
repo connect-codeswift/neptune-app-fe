@@ -89,13 +89,8 @@ export function ReportFieldError(props: Readonly<ReportFieldErrorProps>) {
   const { id, children } = props;
 
   return (
-    <p id={id} className="text-ehs-red text-2.75 flex items-start gap-1">
-      <Icon
-        icon="mdi:alert-circle-outline"
-        className="mt-px size-3 shrink-0"
-        aria-hidden="true"
-      />
-      <span className="min-w-0">{children}</span>
+    <p id={id} className="text-ehs-red min-w-0 text-xs">
+      {children}
     </p>
   );
 }
@@ -379,8 +374,12 @@ export function ReportSelectField(props: Readonly<ReportSelectFieldProps>) {
           </ul>
         ) : null}
       </div>
-      {hint ? <ReportFieldHint withIcon>{hint}</ReportFieldHint> : null}
-      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
+      {hint && !error ? (
+        <ReportFieldHint withIcon>{hint}</ReportFieldHint>
+      ) : null}
+      {trailingHint && !error ? (
+        <ReportFieldHint>{trailingHint}</ReportFieldHint>
+      ) : null}
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );
