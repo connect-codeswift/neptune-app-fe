@@ -503,6 +503,31 @@
   [aria-disabled="true"] {
     cursor: not-allowed;
   }
+
+  /*
+   * Honour the viewer's own reduced-motion setting everywhere, rather than per component.
+   * Only a handful of the animations in this app were guarded, and the guard that was used
+   * (`motion-reduce:animate-none`) is the wrong tool for most of them: an animation whose
+   * whole appearance lives in its keyframes freezes at frame zero, which leaves a half-drawn
+   * decoration parked on screen instead of removing it.
+   *
+   * Collapsing the duration instead lets each animation land on its END state immediately,
+   * which is the state the design already treats as "finished". Transitions collapse too, so
+   * a hover or open/close still changes, just without the travel.
+   *
+   * Anything purely decorative that has no sensible end state is hidden at its call site with
+   * `motion-reduce:hidden` — see the AI assistant overlay.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @theme inline {

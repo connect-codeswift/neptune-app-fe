@@ -185,18 +185,28 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
       {isBusy ? (
         // pointer-events-auto so clicks land here rather than in the field
         // being rewritten underneath.
+        // Hidden, not frozen, when the viewer has asked for reduced motion. Both children
+        // are decorative and carry their whole appearance in the animation: the sweep's
+        // motion is entirely a transform, so stopping it leaves a bright gradient stripe
+        // parked over the left third of the field, and the halo's is entirely opacity, so
+        // stopping it leaves a solid ring. `animate-none` froze exactly that, for the whole
+        // length of the request. The spinner on the buttons still says it is working.
         <div
           className="rounded-2.5 backdrop-blur-0.25 bg-ehs-surface/35 pointer-events-auto absolute inset-0 z-10 overflow-hidden"
           aria-hidden="true"
         >
-          <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,color-mix(in_oklab,var(--ehs-surface)_90%,transparent)_42%,color-mix(in_oklab,var(--ehs-normal-blue)_40%,transparent)_58%,transparent_100%)] motion-reduce:animate-none" />
-          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 rounded-2.5 absolute inset-0 ring-1 ring-inset motion-reduce:animate-none" />
+          <div className="animate-ai-blade-sweep absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(105deg,transparent_0%,color-mix(in_oklab,var(--ehs-surface)_90%,transparent)_42%,color-mix(in_oklab,var(--ehs-normal-blue)_40%,transparent)_58%,transparent_100%)] motion-reduce:hidden" />
+          <div className="animate-ai-halo-pulse ring-ehs-normal-blue/45 rounded-2.5 absolute inset-0 ring-1 ring-inset motion-reduce:hidden" />
         </div>
       ) : null}
 
       {justApplied ? (
         <div
-          className="animate-ai-result-flash ring-ehs-normal-blue/50 rounded-2.5 pointer-events-none absolute inset-0 z-10 ring-2 ring-inset"
+          // The confirmation ring is kept — it is the only in-field signal that the rewrite
+          // landed — but hidden under reduced motion. It had no guard at all, so with
+          // animations off the flash never ran and the ring simply sat there at full
+          // strength for the whole 700ms: the stray "light" left behind after paraphrasing.
+          className="animate-ai-result-flash ring-ehs-normal-blue/50 rounded-2.5 pointer-events-none absolute inset-0 z-10 ring-2 ring-inset motion-reduce:hidden"
           aria-hidden="true"
         />
       ) : null}
