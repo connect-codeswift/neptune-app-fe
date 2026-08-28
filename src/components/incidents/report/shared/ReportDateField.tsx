@@ -10,10 +10,10 @@ import {
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
-import { Text } from "@/components/Text";
 import {
   ReportFieldError,
   ReportFieldLabel,
+  ReportFieldHint,
 } from "@/components/incidents/report/shared/ReportFormField";
 import { ReportCalendarPopover } from "@/components/incidents/report/shared/ReportCalendarPopover";
 import {
@@ -352,22 +352,13 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-xs">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
-      />
+      <ReportFieldLabel label={label} required={required} />
 
       {inputControl}
 
       {quickPickButtons}
 
+      {trailingHint ? <ReportFieldHint>{trailingHint}</ReportFieldHint> : null}
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>
   );

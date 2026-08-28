@@ -668,19 +668,15 @@ export function ReportPersonSearchField(
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        trailing={
-          trailingHint ? (
-            <Text as="span" className="text-ehs-muted-text text-base">
-              {trailingHint}
-            </Text>
-          ) : undefined
-        }
-      />
+      <ReportFieldLabel label={label} required={required} />
 
       {inputControl}
+
+      {trailingHint ? (
+        <Text as="p" className="text-ehs-muted-text text-xs">
+          {trailingHint}
+        </Text>
+      ) : null}
       {error ? <ReportFieldError>{error}</ReportFieldError> : null}
     </div>
   );

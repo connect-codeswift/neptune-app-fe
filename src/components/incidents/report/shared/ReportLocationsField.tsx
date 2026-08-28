@@ -2,7 +2,11 @@
 
 import { useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { ReportFieldError, ReportFieldLabel } from "./ReportFormField";
+import {
+  ReportFieldError,
+  ReportFieldHint,
+  ReportFieldLabel,
+} from "./ReportFormField";
 import { INCIDENT_LOCATION_OPTIONS } from "./report-locations";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
@@ -168,37 +172,7 @@ export function ReportLocationsField(
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel label={label} required={required} hint={hint} />
-
-      {selected !== null ? (
-        <div className="flex flex-wrap gap-1.5">
-          {[selected].map((entry) => (
-            <span
-              key={locationKey(entry)}
-              className="border-ehs-border bg-ehs-light-bg text-ehs-darker text-3.25 inline-flex max-w-full shrink-0 items-center gap-1 rounded-full border py-0.5 pr-1 pl-2.5 font-medium"
-            >
-              <Icon
-                icon="mdi:map-marker-outline"
-                className="text-ehs-dark-blue size-3 shrink-0"
-                aria-hidden="true"
-              />
-              <span className="truncate">{entry}</span>
-              <button
-                type="button"
-                onClick={removeLocation}
-                aria-label={`Remove location ${entry}`}
-                className="text-ehs-muted-text hover:text-ehs-darker inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
-              >
-                <Icon
-                  icon="mdi:close"
-                  className="size-3.5"
-                  aria-hidden="true"
-                />
-              </button>
-            </span>
-          ))}
-        </div>
-      ) : null}
+      <ReportFieldLabel label={label} required={required} />
 
       <div className="relative">
         <button
@@ -214,7 +188,8 @@ export function ReportLocationsField(
           onClick={() => setOpen((current) => !current)}
           className={[
             FIELD_INPUT_CLASS,
-            "flex w-full items-center gap-2 pr-9 text-left",
+            "flex w-full items-center gap-2 text-left",
+            selected === null ? "pr-9" : "pr-16",
             open
               ? "border-ehs-normal-blue ring-ehs-normal-blue/[0.15] ring-0.75"
               : "",
@@ -230,6 +205,17 @@ export function ReportLocationsField(
           />
           <span className="min-w-0 flex-1 truncate font-medium">{summary}</span>
         </button>
+
+        {selected !== null ? (
+          <button
+            type="button"
+            onClick={removeLocation}
+            aria-label={`Clear location ${selected}`}
+            className="text-ehs-muted-text hover:text-ehs-darker absolute top-1/2 right-8 inline-flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-full p-0.5 transition-colors"
+          >
+            <Icon icon="mdi:close" className="size-3.5" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <Icon
           icon="mdi:chevron-down"
@@ -348,9 +334,9 @@ export function ReportLocationsField(
         ) : null}
       </div>
 
-      <p className="text-ehs-muted-text text-xs">
-        Select a location from the list, or add your own.
-      </p>
+      <ReportFieldHint>
+        {hint ?? "Select a location from the list, or add your own."}
+      </ReportFieldHint>
 
       {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
     </div>

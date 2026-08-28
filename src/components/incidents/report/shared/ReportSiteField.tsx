@@ -76,15 +76,7 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
     <div
       className={["flex flex-col gap-1.5", className].filter(Boolean).join(" ")}
     >
-      <ReportFieldLabel
-        label={label}
-        required={required}
-        trailing={
-          <Text as="span" className="text-ehs-muted-text text-xs">
-            Auto-assigned from your site.
-          </Text>
-        }
-      />
+      <ReportFieldLabel label={label} required={required} />
 
       <div
         className={[
@@ -107,6 +99,10 @@ export function ReportSiteField(props: Readonly<ReportSiteFieldProps>) {
           Auto
         </span>
       </div>
+
+      <Text as="p" className="text-ehs-muted-text text-xs">
+        Auto-assigned from your site.
+      </Text>
     </div>
   );
 }
