@@ -54,6 +54,7 @@ function renderStepForm(
   handleBack: () => void,
   handleContinue: () => void,
   showStepFieldErrors: Partial<Record<ReportStepId, boolean>>,
+  goToStep: (step: ReportStepId) => void,
 ) {
   const sharedProps = {
     form,
@@ -82,7 +83,7 @@ function renderStepForm(
     case 4:
       return <ReportIncidentStepFour {...sharedProps} />;
     case 5:
-      return <ReportIncidentStepFive {...sharedProps} />;
+      return <ReportIncidentStepFive {...sharedProps} onGoToStep={goToStep} />;
     default:
       return null;
   }
@@ -352,6 +353,10 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     }
   };
 
+  // The step rail stays: it is the only way to move between steps from here, and the
+  // review cards' own edit buttons lean on the same navigation.
+  const isReviewStep = currentStep === 5;
+
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((currentStep - 1) as ReportStepId);
@@ -370,7 +375,17 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
           title={headerTitle}
         />
 
-        <div className="mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_320px] xl:items-start">
+        <div
+          className={[
+            "mt-3.5 grid grid-cols-1 gap-3.5 py-3.5 md:grid-cols-[220px_minmax(0,1fr)] xl:items-start",
+            // Review runs full width. The aside is a live preview of the report being
+            // written, and on the review step it previews what the page already is —
+            // so it only costs the summary the room to lay out its cards.
+            isReviewStep ? "" : "xl:grid-cols-[220px_minmax(0,1fr)_320px]",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
           <ReportIncidentSteps
             currentStep={currentStep}
             onStepChange={goToStep}
@@ -383,28 +398,31 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
             handleBack,
             handleContinue,
             showStepFieldErrors,
+            goToStep,
           )}
 
-          <ReportIncidentAside
-            severityBadge={livePreviewBadge}
-            location={[
-              normalizedForm.location,
-              formatIncidentLocationsLabel(
-                normalizedForm.incidentLocations ?? [],
-              ),
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-            title={
-              normalizedForm.title.trim() ||
-              (isSeverityPicked(normalizedForm.severity)
-                ? (severityOption?.label ?? "Incident report")
-                : "Incident report")
-            }
-            description={normalizedForm.description}
-            currentStep={currentStep}
-            className="col-span-1 md:col-span-2 xl:col-span-1"
-          />
+          {isReviewStep ? null : (
+            <ReportIncidentAside
+              severityBadge={livePreviewBadge}
+              location={[
+                normalizedForm.location,
+                formatIncidentLocationsLabel(
+                  normalizedForm.incidentLocations ?? [],
+                ),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              title={
+                normalizedForm.title.trim() ||
+                (isSeverityPicked(normalizedForm.severity)
+                  ? (severityOption?.label ?? "Incident report")
+                  : "Incident report")
+              }
+              description={normalizedForm.description}
+              currentStep={currentStep}
+              className="col-span-1 md:col-span-2 xl:col-span-1"
+            />
+          )}
         </div>
       </div>
     </div>

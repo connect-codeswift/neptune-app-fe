@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Text } from "@/components/Text";
 import { CreatableMultiSelectInput } from "@/components/inputs/CreatableMultiSelectInput";
 import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import type { SelectOption } from "@/components/inputs/SelectInput";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
 import { useRcaCategoriesQuery } from "@/hooks/use-rca-queries";
@@ -153,9 +154,24 @@ export function IncidentClosureStepRootCause(
           placeholder="Describe the root cause details..."
           className={FIELD_TEXTAREA_CLASS}
         />
-        <span className="text8 text-ehs-muted-text mt-1.5 self-end font-normal">
-          {`${String(data.rootCauseSummary.length)} / 1000 min`}
-        </span>
+        <div className="mt-1.5 flex items-center justify-between gap-3">
+          {/*
+            Rewrite only, no auto-draft. The report form can offer to draft an empty
+            description because draft-assist exists for intake; there is no endpoint that
+            writes a root cause, and a model inventing one for a compliance record would be
+            worse than a blank field. These act on what the closer has already written.
+          */}
+          <AiTextAssistant
+            module="incident"
+            value={data.rootCauseSummary}
+            onApply={(rootCauseSummary) =>
+              onChangeField("rootCauseSummary", rootCauseSummary)
+            }
+          />
+          <span className="text8 text-ehs-muted-text shrink-0 font-normal">
+            {`${String(data.rootCauseSummary.length)} / 1000 min`}
+          </span>
+        </div>
       </div>
     </div>
   );
