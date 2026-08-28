@@ -8,6 +8,8 @@ import { Toggle } from "@/components/ui/Toggle";
 import { PhotoUploadControl } from "./PhotoUploadControl";
 import { SelectWithCustomControl } from "./SelectWithCustomControl";
 import { dateFieldMax, dateFieldMin } from "./types";
+import { DateInput } from "@/components/inputs/DateInput";
+import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
 import type {
   CheckboxGroupFieldConfig,
   ChipsFieldConfig,
@@ -317,18 +319,22 @@ function DateControl(
   }>,
 ) {
   const { field, value, error, onChange } = props;
+  const min = dateFieldMin(field);
+  const max = dateFieldMax(field);
+
+  // FieldShell already renders the label and the error, so this only supplies
+  // the control. The schema speaks ISO; DateInput speaks MM/DD/YYYY.
   return (
-    <input
+    <DateInput
       id={field.name}
-      name={field.name}
-      type="date"
-      value={value}
-      min={dateFieldMin(field)}
-      max={dateFieldMax(field)}
-      onChange={(event) => onChange(event.target.value)}
-      className={[inputClass, error ? errorRingClass : ""]
-        .filter(Boolean)
-        .join(" ")}
+      label={field.label}
+      hideLabel
+      variant="embedded"
+      value={isoToMmDdYyyy(value)}
+      onChange={(next) => onChange(mmDdYyyyToIso(next))}
+      minDate={min ? isoToMmDdYyyy(min) : undefined}
+      maxDate={max ? isoToMmDdYyyy(max) : undefined}
+      inputClassName={error ? errorRingClass : ""}
     />
   );
 }

@@ -16,7 +16,7 @@ import {
   normalizeHhMm,
   nowHhMm,
   parseTimeInput,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 
 export type ReportTimeFieldProps = Readonly<{
   label: string;

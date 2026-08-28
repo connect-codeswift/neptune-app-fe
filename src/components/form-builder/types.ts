@@ -1,3 +1,4 @@
+import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
 import type { ReactNode } from "react";
 import type { FileModule } from "@/dtos/req/files-request.dto";
 
@@ -374,27 +375,16 @@ export type FieldConfig =
 
 export type FormSchema = readonly FieldConfig[];
 
-/**
- * Today as `YYYY-MM-DD`, in local time — the shape and the calendar
- * `<input type="date">` compares its value against.
- */
-export function todayIsoDate(): string {
-  const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  return `${String(now.getFullYear())}-${mm}-${dd}`;
-}
-
 /** Earliest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
 export function dateFieldMin(field: DateFieldConfig): string | undefined {
   if (field.min) return field.min;
-  return field.limit === "not-past" ? todayIsoDate() : undefined;
+  return field.limit === "not-past" ? cantBePast().bound : undefined;
 }
 
 /** Latest date the field accepts, once {@link DateFieldConfig.limit} is resolved. */
 export function dateFieldMax(field: DateFieldConfig): string | undefined {
   if (field.max) return field.max;
-  return field.limit === "not-future" ? todayIsoDate() : undefined;
+  return field.limit === "not-future" ? cantBeFuture().bound : undefined;
 }
 
 /** Build the initial (empty) value map for a schema. */

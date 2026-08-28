@@ -6,7 +6,7 @@ import {
   nowHhMm,
   toTimeParts,
   type Meridiem,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 
 const HOURS = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const;
 /** Five-minute steps. Exact minutes stay available by typing. */

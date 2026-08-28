@@ -1,22 +1,22 @@
-import type { SeverityId } from "./report-severity";
-import type { ReportPhotoFile } from "./report-attachments";
-import type { InjuryLevelId } from "./report-injury-level";
-import { injuryLevelForReport } from "./report-injury-level";
+import type { SeverityId } from "@/forms/incident-module/severity";
+import type { ReportPhotoFile } from "@/forms/incident-module/attachments";
+import type { InjuryLevelId } from "@/forms/incident-module/injury-level";
+import { injuryLevelForReport } from "@/forms/incident-module/injury-level";
 import type {
   BodyPartId,
   BodyPartSideMap,
   BodySide,
-} from "./report-body-parts";
+} from "@/forms/incident-module/body-parts";
 import {
   CLASSIFICATION_FIELDS,
   type ClassificationValue,
   normalizeClassifications,
-} from "./report-classification";
-import { DEFAULT_REPORT_PHOTOS } from "./report-attachments";
+} from "@/forms/incident-module/classification";
+import { DEFAULT_REPORT_PHOTOS } from "@/forms/incident-module/attachments";
 import {
   EMPTY_DESCRIPTION_DRAFT,
   type ReportDescriptionDraft,
-} from "./report-ai-draft";
+} from "@/components/incidents/report/shared/report-ai-draft";
 
 /** Step 2 dropdowns the reporter can extend with their own options. */
 export type CustomOptionField =

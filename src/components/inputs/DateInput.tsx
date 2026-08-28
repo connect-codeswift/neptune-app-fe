@@ -11,11 +11,11 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
-  ReportFieldError,
-  ReportFieldLabel,
-  ReportFieldHint,
-} from "@/components/incidents/report/shared/ReportFormField";
-import { ReportCalendarPopover } from "@/components/incidents/report/shared/ReportCalendarPopover";
+  FieldError,
+  FieldLabel,
+  FieldHint,
+} from "@/components/ui/field-primitives";
+import { CalendarPopover } from "@/components/ui/CalendarPopover";
 import {
   FIELD_INPUT_CLASS,
   FIELD_INPUT_LG_CLASS,
@@ -28,7 +28,7 @@ import {
   maskMmDdYyyy,
   parseMmDdYyyy,
   today,
-} from "@/components/incidents/report/shared/report-date-time";
+} from "@/lib/date-time-field";
 
 const EMBEDDED_INPUT_CLASS = `h-10 ${FIELD_INPUT_LG_CLASS}`;
 
@@ -38,9 +38,9 @@ type MenuPosition = Readonly<{
   width: number;
 }>;
 
-export type ReportDateQuickPick = "today" | "yesterday";
+export type DateInputQuickPick = "today" | "yesterday";
 
-export type ReportDateFieldProps = Readonly<{
+export type DateInputProps = Readonly<{
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -53,7 +53,7 @@ export type ReportDateFieldProps = Readonly<{
   minDate?: string;
   maxDate?: string;
   /** Shortcut chips under the field. Ones outside the bounds are hidden. */
-  quickPicks?: readonly ReportDateQuickPick[];
+  quickPicks?: readonly DateInputQuickPick[];
   /** Validation message from the parent, shown under the field. */
   error?: string | null;
   /** Report forms use the default styling; modals use `embedded` with a portaled calendar. */
@@ -64,12 +64,12 @@ export type ReportDateFieldProps = Readonly<{
   inputClassName?: string;
 }>;
 
-const QUICK_PICK_LABELS: Record<ReportDateQuickPick, string> = {
+const QUICK_PICK_LABELS: Record<DateInputQuickPick, string> = {
   today: "Today",
   yesterday: "Yesterday",
 };
 
-export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
+export function DateInput(props: Readonly<DateInputProps>) {
   const {
     label,
     value,
@@ -181,7 +181,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
   }, [isEmbedded, open]);
 
   const todayDate = today();
-  const quickPickDates: Record<ReportDateQuickPick, Date> = {
+  const quickPickDates: Record<DateInputQuickPick, Date> = {
     today: todayDate,
     yesterday: addDays(todayDate, -1),
   };
@@ -203,7 +203,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
     .join(" ");
 
   const calendarPopover = (
-    <ReportCalendarPopover
+    <CalendarPopover
       value={selected}
       minDate={min}
       maxDate={max}
@@ -231,7 +231,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
             }
             className="fixed z-120"
           >
-            <ReportCalendarPopover
+            <CalendarPopover
               value={selected}
               minDate={min}
               maxDate={max}
@@ -336,9 +336,7 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         </div>
 
         {quickPickButtons}
-        {error ? (
-          <ReportFieldError id={errorId}>{error}</ReportFieldError>
-        ) : null}
+        {error ? <FieldError id={errorId}>{error}</FieldError> : null}
         {portaledCalendar}
       </div>
     );
@@ -352,16 +350,14 @@ export function ReportDateField(props: Readonly<ReportDateFieldProps>) {
         .join(" ")}
       data-field-error={error ? "true" : undefined}
     >
-      <ReportFieldLabel label={label} required={required} />
+      <FieldLabel label={label} required={required} />
 
       {inputControl}
 
       {quickPickButtons}
 
-      {trailingHint && !error ? (
-        <ReportFieldHint>{trailingHint}</ReportFieldHint>
-      ) : null}
-      {error ? <ReportFieldError id={errorId}>{error}</ReportFieldError> : null}
+      {trailingHint && !error ? <FieldHint>{trailingHint}</FieldHint> : null}
+      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
     </div>
   );
 }

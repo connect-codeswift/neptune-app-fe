@@ -21,7 +21,7 @@ import { markRootCauses } from "@/components/incidents/detail/investigations/hrc
 import {
   IMMEDIATE_ACTION_OPTIONS,
   splitActionTaken,
-} from "@/components/incidents/report/shared/report-response";
+} from "@/forms/incident-module/immediate-response";
 import type { PersonDto, IncidentDto } from "@/dtos/res/incident-response.dto";
 import {
   fileNameFromAttachmentUrl,

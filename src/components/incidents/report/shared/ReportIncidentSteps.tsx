@@ -3,10 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
-import {
-  REPORT_STEPS,
-  type ReportStepId,
-} from "@/components/incidents/report/shared/report-incident-data";
+import { REPORT_STEPS, type ReportStepId } from "@/forms/incident-module/index";
 
 export type ReportIncidentStepsProps = Readonly<{
   currentStep: ReportStepId;

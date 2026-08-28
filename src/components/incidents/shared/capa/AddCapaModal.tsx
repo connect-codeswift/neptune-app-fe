@@ -21,7 +21,7 @@ import {
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { ReportDateField } from "@/components/incidents/report/shared/ReportDateField";
+import { DateInput } from "@/components/inputs/DateInput";
 import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 import { useCapaTasksQuery } from "@/hooks/use-capa-queries";
@@ -344,7 +344,7 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
                 excludeUserIds={excludeUserIds}
               />
 
-              <ReportDateField
+              <DateInput
                 variant="embedded"
                 label="Due date"
                 value={dueDate}

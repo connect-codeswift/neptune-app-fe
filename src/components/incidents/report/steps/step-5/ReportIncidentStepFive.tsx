@@ -12,7 +12,7 @@ import {
   INJURY_LEVEL_OPTIONS,
   IMMEDIATE_ACTION_OPTIONS,
   formatBodyPartSelection,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
 import { formatIncidentLocationsLabel } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportFieldError } from "@/components/incidents/report/shared/ReportFormField";

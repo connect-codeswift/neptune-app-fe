@@ -4,7 +4,7 @@ import type {
   BodyPartId,
   BodyPartSideMap,
   BodySide,
-} from "@/components/incidents/report/shared/report-incident-data";
+} from "@/forms/incident-module/index";
 
 export type ReportBodyMapView = "front" | "back";
 
