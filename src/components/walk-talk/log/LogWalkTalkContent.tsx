@@ -7,6 +7,7 @@ import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { useCreateWalkTalkMutation } from "@/hooks/use-walk-talk-mutations";
 import { toAssigneeOptions, userNameFor } from "@/lib/map-user";
@@ -65,6 +66,10 @@ function isFollowUpEmpty(action: FollowUpAction): boolean {
 export function LogWalkTalkContent() {
   const router = useRouter();
   const createWalkTalk = useCreateWalkTalkMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the list is still in flight. A click in that gap logged
+  // a duplicate.
+  const submitLock = useSubmitLock();
   const usersQuery = useUserDropdownQuery();
 
   const assigneeOptions = useMemo(
@@ -109,12 +114,17 @@ export function LogWalkTalkContent() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createWalkTalk.mutate(payload, {
       onSuccess: () => {
         toast.success("Walk-and-Talk submitted");
         router.push(WALK_TALK_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -134,7 +144,7 @@ export function LogWalkTalkContent() {
   };
 
   const saveAll = () => {
-    if (createWalkTalk.isPending) return;
+    if (submitLock.isLocked) return;
 
     validatedCountRef.current = 0;
     for (const id of [
@@ -340,13 +350,11 @@ export function LogWalkTalkContent() {
           <Button
             type="button"
             variant="primary"
-            isLoading={createWalkTalk.isPending}
+            isLoading={submitLock.isLocked}
             onClick={saveAll}
             className="text4 md:rounded-2.5 h-11 flex-1 rounded-xl px-4 py-2.5 shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_15%,transparent)] md:h-auto md:flex-none md:px-5 md:shadow-(--ehs-shadow-button-primary-flat)"
           >
-            {createWalkTalk.isPending
-              ? "Submitting..."
-              : "Submit Walk-and-Talk"}
+            {submitLock.isLocked ? "Submitting..." : "Submit Walk-and-Talk"}
           </Button>
         </div>
       </div>

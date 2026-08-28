@@ -24,6 +24,7 @@ import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
 import { fetchSdsLabel, hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
@@ -189,6 +190,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveChemical = useCreateChemicalMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const [isAutofilling, setIsAutofilling] = useState(false);
   const initialQuantity = chemical
     ? splitQuantity(chemical.quantity)
@@ -304,6 +309,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     saveChemical.mutate(toChemicalRequest(values, { isDraft, existingId }), {
       onSuccess: () => {
         toast.success(
@@ -316,6 +325,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
         router.push(isDraft ? CHEMICALS_LIST_ROUTE : cancelHref);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -487,7 +497,7 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="button"
               variant="secondary"
               className={actionClass}
-              disabled={saveChemical.isPending}
+              disabled={submitLock.isLocked}
               onClick={() => save(true)}
             >
               Save as Draft
@@ -496,9 +506,9 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
               type="submit"
               variant="primary"
               className={actionClass}
-              isLoading={saveChemical.isPending}
+              isLoading={submitLock.isLocked}
             >
-              {saveChemical.isPending ? "Saving..." : primaryLabel}
+              {submitLock.isLocked ? "Saving..." : primaryLabel}
             </Button>
           </div>
         </div>

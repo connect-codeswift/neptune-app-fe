@@ -11,6 +11,7 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useReplacePpeRequestMutation } from "@/hooks/use-ppe-mutations";
 import {
   usePpeIssueProfileQuery,
@@ -54,6 +55,10 @@ export function ReplacementRequestContent() {
   const userDropdownQuery = useUserDropdownQuery();
   const ppeItemsQuery = usePpeItemsQuery();
   const replaceRequest = useReplacePpeRequestMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
 
   const employeeId = issueProfileQuery.profile?.id?.trim() ?? "";
   const employeeName = issueProfileQuery.profile?.name?.trim() ?? "";
@@ -190,6 +195,10 @@ export function ReplacementRequestContent() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     replaceRequest.mutate(payload, {
       onSuccess: () => {
         toast.success("Replacement request submitted");
@@ -202,6 +211,7 @@ export function ReplacementRequestContent() {
         router.push(PPE_ROUTE);
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -291,13 +301,11 @@ export function ReplacementRequestContent() {
                   type="submit"
                   form={REPLACEMENT_REQUEST_FORM_ID}
                   variant="primary"
-                  isLoading={replaceRequest.isPending}
+                  isLoading={submitLock.isLocked}
                   disabled={!issueIdParam || itemOptions.length === 0}
                   className="text4 rounded-2.5 w-full px-5 py-2.5 shadow-(--ehs-shadow-button-primary-flat) sm:w-auto"
                 >
-                  {replaceRequest.isPending
-                    ? "Submitting..."
-                    : "Submit Request"}
+                  {submitLock.isLocked ? "Submitting..." : "Submit Request"}
                 </Button>
               </div>
             </div>

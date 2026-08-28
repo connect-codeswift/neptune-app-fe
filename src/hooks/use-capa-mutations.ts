@@ -174,12 +174,21 @@ export function useCreateCapaCommentMutation() {
       });
     },
     onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: [...capaQueryKeys.all, "comments"],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: [...capaQueryKeys.all, "comments"],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byId(variables.capaId),
+        });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }
@@ -204,18 +213,27 @@ export function useCreateCapaTaskMutation() {
       );
     },
     onSuccess: async (_result, variables) => {
-      if (variables.incidentId && variables.incidentId > 0) {
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        if (variables.incidentId && variables.incidentId > 0) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.byIncident(variables.incidentId),
+          });
+        }
         await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.byIncident(variables.incidentId),
+          queryKey: capaQueryKeys.tasks(variables.capaId),
         });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.review(variables.capaId),
+        });
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
       }
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.tasks(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
   });
 }
@@ -398,18 +416,27 @@ export function useCreateCapaMutation() {
       });
     },
     onSuccess: async (result, variables) => {
-      const incidentId = variables.payload.incidentId ?? 0;
-      if (incidentId > 0) {
-        await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.byIncident(incidentId),
-        });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        const incidentId = variables.payload.incidentId ?? 0;
+        if (incidentId > 0) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.byIncident(incidentId),
+          });
+        }
+        if (result?.id) {
+          await queryClient.invalidateQueries({
+            queryKey: capaQueryKeys.tasks(result.id),
+          });
+        }
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
       }
-      if (result?.id) {
-        await queryClient.invalidateQueries({
-          queryKey: capaQueryKeys.tasks(result.id),
-        });
-      }
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
     },
   });
 }
@@ -469,16 +496,25 @@ export function useSubmitCapaVerificationMutation() {
       );
     },
     onSuccess: async (_result, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.verification(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.byId(variables.capaId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: capaQueryKeys.review(variables.capaId),
-      });
-      await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      // Must not reject: TanStack Query awaits onSuccess and rejects
+      // `mutateAsync` if it throws, so a failed refetch here reported an
+      // already-saved record as a failed submit and invited a retry that
+      // created a duplicate. The write is done; a stale cache is not worth
+      // that.
+      try {
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.verification(variables.capaId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.byId(variables.capaId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: capaQueryKeys.review(variables.capaId),
+        });
+        await queryClient.invalidateQueries({ queryKey: capaQueryKeys.all });
+      } catch {
+        // Intentionally ignored — see above.
+      }
     },
   });
 }

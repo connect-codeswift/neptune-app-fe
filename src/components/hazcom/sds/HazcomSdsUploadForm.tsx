@@ -19,6 +19,7 @@ import {
 } from "@/components/hazcom/sds/hazcom-sds-schema";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateSdsMutation } from "@/hooks/use-hazcom-mutations";
 import {
   hazcomQueryKeys,
@@ -48,6 +49,10 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const createSds = useCreateSdsMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const saveAsDraftRef = useRef(false);
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
   const { items: sdsRecords, isLoading: isLoadingSdsRecords } = useSdsListQuery(
@@ -178,12 +183,17 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createSds.mutate(payload, {
       onSuccess: () => {
         toast.success(isDraft ? "SDS saved as draft" : "SDS record saved");
         goBack();
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -222,7 +232,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
           type="button"
           variant="tertiary"
           onClick={goBack}
-          disabled={createSds.isPending}
+          disabled={submitLock.isLocked}
           className="rounded-lg px-3.5 py-2 text-sm font-semibold"
         >
           <Icon icon="mdi:arrow-left" className="size-4" aria-hidden />
@@ -233,7 +243,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
           <Button
             type="button"
             variant="secondary"
-            disabled={createSds.isPending}
+            disabled={submitLock.isLocked}
             className="rounded-lg px-3.5 py-2 text-sm font-semibold"
             onClick={() => {
               saveAsDraftRef.current = true;
@@ -249,7 +259,7 @@ export function HazcomSdsUploadForm(props: Readonly<HazcomSdsUploadFormProps>) {
             type="submit"
             form={HAZCOM_SDS_FORM_ID}
             variant="primary"
-            isLoading={createSds.isPending}
+            isLoading={submitLock.isLocked}
             className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
             onClick={() => {
               saveAsDraftRef.current = false;

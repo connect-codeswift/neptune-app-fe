@@ -10,6 +10,7 @@ import {
 import { TextInput } from "@/components/inputs/TextInput";
 import { UploadDocumentDropzone } from "@/components/policy-maker";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useAddComplianceMutation } from "@/hooks/use-compliance-mutations";
 import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { getFileMaxBytes, isPdfMimeType } from "@/lib/files";
@@ -120,6 +121,10 @@ export function AddObligationForm() {
   const dueDateInputRef = useRef<HTMLInputElement>(null);
   const usersQuery = useUserDropdownQuery();
   const addComplianceMutation = useAddComplianceMutation();
+  // Held past the response: `isPending` drops when the record is created,
+  // while the push to the next page is still in flight. A click in that gap
+  // saved a duplicate.
+  const submitLock = useSubmitLock();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -240,6 +245,10 @@ export function AddObligationForm() {
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     addComplianceMutation.mutate(
       buildAddComplianceRequest({
         title,
@@ -262,6 +271,7 @@ export function AddObligationForm() {
           router.push("/dashboard/regulatory-compliance/calendar");
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             "Could not save compliance item",
             getMutationErrorMessage(error, "Please try again."),
@@ -271,7 +281,7 @@ export function AddObligationForm() {
     );
   };
 
-  const isSubmitting = addComplianceMutation.isPending;
+  const isSubmitting = submitLock.isLocked;
   const busy = isSubmitting || isUploadingPdf;
 
   return (

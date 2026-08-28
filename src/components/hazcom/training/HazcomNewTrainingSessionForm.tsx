@@ -18,6 +18,7 @@ import {
 } from "@/components/hazcom/training/hazcom-training-schema";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
 import {
@@ -54,6 +55,10 @@ export function HazcomNewTrainingSessionForm(
   const { className = "" } = props;
   const router = useRouter();
   const createTrainingLog = useCreateTrainingLogMutation();
+  // Held past the response: `isPending` drops when the record is saved, while
+  // the navigation away is still in flight. A click in that gap saved a
+  // duplicate.
+  const submitLock = useSubmitLock();
   const { chemicals, isLoading: isLoadingChemicals } = useChemicalNamesQuery();
 
   const auth = useMemo(() => getAuthContext(), []);
@@ -122,12 +127,17 @@ export function HazcomNewTrainingSessionForm(
       return;
     }
 
+    if (!submitLock.acquire()) {
+      return;
+    }
+
     createTrainingLog.mutate(payload, {
       onSuccess: () => {
         toast.success("Training session logged");
         goBack();
       },
       onError: (error) => {
+        submitLock.release();
         toast.error(
           getMutationErrorMessage(
             error,
@@ -160,7 +170,7 @@ export function HazcomNewTrainingSessionForm(
           type="button"
           variant="tertiary"
           onClick={goBack}
-          disabled={createTrainingLog.isPending}
+          disabled={submitLock.isLocked}
           className="rounded-lg px-3.5 py-2 text-sm font-semibold"
         >
           Cancel
@@ -169,7 +179,7 @@ export function HazcomNewTrainingSessionForm(
           type="submit"
           form={HAZCOM_TRAINING_FORM_ID}
           variant="primary"
-          isLoading={createTrainingLog.isPending}
+          isLoading={submitLock.isLocked}
           className="rounded-lg px-3.5 py-2 text-sm font-semibold shadow-(--ehs-shadow-button-primary-flat)"
         >
           <Icon icon="mdi:check" className="size-4" aria-hidden />
