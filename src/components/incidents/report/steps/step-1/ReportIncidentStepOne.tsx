@@ -8,7 +8,6 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
   classificationFieldsForStepOne,
-  GENDER_OPTIONS,
   normalizeGender,
   oshaRecordableForSeverity,
   seriousFieldLabelForSeverity,
@@ -20,12 +19,10 @@ import {
 } from "@/forms/incident-module/index";
 import { ReportClassificationToggle } from "@/components/incidents/report/shared/ReportClassificationToggle";
 import { DateInput } from "@/components/inputs/DateInput";
-import { ReportSelectField } from "@/components/incidents/report/shared/ReportFormField";
 import {
   ReportPersonSearchField,
   type ReportPersonSelection,
 } from "@/components/incidents/report/shared/ReportPersonSearchField";
-import { ReportSiteField } from "@/components/incidents/report/shared/ReportSiteField";
 import { ReportLocationsField } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportTimeField } from "@/components/incidents/report/shared/ReportTimeField";
 import {
@@ -235,9 +232,10 @@ export function ReportIncidentStepOne(
   // before the first lookup lands must not let the slower answer win.
   const genderRequestRef = useRef("");
 
-  // Plant / Location is the reporter's own site, not a question. Stamped here
-  // rather than in the initial form state because the site name arrives with
-  // the session query, which resolves after this form first renders.
+  // The site is the reporter's own and was never a question — the field only
+  // ever displayed it, so it is gone from the form. The value is still stamped
+  // here, because the record needs it: the site name arrives with the session
+  // query, which resolves after this form first renders.
   useEffect(() => {
     if (!site.name || form.location === site.name) {
       return;
@@ -281,14 +279,14 @@ export function ReportIncidentStepOne(
       : undefined;
 
   /**
-   * The affected person's own record answers the Gender question, so it isn't
-   * asked twice.
+   * The affected person's own record answers the Gender question, so the form
+   * no longer asks it — the field was cosmetic, sitting beside the very picker
+   * that fills it. The value is still resolved here and still reaches the API;
+   * it is only the input that is gone.
    *
    * Changing the person invalidates a gender that was read off the previous
    * one — it describes somebody else, and leaving it would quietly attribute
-   * one colleague's gender to another on a regulated record. An answer the
-   * reporter chose themselves is theirs and survives: that is the whole reason
-   * `genderFromProfile` tracks where the value came from.
+   * one colleague's gender to another on a regulated record.
    */
   const handlePersonChange = (person: ReportPersonSelection) => {
     const identity = {
@@ -450,41 +448,7 @@ export function ReportIncidentStepOne(
         />
 
         <div className="flex flex-col pt-4.5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
-            <ReportSelectField
-              label="Gender"
-              required
-              // Says why the field answered itself, because a value that
-              // appears without being typed reads as a bug otherwise. An icon
-              // rather than the words "From their profile": this column is
-              // 180px, and the text wrapped onto a second line, which grew the
-              // label and dropped this input below Affected person's.
-              trailing={
-                form.genderFromProfile ? (
-                  <span
-                    title="Filled from this person's profile"
-                    className="text-ehs-dark-blue inline-flex items-center"
-                  >
-                    <Icon
-                      icon="mdi:account-check-outline"
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">
-                      Filled from this person&apos;s profile
-                    </span>
-                  </span>
-                ) : undefined
-              }
-              value={form.gender}
-              onChange={(gender) => {
-                // Their answer wins over any lookup still in flight.
-                genderRequestRef.current = "";
-                onChange({ gender, genderFromProfile: false });
-              }}
-              options={[...GENDER_OPTIONS]}
-            />
-
+          <div className="grid grid-cols-1 gap-3">
             <ReportPersonSearchField
               label="Affected person"
               required
@@ -498,16 +462,6 @@ export function ReportIncidentStepOne(
               error={fieldErrors?.affectedPerson ?? null}
             />
           </div>
-
-          <ReportSiteField
-            label="Plant / Location"
-            required
-            value={form.location}
-            onChange={(location) => onChange({ location })}
-            siteName={site.name}
-            isLoading={site.isLoading}
-            className="pt-3"
-          />
 
           <ReportLocationsField
             locations={form.incidentLocations ?? []}
