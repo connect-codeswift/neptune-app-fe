@@ -26,11 +26,9 @@ const TRAINING_MAX_BYTES = getFileMaxBytes("HazCom");
 
 export type BuildTrainingSessionSchemaArgs = Readonly<{
   chemicalOptions: readonly SelectOption[];
-  /** Employees available to pick as attendees — value is the user's id, label their name. */
-  attendeeOptions: readonly SelectOption[];
   siteId: number;
   siteName: string | null;
-  usersSource: "site" | "dropdown";
+  usersSource: "site" | "org";
 }>;
 
 /** Schedule Training — POST /api/v1/hazcom/trainings. */
@@ -68,8 +66,6 @@ export function buildTrainingSessionSchema(
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,
-      // Must be a picked person, not free text.
-      selectionOnly: true,
     },
     {
       type: "text",
@@ -84,9 +80,11 @@ export function buildTrainingSessionSchema(
       label: "Attendees",
       colSpan: 12,
       placeholder: "Select attendees…",
-      options: args.attendeeOptions,
+      usersSource: args.usersSource,
+      siteId: args.siteId,
+      siteName: args.siteName,
       // The API takes `attendeeIds` (a real FK array), so picks are limited
-      // to real users — no free-typed name to fall back to.
+      // to real users — `allowFreeText` stays off.
     },
     {
       type: "photo",

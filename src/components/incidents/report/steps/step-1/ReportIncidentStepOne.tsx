@@ -20,9 +20,10 @@ import {
 import { ReportClassificationToggle } from "@/components/incidents/report/shared/ReportClassificationToggle";
 import { DateInput } from "@/components/inputs/DateInput";
 import {
-  ReportPersonSearchField,
-  type ReportPersonSelection,
-} from "@/components/incidents/report/shared/ReportPersonSearchField";
+  UserPickerInput,
+  type UserPickerValue,
+} from "@/components/inputs/UserPickerInput";
+import type { UserOption } from "@/components/inputs/user-option";
 import { ReportLocationsField } from "@/components/incidents/report/shared/ReportLocationsField";
 import { ReportTimeField } from "@/components/incidents/report/shared/ReportTimeField";
 import {
@@ -288,7 +289,10 @@ export function ReportIncidentStepOne(
    * one — it describes somebody else, and leaving it would quietly attribute
    * one colleague's gender to another on a regulated record.
    */
-  const handlePersonChange = (person: ReportPersonSelection) => {
+  const handlePersonChange = (
+    person: UserPickerValue,
+    user: UserOption | null,
+  ) => {
     const identity = {
       affectedPerson: person.name,
       affectedPersonId: person.userId,
@@ -296,9 +300,10 @@ export function ReportIncidentStepOne(
 
     // The roster row already knows — no lookup needed. This is the path taken
     // once `GET /api/v1/sites/{siteId}/users` projects `gender`.
-    if (person.gender) {
+    const genderFromRow = normalizeGender(user?.gender ?? "");
+    if (genderFromRow) {
       genderRequestRef.current = person.userId;
-      onChange({ ...identity, gender: person.gender, genderFromProfile: true });
+      onChange({ ...identity, gender: genderFromRow, genderFromProfile: true });
       return;
     }
 
@@ -449,16 +454,21 @@ export function ReportIncidentStepOne(
 
         <div className="flex flex-col pt-4.5">
           <div className="grid grid-cols-1 gap-3">
-            <ReportPersonSearchField
+            <UserPickerInput
               label="Affected person"
               required
-              value={form.affectedPerson}
-              selectedUserId={form.affectedPersonId}
+              value={{
+                userId: form.affectedPersonId,
+                name: form.affectedPerson,
+              }}
               onChange={handlePersonChange}
               siteId={site.id}
               siteName={site.name}
               trailingHint="Search people at your site."
               placeholder="Start typing a name…"
+              // A contractor, agency worker or visitor with no account is
+              // exactly the person you most need on the record.
+              allowFreeText
               error={fieldErrors?.affectedPerson ?? null}
             />
           </div>

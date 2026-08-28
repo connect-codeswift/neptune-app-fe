@@ -20,7 +20,7 @@ import {
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { ReportPersonSearchField } from "@/components/incidents/report/shared/ReportPersonSearchField";
+import { UserPickerInput } from "@/components/inputs/UserPickerInput";
 import { DateInput } from "@/components/inputs/DateInput";
 import {
   cantBePast,
@@ -342,15 +342,17 @@ function CapaModalForm(props: Readonly<CapaModalFormProps>) {
             </div>
 
             <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:grid-cols-2">
-              <ReportPersonSearchField
+              <UserPickerInput
                 variant="embedded"
                 label="Assigned"
-                value={owner}
-                selectedUserId={ownerUserId}
+                value={{ userId: ownerUserId, name: owner }}
                 onChange={({ name, userId }) => {
                   setOwner(name);
                   setOwnerUserId(userId);
                 }}
+                // The CAPA payload carries an owner name as well as an id, so a
+                // typed name is still usable here.
+                allowFreeText
                 siteId={site.id}
                 siteName={site.name}
                 placeholder="e.g. M. Torres"

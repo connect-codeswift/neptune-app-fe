@@ -170,7 +170,9 @@ export function NearMissDetailContent(
                   <Button
                     type="button"
                     variant="primary"
-                    disabled={isClosed || hasOpenCapas || closeMutation.isPending}
+                    disabled={
+                      isClosed || hasOpenCapas || closeMutation.isPending
+                    }
                     onClick={handleClose}
                     className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold"
                   >

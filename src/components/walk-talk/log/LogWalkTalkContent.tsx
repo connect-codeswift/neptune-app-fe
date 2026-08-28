@@ -7,9 +7,7 @@ import { FormBuilder, type FormValues } from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
-import { useUserDropdownQuery } from "@/hooks/use-user-queries";
 import { useCreateWalkTalkMutation } from "@/hooks/use-walk-talk-mutations";
-import { toAssigneeOptions, userNameFor } from "@/lib/map-user";
 import { toCreateWalkTalkRequest } from "@/lib/map-walk-talk";
 import { toast } from "@/lib/toast";
 import { LogWalkTalkHeader } from "./LogWalkTalkHeader";
@@ -49,6 +47,7 @@ function SectionTitle(props: Readonly<{ children: React.ReactNode }>) {
 function followUpFromValues(values: FormValues): FollowUpAction {
   return {
     assignedTo: String(values.assignedTo ?? ""),
+    assignedToName: String(values.assignedToName ?? ""),
     dueDate: String(values.dueDate ?? ""),
     action: String(values.action ?? ""),
   };
@@ -65,23 +64,8 @@ function isFollowUpEmpty(action: FollowUpAction): boolean {
 export function LogWalkTalkContent() {
   const router = useRouter();
   const createWalkTalk = useCreateWalkTalkMutation();
-  const usersQuery = useUserDropdownQuery();
-
-  const assigneeOptions = useMemo(
-    () => toAssigneeOptions(usersQuery.data?.dataModel ?? []),
-    [usersQuery.data?.dataModel],
-  );
-  const followUpSchema = useMemo(
-    () => buildWalkTalkFollowUpSchema(assigneeOptions),
-    [assigneeOptions],
-  );
-  const assigneeLookup = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const option of assigneeOptions) {
-      map.set(option.value, option.label);
-    }
-    return map;
-  }, [assigneeOptions]);
+  // The assignee field fetches its own people, so nothing here loads a roster.
+  const followUpSchema = useMemo(() => buildWalkTalkFollowUpSchema(), []);
 
   const valuesRef = useRef<FormValues | null>(null);
   if (valuesRef.current === null) {
@@ -158,6 +142,7 @@ export function LogWalkTalkContent() {
     const cleared: FormValues = {
       ...(valuesRef.current ?? values),
       assignedTo: "",
+      assignedToName: "",
       dueDate: "",
       action: "",
     };
@@ -276,9 +261,7 @@ export function LogWalkTalkContent() {
                     </span>
                     <span className="text8 text-ehs-muted-text">
                       {[
-                        entry.assignedTo
-                          ? userNameFor(assigneeLookup, entry.assignedTo)
-                          : "Unassigned",
+                        entry.assignedToName || "Unassigned",
                         entry.dueDate || "No due date",
                       ]
                         .filter(Boolean)
@@ -307,10 +290,11 @@ export function LogWalkTalkContent() {
           ) : null}
 
           <FormBuilder
-            key={`follow-up-${String(savedActions.length)}-${String(assigneeOptions.length)}`}
+            key={`follow-up-${String(savedActions.length)}`}
             schema={followUpSchema}
             initialValues={{
               assignedTo: values.assignedTo,
+              assignedToName: values.assignedToName,
               dueDate: values.dueDate,
               action: values.action,
             }}

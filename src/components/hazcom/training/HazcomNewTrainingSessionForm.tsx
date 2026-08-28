@@ -20,29 +20,8 @@ import { Button } from "@/components/ui/Button";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useCreateTrainingLogMutation } from "@/hooks/use-hazcom-mutations";
 import { useChemicalNamesQuery } from "@/hooks/use-hazcom-queries";
-import {
-  useSiteUsersQuery,
-  useUserDropdownQuery,
-} from "@/hooks/use-user-queries";
 import { getAuthContext } from "@/lib/auth-context";
 import { toast } from "@/lib/toast";
-
-/** A person's id + display name, whichever fields the row carries them under. */
-function attendeeFrom(
-  user: Readonly<Record<string, unknown>>,
-): Readonly<{ id: number; name: string }> | null {
-  const rawId = user.id ?? user.userId ?? user.value;
-  const id = typeof rawId === "number" ? rawId : Number(rawId);
-  if (!Number.isFinite(id) || id <= 0) {
-    return null;
-  }
-
-  const rawName =
-    user.fullName ?? user.name ?? user.userName ?? user.label ?? user.email;
-  const name = typeof rawName === "string" ? rawName.trim() : "";
-
-  return { id: Math.trunc(id), name: name || `User ${String(Math.trunc(id))}` };
-}
 
 export type HazcomNewTrainingSessionFormProps = Readonly<{
   className?: string;
@@ -59,10 +38,8 @@ export function HazcomNewTrainingSessionForm(
   const auth = useMemo(() => getAuthContext(), []);
   const siteId = auth?.siteId ?? 0;
   const siteName = auth?.siteName ?? null;
-  const usersSource = siteId > 0 ? "site" : "dropdown";
-
-  const siteUsersQuery = useSiteUsersQuery(siteId, {}, usersSource === "site");
-  const dropdownUsersQuery = useUserDropdownQuery(usersSource === "dropdown");
+  // Both people fields fetch for themselves; the form only says where from.
+  const usersSource = siteId > 0 ? "site" : "org";
 
   const chemicalOptions: readonly SelectOption[] = useMemo(
     () =>
@@ -73,42 +50,17 @@ export function HazcomNewTrainingSessionForm(
     [chemicals],
   );
 
-  const attendeeOptions: readonly SelectOption[] = useMemo(() => {
-    const rows: readonly Readonly<Record<string, unknown>>[] =
-      usersSource === "site"
-        ? (siteUsersQuery.data ?? [])
-        : (dropdownUsersQuery.data?.dataModel ?? []);
-
-    const byId = new Map<number, string>();
-    for (const row of rows) {
-      const attendee = attendeeFrom(row);
-      if (attendee) byId.set(attendee.id, attendee.name);
-    }
-
-    return [...byId.entries()]
-      .sort((a, b) => a[1].localeCompare(b[1]))
-      .map(([id, name]) => ({ value: String(id), label: name }));
-  }, [usersSource, siteUsersQuery.data, dropdownUsersQuery.data?.dataModel]);
-
   const schema = useMemo(
     () =>
       buildTrainingSessionSchema({
         chemicalOptions: isLoadingChemicals
           ? [{ value: "", label: "Loading chemicals…" }]
           : chemicalOptions,
-        attendeeOptions,
         siteId,
         siteName,
         usersSource,
       }),
-    [
-      chemicalOptions,
-      attendeeOptions,
-      isLoadingChemicals,
-      siteId,
-      siteName,
-      usersSource,
-    ],
+    [chemicalOptions, isLoadingChemicals, siteId, siteName, usersSource],
   );
 
   const goBack = () => {
