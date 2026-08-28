@@ -1,7 +1,7 @@
 "use client";
 
 import { cantBeFuture, cantBePast } from "@/lib/date-time-field";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { FieldRenderer } from "./FormBuilderFields";
 import {
@@ -163,8 +163,26 @@ export function FormBuilder(props: FormBuilderProps) {
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
+  /**
+   * The values the setters below merge into.
+   *
+   * `onSelectChange` is documented as being allowed to fetch first and patch
+   * afterwards, and the SDS chemical picker does exactly that. By the time its
+   * request resolves the form has re-rendered, so the `patchValues` it captured
+   * closes over a snapshot taken BEFORE the selection — merging into that put
+   * `chemicalId` back to "" and the chosen chemical vanished from the field the
+   * moment the autofill landed.
+   *
+   * Reading the ref instead always merges into the latest state, and writing it
+   * in the setters keeps two updates in the same tick composing rather than
+   * clobbering each other. Only these setters ever change `values`, so it
+   * cannot drift.
+   */
+  const latestValues = useRef(values);
+
   const setValue = (name: string, value: FieldValue) => {
-    const next = { ...values, [name]: value };
+    const next = { ...latestValues.current, [name]: value };
+    latestValues.current = next;
     setValues(next);
     onChange?.(next);
 
@@ -189,7 +207,8 @@ export function FormBuilder(props: FormBuilderProps) {
   };
 
   const patchValues = (patch: FormValues) => {
-    const next = { ...values, ...patch };
+    const next = { ...latestValues.current, ...patch };
+    latestValues.current = next;
     setValues(next);
     onChange?.(next);
 
