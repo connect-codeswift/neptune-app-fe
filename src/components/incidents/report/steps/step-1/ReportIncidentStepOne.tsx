@@ -90,31 +90,30 @@ function validateTiming(form: ReportIncidentFormState): ReportTimingErrors {
   const reportDate = parseMmDdYyyy(form.reportDate);
   const incidentTime = parseTimeInput(form.incidentTime);
 
-  // The incident date is deliberately unbounded — only its shape is checked.
-  // Backdating and forward-dating are both legitimate here, so the only thing
-  // that can be wrong with it is not being a date.
-  const incidentDateError =
-    isComplete(form.incidentDate) && !incidentDate
-      ? "That isn't a real date — try 03/14/2026."
-      : null;
+  // An incident is a record of something that already happened, so today is the
+  // ceiling. The calendar greys later days out, but the field also accepts
+  // typed input — this is the check that actually holds.
+  let incidentDateError: string | null = null;
+  if (isComplete(form.incidentDate) && !incidentDate) {
+    incidentDateError = "That isn't a real date — try 03/14/2026.";
+  } else if (incidentDate && incidentDate > todayDate) {
+    incidentDateError = "The incident date can't be in the future.";
+  }
 
   const incidentTimeError =
     form.incidentTime.trim() && !incidentTime ? "Try 14:30 or 2:30 PM." : null;
 
-  // Like the incident date, the report date is unbounded in both directions —
-  // only its shape is checked, plus the one rule below that relates it to the
-  // incident.
+  // Same ceiling as the incident date — a report is filed on or after the day
+  // it describes, never before either of them has happened.
   let reportDateError: string | null = null;
   if (isComplete(form.reportDate) && !reportDate) {
     reportDateError = "That isn't a real date — try 03/14/2026.";
+  } else if (reportDate && reportDate > todayDate) {
+    reportDateError = "The report date can't be in the future.";
   } else if (
     reportDate &&
     incidentDate &&
     !incidentDateError &&
-    // Only meaningful for an incident that has already happened. A
-    // forward-dated one is reported before it occurs by definition, so this
-    // rule would fire on a perfectly valid entry.
-    incidentDate <= todayDate &&
     reportDate < startOfDay(incidentDate)
   ) {
     reportDateError = "A report can't predate the incident it describes.";
@@ -271,9 +270,10 @@ export function ReportIncidentStepOne(
   }, [form.reportedBy, form.reporterEmail, form.reportDate, onChange]);
 
   const timing = validateTiming(form);
-  // The report date floor tracks the incident date, but only when that is a
-  // real date in the past: an unparseable one would disable the whole calendar,
-  // and a forward-dated incident is reported before it happens by definition.
+  // Both date fields are capped at today. The report date additionally floors
+  // at the incident date, but only when that parses and is itself in range —
+  // an unreadable or forward-dated one would otherwise disable the calendar.
+  const maxDate = todayMmDdYyyy();
   const incidentDate = parseMmDdYyyy(form.incidentDate);
   const minReportDate =
     incidentDate && incidentDate <= today()
@@ -525,8 +525,8 @@ export function ReportIncidentStepOne(
               required
               value={form.incidentDate}
               onChange={(incidentDate) => onChange({ incidentDate })}
-              // Intentionally unbounded: the calendar opens on any date, past
-              // or future.
+              // Capped at today — an incident can only have already happened.
+              maxDate={maxDate}
               quickPicks={["today", "yesterday"]}
               error={fieldErrors?.incidentDate ?? timing.incidentDate}
               className="pb-1.5 sm:pb-4.5"
@@ -545,9 +545,10 @@ export function ReportIncidentStepOne(
               required
               value={form.reportDate}
               onChange={(reportDate) => onChange({ reportDate })}
-              // Floored at the incident date when that is in the past, and
-              // otherwise unbounded — a report can be dated forward.
+              // Floored at the incident date when there is one, capped at
+              // today either way.
               minDate={minReportDate}
+              maxDate={maxDate}
               quickPicks={["today"]}
               error={fieldErrors?.reportDate ?? timing.reportDate}
               className="pb-1.5 sm:pb-4.5"
