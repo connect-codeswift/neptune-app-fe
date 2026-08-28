@@ -1,7 +1,7 @@
 import type { HazcomChemical } from "@/components/hazcom/shared";
 import { formatRecordDisplayId } from "@/lib/format-record-id";
 
-/** Case-insensitive match against id, name, CAS number, and location. */
+/** Case-insensitive match against every field the inventory table shows. */
 export function chemicalMatchesSearch(
   chemical: HazcomChemical,
   query: string,
@@ -11,14 +11,42 @@ export function chemicalMatchesSearch(
     return true;
   }
 
-  return (
-    formatRecordDisplayId("CHEM", chemical.id)
-      .toLowerCase()
-      .includes(trimmed) ||
-    chemical.name.toLowerCase().includes(trimmed) ||
-    chemical.casNumber.toLowerCase().includes(trimmed) ||
-    chemical.location.toLowerCase().includes(trimmed)
-  );
+  // Every column the table shows, plus the SDS file name — searching for a
+  // hazard class or a signal word that is visibly on screen and getting no
+  // rows back reads as a broken search.
+  const haystack = [
+    formatRecordDisplayId("CHEM", chemical.id),
+    chemical.name,
+    chemical.casNumber,
+    chemical.location,
+    chemical.disposeLocation ?? "",
+    chemical.quantity,
+    chemical.hazardClass,
+    chemical.signalWord,
+    chemical.status,
+    chemical.sdsRecordId ?? "",
+    chemical.sdsFileName ?? "",
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(trimmed);
+}
+
+export const CHEMICAL_STATUS_FILTER_OPTIONS = [
+  "All",
+  "Active",
+  "Inactive",
+] as const;
+
+export type ChemicalStatusFilter =
+  (typeof CHEMICAL_STATUS_FILTER_OPTIONS)[number];
+
+export function chemicalMatchesStatus(
+  chemical: HazcomChemical,
+  status: ChemicalStatusFilter,
+): boolean {
+  return status === "All" || chemical.status === status;
 }
 
 /** Splits a combined quantity string ("15 Liters") into amount + unit parts. */
