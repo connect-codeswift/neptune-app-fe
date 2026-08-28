@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
@@ -104,7 +104,27 @@ export function ReportIncidentStepFive(
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const submitErrors = attemptedSubmit ? getReportFormErrors(form) : null;
 
+  /**
+   * Latched for the whole submit, not just the request.
+   *
+   * `mutation.isPending` covers only the POST. It goes false the instant the
+   * incident is created, while `router.push` is still fetching the next route —
+   * so the button went back to an enabled "Submit report" underneath the
+   * success toast, and a second click there filed a duplicate incident. This
+   * stays true from the first valid click until the page is gone, and is
+   * released only on failure so a genuine retry is still possible.
+   *
+   * The ref is what actually enforces it: `disabled` cannot close the window
+   * between the first click and the re-render that applies it.
+   */
+  const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+  const submitLockRef = useRef(false);
+
   const handleSubmit = async () => {
+    if (submitLockRef.current) {
+      return;
+    }
+
     if (!getAccessToken()) {
       toast.error("Sign in required", "Please sign in to submit an incident.");
       router.push("/login");
@@ -116,6 +136,9 @@ export function ReportIncidentStepFive(
       setAttemptedSubmit(true);
       return;
     }
+
+    submitLockRef.current = true;
+    setIsSubmitLocked(true);
 
     try {
       const created = await createIncidentMutation.mutateAsync(form);
@@ -133,6 +156,8 @@ export function ReportIncidentStepFive(
 
       router.push("/dashboard/incidents/list");
     } catch (error) {
+      submitLockRef.current = false;
+      setIsSubmitLocked(false);
       toast.error(
         "Submit failed",
         getMutationErrorMessage(
@@ -344,7 +369,7 @@ export function ReportIncidentStepFive(
               type="button"
               variant="tertiary"
               onClick={onBack}
-              disabled={createIncidentMutation.isPending}
+              disabled={isSubmitLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold"
             >
               <Icon
@@ -364,10 +389,10 @@ export function ReportIncidentStepFive(
               type="button"
               variant="primary"
               onClick={() => void handleSubmit()}
-              disabled={createIncidentMutation.isPending}
+              disabled={isSubmitLocked}
               className="rounded-2.5 px-3.75 py-2.5 text-sm font-bold shadow-(--ehs-shadow-button-primary-flat)"
             >
-              {createIncidentMutation.isPending ? (
+              {isSubmitLocked ? (
                 <>
                   Submitting…
                   <Icon
