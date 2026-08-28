@@ -75,6 +75,10 @@ export type HazcomTrainingSession = Readonly<{
   date: string; // ISO
   chemicalId: number | null;
   chemicalName: string;
+  /** FKs to Chemicals — the full set the session covered. */
+  chemicalIds: readonly number[];
+  /** Resolved names for {@link chemicalIds}, in the same order. */
+  chemicalNames: readonly string[];
   trainerId: number | null;
   /** Assigned user's `FullName`; legacy string for pre-FK rows. "TBD" when neither is set. */
   trainer: string;

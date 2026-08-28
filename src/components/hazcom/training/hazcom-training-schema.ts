@@ -29,6 +29,14 @@ export type BuildTrainingSessionSchemaArgs = Readonly<{
   siteId: number;
   siteName: string | null;
   usersSource: "site" | "org";
+  /**
+   * The trainer currently picked, as the form holds it. Kept out of the
+   * Attendees roster: someone cannot attend the session they are running, and
+   * saving them as both made the attendee count read one higher than the
+   * people actually trained. Empty until a trainer is chosen, which excludes
+   * nobody.
+   */
+  trainerId: string;
 }>;
 
 /** Schedule Training — POST /api/v1/hazcom/trainings. */
@@ -37,12 +45,14 @@ export function buildTrainingSessionSchema(
 ): FormSchema {
   return [
     {
-      type: "select",
-      name: "chemicalId",
-      label: "Chemical Covered",
+      // A dropdown with removable chips rather than `chips`, whose always-visible
+      // pills do not scale to a site's chemical inventory.
+      type: "select-multi",
+      name: "chemicalIds",
+      label: "Chemicals Covered",
       required: true,
       colSpan: 6,
-      placeholder: "Select chemical…",
+      placeholder: "Select chemicals…",
       options: args.chemicalOptions,
     },
     {
@@ -51,8 +61,21 @@ export function buildTrainingSessionSchema(
       label: "Session Date",
       required: true,
       colSpan: 6,
-      // The screen logs a session that has been delivered, not one being booked.
-      limit: "not-future",
+      /*
+       * Deliberately unbounded in both directions.
+       *
+       * This carried `limit: "not-future"` on the reading that the screen only
+       * logs a session already delivered. The API disagrees: a training is
+       * created at `Scheduled`, and `PromoteDueTrainingsAsync` moves it to
+       * `InProgress` once `SessionDate` has passed. Verified against the
+       * running API — a future date stays `Scheduled`, a past date comes back
+       * `InProgress` on the very next read. So the old bound meant no session
+       * could ever rest in `Scheduled`, which left that status and the
+       * "Start Before Schedule" action unreachable.
+       *
+       * Past dates stay allowed: recording a session that has already happened
+       * is still valid, and the promotion above gives it the right status.
+       */
     },
     {
       type: "person",
@@ -83,6 +106,10 @@ export function buildTrainingSessionSchema(
       usersSource: args.usersSource,
       siteId: args.siteId,
       siteName: args.siteName,
+      // Everyone at the site except whoever is running the session. This drops
+      // the trainer from the dropdown *and* removes them if they were already
+      // picked as an attendee before being made trainer.
+      excludeUserIds: args.trainerId ? [args.trainerId] : [],
       // The API takes `attendeeIds` (a real FK array), so picks are limited
       // to real users — `allowFreeText` stays off.
     },
@@ -112,7 +139,7 @@ export function buildTrainingSessionSchema(
 }
 
 export const HAZCOM_TRAINING_INITIAL_VALUES: FormValues = {
-  chemicalId: "",
+  chemicalIds: [],
   sessionDate: "",
   trainerId: "",
   trainer: "",
@@ -168,6 +195,12 @@ function toMaterials(values: FormValues): TrainingMaterialRequestDto[] {
   }));
 }
 
+function toChemicalIds(values: FormValues): number[] {
+  const raw = Array.isArray(values.chemicalIds) ? values.chemicalIds : [];
+
+  return raw.map(Number).filter((id) => Number.isFinite(id) && id > 0);
+}
+
 function toAttendeeIds(values: FormValues): number[] {
   const raw = Array.isArray(values.attendees) ? values.attendees : [];
 
@@ -178,9 +211,9 @@ function toAttendeeIds(values: FormValues): number[] {
 function toTrainingLogFields(
   values: FormValues,
 ): TrainingLogRequestDto | { error: string } {
-  const chemicalId = Number(String(values.chemicalId ?? "").trim());
-  if (!Number.isFinite(chemicalId) || chemicalId <= 0) {
-    return { error: "Chemical is required" };
+  const chemicalIds = toChemicalIds(values);
+  if (chemicalIds.length === 0) {
+    return { error: "At least one chemical is required" };
   }
 
   const sessionDate = toIsoSessionDate(String(values.sessionDate ?? ""));
@@ -197,12 +230,19 @@ function toTrainingLogFields(
   }
 
   const trainerTitle = String(values.trainerTitle ?? "").trim();
-  const attendeeIds = toAttendeeIds(values);
+  // Belt and braces over the field's own exclusion: this is the last point
+  // before the payload leaves, and it covers the update request too, so a
+  // stale value carried in from anywhere cannot save the trainer as their own
+  // attendee.
+  const attendeeIds = toAttendeeIds(values).filter((id) => id !== trainerId);
   const materials = toMaterials(values);
   const notes = String(values.notes ?? "").trim();
 
   return {
-    chemicalId,
+    chemicalIds,
+    // Kept in step with the first pick. The API derives this itself, but sending
+    // it keeps the request readable against the older contract.
+    chemicalId: chemicalIds[0],
     sessionDate,
     trainerId,
     trainerTitle: trainerTitle || null,

@@ -111,7 +111,14 @@ export type TrainingMaterialRequestDto = {
  * upload to Cloudinary first; only the `secureUrl` is sent as `fileUrl`.
  */
 export type TrainingLogRequestDto = {
+  /**
+   * Legacy single chemical. The API still honours it when `chemicalIds` is
+   * absent, and sets it to the first entry when both are sent.
+   * @deprecated Send {@link TrainingLogRequestDto.chemicalIds} instead.
+   */
   chemicalId?: number | null;
+  /** FKs to Chemicals — a full replacement set on update, same as `attendeeIds`. */
+  chemicalIds?: number[] | null;
   /** Required by the API. ISO date-time with offset. */
   sessionDate: string;
   /** Required by the API — FK to Users. */

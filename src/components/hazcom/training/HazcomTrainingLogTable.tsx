@@ -44,6 +44,26 @@ const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
 
 const columnHelper = createColumnHelper<HazcomTrainingSession>();
 
+/**
+ * The chemical a session covered, for display and for search.
+ *
+ * `chemicalName` is what the API resolves from the `chemicalId` foreign key
+ * and is the field to trust. `chemicals` comes from the legacy free-text
+ * `chemicalsCovered` column, which the form stopped sending once the picker
+ * became a real FK — so it is empty on every session created since, and this
+ * column rendered "—" for all of them. Reading the FK first and falling back
+ * keeps rows written before that migration readable too.
+ *
+ * Returns "" when a row carries neither; callers supply their own placeholder.
+ */
+export function trainingChemicalsLabel(session: HazcomTrainingSession): string {
+  if (session.chemicalNames.length > 0) {
+    return session.chemicalNames.join(", ");
+  }
+
+  return session.chemicalName.trim() || session.chemicals.join(", ");
+}
+
 const NO_STATUS_LABEL = "No status found";
 
 function statusLabel(status: string | null): string {
@@ -129,13 +149,13 @@ function createTrainingLogColumns(
     }),
     ...(expanded
       ? [
-          columnHelper.accessor("chemicals", {
+          columnHelper.accessor(trainingChemicalsLabel, {
+            id: "chemicals",
             header: "Chemicals",
             size: 160,
             minSize: 120,
             cell: (info) => {
-              const chemicals = info.getValue();
-              const label = chemicals.length > 0 ? chemicals.join(", ") : "—";
+              const label = info.getValue() || "—";
 
               return (
                 <Text

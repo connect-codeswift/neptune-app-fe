@@ -17,7 +17,10 @@ import {
   type HazcomTrainingSession,
   type HazcomTrainingStatus,
 } from "@/components/hazcom/shared";
-import { HazcomTrainingLogTable } from "@/components/hazcom/training/HazcomTrainingLogTable";
+import {
+  HazcomTrainingLogTable,
+  trainingChemicalsLabel,
+} from "@/components/hazcom/training/HazcomTrainingLogTable";
 import { HAZCOM_TRAINING_STATUSES } from "@/components/hazcom/training/hazcom-training-schema";
 import {
   DEFAULT_HAZCOM_PAGE_NUMBER,
@@ -42,7 +45,10 @@ function trainingMatchesSearch(
     session.trainer,
     session.topic,
     session.status ?? "No status found",
-    ...session.chemicals,
+    // Was `...session.chemicals`, which is empty for every session created
+    // since the chemical became a foreign key — so searching a chemical name
+    // matched nothing. Same resolution the table column uses.
+    trainingChemicalsLabel(session),
   ]
     .join(" ")
     .toLowerCase()
@@ -325,10 +331,11 @@ export function HazcomTrainingLogPageClient() {
                 metaFields={[
                   {
                     label: "Chemicals covered",
-                    value:
-                      selectedSession.chemicals.length > 0
-                        ? selectedSession.chemicals.join(", ")
-                        : "—",
+                    // Same resolution as the table column and the search: the
+                    // legacy free-text list is empty on every session created
+                    // since the chemical became a foreign key, so this panel
+                    // read "—" even when the record named a chemical.
+                    value: trainingChemicalsLabel(selectedSession) || "—",
                   },
                   {
                     label: "Attendees",

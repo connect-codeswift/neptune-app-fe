@@ -159,6 +159,26 @@ export type TextareaAssistantField = Readonly<{
   onChange: (next: string) => void;
 }>;
 
+/**
+ * Multi-select over a fixed option list: a dropdown whose picks render as
+ * removable chips, sharing {@link SelectFieldConfig}'s field chrome.
+ *
+ * The dropdown is the point. {@link ChipsFieldConfig} renders every option as
+ * an always-visible pill, which reads well for a handful of tags and badly for
+ * a list that grows — a site's chemical inventory runs to hundreds. This is the
+ * option-list counterpart to {@link PersonMultiFieldConfig}, which solves the
+ * same problem for people.
+ *
+ * The value is a `string[]` of option values.
+ */
+export type SelectMultiFieldConfig = BaseField &
+  Readonly<{
+    type: "select-multi";
+    placeholder?: string;
+    options: readonly SelectOption[];
+    disabled?: boolean;
+  }>;
+
 export type TextareaFieldConfig = BaseField &
   Readonly<{
     type: "textarea";
@@ -376,6 +396,7 @@ export type FieldConfig =
   | DateFieldConfig
   | TimeFieldConfig
   | SelectFieldConfig
+  | SelectMultiFieldConfig
   | TextareaFieldConfig
   | CheckboxGroupFieldConfig
   | ChipsFieldConfig
@@ -411,6 +432,7 @@ export function createInitialValues(schema: FormSchema): FormValues {
       field.type === "checkbox-group" ||
       field.type === "photo" ||
       field.type === "chips" ||
+      field.type === "select-multi" ||
       field.type === "person-multi";
 
     if (field.type === "switch") {
