@@ -84,7 +84,7 @@ export function MultipleUsersPickerInput(
     maxSelected,
     disabled = false,
     error = null,
-    variant = "form",
+    variant = "embedded",
     hideLabel = false,
     className = "",
   } = props;

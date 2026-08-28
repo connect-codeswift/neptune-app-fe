@@ -111,7 +111,7 @@ export function UserPickerInput(props: Readonly<UserPickerInputProps>) {
     filter,
     disabled = false,
     error = null,
-    variant = "form",
+    variant = "embedded",
     hideLabel = false,
     className = "",
     inputClassName = "",

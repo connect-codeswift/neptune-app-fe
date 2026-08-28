@@ -37,10 +37,14 @@ const MENU_SHELL_CLASS =
 /**
  * The popover a user picker opens, in the two flavours the app needs.
  *
- * `form` is an absolutely-positioned child, which is right on a page. Inside a
- * modal it is wrong: the dialog clips it, or its own stacking context buries it.
- * `embedded` therefore portals to `document.body` and tracks the control's
- * rect, flipping above the field when there isn't room below.
+ * `embedded` — the default — portals to `document.body` and tracks the control's
+ * rect, flipping above the field when there isn't room below. It is the default
+ * because every form card in this app carries `backdrop-blur`, and that creates
+ * a stacking context: a menu rendered inside one card is painted under the card
+ * that follows it however high its z-index goes.
+ *
+ * `form` is the absolutely-positioned child, correct only where the picker's
+ * nearest card is the last thing on the page and nothing can overlap it.
  */
 export function UserPickerMenu(props: Readonly<UserPickerMenuProps>) {
   const { open, variant, anchorRef, menuRef, contentKey, children } = props;
