@@ -42,6 +42,9 @@ export function EditHazardForm(props: Readonly<{ record: HazardRecord }>) {
       location: edited.location,
       description: edited.description,
       image: record.image ?? "",
+      // Passed through untouched: the edit form has no photo field, so omitting them would
+      // read as "no photos" and wipe the gallery.
+      attachments: [...record.attachments],
       userId,
       siteId,
       isDrop: false,

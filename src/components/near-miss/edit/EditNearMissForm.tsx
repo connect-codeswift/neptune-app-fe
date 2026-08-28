@@ -45,6 +45,9 @@ export function EditNearMissForm(props: Readonly<{ record: NearMissRecord }>) {
       location: edited.location,
       whatHappened: edited.whatHappened,
       contributingFactor: contributingFactors,
+      // Passed through untouched — the edit form has no photo field, so omitting them
+      // would read as "no photos" and wipe the gallery.
+      attachments: [...record.attachments],
       isDrop: false,
       userId,
       siteId,

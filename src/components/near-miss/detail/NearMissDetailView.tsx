@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type {
@@ -60,6 +61,11 @@ export function NearMissDetailView(
           <DetailField label="What happened">
             <DetailValue value={record.description || "—"} />
           </DetailField>
+          {record.attachments.length > 0 ? (
+            <DetailField label="Attachments">
+              <PhotoEvidence refs={record.attachments} />
+            </DetailField>
+          ) : null}
           <DetailField label="Contributing Factors">
             {record.contributingFactors.length > 0 ? (
               <div className="flex flex-wrap items-center gap-2">

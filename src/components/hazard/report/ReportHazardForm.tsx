@@ -50,8 +50,10 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
     type: report.hazardType,
     location: report.location,
     description: report.description,
-    // The endpoint takes a single URL; the field is capped at one photo.
+    // Both are sent: `attachments` is the list the endpoint stores, `image` keeps the first so an
+    // older reader still finds a photo where it expects one.
     image: report.photos[0] ?? "",
+    attachments: report.photos,
     userId,
     siteId,
     isDrop: false,
