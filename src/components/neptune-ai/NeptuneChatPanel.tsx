@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { LogoIcon } from "@/components/LogoIcon";
 import { LogoMark } from "@/components/LogoMark";
 import { Text } from "@/components/Text";
+import { BetaBadge } from "@/components/neptune-ai/BetaBadge";
 import {
   ANALYZING_STEPS,
   POPUP_GREETING,
@@ -215,7 +216,10 @@ export function NeptuneChatPanel(props: Readonly<NeptuneChatPanelProps>) {
       className="animate-card-rise border-ehs-border-ink/8 bg-ehs-surface rounded-5 flex h-[min(45.5rem,calc(100dvh-7.5rem))] w-[min(30rem,calc(100vw-2rem))] flex-col overflow-hidden border shadow-[0px_20px_40px_0px_color-mix(in_oklab,var(--ehs-border-ink)_14%,transparent)]"
     >
       <header className="bg-ehs-normal-blue flex h-19 shrink-0 items-center justify-between p-4">
-        <LogoIcon variant="light" className="h-4.5 w-auto pl-3.5" />
+        <div className="flex min-w-0 items-center gap-2 pl-3.5">
+          <LogoIcon variant="light" className="h-4.5 w-auto" />
+          <BetaBadge tone="on-accent" />
+        </div>
 
         <button
           type="button"

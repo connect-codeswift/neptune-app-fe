@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import { NEPTUNE_N_PATH } from "@/components/LogoMark";
+import { BetaBadge } from "@/components/neptune-ai/BetaBadge";
 import { NeptuneChatPanel } from "@/components/neptune-ai/NeptuneChatPanel";
 import { NEPTUNE_AI_HREF } from "@/components/neptune-ai/neptune-ai-routes";
 import {
@@ -238,6 +239,7 @@ export function AskNeptuneAiButton() {
         <span className="text-[13px] font-medium whitespace-nowrap">
           Ask Neptune AI
         </span>
+        <BetaBadge tone="on-accent" />
       </button>
     </div>
   );
