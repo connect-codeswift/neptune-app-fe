@@ -152,10 +152,10 @@ function detailToFormState(
               lockTagPosition: step.lockTagPosition ?? "",
             }),
           )
-        : [
-            createEmptyIsolationStep({ id: "step-1" }),
-            createEmptyIsolationStep({ id: "step-2" }),
-          ],
+        : // Same single-step floor as a new procedure: a stored record with no
+          // steps is legacy data, and the author should be shown one to fill in
+          // rather than two, one of which they must delete.
+          [createEmptyIsolationStep({ id: "step-1" })],
     verificationMethod: "",
     additionalNotes: detail.additionalNotes ?? "",
     selectedPpe: [],
@@ -276,6 +276,17 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           : "",
       };
     });
+
+    // A procedure with no isolation steps isolates nothing. The delete control
+    // is hidden on the last step so the UI cannot reach zero, but this is the
+    // rule rather than a side effect of that, and the API enforces it too.
+    if (stepPayloads.length === 0) {
+      toast.error(
+        "Add at least one isolation step",
+        "A procedure needs at least one step to isolate the equipment.",
+      );
+      return;
+    }
 
     for (const step of stepPayloads) {
       if (!step.description.trim()) {

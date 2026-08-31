@@ -270,7 +270,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
                 key={step.id}
                 className="rounded-4 border-ehs-border-ink/8 bg-ehs-surface/50 border p-4"
               >
-                <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="mb-3 flex min-h-8 items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Text as="span" className="text5 text-ehs-darker">
                       {`Step ${String(index + 1)}`}
@@ -284,21 +284,33 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
                       </Text>
                     ) : null}
                   </div>
-                  <button
-                    type="button"
-                    aria-label={`Remove step ${String(index + 1)}`}
-                    disabled={steps.length <= 1}
-                    onClick={() => {
-                      removeStep(step.id);
-                    }}
-                    className="text-ehs-red hover:bg-ehs-red/8 flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <Icon
-                      icon="mdi:trash-can-outline"
-                      className="size-5"
-                      aria-hidden="true"
-                    />
-                  </button>
+                  {/*
+                   * Hidden on the only step, not disabled. A procedure with no
+                   * isolation steps is not a procedure, so the last one can
+                   * never be removed — and a control that is permanently greyed
+                   * out on a fresh form reads as broken rather than as a rule.
+                   * There is nothing the author can do to enable it until they
+                   * add a second step, so it earns no space until then.
+                   *
+                   * `removeStep` keeps its own guard: this decides what is
+                   * shown, that decides what is allowed.
+                   */}
+                  {steps.length > 1 ? (
+                    <button
+                      type="button"
+                      aria-label={`Remove step ${String(index + 1)}`}
+                      onClick={() => {
+                        removeStep(step.id);
+                      }}
+                      className="text-ehs-red hover:bg-ehs-red/8 flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
+                    >
+                      <Icon
+                        icon="mdi:trash-can-outline"
+                        className="size-5"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  ) : null}
                 </div>
 
                 <FormBuilder
