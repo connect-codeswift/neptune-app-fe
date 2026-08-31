@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Text } from "@/components/Text";
+import { Can } from "@/components/auth/Can";
 import { PhotoEvidence } from "@/components/shared/PhotoEvidence";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
@@ -9,7 +10,6 @@ import type {
 } from "@/app/dashboard/near-miss/near-miss-data";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
 
-const CAPA_NEW_ROUTE = "/dashboard/capa/new";
 const sectionHeadingClass = "text3 text-ehs-darker";
 
 const statusTone: Record<NearMissStatus, IncidentBadgeTone> = {
@@ -45,11 +45,6 @@ export function NearMissDetailView(
   props: Readonly<{ record: NearMissRecord; onAddCapa?: () => void }>,
 ) {
   const { record, onAddCapa } = props;
-
-  // The record id the API knows, dug out of the display id ("HZ-12" -> 12). Both records
-  // carry their id already formatted for the header, and re-fetching just to recover the
-  // number would be a request to learn something the string already says.
-  const nearMissSourceId = Number(record.id.replace(/^\D+/, "")) || 0;
 
   return (
     <div className="grid min-w-0 items-start gap-3.5 xl:grid-cols-[minmax(0,731fr)_minmax(0,405fr)]">
@@ -129,13 +124,15 @@ export function NearMissDetailView(
                 near miss. Hidden once closed: the API refuses a CAPA against a closed record,
                 and closing already requires every related CAPA to be closed. */}
             {onAddCapa && record.status !== "Closed" ? (
-              <button
-                type="button"
-                onClick={onAddCapa}
-                className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
-              >
-                Add CAPA
-              </button>
+              <Can do="CAPA.Create">
+                <button
+                  type="button"
+                  onClick={onAddCapa}
+                  className="text4 text-ehs-normal-blue hover:text-ehs-normal-blue-hover cursor-pointer transition-colors"
+                >
+                  Add CAPA
+                </button>
+              </Can>
             ) : null}
           </div>
 
