@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
+import type { ReactNode } from "react";
 import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
 import type { CapaTaskDto } from "@/dtos/res/capa-task-response.dto";
 
@@ -24,6 +25,8 @@ type CapaModalTasksSectionProps = Readonly<{
    */
   onDeleteSavedTask?: (taskId: number) => void | Promise<void>;
   capaPriority?: string;
+  /** Replaces the plain "Tasks Checklist" label — both CAPA forms pass their step heading. */
+  heading?: ReactNode;
 }>;
 
 function PriorityBadge(props: Readonly<{ priority?: string }>) {
@@ -99,6 +102,7 @@ export function CapaModalTasksSection(
     onEditStagedTask,
     onDeleteSavedTask,
     capaPriority,
+    heading,
   } = props;
 
   const hasTasks = isEditMode ? savedTasks.length > 0 : stagedTasks.length > 0;
@@ -106,9 +110,11 @@ export function CapaModalTasksSection(
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-ehs-dark-bg text-base leading-6 font-medium">
-          Tasks Checklist
-        </span>
+        {heading ?? (
+          <span className="text-ehs-dark-bg text-base leading-6 font-medium">
+            Tasks Checklist
+          </span>
+        )}
         <button
           type="button"
           onClick={onOpenAddTask}

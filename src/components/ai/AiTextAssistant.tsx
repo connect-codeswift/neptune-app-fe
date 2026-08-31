@@ -213,7 +213,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
 
       <div
         className={[
-          "absolute right-2.5 bottom-2.5 z-20 flex flex-row-reverse items-center gap-2",
+          "absolute right-3 bottom-3.5 z-20 flex flex-row-reverse items-center gap-2",
           className,
         ]
           .filter(Boolean)
