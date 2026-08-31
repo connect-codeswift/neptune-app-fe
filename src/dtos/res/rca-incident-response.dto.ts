@@ -19,6 +19,7 @@ export type RcaContributingFactorDto = Readonly<{
   id: number;
   description: string;
   incidentId: number;
+  capaId?: number | null;
   rcaCategoryId: number;
   rcaCategoryName: string;
   siteId: number;
