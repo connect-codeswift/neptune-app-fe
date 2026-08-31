@@ -284,86 +284,117 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <Text as="h2" className="text3 text-ehs-darker">
-              Isolation Steps
-            </Text>
-            <button
-              type="button"
-              onClick={addStep}
-              className="text4 text-ehs-normal-blue border-ehs-normal-blue/20 bg-ehs-normal-blue/12 hover:bg-ehs-normal-blue/18 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border px-3 font-semibold transition-colors"
-            >
-              <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
-              Add Step
-            </button>
-          </div>
-          <Text as="p" className="text8 text-ehs-muted-text mb-3">
+          <Text as="h2" className="text3 text-ehs-darker">
+            Isolation Steps
+          </Text>
+          <Text as="p" className="text8 text-ehs-muted-text mt-0.5 mb-1">
             Document each energy isolation point in the sequence they must be
             performed
           </Text>
 
-          <div className="flex flex-col gap-3">
+          {/*
+           * A hairline-divided list, not a stack of cards. Each step used to
+           * carry its own border, fill and padding inside a card that already
+           * had all three, so the panel read as boxes within a box and the
+           * chrome competed with the fields for attention. The rule between
+           * rows separates them just as well at a fraction of the weight.
+           *
+           * The number moves into a rail on the left, which also gives the
+           * sequence something to read down — these steps are performed in
+           * order, and "Step 1" as a text heading on every row said that four
+           * times over while pushing the first field further down each time.
+           */}
+          <div className="divide-ehs-border-ink/8 flex flex-col divide-y">
             {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className="rounded-4 border-ehs-border-ink/8 bg-ehs-surface/50 border p-4"
-              >
-                <div className="mb-3 flex min-h-8 items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Text as="span" className="text5 text-ehs-darker">
-                      {`Step ${String(index + 1)}`}
-                    </Text>
-                    {step.verified ? (
-                      <Text
-                        as="span"
-                        className="text8 text-ehs-green bg-ehs-green/10 rounded-lg px-1.5 py-px font-bold"
-                      >
-                        Verified
-                      </Text>
-                    ) : null}
-                  </div>
-                  {/*
-                   * Hidden on the only step, not disabled. A procedure with no
-                   * isolation steps is not a procedure, so the last one can
-                   * never be removed — and a control that is permanently greyed
-                   * out on a fresh form reads as broken rather than as a rule.
-                   * There is nothing the author can do to enable it until they
-                   * add a second step, so it earns no space until then.
-                   *
-                   * `removeStep` keeps its own guard: this decides what is
-                   * shown, that decides what is allowed.
-                   */}
-                  {steps.length > 1 ? (
-                    <button
-                      type="button"
-                      aria-label={`Remove step ${String(index + 1)}`}
-                      onClick={() => {
-                        removeStep(step.id);
-                      }}
-                      className="text-ehs-red hover:bg-ehs-red/8 flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors"
-                    >
-                      <Icon
-                        icon="mdi:trash-can-outline"
-                        className="size-5"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  ) : null}
-                </div>
+              <div key={step.id} className="flex gap-3 py-4 last:pb-0">
+                <span className="text8 text-ehs-muted-text bg-ehs-surface-inverse/6 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full font-semibold tabular-nums">
+                  {/* The numeral alone reads as a bare "1" out of context, so
+                      the word it replaced is kept for a screen reader. */}
+                  <span className="sr-only">Step </span>
+                  {index + 1}
+                </span>
 
-                <FormBuilder
-                  formId={lotoStepFormId(step.id)}
-                  schema={lotoStepSchema}
-                  initialValues={toStepFormValues(step)}
-                  hideActions
-                  onSubmit={(values) => {
-                    onFormValid(lotoStepSchema, values, step.id);
-                  }}
-                  className={stepFieldClass}
-                />
+                <div className="min-w-0 flex-1">
+                  {/*
+                   * Only drawn when it has something to say. An always-present
+                   * row would add its height and margin to every step to hold
+                   * nothing, which on a fresh single-step form is the common
+                   * case.
+                   */}
+                  {step.verified || steps.length > 1 ? (
+                    <div className="mb-2 flex min-h-6 items-center justify-between gap-2">
+                      {step.verified ? (
+                        <Text
+                          as="span"
+                          className="text8 text-ehs-green bg-ehs-green/10 rounded-lg px-1.5 py-px font-bold"
+                        >
+                          Verified
+                        </Text>
+                      ) : (
+                        <span />
+                      )}
+                      {/*
+                       * Hidden on the only step, not disabled. A procedure with no
+                       * isolation steps is not a procedure, so the last one can
+                       * never be removed — and a control that is permanently greyed
+                       * out on a fresh form reads as broken rather than as a rule.
+                       * There is nothing the author can do to enable it until they
+                       * add a second step, so it earns no space until then.
+                       *
+                       * `removeStep` keeps its own guard: this decides what is
+                       * shown, that decides what is allowed.
+                       */}
+                      {steps.length > 1 ? (
+                        <button
+                          type="button"
+                          aria-label={`Remove step ${String(index + 1)}`}
+                          onClick={() => {
+                            removeStep(step.id);
+                          }}
+                          // Muted until pointed at. It is a destructive action
+                          // on a row the author is still filling in, so it
+                          // should be reachable without standing out.
+                          className="text-ehs-muted-text hover:text-ehs-red hover:bg-ehs-red/8 flex size-7 cursor-pointer items-center justify-center rounded-lg transition-colors"
+                        >
+                          <Icon
+                            icon="mdi:trash-can-outline"
+                            className="size-4.5"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <FormBuilder
+                    formId={lotoStepFormId(step.id)}
+                    schema={lotoStepSchema}
+                    initialValues={toStepFormValues(step)}
+                    hideActions
+                    onSubmit={(values) => {
+                      onFormValid(lotoStepSchema, values, step.id);
+                    }}
+                    className={stepFieldClass}
+                  />
+                </div>
               </div>
             ))}
           </div>
+
+          {/*
+           * At the end of the sequence rather than up in the heading. A step is
+           * appended to the bottom of the list, so the control that appends one
+           * belongs where the new row will appear — and the heading keeps its
+           * weight for the section title.
+           */}
+          <button
+            type="button"
+            onClick={addStep}
+            className="text4 text-ehs-normal-blue border-ehs-border-ink/12 hover:border-ehs-normal-blue/30 hover:bg-ehs-normal-blue/6 mt-3 inline-flex h-9 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed font-medium transition-colors"
+          >
+            <Icon icon="mdi:plus" className="size-3.5" aria-hidden="true" />
+            Add Step
+          </button>
         </IncidentGlassCard>
 
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
