@@ -435,11 +435,12 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
         equipmentCode={
           isEdit ? withEquipmentPrefix(props.detail.equipmentCode) : undefined
         }
+      />
+      <LotoProcedureForm
+        mode={isEdit ? "edit" : "create"}
         onCancel={handleCancel}
         onSubmit={saveAll}
         isSubmitting={isSubmitting}
-      />
-      <LotoProcedureForm
         initial={initial}
         steps={steps}
         onStepsChange={setSteps}

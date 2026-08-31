@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
+import { Button } from "@/components/ui/Button";
 import {
   FormBuilder,
   type FormSchema,
@@ -88,6 +89,10 @@ export type LotoProcedurePreview = Readonly<{
 }>;
 
 export type LotoProcedureFormProps = Readonly<{
+  mode: "create" | "edit";
+  onCancel: () => void;
+  onSubmit: () => void;
+  isSubmitting?: boolean;
   initial: LotoProcedureFormState;
   steps: readonly LotoIsolationStep[];
   onStepsChange: (steps: LotoIsolationStep[]) => void;
@@ -140,6 +145,10 @@ function displayOrDash(text: string): string {
 /** Create / edit procedure body using FormBuilder — Figma 6912:56200 / 6915:56769. */
 export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
   const {
+    mode,
+    onCancel,
+    onSubmit,
+    isSubmitting = false,
     initial,
     steps,
     onStepsChange,
@@ -340,6 +349,30 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
             className={equipmentFieldClass}
           />
         </IncidentGlassCard>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            className="text4 rounded-2.5 px-4 py-2.5 font-medium"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_30%,transparent)]"
+          >
+            <Icon
+              icon={mode === "create" ? "mdi:plus" : "mdi:content-save-outline"}
+              className="size-3.5 shrink-0"
+            />
+            {mode === "create" ? "Create Procedure" : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       <aside className="flex min-w-0 flex-col gap-3.5 xl:sticky xl:top-4">
