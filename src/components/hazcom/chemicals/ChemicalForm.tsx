@@ -22,6 +22,11 @@ import { HazcomSdsAutofillPicker } from "@/components/hazcom/sds/HazcomSdsAutofi
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
+import {
+  CHEMICAL_STATUS_OPTIONS as STATUS_OPTIONS,
+  HAZARD_CATEGORY_OPTIONS,
+  SIGNAL_WORDS,
+} from "@/components/hazcom/chemicals/chemical-options";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { DateInput } from "@/components/inputs/DateInput";
 import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
@@ -39,27 +44,7 @@ export type ChemicalFormProps = Readonly<{
   className?: string;
 }>;
 
-const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-] as const;
-
-/**
- * GHS hazard category — the severity level, where Category 1 is the most
- * severe. The *kind* of hazard is captured by the GHS Pictograms field below,
- * so this field carries the level only.
- */
-const HAZARD_CATEGORY_OPTIONS = [
-  { value: "", label: "Select category" },
-  { value: "Category 1", label: "Category 1 (most severe)" },
-  { value: "Category 2", label: "Category 2" },
-  { value: "Category 3", label: "Category 3" },
-  { value: "Category 4", label: "Category 4" },
-  { value: "Category 5", label: "Category 5 (least severe)" },
-] as const;
-
 const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
-const SIGNAL_WORDS = ["Danger", "Warning"] as const;
 const actionClass = "text4 h-9.5 rounded-2.5 px-4 sm:px-5";
 
 /**
