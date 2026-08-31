@@ -98,7 +98,7 @@ class AiAssistError extends Error {
     switch (this.status) {
       case 401:
       case 403:
-        return "not authorised — token expired, or the role lacks the module's permission (Incident.Create / NearMiss.Create / Hazard.Create / Loto.ManageEquipment)";
+        return "not authorised — token expired, or the role lacks the module's permission (Incident.Create / NearMiss.Create / Hazard.Create / Loto.Create)";
       case 429:
         return "rate limited — 20 assist calls/min per user, shared across proofread, paraphrase and draft-assist; check the Retry-After header";
       case 503:

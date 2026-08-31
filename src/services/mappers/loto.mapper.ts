@@ -200,7 +200,6 @@ export function toLotoEquipmentDetail(
     additionalNotes: dto.additionalNotes ?? "",
     isOutOfService: dto.isOutOfService,
     lastInspection: formatDate(dto.lastInspectionAt),
-    lastInspectionAt: dto.lastInspectionAt,
     energySources: splitEnergySources(dto.energySources),
     authorizedPersonnel: dto.authorizedPersonnel.map((person) => ({
       id: person.userId,

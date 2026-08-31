@@ -46,6 +46,7 @@ import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail
 import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailTimelineCard";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { useCapabilities } from "@/lib/capabilities";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import {
   mapCapaItemsToLinkedItems,
@@ -269,6 +270,18 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     isClosureSubmitting,
   } = props;
 
+  const { can } = useCapabilities();
+
+  // Two independent rules, in this order. A closed incident offers no write control
+  // anywhere on the screen — the API refuses every write against it, so an affordance
+  // could only ever end in a failed request. While it is open, each control still
+  // answers to the capability its own endpoint checks, so a role that cannot make the
+  // call is never shown the button that makes it.
+  const isClosed = detail?.isClosed ?? false;
+  const canUpdateIncident = !isClosed && can("Incident.Update");
+  const canUploadFiles = !isClosed && can("File.Upload");
+  const canCreateCapa = !isClosed && can("CAPA.Create");
+
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
@@ -395,13 +408,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     })}
                     totalLinkedCount={linkedCapa.summary.totalCount}
                     isLoading={isCapaLoading}
-                    // Withholding the handler is this card's own way of disabling the
-                    // button (see `disabled={!onAddCapa || isLoading}`), so a closed
-                    // incident simply stops offering one.
+                    // Withholding the handler is this card's own way of hiding the
+                    // button, so an incident that is closed — or a role without
+                    // CAPA.Create, which POST /capas refuses — is offered nothing.
                     onAddCapa={
-                      detail.isClosed
-                        ? undefined
-                        : () => onNavigateToLinkedCapa({ openAddModal: true })
+                      canCreateCapa
+                        ? () => onNavigateToLinkedCapa({ openAddModal: true })
+                        : undefined
                     }
                     onViewAll={() => onNavigateToLinkedCapa()}
                     onSelectItem={() => onNavigateToLinkedCapa()}
@@ -489,10 +502,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddFile={onAddFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
-                    // Removable while simply viewing, not only inside the editor. A closed
-                    // incident is exempt: the API refuses to update it at all, so offering the
-                    // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    // Add file posts to the files endpoint, which checks File.Upload.
+                    readOnly={!canUploadFiles}
+                    // Removable while simply viewing, not only inside the editor. Removal
+                    // is written as an incident update, so it answers to Incident.Update
+                    // and is off entirely once the incident is closed.
+                    canDelete={canUpdateIncident}
                     embedded
                   />
                   <IncidentDetailFilesTable
@@ -500,20 +515,15 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onSelectFile={onSelectFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
-                    // Removable while simply viewing, not only inside the editor. A closed
-                    // incident is exempt: the API refuses to update it at all, so offering the
-                    // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    canDelete={canUpdateIncident}
                     embedded
                   />
                 </IncidentGlassCard>
                 <div className="flex flex-col gap-3.5">
-                  {!isEditingAttachments ? (
-                    <IncidentDetailUploadCard
-                      onUploadSuccess={onUploadSuccess}
-                      onRegisterOpen={onRegisterUploadOpen}
-                    />
-                  ) : (
+                  {/* The whole dropzone goes, not just its button: it accepts a drag
+                      and a paste as well as a click, so leaving it visible would keep
+                      three ways to start an upload the API will refuse. */}
+                  {isEditingAttachments ? (
                     <IncidentGlassCard
                       paddingClassName="p-4.75"
                       incidentGlassCardClassName="gap-2"
@@ -526,7 +536,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                         disabled while editing.
                       </span>
                     </IncidentGlassCard>
-                  )}
+                  ) : canUploadFiles ? (
+                    <IncidentDetailUploadCard
+                      onUploadSuccess={onUploadSuccess}
+                      onRegisterOpen={onRegisterUploadOpen}
+                    />
+                  ) : null}
                   <IncidentDetailStorageCard usedBytes={usedBytes} />
                 </div>
               </div>
@@ -539,6 +554,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   queryEnabled={hrcaQueryEnabled}
                   onClose={onCloseHrca}
                   meta={investigation.hrcaMeta}
+                  readOnly={detail.isClosed ?? false}
                 />
               ) : showHrca ? (
                 <div className="text-ehs-muted-text rounded-3 text4 border-ehs-border-ink/8 bg-ehs-surface/50 border px-4 py-10 text-center">
@@ -562,6 +578,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     errorMessage={rcaInvestigationError}
                     onRetry={onRetryRca}
                     onOpenHrca={onOpenHrca}
+                    isIncidentClosed={detail.isClosed ?? false}
                   />
                   <div className="flex flex-col gap-3.5">
                     <IncidentDetailInvestigationStatusCard

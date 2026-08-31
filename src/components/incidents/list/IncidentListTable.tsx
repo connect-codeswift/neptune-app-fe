@@ -150,11 +150,16 @@ function createIncidentColumns(
       size: expanded ? 160 : 130,
       minSize: 110,
       cell: (info) => (
-        <IncidentBadge
-          label={info.getValue()}
-          tone={severityTone(info.getValue())}
-          showDot
-        />
+        <div className="flex min-w-0 items-center gap-1.5">
+          <IncidentBadge
+            label={info.getValue()}
+            tone={severityTone(info.getValue())}
+            showDot
+          />
+          {info.row.original.isConverted ? (
+            <IncidentBadge label="Converted" tone="teal" />
+          ) : null}
+        </div>
       ),
     }),
     columnHelper.accessor("state", {
