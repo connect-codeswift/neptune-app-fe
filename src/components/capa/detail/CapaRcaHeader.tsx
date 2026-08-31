@@ -4,13 +4,11 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { CapaDetailRecord } from "@/components/capa/detail/capa-detail-data";
-import type { CapaRcaWorksheet } from "@/components/capa/detail/capa-rca-data";
 
 const CAPA_ROUTE = "/dashboard/capa";
 
 export type CapaRcaHeaderProps = Readonly<{
   record: CapaDetailRecord;
-  worksheet: CapaRcaWorksheet;
   categories: number;
   whySteps: number;
   actions: number;
@@ -18,7 +16,7 @@ export type CapaRcaHeaderProps = Readonly<{
 
 /** Horizontal RCA hero — Figma 5472:19846 (title + meta + description). */
 export function CapaRcaHeader(props: CapaRcaHeaderProps) {
-  const { record, worksheet, categories, whySteps, actions } = props;
+  const { record, categories, whySteps, actions } = props;
   const detailHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}`;
 
   return (
@@ -78,39 +76,6 @@ export function CapaRcaHeader(props: CapaRcaHeaderProps) {
             <Stat value={String(actions)} label="Actions" />
           </div>
         </div>
-
-        <div className="border-ehs-border-ink/8 grid grid-cols-1 border-t sm:grid-cols-2 md:grid-cols-[minmax(0,200px)_minmax(0,200px)_minmax(0,1fr)]">
-          <MetaCell
-            icon="mdi:file-document-outline"
-            label="Type of report"
-            value={worksheet.reportType}
-            showChevron
-          />
-          <MetaCell
-            icon="mdi:calendar-outline"
-            label="Date"
-            value={worksheet.date}
-          />
-          <MetaCell
-            icon="mdi:bandage"
-            label="Injury"
-            value={worksheet.injury}
-          />
-        </div>
-
-        <div className="border-ehs-border-ink/8 flex items-start gap-3 border-t px-4 py-4 sm:px-6">
-          <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg">
-            <Icon icon="mdi:text-box-outline" className="size-5" aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1">
-            <Text as="p" className="text-ehs-muted-text text-sm font-medium">
-              Incident description
-            </Text>
-            <p className="text-ehs-dark-bg mt-1 text-base leading-5">
-              {worksheet.description}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -130,38 +95,3 @@ function Stat(props: Readonly<{ value: string; label: string }>) {
   );
 }
 
-function MetaCell(
-  props: Readonly<{
-    icon: string;
-    label: string;
-    value: string;
-    showChevron?: boolean;
-  }>,
-) {
-  const { icon, label, value, showChevron = false } = props;
-
-  return (
-    <div className="border-ehs-border-ink/8 flex items-center gap-3 px-5 py-4 md:border-r md:last:border-r-0">
-      <span className="bg-ehs-normal-blue/10 text-ehs-normal-blue inline-flex size-9 shrink-0 items-center justify-center rounded-lg">
-        <Icon icon={icon} className="size-5" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <Text as="p" className="text-ehs-muted-text text-sm font-medium">
-          {label}
-        </Text>
-        <div className="mt-0.5 flex items-center gap-1">
-          <p className="text-ehs-dark-bg truncate text-base font-medium">
-            {value}
-          </p>
-          {showChevron ? (
-            <Icon
-              icon="mdi:chevron-down"
-              className="text-ehs-muted-text size-3.25 shrink-0"
-              aria-hidden
-            />
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}

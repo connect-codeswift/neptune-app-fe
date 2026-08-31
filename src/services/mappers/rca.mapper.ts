@@ -111,7 +111,10 @@ export function buildCreateRcaCategoryRequest(
 }
 
 export type BuildCreateContributingFactorInput = Readonly<{
-  incidentId: number;
+  /** Incident parent. Exactly one of `incidentId` / `capaId`. */
+  incidentId?: number;
+  /** CAPA parent (set by route). Exactly one of `incidentId` / `capaId`. */
+  capaId?: number;
   rcaCategoryId: number;
   description: string;
 }>;
@@ -126,8 +129,11 @@ export function buildCreateContributingFactorRequest(
     throw new Error("Sign in required to create a contributing factor.");
   }
 
-  if (input.incidentId <= 0) {
-    throw new Error("A valid incident is required.");
+  const hasIncident = (input.incidentId ?? 0) > 0;
+  const hasCapa = (input.capaId ?? 0) > 0;
+
+  if (hasIncident === hasCapa) {
+    throw new Error("A valid incident or CAPA is required — but not both.");
   }
 
   if (input.rcaCategoryId <= 0) {
@@ -135,7 +141,8 @@ export function buildCreateContributingFactorRequest(
   }
 
   return {
-    incidentId: input.incidentId,
+    incidentId: input.incidentId ?? 0,
+    capaId: input.capaId ?? 0,
     rcaCategoryId: input.rcaCategoryId,
     description: input.description.trim(),
     userId,
@@ -143,9 +150,10 @@ export function buildCreateContributingFactorRequest(
 }
 
 export type BuildUpdateContributingFactorInput = Readonly<{
-  incidentId: number;
+  /** Incident parent id. 0 for a CAPA-parented factor (backend ignores it). */
+  incidentId?: number;
   contributingFactorId: number;
-  rcaCategoryId: number;
+  rcaCategoryId?: number;
   description: string;
 }>;
 
@@ -160,24 +168,16 @@ export function buildUpdateContributingFactorRequest(
     throw new Error("Sign in required to update a contributing factor.");
   }
 
-  if (input.incidentId <= 0) {
-    throw new Error("A valid incident is required.");
-  }
-
   if (input.contributingFactorId <= 0) {
     throw new Error("A valid contributing factor is required.");
-  }
-
-  if (input.rcaCategoryId <= 0) {
-    throw new Error("A valid RCA category is required.");
   }
 
   return {
     siteId,
     userId,
-    incidentId: input.incidentId,
+    incidentId: input.incidentId ?? 0,
     contributingFactorId: input.contributingFactorId,
-    rcaCategoryId: input.rcaCategoryId,
+    rcaCategoryId: input.rcaCategoryId ?? 0,
     description: input.description.trim(),
   };
 }
@@ -234,8 +234,8 @@ export function buildCreateRcaWhysRequest(
 }
 
 export type BuildUpdateRcaWhyInput = Readonly<{
-  /** Used to invalidate the incident RCA query after save. */
-  incidentId: number;
+  /** Used to invalidate the incident RCA query after save. 0 for a CAPA parent. */
+  incidentId?: number;
   whyId: number;
   stepNumber: number;
   description: string;
@@ -320,8 +320,8 @@ export function buildCreateRcaCorrectiveActionRequest(
 }
 
 export type BuildUpdateRcaCorrectiveActionInput = Readonly<{
-  /** Used to invalidate the incident RCA query after save. */
-  incidentId: number;
+  /** Used to invalidate the incident RCA query after save. 0 for a CAPA parent. */
+  incidentId?: number;
   correctiveActionId: number;
   description: string;
 }>;

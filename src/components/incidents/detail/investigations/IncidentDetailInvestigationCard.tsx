@@ -128,7 +128,7 @@ export function IncidentDetailInvestigationCard(
                   className="size-3.25"
                   aria-hidden="true"
                 />
-                {isIncidentClosed ? "View HRCA" : "Open HRCA"}
+                {isIncidentClosed ? "View RCA" : "Open RCA"}
               </button>
             </Can>
           ) : (
@@ -183,7 +183,7 @@ export function IncidentDetailInvestigationCard(
             message={
               isIncidentClosed
                 ? "This incident was closed without one, and a closed incident can no longer be investigated."
-                : "Open HRCA to document contributing factors, whys, and corrective actions."
+                : "Open RCA to document contributing factors, whys, and corrective actions."
             }
           />
         ) : (

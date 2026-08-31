@@ -231,6 +231,7 @@ function coerceRcaContributingFactor(
     readProp(raw, "id", "Id", "contributingFactorId", "ContributingFactorId"),
   );
   const incidentId = asNumber(readProp(raw, "incidentId", "IncidentId"));
+  const capaId = asNumber(readProp(raw, "capaId", "CapaId"));
   const rcaCategoryId = asNumber(
     readProp(raw, "rcaCategoryId", "RcaCategoryId", "categoryId", "CategoryId"),
   );
@@ -269,6 +270,7 @@ function coerceRcaContributingFactor(
     id,
     description,
     incidentId: incidentId ?? 0,
+    capaId: capaId ?? null,
     rcaCategoryId,
     rcaCategoryName,
     siteId: siteId ?? 0,
@@ -693,6 +695,24 @@ export async function createContributingFactor(
 ): Promise<RcaContributingFactorDto> {
   const { data } = await http.post<unknown>(
     `${INCIDENTS_PATH}/${String(payload.incidentId)}/rca/contributing-factors`,
+    payload,
+  );
+  return parseRcaContributingFactorEnvelope(data, payload).dataModel;
+}
+
+/**
+ * POST /api/v1/capas/{capaId}/rca/contributing-factors
+ *
+ * The same analysis as the incident route, but parented by a CAPA. Used when a
+ * CAPA is the RCA owner (audit findings, inspections, hazards, standalone) — a
+ * CAPA raised from an incident still uses the incident route.
+ */
+export async function createCapaContributingFactor(
+  capaId: number,
+  payload: CreateContributingFactorRequestDto,
+): Promise<RcaContributingFactorDto> {
+  const { data } = await http.post<unknown>(
+    `${CAPAS_PATH}/${encodeURIComponent(String(capaId))}/rca/contributing-factors`,
     payload,
   );
   return parseRcaContributingFactorEnvelope(data, payload).dataModel;

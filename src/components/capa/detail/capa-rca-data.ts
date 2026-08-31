@@ -22,6 +22,10 @@ export type CapaRcaLane = Readonly<{
   /** Glow ring when root cause / editing. */
   accentGlow: string;
   contributingFactor: string;
+  /** Server id of the contributing factor; null/absent when not yet created. */
+  contributingFactorId?: number | null;
+  /** RCA category id used to create/update the contributing factor. */
+  rcaCategoryId?: number | null;
   whys: readonly CapaRcaWhyStep[];
   actions: readonly CapaRcaAction[];
 }>;
@@ -228,6 +232,7 @@ export function mapRcaFactorsToCapaLanes(
   factors: readonly Readonly<{
     id: number;
     description: string;
+    rcaCategoryId: number;
     rcaCategoryName: string;
     whys: readonly Readonly<{
       id: number;
@@ -263,6 +268,8 @@ export function mapRcaFactorsToCapaLanes(
       accentSoft: style.accentSoft,
       accentGlow: style.accentGlow,
       contributingFactor: factor.description,
+      contributingFactorId: factor.id,
+      rcaCategoryId: factor.rcaCategoryId,
       whys: factor.whys.map((why) => ({
         id: String(why.id),
         text: why.description,
