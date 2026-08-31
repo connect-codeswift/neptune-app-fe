@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   CAPA_VERIFICATION_FORM_ID,
   CAPA_VERIFICATION_SCHEMA,
 } from "@/components/capa/detail/capa-verification-schema";
 import { CapaVerificationHeader } from "@/components/capa/detail/CapaVerificationHeader";
 import { CapaVerificationSkeleton } from "@/components/capa/CapaRouteSkeletons";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
+import {
+  FormBuilder,
+  type FormSchema,
+  type FormValues,
+} from "@/components/form-builder";
 import { Text } from "@/components/Text";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitCapaVerificationMutation } from "@/hooks/use-capa-mutations";
@@ -72,6 +77,27 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
   const initialValues = useMemo(
     () => mapCapaVerificationDtoToFormValues(existingVerification),
     [existingVerification],
+  );
+
+  // The CAPA module has no endpoint trio of its own; `incident` is the set the
+  // shared CAPA forms already use, and the notes are a prose compliance record.
+  const schema = useMemo<FormSchema>(
+    () =>
+      CAPA_VERIFICATION_SCHEMA.map((field) =>
+        field.type === "textarea" && field.name === "notes"
+          ? {
+              ...field,
+              assistant: (control) => (
+                <AiTextAssistant
+                  module="incident"
+                  value={control.value}
+                  onApply={control.onChange}
+                />
+              ),
+            }
+          : field,
+      ),
+    [],
   );
 
   const detailHref =
@@ -227,7 +253,7 @@ export function CapaVerificationContent(props: CapaVerificationContentProps) {
       <FormBuilder
         key={`${record.id}-verification-${String(verificationQuery.dataUpdatedAt)}`}
         formId={CAPA_VERIFICATION_FORM_ID}
-        schema={CAPA_VERIFICATION_SCHEMA}
+        schema={schema}
         initialValues={initialValues}
         hideActions
         isSubmitting={submitVerificationMutation.isPending}

@@ -230,6 +230,44 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
     isoToMmDdYyyy(chemical?.expiryDate ?? ""),
   );
 
+  // What the fields were seeded with, kept for the dirty check below.
+  const [initialValues] = useState<ChemicalFormValues>(() => ({
+    name: chemical?.name ?? "",
+    casNumber: chemical?.casNumber ?? "",
+    hazardClass: chemical?.hazardClass ?? "",
+    location: chemical?.location ?? "",
+    disposeLocation: chemical?.disposeLocation ?? "",
+    quantityAmount: initialQuantity.amount,
+    quantityUnit: initialQuantity.unit,
+    signalWord: chemical?.signalWord ?? "Danger",
+    sdsLink: chemical?.sdsFileName ?? "",
+    status: chemical?.status ?? "Active",
+    expiryDate: isoToMmDdYyyy(chemical?.expiryDate ?? ""),
+    pictograms: chemical?.pictograms ?? [],
+    notes: chemical?.storageNotes ?? "",
+  }));
+
+  const values: ChemicalFormValues = {
+    name,
+    casNumber,
+    hazardClass,
+    location,
+    disposeLocation,
+    quantityAmount,
+    quantityUnit,
+    signalWord,
+    sdsLink,
+    status,
+    expiryDate,
+    pictograms,
+    notes,
+  };
+
+  // Saving a draft that is byte-for-byte the untouched form only adds a row
+  // nobody meant to create, so the button appears once something is actually
+  // typed, toggled or picked.
+  const isDirty = JSON.stringify(values) !== JSON.stringify(initialValues);
+
   function togglePictogram(pictogram: HazcomPictogram) {
     setPictograms((current) =>
       current.includes(pictogram)
@@ -285,22 +323,6 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
    * inventory list.
    */
   function save(isDraft: boolean) {
-    const values: ChemicalFormValues = {
-      name,
-      casNumber,
-      hazardClass,
-      location,
-      disposeLocation,
-      quantityAmount,
-      quantityUnit,
-      signalWord,
-      sdsLink,
-      status,
-      expiryDate,
-      pictograms,
-      notes,
-    };
-
     // A draft is allowed to be incomplete, but it still needs a name to be
     // identifiable in the drafts list.
     const missing = isDraft
@@ -513,15 +535,17 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className={actionClass}
-              disabled={submitLock.isLocked}
-              onClick={() => save(true)}
-            >
-              Save as Draft
-            </Button>
+            {isDirty ? (
+              <Button
+                type="button"
+                variant="secondary"
+                className={actionClass}
+                disabled={submitLock.isLocked}
+                onClick={() => save(true)}
+              >
+                Save as Draft
+              </Button>
+            ) : null}
             <Button
               type="submit"
               variant="primary"
