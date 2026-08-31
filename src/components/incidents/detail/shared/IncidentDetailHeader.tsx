@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { toast } from "@/lib/toast";
 
@@ -92,20 +93,26 @@ export function IncidentDetailHeader(
 
             {activeTab !== "closure" ? (
               <div className="flex items-center gap-2">
+                {/* Save writes PUT /incidents/{id}, which checks Incident.Update.
+                    Nested inside the readOnly check rather than replacing it: the two
+                    rules are independent, and folding them together would reopen the
+                    closed-incident hole for anyone who holds the capability. */}
                 {!readOnly ? (
-                  <Button
-                    type="button"
-                    variant={isEditing ? "primary" : "tertiary"}
-                    onClick={handleEdit}
-                    isLoading={isSaving}
-                    className={
-                      isEditing
-                        ? "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:opacity-50"
-                        : "text-ehs-slate rounded-2.5 text4 border-ehs-border-strong bg-ehs-surface hover:bg-ehs-surface/70 border px-4 py-2 font-medium transition-colors disabled:opacity-50"
-                    }
-                  >
-                    {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
-                  </Button>
+                  <Can do="Incident.Update">
+                    <Button
+                      type="button"
+                      variant={isEditing ? "primary" : "tertiary"}
+                      onClick={handleEdit}
+                      isLoading={isSaving}
+                      className={
+                        isEditing
+                          ? "bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text4 px-4 py-2 font-medium shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:opacity-50"
+                          : "text-ehs-slate rounded-2.5 text4 border-ehs-border-strong bg-ehs-surface hover:bg-ehs-surface/70 border px-4 py-2 font-medium transition-colors disabled:opacity-50"
+                      }
+                    >
+                      {isSaving ? "Saving…" : isEditing ? "Save" : "Edit"}
+                    </Button>
+                  </Can>
                 ) : null}
               </div>
             ) : null}

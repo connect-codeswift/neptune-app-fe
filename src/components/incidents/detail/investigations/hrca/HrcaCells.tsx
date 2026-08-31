@@ -64,20 +64,30 @@ export function HrcaContributingFactorCell(
     text: string;
     accent: string;
     onEdit: () => void;
+    readOnly?: boolean;
   }>,
 ) {
-  const { text, accent, onEdit } = props;
-  const displayText = text.trim() || "Click to define contributing factor…";
+  const { text, accent, onEdit, readOnly = false } = props;
+  // A read-only lane never invites a click, so the prompt copy would be a lie.
+  const displayText =
+    text.trim() ||
+    (readOnly ? "Not documented" : "Click to define contributing factor…");
 
   return (
     <button
       type="button"
       onClick={onEdit}
+      disabled={readOnly}
       className={[
         hrcaCellShellClass,
         HRCA_ROW_MIN_HEIGHT_CLASS,
-        "min-h-32 cursor-pointer hover:shadow-[0px_4px_14px_-8px_rgba(15,23,42,0.18)]",
-      ].join(" ")}
+        "min-h-32",
+        readOnly
+          ? ""
+          : "cursor-pointer hover:shadow-[0px_4px_14px_-8px_rgba(15,23,42,0.18)]",
+      ]
+        .filter(Boolean)
+        .join(" ")}
     >
       <p
         className="text8 mb-1.5 leading-3.25 font-bold tracking-[0.72px] uppercase"
@@ -106,6 +116,7 @@ export function HrcaWhyCell(
     onEdit: () => void;
     onRemove: () => void;
     onAdd: () => void;
+    readOnly?: boolean;
   }>,
 ) {
   const {
@@ -116,6 +127,7 @@ export function HrcaWhyCell(
     onEdit,
     onRemove,
     onAdd,
+    readOnly = false,
   } = props;
 
   if (why) {
@@ -125,12 +137,18 @@ export function HrcaWhyCell(
         <button
           type="button"
           onClick={onEdit}
+          disabled={readOnly}
           className={[
             "group",
             hrcaCellShellClass,
             HRCA_ROW_MIN_HEIGHT_CLASS,
-            "min-h-32 cursor-pointer hover:shadow-[0px_4px_14px_-8px_rgba(15,23,42,0.18)]",
-          ].join(" ")}
+            "min-h-32",
+            readOnly
+              ? ""
+              : "cursor-pointer hover:shadow-[0px_4px_14px_-8px_rgba(15,23,42,0.18)]",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           style={
             why.isRootCause
               ? { boxShadow: `0px 0px 0px 3px ${hexToRgba(accent, 0.18)}` }
@@ -164,25 +182,31 @@ export function HrcaWhyCell(
                 {`Why ${why.num}`}
               </Text>
             )}
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={(event) => {
-                event.stopPropagation();
-                onRemove();
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
+            {readOnly ? null : (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(event) => {
                   event.stopPropagation();
                   onRemove();
-                }
-              }}
-              className="text-ehs-muted-text hover:text-ehs-red rounded-1.25 ml-auto inline-flex size-4.5 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              aria-label="Remove why step"
-            >
-              <Icon icon="mdi:close" className="size-2.75" aria-hidden="true" />
-            </span>
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onRemove();
+                  }
+                }}
+                className="text-ehs-muted-text hover:text-ehs-red rounded-1.25 ml-auto inline-flex size-4.5 items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                aria-label="Remove why step"
+              >
+                <Icon
+                  icon="mdi:close"
+                  className="size-2.75"
+                  aria-hidden="true"
+                />
+              </span>
+            )}
           </div>
           <p className="text-ehs-slate text4 leading-[18.13px] font-normal">
             {why.text}
@@ -192,7 +216,9 @@ export function HrcaWhyCell(
     );
   }
 
-  if (canAdd) {
+  // The add affordance is the only thing that creates a why step, so a
+  // read-only lane collapses straight to the "—" placeholder below.
+  if (canAdd && !readOnly) {
     return (
       <div className={["relative h-full", HRCA_ROW_MIN_HEIGHT_CLASS].join(" ")}>
         {showConnector ? <Connector /> : null}
@@ -246,9 +272,10 @@ export function HrcaCorrectiveActionsCell(
     onAdd: () => void;
     onEdit: (index: number, text: string) => void;
     onRemove: (index: number) => void;
+    readOnly?: boolean;
   }>,
 ) {
-  const { actions, onAdd, onEdit, onRemove } = props;
+  const { actions, onAdd, onEdit, onRemove, readOnly = false } = props;
 
   return (
     <div
@@ -262,6 +289,12 @@ export function HrcaCorrectiveActionsCell(
         Corrective actions
       </p>
       <div className="flex w-full flex-1 flex-col gap-2">
+        {readOnly && actions.length === 0 ? (
+          <Text as="span" className="text-ehs-muted-text text4 italic">
+            None recorded
+          </Text>
+        ) : null}
+
         {actions.map((action, index) => (
           <div
             key={action.id ?? `${action.text}-${index}`}
@@ -270,31 +303,45 @@ export function HrcaCorrectiveActionsCell(
             <span className="rounded-1.25 bg-ehs-green/14 text-ehs-green mt-px flex size-4.25 shrink-0 items-center justify-center">
               <Icon icon="mdi:check" className="size-2.75" aria-hidden="true" />
             </span>
-            <button
-              type="button"
-              onClick={() => onEdit(index, action.text)}
-              className="text-ehs-slate hover:text-ehs-dark-bg text4 min-w-0 flex-1 text-left leading-[18.13px] font-normal"
-            >
-              {action.text}
-            </button>
-            <button
-              type="button"
-              onClick={() => onRemove(index)}
-              className="text-ehs-muted-text hover:text-ehs-red inline-flex size-4 shrink-0 items-center justify-center rounded opacity-0 transition-opacity group-hover:opacity-100"
-              aria-label="Remove action"
-            >
-              <Icon icon="mdi:close" className="size-2.5" aria-hidden="true" />
-            </button>
+            {readOnly ? (
+              <p className="text-ehs-slate text4 min-w-0 flex-1 text-left leading-[18.13px] font-normal">
+                {action.text}
+              </p>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onEdit(index, action.text)}
+                  className="text-ehs-slate hover:text-ehs-dark-bg text4 min-w-0 flex-1 text-left leading-[18.13px] font-normal"
+                >
+                  {action.text}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemove(index)}
+                  className="text-ehs-muted-text hover:text-ehs-red inline-flex size-4 shrink-0 items-center justify-center rounded opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Remove action"
+                >
+                  <Icon
+                    icon="mdi:close"
+                    className="size-2.5"
+                    aria-hidden="true"
+                  />
+                </button>
+              </>
+            )}
           </div>
         ))}
-        <button
-          type="button"
-          onClick={onAdd}
-          className="hover:text-ehs-dark-blue-active text4 text-ehs-green inline-flex items-center gap-1.5 self-start pt-0.5 leading-3.25 font-bold transition-colors"
-        >
-          <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
-          Add action
-        </button>
+        {readOnly ? null : (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="hover:text-ehs-dark-blue-active text4 text-ehs-green inline-flex items-center gap-1.5 self-start pt-0.5 leading-3.25 font-bold transition-colors"
+          >
+            <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
+            Add action
+          </button>
+        )}
       </div>
     </div>
   );
