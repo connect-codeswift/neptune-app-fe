@@ -122,6 +122,9 @@ function normalizeEquipmentStep(raw: unknown): LotoEquipmentStepDto | null {
       readProp(raw, "isolationPoint", "IsolationPoint"),
     ),
     energyType: asNullableString(readProp(raw, "energyType", "EnergyType")),
+    isolationMethod: asNullableString(
+      readProp(raw, "isolationMethod", "IsolationMethod"),
+    ),
     lockTagPosition: asNullableString(
       readProp(raw, "lockTagPosition", "LockTagPosition"),
     ),

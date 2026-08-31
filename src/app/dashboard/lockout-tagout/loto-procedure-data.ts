@@ -54,14 +54,22 @@ export const LOTO_ENERGY_TYPES = [
   "Other",
 ] as const;
 
+/**
+ * How an isolation point is secured. A starting set, not a closed one — the
+ * field lets an author add their own, because the methods a site uses vary
+ * with its equipment.
+ *
+ * "Notify Only" and "Verify Zero Energy" were dropped. Neither isolates
+ * anything: telling someone is not a means of isolation, and verifying zero
+ * energy is the check performed *after* isolating, which the Verification
+ * Method field already records.
+ */
 export const LOTO_ISOLATION_METHODS = [
   "Lockout",
   "Tagout",
   "Lockout / Tagout",
   "Disconnect",
   "Block / Bleed",
-  "Notify Only",
-  "Verify Zero Energy",
 ] as const;
 
 const stepSeq = 0;

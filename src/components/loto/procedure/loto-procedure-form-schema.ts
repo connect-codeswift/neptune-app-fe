@@ -112,6 +112,12 @@ export const lotoStepSchema: FormSchema = [
     colSpan: 6,
     placeholder: "Select method",
     options: methodOptions,
+    // The listed methods cover the common cases, not every case. A site with
+    // an isolation method of its own can name it here rather than picking the
+    // nearest wrong option.
+    allowCustom: true,
+    addCustomLabel: "Add isolation method",
+    addCustomPlaceholder: "Name the method…",
   },
   {
     type: "text",

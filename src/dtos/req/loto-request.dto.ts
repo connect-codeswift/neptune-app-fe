@@ -32,6 +32,7 @@ export type LotoProcedureStepRequestDto = {
   description: string;
   isolationPoint: string | null;
   energyType: string | null;
+  isolationMethod: string | null;
   lockTagPosition: string | null;
 };
 
