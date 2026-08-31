@@ -127,8 +127,19 @@ function SidebarNavLink(
           .join(" ")}
         aria-hidden="true"
       />
+      {/* Fades out, then hides — `transition-discrete` lets `display` flip at
+          the end of the fade instead of on the first frame. Without it the
+          label vanished instantly while the rail spent 300ms narrowing around
+          it, which is the pop that made collapsing look broken. Browsers
+          without discrete transitions fall back to that instant hide. */}
       <span
-        className={["min-w-0 flex-1 truncate", collapsed ? "lg:hidden" : ""]
+        className={[
+          "min-w-0 flex-1 truncate",
+          "transition-[opacity,display] transition-discrete duration-200 ease-linear motion-reduce:transition-none",
+          collapsed
+            ? "lg:hidden lg:opacity-0"
+            : "lg:opacity-100 lg:starting:opacity-0",
+        ]
           .filter(Boolean)
           .join(" ")}
       >
@@ -139,7 +150,10 @@ function SidebarNavLink(
         <span
           className={[
             "text7 text-ehs-muted-text shrink-0",
-            collapsed ? "lg:hidden" : "",
+            "transition-[opacity,display] transition-discrete duration-150 ease-linear motion-reduce:transition-none",
+            collapsed
+              ? "lg:hidden lg:opacity-0"
+              : "lg:opacity-100 lg:starting:opacity-0",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -435,7 +449,10 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                   as="p"
                   className={[
                     "text6 text-ehs-muted-text px-3 pb-1",
-                    collapsed ? "lg:hidden" : "",
+                    "transition-[opacity,display] transition-discrete duration-150 ease-linear motion-reduce:transition-none",
+                    collapsed
+                      ? "lg:hidden lg:opacity-0"
+                      : "lg:opacity-100 lg:starting:opacity-0",
                   ]
                     .filter(Boolean)
                     .join(" ")}
