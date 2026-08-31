@@ -46,17 +46,24 @@ export function IncidentDetailLinkedCard(
         <Text as="h3" className="text-ehs-dark-bg text3">
           Linked items
         </Text>
-        <Can do="CAPA.Create">
-          <button
-            type="button"
-            onClick={onAddCapa}
-            disabled={!onAddCapa || isLoading}
-            className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-2.75 py-[7px] shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
-            Add CAPA
-          </button>
-        </Can>
+        {/* Two rules, kept separate. `Can` is the capability POST /api/v1/capas
+            checks; the missing handler is the caller saying this particular record
+            takes no new CAPA — a closed incident. Withholding it hides the button
+            rather than greying it: neither state is one the user can act their way
+            out of, so a disabled control would just sit there dead. */}
+        {onAddCapa ? (
+          <Can do="CAPA.Create">
+            <button
+              type="button"
+              onClick={onAddCapa}
+              disabled={isLoading}
+              className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-2.75 py-[7px] shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Icon icon="mdi:plus" className="size-3" aria-hidden="true" />
+              Add CAPA
+            </button>
+          </Can>
+        ) : null}
       </div>
 
       {isLoading ? (

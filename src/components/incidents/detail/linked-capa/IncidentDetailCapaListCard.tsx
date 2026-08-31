@@ -5,13 +5,13 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
-import { Can } from "@/components/auth/Can";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AddCapaModal } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { CapaFormPayload } from "@/components/incidents/shared/capa/AddCapaModal";
 import type { CapaTaskFormPayload } from "@/components/incidents/shared/capa/AddTaskModal";
 import { CapaCompletionReviewModal } from "@/components/incidents/shared/capa/CapaCompletionReviewModal";
 import { SkeletonListRows } from "@/components/ui/skeletons";
+import { useCapabilities } from "@/lib/capabilities";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import {
@@ -89,11 +89,12 @@ export function IncidentDetailCapaListCard(
   const [editingCapa, setEditingCapa] = useState<CapaItem | null>(null);
   const [reviewCapa, setReviewCapa] = useState<CapaItem | null>(null);
   const autoPromptedRef = useRef<ReadonlySet<string>>(new Set());
+  const { can } = useCapabilities();
 
   // Gated here rather than only on the button so a stale `openAddModal` request —
   // for instance a "add CAPA" deep link followed while the incident was being closed —
-  // cannot pop the modal on a closed incident.
-  const canAddCapa = !isIncidentClosed;
+  // cannot pop the modal on a closed incident, or for a role POST /capas refuses.
+  const canAddCapa = !isIncidentClosed && can("CAPA.Create");
   const isAddCapaOpen =
     canAddCapa && (addModalRequestedLocally || openAddModal);
 
@@ -154,25 +155,23 @@ export function IncidentDetailCapaListCard(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            {/* Two separate rules: dev's canAddCapa keeps a closed incident from taking new
-                actions, and CAPA.Create is the permission POST /api/v1/capas requires — a
-                Worker holds neither, and ungated this offered them a modal that 403s on save. */}
+            {/* Both rules live in canAddCapa rather than in a `Can` wrapper here: the
+                modal has its own entry point through `openAddModal`, and a check that
+                only guarded the button would leave that one open. */}
             {canAddCapa ? (
-              <Can do="CAPA.Create">
-                <button
-                  type="button"
-                  onClick={() => setAddModalRequestedLocally(true)}
-                  disabled={isSubmitting}
-                  className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <Icon
-                    icon="mdi:plus"
-                    className="size-3.25"
-                    aria-hidden="true"
-                  />
-                  Add CAPA
-                </button>
-              </Can>
+              <button
+                type="button"
+                onClick={() => setAddModalRequestedLocally(true)}
+                disabled={isSubmitting}
+                className="bg-ehs-normal-blue text-ehs-on-accent hover:bg-ehs-normal-blue-active rounded-2.5 text5 inline-flex items-center gap-2 px-3 py-2 shadow-(--ehs-shadow-button-primary-flat) transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Icon
+                  icon="mdi:plus"
+                  className="size-3.25"
+                  aria-hidden="true"
+                />
+                Add CAPA
+              </button>
             ) : null}
           </div>
         </div>
