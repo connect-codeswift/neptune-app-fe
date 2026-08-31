@@ -189,6 +189,7 @@ export function mapChemicalDtoToHazcomChemical(raw: unknown): HazcomChemical {
       readProp(record, "ghsSignal", "GhsSignal", "signalWord", "SignalWord"),
     ),
     status: toChemicalStatus(readProp(record, "status", "Status")),
+    isDraft: readProp(record, "isDraft", "IsDraft") === true,
     sdsRecordId:
       sdsId === undefined || asString(sdsId) === ""
         ? null

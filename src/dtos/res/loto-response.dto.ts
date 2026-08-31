@@ -21,10 +21,19 @@ export type LotoEquipmentGridRowDto = {
   status: LotoEquipmentStatusDto;
 };
 
+/**
+ * Why a lockout cannot be applied. "Unauthorized" is a fact about the caller —
+ * the control is not theirs to use — while the rest are facts about the machine
+ * that an authorized operator still needs to read.
+ */
+export type LotoApplyBlockKindDto =
+  "Unauthorized" | "CertificationExpired" | "AlreadyLockedOut" | "OutOfService";
+
 export type LotoEquipmentStepDto = {
   description: string;
   isolationPoint: string | null;
   energyType: string | null;
+  isolationMethod: string | null;
   lockTagPosition: string | null;
 };
 
@@ -44,6 +53,7 @@ export type LotoEquipmentDetailDto = LotoEquipmentGridRowDto & {
   authorizedPersonnel: LotoAuthorizedPersonDto[];
   canApply: boolean;
   cannotApplyReason: string | null;
+  cannotApplyKind: LotoApplyBlockKindDto | null;
 };
 
 /** GET /api/v1/locations row. */

@@ -32,7 +32,6 @@ import {
   useUpdateIncidentClosureMutation,
   useUpdateIncidentMutation,
 } from "@/hooks/use-incident-mutations";
-import { useIncidentAbilities } from "@/hooks/use-incident-abilities";
 import {
   useIncidentByIdQuery,
   useIncidentClosureQuery,
@@ -210,7 +209,6 @@ export function IncidentDetailContent(
     id: numericId,
     enabled: isClientReady && hasToken && numericId != null,
   });
-  const { canEdit, canClose, canViewRca } = useIncidentAbilities();
   const closeIncidentMutation = useCloseIncidentMutation();
   const updateIncidentMutation = useUpdateIncidentMutation();
   const updateClosureMutation = useUpdateIncidentClosureMutation();
@@ -845,9 +843,6 @@ export function IncidentDetailContent(
   return (
     <>
       <IncidentDetailView
-        canEdit={canEdit}
-        canClose={canClose}
-        canViewRca={canViewRca}
         displayId={displayId}
         activeTab={activeTab}
         onTabChange={handleTabChange}

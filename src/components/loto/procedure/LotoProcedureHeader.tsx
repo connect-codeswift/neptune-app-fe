@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 
@@ -13,20 +12,16 @@ const crumbLink =
 export type LotoProcedureHeaderProps = Readonly<{
   mode: "create" | "edit";
   equipmentCode?: string;
-  onCancel: () => void;
-  onSubmit: () => void;
-  isSubmitting?: boolean;
 }>;
 
-/** Breadcrumb + title + Cancel / primary action — Figma 6912:56200 / 6915:56769. */
+/**
+ * Breadcrumb + title. The Cancel / primary pair used to live here, above a
+ * form the author had not filled in yet — asking to submit before showing
+ * what there was to submit. Both now sit after the last card, where the
+ * form ends, matching Apply Lockout.
+ */
 export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
-  const {
-    mode,
-    equipmentCode,
-    onCancel,
-    onSubmit,
-    isSubmitting = false,
-  } = props;
+  const { mode, equipmentCode } = props;
 
   const isCreate = mode === "create";
   const title = isCreate
@@ -36,8 +31,6 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
     ? "Document a new lockout/tagout energy control procedure"
     : "Update energy control procedure and isolation steps";
   const crumbTail = isCreate ? "New Procedure" : "Edit";
-  const submitLabel = isCreate ? "Create Procedure" : "Save Changes";
-  const submitIcon = isCreate ? "mdi:plus" : "mdi:content-save-outline";
 
   return (
     <div className="backdrop-blur-2.5 border-ehs-border-ink/8 bg-ehs-surface/62 relative flex flex-col justify-center gap-3 rounded-2xl border px-5.5 py-4 shadow-(--ehs-shadow-panel) before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:content-['']">
@@ -87,27 +80,6 @@ export function LotoProcedureHeader(props: Readonly<LotoProcedureHeaderProps>) {
                 {subtitle}
               </Text>
             </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2.5">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onCancel}
-              className="text4 rounded-2.5 px-4 py-2.5 font-medium"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={onSubmit}
-              disabled={isSubmitting}
-              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold shadow-[0px_4px_6px_color-mix(in_oklab,var(--ehs-normal-blue)_30%,transparent)]"
-            >
-              <Icon icon={submitIcon} className="size-3.5 shrink-0" />
-              {submitLabel}
-            </Button>
           </div>
         </div>
       </div>

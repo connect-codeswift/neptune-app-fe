@@ -119,8 +119,10 @@ export function toLotoHistoryRecord(dto: LotoLockoutRowDto): LotoHistoryRecord {
     operator: dto.operatorName,
     lockNumber: withLockPrefix(dto.lockNumber),
     startAt: formatDateTime(dto.startedAt),
-    endAt:
-      dto.status === "Active" ? "In progress" : formatDateTime(dto.removedAt),
+    // An active lockout has no end yet, which is an absent value like any
+    // other — so it reads as the same em dash every other empty cell uses.
+    // "In progress" restated the Result column in a date column's place.
+    endAt: formatDateTime(dto.removedAt),
     purpose: dto.purpose,
     duration: formatDuration(dto.startedAt, dto.removedAt),
     result: dto.status,
@@ -198,7 +200,6 @@ export function toLotoEquipmentDetail(
     additionalNotes: dto.additionalNotes ?? "",
     isOutOfService: dto.isOutOfService,
     lastInspection: formatDate(dto.lastInspectionAt),
-    lastInspectionAt: dto.lastInspectionAt,
     energySources: splitEnergySources(dto.energySources),
     authorizedPersonnel: dto.authorizedPersonnel.map((person) => ({
       id: person.userId,
@@ -216,5 +217,6 @@ export function toLotoEquipmentDetail(
     history: historyRecords,
     canApply: dto.canApply,
     cannotApplyReason: dto.cannotApplyReason,
+    cannotApplyKind: dto.cannotApplyKind,
   };
 }

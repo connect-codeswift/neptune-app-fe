@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import { useCapabilities } from "@/lib/capabilities";
 
 const crumbMuted = "text4 font-normal text-ehs-placeholder";
 const crumbLink =
@@ -29,11 +30,35 @@ export type LotoEquipmentDetailHeaderProps = Readonly<{
   isLockedOut?: boolean;
 }>;
 
+/**
+ * Whether to draw the lockout action at all.
+ *
+ * Only an authorization block hides it: offering a control and then refusing
+ * the click is a dead end, and the API is what actually enforces this — hiding
+ * only removes the dead end.
+ *
+ * Every other block stays visible. "Already locked out" is the state that puts
+ * Remove Lockout there in the first place, and an out-of-service machine or a
+ * lapsed certification is a fact the operator needs to read, with something
+ * they can do about it. Hiding those would leave a screen that silently omits
+ * its own primary action.
+ */
+function showsLockoutAction(detail: LotoEquipmentDetail): boolean {
+  return detail.cannotApplyKind !== "Unauthorized";
+}
+
 /** Breadcrumb + title + Edit / Apply/Remove Lockout — Figma 6888:50991. */
 export function LotoEquipmentDetailHeader(
   props: LotoEquipmentDetailHeaderProps,
 ) {
   const { detail, onEdit, onApplyLockout, isLockedOut = false } = props;
+  const showsAction = showsLockoutAction(detail);
+
+  // Edit opens the procedure editor on an existing record, which is what
+  // PUT /loto/equipment enforces — not Loto.Create, which governs adding one.
+  // A worker is authorized to perform a procedure, not to rewrite it.
+  const { can } = useCapabilities();
+  const canEdit = can("Loto.Update");
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
   const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
@@ -73,29 +98,33 @@ export function LotoEquipmentDetailHeader(
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onEdit}
-              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-medium"
-            >
-              <Icon icon="mdi:pencil-outline" className="size-3.5 shrink-0" />
-              Edit
-            </Button>
-            <Button
-              type="button"
-              variant={isLockedOut ? "primary" : "danger"}
-              onClick={onApplyLockout}
-              className={[
-                "text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold",
-                isLockedOut
-                  ? "shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-normal-blue)_40%,transparent)]"
-                  : "shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)]",
-              ].join(" ")}
-            >
-              <Icon icon={actionIcon} className="size-3.5 shrink-0" />
-              {actionLabel}
-            </Button>
+            {canEdit ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onEdit}
+                className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-medium"
+              >
+                <Icon icon="mdi:pencil-outline" className="size-3.5 shrink-0" />
+                Edit
+              </Button>
+            ) : null}
+            {showsAction ? (
+              <Button
+                type="button"
+                variant={isLockedOut ? "primary" : "danger"}
+                onClick={onApplyLockout}
+                className={[
+                  "text4 rounded-2.5 gap-2 px-4 py-2.5 font-semibold",
+                  isLockedOut
+                    ? "shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-normal-blue)_40%,transparent)]"
+                    : "shadow-[0px_4px_7px_color-mix(in_oklab,var(--ehs-red)_40%,transparent)]",
+                ].join(" ")}
+              >
+                <Icon icon={actionIcon} className="size-3.5 shrink-0" />
+                {actionLabel}
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

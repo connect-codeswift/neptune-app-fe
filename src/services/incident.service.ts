@@ -143,6 +143,9 @@ function unwrapIncidentRaw(
   for (const [camel, pascal] of [
     ["stage", "Stage"],
     ["caseDisposition", "CaseDisposition"],
+    // Derived per grid row, same as `stage` — the conversion link lives on the
+    // near miss / hazard, so it is never on the nested incident.
+    ["isConverted", "IsConverted"],
   ] as const) {
     const topLevel = readProp(raw, camel, pascal);
     if (topLevel !== undefined && topLevel !== null) {
@@ -266,6 +269,7 @@ function coerceIncidentDto(raw: Record<string, unknown>): IncidentDto {
     caseDisposition:
       asString(readProp(source, "caseDisposition", "CaseDisposition")) ?? null,
     stage: asString(readProp(source, "stage", "Stage")) ?? null,
+    isConverted: asBoolean(readProp(source, "isConverted", "IsConverted")),
     furtherMedicalRecommendations: asBoolean(
       readProp(
         source,

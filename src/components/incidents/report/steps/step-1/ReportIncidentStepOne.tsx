@@ -464,7 +464,7 @@ export function ReportIncidentStepOne(
               onChange={handlePersonChange}
               siteId={site.id}
               siteName={site.name}
-              trailingHint="Search people at your site."
+              trailingHint="Search people."
               placeholder="Start typing a name…"
               // A contractor, agency worker or visitor with no account is
               // exactly the person you most need on the record.

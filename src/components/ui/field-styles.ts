@@ -59,7 +59,7 @@ export const FIELD_TEXTAREA_CLASS = `min-h-27.5 resize-y px-3.25 py-[11px] text4
  * the AI assist button. Taller than the plain variant so the writing area still
  * shows three lines once the strip is taken out.
  */
-export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-32 resize-y px-3.25 pt-[11px] pb-10 text4 leading-[19.5px] ${FIELD_BASE}`;
+export const FIELD_TEXTAREA_WITH_CONTROLS_CLASS = `min-h-32 resize-y px-3.25 pt-[11px] pb-12 text4 leading-[19.5px] ${FIELD_BASE}`;
 
 /**
  * Taller variant for the template/form builders, where a field is the primary

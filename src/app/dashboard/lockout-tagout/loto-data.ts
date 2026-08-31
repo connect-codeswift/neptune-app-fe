@@ -5,8 +5,6 @@ export type LotoTabId =
 
 export type LotoEquipmentStatus = "Operational" | "Locked Out" | "Maintenance";
 
-export type LotoStatusFilter = "all" | LotoEquipmentStatus;
-
 export type LotoMetric = MetricCardProps;
 
 /** One row of the equipment register — mapped from the GetAllEquipment grid DTO. */
@@ -28,8 +26,13 @@ export const LOTO_TABS = [
   { id: "personnel" as const, label: "Personnel" },
 ] as const;
 
+/**
+ * The register's status chips. Ids are the values the API takes, so nothing has
+ * to translate between what the chip says and what the request carries — "all"
+ * used to be a local invention needing an adapter to become "All".
+ */
 export const LOTO_STATUS_FILTERS = [
-  { id: "all" as const, label: "All" },
+  { id: "All" as const, label: "All" },
   { id: "Operational" as const, label: "Operational" },
   { id: "Locked Out" as const, label: "Locked Out" },
   { id: "Maintenance" as const, label: "Maintenance" },

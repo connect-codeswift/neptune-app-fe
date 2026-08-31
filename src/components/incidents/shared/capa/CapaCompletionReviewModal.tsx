@@ -5,13 +5,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useId, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { CapaEffectiveness } from "@/dtos/req/capa-verification-request.dto";
 import { useCapaReviewQuery } from "@/hooks/use-capa-queries";
 import { formatCapaTaskStatusLabel } from "@/services/mappers/capa.mapper";
@@ -315,14 +316,26 @@ export function CapaCompletionReviewModal(
                     >
                       Verification notes
                     </label>
-                    <textarea
-                      id={notesFieldId}
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      rows={3}
-                      placeholder="Document your review before closing this CAPA…"
-                      className={FIELD_TEXTAREA_CLASS}
-                    />
+                    <div className="relative">
+                      <textarea
+                        id={notesFieldId}
+                        value={notes}
+                        onChange={(event) => setNotes(event.target.value)}
+                        rows={3}
+                        placeholder="Document your review before closing this CAPA…"
+                        className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+                      />
+                      {/*
+                        Rewrite only, no auto-draft — a verification note is a
+                        compliance record the closer writes, not something a model
+                        invents.
+                      */}
+                      <AiTextAssistant
+                        module="incident"
+                        value={notes}
+                        onApply={setNotes}
+                      />
+                    </div>
                   </div>
                 </div>
               </section>

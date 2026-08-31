@@ -34,6 +34,8 @@ export type HrcaTableHandlers = Readonly<{
 export type HrcaTableProps = Readonly<{
   rows: readonly HrcaRow[];
   handlers: HrcaTableHandlers;
+  /** Renders the worksheet as a record: no add, edit or remove affordances. */
+  readOnly?: boolean;
   className?: string;
 }>;
 
@@ -57,7 +59,7 @@ function WhyHeader(props: Readonly<{ step: number }>) {
 }
 
 export function HrcaTable(props: Readonly<HrcaTableProps>) {
-  const { rows, handlers, className = "" } = props;
+  const { rows, handlers, readOnly = false, className = "" } = props;
 
   const columns = useMemo(
     () => [
@@ -89,6 +91,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
           <HrcaContributingFactorCell
             text={info.getValue()}
             accent={info.row.original.accent}
+            readOnly={readOnly}
             onEdit={() =>
               handlers.onEditFactor(info.row.original.id, info.getValue())
             }
@@ -109,6 +112,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
                 why={why}
                 accent={row.accent}
                 canAdd={canAdd}
+                readOnly={readOnly}
                 showConnector={stepIdx > 0}
                 onEdit={() =>
                   handlers.onEditWhy(row.id, stepIdx, why?.text ?? "")
@@ -140,6 +144,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         cell: (info) => (
           <HrcaCorrectiveActionsCell
             actions={info.getValue()}
+            readOnly={readOnly}
             onAdd={() => handlers.onAddAction(info.row.original.id)}
             onEdit={(actionIndex, current) =>
               handlers.onEditAction(info.row.original.id, actionIndex, current)
@@ -151,7 +156,7 @@ export function HrcaTable(props: Readonly<HrcaTableProps>) {
         ),
       }),
     ],
-    [handlers],
+    [handlers, readOnly],
   );
 
   const table = useReactTable({

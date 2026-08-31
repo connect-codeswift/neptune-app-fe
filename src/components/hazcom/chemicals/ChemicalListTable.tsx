@@ -52,6 +52,7 @@ export type ChemicalListTableProps = Readonly<{
  */
 const COLUMN_ALIGN: Readonly<Record<string, "left" | "center" | "right">> = {
   signalWord: "center",
+  stage: "center",
   status: "center",
   actions: "center",
 };
@@ -221,6 +222,20 @@ function createChemicalListColumns(
           </span>
         );
       },
+    }),
+    columnHelper.accessor("isDraft", {
+      id: "stage",
+      header: "Stage",
+      size: 100,
+      minSize: 88,
+      cell: (info) => (
+        <IncidentBadge
+          label={info.getValue() ? "Draft" : "Published"}
+          tone={info.getValue() ? "warn" : "teal"}
+          showDot
+          className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+        />
+      ),
     }),
     columnHelper.accessor("status", {
       header: "Status",

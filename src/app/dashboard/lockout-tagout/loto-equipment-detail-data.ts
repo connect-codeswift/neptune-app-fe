@@ -1,3 +1,4 @@
+import type { LotoApplyBlockKindDto } from "@/dtos/res/loto-response.dto";
 import type { LotoEquipmentStatus, LotoHistoryRecord } from "./loto-data";
 
 export type LotoEquipmentDetailTab = "overview" | "procedure" | "history";
@@ -37,7 +38,6 @@ export type LotoEquipmentDetail = Readonly<{
   additionalNotes: string;
   isOutOfService: boolean;
   lastInspection: string;
-  lastInspectionAt: string | null;
   energySources: readonly string[];
   authorizedPersonnel: readonly LotoEquipmentPersonnel[];
   procedureSteps: readonly LotoProcedureStepView[];
@@ -45,6 +45,7 @@ export type LotoEquipmentDetail = Readonly<{
   history: readonly LotoHistoryRecord[];
   canApply: boolean;
   cannotApplyReason: string | null;
+  cannotApplyKind: LotoApplyBlockKindDto | null;
 }>;
 
 export const LOTO_EQUIPMENT_DETAIL_TABS = [

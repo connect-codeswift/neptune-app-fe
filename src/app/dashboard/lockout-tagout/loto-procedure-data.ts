@@ -54,14 +54,22 @@ export const LOTO_ENERGY_TYPES = [
   "Other",
 ] as const;
 
+/**
+ * How an isolation point is secured. A starting set, not a closed one — the
+ * field lets an author add their own, because the methods a site uses vary
+ * with its equipment.
+ *
+ * "Notify Only" and "Verify Zero Energy" were dropped. Neither isolates
+ * anything: telling someone is not a means of isolation, and verifying zero
+ * energy is the check performed *after* isolating, which the Verification
+ * Method field already records.
+ */
 export const LOTO_ISOLATION_METHODS = [
   "Lockout",
   "Tagout",
   "Lockout / Tagout",
   "Disconnect",
   "Block / Bleed",
-  "Notify Only",
-  "Verify Zero Energy",
 ] as const;
 
 const stepSeq = 0;
@@ -88,13 +96,15 @@ export function createEmptyProcedureForm(): LotoProcedureFormState {
     location: null,
     hazardLevel: "Medium",
     description: "",
-    // Stable ids so SSR HTML and the hydrating client render the same form
+    // One step, not two. A procedure needs at least one isolation step and no
+    // more than that can be assumed — seeding a second left an empty card the
+    // author had to notice and delete, and it put a delete icon on step 1 from
+    // the outset, which is only offered once a second step actually exists.
+    //
+    // Stable id so SSR HTML and the hydrating client render the same form
     // `id`s. A module-level counter would keep climbing across Strict Mode
     // remounts and mismatch (step-1 on the server vs step-5 on the client).
-    steps: [
-      createEmptyIsolationStep({ id: "step-1" }),
-      createEmptyIsolationStep({ id: "step-2" }),
-    ],
+    steps: [createEmptyIsolationStep({ id: "step-1" })],
     verificationMethod: "",
     additionalNotes: "",
     selectedPpe: [],
