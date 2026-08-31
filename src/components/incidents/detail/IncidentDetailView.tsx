@@ -520,10 +520,16 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddFile={onAddFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
+                    // Attaching a file is an edit to the incident: the upload itself only needs
+                    // File.Upload, which a Worker holds, but linking it to the record is
+                    // PUT /incident/{id}. Without Incident.Update the file reaches the bucket
+                    // and then fails at the step that matters.
+                    readOnly={!canEdit}
                     // Removable while simply viewing, not only inside the editor. A closed
                     // incident is exempt: the API refuses to update it at all, so offering the
-                    // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    // control would only produce a failed request. Deleting is the same write
+                    // as adding, so it needs the same permission.
+                    canDelete={!(detail.isClosed ?? false) && canEdit}
                     embedded
                   />
                   <IncidentDetailFilesTable
@@ -534,12 +540,12 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     // Removable while simply viewing, not only inside the editor. A closed
                     // incident is exempt: the API refuses to update it at all, so offering the
                     // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    canDelete={!(detail.isClosed ?? false) && canEdit}
                     embedded
                   />
                 </IncidentGlassCard>
                 <div className="flex flex-col gap-3.5">
-                  {!isEditingAttachments ? (
+                  {!isEditingAttachments && canEdit ? (
                     <IncidentDetailUploadCard
                       onUploadSuccess={onUploadSuccess}
                       onRegisterOpen={onRegisterUploadOpen}
