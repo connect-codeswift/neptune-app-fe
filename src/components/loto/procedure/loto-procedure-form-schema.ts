@@ -4,6 +4,7 @@ import {
   type FormSchema,
   type FormValues,
   type SelectOption,
+  type TextareaAssistant,
 } from "@/components/form-builder";
 import {
   LOTO_ENERGY_TYPES,
@@ -43,6 +44,7 @@ const methodOptions: readonly SelectOption[] = LOTO_ISOLATION_METHODS.map(
  */
 export function makeLotoEquipmentSchema(
   locationField: ReactNode = null,
+  descriptionAssistant?: TextareaAssistant,
 ): FormSchema {
   return [
     {
@@ -76,6 +78,7 @@ export function makeLotoEquipmentSchema(
       rows: 3,
       placeholder:
         "Describe the equipment, its function, and any relevant background information…",
+      assistant: descriptionAssistant,
     },
   ];
 }
@@ -128,26 +131,37 @@ export const lotoStepSchema: FormSchema = [
   },
 ];
 
-export const lotoVerificationSchema: FormSchema = [
-  {
-    type: "textarea",
-    name: "verificationMethod",
-    label: "Verification Method",
-    colSpan: 12,
-    rows: 3,
-    placeholder:
-      "Describe how to verify that all energy sources have been successfully isolated and the equipment is in a zero-energy state…",
-  },
-  {
-    type: "textarea",
-    name: "additionalNotes",
-    label: "Additional Notes / Warnings",
-    colSpan: 12,
-    rows: 2,
-    placeholder:
-      "Any special warnings, stored energy concerns, or additional precautions…",
-  },
-];
+/**
+ * A factory rather than a module constant, because both fields now carry an
+ * assistant render prop — the same reason `makeLotoEquipmentSchema` is one.
+ */
+export function makeLotoVerificationSchema(
+  verificationAssistant?: TextareaAssistant,
+  notesAssistant?: TextareaAssistant,
+): FormSchema {
+  return [
+    {
+      type: "textarea",
+      name: "verificationMethod",
+      label: "Verification Method",
+      colSpan: 12,
+      rows: 3,
+      placeholder:
+        "Describe how to verify that all energy sources have been successfully isolated and the equipment is in a zero-energy state…",
+      assistant: verificationAssistant,
+    },
+    {
+      type: "textarea",
+      name: "additionalNotes",
+      label: "Additional Notes / Warnings",
+      colSpan: 12,
+      rows: 2,
+      placeholder:
+        "Any special warnings, stored energy concerns, or additional precautions…",
+      assistant: notesAssistant,
+    },
+  ];
+}
 
 /**
  * Required PPE chips. Options come from the PPE catalog (GET /api/ppe) via
@@ -194,7 +208,7 @@ export function toVerificationFormValues(
   state: LotoProcedureFormState,
 ): FormValues {
   return {
-    ...createInitialValues(lotoVerificationSchema),
+    ...createInitialValues(makeLotoVerificationSchema()),
     verificationMethod: state.verificationMethod,
     additionalNotes: state.additionalNotes,
   };

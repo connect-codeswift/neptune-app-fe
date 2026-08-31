@@ -19,7 +19,7 @@ import http from "@/lib/axios";
 export type RewriteOperation = "proofread" | "paraphrase";
 
 /** Which module's endpoints to call. */
-export type AiModule = "incident" | "nearMiss" | "hazard";
+export type AiModule = "incident" | "nearMiss" | "hazard" | "loto";
 
 /**
  * Per-module paths, rather than one shared pair.
@@ -35,10 +35,7 @@ export type AiModule = "incident" | "nearMiss" | "hazard";
  * *was* under the press", which reads as already dealt with on a report whose
  * whole point is that it is not.
  */
-const MODULE_PATHS: Record<
-  AiModule,
-  Readonly<{ proofread: string; paraphrase: string; draft: string }>
-> = {
+const MODULE_PATHS = {
   incident: {
     proofread: "/incidents/ai/proofread",
     paraphrase: "/incidents/ai/paraphrase",
@@ -54,7 +51,19 @@ const MODULE_PATHS: Record<
     paraphrase: "/hazards/ai/paraphrase",
     draft: "/hazards/ai/draft-assist",
   },
-};
+  // No draft-assist. The other three recount something that happened, so a
+  // draft can be composed from the answers already on the form; a LOTO
+  // procedure is authored from knowledge of the machine, and there is nothing
+  // on the form to compose one from. `satisfies` keeps the omission honest —
+  // `MODULE_PATHS.loto.draft` does not typecheck rather than being undefined.
+  loto: {
+    proofread: "/loto/ai/proofread",
+    paraphrase: "/loto/ai/paraphrase",
+  },
+} satisfies Record<
+  AiModule,
+  Readonly<{ proofread: string; paraphrase: string; draft?: string }>
+>;
 
 /**
  * Model calls run 3-4s in practice against a 30s server-side ceiling. The
@@ -89,7 +98,7 @@ class AiAssistError extends Error {
     switch (this.status) {
       case 401:
       case 403:
-        return "not authorised — token expired, or the role lacks the module's Create permission (Incident.Create / NearMiss.Create / Hazard.Create)";
+        return "not authorised — token expired, or the role lacks the module's permission (Incident.Create / NearMiss.Create / Hazard.Create / Loto.ManageEquipment)";
       case 429:
         return "rate limited — 20 assist calls/min per user, shared across proofread, paraphrase and draft-assist; check the Retry-After header";
       case 503:

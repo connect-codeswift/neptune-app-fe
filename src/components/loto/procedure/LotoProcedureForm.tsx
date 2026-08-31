@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   FormBuilder,
   type FormSchema,
@@ -30,7 +31,7 @@ import {
   fieldStringArray,
   lotoStepFormId,
   lotoStepSchema,
-  lotoVerificationSchema,
+  makeLotoVerificationSchema,
   makeLotoEquipmentSchema,
   makeLotoPpeSchema,
   toEquipmentFormValues,
@@ -163,6 +164,10 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
     ppeStatusMessage,
   } = props;
 
+  // Proofread and paraphrase on the three free-text fields. Click-driven only —
+  // there is no draft-assist for LOTO, because a procedure is authored from
+  // knowledge of the machine rather than composed from answers already on the
+  // form. Nothing fires on change.
   const equipmentSchema = makeLotoEquipmentSchema(
     <LotoLocationSearchField
       value={location}
@@ -171,6 +176,30 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         onPreviewChange({ location: next?.name ?? "" });
       }}
     />,
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
+  );
+
+  const verificationSchema = makeLotoVerificationSchema(
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
+    (control) => (
+      <AiTextAssistant
+        module="loto"
+        value={control.value}
+        onApply={control.onChange}
+      />
+    ),
   );
 
   const ppeSchema = makeLotoPpeSchema(ppeOptions);
@@ -340,11 +369,11 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         <IncidentGlassCard paddingClassName="p-5 md:p-5.5" className="min-w-0">
           <FormBuilder
             formId={LOTO_VERIFICATION_FORM_ID}
-            schema={lotoVerificationSchema}
+            schema={verificationSchema}
             initialValues={toVerificationFormValues(initial)}
             hideActions
             onSubmit={(values) => {
-              onFormValid(lotoVerificationSchema, values);
+              onFormValid(verificationSchema, values);
             }}
             className={equipmentFieldClass}
           />

@@ -154,6 +154,9 @@ export type SelectFieldConfig = BaseField &
   }>;
 
 /** What a textarea hands its assistant so the assistant can write back. */
+/** Renders the AI assist controls for a textarea field. */
+export type TextareaAssistant = (field: TextareaAssistantField) => ReactNode;
+
 export type TextareaAssistantField = Readonly<{
   value: string;
   onChange: (next: string) => void;
@@ -200,7 +203,7 @@ export type TextareaFieldConfig = BaseField &
      * textarea gains a `relative` wrapper and a reserved strip along the bottom
      * so typed text never runs under the buttons.
      */
-    assistant?: (field: TextareaAssistantField) => ReactNode;
+    assistant?: TextareaAssistant;
   }>;
 
 /** Tag picker: options render as toggleable pills, value is the chosen set. */
