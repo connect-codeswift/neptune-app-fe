@@ -1,7 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { FormBuilder, type FormValues } from "@/components/form-builder";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import {
+  FormBuilder,
+  type FormSchema,
+  type FormValues,
+} from "@/components/form-builder";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import type { UpdateNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
@@ -28,7 +34,24 @@ export function EditNearMissForm(props: Readonly<{ record: NearMissRecord }>) {
   const router = useRouter();
   const saveNearMiss = useCreateNearMissMutation();
   const { userId, siteId } = getCurrentUser();
-  const schema = buildNearMissEditSchema(record);
+  const schema = useMemo<FormSchema>(
+    () =>
+      buildNearMissEditSchema(record).map((field) =>
+        field.type === "textarea" && field.name === "whatHappened"
+          ? {
+              ...field,
+              assistant: (control) => (
+                <AiTextAssistant
+                  module="nearMiss"
+                  value={control.value}
+                  onApply={control.onChange}
+                />
+              ),
+            }
+          : field,
+      ),
+    [record],
+  );
 
   const detailRoute = `/dashboard/near-miss/${encodeURIComponent(record.id)}`;
 

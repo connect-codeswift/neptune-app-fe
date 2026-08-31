@@ -127,19 +127,17 @@ function SidebarNavLink(
           .join(" ")}
         aria-hidden="true"
       />
-      {/* Fades out, then hides — `transition-discrete` lets `display` flip at
-          the end of the fade instead of on the first frame. Without it the
-          label vanished instantly while the rail spent 300ms narrowing around
-          it, which is the pop that made collapsing look broken. Browsers
-          without discrete transitions fall back to that instant hide. */}
+      {/* Hidden outright on the mini rail, in one frame, and deliberately so.
+          A `transition-discrete` fade was tried here and made closing worse
+          than opening: `display` flips at the START of the transition when
+          showing but at the END when hiding, so collapsing dropped the labels
+          out of the flow mid-slide and the rail visibly hitched three quarters
+          of the way through. Flipping at frame 0 in both directions lets the
+          panel's `overflow-hidden` do the work — the rail slides over settled
+          content instead of reflowing it, which is what makes opening
+          smooth. */}
       <span
-        className={[
-          "min-w-0 flex-1 truncate",
-          "transition-[opacity,display] transition-discrete duration-200 ease-linear motion-reduce:transition-none",
-          collapsed
-            ? "lg:hidden lg:opacity-0"
-            : "lg:opacity-100 lg:starting:opacity-0",
-        ]
+        className={["min-w-0 flex-1 truncate", collapsed ? "lg:hidden" : ""]
           .filter(Boolean)
           .join(" ")}
       >
@@ -150,10 +148,7 @@ function SidebarNavLink(
         <span
           className={[
             "text7 text-ehs-muted-text shrink-0",
-            "transition-[opacity,display] transition-discrete duration-150 ease-linear motion-reduce:transition-none",
-            collapsed
-              ? "lg:hidden lg:opacity-0"
-              : "lg:opacity-100 lg:starting:opacity-0",
+            collapsed ? "lg:hidden" : "",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -449,10 +444,7 @@ export function DashboardSidebar(props: Readonly<SidebarProps>) {
                   as="p"
                   className={[
                     "text6 text-ehs-muted-text px-3 pb-1",
-                    "transition-[opacity,display] transition-discrete duration-150 ease-linear motion-reduce:transition-none",
-                    collapsed
-                      ? "lg:hidden lg:opacity-0"
-                      : "lg:opacity-100 lg:starting:opacity-0",
+                    collapsed ? "lg:hidden" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
