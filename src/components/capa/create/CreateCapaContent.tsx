@@ -22,6 +22,8 @@ import {
 } from "@/components/capa/shared/CapaFormSteps";
 import { CreateCapaHeader } from "@/components/capa/create/CreateCapaHeader";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useCapabilities } from "@/lib/capabilities";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateCapaMutation } from "@/hooks/use-capa-mutations";
@@ -50,6 +52,7 @@ export function CreateCapaContent() {
   const searchParams = useSearchParams();
   const sourceType = searchParams.get("sourceType")?.trim() ?? "";
   const sourceId = Number(searchParams.get("sourceId") ?? 0);
+  const { can, isReady } = useCapabilities();
   const createCapaMutation = useCreateCapaMutation();
   // Held past the response: `isPending` drops when the record is created,
   // while the push to the next page is still in flight. A click in that gap
@@ -172,6 +175,18 @@ export function CreateCapaContent() {
     }
     setAddTaskOpen(true);
   };
+
+  // Hiding the buttons that lead here does not stop a typed url. After the hooks, never before.
+  if (isReady && !can("CAPA.Create")) {
+    return (
+      <EmptyState
+        variant="plain"
+        icon="mdi:lock-outline"
+        title="You do not have access to raise a CAPA"
+        message="Ask an EHS manager to raise it, or to grant you CAPA creation."
+      />
+    );
+  }
 
   return (
     <div className="flex min-w-0 flex-col gap-3.5 px-4 pb-8">

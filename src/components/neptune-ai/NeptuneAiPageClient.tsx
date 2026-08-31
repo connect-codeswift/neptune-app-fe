@@ -10,10 +10,12 @@ import {
   LogoMark,
   NEPTUNE_N_PATH,
 } from "@/components/LogoMark";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { Text } from "@/components/Text";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { BetaBadge } from "@/components/neptune-ai/BetaBadge";
 import {
   ANALYZING_STEPS,
   PAGE_SUGGESTIONS,
@@ -644,6 +646,17 @@ export function NeptuneAiPageClient() {
   const rows = conversations.data ?? [];
   const isBusy = ask.isPending;
 
+  /**
+   * Back to the fresh-chat state. Nothing is created server-side — a conversation
+   * only exists once the first question is asked — so this just drops the open
+   * thread and clears anything left over from it.
+   */
+  function startNewChat() {
+    setActiveId(null);
+    setPending(null);
+    setFailure(null);
+  }
+
   // An answer can take up to 120 seconds; a card frozen on "Reading your
   // question" the whole time reads as stuck. The steps walk forward on a
   // timer and the last one holds until the reply lands.
@@ -866,14 +879,25 @@ export function NeptuneAiPageClient() {
     // flex child defaults to min-height:auto and would otherwise refuse to
     // shrink below its content.
     <div className="flex max-h-[calc(100dvh-4.5rem)] min-h-0 flex-1 flex-col lg:max-h-[calc(100dvh-1rem)]">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3.5 px-4 pt-4 pb-4">
-        {/* No visual header — the sidebar already says where you are, and the
-            row spent chat height on a label. The h1 stays for screen readers
-            and the page outline. */}
-        <Text as="h1" className="sr-only">
-          Neptune AI
-        </Text>
+      {/* The same header the other top-level modules use — CAPA, Inspections,
+          PPE — rather than the glass card the detail pages carry, because this
+          is a top-level destination. The site switcher is not decoration here:
+          selecting a site reissues the session against it, and every answer the
+          assistant gives is scoped to that token, so this row is what says which
+          site it is talking about. Sits outside the padded column, as on those
+          pages, but inside the height cap so the thread yields the space. */}
+      <DashboardHeader
+        title="Neptune AI"
+        badge={<BetaBadge />}
+        actionLabel="New chat"
+        onActionClick={startNewChat}
+        // Unlike the pages this header usually sits on, this column is height
+        // capped, so without this the header would be squeezed by the thread
+        // rather than the thread yielding to it.
+        className="shrink-0"
+      />
 
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3.5 px-4 pb-4">
         {/* Stacked on mobile — the rail is a slim chip strip and the chat
             takes the rest; side by side from lg. */}
         <div className="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-3.5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-rows-1">
@@ -890,23 +914,12 @@ export function NeptuneAiPageClient() {
               .filter(Boolean)
               .join(" ")}
           >
-            <div className="flex shrink-0 items-center justify-between gap-2">
-              <Text as="h2" className="text3 text-ehs-darker">
-                Recent Chats
-              </Text>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveId(null);
-                  setPending(null);
-                  setFailure(null);
-                }}
-                aria-label="Start a new chat"
-                className="bg-ehs-normal-blue/12 text-ehs-normal-blue hover:bg-ehs-normal-blue/20 inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
-              >
-                <Icon icon="mdi:plus" className="size-4" aria-hidden="true" />
-              </button>
-            </div>
+            {/* No "+" of its own any more: the header's New chat button is the
+                one affordance, and it is labelled and reachable even here, where
+                this whole card is hidden on a phone with no history yet. */}
+            <Text as="h2" className="text3 text-ehs-darker shrink-0">
+              Recent Chats
+            </Text>
 
             {rows.length === 0 ? (
               <EmptyRail />

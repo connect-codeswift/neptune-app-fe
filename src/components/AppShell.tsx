@@ -109,10 +109,23 @@ export function AppShell(props: Readonly<AppShellProps>) {
     getCollapsedSnapshot,
     getCollapsedServerSnapshot,
   );
-  // Transitions are off until the user has actually pressed the button, so a
-  // rail restored to collapsed on load is simply already closed rather than
-  // sweeping shut in front of them. Set from an event handler, never an effect.
-  const [hasToggled, setHasToggled] = useState(false);
+  /*
+   * Transitions stay off through hydration and are armed one frame after it.
+   *
+   * They have to start off: the collapsed state is read from localStorage, so
+   * the first client render corrects the width away from the server's
+   * always-expanded HTML. Animating that correction sweeps the rail shut in
+   * front of someone who had already collapsed it.
+   *
+   * They used to be armed by the toggle handler instead, which put the
+   * transition class and the new width in the SAME commit — and a transition
+   * cannot run when the property is only introduced alongside the value
+   * change. So the first collapse jumped and every one after it animated. That
+   * inconsistency is what read as broken. One frame after mount is late enough
+   * for the hydration correction to have painted and early enough that no
+   * interaction can beat it.
+   */
+  const [animationsArmed, setAnimationsArmed] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   // The access window now lives in the sidebar under the nav, not across
@@ -124,16 +137,30 @@ export function AppShell(props: Readonly<AppShellProps>) {
     menuButtonRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setAnimationsArmed(true);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
   const toggleCollapsed = useCallback(() => {
-    setHasToggled(true);
     setStoredCollapsed(!getCollapsedSnapshot());
   }, []);
 
-  // The mobile drawer always animates — that slide predates the collapse
-  // button and must survive it. On desktop, movement animates only after an
-  // explicit toggle, so a rail restored to collapsed on load is simply already
-  // closed rather than sweeping shut across the first paint.
-  const railAnimates = hasToggled || !isDesktop;
+  // The rail, the content margin and the toggle button all move together, so
+  // they share one flag and one duration/easing. Anything that drifts here
+  // shows up as the page edge tearing away from the rail mid-slide.
+  //
+  // 200ms linear is shadcn's sidebar spec, and linear is the right call for
+  // this specific motion: three separate elements slide in parallel, and any
+  // eased curve makes a mismatch between them legible as one edge pulling
+  // ahead of another. Linear also avoids the decelerating tail that reads as
+  // the rail hesitating just before it lands.
+  const railAnimates = animationsArmed;
 
   // Ctrl/Cmd+B, the shortcut every editor-shaped app uses for this. Desktop
   // only: below lg the rail is a drawer, and a keyboard is unlikely anyway.
@@ -220,8 +247,8 @@ export function AppShell(props: Readonly<AppShellProps>) {
         // two utilities at equal specificity would be settled by stylesheet
         // order rather than by intent.
         isCollapsed ? "lg:ml-24" : "lg:ml-68",
-        hasToggled
-          ? "transition-[margin] duration-300 motion-reduce:transition-none"
+        animationsArmed
+          ? "transition-[margin] duration-600 ease-linear motion-reduce:transition-none"
           : "",
       ]
         .filter(Boolean)
@@ -280,7 +307,7 @@ export function AppShell(props: Readonly<AppShellProps>) {
         className={[
           "fixed top-0 left-0 z-50 h-dvh max-w-[calc(100%-3rem)] p-2 lg:max-w-none lg:translate-x-0 lg:p-4 lg:pr-0",
           railAnimates
-            ? "transition-[width,transform] duration-300 motion-reduce:transition-none"
+            ? "transition-[width,transform] duration-100 ease-linear motion-reduce:transition-none"
             : "",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
           // Collapsing narrows the rail to an icon strip rather than sliding
@@ -367,8 +394,8 @@ export function AppShell(props: Readonly<AppShellProps>) {
           // One transition-property utility at a time: stacking
           // `transition-colors` with the arbitrary list would leave stylesheet
           // order to decide which wins, and the `left` slide could lose.
-          hasToggled
-            ? "transition-[left,color,background-color] duration-300 motion-reduce:transition-none"
+          animationsArmed
+            ? "transition-[left,color,background-color] duration-400 ease-linear motion-reduce:transition-none"
             : "transition-colors",
         ]
           .filter(Boolean)

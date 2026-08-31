@@ -1,12 +1,13 @@
 "use client";
 
 import { useId, useState } from "react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 
 export type EditIncidentDetailsPayload = Readonly<{
   summary: string;
@@ -80,14 +81,21 @@ export function EditIncidentDetailsModal(
         <FieldLabel htmlFor={summaryId} required>
           Summary
         </FieldLabel>
-        <textarea
-          id={summaryId}
-          value={draftSummary}
-          onChange={(event) => setDraftSummary(event.target.value)}
-          placeholder="Describe what happened…"
-          rows={6}
-          className={FIELD_TEXTAREA_CLASS}
-        />
+        <div className="relative">
+          <textarea
+            id={summaryId}
+            value={draftSummary}
+            onChange={(event) => setDraftSummary(event.target.value)}
+            placeholder="Describe what happened…"
+            rows={6}
+            className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+          />
+          <AiTextAssistant
+            module="incident"
+            value={draftSummary}
+            onApply={setDraftSummary}
+          />
+        </div>
       </section>
     </IncidentModalShell>
   );
