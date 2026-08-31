@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { Can } from "@/components/auth/Can";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import {
@@ -202,15 +203,17 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               ? "Corrective actions · …"
               : `Corrective actions · ${String(capas.length)}`}
           </Text>
-          <button
-            type="button"
-            onClick={() => setIsAddCapaOpen(true)}
-            disabled={incident.numericId <= 0}
-            className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
-            Add CAPA
-          </button>
+          <Can do="CAPA.Create">
+            <button
+              type="button"
+              onClick={() => setIsAddCapaOpen(true)}
+              disabled={incident.numericId <= 0}
+              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
+              Add CAPA
+            </button>
+          </Can>
         </div>
 
         {capaQuery.isPending ? (
