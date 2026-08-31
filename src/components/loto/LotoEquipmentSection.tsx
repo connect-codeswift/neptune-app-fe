@@ -50,12 +50,15 @@ export function LotoEquipmentSection(
   const router = useRouter();
   const hasToken = useHasAccessToken();
 
-  // Creating a procedure and editing one are the same permission — the create
-  // form *is* the edit form — and it is the one POST/PUT /loto/equipment
-  // enforces. A worker is authorized to perform procedures, not to write them,
-  // so neither control is drawn for them rather than being offered and refused.
+  // Two permissions, not one: an admin can grant authoring a new procedure
+  // without granting edits to the procedures already in force. Each control
+  // asks for the one its own endpoint enforces.
+  //
+  // A worker is authorized to perform procedures, not to write them, so
+  // neither is drawn for them rather than being offered and refused.
   const { can } = useCapabilities();
-  const canManage = can("Loto.ManageEquipment");
+  const canCreate = can("Loto.Create");
+  const canEdit = can("Loto.Update");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [status, setStatus] = useState<LotoEquipmentStatusFilterDto>("All");
@@ -104,14 +107,14 @@ export function LotoEquipmentSection(
     // The cog opens the procedure editor, so without the permission it leads
     // somewhere the reader cannot use. View stays: a worker still needs to
     // read the procedure for a machine they are authorized on.
-    return canManage
+    return canEdit
       ? withManageAction<LotoEquipmentItem>(base, {
           getHref: (item) => lotoEquipmentDetailRoute(item.id),
           getAriaLabel: (item) =>
             `Manage equipment ${item.equipmentCode} — ${item.name}`,
         })
       : base;
-  }, [router, canManage]);
+  }, [router, canEdit]);
 
   const page = equipmentQuery.data;
   const totalRecords = page?.totalRecords ?? 0;
@@ -170,10 +173,10 @@ export function LotoEquipmentSection(
               itemNoun="item"
               itemNounPlural="items"
               actionLabel={
-                onCreateProcedure && canManage ? "Create Procedure" : undefined
+                onCreateProcedure && canCreate ? "Create Procedure" : undefined
               }
               actionIcon="mdi:file-document-outline"
-              onAction={canManage ? onCreateProcedure : undefined}
+              onAction={canCreate ? onCreateProcedure : undefined}
             />
           }
           pagination={{

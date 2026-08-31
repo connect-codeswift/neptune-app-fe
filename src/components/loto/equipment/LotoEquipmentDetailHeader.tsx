@@ -54,10 +54,11 @@ export function LotoEquipmentDetailHeader(
   const { detail, onEdit, onApplyLockout, isLockedOut = false } = props;
   const showsAction = showsLockoutAction(detail);
 
-  // Edit opens the procedure editor, which POST/PUT /loto/equipment gates on
-  // this. A worker is authorized to perform a procedure, not to rewrite it.
+  // Edit opens the procedure editor on an existing record, which is what
+  // PUT /loto/equipment enforces — not Loto.Create, which governs adding one.
+  // A worker is authorized to perform a procedure, not to rewrite it.
   const { can } = useCapabilities();
-  const canManage = can("Loto.ManageEquipment");
+  const canEdit = can("Loto.Update");
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
   const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
@@ -97,7 +98,7 @@ export function LotoEquipmentDetailHeader(
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-            {canManage ? (
+            {canEdit ? (
               <Button
                 type="button"
                 variant="secondary"
