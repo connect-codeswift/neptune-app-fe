@@ -69,6 +69,8 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
     [capaQuery.data?.items],
   );
 
+  const isClosed = incident?.state === "Closed";
+
   if (!incident) {
     return (
       <IncidentGlassCard
@@ -203,17 +205,23 @@ export function IncidentDetailPanel(props: Readonly<IncidentDetailPanelProps>) {
               ? "Corrective actions · …"
               : `Corrective actions · ${String(capas.length)}`}
           </Text>
-          <Can do="CAPA.Create">
-            <button
-              type="button"
-              onClick={() => setIsAddCapaOpen(true)}
-              disabled={incident.numericId <= 0}
-              className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
-              Add CAPA
-            </button>
-          </Can>
+          {/* Nested inside CAPA.Create rather than folded into it: the capability is
+              what POST /capas checks, and closed is what this particular record will
+              not take. The panel is the same read of a closed incident the detail
+              screen gives, so it offers the same nothing. */}
+          {!isClosed ? (
+            <Can do="CAPA.Create">
+              <button
+                type="button"
+                onClick={() => setIsAddCapaOpen(true)}
+                disabled={incident.numericId <= 0}
+                className="border-ehs-border text-ehs-gray hover:bg-ehs-light-bg bg-ehs-surface inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Icon icon="mdi:plus" className="text-sm" aria-hidden="true" />
+                Add CAPA
+              </button>
+            </Can>
+          ) : null}
         </div>
 
         {capaQuery.isPending ? (

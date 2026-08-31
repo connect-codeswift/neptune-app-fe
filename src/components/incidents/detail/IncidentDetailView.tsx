@@ -26,6 +26,7 @@ import type {
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
 import { IncidentClosureSummaryCard } from "@/components/incidents/detail/closure";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
@@ -46,6 +47,7 @@ import { IncidentDetailResponseMetricsCard } from "@/components/incidents/detail
 import { IncidentDetailTimelineCard } from "@/components/incidents/detail/timeline/IncidentDetailTimelineCard";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
+import { useCapabilities } from "@/lib/capabilities";
 import { SkeletonDetailPage } from "@/components/ui/skeletons";
 import {
   mapCapaItemsToLinkedItems,
@@ -269,12 +271,48 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     isClosureSubmitting,
   } = props;
 
+  const { can } = useCapabilities();
+
+  // Two independent rules, in this order. A closed incident offers no write control anywhere on
+  // the screen — the API refuses every write against it, so an affordance could only ever end in
+  // a failed request. While it is open, each control still answers to the capability its own
+  // endpoint checks, so a role that cannot make the call is never shown the button that makes it.
+  const isClosed = detail?.isClosed ?? false;
+  const canUpdateIncident = !isClosed && can("Incident.Update");
+  const canCreateCapa = !isClosed && can("CAPA.Create");
+  // Adding a file takes BOTH. File.Upload alone is not enough — the preset matrix grants it to
+  // Worker, so gating on it leaves the button up for a view-only role; the upload then succeeds
+  // and the link to the incident (PUT /incident/{id}) is what 403s, orphaning the object in the
+  // bucket.
+  const canUploadFiles = canUpdateIncident && can("File.Upload");
+  const canCloseIncident = can("Incident.Close");
+  const canViewRca = can("Rca.View");
+
+  // A tab whose content can only ever 403 is worse than no tab: it looks like a broken page
+  // rather than a permission. Hidden here rather than inside each panel, so the tab strip and
+  // the panel behind it cannot disagree about what exists.
+  const hiddenTabs: TabId[] = [];
+  if (!canViewRca) {
+    // The RCA reads refuse outright — a different module, so Incident.View is never enough.
+    hiddenTabs.push("investigation");
+  }
+  if (!canCloseIncident && !isClosed) {
+    // Kept once closed: the summary is the record of what happened, and reading it needs nothing
+    // beyond Incident.View. It is the unusable wizard on an open incident that is worth hiding.
+    hiddenTabs.push("closure");
+  }
+  // Nothing stops a stale tab in state from pointing at one of those.
+  const visibleTab: TabId = hiddenTabs.includes(activeTab)
+    ? "details"
+    : activeTab;
+
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <IncidentDetailHeader
           incidentId={displayId}
-          activeTab={activeTab}
+          activeTab={visibleTab}
+          hiddenTabs={hiddenTabs}
           onTabChange={onTabChange}
           onEdit={onEditOrSave}
           isEditing={isEditing}
@@ -288,9 +326,11 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             // never had an editor. The backend refuses the write either way now, so
             // leaving the button visible would only offer an action that 400s.
             (detail?.isClosed ?? false) ||
-            (activeTab !== "details" &&
-              activeTab !== "people" &&
-              activeTab !== "attachments")
+            // Without Incident.Update the PUT is a 403, so Edit is a dead end.
+            !canUpdateIncident ||
+            (visibleTab !== "details" &&
+              visibleTab !== "people" &&
+              visibleTab !== "attachments")
           }
         />
 
@@ -333,7 +373,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
 
         {detail && !errorMessage && !showLoading ? (
           <>
-            {activeTab === "details" && (
+            {visibleTab === "details" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailSummaryCard
@@ -395,13 +435,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     })}
                     totalLinkedCount={linkedCapa.summary.totalCount}
                     isLoading={isCapaLoading}
-                    // Withholding the handler is this card's own way of disabling the
-                    // button (see `disabled={!onAddCapa || isLoading}`), so a closed
-                    // incident simply stops offering one.
+                    // Withholding the handler is this card's own way of hiding the
+                    // button, so an incident that is closed — or a role without
+                    // CAPA.Create, which POST /capas refuses — is offered nothing.
                     onAddCapa={
-                      detail.isClosed
-                        ? undefined
-                        : () => onNavigateToLinkedCapa({ openAddModal: true })
+                      canCreateCapa
+                        ? () => onNavigateToLinkedCapa({ openAddModal: true })
+                        : undefined
                     }
                     onViewAll={() => onNavigateToLinkedCapa()}
                     onSelectItem={() => onNavigateToLinkedCapa()}
@@ -414,7 +454,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "timeline" && (
+            {visibleTab === "timeline" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailTimelineCard events={timelineEvents} />
                 <div className="flex flex-col gap-3.5">
@@ -425,7 +465,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "people" && (
+            {visibleTab === "people" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailPeopleCard
                   // The record stores only an id, so the person's real name is
@@ -474,7 +514,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "attachments" && (
+            {visibleTab === "attachments" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentGlassCard
                   paddingClassName="p-5.75"
@@ -489,10 +529,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onAddFile={onAddFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
-                    // Removable while simply viewing, not only inside the editor. A closed
-                    // incident is exempt: the API refuses to update it at all, so offering the
-                    // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    // Add file needs File.Upload for the upload AND Incident.Update to link
+                    // the result to the record. See canUploadFiles above.
+                    readOnly={!canUploadFiles}
+                    // Removable while simply viewing, not only inside the editor. Removal is
+                    // written as an incident update, so it answers to Incident.Update and is off
+                    // entirely once the incident is closed.
+                    canDelete={canUpdateIncident}
                     embedded
                   />
                   <IncidentDetailFilesTable
@@ -500,20 +543,15 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onSelectFile={onSelectFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
-                    // Removable while simply viewing, not only inside the editor. A closed
-                    // incident is exempt: the API refuses to update it at all, so offering the
-                    // control would only produce a failed request.
-                    canDelete={!(detail.isClosed ?? false)}
+                    canDelete={canUpdateIncident}
                     embedded
                   />
                 </IncidentGlassCard>
                 <div className="flex flex-col gap-3.5">
-                  {!isEditingAttachments ? (
-                    <IncidentDetailUploadCard
-                      onUploadSuccess={onUploadSuccess}
-                      onRegisterOpen={onRegisterUploadOpen}
-                    />
-                  ) : (
+                  {/* The whole dropzone goes, not just its button: it accepts a drag and a
+                      paste as well as a click, so leaving it visible would keep three ways to
+                      start an upload the API will refuse. */}
+                  {isEditingAttachments ? (
                     <IncidentGlassCard
                       paddingClassName="p-4.75"
                       incidentGlassCardClassName="gap-2"
@@ -526,19 +564,25 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                         disabled while editing.
                       </span>
                     </IncidentGlassCard>
-                  )}
+                  ) : canUploadFiles ? (
+                    <IncidentDetailUploadCard
+                      onUploadSuccess={onUploadSuccess}
+                      onRegisterOpen={onRegisterUploadOpen}
+                    />
+                  ) : null}
                   <IncidentDetailStorageCard usedBytes={usedBytes} />
                 </div>
               </div>
             )}
 
-            {activeTab === "investigation" &&
+            {visibleTab === "investigation" &&
               (showHrca && incidentNumericId != null ? (
                 <IncidentDetailHrcaBoard
                   incidentId={incidentNumericId}
                   queryEnabled={hrcaQueryEnabled}
                   onClose={onCloseHrca}
                   meta={investigation.hrcaMeta}
+                  readOnly={detail.isClosed ?? false}
                 />
               ) : showHrca ? (
                 <div className="text-ehs-muted-text rounded-3 text4 border-ehs-border-ink/8 bg-ehs-surface/50 border px-4 py-10 text-center">
@@ -562,6 +606,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     errorMessage={rcaInvestigationError}
                     onRetry={onRetryRca}
                     onOpenHrca={onOpenHrca}
+                    isIncidentClosed={detail.isClosed ?? false}
                   />
                   <div className="flex flex-col gap-3.5">
                     <IncidentDetailInvestigationStatusCard
@@ -576,7 +621,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 </div>
               ))}
 
-            {activeTab === "linked-capa" && (
+            {visibleTab === "linked-capa" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailCapaListCard
                   incidentId={displayId}
@@ -613,9 +658,21 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "closure" &&
+            {/* Three states, not two. The summary card is for a closure that HAPPENED: it
+                hardcodes a "Closed" badge and renders closedBy/closureDate, which on an open
+                incident are draft defaults seeded from the current user and now — so reusing it
+                for a viewer told them the incident was closed and named them as the closer.
+                A viewer who cannot close an open incident gets neither the form nor that. */}
+            {visibleTab === "closure" &&
               (detail.isClosed ? (
                 <IncidentClosureSummaryCard data={closureData} />
+              ) : !canCloseIncident ? (
+                <EmptyState
+                  variant="plain"
+                  icon="mdi:lock-outline"
+                  title="This incident is not closed"
+                  message="Closing an incident needs the Incident.Close permission. Ask an EHS manager to close it, or to grant it to you."
+                />
               ) : (
                 <IncidentDetailClosureCard
                   data={closureData}
