@@ -10,7 +10,6 @@ import {
   LOTO_STATUS_FILTERS,
   type LotoStatusFilter,
 } from "@/app/dashboard/lockout-tagout/loto-data";
-import { lotoApplyLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 import type { LotoEquipmentStatusFilterDto } from "@/dtos/req/loto-request.dto";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
@@ -80,9 +79,6 @@ export function LotoEquipmentSection(
         buildLotoEquipmentColumns({
           onView: (item) => {
             router.push(lotoEquipmentDetailRoute(item.id));
-          },
-          onLock: (item) => {
-            router.push(lotoApplyLockoutRoute(item.id));
           },
         }),
         {
