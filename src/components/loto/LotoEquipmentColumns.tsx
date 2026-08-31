@@ -3,7 +3,6 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { IncidentBadge } from "@/components/near-miss/IncidentBadge";
 import type { IncidentBadgeTone } from "@/components/near-miss/IncidentBadge";
-import { CompliancePill } from "@/components/regulatory-compliance/compliance-ui";
 import type { TableColumns } from "@/components/ui/table-columns";
 import type {
   LotoEquipmentItem,
@@ -62,18 +61,6 @@ export function buildLotoEquipmentColumns(
         <Text as="span" className="text4 text-ehs-gray">
           {info.getValue()}
         </Text>
-      ),
-      meta: { align: "left" as const },
-    }),
-    columnHelper.accessor("energySources", {
-      header: () => columnHeader("Energy Sources"),
-      size: 220,
-      cell: (info) => (
-        <div className="flex max-w-55 flex-wrap gap-1">
-          {info.getValue().map((source: string) => (
-            <CompliancePill key={source} label={source} />
-          ))}
-        </div>
       ),
       meta: { align: "left" as const },
     }),
