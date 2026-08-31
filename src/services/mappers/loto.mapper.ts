@@ -218,5 +218,6 @@ export function toLotoEquipmentDetail(
     history: historyRecords,
     canApply: dto.canApply,
     cannotApplyReason: dto.cannotApplyReason,
+    cannotApplyKind: dto.cannotApplyKind,
   };
 }

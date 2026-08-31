@@ -9,6 +9,7 @@ import type {
 import type {
   ApplyLotoLockoutResponseDto,
   ApplyLotoLockoutResultDto,
+  LotoApplyBlockKindDto,
   CreateLotoEquipmentResponseDto,
   CreateLotoEquipmentResultDto,
   GetLotoActiveLockoutsResponseDto,
@@ -111,6 +112,21 @@ function normalizeEquipmentGridRow(
   };
 }
 
+const APPLY_BLOCK_KINDS = new Set<LotoApplyBlockKindDto>([
+  "Unauthorized",
+  "CertificationExpired",
+  "AlreadyLockedOut",
+  "OutOfService",
+]);
+
+/** Unrecognized kinds read as null, so an unknown block never hides a control. */
+function toApplyBlockKind(raw: unknown): LotoApplyBlockKindDto | null {
+  const value = asNullableString(raw);
+  return value !== null && APPLY_BLOCK_KINDS.has(value as LotoApplyBlockKindDto)
+    ? (value as LotoApplyBlockKindDto)
+    : null;
+}
+
 function normalizeEquipmentStep(raw: unknown): LotoEquipmentStepDto | null {
   if (!isRecord(raw)) {
     return null;
@@ -187,6 +203,9 @@ function normalizeEquipmentDetail(raw: unknown): LotoEquipmentDetailDto | null {
     canApply: asBoolean(readProp(raw, "canApply", "CanApply")),
     cannotApplyReason: asNullableString(
       readProp(raw, "cannotApplyReason", "CannotApplyReason"),
+    ),
+    cannotApplyKind: toApplyBlockKind(
+      readProp(raw, "cannotApplyKind", "CannotApplyKind"),
     ),
   };
 }
