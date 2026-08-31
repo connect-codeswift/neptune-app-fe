@@ -16,6 +16,10 @@ import type { CreateHazardRequestDto } from "@/dtos/req/hazard-request.dto";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateHazardMutation } from "@/hooks/use-hazard-mutations";
+import {
+  useChemicalNamesQuery,
+  useSdsListQuery,
+} from "@/hooks/use-hazcom-queries";
 import { getCurrentUser } from "@/lib/current-user";
 import { toast } from "@/lib/toast";
 import {
@@ -47,8 +51,12 @@ function toCreateRequest(report: HazardReportValues): CreateHazardRequestDto {
   // userId / siteId come from the signed-in user's access-token claims.
   const { userId, siteId } = getCurrentUser();
 
+  // Only a chemical hazard carries a chemical; the id is the HazCom row id.
+  const chemicalId = Number(String(report.chemicalId ?? "").trim());
+
   return {
     type: report.hazardType,
+    ...(Number.isFinite(chemicalId) && chemicalId > 0 ? { chemicalId } : {}),
     location: report.location,
     description: report.description,
     // Both are sent: `attachments` is the list the endpoint stores, `image` keeps the first so an
@@ -69,6 +77,34 @@ export function ReportHazardForm() {
   // that gap filed a duplicate report.
   const submitLock = useSubmitLock();
   const [values, setValues] = useState<FormValues>({});
+
+  const { chemicals } = useChemicalNamesQuery();
+  const { items: sdsRecords } = useSdsListQuery({ pageSize: 500 });
+
+  // Chemical:SDS is 1:1 — only offer chemicals that already have an SDS, so a
+  // "which chemical" pick always points at a record the viewer can open.
+  const chemicalIdsWithSds = useMemo(
+    () =>
+      new Set(
+        sdsRecords
+          .map((sds) => sds.chemicalId)
+          .filter((id): id is number => id !== null),
+      ),
+    [sdsRecords],
+  );
+
+  const chemicalOptions: readonly SelectOption[] = useMemo(
+    () =>
+      chemicals
+        .filter((chemical) => chemicalIdsWithSds.has(chemical.id))
+        .map((chemical) => ({
+          value: String(chemical.id),
+          label: chemical.name,
+        })),
+    [chemicals, chemicalIdsWithSds],
+  );
+
+  const isChemicalHazard = String(values.hazardType ?? "") === "chemical";
 
   const description = String(values.description ?? "");
   const consequence = toLabel(
@@ -96,41 +132,70 @@ export function ReportHazardForm() {
 
   const showsDraft = pending || draft !== null;
 
-  const schema = useMemo<FormSchema>(
-    () =>
-      hazardReportSchema.map((field) =>
-        field.type === "textarea" && field.name === "description"
-          ? {
-              ...field,
-              placeholder: showsDraft ? "" : field.placeholder,
-              assistant: (control) =>
-                showsDraft ? (
-                  <AiInFieldDraft
-                    draft={draft}
-                    pending={pending}
-                    onRegenerate={canRegenerate ? regenerate : undefined}
-                    // FormBuilder's textarea skin, not the incident wizard's.
-                    fieldPaddingClassName="px-3 pt-2.5"
-                    fieldTextClassName="text4 text-ehs-darker leading-normal"
-                    onAccept={(text) => {
-                      control.onChange(text);
-                      dismiss();
-                    }}
-                    onDismiss={dismiss}
-                  />
-                ) : (
-                  <AiTextAssistant
-                    module="hazard"
-                    value={control.value}
-                    onApply={control.onChange}
-                    onRegenerateDraft={canRegenerate ? regenerate : undefined}
-                  />
-                ),
-            }
-          : field,
-      ),
-    [showsDraft, draft, pending, dismiss, regenerate, canRegenerate],
-  );
+  const schema = useMemo<FormSchema>(() => {
+    const mapped: FormSchema = hazardReportSchema.map((field) =>
+      field.type === "textarea" && field.name === "description"
+        ? {
+            ...field,
+            placeholder: showsDraft ? "" : field.placeholder,
+            assistant: (control) =>
+              showsDraft ? (
+                <AiInFieldDraft
+                  draft={draft}
+                  pending={pending}
+                  onRegenerate={canRegenerate ? regenerate : undefined}
+                  // FormBuilder's textarea skin, not the incident wizard's.
+                  fieldPaddingClassName="px-3 pt-2.5"
+                  fieldTextClassName="text4 text-ehs-darker leading-normal"
+                  onAccept={(text) => {
+                    control.onChange(text);
+                    dismiss();
+                  }}
+                  onDismiss={dismiss}
+                />
+              ) : (
+                <AiTextAssistant
+                  module="hazard"
+                  value={control.value}
+                  onApply={control.onChange}
+                  onRegenerateDraft={canRegenerate ? regenerate : undefined}
+                />
+              ),
+          }
+        : field,
+    );
+
+    if (!isChemicalHazard) {
+      return mapped;
+    }
+
+    // Insert the chemical picker directly after "Hazard Type".
+    const hazardTypeIndex = mapped.findIndex(
+      (field) => field.name === "hazardType",
+    );
+
+    return [
+      ...mapped.slice(0, hazardTypeIndex + 1),
+      {
+        type: "select",
+        name: "chemicalId",
+        label: "Which chemical",
+        colSpan: 6,
+        placeholder: "Select a chemical",
+        options: chemicalOptions,
+      } as const,
+      ...mapped.slice(hazardTypeIndex + 1),
+    ];
+  }, [
+    showsDraft,
+    draft,
+    pending,
+    dismiss,
+    regenerate,
+    canRegenerate,
+    isChemicalHazard,
+    chemicalOptions,
+  ]);
 
   const handleSubmit = (values: FormValues) => {
     // Values are keyed by the schema field names, matching HazardReportValues.

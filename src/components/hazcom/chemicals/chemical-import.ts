@@ -86,6 +86,7 @@ function validateRow(
   raw: Record<string, unknown>,
   rowNumber: number,
   seen: Map<string, number>,
+  existingCasNumbers: ReadonlySet<string>,
 ): ImportRow {
   const errors: string[] = [];
 
@@ -145,10 +146,9 @@ function validateRow(
     }
   }
 
-  // Duplicates *within the file* only. The register itself has no uniqueness
-  // rule — no constraint, no application check — so flagging a clash with an
-  // existing chemical would be the import enforcing something the product does
-  // not. Two identical rows in one upload is still almost certainly a mistake.
+  // Duplicates within the file use the composite name|CAS key (two identical
+  // rows is almost certainly a mistake), while the CAS-only check against the
+  // existing register enforces the product's "CAS numbers are unique" rule.
   const key = `${name.toLowerCase()}|${casNumber.toLowerCase()}`;
   if (name) {
     const first = seen.get(key);
@@ -157,6 +157,11 @@ function validateRow(
     } else {
       seen.set(key, rowNumber);
     }
+  }
+
+  const normalizedCas = casNumber.trim().toLowerCase();
+  if (normalizedCas !== "" && existingCasNumbers.has(normalizedCas)) {
+    errors.push(`CAS # "${casNumber}" already exists in the inventory`);
   }
 
   return {
@@ -178,6 +183,7 @@ function validateRow(
 
 export function validateImportRows(
   records: readonly Record<string, unknown>[],
+  existingCasNumbers: ReadonlySet<string> = new Set<string>(),
 ): ParsedImport {
   const meaningful = records.filter((record) =>
     Object.values(record).some(
@@ -208,20 +214,23 @@ export function validateImportRows(
   const seen = new Map<string, number>();
   return {
     rows: meaningful.map((record, index) =>
-      validateRow(record, index + 1, seen),
+      validateRow(record, index + 1, seen, existingCasNumbers),
     ),
     fatalError: null,
   };
 }
 
-function parseCsv(file: File): Promise<ParsedImport> {
+function parseCsv(
+  file: File,
+  existingCasNumbers: ReadonlySet<string>,
+): Promise<ParsedImport> {
   return new Promise((resolve) => {
     Papa.parse<Record<string, unknown>>(file, {
       header: true,
       skipEmptyLines: true,
       transformHeader: (header) => header.trim(),
       complete: (result) => {
-        resolve(validateImportRows(result.data));
+        resolve(validateImportRows(result.data, existingCasNumbers));
       },
       error: () => {
         resolve({ rows: [], fatalError: "That file could not be read." });
@@ -230,7 +239,10 @@ function parseCsv(file: File): Promise<ParsedImport> {
   });
 }
 
-async function parseXlsx(file: File): Promise<ParsedImport> {
+async function parseXlsx(
+  file: File,
+  existingCasNumbers: ReadonlySet<string>,
+): Promise<ParsedImport> {
   // read-excel-file returns a matrix, not objects, so the header row is mapped
   // onto the rows below it here.
   // Imported here, not at the top: it is browser-only and the heavier of the
@@ -248,6 +260,7 @@ async function parseXlsx(file: File): Promise<ParsedImport> {
     body.map((row) =>
       Object.fromEntries(columns.map((column, index) => [column, row[index]])),
     ),
+    existingCasNumbers,
   );
 }
 
@@ -256,11 +269,14 @@ export function isSpreadsheet(file: File): boolean {
 }
 
 /** Reads a CSV or XLSX into validated rows. The file never leaves the browser. */
-export async function parseChemicalImport(file: File): Promise<ParsedImport> {
+export async function parseChemicalImport(
+  file: File,
+  existingCasNumbers: ReadonlySet<string> = new Set<string>(),
+): Promise<ParsedImport> {
   try {
     return file.name.toLowerCase().endsWith(".csv")
-      ? await parseCsv(file)
-      : await parseXlsx(file);
+      ? await parseCsv(file, existingCasNumbers)
+      : await parseXlsx(file, existingCasNumbers);
   } catch {
     return {
       rows: [],

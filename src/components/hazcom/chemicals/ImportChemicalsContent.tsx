@@ -11,6 +11,7 @@ import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCa
 import { toast } from "@/lib/toast";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useBulkCreateChemicalsMutation } from "@/hooks/use-hazcom-mutations";
+import { useChemicalCasLookup } from "@/hooks/use-hazcom-queries";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   IMPORT_COLUMNS,
@@ -45,6 +46,9 @@ export function ImportChemicalsContent() {
   const [isParsing, setIsParsing] = useState(false);
 
   const importMutation = useBulkCreateChemicalsMutation();
+  // CAS uniqueness: the existing register's CAS numbers, checked against each
+  // imported row so the import doesn't silently create duplicates.
+  const { casToId } = useChemicalCasLookup();
   // Held past the response: isPending drops when the rows are saved while the
   // navigation away is still in flight, and a second click in that gap would
   // import the file twice.
@@ -61,7 +65,8 @@ export function ImportChemicalsContent() {
     if (!next) return;
 
     setIsParsing(true);
-    const parsed = await parseChemicalImport(next);
+    const existingCasNumbers = new Set(casToId.keys());
+    const parsed = await parseChemicalImport(next, existingCasNumbers);
     setIsParsing(false);
 
     if (parsed.fatalError) {

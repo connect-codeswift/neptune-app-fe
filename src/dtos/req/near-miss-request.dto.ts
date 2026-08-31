@@ -9,6 +9,8 @@ export type CreateNearMissRequestDto = {
   id?: number;
   dateOfEvent: string;
   hazardType: string;
+  /** HazCom chemical id, set only when `hazardType === "chemical"`. */
+  chemicalId?: number | null;
   location: string;
   whatHappened: string;
   contributingFactor: string[];
