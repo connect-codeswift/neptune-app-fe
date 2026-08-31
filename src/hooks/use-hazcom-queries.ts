@@ -437,6 +437,51 @@ export function useChemicalNamesQuery(): Readonly<{
   };
 }
 
+/**
+ * GET /api/hazcom/chemicals?pageNumber=1&pageSize=500 — a one-page snapshot of
+ * the register, used to check a CAS number for uniqueness before saving. The
+ * chemicals list endpoint has no search-by-CAS route, so the whole (single
+ * page) register is fetched and keyed in-memory.
+ *
+ * Returns a normalized CAS → numeric id map, so callers can tell whether a
+ * given CAS belongs to a *different* row (edit mode) or to any row (add mode).
+ */
+export function useChemicalCasLookup(): Readonly<{
+  casToId: ReadonlyMap<string, number>;
+  isLoading: boolean;
+}> {
+  const isClientReady = useIsClientReady();
+  const hasToken = isClientReady && Boolean(getAccessToken());
+
+  const query = useQuery({
+    queryKey: [...hazcomQueryKeys.all, "chemical-cas-lookup"] as const,
+    enabled: hasToken,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const page = (await getAllChemicals({ pageNumber: 1, pageSize: 500 }))
+        .dataModel;
+
+      const map = new Map<string, number>();
+      for (const chemical of mapChemicalDtosToHazcomChemicals(
+        page?.data ?? [],
+      )) {
+        const cas = chemical.casNumber.trim().toLowerCase();
+        if (cas === "") continue;
+
+        const id = parseRecordNumericId(chemical.id);
+        if (id !== null) map.set(cas, id);
+      }
+
+      return map;
+    },
+  });
+
+  return {
+    casToId: query.data ?? new Map<string, number>(),
+    isLoading: !isClientReady || (hasToken && query.isLoading),
+  };
+}
+
 /** GET /api/hazcom/dashboard/kpis — top KPI cards. */
 export function useDashboardKpisQuery(): Readonly<{
   kpis: HazcomDashboardKpis | null;

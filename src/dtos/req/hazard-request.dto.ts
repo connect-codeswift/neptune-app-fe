@@ -10,6 +10,8 @@ export type GetAllHazardRequestDto = {
 export type CreateHazardRequestDto = {
   id?: number;
   type: string;
+  /** HazCom chemical id, set only when `type === "chemical"`. */
+  chemicalId?: number | null;
   location: string;
   description: string;
   /** First of {@link attachments}; kept for the older single-photo contract. */

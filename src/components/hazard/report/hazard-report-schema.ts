@@ -54,6 +54,11 @@ export const POTENTIAL_CONSEQUENCE_OPTIONS: readonly SelectOption[] = [
 
 export type HazardReportValues = {
   hazardType: string;
+  /**
+   * The HazCom chemical chosen when `hazardType === "chemical"`. Only shown
+   * (and only sent) for a chemical hazard.
+   */
+  chemicalId?: string;
   location: string;
   /**
    * Feeds the AI draft only. `POST /api/v1/hazards` neither accepts nor stores

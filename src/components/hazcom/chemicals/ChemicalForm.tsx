@@ -33,7 +33,11 @@ import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
-import { fetchSdsLabel, hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
+import {
+  fetchSdsLabel,
+  hazcomQueryKeys,
+  useChemicalCasLookup,
+} from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 import type { HazcomSdsSearchResult } from "@/services/mappers/hazcom-sds.mapper";
@@ -184,6 +188,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveChemical = useCreateChemicalMutation();
+  // The CAS uniqueness check below needs the whole register; this is the
+  // one-page snapshot backing it. A value still loading simply skips the check
+  // (the backend remains the source of truth if it ever adds a constraint).
+  const { casToId } = useChemicalCasLookup();
   // Held past the response: `isPending` drops when the record is saved, while
   // the navigation away is still in flight. A click in that gap saved a
   // duplicate.
@@ -329,6 +337,18 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       return;
     }
 
+    // CAS numbers are unique: a different chemical can't reuse one. In edit
+    // mode the record's own CAS is allowed (it hasn't changed — the field is
+    // read-only here anyway), so its own id is excluded from the conflict.
+    const normalizedCas = casNumber.trim().toLowerCase();
+    if (normalizedCas !== "") {
+      const holderId = casToId.get(normalizedCas);
+      if (holderId !== undefined && holderId !== existingId) {
+        toast.error("A chemical with this CAS number already exists");
+        return;
+      }
+    }
+
     if (!submitLock.acquire()) {
       return;
     }
@@ -392,6 +412,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 value={casNumber}
                 onChange={(event) => setCasNumber(event.target.value)}
                 placeholder="e.g. 7647-01-0"
+                readOnly={mode === "edit"}
+                helperText={
+                  mode === "edit"
+                    ? "CAS number can't be edited once the chemical is created."
+                    : undefined
+                }
               />
               <HazcomTextField
                 label="Link to SDS Record"

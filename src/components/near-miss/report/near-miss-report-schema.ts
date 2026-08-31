@@ -35,6 +35,11 @@ export const CONTRIBUTING_FACTOR_OPTIONS: readonly SelectOption[] = [
 export type NearMissReportValues = {
   dateOfEvent: string;
   hazardType: string;
+  /**
+   * The HazCom chemical chosen when `hazardType === "chemical"`. Only shown
+   * (and only sent) for a chemical hazard.
+   */
+  chemicalId?: string;
   location: string;
   whatHappened: string;
   contributingFactors: string[];
