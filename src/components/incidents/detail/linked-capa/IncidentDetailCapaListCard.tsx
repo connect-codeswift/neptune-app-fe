@@ -30,10 +30,10 @@ export type IncidentDetailCapaListCardProps = Readonly<{
   isSubmitting?: boolean;
   isVerifying?: boolean;
   /**
-   * A finalised incident takes no new CAPAs — the backend refuses them outright — so
-   * the card stops offering the action rather than surfacing a button that 400s.
-   * Existing CAPAs stay fully interactive: completing and verifying them is exactly
-   * what still has to happen after closure.
+   * A finalised incident takes no new CAPAs, and no edits to the ones it has — the
+   * backend refuses both outright — so the card stops offering either rather than
+   * surfacing buttons that 400. The list still renders: a closed incident's actions
+   * are exactly what people come back to read.
    */
   isIncidentClosed?: boolean;
   openAddModal?: boolean;
@@ -97,6 +97,11 @@ export function IncidentDetailCapaListCard(
   const canAddCapa = !isIncidentClosed && can("CAPA.Create");
   const isAddCapaOpen =
     canAddCapa && (addModalRequestedLocally || openAddModal);
+
+  // The pencil opens the same editor, which writes PUT /capas/{id} — CAPA.Update.
+  // Off on a closed incident too: the record is finished, and an editor that only
+  // leads to a rejected save is worse than no pencil at all.
+  const canEditCapa = !isIncidentClosed && can("CAPA.Update");
 
   const handleCloseAddModal = () => {
     setAddModalRequestedLocally(false);
@@ -251,19 +256,21 @@ export function IncidentDetailCapaListCard(
                       >
                         {isVerified ? "Verified" : taskStatusLabel}
                       </span>
-                      <button
-                        type="button"
-                        aria-label={`Edit ${item.code}`}
-                        disabled={isSubmitting}
-                        onClick={() => setEditingCapa(item)}
-                        className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Icon
-                          icon="mdi:pencil-outline"
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                      </button>
+                      {canEditCapa ? (
+                        <button
+                          type="button"
+                          aria-label={`Edit ${item.code}`}
+                          disabled={isSubmitting}
+                          onClick={() => setEditingCapa(item)}
+                          className="text-ehs-muted-text hover:text-ehs-normal-blue inline-flex size-7 shrink-0 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Icon
+                            icon="mdi:pencil-outline"
+                            className="size-4"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      ) : null}
                     </div>
                   </div>
 
@@ -353,7 +360,7 @@ export function IncidentDetailCapaListCard(
         />
       ) : null}
 
-      {editingCapa ? (
+      {editingCapa && canEditCapa ? (
         <AddCapaModal
           key={`edit-capa-${editingCapa.id}`}
           sourceLabel={incidentId}
