@@ -36,6 +36,16 @@ export function IncidentDetailResponseCard(
   } = props;
   const isInteractive = isEditing && onToggleAction !== undefined;
 
+  // Read-only, this card is a record of what was done on scene, so it lists only
+  // the actions that were actually taken. Showing all six with four unticked read
+  // as a checklist someone had failed to finish rather than as a report, and put
+  // the actions that did not happen on the same footing as the ones that did.
+  // While editing every option stays visible, ticked or not — an unticked one has
+  // to be reachable to be ticked.
+  const visibleActions = isInteractive
+    ? actions
+    : actions.filter((action) => action.completed);
+
   return (
     <IncidentGlassCard
       paddingClassName="p-5.75"
@@ -55,7 +65,7 @@ export function IncidentDetailResponseCard(
         </span>
       </div>
 
-      {actions.length === 0 && !isInteractive ? (
+      {visibleActions.length === 0 && !isInteractive ? (
         <EmptyState
           variant="plain"
           icon="mdi:medical-bag"
@@ -64,7 +74,7 @@ export function IncidentDetailResponseCard(
         />
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {actions.map((action) => (
+          {visibleActions.map((action) => (
             <CheckboxInput
               key={action.id}
               variant="tile"

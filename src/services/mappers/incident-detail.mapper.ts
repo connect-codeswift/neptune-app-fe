@@ -1259,8 +1259,15 @@ export function mapIncidentDtoToDetailView(
     summaryText: listRecord.description,
     infoItems: buildInfoItems(incident),
     responseActions,
+    // actionTaken holds the ticked labels on its first line and the free text
+    // below it, so falling back to the raw string printed the checklist a second
+    // time as prose: "Area cordoned off; Supervisor notified" appeared under
+    // Response notes directly beneath the tiles already saying it. Only the notes
+    // half is notes.
     responseNotes:
-      incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
+      incident.otherNotes?.trim() ||
+      splitActionTaken(incident.actionTaken).notes ||
+      "",
     affectedName: affectedDisplayName,
     hasAffectedPerson,
     affectedRole: [
