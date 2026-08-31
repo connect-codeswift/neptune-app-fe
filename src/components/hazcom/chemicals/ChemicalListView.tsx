@@ -1,6 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import {
+  TABLE_HEADER_ACTION_ICON_CLASS,
+  TABLE_HEADER_SECONDARY_ACTION_CLASS,
+} from "@/components/ui/table-header-action";
 import { Text } from "@/components/Text";
 import {
   HazcomDetailPanel,
@@ -210,7 +216,22 @@ export function ChemicalListView(props: Readonly<ChemicalListViewProps>) {
                     disabled: chemicals.length === 0,
                     onClick: () => exportChemicalsToCsv(chemicals),
                   }}
-                />
+                >
+                  {/* Export owns secondaryAction, so Import goes in the slot
+                      beside it. Adding one chemical is the primary path; adding
+                      a hundred is this. */}
+                  <Link
+                    href="/dashboard/hazcom/chemicals/import"
+                    className={TABLE_HEADER_SECONDARY_ACTION_CLASS}
+                  >
+                    <Icon
+                      icon="mdi:database-import-outline"
+                      className={TABLE_HEADER_ACTION_ICON_CLASS}
+                      aria-hidden="true"
+                    />
+                    Import
+                  </Link>
+                </HazcomRegisterHeader>
               }
             />
 
