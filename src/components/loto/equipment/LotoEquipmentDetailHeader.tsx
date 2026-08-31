@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { LOTO_ROUTE } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import type { LotoEquipmentDetail } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
+import { useCapabilities } from "@/lib/capabilities";
 
 const crumbMuted = "text4 font-normal text-ehs-placeholder";
 const crumbLink =
@@ -52,6 +53,11 @@ export function LotoEquipmentDetailHeader(
 ) {
   const { detail, onEdit, onApplyLockout, isLockedOut = false } = props;
   const showsAction = showsLockoutAction(detail);
+
+  // Edit opens the procedure editor, which POST/PUT /loto/equipment gates on
+  // this. A worker is authorized to perform a procedure, not to rewrite it.
+  const { can } = useCapabilities();
+  const canManage = can("Loto.ManageEquipment");
   const actionLabel = isLockedOut ? "Remove Lockout" : "Apply Lockout";
   const actionIcon = isLockedOut ? "mdi:lock-open-outline" : "mdi:lock-outline";
 
@@ -91,15 +97,17 @@ export function LotoEquipmentDetailHeader(
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2.5">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onEdit}
-              className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-medium"
-            >
-              <Icon icon="mdi:pencil-outline" className="size-3.5 shrink-0" />
-              Edit
-            </Button>
+            {canManage ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onEdit}
+                className="text4 rounded-2.5 gap-2 px-4 py-2.5 font-medium"
+              >
+                <Icon icon="mdi:pencil-outline" className="size-3.5 shrink-0" />
+                Edit
+              </Button>
+            ) : null}
             {showsAction ? (
               <Button
                 type="button"
