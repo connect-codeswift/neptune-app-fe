@@ -10,6 +10,7 @@ import { LOTO_STATUS_FILTERS } from "@/app/dashboard/lockout-tagout/loto-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 import type { LotoEquipmentStatusFilterDto } from "@/dtos/req/loto-request.dto";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import { useCapabilities } from "@/lib/capabilities";
 import {
   DEFAULT_LOTO_PAGE_NUMBER,
   DEFAULT_LOTO_PAGE_SIZE,
@@ -48,6 +49,16 @@ export function LotoEquipmentSection(
   const { onCreateProcedure } = props;
   const router = useRouter();
   const hasToken = useHasAccessToken();
+
+  // Two permissions, not one: an admin can grant authoring a new procedure
+  // without granting edits to the procedures already in force. Each control
+  // asks for the one its own endpoint enforces.
+  //
+  // A worker is authorized to perform procedures, not to write them, so
+  // neither is drawn for them rather than being offered and refused.
+  const { can } = useCapabilities();
+  const canCreate = can("Loto.Create");
+  const canEdit = can("Loto.Update");
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [status, setStatus] = useState<LotoEquipmentStatusFilterDto>("All");
@@ -86,22 +97,24 @@ export function LotoEquipmentSection(
     hasToken === true,
   );
 
-  const columns = useMemo(
-    () =>
-      withManageAction<LotoEquipmentItem>(
-        buildLotoEquipmentColumns({
-          onView: (item) => {
-            router.push(lotoEquipmentDetailRoute(item.id));
-          },
-        }),
-        {
+  const columns = useMemo(() => {
+    const base = buildLotoEquipmentColumns({
+      onView: (item) => {
+        router.push(lotoEquipmentDetailRoute(item.id));
+      },
+    });
+
+    // The cog opens the procedure editor, so without the permission it leads
+    // somewhere the reader cannot use. View stays: a worker still needs to
+    // read the procedure for a machine they are authorized on.
+    return canEdit
+      ? withManageAction<LotoEquipmentItem>(base, {
           getHref: (item) => lotoEquipmentDetailRoute(item.id),
           getAriaLabel: (item) =>
             `Manage equipment ${item.equipmentCode} — ${item.name}`,
-        },
-      ),
-    [router],
-  );
+        })
+      : base;
+  }, [router, canEdit]);
 
   const page = equipmentQuery.data;
   const totalRecords = page?.totalRecords ?? 0;
@@ -159,9 +172,11 @@ export function LotoEquipmentSection(
               count={totalRecords}
               itemNoun="item"
               itemNounPlural="items"
-              actionLabel={onCreateProcedure ? "Create Procedure" : undefined}
+              actionLabel={
+                onCreateProcedure && canCreate ? "Create Procedure" : undefined
+              }
               actionIcon="mdi:file-document-outline"
-              onAction={onCreateProcedure}
+              onAction={canCreate ? onCreateProcedure : undefined}
             />
           }
           pagination={{
