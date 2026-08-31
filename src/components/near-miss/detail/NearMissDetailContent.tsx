@@ -196,7 +196,7 @@ export function NearMissDetailContent(
                   </Button>
                 ) : null}
 
-                {canConvert && !isClosed ? (
+                {canConvert && !isClosed && !record.incidentId ? (
                   <Button
                     type="button"
                     variant="danger"

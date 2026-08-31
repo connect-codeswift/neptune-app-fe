@@ -98,6 +98,20 @@ export function NearMissDetailPanel(props: Readonly<NearMissDetailPanelProps>) {
         <MetaField label="Date" value={record.dateOfEvent} />
       </div>
 
+      {record.incidentId ? (
+        <div className="border-ehs-border border-b px-5 py-3.5">
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text9 text-ehs-muted-text">Linked Incident</p>
+            <Link
+              href={`/dashboard/incidents/${String(record.incidentId)}`}
+              className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text4 truncate font-medium underline"
+            >
+              {`INC-${String(record.incidentId)}`}
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className="px-5 py-3.5">
         <Text as="p" className="text9 text-ehs-muted-text mb-2">
           Description
