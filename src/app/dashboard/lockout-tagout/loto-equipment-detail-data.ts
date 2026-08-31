@@ -38,7 +38,6 @@ export type LotoEquipmentDetail = Readonly<{
   additionalNotes: string;
   isOutOfService: boolean;
   lastInspection: string;
-  lastInspectionAt: string | null;
   energySources: readonly string[];
   authorizedPersonnel: readonly LotoEquipmentPersonnel[];
   procedureSteps: readonly LotoProcedureStepView[];

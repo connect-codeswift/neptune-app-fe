@@ -323,7 +323,6 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
       // Not editable from this form yet — preserved from the loaded record on
       // edit, defaulted for a brand-new machine on create.
       isOutOfService: isEdit ? props.detail.isOutOfService : false,
-      lastInspectionAt: isEdit ? props.detail.lastInspectionAt : null,
       additionalNotes:
         additionalNotes.trim() === "" ? null : additionalNotes.trim(),
       steps: stepPayloads.map((step) => ({
