@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { SaveNearMissRequestDto } from "@/dtos/req/near-miss-request.dto";
 import {
   closeNearMiss,
+  convertNearMissToIncident,
   createNearMiss,
   deleteNearMiss,
 } from "@/services/near-miss.service";
@@ -36,6 +37,24 @@ export function useDeleteNearMissMutation() {
     mutationFn: (id: string) => deleteNearMiss(id),
     onSuccess: () => {
       // Refetch every near-miss list page so the deleted row disappears.
+      queryClient.invalidateQueries({ queryKey: ["near-miss"] });
+    },
+  });
+}
+
+/** Links a near miss to an incident via POST /api/v1/near-misses/{id}/convert-to-incident. */
+export function useConvertNearMissToIncidentMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      nearMissId,
+      incidentId,
+    }: {
+      nearMissId: string | number;
+      incidentId: number;
+    }) => convertNearMissToIncident(nearMissId, incidentId),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["near-miss"] });
     },
   });

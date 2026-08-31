@@ -110,6 +110,16 @@ export function NearMissDetailView(
                 />
               </DetailField>
             ) : null}
+            {record.incidentId ? (
+              <DetailField label="Linked Incident">
+                <Link
+                  href={`/dashboard/incidents/${String(record.incidentId)}`}
+                  className="text-ehs-normal-blue hover:text-ehs-normal-blue-hover text4 font-medium underline"
+                >
+                  {`INC-${String(record.incidentId)}`}
+                </Link>
+              </DetailField>
+            ) : null}
           </div>
         </IncidentGlassCard>
       </div>

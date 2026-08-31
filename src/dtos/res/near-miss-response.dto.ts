@@ -12,6 +12,8 @@ export type CreateNearMissResponseDto = CreateNearMissRequestDto & {
   /** Who closed it and when; both null while it is open. */
   closedById?: number | null;
   closedAt?: string | null;
+  /** The incident this near miss was escalated into; null while not converted. */
+  incidentId?: number | null;
 };
 
 /** Matches backend response for POST /api/v1/near-misses/search. */

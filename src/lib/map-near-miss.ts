@@ -85,6 +85,7 @@ export function mapNearMissDtoToRecord(
     attachments: dto.attachments ?? [],
     closedById: dto.closedById ?? undefined,
     closedAt: dto.closedAt?.slice(0, 10),
+    incidentId: dto.incidentId ?? null,
     relatedCapas: [],
   };
 }

@@ -30,6 +30,12 @@ export type ReportIncidentStepFiveProps = Readonly<{
   onContinue?: () => void;
   /** Jumps back to a step so a summarised answer can be corrected in place. */
   onGoToStep?: (step: ReportStepId) => void;
+  /**
+   * Called after the incident is created but before navigation away.
+   * Receives the new incident id. Used by the near-miss convert flow to
+   * link the near miss to the incident via POST …/convert-to-incident.
+   */
+  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void;
   className?: string;
 }>;
 
@@ -102,7 +108,13 @@ function previewTitle(form: ReportIncidentFormState): string {
 export function ReportIncidentStepFive(
   props: Readonly<ReportIncidentStepFiveProps>,
 ) {
-  const { form, onBack, onGoToStep, className = "" } = props;
+  const {
+    form,
+    onBack,
+    onGoToStep,
+    onAfterCreateIncident,
+    className = "",
+  } = props;
   const router = useRouter();
   const createIncidentMutation = useCreateIncidentMutation();
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
@@ -138,6 +150,26 @@ export function ReportIncidentStepFive(
         "Incident report submitted",
         "The incident has been recorded successfully.",
       );
+
+      if (
+        onAfterCreateIncident &&
+        typeof createdId === "number" &&
+        createdId > 0
+      ) {
+        try {
+          await onAfterCreateIncident(createdId);
+        } catch (linkError) {
+          // Per FEGuide ConvertToIncident.md §2: surface the link error rather
+          // than silently retrying, or a retry could create a duplicate incident.
+          toast.error(
+            "Incident created, but could not link to near miss",
+            getMutationErrorMessage(
+              linkError,
+              "The incident was saved, but the link to the near miss failed. Please link them manually from the incident detail page.",
+            ),
+          );
+        }
+      }
 
       if (typeof createdId === "number" && createdId > 0) {
         router.push(`/dashboard/incidents/${String(createdId)}`);
