@@ -26,6 +26,7 @@ import type {
   TimelineEvent,
   WitnessRow,
 } from "@/components/incidents/detail/incident-detail-types";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { IncidentDetailClosureCard } from "@/components/incidents/detail/closure";
 import { IncidentClosureSummaryCard } from "@/components/incidents/detail/closure";
 import type { CapaItem } from "@/components/incidents/detail/linked-capa/capa-types";
@@ -59,6 +60,10 @@ import type { RcaInvestigationPreview } from "@/services/mappers/rca.mapper";
 
 export type IncidentDetailViewProps = Readonly<{
   displayId: string;
+  /** Holds Incident.Update — may edit the incident's fields. */
+  canEdit?: boolean;
+  /** Holds Incident.Close — may drive the closure wizard rather than just read it. */
+  canClose?: boolean;
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   onEditOrSave: () => void;
@@ -181,6 +186,8 @@ export type IncidentDetailViewProps = Readonly<{
  */
 export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
   const {
+    canEdit = false,
+    canClose = false,
     displayId,
     activeTab,
     onTabChange,
@@ -288,6 +295,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             // never had an editor. The backend refuses the write either way now, so
             // leaving the button visible would only offer an action that 400s.
             (detail?.isClosed ?? false) ||
+            // Without Incident.Update the PUT is a 403, so Edit is a dead end.
+            !canEdit ||
             (activeTab !== "details" &&
               activeTab !== "people" &&
               activeTab !== "attachments")
@@ -613,9 +622,21 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
+            {/* Three states, not two. The summary card is for a closure that HAPPENED: it
+                hardcodes a "Closed" badge and renders closedBy/closureDate, which on an open
+                incident are draft defaults seeded from the current user and now — so reusing it
+                for a viewer told them the incident was closed and named them as the closer.
+                A viewer who cannot close an open incident gets neither the form nor that. */}
             {activeTab === "closure" &&
               (detail.isClosed ? (
                 <IncidentClosureSummaryCard data={closureData} />
+              ) : !canClose ? (
+                <EmptyState
+                  variant="plain"
+                  icon="mdi:lock-outline"
+                  title="This incident is not closed"
+                  message="Closing an incident needs the Incident.Close permission. Ask an EHS manager to close it, or to grant it to you."
+                />
               ) : (
                 <IncidentDetailClosureCard
                   data={closureData}
