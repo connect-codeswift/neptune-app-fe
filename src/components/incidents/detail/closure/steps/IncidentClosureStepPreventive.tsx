@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
 import type {
   ClosureLinkedCapaItem,
@@ -14,7 +15,7 @@ import {
 } from "@/components/incidents/shared/capa/IncidentModalShell";
 import {
   FIELD_INPUT_LG_CLASS,
-  FIELD_TEXTAREA_CLASS,
+  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
 } from "@/components/ui/field-styles";
 import { capaStatusPillClass } from "@/lib/capa-filters";
 
@@ -315,13 +316,27 @@ export function IncidentClosureStepPreventive(
         <label className="text-ehs-muted-text text8 mb-2 font-bold tracking-[0.5px] uppercase">
           NOTES
         </label>
-        <textarea
-          value={data.actionsTaken}
-          onChange={(e) => onChangeField("actionsTaken", e.target.value)}
-          rows={3}
-          placeholder="Add any closing notes for this incident..."
-          className={FIELD_TEXTAREA_CLASS}
-        />
+        <div className="relative">
+          <textarea
+            value={data.actionsTaken}
+            onChange={(e) => onChangeField("actionsTaken", e.target.value)}
+            rows={3}
+            placeholder="Add any closing notes for this incident..."
+            className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+          />
+          {/*
+            Rewrite only, no auto-draft — same reasoning as the root-cause step:
+            there is no endpoint that invents a preventive measure, and these
+            notes act on what the closer has already written.
+          */}
+          <AiTextAssistant
+            module="incident"
+            value={data.actionsTaken}
+            onApply={(actionsTaken) =>
+              onChangeField("actionsTaken", actionsTaken)
+            }
+          />
+        </div>
       </div>
 
       {/* Link CAPA Modal — mounted only while open, so each open starts from

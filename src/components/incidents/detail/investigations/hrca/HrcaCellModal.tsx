@@ -1,12 +1,13 @@
 "use client";
 
 import { useId, useState } from "react";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import {
   IncidentModalCancelButton,
   IncidentModalPrimaryButton,
   IncidentModalShell,
 } from "@/components/incidents/shared/capa/IncidentModalShell";
-import { FIELD_TEXTAREA_CLASS } from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import type { HrcaCellModalState } from "@/components/incidents/detail/investigations/hrca/hrca-modal-types";
 
 export type HrcaCellModalProps = Readonly<{
@@ -123,15 +124,22 @@ export function HrcaCellModal(props: Readonly<HrcaCellModalProps>) {
         <FieldLabel htmlFor={fieldId} required>
           {copy.fieldLabel}
         </FieldLabel>
-        <textarea
-          id={fieldId}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          placeholder={copy.placeholder}
-          rows={5}
-          autoFocus
-          className={FIELD_TEXTAREA_CLASS}
-        />
+        <div className="relative">
+          <textarea
+            id={fieldId}
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            placeholder={copy.placeholder}
+            rows={5}
+            autoFocus
+            className={FIELD_TEXTAREA_WITH_CONTROLS_CLASS}
+          />
+          <AiTextAssistant
+            module="incident"
+            value={description}
+            onApply={setDescription}
+          />
+        </div>
       </section>
     </IncidentModalShell>
   );

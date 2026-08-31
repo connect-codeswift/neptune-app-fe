@@ -53,6 +53,8 @@ export type IncidentRecord = Readonly<{
   /** Raw incident datetime from the API, used for header date-range filtering. */
   incidentAt: string | null;
   isOshaRecordable: boolean;
+  /** True when a near miss or hazard was converted into this incident. */
+  isConverted: boolean;
   capas: readonly IncidentCapa[];
   timeline: readonly IncidentTimelineItem[];
 }>;
