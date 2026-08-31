@@ -3,10 +3,12 @@
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { LotoLocationSelection } from "@/app/dashboard/lockout-tagout/loto-procedure-data";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
+import { useAnchoredMenu } from "@/hooks/use-anchored-menu";
 import { useDismissOnOutsideClick } from "@/hooks/use-dismiss-on-outside-click";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import { useLotoLocationsQuery } from "@/hooks/use-loto-queries";
@@ -34,8 +36,16 @@ export function LotoLocationSearchField(
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const hasToken = useHasAccessToken();
   const listboxId = useId();
+
+  // The menu portals to <body>. Every card on this form sets its own stacking
+  // context — backdrop-filter does that — so a menu rendered inside the
+  // Equipment card is painted under the cards that follow it however high its
+  // z-index goes, which is what put this list behind Verification Method.
+  const menuStyle = useAnchoredMenu({ open, anchorRef, menuRef });
 
   useEffect(() => {
     const timer = globalThis.setTimeout(() => {
@@ -55,7 +65,7 @@ export function LotoLocationSearchField(
   );
   const locations = locationsQuery.data ?? [];
 
-  useDismissOnOutsideClick(rootRef, open, () => setOpen(false));
+  useDismissOnOutsideClick(rootRef, open, () => setOpen(false), menuRef);
 
   const isSearching =
     open && (locationsQuery.isFetching || debouncedQuery !== query);
@@ -71,7 +81,7 @@ export function LotoLocationSearchField(
         </Text>
       </div>
 
-      <div className="relative min-w-0">
+      <div ref={anchorRef} className="relative min-w-0">
         <input
           type="text"
           role="combobox"
@@ -124,80 +134,87 @@ export function LotoLocationSearchField(
         </div>
       </div>
 
-      {open ? (
-        <div className="animate-popover-in rounded-2.5 bg-ehs-surface border-ehs-border-ink/10 absolute top-full right-0 left-0 z-30 mt-1.5 overflow-hidden border shadow-(--ehs-shadow-popover)">
-          <ul
-            id={listboxId}
-            role="listbox"
-            aria-label="Locations"
-            className="max-h-56 overflow-y-auto p-1"
-          >
-            {locationsQuery.isLoading ? (
-              <li className="flex flex-col gap-1 p-1.5">
-                {[0, 1, 2].map((row) => (
-                  <span
-                    key={row}
-                    className="bg-ehs-surface-inverse/6 h-8 animate-pulse rounded-lg"
-                  />
-                ))}
-              </li>
-            ) : locationsQuery.isError ? (
-              <li className="px-2.5 py-3">
-                <Text as="p" className="text8 text-ehs-muted-text">
-                  Couldn&apos;t load locations. Try again in a moment.
-                </Text>
-              </li>
-            ) : locations.length === 0 ? (
-              <li className="p-1.5">
-                <EmptyState
-                  variant="inline"
-                  icon="mdi:map-marker-off-outline"
-                  title={
-                    debouncedQuery.trim()
-                      ? `No location matches “${debouncedQuery.trim()}”`
-                      : "No locations registered for this site yet"
-                  }
-                />
-              </li>
-            ) : (
-              locations.map((location) => (
-                <li
-                  key={location.id}
-                  role="option"
-                  aria-selected={value?.id === location.id}
-                >
-                  <button
-                    type="button"
-                    // Pointer-down, not click: the input's blur would otherwise
-                    // close the menu before the click lands.
-                    onMouseDown={(event) => {
-                      event.preventDefault();
-                      onChange({ id: location.id, name: location.name });
-                      setQuery("");
-                      setOpen(false);
-                    }}
-                    className="rounded-2 hover:bg-ehs-surface-inverse/4 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors"
-                  >
-                    <Text
-                      as="span"
-                      className="text4 text-ehs-darker truncate font-semibold"
-                    >
-                      {location.name}
-                    </Text>
-                    {value?.id === location.id ? (
-                      <Icon
-                        icon="mdi:check"
-                        className="text-ehs-dark-blue size-4 shrink-0"
-                        aria-hidden="true"
+      {open && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={menuRef}
+              style={menuStyle}
+              className="animate-popover-in rounded-2.5 bg-ehs-surface border-ehs-border-ink/10 z-120 overflow-hidden border shadow-(--ehs-shadow-popover)"
+            >
+              <ul
+                id={listboxId}
+                role="listbox"
+                aria-label="Locations"
+                className="max-h-56 overflow-y-auto p-1"
+              >
+                {locationsQuery.isLoading ? (
+                  <li className="flex flex-col gap-1 p-1.5">
+                    {[0, 1, 2].map((row) => (
+                      <span
+                        key={row}
+                        className="bg-ehs-surface-inverse/6 h-8 animate-pulse rounded-lg"
                       />
-                    ) : null}
-                  </button>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
-      ) : null}
+                    ))}
+                  </li>
+                ) : locationsQuery.isError ? (
+                  <li className="px-2.5 py-3">
+                    <Text as="p" className="text8 text-ehs-muted-text">
+                      Couldn&apos;t load locations. Try again in a moment.
+                    </Text>
+                  </li>
+                ) : locations.length === 0 ? (
+                  <li className="p-1.5">
+                    <EmptyState
+                      variant="inline"
+                      icon="mdi:map-marker-off-outline"
+                      title={
+                        debouncedQuery.trim()
+                          ? `No location matches “${debouncedQuery.trim()}”`
+                          : "No locations registered for this site yet"
+                      }
+                    />
+                  </li>
+                ) : (
+                  locations.map((location) => (
+                    <li
+                      key={location.id}
+                      role="option"
+                      aria-selected={value?.id === location.id}
+                    >
+                      <button
+                        type="button"
+                        // Pointer-down, not click: the input's blur would otherwise
+                        // close the menu before the click lands.
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          onChange({ id: location.id, name: location.name });
+                          setQuery("");
+                          setOpen(false);
+                        }}
+                        className="rounded-2 hover:bg-ehs-surface-inverse/4 flex w-full cursor-pointer items-center justify-between gap-2.5 px-2.5 py-2 text-left transition-colors"
+                      >
+                        <Text
+                          as="span"
+                          className="text4 text-ehs-darker truncate font-semibold"
+                        >
+                          {location.name}
+                        </Text>
+                        {value?.id === location.id ? (
+                          <Icon
+                            icon="mdi:check"
+                            className="text-ehs-dark-blue size-4 shrink-0"
+                            aria-hidden="true"
+                          />
+                        ) : null}
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>,
+            document.body,
+          )
+        : null}
 
       {error ? (
         <Text as="p" className="text8 text-ehs-red">
