@@ -27,7 +27,6 @@ function statusTone(status: LotoEquipmentStatus): IncidentBadgeTone {
 
 export type LotoEquipmentColumnActions = Readonly<{
   onView: (item: LotoEquipmentItem) => void;
-  onLock: (item: LotoEquipmentItem) => void;
 }>;
 
 export function buildLotoEquipmentColumns(
@@ -91,8 +90,13 @@ export function buildLotoEquipmentColumns(
       size: 88,
       cell: ({ row }) => {
         const item = row.original;
-        const isLockedOut = item.status === "Locked Out";
 
+        // View only, plus the cog the manage-column helper merges in here.
+        // Every other register in the app offers exactly that from a row; the
+        // lock was a second, LOTO-only action that broke the shared shape.
+        // Applying a lockout is a decision made against the machine's detail
+        // — its state, its energy sources, its authorized personnel — so it
+        // stays on that screen rather than one click from a list row.
         return (
           <div className="flex items-center justify-center gap-0.5">
             <button
@@ -106,33 +110,6 @@ export function buildLotoEquipmentColumns(
             >
               <Icon
                 icon="lets-icons:view"
-                className="size-5"
-                aria-hidden="true"
-              />
-            </button>
-            <button
-              type="button"
-              disabled={isLockedOut}
-              className={[
-                "inline-flex size-8 items-center justify-center rounded-lg transition-colors",
-                isLockedOut
-                  ? "text-ehs-red cursor-not-allowed"
-                  : "text-ehs-muted-text hover:text-ehs-dark-bg hover:bg-ehs-surface-inverse/6 cursor-pointer",
-              ].join(" ")}
-              aria-label={
-                isLockedOut
-                  ? `${item.name} is locked out`
-                  : `Apply lockout to ${item.name}`
-              }
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!isLockedOut) {
-                  actions.onLock(item);
-                }
-              }}
-            >
-              <Icon
-                icon="material-symbols:lock-outline"
                 className="size-5"
                 aria-hidden="true"
               />

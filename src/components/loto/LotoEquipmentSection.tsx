@@ -6,15 +6,12 @@ import { Table } from "@/components/ui/Table";
 import { ModuleFilterBar } from "@/components/ui/ModuleFilterBar";
 import { ModuleSearchBar } from "@/components/ui/ModuleSearchBar";
 import { complianceGlassCardClass } from "@/components/regulatory-compliance/compliance-ui";
-import {
-  LOTO_STATUS_FILTERS,
-  type LotoStatusFilter,
-} from "@/app/dashboard/lockout-tagout/loto-data";
-import { lotoApplyLockoutRoute } from "@/app/dashboard/lockout-tagout/loto-lockout-data";
+import { LOTO_STATUS_FILTERS } from "@/app/dashboard/lockout-tagout/loto-data";
 import { lotoEquipmentDetailRoute } from "@/app/dashboard/lockout-tagout/loto-equipment-detail-data";
 import type { LotoEquipmentStatusFilterDto } from "@/dtos/req/loto-request.dto";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
 import {
+  DEFAULT_LOTO_PAGE_NUMBER,
   DEFAULT_LOTO_PAGE_SIZE,
   useLotoEquipmentQuery,
 } from "@/hooks/use-loto-queries";
@@ -32,8 +29,13 @@ const STATUS_OPTIONS = LOTO_STATUS_FILTERS.map((filter) => ({
   label: filter.label,
 }));
 
-function toStatusDto(status: LotoStatusFilter): LotoEquipmentStatusFilterDto {
-  return status === "all" ? "All" : status;
+/**
+ * ModuleFilterBar hands back a bare string. Checking it against the options
+ * this component supplied keeps an unexpected value out of the request, where
+ * it would fail the API's status regex as a 400 rather than being ignored.
+ */
+function isStatusFilter(value: string): value is LotoEquipmentStatusFilterDto {
+  return LOTO_STATUS_FILTERS.some((filter) => filter.id === value);
 }
 
 export type LotoEquipmentSectionProps = Readonly<{
@@ -48,28 +50,38 @@ export function LotoEquipmentSection(
   const hasToken = useHasAccessToken();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [status, setStatus] = useState<LotoStatusFilter>("all");
-  const [pageNumber, setPageNumber] = useState(1);
+  const [status, setStatus] = useState<LotoEquipmentStatusFilterDto>("All");
+  const [pageNumber, setPageNumber] = useState(DEFAULT_LOTO_PAGE_NUMBER);
 
   // Debounce search and rewind to page 1 once it settles — a stale page number
   // against a new term would land on an empty slice.
+  //
+  // Trimmed before it is stored, and skipped when nothing actually changed:
+  // without the guard this armed on mount and moved the reader back to page 1
+  // a beat after they had clicked page 2, and re-ran for whitespace edits that
+  // produce the same query.
   useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed === debouncedQuery) {
+      return;
+    }
+
     const timer = globalThis.setTimeout(() => {
-      setDebouncedQuery(query);
-      setPageNumber(1);
+      setDebouncedQuery(trimmed);
+      setPageNumber(DEFAULT_LOTO_PAGE_NUMBER);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => {
       globalThis.clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, debouncedQuery]);
 
   const equipmentQuery = useLotoEquipmentQuery(
     {
       pageNumber,
       pageSize: DEFAULT_LOTO_PAGE_SIZE,
-      search: debouncedQuery.trim(),
-      status: toStatusDto(status),
+      search: debouncedQuery,
+      status,
     },
     hasToken === true,
   );
@@ -80,9 +92,6 @@ export function LotoEquipmentSection(
         buildLotoEquipmentColumns({
           onView: (item) => {
             router.push(lotoEquipmentDetailRoute(item.id));
-          },
-          onLock: (item) => {
-            router.push(lotoApplyLockoutRoute(item.id));
           },
         }),
         {
@@ -107,8 +116,9 @@ export function LotoEquipmentSection(
             options: STATUS_OPTIONS,
             value: status,
             onChange: (value) => {
-              setStatus(value as LotoStatusFilter);
-              setPageNumber(1);
+              if (!isStatusFilter(value)) return;
+              setStatus(value);
+              setPageNumber(DEFAULT_LOTO_PAGE_NUMBER);
             },
           },
         ]}

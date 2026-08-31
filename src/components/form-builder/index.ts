@@ -20,6 +20,7 @@ export {
   type TileOption,
   type TilesFieldConfig,
   type TileTone,
+  type TextareaAssistant,
   type TextareaFieldConfig,
   type TextFieldConfig,
   type TimeFieldConfig,

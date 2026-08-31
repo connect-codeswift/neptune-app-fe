@@ -149,6 +149,7 @@ function detailToFormState(
               description: step.description,
               isolationPoint: step.isolationPoint ?? "",
               energyType: step.energyType ?? "",
+              isolationMethod: step.isolationMethod ?? "",
               lockTagPosition: step.lockTagPosition ?? "",
             }),
           )
@@ -271,6 +272,9 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           ? fieldString(stepValues, "isolationPoint")
           : "",
         energyType: stepValues ? fieldString(stepValues, "energyType") : "",
+        isolationMethod: stepValues
+          ? fieldString(stepValues, "isolationMethod")
+          : "",
         lockTagPosition: stepValues
           ? fieldString(stepValues, "lockTagPosition")
           : "",
@@ -328,6 +332,10 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
           step.isolationPoint.trim() === "" ? null : step.isolationPoint.trim(),
         energyType:
           step.energyType.trim() === "" ? null : step.energyType.trim(),
+        isolationMethod:
+          step.isolationMethod.trim() === ""
+            ? null
+            : step.isolationMethod.trim(),
         lockTagPosition:
           step.lockTagPosition.trim() === ""
             ? null
@@ -435,11 +443,12 @@ function LotoProcedureEditor(props: LotoProcedureEditorProps) {
         equipmentCode={
           isEdit ? withEquipmentPrefix(props.detail.equipmentCode) : undefined
         }
+      />
+      <LotoProcedureForm
+        mode={isEdit ? "edit" : "create"}
         onCancel={handleCancel}
         onSubmit={saveAll}
         isSubmitting={isSubmitting}
-      />
-      <LotoProcedureForm
         initial={initial}
         steps={steps}
         onStepsChange={setSteps}

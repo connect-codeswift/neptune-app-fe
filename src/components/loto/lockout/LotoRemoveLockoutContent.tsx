@@ -22,6 +22,7 @@ import {
 } from "@/hooks/use-loto-queries";
 import { useRemoveLotoLockoutMutation } from "@/hooks/use-loto-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
+import { useSubmitLock } from "@/hooks/use-submit-lock";
 import {
   splitEnergySources,
   withEquipmentPrefix,
@@ -143,11 +144,16 @@ function LotoRemoveLockoutForm(
   const [energyRestored, setEnergyRestored] = useState(false);
   const [signedOff, setSignedOff] = useState(false);
   const removeMutation = useRemoveLotoLockoutMutation();
+  // isPending alone re-enables the button the instant the server answers,
+  // while the navigation away is still in flight — the same window that let a
+  // second click file a duplicate on Apply. Held until this page is gone.
+  const submitLock = useSubmitLock();
 
-  const canConfirm = energyRestored && signedOff && !removeMutation.isPending;
+  const canConfirm = energyRestored && signedOff && !submitLock.isLocked;
 
   const handleConfirm = () => {
     if (!canConfirm) return;
+    if (!submitLock.acquire()) return;
 
     removeMutation.mutate(
       {
@@ -163,6 +169,7 @@ function LotoRemoveLockoutForm(
           router.push(cancelHref);
         },
         onError: (error) => {
+          submitLock.release();
           toast.error(
             getMutationErrorMessage(error, "Failed to remove the lockout."),
           );
@@ -278,9 +285,7 @@ function LotoRemoveLockoutForm(
               onClick={handleConfirm}
               className="text4 rounded-2.5 px-4 py-2.5 font-semibold shadow-[0px_6px_18px_color-mix(in_oklab,var(--ehs-normal-blue)_45%,transparent)] disabled:opacity-50"
             >
-              {removeMutation.isPending
-                ? "Removing…"
-                : "Confirm Lockout Removed"}
+              {submitLock.isLocked ? "Removing…" : "Confirm Lockout Removed"}
             </Button>
           </div>
         </div>
