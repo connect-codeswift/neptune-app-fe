@@ -98,10 +98,12 @@ export function IncidentDetailCapaListCard(
   const isAddCapaOpen =
     canAddCapa && (addModalRequestedLocally || openAddModal);
 
-  // The pencil opens the same editor, which writes PUT /capas/{id} — CAPA.Update.
-  // Off on a closed incident too: the record is finished, and an editor that only
-  // leads to a rejected save is worse than no pencil at all.
-  const canEditCapa = !isIncidentClosed && can("CAPA.Update");
+  // The pencil opens the editor, which saves the CAPA's tasks too —
+  // PUT /capa-tasks/{taskId}, which takes CAPA.Manage. CAPA.Update is not enough:
+  // a Worker holds it so they can progress a CAPA assigned to them, and the save
+  // would still 403. Off on a closed incident too: the record is finished, and an
+  // editor that only leads to a rejected save is worse than no pencil at all.
+  const canEditCapa = !isIncidentClosed && can("CAPA.Manage");
 
   const handleCloseAddModal = () => {
     setAddModalRequestedLocally(false);
