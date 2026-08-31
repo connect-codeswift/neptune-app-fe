@@ -200,6 +200,7 @@ export function mapIncidentDtoToListRecord(
     summary: description,
     incidentAt: incident.incidentAt ?? incident.incidentReportedAt ?? null,
     isOshaRecordable: Boolean(incident.isOSHARecordable),
+    isConverted: Boolean(incident.isConverted),
     capas: [],
     timeline: [],
   };
