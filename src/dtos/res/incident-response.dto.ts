@@ -68,6 +68,12 @@ export type IncidentDto = {
    * added it to `IncidentDto`, so treat it as absent rather than "not closed".
    */
   stage?: string | null;
+  /**
+   * True when a near miss or hazard on this site was converted into this incident.
+   * The conversion link lives on the near-miss/hazard side, so the backend derives
+   * this per incident rather than storing it on the incident row.
+   */
+  isConverted?: boolean;
   furtherMedicalRecommendations?: boolean;
   images?: string[] | null;
   people?: PersonDto[] | null;
