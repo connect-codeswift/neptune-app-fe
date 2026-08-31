@@ -622,6 +622,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                   onSelectStep={onSelectClosureStep}
                   onChangeField={onChangeClosureField}
                   onToggleCheckItem={onToggleClosureCheckItem}
+                  onManageCapas={() => onNavigateToLinkedCapa()}
                   onSaveAsDraft={onSaveClosureDraft}
                   onFinalizeClosure={onFinalizeClosure}
                   onCancel={onCancelClosure}
