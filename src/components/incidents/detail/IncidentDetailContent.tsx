@@ -210,7 +210,7 @@ export function IncidentDetailContent(
     id: numericId,
     enabled: isClientReady && hasToken && numericId != null,
   });
-  const { canEdit, canClose } = useIncidentAbilities();
+  const { canEdit, canClose, canViewRca } = useIncidentAbilities();
   const closeIncidentMutation = useCloseIncidentMutation();
   const updateIncidentMutation = useUpdateIncidentMutation();
   const updateClosureMutation = useUpdateIncidentClosureMutation();
@@ -847,6 +847,7 @@ export function IncidentDetailContent(
       <IncidentDetailView
         canEdit={canEdit}
         canClose={canClose}
+        canViewRca={canViewRca}
         displayId={displayId}
         activeTab={activeTab}
         onTabChange={handleTabChange}

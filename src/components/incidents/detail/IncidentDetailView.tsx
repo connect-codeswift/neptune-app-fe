@@ -64,6 +64,8 @@ export type IncidentDetailViewProps = Readonly<{
   canEdit?: boolean;
   /** Holds Incident.Close — may drive the closure wizard rather than just read it. */
   canClose?: boolean;
+  /** Holds Rca.View — the investigation is a separate module and 403s without it. */
+  canViewRca?: boolean;
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   onEditOrSave: () => void;
@@ -188,6 +190,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
   const {
     canEdit = false,
     canClose = false,
+    canViewRca = false,
     displayId,
     activeTab,
     onTabChange,
@@ -276,12 +279,31 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
     isClosureSubmitting,
   } = props;
 
+  // A tab whose content can only ever 403 is worse than no tab: it looks like a broken page
+  // rather than a permission. Hidden here rather than inside each panel so the tab strip and
+  // the panel cannot disagree about what exists.
+  const hiddenTabs: TabId[] = [];
+  if (!canViewRca) {
+    // The RCA reads refuse outright, so there is nothing to show at any incident state.
+    hiddenTabs.push("investigation");
+  }
+  if (!canClose && !(detail?.isClosed ?? false)) {
+    // Kept once closed: the summary is the record of what happened, and reading it only needs
+    // Incident.View. It is the unusable wizard on an open incident that is worth hiding.
+    hiddenTabs.push("closure");
+  }
+  // Nothing stops a stale tab in state from pointing at one of those.
+  const visibleTab: TabId = hiddenTabs.includes(activeTab)
+    ? "details"
+    : activeTab;
+
   return (
     <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col gap-0 px-3 pb-8 sm:px-4">
         <IncidentDetailHeader
           incidentId={displayId}
-          activeTab={activeTab}
+          activeTab={visibleTab}
+          hiddenTabs={hiddenTabs}
           onTabChange={onTabChange}
           onEdit={onEditOrSave}
           isEditing={isEditing}
@@ -297,9 +319,9 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
             (detail?.isClosed ?? false) ||
             // Without Incident.Update the PUT is a 403, so Edit is a dead end.
             !canEdit ||
-            (activeTab !== "details" &&
-              activeTab !== "people" &&
-              activeTab !== "attachments")
+            (visibleTab !== "details" &&
+              visibleTab !== "people" &&
+              visibleTab !== "attachments")
           }
         />
 
@@ -342,7 +364,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
 
         {detail && !errorMessage && !showLoading ? (
           <>
-            {activeTab === "details" && (
+            {visibleTab === "details" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <div className="flex flex-col gap-3.5">
                   <IncidentDetailSummaryCard
@@ -423,7 +445,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "timeline" && (
+            {visibleTab === "timeline" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailTimelineCard events={timelineEvents} />
                 <div className="flex flex-col gap-3.5">
@@ -434,7 +456,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "people" && (
+            {visibleTab === "people" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailPeopleCard
                   // The record stores only an id, so the person's real name is
@@ -483,7 +505,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "attachments" && (
+            {visibleTab === "attachments" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentGlassCard
                   paddingClassName="p-5.75"
@@ -541,7 +563,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
               </div>
             )}
 
-            {activeTab === "investigation" &&
+            {visibleTab === "investigation" &&
               (showHrca && incidentNumericId != null ? (
                 <IncidentDetailHrcaBoard
                   incidentId={incidentNumericId}
@@ -585,7 +607,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 </div>
               ))}
 
-            {activeTab === "linked-capa" && (
+            {visibleTab === "linked-capa" && (
               <div className="mt-4.5 grid grid-cols-1 items-start gap-3.5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <IncidentDetailCapaListCard
                   incidentId={displayId}
@@ -627,7 +649,7 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                 incident are draft defaults seeded from the current user and now — so reusing it
                 for a viewer told them the incident was closed and named them as the closer.
                 A viewer who cannot close an open incident gets neither the form nor that. */}
-            {activeTab === "closure" &&
+            {visibleTab === "closure" &&
               (detail.isClosed ? (
                 <IncidentClosureSummaryCard data={closureData} />
               ) : !canClose ? (

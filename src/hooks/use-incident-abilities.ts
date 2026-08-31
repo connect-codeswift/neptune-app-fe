@@ -7,6 +7,11 @@ export type IncidentAbilities = {
   canEdit: boolean;
   /** May drive the closure wizard — the three `/{id}/closure*` endpoints. */
   canClose: boolean;
+  /**
+   * May read the investigation. A separate module: the RCA endpoints gate on `Rca.View`,
+   * not on `Incident.View`, so holding the incident read is not enough and the tab 403s.
+   */
+  canViewRca: boolean;
 };
 
 /**
@@ -32,5 +37,6 @@ export function useIncidentAbilities(): IncidentAbilities {
   return {
     canEdit: can("Incident.Update"),
     canClose: can("Incident.Close"),
+    canViewRca: can("Rca.View"),
   };
 }
