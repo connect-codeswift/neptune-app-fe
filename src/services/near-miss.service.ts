@@ -133,6 +133,20 @@ export async function getNearMissById(id: string) {
   return data;
 }
 
+/** POST /api/v1/near-misses/{id}/convert-to-incident — links a near miss to an incident. */
+export async function convertNearMissToIncident(
+  nearMissId: string | number,
+  incidentId: number,
+) {
+  const { data } = await http.post(
+    `${NEAR_MISS_PATH}/${encodeURIComponent(String(nearMissId))}/convert-to-incident`,
+    {},
+    { params: { incidentId } },
+  );
+
+  return data;
+}
+
 export async function deleteNearMiss(id: string) {
   const { data } = await http.delete(
     `${NEAR_MISS_PATH}/${encodeURIComponent(id)}`,

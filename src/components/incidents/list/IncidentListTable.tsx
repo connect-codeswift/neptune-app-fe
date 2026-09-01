@@ -107,13 +107,22 @@ function createIncidentColumns(
       minSize: 140,
       cell: ({ row }) => (
         <div className="flex w-full min-w-0 flex-col gap-1">
-          <Text
-            as="p"
-            className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
-            title={row.original.title}
-          >
-            {row.original.title}
-          </Text>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <Text
+              as="p"
+              className="text4 text-ehs-dark-bg line-clamp-1 first-letter:uppercase"
+              title={row.original.title}
+            >
+              {row.original.title}
+            </Text>
+            {row.original.isConverted ? (
+              <IncidentBadge
+                label="Converted"
+                tone="teal"
+                className="shrink-0"
+              />
+            ) : null}
+          </div>
           <Text
             as="p"
             className="text4 text-ehs-muted-text line-clamp-1 first-letter:uppercase"
@@ -156,9 +165,6 @@ function createIncidentColumns(
             tone={severityTone(info.getValue())}
             showDot
           />
-          {info.row.original.isConverted ? (
-            <IncidentBadge label="Converted" tone="teal" />
-          ) : null}
         </div>
       ),
     }),

@@ -52,3 +52,13 @@ testsprite_tests/tmp/
 /.docs/
 /.cursor/
 /.claude/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+# Other agents' local config — same rule as AGENTS.md/CLAUDE.md above, kept per-developer.
+/GEMINI.md
+/.gemini/
+/.mcp.json
+/opencode.json
+/.ignore

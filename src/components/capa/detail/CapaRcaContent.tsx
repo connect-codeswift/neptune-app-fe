@@ -1,15 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type MouseEvent,
-} from "react";
+import { useState } from "react";
 import { Icon } from "@iconify/react";
+import { Button } from "@/components/ui/Button";
 import { CapaRcaHeader } from "@/components/capa/detail/CapaRcaHeader";
 import {
   CAPA_RCA_WORKSHEET,
@@ -19,12 +13,21 @@ import {
   type CapaRcaAction,
   type CapaRcaLane,
   type CapaRcaWhyStep,
-  type CapaRcaWorksheet,
 } from "@/components/capa/detail/capa-rca-data";
 import { CapaRcaSkeleton } from "@/components/capa/CapaRouteSkeletons";
 import { Text } from "@/components/Text";
 import { useCapaDetailQuery, useCapaRcaQuery } from "@/hooks/use-capa-queries";
 import { useHasAccessToken } from "@/hooks/use-has-access-token";
+import {
+  useCreateCapaContributingFactorMutation,
+  useCreateRcaWhysMutation,
+  useDropRcaCorrectiveActionMutation,
+  useDropRcaWhyMutation,
+  useUpdateContributingFactorMutation,
+  useUpdateRcaCorrectiveActionMutation,
+  useUpdateRcaWhyMutation,
+} from "@/hooks/use-rca-mutations";
+import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { toast } from "@/lib/toast";
 
 export type CapaRcaContentProps = Readonly<{
@@ -49,13 +52,11 @@ type EditableLane = {
   accentSoft: string;
   accentGlow: string;
   contributingFactor: string;
+  contributingFactorId: number | null;
+  rcaCategoryId: number | null;
   whys: CapaRcaWhyStep[];
   actions: CapaRcaAction[];
 };
-
-type EditTarget =
-  | { kind: "factor"; laneId: string }
-  | { kind: "why"; laneId: string; whyId: string };
 
 function parseRouteCapaId(capaId: string): number | null {
   const parsed = Number.parseInt(decodeURIComponent(capaId).trim(), 10);
@@ -71,6 +72,8 @@ function cloneLanes(lanes: readonly CapaRcaLane[]): EditableLane[] {
     accentSoft: lane.accentSoft,
     accentGlow: lane.accentGlow,
     contributingFactor: lane.contributingFactor,
+    contributingFactorId: lane.contributingFactorId ?? null,
+    rcaCategoryId: lane.rcaCategoryId ?? null,
     whys: lane.whys.map((why) => ({ ...why })),
     actions: lane.actions.map((action) => ({ ...action })),
   }));
@@ -93,7 +96,9 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
   const numericId = parseRouteCapaId(capaIdParam);
   const hasToken = useHasAccessToken();
   const [editedLanes, setEditedLanes] = useState<EditableLane[] | null>(null);
-  const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+  const [removedWhyIds, setRemovedWhyIds] = useState<number[]>([]);
+  const [removedActionIds, setRemovedActionIds] = useState<number[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const detailQuery = useCapaDetailQuery({
     capaId: numericId,
@@ -105,6 +110,14 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     capaId: numericId,
     enabled: hasToken === true && numericId != null,
   });
+
+  const createFactorMutation = useCreateCapaContributingFactorMutation();
+  const updateFactorMutation = useUpdateContributingFactorMutation();
+  const createWhysMutation = useCreateRcaWhysMutation();
+  const updateWhyMutation = useUpdateRcaWhyMutation();
+  const dropWhyMutation = useDropRcaWhyMutation();
+  const updateActionMutation = useUpdateRcaCorrectiveActionMutation();
+  const dropActionMutation = useDropRcaCorrectiveActionMutation();
 
   // The worksheet is server data until the user touches it, then local edits
   // win. Deriving it here rather than hydrating state from an effect avoids the
@@ -119,11 +132,6 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
     setEditedLanes((prev) => update(prev ?? lanes));
   }
 
-  const worksheet: CapaRcaWorksheet = {
-    ...CAPA_RCA_WORKSHEET,
-    description: record?.problemStatement || CAPA_RCA_WORKSHEET.description,
-    lanes,
-  };
   const whySteps = countRcaWhySteps(lanes);
   const actions = countRcaActions(lanes);
   const detailHref =
@@ -139,6 +147,11 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         (rcaQuery.isLoading &&
           rcaQuery.data === undefined &&
           !rcaQuery.isFetched)));
+
+  const isDirty =
+    editedLanes != null ||
+    removedWhyIds.length > 0 ||
+    removedActionIds.length > 0;
 
   function updateFactor(laneId: string, value: string) {
     setLanes((prev) =>
@@ -176,10 +189,15 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         };
       }),
     );
-    setEditTarget({ kind: "why", laneId, whyId: id });
   }
 
   function removeWhy(laneId: string, whyId: string) {
+    const numeric = Number.parseInt(whyId, 10);
+    if (Number.isFinite(numeric) && numeric > 0) {
+      setRemovedWhyIds((prev) =>
+        prev.includes(numeric) ? prev : [...prev, numeric],
+      );
+    }
     setLanes((prev) =>
       prev.map((lane) => {
         if (lane.id !== laneId) return lane;
@@ -189,13 +207,137 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
         };
       }),
     );
-    setEditTarget((current) =>
-      current?.kind === "why" &&
-      current.laneId === laneId &&
-      current.whyId === whyId
-        ? null
-        : current,
+  }
+
+  function updateAction(laneId: string, actionId: string, value: string) {
+    setLanes((prev) =>
+      prev.map((lane) =>
+        lane.id === laneId
+          ? {
+              ...lane,
+              actions: lane.actions.map((action) =>
+                action.id === actionId ? { ...action, text: value } : action,
+              ),
+            }
+          : lane,
+      ),
     );
+  }
+
+  function removeAction(laneId: string, actionId: string) {
+    const numeric = Number.parseInt(actionId, 10);
+    if (Number.isFinite(numeric) && numeric > 0) {
+      setRemovedActionIds((prev) =>
+        prev.includes(numeric) ? prev : [...prev, numeric],
+      );
+    }
+    setLanes((prev) =>
+      prev.map((lane) =>
+        lane.id === laneId
+          ? { ...lane, actions: lane.actions.filter((a) => a.id !== actionId) }
+          : lane,
+      ),
+    );
+  }
+
+  function isLocalId(id: string): boolean {
+    return id.startsWith("why-") || Number.isNaN(Number.parseInt(id, 10));
+  }
+
+  async function handleSave() {
+    if (numericId == null || numericId <= 0) return;
+
+    setIsSaving(true);
+    try {
+      // Walk lanes sequentially so a newly created contributing factor's id is
+      // available for its why / action creates.
+      for (const lane of lanes) {
+        let factorId = lane.contributingFactorId;
+        const categoryId = lane.rcaCategoryId;
+
+        // Contributing factor: create when it has no server id yet.
+        if (factorId == null && lane.contributingFactor.trim()) {
+          if (categoryId == null) {
+            throw new Error(`No RCA category for ${lane.category}.`);
+          }
+          const created = await createFactorMutation.mutateAsync({
+            capaId: numericId,
+            rcaCategoryId: categoryId,
+            description: lane.contributingFactor,
+          });
+          factorId = created.id;
+        } else if (factorId != null) {
+          await updateFactorMutation.mutateAsync({
+            contributingFactorId: factorId,
+            description: lane.contributingFactor,
+          });
+        }
+
+        if (factorId == null) continue;
+
+        // Whys: update existing, create new, drop removed.
+        for (const why of lane.whys) {
+          const whyIndex = lane.whys.indexOf(why);
+          if (isLocalId(why.id)) {
+            if (!why.text.trim()) continue;
+            await createWhysMutation.mutateAsync({
+              incidentId: 0,
+              contributingFactorId: factorId,
+              whys: [
+                {
+                  stepNumber: whyIndex + 1,
+                  description: why.text,
+                  isRootCause: why.isRootCause === true,
+                },
+              ],
+            });
+          } else {
+            const whyNumeric = Number.parseInt(why.id, 10);
+            if (!Number.isFinite(whyNumeric)) continue;
+            await updateWhyMutation.mutateAsync({
+              whyId: whyNumeric,
+              stepNumber: whyIndex + 1,
+              description: why.text,
+              isRootCause: why.isRootCause === true,
+            });
+          }
+        }
+
+        // Actions: update existing text.
+        for (const action of lane.actions) {
+          const actionNumeric = Number.parseInt(action.id, 10);
+          if (!Number.isFinite(actionNumeric) || !action.text.trim()) continue;
+          await updateActionMutation.mutateAsync({
+            correctiveActionId: actionNumeric,
+            description: action.text,
+          });
+        }
+      }
+
+      // Persist removals after the creates/updates above.
+      for (const whyId of removedWhyIds) {
+        await dropWhyMutation.mutateAsync({ whyId, incidentId: 0 });
+      }
+      for (const actionId of removedActionIds) {
+        await dropActionMutation.mutateAsync({
+          correctiveActionId: actionId,
+          incidentId: 0,
+        });
+      }
+
+      setRemovedWhyIds([]);
+      setRemovedActionIds([]);
+      setEditedLanes(null);
+      await rcaQuery.refetch();
+      toast.success("Saved", "Root cause analysis saved.");
+    } catch (error) {
+      toast.error(
+        "Save failed",
+        getMutationErrorMessage(error, "Could not save changes."),
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   if (numericId == null) {
@@ -268,24 +410,27 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
 
   return (
     <div className="flex min-w-0 flex-col gap-4 px-4 pb-8">
+      <div className="flex items-center justify-end gap-3">
+        <Button
+          type="button"
+          variant="primary"
+          disabled={!isDirty || isSaving}
+          isLoading={isSaving}
+          onClick={() => {
+            void handleSave();
+          }}
+          className="rounded-2.5 px-3.5 text-sm font-medium shadow-(--ehs-shadow-button-primary-flat)"
+        >
+          Save
+        </Button>
+      </div>
+
       <CapaRcaHeader
         record={record}
-        worksheet={worksheet}
         categories={lanes.length}
         whySteps={whySteps}
         actions={actions}
       />
-
-      <p className="text-ehs-muted-text flex items-start gap-2 text-sm leading-3.75">
-        <Icon
-          icon="mdi:information-outline"
-          className="mt-px size-4 shrink-0"
-          aria-hidden
-        />
-        This is an interactive worksheet — click any cell to edit, add or remove
-        Why steps, and edit corrective actions. The last step in each lane is
-        the root cause.
-      </p>
 
       <div className={`${glassCardClass} max-w-full overflow-x-auto`}>
         <div className="relative z-1 min-w-max p-3 sm:p-4 md:min-w-275">
@@ -295,12 +440,14 @@ export function CapaRcaContent(props: CapaRcaContentProps) {
               <WorksheetLane
                 key={lane.id}
                 lane={lane}
-                editTarget={editTarget}
-                onEdit={setEditTarget}
                 onFactorChange={(value) => updateFactor(lane.id, value)}
                 onWhyChange={(whyId, value) => updateWhy(lane.id, whyId, value)}
                 onAddWhy={() => addWhy(lane.id)}
                 onRemoveWhy={(whyId) => removeWhy(lane.id, whyId)}
+                onActionChange={(actionId, value) =>
+                  updateAction(lane.id, actionId, value)
+                }
+                onRemoveAction={(actionId) => removeAction(lane.id, actionId)}
               />
             ))}
           </div>
@@ -348,27 +495,25 @@ function WorksheetHeader() {
 function WorksheetLane(
   props: Readonly<{
     lane: EditableLane;
-    editTarget: EditTarget | null;
-    onEdit: (target: EditTarget | null) => void;
     onFactorChange: (value: string) => void;
     onWhyChange: (whyId: string, value: string) => void;
     onAddWhy: () => void;
     onRemoveWhy: (whyId: string) => void;
+    onActionChange: (actionId: string, value: string) => void;
+    onRemoveAction: (actionId: string) => void;
   }>,
 ) {
   const {
     lane,
-    editTarget,
-    onEdit,
     onFactorChange,
     onWhyChange,
     onAddWhy,
     onRemoveWhy,
+    onActionChange,
+    onRemoveAction,
   } = props;
   const filled = lane.whys.length;
-  const isEditingFactor =
-    editTarget?.kind === "factor" && editTarget.laneId === lane.id;
-  const { accent, accentSoft, accentGlow } = lane;
+  const { accent, accentSoft } = lane;
 
   return (
     <div className="grid grid-cols-[136px_minmax(180px,1.15fr)_repeat(5,minmax(180px,1fr))_minmax(200px,1.25fr)] gap-2.5">
@@ -381,28 +526,7 @@ function WorksheetLane(
         {lane.category}
       </div>
 
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => {
-          if (!isEditingFactor) onEdit({ kind: "factor", laneId: lane.id });
-        }}
-        onKeyDown={(event) => {
-          if (
-            !isEditingFactor &&
-            (event.key === "Enter" || event.key === " ")
-          ) {
-            event.preventDefault();
-            onEdit({ kind: "factor", laneId: lane.id });
-          }
-        }}
-        className="border-ehs-border-ink/14 flex min-h-35 cursor-text flex-col gap-1.5 rounded-xl border p-3.5 text-left transition-shadow"
-        style={
-          isEditingFactor
-            ? { boxShadow: `0px 0px 0px 3px ${accentGlow}` }
-            : undefined
-        }
-      >
+      <div className="border-ehs-border-ink/14 flex min-h-35 flex-col gap-1.5 rounded-xl border p-3.5 text-left">
         <Text
           as="p"
           className="text-xs font-bold tracking-[0.72px] uppercase"
@@ -410,22 +534,11 @@ function WorksheetLane(
         >
           Contributing factor
         </Text>
-        {isEditingFactor ? (
-          <EditableTextarea
-            value={lane.contributingFactor}
-            placeholder="Describe the contributing factor…"
-            onChange={onFactorChange}
-            onDone={() => onEdit(null)}
-          />
-        ) : (
-          <p className="text-ehs-dark-bg text-sm leading-4.5 font-bold">
-            {lane.contributingFactor || (
-              <span className="text-ehs-muted-text font-normal">
-                Click to edit…
-              </span>
-            )}
-          </p>
-        )}
+        <EditableTextarea
+          value={lane.contributingFactor}
+          placeholder="Describe the contributing factor…"
+          onChange={onFactorChange}
+        />
       </div>
 
       {Array.from({ length: WHY_SLOTS }, (_, index) => {
@@ -433,25 +546,15 @@ function WorksheetLane(
         const isNextEmpty = index === filled;
 
         if (why) {
-          const isEditing =
-            editTarget?.kind === "why" &&
-            editTarget.laneId === lane.id &&
-            editTarget.whyId === why.id;
-
           return (
             <WhyCell
               key={why.id}
               step={index + 1}
               text={why.text}
               accent={accent}
-              accentGlow={accentGlow}
+              accentGlow={lane.accentGlow}
               isRootCause={why.isRootCause === true}
-              isEditing={isEditing}
-              onStartEdit={() =>
-                onEdit({ kind: "why", laneId: lane.id, whyId: why.id })
-              }
               onChange={(value) => onWhyChange(why.id, value)}
-              onDone={() => onEdit(null)}
               onRemove={() => onRemoveWhy(why.id)}
             />
           );
@@ -471,7 +574,12 @@ function WorksheetLane(
         return <EmptyWhyCell key={`empty-${lane.id}-${String(index)}`} />;
       })}
 
-      <ActionsCell laneId={lane.id} actions={lane.actions} />
+      <ActionsCell
+        laneId={lane.id}
+        actions={lane.actions}
+        onActionChange={onActionChange}
+        onRemoveAction={onRemoveAction}
+      />
     </div>
   );
 }
@@ -481,45 +589,21 @@ function EditableTextarea(
     value: string;
     placeholder?: string;
     onChange: (value: string) => void;
-    onDone: () => void;
   }>,
 ) {
-  const { value, placeholder, onChange, onDone } = props;
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const labelId = useId();
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.focus();
-    el.select();
-    el.style.height = "auto";
-    el.style.height = `${String(el.scrollHeight)}px`;
-  }, []);
-
-  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Escape" || (event.key === "Enter" && !event.shiftKey)) {
-      event.preventDefault();
-      onDone();
-    }
-  }
+  const { value, placeholder, onChange } = props;
 
   return (
     <textarea
-      ref={ref}
-      id={labelId}
       value={value}
       placeholder={placeholder}
       rows={3}
-      onClick={(event: MouseEvent) => event.stopPropagation()}
       onChange={(event) => {
         onChange(event.target.value);
         const el = event.target;
         el.style.height = "auto";
         el.style.height = `${String(el.scrollHeight)}px`;
       }}
-      onBlur={onDone}
-      onKeyDown={handleKeyDown}
       className={cellTextareaClass}
     />
   );
@@ -532,44 +616,18 @@ function WhyCell(
     accent: string;
     accentGlow: string;
     isRootCause: boolean;
-    isEditing: boolean;
-    onStartEdit: () => void;
     onChange: (value: string) => void;
-    onDone: () => void;
     onRemove: () => void;
   }>,
 ) {
-  const {
-    step,
-    text,
-    accent,
-    accentGlow,
-    isRootCause,
-    isEditing,
-    onStartEdit,
-    onChange,
-    onDone,
-    onRemove,
-  } = props;
+  const { step, text, accent, accentGlow, isRootCause, onChange, onRemove } =
+    props;
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={() => {
-        if (!isEditing) onStartEdit();
-      }}
-      onKeyDown={(event) => {
-        if (!isEditing && (event.key === "Enter" || event.key === " ")) {
-          event.preventDefault();
-          onStartEdit();
-        }
-      }}
-      className="border-ehs-border-ink/14 relative flex min-h-35 cursor-text flex-col gap-2 rounded-xl border p-3.5 text-left transition-shadow"
+      className="border-ehs-border-ink/14 relative flex min-h-35 flex-col gap-2 rounded-xl border p-3.5 text-left"
       style={
-        isRootCause || isEditing
-          ? { boxShadow: `0px 0px 0px 3px ${accentGlow}` }
-          : undefined
+        isRootCause ? { boxShadow: `0px 0px 0px 3px ${accentGlow}` } : undefined
       }
     >
       <div className="flex items-center gap-1.5">
@@ -595,27 +653,17 @@ function WhyCell(
         <button
           type="button"
           aria-label="Remove why step"
-          onClick={(event) => {
-            event.stopPropagation();
-            onRemove();
-          }}
+          onClick={onRemove}
           className="text-ehs-muted-text hover:bg-ehs-surface-inverse/6 hover:text-ehs-dark-bg ml-auto inline-flex size-4.5 items-center justify-center rounded"
         >
           <Icon icon="mdi:close" className="size-4" aria-hidden />
         </button>
       </div>
-      {isEditing ? (
-        <EditableTextarea
-          value={text}
-          placeholder="Enter why…"
-          onChange={onChange}
-          onDone={onDone}
-        />
-      ) : (
-        <p className="text-ehs-slate text-sm leading-4.5">
-          {text || <span className="text-ehs-muted-text">Click to edit…</span>}
-        </p>
-      )}
+      <EditableTextarea
+        value={text}
+        placeholder="Enter why…"
+        onChange={onChange}
+      />
     </div>
   );
 }
@@ -657,9 +705,11 @@ function ActionsCell(
   props: Readonly<{
     laneId: string;
     actions: readonly CapaRcaAction[];
+    onActionChange: (actionId: string, value: string) => void;
+    onRemoveAction: (actionId: string) => void;
   }>,
 ) {
-  const { laneId, actions } = props;
+  const { laneId, actions, onActionChange, onRemoveAction } = props;
 
   return (
     <div className="border-ehs-green/50 flex min-h-35 flex-col gap-2 rounded-xl border p-3.5">
@@ -675,13 +725,18 @@ function ActionsCell(
             <span className="rounded-1.25 text-ehs-green mt-0.5 inline-flex size-4.25 shrink-0 items-center justify-center">
               <Icon icon="mdi:check" className="size-4" aria-hidden />
             </span>
-            <p className="text-ehs-slate min-w-0 flex-1 text-sm leading-[17.4px]">
-              {action.text}
-            </p>
+            <textarea
+              value={action.text}
+              rows={2}
+              onChange={(event) =>
+                onActionChange(action.id, event.target.value)
+              }
+              className="text-ehs-slate min-w-0 flex-1 resize-none bg-transparent text-sm leading-[17.4px] outline-none"
+            />
             <button
               type="button"
               aria-label="Remove action"
-              onClick={() => toast.info("Remove action coming soon")}
+              onClick={() => onRemoveAction(action.id)}
               className="text-ehs-muted-text hover:text-ehs-dark-bg inline-flex size-4 shrink-0 items-center justify-center"
             >
               <Icon icon="mdi:close" className="size-4" aria-hidden />

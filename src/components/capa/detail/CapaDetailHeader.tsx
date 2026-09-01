@@ -16,13 +16,11 @@ import {
 } from "@/hooks/use-capa-mutations";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import {
-  isCapaStatusClosed,
   isCapaStatusCompleted,
   isCapaStatusPendingVerification,
 } from "@/lib/capa-filters";
 import { canVerifyCapa, isCapaOwnedByCurrentUser } from "@/lib/current-user";
 import { getCapaVerificationByCapaId } from "@/services/capa.service";
-import { getCapaRcaById } from "@/services/rca.service";
 import { toast } from "@/lib/toast";
 
 const CAPA_ROUTE = "/dashboard/capa";
@@ -51,12 +49,10 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isOpeningVerify, setIsOpeningVerify] = useState(false);
-  const [isOpeningRca, setIsOpeningRca] = useState(false);
   const [isConfirmingDrop, setIsConfirmingDrop] = useState(false);
   const dropCapaMutation = useDropCapaMutation();
   const requestVerificationMutation = useRequestCapaVerificationMutation();
 
-  const isClosed = isCapaStatusClosed(record.statusLabel);
   const isCompleted = isCapaStatusCompleted(record.statusLabel);
   const isPending = isCapaStatusPendingVerification(record.statusLabel);
 
@@ -73,7 +69,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   const showRequestVerification = isCompleted && !mayVerify;
 
   const isBusy =
-    isOpeningRca ||
     isOpeningVerify ||
     dropCapaMutation.isPending ||
     requestVerificationMutation.isPending;
@@ -100,7 +95,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
   }
 
   const verifyHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/verify`;
-  const rcaHref = `${CAPA_ROUTE}/${encodeURIComponent(String(record.numericId || record.id))}/rca`;
 
   async function handleVerifyAndClose() {
     if (record.numericId <= 0) {
@@ -123,31 +117,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
       );
     } finally {
       setIsOpeningVerify(false);
-    }
-  }
-
-  async function handleOpenRca() {
-    const rcaId = record.rcaId;
-    if (rcaId == null || rcaId <= 0) {
-      toast.error("RCA is null", "No RCA is linked to this CAPA.");
-      return;
-    }
-
-    setIsOpeningRca(true);
-    try {
-      // Prefetch GET /api/v1/rcas/{rcaId}/capas before opening the page.
-      await queryClient.prefetchQuery({
-        queryKey: capaQueryKeys.rca(rcaId),
-        queryFn: () => getCapaRcaById(rcaId),
-      });
-      router.push(rcaHref);
-    } catch (error) {
-      toast.error(
-        "Could not open RCA",
-        getMutationErrorMessage(error, "Please try again."),
-      );
-    } finally {
-      setIsOpeningRca(false);
     }
   }
 
@@ -226,18 +195,6 @@ export function CapaDetailHeader(props: CapaDetailHeaderProps) {
             </div>
 
             <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:shrink-0">
-              <Button
-                type="button"
-                variant="secondary"
-                isLoading={isOpeningRca}
-                disabled={isBusy}
-                onClick={() => {
-                  void handleOpenRca();
-                }}
-                className="border-ehs-border-ink/10 bg-ehs-form-classes-bg! text-ehs-slate hover:bg-ehs-light-blue! rounded-2.5 border px-4 py-2 font-normal! shadow-none sm:px-6"
-              >
-                RCA
-              </Button>
               {showRequestVerification ? (
                 <Button
                   type="button"

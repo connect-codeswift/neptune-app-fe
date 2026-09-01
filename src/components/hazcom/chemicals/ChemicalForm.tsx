@@ -22,13 +22,22 @@ import { HazcomSdsAutofillPicker } from "@/components/hazcom/sds/HazcomSdsAutofi
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { FIELD_INPUT_CLASS } from "@/components/ui/field-styles";
 import { splitQuantity } from "@/components/hazcom/chemicals/chemical-utils";
+import {
+  CHEMICAL_STATUS_OPTIONS as STATUS_OPTIONS,
+  HAZARD_CATEGORY_OPTIONS,
+  SIGNAL_WORDS,
+} from "@/components/hazcom/chemicals/chemical-options";
 import type { ChemicalRequestDto } from "@/dtos/req/hazcom-request.dto";
 import { DateInput } from "@/components/inputs/DateInput";
 import { isoToMmDdYyyy, mmDdYyyyToIso } from "@/lib/date-time-field";
 import { getMutationErrorMessage } from "@/hooks/use-auth-mutations";
 import { useSubmitLock } from "@/hooks/use-submit-lock";
 import { useCreateChemicalMutation } from "@/hooks/use-hazcom-mutations";
-import { fetchSdsLabel, hazcomQueryKeys } from "@/hooks/use-hazcom-queries";
+import {
+  fetchSdsLabel,
+  hazcomQueryKeys,
+  useChemicalCasLookup,
+} from "@/hooks/use-hazcom-queries";
 import { parseRecordNumericId } from "@/lib/format-record-id";
 import { toast } from "@/lib/toast";
 import type { HazcomSdsSearchResult } from "@/services/mappers/hazcom-sds.mapper";
@@ -39,27 +48,7 @@ export type ChemicalFormProps = Readonly<{
   className?: string;
 }>;
 
-const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-] as const;
-
-/**
- * GHS hazard category — the severity level, where Category 1 is the most
- * severe. The *kind* of hazard is captured by the GHS Pictograms field below,
- * so this field carries the level only.
- */
-const HAZARD_CATEGORY_OPTIONS = [
-  { value: "", label: "Select category" },
-  { value: "Category 1", label: "Category 1 (most severe)" },
-  { value: "Category 2", label: "Category 2" },
-  { value: "Category 3", label: "Category 3" },
-  { value: "Category 4", label: "Category 4" },
-  { value: "Category 5", label: "Category 5 (least severe)" },
-] as const;
-
 const CHEMICALS_LIST_ROUTE = "/dashboard/hazcom/chemicals";
-const SIGNAL_WORDS = ["Danger", "Warning"] as const;
 const actionClass = "text4 h-9.5 rounded-2.5 px-4 sm:px-5";
 
 /**
@@ -199,6 +188,10 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveChemical = useCreateChemicalMutation();
+  // The CAS uniqueness check below needs the whole register; this is the
+  // one-page snapshot backing it. A value still loading simply skips the check
+  // (the backend remains the source of truth if it ever adds a constraint).
+  const { casToId } = useChemicalCasLookup();
   // Held past the response: `isPending` drops when the record is saved, while
   // the navigation away is still in flight. A click in that gap saved a
   // duplicate.
@@ -344,6 +337,18 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
       return;
     }
 
+    // CAS numbers are unique: a different chemical can't reuse one. In edit
+    // mode the record's own CAS is allowed (it hasn't changed — the field is
+    // read-only here anyway), so its own id is excluded from the conflict.
+    const normalizedCas = casNumber.trim().toLowerCase();
+    if (normalizedCas !== "") {
+      const holderId = casToId.get(normalizedCas);
+      if (holderId !== undefined && holderId !== existingId) {
+        toast.error("A chemical with this CAS number already exists");
+        return;
+      }
+    }
+
     if (!submitLock.acquire()) {
       return;
     }
@@ -407,6 +412,12 @@ export function ChemicalForm(props: Readonly<ChemicalFormProps>) {
                 value={casNumber}
                 onChange={(event) => setCasNumber(event.target.value)}
                 placeholder="e.g. 7647-01-0"
+                readOnly={mode === "edit"}
+                helperText={
+                  mode === "edit"
+                    ? "CAS number can't be edited once the chemical is created."
+                    : undefined
+                }
               />
               <HazcomTextField
                 label="Link to SDS Record"

@@ -34,5 +34,7 @@ export type NearMissRecord = Readonly<{
   closedBy?: string;
   /** ISO date it was closed, when it has been. */
   closedAt?: string;
+  /** Numeric id of the incident this near miss was escalated into; absent when not converted. */
+  incidentId?: number | null;
   relatedCapas: readonly NearMissRelatedCapa[];
 }>;

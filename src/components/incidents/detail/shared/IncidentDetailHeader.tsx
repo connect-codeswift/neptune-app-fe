@@ -30,6 +30,8 @@ export type IncidentDetailHeaderProps = Readonly<{
   hideIncidentChrome?: boolean;
   /** When true, the Closure tab is not selectable (incident already closed). */
   closureTabDisabled?: boolean;
+  /** Tabs to drop entirely — the caller decides, from capabilities and record state. */
+  hiddenTabs?: readonly TabId[];
   className?: string;
 }>;
 
@@ -46,6 +48,7 @@ export function IncidentDetailHeader(
     readOnly = false,
     hideIncidentChrome = false,
     closureTabDisabled = false,
+    hiddenTabs = [],
     className = "",
   } = props;
   const router = useRouter();
@@ -65,6 +68,8 @@ export function IncidentDetailHeader(
     { id: "linked-capa", label: "Linked CAPA" },
     { id: "closure", label: "Closure" },
   ];
+
+  const visibleTabs = tabs.filter((tab) => !hiddenTabs.includes(tab.id));
 
   return (
     <div className={["flex flex-col", className].filter(Boolean).join(" ")}>
@@ -121,7 +126,7 @@ export function IncidentDetailHeader(
           {/* Horizontal Tabs List */}
           <div className="border-ehs-border-ink/8 mt-4 flex scrollbar-none overflow-x-auto border-b">
             <nav className="flex gap-6 px-1 whitespace-nowrap">
-              {tabs.map((tab) => {
+              {visibleTabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 const isDisabled = tab.id === "closure" && closureTabDisabled;
 

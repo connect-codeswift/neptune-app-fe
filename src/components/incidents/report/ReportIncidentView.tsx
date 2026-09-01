@@ -55,6 +55,7 @@ function renderStepForm(
   handleContinue: () => void,
   showStepFieldErrors: Partial<Record<ReportStepId, boolean>>,
   goToStep: (step: ReportStepId) => void,
+  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void,
 ) {
   const sharedProps = {
     form,
@@ -83,7 +84,13 @@ function renderStepForm(
     case 4:
       return <ReportIncidentStepFour {...sharedProps} />;
     case 5:
-      return <ReportIncidentStepFive {...sharedProps} onGoToStep={goToStep} />;
+      return (
+        <ReportIncidentStepFive
+          {...sharedProps}
+          onGoToStep={goToStep}
+          onAfterCreateIncident={onAfterCreateIncident}
+        />
+      );
     default:
       return null;
   }
@@ -95,6 +102,8 @@ export type ReportIncidentViewProps = Readonly<{
   headerTitle?: string;
   backHref?: string;
   backLabel?: string;
+  /** Called after the incident is created (step 5 submit) with the new incident id. */
+  onAfterCreateIncident?: (incidentId: number) => Promise<void> | void;
 }>;
 
 export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
@@ -104,6 +113,7 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
     headerTitle,
     backHref,
     backLabel,
+    onAfterCreateIncident,
   } = props;
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<ReportStepId>(1);
@@ -399,6 +409,7 @@ export function ReportIncidentView(props: Readonly<ReportIncidentViewProps>) {
             handleContinue,
             showStepFieldErrors,
             goToStep,
+            onAfterCreateIncident,
           )}
 
           {isReviewStep ? null : (
