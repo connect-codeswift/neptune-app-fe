@@ -168,6 +168,16 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
   // there is no draft-assist for LOTO, because a procedure is authored from
   // knowledge of the machine rather than composed from answers already on the
   // form. Nothing fires on change.
+  //
+  // The equipment name and location go along as context. Without them a rewrite
+  // reads an abbreviation the way an outsider would: "hydralic pres in bay 4"
+  // came back as "the hydraulic pressure in Bay 4", turning a press into a
+  // pressure. With the equipment name in hand it reads it correctly.
+  const assistContext = {
+    "Equipment name": preview.equipmentName,
+    Location: preview.location,
+    "Hazard level": preview.hazardLevel,
+  };
   const equipmentSchema = makeLotoEquipmentSchema(
     <LotoLocationSearchField
       value={location}
@@ -181,6 +191,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         module="loto"
         value={control.value}
         onApply={control.onChange}
+        contextFields={assistContext}
       />
     ),
   );
@@ -191,6 +202,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         module="loto"
         value={control.value}
         onApply={control.onChange}
+        contextFields={assistContext}
       />
     ),
     (control) => (
@@ -198,6 +210,7 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         module="loto"
         value={control.value}
         onApply={control.onChange}
+        contextFields={assistContext}
       />
     ),
   );
