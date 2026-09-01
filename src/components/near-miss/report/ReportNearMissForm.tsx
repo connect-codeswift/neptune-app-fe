@@ -136,12 +136,18 @@ export function ReportNearMissForm() {
     [values.contributingFactors],
   );
 
+  // Keyed by the label the form shows, because the model reads the keys as
+  // prose alongside the values. The factors go as one comma-separated line
+  // rather than an array — the prompt talks about them as a set.
   const draftInput = useMemo(
     () => ({
-      dateOfEvent: toReadableDate(String(values.dateOfEvent ?? "")),
-      hazardType: toLabel(HAZARD_TYPE_OPTIONS, String(values.hazardType ?? "")),
-      location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
-      contributingFactors: factorLabels,
+      "Date of event": toReadableDate(String(values.dateOfEvent ?? "")),
+      "Hazard type": toLabel(
+        HAZARD_TYPE_OPTIONS,
+        String(values.hazardType ?? ""),
+      ),
+      Location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
+      "Contributing factors": factorLabels.join(", "),
     }),
     [values.dateOfEvent, values.hazardType, values.location, factorLabels],
   );

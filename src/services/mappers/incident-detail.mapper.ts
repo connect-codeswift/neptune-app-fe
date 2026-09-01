@@ -19,6 +19,13 @@ import {
 } from "@/components/incidents/detail/incident-detail-types";
 import { markRootCauses } from "@/components/incidents/detail/investigations/hrca/hrca-data";
 import {
+  CASE_DISPOSITION_OPTIONS,
+  FIT_FOR_DUTY_OPTIONS,
+  TREATMENT_LOCATION_OPTIONS,
+  TREATMENT_PROVIDER_OPTIONS,
+  WHAT_TREATMENT_GIVEN_OPTIONS,
+} from "@/forms/incident-module/treatment";
+import {
   IMMEDIATE_ACTION_OPTIONS,
   splitActionTaken,
 } from "@/forms/incident-module/immediate-response";
@@ -857,6 +864,32 @@ function buildInvestigationView(
   };
 }
 
+/**
+ * The wizard offers these as fixed dropdowns and stores the chosen option's
+ * label, so the edit view has to offer the same closed list. It rendered a bare
+ * text input instead, which let an edit put a value in the column that no option
+ * matches — every dashboard tile counting these does an exact match, so a
+ * hand-typed "wound cleaned" silently drops the case out of the count.
+ *
+ * The blank first entry of each list is dropped: the card supplies its own
+ * "Select…" so every select behaves the same way.
+ *
+ * Deliberately excludes initialTreatment, mechanismOfInjury, natureOfInjury and
+ * objectInvolved. Those use ReportSelectWithAdd in the wizard — the vocabulary is
+ * open by design and a site can add its own — so pinning them to a fixed list
+ * here would take away an option the reporter has.
+ */
+const labelsOf = (options: readonly { label: string; value: string }[]) =>
+  options.filter((option) => option.value !== "").map((option) => option.label);
+
+const INFO_SELECT_OPTIONS: Readonly<Record<string, readonly string[]>> = {
+  caseDisposition: labelsOf(CASE_DISPOSITION_OPTIONS),
+  whatTreatmentWasGiven: labelsOf(WHAT_TREATMENT_GIVEN_OPTIONS),
+  treatmentProvidedBy: labelsOf(TREATMENT_PROVIDER_OPTIONS),
+  treatmentLocation: labelsOf(TREATMENT_LOCATION_OPTIONS),
+  isFitForFullDuty: labelsOf(FIT_FOR_DUTY_OPTIONS),
+};
+
 function buildInfoItems(
   incident: IncidentDto,
 ): readonly IncidentDetailInfoItem[] {
@@ -1015,12 +1048,19 @@ function buildInfoItems(
     },
   ];
 
+  // Applied in one place so both return paths below agree about which fields
+  // are pickers rather than free text.
+  const withPickers = items.map((item) => {
+    const options = INFO_SELECT_OPTIONS[item.key];
+    return options ? { ...item, kind: "select" as const, options } : item;
+  });
+
   if (firstAid) {
-    return items;
+    return withPickers;
   }
 
   // Non–First Aid: omit First Aid–only fields and any predefined N/A placeholders.
-  return items.filter((item) => {
+  return withPickers.filter((item) => {
     if (FIRST_AID_ONLY_INFO_KEYS.has(item.key)) {
       return false;
     }
@@ -1259,8 +1299,15 @@ export function mapIncidentDtoToDetailView(
     summaryText: listRecord.description,
     infoItems: buildInfoItems(incident),
     responseActions,
+    // actionTaken holds the ticked labels on its first line and the free text
+    // below it, so falling back to the raw string printed the checklist a second
+    // time as prose: "Area cordoned off; Supervisor notified" appeared under
+    // Response notes directly beneath the tiles already saying it. Only the notes
+    // half is notes.
     responseNotes:
-      incident.otherNotes?.trim() || incident.actionTaken?.trim() || "",
+      incident.otherNotes?.trim() ||
+      splitActionTaken(incident.actionTaken).notes ||
+      "",
     affectedName: affectedDisplayName,
     hasAffectedPerson,
     affectedRole: [

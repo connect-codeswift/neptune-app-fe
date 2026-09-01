@@ -1,14 +1,9 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
-import type {
-  HazardDraftRequestDto,
-  NearMissDraftRequestDto,
-} from "@/dtos/req/ai-text-request.dto";
+import type { AiAssistFields } from "@/dtos/req/ai-text-request.dto";
 import {
-  draftIncidentAssist,
-  draftNarrative,
+  draftFields,
   rewriteText,
   type AiModule,
   type RewriteOperation,
@@ -32,35 +27,31 @@ export function useRewriteMutation(module: AiModule) {
 }
 
 /**
- * Draft the description, injury description and action notes from whatever the
- * reporter has filled in so far.
+ * Draft this record's long-text fields from whatever the reporter has filled in
+ * so far.
  *
- * Deliberately not retried. The reporter never asked for this call, so a
- * failure has to stay silent — retrying would just spend their time and our
- * share of the 20/min ceiling on something they cannot see failing.
- */
-export function useDraftAssistMutation() {
-  return useMutation({
-    mutationFn: (input: Readonly<IncidentDraftRequestDto>) =>
-      draftIncidentAssist(input),
-    retry: false,
-  });
-}
-
-/**
- * Draft the single narrative on the Near Miss or Hazard form.
+ * One hook for every module: which keys come back is a property of the record
+ * kind's prompt, not of the caller — an incident answers with three, a near
+ * miss or hazard with one.
  *
- * Same discipline as `useDraftAssistMutation` and for the same reason: the
- * reporter never asked for this call, so a failure stays silent and a retry
- * would only spend more of the 20/min bucket that all three modules share.
+ * Deliberately not retried. Where this still fires on its own (hazard and near
+ * miss), the reporter never asked for the call, so a failure has to stay silent
+ * — retrying would just spend their time and our share of the 20/min ceiling on
+ * something they cannot see failing.
  */
-export function useNarrativeDraftMutation(
-  module: Extract<AiModule, "nearMiss" | "hazard">,
-) {
+export function useDraftMutation(module: AiModule) {
   return useMutation({
     mutationFn: (
-      input: Readonly<NearMissDraftRequestDto | HazardDraftRequestDto>,
-    ) => draftNarrative(module, input),
+      input: Readonly<{
+        fields: AiAssistFields;
+        targetField?: string;
+        authoredText?: string;
+      }>,
+    ) =>
+      draftFields(module, input.fields, {
+        targetField: input.targetField,
+        authoredText: input.authoredText,
+      }),
     retry: false,
   });
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { Text } from "@/components/Text";
@@ -8,15 +7,7 @@ import type {
   ClosureLinkedCapaItem,
   IncidentClosureData,
 } from "@/components/incidents/detail/incident-detail-types";
-import {
-  IncidentModalShell,
-  IncidentModalCancelButton,
-  IncidentModalPrimaryButton,
-} from "@/components/incidents/shared/capa/IncidentModalShell";
-import {
-  FIELD_INPUT_LG_CLASS,
-  FIELD_TEXTAREA_WITH_CONTROLS_CLASS,
-} from "@/components/ui/field-styles";
+import { FIELD_TEXTAREA_WITH_CONTROLS_CLASS } from "@/components/ui/field-styles";
 import { capaStatusPillClass } from "@/lib/capa-filters";
 
 export type IncidentClosureStepPreventiveProps = Readonly<{
@@ -26,7 +17,8 @@ export type IncidentClosureStepPreventiveProps = Readonly<{
     value: IncidentClosureData[K],
   ) => void;
   onToggleCheckItem?: (itemId: string) => void;
-  onLinkAdditionalCapa?: () => void;
+  /** Sends the closer to the Linked CAPA tab, the one place CAPAs are raised. */
+  onManageCapas?: () => void;
 }>;
 
 /**
@@ -38,210 +30,23 @@ function capaBadgeStyle(status: ClosureLinkedCapaItem["status"]) {
   return capaStatusPillClass(status);
 }
 
-type LinkCapaModalProps = Readonly<{
-  onClose: () => void;
-  currentlyLinked: readonly ClosureLinkedCapaItem[];
-  onSave: (selectedCapas: ClosureLinkedCapaItem[]) => void;
-}>;
-
-function LinkCapaModal(props: Readonly<LinkCapaModalProps>) {
-  const { onClose, currentlyLinked, onSave } = props;
-
-  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
-    currentlyLinked.map((item) => item.id),
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Only CAPAs actually linked to this incident are selectable. This list used
-  // to be seeded with six invented CAPAs (CAPA-012 … CAPA-030), which let a
-  // reviewer attach a CAPA that does not exist to a real closure record.
-  // There is no org-wide CAPA list endpoint yet — use-capa-queries only
-  // exposes per-incident, task and review queries — so until one exists there
-  // is nothing further to offer here.
-  const allItemsMap = new Map<string, ClosureLinkedCapaItem>();
-  currentlyLinked.forEach((item) => allItemsMap.set(item.id, item));
-
-  const allItems = Array.from(allItemsMap.values());
-
-  const filteredItems = allItems.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.subtitle.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
-
-  const handleSave = () => {
-    const selectedCapas = allItems.filter((item) =>
-      selectedIds.includes(item.id),
-    );
-    onSave(selectedCapas);
-    onClose();
-  };
-
-  return (
-    <IncidentModalShell
-      title="Link CAPAs & Action Items"
-      subtitle="Select corrective and preventive action items to attach to this incident closure."
-      onClose={onClose}
-      maxWidthClassName="max-w-180"
-      footerHint={
-        <span className="text-ehs-gray text4 font-medium">
-          {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
-          selected
-        </span>
-      }
-      footerActions={
-        <>
-          <IncidentModalCancelButton onClick={onClose} label="Cancel" />
-          <IncidentModalPrimaryButton
-            onClick={handleSave}
-            label={`Link Selected (${selectedIds.length})`}
-            icon="mdi:plus"
-          />
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        {/* Search Bar */}
-        <div className={`${FIELD_INPUT_LG_CLASS} relative flex items-center`}>
-          <Icon
-            icon="mdi:magnify"
-            className="text-ehs-muted-text mr-2 size-5"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search CAPAs or action items by title or description..."
-            className="text-ehs-dark-bg placeholder:text-ehs-muted-text text4 w-full bg-transparent font-normal outline-none"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="text-ehs-muted-text hover:text-ehs-dark-bg"
-              aria-label="Clear search"
-            >
-              <Icon icon="mdi:close-circle" className="size-4" />
-            </button>
-          )}
-        </div>
-
-        {/* List of CAPAs */}
-        <div className="flex max-h-95 flex-col gap-2.5 overflow-y-auto pr-1">
-          {filteredItems.map((item) => {
-            const isSelected = selectedIds.includes(item.id);
-            return (
-              <div
-                key={item.id}
-                onClick={() => toggleSelect(item.id)}
-                className={[
-                  "flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all select-none",
-                  isSelected
-                    ? "border-ehs-normal-blue bg-ehs-light-blue"
-                    : "border-ehs-border hover:border-ehs-border bg-ehs-surface",
-                ].join(" ")}
-              >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    className={[
-                      "flex size-5 shrink-0 items-center justify-center rounded border transition-colors",
-                      isSelected
-                        ? "border-ehs-normal-blue bg-ehs-normal-blue text-ehs-on-accent"
-                        : "border-ehs-border bg-ehs-surface",
-                    ].join(" ")}
-                  >
-                    {isSelected && (
-                      <Icon icon="mdi:check" className="size-3.5" />
-                    )}
-                  </div>
-
-                  <div className="flex min-w-0 flex-col">
-                    <div className="flex items-center gap-2">
-                      <span className="text-ehs-dark-bg text5">
-                        {item.title}
-                      </span>
-                    </div>
-                    <span className="text-ehs-gray text4 truncate font-normal">
-                      {item.subtitle}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="ml-3 flex shrink-0 items-center gap-3">
-                  <div className="hidden items-center gap-2 sm:flex">
-                    <div className="bg-ehs-border h-1.5 w-16 overflow-hidden rounded-full">
-                      <div
-                        className="bg-ehs-normal-blue h-full rounded-full"
-                        style={{ width: `${String(item.progressPercent)}%` }}
-                      />
-                    </div>
-                    <span className="text-ehs-gray text4 font-semibold">
-                      {item.progressPercent}%
-                    </span>
-                  </div>
-
-                  <span
-                    className={[
-                      "text8 rounded-full px-2.5 py-0.5 font-bold whitespace-nowrap",
-                      capaBadgeStyle(item.status),
-                    ].join(" ")}
-                  >
-                    {item.status}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-
-          {filteredItems.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Icon
-                icon="mdi:clipboard-text-off-outline"
-                className="text-ehs-muted-text size-8"
-              />
-              <span className="text-ehs-gray text4 mt-2 font-medium">
-                {allItems.length === 0
-                  ? "No CAPAs are linked to this incident yet."
-                  : "No CAPA or action items match your search."}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </IncidentModalShell>
-  );
-}
-
 export function IncidentClosureStepPreventive(
   props: Readonly<IncidentClosureStepPreventiveProps>,
 ) {
-  const { data, onChangeField, onLinkAdditionalCapa } = props;
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data, onChangeField, onManageCapas } = props;
 
   const linkedCapas = data.closureLinkedCapas ?? [];
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-    onLinkAdditionalCapa?.();
-  };
-
-  const handleSaveCapas = (newLinkedCapas: ClosureLinkedCapaItem[]) => {
-    onChangeField("closureLinkedCapas", newLinkedCapas);
-  };
 
   return (
     <div className="flex flex-col gap-6">
       <Text as="h2" className="text-ehs-dark-bg text5 leading-normal font-bold">
-        Preventive Measures & CAPAs
+        Preventive Measures &amp; CAPAs
       </Text>
 
-      {/* Linked CAPAs */}
+      {/* Linked CAPAs. Read-only: this list is the CAPAs raised from this incident,
+          hydrated from the per-incident CAPA query. There is no manual link control —
+          a CAPA appears here by being created against the incident, so there was
+          nothing an "attach" dialog could offer that was not already listed. */}
       <div className="flex flex-col">
         <label className="text-ehs-muted-text text8 mb-2.5 font-bold tracking-[0.5px] uppercase">
           LINKED CAPAS
@@ -253,7 +58,7 @@ export function IncidentClosureStepPreventive(
               as="p"
               className="text-ehs-muted-text text4 rounded-3.5 border-ehs-border bg-ehs-surface border border-dashed px-4 py-3.5 font-normal"
             >
-              No CAPAs are linked to this incident yet.
+              No CAPAs have been created for this incident yet.
             </Text>
           ) : null}
           {linkedCapas.map((capa) => (
@@ -298,14 +103,28 @@ export function IncidentClosureStepPreventive(
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenModal}
-          className="text-ehs-normal-blue text4 mt-3 flex items-center gap-1.5 font-bold transition-colors hover:underline"
-        >
-          <Icon icon="mdi:plus" className="size-4" />
-          <span>Link additional CAPA or Action Item</span>
-        </button>
+        {/*
+          A pointer to where CAPAs are actually managed, not a control of its own.
+          This was a "Link additional CAPA or Action Item" button opening a picker
+          whose candidate list was the already-linked set, so it could never link
+          anything; the one thing it could do — untick and save — wrote to closure
+          form state that `closureLinkedCapas` is not part of, so the CAPA vanished
+          from the step, the draft saved 200, and the link was still there on
+          reload. A control that reports success for work it did not do is worse on
+          a compliance record than no control.
+          A CAPA's incident is set when it is raised and the API has no way to move
+          it, so raising one from the Linked CAPA tab is the whole of the real flow.
+        */}
+        {onManageCapas ? (
+          <button
+            type="button"
+            onClick={onManageCapas}
+            className="text-ehs-normal-blue text4 mt-3 flex items-center gap-1.5 font-bold transition-colors hover:underline"
+          >
+            <Icon icon="mdi:arrow-right" className="size-4" />
+            <span>Manage CAPAs in the Linked CAPA tab</span>
+          </button>
+        ) : null}
       </div>
 
       {/* Notes. Still persisted as `actionsTaken` (the backend column is unchanged),
@@ -338,17 +157,6 @@ export function IncidentClosureStepPreventive(
           />
         </div>
       </div>
-
-      {/* Link CAPA Modal — mounted only while open, so each open starts from
-          the current links via the state initialiser rather than being reset
-          by an effect. */}
-      {isModalOpen ? (
-        <LinkCapaModal
-          onClose={() => setIsModalOpen(false)}
-          currentlyLinked={linkedCapas}
-          onSave={handleSaveCapas}
-        />
-      ) : null}
     </div>
   );
 }

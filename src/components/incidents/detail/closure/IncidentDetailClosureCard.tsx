@@ -25,6 +25,8 @@ export type IncidentDetailClosureCardProps = Readonly<{
     value: IncidentClosureData[K],
   ) => void;
   onToggleCheckItem: (itemId: string) => void;
+  /** Sends the closer to the Linked CAPA tab from the Preventive Measures step. */
+  onManageCapas?: () => void;
   onSaveAsDraft?: () => void;
   onFinalizeClosure?: () => void;
   onCancel?: () => void;
@@ -52,6 +54,7 @@ export function IncidentDetailClosureCard(
     onSelectStep,
     onChangeField,
     onToggleCheckItem,
+    onManageCapas,
     onSaveAsDraft,
     onFinalizeClosure,
     onCancel,
@@ -168,6 +171,7 @@ export function IncidentDetailClosureCard(
               data={data}
               onChangeField={onChangeField}
               onToggleCheckItem={onToggleCheckItem}
+              onManageCapas={onManageCapas}
             />
           )}
 
@@ -175,6 +179,7 @@ export function IncidentDetailClosureCard(
             <IncidentClosureStepReview
               data={data}
               onChangeField={onChangeField}
+              onGoToStep={goToStep}
             />
           )}
         </IncidentGlassCard>

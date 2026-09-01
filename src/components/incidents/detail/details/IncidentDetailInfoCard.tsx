@@ -36,6 +36,28 @@ function editableDisplayValue(value: string): string {
   return value === "—" ? "" : value;
 }
 
+/**
+ * Options for a `select` field, always including a blank "Select…" entry so the
+ * field can be cleared back to unset the way the text input allowed.
+ *
+ * A value already on the record that is not in the list is added to it. Records
+ * predate these option lists — and the wizard's add-your-own fields write values
+ * no fixed list contains — so without this, opening the edit view on such an
+ * incident would show a blank picker and quietly overwrite a real answer with ""
+ * on the next save.
+ */
+function selectOptionsFor(item: IncidentDetailInfoItem) {
+  const current = editableDisplayValue(item.value);
+  const labels = item.options ?? [];
+  const known = labels.some((label) => label === current);
+
+  return [
+    { value: "", label: "Select…" },
+    ...(current && !known ? [{ value: current, label: current }] : []),
+    ...labels.map((label) => ({ value: label, label })),
+  ];
+}
+
 export function IncidentDetailInfoCard(
   props: Readonly<IncidentDetailInfoCardProps>,
 ) {
@@ -78,6 +100,15 @@ export function IncidentDetailInfoCard(
                         ? item.value
                         : ""
                     }
+                    onChange={(value) => onChangeItem?.(item.key, value)}
+                    aria-label={item.label}
+                    triggerClassName={fieldInputClass}
+                  />
+                ) : null}
+                {canEdit && kind === "select" ? (
+                  <GlassSelect
+                    options={selectOptionsFor(item)}
+                    value={editableDisplayValue(item.value)}
                     onChange={(value) => onChangeItem?.(item.key, value)}
                     aria-label={item.label}
                     triggerClassName={fieldInputClass}

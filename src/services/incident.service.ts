@@ -653,7 +653,22 @@ function normalizeIncidentClosureDto(
   if (!isRecord(data)) {
     return null;
   }
-  const root = isRecord(data.data) ? data.data : data;
+  // Neptune wraps every response as `{ dataModel: ... }`, so that is what has to be
+  // unwrapped here. This read `data.data`, which the envelope never carries: the whole
+  // payload fell through to `data` — the envelope itself — where none of the field names
+  // resolve, so every value below silently became undefined and the wizard rebuilt itself
+  // from defaults. A saved closure draft therefore came back blank, and step 1 refused to
+  // advance because the final incident type it had just persisted read as unset.
+  //
+  // `data` is still accepted last so a caller that hands over an already-unwrapped record
+  // keeps working, and the PascalCase spelling is tolerated like everywhere else here.
+  const root = isRecord(data.dataModel)
+    ? data.dataModel
+    : isRecord(data.DataModel)
+      ? data.DataModel
+      : isRecord(data.data)
+        ? data.data
+        : data;
 
   const rawChecklist = readProp(
     root,

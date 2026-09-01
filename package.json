@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "lint": "eslint --cache",
+    "lint:fix": "eslint --cache --fix",
     "format": "prettier --write .",
     "sync:pdf-worker": "node -e \"const fs=require('fs');fs.copyFileSync(require.resolve('pdfjs-dist/build/pdf.worker.min.mjs'),'public/pdf.worker.min.mjs');console.log('copied pdf.worker.min.mjs to public/')\""
   },
