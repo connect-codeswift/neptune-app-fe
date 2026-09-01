@@ -194,6 +194,7 @@ export function ReportNearMissForm() {
                 module="nearMiss"
                 value={control.value}
                 onApply={control.onChange}
+                contextFields={draftInput}
                 onRegenerateDraft={canRegenerate ? regenerate : undefined}
               />
             ),

@@ -2,6 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
+import type { AiAssistFields } from "@/dtos/req/ai-text-request.dto";
 import { useRewriteMutation } from "@/hooks/use-ai-text-mutations";
 import { toast } from "@/lib/toast";
 import {
@@ -56,6 +57,13 @@ export type AiTextAssistantProps = Readonly<{
   onRegenerateDraft?: () => void;
   /** True while that draft call is in flight. */
   draftPending?: boolean;
+  /**
+   * The answers the reporter gave elsewhere on this form, keyed by the label the
+   * form shows. Sent with a rewrite as context, so Proofread can spell a
+   * location the way the form spells it and Paraphrase can tell which piece of
+   * equipment is meant. Never folded into the text by the backend.
+   */
+  contextFields?: AiAssistFields;
   disabled?: boolean;
   className?: string;
 }>;
@@ -176,6 +184,7 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
     onAssisted,
     onRegenerateDraft,
     draftPending = false,
+    contextFields,
     disabled = false,
     className = "",
   } = props;
@@ -226,7 +235,11 @@ export function AiTextAssistant(props: Readonly<AiTextAssistantProps>) {
     setRunning(operation);
 
     try {
-      const rewritten = await rewrite.mutateAsync({ operation, text });
+      const rewritten = await rewrite.mutateAsync({
+        operation,
+        text,
+        contextFields,
+      });
 
       // Proofread legitimately returns the text untouched when there is
       // nothing wrong with it. That is an answer, not a failure.
