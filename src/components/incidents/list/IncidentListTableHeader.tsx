@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table-header-action";
 
 const REPORT_ROUTE = "/dashboard/incidents/report";
+const DRAFTS_ROUTE = "/dashboard/incidents/drafts";
 
 export type IncidentListTableHeaderProps = Readonly<{
   title?: string;
@@ -43,21 +44,42 @@ export function IncidentListTableHeader(
       {/* Hidden for a role without Incident.Create rather than shown and refused on
           submit. The API is what actually enforces it — this only removes the dead end. */}
       <Can do="Incident.Create">
-        <Button
-          type="button"
-          variant="primary"
-          onClick={() => {
-            router.push(REPORT_ROUTE);
-          }}
-          className={TABLE_HEADER_ACTION_CLASS}
-        >
-          <Icon
-            icon="mdi:plus"
-            className={TABLE_HEADER_ACTION_ICON_CLASS}
-            aria-hidden="true"
-          />
-          Report incident
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Drafts sit beside the entry point to the wizard that produces them, and
+              under the same permission: they are unfinished reports, so anyone who
+              cannot file a report has none. */}
+          <Button
+            type="button"
+            variant="tertiary"
+            onClick={() => {
+              router.push(DRAFTS_ROUTE);
+            }}
+            className={TABLE_HEADER_ACTION_CLASS}
+          >
+            <Icon
+              icon="mdi:file-document-edit-outline"
+              className={TABLE_HEADER_ACTION_ICON_CLASS}
+              aria-hidden="true"
+            />
+            Drafts
+          </Button>
+
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => {
+              router.push(REPORT_ROUTE);
+            }}
+            className={TABLE_HEADER_ACTION_CLASS}
+          >
+            <Icon
+              icon="mdi:plus"
+              className={TABLE_HEADER_ACTION_ICON_CLASS}
+              aria-hidden="true"
+            />
+            Report incident
+          </Button>
+        </div>
       </Can>
     </div>
   );

@@ -3,6 +3,9 @@
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import type { IncidentClosureData } from "@/components/incidents/detail/incident-detail-types";
+import type { ClosureStepId } from "@/components/incidents/detail/closure/IncidentClosureStepsSidebar";
+import { ReportReviewDetailCard } from "@/components/incidents/report/steps/step-5/ReportReviewDetailCard";
+import { useRcaCategoriesQuery } from "@/hooks/use-rca-queries";
 
 export type IncidentClosureStepReviewProps = Readonly<{
   data: IncidentClosureData;
@@ -10,14 +13,64 @@ export type IncidentClosureStepReviewProps = Readonly<{
     field: K,
     value: IncidentClosureData[K],
   ) => void;
+  /** Jumps back to a step so a summarised answer can be corrected in place. */
+  onGoToStep?: (step: ClosureStepId) => void;
 }>;
 
 export function IncidentClosureStepReview(
   props: Readonly<IncidentClosureStepReviewProps>,
 ) {
-  const { data, onChangeField } = props;
+  const { data, onChangeField, onGoToStep } = props;
 
   const isConfirmed = data.isEhsConfirmed ?? false;
+
+  // The wizard stores root-cause category ids; resolve them to the names the
+  // root-cause step shows so the review reads as a human summary, not a dump
+  // of ids.
+  const rcaCategoriesQuery = useRcaCategoriesQuery();
+  const rcaCategoryNames = new Map(
+    (rcaCategoriesQuery.data?.all ?? []).map((category) => [
+      String(category.id),
+      category.name,
+    ]),
+  );
+  const rootCauseCategoriesLabel =
+    data.primaryRootCauseCategoryIds.length > 0
+      ? data.primaryRootCauseCategoryIds
+          .map((id) => rcaCategoryNames.get(String(id)) ?? id)
+          .join(", ")
+      : "—";
+
+  const finalIncidentType =
+    !data.finalIncidentType || data.finalIncidentType === "Select option"
+      ? "—"
+      : data.finalIncidentType;
+  const sifClassification =
+    !data.sifClassification || data.sifClassification === "Select option"
+      ? "—"
+      : data.sifClassification;
+  const recordableLabel = data.isOshaRecordable ? "Yes" : "No";
+  const daysAwayLabel =
+    data.finalIncidentType === "Lost Time"
+      ? String(data.daysAwayFromWork)
+      : "—";
+  const daysRestrictedLabel =
+    data.finalIncidentType === "Restricted Work"
+      ? String(data.daysOnRestrictedDuty)
+      : "—";
+  const rootCauseSummary =
+    data.rootCauseSummary.trim() || "No root cause description recorded.";
+  const contributingFactorsLabel =
+    data.contributingFactors.length > 0
+      ? data.contributingFactors.join(", ")
+      : "—";
+  const actionsTaken = data.actionsTaken.trim() || "No closing notes recorded.";
+  const capasLabel =
+    data.closureLinkedCapas.length > 0
+      ? data.closureLinkedCapas
+          .map((capa) => capa.subtitle.trim() || capa.title)
+          .join(", ")
+      : "None";
 
   return (
     <div className="flex flex-col gap-5">
@@ -29,10 +82,44 @@ export function IncidentClosureStepReview(
           Digital Sign-off & Submission
         </Text>
         <Text as="p" className="text-ehs-gray text4 mt-2 leading-5 font-normal">
-          Closing this incident creates a legal compliance record. Verification
-          of security credentials and multi-factor authorization is requested to
-          finalize digital signatures.
+          Review the closure details below, then verify your credentials to
+          finalize the legal compliance record.
         </Text>
+      </div>
+
+      {/* Closure summary — every row maps to the step that defines it, so the
+          edit button on a card always lands on the right step. */}
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+        <ReportReviewDetailCard
+          title="Classification"
+          onEdit={onGoToStep ? () => onGoToStep(1) : undefined}
+          rows={[
+            { label: "Final type", value: finalIncidentType },
+            { label: "SIF", value: sifClassification },
+            { label: "OSHA recordable", value: recordableLabel },
+            { label: "Days away", value: daysAwayLabel },
+            { label: "Restricted days", value: daysRestrictedLabel },
+          ]}
+        />
+
+        <ReportReviewDetailCard
+          title="Root cause"
+          onEdit={onGoToStep ? () => onGoToStep(2) : undefined}
+          rows={[
+            { label: "Category", value: rootCauseCategoriesLabel },
+            { label: "Contributing factors", value: contributingFactorsLabel },
+            { label: "Description", value: rootCauseSummary },
+          ]}
+        />
+
+        <ReportReviewDetailCard
+          title="Preventive measures"
+          onEdit={onGoToStep ? () => onGoToStep(3) : undefined}
+          rows={[
+            { label: "Linked CAPAs", value: capasLabel },
+            { label: "Notes", value: actionsTaken },
+          ]}
+        />
       </div>
 
       {/* Sign-off Green/Teal Box. Never substitutes a placeholder identity:
