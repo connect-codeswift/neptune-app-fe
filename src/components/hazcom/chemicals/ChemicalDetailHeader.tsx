@@ -103,6 +103,19 @@ export function ChemicalDetailHeader(
                 showDot
                 className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
               />
+              {/*
+                Only drafts are called out — every other record is published, so
+                a permanent "Published" badge here would be noise. The inventory
+                table still shows both stages because it needs the column.
+              */}
+              {chemical.isDraft ? (
+                <IncidentBadge
+                  label="Draft"
+                  tone="warn"
+                  showDot
+                  className="text5 w-fit rounded-md px-2 py-0.5 tracking-normal"
+                />
+              ) : null}
             </div>
             <Text as="p" className="text8 text-ehs-muted-text">
               {`CAS ${chemical.casNumber} · ${chemical.hazardClass} · ${chemical.location}`}

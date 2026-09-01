@@ -62,3 +62,6 @@ testsprite_tests/tmp/
 /.mcp.json
 /opencode.json
 /.ignore
+
+# eslint --cache writes this; it is per-machine state, never shared.
+.eslintcache

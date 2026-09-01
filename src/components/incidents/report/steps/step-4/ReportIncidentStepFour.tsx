@@ -9,7 +9,8 @@ import {
   ReportTextareaField,
   ReportFieldLabel,
 } from "@/components/incidents/report/shared/ReportFormField";
-import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
+import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
@@ -29,11 +30,7 @@ export function ReportIncidentStepFour(
 ) {
   const { form, onChange, onBack, onContinue, className = "" } = props;
 
-  // Same rule as the injury draft on step 3: no waiting state for a field the
-  // reporter has already filled, because the incoming draft is discarded
-  // rather than shown.
-  const draftPending = form.aiDraftPending && form.actionNotes.trim() === "";
-  const showsDraft = draftPending || form.aiDrafts.actionNotes !== null;
+  const draft = useIncidentFieldDraft(form, onChange, "actionNotes");
 
   const toggleAction = (id: string) => {
     const isChecked = form.immediateActions.includes(id);
@@ -102,44 +99,28 @@ export function ReportIncidentStepFour(
               trailingHint="Anything else responders should know?"
               value={form.actionNotes}
               onChange={(event) => {
-                const actionNotes = event.target.value;
-                // Their own words take over: a draft still sitting underneath
-                // while they type is an offer they have already answered.
-                onChange({
-                  actionNotes,
-                  ...(form.aiDrafts.actionNotes
-                    ? { aiDrafts: { ...form.aiDrafts, actionNotes: null } }
-                    : {}),
-                });
+                onChange({ actionNotes: event.target.value });
               }}
-              placeholder={
-                showsDraft
-                  ? ""
-                  : "List any additional actions, notifications, or follow-ups already underway…"
-              }
+              placeholder="List any additional actions, notifications, or follow-ups already underway…"
               rows={3}
               assistant={
-                showsDraft ? (
-                  <AiInFieldDraft
-                    draft={form.aiDrafts.actionNotes}
-                    pending={draftPending}
-                    onAccept={(text) =>
-                      onChange({
-                        actionNotes: text,
-                        aiAssistedFields: markAiAssisted(
-                          form.aiAssistedFields,
-                          "actionNotes",
-                        ),
-                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
-                      })
-                    }
-                    onDismiss={() =>
-                      onChange({
-                        aiDrafts: { ...form.aiDrafts, actionNotes: null },
-                      })
-                    }
-                  />
-                ) : undefined
+                <AiTextAssistant
+                  module="incident"
+                  value={form.actionNotes}
+                  draftPending={draft.pending}
+                  onRegenerateDraft={draft.run}
+                  onApply={(actionNotes) => {
+                    onChange({ actionNotes });
+                  }}
+                  onAssisted={() => {
+                    onChange({
+                      aiAssistedFields: markAiAssisted(
+                        form.aiAssistedFields,
+                        "actionNotes",
+                      ),
+                    });
+                  }}
+                />
               }
             />
           </div>

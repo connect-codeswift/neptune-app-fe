@@ -40,10 +40,13 @@ export function IncidentClosureStepPreventive(
   return (
     <div className="flex flex-col gap-6">
       <Text as="h2" className="text-ehs-dark-bg text5 leading-normal font-bold">
-        Preventive Measures & CAPAs
+        Preventive Measures &amp; CAPAs
       </Text>
 
-      {/* Linked CAPAs */}
+      {/* Linked CAPAs. Read-only: this list is the CAPAs raised from this incident,
+          hydrated from the per-incident CAPA query. There is no manual link control —
+          a CAPA appears here by being created against the incident, so there was
+          nothing an "attach" dialog could offer that was not already listed. */}
       <div className="flex flex-col">
         <label className="text-ehs-muted-text text8 mb-2.5 font-bold tracking-[0.5px] uppercase">
           LINKED CAPAS
@@ -55,7 +58,7 @@ export function IncidentClosureStepPreventive(
               as="p"
               className="text-ehs-muted-text text4 rounded-3.5 border-ehs-border bg-ehs-surface border border-dashed px-4 py-3.5 font-normal"
             >
-              No CAPAs are linked to this incident yet.
+              No CAPAs have been created for this incident yet.
             </Text>
           ) : null}
           {linkedCapas.map((capa) => (

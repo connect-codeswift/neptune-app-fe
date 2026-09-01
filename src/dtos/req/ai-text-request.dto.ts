@@ -1,108 +1,67 @@
 /**
- * Request bodies for the incident AI-assist endpoints.
+ * Request body for the AI writing assistant.
  *
- * All three are suggest-only: none persists anything, and POST /api/v1/incidents
- * is still the only call that saves a record. The API key never touches the
- * browser — we post the reporter's text to our own API and the backend talks to
- * the model.
+ * Suggest-only: nothing here persists anything, and each module's own create
+ * endpoint is still the only call that saves a record. The API key never
+ * touches the browser — we post the reporter's text to our own API and the
+ * backend talks to the model.
  *
  * Caller identity (userId, siteId) and the model id are deliberately absent.
  * The backend reads identity from the JWT and owns the model choice; sending
  * either from here would be ignored at best and spoofable at worst.
  */
 
-/**
- * Body for POST /api/v1/incidents/ai/proofread and POST /api/v1/incidents/ai/paraphrase.
- *
- * One type for both because the contract is identical by design — what differs
- * is behaviour, not shape. Proofread corrects spelling, grammar and punctuation
- * without restructuring; paraphrase merges run-ons, orders events
- * chronologically, lifts casual phrasing into report register and strips blame
- * language, keeping every fact and every hedge.
- */
-export type RewriteRequestDto = {
-  /** Backend rejects blank, and caps at 8000 characters. */
-  text: string;
-};
-
-/** @deprecated Use `RewriteRequestDto` — paraphrase shares the same shape. */
-export type ProofreadRequestDto = RewriteRequestDto;
-
-/**
- * Body for POST /api/v1/incidents/ai/draft-assist.
- *
- * Every field is optional, but an entirely empty request is a 400. A request
- * carrying only dropdown values and no description is explicitly supported —
- * that is what drafts the description itself.
- *
- * Send **labels, not ids**: `severity: "Serious"`, never `"serious"`, and the
- * classification answers as the displayed `"Yes"` / `"No"` rather than
- * booleans. The model reads these as prose. Blank fields are omitted rather
- * than sent as empty strings.
- */
-export type IncidentDraftRequestDto = {
-  /**
-   * The reporter's own description, when they have written one. Sending it
-   * makes the response's `description` null — the backend will not overwrite
-   * an account a human has already given.
-   */
-  description?: string;
-
-  /* What happened */
-  severity?: string;
-  site?: string;
-  location?: string;
-  /** ISO-8601 UTC. */
-  incidentAt?: string;
-  workRelated?: string;
-  fleetVehicleInvolved?: string;
-  thirdPartyInvolved?: string;
-  emergencyServicesCalled?: string;
-  seriousIncident?: string;
-
-  /* Details */
-  mechanismOfInjury?: string;
-  natureOfInjury?: string;
-  objectInvolved?: string;
-  initialTreatment?: string;
-
-  /* People & injury */
-  /** Comma-separated when several. */
-  injuredBodyPart?: string;
-  injuryLevel?: string;
-};
-
-/** Longest text the rewrite endpoints accept, mirroring the backend's [MaxLength]. */
+/** Backend caps text at this; we slice rather than let it 400. */
 export const AI_TEXT_MAX_CHARS = 8000;
 
 /**
- * Body for POST /api/v1/near-misses/ai/draft-assist.
+ * What the reporter has filled in, keyed by the label the form shows —
+ * `"Mechanism of injury"`, not `"mechanismOfInjury"`.
  *
- * Every field optional, but a request with all of them blank is a 400 — it is
- * rejected before any upstream call, so don't fire one to see what happens.
- *
- * `narrative` comes back null unless at least one contributing factor is given.
- * Padding two dropdown values into a sentence produces a restatement of what
- * the reporter just picked, dressed as an observation.
+ * The keys reach the model as prose, so they have to read as the form's own
+ * wording. Send **labels, not ids**: `"Severity": "Serious"`, never
+ * `"serious"`, and the classification answers as the displayed `"Yes"` / `"No"`
+ * rather than booleans.
  */
-export type NearMissDraftRequestDto = {
-  /** As the reporter sees it — "7 August 2026", not an ISO string. */
-  dateOfEvent?: string;
-  hazardType?: string;
-  location?: string;
-  /** Max 20. */
-  contributingFactors?: string[];
-};
+export type AiAssistFields = Record<string, string>;
 
 /**
- * Body for POST /api/v1/hazards/ai/draft-assist.
+ * Body for POST /api/v1/ai/assist — every AI call in the app.
  *
- * `narrative` comes back null unless `potentialConsequence` is given — type and
- * location alone are below the threshold.
+ * One endpoint replaced eleven (a proofread/paraphrase/draft-assist trio under
+ * incidents, hazards and near-misses, plus a rewrite pair under LOTO). They
+ * already shared one prompt file and one service on the backend; what they did
+ * not share was eleven controller actions with identical bodies.
  */
-export type HazardDraftRequestDto = {
-  hazardType?: string;
-  location?: string;
-  /** Max 500 characters. */
-  potentialConsequence?: string;
+export type AiAssistRequestDto = {
+  /**
+   * Which kind of record this is, as the backend names it — see `RECORD_KINDS`
+   * in `ai-text.service.ts`. It selects the prompt, the permission and the role
+   * set together, so it is not cosmetic.
+   */
+  recordKind: string;
+
+  operation: "proofread" | "paraphrase" | "draft";
+
+  /**
+   * The text to rewrite. On a draft this is instead the reporter's own account
+   * where the form has one, so the model can be told not to replace it: `""`
+   * says they have not written one yet, and omitting it says this record kind
+   * has no such field.
+   */
+  text?: string;
+
+  /**
+   * Draft only. Which single field to draft, when the caller wants one rather
+   * than every field this record kind produces.
+   *
+   * The incident prompt produces three. With a Draft button per textarea, a
+   * call that answered all three would pay for three drafts and use one — so
+   * the field being filled is named, and the schema narrows to it. Omit to get
+   * every key.
+   */
+  targetField?: string;
+
+  /** Draft only. Blank values are dropped before sending. */
+  fields?: AiAssistFields;
 };

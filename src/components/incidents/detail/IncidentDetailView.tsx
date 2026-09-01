@@ -532,10 +532,13 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     // Add file needs File.Upload for the upload AND Incident.Update to link
                     // the result to the record. See canUploadFiles above.
                     readOnly={!canUploadFiles}
-                    // Removable while simply viewing, not only inside the editor. Removal is
-                    // written as an incident update, so it answers to Incident.Update and is off
-                    // entirely once the incident is closed.
-                    canDelete={canUpdateIncident}
+                    // Editing only. Removal is written as an incident update, so it still
+                    // answers to Incident.Update and is off entirely once the incident is
+                    // closed — but permission alone used to be enough, which put a one-click
+                    // destructive control on a screen someone opened to read. It also
+                    // contradicted the editor's own copy: "Remove photos or documents, then
+                    // click Save."
+                    canDelete={canUpdateIncident && isEditingAttachments}
                     embedded
                   />
                   <IncidentDetailFilesTable
@@ -543,7 +546,8 @@ export function IncidentDetailView(props: Readonly<IncidentDetailViewProps>) {
                     onSelectFile={onSelectFile}
                     onDeleteFile={onDeleteFile}
                     isEditing={isEditingAttachments}
-                    canDelete={canUpdateIncident}
+                    // See the photos card above: delete is an editor action.
+                    canDelete={canUpdateIncident && isEditingAttachments}
                     embedded
                   />
                 </IncidentGlassCard>

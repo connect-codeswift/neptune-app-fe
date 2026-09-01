@@ -36,12 +36,21 @@ export function IncidentDetailResponseCard(
   } = props;
   const isInteractive = isEditing && onToggleAction !== undefined;
 
-  // Read-only, this card is a record of what was done on scene, so it lists only
-  // the actions that were actually taken. Showing all six with four unticked read
-  // as a checklist someone had failed to finish rather than as a report, and put
-  // the actions that did not happen on the same footing as the ones that did.
-  // While editing every option stays visible, ticked or not — an unticked one has
-  // to be reachable to be ticked.
+  /*
+   * Read-only, this card is a record of what was done on scene — not a
+   * checklist of what could have been.
+   *
+   * The mapper deliberately returns all six options with a `completed` flag,
+   * because editing needs the unticked ones to be reachable and the header
+   * stat counts against the full set. Rendering that list as-is here put five
+   * unticked tiles next to the one action that actually happened, which reads
+   * as five things still outstanding rather than five things that were never
+   * part of this incident.
+   *
+   * It also made the empty state unreachable: `actions` was always six long,
+   * so an incident where nothing was logged showed six blank tiles instead of
+   * saying so.
+   */
   const visibleActions = isInteractive
     ? actions
     : actions.filter((action) => action.completed);
