@@ -1,11 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  HazardDraftRequestDto,
-  NearMissDraftRequestDto,
-} from "@/dtos/req/ai-text-request.dto";
-import { useNarrativeDraftMutation } from "@/hooks/use-ai-text-mutations";
+import type { AiAssistFields } from "@/dtos/req/ai-text-request.dto";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
 import { logAiAssistFailure, type AiModule } from "@/services/ai-text.service";
 
 /**
@@ -71,13 +68,13 @@ const EMPTY_DRAFT_STATE: DraftState = {
 export function useNarrativeDraft(
   options: Readonly<{
     module: Extract<AiModule, "nearMiss" | "hazard">;
-    input: Readonly<NearMissDraftRequestDto | HazardDraftRequestDto>;
+    input: Readonly<AiAssistFields>;
     enabled: boolean;
   }>,
 ): NarrativeDraftState {
   const { module, input, enabled } = options;
 
-  const draftMutation = useNarrativeDraftMutation(module);
+  const draftMutation = useDraftMutation(module);
   const [state, setState] = useState<DraftState>(EMPTY_DRAFT_STATE);
 
   const key = JSON.stringify(input);
@@ -100,8 +97,11 @@ export function useNarrativeDraft(
       }));
 
       mutateRef
-        .current(JSON.parse(requestKey) as NearMissDraftRequestDto)
-        .then((narrative) => {
+        .current({ fields: JSON.parse(requestKey) as AiAssistFields })
+        .then((results) => {
+          // These two forms draft one field, and their prompts call it the
+          // narrative — see AiPrompts.DraftKeysFor on the backend.
+          const narrative = results.narrative ?? null;
           // Null is an answer — the answers given don't support a draft. It
           // renders as nothing at all, not as an empty slot.
           setState((prev) => ({

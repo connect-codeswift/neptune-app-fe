@@ -112,11 +112,16 @@ export function ReportHazardForm() {
     String(values.potentialConsequence ?? ""),
   );
 
+  // Keyed by the label the form shows, because the model reads the keys as
+  // prose alongside the values.
   const draftInput = useMemo(
     () => ({
-      hazardType: toLabel(HAZARD_TYPE_OPTIONS, String(values.hazardType ?? "")),
-      location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
-      potentialConsequence: consequence,
+      "Hazard type": toLabel(
+        HAZARD_TYPE_OPTIONS,
+        String(values.hazardType ?? ""),
+      ),
+      Location: toLabel(LOCATION_OPTIONS, String(values.location ?? "")),
+      "Potential consequence if not addressed": consequence,
     }),
     [values.hazardType, values.location, consequence],
   );

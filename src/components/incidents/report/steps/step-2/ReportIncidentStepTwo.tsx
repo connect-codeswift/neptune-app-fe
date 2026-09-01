@@ -1,10 +1,9 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect, useRef, useState } from "react";
-import type { IncidentDraftRequestDto } from "@/dtos/req/ai-text-request.dto";
-import { AiInFieldDraft } from "@/components/ai/AiInFieldDraft";
+import { useRef, useState } from "react";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
@@ -31,22 +30,7 @@ import {
 import { ReportSelectWithAdd } from "@/components/incidents/report/shared/ReportSelectWithAdd";
 import { ReportPhotosField } from "@/components/incidents/report/steps/step-2/ReportPhotosField";
 import { MultipleUsersPickerInput } from "@/components/inputs/MultipleUsersPickerInput";
-import {
-  buildDraftAssistInput,
-  canDraftDescription,
-  draftInputKey,
-} from "@/components/incidents/report/shared/report-ai-draft";
-import { useDraftAssistMutation } from "@/hooks/use-ai-text-mutations";
 import { useCurrentSite } from "@/hooks/use-current-site";
-import { logAiAssistFailure } from "@/services/ai-text.service";
-
-/**
- * Object Involved is the last required answer and it is typed, not picked, so
- * this is also what keeps a half-typed "Pall" from being drafted on its way to
- * "Pallet" — it waits for the typing to stop, not just for the field to be
- * non-empty.
- */
-const DRAFT_DEBOUNCE_MS = 900;
 
 export type ReportStepTwoErrors = Readonly<{
   mechanismOfInjury: string | null;
@@ -109,122 +93,7 @@ export function ReportIncidentStepTwo(
   const isFirstAid = form.severity === "first-aid";
   const isCaseClosedNoFurther =
     form.caseDisposition === CASE_CLOSED_NO_FURTHER_VALUE;
-  const draftAssist = useDraftAssistMutation();
-  // The draft owns the field's controls while it is being fetched or offered;
-  // once resolved the rewrite buttons take the slot back.
-  const showsDraft =
-    form.descriptionDraft.pending || form.descriptionDraft.text !== null;
-
-  const draftInput = buildDraftAssistInput(form);
-  const draftKey = draftInputKey(draftInput);
-  const wantsDraft =
-    canDraftDescription(form) &&
-    form.description.trim() === "" &&
-    !form.descriptionDraft.dismissed &&
-    !form.descriptionDraft.pending &&
-    !form.descriptionDraft.drafted &&
-    draftKey !== form.descriptionDraft.source;
-
-  // Read at the moment a response lands, not at the moment the call was fired.
-  // `onChange` takes a patch and cannot read the newest state, so a reporter
-  // who dismissed the ghost mid-flight used to have it reopened by the reply.
-  const dismissedRef = useRef(form.descriptionDraft.dismissed);
-  const onChangeRef = useRef(onChange);
-  useEffect(() => {
-    dismissedRef.current = form.descriptionDraft.dismissed;
-    onChangeRef.current = onChange;
-  });
-
-  /** Fires the call and writes whatever comes back into `descriptionDraft`. */
-  const runDraft = (requestKey: string, request: IncidentDraftRequestDto) => {
-    onChangeRef.current({
-      descriptionDraft: {
-        text: null,
-        pending: true,
-        source: requestKey,
-        dismissed: false,
-        drafted: form.descriptionDraft.drafted,
-      },
-    });
-
-    draftAssist
-      .mutateAsync(request)
-      .then((drafts) => {
-        // A null description is an answer, not a failure — it means the
-        // reporter already wrote one, so there is nothing to offer.
-        onChangeRef.current({
-          descriptionDraft: {
-            text: dismissedRef.current ? null : drafts.description,
-            pending: false,
-            source: requestKey,
-            dismissed: dismissedRef.current,
-            drafted: true,
-          },
-        });
-      })
-      .catch((error: unknown) => {
-        // Additive feature: no ghost text, no toast, field behaves exactly as
-        // it does without the assistant. Also the path taken wherever
-        // `Ai__ApiKey` is unset and the endpoint is inert.
-        logAiAssistFailure("draft-assist", error);
-        // `drafted` is set on failure too: the call still spent a slot out of
-        // the 20-per-minute budget, and retrying it on the reporter's next
-        // answer would spend the rest of them the same way.
-        onChangeRef.current({
-          descriptionDraft: {
-            text: null,
-            pending: false,
-            source: requestKey,
-            dismissed: dismissedRef.current,
-            drafted: true,
-          },
-        });
-      });
-  };
-
-  // Only once the automatic pass has run — before that the draft is still
-  // coming on its own — and never over words the reporter has written.
-  const canRegenerateDraft =
-    form.descriptionDraft.drafted &&
-    !form.descriptionDraft.pending &&
-    form.description.trim() === "" &&
-    canDraftDescription(form);
-
-  const regenerateDraft = () => {
-    runDraft(draftKey, draftInput);
-  };
-
-  /**
-   * Drafts the description once the answers above it are substantial enough to
-   * be worth summarising.
-   *
-   * Debounced because those answers arrive one dropdown at a time, and every
-   * intermediate state would otherwise cost a call out of the 20-per-minute
-   * budget shared with both rewrite buttons. Keyed on the request itself, so
-   * re-picking the same option costs nothing.
-   *
-   * Runs once. The debounce only ever coalesced changes made inside its
-   * window, so a reporter who paused to think between two answers bought a
-   * draft for each of them. `drafted` closes that: afterwards the ghost stays
-   * put and `regenerateDraft` is the reporter's to press.
-   */
-  useEffect(() => {
-    if (!wantsDraft) {
-      return;
-    }
-
-    const timer = globalThis.setTimeout(() => {
-      runDraft(draftKey, draftInput);
-    }, DRAFT_DEBOUNCE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timer);
-    };
-    // `onChange` and the mutation are deliberately excluded: both change
-    // identity every render, and including them would restart the debounce on
-    // each keystroke behind the field.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wantsDraft, draftKey]);
+  const draft = useIncidentFieldDraft(form, onChange, "description");
 
   /** Appends a reporter-typed option to one of the extendable dropdowns. */
   const addCustomOption = (field: CustomOptionField, option: string) => {
@@ -471,80 +340,27 @@ export function ReportIncidentStepTwo(
             trailingHint="Events before, during & after."
             value={form.description}
             onChange={(event) => {
-              const description = event.target.value;
-              // Their own words take over: a draft still sitting underneath
-              // while they type is an offer they have already answered.
-              onChange({
-                description,
-                ...(form.descriptionDraft.text || form.descriptionDraft.pending
-                  ? {
-                      descriptionDraft: {
-                        ...form.descriptionDraft,
-                        text: null,
-                        pending: false,
-                        dismissed: true,
-                      },
-                    }
-                  : {}),
-              });
+              onChange({ description: event.target.value });
             }}
-            // Suppressed while a draft occupies the field — the browser would
-            // otherwise paint the placeholder underneath the ghost text.
-            placeholder={showsDraft ? "" : "Describe what happened…"}
+            placeholder="Describe what happened…"
             assistant={
-              showsDraft ? (
-                <AiInFieldDraft
-                  draft={form.descriptionDraft.text}
-                  pending={form.descriptionDraft.pending}
-                  onRegenerate={
-                    canRegenerateDraft ? regenerateDraft : undefined
-                  }
-                  onAccept={(text) =>
-                    onChange({
-                      description: text,
-                      aiAssistedFields: markAiAssisted(
-                        form.aiAssistedFields,
-                        "description",
-                      ),
-                      descriptionDraft: {
-                        ...form.descriptionDraft,
-                        text: null,
-                        dismissed: true,
-                      },
-                    })
-                  }
-                  onDismiss={() =>
-                    onChange({
-                      descriptionDraft: {
-                        ...form.descriptionDraft,
-                        text: null,
-                        dismissed: true,
-                      },
-                    })
-                  }
-                />
-              ) : (
-                // The proofread button needs text to work on, so it only takes
-                // the slot back once the draft has been resolved either way.
-                <AiTextAssistant
-                  module="incident"
-                  value={form.description}
-                  onRegenerateDraft={
-                    canRegenerateDraft ? regenerateDraft : undefined
-                  }
-                  onApply={(description) => {
-                    onChange({ description });
-                  }}
-                  onAssisted={() => {
-                    onChange({
-                      aiAssistedFields: markAiAssisted(
-                        form.aiAssistedFields,
-                        "description",
-                      ),
-                    });
-                  }}
-                />
-              )
+              <AiTextAssistant
+                module="incident"
+                value={form.description}
+                draftPending={draft.pending}
+                onRegenerateDraft={draft.run}
+                onApply={(description) => {
+                  onChange({ description });
+                }}
+                onAssisted={() => {
+                  onChange({
+                    aiAssistedFields: markAiAssisted(
+                      form.aiAssistedFields,
+                      "description",
+                    ),
+                  });
+                }}
+              />
             }
           />
 
