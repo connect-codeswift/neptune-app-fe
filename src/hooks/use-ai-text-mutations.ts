@@ -21,8 +21,12 @@ import {
 export function useRewriteMutation(module: AiModule) {
   return useMutation({
     mutationFn: (
-      input: Readonly<{ operation: RewriteOperation; text: string }>,
-    ) => rewriteText(module, input.operation, input.text),
+      input: Readonly<{
+        operation: RewriteOperation;
+        text: string;
+        contextFields?: AiAssistFields;
+      }>,
+    ) => rewriteText(module, input.operation, input.text, input.contextFields),
   });
 }
 

@@ -207,12 +207,31 @@ export async function rewriteText(
   module: AiModule,
   operation: RewriteOperation,
   text: string,
+  contextFields?: Readonly<AiAssistFields>,
 ): Promise<string> {
   const body: AiAssistRequestDto = {
     recordKind: RECORD_KINDS[module],
     operation,
     text: text.slice(0, AI_TEXT_MAX_CHARS),
   };
+
+  // The answers from the rest of the form. Without them a rewrite reads one
+  // textarea in isolation: it cannot tell which "press" is meant, and it spells
+  // a location differently from the field directly above it. The backend uses
+  // them to read the text, never to fold their content into it.
+  if (contextFields) {
+    const present: AiAssistFields = {};
+
+    for (const [label, value] of Object.entries(contextFields)) {
+      if (value.trim()) {
+        present[label] = value.trim();
+      }
+    }
+
+    if (Object.keys(present).length > 0) {
+      body.fields = present;
+    }
+  }
 
   try {
     const { data } = await http.post<unknown>(AI_ASSIST_PATH, body, {

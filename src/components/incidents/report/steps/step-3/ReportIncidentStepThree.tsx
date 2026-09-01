@@ -6,6 +6,7 @@ import { Text } from "@/components/Text";
 import { IncidentGlassCard } from "@/components/incidents/shared/IncidentGlassCard";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
 import { useIncidentFieldDraft } from "@/components/incidents/report/shared/use-incident-draft";
+import { buildDraftAssistInput } from "@/components/incidents/report/shared/report-ai-draft";
 import {
   markAiAssisted,
   type ReportIncidentFormState,
@@ -89,6 +90,7 @@ export function ReportIncidentStepThree(
               assistant={
                 <AiTextAssistant
                   module="incident"
+                  contextFields={buildDraftAssistInput(form)}
                   value={form.injuryDescription}
                   draftPending={draft.pending}
                   onRegenerateDraft={draft.run}
