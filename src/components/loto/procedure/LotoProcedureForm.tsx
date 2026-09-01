@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/ui/Button";
 import { AiTextAssistant } from "@/components/ai/AiTextAssistant";
+import { useDraftMutation } from "@/hooks/use-ai-text-mutations";
+import { logAiAssistFailure } from "@/services/ai-text.service";
+import { toast } from "@/lib/toast";
 import {
   FormBuilder,
   type FormSchema,
@@ -178,6 +182,57 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
     Location: preview.location,
     "Hazard level": preview.hazardLevel,
   };
+
+  // Draft, on the equipment description only.
+  //
+  // The name is the whole input: "Conveyor Belt Motor" already says what the
+  // machine is, and the prompt describes that class of equipment in general
+  // terms. It is explicitly barred from inventing anything specific to this one
+  // — no voltage, capacity or energy sources — because someone isolates a
+  // machine from this record. The other two boxes get no draft: a verification
+  // method and the notes are knowledge of this machine, and there is nothing on
+  // the form to compose them from.
+  const [descriptionDraftPending, setDescriptionDraftPending] = useState(false);
+  const draftMutation = useDraftMutation("loto");
+
+  const runDescriptionDraft = (apply: (next: string) => void) => {
+    if (preview.equipmentName.trim() === "") {
+      toast.info(
+        "Name the equipment first",
+        "The description is drafted from the equipment name.",
+      );
+      return;
+    }
+
+    setDescriptionDraftPending(true);
+    draftMutation
+      .mutateAsync({ fields: assistContext })
+      .then((results) => {
+        const narrative = results.narrative ?? null;
+
+        // Null is an answer: the name is too generic to describe. "Machine 3"
+        // can only be rearranged, not described.
+        if (narrative === null) {
+          toast.info(
+            "Nothing to draft yet",
+            "The equipment name is too general to describe. Name the equipment and try again.",
+          );
+          return;
+        }
+
+        apply(narrative);
+      })
+      .catch((error: unknown) => {
+        logAiAssistFailure("loto-draft", error);
+        toast.error(
+          "Couldn't draft a description",
+          "Your text is unchanged. Try again in a moment.",
+        );
+      })
+      .finally(() => {
+        setDescriptionDraftPending(false);
+      });
+  };
   const equipmentSchema = makeLotoEquipmentSchema(
     <LotoLocationSearchField
       value={location}
@@ -192,6 +247,8 @@ export function LotoProcedureForm(props: Readonly<LotoProcedureFormProps>) {
         value={control.value}
         onApply={control.onChange}
         contextFields={assistContext}
+        draftPending={descriptionDraftPending}
+        onRegenerateDraft={() => runDescriptionDraft(control.onChange)}
       />
     ),
   );
